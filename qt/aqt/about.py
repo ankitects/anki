@@ -79,6 +79,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Aristotelis P.",
             "Bernhard Ibertsberger",
             "C. van Rooyen",
+            "Cenaris Mori",
             "Charlene Barina",
             "Christian Krause",
             "Christian Rusche",

@@ -2,10 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
-import type { PanZoom } from "panzoom";
 import { get } from "svelte/store";
 
-import { opacityStateStore, zoomResetValue, zoomResetX } from "../store";
+import { opacityStateStore } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
@@ -27,6 +26,9 @@ export const enableSelectable = (
 ): void => {
     canvas.selection = select;
     canvas.forEachObject(function(o) {
+        if (o.fill === "transparent") {
+            return;
+        }
         o.selectable = select;
     });
     canvas.renderAll();
@@ -41,6 +43,7 @@ export const deleteItem = (canvas: fabric.Canvas): void => {
             canvas.discardActiveObject().renderAll();
         }
     }
+    redraw(canvas);
 };
 
 export const duplicateItem = (canvas: fabric.Canvas): void => {
@@ -90,38 +93,6 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     });
 
     redraw(canvas);
-};
-
-export const zoomIn = (instance: PanZoom): void => {
-    const center = getCanvasCenter();
-    instance.smoothZoom(center.x, center.y, 1.25);
-};
-
-export const zoomOut = (instance: PanZoom): void => {
-    const center = getCanvasCenter();
-    instance.smoothZoom(center.x, center.y, 0.8);
-};
-
-export const zoomReset = (instance: PanZoom): void => {
-    setCenterXForZoom(globalThis.canvas);
-    instance.moveTo(get(zoomResetX), 0);
-    instance.smoothZoomAbs(get(zoomResetX), 0, get(zoomResetValue));
-};
-
-export const getCanvasCenter = () => {
-    const canvas = globalThis.canvas.getElement();
-    const rect = canvas.getBoundingClientRect();
-    const centerX = rect.x + rect.width / 2;
-    const centerY = rect.y + rect.height / 2;
-    return { x: centerX, y: centerY };
-};
-
-export const setCenterXForZoom = (canvas: fabric.Canvas) => {
-    const editor = document.querySelector(".editor-main")!;
-    const editorWidth = editor.clientWidth;
-    const canvasWidth = canvas.getElement().offsetWidth;
-    const centerX = editorWidth / 2 - canvasWidth / 2;
-    zoomResetX.set(centerX);
 };
 
 const copyItem = (canvas: fabric.Canvas): void => {
@@ -184,26 +155,26 @@ export const makeMaskTransparent = (
     canvas.renderAll();
 };
 
-export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas): void => {
+export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas, boundingBox: fabric.Rect): void => {
     canvas.on("object:modified", function(o) {
         const activeObject = o.target;
         if (!activeObject) {
             return;
         }
         if (activeObject.type === "rect") {
-            modifiedRectangle(canvas, activeObject);
+            modifiedRectangle(boundingBox, activeObject);
         }
         if (activeObject.type === "ellipse") {
-            modifiedEllipse(canvas, activeObject);
+            modifiedEllipse(boundingBox, activeObject);
         }
         if (activeObject.type === "i-text") {
-            modifiedText(canvas, activeObject);
+            modifiedText(boundingBox, activeObject);
         }
     });
 };
 
 const modifiedRectangle = (
-    canvas: fabric.Canvas,
+    boundingBox: fabric.Rect,
     object: fabric.Object,
 ): void => {
     const newWidth = object.width * object.scaleX;
@@ -215,11 +186,11 @@ const modifiedRectangle = (
         scaleX: 1,
         scaleY: 1,
     });
-    setShapePosition(canvas, object);
+    setShapePosition(boundingBox, object);
 };
 
 const modifiedEllipse = (
-    canvas: fabric.Canvas,
+    boundingBox: fabric.Rect,
     object: fabric.Object,
 ): void => {
     const newRx = object.rx * object.scaleX;
@@ -235,15 +206,15 @@ const modifiedEllipse = (
         scaleX: 1,
         scaleY: 1,
     });
-    setShapePosition(canvas, object);
+    setShapePosition(boundingBox, object);
 };
 
-const modifiedText = (canvas: fabric.Canvas, object: fabric.Object): void => {
-    setShapePosition(canvas, object);
+const modifiedText = (boundingBox: fabric.Rect, object: fabric.Object): void => {
+    setShapePosition(boundingBox, object);
 };
 
 const setShapePosition = (
-    canvas: fabric.Canvas,
+    boundingBox: fabric.Rect,
     object: fabric.Object,
 ): void => {
     if (object.left < 0) {
@@ -252,11 +223,11 @@ const setShapePosition = (
     if (object.top < 0) {
         object.set({ top: 0 });
     }
-    if (object.left + object.width * object.scaleX + object.strokeWidth > canvas.width) {
-        object.set({ left: canvas.width - object.width * object.scaleX });
+    if (object.left + object.width * object.scaleX + object.strokeWidth > boundingBox.width) {
+        object.set({ left: boundingBox.width - object.width * object.scaleX });
     }
-    if (object.top + object.height * object.scaleY + object.strokeWidth > canvas.height) {
-        object.set({ top: canvas.height - object.height * object.scaleY });
+    if (object.top + object.height * object.scaleY + object.strokeWidth > boundingBox.height) {
+        object.set({ top: boundingBox.height - object.height * object.scaleY });
     }
     object.setCoords();
 };
@@ -287,33 +258,25 @@ export const clear = (canvas: fabric.Canvas): void => {
     canvas.clear();
 };
 
-export const makeShapeRemainInCanvas = (canvas: fabric.Canvas) => {
+export const makeShapeRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fabric.Rect) => {
     canvas.on("object:moving", function(e) {
         const obj = e.target;
-        if (obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width) {
+        if (obj.getScaledHeight() > boundingBox.height || obj.getScaledWidth() > boundingBox.width) {
             return;
         }
 
         obj.setCoords();
 
-        if (obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0) {
-            obj.top = Math.max(obj.top, obj.top - obj.getBoundingRect().top);
-            obj.left = Math.max(obj.left, obj.left - obj.getBoundingRect().left);
-        }
+        const top = obj.top;
+        const left = obj.left;
 
-        if (
-            obj.getBoundingRect().top + obj.getBoundingRect().height > obj.canvas.height
-            || obj.getBoundingRect().left + obj.getBoundingRect().width > obj.canvas.width
-        ) {
-            obj.top = Math.min(
-                obj.top,
-                obj.canvas.height - obj.getBoundingRect().height + obj.top - obj.getBoundingRect().top,
-            );
-            obj.left = Math.min(
-                obj.left,
-                obj.canvas.width - obj.getBoundingRect().width + obj.left - obj.getBoundingRect().left,
-            );
-        }
+        const topBound = boundingBox.top;
+        const bottomBound = topBound + boundingBox.height;
+        const leftBound = boundingBox.left;
+        const rightBound = leftBound + boundingBox.width;
+
+        obj.left = Math.min(Math.max(left, leftBound), rightBound - obj.width);
+        obj.top = Math.min(Math.max(top, topBound), bottomBound - obj.height);
     });
 };
 
@@ -324,4 +287,22 @@ export const selectAllShapes = (canvas: fabric.Canvas) => {
     });
     canvas.setActiveObject(sel);
     redraw(canvas);
+};
+
+export const isPointerInBoundingBox = (pointer): boolean => {
+    const boundingBox = getBoundingBox();
+    if (
+        pointer.x < boundingBox.left
+        || pointer.x > boundingBox.left + boundingBox.width
+        || pointer.y < boundingBox.top
+        || pointer.y > boundingBox.top + boundingBox.height
+    ) {
+        return false;
+    }
+    return true;
+};
+
+export const getBoundingBox = () => {
+    const canvas = globalThis.canvas;
+    return canvas.getObjects().find((obj) => obj.fill === "transparent");
 };

@@ -58,7 +58,8 @@ importing-with-deck-configs = Import any deck presets
 importing-updates = Updates
 importing-include-reviews-help =
     If enabled, any previous reviews that the deck sharer included will also be imported.
-    Otherwise, all cards will be imported as new cards.
+    Otherwise, all cards will be imported as new cards, and any "leech" or "marked"
+    tags will be removed.
 importing-with-deck-configs-help =
     If enabled, any deck options that the deck sharer included will also be imported.
     Otherwise, all decks will be assigned the default preset.

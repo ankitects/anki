@@ -63,7 +63,7 @@
         "lodash-es": "^4.17.21",
         "marked": "^5.1.0",
         "mathjax": "^3.1.2",
-        "panzoom": "^9.4.3"
+        "hammerjs": "^2.0.8"
     },
     "resolutions": {
         "canvas": "npm:empty-npm-package"
