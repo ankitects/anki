@@ -247,7 +247,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (!retention) {
             return "";
         }
-        return tr.deckConfigEstimatedRetention({ num: retention.toFixed(2) });
+        return tr.deckConfigPredictedOptimalRetention({ num: retention.toFixed(2) });
     }
 </script>
 
@@ -369,6 +369,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         {#if optimalRetention}
             {estimatedRetention(optimalRetention)}
+            {#if optimalRetention > $config.desiredRetention}
+                <Warning
+                    warning="Your desired retention is below optimal. Increasing it is recommended."
+                    className="alert-warning"
+                />
+            {/if}
         {/if}
         <div>{computeRetentionProgressString}</div>
     </details>
