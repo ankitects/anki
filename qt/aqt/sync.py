@@ -161,6 +161,7 @@ def full_sync(
             callback=callback,
             buttons=button_labels,
             default_button=2,
+            parent=mw,
         )
 
 
