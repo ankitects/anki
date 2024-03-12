@@ -132,6 +132,7 @@ class RustBackend(RustBackendGenerated):
             )
             for k, v in kwargs.items()
         }
+
         return self.translate_string(
             module_index=module_index, message_index=message_index, args=args
         )

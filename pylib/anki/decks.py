@@ -33,7 +33,7 @@ DeckConfigDict = dict[str, Any]
 
 DeckId = NewType("DeckId", int)
 DeckConfigId = NewType("DeckConfigId", int)
-DeckName = NewType("DeckName", str)
+
 DEFAULT_DECK_ID = DeckId(1)
 DEFAULT_DECK_CONF_ID = DeckConfigId(1)
 

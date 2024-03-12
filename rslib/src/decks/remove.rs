@@ -13,6 +13,7 @@ impl Collection {
 
                     // top level
                     card_count += col.remove_single_deck(&deck, usn)?;
+
                     // remove children
                     for deck in child_decks {
                         card_count += col.remove_single_deck(&deck, usn)?;

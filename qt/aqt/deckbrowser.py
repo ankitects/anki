@@ -11,7 +11,7 @@ from typing import Any
 import aqt
 import aqt.operations
 from anki.collection import Collection, OpChanges
-from anki.decks import DeckCollapseScope, DeckId, DeckName, DeckTreeNode
+from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
@@ -360,7 +360,7 @@ class DeckBrowser:
             self._render_data.tree, did
         ).name
         remove_decks(
-            parent=self.mw, deck_ids=[did], deck_name=DeckName(deck_name)
+            parent=self.mw, deck_ids=[did], deck_name=deck_name
         ).run_in_background()
 
     # Top buttons
