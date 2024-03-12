@@ -208,6 +208,7 @@ def ask_user_dialog(
         | None
     ) = None,
     default_button: int = 1,
+    parent: QWidget | None = None,
     **kwargs: Any,
 ) -> MessageBox:
     "Shows a question to the user, passes the index of the button clicked to the callback."
@@ -219,6 +220,7 @@ def ask_user_dialog(
         icon=QMessageBox.Icon.Question,
         buttons=buttons,
         default_button=default_button,
+        parent=parent,
         **kwargs,
     )
 
