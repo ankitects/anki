@@ -414,7 +414,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
     driver_failed = False
 
     # work around pyqt loading wrong GL library
-    if is_lin:
+    if is_lin and not sys.platform.startswith("freebsd"):
         import ctypes
 
         ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
