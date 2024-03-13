@@ -20,6 +20,11 @@ browsing-cards-deleted =
         [one] { $count } card deleted.
        *[other] { $count } cards deleted.
     }
+browsing-cards-deleted-with-deckname =
+    { $count ->
+        [one] { $count } card deleted from {$deck_name}.
+       *[other] { $count } cards deleted from {$deck_name}.
+    }
 browsing-change-deck = Change Deck
 browsing-change-deck2 = Change Deck...
 browsing-change-note-type = Change Note Type
