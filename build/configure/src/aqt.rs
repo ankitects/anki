@@ -15,6 +15,7 @@ use ninja_gen::node::TypescriptCheck;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonTest;
 use ninja_gen::Build;
+use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Utf8Path;
 use ninja_gen::Utf8PathBuf;
 
@@ -114,7 +115,20 @@ fn build_data_folder(build: &mut Build) -> Result<()> {
     build_js(build)?;
     build_pages(build)?;
     build_icons(build)?;
+    copy_sveltekit(build)?;
     Ok(())
+}
+
+fn copy_sveltekit(build: &mut Build) -> Result<()> {
+    build.add_action(
+        "qt:aqt:data:web:sveltekit",
+        RsyncFiles {
+            inputs: inputs![":sveltekit:folder"],
+            target_folder: "qt/_aqt/data/web/",
+            strip_prefix: "$builddir/",
+            extra_args: "-a",
+        },
+    )
 }
 
 fn build_css(build: &mut Build) -> Result<()> {

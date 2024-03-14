@@ -69,11 +69,7 @@ pub fn run_build(args: BuildArgs) {
         // commands will not show colors by default, as we do not provide a tty
         .env("FORCE_COLOR", "1")
         .env("MYPY_FORCE_COLOR", "1")
-        .env("TERM", std::env::var("TERM").unwrap_or_default())
-        // Prevents 'Warn: You must provide the URL of lib/mappings.wasm'.
-        // Updating svelte-check or its deps will likely remove the need for it.
-        .env("NODE_OPTIONS", "--no-experimental-fetch");
-
+        .env("TERM", std::env::var("TERM").unwrap_or_default());
     if env::var("NINJA_STATUS").is_err() {
         command.env("NINJA_STATUS", "[%f/%t; %r active; %es] ");
     }

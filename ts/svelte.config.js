@@ -13,7 +13,7 @@ const config = {
 
     kit: {
         adapter: adapter(
-            { pages: "ts-out", fallback: "index.html", precompress: false },
+            { pages: "../out/sveltekit", fallback: "index.html", precompress: false },
         ),
         alias: {
             "@tslib": join(tsFolder, "lib/tslib"),

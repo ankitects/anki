@@ -440,3 +440,24 @@ impl BuildAction for CompileTypescript<'_> {
         build.add_outputs("", output_files);
     }
 }
+
+/// The output_folder will be declared as a build output, but each file inside
+/// it is not declared, as the files will vary.
+pub struct SveltekitBuild {
+    pub output_folder: BuildInput,
+    pub deps: BuildInput,
+}
+
+impl BuildAction for SveltekitBuild {
+    fn command(&self) -> &str {
+        "./yarn build"
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("node_modules", inputs![":node_modules"]);
+        build.add_inputs("", &self.deps);
+        build.add_inputs("", inputs!["yarn.lock"]);
+        build.add_output_stamp("sveltekit.marker");
+        build.add_outputs_ext("folder", vec!["sveltekit"], true);
+    }
+}
