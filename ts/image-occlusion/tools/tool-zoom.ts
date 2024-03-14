@@ -174,37 +174,6 @@ export const onWheelDrag = (canvas: fabric.Canvas, event: WheelEvent) => {
     redraw(canvas);
 };
 
-// for mac trackpad
-export const onGesture = (event) => {
-    event.preventDefault();
-
-    const canvas = globalThis.canvas;
-    const vpt = canvas.viewportTransform;
-
-    if (event.type === "gesturestart") {
-        canvas.lastPosX = event.screenX;
-        canvas.lastPosY = event.screenY;
-    }
-
-    if (event.type === "gesturechange") {
-        vpt[4] -= event.screenX;
-        vpt[5] -= event.screenY;
-
-        canvas.lastPosX -= event.screenX;
-        canvas.lastPosY -= event.screenY;
-
-        currentScale = Math.min(Math.max(minScale, event.scale * zoomScale), maxScale);
-        canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, currentScale);
-        constrainBoundsAroundBgImage(canvas);
-        redraw(canvas);
-    }
-
-    zoomScale = currentScale;
-    canvas.setViewportTransform(canvas.viewportTransform);
-    constrainBoundsAroundBgImage(canvas);
-    redraw(canvas);
-};
-
 const onMouseUp = () => {
     isDragging = false;
     const canvas = globalThis.canvas;
