@@ -4,6 +4,7 @@
 // https://codepen.io/amsunny/pen/XWGLxye
 // canvas.viewportTransform = [ scaleX, skewX, skewY, scaleY, translateX, translateY ]
 
+import { isDesktop } from "@tslib/platform";
 import type { fabric } from "fabric";
 import Hammer from "hammerjs";
 
@@ -231,7 +232,7 @@ export const constrainBoundsAroundBgImage = (canvas: fabric.Canvas) => {
 export const setCanvasSize = (canvas: fabric.Canvas) => {
     const width = window.innerWidth - 39;
     let height = window.innerHeight;
-    height = isMobile() ? height - 46 : height - 76;
+    height = isDesktop() ? height - 76 : height - 46;
     canvas.setHeight(height);
     canvas.setWidth(width);
     redraw(canvas);
@@ -263,11 +264,6 @@ const getScaleRatio = (boundingBox: fabric.Rect) => {
     const w1 = boundingBox.width;
     const w2 = innerWidth - 42;
     let h2 = window.innerHeight;
-    h2 = isMobile() ? h2 - 48 : h2 - 79;
+    h2 = isDesktop() ? h2 - 79 : h2 - 48;
     return Math.min(w2 / w1, h2 / h1);
-};
-
-const isMobile = () => {
-    // mobile class is added to IO Page, so we can use it to check if the page is being viewed on a mobile device
-    return document.querySelector(".mobile") ? true : false;
 };
