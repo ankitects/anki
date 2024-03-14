@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { drawCursor } from "./tools/tool-cursor";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
-    import { disableZoom, enableZoom, onDragX, onDragY } from "./tools/tool-zoom";
+    import { disableZoom, enableZoom, onGesture, onWheelDrag } from "./tools/tool-zoom";
 
     export let canvas;
     export let iconSize;
@@ -50,9 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     // handle zoom event when mouse scroll and ctrl key are hold for panzoom
-    let ctrlClicked = false;
-    let altClicked = false;
-    let shiftClicked = false;
+    let clicked = false;
     let dbclicked = false;
     let move = false;
     let wheel = false;
@@ -60,12 +58,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => {
         window.addEventListener("mousedown", (event) => {
             if (event.ctrlKey) {
-                ctrlClicked = true;
+                clicked = true;
             }
         });
         window.addEventListener("mouseup", (event) => {
             if (event.ctrlKey) {
-                ctrlClicked = false;
+                clicked = false;
             }
         });
         window.addEventListener("mousemove", (event) => {
@@ -77,12 +75,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             if (event.ctrlKey) {
                 wheel = true;
             }
-            if (event.altKey) {
-                wheel = true;
-            }
-            if (event.shiftKey) {
-                wheel = true;
-            }
         });
         window.addEventListener("dblclick", (event) => {
             if (event.ctrlKey) {
@@ -90,49 +82,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         });
         window.addEventListener("keyup", () => {
-            ctrlClicked = false;
-            altClicked = false;
-            shiftClicked = false;
+            clicked = false;
             move = false;
             wheel = false;
             dbclicked = false;
         });
         window.addEventListener("keydown", (event) => {
-            if (event.key == "Control" && activeTool != "magnify") {
+            if (event.key == "Control") {
                 stopDraw(canvas);
                 enableZoom(canvas);
-            }
-            if (event.key == "Alt") {
-                altClicked = true;
-            }
-            if (event.key == "Shift") {
-                shiftClicked = true;
             }
         });
         window.addEventListener("keyup", (event) => {
-            if (event.key == "Control" && activeTool != "magnify") {
+            if (event.key == "Control") {
                 disableFunctions();
                 handleToolChanges(activeTool);
             }
-            if (event.key == "Alt") {
-                altClicked = false;
-            }
-            if (event.key == "Shift") {
-                shiftClicked = false;
-            }
         });
         window.addEventListener("wheel", (event) => {
-            if (ctrlClicked && move && wheel && !dbclicked) {
+            if (clicked && move && wheel && !dbclicked) {
                 stopDraw(canvas);
                 enableZoom(canvas);
             }
-            if (altClicked && wheel) {
-                onDragX(canvas, event);
-            }
-            if (shiftClicked && wheel) {
-                onDragY(canvas, event);
-            }
+            onWheelDrag(canvas, event);
         });
+
+        window.addEventListener("gesturestart", onGesture);
+        window.addEventListener("gesturechange", onGesture);
+        window.addEventListener("gestureend", onGesture);
     });
 
     const handleToolChanges = (activeTool: string) => {
@@ -144,10 +121,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         switch (activeTool) {
             case "cursor":
                 drawCursor(canvas);
-                break;
-            case "magnify":
-                enableZoom(canvas);
-                enableSelectable(canvas, false);
                 break;
             case "draw-rectangle":
                 drawRectangle(canvas);

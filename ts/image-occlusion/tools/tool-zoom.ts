@@ -156,26 +156,50 @@ const onDrag = (canvas, opt) => {
     redraw(canvas);
 };
 
-export const onDragX = (canvas: fabric.Canvas, opt: WheelEvent) => {
-    const delta = opt.deltaX;
+export const onWheelDrag = (canvas: fabric.Canvas, event: WheelEvent) => {
+    const deltaX = event.deltaX;
+    const deltaY = event.deltaY;
     const vpt = canvas.viewportTransform;
-    canvas.lastPosX = opt.clientX;
+    canvas.lastPosX = event.clientX;
+    canvas.lastPosY = event.clientY;
 
-    vpt[4] -= delta;
-    canvas.lastPosX -= delta;
+    vpt[4] -= deltaX;
+    vpt[5] -= deltaY;
+
+    canvas.lastPosX -= deltaX;
+    canvas.lastPosY -= deltaY;
     canvas.setViewportTransform(vpt);
     constrainBoundsAroundBgImage(canvas);
     redraw(canvas);
 };
 
-export const onDragY = (canvas: fabric.Canvas, opt: WheelEvent) => {
-    const delta = opt.deltaY;
-    const vpt = canvas.viewportTransform;
-    canvas.lastPosY = opt.clientY;
+// for mac trackpad
+export const onGesture = (event) => {
+    event.preventDefault();
 
-    vpt[5] -= delta;
-    canvas.lastPosY -= delta;
-    canvas.setViewportTransform(vpt);
+    const canvas = globalThis.canvas;
+    const vpt = canvas.viewportTransform;
+
+    if (event.type === "gesturestart") {
+        canvas.lastPosX = event.screenX;
+        canvas.lastPosY = event.screenY;
+    }
+
+    if (event.type === "gesturechange") {
+        vpt[4] -= event.screenX;
+        vpt[5] -= event.screenY;
+
+        canvas.lastPosX -= event.screenX;
+        canvas.lastPosY -= event.screenY;
+
+        currentScale = Math.min(Math.max(minScale, event.scale * zoomScale), maxScale);
+        canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, currentScale);
+        constrainBoundsAroundBgImage(canvas);
+        redraw(canvas);
+    }
+
+    zoomScale = currentScale;
+    canvas.setViewportTransform(canvas.viewportTransform);
     constrainBoundsAroundBgImage(canvas);
     redraw(canvas);
 };
