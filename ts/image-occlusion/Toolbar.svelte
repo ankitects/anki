@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { directionKey } from "@tslib/context-keys";
     import * as tr from "@tslib/ftl";
+    import { isApplePlatform } from "@tslib/platform";
     import { getPlatformString } from "@tslib/shortcuts";
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
@@ -54,47 +55,50 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let dbclicked = false;
     let move = false;
     let wheel = false;
+    const controlKey = isApplePlatform() ? "Shift" : "Control";
 
     onMount(() => {
         window.addEventListener("mousedown", (event) => {
-            if (event.shiftKey) {
+            if (event.ctrlKey) {
                 clicked = true;
             }
         });
         window.addEventListener("mouseup", (event) => {
-            if (event.shiftKey) {
+            if (event.ctrlKey) {
                 clicked = false;
             }
         });
         window.addEventListener("mousemove", (event) => {
-            if (event.shiftKey) {
+            if (event.ctrlKey) {
                 move = true;
             }
         });
         window.addEventListener("wheel", (event) => {
-            if (event.shiftKey) {
+            if (event.ctrlKey) {
                 wheel = true;
             }
         });
         window.addEventListener("dblclick", (event) => {
-            if (event.shiftKey) {
+            if (event.ctrlKey) {
                 dbclicked = true;
             }
         });
-        window.addEventListener("keyup", () => {
-            clicked = false;
-            move = false;
-            wheel = false;
-            dbclicked = false;
+        window.addEventListener("keyup", (event) => {
+            if (event.key === controlKey) {
+                clicked = false;
+                move = false;
+                wheel = false;
+                dbclicked = false;
+            }
         });
         window.addEventListener("keydown", (event) => {
-            if (event.key == "Shift") {
+            if (event.key === controlKey) {
                 stopDraw(canvas);
                 enableZoom(canvas);
             }
         });
         window.addEventListener("keyup", (event) => {
-            if (event.key == "Shift") {
+            if (event.key === controlKey) {
                 disableFunctions();
                 handleToolChanges(activeTool);
             }
