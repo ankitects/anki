@@ -13,11 +13,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownDivider from "$lib/components/DropdownDivider.svelte";
     import DropdownItem from "$lib/components/DropdownItem.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+    import { chevronDown } from "$lib/components/icons";
     import LabelButton from "$lib/components/LabelButton.svelte";
     import Popover from "$lib/components/Popover.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
-    import { chevronDown } from "$lib/components/icons";
+
     import type { DeckOptionsState } from "./lib";
 
     const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";

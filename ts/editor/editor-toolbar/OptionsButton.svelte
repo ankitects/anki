@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "$lib/components/IconButton.svelte";
     import Popover from "$lib/components/Popover.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
+
     import { mathjaxConfig } from "../../editable/mathjax-element";
     import { shrinkImagesByDefault } from "../image-overlay/ImageOverlay.svelte";
     import { closeHTMLTags } from "../plain-text-input/PlainTextInput.svelte";

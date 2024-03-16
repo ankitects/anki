@@ -8,8 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "$lib/components/IconButton.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
     import WithState from "$lib/components/WithState.svelte";
-    import { execCommand, queryCommandState } from "$lib/domlib";
     import { updateStateByKey } from "$lib/components/WithState.svelte";
+    import { execCommand, queryCommandState } from "$lib/domlib";
+
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
 

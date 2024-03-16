@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { modalsKey } from "$lib/components/context-keys";
     import Select from "$lib/components/Select.svelte";
     import StickyContainer from "$lib/components/StickyContainer.svelte";
+
     import type { ConfigListEntry, DeckOptionsState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
     import TextInputModal from "./TextInputModal.svelte";

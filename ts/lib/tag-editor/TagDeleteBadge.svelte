@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Badge from "$lib/components/Badge.svelte";
+
     import { deleteIcon } from "./icons";
 
     let className: string = "";

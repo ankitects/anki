@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement } from "@tslib/dom";
+
 import { FlatRange } from "../flat-range";
 import type { Match } from "../match-type";
 import { ElementNode } from "./element-node";

@@ -23,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PositionAlgorithm } from "$lib/sveltelib/position/position-algorithm";
     import positionOverlay from "$lib/sveltelib/position/position-overlay";
     import subscribeToUpdates from "$lib/sveltelib/subscribe-updates";
+
     import { overlayKey } from "./context-keys";
 
     /* Used by Popover to set animation direction depending on placement */

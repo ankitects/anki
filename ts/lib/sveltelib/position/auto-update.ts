@@ -3,9 +3,8 @@
 
 import type { FloatingElement, ReferenceElement } from "@floating-ui/dom";
 import { autoUpdate as floatingUiAutoUpdate } from "@floating-ui/dom";
-import type { ActionReturn } from "svelte/action";
-
 import type { Callback } from "@tslib/typing";
+import type { ActionReturn } from "svelte/action";
 
 /**
  * The interface of `autoUpdate` of floating-ui.

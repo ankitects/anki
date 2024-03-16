@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import Container from "$lib/components/Container.svelte";
     import Spacer from "$lib/components/Spacer.svelte";
+
     import type { ChangeNotetypeState, MapContext } from "./lib";
     import MapperRow from "./MapperRow.svelte";
 

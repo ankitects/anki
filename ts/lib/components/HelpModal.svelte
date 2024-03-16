@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerModalClosingHandler } from "$lib/sveltelib/modal-closing";
     import { pageTheme } from "$lib/sveltelib/theme";
+
     import Badge from "./Badge.svelte";
     import Col from "./Col.svelte";
     import { modalsKey } from "./context-keys";

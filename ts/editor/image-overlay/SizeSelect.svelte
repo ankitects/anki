@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import ButtonGroup from "$lib/components/ButtonGroup.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+
     import { sizeActual, sizeClear, sizeMinimized } from "./icons";
 
     export let isSizeConstrained: boolean;

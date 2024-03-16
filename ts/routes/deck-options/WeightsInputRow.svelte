@@ -5,6 +5,7 @@
 <script lang="ts">
     import ConfigInput from "$lib/components/ConfigInput.svelte";
     import RevertButton from "$lib/components/RevertButton.svelte";
+
     import WeightsInput from "./WeightsInput.svelte";
 
     export let value: number[];

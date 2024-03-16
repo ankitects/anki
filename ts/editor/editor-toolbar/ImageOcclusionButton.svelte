@@ -6,18 +6,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
 
     import ButtonGroup from "$lib/components/ButtonGroup.svelte";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
-    import {
-        ioImageLoadedStore,
-        ioMaskEditorVisible,
-    } from "../../routes/image-occlusion/store";
-
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
     } from "$lib/components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
+    import IconButton from "$lib/components/IconButton.svelte";
+
+    import {
+        ioImageLoadedStore,
+        ioMaskEditorVisible,
+    } from "../../routes/image-occlusion/store";
     import { mdiTableRefresh, mdiViewDashboard } from "./icons";
 
     export let api = {};

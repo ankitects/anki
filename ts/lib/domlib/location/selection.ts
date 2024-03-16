@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { getRange, getSelection } from "@tslib/cross-browser";
+
 import type { CaretLocation } from "./location";
 import { compareLocations, Position } from "./location";
 import { getNodeCoordinates } from "./node";

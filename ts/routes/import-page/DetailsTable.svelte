@@ -6,8 +6,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
 
     import IconButton from "$lib/components/IconButton.svelte";
-    import VirtualTable from "$lib/components/VirtualTable.svelte";
     import { magnifyIcon } from "$lib/components/icons";
+    import VirtualTable from "$lib/components/VirtualTable.svelte";
+
     import { getRows, showInBrowser } from "./lib";
     import TableCellWithTooltip from "./TableCellWithTooltip.svelte";
     import type { SummarizedLogQueues } from "./types";

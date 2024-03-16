@@ -3,6 +3,7 @@
 
 import { setupGlobalI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
+
 import type { LayoutLoad } from "./$types";
 
 export const ssr = false;

@@ -5,9 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import Modal from "bootstrap/js/dist/modal";
     import { getContext, onDestroy, onMount } from "svelte";
-    import { registerModalClosingHandler } from "$lib/sveltelib/modal-closing";
 
     import { modalsKey } from "$lib/components/context-keys";
+    import { registerModalClosingHandler } from "$lib/sveltelib/modal-closing";
     import { pageTheme } from "$lib/sveltelib/theme";
 
     export let title: string;

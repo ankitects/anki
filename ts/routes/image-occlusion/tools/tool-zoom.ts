@@ -4,9 +4,10 @@
 // https://codepen.io/amsunny/pen/XWGLxye
 // canvas.viewportTransform = [ scaleX, skewX, skewY, scaleY, translateX, translateY ]
 
-import { isDesktop } from "$lib/tslib/platform";
 import type { fabric } from "fabric";
 import Hammer from "hammerjs";
+
+import { isDesktop } from "$lib/tslib/platform";
 
 import { getBoundingBox, redraw } from "./lib";
 

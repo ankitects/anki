@@ -8,10 +8,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "$lib/components/Badge.svelte";
     import Col from "$lib/components/Col.svelte";
     import Container from "$lib/components/Container.svelte";
+    import { exclamationIcon } from "$lib/components/icons";
     import Row from "$lib/components/Row.svelte";
     import StickyContainer from "$lib/components/StickyContainer.svelte";
+
     import Alert from "./Alert.svelte";
-    import { exclamationIcon } from "$lib/components/icons";
     import type { ChangeNotetypeState } from "./lib";
     import { MapContext } from "./lib";
 

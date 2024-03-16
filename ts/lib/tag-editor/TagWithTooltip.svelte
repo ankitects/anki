@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import WithTooltip from "$lib/components/WithTooltip.svelte";
     import { pageTheme } from "$lib/sveltelib/theme";
+
     import Tag from "./Tag.svelte";
     import { delimChar } from "./tags";
 

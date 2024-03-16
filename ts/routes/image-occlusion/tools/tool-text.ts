@@ -5,7 +5,6 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import { opacityStateStore, textEditingState } from "../store";
-
 import {
     enableUniformScaling,
     isPointerInBoundingBox,

@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { elementIsBlock } from "@tslib/dom";
+
 import { Position } from "../../location";
 import { Match } from "../match-type";
 import type { SplitRange } from "../split-text";

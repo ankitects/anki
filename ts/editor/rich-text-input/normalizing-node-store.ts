@@ -3,6 +3,7 @@
 
 import type { NodeStore } from "$lib/sveltelib/node-store";
 import { nodeStore } from "$lib/sveltelib/node-store";
+
 import type { DecoratedElement } from "../../editable/decorated";
 import { decoratedElements } from "../decorated-elements";
 

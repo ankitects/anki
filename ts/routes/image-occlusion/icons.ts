@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { imageLink } from "$lib/components/icons";
-
 import mdiAlignHorizontalCenter_ from "@mdi/svg/svg/align-horizontal-center.svg";
 import mdiAlignHorizontalLeft_ from "@mdi/svg/svg/align-horizontal-left.svg";
 import mdiAlignHorizontalRight_ from "@mdi/svg/svg/align-horizontal-right.svg";
@@ -37,6 +35,8 @@ import mdiUnfoldMoreHorizontal_ from "@mdi/svg/svg/unfold-more-horizontal.svg";
 import mdiUngroup_ from "@mdi/svg/svg/ungroup.svg";
 import mdiVectorPolygonVariant_ from "@mdi/svg/svg/vector-polygon-variant.svg";
 import mdiViewDashboard_ from "@mdi/svg/svg/view-dashboard.svg";
+
+import { imageLink } from "$lib/components/icons";
 
 export const mdiAlignHorizontalCenter = imageLink(mdiAlignHorizontalCenter_);
 export const mdiAlignHorizontalLeft = imageLink(mdiAlignHorizontalLeft_);

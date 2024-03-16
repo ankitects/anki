@@ -5,9 +5,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import Badge from "$lib/components/Badge.svelte";
     import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
+    import { arrowLeftIcon, arrowRightIcon } from "$lib/components/icons";
     import LabelButton from "$lib/components/LabelButton.svelte";
     import Select from "$lib/components/Select.svelte";
-    import { arrowLeftIcon, arrowRightIcon } from "$lib/components/icons";
+
     import type { ChangeNotetypeState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
 

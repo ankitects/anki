@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
 
     import { autoSavingPrefs } from "$lib/sveltelib/preferences";
+
     import { daysToRevlogRange } from "./graph-helpers";
 
     export let search: Writable<string>;

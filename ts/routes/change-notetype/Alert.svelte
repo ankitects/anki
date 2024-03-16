@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Badge from "$lib/components/Badge.svelte";
     import { minusIcon, plusIcon } from "$lib/components/icons";
+
     import { MapContext } from "./lib";
 
     export let unused: string[];

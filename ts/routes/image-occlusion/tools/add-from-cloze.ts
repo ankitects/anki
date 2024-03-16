@@ -5,7 +5,6 @@ import type { GetImageOcclusionNoteResponse_ImageOcclusion } from "@generated/an
 import type { fabric } from "fabric";
 
 import { extractShapesFromClozedField } from "../shapes/from-cloze";
-
 import { addShape, addShapeGroup } from "./from-shapes";
 import { redraw } from "./lib";
 

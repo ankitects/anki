@@ -8,9 +8,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
 
     import IconConstrain from "$lib/components/IconConstrain.svelte";
-    import Shortcut from "$lib/components/Shortcut.svelte";
-    import { currentTagInput } from "../TagInput.svelte";
     import { addTagIcon, tagIcon } from "$lib/components/icons";
+    import Shortcut from "$lib/components/Shortcut.svelte";
+
+    import { currentTagInput } from "../TagInput.svelte";
 
     export let keyCombination: string;
 

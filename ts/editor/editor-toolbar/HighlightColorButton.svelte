@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import IconButton from "$lib/components/IconButton.svelte";
     import type { FormattingNode, MatchType } from "$lib/domlib/surround";
+
     import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import ColorPicker from "./ColorPicker.svelte";

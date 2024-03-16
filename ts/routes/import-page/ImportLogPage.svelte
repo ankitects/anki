@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
 
     import Container from "$lib/components/Container.svelte";
+
     import CloseButton from "./CloseButton.svelte";
     import DetailsTable from "./DetailsTable.svelte";
     import { getSummaries } from "./lib";

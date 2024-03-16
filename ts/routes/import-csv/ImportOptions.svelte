@@ -11,9 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
     import HelpModal from "$lib/components/HelpModal.svelte";
     import SettingTitle from "$lib/components/SettingTitle.svelte";
-    import TagsRow from "$lib/tag-editor/TagsRow.svelte";
     import TitledContainer from "$lib/components/TitledContainer.svelte";
     import type { HelpItem } from "$lib/components/types";
+    import TagsRow from "$lib/tag-editor/TagsRow.svelte";
+
     import { dupeResolutionChoices, matchScopeChoices } from "./choices";
     import type { ImportCsvState } from "./lib";
 

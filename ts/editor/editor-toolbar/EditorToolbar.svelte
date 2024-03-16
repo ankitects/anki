@@ -54,6 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
     import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
     import Item from "$lib/components/Item.svelte";
+
     import BlockButtons from "./BlockButtons.svelte";
     import ImageOcclusionButton from "./ImageOcclusionButton.svelte";
     import InlineButtons from "./InlineButtons.svelte";

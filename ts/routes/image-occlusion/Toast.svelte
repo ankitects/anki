@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import IconButton from "$lib/components/IconButton.svelte";
+
     import { mdiClose } from "./icons";
 
     export let type: "success" | "error" = "success";

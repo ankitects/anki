@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import IconButton from "$lib/components/IconButton.svelte";
     import { execCommand } from "$lib/domlib";
+
     import { mdiFormatBold, mdiFormatItalic, mdiFormatUnderline } from "../icons";
 
     export let iconSize;

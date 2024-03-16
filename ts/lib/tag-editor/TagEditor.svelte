@@ -3,14 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { completeTag } from "@generated/backend";
+    import { tagActionsShortcutsKey } from "@tslib/context-keys";
+    import { isArrowDown, isArrowUp } from "@tslib/keys";
     import { createEventDispatcher, setContext, tick } from "svelte";
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
-    import { completeTag } from "@generated/backend";
+
     import Shortcut from "$lib/components/Shortcut.svelte";
     import { execCommand } from "$lib/domlib";
-    import { tagActionsShortcutsKey } from "@tslib/context-keys";
-    import { isArrowDown, isArrowUp } from "@tslib/keys";
+
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";

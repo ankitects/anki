@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "$lib/components/Shortcut.svelte";
     import WithState, { updateStateByKey } from "$lib/components/WithState.svelte";
     import type { MatchType } from "$lib/domlib/surround";
+
     import { surrounder } from "../rich-text-input";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
 

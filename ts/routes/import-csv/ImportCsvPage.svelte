@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Row from "$lib/components/Row.svelte";
+
     import ImportPage from "../import-page/ImportPage.svelte";
     import FieldMapper from "./FieldMapper.svelte";
     import FileOptions from "./FileOptions.svelte";

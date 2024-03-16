@@ -5,7 +5,6 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import { opacityStateStore } from "../store";
-
 import { BORDER_COLOR, isPointerInBoundingBox, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 import { onPinchZoom } from "./tool-zoom";

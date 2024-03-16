@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "$lib/components/ButtonGroup.svelte";
     import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
     import Item from "$lib/components/Item.svelte";
+
     import BoldButton from "./BoldButton.svelte";
     import HighlightColorButton from "./HighlightColorButton.svelte";
     import ItalicButton from "./ItalicButton.svelte";

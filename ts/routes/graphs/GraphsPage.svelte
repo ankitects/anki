@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import { pageTheme } from "$lib/sveltelib/theme";
+
     import RangeBox from "./RangeBox.svelte";
     import WithGraphData from "./WithGraphData.svelte";
 

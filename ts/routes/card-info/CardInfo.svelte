@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Container from "$lib/components/Container.svelte";
     import Row from "$lib/components/Row.svelte";
+
     import CardInfoPlaceholder from "./CardInfoPlaceholder.svelte";
     import CardStats from "./CardStats.svelte";
     import Revlog from "./Revlog.svelte";

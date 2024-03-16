@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "$lib/components/ButtonGroup.svelte";
     import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+
     import ClozeButtons from "../ClozeButtons.svelte";
     import { blockIcon, deleteIcon, inlineIcon } from "./icons";
 

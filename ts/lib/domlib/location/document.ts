@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { getSelection } from "@tslib/cross-browser";
+
 import { findNodeFromCoordinates } from "./node";
 import type { SelectionLocation, SelectionLocationContent } from "./selection";
 import { getSelectionLocation } from "./selection";

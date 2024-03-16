@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount } from "svelte";
 
     import Badge from "$lib/components/Badge.svelte";
+
     import { context as editorFieldContext } from "./EditorField.svelte";
     import { stickyIcon } from "./icons";
 

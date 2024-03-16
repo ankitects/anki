@@ -7,6 +7,7 @@
     import ConfigInput from "$lib/components/ConfigInput.svelte";
     import RevertButton from "$lib/components/RevertButton.svelte";
     import Row from "$lib/components/Row.svelte";
+
     import StepsInput from "./StepsInput.svelte";
 
     export let value: any;

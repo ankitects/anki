@@ -10,6 +10,7 @@ import { get } from "svelte/store";
 import { moveChildOutOfElement } from "$lib/domlib/move-nodes";
 import { placeCaretAfter } from "$lib/domlib/place-caret";
 import { isComposing } from "$lib/sveltelib/composition";
+
 import type { FrameElement } from "./frame-element";
 
 /**

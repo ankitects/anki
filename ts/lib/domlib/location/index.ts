@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { registerPackage } from "@tslib/runtime-require";
+
 import { restoreSelection, saveSelection } from "./document";
 import { Position } from "./location";
 import { findNodeFromCoordinates, getNodeCoordinates } from "./node";

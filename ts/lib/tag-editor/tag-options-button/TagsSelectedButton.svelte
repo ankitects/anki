@@ -3,17 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@generated/ftl";
+    import { tagActionsShortcutsKey } from "@tslib/context-keys";
+    import { onEnterOrSpace } from "@tslib/keys";
+    import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher, getContext } from "svelte";
 
     import DropdownItem from "$lib/components/DropdownItem.svelte";
     import IconConstrain from "$lib/components/IconConstrain.svelte";
+    import { dotsIcon } from "$lib/components/icons";
     import Popover from "$lib/components/Popover.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
-    import { tagActionsShortcutsKey } from "@tslib/context-keys";
-    import * as tr from "@generated/ftl";
-    import { getPlatformString } from "@tslib/shortcuts";
-    import { dotsIcon } from "$lib/components/icons";
-    import { onEnterOrSpace } from "@tslib/keys";
 
     const dispatch = createEventDispatcher();
 

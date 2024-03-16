@@ -3,10 +3,9 @@
 
 import type { fabric } from "fabric";
 
-import { baseShapesFromFabric, exportShapesToClozeDeletions } from "../shapes/to-cloze";
-
 import type { ShapeOrShapes } from "../shapes";
 import { Ellipse, Polygon, Rectangle, Shape, Text } from "../shapes";
+import { baseShapesFromFabric, exportShapesToClozeDeletions } from "../shapes/to-cloze";
 import { addShape, addShapeGroup } from "./from-shapes";
 import { clear, redraw } from "./lib";
 

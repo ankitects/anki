@@ -7,6 +7,7 @@ import { on } from "@tslib/events";
 
 import { moveChildOutOfElement } from "$lib/domlib/move-nodes";
 import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
+
 import type { FrameHandle } from "./frame-handle";
 import { checkHandles, frameElementTagName, FrameEnd, FrameStart, isFrameHandle } from "./frame-handle";
 

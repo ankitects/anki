@@ -18,6 +18,7 @@ import IconButton from "$lib/components/IconButton.svelte";
 import LabelButton from "$lib/components/LabelButton.svelte";
 import WithContext from "$lib/components/WithContext.svelte";
 import WithState from "$lib/components/WithState.svelte";
+
 import BrowserEditor from "./BrowserEditor.svelte";
 import NoteCreator from "./NoteCreator.svelte";
 import * as editorContextKeys from "./NoteEditor.svelte";

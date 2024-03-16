@@ -18,6 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
+
     import { context } from "../NoteEditor.svelte";
     import { setFormat } from "../old-editor-adapter";
     import type { RichTextInputAPI } from "../rich-text-input";

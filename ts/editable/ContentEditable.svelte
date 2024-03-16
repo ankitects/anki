@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import actionList from "$lib/sveltelib/action-list";
     import type { MirrorAction } from "$lib/sveltelib/dom-mirror";
     import type { SetupInputHandlerAction } from "$lib/sveltelib/input-handler";
+
     import type { ContentEditableAPI } from "./content-editable";
     import {
         fixRTLKeyboardNav,

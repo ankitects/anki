@@ -4,7 +4,7 @@
 import "intl-pluralrules";
 
 import { i18nResources } from "@generated/backend";
-import { ModuleName } from "@generated/ftl";
+import type { ModuleName } from "@generated/ftl";
 import { FluentBundle, FluentResource } from "@generated/ftl";
 import { firstLanguage, setBundles } from "@generated/ftl";
 

@@ -25,6 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PositionAlgorithm } from "$lib/sveltelib/position/position-algorithm";
     import positionFloating from "$lib/sveltelib/position/position-floating";
     import subscribeToUpdates from "$lib/sveltelib/subscribe-updates";
+
     import { floatingKey } from "./context-keys";
     import FloatingArrow from "./FloatingArrow.svelte";
 

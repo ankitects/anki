@@ -4,9 +4,9 @@
 import "./image-occlusion-base.scss";
 
 import { ModuleName, setupI18n } from "@tslib/i18n";
+import { checkNightMode } from "@tslib/nightmode";
 import { get } from "svelte/store";
 
-import { checkNightMode } from "@tslib/nightmode";
 import { addOrUpdateNote } from "./add-or-update-note";
 import ImageOcclusionPage from "./ImageOcclusionPage.svelte";
 import type { IOMode } from "./lib";

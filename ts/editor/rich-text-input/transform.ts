@@ -3,6 +3,7 @@
 
 import { fragmentToString, nodeContainsInlineContent, nodeIsElement } from "@tslib/dom";
 import { createDummyDoc } from "@tslib/parsing";
+
 import { decoratedElements } from "../decorated-elements";
 
 function adjustInputHTML(html: string): string {

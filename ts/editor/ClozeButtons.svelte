@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "$lib/components/ButtonGroup.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
+
     import { clozeIcon, incrementClozeIcon } from "./icons";
     import { context as noteEditorContext } from "./NoteEditor.svelte";
     import { editingInputIsRichText } from "./rich-text-input";

@@ -7,6 +7,7 @@ import { searchInBrowser } from "@generated/backend";
 import * as tr from "@generated/ftl";
 
 import { checkCircle, closeBox, newBox, updateIcon } from "$lib/components/icons";
+
 import type { LogQueue, NoteRow, SummarizedLogQueues } from "./types";
 
 function getFirstFieldQueue(log: ImportResponse_Log): {

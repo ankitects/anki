@@ -17,9 +17,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { runWithBackendProgress } from "@tslib/progress";
 
+    import SettingTitle from "$lib/components/SettingTitle.svelte";
     import SwitchRow from "$lib/components/SwitchRow.svelte";
 
-    import SettingTitle from "$lib/components/SettingTitle.svelte";
     import DateInput from "./DateInput.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";

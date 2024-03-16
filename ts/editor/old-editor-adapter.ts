@@ -3,6 +3,7 @@
 
 import { updateAllState } from "$lib/components/WithState.svelte";
 import { execCommand } from "$lib/domlib";
+
 import { filterHTML } from "../html-filter";
 
 export function pasteHTML(

@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, onDestroy } from "svelte";
 
     import Badge from "$lib/components/Badge.svelte";
+
     import { context as editorFieldContext } from "./EditorField.svelte";
     import { plainTextIcon } from "./icons";
 

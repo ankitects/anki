@@ -5,8 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import { writable } from "svelte/store";
 
-    import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import type { InputHandlerAPI } from "$lib/sveltelib/input-handler";
+
+    import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
     import type { SurroundedAPI } from "../surround";
     import type CustomStyles from "./CustomStyles.svelte";
@@ -34,6 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import contextProperty from "$lib/sveltelib/context-property";
     import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
+
     import { Surrounder } from "../surround";
 
     const key = Symbol("richText");
@@ -68,10 +70,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
 
     import { placeCaretAfterContent } from "$lib/domlib/place-caret";
-    import ContentEditable from "../../editable/ContentEditable.svelte";
     import useDOMMirror from "$lib/sveltelib/dom-mirror";
     import useInputHandler from "$lib/sveltelib/input-handler";
     import { pageTheme } from "$lib/sveltelib/theme";
+
+    import ContentEditable from "../../editable/ContentEditable.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { Flag } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";

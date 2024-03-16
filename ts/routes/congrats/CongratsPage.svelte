@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Col from "$lib/components/Col.svelte";
     import Container from "$lib/components/Container.svelte";
+
     import { buildNextLearnMsg } from "./lib";
 
     export let info: CongratsInfoResponse;

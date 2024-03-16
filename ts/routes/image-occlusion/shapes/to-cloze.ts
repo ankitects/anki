@@ -3,8 +3,8 @@
 
 import { fabric } from "fabric";
 import { cloneDeep } from "lodash-es";
-import { getBoundingBox } from "../tools/lib";
 
+import { getBoundingBox } from "../tools/lib";
 import type { Size } from "../types";
 import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";

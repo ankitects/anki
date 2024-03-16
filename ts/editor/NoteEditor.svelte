@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
 
     import Collapsible from "$lib/components/Collapsible.svelte";
+
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
@@ -45,15 +46,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
-    import {
-        type ImageLoadedEvent,
-        resetIOImage,
-    } from "../routes/image-occlusion/mask-editor";
-
     import Absolute from "$lib/components/Absolute.svelte";
     import Badge from "$lib/components/Badge.svelte";
     import { TagEditor } from "$lib/tag-editor";
     import { commitTagEdits } from "$lib/tag-editor/TagInput.svelte";
+
+    import {
+        type ImageLoadedEvent,
+        resetIOImage,
+    } from "../routes/image-occlusion/mask-editor";
     import { ChangeTimer } from "./change-timer";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
@@ -394,6 +395,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { wrapClozeInternal, wrapInternal } from "@tslib/wrap";
 
     import Shortcut from "$lib/components/Shortcut.svelte";
+
+    import { mathjaxConfig } from "../editable/mathjax-element";
     import ImageOcclusionPage from "../routes/image-occlusion/ImageOcclusionPage.svelte";
     import ImageOcclusionPicker from "../routes/image-occlusion/ImageOcclusionPicker.svelte";
     import type { IOMode } from "../routes/image-occlusion/lib";
@@ -403,8 +406,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ioImageLoadedStore,
         ioMaskEditorVisible,
     } from "../routes/image-occlusion/store";
-
-    import { mathjaxConfig } from "../editable/mathjax-element";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 

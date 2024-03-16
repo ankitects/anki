@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Col from "$lib/components/Col.svelte";
     import Row from "$lib/components/Row.svelte";
+
     import NotesToolbar from "./notes-toolbar/NotesToolbar.svelte";
     import { notesDataStore, tagsWritable } from "./store";
     import Tags from "./Tags.svelte";

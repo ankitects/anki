@@ -5,10 +5,11 @@
 @typescript-eslint/no-explicit-any: "off",
 @typescript-eslint/ban-ts-comment: "off" */
 
-import type { PreferenceStore } from "$lib/sveltelib/preferences";
 import type { GraphPreferences } from "@generated/anki/stats_pb";
 import type { Bin, Selection } from "d3";
 import { sum } from "d3";
+
+import type { PreferenceStore } from "$lib/sveltelib/preferences";
 
 // amount of data to fetch from backend
 export enum RevlogRange {
