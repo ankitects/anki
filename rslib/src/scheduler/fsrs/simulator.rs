@@ -11,7 +11,6 @@ impl Collection {
         req: SimulateFsrsReviewRequest,
     ) -> Result<SimulateFsrsReviewResponse> {
         let p = self.get_optimal_retention_parameters(&req.search)?;
-        let desired_retention = 0.9;
         let config = SimulatorConfig {
             deck_size: req.deck_size as usize,
             learn_span: req.days_to_simulate as usize,
@@ -43,7 +42,7 @@ impl Collection {
         ) = simulate(
             &config,
             &req.weights.iter().map(|w| *w as f64).collect_vec(),
-            desired_retention,
+            req.desired_retention as f64,
             None,
             None, // TODO: query cards reviewed in the deck and convert them into fsrs::Card
         );

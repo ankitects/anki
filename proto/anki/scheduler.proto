@@ -375,12 +375,13 @@ message FsrsReview {
 
 message SimulateFsrsReviewRequest {
   repeated float weights = 1;
-  uint32 deck_size = 2;
-  uint32 days_to_simulate = 3;
-  uint32 new_limit = 4;
-  uint32 review_limit = 5;
-  uint32 max_interval = 6;
-  string search = 7;
+  float desired_retention = 2;
+  uint32 deck_size = 3;
+  uint32 days_to_simulate = 4;
+  uint32 new_limit = 5;
+  uint32 review_limit = 6;
+  uint32 max_interval = 7;
+  string search = 8;
 }
 
 message SimulateFsrsReviewResponse {
