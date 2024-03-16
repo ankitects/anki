@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import type { fabric } from "fabric";
     import { createEventDispatcher, onDestroy, onMount } from "svelte";
 
     import type { IOMode } from "./lib";

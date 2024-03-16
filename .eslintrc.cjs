@@ -36,6 +36,7 @@ module.exports = {
             ],
             rules: {
                 "@typescript-eslint/no-non-null-assertion": "off",
+                "@typescript-eslint/no-explicit-any": "off",
             },
         },
         {
@@ -47,11 +48,12 @@ module.exports = {
             rules: {
                 "svelte/no-at-html-tags": "off",
                 "svelte/valid-compile": ["error", { "ignoreWarnings": true }],
+                "@typescript-eslint/no-explicit-any": "off",
             },
         },
     ],
     env: { browser: true, es2020: true },
-    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor", "extra/*"],
+    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor", "extra/*", "vite.config.ts"],
     globals: {
         globalThis: false,
         NodeListOf: false,

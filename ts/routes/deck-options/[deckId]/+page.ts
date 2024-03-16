@@ -5,7 +5,7 @@ import { getDeckConfigsForUpdate } from "@generated/backend";
 import { DeckOptionsState } from "../lib";
 import type { PageLoad } from "./$types";
 
-export const load = (async ({ fetch, url, params }) => {
+export const load = (async ({ params }) => {
     const deckId = Number(params.deckId);
 
     const did = BigInt(deckId);

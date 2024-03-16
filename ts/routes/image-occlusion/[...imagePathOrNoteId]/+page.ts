@@ -3,7 +3,7 @@
 import type { IOMode } from "../lib";
 import type { PageLoad } from "./$types";
 
-export const load = (async ({ fetch, url, params }) => {
+export const load = (async ({ params }) => {
     let mode: IOMode;
     if (/^\d+/.test(params.imagePathOrNoteId)) {
         mode = { kind: "edit", noteId: Number(params.imagePathOrNoteId) };

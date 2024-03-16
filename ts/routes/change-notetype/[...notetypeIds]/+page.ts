@@ -5,7 +5,7 @@ import { getChangeNotetypeInfo, getNotetypeNames } from "@generated/backend";
 import { ChangeNotetypeState } from "../lib";
 import type { PageLoad } from "./$types";
 
-export const load = (async ({ fetch, url, params }) => {
+export const load = (async ({ params }) => {
     const [fromIdStr, toIdStr] = params.notetypeIds.split("/");
     const oldNotetypeId = BigInt(fromIdStr);
     const newNotetypeId = toIdStr ? BigInt(toIdStr) : oldNotetypeId;

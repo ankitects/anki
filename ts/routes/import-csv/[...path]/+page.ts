@@ -5,7 +5,7 @@ import { getCsvMetadata, getDeckNames, getNotetypeNames } from "@generated/backe
 import { ImportCsvState } from "../lib";
 import type { PageLoad } from "./$types";
 
-export const load = (async ({ fetch, url, params }) => {
+export const load = (async ({ params }) => {
     const [notetypes, decks, metadata] = await Promise.all([
         getNotetypeNames({}),
         getDeckNames({

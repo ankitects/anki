@@ -2,6 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { PageLoad } from "./$types";
 
-export const load = (async ({ fetch, url, params }) => {
+export const load = (async ({ params }) => {
     return { path: params.path };
 }) satisfies PageLoad;
