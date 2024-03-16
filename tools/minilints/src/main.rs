@@ -42,6 +42,7 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./target",
     ".mypy_cache",
     "./extra",
+    "./svelte-kit",
 ];
 
 fn main() -> Result<()> {
@@ -90,7 +91,7 @@ impl LintContext {
                 .into_iter()
                 .map(Some)
                 .collect();
-            if exts.contains(&path.extension()) {
+            if exts.contains(&path.extension()) && !sveltekit_temp_file(path.as_str()) {
                 self.check_copyright(path)?;
                 self.check_triple_slash(path)?;
             }
@@ -200,6 +201,11 @@ impl LintContext {
         }
         Ok(())
     }
+}
+
+/// Annoyingly, sveltekit writes temp files into ts/ folder when it's running.
+fn sveltekit_temp_file(path: &str) -> bool {
+    path.contains("vite.config.ts.timestamp")
 }
 
 fn check_cargo_deny() -> Result<()> {

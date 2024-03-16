@@ -17,7 +17,6 @@ use ninja_gen::node::GenTypescriptProto;
 use ninja_gen::node::SqlFormat;
 use ninja_gen::node::SvelteCheck;
 use ninja_gen::node::SveltekitBuild;
-use ninja_gen::node::TypescriptCheck;
 use ninja_gen::node::ViteTest;
 use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Build;
@@ -42,7 +41,11 @@ fn build_sveltekit(build: &mut Build) -> Result<()> {
         "sveltekit",
         SveltekitBuild {
             output_folder: inputs!["sveltekit"],
-            deps: inputs!["ts/tsconfig.json", glob!["ts/**"], ":ts:lib"],
+            deps: inputs![
+                "ts/tsconfig.json",
+                glob!["ts/**", "svelte-kit/**"],
+                ":ts:lib"
+            ],
         },
     )
 }
@@ -150,7 +153,6 @@ fn build_and_check_tslib(build: &mut Build) -> Result<()> {
     )?;
 
     let src_files = inputs![glob!["ts/lib/**"]];
-    eslint(build, "lib", "ts/lib", inputs![":ts:generated", &src_files])?;
 
     build.add_dependency("ts:lib", inputs![":ts:generated"]);
     build.add_dependency("ts:lib", src_files);
@@ -169,36 +171,9 @@ fn declare_and_check_other_libraries(build: &mut Build) -> Result<()> {
         ("html-filter", inputs![glob!("ts/html-filter/**")]),
     ] {
         let library_with_ts = format!("ts:{library}");
-        let folder = library_with_ts.replace(':', "/");
         build.add_dependency(&library_with_ts, inputs.clone());
-        eslint(build, library, &folder, inputs.clone())?;
     }
 
-    eslint(build, "scripts", "ts/tools", inputs![glob!("ts/tools/*")])?;
-
-    Ok(())
-}
-
-pub fn eslint(build: &mut Build, name: &str, folder: &str, deps: BuildInput) -> Result<()> {
-    let eslint_rc = inputs![".eslintrc.cjs"];
-    build.add_action(
-        format!("check:eslint:{name}"),
-        Eslint {
-            folder,
-            inputs: deps.clone(),
-            eslint_rc: eslint_rc.clone(),
-            fix: false,
-        },
-    )?;
-    build.add_action(
-        format!("fix:eslint:{name}"),
-        Eslint {
-            folder,
-            inputs: deps,
-            eslint_rc,
-            fix: true,
-        },
-    )?;
     Ok(())
 }
 
@@ -220,8 +195,6 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             },
         )?;
         build.add_dependency("ts:pages", inputs![format!(":{group}")]);
-        let folder = format!("ts/{name}");
-        eslint(build, name, &folder, deps.clone())?;
 
         Ok(())
     };
@@ -266,8 +239,6 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    let group = "ts/editor";
-    eslint(build, "editor", group, editor_deps)?;
     Ok(())
 }
 
@@ -312,14 +283,6 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    build.add_action(
-        "check:typescript:reviewer",
-        TypescriptCheck {
-            tsconfig: inputs!["ts/reviewer/tsconfig.json"],
-            inputs: reviewer_deps.clone(),
-        },
-    )?;
-    eslint(build, "reviewer", "ts/reviewer", reviewer_deps)?;
     Ok(())
 }
 
@@ -355,12 +318,34 @@ fn check_web(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_action(
-        format!("check:svelte"),
+        "check:svelte",
         SvelteCheck {
             tsconfig: inputs!["ts/tsconfig.json"],
             inputs: inputs!["yarn", ":node_modules", ":ts:generated", glob!["ts/**/*"],],
         },
     )?;
+    let eslint_rc = inputs![".eslintrc.cjs"];
+    for folder in ["ts", "qt/aqt/data/web/js"] {
+        let inputs = inputs![glob![format!("{folder}/**"), "svelte-kit/**"]];
+        build.add_action(
+            "check:eslint",
+            Eslint {
+                folder,
+                inputs: inputs.clone(),
+                eslint_rc: eslint_rc.clone(),
+                fix: false,
+            },
+        )?;
+        build.add_action(
+            "fix:eslint",
+            Eslint {
+                folder,
+                inputs,
+                eslint_rc: eslint_rc.clone(),
+                fix: true,
+            },
+        )?;
+    }
 
     Ok(())
 }
@@ -393,14 +378,6 @@ fn build_and_check_mathjax(build: &mut Build) -> Result<()> {
             deps: files.clone(),
             output_stem: "ts/mathjax/mathjax",
             extra_exts: &[],
-        },
-    )?;
-    eslint(build, "mathjax", "ts/mathjax", files.clone())?;
-    build.add_action(
-        "check:typescript:mathjax",
-        TypescriptCheck {
-            tsconfig: "ts/mathjax/tsconfig.json".into(),
-            inputs: files,
         },
     )
 }
