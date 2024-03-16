@@ -4,6 +4,7 @@
 // https://codepen.io/amsunny/pen/XWGLxye
 // canvas.viewportTransform = [ scaleX, skewX, skewY, scaleY, translateX, translateY ]
 
+import { isDesktop } from "@tslib/platform";
 import type { fabric } from "fabric";
 import Hammer from "hammerjs";
 
@@ -47,9 +48,15 @@ export const zoomOut = (canvas): void => {
 };
 
 export const zoomReset = (canvas: fabric.Canvas): void => {
-    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, 1);
+    zoomResetInner(canvas);
+    // reset again to update the viewportTransform
+    zoomResetInner(canvas);
+};
+
+const zoomResetInner = (canvas: fabric.Canvas): void => {
     fitCanvasVptScale(canvas);
-    constrainBoundsAroundBgImage(canvas);
+    const vpt = canvas.viewportTransform;
+    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, vpt[0]);
 };
 
 export const enablePinchZoom = (canvas: fabric.Canvas) => {
@@ -74,8 +81,7 @@ export const disablePinchZoom = (canvas: fabric.Canvas) => {
 
 export const onResize = (canvas: fabric.Canvas) => {
     setCanvasSize(canvas);
-    constrainBoundsAroundBgImage(canvas);
-    fitCanvasVptScale(canvas);
+    zoomReset(canvas);
 };
 
 const onMouseWheel = (opt) => {
@@ -151,6 +157,23 @@ const onDrag = (canvas, opt) => {
     redraw(canvas);
 };
 
+export const onWheelDrag = (canvas: fabric.Canvas, event: WheelEvent) => {
+    const deltaX = event.deltaX;
+    const deltaY = event.deltaY;
+    const vpt = canvas.viewportTransform;
+    canvas.lastPosX = event.clientX;
+    canvas.lastPosY = event.clientY;
+
+    vpt[4] -= deltaX;
+    vpt[5] -= deltaY;
+
+    canvas.lastPosX -= deltaX;
+    canvas.lastPosY -= deltaY;
+    canvas.setViewportTransform(vpt);
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
+};
+
 const onMouseUp = () => {
     isDragging = false;
     const canvas = globalThis.canvas;
@@ -176,8 +199,11 @@ export const constrainBoundsAroundBgImage = (canvas: fabric.Canvas) => {
 };
 
 export const setCanvasSize = (canvas: fabric.Canvas) => {
-    canvas.setHeight(window.innerHeight - 76);
-    canvas.setWidth(window.innerWidth - 39);
+    const width = window.innerWidth - 39;
+    let height = window.innerHeight;
+    height = isDesktop() ? height - 76 : height - 46;
+    canvas.setHeight(height);
+    canvas.setWidth(width);
     redraw(canvas);
 };
 
@@ -205,8 +231,8 @@ const fitCanvasVptScale = (canvas: fabric.Canvas) => {
 const getScaleRatio = (boundingBox: fabric.Rect) => {
     const h1 = boundingBox.height;
     const w1 = boundingBox.width;
-    const h2 = innerHeight - 79;
     const w2 = innerWidth - 42;
-
+    let h2 = window.innerHeight;
+    h2 = isDesktop() ? h2 - 79 : h2 - 48;
     return Math.min(w2 / w1, h2 / h1);
 };

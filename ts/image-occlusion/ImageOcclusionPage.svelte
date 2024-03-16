@@ -6,18 +6,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@tslib/ftl";
 
     import Container from "../components/Container.svelte";
-    import { addOrUpdateNote } from "./add-or-update-note";
     import type { IOMode } from "./lib";
     import MasksEditor from "./MaskEditor.svelte";
     import Notes from "./Notes.svelte";
-    import StickyFooter from "./StickyFooter.svelte";
-    import { hideAllGuessOne, textEditingState } from "./store";
+    import { textEditingState } from "./store";
 
     export let mode: IOMode;
-
-    async function addNote(): Promise<void> {
-        addOrUpdateNote(mode, $hideAllGuessOne);
-    }
 
     const items = [
         { label: tr.notetypesOcclusionMask(), value: 1 },
@@ -51,8 +45,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div hidden={activeTabValue != 2}>
         <Notes />
     </div>
-
-    <StickyFooter {mode} {addNote} />
 </Container>
 
 <style lang="scss">

@@ -128,7 +128,6 @@ const setupBoundingBox = (canvas: fabric.Canvas, size: Size): fabric.Rect => {
         lockMovementY: true,
         selectable: false,
         evented: false,
-        stroke: "red",
     });
 
     canvas.add(boundingBox);
