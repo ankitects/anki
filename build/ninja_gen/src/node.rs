@@ -448,7 +448,11 @@ pub struct SveltekitBuild {
 
 impl BuildAction for SveltekitBuild {
     fn command(&self) -> &str {
-        "./yarn build"
+        if cfg!(windows) {
+            "cmd /c yarn build"
+        } else {
+            "./yarn build"
+        }
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
