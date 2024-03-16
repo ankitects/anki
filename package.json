@@ -15,7 +15,7 @@
         "vitest": "cd ts && vitest"
     },
     "devDependencies": {
-        "@bufbuild/protoc-gen-es": "^1.2.1",
+        "@bufbuild/protoc-gen-es": "^1.8.0",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
         "@sveltejs/kit": "^2.4.1",
