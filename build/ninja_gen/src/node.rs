@@ -214,7 +214,11 @@ pub struct SvelteCheck {
 
 impl BuildAction for SvelteCheck {
     fn command(&self) -> &str {
-        "./yarn svelte-check:once"
+        if cfg!(windows) {
+            "cmd /c yarn svelte-check:once"
+        } else {
+            "./yarn svelte-check:once"
+        }
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
@@ -294,7 +298,11 @@ pub struct ViteTest {
 
 impl BuildAction for ViteTest {
     fn command(&self) -> &str {
-        "./yarn vitest:once"
+        if cfg!(windows) {
+            "cmd /c yarn vitest:once"
+        } else {
+            "./yarn vitest:once"
+        }
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
