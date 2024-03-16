@@ -64,7 +64,7 @@ export function wrapClozeInternal(base: Element, n: number): void {
     }
 
     // Expand the range to include parent nodes whose children are already included.
-    // This is intended to prevent the cloze from partially covering elements, which can cause display issues.
+    // This is to work around .extractContents() adding redundant empty elements
     let startParent: Node | null = range.startContainer.parentNode;
     if (
         startParent !== base
@@ -110,20 +110,15 @@ export function wrapClozeInternal(base: Element, n: number): void {
         }
     } while (expand);
 
-    const fragment = range.cloneContents()!;
-    const isEmpty = fragment.childNodes.length === 0;
-    const startNode = document.createTextNode(`{{c${n}::`);
-    const endNode = document.createTextNode("}}");
-    range.insertNode(startNode);
-    const range2 = range.cloneRange();
-    range2.collapse(false);
-    range2.insertNode(endNode);
-
-    let referenceNode: Node;
-    if (isEmpty) {
-        referenceNode = startNode;
+    const fragment = range.extractContents();
+    if (fragment.childNodes.length === 0) {
+        document.execCommand("inserthtml", false, `{{c${n}::}}`);
     } else {
-        referenceNode = endNode;
+        const startNode = document.createTextNode(`{{c${n}::`);
+        const endNode = document.createTextNode("}}");
+        range.insertNode(endNode);
+        range.insertNode(fragment);
+        range.insertNode(startNode);
+        placeCaretAfter(endNode);
     }
-    placeCaretAfter(referenceNode);
 }
