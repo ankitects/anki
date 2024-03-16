@@ -223,6 +223,7 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
         ":ts:sveltelib",
         ":ts:html-filter",
         ":sass",
+        ":sveltekit",
         glob!("ts/{editable,editor,routes/image-occlusion}/**")
     ];
 
@@ -371,7 +372,7 @@ pub fn check_sql(build: &mut Build) -> Result<()> {
 }
 
 fn build_and_check_mathjax(build: &mut Build) -> Result<()> {
-    let files = inputs![glob!["ts/mathjax/*"]];
+    let files = inputs![glob!["ts/mathjax/*"], ":sveltekit"];
     build.add_action(
         "ts:mathjax",
         EsbuildScript {
