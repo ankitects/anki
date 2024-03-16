@@ -15,6 +15,8 @@ use anki_proto::scheduler::FsrsBenchmarkResponse;
 use anki_proto::scheduler::FuzzDeltaRequest;
 use anki_proto::scheduler::FuzzDeltaResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
+use anki_proto::scheduler::SimulateFsrsReviewRequest;
+use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::FSRS;
@@ -262,6 +264,13 @@ impl crate::services::SchedulerService for Collection {
             1,
             &input.current_weights,
         )
+    }
+
+    fn simulate_fsrs_review(
+        &mut self,
+        input: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsReviewResponse> {
+        self.simulate_review(input)
     }
 
     fn compute_optimal_retention(
