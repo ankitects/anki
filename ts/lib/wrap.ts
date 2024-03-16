@@ -3,6 +3,7 @@
 
 import { placeCaretAfter } from "../domlib/place-caret";
 import { getRange, getSelection } from "./cross-browser";
+import { nodeIsElement } from "./dom";
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
     const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;
@@ -75,9 +76,9 @@ export function wrapClozeInternal(base: Element, n: number): void {
     if (
         endParent !== base
         && endParent?.lastChild === range.endContainer && (
-            (range.endContainer.nodeType != Node.ELEMENT_NODE
+            (!nodeIsElement(range.endContainer)
                 && range.endOffset === range.endContainer.textContent?.length)
-            || (range.endContainer.nodeType === Node.ELEMENT_NODE
+            || (nodeIsElement(range.endContainer)
                 && range.endOffset === range.endContainer.childNodes.length)
         )
     ) {
