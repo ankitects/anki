@@ -166,7 +166,7 @@ def _mime_for_path(path: str) -> str:
     if path.endswith(".css"):
         # some users may have invalid mime type in the Windows registry
         return "text/css"
-    elif path.endswith(".js"):
+    elif path.endswith(".js") or path.endswith(".mjs"):
         return "application/javascript"
     else:
         # autodetect
@@ -255,11 +255,18 @@ def _builtin_data(path: str) -> bytes:
 
 def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
     path = request.path
+    # do we need to serve the fallback page?
+    immutable = "immutable" in path
+    if path.startswith("sveltekit/") and not immutable:
+        path = "sveltekit/index.html"
     mimetype = _mime_for_path(path)
     data_path = f"data/web/{path}"
     try:
         data = _builtin_data(data_path)
-        return Response(data, mimetype=mimetype)
+        response = Response(data, mimetype=mimetype)
+        if immutable:
+            response.headers["Cache-Control"] = "max-age=31536000"
+        return response
     except FileNotFoundError:
         if dev_mode:
             print(f"404: {data_path}")
@@ -316,10 +323,29 @@ def handle_request(pathin: str) -> Response:
         )
 
 
+def is_sveltekit_page(path: str) -> bool:
+    page_name = path.split("/")[0]
+    return page_name in [
+        "graphs",
+        "congrats",
+        "card-info",
+        "change-notetype",
+        "deck-options",
+        "import-anki-package",
+        "import-csv",
+        "import-page",
+    ]
+
+
 def _extract_internal_request(
     path: str,
 ) -> BundledFileRequest | DynamicRequest | NotFound | None:
     "Catch /_anki references and rewrite them to web export folder."
+    if is_sveltekit_page(path):
+        path = f"_anki/sveltekit/_app/{path}"
+    if path.startswith("_app/"):
+        path = path.replace("_app", "_anki/sveltekit/_app")
+
     prefix = "_anki/"
     if not path.startswith(prefix):
         return None

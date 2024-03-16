@@ -129,10 +129,13 @@ class AnkiWebPage(QWebEnginePage):
     def acceptNavigationRequest(
         self, url: QUrl, navType: Any, isMainFrame: bool
     ) -> bool:
+        from aqt.mediasrv import is_sveltekit_page
+
         if (
             not self.open_links_externally
             or "_anki/pages" in url.path()
             or url.path() == "/_anki/legacyPageData"
+            or is_sveltekit_page(url.path()[1:])
         ):
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
@@ -756,6 +759,17 @@ html {{ {font} }}
         else:
             extra = ""
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
+        self.add_dynamic_styling_and_props_then_show()
+
+    def load_sveltekit_page(self, path: str) -> None:
+        from aqt import mw
+
+        self.set_open_links_externally(True)
+        if theme_manager.night_mode:
+            extra = "#night"
+        else:
+            extra = ""
+        self.load_url(QUrl(f"{mw.serverURL()}{path}{extra}"))
         self.add_dynamic_styling_and_props_then_show()
 
     def force_load_hack(self) -> None:

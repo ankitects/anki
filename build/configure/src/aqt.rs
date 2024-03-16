@@ -14,8 +14,8 @@ use ninja_gen::node::EsbuildScript;
 use ninja_gen::node::TypescriptCheck;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonTest;
-use ninja_gen::Build;
 use ninja_gen::rsync::RsyncFiles;
+use ninja_gen::Build;
 use ninja_gen::Utf8Path;
 use ninja_gen::Utf8PathBuf;
 

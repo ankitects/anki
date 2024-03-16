@@ -16,9 +16,9 @@ use ninja_gen::node::Eslint;
 use ninja_gen::node::GenTypescriptProto;
 use ninja_gen::node::SqlFormat;
 use ninja_gen::node::SvelteCheck;
+use ninja_gen::node::SveltekitBuild;
 use ninja_gen::node::TypescriptCheck;
 use ninja_gen::node::ViteTest;
-use ninja_gen::node::SveltekitBuild;
 use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Build;
 
@@ -38,10 +38,13 @@ pub fn build_and_check_web(build: &mut Build) -> Result<()> {
 }
 
 fn build_sveltekit(build: &mut Build) -> Result<()> {
-    build.add_action("sveltekit", SveltekitBuild {
-        output_folder: inputs!["sveltekit"],
-        deps: inputs!["ts/tsconfig.json", glob!["ts/**"], ":ts:lib"]
-    })
+    build.add_action(
+        "sveltekit",
+        SveltekitBuild {
+            output_folder: inputs!["sveltekit"],
+            deps: inputs!["ts/tsconfig.json", glob!["ts/**"], ":ts:lib"],
+        },
+    )
 }
 
 fn setup_node(build: &mut Build) -> Result<()> {

@@ -21,7 +21,6 @@ class ImportArgs:
     title = "importLog"
     kind = AnkiWebViewKind.IMPORT_LOG
     ts_page = "import-page"
-    setup_function_name = "setupImportPage"
 
     def args_json(self) -> str:
         return json.dumps(self.path)
@@ -32,26 +31,16 @@ class JsonFileArgs(ImportArgs):
         return json.dumps(dict(type="json_file", path=self.path))
 
 
-@dataclass
-class JsonStringArgs(ImportArgs):
-    json: str
-
-    def args_json(self) -> str:
-        return json.dumps(dict(type="json_string", path=self.path, json=self.json))
-
-
 class CsvArgs(ImportArgs):
     title = "csv import"
     kind = AnkiWebViewKind.IMPORT_CSV
     ts_page = "import-csv"
-    setup_function_name = "setupImportCsvPage"
 
 
 class AnkiPackageArgs(ImportArgs):
     title = "anki package import"
     kind = AnkiWebViewKind.IMPORT_ANKI_PACKAGE
     ts_page = "import-anki-package"
-    setup_function_name = "setupImportAnkiPackagePage"
 
 
 class ImportDialog(QDialog):
@@ -76,17 +65,13 @@ class ImportDialog(QDialog):
 
         self.web = AnkiWebView(kind=self.args.kind)
         self.web.setVisible(False)
-        self.web.load_ts_page(self.args.ts_page)
+        self.web.load_sveltekit_page(f"{self.args.ts_page}/{self.args.path}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
         self.setLayout(layout)
         restoreGeom(self, self.args.title, default_size=(800, 800))
 
-        self.web.evalWithCallback(
-            f"anki.{self.args.setup_function_name}({self.args.args_json()});",
-            lambda _: self.web.setFocus(),
-        )
         self.setWindowTitle(tr.decks_import_file())
 
     def reject(self) -> None:
