@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
-import { getBoundingBox } from "image-occlusion/tools/lib";
 import { cloneDeep } from "lodash-es";
+import { getBoundingBox } from "../tools/lib";
 
 import type { Size } from "../types";
 import type { Shape, ShapeOrShapes } from "./base";
@@ -48,7 +48,7 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
             && (activeObject.size() > 1)
         ? activeObject
         : null;
-    const objects = canvas.getObjects() as FabricObject[];
+    const objects = canvas.getObjects() as fabric.Object[];
     const boundingBox = getBoundingBox();
     return objects
         .map((object) => {
@@ -57,7 +57,7 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
             const parent = selectionContainingMultipleObjects?.contains(object)
                 ? selectionContainingMultipleObjects
                 : undefined;
-            if (object.width < 5 || object.height < 5) {
+            if (object.width! < 5 || object.height! < 5) {
                 return null;
             }
             return fabricObjectToBaseShapeOrShapes(
@@ -71,7 +71,7 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
 
 /** Convert a single Fabric object/group to one or more BaseShapes. */
 function fabricObjectToBaseShapeOrShapes(
-    size: fabric.Canvas,
+    size: Size,
     object: fabric.Object,
     parentObject?: fabric.Object,
 ): ShapeOrShapes | null {

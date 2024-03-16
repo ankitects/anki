@@ -4,7 +4,7 @@
 // https://codepen.io/amsunny/pen/XWGLxye
 // canvas.viewportTransform = [ scaleX, skewX, skewY, scaleY, translateX, translateY ]
 
-import { isDesktop } from "@tslib/platform";
+import { isDesktop } from "$lib/tslib/platform";
 import type { fabric } from "fabric";
 import Hammer from "hammerjs";
 
@@ -38,7 +38,7 @@ export const disablePan = (canvas: fabric.Canvas) => {
 export const zoomIn = (canvas: fabric.Canvas): void => {
     let zoom = canvas.getZoom();
     zoom = Math.min(maxScale, zoom * 1.1);
-    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
+    canvas.zoomToPoint({ x: canvas.width! / 2, y: canvas.height! / 2 }, zoom);
     constrainBoundsAroundBgImage(canvas);
     redraw(canvas);
 };
@@ -59,16 +59,16 @@ export const zoomReset = (canvas: fabric.Canvas): void => {
 
 const zoomResetInner = (canvas: fabric.Canvas): void => {
     fitCanvasVptScale(canvas);
-    const vpt = canvas.viewportTransform;
-    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, vpt[0]);
+    const vpt = canvas.viewportTransform!;
+    canvas.zoomToPoint({ x: canvas.width! / 2, y: canvas.height! / 2 }, vpt[0]);
 };
 
 export const enablePinchZoom = (canvas: fabric.Canvas) => {
-    const hammer = new Hammer(canvas.upperCanvasEl);
+    const hammer = new Hammer(upperCanvasElement(canvas)) as any;
     hammer.get("pinch").set({ enable: true });
     hammer.on("pinchin pinchout", ev => {
         currentScale = Math.min(Math.max(minScale, ev.scale * zoomScale), maxScale);
-        canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, currentScale);
+        canvas.zoomToPoint({ x: canvas.width! / 2, y: canvas.height! / 2 }, currentScale);
         constrainBoundsAroundBgImage(canvas);
         redraw(canvas);
     });
@@ -77,8 +77,12 @@ export const enablePinchZoom = (canvas: fabric.Canvas) => {
     });
 };
 
+function upperCanvasElement(canvas: fabric.Canvas): HTMLElement {
+    return canvas["upperCanvasEl"] as HTMLElement;
+}
+
 export const disablePinchZoom = (canvas: fabric.Canvas) => {
-    const hammer = new Hammer(canvas.upperCanvasEl);
+    const hammer = new Hammer(upperCanvasElement(canvas));
     hammer.get("pinch").set({ enable: false });
     hammer.off("pinch pinchmove pinchend pinchcancel");
 };
@@ -172,15 +176,15 @@ const onDrag = (canvas, opt) => {
 export const onWheelDrag = (canvas: fabric.Canvas, event: WheelEvent) => {
     const deltaX = event.deltaX;
     const deltaY = event.deltaY;
-    const vpt = canvas.viewportTransform;
-    canvas.lastPosX = event.clientX;
-    canvas.lastPosY = event.clientY;
+    const vpt = canvas.viewportTransform!;
+    canvas["lastPosX"] = event.clientX;
+    canvas["lastPosY"] = event.clientY;
 
     vpt[4] -= deltaX;
     vpt[5] -= deltaY;
 
-    canvas.lastPosX -= deltaX;
-    canvas.lastPosY -= deltaY;
+    canvas["lastPosX"] -= deltaX;
+    canvas["lastPosY"] -= deltaY;
     canvas.setViewportTransform(vpt);
     constrainBoundsAroundBgImage(canvas);
     redraw(canvas);
@@ -211,8 +215,8 @@ export const constrainBoundsAroundBgImage = (canvas: fabric.Canvas) => {
     const width = boundingBox.width * canvas.getZoom();
     const height = boundingBox.height * canvas.getZoom();
 
-    const left = canvas.viewportTransform[4];
-    const top = canvas.viewportTransform[5];
+    const left = canvas.viewportTransform![4];
+    const top = canvas.viewportTransform![5];
 
     ioImage.width = width;
     ioImage.height = height;
@@ -232,7 +236,7 @@ export const setCanvasSize = (canvas: fabric.Canvas) => {
 const fitCanvasVptScale = (canvas: fabric.Canvas) => {
     const boundingBox = getBoundingBox();
     const ratio = getScaleRatio(boundingBox);
-    const vpt = canvas.viewportTransform;
+    const vpt = canvas.viewportTransform!;
 
     const boundingBoxWidth = boundingBox.width * canvas.getZoom();
     const boundingBoxHeight = boundingBox.height * canvas.getZoom();
@@ -245,14 +249,14 @@ const fitCanvasVptScale = (canvas: fabric.Canvas) => {
     vpt[4] = Math.max(1, translateX);
     vpt[5] = Math.max(1, translateY);
 
-    canvas.setViewportTransform(canvas.viewportTransform);
+    canvas.setViewportTransform(canvas.viewportTransform!);
     constrainBoundsAroundBgImage(canvas);
     redraw(canvas);
 };
 
 const getScaleRatio = (boundingBox: fabric.Rect) => {
-    const h1 = boundingBox.height;
-    const w1 = boundingBox.width;
+    const h1 = boundingBox.height!;
+    const w1 = boundingBox.width!;
     const w2 = innerWidth - 42;
     let h2 = window.innerHeight;
     h2 = isDesktop() ? h2 - 79 : h2 - 48;

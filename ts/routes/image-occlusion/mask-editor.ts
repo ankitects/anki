@@ -118,7 +118,6 @@ function initCanvas(onChange: () => void): fabric.Canvas {
 
 const setupBoundingBox = (canvas: fabric.Canvas, size: Size): fabric.Rect => {
     const boundingBox = new fabric.Rect({
-        id: "boundingBox",
         fill: "transparent",
         width: size.width,
         height: size.height,
@@ -129,6 +128,7 @@ const setupBoundingBox = (canvas: fabric.Canvas, size: Size): fabric.Rect => {
         selectable: false,
         evented: false,
     });
+    boundingBox["id"] = "boundingBox";
 
     canvas.add(boundingBox);
     onResize(canvas);

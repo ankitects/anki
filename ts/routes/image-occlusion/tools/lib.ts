@@ -165,7 +165,7 @@ export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas, boundingBox: 
             modifiedRectangle(boundingBox, activeObject);
         }
         if (activeObject.type === "ellipse") {
-            modifiedEllipse(boundingBox, activeObject);
+            modifiedEllipse(boundingBox, activeObject as unknown as fabric.Ellipse);
         }
         if (activeObject.type === "i-text") {
             modifiedText(boundingBox, activeObject);
@@ -190,7 +190,7 @@ const modifiedRectangle = (
 };
 
 const modifiedEllipse = (
-    canvas: fabric.Canvas,
+    boundingBox: fabric.Rect,
     object: fabric.Ellipse,
 ): void => {
     const newRx = object.rx! * object.scaleX!;
@@ -223,11 +223,11 @@ const setShapePosition = (
     if (object.top! < 0) {
         object.set({ top: 0 });
     }
-    if (object.left! + object.width! * object.scaleX! + object.strokeWidth! > canvas.width!) {
-        object.set({ left: canvas.width! - object.width! * object.scaleX! });
+    if (object.left! + object.width! * object.scaleX! + object.strokeWidth! > boundingBox.width!) {
+        object.set({ left: boundingBox.width! - object.width! * object.scaleX! });
     }
-    if (object.top! + object.height! * object.scaleY! + object.strokeWidth! > canvas.height!) {
-        object.set({ top: canvas.height! - object.height! * object.scaleY! });
+    if (object.top! + object.height! * object.scaleY! + object.strokeWidth! > boundingBox.height!) {
+        object.set({ top: boundingBox.height! - object.height! * object.scaleY! });
     }
     object.setCoords();
 };
@@ -261,23 +261,23 @@ export const clear = (canvas: fabric.Canvas): void => {
 
 export const makeShapeRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fabric.Rect) => {
     canvas.on("object:moving", function(e) {
-        const obj = e.target;
-        if (obj.getScaledHeight() > boundingBox.height || obj.getScaledWidth() > boundingBox.width) {
+        const obj = e.target!;
+        if (obj.getScaledHeight() > boundingBox.height! || obj.getScaledWidth() > boundingBox.width!) {
             return;
         }
 
         obj.setCoords();
 
-        const top = obj.top;
-        const left = obj.left;
+        const top = obj.top!;
+        const left = obj.left!;
 
-        const topBound = boundingBox.top;
-        const bottomBound = topBound + boundingBox.height;
-        const leftBound = boundingBox.left;
-        const rightBound = leftBound + boundingBox.width;
+        const topBound = boundingBox.top!;
+        const bottomBound = topBound + boundingBox.height!;
+        const leftBound = boundingBox.left!;
+        const rightBound = leftBound + boundingBox.width!;
 
-        obj.left = Math.min(Math.max(left, leftBound), rightBound - obj.width);
-        obj.top = Math.min(Math.max(top, topBound), bottomBound - obj.height);
+        obj.left = Math.min(Math.max(left, leftBound), rightBound - obj.width!);
+        obj.top = Math.min(Math.max(top, topBound), bottomBound - obj.height!);
     });
 };
 

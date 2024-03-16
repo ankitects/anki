@@ -5,7 +5,6 @@ import { fabric } from "fabric";
 
 import type { Shape } from "../shapes";
 
-import type { Size } from "../types";
 import { addBorder, enableUniformScaling } from "./lib";
 
 export const addShape = (
@@ -13,7 +12,7 @@ export const addShape = (
     boundingBox: fabric.Rect,
     shape: Shape,
 ): void => {
-    const fabricShape = shape.toFabric(boundingBox);
+    const fabricShape = shape.toFabric(boundingBox.getBoundingRect());
     addBorder(fabricShape);
     if (fabricShape.type === "i-text") {
         enableUniformScaling(canvas, fabricShape);
@@ -28,7 +27,7 @@ export const addShapeGroup = (
 ): void => {
     const group = new fabric.Group();
     shapes.map((shape) => {
-        const fabricShape = shape.toFabric(boundingBox);
+        const fabricShape = shape.toFabric(boundingBox.getBoundingRect());
         addBorder(fabricShape);
         group.addWithUpdate(fabricShape);
     });

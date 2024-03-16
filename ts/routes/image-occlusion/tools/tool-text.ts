@@ -34,7 +34,6 @@ export const drawText = (canvas: fabric.Canvas): void => {
         }
 
         text = new fabric.IText("text", {
-            id: "text-" + new Date().getTime(),
             left: pointer.x,
             top: pointer.y,
             originX: "left",
