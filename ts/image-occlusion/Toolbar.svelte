@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { directionKey } from "@tslib/context-keys";
     import * as tr from "@tslib/ftl";
+    import { isApplePlatform } from "@tslib/platform";
     import { getPlatformString } from "@tslib/shortcuts";
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
@@ -31,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { drawCursor } from "./tools/tool-cursor";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
-    import { disableZoom, enableZoom } from "./tools/tool-zoom";
+    import { disableZoom, enableZoom, onWheelDrag } from "./tools/tool-zoom";
 
     export let canvas;
     export let iconSize;
@@ -54,6 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let dbclicked = false;
     let move = false;
     let wheel = false;
+    const controlKey = isApplePlatform() ? "Shift" : "Control";
 
     onMount(() => {
         window.addEventListener("mousedown", (event) => {
@@ -82,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         });
         window.addEventListener("keyup", (event) => {
-            if (event.key == "Control") {
+            if (event.key === controlKey) {
                 clicked = false;
                 move = false;
                 wheel = false;
@@ -90,34 +92,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         });
         window.addEventListener("keydown", (event) => {
-            if (event.key == "Control") {
-                clicked = false;
-                move = false;
-                wheel = false;
-                dbclicked = false;
-            }
-        });
-        window.addEventListener("keydown", (event) => {
-            if (event.key == "Control" && activeTool != "magnify") {
+            if (event.key === controlKey) {
                 stopDraw(canvas);
                 enableZoom(canvas);
             }
         });
         window.addEventListener("keyup", (event) => {
-            if (event.key == "Control" && activeTool != "magnify") {
+            if (event.key === controlKey) {
                 disableFunctions();
+                handleToolChanges(activeTool);
             }
         });
-        window.addEventListener("wheel", () => {
-            if (clicked && move && wheel && !dbclicked) {
-                stopDraw(canvas);
-                enableZoom(canvas);
-            }
-        });
+        window.addEventListener(
+            "wheel",
+            (event) => {
+                event.preventDefault();
+
+                if (clicked && move && wheel && !dbclicked) {
+                    stopDraw(canvas);
+                    enableZoom(canvas);
+                }
+                onWheelDrag(canvas, event);
+            },
+            { passive: false },
+        );
     });
 
-    // handle tool changes after initialization
-    $: if (canvas) {
+    const handleToolChanges = (activeTool: string) => {
         disableFunctions();
         enableSelectable(canvas, true);
         // remove unfinished polygon when switching to other tools
@@ -126,10 +127,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         switch (activeTool) {
             case "cursor":
                 drawCursor(canvas);
-                break;
-            case "magnify":
-                enableZoom(canvas);
-                enableSelectable(canvas, false);
                 break;
             case "draw-rectangle":
                 drawRectangle(canvas);
@@ -146,6 +143,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             default:
                 break;
         }
+    };
+
+    // handle tool changes after initialization
+    $: if (canvas) {
+        handleToolChanges(activeTool);
     }
 
     const disableFunctions = () => {

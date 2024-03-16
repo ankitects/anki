@@ -291,6 +291,8 @@ export const selectAllShapes = (canvas: fabric.Canvas) => {
 
 export const isPointerInBoundingBox = (pointer): boolean => {
     const boundingBox = getBoundingBox();
+    boundingBox.selectable = false;
+    boundingBox.evented = false;
     if (
         pointer.x < boundingBox.left
         || pointer.x > boundingBox.left + boundingBox.width

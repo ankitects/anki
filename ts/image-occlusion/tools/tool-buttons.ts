@@ -6,7 +6,6 @@ import * as tr from "@tslib/ftl";
 import {
     mdiCursorDefaultOutline,
     mdiEllipseOutline,
-    mdiMagnifyScan,
     mdiRectangleOutline,
     mdiTextBox,
     mdiVectorPolygonVariant,
@@ -14,7 +13,6 @@ import {
 import {
     cursorKeyCombination,
     ellipseKeyCombination,
-    magnifyKeyCombination,
     polygonKeyCombination,
     rectangleKeyCombination,
     textKeyCombination,
@@ -26,12 +24,6 @@ export const tools = [
         icon: mdiCursorDefaultOutline,
         tooltip: tr.editingImageOcclusionSelectTool,
         shortcut: cursorKeyCombination,
-    },
-    {
-        id: "magnify",
-        icon: mdiMagnifyScan,
-        tooltip: tr.editingImageOcclusionZoomTool,
-        shortcut: magnifyKeyCombination,
     },
     {
         id: "draw-rectangle",
