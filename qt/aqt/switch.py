@@ -120,9 +120,11 @@ class Switch(QAbstractButton):
 
     def _current_label_rectangle(self) -> QRectF:
         return QRectF(
-            self._left_label_position
-            if self.isChecked()
-            else self._right_label_position,
+            (
+                self._left_label_position
+                if self.isChecked()
+                else self._right_label_position
+            ),
             0,
             self.label_width,
             self.height(),

@@ -6,6 +6,8 @@ from __future__ import annotations
 import logging
 import sys
 
+import pip_system_certs.wrapt_requests
+
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
     raise Exception("Anki requires Python 3.9+")
 
@@ -412,7 +414,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
     driver_failed = False
 
     # work around pyqt loading wrong GL library
-    if is_lin:
+    if is_lin and not sys.platform.startswith("freebsd"):
         import ctypes
 
         ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)

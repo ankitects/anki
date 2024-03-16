@@ -5,8 +5,9 @@ import { fabric } from "fabric";
 import { opacityStateStore } from "image-occlusion/store";
 import { get } from "svelte/store";
 
-import { BORDER_COLOR, SHAPE_MASK_COLOR, stopDraw } from "./lib";
+import { BORDER_COLOR, isPointerInBoundingBox, SHAPE_MASK_COLOR, stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
+import { onPinchZoom } from "./tool-zoom";
 
 export const drawEllipse = (canvas: fabric.Canvas): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
@@ -23,6 +24,11 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         const pointer = canvas.getPointer(o.e);
         origX = pointer.x;
         origY = pointer.y;
+
+        if (!isPointerInBoundingBox(pointer)) {
+            isDown = false;
+            return;
+        }
 
         ellipse = new fabric.Ellipse({
             id: "ellipse-" + new Date().getTime(),
@@ -45,6 +51,12 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
     });
 
     canvas.on("mouse:move", function(o) {
+        if (onPinchZoom(o)) {
+            canvas.remove(ellipse);
+            canvas.renderAll();
+            return;
+        }
+
         if (!isDown) {
             return;
         }

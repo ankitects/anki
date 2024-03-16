@@ -153,6 +153,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
                 ":rslib:proto",
                 // when env vars change the build hash gets updated
                 "$builddir/env",
+                "$builddir/buildhash",
                 // building on Windows requires python3.lib
                 if cfg!(windows) {
                     inputs![":extract:python"]

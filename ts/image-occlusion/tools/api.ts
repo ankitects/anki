@@ -27,12 +27,12 @@ export class MaskEditorAPI {
         this.canvas = canvas;
     }
 
-    addShape(shape: Shape): void {
-        addShape(this.canvas, shape);
+    addShape(bounding, shape: Shape): void {
+        addShape(this.canvas, bounding, shape);
     }
 
-    addShapeGroup(shapes: Shape[]): void {
-        addShapeGroup(this.canvas, shapes);
+    addShapeGroup(bounding, shapes: Shape[]): void {
+        addShapeGroup(this.canvas, bounding, shapes);
     }
 
     getClozes(occludeInactive: boolean): ClozeExportResult {

@@ -4,10 +4,15 @@
 import "./image-occlusion-base.scss";
 
 import { ModuleName, setupI18n } from "@tslib/i18n";
+import { get } from "svelte/store";
 
 import { checkNightMode } from "../lib/nightmode";
+import { addOrUpdateNote } from "./add-or-update-note";
 import ImageOcclusionPage from "./ImageOcclusionPage.svelte";
 import type { IOMode } from "./lib";
+import { hideAllGuessOne } from "./store";
+
+globalThis.anki = globalThis.anki || {};
 
 const i18n = setupI18n({
     modules: [
@@ -24,6 +29,16 @@ const i18n = setupI18n({
 export async function setupImageOcclusion(mode: IOMode, target = document.body): Promise<ImageOcclusionPage> {
     checkNightMode();
     await i18n;
+
+    async function addNote(): Promise<void> {
+        addOrUpdateNote(mode, get(hideAllGuessOne));
+    }
+
+    // for adding note from mobile devices
+    globalThis.anki.imageOcclusion = {
+        mode,
+        addNote,
+    };
 
     return new ImageOcclusionPage({
         target: target,

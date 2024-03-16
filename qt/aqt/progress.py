@@ -206,7 +206,7 @@ class ProgressManager:
         maybeShow: bool = True,
         max: int | None = None,
     ) -> None:
-        # print self._min, self._counter, self._max, label, time.monotonic() - self._lastTime
+        # print("update", label, self._levels, self._min, self._counter, self._max, label, time.monotonic() - self._shown)
         if not self.mw.inMainThread():
             print("progress.update() called on wrong thread")
             return

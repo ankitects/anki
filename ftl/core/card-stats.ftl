@@ -11,6 +11,7 @@ card-stats-new-card-position = Position
 card-stats-card-template = Card Type
 card-stats-note-type = Note Type
 card-stats-deck-name = Deck
+card-stats-preset = Preset
 card-stats-note-id = Note ID
 card-stats-card-id = Card ID
 card-stats-review-log-rating = Rating

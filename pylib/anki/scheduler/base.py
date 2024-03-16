@@ -66,12 +66,10 @@ class SchedulerBase(DeprecatedNamesMixin):
     ##########################################################################
 
     @overload
-    def deck_due_tree(self, top_deck_id: None = None) -> DeckTreeNode:
-        ...
+    def deck_due_tree(self, top_deck_id: None = None) -> DeckTreeNode: ...
 
     @overload
-    def deck_due_tree(self, top_deck_id: DeckId) -> DeckTreeNode | None:
-        ...
+    def deck_due_tree(self, top_deck_id: DeckId) -> DeckTreeNode | None: ...
 
     def deck_due_tree(self, top_deck_id: DeckId | None = None) -> DeckTreeNode | None:
         """Returns a tree of decks with counts.

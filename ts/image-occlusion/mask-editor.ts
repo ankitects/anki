@@ -5,22 +5,16 @@ import { protoBase64 } from "@bufbuild/protobuf";
 import { getImageForOcclusion, getImageOcclusionNote } from "@tslib/backend";
 import * as tr from "@tslib/ftl";
 import { fabric } from "fabric";
-import type { PanZoom } from "panzoom";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
-import { notesDataStore, tagsWritable, zoomResetValue } from "./store";
+import { notesDataStore, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
-import {
-    enableSelectable,
-    makeShapeRemainInCanvas,
-    moveShapeToCanvasBoundaries,
-    setCenterXForZoom,
-    zoomReset,
-} from "./tools/lib";
+import { enableSelectable, makeShapeRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
+import { enablePinchZoom, onResize, setCanvasSize } from "./tools/tool-zoom";
 import type { Size } from "./types";
 
 export interface ImageLoadedEvent {
@@ -30,7 +24,6 @@ export interface ImageLoadedEvent {
 
 export const setupMaskEditor = async (
     path: string,
-    instance: PanZoom,
     onChange: () => void,
     onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
@@ -42,13 +35,10 @@ export const setupMaskEditor = async (
     image.src = getImageData(imageData.data!, path);
     image.onload = function() {
         const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
-        canvas.setWidth(size.width);
-        canvas.setHeight(size.height);
-        image.height = size.height;
-        image.width = size.width;
-        setCanvasZoomRatio(canvas, instance);
-        undoStack.reset();
+        setCanvasSize(canvas);
         onImageLoaded({ path });
+        setupBoundingBox(canvas, size);
+        undoStack.reset();
     };
 
     return canvas;
@@ -56,7 +46,6 @@ export const setupMaskEditor = async (
 
 export const setupMaskEditorForEdit = async (
     noteId: number,
-    instance: PanZoom,
     onChange: () => void,
     onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
@@ -78,22 +67,17 @@ export const setupMaskEditorForEdit = async (
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
-    image.style.visibility = "hidden";
     image.src = getImageData(clozeNote.imageData!, clozeNote.imageFileName!);
-    image.onload = function() {
-        const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
-        canvas.setWidth(size.width);
-        canvas.setHeight(size.height);
-        image.height = size.height;
-        image.width = size.width;
 
-        setCanvasZoomRatio(canvas, instance);
-        addShapesToCanvasFromCloze(canvas, clozeNote.occlusions);
+    image.onload = async function() {
+        const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
+        setCanvasSize(canvas);
+        const boundingBox = setupBoundingBox(canvas, size);
+        addShapesToCanvasFromCloze(canvas, boundingBox, clozeNote.occlusions);
         enableSelectable(canvas, true);
         addClozeNotesToTextEditor(clozeNote.header, clozeNote.backExtra, clozeNote.tags);
         undoStack.reset();
         window.requestAnimationFrame(() => {
-            image.style.visibility = "visible";
             onImageLoaded({ noteId: BigInt(noteId) });
         });
     };
@@ -114,13 +98,13 @@ function initCanvas(onChange: () => void): fabric.Canvas {
     canvas.uniScaleKey = "none";
     // disable rotation globally
     delete fabric.Object.prototype.controls.mtr;
+    // disable object caching
+    fabric.Object.prototype.objectCaching = false;
     // add a border to corner to handle blend of control
     fabric.Object.prototype.transparentCorners = false;
     fabric.Object.prototype.cornerStyle = "circle";
     fabric.Object.prototype.cornerStrokeColor = "#000000";
     fabric.Object.prototype.padding = 8;
-    moveShapeToCanvasBoundaries(canvas);
-    makeShapeRemainInCanvas(canvas);
     canvas.on("object:modified", (evt) => {
         if (evt.target instanceof fabric.Polygon) {
             modifiedPolygon(canvas, evt.target);
@@ -129,9 +113,31 @@ function initCanvas(onChange: () => void): fabric.Canvas {
         onChange();
     });
     canvas.on("object:removed", onChange);
-    setCenterXForZoom(canvas);
     return canvas;
 }
+
+const setupBoundingBox = (canvas: fabric.Canvas, size: Size): fabric.Rect => {
+    const boundingBox = new fabric.Rect({
+        id: "boundingBox",
+        fill: "transparent",
+        width: size.width,
+        height: size.height,
+        hasBorders: false,
+        hasControls: false,
+        lockMovementX: true,
+        lockMovementY: true,
+        selectable: false,
+        evented: false,
+    });
+
+    canvas.add(boundingBox);
+    onResize(canvas);
+    makeShapeRemainInCanvas(canvas, boundingBox);
+    moveShapeToCanvasBoundaries(canvas, boundingBox);
+    // enable pinch zoom for mobile devices
+    enablePinchZoom(canvas);
+    return boundingBox;
+};
 
 const getImageData = (imageData, path): string => {
     const b64encoded = protoBase64.enc(imageData);
@@ -148,17 +154,6 @@ const getImageData = (imageData, path): string => {
 
     const type = mimeTypes[extension] || "png";
     return `data:image/${type};base64,${b64encoded}`;
-};
-
-export const setCanvasZoomRatio = (
-    canvas: fabric.Canvas,
-    instance: PanZoom,
-): void => {
-    const zoomRatioW = (innerWidth - 40) / canvas.width!;
-    const zoomRatioH = (innerHeight - 100) / canvas.height!;
-    const zoomRatio = zoomRatioW < zoomRatioH ? zoomRatioW : zoomRatioH;
-    zoomResetValue.set(zoomRatio);
-    zoomReset(instance);
 };
 
 const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: string[]) => {
@@ -195,16 +190,16 @@ export async function resetIOImage(path: string, onImageLoaded: (event: ImageLoa
     image.src = getImageData(imageData.data!, path);
     const canvas = globalThis.canvas;
 
-    image.onload = function() {
+    image.onload = async function() {
         const size = optimumCssSizeForCanvas(
             { width: image.naturalWidth, height: image.naturalHeight },
             containerSize(),
         );
-        canvas.setWidth(size.width);
-        canvas.setHeight(size.height);
-        image.height = size.height;
         image.width = size.width;
+        image.height = size.height;
+        setCanvasSize(canvas);
         onImageLoaded({ path });
+        setupBoundingBox(canvas, size);
     };
 }
 globalThis.resetIOImage = resetIOImage;

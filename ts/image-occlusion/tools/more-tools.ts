@@ -19,16 +19,7 @@ import {
     mdiZoomOut,
     mdiZoomReset,
 } from "../icons";
-import {
-    deleteItem,
-    duplicateItem,
-    groupShapes,
-    selectAllShapes,
-    unGroupShapes,
-    zoomIn,
-    zoomOut,
-    zoomReset,
-} from "./lib";
+import { deleteItem, duplicateItem, groupShapes, selectAllShapes, unGroupShapes } from "./lib";
 import {
     alignBottomKeyCombination,
     alignHorizontalCenterKeyCombination,
@@ -53,6 +44,7 @@ import {
     alignTop,
     alignVerticalCenter,
 } from "./tool-aligns";
+import { zoomIn, zoomOut, zoomReset } from "./tool-zoom";
 
 export const groupUngroupTools = [
     {

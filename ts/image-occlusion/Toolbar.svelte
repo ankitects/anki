@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { directionKey } from "@tslib/context-keys";
     import * as tr from "@tslib/ftl";
+    import { isApplePlatform } from "@tslib/platform";
     import { getPlatformString } from "@tslib/shortcuts";
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
@@ -28,11 +29,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "./tools/more-tools";
     import { toggleTranslucentKeyCombination } from "./tools/shortcuts";
     import { tools } from "./tools/tool-buttons";
+    import { drawCursor } from "./tools/tool-cursor";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
+    import { disableZoom, enableZoom, onWheelDrag } from "./tools/tool-zoom";
 
     export let canvas;
-    export let instance;
     export let iconSize;
     export let activeTool = "cursor";
     let showAlignTools = false;
@@ -53,6 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let dbclicked = false;
     let move = false;
     let wheel = false;
+    const controlKey = isApplePlatform() ? "Shift" : "Control";
 
     onMount(() => {
         window.addEventListener("mousedown", (event) => {
@@ -81,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         });
         window.addEventListener("keyup", (event) => {
-            if (event.key == "Control") {
+            if (event.key === controlKey) {
                 clicked = false;
                 move = false;
                 wheel = false;
@@ -89,41 +92,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         });
         window.addEventListener("keydown", (event) => {
-            if (event.key == "Control") {
-                clicked = false;
-                move = false;
-                wheel = false;
-                dbclicked = false;
-            }
-        });
-        window.addEventListener("keydown", (event) => {
-            if (event.key == "Control" && activeTool != "magnify") {
-                instance.resume();
+            if (event.key === controlKey) {
+                stopDraw(canvas);
+                enableZoom(canvas);
             }
         });
         window.addEventListener("keyup", (event) => {
-            if (event.key == "Control" && activeTool != "magnify") {
-                instance.pause();
+            if (event.key === controlKey) {
+                disableFunctions();
+                handleToolChanges(activeTool);
             }
         });
-        window.addEventListener("wheel", () => {
-            if (clicked && move && wheel && !dbclicked) {
-                enableMagnify();
-            }
-        });
+        window.addEventListener(
+            "wheel",
+            (event) => {
+                event.preventDefault();
+
+                if (clicked && move && wheel && !dbclicked) {
+                    stopDraw(canvas);
+                    enableZoom(canvas);
+                }
+                onWheelDrag(canvas, event);
+            },
+            { passive: false },
+        );
     });
 
-    // handle tool changes after initialization
-    $: if (instance && canvas) {
+    const handleToolChanges = (activeTool: string) => {
         disableFunctions();
         enableSelectable(canvas, true);
         // remove unfinished polygon when switching to other tools
         removeUnfinishedPolygon(canvas);
 
         switch (activeTool) {
-            case "magnify":
-                enableSelectable(canvas, false);
-                instance.resume();
+            case "cursor":
+                drawCursor(canvas);
                 break;
             case "draw-rectangle":
                 drawRectangle(canvas);
@@ -132,7 +135,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 drawEllipse(canvas);
                 break;
             case "draw-polygon":
-                drawPolygon(canvas, instance);
+                drawPolygon(canvas);
                 break;
             case "draw-text":
                 drawText(canvas);
@@ -140,24 +143,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             default:
                 break;
         }
+    };
+
+    // handle tool changes after initialization
+    $: if (canvas) {
+        handleToolChanges(activeTool);
     }
 
     const disableFunctions = () => {
-        instance.pause();
         stopDraw(canvas);
-        canvas.selectionColor = "rgba(100, 100, 255, 0.3)";
+        disableZoom(canvas);
     };
 
     function changeOcclusionType(occlusionType: "all" | "one"): void {
         $hideAllGuessOne = occlusionType === "all";
         emitChangeSignal();
     }
-    const enableMagnify = () => {
-        disableFunctions();
-        enableSelectable(canvas, false);
-        instance.resume();
-        activeTool = "magnify";
-    };
 </script>
 
 <div class="tool-bar-container">
@@ -250,7 +251,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {iconSize}
                     tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                     on:click={() => {
-                        tool.action(instance);
+                        tool.action(canvas);
                     }}
                 >
                     {@html tool.icon}
@@ -259,7 +260,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <Shortcut
                         keyCombination={tool.shortcut}
                         on:action={() => {
-                            tool.action(instance);
+                            tool.action(canvas);
                         }}
                     />
                 {/if}

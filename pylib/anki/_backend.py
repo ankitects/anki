@@ -125,9 +125,11 @@ class RustBackend(RustBackendGenerated):
         self, module_index: int, message_index: int, **kwargs: str | int | float
     ) -> str:
         args = {
-            k: i18n_pb2.TranslateArgValue(str=v)
-            if isinstance(v, str)
-            else i18n_pb2.TranslateArgValue(number=v)
+            k: (
+                i18n_pb2.TranslateArgValue(str=v)
+                if isinstance(v, str)
+                else i18n_pb2.TranslateArgValue(number=v)
+            )
             for k, v in kwargs.items()
         }
 
@@ -148,6 +150,11 @@ class RustBackend(RustBackendGenerated):
 
     def compute_weights_from_items(self, items: Iterable[FsrsItem]) -> Sequence[float]:
         return self.compute_fsrs_weights_from_items(items).weights
+
+    def benchmark(
+        self, train_set: Iterable[FsrsItem], test_set: Iterable[FsrsItem]
+    ) -> Sequence[float]:
+        return self.fsrs_benchmark(train_set=train_set, test_set=test_set)
 
     def _run_command(self, service: int, method: int, input: bytes) -> bytes:
         start = time.time()

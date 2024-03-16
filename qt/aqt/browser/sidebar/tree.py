@@ -1083,7 +1083,9 @@ class SidebarTreeView(QTreeView):
         ).run_in_background()
 
     def delete_decks(self, _item: SidebarItem) -> None:
-        remove_decks(parent=self, deck_ids=self._selected_decks()).run_in_background()
+        remove_decks(
+            parent=self, deck_name=_item.name, deck_ids=self._selected_decks()
+        ).run_in_background()
 
     # Tags
     ###########################
