@@ -178,8 +178,6 @@ fn declare_and_check_other_libraries(build: &mut Build) -> Result<()> {
 }
 
 fn build_and_check_pages(build: &mut Build) -> Result<()> {
-    build.add_dependency("ts:tag-editor", inputs![glob!["ts/tag-editor/**"]]);
-
     let mut build_page = |name: &str, html: bool, deps: BuildInput| -> Result<()> {
         let group = format!("ts:{name}");
         let deps = inputs![deps, glob!(format!("ts/{name}/**"))];
@@ -208,7 +206,8 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":ts:components",
             ":ts:domlib",
             ":ts:sveltelib",
-            ":sass"
+            ":sass",
+            ":sveltekit",
         ],
     )?;
 
@@ -222,7 +221,6 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
         ":ts:components",
         ":ts:domlib",
         ":ts:sveltelib",
-        ":ts:tag-editor",
         ":ts:html-filter",
         ":sass",
         glob!("ts/{editable,editor,routes/image-occlusion}/**")
@@ -243,7 +241,11 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
 }
 
 fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
-    let reviewer_deps = inputs![":ts:lib", glob!("ts/{reviewer,image-occlusion}/**"),];
+    let reviewer_deps = inputs![
+        ":ts:lib",
+        glob!("ts/{reviewer,image-occlusion}/**"),
+        ":sveltekit"
+    ];
     build.add_action(
         "ts:reviewer:reviewer.js",
         EsbuildScript {
@@ -278,7 +280,7 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
         CompileSass {
             input: inputs!["ts/reviewer/reviewer_extras.scss"],
             output: "ts/reviewer/reviewer_extras.css",
-            deps: inputs!["ts/image-occlusion/review.scss"],
+            deps: inputs!["ts/routes/image-occlusion/review.scss"],
             load_paths: vec!["."],
         },
     )?;
