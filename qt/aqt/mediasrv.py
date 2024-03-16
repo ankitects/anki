@@ -725,7 +725,7 @@ def _extract_page_context() -> PageContext:
     from urllib.parse import parse_qs, urlparse
 
     referer = urlparse(request.headers.get("Referer", ""))
-    if referer.path.startswith("/_anki/pages/"):
+    if referer.path.startswith("/_anki/pages/") or is_sveltekit_page(referer.path[1:]):
         return PageContext.NON_LEGACY_PAGE
     elif referer.path == "/_anki/legacyPageData":
         query_params = parse_qs(referer.query)
