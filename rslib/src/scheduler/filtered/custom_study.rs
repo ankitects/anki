@@ -83,6 +83,8 @@ impl Collection {
                 }
             })
             .collect();
+        let review_count: u32 = subtree.review_count;
+        let new_count: u32 = subtree.new_count;
 
         Ok(anki_proto::scheduler::CustomStudyDefaultsResponse {
             tags,
@@ -92,6 +94,8 @@ impl Collection {
             available_review,
             available_new_in_children,
             available_review_in_children,
+            review_count,
+            new_count,
         })
     }
 }

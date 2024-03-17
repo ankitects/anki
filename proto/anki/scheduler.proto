@@ -330,6 +330,8 @@ message CustomStudyDefaultsResponse {
   // in v3, counts for children are provided separately
   uint32 available_new_in_children = 6;
   uint32 available_review_in_children = 7;
+  uint32 review_count = 8;
+  uint32 new_count = 9;
 }
 
 message RepositionDefaultsResponse {

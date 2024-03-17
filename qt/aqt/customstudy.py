@@ -150,9 +150,39 @@ class CustomStudy(QDialog):
     def accept(self) -> None:
         request = CustomStudyRequest(deck_id=self.deck_id)
         if self.radioIdx == RADIO_NEW:
-            request.new_limit_delta = self.form.spin.value()
+            new_limit_delta = self.form.spin.value()
+            remaining_new = (
+                self.defaults.available_new
+                + self.defaults.available_new_in_children
+                - self.defaults.new_count
+            )
+
+            if new_limit_delta == 0:
+                request.new_limit_delta = 0
+            elif new_limit_delta >= remaining_new:
+                request.new_limit_delta = remaining_new
+            elif -new_limit_delta >= self.defaults.new_count:
+                request.new_limit_delta = -self.defaults.new_count
+            else:
+                request.new_limit_delta = new_limit_delta
+
         elif self.radioIdx == RADIO_REV:
-            request.review_limit_delta = self.form.spin.value()
+            review_limit_delta = self.form.spin.value()
+            remaining_review = (
+                self.defaults.available_review
+                + self.defaults.available_review_in_children
+                - self.defaults.review_count
+            )
+
+            if review_limit_delta == 0:
+                request.review_limit_delta = 0
+            elif review_limit_delta >= remaining_review:
+                request.review_limit_delta = remaining_review
+            elif -review_limit_delta >= self.defaults.review_count:
+                request.review_limit_delta = -self.defaults.review_count
+            else:
+                request.review_limit_delta = review_limit_delta
+
         elif self.radioIdx == RADIO_FORGOT:
             request.forgot_days = self.form.spin.value()
         elif self.radioIdx == RADIO_AHEAD:
