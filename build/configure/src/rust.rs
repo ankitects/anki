@@ -247,7 +247,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
     let files = inputs![
         glob![
             "**/*.{py,rs,ts,svelte,mjs}",
-            "{node_modules,qt/bundle/PyOxidizer,svelte-kit}/**"
+            "{node_modules,qt/bundle/PyOxidizer,ts/.svelte-kit}/**"
         ],
         "Cargo.lock"
     ];

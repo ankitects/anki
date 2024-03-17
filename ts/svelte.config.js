@@ -23,8 +23,8 @@ const config = {
             lib: join(tsFolder, "lib"),
             routes: join(tsFolder, "routes"),
         },
-        // currently outside of out/; as things break when out/ is a symlink
-        outDir: join(tsFolder, "../svelte-kit"),
+        // outside of out/; as things break when out/ is a symlink
+        outDir: join(tsFolder, ".svelte-kit"),
         output: { preloadStrategy: "preload-mjs" },
         prerender: {
             crawl: false,

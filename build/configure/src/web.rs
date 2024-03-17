@@ -43,7 +43,7 @@ fn build_sveltekit(build: &mut Build) -> Result<()> {
             output_folder: inputs!["sveltekit"],
             deps: inputs![
                 "ts/tsconfig.json",
-                glob!["ts/**", "svelte-kit/**"],
+                glob!["ts/**", "ts/.svelte-kit/**"],
                 ":ts:lib"
             ],
         },
@@ -292,7 +292,7 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
 fn check_web(build: &mut Build) -> Result<()> {
     let dprint_files = inputs![glob![
         "**/*.{ts,mjs,js,md,json,toml,svelte,scss}",
-        "{target,svelte-kit}/**"
+        "{target,ts/.svelte-kit}/**"
     ]];
     build.add_action(
         "check:format:dprint",
@@ -324,12 +324,17 @@ fn check_web(build: &mut Build) -> Result<()> {
         "check:svelte",
         SvelteCheck {
             tsconfig: inputs!["ts/tsconfig.json"],
-            inputs: inputs!["yarn", ":node_modules", ":ts:generated", glob!["ts/**/*"],],
+            inputs: inputs![
+                "yarn",
+                ":node_modules",
+                ":ts:generated",
+                glob!["ts/**/*", "ts/.svelte-kit/**"],
+            ],
         },
     )?;
     let eslint_rc = inputs![".eslintrc.cjs"];
     for folder in ["ts", "qt/aqt/data/web/js"] {
-        let inputs = inputs![glob![format!("{folder}/**"), "svelte-kit/**"]];
+        let inputs = inputs![glob![format!("{folder}/**"), "ts/.svelte-kit/**"]];
         build.add_action(
             "check:eslint",
             Eslint {

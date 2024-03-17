@@ -15,4 +15,4 @@ node_modules
 .ninja_deps
 /extra
 yarn-error.log
-svelte-kit
+ts/.svelte-kit
