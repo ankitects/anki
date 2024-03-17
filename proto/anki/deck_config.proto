@@ -202,6 +202,7 @@ message DeckConfigsForUpdate {
   bool new_cards_ignore_review_limit = 7;
   bool fsrs = 8;
   bool apply_all_parent_limits = 9;
+  uint32 days_since_last_fsrs_optimize = 10;
 }
 
 enum UpdateDeckConfigsMode {

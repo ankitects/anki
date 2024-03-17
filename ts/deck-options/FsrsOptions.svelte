@@ -35,6 +35,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const config = state.currentConfig;
     const defaults = state.defaults;
     const fsrsReschedule = state.fsrsReschedule;
+    const daysSinceLastOptimization = state.daysSinceLastOptimization;
+
+    $: lastOptimizationWarning =
+        $daysSinceLastOptimization > 30 ? tr.deckConfigOptimizeAllTip() : "";
 
     let computeWeightsProgress: ComputeWeightsProgress | undefined;
     let computingWeights = false;
@@ -300,46 +304,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <div class="m-2">
-    <details>
-        <summary>{tr.deckConfigComputeOptimalWeights()}</summary>
-        <input
-            bind:value={$config.weightSearch}
-            placeholder={defaultWeightSearch}
-            class="w-100 mb-1"
-        />
-        <button
-            class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
-            disabled={!computingWeights && computing}
-            on:click={() => computeWeights()}
-        >
-            {#if computingWeights}
-                {tr.actionsCancel()}
-            {:else}
-                {tr.deckConfigOptimizeButton()}
-            {/if}
-        </button>
-        <button
-            class="btn {checkingWeights ? 'btn-warning' : 'btn-primary'}"
-            disabled={!checkingWeights && computing}
-            on:click={() => checkWeights()}
-        >
-            {#if checkingWeights}
-                {tr.actionsCancel()}
-            {:else}
-                {tr.deckConfigEvaluateButton()}
-            {/if}
-        </button>
-        <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
-            <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
-                {tr.deckConfigIgnoreBefore()}
-            </SettingTitle>
-        </DateInput>
-        {#if computingWeights || checkingWeights}<div>
-                {computeWeightsProgressString}
-            </div>{/if}
+    <b>{tr.deckConfigComputeOptimalWeights()}</b>
+    <input
+        bind:value={$config.weightSearch}
+        placeholder={defaultWeightSearch}
+        class="w-100 mb-1"
+    />
+    <button
+        class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
+        disabled={!computingWeights && computing}
+        on:click={() => computeWeights()}
+    >
+        {#if computingWeights}
+            {tr.actionsCancel()}
+        {:else}
+            {tr.deckConfigOptimizeButton()}
+        {/if}
+    </button>
+    <button
+        class="btn {checkingWeights ? 'btn-warning' : 'btn-primary'}"
+        disabled={!checkingWeights && computing}
+        on:click={() => checkWeights()}
+    >
+        {#if checkingWeights}
+            {tr.actionsCancel()}
+        {:else}
+            {tr.deckConfigEvaluateButton()}
+        {/if}
+    </button>
+    <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
+        <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
+            {tr.deckConfigIgnoreBefore()}
+        </SettingTitle>
+    </DateInput>
+    {#if computingWeights || checkingWeights}<div>
+            {computeWeightsProgressString}
+        </div>{/if}
 
-        <div>{tr.deckConfigOptimizeAllTip()}</div>
-    </details>
+    <Warning warning={lastOptimizationWarning} className="alert-warning" />
 </div>
 
 <div class="m-2">

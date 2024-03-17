@@ -45,6 +45,7 @@ export class DeckOptionsState {
     readonly applyAllParentLimits: Writable<boolean>;
     readonly fsrs: Writable<boolean>;
     readonly fsrsReschedule: Writable<boolean> = writable(false);
+    readonly daysSinceLastOptimization: Writable<number>;
     readonly currentPresetName: Writable<string>;
 
     private targetDeckId: DeckOptionsId;
@@ -78,6 +79,7 @@ export class DeckOptionsState {
         this.newCardsIgnoreReviewLimit = writable(data.newCardsIgnoreReviewLimit);
         this.applyAllParentLimits = writable(data.applyAllParentLimits);
         this.fsrs = writable(data.fsrs);
+        this.daysSinceLastOptimization = writable(data.daysSinceLastFsrsOptimize);
 
         // decrement the use count of the starting item, as we'll apply +1 to currently
         // selected one at display time
