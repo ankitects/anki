@@ -268,17 +268,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
-<SpinBoxFloatRow
-    bind:value={$config.sm2Retention}
-    defaultValue={defaults.sm2Retention}
-    min={0.5}
-    max={1.0}
->
-    <SettingTitle on:click={() => openHelpModal("sm2Retention")}>
-        {tr.deckConfigSm2Retention()}
-    </SettingTitle>
-</SpinBoxFloatRow>
-
 <div class="ms-1 me-1">
     <WeightsInputRow
         bind:value={$config.fsrsWeights}
@@ -289,27 +278,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigWeights()}
         </SettingTitle>
     </WeightsInputRow>
-</div>
 
-<div class="m-2">
-    <SwitchRow bind:value={$fsrsReschedule} defaultValue={false}>
-        <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
-            <GlobalLabel title={tr.deckConfigRescheduleCardsOnChange()} />
-        </SettingTitle>
-    </SwitchRow>
-
-    {#if $fsrsReschedule}
-        <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
-    {/if}
-</div>
-
-<div class="m-2">
-    <b>{tr.deckConfigComputeOptimalWeights()}</b>
     <input
         bind:value={$config.weightSearch}
         placeholder={defaultWeightSearch}
         class="w-100 mb-1"
     />
+    <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
+        <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
+            {tr.deckConfigIgnoreBefore()}
+        </SettingTitle>
+    </DateInput>
     <button
         class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
         disabled={!computingWeights && computing}
@@ -332,16 +311,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigEvaluateButton()}
         {/if}
     </button>
-    <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
-        <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
-            {tr.deckConfigIgnoreBefore()}
-        </SettingTitle>
-    </DateInput>
     {#if computingWeights || checkingWeights}<div>
             {computeWeightsProgressString}
         </div>{/if}
 
     <Warning warning={lastOptimizationWarning} className="alert-warning" />
+</div>
+
+<div class="m-2">
+    <SwitchRow bind:value={$fsrsReschedule} defaultValue={false}>
+        <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
+            <GlobalLabel title={tr.deckConfigRescheduleCardsOnChange()} />
+        </SettingTitle>
+    </SwitchRow>
+
+    {#if $fsrsReschedule}
+        <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
+    {/if}
 </div>
 
 <div class="m-2">

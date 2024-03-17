@@ -12,16 +12,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HelpModal from "../components/HelpModal.svelte";
     import Item from "../components/Item.svelte";
     import SettingTitle from "../components/SettingTitle.svelte";
-    import SwitchRow from "../components/SwitchRow.svelte";
     import TitledContainer from "../components/TitledContainer.svelte";
     import { type HelpItem, HelpItemScheduler } from "../components/types";
     import CardStateCustomizer from "./CardStateCustomizer.svelte";
-    import FsrsOptions from "./FsrsOptions.svelte";
-    import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
-    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -32,49 +28,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const fsrs = state.fsrs;
 
     const settings = {
-        fsrs: {
-            title: "FSRS",
-            help: tr.deckConfigFsrsTooltip(),
-            url: HelpPage.DeckOptions.fsrs,
-        },
         maximumInterval: {
             title: tr.schedulingMaximumInterval(),
             help: tr.deckConfigMaximumIntervalTooltip(),
             url: HelpPage.DeckOptions.maximumInterval,
         },
-        desiredRetention: {
-            title: tr.deckConfigDesiredRetention(),
-            help: tr.deckConfigDesiredRetentionTooltip(),
-            sched: HelpItemScheduler.FSRS,
-        },
         sm2Retention: {
             title: tr.deckConfigSm2Retention(),
             help: tr.deckConfigSm2RetentionTooltip(),
-            sched: HelpItemScheduler.FSRS,
-        },
-        modelWeights: {
-            title: tr.deckConfigWeights(),
-            help: tr.deckConfigWeightsTooltip(),
-            sched: HelpItemScheduler.FSRS,
-        },
-        rescheduleCardsOnChange: {
-            title: tr.deckConfigRescheduleCardsOnChange(),
-            help: tr.deckConfigRescheduleCardsOnChangeTooltip(),
-            sched: HelpItemScheduler.FSRS,
-        },
-        ignoreRevlogsBeforeMs: {
-            title: tr.deckConfigIgnoreBefore(),
-            help: tr.deckConfigIgnoreBeforeTooltip(),
-            sched: HelpItemScheduler.FSRS,
-        },
-        computeOptimalWeights: {
-            title: tr.deckConfigComputeOptimalWeights(),
-            help: tr.deckConfigComputeOptimalWeightsTooltip(),
-            sched: HelpItemScheduler.FSRS,
-        },
-        computeOptimalRetention: {
-            title: tr.deckConfigComputeOptimalRetention(),
-            help: tr.deckConfigComputeOptimalRetentionTooltip(),
             sched: HelpItemScheduler.FSRS,
         },
         startingEase: {
@@ -122,8 +83,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         modal.show();
         carousel.to(index);
     }
-
-    $: fsrsClientWarning = $fsrs ? tr.deckConfigFsrsOnAllClients() : "";
 </script>
 
 <TitledContainer title={tr.deckConfigAdvancedTitle()}>
@@ -139,19 +98,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
     />
     <DynamicallySlottable slotHost={Item} {api}>
-        <Item>
-            <SwitchRow bind:value={$fsrs} defaultValue={false}>
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("fsrs"))}
-                >
-                    <GlobalLabel title={settings.fsrs.title} />
-                </SettingTitle>
-            </SwitchRow>
-        </Item>
-
-        <Warning warning={fsrsClientWarning} />
-
         <Item>
             <SpinBoxRow
                 bind:value={$config.maximumReviewInterval}
@@ -254,11 +200,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </SpinBoxFloatRow>
             </Item>
         {:else}
-            <FsrsOptions
-                {state}
-                openHelpModal={(key) =>
-                    openHelpModal(Object.keys(settings).indexOf(key))}
-            />
+            <SpinBoxFloatRow
+                bind:value={$config.sm2Retention}
+                defaultValue={defaults.sm2Retention}
+                min={0.5}
+                max={1.0}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("sm2Retention"))}
+                >
+                    {tr.deckConfigSm2Retention()}
+                </SettingTitle>
+            </SpinBoxFloatRow>
         {/if}
 
         <Item>
