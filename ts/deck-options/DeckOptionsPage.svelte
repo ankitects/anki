@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ConfigSelector from "./ConfigSelector.svelte";
     import DailyLimits from "./DailyLimits.svelte";
     import DisplayOrder from "./DisplayOrder.svelte";
+    import FsrsOptionsOuter from "./FsrsOptionsOuter.svelte";
     import HtmlAddon from "./HtmlAddon.svelte";
     import LapseOptions from "./LapseOptions.svelte";
     import type { DeckOptionsState } from "./lib";
@@ -106,6 +107,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <Addons {state} />
                 </Row>
             {/if}
+
+            <Row class="row-columns">
+                <FsrsOptionsOuter {state} api={{}} />
+            </Row>
 
             <Row class="row-columns">
                 <AdvancedOptions {state} api={advancedOptions} />
