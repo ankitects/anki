@@ -1,6 +1,7 @@
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
-use fsrs::{simulate, SimulatorConfig};
+use fsrs::simulate;
+use fsrs::SimulatorConfig;
 use itertools::Itertools;
 
 use crate::prelude::*;
