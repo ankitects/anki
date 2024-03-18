@@ -1246,7 +1246,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             highest += 1
         # must start at 1
         highest = max(1, highest)
-        self.web.eval("wrap('{{c%d::', '}}');" % highest)
+        self.web.eval("wrapCloze(%d);" % highest)
 
     def setupForegroundButton(self) -> None:
         self.fcolour = self.mw.pm.profile.get("lastColour", "#00f")
