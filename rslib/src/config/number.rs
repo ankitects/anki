@@ -10,6 +10,7 @@ use crate::prelude::*;
 pub enum I32ConfigKey {
     CsvDuplicateResolution,
     MatchScope,
+    LastFsrsOptimize,
 }
 
 impl Collection {

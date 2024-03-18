@@ -14,6 +14,7 @@ use anki_proto::deck_config::UpdateDeckConfigsMode;
 use anki_proto::decks::deck::normal::DayLimit;
 use fsrs::DEFAULT_PARAMETERS;
 
+use crate::config::I32ConfigKey;
 use crate::config::StringKey;
 use crate::decks::NormalDeck;
 use crate::prelude::*;
@@ -47,6 +48,14 @@ impl Collection {
     ) -> Result<anki_proto::deck_config::DeckConfigsForUpdate> {
         let mut defaults = DeckConfig::default();
         defaults.inner.fsrs_weights = DEFAULT_PARAMETERS.into();
+        let last_optimize = self.get_config_i32(I32ConfigKey::LastFsrsOptimize) as u32;
+        let days_since_last_fsrs_optimize = if last_optimize > 0 {
+            self.timing_today()?
+                .days_elapsed
+                .saturating_sub(last_optimize)
+        } else {
+            0
+        };
         Ok(anki_proto::deck_config::DeckConfigsForUpdate {
             all_config: self.get_deck_config_with_extra_for_update()?,
             current_deck: Some(self.get_current_deck_for_update(deck)?),
@@ -59,6 +68,7 @@ impl Collection {
             new_cards_ignore_review_limit: self.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit),
             apply_all_parent_limits: self.get_config_bool(BoolKey::ApplyAllParentLimits),
             fsrs: self.get_config_bool(BoolKey::Fsrs),
+            days_since_last_fsrs_optimize,
         })
     }
 
@@ -354,6 +364,8 @@ impl Collection {
                     println!("{}: {}", config.name, err)
                 }
             }
+            let today = self.timing_today()?.days_elapsed as i32;
+            self.set_config_i32_inner(I32ConfigKey::LastFsrsOptimize, today)?;
         }
         Ok(())
     }

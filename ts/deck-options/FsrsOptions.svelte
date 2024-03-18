@@ -35,6 +35,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const config = state.currentConfig;
     const defaults = state.defaults;
     const fsrsReschedule = state.fsrsReschedule;
+    const daysSinceLastOptimization = state.daysSinceLastOptimization;
+
+    $: lastOptimizationWarning =
+        $daysSinceLastOptimization > 30 ? tr.deckConfigOptimizeAllTip() : "";
 
     let computeWeightsProgress: ComputeWeightsProgress | undefined;
     let computingWeights = false;
@@ -264,17 +268,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
-<SpinBoxFloatRow
-    bind:value={$config.sm2Retention}
-    defaultValue={defaults.sm2Retention}
-    min={0.5}
-    max={1.0}
->
-    <SettingTitle on:click={() => openHelpModal("sm2Retention")}>
-        {tr.deckConfigSm2Retention()}
-    </SettingTitle>
-</SpinBoxFloatRow>
-
 <div class="ms-1 me-1">
     <WeightsInputRow
         bind:value={$config.fsrsWeights}
@@ -285,6 +278,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigWeights()}
         </SettingTitle>
     </WeightsInputRow>
+
+    <input
+        bind:value={$config.weightSearch}
+        placeholder={defaultWeightSearch}
+        class="w-100 mb-1"
+    />
+    <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
+        <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
+            {tr.deckConfigIgnoreBefore()}
+        </SettingTitle>
+    </DateInput>
+    <button
+        class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
+        disabled={!computingWeights && computing}
+        on:click={() => computeWeights()}
+    >
+        {#if computingWeights}
+            {tr.actionsCancel()}
+        {:else}
+            {tr.deckConfigOptimizeButton()}
+        {/if}
+    </button>
+    <button
+        class="btn {checkingWeights ? 'btn-warning' : 'btn-primary'}"
+        disabled={!checkingWeights && computing}
+        on:click={() => checkWeights()}
+    >
+        {#if checkingWeights}
+            {tr.actionsCancel()}
+        {:else}
+            {tr.deckConfigEvaluateButton()}
+        {/if}
+    </button>
+    {#if computingWeights || checkingWeights}<div>
+            {computeWeightsProgressString}
+        </div>{/if}
+
+    <Warning warning={lastOptimizationWarning} className="alert-warning" />
 </div>
 
 <div class="m-2">
@@ -297,49 +328,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if $fsrsReschedule}
         <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
     {/if}
-</div>
-
-<div class="m-2">
-    <details>
-        <summary>{tr.deckConfigComputeOptimalWeights()}</summary>
-        <input
-            bind:value={$config.weightSearch}
-            placeholder={defaultWeightSearch}
-            class="w-100 mb-1"
-        />
-        <button
-            class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
-            disabled={!computingWeights && computing}
-            on:click={() => computeWeights()}
-        >
-            {#if computingWeights}
-                {tr.actionsCancel()}
-            {:else}
-                {tr.deckConfigOptimizeButton()}
-            {/if}
-        </button>
-        <button
-            class="btn {checkingWeights ? 'btn-warning' : 'btn-primary'}"
-            disabled={!checkingWeights && computing}
-            on:click={() => checkWeights()}
-        >
-            {#if checkingWeights}
-                {tr.actionsCancel()}
-            {:else}
-                {tr.deckConfigEvaluateButton()}
-            {/if}
-        </button>
-        <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
-            <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
-                {tr.deckConfigIgnoreBefore()}
-            </SettingTitle>
-        </DateInput>
-        {#if computingWeights || checkingWeights}<div>
-                {computeWeightsProgressString}
-            </div>{/if}
-
-        <div>{tr.deckConfigOptimizeAllTip()}</div>
-    </details>
 </div>
 
 <div class="m-2">
