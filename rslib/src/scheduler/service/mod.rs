@@ -26,6 +26,7 @@ use crate::prelude::*;
 use crate::scheduler::new::NewCardDueOrder;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::SchedulingStates;
+use crate::search::SortMode;
 use crate::stats::studied_today;
 
 impl crate::services::SchedulerService for Collection {
@@ -301,7 +302,12 @@ impl crate::services::SchedulerService for Collection {
         &mut self,
         input: scheduler::GetOptimalRetentionParametersRequest,
     ) -> Result<scheduler::GetOptimalRetentionParametersResponse> {
-        self.get_optimal_retention_parameters(&input.search)
+        let revlogs = self
+            .search_cards_into_table(&input.search, SortMode::NoOrder)?
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_card_order()?;
+        self.get_optimal_retention_parameters(revlogs)
             .map(|params| GetOptimalRetentionParametersResponse {
                 params: Some(params),
             })

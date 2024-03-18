@@ -8,7 +8,7 @@ use fsrs::FSRS;
 use itertools::Itertools;
 
 use crate::prelude::*;
-use crate::revlog::RevlogReviewKind;
+use crate::revlog::{RevlogEntry, RevlogReviewKind};
 use crate::search::SortMode;
 
 #[derive(Default, Clone, Copy, Debug)]
@@ -27,7 +27,12 @@ impl Collection {
         if req.days_to_simulate == 0 {
             invalid_input!("no days to simulate")
         }
-        let p = self.get_optimal_retention_parameters(&req.search)?;
+        let revlogs = self
+            .search_cards_into_table(&req.search, SortMode::NoOrder)?
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_card_order()?;
+        let p = self.get_optimal_retention_parameters(revlogs)?;
         let learn_span = req.days_to_simulate as usize;
         let learn_limit = 10;
         let deck_size = learn_span * learn_limit;
@@ -71,13 +76,8 @@ impl Collection {
 
     pub fn get_optimal_retention_parameters(
         &mut self,
-        search: &str,
+        revlogs: Vec<RevlogEntry>,
     ) -> Result<OptimalRetentionParameters> {
-        let revlogs = self
-            .search_cards_into_table(search, SortMode::NoOrder)?
-            .col
-            .storage
-            .get_revlog_entries_for_searched_cards_in_card_order()?;
         let first_rating_count = revlogs
             .iter()
             .group_by(|r| r.cid)

@@ -8,13 +8,21 @@ use fsrs::SimulatorConfig;
 use itertools::Itertools;
 
 use crate::prelude::*;
+use crate::search::SortMode;
 
 impl Collection {
     pub fn simulate_review(
         &mut self,
         req: SimulateFsrsReviewRequest,
     ) -> Result<SimulateFsrsReviewResponse> {
-        let p = self.get_optimal_retention_parameters(&req.search)?;
+        let guard = self.search_cards_into_table(&req.search, SortMode::NoOrder)?;
+        let revlogs = guard
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_card_order()?;
+        let cards = guard.col.storage.all_searched_cards()?;
+        drop(guard);
+        let p = self.get_optimal_retention_parameters(revlogs)?;
         let config = SimulatorConfig {
             deck_size: req.deck_size as usize,
             learn_span: req.days_to_simulate as usize,
@@ -48,7 +56,12 @@ impl Collection {
             &req.weights.iter().map(|w| *w as f64).collect_vec(),
             req.desired_retention as f64,
             None,
-            None, // TODO: query cards reviewed in the deck and convert them into fsrs::Card
+            Some(
+                cards
+                    .into_iter()
+                    .map(|c| Card::convert(c, self))
+                    .collect_vec(),
+            ),
         );
         Ok(SimulateFsrsReviewResponse {
             accumulated_knowledge_acquisition: accumulated_knowledge_acquisition
@@ -59,5 +72,22 @@ impl Collection {
             daily_new_count: daily_new_count.iter().map(|x| *x as u32).collect_vec(),
             daily_time_cost: daily_time_cost.iter().map(|x| *x as f32).collect_vec(),
         })
+    }
+}
+
+impl Card {
+    fn convert(card: Card, col: &mut Collection) -> fsrs::Card {
+        if let Some(state) = card.memory_state {
+            let due = card.original_or_current_due();
+            let relative_due = due - col.timing_today().unwrap().days_elapsed as i32;
+            fsrs::Card {
+                difficulty: state.difficulty as f64,
+                stability: state.stability as f64,
+                last_date: (relative_due - card.interval as i32) as f64,
+                due: relative_due as f64,
+            }
+        } else {
+            todo!();
+        }
     }
 }
