@@ -8,7 +8,8 @@ use fsrs::FSRS;
 use itertools::Itertools;
 
 use crate::prelude::*;
-use crate::revlog::{RevlogEntry, RevlogReviewKind};
+use crate::revlog::RevlogEntry;
+use crate::revlog::RevlogReviewKind;
 use crate::search::SortMode;
 
 #[derive(Default, Clone, Copy, Debug)]
