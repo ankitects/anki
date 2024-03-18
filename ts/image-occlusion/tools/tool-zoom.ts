@@ -124,6 +124,12 @@ export const onMouseMove = (opt) => {
         return;
     }
 
+    // initializes lastPosX and lastPosY because it is undefined before the first mousemove event
+    if (canvas.lastPosX === undefined || canvas.lastPosY === undefined) {
+        canvas.lastPosX = opt.e.clientX;
+        canvas.lastPosY = opt.e.clientY;
+    }
+
     onDrag(canvas, opt);
 };
 

@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { directionKey } from "@tslib/context-keys";
     import * as tr from "@tslib/ftl";
-    import { isApplePlatform } from "@tslib/platform";
     import { getPlatformString } from "@tslib/shortcuts";
     import DropdownItem from "components/DropdownItem.svelte";
     import IconButton from "components/IconButton.svelte";
@@ -32,7 +31,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { drawCursor } from "./tools/tool-cursor";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
-    import { disablePan, disableZoom, enablePan, enableZoom, onWheelDrag, onWheelDragX } from "./tools/tool-zoom";
+    import {
+        disablePan,
+        disableZoom,
+        enablePan,
+        enableZoom,
+        onWheelDrag,
+        onWheelDragX,
+    } from "./tools/tool-zoom";
 
     export let canvas;
     export let iconSize;
@@ -54,19 +60,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let spaceClicked = false;
     let controlClicked = false;
     let shiftClicked = false;
-    let dbclicked = false;
     let move = false;
-    let wheel = false;
     const spaceKey = " ";
     const controlKey = "Control";
     const shiftKey = "Shift";
 
     onMount(() => {
         window.addEventListener("mousedown", (event) => {
-            if (event.key === spaceKey) {
-                spaceClicked = true;
-            }
-            if (event.which === 2) {
+            window.addEventListener("keydown", (ev) => {
+                if (ev.key === spaceKey) {
+                    spaceClicked = true;
+                }
+            });
+            // middle mouse button
+            if (event.button === 1) {
                 move = true;
             }
         });
@@ -87,13 +94,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         });
         window.addEventListener("keyup", (event) => {
-            if (event.key === spaceKey || event.key === controlKey || event.key === shiftKey) {
+            if (
+                event.key === spaceKey ||
+                event.key === controlKey ||
+                event.key === shiftKey
+            ) {
                 spaceClicked = false;
                 controlClicked = false;
                 shiftClicked = false;
                 move = false;
-                wheel = false;
-                dbclicked = false;
 
                 disableFunctions();
                 handleToolChanges(activeTool);
@@ -110,6 +119,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 shiftClicked = true;
             }
         });
+        window.addEventListener("wheel", (event) => {
+            if (event.ctrlKey) {
+                controlClicked = true;
+            }
+            if (event.shiftKey) {
+                shiftClicked = true;
+            }
+        });
         window.addEventListener(
             "wheel",
             (event) => {
@@ -118,6 +135,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 if (controlClicked) {
                     stopDraw(canvas);
                     enableZoom(canvas);
+                    return;
                 }
 
                 if (shiftClicked) {

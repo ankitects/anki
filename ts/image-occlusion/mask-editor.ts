@@ -86,7 +86,9 @@ export const setupMaskEditorForEdit = async (
 };
 
 function initCanvas(onChange: () => void): fabric.Canvas {
-    const canvas = new fabric.Canvas("canvas");
+    const canvas = new fabric.Canvas("canvas", {
+        fireMiddleClick: true,
+    });
     tagsWritable.set([]);
     globalThis.canvas = canvas;
     undoStack.setCanvas(canvas);
