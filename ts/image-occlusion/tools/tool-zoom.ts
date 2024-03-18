@@ -124,12 +124,6 @@ export const onMouseMove = (opt) => {
         return;
     }
 
-    // initializes lastPosX and lastPosY because it is undefined before the first mousemove event
-    if (canvas.lastPosX === undefined || canvas.lastPosY === undefined) {
-        canvas.lastPosX = opt.e.clientX;
-        canvas.lastPosY = opt.e.clientY;
-    }
-
     onDrag(canvas, opt);
 };
 
@@ -138,6 +132,17 @@ document.addEventListener("touchstart", (e) => {
     const canvas = globalThis.canvas;
     canvas.lastPosX = e.touches[0].clientX;
     canvas.lastPosY = e.touches[0].clientY;
+});
+
+// initializes lastPosX and lastPosY because it is undefined before mousemove event
+document.addEventListener("mousemove", (event) => {
+    document.addEventListener("keydown", (e) => {
+        if (e.key === " ") {
+            const canvas = globalThis.canvas;
+            canvas.lastPosX = event.clientX;
+            canvas.lastPosY = event.clientY;
+        }
+    });
 });
 
 export const onPinchZoom = (opt): boolean => {
@@ -158,8 +163,8 @@ const onDrag = (canvas, opt) => {
 
     vpt[4] += clientX - canvas.lastPosX;
     vpt[5] += clientY - canvas.lastPosY;
-    canvas.lastPosX = clientX;
-    canvas.lastPosY = clientY;
+    canvas.lastPosX += clientX - canvas.lastPosX;
+    canvas.lastPosY += clientY - canvas.lastPosY;
     constrainBoundsAroundBgImage(canvas);
     redraw(canvas);
 };

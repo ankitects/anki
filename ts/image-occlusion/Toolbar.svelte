@@ -66,20 +66,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const shiftKey = "Shift";
 
     onMount(() => {
-        window.addEventListener("mousedown", (event) => {
+        window.addEventListener("mousedown", () => {
             window.addEventListener("keydown", (ev) => {
                 if (ev.key === spaceKey) {
                     spaceClicked = true;
                 }
             });
-            // middle mouse button
-            if (event.button === 1) {
-                move = true;
-            }
         });
         window.addEventListener("mousemove", () => {
             if (spaceClicked || move) {
-                stopDraw(canvas);
+                disableFunctions();
                 enablePan(canvas);
             }
         });
@@ -133,7 +129,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 event.preventDefault();
 
                 if (controlClicked) {
-                    stopDraw(canvas);
+                    disableFunctions();
                     enableZoom(canvas);
                     return;
                 }
@@ -150,6 +146,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     const handleToolChanges = (activeTool: string) => {
+        disableFunctions();
         enableSelectable(canvas, true);
         // remove unfinished polygon when switching to other tools
         removeUnfinishedPolygon(canvas);
