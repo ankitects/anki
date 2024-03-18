@@ -85,9 +85,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
             if (move) {
                 move = false;
-                disableFunctions();
-                handleToolChanges(activeTool);
             }
+            disableFunctions();
+            handleToolChanges(activeTool);
         });
         window.addEventListener("keyup", (event) => {
             if (
