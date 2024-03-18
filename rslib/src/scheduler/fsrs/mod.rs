@@ -3,5 +3,6 @@
 mod error;
 pub mod memory_state;
 pub mod retention;
+pub mod simulator;
 pub mod try_collect;
 pub mod weights;
