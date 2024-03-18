@@ -10,8 +10,6 @@ import Hammer from "hammerjs";
 
 import { getBoundingBox, redraw } from "./lib";
 
-let isDragging = false;
-
 const minScale = 0.5;
 const maxScale = 5;
 let zoomScale = 1;
@@ -19,6 +17,9 @@ export let currentScale = 1;
 
 export const enableZoom = (canvas: fabric.Canvas) => {
     canvas.on("mouse:wheel", onMouseWheel);
+};
+
+export const enablePan = (canvas: fabric.Canvas) => {
     canvas.on("mouse:down", onMouseDown);
     canvas.on("mouse:move", onMouseMove);
     canvas.on("mouse:up", onMouseUp);
@@ -26,6 +27,9 @@ export const enableZoom = (canvas: fabric.Canvas) => {
 
 export const disableZoom = (canvas: fabric.Canvas) => {
     canvas.off("mouse:wheel", onMouseWheel);
+};
+
+export const disablePan = (canvas: fabric.Canvas) => {
     canvas.off("mouse:down", onMouseDown);
     canvas.off("mouse:move", onMouseMove);
     canvas.off("mouse:up", onMouseUp);
@@ -98,7 +102,6 @@ const onMouseWheel = (opt) => {
 };
 
 const onMouseDown = (opt) => {
-    isDragging = true;
     const canvas = globalThis.canvas;
     canvas.discardActiveObject();
     const { e } = opt;
@@ -111,19 +114,17 @@ const onMouseDown = (opt) => {
 
 export const onMouseMove = (opt) => {
     const canvas = globalThis.canvas;
-    if (isDragging) {
-        canvas.discardActiveObject();
-        if (!canvas.viewportTransform) {
-            return;
-        }
-
-        // handle pinch zoom and pan for mobile devices
-        if (onPinchZoom(opt)) {
-            return;
-        }
-
-        onDrag(canvas, opt);
+    canvas.discardActiveObject();
+    if (!canvas.viewportTransform) {
+        return;
     }
+
+    // handle pinch zoom and pan for mobile devices
+    if (onPinchZoom(opt)) {
+        return;
+    }
+
+    onDrag(canvas, opt);
 };
 
 // initializes lastPosX and lastPosY because it is undefined in touchmove event
@@ -131,6 +132,17 @@ document.addEventListener("touchstart", (e) => {
     const canvas = globalThis.canvas;
     canvas.lastPosX = e.touches[0].clientX;
     canvas.lastPosY = e.touches[0].clientY;
+});
+
+// initializes lastPosX and lastPosY because it is undefined before mousemove event
+document.addEventListener("mousemove", (event) => {
+    document.addEventListener("keydown", (e) => {
+        if (e.key === " ") {
+            const canvas = globalThis.canvas;
+            canvas.lastPosX = event.clientX;
+            canvas.lastPosY = event.clientY;
+        }
+    });
 });
 
 export const onPinchZoom = (opt): boolean => {
@@ -151,8 +163,8 @@ const onDrag = (canvas, opt) => {
 
     vpt[4] += clientX - canvas.lastPosX;
     vpt[5] += clientY - canvas.lastPosY;
-    canvas.lastPosX = clientX;
-    canvas.lastPosY = clientY;
+    canvas.lastPosX += clientX - canvas.lastPosX;
+    canvas.lastPosY += clientY - canvas.lastPosY;
     constrainBoundsAroundBgImage(canvas);
     redraw(canvas);
 };
@@ -174,8 +186,18 @@ export const onWheelDrag = (canvas: fabric.Canvas, event: WheelEvent) => {
     redraw(canvas);
 };
 
+export const onWheelDragX = (canvas: fabric.Canvas, event: WheelEvent) => {
+    const delta = event.deltaY;
+    const vpt = canvas.viewportTransform;
+    canvas.lastPosY = event.clientY;
+    vpt[4] -= delta;
+    canvas.lastPosX -= delta;
+    canvas.setViewportTransform(vpt);
+    constrainBoundsAroundBgImage(canvas);
+    redraw(canvas);
+};
+
 const onMouseUp = () => {
-    isDragging = false;
     const canvas = globalThis.canvas;
     canvas.setViewportTransform(canvas.viewportTransform);
     constrainBoundsAroundBgImage(canvas);
