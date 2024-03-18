@@ -51,6 +51,8 @@ service SchedulerService {
       returns (GetOptimalRetentionParametersResponse);
   rpc ComputeOptimalRetention(ComputeOptimalRetentionRequest)
       returns (ComputeOptimalRetentionResponse);
+  rpc SimulateFsrsReview(SimulateFsrsReviewRequest)
+      returns (SimulateFsrsReviewResponse);
   rpc EvaluateWeights(EvaluateWeightsRequest) returns (EvaluateWeightsResponse);
   rpc ComputeMemoryState(cards.CardId) returns (ComputeMemoryStateResponse);
   // The number of days the calculated interval was fuzzed by on the previous
@@ -369,6 +371,24 @@ message FsrsItem {
 message FsrsReview {
   uint32 rating = 1;
   uint32 delta_t = 2;
+}
+
+message SimulateFsrsReviewRequest {
+  repeated float weights = 1;
+  float desired_retention = 2;
+  uint32 deck_size = 3;
+  uint32 days_to_simulate = 4;
+  uint32 new_limit = 5;
+  uint32 review_limit = 6;
+  uint32 max_interval = 7;
+  string search = 8;
+}
+
+message SimulateFsrsReviewResponse {
+  repeated float accumulated_knowledge_acquisition = 1;
+  repeated uint32 daily_review_count = 2;
+  repeated uint32 daily_new_count = 3;
+  repeated float daily_time_cost = 4;
 }
 
 message ComputeOptimalRetentionRequest {

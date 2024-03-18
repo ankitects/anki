@@ -15,6 +15,8 @@ use anki_proto::scheduler::FsrsBenchmarkResponse;
 use anki_proto::scheduler::FuzzDeltaRequest;
 use anki_proto::scheduler::FuzzDeltaResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
+use anki_proto::scheduler::SimulateFsrsReviewRequest;
+use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::FSRS;
@@ -24,6 +26,7 @@ use crate::prelude::*;
 use crate::scheduler::new::NewCardDueOrder;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::SchedulingStates;
+use crate::search::SortMode;
 use crate::stats::studied_today;
 
 impl crate::services::SchedulerService for Collection {
@@ -264,6 +267,13 @@ impl crate::services::SchedulerService for Collection {
         )
     }
 
+    fn simulate_fsrs_review(
+        &mut self,
+        input: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsReviewResponse> {
+        self.simulate_review(input)
+    }
+
     fn compute_optimal_retention(
         &mut self,
         input: ComputeOptimalRetentionRequest,
@@ -292,7 +302,12 @@ impl crate::services::SchedulerService for Collection {
         &mut self,
         input: scheduler::GetOptimalRetentionParametersRequest,
     ) -> Result<scheduler::GetOptimalRetentionParametersResponse> {
-        self.get_optimal_retention_parameters(&input.search)
+        let revlogs = self
+            .search_cards_into_table(&input.search, SortMode::NoOrder)?
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_card_order()?;
+        self.get_optimal_retention_parameters(revlogs)
             .map(|params| GetOptimalRetentionParametersResponse {
                 params: Some(params),
             })
