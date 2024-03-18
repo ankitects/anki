@@ -46,6 +46,7 @@ impl Collection {
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
         };
+        let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let (
             accumulated_knowledge_acquisition,
             daily_review_count,
@@ -59,7 +60,7 @@ impl Collection {
             Some(
                 cards
                     .into_iter()
-                    .map(|c| Card::convert(c, self))
+                    .filter_map(|c| Card::convert(c, days_elapsed))
                     .collect_vec(),
             ),
         );
@@ -76,18 +77,19 @@ impl Collection {
 }
 
 impl Card {
-    fn convert(card: Card, col: &mut Collection) -> fsrs::Card {
-        if let Some(state) = card.memory_state {
-            let due = card.original_or_current_due();
-            let relative_due = due - col.timing_today().unwrap().days_elapsed as i32;
-            fsrs::Card {
-                difficulty: state.difficulty as f64,
-                stability: state.stability as f64,
-                last_date: (relative_due - card.interval as i32) as f64,
-                due: relative_due as f64,
+    fn convert(card: Card, days_elapsed: i32) -> Option<fsrs::Card> {
+        match card.memory_state {
+            Some(state) => {
+                let due = card.original_or_current_due();
+                let relative_due = due - days_elapsed;
+                Some(fsrs::Card {
+                    difficulty: state.difficulty as f64,
+                    stability: state.stability as f64,
+                    last_date: (relative_due - card.interval as i32) as f64,
+                    due: relative_due as f64,
+                })
             }
-        } else {
-            todo!();
+            None => None,
         }
     }
 }
