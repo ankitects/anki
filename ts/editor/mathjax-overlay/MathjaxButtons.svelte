@@ -38,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </IconButton>
     </ButtonGroup>
 
-    <ClozeButtons on:surround alwaysEnabled={true} />
+    <ClozeButtons on:cloze alwaysEnabled={true} />
 
     <ButtonGroup>
         <IconButton
