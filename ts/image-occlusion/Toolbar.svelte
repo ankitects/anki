@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { drawCursor } from "./tools/tool-cursor";
     import { removeUnfinishedPolygon } from "./tools/tool-polygon";
     import { undoRedoTools, undoStack } from "./tools/tool-undo-redo";
-    import { disableZoom, enableZoom, onWheelDrag } from "./tools/tool-zoom";
+    import { disablePan, disableZoom, enablePan, enableZoom, onWheelDrag, onWheelDragX } from "./tools/tool-zoom";
 
     export let canvas;
     export let iconSize;
@@ -51,56 +51,63 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     // handle zoom event when mouse scroll and ctrl key are hold for panzoom
-    let clicked = false;
+    let spaceClicked = false;
+    let controlClicked = false;
+    let shiftClicked = false;
     let dbclicked = false;
     let move = false;
     let wheel = false;
-    const controlKey = isApplePlatform() ? "Shift" : "Control";
+    const spaceKey = " ";
+    const controlKey = "Control";
+    const shiftKey = "Shift";
 
     onMount(() => {
         window.addEventListener("mousedown", (event) => {
-            if (event.ctrlKey) {
-                clicked = true;
+            if (event.key === spaceKey) {
+                spaceClicked = true;
             }
-        });
-        window.addEventListener("mouseup", (event) => {
-            if (event.ctrlKey) {
-                clicked = false;
-            }
-        });
-        window.addEventListener("mousemove", (event) => {
-            if (event.ctrlKey) {
+            if (event.which === 2) {
                 move = true;
             }
         });
-        window.addEventListener("wheel", (event) => {
-            if (event.ctrlKey) {
-                wheel = true;
+        window.addEventListener("mousemove", () => {
+            if (spaceClicked || move) {
+                stopDraw(canvas);
+                enablePan(canvas);
             }
         });
-        window.addEventListener("dblclick", (event) => {
-            if (event.ctrlKey) {
-                dbclicked = true;
+        window.addEventListener("mouseup", () => {
+            if (spaceClicked) {
+                spaceClicked = false;
+            }
+            if (move) {
+                move = false;
+                disableFunctions();
+                handleToolChanges(activeTool);
             }
         });
         window.addEventListener("keyup", (event) => {
-            if (event.key === controlKey) {
-                clicked = false;
+            if (event.key === spaceKey || event.key === controlKey || event.key === shiftKey) {
+                spaceClicked = false;
+                controlClicked = false;
+                shiftClicked = false;
                 move = false;
                 wheel = false;
                 dbclicked = false;
+
+                disableFunctions();
+                handleToolChanges(activeTool);
             }
         });
         window.addEventListener("keydown", (event) => {
-            if (event.key === controlKey) {
-                stopDraw(canvas);
-                enableZoom(canvas);
+            if (event.key === spaceKey) {
+                spaceClicked = true;
             }
-        });
-        window.addEventListener("keyup", (event) => {
             if (event.key === controlKey) {
-                disableFunctions();
-                handleToolChanges(activeTool);
+                controlClicked = true;
+            }
+            if (event.key === shiftKey) {
+                shiftClicked = true;
             }
         });
         window.addEventListener(
@@ -108,10 +115,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             (event) => {
                 event.preventDefault();
 
-                if (clicked && move && wheel && !dbclicked) {
+                if (controlClicked) {
                     stopDraw(canvas);
                     enableZoom(canvas);
                 }
+
+                if (shiftClicked) {
+                    onWheelDragX(canvas, event);
+                    return;
+                }
+
                 onWheelDrag(canvas, event);
             },
             { passive: false },
@@ -119,7 +132,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     const handleToolChanges = (activeTool: string) => {
-        disableFunctions();
         enableSelectable(canvas, true);
         // remove unfinished polygon when switching to other tools
         removeUnfinishedPolygon(canvas);
@@ -153,6 +165,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const disableFunctions = () => {
         stopDraw(canvas);
         disableZoom(canvas);
+        disablePan(canvas);
     };
 
     function changeOcclusionType(occlusionType: "all" | "one"): void {
