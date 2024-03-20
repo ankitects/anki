@@ -22,7 +22,9 @@ use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::scheduler::fsrs::weights::ignore_revlogs_before_ms_from_config;
 use crate::search::JoinSearches;
+use crate::search::Negated;
 use crate::search::SearchNode;
+use crate::search::StateKind;
 use crate::storage::comma_separated_ids;
 
 #[derive(Debug, Clone)]
@@ -267,9 +269,12 @@ impl Collection {
                             None
                         }
                     });
+                    let search = SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search))
+                        .and(SearchNode::State(StateKind::Suspended).negated())
+                        .try_into_search()?;
                     Ok(UpdateMemoryStateEntry {
                         req: weights,
-                        search: SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search)),
+                        search,
                         ignore_before: config
                             .map(ignore_revlogs_before_ms_from_config)
                             .unwrap_or(Ok(0.into()))?,
