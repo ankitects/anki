@@ -456,10 +456,14 @@ pub struct SveltekitBuild {
 
 impl BuildAction for SveltekitBuild {
     fn command(&self) -> &str {
-        if cfg!(windows) {
-            "cmd /c yarn build"
+        if std::env::var("HMR").is_err() {
+            if cfg!(windows) {
+                "cmd /c yarn build"
+            } else {
+                "./yarn build"
+            }
         } else {
-            "./yarn build"
+            "echo"
         }
     }
 
