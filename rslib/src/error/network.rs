@@ -155,7 +155,7 @@ fn guess_reqwest_error(mut info: String) -> AnkiError {
         if info.contains("invalid type") {
             info = format!(
                 "{} {} {}\n\n{}",
-                "Please force a full sync in the Preferences screen to bring your devices into sync.",
+                "Please force a one-way sync in the Preferences screen to bring your devices into sync.",
                 "Then, please use the Check Database feature, and sync to your other devices.",
                 "If problems persist, please post on the support forum.",
                 info,
