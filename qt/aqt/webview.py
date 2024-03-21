@@ -14,7 +14,7 @@ import anki
 import anki.lang
 from anki._legacy import deprecated
 from anki.lang import is_rtl
-from anki.utils import is_lin, is_mac, is_win
+from anki.utils import hmr_mode, is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -769,7 +769,13 @@ html {{ {font} }}
             extra = "#night"
         else:
             extra = ""
-        self.load_url(QUrl(f"{mw.serverURL()}{path}{extra}"))
+
+        if hmr_mode:
+            server = "http://127.0.0.1:5173/"
+        else:
+            server = mw.serverURL()
+
+        self.load_url(QUrl(f"{server}{path}{extra}"))
         self.add_dynamic_styling_and_props_then_show()
 
     def force_load_hack(self) -> None:
