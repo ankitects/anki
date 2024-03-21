@@ -15,6 +15,7 @@ use crate::sync::http_server::media_manager::ServerMediaManager;
 
 pub(in crate::sync) struct User {
     pub name: String,
+    pub password_hash: String,
     pub col: Option<Collection>,
     pub sync_state: Option<ServerSyncState>,
     pub media: ServerMediaManager,
