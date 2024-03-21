@@ -193,10 +193,10 @@ export const onWheelDrag = (canvas: fabric.Canvas, event: WheelEvent) => {
 
 export const onWheelDragX = (canvas: fabric.Canvas, event: WheelEvent) => {
     const delta = event.deltaY;
-    const vpt = canvas.viewportTransform;
-    canvas.lastPosY = event.clientY;
+    const vpt = canvas.viewportTransform!;
+    (canvas as any).lastPosY = event.clientY!;
     vpt[4] -= delta;
-    canvas.lastPosX -= delta;
+    (canvas as any).lastPosX -= delta;
     canvas.setViewportTransform(vpt);
     constrainBoundsAroundBgImage(canvas);
     redraw(canvas);

@@ -8,13 +8,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
-    import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
-    import HelpModal from "../components/HelpModal.svelte";
-    import Item from "../components/Item.svelte";
-    import SettingTitle from "../components/SettingTitle.svelte";
-    import SwitchRow from "../components/SwitchRow.svelte";
-    import TitledContainer from "../components/TitledContainer.svelte";
-    import { type HelpItem, HelpItemScheduler } from "../components/types";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
+    import HelpModal from "$lib/components/HelpModal.svelte";
+    import Item from "$lib/components/Item.svelte";
+    import SettingTitle from "$lib/components/SettingTitle.svelte";
+    import SwitchRow from "$lib/components/SwitchRow.svelte";
+    import TitledContainer from "$lib/components/TitledContainer.svelte";
+    import { type HelpItem, HelpItemScheduler } from "$lib/components/types";
+
     import FsrsOptions from "./FsrsOptions.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";
