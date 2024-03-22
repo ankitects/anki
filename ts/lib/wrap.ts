@@ -113,6 +113,7 @@ export function wrapClozeInternal(base: Element, n: number): void {
     const fragment = range.extractContents();
     if (fragment.childNodes.length === 0) {
         document.execCommand("inserthtml", false, `{{c${n}::}}`);
+        moveCursorInside(selection, "}}");
     } else {
         const startNode = document.createTextNode(`{{c${n}::`);
         const endNode = document.createTextNode("}}");
