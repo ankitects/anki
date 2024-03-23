@@ -84,6 +84,45 @@ PYTHON_BINARY, NODE_BINARY, YARN_BINARY and/or PROTOC_BINARY to use locally-inst
 If rust-toolchain.toml is removed, newer Rust versions can be used. Older versions
 may or may not compile the code.
 
+To build Anki fully offline, set the following environment variables:
+
+- OFFLINE_BUILD: If set, the build does not run tools that may access
+  the network.
+
+- NODE_BINARY, YARN_BINARY and PROTOC_BINARY must also be set.
+
+With OFFLINE_BUILD defined, manual intervention is required for the
+offline build to succeed. The following conditions must be met:
+
+1. All required dependencies (node, Python, rust, yarn, etc.) must be
+   present in the build environment.
+
+2. The offline repositories for the translation files must be
+   copied/linked to ftl/qt-repo and ftl/core-repo.
+
+3. The Python pseudo venv must be set up:
+
+   ```
+   mkdir out/pyenv/bin
+   ln -s /path/to/python out/pyenv/bin/python
+   ln -s /path/to/protoc-gen-mypy out/pyenv/bin/protoc-gen-mypy
+   ```
+
+   Note that the PYTHON_BINARY environment variable need not be set,
+   since it is only used when OFFLINE_BUILD is unset to automatically
+   create a network-dependent Python venv.
+
+4. Create the offline cache for yarn and use its own environment
+   variable YARN_CACHE_FOLDER to it:
+
+   ```
+   YARN_CACHE_FOLDER=/path/to/the/yarn/cache
+   /path/to/yarn install --ignore-scripts
+   ```
+
+You are now ready to build wheels and Sphinx documentation fully
+offline.
+
 ## More
 
 For info on running tests, building wheels and so on, please see [Development](./development.md).
