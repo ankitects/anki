@@ -24,7 +24,6 @@ use pylib::build_pylib;
 use pylib::check_pylib;
 use python::check_python;
 use python::setup_venv;
-use python::setup_venv_stub;
 use rust::build_rust;
 use rust::check_minilints;
 use rust::check_rust;
@@ -47,22 +46,18 @@ fn main() -> Result<()> {
     setup_protoc(build)?;
     check_proto(build, inputs![glob!["proto/**/*.proto"]])?;
 
-    setup_python(build)?;
-
-    if env::var("NO_VENV").is_ok() {
-        println!("NO_VENV is set, using Python system environment.");
-        setup_venv_stub(build)?;
-    } else {
-        setup_venv(build)?;
+    if env::var("OFFLINE_BUILD").is_err() {
+        setup_python(build)?;
     }
+    setup_venv(build)?;
 
     build_rust(build)?;
     build_pylib(build)?;
     build_and_check_web(build)?;
     build_and_check_aqt(build)?;
-    build_bundle(build)?;
 
     if env::var("OFFLINE_BUILD").is_err() {
+        build_bundle(build)?;
         setup_sphix(build)?;
     }
 
