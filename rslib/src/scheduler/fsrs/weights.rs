@@ -93,10 +93,12 @@ impl Collection {
             }
         });
         let fsrs = FSRS::new(Some(current_weights))?;
+        let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
         let mut weights =
             fsrs.compute_parameters(items.clone(), fsrs_items < 1000, Some(progress2))?;
-        let metrics = fsrs.universal_metrics(items, &weights, |_| true)?;
-        if metrics.0 <= metrics.1 {
+        let optimized_fsrs = FSRS::new(Some(&weights))?;
+        let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
+        if current_rmse <= optimized_rmse {
             weights = current_weights.to_vec();
         }
 
