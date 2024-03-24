@@ -15,12 +15,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import * as tr from "@tslib/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
 
-    import LabelButton from "../components/LabelButton.svelte";
-    import Shortcut from "../components/Shortcut.svelte";
+    import LabelButton from "$lib/components/LabelButton.svelte";
+    import Shortcut from "$lib/components/Shortcut.svelte";
 
     const keyCombination = "Control+Shift+P";
     function preview(): void {

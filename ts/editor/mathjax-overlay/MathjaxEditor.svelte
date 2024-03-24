@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import * as tr from "@tslib/ftl";
+    import * as tr from "@generated/ftl";
     import { noop } from "@tslib/functional";
     import { isArrowLeft, isArrowRight } from "@tslib/keys";
     import { getPlatformString } from "@tslib/shortcuts";
@@ -22,7 +22,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, onMount } from "svelte";
     import type { Writable } from "svelte/store";
 
-    import { pageTheme } from "../../sveltelib/theme";
+    import { pageTheme } from "$lib/sveltelib/theme";
+
     import { baseOptions, focusAndSetCaret, latex } from "../code-mirror";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import CodeMirror from "../CodeMirror.svelte";

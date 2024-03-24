@@ -1,0 +1,7 @@
+#!/bin/bash
+# Execute subcommand (eg 'yarn <cmd> ...')
+
+set -e
+
+export PATH="./out/extracted/node/bin:$PATH"
+./out/extracted/node/bin/yarn $*

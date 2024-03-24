@@ -43,17 +43,13 @@ class DeckOptionsDialog(QDialog):
         addCloseShortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS)
-        self.web.load_ts_page("deck-options")
+        self.web.load_sveltekit_page(f"deck-options/{self._deck['id']}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
         self.setLayout(layout)
         self.show()
         self.web.hide_while_preserving_layout()
-
-        self.web.eval(
-            f"""const $deckOptions = anki.setupDeckOptions({self._deck["id"]});"""
-        )
         self.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )

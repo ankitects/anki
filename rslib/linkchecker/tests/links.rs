@@ -74,7 +74,7 @@ fn ts_help_pages() -> impl Iterator<Item = &'static str> {
         static ref QUOTED_URL: Regex = Regex::new("\"(http.+)\"").unwrap();
     }
     QUOTED_URL
-        .captures_iter(include_str!("../../../ts/lib/help-page.ts"))
+        .captures_iter(include_str!("../../../ts/lib/tslib/help-page.ts"))
         .map(|caps| caps.get(1).unwrap().as_str())
 }
 

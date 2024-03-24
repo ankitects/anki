@@ -1,0 +1,121 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+@use "vars";
+@use "sass:color";
+@use "./elevation" as *;
+
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
+@mixin impressed-shadow($intensity) {
+    box-shadow: inset 0 calc(var(--buttons-size, 10px) / 15)
+        calc(var(--buttons-size, 10px) / 5) rgba(black, $intensity);
+}
+
+@mixin border-radius {
+    border-top-left-radius: var(--border-left-radius);
+    border-bottom-left-radius: var(--border-left-radius);
+
+    border-top-right-radius: var(--border-right-radius);
+    border-bottom-right-radius: var(--border-right-radius);
+}
+
+@mixin background($primary: false, $hover: true) {
+    @if $primary {
+        background: var(--button-primary-bg);
+        @if $hover {
+            &:hover {
+                background: linear-gradient(
+                    180deg,
+                    var(--button-primary-gradient-start) 0%,
+                    var(--button-primary-gradient-end) 100%
+                );
+            }
+        }
+    } @else {
+        background: var(--button-bg);
+        @if $hover {
+            &:hover {
+                background: linear-gradient(
+                    180deg,
+                    var(--button-gradient-start) 0%,
+                    var(--button-gradient-end) 100%
+                );
+                /* Makes distinguishing hover state in light theme easier */
+                border: 1px solid var(--shadow);
+            }
+        }
+    }
+}
+
+@mixin base(
+    $primary: false,
+    $border: true,
+    $with-hover: true,
+    $with-active: true,
+    $active-class: "",
+    $with-disabled: true
+) {
+    -webkit-appearance: none;
+    cursor: pointer;
+    @if $border {
+        @if $primary {
+            border: none;
+        } @else {
+            border: 1px solid var(--border-subtle);
+            border-bottom-color: var(--shadow);
+        }
+    } @else {
+        border: none;
+    }
+    @include background($primary, $hover: $with-hover);
+
+    @if ($primary) {
+        color: white;
+    } @else {
+        color: var(--fg);
+    }
+
+    @if ($with-active) {
+        &:active {
+            @include impressed-shadow(0.35);
+            border-color: var(--border-subtle);
+        }
+        @if ($active-class != "") {
+            &.#{$active-class} {
+                @include impressed-shadow(0.35);
+                background: var(--button-primary-bg);
+                color: white;
+                border-color: var(--border);
+            }
+        }
+    }
+
+    @if ($with-disabled) {
+        &[disabled],
+        &[disabled]:hover {
+            cursor: not-allowed;
+            color: var(--fg-disabled);
+            box-shadow: none !important;
+            background-color: var(--button-gradient-end);
+            border-bottom-color: var(--border-subtle);
+        }
+    }
+}
+
+$focus-color: var(--shadow-focus);
+
+@mixin select($with-disabled: true) {
+    width: 100%;
+
+    pointer-events: all;
+    cursor: pointer;
+
+    @include base($with-disabled: $with-disabled);
+
+    border-radius: var(--border-radius);
+
+    &.rtl {
+        direction: rtl;
+    }
+}

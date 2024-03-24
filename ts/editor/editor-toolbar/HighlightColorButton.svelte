@@ -3,14 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import * as tr from "@tslib/ftl";
     import { removeStyleProperties } from "@tslib/styling";
     import { singleCallback } from "@tslib/typing";
     import { onMount } from "svelte";
 
-    import IconButton from "../../components/IconButton.svelte";
-    import type { FormattingNode, MatchType } from "../../domlib/surround";
+    import IconButton from "$lib/components/IconButton.svelte";
+    import type { FormattingNode, MatchType } from "$lib/domlib/surround";
+
     import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import ColorPicker from "./ColorPicker.svelte";

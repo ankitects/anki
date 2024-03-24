@@ -16,41 +16,32 @@ use crate::extract::Variable;
 use crate::extract::VariableKind;
 
 pub fn write_ts_interface(modules: &[Module]) -> Result<()> {
-    let mut dts_out = header();
-    let mut js_out = header();
-    write_translate_method(&mut js_out);
-    dts_out.push_str("export declare const funcs: any;\n");
+    let mut ts_out = header();
+    write_imports(&mut ts_out);
 
-    render_module_map(modules, &mut dts_out, &mut js_out);
-    render_methods(modules, &mut dts_out, &mut js_out);
+    render_module_map(modules, &mut ts_out);
+    render_methods(modules, &mut ts_out);
 
-    if let Ok(path) = env::var("STRINGS_JS") {
+    if let Ok(path) = env::var("STRINGS_TS") {
         let path = PathBuf::from(path);
         create_dir_all(path.parent().unwrap())?;
-        write_file_if_changed(path, js_out)?;
-    }
-    if let Ok(path) = env::var("STRINGS_DTS") {
-        let path = PathBuf::from(path);
-        create_dir_all(path.parent().unwrap())?;
-        write_file_if_changed(path, dts_out)?;
+        write_file_if_changed(path, ts_out)?;
     }
 
     Ok(())
 }
 
-fn render_module_map(modules: &[Module], dts_out: &mut String, js_out: &mut String) {
-    dts_out.push_str("export declare enum ModuleName {\n");
-    js_out.push_str("export const ModuleName = {};\n");
+fn render_module_map(modules: &[Module], ts_out: &mut String) {
+    ts_out.push_str("export enum ModuleName {\n");
     for module in modules {
         let name = &module.name;
         let upper = name.to_upper_case();
-        writeln!(dts_out, r#"    {upper} = "{name}","#).unwrap();
-        writeln!(js_out, r#"ModuleName["{upper}"] = "{name}";"#).unwrap();
+        writeln!(ts_out, r#"    {upper} = "{name}","#).unwrap();
     }
-    dts_out.push('}');
+    ts_out.push('}');
 }
 
-fn render_methods(modules: &[Module], dts_out: &mut String, js_out: &mut String) {
+fn render_methods(modules: &[Module], ts_out: &mut String) {
     for module in modules {
         for translation in &module.translations {
             let text = &translation.text;
@@ -59,20 +50,14 @@ fn render_methods(modules: &[Module], dts_out: &mut String, js_out: &mut String)
             let arg_types = get_arg_types(&translation.variables);
             let args = get_args(&translation.variables);
             let maybe_args = if translation.variables.is_empty() {
-                ""
+                "".to_string()
             } else {
-                "args"
+                arg_types
             };
             writeln!(
-                dts_out,
-                "
-/** {text} */
-export declare function {func_name}({arg_types}): string;",
-            )
-            .unwrap();
-            writeln!(
-                js_out,
+                ts_out,
                 r#"
+/** {text} */
 export function {func_name}({maybe_args}) {{
     return translate("{key}", {args})
 }}"#,
@@ -101,23 +86,15 @@ fn get_args(variables: &[Variable]) -> String {
 }
 
 fn typescript_arg_name(name: &str) -> String {
-    let name = name.replace('-', "_").to_camel_case();
-    if name == "new" {
-        "new_".into()
-    } else {
-        name
-    }
+    name.replace('-', "_").to_camel_case()
 }
 
-fn write_translate_method(buf: &mut String) {
+fn write_imports(buf: &mut String) {
     buf.push_str(
         "
-// tslib is responsible for injecting getMessage helper in
-export const funcs = {};
-
-function translate(key, args = {}) {
-    return funcs.getMessage(key, args) ?? `missing key: ${key}`;
-}
+import { translate } from './ftl-helpers';
+export { firstLanguage, setBundles } from './ftl-helpers';
+export { FluentBundle, FluentResource } from '@fluent/bundle';
 ",
     );
 }

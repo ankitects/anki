@@ -1,5 +1,5 @@
 {
-    "extends": "../../../../../ts/tsconfig.json",
+    "extends": "../../../../../ts/tsconfig_legacy.json",
     "include": ["*.ts"],
     "references": [],
     "compilerOptions": {

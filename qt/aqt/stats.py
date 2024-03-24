@@ -134,7 +134,7 @@ class NewDeckStats(QDialog):
         return False
 
     def refresh(self) -> None:
-        self.form.web.load_ts_page("graphs")
+        self.form.web.load_sveltekit_page("graphs")
 
 
 class DeckStats(QDialog):

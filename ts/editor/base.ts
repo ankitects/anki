@@ -8,16 +8,17 @@
 import "./legacy.scss";
 import "./editor-base.scss";
 import "@tslib/runtime-require";
-import "../sveltelib/export-runtime";
+import "$lib/sveltelib/export-runtime";
 
 import { setupI18n } from "@tslib/i18n";
 import { uiResolve } from "@tslib/ui";
 
-import * as contextKeys from "../components/context-keys";
-import IconButton from "../components/IconButton.svelte";
-import LabelButton from "../components/LabelButton.svelte";
-import WithContext from "../components/WithContext.svelte";
-import WithState from "../components/WithState.svelte";
+import * as contextKeys from "$lib/components/context-keys";
+import IconButton from "$lib/components/IconButton.svelte";
+import LabelButton from "$lib/components/LabelButton.svelte";
+import WithContext from "$lib/components/WithContext.svelte";
+import WithState from "$lib/components/WithState.svelte";
+
 import BrowserEditor from "./BrowserEditor.svelte";
 import NoteCreator from "./NoteCreator.svelte";
 import * as editorContextKeys from "./NoteEditor.svelte";

@@ -5,8 +5,9 @@ import { getSelection, isSelectionCollapsed } from "@tslib/cross-browser";
 import { elementIsBlock, hasBlockAttribute, nodeIsElement, nodeIsText } from "@tslib/dom";
 import { on } from "@tslib/events";
 
-import { moveChildOutOfElement } from "../domlib/move-nodes";
-import { placeCaretAfter, placeCaretBefore } from "../domlib/place-caret";
+import { moveChildOutOfElement } from "$lib/domlib/move-nodes";
+import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
+
 import type { FrameHandle } from "./frame-handle";
 import { checkHandles, frameElementTagName, FrameEnd, FrameStart, isFrameHandle } from "./frame-handle";
 

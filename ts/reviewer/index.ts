@@ -7,7 +7,7 @@
 
 export { default as $, default as jQuery } from "jquery/dist/jquery";
 
-import { imageOcclusionAPI } from "../image-occlusion/review";
+import { imageOcclusionAPI } from "../routes/image-occlusion/review";
 import { mutateNextCardStates } from "./answering";
 import { addBrowserClasses } from "./browser_selector";
 

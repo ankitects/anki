@@ -5,14 +5,26 @@
     "author": "Ankitects Pty Ltd and contributors",
     "license": "AGPL-3.0-or-later",
     "description": "Anki JS support files",
+    "scripts": {
+        "dev": "cd ts && vite dev",
+        "build": "cd ts && vite build",
+        "preview": "cd ts && vite preview",
+        "svelte-check:once": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --threshold warning --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-no-noninteractive-tabindex:ignore,a11y-no-static-element-interactions:ignore",
+        "svelte-check": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch  --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-no-noninteractive-tabindex:ignore,a11y-no-static-element-interactions:ignore",
+        "vitest:once": "cd ts && vitest run",
+        "vitest": "cd ts && vitest"
+    },
     "devDependencies": {
-        "@bufbuild/protoc-gen-es": "^1.2.1",
+        "@bufbuild/protoc-gen-es": "^1.8.0",
         "@sqltools/formatter": "^1.2.2",
+        "@sveltejs/adapter-static": "^3.0.0",
+        "@sveltejs/kit": "^2.4.1",
+        "@sveltejs/vite-plugin-svelte": "^3.0.0",
         "@types/bootstrap": "^5.0.12",
         "@types/codemirror": "^5.60.0",
         "@types/d3": "^7.0.0",
         "@types/diff": "^5.0.0",
-        "@types/jest": "^27.0.2",
+        "@types/fabric": "^5.3.7",
         "@types/jquery": "^3.5.0",
         "@types/jqueryui": "^1.12.13",
         "@types/lodash-es": "^4.17.4",
@@ -32,8 +44,6 @@
         "eslint-plugin-import": "^2.25.4",
         "eslint-plugin-simple-import-sort": "^10.0.0",
         "eslint-plugin-svelte": "^2",
-        "jest-cli": "^28.0.0-alpha.5",
-        "jest-environment-jsdom": "^28.0.0-alpha.5",
         "license-checker-rseidelsohn": "^4.2.6",
         "prettier": "^2.4.1",
         "prettier-plugin-svelte": "^2.10.1",
@@ -43,7 +53,9 @@
         "svelte-preprocess-esbuild": "^3.0.1",
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
-        "typescript": "^5.0.4"
+        "typescript": "^5.0.4",
+        "vite": "^5.0.12",
+        "vitest": "^1.2.1"
     },
     "dependencies": {
         "@bufbuild/protobuf": "^1.2.1",
@@ -74,5 +86,6 @@
         "not < 1%",
         "Chrome 77",
         "iOS 14.5"
-    ]
+    ],
+    "type": "module"
 }

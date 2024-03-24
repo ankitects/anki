@@ -1,5 +1,5 @@
 {
-    "@bufbuild/protobuf@1.7.2": {
+    "@bufbuild/protobuf@1.4.2": {
         "licenses": "(Apache-2.0 AND BSD-3-Clause)",
         "repository": "https://github.com/bufbuild/protobuf-es",
         "path": "node_modules/@bufbuild/protobuf",
@@ -75,8 +75,8 @@
     "acorn-walk@7.2.0": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
-        "path": "node_modules/acorn-walk",
-        "licenseFile": "node_modules/acorn-walk/LICENSE"
+        "path": "node_modules/acorn-globals/node_modules/acorn-walk",
+        "licenseFile": "node_modules/acorn-globals/node_modules/acorn-walk/LICENSE"
     },
     "acorn@7.4.1": {
         "licenses": "MIT",
@@ -84,11 +84,11 @@
         "path": "node_modules/acorn-globals/node_modules/acorn",
         "licenseFile": "node_modules/acorn-globals/node_modules/acorn/LICENSE"
     },
-    "acorn@8.11.3": {
+    "acorn@8.11.2": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
-        "path": "node_modules/acorn",
-        "licenseFile": "node_modules/acorn/LICENSE"
+        "path": "node_modules/jsdom/node_modules/acorn",
+        "licenseFile": "node_modules/jsdom/node_modules/acorn/LICENSE"
     },
     "agent-base@6.0.2": {
         "licenses": "MIT",
@@ -98,13 +98,6 @@
         "path": "node_modules/agent-base",
         "licenseFile": "node_modules/agent-base/README.md"
     },
-    "amator@1.1.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/anvaka/amator",
-        "publisher": "Andrei Kashcha",
-        "path": "node_modules/amator",
-        "licenseFile": "node_modules/amator/LICENSE"
-    },
     "asynckit@0.4.0": {
         "licenses": "MIT",
         "repository": "https://github.com/alexindigo/asynckit",
@@ -112,14 +105,6 @@
         "email": "iam@alexindigo.com",
         "path": "node_modules/asynckit",
         "licenseFile": "node_modules/asynckit/LICENSE"
-    },
-    "bezier-easing@2.1.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/gre/bezier-easing",
-        "publisher": "Gaëtan Renaudeau",
-        "email": "renaudeau.gaetan@gmail.com",
-        "path": "node_modules/bezier-easing",
-        "licenseFile": "node_modules/bezier-easing/LICENSE"
     },
     "bootstrap-icons@1.11.3": {
         "licenses": "MIT",
@@ -498,6 +483,14 @@
         "path": "node_modules/form-data",
         "licenseFile": "node_modules/form-data/License"
     },
+    "hammerjs@2.0.8": {
+        "licenses": "MIT",
+        "repository": "https://github.com/hammerjs/hammer.js",
+        "publisher": "Jorik Tangelder",
+        "email": "j.tangelder@gmail.com",
+        "path": "node_modules/hammerjs",
+        "licenseFile": "node_modules/hammerjs/LICENSE.md"
+    },
     "html-encoding-sniffer@3.0.0": {
         "licenses": "MIT",
         "repository": "https://github.com/jsdom/html-encoding-sniffer",
@@ -611,13 +604,6 @@
         "path": "node_modules/ms",
         "licenseFile": "node_modules/ms/license.md"
     },
-    "ngraph.events@1.2.2": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/anvaka/ngraph.events",
-        "publisher": "Andrei Kashcha",
-        "path": "node_modules/ngraph.events",
-        "licenseFile": "node_modules/ngraph.events/LICENSE"
-    },
     "nwsapi@2.2.7": {
         "licenses": "MIT",
         "repository": "https://github.com/dperini/nwsapi",
@@ -625,13 +611,6 @@
         "email": "diego.perini@gmail.com",
         "path": "node_modules/nwsapi",
         "licenseFile": "node_modules/nwsapi/LICENSE"
-    },
-    "panzoom@9.4.3": {
-        "licenses": "MIT",
-        "repository": "https://github.com/anvaka/panzoom",
-        "publisher": "Andrei Kashcha",
-        "path": "node_modules/panzoom",
-        "licenseFile": "node_modules/panzoom/LICENSE"
     },
     "parse5@6.0.1": {
         "licenses": "MIT",
@@ -800,13 +779,6 @@
         "email": "github@smayr.name",
         "path": "node_modules/data-urls/node_modules/whatwg-url",
         "licenseFile": "node_modules/data-urls/node_modules/whatwg-url/LICENSE.txt"
-    },
-    "wheel@1.0.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/anvaka/wheel",
-        "publisher": "Andrei Kashcha",
-        "path": "node_modules/wheel",
-        "licenseFile": "node_modules/wheel/LICENSE"
     },
     "ws@8.16.0": {
         "licenses": "MIT",

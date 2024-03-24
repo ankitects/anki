@@ -248,6 +248,7 @@ is_win = sys.platform.startswith("win32")
 # also covers *BSD
 is_lin = not is_mac and not is_win
 dev_mode = os.getenv("ANKIDEV", "")
+hmr_mode = os.getenv("HMR", "")
 
 INVALID_FILENAME_CHARS = ':*?"<>|'
 

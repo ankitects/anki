@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { JsonValue } from "@bufbuild/protobuf";
-import type { SchedulingStatesWithContext } from "@tslib/anki/frontend_pb";
-import type { SchedulingContext } from "@tslib/anki/scheduler_pb";
-import { SchedulingStates } from "@tslib/anki/scheduler_pb";
-import { getSchedulingStatesWithContext, setSchedulingStates } from "@tslib/backend";
+import type { SchedulingStatesWithContext } from "@generated/anki/frontend_pb";
+import type { SchedulingContext } from "@generated/anki/scheduler_pb";
+import { SchedulingStates } from "@generated/anki/scheduler_pb";
+import { getSchedulingStatesWithContext, setSchedulingStates } from "@generated/backend";
 
 interface CustomDataStates {
     again: Record<string, unknown>;
