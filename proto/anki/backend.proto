@@ -13,6 +13,7 @@ message BackendInit {
   repeated string preferred_langs = 1;
   string locale_folder_path = 2;
   bool server = 3;
+  optional string custom_cert = 4;
 }
 
 message I18nBackendInit {
