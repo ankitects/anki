@@ -74,7 +74,7 @@ export function getSummaries(log: ImportResponse_Log): SummarizedLogQueues[] {
             queues: [
                 {
                     notes: log.conflicting,
-                    reason: tr.importingNoteSkippedUpdateDueToNotetype(),
+                    reason: tr.importingNoteSkippedUpdateDueToNotetype2(),
                 },
                 {
                     notes: log.missingNotetype,
@@ -90,7 +90,7 @@ export function getSummaries(log: ImportResponse_Log): SummarizedLogQueues[] {
                 },
             ],
             action: tr.importingSkipped(),
-            summaryTemplate: tr.importingConflictingNotesSkipped2,
+            summaryTemplate: tr.importingNotesFailed,
             canBrowse: false,
             icon: closeBox,
         },
