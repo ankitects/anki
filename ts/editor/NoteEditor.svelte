@@ -387,7 +387,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { ImageOcclusionFieldIndexes } from "@tslib/anki/image_occlusion_pb";
     import { getImageOcclusionFields } from "@tslib/backend";
-    import { wrapClozeInternal, wrapInternal } from "@tslib/wrap";
+    import { wrapInternal } from "@tslib/wrap";
     import Shortcut from "components/Shortcut.svelte";
     import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
     import ImageOcclusionPicker from "image-occlusion/ImageOcclusionPicker.svelte";
@@ -541,16 +541,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
         }
 
-        function wrapCloze(n: number): void {
-            if (!$focusedInput || !editingInputIsRichText($focusedInput)) {
-                return;
-            }
-
-            $focusedInput.element.then((element) => {
-                wrapClozeInternal(element, n);
-            });
-        }
-
         Object.assign(globalThis, {
             saveSession,
             setFields,
@@ -569,7 +559,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setNoteId,
             setNotetypeMeta,
             wrap,
-            wrapCloze,
             setMathjaxEnabled,
             setShrinkImages,
             setCloseHTMLTags,
