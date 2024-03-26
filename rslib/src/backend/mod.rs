@@ -23,6 +23,7 @@ use std::thread::JoinHandle;
 use futures::future::AbortHandle;
 use once_cell::sync::OnceCell;
 use prost::Message;
+use reqwest::Certificate;
 use reqwest::Client;
 use tokio::runtime;
 use tokio::runtime::Runtime;
@@ -57,6 +58,7 @@ pub struct BackendInner {
     backup_task: Mutex<Option<JoinHandle<Result<()>>>>,
     media_sync_task: Mutex<Option<JoinHandle<Result<()>>>>,
     web_client: OnceCell<Client>,
+    custom_cert: Option<Certificate>,
 }
 
 #[derive(Default)]
@@ -72,12 +74,21 @@ pub fn init_backend(init_msg: &[u8]) -> result::Result<Backend, String> {
         };
 
     let tr = I18n::new(&input.preferred_langs);
+    let cert_str = input.custom_cert;
 
-    Ok(Backend::new(tr, input.server))
+    if cert_str.is_some() {
+        let cert = Certificate::from_pem(cert_str.unwrap().as_bytes());
+
+        if cert.is_ok() {
+            return Ok(Backend::new(tr, Some(cert.unwrap()), input.server));
+        }
+    }
+
+    Ok(Backend::new(tr, None, input.server))
 }
 
 impl Backend {
-    pub fn new(tr: I18n, server: bool) -> Backend {
+    pub fn new(tr: I18n, cert: Option<Certificate>, server: bool) -> Backend {
         Backend(Arc::new(BackendInner {
             col: Mutex::new(None),
             tr,
@@ -92,6 +103,7 @@ impl Backend {
             backup_task: Mutex::new(None),
             media_sync_task: Mutex::new(None),
             web_client: OnceCell::new(),
+            custom_cert: cert,
         }))
     }
 
@@ -138,9 +150,20 @@ impl Backend {
     }
 
     fn web_client(&self) -> &Client {
-        // currently limited to http1, as nginx doesn't support http2 proxies
-        self.web_client
-            .get_or_init(|| Client::builder().http1_only().build().unwrap())
+        if self.custom_cert.is_some() {
+            self.web_client.get_or_init(|| {
+                Client::builder()
+                    .use_rustls_tls()
+                    .add_root_certificate(self.custom_cert.as_ref().unwrap().clone())
+                    .http1_only()
+                    .build()
+                    .unwrap()
+            })
+        } else {
+            // currently limited to http1, as nginx doesn't support http2 proxies
+            self.web_client
+                .get_or_init(|| Client::builder().http1_only().build().unwrap())
+        }
     }
 
     fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {
