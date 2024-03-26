@@ -142,7 +142,7 @@ impl Backend {
         let cert_conv = Certificate::from_pem(cert_str.as_bytes());
 
         if cert_conv.is_ok() {
-            let mut client_mutex = self.web_client.try_lock();
+            let mut client_mutex = self.web_client.lock();
 
             if let Ok(ref mut web_client) = client_mutex {
                 let _ = (**web_client).insert(
@@ -162,18 +162,16 @@ impl Backend {
         Err(AnkiError::InvalidCertificateFormat)
     }
 
-    fn web_client(&self) -> Option<Client> {
-        let mut client_mutex = self.web_client.try_lock();
+    fn web_client(&self) -> Result<Client> {
+        let mut client_mutex = self.web_client.lock();
 
         if let Ok(ref mut web_client) = client_mutex {
-            return Some(
-                (**web_client)
-                    .get_or_insert(Client::builder().http1_only().build().unwrap())
-                    .clone(),
-            );
+            return Ok((**web_client)
+                .get_or_insert(Client::builder().http1_only().build().unwrap())
+                .clone());
         }
 
-        None
+        Err(AnkiError::BackendWebClientConflict)
     }
 
     fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {

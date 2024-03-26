@@ -25,8 +25,8 @@ impl Backend {
     {
         self.runtime_handle().block_on(async move {
             let client = self.web_client();
-            if client.is_none() {
-                return Err(AnkiError::BackendWebClientConflict);
+            if client.is_err() {
+                return Err(client.unwrap_err());
             }
 
             let out = client

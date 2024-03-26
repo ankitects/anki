@@ -245,12 +245,12 @@ impl Backend {
         };
         let rt = self.runtime_handle();
 
-        let web_client = self.web_client();
-        if web_client.is_none() {
-            return Err(AnkiError::BackendWebClientConflict);
+        let client = self.web_client();
+        if client.is_err() {
+            return Err(client.unwrap_err());
         }
 
-        let sync_fut = mgr.sync_media(progress, auth, web_client.unwrap(), server_usn);
+        let sync_fut = mgr.sync_media(progress, auth, client.unwrap(), server_usn);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let result = rt.block_on(abortable_sync);
 
@@ -290,9 +290,9 @@ impl Backend {
     ) -> Result<anki_proto::sync::SyncAuth> {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
-        let web_client = self.web_client();
-        if web_client.is_none() {
-            return Err(AnkiError::BackendWebClientConflict);
+        let client = self.web_client();
+        if client.is_err() {
+            return Err(client.unwrap_err());
         }
 
         let rt = self.runtime_handle();
@@ -300,7 +300,7 @@ impl Backend {
             input.username,
             input.password,
             input.endpoint.clone(),
-            web_client.unwrap(),
+            client.unwrap(),
         );
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
@@ -341,8 +341,8 @@ impl Backend {
         let local = self.with_col(|col| col.sync_meta())?;
 
         let web_client = self.web_client();
-        if web_client.is_none() {
-            return Err(AnkiError::BackendWebClientConflict);
+        if web_client.is_err() {
+            return Err(web_client.unwrap_err());
         }
 
         let mut client = HttpSyncClient::new(auth, web_client.unwrap());
@@ -370,8 +370,8 @@ impl Backend {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let web_client = self.web_client();
-        if web_client.is_none() {
-            return Err(AnkiError::BackendWebClientConflict);
+        if web_client.is_err() {
+            return Err(web_client.unwrap_err());
         }
 
         let rt = self.runtime_handle();
@@ -437,17 +437,17 @@ impl Backend {
 
         let mut builder = col_inner.as_builder();
 
-        let web_client = self.web_client();
-        if web_client.is_none() {
-            return Err(AnkiError::BackendWebClientConflict);
+        let client = self.web_client();
+        if client.is_err() {
+            return Err(client.unwrap_err());
         }
 
         let result = if upload {
-            let sync_fut = col_inner.full_upload(auth, web_client.unwrap());
+            let sync_fut = col_inner.full_upload(auth, client.unwrap());
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         } else {
-            let sync_fut = col_inner.full_download(auth, web_client.unwrap());
+            let sync_fut = col_inner.full_download(auth, client.unwrap());
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         };
