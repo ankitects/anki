@@ -24,8 +24,13 @@ impl Backend {
         O: Message + Default,
     {
         self.runtime_handle().block_on(async move {
+            if self.web_client().is_none() {
+                return Err(AnkiError::BackendWebClientConflict);
+            }
+
             let out = self
                 .web_client()
+                .unwrap()
                 .post(service_url(service))
                 .body(input.encode_to_vec())
                 .timeout(Duration::from_secs(60))
