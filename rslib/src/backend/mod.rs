@@ -142,10 +142,10 @@ impl Backend {
         let cert_conv = Certificate::from_pem(cert_str.as_bytes());
 
         if cert_conv.is_ok() {
-            let client_mutex = self.web_client.try_lock();
+            let mut client_mutex = self.web_client.try_lock();
 
-            if client_mutex.is_ok() {
-                let _ = client_mutex.unwrap().insert(
+            if let Ok(ref mut web_client) = client_mutex {
+                let _ = (**web_client).insert(
                     Client::builder()
                         .use_rustls_tls()
                         .add_root_certificate(cert_conv.unwrap())
@@ -163,12 +163,11 @@ impl Backend {
     }
 
     fn web_client(&self) -> Option<Client> {
-        let client_mutex = self.web_client.try_lock();
+        let mut client_mutex = self.web_client.try_lock();
 
-        if client_mutex.is_ok() {
+        if let Ok(ref mut web_client) = client_mutex {
             return Some(
-                client_mutex
-                    .unwrap()
+                (**web_client)
                     .get_or_insert(Client::builder().http1_only().build().unwrap())
                     .clone(),
             );
