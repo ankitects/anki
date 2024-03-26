@@ -154,6 +154,8 @@ impl Backend {
                         .unwrap(),
                 );
                 return Ok(());
+            } else {
+                return Err(AnkiError::BackendWebClientConflict);
             }
         }
 
