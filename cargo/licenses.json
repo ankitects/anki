@@ -2511,6 +2511,15 @@
     "description": "Traits which describe the functionality of password hashing algorithms, as well as a `no_std`-friendly implementation of the PHC string format (a well-defined subset of the Modular Crypt Format a.k.a. MCF)"
   },
   {
+    "name": "password-hash",
+    "version": "0.5.0",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/traits/tree/master/password-hash",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Traits which describe the functionality of password hashing algorithms, as well as a `no_std`-friendly implementation of the PHC string format (a well-defined subset of the Modular Crypt Format a.k.a. MCF)"
+  },
+  {
     "name": "paste",
     "version": "1.0.14",
     "authors": "David Tolnay <dtolnay@gmail.com>",
@@ -2522,6 +2531,15 @@
   {
     "name": "pbkdf2",
     "version": "0.11.0",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/password-hashes/tree/master/pbkdf2",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Generic implementation of PBKDF2"
+  },
+  {
+    "name": "pbkdf2",
+    "version": "0.12.2",
     "authors": "RustCrypto Developers",
     "repository": "https://github.com/RustCrypto/password-hashes/tree/master/pbkdf2",
     "license": "Apache-2.0 OR MIT",
