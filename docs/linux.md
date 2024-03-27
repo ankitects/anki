@@ -108,6 +108,13 @@ offline build to succeed. The following conditions must be met:
    ln -s /path/to/protoc-gen-mypy out/pyenv/bin/protoc-gen-mypy
    ```
 
+   Optionally, set up your environment to generate Sphinx documentation:
+
+   ```
+   ln -s /path/to/sphinx-apidoc out/pyenv/bin/sphinx-apidoc
+   ln -s /path/to/sphinx-build out/pyenv/bin/sphinx-build
+   ```
+
    Note that the PYTHON_BINARY environment variable need not be set,
    since it is only used when OFFLINE_BUILD is unset to automatically
    create a network-dependent Python venv.
