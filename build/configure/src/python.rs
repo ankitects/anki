@@ -250,13 +250,19 @@ struct Sphinx {
 
 impl BuildAction for Sphinx {
     fn command(&self) -> &str {
-        "$pip install sphinx sphinx_rtd_theme sphinx-autoapi \
-         && $python python/sphinx/build.py"
+        if env::var("OFFLINE_BUILD").is_err() {
+            "$pip install sphinx sphinx_rtd_theme sphinx-autoapi \
+             && $python python/sphinx/build.py"
+        } else {
+            "$python python/sphinx/build.py"
+        }
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
+        if env::var("OFFLINE_BUILD").is_err() {
+            build.add_inputs("pip", inputs![":pyenv:pip"]);
+        }
         build.add_inputs("python", inputs![":pyenv:bin"]);
-        build.add_inputs("pip", inputs![":pyenv:pip"]);
         build.add_inputs("", &self.deps);
         build.add_output_stamp("python/sphinx/stamp");
     }
@@ -266,7 +272,7 @@ impl BuildAction for Sphinx {
     }
 }
 
-pub(crate) fn setup_sphix(build: &mut Build) -> Result<()> {
+pub(crate) fn setup_sphinx(build: &mut Build) -> Result<()> {
     build.add_action(
         "python:sphinx:copy_conf",
         CopyFiles {
