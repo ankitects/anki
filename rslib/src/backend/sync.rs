@@ -245,12 +245,11 @@ impl Backend {
         };
         let rt = self.runtime_handle();
 
-        let client = self.web_client();
-        if client.is_err() {
-            return Err(client.unwrap_err());
-        }
+        let Ok(client) = self.web_client() else {
+            return Err(AnkiError::Interrupted);
+        };
 
-        let sync_fut = mgr.sync_media(progress, auth, client.unwrap(), server_usn);
+        let sync_fut = mgr.sync_media(progress, auth, client, server_usn);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let result = rt.block_on(abortable_sync);
 
@@ -290,17 +289,16 @@ impl Backend {
     ) -> Result<anki_proto::sync::SyncAuth> {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
-        let client = self.web_client();
-        if client.is_err() {
-            return Err(client.unwrap_err());
-        }
+        let Ok(client) = self.web_client() else {
+            return Err(AnkiError::Interrupted);
+        };
 
         let rt = self.runtime_handle();
         let sync_fut = sync_login(
             input.username,
             input.password,
             input.endpoint.clone(),
-            client.unwrap(),
+            client,
         );
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
@@ -340,12 +338,11 @@ impl Backend {
         let time_at_check_begin = TimestampSecs::now();
         let local = self.with_col(|col| col.sync_meta())?;
 
-        let web_client = self.web_client();
-        if web_client.is_err() {
-            return Err(web_client.unwrap_err());
-        }
+        let Ok(web_client) = self.web_client() else {
+            return Err(AnkiError::Interrupted);
+        };
 
-        let mut client = HttpSyncClient::new(auth, web_client.unwrap());
+        let mut client = HttpSyncClient::new(auth, web_client);
         let state = rt.block_on(online_sync_status_check(local, &mut client))?;
         {
             let mut guard = self.state.lock().unwrap();
@@ -369,13 +366,11 @@ impl Backend {
         let auth: SyncAuth = input.auth.or_invalid("missing auth")?.try_into()?;
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
-        let web_client = self.web_client();
-        if web_client.is_err() {
-            return Err(web_client.unwrap_err());
-        }
+        let Ok(client) = self.web_client() else {
+            return Err(AnkiError::Interrupted);
+        };
 
         let rt = self.runtime_handle();
-        let client = web_client.unwrap();
         let auth2 = auth.clone();
 
         let ret = self.with_col(|col| {
@@ -437,17 +432,16 @@ impl Backend {
 
         let mut builder = col_inner.as_builder();
 
-        let client = self.web_client();
-        if client.is_err() {
-            return Err(client.unwrap_err());
-        }
+        let Ok(client) = self.web_client() else {
+            return Err(AnkiError::Interrupted);
+        };
 
         let result = if upload {
-            let sync_fut = col_inner.full_upload(auth, client.unwrap());
+            let sync_fut = col_inner.full_upload(auth, client);
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         } else {
-            let sync_fut = col_inner.full_download(auth, client.unwrap());
+            let sync_fut = col_inner.full_download(auth, client);
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         };

@@ -139,23 +139,21 @@ impl Backend {
     }
 
     fn set_custom_cert(&self, cert_str: String) -> Result<()> {
-        let cert_conv = Certificate::from_pem(cert_str.as_bytes());
-
-        if cert_conv.is_ok() {
+        if let Ok(certificate) = Certificate::from_pem(cert_str.as_bytes()) {
             let mut client_mutex = self.web_client.lock();
 
             if let Ok(ref mut web_client) = client_mutex {
                 let _ = (**web_client).insert(
                     Client::builder()
                         .use_rustls_tls()
-                        .add_root_certificate(cert_conv.unwrap())
+                        .add_root_certificate(certificate)
                         .http1_only()
                         .build()
                         .unwrap(),
                 );
                 return Ok(());
             } else {
-                return Err(AnkiError::BackendWebClientConflict);
+                return Err(AnkiError::Interrupted);
             }
         }
 
@@ -169,9 +167,9 @@ impl Backend {
             return Ok((**web_client)
                 .get_or_insert(Client::builder().http1_only().build().unwrap())
                 .clone());
+        } else {
+            return Err(AnkiError::Interrupted);
         }
-
-        Err(AnkiError::BackendWebClientConflict)
     }
 
     fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {

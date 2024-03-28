@@ -45,8 +45,7 @@ message BackendError {
     // Originated from and usually specific to the OS.
     OS_ERROR = 20;
     SCHEDULER_UPGRADE_REQUIRED = 21;
-    BACKEND_WEB_CLIENT_CONFLICT = 22;
-    INVALID_CERTIFICATE_FORMAT = 23;
+    INVALID_CERTIFICATE_FORMAT = 22;
   }
 
   // error description, usually localized, suitable for displaying to the user

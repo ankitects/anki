@@ -48,8 +48,7 @@ impl AnkiError {
             #[cfg(windows)]
             AnkiError::WindowsError { .. } => Kind::OsError,
             AnkiError::SchedulerUpgradeRequired => Kind::SchedulerUpgradeRequired,
-            AnkiError::BackendWebClientConflict => Kind::BackendWebClientConflict,
-            AnkiError::InvalidCertificateFormat => Kind::InvalidCertificateFormat
+            AnkiError::InvalidCertificateFormat => Kind::InvalidCertificateFormat,
         };
 
         anki_proto::backend::BackendError {

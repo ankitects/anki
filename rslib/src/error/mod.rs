@@ -117,7 +117,6 @@ pub enum AnkiError {
     FsrsInsufficientData,
     FsrsUnableToDetermineDesiredRetention,
     SchedulerUpgradeRequired,
-    BackendWebClientConflict,
     InvalidCertificateFormat,
 }
 
@@ -167,7 +166,6 @@ impl AnkiError {
             | AnkiError::InvalidServiceIndex
             | AnkiError::InvalidMethodIndex
             | AnkiError::UndoEmpty
-            | AnkiError::BackendWebClientConflict
             | AnkiError::InvalidCertificateFormat => format!("{:?}", self),
             AnkiError::FileIoError { source } => source.message(),
             AnkiError::InvalidInput { source } => source.message(),
