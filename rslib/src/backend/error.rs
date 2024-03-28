@@ -49,6 +49,7 @@ impl AnkiError {
             AnkiError::WindowsError { .. } => Kind::OsError,
             AnkiError::SchedulerUpgradeRequired => Kind::SchedulerUpgradeRequired,
             AnkiError::FsrsInsufficientReviews { .. } => Kind::InvalidInput,
+            AnkiError::InvalidCertificateFormat => Kind::InvalidCertificateFormat,
         };
 
         anki_proto::backend::BackendError {

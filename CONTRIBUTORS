@@ -17,7 +17,7 @@ When submitting a pull request, GitHub Actions will check that the Git email you
 are submitting from matches the one you used to edit this file. A common issue
 is adding yourself to this file using the username on your computer, but then
 using GitHub to rebase or edit a pull request online. This will result in your
-Git email becoming something like user@noreply.github.com. To prevent the
+Git email becoming something like <user@noreply.github.com>. To prevent the
 automatic check from failing, you can edit this file again using GitHub's online
 editor, making a trivial edit like adding a space after your name, and then pull
 requests will work regardless of whether you create them using your computer or
@@ -118,7 +118,7 @@ yellowjello <github.com/yellowjello>
 Ingemar Berg <github.com/ingemarberg>
 Ben Kerman <ben@kermanic.org>
 Euan Kemp <euank@euank.com>
-Kieran Black <kieranlblack@gmail.com> 
+Kieran Black <kieranlblack@gmail.com>
 XeR <github.com/XeR>
 mgrottenthaler <github.com/mgrottenthaler>
 Austin Siew <github.com/Aquafina-water-bottle>
@@ -138,7 +138,7 @@ Monty Evans <montyevans@gmail.com>
 Nil Admirari <https://github.com/nihil-admirari>
 Michael Winkworth <github.com/SteelColossus>
 Mateusz Wojewoda <kawa1.11@o2.pl>
-Jarrett Ye <jarrett.ye@outlook.com> 
+Jarrett Ye <jarrett.ye@outlook.com>
 Sam Waechter <github.com/swektr>
 Michael Eliachevitch <m.eliachevitch@posteo.de>
 Carlo Quick <https://github.com/CarloQuick>
@@ -168,6 +168,8 @@ Arbyste <arbyste@outlook.com>
 Vasll <github.com/vasll>
 laalsaas <laalsaas@systemli.org>
 ijqq <ijqq@protonmail.ch>
+Voczi <dev@voczi.com>
+
 ********************
 
 The text of the 3 clause BSD license follows:

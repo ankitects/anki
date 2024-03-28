@@ -24,8 +24,11 @@ impl Backend {
         O: Message + Default,
     {
         self.runtime_handle().block_on(async move {
-            let out = self
-                .web_client()
+            let Ok(client) = self.web_client() else {
+                return Err(AnkiError::Interrupted);
+            };
+
+            let out = client
                 .post(service_url(service))
                 .body(input.encode_to_vec())
                 .timeout(Duration::from_secs(60))
