@@ -412,12 +412,12 @@ deck-config-compute-optimal-weights-tooltip =
     By default, parameters will be calculated from the review history of all decks using the current preset. You can
     optionally adjust the search before calculating the parameters, if you'd like to alter which cards are used for
     optimizing the parameters.
-deck-config-compute-optimal-retention-tooltip =
-    This tool assumes you're starting with 0 cards, and will attempt to calculate the amount of material you'll
-    be able to retain in the given time frame. The estimated retention will greatly depend on your inputs, and
-    if it significantly differs from 0.9, it's a sign that the time you've allocated each day is either too low
-    or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
-    is not recommended to copy it into the desired retention field.
+deck-config-compute-optimal-retention-tooltip2 =
+    This tool assumes that you’re starting with 0 learned cards, and will attempt to find the desired retention
+    value that will lead to the most material learnt, in the least amount of time. This number can be used as a
+    reference when deciding what to set your desired retention to. You may wish to choose a higher desired retention,
+    if you’re willing to trade more study time for a greater recall rate. Setting your desired retention lower than
+    the optimum is not recommended, as it will lead to more work without benefit.
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-a-100-day-interval = 
     { $days ->
@@ -438,6 +438,8 @@ deck-config-show-reminder = Show Reminder
 deck-config-answer-again = Answer Again
 deck-config-answer-hard = Answer Hard
 deck-config-answer-good = Answer Good
+deck-config-days-to-simulate = Days to simulate
+deck-config-desired-retention-below-optimal = Your desired retention is below optimal. Increasing it is recommended.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
@@ -457,3 +459,9 @@ deck-config-bury-tooltip =
     
     When using the V3 scheduler, interday learning cards can also be buried. Interday
     learning cards are cards with a current learning step of one or more days.
+deck-config-compute-optimal-retention-tooltip =
+    This tool assumes you're starting with 0 cards, and will attempt to calculate the amount of material you'll
+    be able to retain in the given time frame. The estimated retention will greatly depend on your inputs, and
+    if it significantly differs from 0.9, it's a sign that the time you've allocated each day is either too low
+    or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
+    is not recommended to copy it into the desired retention field.
