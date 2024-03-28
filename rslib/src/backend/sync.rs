@@ -156,8 +156,13 @@ impl crate::services::BackendSyncService for Backend {
         Ok(())
     }
 
-    fn set_custom_certificate(&self, input: generic::String) -> Result<()> {
-        self.set_custom_cert(input.val)
+    fn set_custom_certificate(&self, _input: generic::String) -> Result<generic::Bool> {
+        #[cfg(feature = "rustls")]
+        return Ok(generic::Bool::from(
+            self.set_custom_cert(_input.val).is_ok(),
+        ));
+        #[cfg(not(feature = "rustls"))]
+        return Ok(generic::Bool::from(false));
     }
 }
 

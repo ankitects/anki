@@ -23,6 +23,7 @@ use std::thread::JoinHandle;
 use futures::future::AbortHandle;
 use once_cell::sync::OnceCell;
 use prost::Message;
+#[cfg(feature = "rustls")]
 use reqwest::Certificate;
 use reqwest::Client;
 use tokio::runtime;
@@ -138,6 +139,7 @@ impl Backend {
             .clone()
     }
 
+    #[cfg(feature = "rustls")]
     fn set_custom_cert(&self, cert_str: String) -> Result<()> {
         if let Ok(certificate) = Certificate::from_pem(cert_str.as_bytes()) {
             let mut client_mutex = self.web_client.lock();
