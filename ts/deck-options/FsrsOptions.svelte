@@ -340,7 +340,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             min={1}
             max={3650}
         >
-            <SettingTitle>Days to simulate</SettingTitle>
+            <SettingTitle on:click={() => openHelpModal("computeOptimalRetention")}>
+                Days to simulate
+            </SettingTitle>
         </SpinBoxRow>
 
         <button
