@@ -9,15 +9,6 @@ let time: number; // set in python code
 let timerStopped = false;
 
 let maxTime = 0;
-document.addEventListener("DOMContentLoaded", () => {
-    updateTime();
-    setInterval(function() {
-        if (!timerStopped) {
-            time += 1;
-            updateTime();
-        }
-    }, 1000);
-});
 
 function updateTime(): void {
     const timeNode = document.getElementById("time");
@@ -27,7 +18,7 @@ function updateTime(): void {
     }
     time = Math.min(maxTime, time);
     const m = Math.floor(time / 60);
-    const s = time % 60;
+    const s = Math.round(time % 60);
     const sStr = String(s).padStart(2, "0");
     const timeString = `${m}:${sStr}`;
 
@@ -38,10 +29,23 @@ function updateTime(): void {
     }
 }
 
+let intervalId: number | undefined;
+
 function showQuestion(txt: string, maxTime_: number): void {
     showAnswer(txt);
     time = 0;
     maxTime = maxTime_;
+
+    if (intervalId !== undefined) {
+        clearInterval(intervalId);
+    }
+
+    intervalId = setInterval(function() {
+        if (!timerStopped) {
+            time += 0.3;
+            updateTime();
+        }
+    }, 300);
 }
 
 function showAnswer(txt: string, stopTimer = false): void {
