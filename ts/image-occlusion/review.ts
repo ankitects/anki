@@ -12,6 +12,7 @@ import type { Size } from "./types";
 export type DrawShapesData = {
     activeShapes: Shape[];
     inactiveShapes: Shape[];
+    highlightShapes: Shape[];
     properties: ShapeProperties;
 };
 
@@ -181,12 +182,14 @@ function drawShapes(
 
     let activeShapes = extractShapesFromRenderedClozes(".cloze");
     let inactiveShapes = extractShapesFromRenderedClozes(".cloze-inactive");
+    let highlightShapes = extractShapesFromRenderedClozes(".cloze-highlight");
     let properties = getShapeProperties();
 
-    const processed = onWillDrawShapes?.({ activeShapes, inactiveShapes, properties }, context);
+    const processed = onWillDrawShapes?.({ activeShapes, inactiveShapes, highlightShapes, properties }, context);
     if (processed) {
         activeShapes = processed.activeShapes;
         inactiveShapes = processed.inactiveShapes;
+        highlightShapes = processed.highlightShapes;
         properties = processed.properties;
     }
 
@@ -210,8 +213,18 @@ function drawShapes(
             strokeWidth: properties.inActiveBorder.width,
         });
     }
+    for (const shape of highlightShapes) {
+        drawShape({
+            context,
+            size,
+            shape,
+            fill: properties.highlightShapeColor,
+            stroke: properties.highlightShapeBorder.color,
+            strokeWidth: properties.highlightShapeBorder.width,
+        });
+    }
 
-    onDidDrawShapes?.({ activeShapes, inactiveShapes, properties }, context);
+    onDidDrawShapes?.({ activeShapes, inactiveShapes, highlightShapes, properties }, context);
 }
 
 interface DrawShapeParameters {
@@ -324,8 +337,10 @@ function topLeftOfPoints(points: { x: number; y: number }[]): {
 export type ShapeProperties = {
     activeShapeColor: string;
     inActiveShapeColor: string;
+    highlightShapeColor: string;
     activeBorder: { width: number; color: string };
     inActiveBorder: { width: number; color: string };
+    highlightShapeBorder: { width: number; color: string };
 };
 function getShapeProperties(): ShapeProperties {
     const canvas = document.getElementById("image-occlusion-canvas");
@@ -338,6 +353,9 @@ function getShapeProperties(): ShapeProperties {
         );
         const inActiveShapeColor = computedStyle.getPropertyValue(
             "--inactive-shape-color",
+        );
+        const highlightShapeColor = computedStyle.getPropertyValue(
+            "--highlight-shape-color",
         );
         // inactive shape border
         const inActiveShapeBorder = computedStyle.getPropertyValue(
@@ -353,12 +371,22 @@ function getShapeProperties(): ShapeProperties {
         const activeBorder = activeShapeBorder.split(" ").filter((x) => x);
         const activeShapeBorderWidth = parseFloat(activeBorder[0]);
         const activeShapeBorderColor = activeBorder[1];
+        // highlight shape border
+        const highlightShapeBorder = computedStyle.getPropertyValue(
+            "--highlight-shape-border",
+        );
+        const highlightBorder = highlightShapeBorder.split(" ").filter((x) => x);
+        const highlightShapeBorderWidth = parseFloat(highlightBorder[0]);
+        const highlightShapeBorderColor = highlightBorder[1];
 
         return {
             activeShapeColor: activeShapeColor ? activeShapeColor : "#ff8e8e",
             inActiveShapeColor: inActiveShapeColor
                 ? inActiveShapeColor
                 : "#ffeba2",
+            highlightShapeColor: highlightShapeColor
+                ? highlightShapeColor
+                : "#ff8e8e00",
             activeBorder: {
                 width: !isNaN(activeShapeBorderWidth) ? activeShapeBorderWidth : 1,
                 color: activeShapeBorderColor
@@ -371,12 +399,19 @@ function getShapeProperties(): ShapeProperties {
                     ? inActiveShapeBorderColor
                     : "#212121",
             },
+            highlightShapeBorder: {
+                width: !isNaN(highlightShapeBorderWidth) ? highlightShapeBorderWidth : 1,
+                color: highlightShapeBorderColor
+                    ? highlightShapeBorderColor
+                    : "#ff8e8e",
+            },
         };
     } catch {
         // return default values
         return {
             activeShapeColor: "#ff8e8e",
             inActiveShapeColor: "#ffeba2",
+            highlightShapeColor: "#ff8e8e00",
             activeBorder: {
                 width: 1,
                 color: "#212121",
@@ -384,6 +419,10 @@ function getShapeProperties(): ShapeProperties {
             inActiveBorder: {
                 width: 1,
                 color: "#212121",
+            },
+            highlightShapeBorder: {
+                width: 1,
+                color: "#ff8e8e",
             },
         };
     }

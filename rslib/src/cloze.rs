@@ -313,6 +313,12 @@ fn render_image_occlusion(text: &str, question_side: bool, active: bool, ordinal
             ordinal,
             &get_image_cloze_data(text)
         )
+    } else if !question_side && active {
+        format!(
+            r#"<div class="cloze-highlight" data-ordinal="{}" {}></div>"#,
+            ordinal,
+            &get_image_cloze_data(text)
+        )
     } else {
         "".into()
     }
