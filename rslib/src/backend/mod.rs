@@ -167,9 +167,9 @@ impl Backend {
             return Ok((**web_client)
                 .get_or_insert(Client::builder().http1_only().build().unwrap())
                 .clone());
-        } else {
-            return Err(AnkiError::Interrupted);
         }
+
+        Err(AnkiError::Interrupted)
     }
 
     fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {
