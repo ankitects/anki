@@ -36,6 +36,7 @@ fn ignore_revlogs_before_date_to_ms(
         s => NaiveDate::parse_from_str(s.as_str(), "%Y-%m-%d")
             .or_else(|err| invalid_input!(err, "Error parsing date: {s}"))?
             .and_time(NaiveTime::from_hms_milli_opt(0, 0, 0, 0).unwrap())
+            .and_utc()
             .timestamp_millis(),
     }
     .into())
