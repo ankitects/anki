@@ -511,7 +511,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "secondsToShowAnswer",
     "answerAction",
     "waitForAudio",
-    "historicalRetention",
+    "sm2Retention",
     "weightSearch",
     "ignoreRevlogsBeforeDate",
 };
