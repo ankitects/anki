@@ -42,10 +42,10 @@ function showQuestion(txt: string, maxTime_: number): void {
 
     intervalId = setInterval(function() {
         if (!timerStopped) {
-            time += 0.3;
+            time += 0.333;
             updateTime();
         }
-    }, 300);
+    }, 333);
 }
 
 function showAnswer(txt: string, stopTimer = false): void {
