@@ -350,7 +350,7 @@ deck-config-ignore-before = Ignore reviews before
 deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
-deck-config-sm2-retention = SM2 retention
+deck-config-historical-retention = Historical Retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, steps of 1 day or more are not recommended.
 deck-config-get-params = Get Params
@@ -377,11 +377,11 @@ deck-config-desired-retention-tooltip =
     less frequently, and you will forget more of them. Be conservative when adjusting this - higher
     values will greatly increase your workload, and lower values can be demoralizing when you forget
     a lot of material.
-deck-config-sm2-retention-tooltip =
-    If your actual retention before switching to FSRS was significantly different from 0.9, adjusting
-    this value will allow Anki to better estimate your memory state when it encounters cards that are
-    missing review logs. Since review logs typically won't be missing unless you explicitly deleted them
-    to free up space, most users will not need to adjust this.
+deck-config-historical-retention-tooltip =
+    If your actual retention before switching to FSRS or setting the ignore reviews date was significantly
+    different from 0.9, adjusting this value will allow Anki to better estimate your memory state when it
+    encounters cards that are missing or ignoring review logs. Since review logs typically won't be missing
+    unless you explicitly deleted them to free up space, most users will not need to adjust this.
 deck-config-weights-tooltip =
     FSRS parameters affect how cards are scheduled. Anki will start with default parameters. Once
     you've accumulated 1000+ reviews, you can use the option below to optimize the parameters to best

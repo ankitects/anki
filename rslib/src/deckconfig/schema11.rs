@@ -86,7 +86,7 @@ pub struct DeckConfSchema11 {
     #[serde(default = "wait_for_audio_default")]
     wait_for_audio: bool,
     #[serde(default)]
-    sm2_retention: f32,
+    historical_retention: f32,
     #[serde(default)]
     weight_search: String,
 
@@ -294,7 +294,7 @@ impl Default for DeckConfSchema11 {
             bury_interday_learning: false,
             fsrs_weights: vec![],
             desired_retention: 0.9,
-            sm2_retention: 0.9,
+            historical_retention: 0.9,
             weight_search: "".to_string(),
             ignore_revlogs_before_date: "".to_string(),
         }
@@ -373,7 +373,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 fsrs_weights: c.fsrs_weights,
                 ignore_revlogs_before_date: c.ignore_revlogs_before_date,
                 desired_retention: c.desired_retention,
-                sm2_retention: c.sm2_retention,
+                historical_retention: c.historical_retention,
                 weight_search: c.weight_search,
                 other: other_bytes,
             },
@@ -479,7 +479,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             bury_interday_learning: i.bury_interday_learning,
             fsrs_weights: i.fsrs_weights,
             desired_retention: i.desired_retention,
-            sm2_retention: i.sm2_retention,
+            historical_retention: i.historical_retention,
             weight_search: i.weight_search,
             ignore_revlogs_before_date: i.ignore_revlogs_before_date,
         }
@@ -510,7 +510,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "secondsToShowAnswer",
     "answerAction",
     "waitForAudio",
-    "sm2Retention",
+    "historicalRetention",
     "weightSearch",
     "ignoreRevlogsBeforeDate",
 };
