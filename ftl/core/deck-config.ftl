@@ -378,10 +378,18 @@ deck-config-desired-retention-tooltip =
     values will greatly increase your workload, and lower values can be demoralizing when you forget
     a lot of material.
 deck-config-historical-retention-tooltip =
-    If your actual retention before switching to FSRS or setting the ignore reviews date was significantly
-    different from 0.9, adjusting this value will allow Anki to better estimate your memory state when it
-    encounters cards that are missing or ignoring review logs. Since review logs typically won't be missing
-    unless you explicitly deleted them to free up space, most users will not need to adjust this.
+    When some of your review history is missing, FSRS needs to fill in the gaps. By default, it will
+    assume that when you did those old reviews, you remembered 90% of the material. If your old retention
+    was appreciably higher or lower than 90%, adjusting this option will allow FSRS to better approximate
+    the missing reviews.
+
+    Your review history may be incomplete for two reasons:
+    1. Because you've used the 'ignore reviews before' option.
+    2. Because you previously deleted review logs to free up space, or imported material from a different
+    SRS program.
+
+    The latter is quite rare, so unless you've used the former option, you probably don't need to adjust
+    this setting.
 deck-config-weights-tooltip =
     FSRS parameters affect how cards are scheduled. Anki will start with default parameters. Once
     you've accumulated 1000+ reviews, you can use the option below to optimize the parameters to best
