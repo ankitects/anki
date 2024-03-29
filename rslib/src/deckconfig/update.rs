@@ -263,7 +263,7 @@ impl Collection {
                                 desired_retention: c.inner.desired_retention,
                                 max_interval: c.inner.maximum_review_interval,
                                 reschedule: req.fsrs_reschedule,
-                                sm2_retention: c.inner.sm2_retention,
+                                historical_retention: c.inner.historical_retention,
                             })
                         } else {
                             None
