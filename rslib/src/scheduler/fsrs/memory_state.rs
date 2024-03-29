@@ -32,7 +32,7 @@ pub struct ComputeMemoryProgress {
 pub(crate) struct UpdateMemoryStateRequest {
     pub weights: Weights,
     pub desired_retention: f32,
-    pub sm2_retention: f32,
+    pub historical_retention: f32,
     pub max_interval: u32,
     pub reschedule: bool,
 }
@@ -70,12 +70,12 @@ impl Collection {
                 None
             };
             let fsrs = FSRS::new(req.as_ref().map(|w| &w.weights[..]).or(Some([].as_slice())))?;
-            let sm2_retention = req.as_ref().map(|w| w.sm2_retention);
+            let historical_retention = req.as_ref().map(|w| w.historical_retention);
             let items = fsrs_items_for_memory_state(
                 &fsrs,
                 revlog,
                 timing.next_day_at,
-                sm2_retention.unwrap_or(0.9),
+                historical_retention.unwrap_or(0.9),
                 ignore_before,
             )?;
             let desired_retention = req.as_ref().map(|w| w.desired_retention);
@@ -86,7 +86,7 @@ impl Collection {
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
                 if let Some(req) = &req {
-                    card.set_memory_state(&fsrs, item, sm2_retention.unwrap())?;
+                    card.set_memory_state(&fsrs, item, historical_retention.unwrap())?;
                     card.desired_retention = desired_retention;
                     // if rescheduling
                     if let Some(reviews) = &last_revlog_info {
@@ -153,17 +153,17 @@ impl Collection {
             .get_deck_config(conf_id)?
             .or_not_found(conf_id)?;
         let desired_retention = config.inner.desired_retention;
-        let sm2_retention = config.inner.sm2_retention;
+        let historical_retention = config.inner.historical_retention;
         let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
         let item = single_card_revlog_to_item(
             &fsrs,
             revlog,
             self.timing_today()?.next_day_at,
-            sm2_retention,
+            historical_retention,
             ignore_revlogs_before_ms_from_config(&config)?,
         )?;
-        card.set_memory_state(&fsrs, item, sm2_retention)?;
+        card.set_memory_state(&fsrs, item, historical_retention)?;
         Ok(ComputeMemoryStateResponse {
             state: card.memory_state.map(Into::into),
             desired_retention,
@@ -176,7 +176,7 @@ impl Card {
         &mut self,
         fsrs: &FSRS,
         item: Option<FsrsItemWithStartingState>,
-        sm2_retention: f32,
+        historical_retention: f32,
     ) -> Result<()> {
         let memory_state = if let Some(i) = item {
             Some(fsrs.memory_state(i.item, i.starting_state)?)
@@ -187,7 +187,7 @@ impl Card {
             Some(fsrs.memory_state_from_sm2(
                 self.ease_factor(),
                 self.interval as f32,
-                sm2_retention,
+                historical_retention,
             )?)
         };
         self.memory_state = memory_state.map(Into::into);
@@ -209,7 +209,7 @@ pub(crate) fn fsrs_items_for_memory_state(
     fsrs: &FSRS,
     revlogs: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
-    sm2_retention: f32,
+    historical_retention: f32,
     ignore_revlogs_before: TimestampMillis,
 ) -> Result<Vec<(CardId, Option<FsrsItemWithStartingState>)>> {
     revlogs
@@ -223,7 +223,7 @@ pub(crate) fn fsrs_items_for_memory_state(
                     fsrs,
                     group.collect(),
                     next_day_at,
-                    sm2_retention,
+                    historical_retention,
                     ignore_revlogs_before,
                 )?,
             ))
@@ -277,7 +277,7 @@ pub(crate) fn single_card_revlog_to_item(
     fsrs: &FSRS,
     entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
-    sm2_retention: f32,
+    historical_retention: f32,
     ignore_revlogs_before: TimestampMillis,
 ) -> Result<Option<FsrsItemWithStartingState>> {
     struct FirstReview {
@@ -310,7 +310,7 @@ pub(crate) fn single_card_revlog_to_item(
             let starting_state = fsrs.memory_state_from_sm2(
                 first_review.ease_factor,
                 first_review.interval,
-                sm2_retention,
+                historical_retention,
             )?;
             item.reviews.remove(0);
             if item.reviews.is_empty() {

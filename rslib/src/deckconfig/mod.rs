@@ -75,7 +75,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     fsrs_weights: vec![],
     desired_retention: 0.9,
     other: Vec::new(),
-    sm2_retention: 0.9,
+    historical_retention: 0.9,
     weight_search: String::new(),
     ignore_revlogs_before_date: String::new(),
 };
@@ -282,7 +282,12 @@ pub(crate) fn ensure_deck_config_values_valid(config: &mut DeckConfigInner) {
         0.7,
         0.99,
     );
-    ensure_f32_valid(&mut config.sm2_retention, default.sm2_retention, 0.7, 0.97)
+    ensure_f32_valid(
+        &mut config.historical_retention,
+        default.historical_retention,
+        0.7,
+        0.97,
+    )
 }
 
 fn ensure_f32_valid(val: &mut f32, default: f32, min: f32, max: f32) {
