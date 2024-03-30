@@ -18,7 +18,7 @@ function updateTime(): void {
     }
     time = Math.min(maxTime, time);
     const m = Math.floor(time / 60);
-    const s = Math.round(time % 60);
+    const s = time % 60;
     const sStr = String(s).padStart(2, "0");
     const timeString = `${m}:${sStr}`;
 
@@ -35,6 +35,7 @@ function showQuestion(txt: string, maxTime_: number): void {
     showAnswer(txt);
     time = 0;
     maxTime = maxTime_;
+    updateTime();
 
     if (intervalId !== undefined) {
         clearInterval(intervalId);
@@ -42,10 +43,10 @@ function showQuestion(txt: string, maxTime_: number): void {
 
     intervalId = setInterval(function() {
         if (!timerStopped) {
-            time += 0.333;
+            time += 1;
             updateTime();
         }
-    }, 333);
+    }, 1000);
 }
 
 function showAnswer(txt: string, stopTimer = false): void {
