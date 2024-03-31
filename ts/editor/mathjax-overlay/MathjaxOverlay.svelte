@@ -11,13 +11,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type CodeMirrorLib from "codemirror";
     import { tick } from "svelte";
     import { writable } from "svelte/store";
-    import { isComposing } from "sveltelib/composition";
 
-    import Popover from "../../components/Popover.svelte";
-    import Shortcut from "../../components/Shortcut.svelte";
-    import WithFloating from "../../components/WithFloating.svelte";
-    import WithOverlay from "../../components/WithOverlay.svelte";
-    import { placeCaretAfter } from "../../domlib/place-caret";
+    import Popover from "$lib/components/Popover.svelte";
+    import Shortcut from "$lib/components/Shortcut.svelte";
+    import WithFloating from "$lib/components/WithFloating.svelte";
+    import WithOverlay from "$lib/components/WithOverlay.svelte";
+    import { placeCaretAfter } from "$lib/domlib/place-caret";
+    import { isComposing } from "$lib/sveltelib/composition";
+
     import { escapeSomeEntities, unescapeSomeEntities } from "../../editable/mathjax";
     import { Mathjax } from "../../editable/mathjax-element";
     import type { EditingInputAPI } from "../EditingArea.svelte";
@@ -260,12 +261,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     clear();
                                 }
                             }}
-                            on:surround={async ({ detail }) => {
+                            on:cloze={async ({ detail }) => {
                                 const editor = await mathjaxEditor.editor;
-                                const { prefix, suffix } = detail;
-
+                                const { n } = detail;
                                 editor.replaceSelection(
-                                    prefix + editor.getSelection() + suffix,
+                                    `{{c${n}::` + editor.getSelection() + "}}",
                                 );
                             }}
                         />

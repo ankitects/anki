@@ -5,7 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
-    import Collapsible from "../components/Collapsible.svelte";
+    import Collapsible from "$lib/components/Collapsible.svelte";
+
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
@@ -23,8 +24,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerPackage } from "@tslib/runtime-require";
 
-    import contextProperty from "../sveltelib/context-property";
-    import lifecycleHooks from "../sveltelib/lifecycle-hooks";
+    import contextProperty from "$lib/sveltelib/context-property";
+    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
 
     const key = Symbol("noteEditor");
     const [context, setContextProperty] = contextProperty<NoteEditorAPI>(key);
@@ -40,16 +41,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import * as tr from "@tslib/ftl";
-    import { type ImageLoadedEvent, resetIOImage } from "image-occlusion/mask-editor";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
-    import Absolute from "../components/Absolute.svelte";
-    import Badge from "../components/Badge.svelte";
-    import { TagEditor } from "../tag-editor";
-    import { commitTagEdits } from "../tag-editor/TagInput.svelte";
+    import Absolute from "$lib/components/Absolute.svelte";
+    import Badge from "$lib/components/Badge.svelte";
+    import { TagEditor } from "$lib/tag-editor";
+    import { commitTagEdits } from "$lib/tag-editor/TagInput.svelte";
+
+    import {
+        type ImageLoadedEvent,
+        resetIOImage,
+    } from "../routes/image-occlusion/mask-editor";
     import { ChangeTimer } from "./change-timer";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
@@ -385,21 +390,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    import { ImageOcclusionFieldIndexes } from "@tslib/anki/image_occlusion_pb";
-    import { getImageOcclusionFields } from "@tslib/backend";
-    import { wrapInternal } from "@tslib/wrap";
-    import Shortcut from "components/Shortcut.svelte";
-    import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
-    import ImageOcclusionPicker from "image-occlusion/ImageOcclusionPicker.svelte";
-    import type { IOMode } from "image-occlusion/lib";
-    import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
+    import { ImageOcclusionFieldIndexes } from "@generated/anki/image_occlusion_pb";
+    import { getImageOcclusionFields } from "@generated/backend";
+    import { wrapClozeInternal, wrapInternal } from "@tslib/wrap";
+
+    import Shortcut from "$lib/components/Shortcut.svelte";
+
+    import { mathjaxConfig } from "../editable/mathjax-element";
+    import ImageOcclusionPage from "../routes/image-occlusion/ImageOcclusionPage.svelte";
+    import ImageOcclusionPicker from "../routes/image-occlusion/ImageOcclusionPicker.svelte";
+    import type { IOMode } from "../routes/image-occlusion/lib";
+    import { exportShapesToClozeDeletions } from "../routes/image-occlusion/shapes/to-cloze";
     import {
         hideAllGuessOne,
         ioImageLoadedStore,
         ioMaskEditorVisible,
-    } from "image-occlusion/store";
-
-    import { mathjaxConfig } from "../editable/mathjax-element";
+    } from "../routes/image-occlusion/store";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
@@ -541,6 +547,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
         }
 
+        function wrapCloze(n: number): void {
+            if (!$focusedInput || !editingInputIsRichText($focusedInput)) {
+                return;
+            }
+
+            $focusedInput.element.then((element) => {
+                wrapClozeInternal(element, n);
+            });
+        }
+
         Object.assign(globalThis, {
             saveSession,
             setFields,
@@ -559,6 +575,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setNoteId,
             setNotetypeMeta,
             wrap,
+            wrapCloze,
             setMathjaxEnabled,
             setShrinkImages,
             setCloseHTMLTags,
