@@ -73,6 +73,7 @@ nom.workspace = true
 num_cpus.workspace = true
 num_enum.workspace = true
 once_cell.workspace = true
+pbkdf2.workspace = true
 percent-encoding-iri.workspace = true
 phf.workspace = true
 pin-project.workspace = true

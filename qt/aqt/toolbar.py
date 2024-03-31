@@ -88,7 +88,8 @@ class TopWebView(ToolbarWebView):
 
     def _onHeight(self, qvar: Optional[int]) -> None:
         super()._onHeight(qvar)
-        self.web_height = int(qvar)
+        if qvar:
+            self.web_height = int(qvar)
 
     def hide_if_allowed(self) -> None:
         if self.mw.state != "review":
@@ -151,9 +152,10 @@ class TopWebView(ToolbarWebView):
             self.set_body_height(self.mw.web.height())
 
             # offset reviewer background by toolbar height
-            self.mw.web.eval(
-                f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
-            )
+            if self.web_height:
+                self.mw.web.eval(
+                    f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
+                )
 
         self.mw.web.evalWithCallback(
             """window.getComputedStyle(document.body).background; """,

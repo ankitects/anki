@@ -88,48 +88,15 @@ pub struct PythonEnvironment {
     pub extra_binary_exports: &'static [&'static str],
 }
 
-pub struct PythonEnvironmentStub {
-    pub folder: &'static str,
-    pub extra_binary_exports: &'static [&'static str],
-}
-
 impl BuildAction for PythonEnvironment {
     fn command(&self) -> &str {
-        "$runner pyenv $python_binary $builddir/$pyenv_folder $system_pkgs $base_requirements $requirements"
-    }
-
-    fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
-        let bin_path = |binary: &str| -> Vec<String> {
-            let folder = self.folder;
-            let path = if cfg!(windows) {
-                format!("{folder}/scripts/{binary}.exe")
-            } else {
-                format!("{folder}/bin/{binary}")
-            };
-            vec![path]
-        };
-
-        build.add_inputs("python_binary", inputs![":python_binary"]);
-        build.add_inputs("base_requirements", &self.base_requirements_txt);
-        build.add_inputs("requirements", &self.requirements_txt);
-        build.add_variable("pyenv_folder", self.folder);
-        build.add_outputs_ext("bin", bin_path("python"), true);
-        build.add_outputs_ext("pip", bin_path("pip"), true);
-        for binary in self.extra_binary_exports {
-            build.add_outputs_ext(*binary, bin_path(binary), true);
+        if env::var("OFFLINE_BUILD").is_err() {
+            "$runner pyenv $python_binary $builddir/$pyenv_folder $system_pkgs $base_requirements $requirements"
+        } else {
+            "echo 'OFFLINE_BUILD is set. Using the existing PythonEnvironment.'"
         }
     }
 
-    fn check_output_timestamps(&self) -> bool {
-        true
-    }
-}
-
-impl BuildAction for PythonEnvironmentStub {
-    fn command(&self) -> &str {
-        "echo Running PythonEnvironmentStub..."
-    }
-
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         let bin_path = |binary: &str| -> Vec<String> {
             let folder = self.folder;
@@ -141,8 +108,13 @@ impl BuildAction for PythonEnvironmentStub {
             vec![path]
         };
 
-        build.add_inputs("python_binary", inputs![":python_binary"]);
-        build.add_variable("pyenv_folder", self.folder);
+        if env::var("OFFLINE_BUILD").is_err() {
+            build.add_inputs("python_binary", inputs![":python_binary"]);
+            build.add_variable("pyenv_folder", self.folder);
+            build.add_inputs("base_requirements", &self.base_requirements_txt);
+            build.add_inputs("requirements", &self.requirements_txt);
+            build.add_outputs_ext("pip", bin_path("pip"), true);
+        }
         build.add_outputs_ext("bin", bin_path("python"), true);
         for binary in self.extra_binary_exports {
             build.add_outputs_ext(*binary, bin_path(binary), true);

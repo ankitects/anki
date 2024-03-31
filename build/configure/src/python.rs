@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
+
 use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::archives::Platform;
@@ -13,7 +15,6 @@ use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonEnvironment;
-use ninja_gen::python::PythonEnvironmentStub;
 use ninja_gen::python::PythonLint;
 use ninja_gen::python::PythonTypecheck;
 use ninja_gen::rsync::RsyncFiles;
@@ -45,11 +46,11 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
                 "pip-compile",
                 "pip-sync",
                 "mypy",
-                "black",
+                "black", // Required for offline build
                 "isort",
                 "pylint",
                 "pytest",
-                "protoc-gen-mypy",
+                "protoc-gen-mypy", // ditto
             ],
         },
     )?;
@@ -76,25 +77,6 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
             base_requirements_txt: inputs!["python/requirements.base.txt"],
             requirements_txt: inputs![reqs_qt5, "python/requirements.qt5_14.txt"],
             extra_binary_exports: &[],
-        },
-    )?;
-
-    Ok(())
-}
-
-pub fn setup_venv_stub(build: &mut Build) -> Result<()> {
-    build.add_action(
-        "pyenv",
-        PythonEnvironmentStub {
-            folder: "pyenv",
-            extra_binary_exports: &[
-                "mypy",
-                "black",  // Required in some parts of the code, but not for build
-                "isort",  // dito
-                "pylint", // dito
-                "pytest", // dito
-                "protoc-gen-mypy",
-            ],
         },
     )?;
 
@@ -268,13 +250,19 @@ struct Sphinx {
 
 impl BuildAction for Sphinx {
     fn command(&self) -> &str {
-        "$pip install sphinx sphinx_rtd_theme sphinx-autoapi \
-         && $python python/sphinx/build.py"
+        if env::var("OFFLINE_BUILD").is_err() {
+            "$pip install sphinx sphinx_rtd_theme sphinx-autoapi \
+             && $python python/sphinx/build.py"
+        } else {
+            "$python python/sphinx/build.py"
+        }
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
+        if env::var("OFFLINE_BUILD").is_err() {
+            build.add_inputs("pip", inputs![":pyenv:pip"]);
+        }
         build.add_inputs("python", inputs![":pyenv:bin"]);
-        build.add_inputs("pip", inputs![":pyenv:pip"]);
         build.add_inputs("", &self.deps);
         build.add_output_stamp("python/sphinx/stamp");
     }
@@ -284,7 +272,7 @@ impl BuildAction for Sphinx {
     }
 }
 
-pub(crate) fn setup_sphix(build: &mut Build) -> Result<()> {
+pub(crate) fn setup_sphinx(build: &mut Build) -> Result<()> {
     build.add_action(
         "python:sphinx:copy_conf",
         CopyFiles {

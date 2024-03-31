@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
 
     export let buttons: string[];
 

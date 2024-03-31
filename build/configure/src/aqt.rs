@@ -14,6 +14,7 @@ use ninja_gen::node::EsbuildScript;
 use ninja_gen::node::TypescriptCheck;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonTest;
+use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Build;
 use ninja_gen::Utf8Path;
 use ninja_gen::Utf8PathBuf;
@@ -21,7 +22,6 @@ use ninja_gen::Utf8PathBuf;
 use crate::anki_version;
 use crate::python::BuildWheel;
 use crate::web::copy_mathjax;
-use crate::web::eslint;
 
 pub fn build_and_check_aqt(build: &mut Build) -> Result<()> {
     build_forms(build)?;
@@ -114,7 +114,20 @@ fn build_data_folder(build: &mut Build) -> Result<()> {
     build_js(build)?;
     build_pages(build)?;
     build_icons(build)?;
+    copy_sveltekit(build)?;
     Ok(())
+}
+
+fn copy_sveltekit(build: &mut Build) -> Result<()> {
+    build.add_action(
+        "qt:aqt:data:web:sveltekit",
+        RsyncFiles {
+            inputs: inputs![":sveltekit:folder"],
+            target_folder: "qt/_aqt/data/web/",
+            strip_prefix: "$builddir/",
+            extra_args: "-a",
+        },
+    )
 }
 
 fn build_css(build: &mut Build) -> Result<()> {
@@ -172,7 +185,6 @@ fn build_js(build: &mut Build) -> Result<()> {
         )?;
     }
     let files = inputs![glob!["qt/aqt/data/web/js/*"]];
-    eslint(build, "aqt", "qt/aqt/data/web/js", files.clone())?;
     build.add_action(
         "check:typescript:aqt",
         TypescriptCheck {

@@ -96,6 +96,7 @@ num-format = "0.4.4"
 num_cpus = "1.16.0"
 num_enum = "0.7.2"
 once_cell = "1.19.0"
+pbkdf2 = { version = "0.12", features = ["simple"] }
 phf = { version = "0.11.2", features = ["macros"] }
 pin-project = "1.1.4"
 plist = "1.5.1"

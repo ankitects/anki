@@ -170,6 +170,11 @@ importing-existing-notes-skipped =
         [one] { $count } note already present in your collection.
        *[other] { $count } notes already present in your collection.
     }
+importing-notes-failed =
+    { $count ->
+        [one] { $count } note could not be imported.
+        *[other] { $count } notes could not be imported.
+    }
 importing-conflicting-notes-skipped =
     { $count ->
         [one] { $count } note was not imported, because its note type has changed.
@@ -194,6 +199,7 @@ importing-duplicate-note-added = Duplicate note added
 importing-added-new-note = New note added
 importing-existing-note-skipped = Note skipped, as an up-to-date copy is already in your collection
 importing-note-skipped-update-due-to-notetype = Note not updated, as notetype has been modified since you first imported the note
+importing-note-skipped-update-due-to-notetype2 = Note not updated, as notetype has been modified since you first imported the note, and '{ importing-merge-notetypes }' was not enabled
 importing-note-updated-as-file-had-newer = Note updated, as file had newer version
 importing-note-skipped-due-to-missing-notetype = Note skipped, as its notetype was missing
 importing-note-skipped-due-to-missing-deck = Note skipped, as its deck was missing

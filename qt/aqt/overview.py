@@ -204,7 +204,7 @@ class Overview:
         )
 
     def _show_finished_screen(self) -> None:
-        self.web.load_ts_page("congrats")
+        self.web.load_sveltekit_page("congrats")
 
     def _desc(self, deck: dict[str, Any]) -> str:
         if deck["dyn"]:

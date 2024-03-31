@@ -53,15 +53,12 @@ class ChangeNotetypeDialog(QDialog):
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.CHANGE_NOTETYPE)
         self.web.setVisible(False)
-        self.web.load_ts_page("change-notetype")
+        self.web.load_sveltekit_page(f"change-notetype/{notetype_id}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
         self.setLayout(layout)
 
-        self.web.eval(
-            f"""anki.setupChangeNotetypePage({notetype_id}, {notetype_id});"""
-        )
         self.setWindowTitle(tr.browsing_change_notetype())
 
     def reject(self) -> None:

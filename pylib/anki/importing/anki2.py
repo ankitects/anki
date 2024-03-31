@@ -177,7 +177,7 @@ class Anki2Importer(Importer):
                 self._logNoteRow(self.dst.tr.importing_updated(), row)
         if add:
             for row in add:
-                self._logNoteRow(self.dst.tr.adding_added(), row)
+                self._logNoteRow(self.dst.tr.importing_added(), row)
         if dupesIdentical:
             for row in dupesIdentical:
                 self._logNoteRow(self.dst.tr.importing_identical(), row)

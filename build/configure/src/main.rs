@@ -24,14 +24,13 @@ use pylib::build_pylib;
 use pylib::check_pylib;
 use python::check_python;
 use python::setup_venv;
-use python::setup_venv_stub;
 use rust::build_rust;
 use rust::check_minilints;
 use rust::check_rust;
 use web::build_and_check_web;
 use web::check_sql;
 
-use crate::python::setup_sphix;
+use crate::python::setup_sphinx;
 
 fn anki_version() -> String {
     std::fs::read_to_string(".version")
@@ -47,24 +46,21 @@ fn main() -> Result<()> {
     setup_protoc(build)?;
     check_proto(build, inputs![glob!["proto/**/*.proto"]])?;
 
-    setup_python(build)?;
-
-    if env::var("NO_VENV").is_ok() {
-        println!("NO_VENV is set, using Python system environment.");
-        setup_venv_stub(build)?;
-    } else {
-        setup_venv(build)?;
+    if env::var("OFFLINE_BUILD").is_err() {
+        setup_python(build)?;
     }
+    setup_venv(build)?;
 
     build_rust(build)?;
     build_pylib(build)?;
     build_and_check_web(build)?;
     build_and_check_aqt(build)?;
-    build_bundle(build)?;
 
     if env::var("OFFLINE_BUILD").is_err() {
-        setup_sphix(build)?;
+        build_bundle(build)?;
     }
+
+    setup_sphinx(build)?;
 
     check_rust(build)?;
     check_pylib(build)?;
