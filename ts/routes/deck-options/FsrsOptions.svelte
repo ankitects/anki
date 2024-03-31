@@ -341,7 +341,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             min={1}
             max={3650}
         >
-            <SettingTitle>Days to simulate</SettingTitle>
+            <SettingTitle on:click={() => openHelpModal("computeOptimalRetention")}>
+                Days to simulate
+            </SettingTitle>
         </SpinBoxRow>
 
         <button
@@ -358,7 +360,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         {#if optimalRetention}
             {estimatedRetention(optimalRetention)}
-            {#if optimalRetention > $config.desiredRetention}
+            {#if parseFloat(optimalRetention.toFixed(2)) > $config.desiredRetention}
                 <Warning
                     warning="Your desired retention is below optimal. Increasing it is recommended."
                     className="alert-warning"

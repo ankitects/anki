@@ -259,6 +259,7 @@ class ModelManager(DeprecatedNamesMixin):
             self.col.tr.notetypes_copy(val=cloned["name"])
         )
         cloned["id"] = 0
+        cloned["originalId"] = None
         if add:
             self.add(cloned)
         return cloned

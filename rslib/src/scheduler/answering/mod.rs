@@ -382,10 +382,10 @@ impl Collection {
                     &fsrs,
                     revlog,
                     timing.next_day_at,
-                    config.inner.sm2_retention,
+                    config.inner.historical_retention,
                     ignore_revlogs_before_ms_from_config(&config)?,
                 )?;
-                card.set_memory_state(&fsrs, item, config.inner.sm2_retention)?;
+                card.set_memory_state(&fsrs, item, config.inner.historical_retention)?;
             }
             let days_elapsed = self
                 .storage

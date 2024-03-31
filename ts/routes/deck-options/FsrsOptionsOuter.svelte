@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         computeOptimalRetention: {
             title: tr.deckConfigComputeOptimalRetention(),
-            help: tr.deckConfigComputeOptimalRetentionTooltip(),
+            help: tr.deckConfigComputeOptimalRetentionTooltip2(),
             sched: HelpItemScheduler.FSRS,
         },
     };

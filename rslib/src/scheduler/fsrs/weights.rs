@@ -36,6 +36,7 @@ fn ignore_revlogs_before_date_to_ms(
         s => NaiveDate::parse_from_str(s.as_str(), "%Y-%m-%d")
             .or_else(|err| invalid_input!(err, "Error parsing date: {s}"))?
             .and_time(NaiveTime::from_hms_milli_opt(0, 0, 0, 0).unwrap())
+            .and_utc()
             .timestamp_millis(),
     }
     .into())
@@ -93,10 +94,12 @@ impl Collection {
             }
         });
         let fsrs = FSRS::new(Some(current_weights))?;
+        let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
         let mut weights =
             fsrs.compute_parameters(items.clone(), fsrs_items < 1000, Some(progress2))?;
-        let metrics = fsrs.universal_metrics(items, &weights, |_| true)?;
-        if metrics.0 <= metrics.1 {
+        let optimized_fsrs = FSRS::new(Some(&weights))?;
+        let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
+        if current_rmse <= optimized_rmse {
             weights = current_weights.to_vec();
         }
 

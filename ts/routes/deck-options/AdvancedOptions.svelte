@@ -34,9 +34,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.deckConfigMaximumIntervalTooltip(),
             url: HelpPage.DeckOptions.maximumInterval,
         },
-        sm2Retention: {
-            title: tr.deckConfigSm2Retention(),
-            help: tr.deckConfigSm2RetentionTooltip(),
+        historicalRetention: {
+            title: tr.deckConfigHistoricalRetention(),
+            help: tr.deckConfigHistoricalRetentionTooltip(),
             sched: HelpItemScheduler.FSRS,
         },
         startingEase: {
@@ -202,16 +202,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Item>
         {:else}
             <SpinBoxFloatRow
-                bind:value={$config.sm2Retention}
-                defaultValue={defaults.sm2Retention}
+                bind:value={$config.historicalRetention}
+                defaultValue={defaults.historicalRetention}
                 min={0.5}
                 max={1.0}
             >
                 <SettingTitle
                     on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("sm2Retention"))}
+                        openHelpModal(
+                            Object.keys(settings).indexOf("historicalRetention"),
+                        )}
                 >
-                    {tr.deckConfigSm2Retention()}
+                    {tr.deckConfigHistoricalRetention()}
                 </SettingTitle>
             </SpinBoxFloatRow>
         {/if}
