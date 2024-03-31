@@ -19,24 +19,24 @@ use crate::input::BuildInput;
 pub fn node_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-x64.tar.xz",
-            sha256: "4481a34bf32ddb9a9ff9540338539401320e8c3628af39929b4211ea3552a19e",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-linux-x64.tar.xz",
+            sha256: "822780369d0ea309e7d218e41debbd1a03f8cdf354ebf8a4420e89f39cc2e612",
         },
         Platform::LinuxArm => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-arm64.tar.xz",
-            sha256: "3904869935b7ecc51130b4b86486d2356539a174d11c9181180cab649f32cd2a",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-linux-arm64.tar.xz",
+            sha256: "f943abd348d2b8ff8754ca912c118a20301eb6a0014cc4cdea86cff021fde8e6",
         },
         Platform::MacX64 => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-darwin-x64.tar.xz",
-            sha256: "6c88d462550a024661e74e9377371d7e023321a652eafb3d14d58a866e6ac002",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-darwin-x64.tar.xz",
+            sha256: "d4b4ab81ebf1f7aab09714f834992f27270ad0079600da00c8110f8950ca6c5a",
         },
         Platform::MacArm => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-darwin-arm64.tar.xz",
-            sha256: "17f2e25d207d36d6b0964845062160d9ed16207c08d09af33b9a2fd046c5896f",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-darwin-arm64.tar.xz",
+            sha256: "f18a7438723d48417f5e9be211a2f3c0520ffbf8e02703469e5153137ca0f328",
         },
         Platform::WindowsX64 => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-win-x64.zip",
-            sha256: "5478a5a2dce2803ae22327a9f8ae8494c1dec4a4beca5bbf897027380aecf4c7",
+            url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-win-x64.zip",
+            sha256: "893115cd92ad27bf178802f15247115e93c0ef0c753b93dca96439240d64feb5",
         },
     }
 }
@@ -214,9 +214,11 @@ pub struct SvelteCheck {
 
 impl BuildAction for SvelteCheck {
     fn command(&self) -> &str {
-        "$svelte-check --tsconfig $tsconfig $
-        --fail-on-warnings --threshold warning $
-        --compiler-warnings $compiler_warnings"
+        if cfg!(windows) {
+            "cmd /c yarn svelte-check:once"
+        } else {
+            "./yarn svelte-check:once"
+        }
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
@@ -290,30 +292,23 @@ impl BuildAction for Eslint<'_> {
     }
 }
 
-pub struct JestTest<'a> {
-    pub folder: &'a str,
+pub struct ViteTest {
     pub deps: BuildInput,
-    pub jest_rc: BuildInput,
-    pub jsdom: bool,
 }
 
-impl BuildAction for JestTest<'_> {
+impl BuildAction for ViteTest {
     fn command(&self) -> &str {
-        "$jest --config $config $env $folder"
+        if cfg!(windows) {
+            "cmd /c yarn vitest:once"
+        } else {
+            "./yarn vitest:once"
+        }
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("jest", inputs![":node_modules:jest"]);
+        build.add_inputs("vitest", inputs![":node_modules:vitest"]);
         build.add_inputs("", &self.deps);
-        build.add_inputs("config", &self.jest_rc);
-        build.add_variable("env", if self.jsdom { "--env=jsdom" } else { "" });
-        build.add_variable("folder", self.folder);
-        let hash = simple_hash(self.folder);
-        build.add_output_stamp(format!("tests/jest.{hash}"));
-    }
-
-    fn hide_last_line(&self) -> bool {
-        true
+        build.add_output_stamp("tests/vitest");
     }
 }
 
@@ -449,5 +444,34 @@ impl BuildAction for CompileTypescript<'_> {
 
         build.create_dir_all("out_dir", self.out_dir);
         build.add_outputs("", output_files);
+    }
+}
+
+/// The output_folder will be declared as a build output, but each file inside
+/// it is not declared, as the files will vary.
+pub struct SveltekitBuild {
+    pub output_folder: BuildInput,
+    pub deps: BuildInput,
+}
+
+impl BuildAction for SveltekitBuild {
+    fn command(&self) -> &str {
+        if std::env::var("HMR").is_err() {
+            if cfg!(windows) {
+                "cmd /c yarn build"
+            } else {
+                "./yarn build"
+            }
+        } else {
+            "echo"
+        }
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("node_modules", inputs![":node_modules"]);
+        build.add_inputs("", &self.deps);
+        build.add_inputs("", inputs!["yarn.lock"]);
+        build.add_output_stamp("sveltekit.marker");
+        build.add_outputs_ext("folder", vec!["sveltekit"], true);
     }
 }

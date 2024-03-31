@@ -3,7 +3,8 @@
 
 import { on } from "@tslib/events";
 
-import { placeCaretAfter, placeCaretBefore } from "../domlib/place-caret";
+import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
+
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
 import { FrameElement, frameElement } from "./frame-element";
 import Mathjax_svelte from "./Mathjax.svelte";
