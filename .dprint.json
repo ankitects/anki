@@ -30,7 +30,8 @@
         "qt/bundle/PyOxidizer",
         "target",
         ".mypy_cache",
-        "extra"
+        "extra",
+        "ts/.svelte-kit"
     ],
     "plugins": [
         "https://plugins.dprint.dev/typescript-0.85.1.wasm",

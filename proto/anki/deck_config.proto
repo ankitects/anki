@@ -157,7 +157,7 @@ message DeckConfig {
     string ignore_revlogs_before_date = 46;
     // used for fsrs_reschedule in the past
     reserved 39;
-    float sm2_retention = 40;
+    float historical_retention = 40;
     string weight_search = 45;
 
     bytes other = 255;

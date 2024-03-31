@@ -1,9 +1,9 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "sass/root-vars";
-@use "sass/scrollbar";
-@use "sass/buttons";
+@use "../../../../../ts/lib/sass/root-vars";
+@use "../../../../../ts/lib/sass/scrollbar";
+@use "../../../../../ts/lib/sass/buttons";
 
 * {
     // border-box would be better, but we need to

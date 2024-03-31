@@ -350,7 +350,7 @@ deck-config-ignore-before = Ignore reviews before
 deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
-deck-config-sm2-retention = SM2 retention
+deck-config-historical-retention = Historical Retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, steps of 1 day or more are not recommended.
 deck-config-get-params = Get Params
@@ -377,11 +377,19 @@ deck-config-desired-retention-tooltip =
     less frequently, and you will forget more of them. Be conservative when adjusting this - higher
     values will greatly increase your workload, and lower values can be demoralizing when you forget
     a lot of material.
-deck-config-sm2-retention-tooltip =
-    If your actual retention before switching to FSRS was significantly different from 0.9, adjusting
-    this value will allow Anki to better estimate your memory state when it encounters cards that are
-    missing review logs. Since review logs typically won't be missing unless you explicitly deleted them
-    to free up space, most users will not need to adjust this.
+deck-config-historical-retention-tooltip =
+    When some of your review history is missing, FSRS needs to fill in the gaps. By default, it will
+    assume that when you did those old reviews, you remembered 90% of the material. If your old retention
+    was appreciably higher or lower than 90%, adjusting this option will allow FSRS to better approximate
+    the missing reviews.
+
+    Your review history may be incomplete for two reasons:
+    1. Because you've used the 'ignore reviews before' option.
+    2. Because you previously deleted review logs to free up space, or imported material from a different
+    SRS program.
+
+    The latter is quite rare, so unless you've used the former option, you probably don't need to adjust
+    this setting.
 deck-config-weights-tooltip =
     FSRS parameters affect how cards are scheduled. Anki will start with default parameters. Once
     you've accumulated 1000+ reviews, you can use the option below to optimize the parameters to best
@@ -412,12 +420,12 @@ deck-config-compute-optimal-weights-tooltip =
     By default, parameters will be calculated from the review history of all decks using the current preset. You can
     optionally adjust the search before calculating the parameters, if you'd like to alter which cards are used for
     optimizing the parameters.
-deck-config-compute-optimal-retention-tooltip =
-    This tool assumes you're starting with 0 cards, and will attempt to calculate the amount of material you'll
-    be able to retain in the given time frame. The estimated retention will greatly depend on your inputs, and
-    if it significantly differs from 0.9, it's a sign that the time you've allocated each day is either too low
-    or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
-    is not recommended to copy it into the desired retention field.
+deck-config-compute-optimal-retention-tooltip2 =
+    This tool assumes that you’re starting with 0 learned cards, and will attempt to find the desired retention
+    value that will lead to the most material learnt, in the least amount of time. This number can be used as a
+    reference when deciding what to set your desired retention to. You may wish to choose a higher desired retention,
+    if you’re willing to trade more study time for a greater recall rate. Setting your desired retention lower than
+    the optimum is not recommended, as it will lead to more work without benefit.
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-a-100-day-interval = 
     { $days ->
@@ -438,6 +446,8 @@ deck-config-show-reminder = Show Reminder
 deck-config-answer-again = Answer Again
 deck-config-answer-hard = Answer Hard
 deck-config-answer-good = Answer Good
+deck-config-days-to-simulate = Days to simulate
+deck-config-desired-retention-below-optimal = Your desired retention is below optimal. Increasing it is recommended.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
@@ -457,3 +467,9 @@ deck-config-bury-tooltip =
     
     When using the V3 scheduler, interday learning cards can also be buried. Interday
     learning cards are cards with a current learning step of one or more days.
+deck-config-compute-optimal-retention-tooltip =
+    This tool assumes you're starting with 0 cards, and will attempt to calculate the amount of material you'll
+    be able to retain in the given time frame. The estimated retention will greatly depend on your inputs, and
+    if it significantly differs from 0.9, it's a sign that the time you've allocated each day is either too low
+    or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
+    is not recommended to copy it into the desired retention field.

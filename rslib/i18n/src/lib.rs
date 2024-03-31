@@ -288,9 +288,16 @@ fn get_modules(langs: &[LanguageIdentifier], desired_modules: &[String]) -> Vec<
             let mut buf = String::new();
             let lang_name = remapped_lang_name(&lang);
             if let Some(strings) = STRINGS.get(lang_name) {
-                for module_name in desired_modules {
-                    if let Some(text) = strings.get(module_name.as_str()) {
-                        buf.push_str(text);
+                if desired_modules.is_empty() {
+                    // empty list, provide all modules
+                    for value in strings.values() {
+                        buf.push_str(value)
+                    }
+                } else {
+                    for module_name in desired_modules {
+                        if let Some(text) = strings.get(module_name.as_str()) {
+                            buf.push_str(text);
+                        }
                     }
                 }
             }

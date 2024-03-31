@@ -3,24 +3,25 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { getListItem } from "@tslib/dom";
     import { preventDefault } from "@tslib/events";
-    import * as tr from "@tslib/ftl";
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
     import { onMount } from "svelte";
 
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
-    } from "../../components/ButtonGroupItem.svelte";
-    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
-    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
-    import IconButton from "../../components/IconButton.svelte";
-    import Popover from "../../components/Popover.svelte";
-    import WithFloating from "../../components/WithFloating.svelte";
-    import { execCommand } from "../../domlib";
+    } from "$lib/components/ButtonGroupItem.svelte";
+    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
+    import IconButton from "$lib/components/IconButton.svelte";
+    import Popover from "$lib/components/Popover.svelte";
+    import WithFloating from "$lib/components/WithFloating.svelte";
+    import { execCommand } from "$lib/domlib";
+
     import { context } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
     import CommandIconButton from "./CommandIconButton.svelte";
