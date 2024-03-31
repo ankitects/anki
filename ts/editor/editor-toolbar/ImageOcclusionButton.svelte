@@ -3,17 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "@tslib/ftl";
-    import ButtonGroup from "components/ButtonGroup.svelte";
-    import DynamicallySlottable from "components/DynamicallySlottable.svelte";
-    import IconButton from "components/IconButton.svelte";
-    import { ioImageLoadedStore, ioMaskEditorVisible } from "image-occlusion/store";
+    import * as tr from "@generated/ftl";
 
+    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
-    } from "../../components/ButtonGroupItem.svelte";
+    } from "$lib/components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
+    import IconButton from "$lib/components/IconButton.svelte";
+
+    import {
+        ioImageLoadedStore,
+        ioMaskEditorVisible,
+    } from "../../routes/image-occlusion/store";
     import { mdiTableRefresh, mdiViewDashboard } from "./icons";
 
     export let api = {};

@@ -16,7 +16,7 @@ import "codemirror/addon/display/placeholder";
 import CodeMirror from "codemirror";
 import type { Readable } from "svelte/store";
 
-import storeSubscribe from "../sveltelib/store-subscribe";
+import storeSubscribe from "$lib/sveltelib/store-subscribe";
 
 export { CodeMirror };
 
