@@ -24,7 +24,7 @@ pub fn node_archive(platform: Platform) -> OnlineArchive {
         },
         Platform::LinuxArm => OnlineArchive {
             url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-linux-arm64.tar.xz",
-            sha256: "f943abd348d2b8ff8754ca912c118a20301eb6a0014cc4cdea86cff021fde8e6",
+            sha256: "f6df68c6793244071f69023a9b43a0cf0b13d65cbe86d55925c28e4134d9aafb",
         },
         Platform::MacX64 => OnlineArchive {
             url: "https://nodejs.org/dist/v20.11.0/node-v20.11.0-darwin-x64.tar.xz",
