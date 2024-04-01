@@ -123,6 +123,11 @@ function fabricObjectToBaseShapeOrShapes(
         size = { width: 0, height: 0 };
     }
 
+    // @ts-expect-error not defined
+    if (cloned.modified) {
+        shape.modified = true;
+    }
+
     shape = shape.toNormal(size);
     return shape;
 }
@@ -166,6 +171,12 @@ function shapeOrShapesToCloze(
 
     // Maintain existing ordinal in editing mode
     let ordinal = shapeOrShapes.ordinal;
+
+    if (shapeOrShapes.modified) {
+        ordinal = index + 1;
+        shapeOrShapes.ordinal = ordinal;
+    }
+
     if (ordinal === undefined) {
         if (type === "text") {
             ordinal = 0;

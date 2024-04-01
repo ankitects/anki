@@ -64,7 +64,8 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
     const activeObject = canvas.getActiveObject() as fabric.ActiveSelection;
     const items = activeObject.getObjects();
     items.forEach((item) => {
-        item.set({ opacity: 1 });
+        // @ts-expect-error not defined
+        item.set({ opacity: 1, modified: true });
     });
     activeObject.toGroup().set({
         opacity: get(opacityStateStore) ? 0.4 : 1,
@@ -87,7 +88,11 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     canvas.remove(group);
 
     items.forEach((item) => {
-        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1 });
+        item.set({
+            opacity: get(opacityStateStore) ? 0.4 : 1,
+            // @ts-expect-error not defined
+            modified: true,
+        });
         canvas.add(item);
     });
 
@@ -283,9 +288,13 @@ export const makeShapeRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fabr
 
 export const selectAllShapes = (canvas: fabric.Canvas) => {
     canvas.discardActiveObject();
-    const sel = new fabric.ActiveSelection(canvas.getObjects(), {
-        canvas: canvas,
-    });
+    // filter out the transparent bounding box from the selection
+    const sel = new fabric.ActiveSelection(
+        canvas.getObjects().filter((obj) => obj.fill !== "transparent"),
+        {
+            canvas: canvas,
+        },
+    );
     canvas.setActiveObject(sel);
     redraw(canvas);
 };
