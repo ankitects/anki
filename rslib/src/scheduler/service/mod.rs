@@ -351,12 +351,7 @@ impl crate::services::BackendSchedulerService for Backend {
             .into_iter()
             .map(fsrs_item_proto_to_fsrs)
             .collect();
-        let test_set = req
-            .test_set
-            .into_iter()
-            .map(fsrs_item_proto_to_fsrs)
-            .collect();
-        let weights = fsrs.benchmark(train_set, test_set);
+        let weights = fsrs.benchmark(train_set);
         Ok(FsrsBenchmarkResponse { weights })
     }
 }
