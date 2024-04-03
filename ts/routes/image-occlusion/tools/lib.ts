@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 
-import { groupItemsModified, opacityStateStore } from "../store";
+import { opacityStateStore } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
@@ -63,14 +63,19 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
 
     const activeObject = canvas.getActiveObject() as fabric.ActiveSelection;
     const items = activeObject.getObjects();
+
+    // @ts-expect-error not defined
+    const minOrdinal = Math.min(...items.map((item) => item.ordinal));
+
     items.forEach((item) => {
-        item.set({ opacity: 1 });
+        // @ts-expect-error not defined
+        item.set({ opacity: 1, ordinal: minOrdinal });
     });
+
     activeObject.toGroup().set({
         opacity: get(opacityStateStore) ? 0.4 : 1,
     });
 
-    groupItemsModified.set(true);
     redraw(canvas);
 };
 
@@ -88,12 +93,15 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     group.destroyed = true;
     canvas.remove(group);
 
-    items.forEach((item) => {
-        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1 });
+    // @ts-expect-error not defined
+    const maxOrdinal = Math.max(canvas.getObjects().map((item) => item.ordinal));
+
+    items.forEach((item, index) => {
+        // @ts-expect-error not defined
+        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1, ordinal: maxOrdinal + index + 1 });
         canvas.add(item);
     });
 
-    groupItemsModified.set(true);
     redraw(canvas);
 };
 

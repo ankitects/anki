@@ -17,5 +17,3 @@ export const ioImageLoadedStore = writable(false);
 export const opacityStateStore = writable(false);
 // store state of text editing
 export const textEditingState = writable(false);
-// store state of group items modified
-export const groupItemsModified = writable(false);
