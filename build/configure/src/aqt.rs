@@ -347,6 +347,7 @@ fn build_macos_helper(build: &mut Build) -> Result<()> {
                 inputs: hashmap! {
                     "script" => inputs!["qt/mac/helper_build.py"],
                     "in" => inputs![glob!["qt/mac/*.swift"]],
+                    "" => inputs!["out/env"],
                 },
                 outputs: hashmap! {
                     "out" => vec!["qt/_aqt/data/lib/libankihelper.dylib"],
