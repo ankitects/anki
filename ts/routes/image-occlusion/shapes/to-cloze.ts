@@ -3,8 +3,8 @@
 
 import { fabric } from "fabric";
 import { cloneDeep } from "lodash-es";
-
 import { get } from "svelte/store";
+
 import { groupItemsModified } from "../store";
 import { getBoundingBox } from "../tools/lib";
 import type { Size } from "../types";
