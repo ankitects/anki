@@ -170,7 +170,7 @@ def confirm_full_download(
 ) -> None:
     # confirmation step required, as some users customize their notetypes
     # in an empty collection, then want to upload them
-    if not askUser(tr.sync_confirm_empty_download()):
+    if not askUser(tr.sync_confirm_empty_download(), parent=mw):
         return on_done()
     else:
         mw.closeAllWindows(lambda: full_download(mw, server_usn, on_done))
@@ -182,7 +182,7 @@ def confirm_full_upload(
     # confirmation step required, as some users have reported an upload
     # happening despite having their AnkiWeb collection not being empty
     # (not reproducible - maybe a compiler bug?)
-    if not askUser(tr.sync_confirm_empty_upload()):
+    if not askUser(tr.sync_confirm_empty_upload(), parent=mw):
         return on_done()
     else:
         mw.closeAllWindows(lambda: full_upload(mw, server_usn, on_done))
