@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 
-import { opacityStateStore } from "../store";
+import { groupItemsModified, opacityStateStore } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
@@ -70,13 +70,7 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
         opacity: get(opacityStateStore) ? 0.4 : 1,
     });
 
-    // make modified to true for all object so ordinal should have values
-    // in order in case of edit mode
-    canvas.forEachObject((item) => {
-        // @ts-expect-error not defined
-        item.modified = true;
-    });
-
+    groupItemsModified.set(true);
     redraw(canvas);
 };
 
@@ -99,13 +93,7 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
         canvas.add(item);
     });
 
-    // make modified to true for all object so ordinal should have values
-    // in order in case of edit mode
-    canvas.forEachObject((item) => {
-        // @ts-expect-error not defined
-        item.modified = true;
-    });
-
+    groupItemsModified.set(true);
     redraw(canvas);
 };
 

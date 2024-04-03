@@ -4,6 +4,8 @@
 import { fabric } from "fabric";
 import { cloneDeep } from "lodash-es";
 
+import { get } from "svelte/store";
+import { groupItemsModified } from "../store";
 import { getBoundingBox } from "../tools/lib";
 import type { Size } from "../types";
 import type { Shape, ShapeOrShapes } from "./base";
@@ -123,11 +125,6 @@ function fabricObjectToBaseShapeOrShapes(
         size = { width: 0, height: 0 };
     }
 
-    // @ts-expect-error not defined
-    if (cloned.modified) {
-        shape.modified = true;
-    }
-
     shape = shape.toNormal(size);
     return shape;
 }
@@ -171,13 +168,7 @@ function shapeOrShapesToCloze(
 
     // Maintain existing ordinal in editing mode
     let ordinal = shapeOrShapes.ordinal;
-
-    if (shapeOrShapes.modified) {
-        ordinal = index + 1;
-        shapeOrShapes.ordinal = ordinal;
-    }
-
-    if (ordinal === undefined) {
+    if (ordinal === undefined || get(groupItemsModified)) {
         if (type === "text") {
             ordinal = 0;
         } else {

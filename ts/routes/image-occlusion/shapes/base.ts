@@ -25,19 +25,16 @@ export class Shape {
     occludeInactive?: boolean;
     /* Cloze ordinal */
     ordinal: number | undefined;
-    /* Track shape modified in edit mode */
-    modified = false;
 
     constructor(
-        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = undefined, modified = false }:
-            ConstructorParams<Shape> = {},
+        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = undefined }: ConstructorParams<Shape> =
+            {},
     ) {
         this.left = left;
         this.top = top;
         this.fill = fill;
         this.occludeInactive = occludeInactive;
         this.ordinal = ordinal;
-        this.modified = modified;
     }
 
     /** Format numbers and remove default values, for easier serialization to
