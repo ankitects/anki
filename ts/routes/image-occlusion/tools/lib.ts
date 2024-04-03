@@ -64,12 +64,19 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
     const activeObject = canvas.getActiveObject() as fabric.ActiveSelection;
     const items = activeObject.getObjects();
     items.forEach((item) => {
-        // @ts-expect-error not defined
-        item.set({ opacity: 1, modified: true });
+        item.set({ opacity: 1 });
     });
     activeObject.toGroup().set({
         opacity: get(opacityStateStore) ? 0.4 : 1,
     });
+
+    // make modified to true for all object so ordinal should have values
+    // in order in case of edit mode
+    canvas.forEachObject((item) => {
+        // @ts-expect-error not defined
+        item.modified = true;
+    });
+
     redraw(canvas);
 };
 
@@ -88,12 +95,15 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     canvas.remove(group);
 
     items.forEach((item) => {
-        item.set({
-            opacity: get(opacityStateStore) ? 0.4 : 1,
-            // @ts-expect-error not defined
-            modified: true,
-        });
+        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1 });
         canvas.add(item);
+    });
+
+    // make modified to true for all object so ordinal should have values
+    // in order in case of edit mode
+    canvas.forEachObject((item) => {
+        // @ts-expect-error not defined
+        item.modified = true;
     });
 
     redraw(canvas);
