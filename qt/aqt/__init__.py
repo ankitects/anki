@@ -6,7 +6,12 @@ from __future__ import annotations
 import logging
 import sys
 
-import pip_system_certs.wrapt_requests
+try:
+    import pip_system_certs.wrapt_requests
+except ModuleNotFoundError:
+    print(
+        "Python module pip_system_certs is not installed. System certificate store and custom SSL certificates may not work. See: https://github.com/ankitects/anki/issues/3016"
+    )
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
     raise Exception("Anki requires Python 3.9+")
