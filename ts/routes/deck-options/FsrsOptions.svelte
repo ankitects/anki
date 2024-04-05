@@ -360,9 +360,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         {#if optimalRetention}
             {estimatedRetention(optimalRetention)}
-            {#if parseFloat(optimalRetention.toFixed(2)) > $config.desiredRetention}
+            {#if optimalRetention - $config.desiredRetention >= 0.01}
                 <Warning
-                    warning="Your desired retention is below optimal. Increasing it is recommended."
+                    warning={tr.deckConfigDesiredRetentionBelowOptimal()}
                     className="alert-warning"
                 />
             {/if}
