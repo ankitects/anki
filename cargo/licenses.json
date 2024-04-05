@@ -1558,7 +1558,7 @@
   },
   {
     "name": "h2",
-    "version": "0.3.24",
+    "version": "0.3.26",
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/h2",
     "license": "MIT",
