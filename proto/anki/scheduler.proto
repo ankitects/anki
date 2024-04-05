@@ -357,7 +357,6 @@ message ComputeFsrsWeightsFromItemsRequest {
 
 message FsrsBenchmarkRequest {
   repeated FsrsItem train_set = 1;
-  repeated FsrsItem test_set = 2;
 }
 
 message FsrsBenchmarkResponse {
