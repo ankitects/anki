@@ -3,7 +3,9 @@
 
 import { fabric } from "fabric";
 import { cloneDeep } from "lodash-es";
+import { get } from "svelte/store";
 
+import { shapeUngroupState } from "../store";
 import { getBoundingBox } from "../tools/lib";
 import type { Size } from "../types";
 import type { Shape, ShapeOrShapes } from "./base";
@@ -166,7 +168,7 @@ function shapeOrShapesToCloze(
 
     // Maintain existing ordinal in editing mode
     let ordinal = shapeOrShapes.ordinal;
-    if (ordinal === undefined || Number.isNaN(ordinal)) {
+    if (ordinal === undefined || Number.isNaN(ordinal) || get(shapeUngroupState)) {
         if (type === "text") {
             ordinal = 0;
         } else {

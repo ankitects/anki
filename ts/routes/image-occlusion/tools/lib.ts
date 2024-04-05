@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 
-import { opacityStateStore } from "../store";
+import { opacityStateStore, shapeUngroupState } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
@@ -93,15 +93,12 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     group.destroyed = true;
     canvas.remove(group);
 
-    // @ts-expect-error not defined
-    const maxOrdinal = Math.max(canvas.getObjects().map((item) => item.ordinal));
-
-    items.forEach((item, index) => {
-        // @ts-expect-error not defined
-        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1, ordinal: maxOrdinal + index + 1 });
+    items.forEach((item) => {
+        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1 });
         canvas.add(item);
     });
 
+    shapeUngroupState.set(true);
     redraw(canvas);
 };
 
