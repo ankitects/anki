@@ -333,7 +333,6 @@ impl crate::services::BackendSchedulerService for Backend {
         let fsrs_items = req.items.len() as u32;
         let weights = fsrs.compute_parameters(
             req.items.into_iter().map(fsrs_item_proto_to_fsrs).collect(),
-            false,
             None,
         )?;
         Ok(ComputeFsrsWeightsResponse {
@@ -352,12 +351,7 @@ impl crate::services::BackendSchedulerService for Backend {
             .into_iter()
             .map(fsrs_item_proto_to_fsrs)
             .collect();
-        let test_set = req
-            .test_set
-            .into_iter()
-            .map(fsrs_item_proto_to_fsrs)
-            .collect();
-        let weights = fsrs.benchmark(train_set, test_set);
+        let weights = fsrs.benchmark(train_set);
         Ok(FsrsBenchmarkResponse { weights })
     }
 }

@@ -64,11 +64,6 @@ impl Collection {
         let (items, review_count) =
             fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
 
-        if review_count < 400 {
-            return Err(AnkiError::FsrsInsufficientReviews {
-                count: review_count,
-            });
-        }
         let fsrs_items = items.len() as u32;
         anki_progress.update(false, |p| {
             p.current_preset = current_preset;
@@ -95,8 +90,7 @@ impl Collection {
         });
         let fsrs = FSRS::new(Some(current_weights))?;
         let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
-        let mut weights =
-            fsrs.compute_parameters(items.clone(), fsrs_items < 1000, Some(progress2))?;
+        let mut weights = fsrs.compute_parameters(items.clone(), Some(progress2))?;
         let optimized_fsrs = FSRS::new(Some(&weights))?;
         let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
         if current_rmse <= optimized_rmse {
@@ -162,11 +156,6 @@ impl Collection {
             .get_revlog_entries_for_searched_cards_in_card_order()?;
         let (items, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
-        if review_count < 400 {
-            return Err(AnkiError::FsrsInsufficientReviews {
-                count: review_count,
-            });
-        }
         anki_progress.state.reviews = review_count as u32;
         let fsrs = FSRS::new(Some(weights))?;
         Ok(fsrs.evaluate(items, |ip| {
