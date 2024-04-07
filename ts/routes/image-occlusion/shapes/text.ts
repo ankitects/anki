@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "../tools/lib";
+import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_FONT_SIZE, TEXT_PADDING } from "../tools/lib";
 import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
@@ -13,17 +13,20 @@ export class Text extends Shape {
     text: string;
     scaleX: number;
     scaleY: number;
+    fontSize: number | undefined;
 
     constructor({
         text = "",
         scaleX = 1,
         scaleY = 1,
+        fontSize,
         ...rest
     }: ConstructorParams<Text> = {}) {
         super(rest);
         this.text = text;
         this.scaleX = scaleX;
         this.scaleY = scaleY;
+        this.fontSize = fontSize;
     }
 
     toDataForCloze(): TextDataForCloze {
@@ -32,6 +35,7 @@ export class Text extends Shape {
             text: this.text,
             // scaleX and scaleY are guaranteed to be equal since we lock the aspect ratio
             scale: floatToDisplay(this.scaleX),
+            fs: this.fontSize ? floatToDisplay(this.fontSize) : undefined,
         };
     }
 
@@ -46,8 +50,10 @@ export class Text extends Shape {
     }
 
     toNormal(size: Size): Text {
+        const fontSize = this.fontSize ? this.fontSize : TEXT_FONT_SIZE;
         return new Text({
             ...this,
+            fontSize: fontSize / size.height,
             ...super.normalPosition(size),
         });
     }
@@ -55,6 +61,7 @@ export class Text extends Shape {
     toAbsolute(size: Size): Text {
         return new Text({
             ...this,
+            fontSize: this.fontSize ? this.fontSize * size.height : TEXT_FONT_SIZE,
             ...super.absolutePosition(size),
         });
     }
@@ -63,4 +70,5 @@ export class Text extends Shape {
 interface TextDataForCloze extends ShapeDataForCloze {
     text: string;
     scale: string;
+    fs: string | undefined;
 }

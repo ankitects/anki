@@ -291,7 +291,7 @@ function drawShape({
         ctx.restore();
     } else if (shape instanceof Text) {
         ctx.save();
-        ctx.font = `40px ${TEXT_FONT_FAMILY}`;
+        ctx.font = `${shape.fontSize}px ${TEXT_FONT_FAMILY}`;
         ctx.textBaseline = "top";
         ctx.scale(shape.scaleX, shape.scaleY);
         const textMetrics = ctx.measureText(shape.text);

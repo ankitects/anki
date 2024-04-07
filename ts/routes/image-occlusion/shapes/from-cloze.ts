@@ -72,6 +72,7 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
         points: cloze.dataset.points,
         text: cloze.dataset.text,
         scale: cloze.dataset.scale,
+        fs: cloze.dataset.fontSize,
     };
     return buildShape(type, props);
 }
@@ -116,11 +117,15 @@ function buildShape(type: ShapeType, props: Record<string, any>): Shape {
             return new Polygon(props);
         }
         case "text": {
-            return new Text({
+            const textProps: Record<string, any> = {
                 ...props,
                 scaleX: parseFloat(props.scale),
                 scaleY: parseFloat(props.scale),
-            });
+            };
+            if (props.fs) {
+                textProps.fontSize = parseFloat(props.fs);
+            }
+            return new Text(textProps);
         }
     }
 }
