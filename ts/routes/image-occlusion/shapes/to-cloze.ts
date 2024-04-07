@@ -3,9 +3,7 @@
 
 import { fabric } from "fabric";
 import { cloneDeep } from "lodash-es";
-import { get } from "svelte/store";
 
-import { shapeUngroupState } from "../store";
 import { getBoundingBox } from "../tools/lib";
 import type { Size } from "../types";
 import type { Shape, ShapeOrShapes } from "./base";
@@ -22,6 +20,7 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
 
     let clozes = "";
     let index = 0;
+    let nextOrdinal = 1;
     shapes.forEach((shapeOrShapes) => {
         // shapes with width or height less than 5 are not valid
         if (shapeOrShapes === null) {
@@ -31,7 +30,33 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
         if (shapeOrShapes instanceof Rectangle && shapeOrShapes.fill === "transparent") {
             return;
         }
-        clozes += shapeOrShapesToCloze(shapeOrShapes, index, occludeInactive);
+        // Maintain existing ordinal in editing mode
+        let ordinal: number | undefined;
+        if (Array.isArray(shapeOrShapes)) {
+            ordinal = shapeOrShapes[0].ordinal;
+        } else {
+            ordinal = shapeOrShapes.ordinal;
+        }
+        if (ordinal === undefined || Number.isNaN(ordinal)) {
+            if (shapeOrShapes instanceof Text) {
+                ordinal = 0;
+            } else {
+                ordinal = nextOrdinal;
+            }
+            if (Array.isArray(shapeOrShapes)) {
+                shapeOrShapes.forEach((shape) => (shape.ordinal = ordinal));
+            } else {
+                shapeOrShapes.ordinal = ordinal;
+            }
+        }
+        nextOrdinal = ordinal + 1;
+
+        clozes += shapeOrShapesToCloze(
+            shapeOrShapes,
+            index,
+            ordinal,
+            occludeInactive,
+        );
         if (!(shapeOrShapes instanceof Text)) {
             index++;
         }
@@ -134,6 +159,7 @@ function fabricObjectToBaseShapeOrShapes(
 function shapeOrShapesToCloze(
     shapeOrShapes: ShapeOrShapes,
     index: number,
+    ordinal: number,
     occludeInactive: boolean,
 ): string {
     let text = "";
@@ -145,7 +171,7 @@ function shapeOrShapesToCloze(
     let type: string;
     if (Array.isArray(shapeOrShapes)) {
         return shapeOrShapes
-            .map((shape) => shapeOrShapesToCloze(shape, index, occludeInactive))
+            .map((shape) => shapeOrShapesToCloze(shape, index, ordinal, occludeInactive))
             .join("");
     } else if (shapeOrShapes instanceof Rectangle) {
         type = "rect";
@@ -166,16 +192,6 @@ function shapeOrShapesToCloze(
         addKeyValue("oi", "1");
     }
 
-    // Maintain existing ordinal in editing mode
-    let ordinal = shapeOrShapes.ordinal;
-    if (ordinal === undefined || Number.isNaN(ordinal) || get(shapeUngroupState)) {
-        if (type === "text") {
-            ordinal = 0;
-        } else {
-            ordinal = index + 1;
-        }
-        shapeOrShapes.ordinal = ordinal;
-    }
     text = `{{c${ordinal}::image-occlusion:${type}${text}}}<br>`;
 
     return text;

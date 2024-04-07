@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 
-import { opacityStateStore, shapeUngroupState } from "../store";
+import { opacityStateStore } from "../store";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
@@ -94,11 +94,14 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     canvas.remove(group);
 
     items.forEach((item) => {
-        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1 });
+        item.set({
+            opacity: get(opacityStateStore) ? 0.4 : 1,
+            // @ts-expect-error not defined
+            ordinal: undefined,
+        });
         canvas.add(item);
     });
 
-    shapeUngroupState.set(true);
     redraw(canvas);
 };
 
