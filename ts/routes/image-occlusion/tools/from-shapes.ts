@@ -11,7 +11,7 @@ export const addShape = (
     boundingBox: fabric.Rect,
     shape: Shape,
 ): void => {
-    const fabricShape = shape.toFabric(boundingBox.getBoundingRect());
+    const fabricShape = shape.toFabric(boundingBox.getBoundingRect(true));
     addBorder(fabricShape);
     if (fabricShape.type === "i-text") {
         enableUniformScaling(canvas, fabricShape);
@@ -26,7 +26,7 @@ export const addShapeGroup = (
 ): void => {
     const group = new fabric.Group();
     shapes.map((shape) => {
-        const fabricShape = shape.toFabric(boundingBox.getBoundingRect());
+        const fabricShape = shape.toFabric(boundingBox.getBoundingRect(true));
         addBorder(fabricShape);
         group.addWithUpdate(fabricShape);
     });
