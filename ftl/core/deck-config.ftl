@@ -343,7 +343,7 @@ deck-config-must-have-400-reviews =
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
-deck-config-compute-optimal-retention = Compute minimum recommended retention
+deck-config-compute-minimum-recommended-retention = Compute minimum recommended retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore reviews before
@@ -357,7 +357,7 @@ deck-config-get-params = Get Params
 deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
-deck-config-predicted-optimal-retention = Minimum recommended retention: { $num }
+deck-config-predicted-minimum-recommended-retention = Minimum recommended retention: { $num }
 deck-config-complete = { $num }% complete.
 deck-config-iterations = Iteration: { $count }...
 deck-config-reschedule-cards-on-change = Reschedule cards on change
@@ -473,3 +473,6 @@ deck-config-compute-optimal-retention-tooltip =
     if it significantly differs from 0.9, it's a sign that the time you've allocated each day is either too low
     or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
     is not recommended to copy it into the desired retention field.
+
+deck-config-compute-optimal-retention = Compute minimum recommended retention
+deck-config-predicted-optimal-retention = Minimum recommended retention: { $num }
