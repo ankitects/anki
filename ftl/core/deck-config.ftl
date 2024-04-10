@@ -343,7 +343,7 @@ deck-config-must-have-400-reviews =
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
-deck-config-compute-minimum-recommended-retention = Compute minimum recommended retention
+deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore reviews before
