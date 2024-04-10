@@ -65,7 +65,8 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
     const items = activeObject.getObjects();
 
     // @ts-expect-error not defined
-    const minOrdinal = Math.min(...items.map((item) => item.ordinal));
+    let minOrdinal: number | undefined = Math.min(...items.map((item) => item.ordinal));
+    minOrdinal = Number.isNaN(minOrdinal) ? undefined : minOrdinal;
 
     items.forEach((item) => {
         // @ts-expect-error not defined
@@ -91,7 +92,6 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     group._restoreObjectsState();
     // @ts-expect-error not defined
     group.destroyed = true;
-    canvas.remove(group);
 
     items.forEach((item) => {
         item.set({
@@ -102,6 +102,7 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
         canvas.add(item);
     });
 
+    canvas.remove(group);
     redraw(canvas);
 };
 
