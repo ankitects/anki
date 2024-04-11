@@ -54,7 +54,7 @@
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
         "typescript": "^5.0.4",
-        "vite": "^5.0.12",
+        "vite": "^5.0.13",
         "vitest": "^1.2.1"
     },
     "dependencies": {
