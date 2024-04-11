@@ -64,12 +64,10 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
     const activeObject = canvas.getActiveObject() as fabric.ActiveSelection;
     const items = activeObject.getObjects();
 
-    // @ts-expect-error not defined
     let minOrdinal: number | undefined = Math.min(...items.map((item) => item.ordinal));
     minOrdinal = Number.isNaN(minOrdinal) ? undefined : minOrdinal;
 
     items.forEach((item) => {
-        // @ts-expect-error not defined
         item.set({ opacity: 1, ordinal: minOrdinal });
     });
 
@@ -90,13 +88,11 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     const group = canvas.getActiveObject() as fabric.Group;
     const items = group.getObjects();
     group._restoreObjectsState();
-    // @ts-expect-error not defined
     group.destroyed = true;
 
     items.forEach((item) => {
         item.set({
             opacity: get(opacityStateStore) ? 0.4 : 1,
-            // @ts-expect-error not defined
             ordinal: undefined,
         });
         canvas.add(item);
