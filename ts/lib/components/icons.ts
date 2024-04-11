@@ -49,6 +49,8 @@ import HorizontalHandle_ from "@mdi/svg/svg/drag-horizontal.svg?component";
 import horizontalHandle_ from "@mdi/svg/svg/drag-horizontal.svg?url";
 import VerticalHandle_ from "@mdi/svg/svg/drag-vertical.svg?component";
 import verticalHandle_ from "@mdi/svg/svg/drag-vertical.svg?url";
+import Earth_ from "@mdi/svg/svg/earth.svg?component";
+import earth_ from "@mdi/svg/svg/earth.svg?url";
 import EllipseOutline_ from "@mdi/svg/svg/ellipse-outline.svg?component";
 import ellipseOutline_ from "@mdi/svg/svg/ellipse-outline.svg?url";
 import Eye_ from "@mdi/svg/svg/eye.svg?component";
@@ -276,3 +278,4 @@ export const mdiUnfoldMoreHorizontal = { url: unfoldMoreHorizontal_, component: 
 export const mdiUngroup = { url: ungroup_, component: Ungroup_ };
 export const mdiVectorPolygonVariant = { url: vectorPolygonVariant_, component: VectorPolygonVariant_ };
 export const incrementClozeIcon = { url: incrementCloze_, component: IncrementCloze_ };
+export const mdiEarth = { url: earth_, component: Earth_ };
