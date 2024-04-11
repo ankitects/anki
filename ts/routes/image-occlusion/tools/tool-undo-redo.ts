@@ -95,11 +95,15 @@ class UndoStack {
         });
     }
 
-    onObjectAdded(id: string): void {
-        if (!this.shapeIds.has(id)) {
+    onObjectAdded(shape: fabric.Object): void {
+        if (!this.shapeIds.has(shape.id)) {
             this.push();
         }
-        this.shapeIds.add(id);
+        this.shapeIds.add(shape.id);
+        if (shape.type !== "i-text") {
+            const ordinals = this.canvas!.getObjects().filter(shape => shape.ordinal).map(shape => shape.ordinal);
+            shape.ordinal = Math.max(...ordinals, 0) + 1;
+        }
         emitChangeSignal();
     }
 

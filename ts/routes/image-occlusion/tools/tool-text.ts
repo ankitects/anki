@@ -50,7 +50,7 @@ export const drawText = (canvas: fabric.Canvas): void => {
         enableUniformScaling(canvas, text);
         canvas.add(text);
         canvas.setActiveObject(text);
-        undoStack.onObjectAdded(text.id);
+        undoStack.onObjectAdded(text);
         text.selectAll();
     });
 

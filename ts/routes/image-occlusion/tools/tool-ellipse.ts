@@ -119,7 +119,7 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
 
         ellipse.setCoords();
         canvas.setActiveObject(ellipse);
-        undoStack.onObjectAdded(ellipse.id);
+        undoStack.onObjectAdded(ellipse);
         ellipse = undefined;
     });
 };

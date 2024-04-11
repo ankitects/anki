@@ -114,7 +114,7 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
 
         rect.setCoords();
         canvas.setActiveObject(rect);
-        undoStack.onObjectAdded(rect.id);
+        undoStack.onObjectAdded(rect);
         rect = undefined;
     });
 };
