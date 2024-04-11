@@ -42,16 +42,9 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
 
     let nextOrdinal = maxOrdinal + 1;
 
-    for (let i = 0; i < shapes.length; i++) {
-        const shapeOrShapes = shapes[i];
-
-        // shapes with width or height less than 5 are not valid
+    shapes.map((shapeOrShapes) => {
         if (shapeOrShapes === null) {
-            continue;
-        }
-        // if shape is Rect and fill is transparent, skip it
-        if (shapeOrShapes instanceof Rectangle && shapeOrShapes.fill === "transparent") {
-            continue;
+            return;
         }
 
         // Maintain existing ordinal in editing mode
@@ -89,7 +82,7 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
         if (!(shapeOrShapes instanceof Text)) {
             noteCount++;
         }
-    }
+    });
     return { clozes, noteCount };
 }
 
@@ -113,6 +106,8 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
             const parent = selectionContainingMultipleObjects?.contains(object)
                 ? selectionContainingMultipleObjects
                 : undefined;
+            // shapes with width or height less than 5 are not valid
+            // if shape is Rect and fill is transparent, skip it
             if (object.width! < 5 || object.height! < 5 || object.fill == "transparent") {
                 return null;
             }
