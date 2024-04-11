@@ -213,6 +213,9 @@
    <property name="text">
     <string>qt_misc_empty_cards</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+`</string>
+   </property>
   </action>
   <action name="actionCreateFiltered">
    <property name="text">

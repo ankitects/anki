@@ -24,3 +24,4 @@ export const alignRightKeyCombination = "Shift+R";
 export const alignTopKeyCombination = "Shift+T";
 export const alignVerticalCenterKeyCombination = "Shift+V";
 export const alignBottomKeyCombination = "Shift+B";
+export const toggleMaskEditorKeyCombination = "Control+Shift+M";
