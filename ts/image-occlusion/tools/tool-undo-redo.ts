@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "@tslib/ftl";
-import type fabric from "fabric";
+import fabric from "fabric";
 import { writable } from "svelte/store";
 
 import { mdiRedo, mdiUndo } from "../icons";
@@ -86,6 +86,12 @@ class UndoStack {
             this.canvas?.renderAll();
             emitChangeSignal();
             this.locked = false;
+        });
+        // make bounding box unselectable
+        this.canvas?.forEachObject((obj) => {
+            if (obj instanceof fabric.Rect && obj.fill === "transparent") {
+                obj.selectable = false;
+            }
         });
     }
 

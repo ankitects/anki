@@ -458,7 +458,7 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
 fn check_web(build: &mut Build) -> Result<()> {
     let dprint_files = inputs![glob![
         "**/*.{ts,mjs,js,md,json,toml,svelte,scss}",
-        "target/**"
+        "{target,ts/.svelte-kit,node_modules}/**"
     ]];
     build.add_action(
         "check:format:dprint",

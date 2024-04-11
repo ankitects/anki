@@ -470,6 +470,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: 16px !important;
     }
 
+    :global(.top-tool-icon-button:active) {
+        background: var(--highlight-bg) !important;
+    }
+
     .dropdown-content {
         display: none;
         position: absolute;
@@ -479,7 +483,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .show {
-        display: flex;
+        display: table;
     }
 
     ::-webkit-scrollbar {
