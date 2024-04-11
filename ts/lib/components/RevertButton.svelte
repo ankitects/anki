@@ -72,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
             on:click={() => revert()}
         >
-            {tr.deckConfigRevertButtonTooltip()}<Badge>
+            {tr.deckConfigRevertButtonTooltip()}<Badge iconSize={85}>
                 <Icon icon={revertIcon} />
             </Badge>
         </DropdownItem>
