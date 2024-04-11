@@ -10,16 +10,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { singleCallback } from "@tslib/typing";
     import { onMount } from "svelte";
 
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+    import { chevronDown } from "$lib/components/icons";
+    import { textColorIcon } from "$lib/components/icons";
     import Shortcut from "$lib/components/Shortcut.svelte";
     import type { FormattingNode, MatchType } from "$lib/domlib/surround";
 
     import { withFontColor } from "../helpers";
-    import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import ColorPicker from "./ColorPicker.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
-    import { textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
 
     export let color: string;
@@ -133,8 +134,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={setTextColor}
         --border-left-radius="5px"
     >
-        {@html textColorIcon}
-        {@html colorHelperIcon}
+        <Icon icon={textColorIcon} />
+        <Icon icon={colorHelperIcon} />
     </IconButton>
     <Shortcut keyCombination={setCombination} on:action={setTextColor} />
 
@@ -144,7 +145,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         widthMultiplier={0.5}
         iconSize={120}
     >
-        {@html chevronDown}
+        <Icon icon={chevronDown} />
         <ColorPicker
             keyCombination={pickCombination}
             value={color}

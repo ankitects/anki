@@ -6,9 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { removeStyleProperties } from "@tslib/styling";
 
+    import Icon from "$lib/components/Icon.svelte";
+    import { superscriptIcon } from "$lib/components/icons";
     import type { MatchType } from "$lib/domlib/surround";
 
-    import { superscriptIcon } from "./icons";
     import TextAttributeButton from "./TextAttributeButton.svelte";
 
     export function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
@@ -37,5 +38,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     keyCombination="Control+="
     exclusiveNames={["subscript"]}
 >
-    {@html superscriptIcon}
+    <Icon icon={superscriptIcon} />
 </TextAttributeButton>

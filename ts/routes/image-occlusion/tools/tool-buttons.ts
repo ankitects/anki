@@ -9,7 +9,8 @@ import {
     mdiRectangleOutline,
     mdiTextBox,
     mdiVectorPolygonVariant,
-} from "../icons";
+} from "$lib/components/icons";
+
 import {
     cursorKeyCombination,
     ellipseKeyCombination,

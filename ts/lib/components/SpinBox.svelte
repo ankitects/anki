@@ -7,9 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { isDesktop } from "@tslib/platform";
     import { tick } from "svelte";
 
+    import { chevronDown, chevronUp } from "$lib/components/icons";
+
     import Icon from "./Icon.svelte";
     import IconConstrain from "./IconConstrain.svelte";
-    import { chevronDown, chevronUp } from "./icons";
 
     export let value: number;
     export let step = 1;

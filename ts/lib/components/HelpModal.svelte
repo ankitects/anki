@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext, onDestroy, onMount } from "svelte";
 
+    import { infoCircle } from "$lib/components/icons";
     import { registerModalClosingHandler } from "$lib/sveltelib/modal-closing";
     import { pageTheme } from "$lib/sveltelib/theme";
 
@@ -17,7 +18,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { modalsKey } from "./context-keys";
     import HelpSection from "./HelpSection.svelte";
     import Icon from "./Icon.svelte";
-    import { infoCircle } from "./icons";
     import Row from "./Row.svelte";
     import { type HelpItem, HelpItemScheduler } from "./types";
 

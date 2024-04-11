@@ -18,7 +18,8 @@ import {
     mdiZoomIn,
     mdiZoomOut,
     mdiZoomReset,
-} from "../icons";
+} from "$lib/components/icons";
+
 import { deleteItem, duplicateItem, groupShapes, selectAllShapes, unGroupShapes } from "./lib";
 import {
     alignBottomKeyCombination,

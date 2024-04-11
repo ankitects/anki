@@ -11,17 +11,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import CheckBox from "$lib/components/CheckBox.svelte";
     import DropdownItem from "$lib/components/DropdownItem.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+    import { chevronDown } from "$lib/components/icons";
+    import { eraserIcon } from "$lib/components/icons";
     import Popover from "$lib/components/Popover.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
     import type { MatchType } from "$lib/domlib/surround";
 
-    import { chevronDown } from "../icons";
     import { surrounder } from "../rich-text-input";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
-    import { eraserIcon } from "./icons";
 
     const { removeFormats } = editorToolbarContext.get();
 
@@ -113,7 +114,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:click={remove}
     --border-left-radius="5px"
 >
-    {@html eraserIcon}
+    <Icon icon={eraserIcon} />
 </IconButton>
 
 <Shortcut {keyCombination} on:action={remove} />
@@ -129,7 +130,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         --border-right-radius="5px"
         on:click={() => (showFloating = !showFloating)}
     >
-        {@html chevronDown}
+        <Icon icon={chevronDown} />
     </IconButton>
 
     <Popover slot="floating" --popover-padding-inline="0">
