@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Col from "./Col.svelte";
     import { modalsKey } from "./context-keys";
     import HelpSection from "./HelpSection.svelte";
+    import Icon from "./Icon.svelte";
     import { infoCircle } from "./icons";
     import Row from "./Row.svelte";
     import { type HelpItem, HelpItemScheduler } from "./types";
@@ -76,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Badge on:click={() => modal.show()} iconSize={125}>
-    {@html infoCircle}
+    <Icon icon={infoCircle} />
 </Badge>
 
 <div

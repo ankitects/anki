@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { slide } from "svelte/transition";
 
     import Badge from "$lib/components/Badge.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import { minusIcon, plusIcon } from "$lib/components/icons";
 
     import { MapContext } from "./lib";
@@ -40,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             aria-expanded={!collapsed}
         >
             <Badge iconSize={80}>
-                {@html icon}
+                <Icon {icon} />
             </Badge>
             {collapseMsg}
         </div>

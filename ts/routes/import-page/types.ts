@@ -3,6 +3,8 @@
 
 import type { ImportResponse_Note } from "@generated/anki/import_export_pb";
 
+import type { IconData } from "$lib/components/types";
+
 export type LogQueue = {
     notes: ImportResponse_Note[];
     reason: string;
@@ -13,7 +15,7 @@ export type SummarizedLogQueues = {
     action: string;
     summaryTemplate: (args: { count: number }) => string;
     canBrowse: boolean;
-    icon: unknown;
+    icon: IconData;
 };
 
 export type NoteRow = {
