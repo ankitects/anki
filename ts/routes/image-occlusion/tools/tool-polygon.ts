@@ -203,7 +203,7 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         canvas.add(polygon);
         canvas.setActiveObject(polygon);
         // view undo redo tools
-        undoStack.onObjectAdded(polygon);
+        undoStack.onObjectAdded(polygon["id"]);
     }
 
     toggleDrawPolygon(canvas);
