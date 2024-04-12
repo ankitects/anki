@@ -1133,7 +1133,6 @@ title="{}" {}>{}</button>""".format(
             ("b", self.onBrowse),
             ("t", self.onStats),
             ("Shift+t", self.onStats),
-            ("Ctrl+Shift+]", self.onEmptyCards),
             ("y", self.on_sync_button_clicked),
         ]
         self.applyShortcuts(globalShortcuts)
