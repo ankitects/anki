@@ -44,7 +44,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abt.buttonBox.addButton(btn, QDialogButtonBox.ButtonRole.ActionRole)
     abt.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setFocus()
     btnLayout = abt.buttonBox.layout()
-    btnLayout.setContentsMargins(12,12,12,12)
+    btnLayout.setContentsMargins(12, 12, 12, 12)
 
     # WebView cleanup
     ######################################################################
