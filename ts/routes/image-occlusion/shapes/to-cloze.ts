@@ -19,23 +19,71 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
     const shapes = baseShapesFromFabric();
 
     let clozes = "";
-    let index = 0;
-    shapes.forEach((shapeOrShapes) => {
-        // shapes with width or height less than 5 are not valid
-        if (shapeOrShapes === null) {
-            return;
-        }
-        // if shape is Rect and fill is transparent, skip it
-        if (shapeOrShapes instanceof Rectangle && shapeOrShapes.fill === "transparent") {
-            return;
-        }
-        clozes += shapeOrShapesToCloze(shapeOrShapes, index, occludeInactive);
-        if (!(shapeOrShapes instanceof Text)) {
-            index++;
+    let noteCount = 0;
+
+    // take out all ordinal values from shapes
+    const ordinalList = shapes.map((shape) => {
+        if (Array.isArray(shape)) {
+            return shape[0].ordinal;
+        } else {
+            return shape.ordinal;
         }
     });
 
-    return { clozes, noteCount: index };
+    const filterOrdinalList: number[] = ordinalList.flatMap(v => typeof v === "number" ? [v] : []);
+    const maxOrdinal = Math.max(...filterOrdinalList, 0);
+
+    const missingOrdinals: number[] = [];
+    for (let i = 1; i <= maxOrdinal; i++) {
+        if (!ordinalList.includes(i)) {
+            missingOrdinals.push(i);
+        }
+    }
+
+    let nextOrdinal = maxOrdinal + 1;
+
+    shapes.map((shapeOrShapes) => {
+        if (shapeOrShapes === null) {
+            return;
+        }
+
+        // Maintain existing ordinal in editing mode
+        let ordinal: number | undefined;
+        if (Array.isArray(shapeOrShapes)) {
+            ordinal = shapeOrShapes[0].ordinal;
+        } else {
+            ordinal = shapeOrShapes.ordinal;
+        }
+
+        if (ordinal === undefined) {
+            // if ordinal is undefined, assign a missing ordinal if available
+            if (shapeOrShapes instanceof Text) {
+                ordinal = 0;
+            } else if (missingOrdinals.length > 0) {
+                ordinal = missingOrdinals.shift() as number;
+            } else {
+                ordinal = nextOrdinal;
+                nextOrdinal++;
+            }
+
+            if (Array.isArray(shapeOrShapes)) {
+                shapeOrShapes.forEach((shape) => (shape.ordinal = ordinal));
+            } else {
+                shapeOrShapes.ordinal = ordinal;
+            }
+        }
+
+        clozes += shapeOrShapesToCloze(
+            shapeOrShapes,
+            ordinal,
+            occludeInactive,
+        );
+
+        if (!(shapeOrShapes instanceof Text)) {
+            noteCount++;
+        }
+    });
+    return { clozes, noteCount };
 }
 
 /** Gather all Fabric shapes, and convert them into BaseShapes or
@@ -50,6 +98,7 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
         : null;
     const objects = canvas.getObjects() as fabric.Object[];
     const boundingBox = getBoundingBox();
+    // filter transparent rectangles
     return objects
         .map((object) => {
             // If the object is in the active selection containing multiple objects,
@@ -57,7 +106,9 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
             const parent = selectionContainingMultipleObjects?.contains(object)
                 ? selectionContainingMultipleObjects
                 : undefined;
-            if (object.width! < 5 || object.height! < 5) {
+            // shapes with width or height less than 5 are not valid
+            // if shape is Rect and fill is transparent, skip it
+            if (object.width! < 5 || object.height! < 5 || object.fill == "transparent") {
                 return null;
             }
             return fabricObjectToBaseShapeOrShapes(
@@ -131,7 +182,7 @@ function fabricObjectToBaseShapeOrShapes(
  {{c1::image-occlusion:rect:top=.1:left=.23:width=.4:height=.5}} */
 function shapeOrShapesToCloze(
     shapeOrShapes: ShapeOrShapes,
-    index: number,
+    ordinal: number,
     occludeInactive: boolean,
 ): string {
     let text = "";
@@ -143,7 +194,7 @@ function shapeOrShapesToCloze(
     let type: string;
     if (Array.isArray(shapeOrShapes)) {
         return shapeOrShapes
-            .map((shape) => shapeOrShapesToCloze(shape, index, occludeInactive))
+            .map((shape) => shapeOrShapesToCloze(shape, ordinal, occludeInactive))
             .join("");
     } else if (shapeOrShapes instanceof Rectangle) {
         type = "rect";
@@ -164,16 +215,6 @@ function shapeOrShapesToCloze(
         addKeyValue("oi", "1");
     }
 
-    // Maintain existing ordinal in editing mode
-    let ordinal = shapeOrShapes.ordinal;
-    if (ordinal === undefined) {
-        if (type === "text") {
-            ordinal = 0;
-        } else {
-            ordinal = index + 1;
-        }
-        shapeOrShapes.ordinal = ordinal;
-    }
     text = `{{c${ordinal}::image-occlusion:${type}${text}}}<br>`;
 
     return text;

@@ -28,7 +28,9 @@ export function extractShapesFromClozedField(
                 group.push(buildShape(shape.shape, props));
             }
         }
-        if (group.length > 1) {
+        if (occlusion.ordinal === 0) {
+            output.push(...group);
+        } else if (group.length > 1) {
             output.push(group);
         } else {
             output.push(group[0]);
