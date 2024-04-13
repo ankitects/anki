@@ -11,6 +11,7 @@ pub use anki_proto::deck_config::deck_config::config::LeechAction;
 pub use anki_proto::deck_config::deck_config::config::NewCardGatherPriority;
 pub use anki_proto::deck_config::deck_config::config::NewCardInsertOrder;
 pub use anki_proto::deck_config::deck_config::config::NewCardSortOrder;
+pub use anki_proto::deck_config::deck_config::config::QuestionAction;
 pub use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
 pub use anki_proto::deck_config::deck_config::config::ReviewMix;
 pub use anki_proto::deck_config::deck_config::Config as DeckConfigInner;
@@ -66,6 +67,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     stop_timer_on_answer: false,
     seconds_to_show_question: 0.0,
     seconds_to_show_answer: 0.0,
+    question_action: QuestionAction::ShowAnswer as i32,
     answer_action: AnswerAction::BuryCard as i32,
     wait_for_audio: true,
     skip_question_when_replaying_answer: false,

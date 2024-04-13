@@ -137,6 +137,11 @@ class AnswerAction(Enum):
     SHOW_REMINDER = 4
 
 
+class QuestionAction(Enum):
+    SHOW_ANSWER = 0
+    SHOW_REMINDER = 1
+
+
 class Reviewer:
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
@@ -423,7 +428,15 @@ class Reviewer:
         ):
             self.auto_advance_enabled = False
             return
-        self._showAnswer()
+        try:
+            question_action = list(QuestionAction)[conf["questionAction"]]
+        except IndexError:
+            question_action = QuestionAction.SHOW_ANSWER
+
+        if question_action == QuestionAction.SHOW_ANSWER:
+            self._showAnswer()
+        else:
+            tooltip(tr.studying_question_time_elapsed())
 
     def autoplay(self, card: Card) -> bool:
         print("use card.autoplay() instead of reviewer.autoplay(card)")
