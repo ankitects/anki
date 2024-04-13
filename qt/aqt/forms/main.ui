@@ -214,7 +214,7 @@
     <string>qt_misc_empty_cards</string>
    </property>
    <property name="shortcut">
-     <string notr="true">Ctrl+Shift+0</string>
+     <string notr="true">Ctrl+Alt+E</string>
    </property>
   </action>
   <action name="actionCreateFiltered">
