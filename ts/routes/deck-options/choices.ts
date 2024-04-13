@@ -7,6 +7,7 @@ import {
     DeckConfig_Config_NewCardGatherPriority,
     DeckConfig_Config_NewCardInsertOrder,
     DeckConfig_Config_NewCardSortOrder,
+    DeckConfig_Config_QuestionAction,
     DeckConfig_Config_ReviewCardOrder,
     DeckConfig_Config_ReviewMix,
 } from "@generated/anki/deck_config_pb";
@@ -181,6 +182,18 @@ export function answerChoices(): Choice<DeckConfig_Config_AnswerAction>[] {
         {
             label: tr.deckConfigShowReminder(),
             value: DeckConfig_Config_AnswerAction.SHOW_REMINDER,
+        },
+    ];
+}
+export function questionActionChoices(): Choice<DeckConfig_Config_QuestionAction>[] {
+    return [
+        {
+            label: tr.deckConfigQuestionActionShowAnswer(),
+            value: DeckConfig_Config_QuestionAction.SHOW_ANSWER,
+        },
+        {
+            label: tr.deckConfigQuestionActionShowReminder(),
+            value: DeckConfig_Config_QuestionAction.SHOW_REMINDER,
         },
     ];
 }

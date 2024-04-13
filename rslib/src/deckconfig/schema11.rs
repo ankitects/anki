@@ -82,6 +82,8 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     seconds_to_show_answer: f32,
     #[serde(default)]
+    question_action: QuestionAction,
+    #[serde(default)]
     answer_action: AnswerAction,
     #[serde(default = "wait_for_audio_default")]
     wait_for_audio: bool,
@@ -93,6 +95,14 @@ pub struct DeckConfSchema11 {
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
+}
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
+#[repr(u8)]
+#[derive(Default)]
+pub enum QuestionAction {
+    #[default]
+    ShowAnswer = 0,
+    ShowReminder = 1,
 }
 
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
@@ -278,6 +288,7 @@ impl Default for DeckConfSchema11 {
             stop_timer_on_answer: false,
             seconds_to_show_question: 0.0,
             seconds_to_show_answer: 0.0,
+            question_action: QuestionAction::ShowAnswer,
             answer_action: AnswerAction::BuryCard,
             wait_for_audio: true,
             replayq: true,
@@ -365,6 +376,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 stop_timer_on_answer: c.stop_timer_on_answer,
                 seconds_to_show_question: c.seconds_to_show_question,
                 seconds_to_show_answer: c.seconds_to_show_answer,
+                question_action: c.question_action as i32,
                 answer_action: c.answer_action as i32,
                 wait_for_audio: c.wait_for_audio,
                 skip_question_when_replaying_answer: !c.replayq,
@@ -430,6 +442,10 @@ impl From<DeckConfig> for DeckConfSchema11 {
                 3 => AnswerAction::AnswerHard,
                 4 => AnswerAction::ShowReminder,
                 _ => AnswerAction::BuryCard,
+            },
+            question_action: match i.question_action {
+                1 => QuestionAction::ShowReminder,
+                _ => QuestionAction::ShowAnswer,
             },
             wait_for_audio: i.wait_for_audio,
             replayq: !i.skip_question_when_replaying_answer,
@@ -509,6 +525,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "stopTimerOnAnswer",
     "secondsToShowQuestion",
     "secondsToShowAnswer",
+    "questionAction",
     "answerAction",
     "waitForAudio",
     "sm2Retention",
