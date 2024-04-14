@@ -183,6 +183,8 @@ def get_def_lang(lang: str | None = None) -> tuple[int, str]:
     or English if not available."""
     try:
         (sys_lang, enc) = locale.getdefaultlocale()
+    except AttributeError:
+        (sys_lang, enc) = locale.getlocale()
     except:
         # fails on osx
         sys_lang = "en_US"
