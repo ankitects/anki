@@ -294,20 +294,38 @@ function drawShape({
         ctx.font = `${shape.fontSize}px ${TEXT_FONT_FAMILY}`;
         ctx.textBaseline = "top";
         ctx.scale(shape.scaleX, shape.scaleY);
-        const textMetrics = ctx.measureText(shape.text);
+        const lines = shape.text.split("\n");
+        const baseMetrics = ctx.measureText("M");
+        const fontHeight = baseMetrics.actualBoundingBoxAscent + baseMetrics.actualBoundingBoxDescent;
+        const lineHeight = 1.5 * fontHeight;
+        const linePositions: { text: string; x: number; y: number; width: number; height: number }[] = [];
+        let maxWidth = 0;
+        let totalHeight = 0;
+        for (let i = 0; i < lines.length; i++) {
+            const textMetrics = ctx.measureText(lines[i]);
+            linePositions.push({
+                text: lines[i],
+                x: shape.left / shape.scaleX,
+                y: shape.top / shape.scaleY + i * lineHeight,
+                width: textMetrics.width,
+                height: lineHeight,
+            });
+            if (textMetrics.width > maxWidth) {
+                maxWidth = textMetrics.width;
+            }
+            totalHeight += lineHeight;
+        }
         ctx.fillStyle = TEXT_BACKGROUND_COLOR;
         ctx.fillRect(
             shape.left / shape.scaleX,
             shape.top / shape.scaleY,
-            textMetrics.width + TEXT_PADDING,
-            textMetrics.actualBoundingBoxDescent + TEXT_PADDING,
+            maxWidth + TEXT_PADDING,
+            totalHeight + TEXT_PADDING,
         );
         ctx.fillStyle = "#000";
-        ctx.fillText(
-            shape.text,
-            shape.left / shape.scaleX,
-            shape.top / shape.scaleY,
-        );
+        for (const line of linePositions) {
+            ctx.fillText(line.text, line.x, line.y);
+        }
         ctx.restore();
     }
 }

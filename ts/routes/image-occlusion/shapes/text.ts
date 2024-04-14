@@ -46,6 +46,7 @@ export class Text extends Shape {
             fontFamily: TEXT_FONT_FAMILY,
             backgroundColor: TEXT_BACKGROUND_COLOR,
             padding: TEXT_PADDING,
+            lineHeight: 1,
         });
     }
 
