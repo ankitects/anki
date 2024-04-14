@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import locale
 import re
+import warnings
 import weakref
 from typing import TYPE_CHECKING, Any
 
@@ -182,7 +183,9 @@ def get_def_lang(lang: str | None = None) -> tuple[int, str]:
     """Return lang converted to name used on disk and its index, defaulting to system language
     or English if not available."""
     try:
-        (sys_lang, enc) = locale.getdefaultlocale()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            (sys_lang, enc) = locale.getdefaultlocale()
     except AttributeError:
         (sys_lang, enc) = locale.getlocale()
     except:
