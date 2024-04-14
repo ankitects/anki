@@ -232,20 +232,23 @@ class ProgressManager:
 
             next_levels = self._levels - 1
             next_levels = max(0, next_levels)
-            if next_levels == 0:
-                if self._win:
-                    self._closeWin()
-                if self._busy_cursor_timer:
-                    self._busy_cursor_timer.stop()
-                    self._busy_cursor_timer = None
-                self._restore_cursor()
-                if self._show_timer:
-                    self._show_timer.stop()
-                    self._show_timer = None
-            if self._backend_timer:
-                self._backend_timer.stop()
-                self._backend_timer.deleteLater()
-                self._backend_timer = None
+            try:
+                if next_levels == 0:
+                    if self._win:
+                        self._closeWin()
+                    if self._busy_cursor_timer:
+                        self._busy_cursor_timer.stop()
+                        self._busy_cursor_timer = None
+                    self._restore_cursor()
+                    if self._show_timer:
+                        self._show_timer.stop()
+                        self._show_timer = None
+                if self._backend_timer:
+                    self._backend_timer.stop()
+                    self._backend_timer.deleteLater()
+                    self._backend_timer = None
+            except Exception as exc:
+                print(f"do_window_cleanup error ignored: {exc}")
             self._levels = next_levels
 
         # if the window is not currently shown, we can do cleanup immediately, if it is
