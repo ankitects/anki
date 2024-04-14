@@ -3552,19 +3552,10 @@ postcss-selector-parser@^6.0.11:
     cssesc "^3.0.0"
     util-deprecate "^1.0.2"
 
-postcss@^8.4.29, postcss@^8.4.5:
+postcss@^8.4.29, postcss@^8.4.32, postcss@^8.4.5:
   version "8.4.35"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.35.tgz#60997775689ce09011edf083a549cea44aabe2f7"
   integrity sha512-u5U8qYpBCpN13BsiEB0CbR1Hhh4Gc0zLFuedrHJKMctHCHAGrMdG0PRM/KErzAL3CU6/eckEtmHNB3x6e3c0vA==
-  dependencies:
-    nanoid "^3.3.7"
-    picocolors "^1.0.0"
-    source-map-js "^1.0.2"
-
-postcss@^8.4.32:
-  version "8.4.33"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.33.tgz#1378e859c9f69bf6f638b990a0212f43e2aaa742"
-  integrity sha512-Kkpbhhdjw2qQs2O2DGX+8m5OVqEcbB9HRBvuYM9pgrjEFUg30A9LmXNlTAUj4S9kgtGyrMbTzVjH7E+s5Re2yg==
   dependencies:
     nanoid "^3.3.7"
     picocolors "^1.0.0"
@@ -4385,10 +4376,10 @@ vite-node@1.2.1:
     picocolors "^1.0.0"
     vite "^5.0.0"
 
-vite@^5.0.0, vite@^5.0.12:
-  version "5.0.12"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-5.0.12.tgz#8a2ffd4da36c132aec4adafe05d7adde38333c47"
-  integrity sha512-4hsnEkG3q0N4Tzf1+t6NdN9dg/L3BM+q8SWgbSPnJvrgH2kgdyzfVJwbR1ic69/4uMJJ/3dqDZZE5/WwqW8U1w==
+vite@^5.0.0, vite@^5.0.13:
+  version "5.0.13"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-5.0.13.tgz#605865b0e482506163e3f04f91665238f3be8cf1"
+  integrity sha512-/9ovhv2M2dGTuA+dY93B9trfyWMDRQw2jdVBhHNP6wr0oF34wG2i/N55801iZIpgUpnHDm4F/FabGQLyc+eOgg==
   dependencies:
     esbuild "^0.19.3"
     postcss "^8.4.32"

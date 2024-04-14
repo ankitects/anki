@@ -64,12 +64,18 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
 
     const activeObject = canvas.getActiveObject() as fabric.ActiveSelection;
     const items = activeObject.getObjects();
+
+    let minOrdinal: number | undefined = Math.min(...items.map((item) => item.ordinal));
+    minOrdinal = Number.isNaN(minOrdinal) ? undefined : minOrdinal;
+
     items.forEach((item) => {
-        item.set({ opacity: 1 });
+        item.set({ opacity: 1, ordinal: minOrdinal });
     });
+
     activeObject.toGroup().set({
         opacity: get(opacityStateStore) ? 0.4 : 1,
     });
+
     redraw(canvas);
 };
 
@@ -83,15 +89,17 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     const group = canvas.getActiveObject() as fabric.Group;
     const items = group.getObjects();
     group._restoreObjectsState();
-    // @ts-expect-error not defined
     group.destroyed = true;
-    canvas.remove(group);
 
     items.forEach((item) => {
-        item.set({ opacity: get(opacityStateStore) ? 0.4 : 1 });
+        item.set({
+            opacity: get(opacityStateStore) ? 0.4 : 1,
+            ordinal: undefined,
+        });
         canvas.add(item);
     });
 
+    canvas.remove(group);
     redraw(canvas);
 };
 
@@ -284,9 +292,13 @@ export const makeShapeRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fabr
 
 export const selectAllShapes = (canvas: fabric.Canvas) => {
     canvas.discardActiveObject();
-    const sel = new fabric.ActiveSelection(canvas.getObjects(), {
-        canvas: canvas,
-    });
+    // filter out the transparent bounding box from the selection
+    const sel = new fabric.ActiveSelection(
+        canvas.getObjects().filter((obj) => obj.fill !== "transparent"),
+        {
+            canvas: canvas,
+        },
+    );
     canvas.setActiveObject(sel);
     redraw(canvas);
 };

@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "@generated/ftl";
-import { type fabric } from "fabric";
+import { fabric } from "fabric";
 import { writable } from "svelte/store";
 
 import { mdiRedo, mdiUndo } from "../icons";
@@ -50,7 +50,6 @@ class UndoStack {
         this.canvas = canvas;
         this.canvas.on("object:modified", (opts) => this.maybePush(opts));
         this.canvas.on("object:removed", (opts) => {
-            // @ts-expect-error `destroyed` is a custom property set on groups in the ungrouping routine to avoid adding a spurious undo entry
             if (!opts.target!.group && !opts.target!.destroyed) {
                 this.maybePush(opts);
             }
@@ -86,6 +85,12 @@ class UndoStack {
             this.canvas?.renderAll();
             emitChangeSignal();
             this.locked = false;
+        });
+        // make bounding box unselectable
+        this.canvas?.forEachObject((obj) => {
+            if (obj instanceof fabric.Rect && obj.fill === "transparent") {
+                obj.selectable = false;
+            }
         });
     }
 

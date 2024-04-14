@@ -237,6 +237,10 @@ deck-config-seconds-to-show-question = Seconds to show question for
 deck-config-seconds-to-show-question-tooltip-2 = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.
 deck-config-seconds-to-show-answer = Seconds to show answer for
 deck-config-seconds-to-show-answer-tooltip-2 = When auto advance is activated, the number of seconds to wait before applying the answer action. Set to 0 to disable.
+deck-config-question-action-show-answer = Show Answer
+deck-config-question-action-show-reminder = Show Reminder
+deck-config-question-action = Question action 
+deck-config-question-action-tool-tip = The action to perform after the question is shown, and time has elapsed.
 deck-config-answer-action = Answer action
 deck-config-answer-action-tooltip = The action to perform on the current card before automatically advancing to the next one.
 deck-config-wait-for-audio-tooltip = Wait for audio to finish before automatically revealing answer or next question
@@ -334,7 +338,7 @@ deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_c
 deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.
 deck-config-not-enough-history = Insufficient review history to perform this operation.
 deck-config-unable-to-determine-desired-retention =
-    Unable to determine an optimal retention.
+    Unable to determine a minimum recommended retention.
 deck-config-must-have-400-reviews =
     { $count ->
         [one] Only { $count } review was found.
@@ -343,21 +347,21 @@ deck-config-must-have-400-reviews =
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
-deck-config-compute-optimal-retention = Compute optimal retention
+deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore reviews before
 deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
-deck-config-historical-retention = Historical Retention
+deck-config-historical-retention = Historical retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, steps of 1 day or more are not recommended.
 deck-config-get-params = Get Params
 deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
-deck-config-predicted-optimal-retention = Predicted optimal retention: { $num }
+deck-config-predicted-minimum-recommended-retention = Minimum recommended retention: { $num }
 deck-config-complete = { $num }% complete.
 deck-config-iterations = Iteration: { $count }...
 deck-config-reschedule-cards-on-change = Reschedule cards on change
@@ -425,7 +429,7 @@ deck-config-compute-optimal-retention-tooltip2 =
     value that will lead to the most material learnt, in the least amount of time. This number can be used as a
     reference when deciding what to set your desired retention to. You may wish to choose a higher desired retention,
     if you’re willing to trade more study time for a greater recall rate. Setting your desired retention lower than
-    the optimum is not recommended, as it will lead to more work without benefit.
+    the minimum is not recommended, as it will lead to more work without benefit.
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-a-100-day-interval = 
     { $days ->
@@ -473,3 +477,6 @@ deck-config-compute-optimal-retention-tooltip =
     if it significantly differs from 0.9, it's a sign that the time you've allocated each day is either too low
     or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
     is not recommended to copy it into the desired retention field.
+
+deck-config-compute-optimal-retention = Compute minimum recommended retention
+deck-config-predicted-optimal-retention = Minimum recommended retention: { $num }
