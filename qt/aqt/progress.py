@@ -247,7 +247,7 @@ class ProgressManager:
                     self._backend_timer.stop()
                     self._backend_timer.deleteLater()
                     self._backend_timer = None
-            except Exception as exc:
+            except RuntimeError as exc:
                 print(f"do_window_cleanup error ignored: {exc}")
             self._levels = next_levels
 
