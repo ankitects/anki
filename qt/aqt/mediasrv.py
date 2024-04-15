@@ -10,11 +10,12 @@ import os
 import re
 import sys
 import threading
+import time
 import traceback
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
-from typing import Callable
+from typing import Callable, Sequence
 
 import flask
 import flask_cors
@@ -27,17 +28,27 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
+from anki.collection import (
+    ExportCollectionPackageRequest,
+    ExportFilePathRequest,
+    NoteIds,
+    OpChanges,
+    OpChangesOnly,
+    Progress,
+    SearchNode,
+    String,
+)
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
+from aqt.import_export import exporting
 from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import aqt_data_path, show_warning, tr
+from aqt.utils import aqt_data_path, show_warning, tooltip, tr
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
@@ -335,6 +346,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-csv",
         "import-page",
         "image-occlusion",
+        "export-page",
     ]
 
 
@@ -578,6 +590,56 @@ def change_notetype() -> bytes:
     return b""
 
 
+def get_notes_to_export() -> bytes:
+    assert aqt.mw
+    note_ids: Sequence[int] = []
+
+    if window := aqt.mw.app.activeWindow():
+        from aqt.import_export.exporting import ExportDialog
+
+        if isinstance(window, ExportDialog) and window.nids:
+            note_ids = window.nids
+
+    return NoteIds(note_ids=note_ids).SerializeToString()
+
+
+def get_export_file_path() -> bytes:
+    assert aqt.mw
+    req = ExportFilePathRequest()
+    req.ParseFromString(request.data)
+    path = None
+
+    def get_out_path() -> None:
+        nonlocal path
+        path = exporting.get_out_path(req.exporter, req.extension, req.filename) or ""
+
+    aqt.mw.taskman.run_on_main(get_out_path)
+    while path is None:
+        time.sleep(0.05)
+    return String(val=path).SerializeToString()
+
+
+def show_tooltip() -> bytes:
+    assert aqt.mw
+    req = String()
+    req.ParseFromString(request.data)
+    aqt.mw.taskman.run_on_main(lambda: tooltip(req.val, parent=aqt.mw))
+    return b""
+
+
+def temporarily_close_and_export_collection_package() -> bytes:
+    assert aqt.mw
+    assert aqt.mw.col
+    req = ExportCollectionPackageRequest()
+    req.ParseFromString(request.data)
+    aqt.mw.col.export_collection_package(
+        req.out_path,
+        include_media=req.include_media,
+        legacy=req.legacy,
+    )
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -591,6 +653,10 @@ post_handler_list = [
     import_json_file,
     import_json_string,
     search_in_browser,
+    get_notes_to_export,
+    get_export_file_path,
+    show_tooltip,
+    temporarily_close_and_export_collection_package,
 ]
 
 
@@ -604,6 +670,10 @@ exposed_backend_list = [
     # ImportExportService
     "get_csv_metadata",
     "get_import_anki_package_presets",
+    "export_collection_package",
+    "export_anki_package",
+    "export_note_csv",
+    "export_card_csv",
     # NotesService
     "get_field_names",
     "get_note",

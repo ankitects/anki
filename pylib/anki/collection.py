@@ -10,6 +10,7 @@ from anki import (
     card_rendering_pb2,
     collection_pb2,
     config_pb2,
+    frontend_pb2,
     generic_pb2,
     image_occlusion_pb2,
     import_export_pb2,
@@ -57,6 +58,10 @@ CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
 MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
 FsrsItem = scheduler_pb2.FsrsItem
 FsrsReview = scheduler_pb2.FsrsReview
+NoteIds = notes_pb2.NoteIds
+String = generic_pb2.String
+ExportFilePathRequest = frontend_pb2.ExportFilePathRequest
+ExportCollectionPackageRequest = import_export_pb2.ExportCollectionPackageRequest
 
 import os
 import sys
@@ -352,9 +357,12 @@ class Collection(DeprecatedNamesMixin):
         self, out_path: str, include_media: bool, legacy: bool
     ) -> None:
         self.close_for_full_sync()
-        self._backend.export_collection_package(
-            out_path=out_path, include_media=include_media, legacy=legacy
-        )
+        try:
+            self._backend.export_collection_package(
+                out_path=out_path, include_media=include_media, legacy=legacy
+            )
+        finally:
+            self.reopen()
 
     def import_anki_package(
         self, request: ImportAnkiPackageRequest

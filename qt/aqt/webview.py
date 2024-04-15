@@ -258,6 +258,7 @@ class AnkiWebViewKind(Enum):
     FIELDS = "fields"
     IMPORT_LOG = "import log"
     IMPORT_ANKI_PACKAGE = "anki package import"
+    EXPORT = "export"
 
 
 class AnkiWebView(QWebEngineView):
