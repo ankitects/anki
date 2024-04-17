@@ -29,6 +29,7 @@ export default defineConfig({
         reportCompressedSize: false,
     },
     server: {
+        host: "127.0.0.1",
         fs: {
             // Allow serving files project root and out dir
             allow: [
