@@ -9,14 +9,8 @@
                 "qt"
             ],
             "windows": {
-                "command": "bash",
-                "options": {
-                    "env": {
-                        "PATH": "c:\\msys64\\usr\\bin;${env:Path}"
-                    }
-                },
+                "command": "tools/ninja.bat",
                 "args": [
-                    "ninja",
                     "pylib",
                     "qt",
                     "extract:win_amd64_audio"
