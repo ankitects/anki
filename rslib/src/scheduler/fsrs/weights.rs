@@ -162,9 +162,6 @@ impl Collection {
             .get_revlog_entries_for_searched_cards_in_card_order()?;
         let (items, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
-        if items.is_empty() {
-            return Err(AnkiError::FsrsInsufficientData);
-        }
         anki_progress.state.reviews = review_count as u32;
         let fsrs = FSRS::new(Some(weights))?;
         Ok(fsrs.evaluate(items, |ip| {
