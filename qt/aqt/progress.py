@@ -248,6 +248,7 @@ class ProgressManager:
                     self._backend_timer.deleteLater()
                     self._backend_timer = None
             except RuntimeError as exc:
+                # during shutdown, the timers may have already been deleted by Qt
                 print(f"do_window_cleanup error ignored: {exc}")
             self._levels = next_levels
 
