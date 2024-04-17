@@ -219,8 +219,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }
                 },
             );
-        } catch (err) {
-            // TODO: handle error
         } finally {
             computingRetention = false;
         }
