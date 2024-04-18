@@ -65,6 +65,12 @@ impl Collection {
             fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
 
         let fsrs_items = items.len() as u32;
+        if fsrs_items == 0 {
+            return Ok(ComputeFsrsWeightsResponse {
+                weights: current_weights.to_vec(),
+                fsrs_items,
+            });
+        }
         anki_progress.update(false, |p| {
             p.current_preset = current_preset;
             p.total_presets = total_presets;

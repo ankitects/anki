@@ -10,7 +10,7 @@ export async function postProto<T>(
     method: string,
     input: { toBinary(): Uint8Array; getType(): { typeName: string } },
     outputType: { fromBinary(arr: Uint8Array): T },
-    options: PostProtoOptions | undefined,
+    options: PostProtoOptions = {},
 ): Promise<T> {
     try {
         const inputBytes = input.toBinary();
@@ -18,7 +18,8 @@ export async function postProto<T>(
         const outputBytes = await postProtoInner(path, inputBytes);
         return outputType.fromBinary(outputBytes);
     } catch (err) {
-        if (options?.alertOnError && !(err instanceof Error && err.message === "500: Interrupted")) {
+        const { alertOnError = true } = options;
+        if (alertOnError && !(err instanceof Error && err.message === "500: Interrupted")) {
             alert(err);
         }
         throw err;
