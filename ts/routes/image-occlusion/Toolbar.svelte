@@ -5,8 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { directionKey } from "@tslib/context-keys";
+    import { on } from "@tslib/events";
     import { getPlatformString } from "@tslib/shortcuts";
-    import { getContext, onMount } from "svelte";
+    import type { Callback } from "@tslib/typing";
+    import { singleCallback } from "@tslib/typing";
+    import { getContext, onDestroy, onMount } from "svelte";
     import type { Readable } from "svelte/store";
 
     import DropdownItem from "$lib/components/DropdownItem.svelte";
@@ -49,14 +52,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let maksOpacity = false;
     let showFloating = false;
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
-
-    document.addEventListener("click", (event) => {
-        const upperCanvas = document.querySelector(".upper-canvas");
-        if (event.target == upperCanvas) {
-            showAlignTools = false;
-        }
-    });
-
     // handle zoom event when mouse scroll and ctrl key are hold for panzoom
     let spaceClicked = false;
     let controlClicked = false;
@@ -65,102 +60,108 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const spaceKey = " ";
     const controlKey = "Control";
     const shiftKey = "Shift";
+    let removeHandlers: Callback;
 
-    onMount(() => {
-        window.addEventListener("mousedown", () => {
-            window.addEventListener("keydown", (ev) => {
-                if (ev.key === spaceKey) {
-                    spaceClicked = true;
-                }
-            });
-        });
-        window.addEventListener("mousemove", () => {
-            if (spaceClicked || move) {
-                disableFunctions();
-                enablePan(canvas);
-            }
-        });
-        window.addEventListener("mouseup", () => {
-            if (spaceClicked) {
-                spaceClicked = false;
-            }
-            if (move) {
-                move = false;
-            }
-            disableFunctions();
-            handleToolChanges(activeTool);
-        });
-        window.addEventListener("keyup", (event) => {
-            if (
-                event.key === spaceKey ||
-                event.key === controlKey ||
-                event.key === shiftKey
-            ) {
-                spaceClicked = false;
-                controlClicked = false;
-                shiftClicked = false;
-                move = false;
+    function onClick(event: MouseEvent) {
+        const upperCanvas = document.querySelector(".upper-canvas");
+        if (event.target == upperCanvas) {
+            showAlignTools = false;
+        }
+    }
 
-                disableFunctions();
-                handleToolChanges(activeTool);
-            }
-        });
-        window.addEventListener("keydown", (event) => {
-            if (event.key === spaceKey) {
+    function onMousedown() {
+        window.addEventListener("keydown", (ev) => {
+            if (ev.key === spaceKey) {
                 spaceClicked = true;
             }
-            if (event.key === controlKey) {
-                controlClicked = true;
-            }
-            if (event.key === shiftKey) {
-                shiftClicked = true;
+        });
+    }
+
+    function onMousemove() {
+        if (spaceClicked || move) {
+            disableFunctions();
+            enablePan(canvas);
+        }
+    }
+
+    function onMouseup() {
+        if (spaceClicked) {
+            spaceClicked = false;
+        }
+        if (move) {
+            move = false;
+        }
+        disableFunctions();
+        handleToolChanges(activeTool);
+    }
+
+    function onKeyup(event: KeyboardEvent) {
+        if (
+            event.key === spaceKey ||
+            event.key === controlKey ||
+            event.key === shiftKey
+        ) {
+            spaceClicked = false;
+            controlClicked = false;
+            shiftClicked = false;
+            move = false;
+
+            disableFunctions();
+            handleToolChanges(activeTool);
+        }
+    }
+
+    function onKeydown(event: KeyboardEvent) {
+        if (event.key === spaceKey) {
+            spaceClicked = true;
+        }
+        if (event.key === controlKey) {
+            controlClicked = true;
+        }
+        if (event.key === shiftKey) {
+            shiftClicked = true;
+        }
+    }
+
+    function onWheel(event: WheelEvent) {
+        if (event.ctrlKey) {
+            controlClicked = true;
+        }
+        if (event.shiftKey) {
+            shiftClicked = true;
+        }
+
+        event.preventDefault();
+
+        if (controlClicked) {
+            disableFunctions();
+            enableZoom(canvas);
+            return;
+        }
+
+        if (shiftClicked) {
+            onWheelDragX(canvas, event);
+            return;
+        }
+
+        onWheelDrag(canvas, event);
+    }
+
+    // initializes lastPosX and lastPosY because it is undefined in touchmove event
+    function onTouchstart(event: TouchEvent) {
+        canvas.lastPosX = event.touches[0].clientX;
+        canvas.lastPosY = event.touches[0].clientY;
+    }
+
+    // initializes lastPosX and lastPosY because it is undefined before mousemove event
+    function onMousemoveDocument(event: MouseEvent) {
+        document.addEventListener("keydown", (e) => {
+            if (e.key === " ") {
+                canvas.lastPosX = event.clientX;
+                canvas.lastPosY = event.clientY;
             }
         });
-        window.addEventListener("wheel", (event) => {
-            if (event.ctrlKey) {
-                controlClicked = true;
-            }
-            if (event.shiftKey) {
-                shiftClicked = true;
-            }
-        });
-        window.addEventListener(
-            "wheel",
-            (event) => {
-                event.preventDefault();
-
-                if (controlClicked) {
-                    disableFunctions();
-                    enableZoom(canvas);
-                    return;
-                }
-
-                if (shiftClicked) {
-                    onWheelDragX(canvas, event);
-                    return;
-                }
-
-                onWheelDrag(canvas, event);
-            },
-            { passive: false },
-        );
-
-        // initializes lastPosX and lastPosY because it is undefined in touchmove event
-        document.addEventListener("touchstart", (e) => {
-            canvas.lastPosX = e.touches[0].clientX;
-            canvas.lastPosY = e.touches[0].clientY;
-        });
-
-        // initializes lastPosX and lastPosY because it is undefined before mousemove event
-        document.addEventListener("mousemove", (event) => {
-            document.addEventListener("keydown", (e) => {
-                if (e.key === " ") {
-                    canvas.lastPosX = event.clientX;
-                    canvas.lastPosY = event.clientY;
-                }
-            });
-        });
-    });
+    }
 
     const handleToolChanges = (activeTool: string) => {
         disableFunctions();
@@ -204,6 +205,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $hideAllGuessOne = occlusionType === "all";
         emitChangeSignal();
     }
+
+    onMount(() => {
+        removeHandlers = singleCallback(
+            on(document, "click", onClick),
+            on(window, "mousedown", onMousedown),
+            on(window, "mousemove", onMousemove),
+            on(window, "mouseup", onMouseup),
+            on(window, "keyup", onKeyup),
+            on(window, "keydown", onKeydown),
+            on(window, "wheel", onWheel, { passive: false }),
+            on(document, "touchstart", onTouchstart),
+            on(document, "mousemove", onMousemoveDocument),
+        );
+    });
+
+    onDestroy(() => {
+        removeHandlers();
+    });
 </script>
 
 <div class="tool-bar-container">
