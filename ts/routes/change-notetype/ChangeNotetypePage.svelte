@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { renderMarkdown } from "@tslib/helpers";
 
-    import Col from "$lib/components/Col.svelte";
     import Container from "$lib/components/Container.svelte";
     import Row from "$lib/components/Row.svelte";
     import StickyContainer from "$lib/components/StickyContainer.svelte";
@@ -16,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Mapper from "./Mapper.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import StickyHeader from "./StickyHeader.svelte";
+    import TitledContainer from "$lib/components/TitledContainer.svelte";
 
     export let state: ChangeNotetypeState;
     $: info = state.info;
@@ -33,16 +33,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </StickyContainer>
 </div>
 
-<div id="scrollArea" style="--offset: {offset}px; --gutter-inline: 0.25rem;">
-    <Row class="gx-0" --cols={2}>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
+<Container breakpoint="sm" --gutter-inline="0.25rem" --gutter-block="0.75rem">
+    <Row --cols={2}>
+        <TitledContainer title={tr.changeNotetypeFields()}>
+            <Row>
                 <StickyHeader {state} ctx={MapContext.Field} --z-index="2" />
                 <Mapper {state} ctx={MapContext.Field} />
-            </Container>
-        </Col>
-        <Col --col-size={1} breakpoint="md">
-            <Container>
+            </Row>
+        </TitledContainer>
+    </Row>
+    <Row --cols={2}>
+        <TitledContainer title={tr.changeNotetypeTemplates()}>
+            <Row>
                 <StickyHeader {state} ctx={MapContext.Template} --z-index="2" />
                 {#if $info.templates}
                     <Mapper {state} ctx={MapContext.Template} />
@@ -51,15 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {@html renderMarkdown(tr.changeNotetypeToFromCloze())}
                     </div>
                 {/if}
-            </Container>
-        </Col>
+            </Row>
+        </TitledContainer>
     </Row>
-</div>
-
-<style>
-    #scrollArea {
-        padding: 0;
-        overflow: hidden auto;
-        height: calc(100% - var(--offset));
-    }
-</style>
+</Container>
