@@ -144,6 +144,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             },
             { passive: false },
         );
+
+        // initializes lastPosX and lastPosY because it is undefined in touchmove event
+        document.addEventListener("touchstart", (e) => {
+            canvas.lastPosX = e.touches[0].clientX;
+            canvas.lastPosY = e.touches[0].clientY;
+        });
+
+        // initializes lastPosX and lastPosY because it is undefined before mousemove event
+        document.addEventListener("mousemove", (event) => {
+            document.addEventListener("keydown", (e) => {
+                if (e.key === " ") {
+                    canvas.lastPosX = event.clientX;
+                    canvas.lastPosY = event.clientY;
+                }
+            });
+        });
     });
 
     const handleToolChanges = (activeTool: string) => {
