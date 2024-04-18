@@ -69,14 +69,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function onMousedown() {
-        window.addEventListener("keydown", (ev) => {
-            if (ev.key === spaceKey) {
-                spaceClicked = true;
-            }
-        });
-    }
-
     function onMousemove() {
         if (spaceClicked || move) {
             disableFunctions();
@@ -155,12 +147,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // initializes lastPosX and lastPosY because it is undefined before mousemove event
     function onMousemoveDocument(event: MouseEvent) {
-        document.addEventListener("keydown", (e) => {
-            if (e.key === " ") {
-                canvas.lastPosX = event.clientX;
-                canvas.lastPosY = event.clientY;
-            }
-        });
+        if (spaceClicked) {
+            canvas.lastPosX = event.clientX;
+            canvas.lastPosY = event.clientY;
+        }
     }
 
     const handleToolChanges = (activeTool: string) => {
@@ -209,7 +199,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => {
         removeHandlers = singleCallback(
             on(document, "click", onClick),
-            on(window, "mousedown", onMousedown),
             on(window, "mousemove", onMousemove),
             on(window, "mouseup", onMouseup),
             on(window, "keyup", onKeyup),
