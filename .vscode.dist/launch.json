@@ -6,9 +6,13 @@
     "configurations": [
         {
             "name": "Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "tools/run.py",
+            "args": [
+                // "-p",
+                // "My test profile"
+            ],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "python": "${workspaceFolder}/out/pyenv/bin/python",
@@ -20,7 +24,12 @@
                 "PYTHONPYCACHEPREFIX": "out/pycache",
                 "ANKIDEV": "1",
                 "QTWEBENGINE_REMOTE_DEBUGGING": "8080",
-                "QTWEBENGINE_CHROMIUM_FLAGS": "--remote-allow-origins=http://localhost:8080"
+                "QTWEBENGINE_CHROMIUM_FLAGS": "--remote-allow-origins=http://localhost:8080",
+                "RUST_BACKTRACE": "1",
+                // "TRACESQL": "1",
+                // "HMR": "1",
+                "ANKI_API_PORT": "40000",
+                "ANKI_API_HOST": "127.0.0.1"
             },
             "justMyCode": true,
             "preLaunchTask": "ninja"
