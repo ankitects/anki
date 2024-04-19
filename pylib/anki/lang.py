@@ -183,11 +183,13 @@ def get_def_lang(lang: str | None = None) -> tuple[int, str]:
     """Return lang converted to name used on disk and its index, defaulting to system language
     or English if not available."""
     try:
-        # getdefaultlocale() is deprecated since Python 3.11 but we need to keep using it due to a bug: https://bugs.python.org/issue38805
+        # getdefaultlocale() is deprecated since Python 3.11, but we need to keep using it as getlocale() behaves differently: https://bugs.python.org/issue38805
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
             (sys_lang, enc) = locale.getdefaultlocale()
     except AttributeError:
+        # this will return a different format on Windows (e.g. Italian_Italy), resulting in us falling back to en_US
+        # further below
         (sys_lang, enc) = locale.getlocale()
     except:
         # fails on osx
