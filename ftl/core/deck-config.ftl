@@ -417,7 +417,7 @@ deck-config-compute-optimal-weights-tooltip2 =
     You can use the Optimize button to analyze your review history, and automatically generate parameters that are 
     optimal for your memory patterns and the content you're studying. If your decks vary wildly in difficulty, it 
     is recommended to assign them separate presets, as the parameters for easy decks and hard decks will be different. 
-    There is no need to optimize your parameters frequently - once every few months is sufficient.
+    You don't need to optimize your parameters frequently - once every few months is sufficient.
     
     By default, parameters will be calculated from the review history of all decks using the current preset. You can
     optionally adjust the search before calculating the parameters, if you'd like to alter which cards are used for
