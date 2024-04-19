@@ -429,6 +429,7 @@ deck-config-compute-optimal-retention-tooltip3 =
     set your desired retention to. You may wish to choose a higher desired retention, if you’re willing to trade more study 
     time for a greater recall rate. Setting your desired retention lower than the minimum is not recommended, as it will 
     lead to more review load without benefit.
+deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-a-100-day-interval = 
     { $days ->
         [one] A 100 day interval will become { $days } day.
@@ -498,4 +499,3 @@ deck-config-compute-optimal-retention-tooltip2 =
     reference when deciding what to set your desired retention to. You may wish to choose a higher desired retention,
     if you’re willing to trade more study time for a greater recall rate. Setting your desired retention lower than
     the minimum is not recommended, as it will lead to more work without benefit.
-deck-config-please-save-your-changes-first = Please save your changes first.
