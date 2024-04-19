@@ -394,10 +394,9 @@ deck-config-historical-retention-tooltip =
 
     The latter is quite rare, so unless you've used the former option, you probably don't need to adjust
     this setting.
-deck-config-weights-tooltip =
-    FSRS parameters affect how cards are scheduled. Anki will start with default parameters. Once
-    you've accumulated 1000+ reviews, you can use the option below to optimize the parameters to best
-    match your performance in decks using this preset.
+deck-config-weights-tooltip2 =
+    FSRS parameters affect how cards are scheduled. Anki will start with default parameters. You can use 
+    the option below to optimize the parameters to best match your performance in decks using this preset.
 deck-config-reschedule-cards-on-change-tooltip =
     Affects the entire collection, and is not saved.
 
@@ -414,23 +413,22 @@ deck-config-reschedule-cards-warning =
 deck-config-ignore-before-tooltip = 
     If set, reviews before the provided date will be ignored when optimizing & evaluating FSRS parameters.
     This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
-deck-config-compute-optimal-weights-tooltip =
-    Once you've done 1000+ reviews in Anki, you can use the Optimize button to analyze your review history,
-    and automatically generate parameters that are optimal for your memory and the content you're studying.
-    If you have decks that vary wildly in difficulty, it is recommended to assign them separate presets, as
-    the parameters for easy decks and hard decks will be different. There is no need to optimize your parameters
-    frequently - once every few months is sufficient.
+deck-config-compute-optimal-weights-tooltip2 =
+    You can use the Optimize button to analyze your review history, and automatically generate parameters that are 
+    optimal for your memory and the content you're studying. If you have decks that vary wildly in difficulty, it 
+    is recommended to assign them separate presets, as the parameters for easy decks and hard decks will be different. 
+    There is no need to optimize your parameters frequently - once every few months is sufficient.
     
     By default, parameters will be calculated from the review history of all decks using the current preset. You can
     optionally adjust the search before calculating the parameters, if you'd like to alter which cards are used for
     optimizing the parameters.
-deck-config-compute-optimal-retention-tooltip2 =
-    This tool assumes that you’re starting with 0 learned cards, and will attempt to find the desired retention
-    value that will lead to the most material learnt, in the least amount of time. This number can be used as a
-    reference when deciding what to set your desired retention to. You may wish to choose a higher desired retention,
-    if you’re willing to trade more study time for a greater recall rate. Setting your desired retention lower than
-    the minimum is not recommended, as it will lead to more work without benefit.
-deck-config-please-save-your-changes-first = Please save your changes first.
+deck-config-compute-optimal-retention-tooltip3 =
+    This tool assumes that you’re starting with 0 learned cards, and will attempt to find the desired retention value 
+    that will lead to the most material learnt, in the least amount of time. To accurately simulate your learning process, 
+    this feature requires a minimum of 400+ reviews. The calculated number can serve as a reference when deciding what to 
+    set your desired retention to. You may wish to choose a higher desired retention, if you’re willing to trade more study 
+    time for a greater recall rate. Setting your desired retention lower than the minimum is not recommended, as it will 
+    lead to more work without benefit.
 deck-config-a-100-day-interval = 
     { $days ->
         [one] A 100 day interval will become { $days } day.
@@ -480,3 +478,24 @@ deck-config-compute-optimal-retention-tooltip =
 
 deck-config-compute-optimal-retention = Compute minimum recommended retention
 deck-config-predicted-optimal-retention = Minimum recommended retention: { $num }
+deck-config-weights-tooltip =
+    FSRS parameters affect how cards are scheduled. Anki will start with default parameters. Once
+    you've accumulated 1000+ reviews, you can use the option below to optimize the parameters to best
+    match your performance in decks using this preset.
+deck-config-compute-optimal-weights-tooltip =
+    Once you've done 1000+ reviews in Anki, you can use the Optimize button to analyze your review history,
+    and automatically generate parameters that are optimal for your memory and the content you're studying.
+    If you have decks that vary wildly in difficulty, it is recommended to assign them separate presets, as
+    the parameters for easy decks and hard decks will be different. There is no need to optimize your parameters
+    frequently - once every few months is sufficient.
+    
+    By default, parameters will be calculated from the review history of all decks using the current preset. You can
+    optionally adjust the search before calculating the parameters, if you'd like to alter which cards are used for
+    optimizing the parameters.
+deck-config-compute-optimal-retention-tooltip2 =
+    This tool assumes that you’re starting with 0 learned cards, and will attempt to find the desired retention
+    value that will lead to the most material learnt, in the least amount of time. This number can be used as a
+    reference when deciding what to set your desired retention to. You may wish to choose a higher desired retention,
+    if you’re willing to trade more study time for a greater recall rate. Setting your desired retention lower than
+    the minimum is not recommended, as it will lead to more work without benefit.
+deck-config-please-save-your-changes-first = Please save your changes first.
