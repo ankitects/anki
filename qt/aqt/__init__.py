@@ -285,6 +285,22 @@ def setupLangAndBackend(
 ##########################################################################
 
 
+class NativeEventFilter(QAbstractNativeEventFilter):
+    def nativeEventFilter(
+        self, eventType: Any, message: Any
+    ) -> tuple[bool, Optional[sip.voidptr]]:
+        if eventType == "windows_generic_MSG":
+            import ctypes
+
+            msg = ctypes.wintypes.MSG.from_address(int(message))
+            if msg.message == 17:  # WM_QUERYENDSESSION
+                if mw.can_auto_sync():
+                    mw.app._set_windows_shutdown_block_reason("Syncing")
+                    mw.progress.single_shot(100, mw.unloadProfileAndExit)
+                    return (True, 0)
+        return (False, 0)
+
+
 class AnkiApp(QApplication):
     # Single instance support on Win32/Linux
     ##################################################
@@ -298,6 +314,28 @@ class AnkiApp(QApplication):
         QApplication.__init__(self, argv)
         self.installEventFilter(self)
         self._argv = argv
+        self._native_event_filter = NativeEventFilter()
+        if is_win:
+            self.installNativeEventFilter(self._native_event_filter)
+
+    def _set_windows_shutdown_block_reason(self, reason: str) -> None:
+        if is_win:
+            import ctypes
+            import ctypes.wintypes
+
+            ctypes.windll.user32.ShutdownBlockReasonCreate(
+                ctypes.wintypes.HWND.from_param(int(mw.effectiveWinId())),
+                ctypes.c_wchar_p(reason),
+            )
+
+    def _unset_windows_shutdown_block_reason(self) -> None:
+        if is_win:
+            import ctypes
+            import ctypes.wintypes
+
+            ctypes.windll.user32.ShutdownBlockReasonDestroy(
+                ctypes.wintypes.HWND.from_param(int(mw.effectiveWinId())),
+            )
 
     def secondInstance(self) -> bool:
         # we accept only one command line argument. if it's missing, send
