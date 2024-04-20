@@ -208,6 +208,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>preferences_minimalist_mode_tooltip</string>
+            </property>
             <property name="text">
              <string>preferences_minimalist_mode</string>
             </property>
