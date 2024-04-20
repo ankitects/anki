@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
     import Icon from "$lib/components/Icon.svelte";
     import { arrowLeftIcon, arrowRightIcon } from "$lib/components/icons";
-    import LabelButton from "$lib/components/LabelButton.svelte";
     import Select from "$lib/components/Select.svelte";
 
     import type { ChangeNotetypeState } from "./lib";
@@ -25,9 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonToolbar class="justify-content-between" wrap={false}>
-    <LabelButton ellipsis disabled={true}>
-        {$info.oldNotetypeName}
-    </LabelButton>
+    <Select label={$info.oldNotetypeName} value={1} list={[1]} disabled={true} />
     <Badge iconSize={70}>
         {#if window.getComputedStyle(document.body).direction == "rtl"}
             <Icon icon={arrowLeftIcon} />
