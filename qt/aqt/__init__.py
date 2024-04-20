@@ -321,20 +321,19 @@ class AnkiApp(QApplication):
     def _set_windows_shutdown_block_reason(self, reason: str) -> None:
         if is_win:
             import ctypes
-            import ctypes.wintypes
+            from ctypes import windll, wintypes  # type: ignore
 
-            ctypes.windll.user32.ShutdownBlockReasonCreate(
-                ctypes.wintypes.HWND.from_param(int(mw.effectiveWinId())),
+            windll.user32.ShutdownBlockReasonCreate(
+                wintypes.HWND.from_param(int(mw.effectiveWinId())),
                 ctypes.c_wchar_p(reason),
             )
 
     def _unset_windows_shutdown_block_reason(self) -> None:
         if is_win:
-            import ctypes
-            import ctypes.wintypes
+            from ctypes import windll, wintypes  # type: ignore
 
-            ctypes.windll.user32.ShutdownBlockReasonDestroy(
-                ctypes.wintypes.HWND.from_param(int(mw.effectiveWinId())),
+            windll.user32.ShutdownBlockReasonDestroy(
+                wintypes.HWND.from_param(int(mw.effectiveWinId())),
             )
 
     def secondInstance(self) -> bool:
