@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Badge from "$lib/components/Badge.svelte";
     import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
     import Icon from "$lib/components/Icon.svelte";
     import { arrowLeftIcon, arrowRightIcon } from "$lib/components/icons";
@@ -25,14 +24,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonToolbar class="justify-content-between" wrap={false}>
     <Select label={$info.oldNotetypeName} value={1} list={[1]} disabled={true} />
-    <Badge iconSize={70}>
+    <div class="arrow-container">
         {#if window.getComputedStyle(document.body).direction == "rtl"}
             <Icon icon={arrowLeftIcon} />
         {:else}
             <Icon icon={arrowRightIcon} />
         {/if}
-    </Badge>
-    <Select class="flex-grow-1" list={options} bind:value {label} />
-
+    </div>
+    <Select list={options} bind:value {label} />
     <SaveButton {state} />
 </ButtonToolbar>
+
+<style lang="scss">
+    .arrow-container {
+        margin: 0 0.5em;
+    }
+</style>
