@@ -17,16 +17,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let summaries: SummarizedLogQueues[];
     export let bottomOffset: number = 0;
 
+    let bottom: HTMLElement;
     $: rows = getRows(summaries);
 </script>
 
-<details>
-    <summary>{tr.importingDetails()}</summary>
+<div bind:this={bottom}>
+    {#if bottom}
+        
     <VirtualTable
-        class="details-table"
-        itemHeight={50}
+    class="details-table"
+        itemHeight={40}
         itemsCount={rows.length}
-        bind:bottomOffset
+        {bottomOffset}
     >
         <tr slot="headers">
             <th>#</th>
@@ -65,7 +67,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </tr>
         </svelte:fragment>
     </VirtualTable>
-</details>
+    {/if}
+</div>
 
 <style lang="scss">
     :global(.details-table) {
@@ -77,11 +80,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             background: transparent !important;
         }
         tr {
-            height: 50px;
+            height: 40px;
             text-align: center;
         }
         .index-cell {
-            width: 6em;
+            width: 3em;
         }
         :global(.status-cell) {
             width: 5em;
@@ -90,7 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             text-align: left;
         }
         :global(.search-cell) {
-            width: 4em;
+            width: 3em;
         }
     }
 </style>

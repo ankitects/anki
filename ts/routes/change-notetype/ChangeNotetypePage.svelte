@@ -9,13 +9,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Container from "$lib/components/Container.svelte";
     import Row from "$lib/components/Row.svelte";
     import StickyContainer from "$lib/components/StickyContainer.svelte";
+    import TitledContainer from "$lib/components/TitledContainer.svelte";
 
     import type { ChangeNotetypeState } from "./lib";
     import { MapContext } from "./lib";
     import Mapper from "./Mapper.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import StickyHeader from "./StickyHeader.svelte";
-    import TitledContainer from "$lib/components/TitledContainer.svelte";
 
     export let state: ChangeNotetypeState;
     $: info = state.info;
