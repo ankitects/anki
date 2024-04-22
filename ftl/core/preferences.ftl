@@ -62,6 +62,7 @@ preferences-review = Review
 preferences-answer-keys = Answer keys
 preferences-distractions = Distractions
 preferences-minimalist-mode = Minimalist mode
+preferences-minimalist-mode-tooltip = Make the interface more compact/less fancy
 preferences-editing = Editing
 preferences-browsing = Browsing
 preferences-default-deck = Default deck
