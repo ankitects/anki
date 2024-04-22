@@ -414,7 +414,7 @@ deck-config-ignore-before-tooltip =
     If set, reviews before the provided date will be ignored when optimizing & evaluating FSRS parameters.
     This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
 deck-config-compute-optimal-weights-tooltip2 =
-    When you click the Optimize button, FSRS will analyze your review history to generate parameters that are 
+    When you click the Optimize button, FSRS will analyze your review history, and generate parameters that are 
     optimal for your memory patterns and the content you're studying. If your decks vary wildly in difficulty, it 
     is recommended to assign them separate presets, as the parameters for easy decks and hard decks will be different. 
     You don't need to optimize your parameters frequently - once every few months is sufficient.
