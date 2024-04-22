@@ -295,7 +295,7 @@ class NativeEventFilter(QAbstractNativeEventFilter):
             msg = ctypes.wintypes.MSG.from_address(int(message))
             if msg.message == 17:  # WM_QUERYENDSESSION
                 if mw.can_auto_sync():
-                    mw.app._set_windows_shutdown_block_reason("Syncing")
+                    mw.app._set_windows_shutdown_block_reason(tr.sync_syncing())
                     mw.progress.single_shot(100, mw.unloadProfileAndExit)
                     return (True, 0)
         return (False, 0)
