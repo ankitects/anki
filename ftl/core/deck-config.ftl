@@ -428,7 +428,7 @@ deck-config-compute-optimal-retention-tooltip3 =
     this feature requires a minimum of 400+ reviews. The calculated number can serve as a reference when deciding what to 
     set your desired retention to. You may wish to choose a higher desired retention, if you’re willing to trade more study 
     time for a greater recall rate. Setting your desired retention lower than the minimum is not recommended, as it will 
-    lead to more review load without benefit.
+    lead to a higher workload, because of the high forgetting rate.
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-a-100-day-interval = 
     { $days ->
