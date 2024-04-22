@@ -573,6 +573,7 @@ class AnkiQt(QMainWindow):
         self.backend.await_backup_completion()
         self.deleteLater()
         app = self.app
+        app._unset_windows_shutdown_block_reason()
 
         def exit():
             # try to ensure Qt objects are deleted in a logical order,
