@@ -141,6 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // initializes lastPosX and lastPosY because it is undefined in touchmove event
     function onTouchstart(event: TouchEvent) {
+        const canvas = globalThis.canvas;
         canvas.lastPosX = event.touches[0].clientX;
         canvas.lastPosY = event.touches[0].clientY;
     }
