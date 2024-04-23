@@ -480,6 +480,20 @@ mod test {
     }
 
     #[test]
+    fn decimal_rounding() {
+        let tr = I18n::new(&["en"]);
+
+        assert_eq!(
+            tr.browsing_cards_deleted(1.001),
+            "1 card deleted."
+        );
+        assert_eq!(
+            tr.browsing_cards_deleted(1.01),
+            "1.01 cards deleted."
+        );
+    }
+
+    #[test]
     fn i18n() {
         // English template
         let tr = I18n::new(&["zz"]);
@@ -493,10 +507,6 @@ mod test {
 
         assert_eq!(
             tr.translate("plural", Some(tr_args!["hats"=>1.0])),
-            "You have 1 hat."
-        );
-        assert_eq!(
-            tr.translate("plural", Some(tr_args!["hats"=>1.001])),
             "You have 1 hat."
         );
         assert_eq!(
