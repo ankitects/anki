@@ -482,6 +482,10 @@ mod test {
             "You have 1 hat."
         );
         assert_eq!(
+            tr.translate("plural", Some(tr_args!["hats"=>1.001])),
+            "You have 1 hat."
+        );
+        assert_eq!(
             tr.translate("plural", Some(tr_args!["hats"=>1.1])),
             "You have 1.1 hats."
         );
