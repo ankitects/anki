@@ -334,6 +334,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-anki-package",
         "import-csv",
         "import-page",
+        "image-occlusion",
     ]
 
 
