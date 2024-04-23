@@ -231,6 +231,23 @@ impl I18n {
         }
     }
 
+    fn preprocess_translation_args(args: FluentArgs) -> FluentArgs {
+        args.into_iter()
+            .map(|(key, value)| {
+                let value = match value {
+                    FluentValue::Number(num) => {
+                        let new_value = (num.value * 100.0).trunc() / 100.0;
+
+                        FluentValue::Number(FluentNumber::new(new_value, num.options))
+                    }
+                    _ => value,
+                };
+
+                (key, value)
+            })
+            .collect()
+    }
+
     pub fn translate_via_index(
         &self,
         module_index: usize,
@@ -242,6 +259,8 @@ impl I18n {
     }
 
     fn translate<'a>(&'a self, key: &str, args: Option<FluentArgs>) -> Cow<'a, str> {
+        let args = args.map(Self::preprocess_translation_args);
+
         for bundle in &self.inner.lock().unwrap().bundles {
             let msg = match bundle.get_message(key) {
                 Some(msg) => msg,
