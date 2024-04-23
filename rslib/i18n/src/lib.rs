@@ -22,13 +22,46 @@ type FluentBundle<T> = FluentBundleOrig<T, intl_memoizer::concurrent::IntlLangMe
 
 pub use fluent::fluent_args as tr_args;
 
-pub trait Number: Into<FluentNumber> {}
-impl Number for i32 {}
-impl Number for i64 {}
-impl Number for u32 {}
-impl Number for f32 {}
-impl Number for u64 {}
-impl Number for usize {}
+pub trait Number: Into<FluentNumber> {
+    fn round(self) -> Self;
+}
+impl Number for i32 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for i64 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for u32 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for f32 {
+    // round to 2 decimal places
+    #[inline]
+    fn round(self) -> Self {
+        (self * 100.0).round() / 100.0
+    }
+}
+impl Number for u64 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for usize {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
 
 fn remapped_lang_name(lang: &LanguageIdentifier) -> &str {
     let region = lang.region.as_ref().map(|v| v.as_str());
@@ -231,23 +264,6 @@ impl I18n {
         }
     }
 
-    fn preprocess_translation_args(args: FluentArgs) -> FluentArgs {
-        args.into_iter()
-            .map(|(key, value)| {
-                let value = match value {
-                    FluentValue::Number(num) => {
-                        let new_value = (num.value * 100.0).round() / 100.0;
-
-                        FluentValue::Number(FluentNumber::new(new_value, num.options))
-                    }
-                    _ => value,
-                };
-
-                (key, value)
-            })
-            .collect()
-    }
-
     pub fn translate_via_index(
         &self,
         module_index: usize,
@@ -259,8 +275,6 @@ impl I18n {
     }
 
     fn translate<'a>(&'a self, key: &str, args: Option<FluentArgs>) -> Cow<'a, str> {
-        let args = args.map(Self::preprocess_translation_args);
-
         for bundle in &self.inner.lock().unwrap().bundles {
             let msg = match bundle.get_message(key) {
                 Some(msg) => msg,

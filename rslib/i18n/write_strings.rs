@@ -97,7 +97,8 @@ fn build_vars(translation: &Translation) -> String {
             let rust_name = v.name.to_snake_case();
             let trailer = match v.kind {
                 VariableKind::Any => "",
-                VariableKind::Int | VariableKind::Float => ".into()",
+                VariableKind::Int => ".into()",
+                VariableKind::Float => ".round().into()",
                 VariableKind::String => ".into()",
             };
             writeln!(
