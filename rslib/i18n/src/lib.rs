@@ -236,7 +236,7 @@ impl I18n {
             .map(|(key, value)| {
                 let value = match value {
                     FluentValue::Number(num) => {
-                        let new_value = (num.value * 100.0).trunc() / 100.0;
+                        let new_value = (num.value * 100.0).round() / 100.0;
 
                         FluentValue::Number(FluentNumber::new(new_value, num.options))
                     }
