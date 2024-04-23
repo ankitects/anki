@@ -483,14 +483,8 @@ mod test {
     fn decimal_rounding() {
         let tr = I18n::new(&["en"]);
 
-        assert_eq!(
-            tr.browsing_cards_deleted(1.001),
-            "1 card deleted."
-        );
-        assert_eq!(
-            tr.browsing_cards_deleted(1.01),
-            "1.01 cards deleted."
-        );
+        assert_eq!(tr.browsing_cards_deleted(1.001), "1 card deleted.");
+        assert_eq!(tr.browsing_cards_deleted(1.01), "1.01 cards deleted.");
     }
 
     #[test]
