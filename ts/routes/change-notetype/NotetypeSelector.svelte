@@ -23,15 +23,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonToolbar class="justify-content-between" wrap={false}>
-    <Select label={$info.oldNotetypeName} value={1} list={[1]} disabled={true} />
-    <div class="arrow-container">
-        {#if window.getComputedStyle(document.body).direction == "rtl"}
-            <Icon icon={arrowLeftIcon} />
-        {:else}
-            <Icon icon={arrowRightIcon} />
-        {/if}
+    <div class="d-flex flex-row w-100">
+        <Select label={$info.oldNotetypeName} value={1} list={[1]} disabled={true} />
+        <div class="arrow-container">
+            {#if window.getComputedStyle(document.body).direction == "rtl"}
+                <Icon icon={arrowLeftIcon} />
+            {:else}
+                <Icon icon={arrowRightIcon} />
+            {/if}
+        </div>
+        <Select list={options} bind:value {label} />
     </div>
-    <Select list={options} bind:value {label} />
     <SaveButton {state} />
 </ButtonToolbar>
 

@@ -19,25 +19,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: ChangeNotetypeState;
     $: info = state.info;
-    let offset: number;
 </script>
 
-<div bind:offsetHeight={offset}>
-    <StickyContainer
-        --gutter-block="0.1rem"
-        --gutter-inline="0.25rem"
-        --sticky-borders="0 0 1px"
-        --z-index="4"
-    >
-        <NotetypeSelector {state} />
-    </StickyContainer>
-</div>
+<StickyContainer
+    --gutter-block="0.5rem"
+    --gutter-inline="0.25rem"
+    --sticky-borders="0 0 1px"
+    breakpoint="sm"
+>
+    <NotetypeSelector {state} />
+</StickyContainer>
 
 <Container breakpoint="sm" --gutter-inline="0.25rem" --gutter-block="0.75rem">
     <Row --cols={2}>
         <TitledContainer title={tr.changeNotetypeFields()}>
             <Row>
-                <StickyHeader {state} ctx={MapContext.Field} --z-index="2" />
+                <StickyHeader {state} ctx={MapContext.Field} />
                 <Mapper {state} ctx={MapContext.Field} />
             </Row>
         </TitledContainer>
@@ -45,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Row --cols={2}>
         <TitledContainer title={tr.changeNotetypeTemplates()}>
             <Row>
-                <StickyHeader {state} ctx={MapContext.Template} --z-index="2" />
+                <StickyHeader {state} ctx={MapContext.Template} />
                 {#if $info.templates}
                     <Mapper {state} ctx={MapContext.Template} />
                 {:else}
