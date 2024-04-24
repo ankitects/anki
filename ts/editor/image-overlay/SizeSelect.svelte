@@ -9,9 +9,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
 
     import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
-
-    import { sizeActual, sizeClear, sizeMinimized } from "./icons";
+    import { sizeActual, sizeClear, sizeMinimized } from "$lib/components/icons";
 
     export let isSizeConstrained: boolean;
     export let shrinkingDisabled: boolean;
@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={() => dispatch("imagetoggle")}
         --border-left-radius="5px"
     >
-        {@html icon}
+        <Icon {icon} />
     </IconButton>
 
     <IconButton
@@ -40,6 +40,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={() => dispatch("imageclear")}
         --border-right-radius="5px"
     >
-        {@html sizeClear}
+        <Icon icon={sizeClear} />
     </IconButton>
 </ButtonGroup>

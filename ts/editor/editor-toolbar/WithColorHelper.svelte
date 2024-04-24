@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { colorHelperIcon } from "./icons";
+    import { colorHelperIcon } from "$lib/components/icons";
 
     export let color: string;
 

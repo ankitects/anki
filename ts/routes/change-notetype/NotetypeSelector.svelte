@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import Badge from "$lib/components/Badge.svelte";
     import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import { arrowLeftIcon, arrowRightIcon } from "$lib/components/icons";
     import LabelButton from "$lib/components/LabelButton.svelte";
     import Select from "$lib/components/Select.svelte";
@@ -29,9 +30,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </LabelButton>
     <Badge iconSize={70}>
         {#if window.getComputedStyle(document.body).direction == "rtl"}
-            {@html arrowLeftIcon}
+            <Icon icon={arrowLeftIcon} />
         {:else}
-            {@html arrowRightIcon}
+            <Icon icon={arrowRightIcon} />
         {/if}
     </Badge>
     <Select class="flex-grow-1" list={options} bind:value {label} />
