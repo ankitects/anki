@@ -8,7 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { wrapInternal } from "@tslib/wrap";
 
     import DropdownItem from "$lib/components/DropdownItem.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+    import { functionIcon } from "$lib/components/icons";
     import Popover from "$lib/components/Popover.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
@@ -17,7 +19,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { functionIcon } from "./icons";
 
     const { focusedInput } = noteEditorContext.get();
     $: richTextAPI = $focusedInput as RichTextInputAPI;
@@ -94,7 +95,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {disabled}
         on:click={() => (showFloating = !showFloating)}
     >
-        {@html functionIcon}
+        <Icon icon={functionIcon} />
     </IconButton>
 
     <Popover slot="floating" --popover-padding-inline="0">

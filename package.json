@@ -16,6 +16,7 @@
     },
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.8.0",
+        "@poppanator/sveltekit-svg": "^4.2.1",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
         "@sveltejs/kit": "^2.4.1",
@@ -42,7 +43,6 @@
         "eslint": "^8.44.0",
         "eslint-plugin-compat": "^4.1.4",
         "eslint-plugin-import": "^2.25.4",
-        "eslint-plugin-simple-import-sort": "^10.0.0",
         "eslint-plugin-svelte": "^2",
         "license-checker-rseidelsohn": "^4.2.6",
         "prettier": "^2.4.1",
@@ -51,6 +51,7 @@
         "svelte-check": "^3.4.4",
         "svelte-preprocess": "^5.0.4",
         "svelte-preprocess-esbuild": "^3.0.1",
+        "svgo": "^3.2.0",
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
         "typescript": "^5.0.4",
@@ -69,13 +70,13 @@
         "codemirror": "^5.63.1",
         "d3": "^7.0.0",
         "fabric": "^5.3.0",
+        "hammerjs": "^2.0.8",
         "intl-pluralrules": "^2.0.0",
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
         "lodash-es": "^4.17.21",
         "marked": "^5.1.0",
-        "mathjax": "^3.1.2",
-        "hammerjs": "^2.0.8"
+        "mathjax": "^3.1.2"
     },
     "resolutions": {
         "canvas": "npm:empty-npm-package"

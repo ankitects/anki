@@ -5,7 +5,8 @@ import * as tr from "@generated/ftl";
 import { fabric } from "fabric";
 import { writable } from "svelte/store";
 
-import { mdiRedo, mdiUndo } from "../icons";
+import { mdiRedo, mdiUndo } from "$lib/components/icons";
+
 import { emitChangeSignal } from "../MaskEditor.svelte";
 import { redoKeyCombination, undoKeyCombination } from "./shortcuts";
 

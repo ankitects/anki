@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import svg from "@poppanator/sveltekit-svg";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { realpathSync } from "fs";
 import { defineConfig } from "vite";
@@ -17,7 +18,7 @@ const configure = (proxy: any, _options: any) => {
 };
 
 export default defineConfig({
-    plugins: [sveltekit()],
+    plugins: [sveltekit(), svg({})],
     test: {
         include: ["**/*.{test,spec}.{js,ts}"],
         cache: {

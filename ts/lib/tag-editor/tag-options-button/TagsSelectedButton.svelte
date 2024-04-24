@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, getContext } from "svelte";
 
     import DropdownItem from "$lib/components/DropdownItem.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import IconConstrain from "$lib/components/IconConstrain.svelte";
     import { dotsIcon } from "$lib/components/icons";
     import Popover from "$lib/components/Popover.svelte";
@@ -38,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={() => (show = !show)}
         on:keydown={onEnterOrSpace(() => (show = !show))}
     >
-        <IconConstrain>{@html dotsIcon}</IconConstrain>
+        <IconConstrain><Icon icon={dotsIcon} /></IconConstrain>
     </div>
 
     <Popover slot="floating">

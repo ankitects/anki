@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import DropdownDivider from "$lib/components/DropdownDivider.svelte";
     import DropdownItem from "$lib/components/DropdownItem.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
     import { chevronDown } from "$lib/components/icons";
     import LabelButton from "$lib/components/LabelButton.svelte";
@@ -102,7 +103,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         --border-left-radius={rtl ? "var(--border-radius)" : "0"}
         iconSize={80}
     >
-        {@html chevronDown}
+        <Icon icon={chevronDown} />
     </IconButton>
     <Popover slot="floating">
         <DropdownItem on:click={() => dispatch("add")}>

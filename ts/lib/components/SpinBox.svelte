@@ -7,8 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { isDesktop } from "@tslib/platform";
     import { tick } from "svelte";
 
+    import { chevronDown, chevronUp } from "$lib/components/icons";
+
+    import Icon from "./Icon.svelte";
     import IconConstrain from "./IconConstrain.svelte";
-    import { chevronDown, chevronUp } from "./icons";
 
     export let value: number;
     export let step = 1;
@@ -121,7 +123,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }}
         >
             <IconConstrain>
-                {@html chevronDown}
+                <Icon icon={chevronDown} />
             </IconConstrain>
         </div>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -149,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }}
         >
             <IconConstrain>
-                {@html chevronUp}
+                <Icon icon={chevronUp} />
             </IconConstrain>
         </div>
     {/if}
