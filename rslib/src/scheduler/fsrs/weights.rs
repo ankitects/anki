@@ -152,7 +152,7 @@ impl Collection {
         weights: &Weights,
         search: &str,
         ignore_revlogs_before: TimestampMillis,
-    ) -> Result<ModelEvaluation> {
+    ) -> Result<(u32, ModelEvaluation)> {
         let timing = self.timing_today()?;
         let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
         let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
@@ -164,14 +164,17 @@ impl Collection {
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         anki_progress.state.reviews = review_count as u32;
         let fsrs = FSRS::new(Some(weights))?;
-        Ok(fsrs.evaluate(items, |ip| {
-            anki_progress
-                .update(false, |p| {
-                    p.total_iterations = ip.total as u32;
-                    p.current_iteration = ip.current as u32;
-                })
-                .is_ok()
-        })?)
+        Ok((
+            review_count as u32,
+            fsrs.evaluate(items, |ip| {
+                anki_progress
+                    .update(false, |p| {
+                        p.total_iterations = ip.total as u32;
+                        p.current_iteration = ip.current as u32;
+                    })
+                    .is_ok()
+            })?,
+        ))
     }
 }
 
