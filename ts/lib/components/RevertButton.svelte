@@ -7,10 +7,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { cloneDeep, isEqual as isEqualLodash } from "lodash-es";
     import { getContext } from "svelte";
 
+    import { revertIcon } from "$lib/components/icons";
+
     import Badge from "./Badge.svelte";
     import { touchDeviceKey } from "./context-keys";
     import DropdownItem from "./DropdownItem.svelte";
-    import { revertIcon } from "./icons";
+    import Icon from "./Icon.svelte";
     import Popover from "./Popover.svelte";
     import WithFloating from "./WithFloating.svelte";
 
@@ -61,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 }
             }}
         >
-            {@html revertIcon}
+            <Icon icon={revertIcon} />
         </Badge>
     </div>
 
@@ -70,7 +72,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
             on:click={() => revert()}
         >
-            {tr.deckConfigRevertButtonTooltip()}<Badge>{@html revertIcon}</Badge>
+            {tr.deckConfigRevertButtonTooltip()}<Badge iconSize={85}>
+                <Icon icon={revertIcon} />
+            </Badge>
         </DropdownItem>
     </Popover>
 </WithFloating>

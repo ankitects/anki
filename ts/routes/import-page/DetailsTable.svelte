@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
 
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
     import { magnifyIcon } from "$lib/components/icons";
     import VirtualTable from "$lib/components/VirtualTable.svelte";
@@ -58,7 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             showInBrowser([rows[index].note]);
                         }}
                     >
-                        {@html magnifyIcon}
+                        <Icon icon={magnifyIcon} />
                     </IconButton>
                 </td>
             </tr>

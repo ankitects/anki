@@ -8,14 +8,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import CheckBox from "$lib/components/CheckBox.svelte";
     import DropdownItem from "$lib/components/DropdownItem.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+    import { cogIcon } from "$lib/components/icons";
     import Popover from "$lib/components/Popover.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
 
     import { mathjaxConfig } from "../../editable/mathjax-element";
     import { shrinkImagesByDefault } from "../image-overlay/ImageOverlay.svelte";
     import { closeHTMLTags } from "../plain-text-input/PlainTextInput.svelte";
-    import { cogIcon } from "./icons";
 
     let showFloating = false;
 
@@ -46,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         --padding-inline="8px"
         on:click={() => (showFloating = !showFloating)}
     >
-        {@html cogIcon}
+        <Icon icon={cogIcon} />
     </IconButton>
 
     <Popover slot="floating" --popover-padding-inline="0">

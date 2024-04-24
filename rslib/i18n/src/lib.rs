@@ -22,13 +22,46 @@ type FluentBundle<T> = FluentBundleOrig<T, intl_memoizer::concurrent::IntlLangMe
 
 pub use fluent::fluent_args as tr_args;
 
-pub trait Number: Into<FluentNumber> {}
-impl Number for i32 {}
-impl Number for i64 {}
-impl Number for u32 {}
-impl Number for f32 {}
-impl Number for u64 {}
-impl Number for usize {}
+pub trait Number: Into<FluentNumber> {
+    fn round(self) -> Self;
+}
+impl Number for i32 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for i64 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for u32 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for f32 {
+    // round to 2 decimal places
+    #[inline]
+    fn round(self) -> Self {
+        (self * 100.0).round() / 100.0
+    }
+}
+impl Number for u64 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for usize {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
 
 fn remapped_lang_name(lang: &LanguageIdentifier) -> &str {
     let region = lang.region.as_ref().map(|v| v.as_str());
@@ -444,6 +477,14 @@ mod test {
     fn numbers() {
         assert!(!want_comma_as_decimal_separator(&[langid!("en-US")]));
         assert!(want_comma_as_decimal_separator(&[langid!("pl-PL")]));
+    }
+
+    #[test]
+    fn decimal_rounding() {
+        let tr = I18n::new(&["en"]);
+
+        assert_eq!(tr.browsing_cards_deleted(1.001), "1 card deleted.");
+        assert_eq!(tr.browsing_cards_deleted(1.01), "1.01 cards deleted.");
     }
 
     #[test]

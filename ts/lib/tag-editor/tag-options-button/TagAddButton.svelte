@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher } from "svelte";
 
+    import Icon from "$lib/components/Icon.svelte";
     import IconConstrain from "$lib/components/IconConstrain.svelte";
     import { addTagIcon, tagIcon } from "$lib/components/icons";
     import Shortcut from "$lib/components/Shortcut.svelte";
@@ -34,8 +35,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:focus={appendTag}
 >
     <IconConstrain>
-        {@html tagIcon}
-        {@html addTagIcon}
+        <Icon icon={tagIcon} />
+        <Icon icon={addTagIcon} />
     </IconConstrain>
     <span class="tags-info">
         <slot />

@@ -7,7 +7,6 @@ module.exports = {
     },
     plugins: [
         "import",
-        "simple-import-sort",
         "@typescript-eslint",
         "@typescript-eslint/eslint-plugin",
     ],
@@ -20,8 +19,6 @@ module.exports = {
         "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
         "import/newline-after-import": "warn",
         "import/no-useless-path-segments": "warn",
-        "simple-import-sort/imports": "warn",
-        "simple-import-sort/exports": "warn",
         "prefer-const": "warn",
         "no-nested-ternary": "warn",
         "curly": "error",

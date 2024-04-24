@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
 
+    import Icon from "$lib/components/Icon.svelte";
     import IconConstrain from "$lib/components/IconConstrain.svelte";
 
     import { showInBrowser } from "./lib";
@@ -23,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {#if notes.length}
     <li>
         <IconConstrain>
-            {@html summary.icon}
+            <Icon icon={summary.icon} />
         </IconConstrain>
         {summary.summaryTemplate({ count: notes.length })}
         {#if summary.canBrowse}

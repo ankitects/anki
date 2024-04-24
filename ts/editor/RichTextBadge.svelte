@@ -8,9 +8,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, onDestroy } from "svelte";
 
     import Badge from "$lib/components/Badge.svelte";
+    import Icon from "$lib/components/Icon.svelte";
+    import { richTextIcon } from "$lib/components/icons";
 
     import { context as editorFieldContext } from "./EditorField.svelte";
-    import { richTextIcon } from "./icons";
 
     const animated = !document.body.classList.contains("reduce-motion");
 
@@ -44,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip="{tr.editingToggleVisualEditor()} ({getPlatformString(keyCombination)})"
         iconSize={80}
     >
-        {@html richTextIcon}
+        <Icon icon={richTextIcon} />
     </Badge>
 </span>
 

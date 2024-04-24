@@ -7,9 +7,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, setContext } from "svelte";
     import { writable } from "svelte/store";
 
+    import { chevronDown } from "$lib/components/icons";
+
     import { selectKey } from "./context-keys";
+    import Icon from "./Icon.svelte";
     import IconConstrain from "./IconConstrain.svelte";
-    import { chevronDown } from "./icons";
     import Popover from "./Popover.svelte";
     import SelectOption from "./SelectOption.svelte";
     import WithFloating from "./WithFloating.svelte";
@@ -222,7 +224,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
         <div class="chevron">
             <IconConstrain iconSize={80}>
-                {@html chevronDown}
+                <Icon icon={chevronDown} />
             </IconConstrain>
         </div>
     </div>

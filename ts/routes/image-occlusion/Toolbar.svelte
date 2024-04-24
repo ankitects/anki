@@ -13,12 +13,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
 
     import DropdownItem from "$lib/components/DropdownItem.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+    import {
+        mdiEye,
+        mdiFormatAlignCenter,
+        mdiSquare,
+        mdiViewDashboard,
+    } from "$lib/components/icons";
     import Popover from "$lib/components/Popover.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
 
-    import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { emitChangeSignal } from "./MaskEditor.svelte";
     import { hideAllGuessOne, ioMaskEditorVisible, textEditingState } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
@@ -141,6 +147,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // initializes lastPosX and lastPosY because it is undefined in touchmove event
     function onTouchstart(event: TouchEvent) {
+        const canvas = globalThis.canvas;
         canvas.lastPosX = event.touches[0].clientX;
         canvas.lastPosY = event.touches[0].clientY;
     }
@@ -225,7 +232,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 activeTool = tool.id;
             }}
         >
-            {@html tool.icon}
+            <Icon icon={tool.icon} />
         </IconButton>
         {#if $ioMaskEditorVisible && !$textEditingState}
             <Shortcut
@@ -253,7 +260,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {iconSize}
                 on:click={() => (showFloating = !showFloating)}
             >
-                {@html $hideAllGuessOne ? mdiViewDashboard : mdiSquare}
+                <Icon icon={$hideAllGuessOne ? mdiViewDashboard : mdiSquare} />
             </IconButton>
 
             <Popover slot="floating">
@@ -286,7 +293,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? !$undoStack.undoable
                         : !$undoStack.redoable}
                 >
-                    {@html tool.icon}
+                    <Icon icon={tool.icon} />
                 </IconButton>
                 {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut keyCombination={tool.shortcut} on:action={tool.action} />
@@ -307,7 +314,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         tool.action(canvas);
                     }}
                 >
-                    {@html tool.icon}
+                    <Icon icon={tool.icon} />
                 </IconButton>
                 {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut
@@ -333,7 +340,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     makeMaskTransparent(canvas, maksOpacity);
                 }}
             >
-                {@html mdiEye}
+                <Icon icon={mdiEye} />
             </IconButton>
             {#if $ioMaskEditorVisible && !$textEditingState}
                 <Shortcut
@@ -358,7 +365,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         undoStack.onObjectModified();
                     }}
                 >
-                    {@html tool.icon}
+                    <Icon icon={tool.icon} />
                 </IconButton>
                 {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut
@@ -386,7 +393,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         undoStack.onObjectModified();
                     }}
                 >
-                    {@html tool.icon}
+                    <Icon icon={tool.icon} />
                 </IconButton>
                 {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut
@@ -408,7 +415,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     leftPos = e.pageX - 100;
                 }}
             >
-                {@html mdiFormatAlignCenter}
+                <Icon icon={mdiFormatAlignCenter} />
             </IconButton>
         </div>
     </div>
@@ -426,7 +433,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     undoStack.onObjectModified();
                 }}
             >
-                {@html alignTool.icon}
+                <Icon icon={alignTool.icon} />
             </IconButton>
             {#if $ioMaskEditorVisible && !$textEditingState}
                 <Shortcut
