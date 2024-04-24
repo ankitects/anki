@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const computedStyle = getComputedStyle(document.documentElement);
     const rootFontSize = parseInt(computedStyle.fontSize);
     // Container padding + Row padding + Row margin + TitledContainer padding
-    const bottomOffset =  (3 * gutterBlockSize + 0.75) * rootFontSize;
+    const bottomOffset = (3 * gutterBlockSize + 0.75) * rootFontSize;
 </script>
 
 <Container
@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Row>
     <Row>
         <TitledContainer title={tr.importingDetails()}>
-            <DetailsTable {summaries} {bottomOffset}/>
+            <DetailsTable {summaries} {bottomOffset} />
         </TitledContainer>
     </Row>
 </Container>
