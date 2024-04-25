@@ -172,9 +172,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     setTimeout(
                         () =>
                             alert(
-                                `Reviews: ${
-                                    resp.reviewCount
-                                }, Log loss: ${resp.logLoss.toFixed(4)}, RMSE(bins): ${(
+                                `Log loss: ${resp.logLoss.toFixed(4)}, RMSE(bins): ${(
                                     resp.rmseBins * 100
                                 ).toFixed(2)}%. ${tr.deckConfigSmallerIsBetter()}`,
                             ),
