@@ -14,12 +14,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
     import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+    import Shortcut from "$lib/components/Shortcut.svelte";
     import { mdiTableRefresh, mdiViewDashboard } from "$lib/components/icons";
 
     import {
         ioImageLoadedStore,
         ioMaskEditorVisible,
     } from "../../routes/image-occlusion/store";
+    import { toggleMaskEditorKeyCombination } from "../../routes/image-occlusion/tools/shortcuts";
 
     export let api = {};
 </script>
@@ -39,10 +41,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 on:click={() => {
                     $ioMaskEditorVisible = !$ioMaskEditorVisible;
                 }}
-                tooltip={tr.editingImageOcclusionToggleMaskEditor()}
+                tooltip="{tr.editingImageOcclusionToggleMaskEditor()} ({toggleMaskEditorKeyCombination})"
             >
                 <Icon icon={mdiViewDashboard} />
             </IconButton>
+            <Shortcut
+                keyCombination={toggleMaskEditorKeyCombination}
+                on:action={() => {
+                    $ioMaskEditorVisible = !$ioMaskEditorVisible;
+                }}
+            />
         </ButtonGroupItem>
         <ButtonGroupItem>
             <IconButton
