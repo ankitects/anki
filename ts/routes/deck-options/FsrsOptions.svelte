@@ -226,6 +226,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: computeRetentionProgressString = renderRetentionProgress(
         computeRetentionProgress,
     );
+    $: totalReviews = computeWeightsProgress?.reviews ?? undefined;
 
     function renderWeightProgress(val: ComputeWeightsProgress | undefined): String {
         if (!val || !val.total) {
@@ -312,9 +313,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigEvaluateButton()}
         {/if}
     </button>
-    {#if computingWeights || checkingWeights}<div>
+    <div>
+        {#if computingWeights || checkingWeights}
             {computeWeightsProgressString}
-        </div>{/if}
+        {:else if totalReviews !== undefined}
+            {tr.statisticsReviews({ reviews: totalReviews })}
+        {/if}
+    </div>
 
     <Warning warning={lastOptimizationWarning} className="alert-warning" />
 </div>
