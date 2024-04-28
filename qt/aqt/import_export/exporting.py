@@ -47,9 +47,6 @@ class ExportDialog(QDialog):
     def reject(self) -> None:
         assert self.web
         self.col.set_wants_abort()
-        # if not self.col.db:
-        #     # interrupted before collection could be reopened
-        #     self.col.reopen()
         self.web.cleanup()
         self.web = None
         QDialog.reject(self)
