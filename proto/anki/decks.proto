@@ -30,6 +30,8 @@ service DecksService {
   rpc RemoveDecks(DeckIds) returns (collection.OpChangesWithCount);
   rpc ReparentDecks(ReparentDecksRequest)
       returns (collection.OpChangesWithCount);
+  rpc HideDeck(HideDeckRequest) returns (collection.OpChanges);
+  rpc UnhideDeck(UnhideDeckRequest) returns (collection.OpChanges);
   rpc RenameDeck(RenameDeckRequest) returns (collection.OpChanges);
   rpc GetOrCreateFilteredDeck(DeckId) returns (FilteredDeckForUpdate);
   rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate)
@@ -65,7 +67,9 @@ message Deck {
     // but not currently used for anything
     int32 learning_studied = 6;
 
-    reserved 8 to 13;
+    bool hidden = 8;
+
+    reserved 9 to 13;
 
     bytes other = 255;
   }
@@ -202,6 +206,14 @@ message DeckNames {
 message DeckNameId {
   int64 id = 1;
   string name = 2;
+}
+
+message HideDeckRequest {
+  int64 deck_id = 1;
+}
+
+message UnhideDeckRequest {
+  int64 deck_id = 1;
 }
 
 message ReparentDecksRequest {

@@ -179,6 +179,12 @@ fn sum_counts_and_apply_limits_v3(
     this_node_capped
 }
 
+fn hide_hidden_decks(node: &mut DeckTreeNode, decks_map: &HashMap<DeckId, Deck>) {
+    node.children.retain(|child| {
+        !decks_map.get(&DeckId(child.deck_id)).unwrap().common.hidden
+    });
+}
+
 fn hide_default_deck(node: &mut DeckTreeNode) {
     for (idx, child) in node.children.iter().enumerate() {
         // we can hide the default if it has no children
@@ -259,6 +265,8 @@ impl Collection {
         if self.default_deck_is_empty()? {
             hide_default_deck(&mut tree);
         }
+
+        hide_hidden_decks(&mut tree, &decks_map);
 
         if let Some(timestamp) = timestamp {
             // cards buried on previous days need to be unburied for the current

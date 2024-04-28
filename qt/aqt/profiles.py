@@ -538,6 +538,13 @@ create table if not exists profiles
         self.meta["minimalist_mode"] = on
         gui_hooks.body_classes_need_update()
 
+    def show_hidden_decks(self) -> bool:
+        return self.meta.get("show_hidden_decks", False)
+
+    def set_show_hidden_decks(self, on: bool) -> None:
+        self.meta["show_hidden_decks"] = on
+        gui_hooks.body_classes_need_update()
+
     def spacebar_rates_card(self) -> bool:
         return self.meta.get("spacebar_rates_card", True)
 

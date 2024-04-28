@@ -11,6 +11,26 @@ from aqt.operations import CollectionOp
 from aqt.qt import QWidget
 from aqt.utils import getOnlyText, tooltip, tr
 
+def hide_deck(
+        *,
+        parent: QWidget,
+        deck_id: DeckId,
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(
+        parent,
+        lambda col: col.decks.hide_deck(deck_id),
+    )
+
+def unhide_deck(
+        *,
+        parent: QWidget,
+        deck_id: DeckId,
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(
+        parent,
+        lambda col: col.decks.unhide_deck(deck_id),
+    )
+
 
 def remove_decks(
     *,

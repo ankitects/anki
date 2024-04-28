@@ -5,6 +5,7 @@ mod addupdate;
 mod counts;
 mod current;
 pub mod filtered;
+mod hide;
 pub(crate) mod limits;
 mod name;
 mod remove;
@@ -68,6 +69,7 @@ impl Deck {
             common: DeckCommon {
                 study_collapsed: true,
                 browser_collapsed: true,
+                hidden: false,
                 ..Default::default()
             },
             kind: DeckKind::Normal(NormalDeck {
@@ -126,6 +128,10 @@ impl Deck {
     pub(crate) fn set_modified(&mut self, usn: Usn) {
         self.mtime_secs = TimestampSecs::now();
         self.usn = usn;
+    }
+
+    pub(crate) fn set_hidden(&mut self, hidden: bool) {
+        self.common.hidden = hidden;
     }
 
     pub fn rendered_description(&self) -> String {
@@ -215,6 +221,18 @@ mod test {
             vec!["Default", "foo", "foo::BAR", "foo::BAR::BAZ"]
         );
 
+        Ok(())
+    }
+
+    #[test]
+    fn hiding() -> Result<()> {
+        let mut col = Collection::new();
+        let mut child = DeckAdder::new("Default::child")
+            .add(&mut col);
+
+        child.set_hidden(true);
+
+        assert_eq!(child.common.hidden, true);
         Ok(())
     }
 

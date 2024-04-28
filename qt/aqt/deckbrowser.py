@@ -17,6 +17,8 @@ from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
 from aqt.operations.deck import (
     add_deck_dialog,
+    hide_deck,
+    unhide_deck,
     remove_decks,
     rename_deck,
     reparent_decks,
@@ -313,6 +315,10 @@ class DeckBrowser:
         qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
         a = m.addAction(tr.actions_export())
         qconnect(a.triggered, lambda b, did=did: self._export(DeckId(int(did))))
+        a = m.addAction(tr.actions_hide())
+        qconnect(a.triggered, lambda b, did=did: self._hide(DeckId(int(did))))
+        a = m.addAction(tr.actions_unhide())
+        qconnect(a.triggered, lambda b, did=did: self._unhide(DeckId(int(did))))
         a = m.addAction(tr.actions_delete())
         qconnect(a.triggered, lambda b, did=did: self._delete(DeckId(int(did))))
         gui_hooks.deck_browser_will_show_options_menu(m, int(did))
@@ -362,6 +368,18 @@ class DeckBrowser:
         remove_decks(
             parent=self.mw, deck_ids=[did], deck_name=deck_name
         ).run_in_background()
+
+    def _hide(self, did: DeckId) -> None:
+        hide_deck(
+            parent=self.mw, deck_id=did
+        ).run_in_background()
+        self.refresh()
+
+    def _unhide(self, did: DeckId) -> None:
+        unhide_deck(
+            parent=self.mw, deck_id=did
+        ).run_in_background()
+        self.refresh()
 
     # Top buttons
     ######################################################################

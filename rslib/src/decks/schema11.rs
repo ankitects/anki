@@ -106,6 +106,8 @@ pub struct DeckCommonSchema11 {
     #[serde(default, rename = "browserCollapsed")]
     browser_collapsed: bool,
     #[serde(default)]
+    hidden: bool,
+    #[serde(default)]
     desc: String,
     #[serde(default, rename = "md", skip_serializing_if = "is_false")]
     markdown_description: bool,
@@ -241,6 +243,7 @@ impl Default for NormalDeckSchema11 {
                 other: Default::default(),
                 dynamic: 0,
                 markdown_description: false,
+                hidden: false,
             },
             conf: 1,
             extend_new: 0,
@@ -308,6 +311,7 @@ impl From<&DeckCommonSchema11> for DeckCommon {
             review_studied: today.rev.amount,
             learning_studied: today.lrn.amount,
             milliseconds_studied: common.today.time.amount,
+            hidden: common.hidden,
             other,
         }
     }
@@ -394,6 +398,7 @@ impl From<Deck> for DeckCommonSchema11 {
             mtime: deck.mtime_secs,
             name: deck.human_name(),
             usn: deck.usn,
+            hidden: deck.common.hidden,
             today: (&deck).into(),
             study_collapsed: deck.common.study_collapsed,
             browser_collapsed: deck.common.browser_collapsed,

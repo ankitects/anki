@@ -33,6 +33,7 @@ impl Deck {
             common: DeckCommon {
                 study_collapsed: true,
                 browser_collapsed: true,
+                hidden: false,
                 ..Default::default()
             },
             kind: DeckKind::Filtered(filt),

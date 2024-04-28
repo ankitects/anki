@@ -267,6 +267,22 @@ class DeckManager(DeprecatedNamesMixin):
     def update_dict(self, deck: DeckDict) -> OpChanges:
         return self.col._backend.update_deck_legacy(json=to_json_bytes(deck))
 
+    def hide_deck(self, deck: DeckDict | DeckId) -> OpChanges:
+        """Hide deck."""
+        if isinstance(deck, int):
+            deck_id = deck
+        else:
+            deck_id = deck["id"]
+        return self.col._backend.hide_deck(deck_id=deck_id)
+
+    def unhide_deck(self, deck: DeckDict | DeckId) -> OpChanges:
+        """Unhide deck."""
+        if isinstance(deck, int):
+            deck_id = deck
+        else:
+            deck_id = deck["id"]
+        return self.col._backend.unhide_deck(deck_id=deck_id)
+
     def rename(self, deck: DeckDict | DeckId, new_name: str) -> OpChanges:
         "Rename deck prefix to NAME if not exists. Updates children."
         if isinstance(deck, int):
