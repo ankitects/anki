@@ -50,7 +50,7 @@ from aqt.dbcheck import check_db
 from aqt.debug_console import show_debug_console
 from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
-from aqt.import_export.exporting import ExportDialog
+from aqt.import_export import exporting, exporting_web
 from aqt.import_export.importing import (
     import_collection_package_op,
     import_file,
@@ -1305,12 +1305,10 @@ title="{}" {}>{}</button>""".format(
             aqt.importing.onImport(self)
 
     def onExport(self, did: DeckId | None = None) -> None:
-        import aqt.exporting
-
         if not self.pm.legacy_import_export():
-            ExportDialog(self, did=did)
+            exporting_web.ExportDialog(self, did=did)
         else:
-            aqt.exporting.ExportDialog(self, did=did)
+            exporting.ExportDialog(self, did=did)
 
     # Installing add-ons from CLI / mimetype handler
     ##########################################################################

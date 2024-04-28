@@ -43,7 +43,7 @@ from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRe
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
-from aqt.import_export import exporting
+from aqt.import_export import exporting_web
 from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
@@ -595,9 +595,7 @@ def get_notes_to_export() -> bytes:
     note_ids: Sequence[int] = []
 
     if window := aqt.mw.app.activeWindow():
-        from aqt.import_export.exporting import ExportDialog
-
-        if isinstance(window, ExportDialog) and window.nids:
+        if isinstance(window, exporting_web.ExportDialog) and window.nids:
             note_ids = window.nids
 
     return NoteIds(note_ids=note_ids).SerializeToString()
@@ -611,7 +609,9 @@ def get_export_file_path() -> bytes:
 
     def get_out_path() -> None:
         nonlocal path
-        path = exporting.get_out_path(req.exporter, req.extension, req.filename) or ""
+        path = (
+            exporting_web.get_out_path(req.exporter, req.extension, req.filename) or ""
+        )
 
     aqt.mw.taskman.run_on_main(get_out_path)
     while path is None:
