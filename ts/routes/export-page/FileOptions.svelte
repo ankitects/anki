@@ -17,22 +17,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { getExporters } from "./lib";
     import type { Exporter, ExportOptions } from "./types";
+    import { writable } from "svelte/store";
+    import type { Choice } from "$lib/components/EnumSelector.svelte";
 
     export let withLimit: boolean = false;
     export let exporter: Exporter;
     export let exportOptions: ExportOptions;
 
     const defaultLegacySupport = exportOptions.legacySupport;
+    // store add-ons may write to
+    const exporters = writable(getExporters(withLimit));
+    dispatchEvent(new CustomEvent("exportersDidInitialize", { detail: { exporters } }));
 
-    const exporters = getExporters(withLimit);
-
-    const exporterChoices = exporters.map((exp, idx) => ({
-        value: idx,
-        label: `${exp.label} (.${exp.extension})`,
-    }));
-    const defaultExporterIdx = exporters.findIndex((exp) => exp.isDefault);
-    let exporterIdx = defaultExporterIdx;
-    $: exporter = exporters[exporterIdx];
+    let exporterChoices: Choice<number>[];
+    let defaultExporterIdx: number;
+    let exporterIdx: number;
+    exporters.subscribe((exps) => {
+        exporterChoices = exps.map((exp, idx) => ({
+            value: idx,
+            label: `${exp.label} (.${exp.extension})`,
+        }));
+        exporterIdx = defaultExporterIdx = exps.findIndex((exp) => exp.isDefault);
+    });
+    $: exporter = $exporters[exporterIdx];
 
     const settings = {
         format: {
