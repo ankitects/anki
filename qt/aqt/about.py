@@ -46,6 +46,14 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     btnLayout = abt.buttonBox.layout()
     btnLayout.setContentsMargins(12, 12, 12, 12)
 
+    # Add left margin to the "Copy Debug Info" button
+    abt.buttonBox.layout().setSpacing(20)  # Increase spacing between buttons
+    abt.buttonBox.layout().insertWidget(0, QLabel(), 1)  # Insert a spacer before the button
+
+    # Add right margin to the "OK" button
+    abt.buttonBox.layout().addWidget(QLabel(), 1)  # Insert a spacer after the "OK" button
+
+
     # WebView cleanup
     ######################################################################
 
