@@ -18,12 +18,12 @@ from aqt.operations import QueryOp
 from aqt.operations.deck import (
     add_deck_dialog,
     hide_deck,
-    unhide_deck,
     remove_decks,
     rename_deck,
     reparent_decks,
     set_current_deck,
     set_deck_collapsed,
+    unhide_deck,
 )
 from aqt.qt import *
 from aqt.sound import av_player
@@ -378,15 +378,11 @@ class DeckBrowser:
         ).run_in_background()
 
     def _hide(self, did: DeckId) -> None:
-        hide_deck(
-            parent=self.mw, deck_id=did
-        ).run_in_background()
+        hide_deck(parent=self.mw, deck_id=did).run_in_background()
         self.refresh()
 
     def _unhide(self, did: DeckId) -> None:
-        unhide_deck(
-            parent=self.mw, deck_id=did
-        ).run_in_background()
+        unhide_deck(parent=self.mw, deck_id=did).run_in_background()
         self.refresh()
 
     # Top buttons

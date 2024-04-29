@@ -180,9 +180,8 @@ fn sum_counts_and_apply_limits_v3(
 }
 
 fn hide_hidden_decks(node: &mut DeckTreeNode, decks_map: &HashMap<DeckId, Deck>) {
-    node.children.retain(|child| {
-        !decks_map.get(&DeckId(child.deck_id)).unwrap().common.hidden
-    });
+    node.children
+        .retain(|child| !decks_map.get(&DeckId(child.deck_id)).unwrap().common.hidden);
 }
 
 fn hide_default_deck(node: &mut DeckTreeNode) {
@@ -255,7 +254,11 @@ impl Collection {
     /// - Buried cards from previous days will be unburied if necessary. Because
     ///   this does not happen for future stamps, future due numbers may not be
     ///   accurate.
-    pub fn deck_tree(&mut self, timestamp: Option<TimestampSecs>, show_hidden_decks: bool) -> Result<DeckTreeNode> {
+    pub fn deck_tree(
+        &mut self,
+        timestamp: Option<TimestampSecs>,
+        show_hidden_decks: bool,
+    ) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
         let mut tree = deck_names_to_tree(names.into_iter());
 

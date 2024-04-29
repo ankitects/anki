@@ -227,8 +227,7 @@ mod test {
     #[test]
     fn hiding() -> Result<()> {
         let mut col = Collection::new();
-        let mut child = DeckAdder::new("Default::child")
-            .add(&mut col);
+        let mut child = DeckAdder::new("Default::child").add(&mut col);
 
         child.set_hidden(true);
 

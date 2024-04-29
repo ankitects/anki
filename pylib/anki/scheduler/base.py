@@ -66,15 +66,23 @@ class SchedulerBase(DeprecatedNamesMixin):
     ##########################################################################
 
     @overload
-    def deck_due_tree(self, show_hidden_decks: bool, top_deck_id: None = None) -> DeckTreeNode: ...
+    def deck_due_tree(
+        self, show_hidden_decks: bool, top_deck_id: None = None
+    ) -> DeckTreeNode: ...
 
     @overload
-    def deck_due_tree(self, show_hidden_decks: bool, top_deck_id: DeckId) -> DeckTreeNode | None: ...
+    def deck_due_tree(
+        self, show_hidden_decks: bool, top_deck_id: DeckId
+    ) -> DeckTreeNode | None: ...
 
-    def deck_due_tree(self, show_hidden_decks: bool, top_deck_id: DeckId | None = None) -> DeckTreeNode | None:
+    def deck_due_tree(
+        self, show_hidden_decks: bool, top_deck_id: DeckId | None = None
+    ) -> DeckTreeNode | None:
         """Returns a tree of decks with counts.
         If top_deck_id provided, only the according subtree is returned."""
-        tree = self.col._backend.deck_tree(now=int_time(), show_hidden_decks=show_hidden_decks)
+        tree = self.col._backend.deck_tree(
+            now=int_time(), show_hidden_decks=show_hidden_decks
+        )
         if top_deck_id:
             return self.col.decks.find_deck_in_tree(tree, top_deck_id)
         return tree

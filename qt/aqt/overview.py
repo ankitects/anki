@@ -226,7 +226,9 @@ class Overview:
     def _table(self) -> str | None:
         counts = list(self.mw.col.sched.counts())
         current_did = self.mw.col.decks.get_current_id()
-        deck_node = self.mw.col.sched.deck_due_tree(aqt.mw.pm.show_hidden_decks(), current_did)
+        deck_node = self.mw.col.sched.deck_due_tree(
+            aqt.mw.pm.show_hidden_decks(), current_did
+        )
 
         but = self.mw.button
         if self.mw.col.v3_scheduler():
