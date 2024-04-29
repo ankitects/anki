@@ -319,12 +319,16 @@ class DeckBrowser:
         qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
         a = m.addAction(tr.actions_export())
         qconnect(a.triggered, lambda b, did=did: self._export(DeckId(int(did))))
-        a = m.addAction(tr.actions_hide())
-        qconnect(a.triggered, lambda b, did=did: self._hide(DeckId(int(did))))
-        a = m.addAction(tr.actions_unhide())
-        qconnect(a.triggered, lambda b, did=did: self._unhide(DeckId(int(did))))
         a = m.addAction(tr.actions_delete())
         qconnect(a.triggered, lambda b, did=did: self._delete(DeckId(int(did))))
+
+        if self.mw.col.decks.current()["hidden"]:
+            a = m.addAction(tr.actions_unhide())
+            qconnect(a.triggered, lambda b, did=did: self._unhide(DeckId(int(did))))
+        else:
+            a = m.addAction(tr.actions_hide())
+            qconnect(a.triggered, lambda b, did=did: self._hide(DeckId(int(did))))
+
         gui_hooks.deck_browser_will_show_options_menu(m, int(did))
         m.popup(QCursor.pos())
 

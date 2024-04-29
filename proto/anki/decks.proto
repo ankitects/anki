@@ -175,7 +175,7 @@ message DeckTreeNode {
 
   // with children, without any limits
   uint32 total_including_children = 14;
-
+  bool hidden = 15;
   bool filtered = 16;
 
   // low index so key can be packed into a byte, but at bottom
