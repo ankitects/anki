@@ -425,7 +425,7 @@ def review_limits_setup() -> tuple[anki.collection.Collection, Dict]:
 def test_review_limits():
     col, child = review_limits_setup()
 
-    tree = col.sched.deck_due_tree().children
+    tree = col.sched.deck_due_tree(True).children
     # (('parent', 1514457677462, 5, 0, 0, (('child', 1514457677463, 5, 0, 0, ()),)))
     assert tree[0].review_count == 5  # parent
     assert tree[0].children[0].review_count == 10  # child
@@ -440,7 +440,7 @@ def test_review_limits():
     col.sched.answerCard(c, 3)
     assert col.sched.counts() == (0, 0, 9)
 
-    tree = col.sched.deck_due_tree().children
+    tree = col.sched.deck_due_tree(True).children
     assert tree[0].review_count == 4  # parent
     assert tree[0].children[0].review_count == 9  # child
 
@@ -643,7 +643,7 @@ def test_filt_reviewing_early_normal():
     did = col.decks.new_filtered("Cram")
     col.sched.rebuild_filtered_deck(did)
     # should appear as normal in the deck list
-    assert sorted(col.sched.deck_due_tree().children)[0].review_count == 1
+    assert sorted(col.sched.deck_due_tree(True).children)[0].review_count == 1
     # and should appear in the counts
     assert col.sched.counts() == (0, 0, 1)
     # grab it and check estimates
@@ -958,7 +958,7 @@ def test_deckDue():
     note.note_type()["did"] = col.decks.id("foo::baz")
     col.addNote(note)
     assert len(col.decks.all_names_and_ids()) == 5
-    tree = col.sched.deck_due_tree().children
+    tree = col.sched.deck_due_tree(True).children
     assert tree[0].name == "Default"
     # sum of child and parent
     assert tree[0].deck_id == 1
@@ -973,7 +973,7 @@ def test_deckDue():
     # code should not fail if a card has an invalid deck
     c.did = 12345
     c.flush()
-    col.sched.deck_due_tree()
+    col.sched.deck_due_tree(True)
 
 
 def test_deckTree():
@@ -981,7 +981,7 @@ def test_deckTree():
     col.decks.id("new::b::c")
     col.decks.id("new2")
     # new should not appear twice in tree
-    names = [x.name for x in col.sched.deck_due_tree().children]
+    names = [x.name for x in col.sched.deck_due_tree(True).children]
     names.remove("new")
     assert "new" not in names
 
