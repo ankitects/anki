@@ -110,7 +110,7 @@ export function renderReviews(
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
 
-    const x = scaleLinear().domain([xMin!, xMax]).nice(desiredBars);
+    const x = scaleLinear().domain([xMin!, xMax]);
     x.domain([x.domain()[0], xMax]);
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
