@@ -181,8 +181,8 @@ class DeckManager(DeprecatedNamesMixin):
 
         return deck
 
-    def deck_tree(self) -> DeckTreeNode:
-        return self.col._backend.deck_tree(now=0)
+    def deck_tree(self, show_hidden_decks: bool) -> DeckTreeNode:
+        return self.col._backend.deck_tree(now=0, show_hidden_decks=show_hidden_decks)
 
     @classmethod
     def find_deck_in_tree(

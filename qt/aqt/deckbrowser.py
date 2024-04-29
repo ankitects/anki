@@ -76,10 +76,14 @@ class DeckBrowser:
         self._refresh_needed = False
 
     def show(self) -> None:
+        gui_hooks.deck_browser_needs_update.append(self.on_deck_browser_needs_update)
         av_player.stop_and_clear_queue()
         self.web.set_bridge_command(self._linkHandler, self)
         # redraw top bar for theme change
         self.mw.toolbar.redraw()
+        self.refresh()
+
+    def on_deck_browser_needs_update(self) -> None:
         self.refresh()
 
     def refresh(self) -> None:
@@ -161,7 +165,7 @@ class DeckBrowser:
 
             def get_data(col: Collection) -> RenderData:
                 return RenderData(
-                    tree=col.sched.deck_due_tree(),
+                    tree=col.sched.deck_due_tree(aqt.mw.pm.show_hidden_decks()),
                     current_deck_id=col.decks.get_current_id(),
                     studied_today=col.studied_today(),
                     sched_upgrade_required=not col.v3_scheduler(),

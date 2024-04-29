@@ -807,7 +807,7 @@ class SidebarTreeView(QTreeView):
                 newhead = f"{head + node.name}::"
                 render(item, node.children, newhead)
 
-        tree = self.col.decks.deck_tree()
+        tree = self.col.decks.deck_tree(aqt.mw.pm.show_hidden_decks())
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_decks(),

@@ -543,7 +543,7 @@ create table if not exists profiles
 
     def set_show_hidden_decks(self, on: bool) -> None:
         self.meta["show_hidden_decks"] = on
-        gui_hooks.body_classes_need_update()
+        gui_hooks.deck_browser_needs_update()
 
     def spacebar_rates_card(self) -> bool:
         return self.meta.get("spacebar_rates_card", True)

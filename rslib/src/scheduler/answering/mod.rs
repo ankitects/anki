@@ -699,7 +699,7 @@ mod test {
 
     macro_rules! assert_counts {
         ($col:ident, $new:expr, $learn:expr, $review:expr) => {{
-            let tree = $col.deck_tree(Some(TimestampSecs::now())).unwrap();
+            let tree = $col.deck_tree(Some(TimestampSecs::now()), false).unwrap();
             assert_eq!(tree.new_count, $new);
             assert_eq!(tree.learn_count, $learn);
             assert_eq!(tree.review_count, $review);

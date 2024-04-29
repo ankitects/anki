@@ -42,7 +42,7 @@ impl Collection {
         let extend_new = normal.extend_new;
         let extend_review = normal.extend_review;
 
-        let subtree = get_deck_in_tree(self.deck_tree(Some(TimestampSecs::now()))?, deck_id)
+        let subtree = get_deck_in_tree(self.deck_tree(Some(TimestampSecs::now()), false)?, deck_id)
             .or_not_found(deck_id)?;
         let available_new_including_children =
             sum_deck_tree_node(&subtree, |node| node.new_uncapped);

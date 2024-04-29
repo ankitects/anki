@@ -254,7 +254,7 @@ class Preferences(QDialog):
         qconnect(self.form.minimalist_mode.stateChanged, self.mw.pm.set_minimalist_mode)
 
         self.form.show_hidden_decks.setChecked(self.mw.pm.show_hidden_decks())
-        qconnect(self.form.show_hidden_decks.stateChanged, self.mw.pm.show_hidden_decks)
+        qconnect(self.form.show_hidden_decks.stateChanged, self.mw.pm.set_show_hidden_decks)
 
         self.form.spacebar_rates_card.setChecked(self.mw.pm.spacebar_rates_card())
         qconnect(

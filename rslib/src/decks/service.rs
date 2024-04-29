@@ -67,7 +67,7 @@ impl crate::services::DecksService for Collection {
         } else {
             Some(TimestampSecs(input.now))
         };
-        self.deck_tree(now)
+        self.deck_tree(now, input.show_hidden_decks)
     }
 
     fn deck_tree_legacy(&mut self) -> error::Result<generic::Json> {

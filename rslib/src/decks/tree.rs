@@ -255,7 +255,7 @@ impl Collection {
     /// - Buried cards from previous days will be unburied if necessary. Because
     ///   this does not happen for future stamps, future due numbers may not be
     ///   accurate.
-    pub fn deck_tree(&mut self, timestamp: Option<TimestampSecs>) -> Result<DeckTreeNode> {
+    pub fn deck_tree(&mut self, timestamp: Option<TimestampSecs>, show_hidden_decks: bool) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
         let mut tree = deck_names_to_tree(names.into_iter());
 
@@ -266,7 +266,9 @@ impl Collection {
             hide_default_deck(&mut tree);
         }
 
-        hide_hidden_decks(&mut tree, &decks_map);
+        if !show_hidden_decks {
+            hide_hidden_decks(&mut tree, &decks_map);
+        }
 
         if let Some(timestamp) = timestamp {
             // cards buried on previous days need to be unburied for the current
@@ -299,7 +301,7 @@ impl Collection {
 
     pub fn current_deck_tree(&mut self) -> Result<Option<DeckTreeNode>> {
         let target = self.get_current_deck_id();
-        let tree = self.deck_tree(Some(TimestampSecs::now()))?;
+        let tree = self.deck_tree(Some(TimestampSecs::now()), false)?;
         Ok(get_deck_in_tree(tree, target))
     }
 
@@ -326,7 +328,7 @@ impl Collection {
 
 impl Collection {
     pub(crate) fn legacy_deck_tree(&mut self) -> Result<LegacyDueCounts> {
-        let tree = self.deck_tree(Some(TimestampSecs::now()))?;
+        let tree = self.deck_tree(Some(TimestampSecs::now()), true)?;
         Ok(LegacyDueCounts::from(tree))
     }
 
@@ -366,7 +368,7 @@ mod test {
         col.get_or_create_normal_deck("2::c::A")?;
         col.get_or_create_normal_deck("3")?;
 
-        let tree = col.deck_tree(None)?;
+        let tree = col.deck_tree(None, true)?;
 
         assert_eq!(tree.children.len(), 3);
 
@@ -389,7 +391,7 @@ mod test {
         col.storage.remove_deck(col.get_deck_id("2")?.unwrap())?;
         col.storage.remove_deck(col.get_deck_id("2::3")?.unwrap())?;
 
-        let tree = col.deck_tree(None)?;
+        let tree = col.deck_tree(None, false)?;
         assert_eq!(tree.children.len(), 1);
 
         Ok(())
@@ -408,7 +410,7 @@ mod test {
         note.set_field(0, "{{c1::}} {{c2::}} {{c3::}} {{c4::}}")?;
         col.add_note(&mut note, child_deck.id)?;
 
-        let tree = col.deck_tree(Some(TimestampSecs::now()))?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()), true)?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -419,7 +421,7 @@ mod test {
         col.add_or_update_deck(&mut parent_deck)?;
 
         // with the default limit of 20, there should still be 4 due
-        let tree = col.deck_tree(Some(TimestampSecs::now()))?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()), false)?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -428,7 +430,7 @@ mod test {
         conf.inner.new_per_day = 4;
         col.add_or_update_deck_config(&mut conf)?;
 
-        let tree = col.deck_tree(Some(TimestampSecs::now()))?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()), false)?;
         assert_eq!(tree.children[0].new_count, 3);
         assert_eq!(tree.children[0].children[0].new_count, 3);
 
@@ -466,7 +468,7 @@ mod test {
         note.id.0 = 0;
         col.add_note(&mut note, grandchild_2.id)?;
 
-        let parent = &col.deck_tree(Some(TimestampSecs::now()))?.children[0];
+        let parent = &col.deck_tree(Some(TimestampSecs::now()), true)?.children[0];
         // grandchildren: own cards, limited by own new limits
         assert_eq!(parent.children[0].children[0].new_count, 2);
         assert_eq!(parent.children[0].children[1].new_count, 1);

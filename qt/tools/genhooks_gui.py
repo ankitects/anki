@@ -292,6 +292,10 @@ hooks = [
         doc="""Allow to update the deck browser window. E.g. change its title.""",
     ),
     Hook(
+        name="deck_browser_needs_update",
+        doc="""Called when a setting involving the deck browser is toggled.""",
+    ),
+    Hook(
         name="deck_browser_will_render_content",
         args=[
             "deck_browser: aqt.deckbrowser.DeckBrowser",

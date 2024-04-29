@@ -152,6 +152,7 @@ message AddOrUpdateDeckLegacyRequest {
 message DeckTreeRequest {
   // if non-zero, counts for the provided timestamp will be included
   int64 now = 1;
+  bool show_hidden_decks = 2;
 }
 
 message DeckTreeNode {
