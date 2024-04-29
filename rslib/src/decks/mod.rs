@@ -231,7 +231,7 @@ mod test {
 
         child.set_hidden(true);
 
-        assert_eq!(child.common.hidden, true);
+        assert!(child.common.hidden);
         Ok(())
     }
 
