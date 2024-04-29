@@ -322,7 +322,7 @@ class DeckBrowser:
         a = m.addAction(tr.actions_delete())
         qconnect(a.triggered, lambda b, did=did: self._delete(DeckId(int(did))))
 
-        if self.mw.col.decks.current()["hidden"]:
+        if self.mw.col.decks.get(did)["hidden"]:
             a = m.addAction(tr.actions_unhide())
             qconnect(a.triggered, lambda b, did=did: self._unhide(DeckId(int(did))))
         else:
