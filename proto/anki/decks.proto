@@ -67,9 +67,9 @@ message Deck {
     // but not currently used for anything
     int32 learning_studied = 6;
 
-    bool hidden = 8;
+    reserved 8 to 13;
 
-    reserved 9 to 13;
+    bool hidden = 14;
 
     bytes other = 255;
   }
