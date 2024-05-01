@@ -39,6 +39,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .button-toolbar {
         flex-wrap: var(--buttons-wrap);
         padding-left: 0.15rem;
-        gap: 1rem;
+
+        :global(.button-group) {
+            /* TODO replace with gap once available (blocked by Qt5 / Chromium 77) */
+            margin-right: 0.3rem;
+            margin-bottom: 0.15rem;
+        }
     }
 </style>
