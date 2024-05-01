@@ -89,8 +89,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (move) {
             move = false;
         }
-        disableFunctions();
-        handleToolChanges(activeTool);
     }
 
     function onKeyup(event: KeyboardEvent) {
@@ -230,6 +228,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             active={activeTool === tool.id}
             on:click={() => {
                 activeTool = tool.id;
+                handleToolChanges(activeTool);
             }}
         >
             <Icon icon={tool.icon} />
@@ -239,6 +238,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 keyCombination={tool.shortcut}
                 on:action={() => {
                     activeTool = tool.id;
+                    handleToolChanges(activeTool);
                 }}
             />
         {/if}
