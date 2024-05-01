@@ -55,10 +55,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     h1 {
         border-bottom: 1px solid var(--border);
+        padding-bottom: 0.25em;
     }
     .help-badge {
         right: 0;
-        bottom: 12px;
+        top: 0;
         color: #555;
         &.rtl {
             right: unset;

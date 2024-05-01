@@ -234,6 +234,7 @@ importing-match-scope-help =
 importing-tag-all-notes-help =
     These tags will be added to both newly-imported and updated notes.
 importing-tag-updated-notes-help = These tags will be added to any updated notes.
+importing-overview = Overview
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
