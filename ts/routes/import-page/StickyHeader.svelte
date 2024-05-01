@@ -6,10 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
 
-    import LabelButton from "./LabelButton.svelte";
-    import Shortcut from "./Shortcut.svelte";
-    import StickyContainer from "./StickyContainer.svelte";
-    import ButtonToolbar from "./ButtonToolbar.svelte";
+    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
+    import LabelButton from "$lib/components/LabelButton.svelte";
+    import Shortcut from "$lib/components/Shortcut.svelte";
+    import StickyContainer from "$lib/components/StickyContainer.svelte";
 
     export let path: string;
     export let onImport: () => void;
