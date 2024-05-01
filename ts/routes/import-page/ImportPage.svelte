@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Container
             breakpoint="sm"
             --gutter-inline="0.25rem"
-            --gutter-block="0.75rem"
+            --gutter-block="0.5rem"
             class="container-columns"
         >
             <slot />

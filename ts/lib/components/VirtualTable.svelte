@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     class="outer"
-    style="--container-height: {containerHeight + 1}px"
+    style="--container-height: {containerHeight}px"
     bind:this={container}
     on:scroll={() => (scrollTop = container.scrollTop)}
 >
@@ -67,7 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: 100%;
         overflow: auto;
 
-        height: var(--container-height);
+        max-height: var(--container-height);
         margin: 0 auto;
     }
 
