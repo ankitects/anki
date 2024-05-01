@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import BackendProgressIndicator from "$lib/components/BackendProgressIndicator.svelte";
     import Container from "$lib/components/Container.svelte";
     import ErrorPage from "$lib/components/ErrorPage.svelte";
-    import StickyHeader from "$lib/components/StickyHeader.svelte";
+    import StickyHeader from "./StickyHeader.svelte";
 
     import ImportLogPage from "./ImportLogPage.svelte";
 
