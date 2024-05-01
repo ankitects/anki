@@ -434,7 +434,6 @@ message EvaluateWeightsRequest {
 message EvaluateWeightsResponse {
   float log_loss = 1;
   float rmse_bins = 2;
-  uint32 review_count = 3;
 }
 
 message ComputeMemoryStateResponse {

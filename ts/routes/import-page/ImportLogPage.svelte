@@ -7,47 +7,46 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
 
     import Container from "$lib/components/Container.svelte";
+    import Row from "$lib/components/Row.svelte";
+    import TitledContainer from "$lib/components/TitledContainer.svelte";
 
-    import CloseButton from "./CloseButton.svelte";
     import DetailsTable from "./DetailsTable.svelte";
     import { getSummaries } from "./lib";
     import QueueSummary from "./QueueSummary.svelte";
 
     export let response: ImportResponse;
-    const result = response;
-    $: summaries = result ? getSummaries(result.log!) : [];
-    $: foundNotes = result?.log?.foundNotes ?? 0;
-    let closeButton: HTMLElement;
+    $: summaries = getSummaries(response.log!);
+    $: foundNotes = response.log?.foundNotes ?? 0;
+
+    const gutterBlockSize = 0.5;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const rootFontSize = parseInt(computedStyle.fontSize);
+    // Container padding + Row padding + Row margin + TitledContainer padding
+    const bottomOffset = (3 * gutterBlockSize + 0.75) * rootFontSize;
 </script>
 
-<Container class="import-log-page">
-    {#if result}
-        <p class="note-count">
-            {tr.importingNotesFoundInFile2({
-                notes: foundNotes,
-            })}
-        </p>
-        <ul class="summary-list">
-            {#each summaries as summary}
-                <QueueSummary {summary} />
-            {/each}
-        </ul>
-        {#if closeButton}
-            <DetailsTable {summaries} bind:bottomOffset={closeButton.clientHeight} />
-        {/if}
-        <CloseButton bind:container={closeButton} />
-    {/if}
+<Container
+    breakpoint="sm"
+    --gutter-inline="0.25rem"
+    --gutter-block={`${gutterBlockSize}rem`}
+>
+    <Row>
+        <TitledContainer title={tr.importingOverview()}>
+            <p>
+                {tr.importingNotesFoundInFile2({
+                    notes: foundNotes,
+                })}
+            </p>
+            <ul>
+                {#each summaries as summary}
+                    <QueueSummary {summary} />
+                {/each}
+            </ul>
+        </TitledContainer>
+    </Row>
+    <Row>
+        <TitledContainer title={tr.importingDetails()}>
+            <DetailsTable {summaries} {bottomOffset} />
+        </TitledContainer>
+    </Row>
 </Container>
-
-<style lang="scss">
-    :global(.import-log-page) {
-        font-size: 16px;
-        margin: 8px auto;
-    }
-    .note-count {
-        margin-bottom: 4px;
-    }
-    .summary-list {
-        padding-inline-start: 8px;
-    }
-</style>

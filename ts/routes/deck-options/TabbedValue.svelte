@@ -57,7 +57,7 @@
         flex-wrap: nowrap;
         justify-content: space-between;
         padding-inline: 0;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.5rem;
         list-style: none;
     }
 
@@ -75,7 +75,6 @@
     li.active > button {
         color: var(--fg);
         border-bottom: 4px solid var(--border-focus);
-        margin-bottom: -2px;
         border-radius: 0;
     }
     button:hover {

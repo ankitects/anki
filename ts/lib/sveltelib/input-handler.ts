@@ -116,7 +116,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
             specialKey.dispatch({ event, action: "caretRight" });
         } else if (isArrowLeft(event)) {
             specialKey.dispatch({ event, action: "caretLeft" });
-        } else if (event.code === "Enter" || event.code === "NumpadEnter") {
+        } else if (event.key === "Enter") {
             specialKey.dispatch({ event, action: "enter" });
         } else if (event.code === "Tab") {
             specialKey.dispatch({ event, action: "tab" });

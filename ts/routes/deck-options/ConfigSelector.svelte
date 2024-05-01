@@ -8,7 +8,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext } from "svelte";
 
-    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
     import { modalsKey } from "$lib/components/context-keys";
     import Select from "$lib/components/Select.svelte";
     import StickyContainer from "$lib/components/StickyContainer.svelte";
@@ -93,9 +92,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <StickyContainer --gutter-block="0.5rem" --sticky-borders="0 0 1px" breakpoint="sm">
-    <ButtonToolbar class="justify-content-between flex-grow-1" wrap={false}>
+    <div class="button-bar">
         <Select
-            class="flex-grow-1"
+            class="flex-grow-1 mr1"
             bind:value
             {label}
             list={$configList}
@@ -113,5 +112,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:rename={promptToRename}
             on:remove={dispatchPresetChange}
         />
-    </ButtonToolbar>
+    </div>
 </StickyContainer>
+
+<style lang="scss">
+    .button-bar {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+
+        flex-grow: 1;
+    }
+
+    /* TODO replace with gap once available (blocked by Qt5 / Chromium 77) */
+    :global(.mr1) {
+        margin-right: 1rem;
+    }
+</style>
