@@ -141,16 +141,8 @@ impl Collection {
                 .group_by(|r| r.button_chosen)
                 .into_iter()
                 .for_each(|(button_chosen, group)| {
-                    let mut group_vec = group.into_iter().map(|r| r.taken_millis).collect_vec();
-                    group_vec.sort_unstable();
-                    let median_millis = if group_vec.len() % 2 == 0 {
-                        let mid = group_vec.len() / 2;
-                        (group_vec[mid - 1] + group_vec[mid]) as f64 / 2.0
-                    } else {
-                        group_vec[group_vec.len() / 2] as f64
-                    };
-                    let median_secs = median_millis / 1000.0;
-                    arr[button_chosen as usize - 1] = median_secs;
+                    let group_vec = group.into_iter().map(|r| r.taken_millis).collect_vec();
+                    arr[button_chosen as usize - 1] = median_secs(&group_vec);
                 });
             if arr == default {
                 return Err(AnkiError::FsrsInsufficientData);
@@ -167,21 +159,12 @@ impl Collection {
                         && r.taken_millis < 1200000 // 20 minutes
                 })
                 .map(|r| r.taken_millis);
-            let mut group_vec = revlogs_filter.collect_vec();
-            let length = group_vec.len();
-            if length > 0 {
-                group_vec.sort_unstable();
-                let median_millis = if length % 2 == 0 {
-                    let mid = length / 2;
-                    (group_vec[mid - 1] + group_vec[mid]) as f64 / 2.0
-                } else {
-                    group_vec[length / 2] as f64
-                };
-                median_millis / 1000.0
-            } else {
-                return Err(AnkiError::FsrsInsufficientData);
-            }
+            let group_vec = revlogs_filter.collect_vec();
+            median_secs(&group_vec)
         };
+        if learn_cost == 0.0 {
+            return Err(AnkiError::FsrsInsufficientData);
+        }
 
         let forget_cost = {
             let review_kind_to_total_millis = revlogs
@@ -212,19 +195,7 @@ impl Collection {
             }
             let mut arr = [0.0; 5];
             for (review_kind, group) in group_sec_by_review_kind.iter().enumerate() {
-                let length = group.len();
-                if length > 0 {
-                    let median_millis = if length % 2 == 0 {
-                        let mid = length / 2;
-                        (group[mid - 1] + group[mid]) as f64 / 2.0
-                    } else {
-                        group[length / 2] as f64
-                    };
-                    let median_secs = median_millis / 1000.0;
-                    arr[review_kind] = median_secs;
-                } else {
-                    arr[review_kind] = 0.0;
-                }
+                arr[review_kind] = median_secs(group);
             }
             arr
         };
@@ -246,5 +217,22 @@ impl Collection {
             review_rating_probability_easy: review_rating_prob[2],
         };
         Ok(params)
+    }
+}
+
+fn median_secs(group: &Vec<u32>) -> f64 {
+    let length = group.len();
+    if length > 0 {
+        let mut group_vec = group.clone();
+        group_vec.sort_unstable();
+        let median_millis = if length % 2 == 0 {
+            let mid = length / 2;
+            (group_vec[mid - 1] + group_vec[mid]) as f64 / 2.0
+        } else {
+            group_vec[length / 2] as f64
+        };
+        median_millis / 1000.0
+    } else {
+        0.0
     }
 }
