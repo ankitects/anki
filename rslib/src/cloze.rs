@@ -460,6 +460,15 @@ pub(crate) fn cloze_only_filter<'a>(text: &'a str, context: &RenderContext) -> C
     reveal_cloze_text_only(text, context.card_ord + 1, context.frontside.is_none())
 }
 
+pub(crate) fn cloze_show<'a>(text: &'a str, context: &RenderContext) -> Cow<'a, str> {
+    strip_html_inside_mathjax(
+        reveal_cloze_text(text, context.card_ord + 1, false).as_ref(),
+    )
+    .into_owned()
+    .into()
+}
+
+
 #[cfg(test)]
 mod test {
     use std::collections::HashSet;

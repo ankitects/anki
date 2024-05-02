@@ -10,6 +10,7 @@ use regex::Regex;
 
 use crate::cloze::cloze_filter;
 use crate::cloze::cloze_only_filter;
+use crate::cloze::cloze_show;
 use crate::template::RenderContext;
 use crate::text::strip_html;
 
@@ -83,6 +84,7 @@ fn apply_filter(
         "hint" => hint_filter(text, field_name),
         "cloze" => cloze_filter(text, context),
         "cloze-only" => cloze_only_filter(text, context),
+        "cloze-show" => cloze_show(text, context),
         // an empty filter name (caused by using two colons) is ignored
         "" => text.into(),
         _ => {
