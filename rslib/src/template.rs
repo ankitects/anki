@@ -882,7 +882,11 @@ fn find_field_references<'a>(
         match node {
             ParsedNode::Text(_) => {}
             ParsedNode::Replacement { key, filters } => {
-                if !cloze_only || filters.iter().any(|f| ["cloze", "cloze-show"].iter().any(|k| k == f)) {
+                if !cloze_only
+                    || filters
+                        .iter()
+                        .any(|f| ["cloze", "cloze-show"].iter().any(|k| k == f))
+                {
                     fields.insert(key);
                 }
             }
