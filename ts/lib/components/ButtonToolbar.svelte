@@ -41,8 +41,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding-left: 0.15rem;
 
         :global(.button-group) {
-            /* TODO replace with gap once available */
-            margin-right: 0.15rem;
+            /* TODO replace with gap once available (blocked by Qt5 / Chromium 77) */
+            margin-right: 0.3rem;
             margin-bottom: 0.15rem;
         }
     }
