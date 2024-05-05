@@ -219,6 +219,7 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
+    /// All tags referenced by notes, and any parent tags as well.
     pub(crate) fn all_tags_in_notes(&self) -> Result<HashSet<UniCase<String>>> {
         let mut stmt = self
             .db
