@@ -6,10 +6,12 @@ use std::collections::HashSet;
 
 use rusqlite::params;
 use rusqlite::Row;
+use unicase::UniCase;
 
 use crate::import_export::package::NoteMeta;
 use crate::notes::NoteTags;
 use crate::prelude::*;
+use crate::tags::immediate_parent_name_unicase;
 use crate::tags::join_tags;
 use crate::tags::split_tags;
 
@@ -217,16 +219,20 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn all_tags_in_notes(&self) -> Result<HashSet<String>> {
+    /// All tags referenced by notes, and any parent tags as well.
+    pub(crate) fn all_tags_in_notes(&self) -> Result<HashSet<UniCase<String>>> {
         let mut stmt = self
             .db
             .prepare_cached("select tags from notes where tags != ''")?;
         let mut query = stmt.query([])?;
-        let mut seen: HashSet<String> = HashSet::new();
+        let mut seen: HashSet<UniCase<String>> = HashSet::new();
         while let Some(rows) = query.next()? {
             for tag in split_tags(rows.get_ref_unwrap(0).as_str()?) {
-                if !seen.contains(tag) {
-                    seen.insert(tag.to_string());
+                seen.insert(UniCase::new(tag.to_string()));
+                let mut tag_unicase = UniCase::new(tag);
+                while let Some(parent_name) = immediate_parent_name_unicase(tag_unicase) {
+                    seen.insert(UniCase::new(parent_name.to_string()));
+                    tag_unicase = UniCase::new(&parent_name);
                 }
             }
         }
