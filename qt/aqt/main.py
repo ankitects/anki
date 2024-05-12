@@ -1075,7 +1075,7 @@ title="{}" {}>{}</button>""".format(
         if self.can_auto_sync():
             return
         # media_syncer takes care of media syncing preference check
-        self.media_syncer.start()
+        self.media_syncer.start(True)
 
     def can_auto_sync(self) -> bool:
         return (
