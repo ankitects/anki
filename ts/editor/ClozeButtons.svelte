@@ -56,16 +56,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function onIncrementCloze(): Promise<void> {
         const highestCloze = getCurrentHighestCloze(true);
 
-        dispatch("cloze", {
-            n: highestCloze,
+        dispatch("surround", {
+            prefix: `{{c${highestCloze}::`,
+            suffix: "}}",
         });
     }
 
     async function onSameCloze(): Promise<void> {
         const highestCloze = getCurrentHighestCloze(false);
 
-        dispatch("cloze", {
-            n: highestCloze,
+        dispatch("surround", {
+            prefix: `{{c${highestCloze}::`,
+            suffix: "}}",
         });
     }
 

@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { placeCaretAfter } from "../domlib/place-caret";
 import { getRange, getSelection } from "./cross-browser";
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
@@ -52,38 +51,5 @@ export function wrapInternal(
         )
     ) {
         moveCursorInside(selection, back);
-    }
-}
-
-export function wrapClozeInternal(base: Element, n: number): void {
-    const selection = getSelection(base)!;
-    const range = getRange(selection);
-    if (!range) {
-        return;
-    }
-
-    const fragment = range.extractContents();
-    if (fragment.childNodes.length === 0) {
-        document.execCommand("inserthtml", false, `{{c${n}::}}`);
-        moveCursorInside(selection, "}}");
-    } else {
-        const startNode = document.createTextNode(`{{c${n}::`);
-        const endNode = document.createTextNode("}}");
-        range.insertNode(endNode);
-        range.insertNode(fragment);
-        range.insertNode(startNode);
-        placeCaretAfter(endNode);
-        // Remove empty <li> elements added by extractContents()
-        const elementsToCheck = [
-            startNode.previousElementSibling,
-            startNode.nextElementSibling,
-            endNode.previousElementSibling,
-            endNode.nextElementSibling,
-        ];
-        for (const element of elementsToCheck) {
-            if (element?.tagName === "LI" && !element?.textContent?.trim()) {
-                element.remove();
-            }
-        }
     }
 }
