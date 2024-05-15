@@ -216,10 +216,15 @@ impl Collection {
         &mut self,
         card: &Card,
         timing: SchedTimingToday,
+        is_finished_preview: bool,
     ) -> Result<()> {
         if let Some(queues) = &mut self.state.card_queues {
             let entry = queues.pop_entry(card.id)?;
-            let requeued_learning = queues.maybe_requeue_learning_card(card, timing);
+            let requeued_learning = if is_finished_preview {
+                None
+            } else {
+                queues.maybe_requeue_learning_card(card, timing)
+            };
             let cutoff_snapshot = queues.update_learning_cutoff_and_count();
             let queue_build_time = queues.build_time;
             self.save_queue_update_undo(Box::new(QueueUpdate {
