@@ -347,6 +347,7 @@ impl Collection {
         for (idx, config) in req.configs.iter_mut().enumerate() {
             let search = if config.inner.weight_search.trim().is_empty() {
                 SearchNode::Preset(config.name.clone())
+                    .and(SearchNode::State(StateKind::Suspended).negated())
                     .try_into_search()?
                     .to_string()
             } else {
