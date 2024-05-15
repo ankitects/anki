@@ -239,15 +239,20 @@ pub(crate) fn single_card_revlog_to_items(
             revlogs_complete = true;
         } else if first_of_last_learn_entries.is_some() {
             break;
-        // if we find the `Forget` entry before the `Learn` entry, we should
-        // ignore all the entries
         } else if matches!(
             (entry.review_kind, entry.ease_factor),
             (RevlogReviewKind::Manual, 0)
-        ) && first_of_last_learn_entries.is_none()
-        {
-            revlogs_complete = false;
-            break;
+        ) {
+            // If we find a `Learn` entry after the `Forget` entry, we should
+            // ignore the entries before the `Forget` entry
+            if first_of_last_learn_entries.is_some() {
+                revlogs_complete = false;
+                break;
+            // If we don't find a `Learn` entry after the `Forget` entry, it's
+            // a new card and we should ignore all entries
+            } else {
+                return None;
+            }
         }
     }
     if !revlogs_complete {
