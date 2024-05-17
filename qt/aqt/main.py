@@ -494,7 +494,6 @@ class AnkiQt(QMainWindow):
             else:
                 self.handleImport(self.pendingImport)
             self.pendingImport = None
-        gui_hooks.profile_did_open()
 
         def _onsuccess(synced: bool) -> None:
             if synced:
@@ -527,8 +526,8 @@ class AnkiQt(QMainWindow):
             )
 
         refresh_reviewer_on_day_rollover_change()
-
         self.maybe_auto_sync_on_open_close(_onsuccess)
+        gui_hooks.profile_did_open()
 
     def unloadProfile(self, onsuccess: Callable) -> None:
         def callback() -> None:
