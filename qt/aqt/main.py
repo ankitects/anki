@@ -1071,16 +1071,13 @@ title="{}" {}>{}</button>""".format(
         else:
             after_sync(False)
 
-    def maybe_auto_sync_media(self) -> None:
-        if self.can_auto_sync():
-            return
-        # media_syncer takes care of media syncing preference check
-        self.media_syncer.start(True)
-
     def can_auto_sync(self) -> bool:
+        "True if syncing on startup/shutdown enabled."
+        return self._can_sync_unattended() and self.pm.auto_syncing_enabled()
+
+    def _can_sync_unattended(self) -> bool:
         return (
-            self.pm.auto_syncing_enabled()
-            and bool(self.pm.sync_auth())
+            bool(self.pm.sync_auth())
             and not self.safeMode
             and not self.restoring_backup
         )
@@ -1441,7 +1438,9 @@ title="{}" {}>{}</button>""".format(
         # refresh decks every 10 minutes
         self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True, parent=self)
         # check media sync every 5 minutes
-        self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True, parent=self)
+        self.progress.timer(
+            5 * 60 * 1000, self.on_periodic_sync_timer, True, parent=self
+        )
         # periodic garbage collection
         self.progress.timer(
             15 * 60 * 1000, self.garbage_collect_now, True, False, parent=self
@@ -1463,13 +1462,16 @@ title="{}" {}>{}</button>""".format(
         elif self.state == "overview":
             self.overview.refresh()
 
-    def on_autosync_timer(self) -> None:
+    def on_periodic_sync_timer(self) -> None:
         elap = self.media_syncer.seconds_since_last_sync()
-        minutes = self.pm.auto_sync_media_minutes()
+        minutes = self.pm.periodic_sync_media_minutes()
         if not minutes:
             return
         if elap > minutes * 60:
-            self.maybe_auto_sync_media()
+            if not self._can_sync_unattended():
+                return
+            # media_syncer takes care of media syncing preference check
+            self.media_syncer.start(True)
 
     # Backups
     ##########################################################################
