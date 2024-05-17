@@ -1,8 +1,8 @@
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { dirname, join } from "path";
+import preprocess from "svelte-preprocess";
 import { fileURLToPath } from "url";
-import preprocess from 'svelte-preprocess';
 
 // This prevents errors being shown when opening VSCode on the root of the
 // project, instead of the ts folder.
