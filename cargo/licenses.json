@@ -288,6 +288,15 @@
     "description": "encodes and decodes base64 as bytes or utf8"
   },
   {
+    "name": "base64",
+    "version": "0.22.1",
+    "authors": "Marshall Pierce <marshall@mpierce.org>",
+    "repository": "https://github.com/marshallpierce/rust-base64",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "encodes and decodes base64 as bytes or utf8"
+  },
+  {
     "name": "base64ct",
     "version": "1.6.0",
     "authors": "RustCrypto Developers",
@@ -3251,6 +3260,15 @@
   {
     "name": "rustls-pemfile",
     "version": "1.0.4",
+    "authors": null,
+    "repository": "https://github.com/rustls/pemfile",
+    "license": "Apache-2.0 OR ISC OR MIT",
+    "license_file": null,
+    "description": "Basic .pem file parser for keys and certificates"
+  },
+  {
+    "name": "rustls-pemfile",
+    "version": "2.1.2",
     "authors": null,
     "repository": "https://github.com/rustls/pemfile",
     "license": "Apache-2.0 OR ISC OR MIT",
