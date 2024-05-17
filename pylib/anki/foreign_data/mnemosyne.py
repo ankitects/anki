@@ -148,11 +148,11 @@ class MnemoCard:
             reps=self.reps,
             lapses=self.lapses,
             interval=self.anki_interval(),
-            due=self.next_rep,
+            due=int(self.next_rep),
         )
 
     def anki_interval(self) -> int:
-        return max(1, (self.next_rep - self.last_rep) // 86400)
+        return int(max(1, (self.next_rep - self.last_rep) // 86400))
 
 
 @dataclass
