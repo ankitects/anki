@@ -139,7 +139,10 @@ impl Backend {
 
     #[cfg(feature = "rustls")]
     fn set_custom_certificate_inner(&self, cert_str: String) -> Result<()> {
-        use {reqwest::Certificate, std::io::Cursor, std::io::Read};
+        use std::io::Cursor;
+        use std::io::Read;
+
+        use reqwest::Certificate;
 
         let mut client_mutex = self.web_client.lock();
 
