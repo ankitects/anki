@@ -28,7 +28,7 @@ class MediaSyncer:
         self._last_progress_at = 0
         gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
 
-    def start(self) -> None:
+    def start(self, is_periodic_sync: bool = False) -> None:
         "Start media syncing in the background, if it's not already running."
         if not self.mw.pm.media_syncing_enabled() or not (
             auth := self.mw.pm.sync_auth()
@@ -40,11 +40,13 @@ class MediaSyncer:
 
         # this will exit after the thread is spawned, but may block if there's an existing
         # backend lock
-        QueryOp(parent=aqt.mw, op=run, success=lambda _: 1).run_in_background()
+        QueryOp(parent=aqt.mw, op=run, success=lambda _: 1).failure(
+            lambda e: self._handle_sync_error(e, is_periodic_sync)
+        ).run_in_background()
 
-        self.start_monitoring()
+        self.start_monitoring(is_periodic_sync)
 
-    def start_monitoring(self) -> None:
+    def start_monitoring(self, is_periodic_sync: bool = False) -> None:
         if self._syncing:
             return
         self._syncing = True
@@ -62,31 +64,35 @@ class MediaSyncer:
                 time.sleep(0.25)
 
         self.mw.taskman.run_in_background(
-            monitor, self._on_finished, uses_collection=False
+            monitor,
+            lambda fut: self._on_finished(fut, is_periodic_sync),
+            uses_collection=False,
         )
 
     def _update_progress(self, progress: str) -> None:
         self.last_progress = progress
         self.mw.taskman.run_on_main(lambda: gui_hooks.media_sync_did_progress(progress))
 
-    def _on_finished(self, future: Future) -> None:
+    def _on_finished(self, future: Future, is_periodic_sync: bool = False) -> None:
         self._syncing = False
         self._last_progress_at = int_time()
         gui_hooks.media_sync_did_start_or_stop(False)
 
         exc = future.exception()
         if exc is not None:
-            self._handle_sync_error(exc)
+            self._handle_sync_error(exc, is_periodic_sync)
         else:
             self._update_progress(tr.sync_media_complete())
 
-    def _handle_sync_error(self, exc: BaseException) -> None:
+    def _handle_sync_error(
+        self, exc: BaseException, is_periodic_sync: bool = False
+    ) -> None:
         if isinstance(exc, Interrupted):
             self._update_progress(tr.sync_media_aborted())
-            return
+        elif is_periodic_sync:
+            print(str(exc))
         else:
             show_info(str(exc), modality=Qt.WindowModality.NonModal)
-            return
 
     def abort(self) -> None:
         if not self.is_syncing():

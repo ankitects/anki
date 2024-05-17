@@ -654,6 +654,7 @@ create table if not exists profiles
         return self.profile.get("syncMedia", True)
 
     def auto_syncing_enabled(self) -> bool:
+        "True if syncing on startup/shutdown enabled."
         return self.profile.get("autoSync", True)
 
     def sync_auth(self) -> SyncAuth | None:
@@ -690,10 +691,10 @@ create table if not exists profiles
             self.set_current_sync_url(None)
             self.profile["customSyncUrl"] = url
 
-    def auto_sync_media_minutes(self) -> int:
+    def periodic_sync_media_minutes(self) -> int:
         return self.profile.get("autoSyncMediaMinutes", 15)
 
-    def set_auto_sync_media_minutes(self, val: int) -> None:
+    def set_periodic_sync_media_minutes(self, val: int) -> None:
         self.profile["autoSyncMediaMinutes"] = val
 
     def show_browser_table_tooltips(self) -> bool:

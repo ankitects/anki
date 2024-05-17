@@ -190,7 +190,9 @@ class Preferences(QDialog):
         qconnect(self.form.media_log.clicked, self.on_media_log)
         self.form.syncOnProgramOpen.setChecked(self.mw.pm.auto_syncing_enabled())
         self.form.syncMedia.setChecked(self.mw.pm.media_syncing_enabled())
-        self.form.autoSyncMedia.setChecked(self.mw.pm.auto_sync_media_minutes() != 0)
+        self.form.autoSyncMedia.setChecked(
+            self.mw.pm.periodic_sync_media_minutes() != 0
+        )
         self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
 
@@ -234,7 +236,7 @@ class Preferences(QDialog):
     def update_network(self) -> None:
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
         self.prof["syncMedia"] = self.form.syncMedia.isChecked()
-        self.mw.pm.set_auto_sync_media_minutes(
+        self.mw.pm.set_periodic_sync_media_minutes(
             self.form.autoSyncMedia.isChecked() and 15 or 0
         )
         if self.form.fullSync.isChecked():
