@@ -463,17 +463,21 @@ def update_deck_configs() -> bytes:
             update.label = val.label
         elif progress.HasField("compute_weights"):
             val2 = progress.compute_weights
-            update.max = val2.total
+            # prevent an indeterminate progress bar from appearing at the start of each preset
+            update.max = max(val2.total, 1)
             update.value = val2.current
             pct = str(int(val2.current / val2.total * 100) if val2.total > 0 else 0)
             label = tr.deck_config_optimizing_preset(
                 current_count=val2.current_preset, total_count=val2.total_presets
             )
-            update.label = (
-                label
-                + "\n"
-                + tr.deck_config_percent_of_reviews(pct=pct, reviews=val2.reviews)
-            )
+            if val2.reviews:
+                reviews = tr.deck_config_percent_of_reviews(
+                    pct=pct, reviews=val2.reviews
+                )
+            else:
+                reviews = tr.qt_misc_processing()
+
+            update.label = label + "\n" + reviews
         else:
             return
         if update.user_wants_abort:
