@@ -23,6 +23,7 @@ service BackendSyncService {
   rpc SyncCollection(SyncCollectionRequest) returns (SyncCollectionResponse);
   rpc FullUploadOrDownload(FullUploadOrDownloadRequest) returns (generic.Empty);
   rpc AbortSync(generic.Empty) returns (generic.Empty);
+  rpc SetCustomCertificate(generic.String) returns (generic.Bool);
 }
 
 message SyncAuth {

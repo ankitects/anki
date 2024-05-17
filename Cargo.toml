@@ -146,6 +146,7 @@ zstd = { version = "0.13.0", features = ["zstdmt"] }
 envy = "0.4.2"
 dirs = "5.0.1"
 dunce = "1.0.4"
+rustls-pemfile = "2.1.2"
 
 # Apply mild optimizations to our dependencies in dev mode, which among other things
 # improves sha2 performance by about 21x. Opt 1 chosen due to

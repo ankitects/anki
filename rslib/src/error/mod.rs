@@ -122,6 +122,7 @@ pub enum AnkiError {
     },
     FsrsUnableToDetermineDesiredRetention,
     SchedulerUpgradeRequired,
+    InvalidCertificateFormat,
 }
 
 // error helpers
@@ -169,7 +170,8 @@ impl AnkiError {
             | AnkiError::Existing
             | AnkiError::InvalidServiceIndex
             | AnkiError::InvalidMethodIndex
-            | AnkiError::UndoEmpty => format!("{:?}", self),
+            | AnkiError::UndoEmpty
+            | AnkiError::InvalidCertificateFormat => format!("{:?}", self),
             AnkiError::FileIoError { source } => source.message(),
             AnkiError::InvalidInput { source } => source.message(),
             AnkiError::NotFound { source } => source.message(tr),
