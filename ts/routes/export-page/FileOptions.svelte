@@ -19,6 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Exporter, ExportOptions } from "./types";
     import { writable } from "svelte/store";
     import type { Choice } from "$lib/components/EnumSelector.svelte";
+    import { registerPackage } from "@tslib/runtime-require";
 
     export let withLimit: boolean = false;
     export let exporter: Exporter;
@@ -27,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaultLegacySupport = exportOptions.legacySupport;
     // store add-ons may write to
     const exporters = writable(getExporters(withLimit));
-    dispatchEvent(new CustomEvent("exportersDidInitialize", { detail: { exporters } }));
+    registerPackage("anki/ExportPage", { exporters });
 
     let exporterChoices: Choice<number>[];
     let defaultExporterIdx: number;
