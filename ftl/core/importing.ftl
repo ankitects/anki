@@ -86,6 +86,10 @@ importing-updated = Updated
 importing-update-if-newer = If newer
 importing-update-always = Always
 importing-update-never = Never
+importing-update-medias = Update medias
+importing-update-medias-help =
+    When to update an existing media in your collection. By default, this is only done
+    if the matching imported media was more recently modified.
 importing-update-notes = Update notes
 importing-update-notes-help =
     When to update an existing note in your collection. By default, this is only done
