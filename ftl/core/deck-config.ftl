@@ -243,7 +243,7 @@ deck-config-question-action = Question action
 deck-config-question-action-tool-tip = The action to perform after the question is shown, and time has elapsed.
 deck-config-answer-action = Answer action
 deck-config-answer-action-tooltip = The action to perform on the current card before automatically advancing to the next one.
-deck-config-wait-for-audio-tooltip = Wait for audio to finish before automatically revealing answer or next question
+deck-config-wait-for-audio-tooltip = Wait for audio to finish before automatically revealing answer or next question.
 
 ## Audio section
 
