@@ -65,11 +65,18 @@ class CardInfoDialog(QDialog):
         self.setLayout(layout)
 
     def update_card(self, card_id: CardId | None) -> None:
+        from aqt.theme import theme_manager
+
         try:
             self.mw.col.get_card(card_id)
         except NotFoundError:
             card_id = None
-        self.web.eval(f"window.location.href = '/card-info/{card_id}';")
+
+        if theme_manager.night_mode:
+            extra = "#night"
+        else:
+            extra = ""
+        self.web.eval(f"window.location.href = '/card-info/{card_id}{extra}';")
 
     def reject(self) -> None:
         if self._on_close:
