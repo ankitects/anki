@@ -74,7 +74,7 @@ impl Op {
             Op::SetFlag => tr.actions_set_flag(),
             Op::FindAndReplace => tr.browsing_find_and_replace(),
             Op::ClearUnusedTags => tr.browsing_clear_unused_tags(),
-            Op::SortCards => tr.browsing_reschedule(),
+            Op::SortCards => tr.actions_reposition(),
             Op::RenameTag => tr.actions_rename_tag(),
             Op::RemoveTag => tr.actions_remove_tag(),
             Op::ReparentTag => tr.actions_rename_tag(),
