@@ -103,7 +103,7 @@ export function buildHistogram(
         cumulative: number,
         _percent: number,
     ): string {
-        const days = dayLabel(bin.x0!, bin.x1!);
+        const days = dayLabel(bin.x0!, bin.x1 === xMax ? bin.x1! + 1 : bin.x1!);
         const cards = tr.statisticsCardsDue({
             cards: getNumericMapBinValue(bin as any),
         });
@@ -114,7 +114,8 @@ export function buildHistogram(
 
     function onClick(bin: Bin<number, number>): void {
         const start = bin.x0!;
-        const end = bin.x1! - 1;
+        // x1 in last bin is inclusive
+        const end = bin.x1 === xMax ? bin.x1! : bin.x1! - 1;
         const query = makeQuery(start, end);
         dispatch("search", { query });
     }
