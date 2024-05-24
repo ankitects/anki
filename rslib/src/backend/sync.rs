@@ -249,7 +249,7 @@ impl Backend {
             (col.media()?, col.new_progress_handler())
         };
         let rt = self.runtime_handle();
-        let sync_fut = mgr.sync_media(progress, auth, self.web_client().unwrap(), server_usn);
+        let sync_fut = mgr.sync_media(progress, auth, self.web_client().clone(), server_usn);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let result = rt.block_on(abortable_sync);
 
@@ -294,7 +294,7 @@ impl Backend {
             input.username,
             input.password,
             input.endpoint.clone(),
-            self.web_client().unwrap(),
+            self.web_client(),
         );
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
@@ -333,7 +333,7 @@ impl Backend {
         let rt = self.runtime_handle();
         let time_at_check_begin = TimestampSecs::now();
         let local = self.with_col(|col| col.sync_meta())?;
-        let mut client = HttpSyncClient::new(auth, self.web_client().unwrap());
+        let mut client = HttpSyncClient::new(auth, self.web_client());
         let state = rt.block_on(online_sync_status_check(local, &mut client))?;
         {
             let mut guard = self.state.lock().unwrap();
@@ -358,7 +358,7 @@ impl Backend {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
-        let client = self.web_client().unwrap().clone();
+        let client = self.web_client();
         let auth2 = auth.clone();
 
         let ret = self.with_col(|col| {
@@ -421,11 +421,11 @@ impl Backend {
         let mut builder = col_inner.as_builder();
 
         let result = if upload {
-            let sync_fut = col_inner.full_upload(auth, self.web_client().unwrap().clone());
+            let sync_fut = col_inner.full_upload(auth, self.web_client().clone());
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         } else {
-            let sync_fut = col_inner.full_download(auth, self.web_client().unwrap().clone());
+            let sync_fut = col_inner.full_download(auth, self.web_client().clone());
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         };

@@ -26,7 +26,6 @@ impl Backend {
         self.runtime_handle().block_on(async move {
             let out = self
                 .web_client()
-                .unwrap()
                 .post(service_url(service))
                 .body(input.encode_to_vec())
                 .timeout(Duration::from_secs(60))

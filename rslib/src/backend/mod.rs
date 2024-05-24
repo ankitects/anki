@@ -144,47 +144,39 @@ impl Backend {
 
         use reqwest::Certificate;
 
-        let mut client_mutex = self.web_client.lock();
+        let mut web_client = self.web_client.lock().unwrap();
 
         if cert_str.is_empty() {
-            if let Ok(ref mut web_client) = client_mutex {
-                let _ = (**web_client).insert(Client::builder().http1_only().build().unwrap());
-                return Ok(());
-            }
+            let _ = web_client.insert(Client::builder().http1_only().build().unwrap());
+            return Ok(());
         }
 
-        #[cfg(feature = "rustls-pemfile")]
         if rustls_pemfile::read_all(Cursor::new(cert_str.as_bytes()).by_ref()).count() != 1 {
             return Err(AnkiError::InvalidCertificateFormat);
         }
 
         if let Ok(certificate) = Certificate::from_pem(cert_str.as_bytes()) {
-            if let Ok(ref mut web_client) = client_mutex {
-                if let Ok(new_client) = Client::builder()
-                    .use_rustls_tls()
-                    .add_root_certificate(certificate)
-                    .http1_only()
-                    .build()
-                {
-                    let _ = (**web_client).insert(new_client);
-                    return Ok(());
-                }
+            if let Ok(new_client) = Client::builder()
+                .use_rustls_tls()
+                .add_root_certificate(certificate)
+                .http1_only()
+                .build()
+            {
+                let _ = web_client.insert(new_client);
+                return Ok(());
             }
         }
 
         Err(AnkiError::InvalidCertificateFormat)
     }
 
-    fn web_client(&self) -> Result<Client> {
-        let mut client_mutex = self.web_client.lock();
+    fn web_client(&self) -> Client {
+        // currently limited to http1, as nginx doesn't support http2 proxies
+        let mut web_client = self.web_client.lock().unwrap();
 
-        if let Ok(ref mut web_client) = client_mutex {
-            return Ok((**web_client)
-                .get_or_insert(Client::builder().http1_only().build().unwrap())
-                .clone());
-        }
-
-        Err(AnkiError::Interrupted)
+        return web_client
+            .get_or_insert(Client::builder().http1_only().build().unwrap())
+            .clone();
     }
 
     fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {
