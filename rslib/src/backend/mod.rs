@@ -175,7 +175,7 @@ impl Backend {
         let mut web_client = self.web_client.lock().unwrap();
 
         return web_client
-            .get_or_insert(Client::builder().http1_only().build().unwrap())
+            .get_or_insert_with(|| Client::builder().http1_only().build().unwrap())
             .clone();
     }
 
