@@ -976,7 +976,7 @@ def tooltip(
     )
     lab.setFrameStyle(QFrame.Shape.Panel)
     lab.setLineWidth(2)
-    lab.setWindowFlags(Qt.WindowType.SplashScreen)
+    lab.setWindowFlags(Qt.WindowType.ToolTip)
     if not theme_manager.night_mode:
         p = QPalette()
         p.setColor(QPalette.ColorRole.Window, QColor("#feffc4"))

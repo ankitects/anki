@@ -230,7 +230,9 @@ class Preferences(QDialog):
         self.update_login_status()
 
     def confirm_sync_after_login(self) -> None:
-        if askUser(tr.preferences_login_successful_sync_now()):
+        from aqt import mw
+
+        if askUser(tr.preferences_login_successful_sync_now(), parent=mw):
             self.accept_with_callback(self.mw.on_sync_button_clicked)
 
     def update_network(self) -> None:

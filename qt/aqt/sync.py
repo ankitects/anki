@@ -318,6 +318,7 @@ def sync_login(
             username=username, password=password, endpoint=mw.pm.sync_endpoint()
         ),
         on_future_done,
+        parent=mw,
     )
 
 
