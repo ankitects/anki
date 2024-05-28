@@ -633,7 +633,7 @@ the AddCards dialog) should be implemented in the user of this component.
         </Absolute>
     {/if}
 
-    {#if imageOcclusionMode}
+    {#if imageOcclusionMode && ($ioMaskEditorVisible || imageOcclusionMode?.kind === "add")}
         <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'};">
             <ImageOcclusionPage
                 mode={imageOcclusionMode}
