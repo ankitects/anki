@@ -608,7 +608,8 @@ class Table:
                 direction,
                 self.browser.mw.app.keyboardModifiers(),
             )
-        self._view.selectionModel().setCurrentIndex(
+        self._view.setCurrentIndex(index)
+        self._view.selectionModel().select(
             index,
             QItemSelectionModel.SelectionFlag.Clear
             | QItemSelectionModel.SelectionFlag.Select
