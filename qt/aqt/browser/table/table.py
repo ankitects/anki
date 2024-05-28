@@ -608,6 +608,7 @@ class Table:
                 direction,
                 self.browser.mw.app.keyboardModifiers(),
             )
+        # Setting current like this avoids a bug with shift-click selection
         self._view.setCurrentIndex(index)
         self._view.selectionModel().select(
             index,
