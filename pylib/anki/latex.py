@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import html
 import os
-import re
 from dataclasses import dataclass
 
 import anki
@@ -130,24 +129,6 @@ def _save_latex_image(
 ) -> str | None:
     # add header/footer
     latex = f"{header}\n{extracted.latex_body}\n{footer}"
-    # it's only really secure if run in a jail, but these are the most common
-    tmplatex = latex.replace("\\includegraphics", "")
-    for bad in (
-        "\\write18",
-        "\\readline",
-        "\\input",
-        "\\include",
-        "\\catcode",
-        "\\openout",
-        "\\write",
-        "\\loop",
-        "\\def",
-        "\\shipout",
-    ):
-        # don't mind if the sequence is only part of a command
-        bad_re = f"\\{bad}[^a-zA-Z]"
-        if re.search(bad_re, tmplatex):
-            return col.tr.media_for_security_reasons_is_not(val=bad)
 
     # commands to use
     if svg:
