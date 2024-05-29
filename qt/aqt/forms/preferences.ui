@@ -478,6 +478,19 @@
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="render_latex">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_generate_latex_images_automatically</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="verticalSpacer_7">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -1100,6 +1113,7 @@
   <tabstop>spacebar_rates_card</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
+  <tabstop>render_latex</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>

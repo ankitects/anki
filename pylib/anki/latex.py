@@ -11,6 +11,7 @@ from dataclasses import dataclass
 import anki
 import anki.collection
 from anki import card_rendering_pb2, hooks
+from anki.config import Config
 from anki.models import NotetypeDict
 from anki.template import TemplateRenderContext, TemplateRenderOutput
 from anki.utils import call, is_mac, namedtmp, tmpdir
@@ -71,10 +72,13 @@ class ExtractedLatexOutput:
 def on_card_did_render(
     output: TemplateRenderOutput, ctx: TemplateRenderContext
 ) -> None:
-    output.question_text = render_latex(
-        output.question_text, ctx.note_type(), ctx.col()
-    )
-    output.answer_text = render_latex(output.answer_text, ctx.note_type(), ctx.col())
+    if ctx.col().get_config_bool(Config.Bool.RENDER_LATEX):
+        output.question_text = render_latex(
+            output.question_text, ctx.note_type(), ctx.col()
+        )
+        output.answer_text = render_latex(
+            output.answer_text, ctx.note_type(), ctx.col()
+        )
 
 
 def render_latex(

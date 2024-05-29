@@ -128,6 +128,7 @@ impl Collection {
             paste_strips_formatting: self.get_config_bool(BoolKey::PasteStripsFormatting),
             default_search_text: self.get_config_string(StringKey::DefaultSearchText),
             ignore_accents_in_search: self.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+            render_latex: self.get_config_bool(BoolKey::RenderLatex),
         })
     }
 
@@ -141,6 +142,7 @@ impl Collection {
         self.set_config_bool_inner(BoolKey::PasteStripsFormatting, s.paste_strips_formatting)?;
         self.set_config_string_inner(StringKey::DefaultSearchText, &s.default_search_text)?;
         self.set_config_bool_inner(BoolKey::IgnoreAccentsInSearch, s.ignore_accents_in_search)?;
+        self.set_config_bool_inner(BoolKey::RenderLatex, s.render_latex)?;
         Ok(())
     }
 }
