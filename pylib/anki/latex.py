@@ -36,9 +36,6 @@ svgCommands = [
     ["dvisvgm", "--no-fonts", "--exact", "-Z", "2", "tmp.dvi", "-o", "tmp.svg"],
 ]
 
-# if off, use existing media but don't create new
-build = True  # pylint: disable=invalid-name
-
 # add standard tex install location to osx
 if is_mac:
     os.environ["PATH"] += ":/usr/texbin:/Library/TeX/texbin"
@@ -71,13 +68,10 @@ class ExtractedLatexOutput:
 def on_card_did_render(
     output: TemplateRenderOutput, ctx: TemplateRenderContext
 ) -> None:
-    if ctx.col().get_config_bool(Config.Bool.RENDER_LATEX):
-        output.question_text = render_latex(
-            output.question_text, ctx.note_type(), ctx.col()
-        )
-        output.answer_text = render_latex(
-            output.answer_text, ctx.note_type(), ctx.col()
-        )
+    output.question_text = render_latex(
+        output.question_text, ctx.note_type(), ctx.col()
+    )
+    output.answer_text = render_latex(output.answer_text, ctx.note_type(), ctx.col())
 
 
 def render_latex(
@@ -110,7 +104,9 @@ def render_latex_returning_errors(
 
     for latex in out.latex:
         # don't need to render?
-        if not build or col.media.have(latex.filename):
+        if not col.get_config_bool(Config.Bool.RENDER_LATEX) or col.media.have(
+            latex.filename
+        ):
             continue
 
         err = _save_latex_image(col, latex, header, footer, svg)

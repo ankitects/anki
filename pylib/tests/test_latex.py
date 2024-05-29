@@ -53,7 +53,7 @@ def test_latex():
     assert ".png" in oldcard.question()
     # if we turn off building, then previous cards should work, but cards with
     # missing media will show a broken image
-    anki.latex.build = False
+    col.set_config_bool(Config.Bool.RENDER_LATEX, False)
     note = col.newNote()
     note["Front"] = "[latex]foo[/latex]"
     col.addNote(note)
