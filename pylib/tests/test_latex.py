@@ -6,12 +6,14 @@
 import os
 import shutil
 
+from anki.config import Config
 from anki.lang import without_unicode_isolation
 from tests.shared import getEmptyCol
 
 
 def test_latex():
     col = getEmptyCol()
+    col.set_config_bool(Config.Bool.RENDER_LATEX, True)
     # change latex cmd to simulate broken build
     import anki.latex
 
@@ -92,6 +94,7 @@ def test_latex():
 
 def _test_includes_bad_command(bad):
     col = getEmptyCol()
+    col.set_config_bool(Config.Bool.RENDER_LATEX, True)
     note = col.newNote()
     note["Front"] = f"[latex]{bad}[/latex]"
     col.addNote(note)
