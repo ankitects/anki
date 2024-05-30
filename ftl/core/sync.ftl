@@ -27,14 +27,14 @@ sync-resync-required = Please sync again. If this message keeps appearing, pleas
 sync-must-wait-for-end = Anki is currently syncing. Please wait for the sync to complete, then try again.
 sync-confirm-empty-download = Local collection has no cards. Download from AnkiWeb?
 sync-confirm-empty-upload = AnkiWeb collection has no cards. Replace it with local collection?
-sync-conflict-explanation =
-    Your decks here and on AnkiWeb differ in such a way that they can't be merged together, so it's necessary to overwrite the decks on one side with the decks from the other.
-    
-    If you choose download, Anki will fetch the collection from AnkiWeb, and any changes you have made on this device since the last sync will be lost.
-    
-    If you choose upload, Anki will send this device's data to AnkiWeb, and any changes that are waiting on AnkiWeb will be lost.
-    
-    After all devices are in sync, future reviews and added cards can be merged automatically.
+sync-conflict-explanation2 =
+    There is a conflict between decks on this device and AnkiWeb. You must choose which version to keep:
+
+    - Select **{ sync-download-from-ankiweb }** to replace decks here with AnkiWeb’s version. You will lose any changes you made on this device since your last sync.
+    - Select **{ sync-upload-to-ankiweb }** to overwrite AnkiWeb’s versions with decks from this device and delete any changes on AnkiWeb.
+
+    Once the conflict is resolved, syncing will work as usual.
+
 sync-ankiweb-id-label = AnkiWeb ID:
 sync-password-label = Password:
 sync-account-required =
