@@ -157,11 +157,12 @@ def full_sync(
                 on_done()
 
         ask_user_dialog(
-            tr.sync_conflict_explanation(),
+            tr.sync_conflict_explanation2(),
             callback=callback,
             buttons=button_labels,
             default_button=2,
             parent=mw,
+            textFormat=Qt.TextFormat.MarkdownText,
         )
 
 
