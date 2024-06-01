@@ -609,6 +609,7 @@ class Table:
                 self.browser.mw.app.keyboardModifiers(),
             )
         # Setting current like this avoids a bug with shift-click selection
+        # https://github.com/ankitects/anki/issues/2469
         self._view.setCurrentIndex(index)
         self._view.selectionModel().select(
             index,
