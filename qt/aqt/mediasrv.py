@@ -275,7 +275,7 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
             HTTPStatus.NOT_FOUND,
         )
         # we're including the path verbatim in our response, so we need to either use
-        # plain text, or escape HTML characters to reflecting untrusted input
+        # plain text, or escape HTML characters to avoid reflecting untrusted input
         resp.headers["Content-type"] = "text/plain"
         return resp
     except Exception as error:
