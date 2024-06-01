@@ -101,10 +101,11 @@ def render_latex_returning_errors(
     out = ExtractedLatexOutput.from_proto(proto)
     errors = []
     html = out.html
+    render_latex = col.get_config_bool(Config.Bool.RENDER_LATEX)
 
     for latex in out.latex:
         # don't need to render?
-        if not col.get_config_bool(Config.Bool.RENDER_LATEX) or col.media.have(
+        if not render_latex or col.media.have(
             latex.filename
         ):
             continue
