@@ -105,10 +105,11 @@ def render_latex_returning_errors(
 
     for latex in out.latex:
         # don't need to render?
-        if not render_latex or col.media.have(
-            latex.filename
-        ):
+        if col.media.have(latex.filename):
             continue
+        if not render_latex:
+            errors.append(col.tr.preferences_latex_generation_disabled())
+            return html, errors
 
         err = _save_latex_image(col, latex, header, footer, svg)
         if err is not None:
