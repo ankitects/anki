@@ -270,10 +270,14 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
     except FileNotFoundError:
         if dev_mode:
             print(f"404: {data_path}")
-        return flask.make_response(
+        resp = flask.make_response(
             f"Invalid path: {path}",
             HTTPStatus.NOT_FOUND,
         )
+        # we're including the path verbatim in our response, so we need to either use
+        # plain text, or escape HTML characters to reflecting untrusted input
+        resp.headers["Content-type"] = "text/plain"
+        return resp
     except Exception as error:
         if dev_mode:
             print(
