@@ -27,6 +27,7 @@ pub enum BoolKey {
     NewCardsIgnoreReviewLimit,
     PasteImagesAsPng,
     PasteStripsFormatting,
+    RenderLatex,
     PreviewBothSides,
     RestorePositionBrowser,
     RestorePositionReviewer,
