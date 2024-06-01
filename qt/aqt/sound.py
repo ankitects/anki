@@ -306,7 +306,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._process = subprocess.Popen(
-            self.args + [f"-- {tag.filename}"],
+            self.args + ["--", tag.filename],
             env=self.env,
             cwd=self._media_folder,
             stdout=subprocess.DEVNULL,
@@ -478,7 +478,7 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
         filename = hooks.media_file_filter(tag.filename)
 
         self._process = subprocess.Popen(
-            self.args + [f"-- {filename}"],
+            self.args + ["--", filename],
             env=self.env,
             cwd=self.media_folder,
             stdin=subprocess.PIPE,
