@@ -28,7 +28,6 @@ from aqt.qt import (
 )
 from aqt.utils import (
     ask_user_dialog,
-    askUser,
     disable_help_button,
     showText,
     showWarning,
@@ -171,10 +170,15 @@ def confirm_full_download(
 ) -> None:
     # confirmation step required, as some users customize their notetypes
     # in an empty collection, then want to upload them
-    if not askUser(tr.sync_confirm_empty_download(), parent=mw):
-        return on_done()
-    else:
-        mw.closeAllWindows(lambda: full_download(mw, server_usn, on_done))
+    def callback(choice: int) -> None:
+        if choice:
+            on_done()
+        else:
+            mw.closeAllWindows(lambda: full_download(mw, server_usn, on_done))
+
+    ask_user_dialog(
+        tr.sync_confirm_empty_download(), callback=callback, default_button=0, parent=mw
+    )
 
 
 def confirm_full_upload(
@@ -183,10 +187,15 @@ def confirm_full_upload(
     # confirmation step required, as some users have reported an upload
     # happening despite having their AnkiWeb collection not being empty
     # (not reproducible - maybe a compiler bug?)
-    if not askUser(tr.sync_confirm_empty_upload(), parent=mw):
-        return on_done()
-    else:
-        mw.closeAllWindows(lambda: full_upload(mw, server_usn, on_done))
+    def callback(choice: int) -> None:
+        if choice:
+            on_done()
+        else:
+            mw.closeAllWindows(lambda: full_upload(mw, server_usn, on_done))
+
+    ask_user_dialog(
+        tr.sync_confirm_empty_upload(), callback=callback, default_button=0, parent=mw
+    )
 
 
 def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
