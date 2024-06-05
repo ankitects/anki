@@ -3,6 +3,7 @@
 
 import * as tr from "@generated/ftl";
 
+import { ModuleName, setupI18n } from "@tslib/i18n";
 import { optimumPixelSizeForCanvas } from "./canvas-scale";
 import { Shape } from "./shapes";
 import { Ellipse, extractShapesFromRenderedClozes, Polygon, Rectangle, Text } from "./shapes";
@@ -43,6 +44,11 @@ interface SetupImageOcclusionOptions {
 
 async function setupImageOcclusion(setupOptions?: SetupImageOcclusionOptions): Promise<void> {
     await waitForImage();
+    await setupI18n({
+        modules: [
+            ModuleName.NOTETYPES,
+        ],
+    });
     window.addEventListener("load", () => {
         window.addEventListener("resize", () => setupImageOcclusion(setupOptions));
     });
