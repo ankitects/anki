@@ -79,7 +79,8 @@ class DeckChooser(QHBoxLayout):
             self.selected_deck_id = DEFAULT_DECK_ID
 
     def _update_button_label(self) -> None:
-        self.deck.setText(self.selected_deck_name().replace("&", "&&"))
+        if not sip.isdeleted(self.deck):
+            self.deck.setText(self.selected_deck_name().replace("&", "&&"))
 
     def show(self) -> None:
         self._widget.show()  # type: ignore
