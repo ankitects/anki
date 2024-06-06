@@ -410,8 +410,12 @@ impl Notetype {
             if q_fields.is_empty() {
                 return Err(CardTypeErrorDetails::NoFrontField);
             }
-            if self.unknown_field_name(q_fields.union(&a.all_referenced_field_names())) {
-                return Err(CardTypeErrorDetails::NoSuchField);
+            if let Some(unknown_field) =
+                self.first_unknown_field_name(q_fields.union(&a.all_referenced_field_names()))
+            {
+                return Err(CardTypeErrorDetails::NoSuchField {
+                    field: unknown_field.to_string(),
+                });
             }
             Ok(())
         } else {
@@ -419,14 +423,14 @@ impl Notetype {
         }
     }
 
-    /// True if any non-empty name in names does not denote a special field or
-    /// a field of this notetype.
-    fn unknown_field_name<T, I>(&self, names: T) -> bool
+    /// Return the first non-empty name in names that does not denote a special
+    /// field or a field of this notetype.
+    fn first_unknown_field_name<T, I>(&self, names: T) -> Option<I>
     where
         T: IntoIterator<Item = I>,
         I: AsRef<str>,
     {
-        names.into_iter().any(|name| {
+        names.into_iter().find(|name| {
             // The empty field name is allowed as it may be used by add-ons.
             !name.as_ref().is_empty()
                 && !SPECIAL_FIELDS.contains(&name.as_ref())
