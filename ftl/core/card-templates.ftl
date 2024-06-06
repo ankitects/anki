@@ -26,6 +26,7 @@ card-templates-no-front-field = Expected to find a field replacement on the fron
 card-templates-missing-cloze = Expected to find '{ "{{" }cloze:Text{ "}}" }' or similar on the front and back of the card template.
 card-templates-extraneous-cloze = 'cloze:' can only be used on cloze notetypes.
 card-templates-see-preview = See the preview for more information.
+card-templates-field-not-found = Field '{ $field }' not found.
 card-templates-changes-saved = Changes saved.
 card-templates-discard-changes = Discard changes?
 card-templates-add-card-type = Add Card Type...
