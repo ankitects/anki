@@ -460,7 +460,7 @@ impl BuildAction for SveltekitBuild {
             if cfg!(windows) {
                 "cmd /c yarn build"
             } else {
-                "./yarn build"
+                "$yarn build"
             }
         } else {
             "echo"
@@ -469,6 +469,7 @@ impl BuildAction for SveltekitBuild {
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
         build.add_inputs("node_modules", inputs![":node_modules"]);
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
         build.add_inputs("", &self.deps);
         build.add_inputs("", inputs!["yarn.lock"]);
         build.add_output_stamp("sveltekit.marker");
