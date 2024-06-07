@@ -691,6 +691,7 @@ def _check_dynamic_request_permissions():
     elif context == PageContext.REVIEWER and request.path in (
         "/_anki/getSchedulingStatesWithContext",
         "/_anki/setSchedulingStates",
+        "/_anki/i18nResources",
     ):
         # reviewer is only allowed to access custom study methods
         pass
