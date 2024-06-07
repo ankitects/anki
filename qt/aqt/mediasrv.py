@@ -676,7 +676,6 @@ def _check_dynamic_request_permissions():
             "Unexpected API access. Please report this message on the Anki forums."
         )
 
-    print(context, request.headers["Content-type"], request.path)
     # check content type header to ensure this isn't an opaque request from another origin
     if request.headers["Content-type"] != "application/binary":
         aqt.mw.taskman.run_on_main(warn)
