@@ -69,15 +69,17 @@ class NotFound:
 DynamicRequest = Callable[[], Response]
 
 
-class PageContext(enum.Enum):
-    UNKNOWN = 0
-    EDITOR = 1
-    REVIEWER = 2
+class PageContext(enum.IntEnum):
+    UNKNOWN = enum.auto()
+    EDITOR = enum.auto()
+    REVIEWER = enum.auto()
+    PREVIEWER = enum.auto()
+    CARD_LAYOUT = enum.auto()
     # something in /_anki/pages/
-    NON_LEGACY_PAGE = 3
+    NON_LEGACY_PAGE = enum.auto()
     # Do not use this if you present user content (e.g. content from cards), as it's a
     # security issue.
-    ADDON_PAGE = 4
+    ADDON_PAGE = enum.auto()
 
 
 @dataclass
@@ -693,6 +695,11 @@ def _check_dynamic_request_permissions():
         "/_anki/i18nResources",
     ):
         # reviewer is only allowed to access custom study methods
+        pass
+    elif (
+        context == PageContext.PREVIEWER or context == PageContext.CARD_LAYOUT
+    ) and request.path == "/_anki/i18nResources":
+        # previewers are only allowed to access i18n resources
         pass
     else:
         # other legacy pages may contain third-party JS, so we do not

@@ -584,6 +584,8 @@ html {{ {font} }}
 {web_content.body}</body>
 </html>"""
         # print(html)
+        import aqt.browser.previewer
+        import aqt.clayout
         import aqt.editor
         import aqt.reviewer
         from aqt.mediasrv import PageContext
@@ -592,6 +594,10 @@ html {{ {font} }}
             page_context = PageContext.EDITOR
         elif isinstance(context, aqt.reviewer.Reviewer):
             page_context = PageContext.REVIEWER
+        elif isinstance(context, aqt.browser.previewer.Previewer):
+            page_context = PageContext.PREVIEWER
+        elif isinstance(context, aqt.clayout.CardLayout):
+            page_context = PageContext.CARD_LAYOUT
         else:
             page_context = PageContext.UNKNOWN
         self.setHtml(html, page_context)
