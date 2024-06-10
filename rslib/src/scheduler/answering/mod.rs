@@ -34,6 +34,8 @@ use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
 use crate::scheduler::states::PreviewState;
 use crate::search::SearchNode;
 
+use super::states::load_balancer::LoadBalancer;
+
 #[derive(Copy, Clone)]
 pub enum Rating {
     Again,
@@ -77,7 +79,7 @@ impl CardStateUpdater {
     /// Returns information required when transitioning from one card state to
     /// another with `next_states()`. This separate structure decouples the
     /// state handling code from the rest of the Anki codebase.
-    pub(crate) fn state_context(&self) -> StateContext<'_> {
+    pub(crate) fn state_context<'a>(&'a self, load_balancer: Option<LoadBalancer<'a>>) -> StateContext<'a> {
         StateContext {
             fuzz_factor: get_fuzz_factor(self.fuzz_seed),
             steps: self.learn_steps(),
@@ -89,6 +91,7 @@ impl CardStateUpdater {
             interval_multiplier: self.config.inner.interval_multiplier,
             maximum_review_interval: self.config.inner.maximum_review_interval,
             leech_threshold: self.config.inner.leech_threshold,
+            load_balancer,
             relearn_steps: self.relearn_steps(),
             lapse_multiplier: self.config.inner.lapse_multiplier,
             minimum_lapse_interval: self.config.inner.minimum_lapse_interval,
@@ -215,9 +218,12 @@ impl Collection {
     /// Return the next states that will be applied for each answer button.
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
+        let note_id = card.note_id;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
-        let state_ctx = ctx.state_context();
+        let today = self.timing_today()?.days_elapsed;
+        let load_balancer = LoadBalancer::full_collection(today, &self.storage, note_id, true);
+        let state_ctx = ctx.state_context(Some(load_balancer));
         Ok(current.next_states(&state_ctx))
     }
 
