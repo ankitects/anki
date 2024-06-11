@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::cmp::Ordering;
+use std::collections::HashSet;
+
 use crate::decks::DeckId;
 use crate::notes::NoteId;
 use crate::storage::SqliteStorage;
-use std::cmp::Ordering;
-use std::collections::HashSet;
 
 const MAX_LOAD_BALANCE_INTERVAL: u32 = 90;
 const PERCENT_BEFORE: f32 = 0.1;
@@ -106,7 +107,8 @@ impl<'a> LoadBalancer<'a> {
             .map(|cards| cards.iter().map(|card| card.1).collect::<HashSet<_>>())
             .collect::<Vec<_>>();
 
-        // find the day with fewest number of cards, falling back to distance from the initial interval
+        // find the day with fewest number of cards, falling back to distance from the
+        // initial interval
         let interval_modifier = intervals_to_check
             .into_iter()
             .min_by(|a, b| {

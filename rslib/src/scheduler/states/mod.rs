@@ -18,6 +18,7 @@ pub use filtered::FilteredState;
 use fsrs::NextStates;
 pub(crate) use interval_kind::IntervalKind;
 pub use learning::LearnState;
+use load_balancer::LoadBalancer;
 pub use new::NewState;
 pub use normal::NormalState;
 pub use preview_filter::PreviewState;
@@ -28,7 +29,6 @@ pub use review::ReviewState;
 use self::steps::LearningSteps;
 use crate::revlog::RevlogReviewKind;
 use crate::scheduler::answering::PreviewDelays;
-use load_balancer::LoadBalancer;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CardState {
