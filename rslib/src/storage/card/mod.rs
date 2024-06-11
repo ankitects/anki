@@ -581,38 +581,57 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn get_all_cards_due_in_range(&self, min_day: u32, max_day: u32) -> Result<Vec<Vec<(CardId, NoteId)>>> {
-        Ok(self.db
-           .prepare_cached(
-               "select id, nid, due from cards where due >= ?1 and due < ?2 "
-           )?
-           .query_and_then([min_day, max_day], |row: &Row| {
-               Ok::<_, rusqlite::Error>((row.get::<_, CardId>(0)?,
-                                         row.get::<_, NoteId>(1)?,
-                                         row.get::<_,    i32>(2)?))
-           })?
-           .flatten()
-           .fold(vec![Vec::new(); (max_day - min_day) as usize], |mut acc, (card_id, note_id, due)| {
-               acc[due as usize - min_day as usize].push((card_id, note_id));
-               acc
-           }))
+    pub(crate) fn get_all_cards_due_in_range(
+        &self,
+        min_day: u32,
+        max_day: u32,
+    ) -> Result<Vec<Vec<(CardId, NoteId)>>> {
+        Ok(self
+            .db
+            .prepare_cached("select id, nid, due from cards where due >= ?1 and due < ?2 ")?
+            .query_and_then([min_day, max_day], |row: &Row| {
+                Ok::<_, rusqlite::Error>((
+                    row.get::<_, CardId>(0)?,
+                    row.get::<_, NoteId>(1)?,
+                    row.get::<_, i32>(2)?,
+                ))
+            })?
+            .flatten()
+            .fold(
+                vec![Vec::new(); (max_day - min_day) as usize],
+                |mut acc, (card_id, note_id, due)| {
+                    acc[due as usize - min_day as usize].push((card_id, note_id));
+                    acc
+                },
+            ))
     }
 
-    pub(crate) fn get_cards_in_deck_due_in_range(&self, min_day: u32, max_day: u32, deck_id: DeckId) -> Result<Vec<Vec<(CardId, NoteId)>>> {
-        Ok(self.db
-           .prepare_cached(
-               "select id, nid, due from cards where due >= ?1 and due < ?2 and did = ?3"
-           )?
-           .query_and_then(params![min_day, max_day, deck_id], |row: &Row| {
-               Ok::<_, rusqlite::Error>((row.get::<_, CardId>(0)?,
-                                         row.get::<_, NoteId>(1)?,
-                                         row.get::<_,    i32>(2)?))
-           })?
-           .flatten()
-           .fold(vec![Vec::new(); (max_day - min_day) as usize], |mut acc, (card_id, note_id, due)| {
-               acc[due as usize - min_day as usize].push((card_id, note_id));
-               acc
-           }))
+    pub(crate) fn get_cards_in_deck_due_in_range(
+        &self,
+        min_day: u32,
+        max_day: u32,
+        deck_id: DeckId,
+    ) -> Result<Vec<Vec<(CardId, NoteId)>>> {
+        Ok(self
+            .db
+            .prepare_cached(
+                "select id, nid, due from cards where due >= ?1 and due < ?2 and did = ?3",
+            )?
+            .query_and_then(params![min_day, max_day, deck_id], |row: &Row| {
+                Ok::<_, rusqlite::Error>((
+                    row.get::<_, CardId>(0)?,
+                    row.get::<_, NoteId>(1)?,
+                    row.get::<_, i32>(2)?,
+                ))
+            })?
+            .flatten()
+            .fold(
+                vec![Vec::new(); (max_day - min_day) as usize],
+                |mut acc, (card_id, note_id, due)| {
+                    acc[due as usize - min_day as usize].push((card_id, note_id));
+                    acc
+                },
+            ))
     }
 
     pub(crate) fn congrats_info(&self, current: &Deck, today: u32) -> Result<CongratsInfo> {

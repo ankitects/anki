@@ -63,15 +63,16 @@ impl ReviewState {
     pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         let (hard_interval, good_interval, easy_interval) = self.passing_review_intervals(ctx);
 
-        let (hard_interval, good_interval, easy_interval) = ctx.load_balancer
-            .as_ref()
-            .map_or(
-                (hard_interval, good_interval, easy_interval),
-                |load_balancer| {
-                    (load_balancer.find_interval(hard_interval),
-                     load_balancer.find_interval(good_interval),
-                     load_balancer.find_interval(easy_interval))
-                });
+        let (hard_interval, good_interval, easy_interval) = ctx.load_balancer.as_ref().map_or(
+            (hard_interval, good_interval, easy_interval),
+            |load_balancer| {
+                (
+                    load_balancer.find_interval(hard_interval),
+                    load_balancer.find_interval(good_interval),
+                    load_balancer.find_interval(easy_interval),
+                )
+            },
+        );
 
         SchedulingStates {
             current: self.into(),

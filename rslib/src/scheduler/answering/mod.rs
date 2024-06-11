@@ -79,7 +79,10 @@ impl CardStateUpdater {
     /// Returns information required when transitioning from one card state to
     /// another with `next_states()`. This separate structure decouples the
     /// state handling code from the rest of the Anki codebase.
-    pub(crate) fn state_context<'a>(&'a self, load_balancer: Option<LoadBalancer<'a>>) -> StateContext<'a> {
+    pub(crate) fn state_context<'a>(
+        &'a self,
+        load_balancer: Option<LoadBalancer<'a>>,
+    ) -> StateContext<'a> {
         StateContext {
             fuzz_factor: get_fuzz_factor(self.fuzz_seed),
             steps: self.learn_steps(),
@@ -231,19 +234,17 @@ impl Collection {
                     &self.storage,
                     note_id,
                     deck_id,
-                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings)
+                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings),
                 ))
-            }
-            else {
+            } else {
                 Some(LoadBalancer::new_from_collection(
                     today,
                     &self.storage,
                     note_id,
-                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings)
+                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings),
                 ))
             }
-        }
-        else {
+        } else {
             None
         };
         let state_ctx = ctx.state_context(load_balancer);

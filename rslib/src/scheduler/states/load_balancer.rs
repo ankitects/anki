@@ -1,16 +1,16 @@
-use std::collections::HashSet;
-use std::cmp::Ordering;
-use crate::storage::SqliteStorage;
-use crate::notes::NoteId;
 use crate::decks::DeckId;
+use crate::notes::NoteId;
+use crate::storage::SqliteStorage;
+use std::cmp::Ordering;
+use std::collections::HashSet;
 
 const MAX_LOAD_BALANCE_INTERVAL: u32 = 90;
 const PERCENT_BEFORE: f32 = 0.1;
 const PERCENT_AFTER: f32 = 0.1;
 const DAYS_MIN_BEFORE: i32 = 1;
-const DAYS_MIN_AFTER : i32 = 1;
+const DAYS_MIN_AFTER: i32 = 1;
 const DAYS_MAX_BEFORE: i32 = 6;
-const DAYS_MAX_AFTER : i32 = 4;
+const DAYS_MAX_AFTER: i32 = 4;
 
 pub struct LoadBalancer<'a> {
     today: u32,
@@ -21,7 +21,12 @@ pub struct LoadBalancer<'a> {
 }
 
 impl<'a> LoadBalancer<'a> {
-    pub fn new_from_collection(today: u32, storage: &'a SqliteStorage, note_id: NoteId, avoid_siblings: bool) -> LoadBalancer<'a> {
+    pub fn new_from_collection(
+        today: u32,
+        storage: &'a SqliteStorage,
+        note_id: NoteId,
+        avoid_siblings: bool,
+    ) -> LoadBalancer<'a> {
         LoadBalancer {
             today,
             note_id,
@@ -31,7 +36,13 @@ impl<'a> LoadBalancer<'a> {
         }
     }
 
-    pub fn new_from_deck(today: u32, storage: &'a SqliteStorage, note_id: NoteId, deck_id: DeckId, avoid_siblings: bool) -> LoadBalancer<'a> {
+    pub fn new_from_deck(
+        today: u32,
+        storage: &'a SqliteStorage,
+        note_id: NoteId,
+        deck_id: DeckId,
+        avoid_siblings: bool,
+    ) -> LoadBalancer<'a> {
         LoadBalancer {
             today,
             note_id,
@@ -48,10 +59,10 @@ impl<'a> LoadBalancer<'a> {
         }
 
         // determine the range of days to check
-        let before_range = ((interval as f32 * PERCENT_BEFORE) as i32)
-            .clamp(DAYS_MIN_BEFORE, DAYS_MAX_BEFORE);
-        let after_range = ((interval as f32 * PERCENT_AFTER) as i32)
-            .clamp(DAYS_MIN_AFTER, DAYS_MAX_AFTER);
+        let before_range =
+            ((interval as f32 * PERCENT_BEFORE) as i32).clamp(DAYS_MIN_BEFORE, DAYS_MAX_BEFORE);
+        let after_range =
+            ((interval as f32 * PERCENT_AFTER) as i32).clamp(DAYS_MIN_AFTER, DAYS_MAX_AFTER);
 
         let before_days = (interval as i32 - before_range).max(1);
         let after_days = interval as i32 + after_range + 1; // +1 to make the range inclusive of the actual value
@@ -64,36 +75,32 @@ impl<'a> LoadBalancer<'a> {
         // just default to the earliest date? it is how the old
         // addon used to do it...
         let intervals_to_check = (before_days..interval as i32)
-            .map(|before| {
-                before - interval as i32
-            })
-            .chain(
-                (interval as i32..after_days)
-                    .map(|after| {
-                        after - interval as i32
-                    })
-            )
+            .map(|before| before - interval as i32)
+            .chain((interval as i32..after_days).map(|after| after - interval as i32))
             .enumerate()
             .collect::<Vec<_>>();
 
         let cards = if let Some(deck_id) = self.deck_id {
-            self.storage.get_cards_in_deck_due_in_range(self.today + before_days as u32, self.today + after_days as u32, deck_id).unwrap()
-        }
-        else {
-            self.storage.get_all_cards_due_in_range(self.today + before_days as u32, self.today + after_days as u32).unwrap()
+            self.storage
+                .get_cards_in_deck_due_in_range(
+                    self.today + before_days as u32,
+                    self.today + after_days as u32,
+                    deck_id,
+                )
+                .unwrap()
+        } else {
+            self.storage
+                .get_all_cards_due_in_range(
+                    self.today + before_days as u32,
+                    self.today + after_days as u32,
+                )
+                .unwrap()
         };
 
         // table to look up if there are siblings for a card on a day
         let notes = cards
             .iter()
-            .map(|cards| {
-                cards
-                    .iter()
-                    .map(|card| {
-                        card.1
-                    })
-                    .collect::<HashSet<_>>()
-            })
+            .map(|cards| cards.iter().map(|card| card.1).collect::<HashSet<_>>())
             .collect::<Vec<_>>();
 
         // find the day with fewest number of cards, falling back to distance from the initial interval
@@ -113,9 +120,7 @@ impl<'a> LoadBalancer<'a> {
                 match a_len.cmp(&b_len) {
                     Ordering::Greater => Ordering::Greater,
                     Ordering::Less => Ordering::Less,
-                    Ordering::Equal => {
-                        a.1.abs().cmp(&b.1.abs())
-                    }
+                    Ordering::Equal => a.1.abs().cmp(&b.1.abs()),
                 }
             })
             .map(|interval| interval.1)
