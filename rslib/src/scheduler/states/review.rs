@@ -12,8 +12,6 @@ use super::StateContext;
 use crate::card::FsrsMemoryState;
 use crate::revlog::RevlogReviewKind;
 
-use super::load_balancer::LoadBalancer;
-
 pub const INITIAL_EASE_FACTOR: f32 = 2.5;
 pub const MINIMUM_EASE_FACTOR: f32 = 1.3;
 pub const EASE_FACTOR_AGAIN_DELTA: f32 = -0.2;
@@ -62,7 +60,7 @@ impl ReviewState {
         }
     }
 
-    pub(crate) fn next_states<'a>(self, ctx: &StateContext) -> SchedulingStates {
+    pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         let (hard_interval, good_interval, easy_interval) = self.passing_review_intervals(ctx);
 
         let (hard_interval, good_interval, easy_interval) = ctx.load_balancer

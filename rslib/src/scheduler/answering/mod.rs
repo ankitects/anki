@@ -227,10 +227,21 @@ impl Collection {
 
         let load_balancer = if self.get_config_bool(BoolKey::LoadBalancerEnable) {
             if self.get_config_bool(BoolKey::LoadBalancerPerDeck) {
-                Some(LoadBalancer::new_from_deck(today, &self.storage, note_id, deck_id, self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings)))
+                Some(LoadBalancer::new_from_deck(
+                    today,
+                    &self.storage,
+                    note_id,
+                    deck_id,
+                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings)
+                ))
             }
             else {
-                Some(LoadBalancer::new_from_collection(today, &self.storage, note_id, self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings)))
+                Some(LoadBalancer::new_from_collection(
+                    today,
+                    &self.storage,
+                    note_id,
+                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings)
+                ))
             }
         }
         else {

@@ -3,8 +3,6 @@ use std::cmp::Ordering;
 use crate::storage::SqliteStorage;
 use crate::notes::NoteId;
 use crate::decks::DeckId;
-//use crate::card::Card;
-
 
 const MAX_LOAD_BALANCE_INTERVAL: u32 = 90;
 const PERCENT_BEFORE: f32 = 0.1;
@@ -13,7 +11,6 @@ const DAYS_MIN_BEFORE: i32 = 1;
 const DAYS_MIN_AFTER : i32 = 1;
 const DAYS_MAX_BEFORE: i32 = 6;
 const DAYS_MAX_AFTER : i32 = 4;
-
 
 pub struct LoadBalancer<'a> {
     today: u32,
@@ -123,11 +120,9 @@ impl<'a> LoadBalancer<'a> {
                     }
                 }
             })
-            .unwrap_or((0, 0));
+            .map(|interval| interval.1)
+            .unwrap_or(0);
 
-        let interval_modifier = interval_modifier.1;
-
-        
         (interval as i32 + interval_modifier) as u32
     }
 

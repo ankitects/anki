@@ -122,7 +122,9 @@ class Preferences(QDialog):
         form.load_balancer_avoid_siblings.setChecked(reviewing.load_balancer_avoid_siblings)
         form.load_balancer_per_deck.setChecked(reviewing.load_balancer_per_deck)
 
-        form.load_balancer_enable.stateChanged.connect(lambda: [cb.setEnabled(form.load_balancer_enable.isChecked()) for cb in [form.load_balancer_avoid_siblings, form.load_balancer_per_deck]])
+        form.load_balancer_enable.stateChanged.connect(
+            lambda: [cb.setEnabled(form.load_balancer_enable.isChecked())
+                     for cb in [form.load_balancer_avoid_siblings, form.load_balancer_per_deck]])
         if reviewing.load_balancer_enable:
             form.load_balancer_avoid_siblings.setEnabled(True)
             form.load_balancer_per_deck.setEnabled(True)
