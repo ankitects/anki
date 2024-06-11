@@ -119,12 +119,20 @@ class Preferences(QDialog):
         form.showPlayButtons.setChecked(not reviewing.hide_audio_play_buttons)
         form.interrupt_audio.setChecked(reviewing.interrupt_audio_when_answering)
         form.load_balancer_enable.setChecked(reviewing.load_balancer_enable)
-        form.load_balancer_avoid_siblings.setChecked(reviewing.load_balancer_avoid_siblings)
+        form.load_balancer_avoid_siblings.setChecked(
+            reviewing.load_balancer_avoid_siblings
+        )
         form.load_balancer_per_deck.setChecked(reviewing.load_balancer_per_deck)
 
         form.load_balancer_enable.stateChanged.connect(
-            lambda: [cb.setEnabled(form.load_balancer_enable.isChecked())
-                     for cb in [form.load_balancer_avoid_siblings, form.load_balancer_per_deck]])
+            lambda: [
+                cb.setEnabled(form.load_balancer_enable.isChecked())
+                for cb in [
+                    form.load_balancer_avoid_siblings,
+                    form.load_balancer_per_deck,
+                ]
+            ]
+        )
         if reviewing.load_balancer_enable:
             form.load_balancer_avoid_siblings.setEnabled(True)
             form.load_balancer_per_deck.setEnabled(True)
@@ -161,7 +169,9 @@ class Preferences(QDialog):
         reviewing.hide_audio_play_buttons = not self.form.showPlayButtons.isChecked()
         reviewing.interrupt_audio_when_answering = self.form.interrupt_audio.isChecked()
         reviewing.load_balancer_enable = self.form.load_balancer_enable.isChecked()
-        reviewing.load_balancer_avoid_siblings = self.form.load_balancer_avoid_siblings.isChecked()
+        reviewing.load_balancer_avoid_siblings = (
+            self.form.load_balancer_avoid_siblings.isChecked()
+        )
         reviewing.load_balancer_per_deck = self.form.load_balancer_per_deck.isChecked()
 
         editing = self.prefs.editing
