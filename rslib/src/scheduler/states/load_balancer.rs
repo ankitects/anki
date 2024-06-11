@@ -65,12 +65,12 @@ impl<'a> LoadBalancer<'a> {
         // addon used to do it...
         let intervals_to_check = (before_days..interval as i32)
             .map(|before| {
-                before as i32 - interval as i32
+                before - interval as i32
             })
             .chain(
                 (interval as i32..after_days)
                     .map(|after| {
-                        after as i32 - interval as i32
+                        after - interval as i32
                     })
             )
             .enumerate()
@@ -106,10 +106,8 @@ impl<'a> LoadBalancer<'a> {
                 let a_has_sibling = notes[a.0].contains(&self.note_id);
                 let b_has_sibling = notes[b.0].contains(&self.note_id);
 
-                if self.avoid_siblings {
-                    if a_has_sibling != b_has_sibling {
-                        return a_has_sibling.cmp(&b_has_sibling);
-                    }
+                if self.avoid_siblings && a_has_sibling != b_has_sibling {
+                    return a_has_sibling.cmp(&b_has_sibling);
                 }
 
                 match a_len.cmp(&b_len) {
