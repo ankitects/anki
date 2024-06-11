@@ -123,5 +123,4 @@ impl<'a> LoadBalancer<'a> {
 
         (interval as i32 + interval_modifier) as u32
     }
-
 }

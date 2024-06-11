@@ -16,6 +16,7 @@ use revlog::RevlogEntryPartial;
 
 use super::fsrs::weights::ignore_revlogs_before_ms_from_config;
 use super::queue::BuryMode;
+use super::states::load_balancer::LoadBalancer;
 use super::states::steps::LearningSteps;
 use super::states::CardState;
 use super::states::FilteredState;
@@ -34,8 +35,6 @@ use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
 use crate::scheduler::states::PreviewState;
 use crate::search::SearchNode;
-
-use super::states::load_balancer::LoadBalancer;
 
 #[derive(Copy, Clone)]
 pub enum Rating {

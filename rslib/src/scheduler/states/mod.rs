@@ -30,7 +30,6 @@ use crate::revlog::RevlogReviewKind;
 use crate::scheduler::answering::PreviewDelays;
 use load_balancer::LoadBalancer;
 
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CardState {
     Normal(NormalState),
