@@ -119,7 +119,7 @@ message Preferences {
     bool show_intervals_on_buttons = 4;
     uint32 time_limit_secs = 5;
     bool load_balancer_enable = 6;
-    bool load_balancer_avoid_siblings  = 7;
+    bool load_balancer_avoid_siblings = 7;
     bool load_balancer_per_deck = 8;
   }
   message Editing {
