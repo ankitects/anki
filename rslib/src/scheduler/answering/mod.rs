@@ -26,6 +26,7 @@ use super::timespan::answer_button_time_collapsible;
 use super::timing::SchedTimingToday;
 use crate::card::CardQueue;
 use crate::card::CardType;
+use crate::config::BoolKey;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
@@ -218,12 +219,24 @@ impl Collection {
     /// Return the next states that will be applied for each answer button.
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
+        let deck_id = card.deck_id;
         let note_id = card.note_id;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
         let today = self.timing_today()?.days_elapsed;
-        let load_balancer = LoadBalancer::full_collection(today, &self.storage, note_id, true);
-        let state_ctx = ctx.state_context(Some(load_balancer));
+
+        let load_balancer = if self.get_config_bool(BoolKey::LoadBalancerEnable) {
+            if self.get_config_bool(BoolKey::LoadBalancerPerDeck) {
+                Some(LoadBalancer::new_from_deck(today, &self.storage, note_id, deck_id, self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings)))
+            }
+            else {
+                Some(LoadBalancer::new_from_collection(today, &self.storage, note_id, self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings)))
+            }
+        }
+        else {
+            None
+        };
+        let state_ctx = ctx.state_context(load_balancer);
         Ok(current.next_states(&state_ctx))
     }
 

@@ -2,12 +2,13 @@ use std::collections::HashSet;
 use std::cmp::Ordering;
 use crate::storage::SqliteStorage;
 use crate::notes::NoteId;
+use crate::decks::DeckId;
 //use crate::card::Card;
 
 
 const MAX_LOAD_BALANCE_INTERVAL: u32 = 90;
-const PERCENT_BEFORE: f32 = 0.2;
-const PERCENT_AFTER: f32 = 0.2;
+const PERCENT_BEFORE: f32 = 0.1;
+const PERCENT_AFTER: f32 = 0.1;
 const DAYS_MIN_BEFORE: i32 = 1;
 const DAYS_MIN_AFTER : i32 = 1;
 const DAYS_MAX_BEFORE: i32 = 6;
@@ -17,17 +18,29 @@ const DAYS_MAX_AFTER : i32 = 4;
 pub struct LoadBalancer<'a> {
     today: u32,
     note_id: NoteId,
+    deck_id: Option<DeckId>,
     avoid_siblings: bool,
     storage: &'a SqliteStorage,
 }
 
 impl<'a> LoadBalancer<'a> {
-    pub fn full_collection(today: u32, storage: &'a SqliteStorage, note_id: NoteId, avoid_siblings: bool) -> LoadBalancer<'a> {
+    pub fn new_from_collection(today: u32, storage: &'a SqliteStorage, note_id: NoteId, avoid_siblings: bool) -> LoadBalancer<'a> {
         LoadBalancer {
             today,
             note_id,
             avoid_siblings,
             storage,
+            deck_id: None,
+        }
+    }
+
+    pub fn new_from_deck(today: u32, storage: &'a SqliteStorage, note_id: NoteId, deck_id: DeckId, avoid_siblings: bool) -> LoadBalancer<'a> {
+        LoadBalancer {
+            today,
+            note_id,
+            avoid_siblings,
+            storage,
+            deck_id: Some(deck_id),
         }
     }
 
@@ -35,7 +48,7 @@ impl<'a> LoadBalancer<'a> {
         // if we're sending a card far out into the future, the need to balance is low
         if interval > MAX_LOAD_BALANCE_INTERVAL {
             return interval;
-        } 
+        }
 
         // determine the range of days to check
         let before_range = ((interval as f32 * PERCENT_BEFORE) as i32)
@@ -44,7 +57,7 @@ impl<'a> LoadBalancer<'a> {
             .clamp(DAYS_MIN_AFTER, DAYS_MAX_AFTER);
 
         let before_days = (interval as i32 - before_range).max(1);
-        let after_days = interval as i32 + after_range;
+        let after_days = interval as i32 + after_range + 1; // +1 to make the range inclusive of the actual value
 
         // ok this looks weird but its a totally reasonable thing
         // I want to be as close to the original interval as possible
@@ -66,7 +79,14 @@ impl<'a> LoadBalancer<'a> {
             .enumerate()
             .collect::<Vec<_>>();
 
-        let cards = self.storage.get_all_cards_due_in_range(self.today + before_days as u32, self.today + after_days as u32).unwrap();
+        let cards = if let Some(deck_id) = self.deck_id {
+            self.storage.get_cards_in_deck_due_in_range(self.today + before_days as u32, self.today + after_days as u32, deck_id).unwrap()
+        }
+        else {
+            self.storage.get_all_cards_due_in_range(self.today + before_days as u32, self.today + after_days as u32).unwrap()
+        };
+
+        // table to look up if there are siblings for a card on a day
         let notes = cards
             .iter()
             .map(|cards| {
