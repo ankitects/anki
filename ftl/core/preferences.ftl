@@ -77,6 +77,8 @@ preferences-network-timeout = Network timeout
 preferences-reset-window-sizes = Reset Window Sizes
 preferences-reset-window-sizes-complete = Window sizes and locations have been reset.
 preferences-shortcut-placeholder = Enter an unused shortcut key, or leave empty to disable.
+preferences-ankihub-account = AnkiHub Account
+preferences-ankihub-not-logged-in = Not currently logged in to AnkiHub.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

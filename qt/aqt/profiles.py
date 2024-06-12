@@ -708,3 +708,15 @@ create table if not exists profiles
 
     def network_timeout(self) -> int:
         return self.profile.get("networkTimeout") or 60
+
+    def set_ankihub_token(self, val: str | None) -> None:
+        self.profile["ankiHubToken"] = val
+
+    def ankihub_token(self) -> str | None:
+        return self.profile.get("ankiHubToken")
+
+    def set_ankihub_username(self, val: str | None) -> None:
+        self.profile["ankiHubUsername"] = val
+
+    def ankihub_username(self) -> str | None:
+        return self.profile.get("ankiHubUsername")

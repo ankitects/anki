@@ -201,6 +201,8 @@ class Preferences(QDialog):
         self.update_login_status()
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
         qconnect(self.form.syncLogin.clicked, self.sync_login)
+        qconnect(self.form.syncAnkiHubLogout.clicked, self.ankihub_sync_logout)
+        qconnect(self.form.syncAnkiHubLogin.clicked, self.ankihub_sync_login)
 
     def update_login_status(self) -> None:
         if not self.prof.get("syncKey"):
@@ -211,6 +213,15 @@ class Preferences(QDialog):
             self.form.syncUser.setText(self.prof.get("syncUser", ""))
             self.form.syncLogin.setVisible(False)
             self.form.syncLogout.setVisible(True)
+
+        if not self.mw.pm.ankihub_token():
+            self.form.syncAnkiHubUser.setText(tr.preferences_ankihub_not_logged_in())
+            self.form.syncAnkiHubLogin.setVisible(True)
+            self.form.syncAnkiHubLogout.setVisible(False)
+        else:
+            self.form.syncAnkiHubUser.setText(self.mw.pm.ankihub_username())
+            self.form.syncAnkiHubLogin.setVisible(False)
+            self.form.syncAnkiHubLogout.setVisible(True)
 
     def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
@@ -229,6 +240,14 @@ class Preferences(QDialog):
             return
         self.prof["syncKey"] = None
         self.mw.col.media.force_resync()
+        self.update_login_status()
+
+    def ankihub_sync_login(self) -> None:
+        # TODO
+        pass
+
+    def ankihub_sync_logout(self) -> None:
+        self.mw.pm.set_ankihub_token(None)
         self.update_login_status()
 
     def confirm_sync_after_login(self) -> None:
