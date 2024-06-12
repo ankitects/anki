@@ -206,7 +206,7 @@ class Preferences(QDialog):
 
     def update_login_status(self) -> None:
         if not self.prof.get("syncKey"):
-            self.form.syncUser.setText(tr.preferences_not_logged_in())
+            self.form.syncUser.setText(tr.preferences_ankiweb_intro())
             self.form.syncLogin.setVisible(True)
             self.form.syncLogout.setVisible(False)
         else:
@@ -215,7 +215,7 @@ class Preferences(QDialog):
             self.form.syncLogout.setVisible(True)
 
         if not self.mw.pm.ankihub_token():
-            self.form.syncAnkiHubUser.setText(tr.preferences_ankihub_not_logged_in())
+            self.form.syncAnkiHubUser.setText(tr.preferences_ankihub_intro())
             self.form.syncAnkiHubLogin.setVisible(True)
             self.form.syncAnkiHubLogout.setVisible(False)
         else:
