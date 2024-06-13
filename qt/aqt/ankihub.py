@@ -50,7 +50,7 @@ def ankihub_login(
         if not resp.token and resp.server_errors:
             showWarning(
                 tr.sync_ankihub_server_error()
-                + "<br><br>"
+                + ":<br><br>"
                 + "<br>".join(resp.server_errors),
                 parent=mw,
             )
