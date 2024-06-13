@@ -102,10 +102,16 @@ impl<'a> LoadBalancer<'a> {
         };
 
         // table to look up if there are siblings for a card on a day
-        let notes = cards
-            .iter()
-            .map(|cards| cards.iter().map(|card| card.1).collect::<HashSet<_>>())
-            .collect::<Vec<_>>();
+        let notes_on_days = if self.avoid_siblings {
+            Some(
+                cards
+                    .iter()
+                    .map(|cards| cards.iter().map(|card| card.1).collect::<HashSet<_>>())
+                    .collect::<Vec<_>>(),
+            )
+        } else {
+            None
+        };
 
         // find the day with fewest number of cards, falling back to distance from the
         // initial interval
@@ -115,11 +121,13 @@ impl<'a> LoadBalancer<'a> {
                 let a_len = cards[a.0].len();
                 let b_len = cards[b.0].len();
 
-                let a_has_sibling = notes[a.0].contains(&self.note_id);
-                let b_has_sibling = notes[b.0].contains(&self.note_id);
+                if let Some(notes_on_days) = &notes_on_days {
+                    let a_has_sibling = notes_on_days[a.0].contains(&self.note_id);
+                    let b_has_sibling = notes_on_days[b.0].contains(&self.note_id);
 
-                if self.avoid_siblings && a_has_sibling != b_has_sibling {
-                    return a_has_sibling.cmp(&b_has_sibling);
+                    if a_has_sibling != b_has_sibling {
+                        return a_has_sibling.cmp(&b_has_sibling);
+                    }
                 }
 
                 match a_len.cmp(&b_len) {
