@@ -92,6 +92,7 @@ def get_id_and_pass_from_user(
     diag.setWindowTitle("Anki")
     disable_help_button(diag)
     diag.setWindowModality(Qt.WindowModality.WindowModal)
+    diag.setMinimumWidth(600)
     vbox = QVBoxLayout()
     info_label = QLabel(
         f"<h1>{tr.sync_ankihub_dialog_heading()}</h1>{tr.preferences_ankihub_intro()}"
