@@ -8,6 +8,7 @@ from typing import Callable
 
 import aqt
 import aqt.main
+from anki.collection import AnkiHubLoginResponse
 from anki.lang import without_unicode_isolation
 from aqt.qt import (
     QDialog,
@@ -20,7 +21,7 @@ from aqt.qt import (
     QVBoxLayout,
     qconnect,
 )
-from aqt.utils import disable_help_button, tr
+from aqt.utils import disable_help_button, showWarning, tr
 
 
 def ankihub_login(
@@ -39,16 +40,44 @@ def ankihub_login(
         if username and password:
             break
 
-    def on_future_done(fut: Future[str]) -> None:
-        token = fut.result()
-        mw.pm.set_ankihub_token(token)
-        mw.pm.set_ankihub_username(username)
+    def on_future_done(fut: Future[AnkiHubLoginResponse]) -> None:
+        try:
+            resp = fut.result()
+        except Exception as exc:
+            showWarning(str(exc))
+            return
+
+        if not resp.token and resp.server_errors:
+            showWarning(
+                tr.sync_ankihub_server_error()
+                + "<br><br>"
+                + "<br>".join(resp.server_errors),
+                parent=mw,
+            )
+            ankihub_login(mw, on_success, username, password)
+            return
+        else:
+            mw.pm.set_ankihub_token(resp.token)
+            mw.pm.set_ankihub_username(username)
 
         on_success()
 
     mw.taskman.with_progress(
         lambda: mw.col.ankihub_login(username=username, password=password),
         on_future_done,
+        parent=mw,
+    )
+
+
+def ankihub_logout(
+    mw: aqt.main.AnkiQt,
+    on_success: Callable[[], None],
+    token: str,
+) -> None:
+    mw.taskman.with_progress(
+        lambda: mw.col.ankihub_logout(token=token),
+        # We don't need to wait for the response
+        lambda _: on_success(),
         parent=mw,
     )
 

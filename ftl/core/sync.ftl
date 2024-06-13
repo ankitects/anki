@@ -58,7 +58,7 @@ sync-ankihub-dialog-heading = Enable AnkiHub?
 sync-ankihub-username-label = Username or Email:
 sync-ankihub-signup-label = Don't have an AnkiHub account? <a href="{ $signup_link }">Sign up now</a><br><a href="{ $password_reset_link }">Forgot password?</a>
 sync-ankihub-sign-in-button-label = Sign in
-
+sync-ankihub-server-error = AnkiHub encountered one or more errors
 ## Buttons
 
 sync-media-log-button = Media Log
