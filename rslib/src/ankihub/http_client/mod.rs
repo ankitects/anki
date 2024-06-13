@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
+
 use reqwest::Client;
 use reqwest::Response;
 use reqwest::Result;
@@ -10,6 +12,7 @@ use serde::Serialize;
 use crate::ankihub::login::LoginRequest;
 
 static API_VERSION: &str = "18.0";
+static DEFAULT_API_URL: &str = "https://app.ankihub.net/api/";
 
 #[derive(Clone)]
 pub struct HttpAnkiHubClient {
@@ -20,9 +23,19 @@ pub struct HttpAnkiHubClient {
 
 impl HttpAnkiHubClient {
     pub fn new<S: Into<String>>(token: S, client: Client) -> HttpAnkiHubClient {
+        let endpoint = match env::var("ANKIHUB_APP_URL") {
+            Ok(url) => {
+                if let Ok(u) = Url::try_from(url.as_str()) {
+                    u.join("api/").unwrap().to_string()
+                } else {
+                    DEFAULT_API_URL.to_string()
+                }
+            }
+            Err(_) => DEFAULT_API_URL.to_string(),
+        };
         HttpAnkiHubClient {
             token: token.into(),
-            endpoint: Url::try_from("https://app.ankihub.net/api/").unwrap(),
+            endpoint: Url::try_from(endpoint.as_str()).unwrap(),
             client,
         }
     }
