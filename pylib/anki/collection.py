@@ -1120,6 +1120,10 @@ class Collection(DeprecatedNamesMixin):
         "This will throw if the sync failed with an error."
         return self._backend.media_sync_status()
 
+    def ankihub_login(self, username: str, password: str) -> str:
+        # TODO
+        return ""
+
     def get_preferences(self) -> Preferences:
         return self._backend.get_preferences()
 

@@ -5,6 +5,7 @@ actions-cancel = Cancel
 actions-choose = Choose
 actions-close = Close
 actions-discard = Discard
+actions-skip = Skip
 actions-copy = Copy
 actions-create-copy = Create Copy
 actions-custom-study = Custom Study

@@ -12,6 +12,7 @@ import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
 from aqt import AnkiQt
+from aqt.ankihub import ankihub_login
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
@@ -243,8 +244,11 @@ class Preferences(QDialog):
         self.update_login_status()
 
     def ankihub_sync_login(self) -> None:
-        # TODO
-        pass
+        def on_success():
+            if self.mw.pm.ankihub_token():
+                self.update_login_status()
+
+        ankihub_login(self.mw, on_success, from_prefs_screen=True)
 
     def ankihub_sync_logout(self) -> None:
         self.mw.pm.set_ankihub_token(None)
