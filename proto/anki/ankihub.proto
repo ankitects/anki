@@ -18,7 +18,6 @@ service BackendAnkiHubService {
 
 message LoginResponse {
   string token = 1;
-  repeated string server_errors = 2;
 }
 
 message LoginRequest {

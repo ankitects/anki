@@ -11,7 +11,6 @@ impl From<LoginResponse> for anki_proto::ankihub::LoginResponse {
     fn from(value: LoginResponse) -> Self {
         anki_proto::ankihub::LoginResponse {
             token: value.token.unwrap_or_default(),
-            server_errors: value.non_field_errors.unwrap_or_default(),
         }
     }
 }

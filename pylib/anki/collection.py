@@ -6,7 +6,6 @@ from __future__ import annotations
 from typing import Any, Generator, Iterable, Literal, Sequence, Union, cast
 
 from anki import (
-    ankihub_pb2,
     ankiweb_pb2,
     card_rendering_pb2,
     collection_pb2,
@@ -58,7 +57,6 @@ CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
 MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
 FsrsItem = scheduler_pb2.FsrsItem
 FsrsReview = scheduler_pb2.FsrsReview
-AnkiHubLoginResponse = ankihub_pb2.LoginResponse
 
 import os
 import sys
@@ -1122,7 +1120,7 @@ class Collection(DeprecatedNamesMixin):
         "This will throw if the sync failed with an error."
         return self._backend.media_sync_status()
 
-    def ankihub_login(self, username: str, password: str) -> AnkiHubLoginResponse:
+    def ankihub_login(self, username: str, password: str) -> str:
         return self._backend.ankihub_login(username=username, password=password)
 
     def ankihub_logout(self, token: str) -> None:

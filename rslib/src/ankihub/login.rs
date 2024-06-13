@@ -18,7 +18,6 @@ pub struct LoginRequest {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LoginResponse {
     pub token: Option<String>,
-    pub non_field_errors: Option<Vec<String>>,
 }
 
 pub async fn ankihub_login<S: Into<String>>(

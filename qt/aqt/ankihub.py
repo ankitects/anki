@@ -8,7 +8,6 @@ from typing import Callable
 
 import aqt
 import aqt.main
-from anki.collection import AnkiHubLoginResponse
 from anki.lang import without_unicode_isolation
 from aqt.qt import (
     QDialog,
@@ -40,24 +39,19 @@ def ankihub_login(
         if username and password:
             break
 
-    def on_future_done(fut: Future[AnkiHubLoginResponse]) -> None:
+    def on_future_done(fut: Future[str]) -> None:
         try:
-            resp = fut.result()
+            token = fut.result()
         except Exception as exc:
             showWarning(str(exc))
             return
 
-        if not resp.token and resp.server_errors:
-            showWarning(
-                tr.sync_ankihub_server_error()
-                + ":<br><br>"
-                + "<br>".join(resp.server_errors),
-                parent=mw,
-            )
+        if not token:
+            showWarning(tr.sync_ankihub_login_failed(), parent=mw)
             ankihub_login(mw, on_success, username, password)
             return
         else:
-            mw.pm.set_ankihub_token(resp.token)
+            mw.pm.set_ankihub_token(token)
             mw.pm.set_ankihub_username(username)
 
         on_success()
