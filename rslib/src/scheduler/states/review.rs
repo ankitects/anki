@@ -181,23 +181,24 @@ impl ReviewState {
                 0
             }
         };
+        let fuzz = ctx.load_balancer.is_none();
         let hard = constrain_passing_interval(
             ctx,
             states.hard.interval as f32,
             greater_than_last(states.hard.interval).max(1),
-            true,
+            fuzz,
         );
         let good = constrain_passing_interval(
             ctx,
             states.good.interval as f32,
             greater_than_last(states.good.interval).max(hard + 1),
-            true,
+            fuzz,
         );
         let easy = constrain_passing_interval(
             ctx,
             states.easy.interval as f32,
             greater_than_last(states.easy.interval).max(good + 1),
-            true,
+            fuzz,
         );
         (hard, good, easy)
     }
@@ -205,6 +206,7 @@ impl ReviewState {
     fn passing_nonearly_review_intervals(self, ctx: &StateContext) -> (u32, u32, u32) {
         let current_interval = self.scheduled_days as f32;
         let days_late = self.days_late().max(0) as f32;
+        let fuzz = ctx.load_balancer.is_none();
 
         // hard
         let hard_factor = ctx.hard_multiplier;
@@ -225,14 +227,14 @@ impl ReviewState {
             ctx,
             (current_interval + days_late / 2.0) * self.ease_factor,
             good_minimum,
-            true,
+            fuzz,
         );
         // easy
         let easy_interval = constrain_passing_interval(
             ctx,
             (current_interval + days_late) * self.ease_factor * ctx.easy_multiplier,
             good_interval + 1,
-            true,
+            fuzz,
         );
 
         (hard_interval, good_interval, easy_interval)
