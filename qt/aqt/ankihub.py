@@ -48,7 +48,7 @@ def ankihub_login(
 
         if not token:
             showWarning(tr.sync_ankihub_login_failed(), parent=mw)
-            ankihub_login(mw, on_success, username, password)
+            ankihub_login(mw, on_success, username, password, from_prefs_screen)
             return
         else:
             mw.pm.set_ankihub_token(token)
