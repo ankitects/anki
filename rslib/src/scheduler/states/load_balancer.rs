@@ -76,17 +76,14 @@ impl<'a> LoadBalancer<'a> {
         let cards = if let Some(deck_id) = self.deck_id {
             self.storage
                 .get_cards_in_deck_due_in_range(
-                    self.today + before_days as u32,
-                    self.today + after_days as u32,
+                    self.today + before_days,
+                    self.today + after_days,
                     deck_id,
                 )
                 .unwrap()
         } else {
             self.storage
-                .get_all_cards_due_in_range(
-                    self.today + before_days as u32,
-                    self.today + after_days as u32,
-                )
+                .get_all_cards_due_in_range(self.today + before_days, self.today + after_days)
                 .unwrap()
         };
 
