@@ -102,6 +102,49 @@ impl<'a> LoadBalancer<'a> {
             None
         };
 
+        // DEBUG CODE
+        // this will be removed when this feature is fully ready
+        // till then, its useful to see what is being done
+        let mut sorted_intervals = intervals_to_check.clone();
+        sorted_intervals.sort_by(|a, b| {
+            let a_len = cards[a.0].len();
+            let b_len = cards[b.0].len();
+
+            if let Some(notes_on_days) = &notes_on_days {
+                let a_has_sibling = notes_on_days[a.0].contains(&self.note_id);
+                let b_has_sibling = notes_on_days[b.0].contains(&self.note_id);
+
+                if a_has_sibling != b_has_sibling {
+                    return a_has_sibling.cmp(&b_has_sibling);
+                }
+            }
+
+            match a_len.cmp(&b_len) {
+                Ordering::Greater => Ordering::Greater,
+                Ordering::Less => Ordering::Less,
+                Ordering::Equal => a.1.abs().cmp(&b.1.abs()),
+            }
+        });
+
+        for (index, interval_offset) in &sorted_intervals {
+            println!(
+                "{}{} index {} interval({}) + offset({}) = {} count {}",
+                if notes_on_days.is_some()
+                    && notes_on_days.as_ref().unwrap()[*index].contains(&self.note_id)
+                {
+                    "x"
+                } else {
+                    " "
+                },
+                if *interval_offset == 0 { "*" } else { " " },
+                index,
+                interval,
+                interval_offset,
+                interval as i32 + interval_offset,
+                cards[*index].len()
+            );
+        }
+
         // find the day with fewest number of cards, falling back to distance from the
         // initial interval
         let interval_modifier = intervals_to_check
@@ -128,6 +171,13 @@ impl<'a> LoadBalancer<'a> {
             .map(|interval| interval.1)
             .unwrap_or(0);
 
-        (interval as i32 + interval_modifier) as u32
+        let balanced_interval = (interval as i32 + interval_modifier) as u32;
+
+        println!(
+            "load_balancer: {} to {}",
+            interval as u32, balanced_interval
+        );
+
+        balanced_interval
     }
 }
