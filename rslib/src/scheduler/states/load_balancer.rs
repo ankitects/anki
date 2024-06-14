@@ -4,17 +4,12 @@
 use std::cmp::Ordering;
 use std::collections::HashSet;
 
+use super::fuzz::fuzz_bounds;
 use crate::decks::DeckId;
 use crate::notes::NoteId;
 use crate::storage::SqliteStorage;
 
 const MAX_LOAD_BALANCE_INTERVAL: u32 = 90;
-const PERCENT_BEFORE: f32 = 0.1;
-const PERCENT_AFTER: f32 = 0.1;
-const DAYS_MIN_BEFORE: i32 = 1;
-const DAYS_MIN_AFTER: i32 = 1;
-const DAYS_MAX_BEFORE: i32 = 6;
-const DAYS_MAX_AFTER: i32 = 4;
 
 pub struct LoadBalancer<'a> {
     today: u32,
@@ -62,14 +57,8 @@ impl<'a> LoadBalancer<'a> {
             return interval as u32;
         }
 
-        // determine the range of days to check
-        let before_range =
-            ((interval as f32 * PERCENT_BEFORE) as i32).clamp(DAYS_MIN_BEFORE, DAYS_MAX_BEFORE);
-        let after_range =
-            ((interval as f32 * PERCENT_AFTER) as i32).clamp(DAYS_MIN_AFTER, DAYS_MAX_AFTER);
-
-        let before_days = (interval as i32 - before_range).max(1);
-        let after_days = interval as i32 + after_range + 1; // +1 to make the range inclusive of the actual value
+        let (before_days, after_days) = fuzz_bounds(interval);
+        let after_days = after_days + 1; // +1 to make the range inclusive of the actual value
 
         // ok this looks weird but its a totally reasonable thing
         // I want to be as close to the original interval as possible
@@ -78,9 +67,9 @@ impl<'a> LoadBalancer<'a> {
         // for optimal load balancing, it might be preferable to
         // just default to the earliest date? it is how the old
         // addon used to do it...
-        let intervals_to_check = (before_days..interval as i32)
-            .map(|before| before - interval as i32)
-            .chain((interval as i32..after_days).map(|after| after - interval as i32))
+        let intervals_to_check = (before_days..interval as u32)
+            .map(|before| before as i32 - interval as i32)
+            .chain((interval as u32..after_days).map(|after| after as i32 - interval as i32))
             .enumerate()
             .collect::<Vec<_>>();
 
