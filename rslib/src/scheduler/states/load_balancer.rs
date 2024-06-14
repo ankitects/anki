@@ -56,10 +56,10 @@ impl<'a> LoadBalancer<'a> {
         }
     }
 
-    pub fn find_interval(&self, interval: u32) -> u32 {
+    pub fn find_interval(&self, interval: f32) -> u32 {
         // if we're sending a card far out into the future, the need to balance is low
-        if interval > MAX_LOAD_BALANCE_INTERVAL {
-            return interval;
+        if interval as u32 > MAX_LOAD_BALANCE_INTERVAL {
+            return interval as u32;
         }
 
         // determine the range of days to check

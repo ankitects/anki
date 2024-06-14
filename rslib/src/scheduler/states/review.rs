@@ -63,17 +63,6 @@ impl ReviewState {
     pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         let (hard_interval, good_interval, easy_interval) = self.passing_review_intervals(ctx);
 
-        let (hard_interval, good_interval, easy_interval) = ctx.load_balancer.as_ref().map_or(
-            (hard_interval, good_interval, easy_interval),
-            |load_balancer| {
-                (
-                    load_balancer.find_interval(hard_interval),
-                    load_balancer.find_interval(good_interval),
-                    load_balancer.find_interval(easy_interval),
-                )
-            },
-        );
-
         SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx),
@@ -300,7 +289,9 @@ fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, f
         interval * ctx.interval_multiplier
     };
     let (minimum, maximum) = ctx.min_and_max_review_intervals(minimum);
-    if fuzz {
+    if let Some(load_balancer) = &ctx.load_balancer {
+        load_balancer.find_interval(interval)
+    } else if fuzz {
         ctx.with_review_fuzz(interval, minimum, maximum)
     } else {
         (interval.round() as u32).clamp(minimum, maximum)
