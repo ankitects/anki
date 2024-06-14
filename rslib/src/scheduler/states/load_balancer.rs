@@ -54,6 +54,10 @@ impl<'a> LoadBalancer<'a> {
     pub fn find_interval(&self, interval: f32) -> u32 {
         // if we're sending a card far out into the future, the need to balance is low
         if interval as u32 > MAX_LOAD_BALANCE_INTERVAL {
+            println!(
+                "load balancer: interval {} over threshold {}, not balancing",
+                interval, MAX_LOAD_BALANCE_INTERVAL
+            );
             return interval as u32;
         }
 
@@ -171,7 +175,7 @@ impl<'a> LoadBalancer<'a> {
         let balanced_interval = (interval as i32 + interval_modifier) as u32;
 
         println!(
-            "load_balancer: {} to {}",
+            "load_balancer: interval {} -> {}\n",
             interval as u32, balanced_interval
         );
 
