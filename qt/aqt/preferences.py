@@ -125,7 +125,7 @@ class Preferences(QDialog):
         form.load_balancer_per_deck.setChecked(reviewing.load_balancer_per_deck)
 
         form.load_balancer_enable.stateChanged.connect(
-            lambda: (
+            lambda: list(
                 cb.setEnabled(form.load_balancer_enable.isChecked())  # type: ignore
                 for cb in [
                     form.load_balancer_avoid_siblings,
