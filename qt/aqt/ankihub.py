@@ -9,6 +9,12 @@ from typing import Callable
 import aqt
 import aqt.main
 from anki.lang import without_unicode_isolation
+from aqt.addons import (
+    AddonManager,
+    DownloadLogEntry,
+    install_or_update_addon,
+    show_log_to_user,
+)
 from aqt.qt import (
     QDialog,
     QDialogButtonBox,
@@ -18,6 +24,7 @@ from aqt.qt import (
     QPushButton,
     Qt,
     QVBoxLayout,
+    QWidget,
     qconnect,
 )
 from aqt.utils import disable_help_button, showWarning, tr
@@ -50,10 +57,9 @@ def ankihub_login(
             showWarning(tr.sync_ankihub_login_failed(), parent=mw)
             ankihub_login(mw, on_success, username, password, from_prefs_screen)
             return
-        else:
-            mw.pm.set_ankihub_token(token)
-            mw.pm.set_ankihub_username(username)
-
+        mw.pm.set_ankihub_token(token)
+        mw.pm.set_ankihub_username(username)
+        install_ankihub_addon(mw, mw.addonManager)
         on_success()
 
     mw.taskman.with_progress(
@@ -146,3 +152,11 @@ def get_id_and_pass_from_user(
     if not accepted:
         return ("", "")
     return (user.text().strip(), passwd.text())
+
+
+def install_ankihub_addon(parent: QWidget, mgr: AddonManager) -> None:
+    def on_done(log: list[DownloadLogEntry]) -> None:
+        if log:
+            show_log_to_user(parent, log, title=tr.sync_ankihub_addon_installation())
+
+    install_or_update_addon(parent, mgr, 1322529746, on_done)
