@@ -52,18 +52,16 @@ impl RelearnState {
                 },
             }
             .into()
-        } else {
-            if let Some(states) = &ctx.fsrs_next_states {
-                let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
-                let interval = states.again.interval;
-                ReviewState {
-                    scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
-                    ..self.review
-                }
-                .into()
-            } else {
-                self.review.into()
+        } else if let Some(states) = &ctx.fsrs_next_states {
+            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+            let interval = states.again.interval;
+            ReviewState {
+                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+                ..self.review
             }
+            .into()
+        } else {
+            self.review.into()
         }
     }
 
@@ -86,18 +84,16 @@ impl RelearnState {
                 },
             }
             .into()
-        } else {
-            if let Some(states) = &ctx.fsrs_next_states {
-                let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
-                let interval = states.hard.interval;
-                ReviewState {
-                    scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
-                    ..self.review
-                }
-                .into()
-            } else {
-                self.review.into()
+        } else if let Some(states) = &ctx.fsrs_next_states {
+            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+            let interval = states.hard.interval;
+            ReviewState {
+                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+                ..self.review
             }
+            .into()
+        } else {
+            self.review.into()
         }
     }
 
@@ -123,18 +119,16 @@ impl RelearnState {
                 },
             }
             .into()
-        } else {
-            if let Some(states) = &ctx.fsrs_next_states {
-                let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
-                let interval = states.good.interval;
-                ReviewState {
-                    scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
-                    ..self.review
-                }
-                .into()
-            } else {
-                self.review.into()
+        } else if let Some(states) = &ctx.fsrs_next_states {
+            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+            let interval = states.good.interval;
+            ReviewState {
+                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+                ..self.review
             }
+            .into()
+        } else {
+            self.review.into()
         }
     }
 
