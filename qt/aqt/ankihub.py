@@ -37,14 +37,6 @@ def ankihub_login(
     password: str = "",
     from_prefs_screen: bool = False,
 ) -> None:
-    while True:
-        (username, password) = get_id_and_pass_from_user(
-            mw, username, password, from_prefs_screen
-        )
-        if not username and not password:
-            return
-        if username and password:
-            break
 
     def on_future_done(fut: Future[str]) -> None:
         try:
@@ -62,11 +54,19 @@ def ankihub_login(
         install_ankihub_addon(mw, mw.addonManager)
         on_success()
 
-    mw.taskman.with_progress(
-        lambda: mw.col.ankihub_login(username=username, password=password),
-        on_future_done,
-        parent=mw,
-    )
+    def callback(username: str, password: str) -> None:
+        if not username and not password:
+            return
+        if username and password:
+            mw.taskman.with_progress(
+                lambda: mw.col.ankihub_login(username=username, password=password),
+                on_future_done,
+                parent=mw,
+            )
+        else:
+            ankihub_login(mw, on_success, username, password, from_prefs_screen)
+
+    get_id_and_pass_from_user(mw, callback, username, password, from_prefs_screen)
 
 
 def ankihub_logout(
@@ -84,10 +84,11 @@ def ankihub_logout(
 
 def get_id_and_pass_from_user(
     mw: aqt.main.AnkiQt,
+    callback: Callable[[str, str], None],
     username: str = "",
     password: str = "",
     from_prefs_screen: bool = False,
-) -> tuple[str, str]:
+) -> None:
     diag = QDialog(mw)
     diag.setWindowTitle("Anki")
     disable_help_button(diag)
@@ -148,10 +149,14 @@ def get_id_and_pass_from_user(
     diag.show()
     user.setFocus()
 
-    accepted = diag.exec()
-    if not accepted:
-        return ("", "")
-    return (user.text().strip(), passwd.text())
+    def on_finished(result: int) -> None:
+        if result == QDialog.DialogCode.Rejected:
+            callback("", "")
+        else:
+            callback(user.text().strip(), passwd.text())
+
+    qconnect(diag.finished, on_finished)
+    diag.open()
 
 
 def install_ankihub_addon(parent: QWidget, mgr: AddonManager) -> None:
