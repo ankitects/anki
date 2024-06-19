@@ -3,8 +3,10 @@
 
 # coding: utf-8
 
+import pytest
 from tests.shared import getEmptyCol
-
+from anki.cards import Card
+from anki.collection import Collection as aopen
 
 def test_delete():
     col = getEmptyCol()
@@ -93,3 +95,17 @@ def test_gendeck():
     note["Text"] += "{{c4::four}}"
     note.flush()
     assert note.cards()[3].did == newId
+
+def test_flush_new_card():
+    col = getEmptyCol()
+
+    # Create a new card with defaults (no ID)
+    new_card = Card(col)
+
+    # Try to flush the new card and expect an exception
+    with pytest.raises(Exception) as excinfo:
+        new_card.flush()
+
+    # Check branch coverage
+    Card.print_coverage()
+

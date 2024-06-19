@@ -18,6 +18,16 @@ from anki.models import NotetypeDict, TemplateDict
 from anki.notes import Note
 from anki.sound import AVTag
 
+branch_coverage_1 = {
+    "cards.flush_1": False,  
+    "cards.flush_2": False   
+}
+
+branch_coverage_2 = {
+    "cards.template_1": False,  
+    "cards.template_2": False   
+}
+
 # Cards
 ##########################################################################
 
@@ -129,11 +139,17 @@ class Card(DeprecatedNamesMixin):
     def flush(self) -> None:
         hooks.card_will_flush(self)
         if self.id != 0:
+            branch_coverage_1["cards.flush_1"] = True
             self.col._backend.update_cards(
                 cards=[self._to_backend_card()], skip_undo_entry=True
             )
         else:
+            branch_coverage_1["cards.flush_2"] = True
             raise Exception("card.flush() expects an existing card")
+
+    def print_coverage():
+        for branch, hit in branch_coverage_1.items():
+            print(f"{branch} was {'hit' if hit else 'not hit'}")
 
     def question(self, reload: bool = False, browser: bool = False) -> str:
         return self.render_output(reload, browser).question_and_style()
@@ -172,9 +188,15 @@ class Card(DeprecatedNamesMixin):
     def template(self) -> TemplateDict:
         notetype = self.note_type()
         if notetype["type"] == MODEL_STD:
+            branch_coverage_2["cards.template_1"] = True
             return self.note_type()["tmpls"][self.ord]
         else:
+            branch_coverage_2["cards.template_1"] = True
             return self.note_type()["tmpls"][0]
+    
+    def print_coverage():
+        for branch, hit in branch_coverage_2.items():
+            print(f"{branch} was {'hit' if hit else 'not hit'}")
 
     def start_timer(self) -> None:
         self.timer_started = time.time()
