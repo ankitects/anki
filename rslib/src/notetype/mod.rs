@@ -583,6 +583,17 @@ impl Notetype {
             .map(|t| (t.parsed_question(), t.parsed_answer()))
             .collect()
     }
+    fn parsed_browser_templates(&self) -> Vec<(Option<ParsedTemplate>, Option<ParsedTemplate>)> {
+        self.templates
+            .iter()
+            .map(|t| {
+                (
+                    t.parsed_question_format_for_browser(),
+                    t.parsed_answer_format_for_browser(),
+                )
+            })
+            .collect()
+    }
 
     fn fix_field_names(&mut self) -> Result<()> {
         self.fields.iter_mut().try_for_each(NoteField::fix_name)
