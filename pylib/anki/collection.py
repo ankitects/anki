@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
+import unittest
 
 from typing import Any, Generator, Iterable, Literal, Sequence, Union, cast
 
@@ -128,6 +129,10 @@ class AddNoteRequest:
     note: Note
     deck_id: DeckId
 
+branch_coverage = {
+    "succesful_branch": False, 
+    "error_branch": False
+}
 
 class Collection(DeprecatedNamesMixin):
     sched: V3Scheduler | DummyScheduler
@@ -201,8 +206,12 @@ class Collection(DeprecatedNamesMixin):
         # for backwards compatibility, v3 is represented as 2
         ver = self.conf.get("schedVer", 1)
         if ver in self._supported_scheduler_versions:
+            branch_coverage["succesful_branch"] = True
+            print("Succesful")
             return ver
         else:
+            branch_coverage["error_branch"] = True
+            print("Error")
             raise Exception("Unsupported scheduler version")
 
     def _load_scheduler(self) -> None:
@@ -1271,3 +1280,30 @@ def pb_export_limit(limit: ExportLimit) -> import_export_pb2.ExportLimit:
     else:
         message.whole_collection.SetInParent()
     return message
+
+def print_coverage():
+    for branch, hit in branch_coverage.items():
+        print(f"{branch} was {'hit' if hit else 'not hit'}")
+
+conf = {"schedVer": 1}
+collection = Collection(path="example_path", backend=None, server=False)
+collection.conf = conf
+try:
+    result = collection.sched_ver()
+except Exception as e:
+    print(f"Error: {e}")
+finally:
+    print_coverage()
+
+branch_coverage["succesful_branch"] = False
+branch_coverage["succesful_branch"] = False
+
+conf = {"schedVer": 3} 
+collection.conf = conf
+try:
+    result = collection.sched_ver()
+except Exception as e:
+    print(f"Error: {e}")
+finally:
+    print_coverage()
+
