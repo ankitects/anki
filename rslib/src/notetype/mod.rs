@@ -495,13 +495,18 @@ impl Notetype {
         self.reposition_sort_idx();
 
         let mut parsed_templates = self.parsed_templates();
+        let mut parsed_browser_templates = self.parsed_browser_templates();
         let reqs = self.updated_requirements(&parsed_templates);
 
         // handle renamed+deleted fields
         if let Some(existing) = existing {
             let fields = self.renamed_and_removed_fields(existing);
             if !fields.is_empty() {
-                self.update_templates_for_renamed_and_removed_fields(fields, &mut parsed_templates);
+                self.update_templates_for_renamed_and_removed_fields(
+                    fields,
+                    &mut parsed_templates,
+                    &mut parsed_browser_templates,
+                );
             }
         }
         self.config.reqs = reqs;
@@ -556,9 +561,12 @@ impl Notetype {
         &mut self,
         fields: HashMap<String, Option<String>>,
         parsed: &mut [(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+        parsed_browser: &mut [(Option<ParsedTemplate>, Option<ParsedTemplate>)],
     ) {
         let first_remaining_field_name = &self.fields.first().unwrap().name;
         let is_cloze = self.is_cloze();
+
+        // Update main templates
         for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
             if let Some(q) = q_opt {
                 q.rename_and_remove_fields(&fields);
@@ -573,6 +581,26 @@ impl Notetype {
                     a.add_missing_field_replacement(first_remaining_field_name, is_cloze);
                 }
                 self.templates[idx].config.a_format = a.template_to_string();
+            }
+        }
+
+        // Update browser templates, if they exist
+        for (idx, (q_browser_opt, a_browser_opt)) in parsed_browser.iter_mut().enumerate() {
+            if let Some(q_browser) = q_browser_opt {
+                q_browser.rename_and_remove_fields(&fields);
+                if !q_browser.contains_field_replacement()
+                    || is_cloze && !q_browser.contains_cloze_replacement()
+                {
+                    q_browser.add_missing_field_replacement(first_remaining_field_name, is_cloze);
+                }
+                self.templates[idx].config.q_format_browser = q_browser.template_to_string();
+            }
+            if let Some(a_browser) = a_browser_opt {
+                a_browser.rename_and_remove_fields(&fields);
+                if is_cloze && !a_browser.contains_cloze_replacement() {
+                    a_browser.add_missing_field_replacement(first_remaining_field_name, is_cloze);
+                }
+                self.templates[idx].config.a_format_browser = a_browser.template_to_string();
             }
         }
     }
