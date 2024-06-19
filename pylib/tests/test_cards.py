@@ -99,13 +99,10 @@ def test_gendeck():
 def test_flush_new_card():
     col = getEmptyCol()
 
-    # Create a new card with defaults (no ID)
     new_card = Card(col)
 
-    # Try to flush the new card and expect an exception
     with pytest.raises(Exception) as excinfo:
         new_card.flush()
 
-    # Check branch coverage
     Card.print_coverage()
 
