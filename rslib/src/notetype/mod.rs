@@ -829,12 +829,13 @@ mod test {
         nt_norm.add_template("Card 1", "front {{foo}}", "back {{bar}}");
         nt_norm.templates[0].ord = Some(0);
         let mut parsed = nt_norm.parsed_templates();
+        let mut parsed_browser = nt_norm.parsed_browser_templates();
 
         let mut field_map: HashMap<String, Option<String>> = HashMap::new();
         field_map.insert("foo".to_owned(), None);
         field_map.insert("bar".to_owned(), None);
 
-        nt_norm.update_templates_for_renamed_and_removed_fields(field_map, &mut parsed);
+        nt_norm.update_templates_for_renamed_and_removed_fields(field_map, &mut parsed, &mut parsed_browser);
         assert_eq!(nt_norm.templates[0].config.q_format, "front {{baz}}");
         assert_eq!(nt_norm.templates[0].config.a_format, "back ");
 
@@ -854,7 +855,7 @@ mod test {
         field_map.insert("foo".to_owned(), None);
         field_map.insert("bar".to_owned(), None);
 
-        nt_cloze.update_templates_for_renamed_and_removed_fields(field_map, &mut parsed);
+        nt_cloze.update_templates_for_renamed_and_removed_fields(field_map, &mut parsed, &mut parsed_browser);
         assert_eq!(nt_cloze.templates[0].config.q_format, "front {{cloze:baz}}");
         assert_eq!(nt_cloze.templates[0].config.a_format, "back {{cloze:baz}}");
 
@@ -876,7 +877,7 @@ mod test {
         let mut field_map: HashMap<String, Option<String>> = HashMap::new();
         field_map.insert("bar".to_owned(), None);
 
-        nt_cloze.update_templates_for_renamed_and_removed_fields(field_map, &mut parsed);
+        nt_cloze.update_templates_for_renamed_and_removed_fields(field_map, &mut parsed, &mut parsed_browser);
         assert_eq!(nt_cloze.templates[0].config.q_format, "front {{cloze:foo}}");
         assert_eq!(nt_cloze.templates[0].config.a_format, "back {{cloze:foo}}");
     }
