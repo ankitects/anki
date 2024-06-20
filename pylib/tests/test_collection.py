@@ -5,9 +5,10 @@
 
 import os
 import unittest
+from unittest.mock import patch, MagicMock
 import tempfile
 from typing import Any
-
+from anki.collection import Collection, BrowserColumns
 from anki.collection import Collection as aopen
 from anki.dbproxy import emulate_named_args
 from anki.lang import TR, without_unicode_isolation
