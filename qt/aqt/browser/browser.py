@@ -19,7 +19,7 @@ from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
-from anki.notes import NoteId
+from anki.notes import Note, NoteId
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
 from anki.utils import is_mac
@@ -137,6 +137,7 @@ class Browser(QMainWindow):
         # set if exactly 1 row is selected; used by the previewer
         self.card: Card | None = None
         self.current_card: Card | None = None
+        self.auto_refresh = self.col.get_config_bool(Config.Bool.AUTO_REFRESH)
         self.setupSidebar()
         self.setup_table()
         self.setupMenus()
@@ -624,6 +625,10 @@ class Browser(QMainWindow):
         else:
             self.mw.progress.finish()
 
+    def _on_note_added(self, note: Note) -> None:
+        if self.auto_refresh:
+            self.search()
+
     # Sidebar
     ######################################################################
 
@@ -1026,6 +1031,7 @@ class Browser(QMainWindow):
         gui_hooks.focus_did_change.append(self.on_focus_change)
         gui_hooks.flag_label_did_change.append(self._update_flag_labels)
         gui_hooks.collection_will_temporarily_close.append(self._on_temporary_close)
+        gui_hooks.add_cards_did_add_note.append(self._on_note_added)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.on_undo_state_change)
@@ -1035,6 +1041,7 @@ class Browser(QMainWindow):
         gui_hooks.focus_did_change.remove(self.on_focus_change)
         gui_hooks.flag_label_did_change.remove(self._update_flag_labels)
         gui_hooks.collection_will_temporarily_close.remove(self._on_temporary_close)
+        gui_hooks.add_cards_did_add_note.remove(self._on_note_added)
 
     def _on_temporary_close(self, col: Collection) -> None:
         # we could reload browser columns in the future; for now we just close

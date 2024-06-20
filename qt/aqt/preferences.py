@@ -125,6 +125,7 @@ class Preferences(QDialog):
         )
         form.paste_strips_formatting.setChecked(editing.paste_strips_formatting)
         form.ignore_accents_in_search.setChecked(editing.ignore_accents_in_search)
+        form.auto_refresh.setChecked(editing.auto_refresh)
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.render_latex.setChecked(editing.render_latex)
         form.default_search_text.setText(editing.default_search_text)
@@ -160,6 +161,7 @@ class Preferences(QDialog):
         editing.ignore_accents_in_search = (
             self.form.ignore_accents_in_search.isChecked()
         )
+        editing.auto_refresh = self.form.auto_refresh.isChecked()
 
         self.prefs.backups.daily = form.daily_backups.value()
         self.prefs.backups.weekly = form.weekly_backups.value()

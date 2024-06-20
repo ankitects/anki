@@ -129,6 +129,7 @@ impl Collection {
             default_search_text: self.get_config_string(StringKey::DefaultSearchText),
             ignore_accents_in_search: self.get_config_bool(BoolKey::IgnoreAccentsInSearch),
             render_latex: self.get_config_bool(BoolKey::RenderLatex),
+            auto_refresh: self.get_config_bool(BoolKey::AutoRefresh),
         })
     }
 
@@ -143,6 +144,7 @@ impl Collection {
         self.set_config_string_inner(StringKey::DefaultSearchText, &s.default_search_text)?;
         self.set_config_bool_inner(BoolKey::IgnoreAccentsInSearch, s.ignore_accents_in_search)?;
         self.set_config_bool_inner(BoolKey::RenderLatex, s.render_latex)?;
+        self.set_config_bool_inner(BoolKey::AutoRefresh, s.auto_refresh)?;
         Ok(())
     }
 }

@@ -54,6 +54,7 @@ message ConfigKey {
     RANDOM_ORDER_REPOSITION = 23;
     SHIFT_POSITION_OF_EXISTING_CARDS = 24;
     RENDER_LATEX = 25;
+    AUTO_REFRESH = 26;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -123,6 +124,7 @@ message Preferences {
     string default_search_text = 4;
     bool ignore_accents_in_search = 5;
     bool render_latex = 6;
+    bool auto_refresh = 7;
   }
   message BackupLimits {
     uint32 daily = 1;

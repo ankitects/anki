@@ -577,6 +577,22 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="auto_refresh">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>preferences_auto_refresh_tooltip</string>
+            </property>
+            <property name="text">
+             <string>preferences_auto_refresh</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
