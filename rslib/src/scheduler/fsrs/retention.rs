@@ -79,12 +79,7 @@ impl Collection {
         &mut self,
         revlogs: Vec<RevlogEntry>,
     ) -> Result<OptimalRetentionParameters> {
-        if revlogs.len() < 400 {
-            return Err(AnkiError::FsrsInsufficientReviews {
-                count: revlogs.len(),
-            });
-        }
-        let first_rating_count = revlogs
+        let mut first_rating_count = revlogs
             .iter()
             .group_by(|r| r.cid)
             .into_iter()
@@ -95,40 +90,54 @@ impl Collection {
             })
             .filter(|r| r.is_some())
             .counts_by(|r| r.unwrap().button_chosen);
+        for button_chosen in 1..=4 {
+            first_rating_count.entry(button_chosen).or_insert(0);
+        }
         let total_first = first_rating_count.values().sum::<usize>() as f64;
+        let weight = total_first / (50.0 + total_first);
+        const DEFAULT_FIRST_RATING_PROB: [f64; 4] = [0.256, 0.084, 0.483, 0.177];
         let first_rating_prob = if total_first > 0.0 {
-            let mut arr = [0.0; 4];
+            let mut arr = DEFAULT_FIRST_RATING_PROB;
             first_rating_count
                 .iter()
-                .for_each(|(button_chosen, count)| {
-                    arr[*button_chosen as usize - 1] = *count as f64 / total_first
+                .for_each(|(&button_chosen, &count)| {
+                    let index = button_chosen as usize - 1;
+                    arr[index] = (count as f64 / total_first) * weight
+                        + DEFAULT_FIRST_RATING_PROB[index] * (1.0 - weight);
                 });
             arr
         } else {
-            return Err(AnkiError::FsrsInsufficientData);
+            DEFAULT_FIRST_RATING_PROB
         };
 
-        let review_rating_count = revlogs
+        let mut review_rating_count = revlogs
             .iter()
             .filter(|r| r.review_kind == RevlogReviewKind::Review && r.button_chosen != 1)
             .counts_by(|r| r.button_chosen);
-        let total_reviews = review_rating_count.values().sum::<usize>();
-        let review_rating_prob = if total_reviews as f64 > 0.0 {
-            let mut arr = [0.0; 3];
+        for button_chosen in 2..=4 {
+            review_rating_count.entry(button_chosen).or_insert(0);
+        }
+        let total_reviews = review_rating_count.values().sum::<usize>() as f64;
+        let weight = total_reviews as f64 / (50.0 + total_reviews);
+        const DEFAULT_REVIEW_RATING_PROB: [f64; 3] = [0.224, 0.632, 0.144];
+        let review_rating_prob = if total_reviews > 0.0 {
+            let mut arr = DEFAULT_REVIEW_RATING_PROB;
             review_rating_count
                 .iter()
                 .filter(|(&button_chosen, ..)| button_chosen >= 2)
-                .for_each(|(button_chosen, count)| {
-                    arr[*button_chosen as usize - 2] = *count as f64 / total_reviews as f64;
+                .for_each(|(&button_chosen, &count)| {
+                    let index = button_chosen as usize - 2;
+                    arr[index] = (count as f64 / total_reviews) * weight
+                        + DEFAULT_REVIEW_RATING_PROB[index] * (1.0 - weight);
                 });
             arr
         } else {
-            return Err(AnkiError::FsrsInsufficientData);
+            DEFAULT_REVIEW_RATING_PROB
         };
 
         let recall_costs = {
-            let default = [14.0, 14.0, 10.0, 6.0];
-            let mut arr = default;
+            const DEFAULT: [f64; 4] = [18.0, 11.8, 7.3, 5.7];
+            let mut arr = DEFAULT;
             revlogs
                 .iter()
                 .filter(|r| {
@@ -142,14 +151,14 @@ impl Collection {
                 .into_iter()
                 .for_each(|(button_chosen, group)| {
                     let group_vec = group.into_iter().map(|r| r.taken_millis).collect_vec();
-                    arr[button_chosen as usize - 1] = median_secs(&group_vec);
+                    let weight = group_vec.len() as f64 / (50.0 + group_vec.len() as f64);
+                    let index = button_chosen as usize - 1;
+                    arr[index] = median_secs(&group_vec) * weight + DEFAULT[index] * (1.0 - weight);
                 });
-            if arr == default {
-                return Err(AnkiError::FsrsInsufficientData);
-            }
             arr
         };
         let learn_cost = {
+            const DEFAULT: f64 = 22.8;
             let revlogs_filter = revlogs
                 .iter()
                 .filter(|r| {
@@ -160,13 +169,12 @@ impl Collection {
                 })
                 .map(|r| r.taken_millis);
             let group_vec = revlogs_filter.collect_vec();
-            median_secs(&group_vec)
+            let weight = group_vec.len() as f64 / (50.0 + group_vec.len() as f64);
+            median_secs(&group_vec) * weight + DEFAULT * (1.0 - weight)
         };
-        if learn_cost == 0.0 {
-            return Err(AnkiError::FsrsInsufficientData);
-        }
 
         let forget_cost = {
+            const DEFAULT: f64 = 18.0;
             let review_kind_to_total_millis = revlogs
                 .iter()
                 .filter(|r| {
@@ -193,14 +201,12 @@ impl Collection {
             for (review_kind, sec) in review_kind_to_total_millis.into_iter() {
                 group_sec_by_review_kind[review_kind as usize].push(sec)
             }
-            let mut arr = [0.0; 5];
-            for (review_kind, group) in group_sec_by_review_kind.iter().enumerate() {
-                arr[review_kind] = median_secs(group);
-            }
-            arr
+            let recall_cost =
+                median_secs(&group_sec_by_review_kind[RevlogReviewKind::Review as usize]);
+            let relearn_group = &group_sec_by_review_kind[RevlogReviewKind::Relearning as usize];
+            let weight = relearn_group.len() as f64 / (50.0 + relearn_group.len() as f64);
+            (median_secs(relearn_group) + recall_cost) * weight + DEFAULT * (1.0 - weight)
         };
-
-        let forget_cost = forget_cost[RevlogReviewKind::Relearning as usize] + recall_costs[0];
 
         let params = OptimalRetentionParameters {
             recall_secs_hard: recall_costs[1],
