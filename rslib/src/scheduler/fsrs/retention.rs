@@ -118,7 +118,7 @@ impl Collection {
             review_rating_count.entry(button_chosen).or_insert(0);
         }
         let total_reviews = review_rating_count.values().sum::<usize>() as f64;
-        let weight = total_reviews as f64 / (50.0 + total_reviews);
+        let weight = total_reviews / (50.0 + total_reviews);
         const DEFAULT_REVIEW_RATING_PROB: [f64; 3] = [0.224, 0.632, 0.144];
         let review_rating_prob = if total_reviews > 0.0 {
             let mut arr = DEFAULT_REVIEW_RATING_PROB;
