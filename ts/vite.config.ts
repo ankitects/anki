@@ -28,6 +28,8 @@ export default defineConfig({
     },
     build: {
         reportCompressedSize: false,
+        // defaults use chrome87, but we need 77 for qt 5.14
+        target: ["es2020", "edge88", "firefox78", "chrome77", "safari14"],
     },
     server: {
         host: "127.0.0.1",
