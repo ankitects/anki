@@ -1,9 +1,14 @@
 # stringcase 1.2.0 with python warning fix applied
 # MIT: https://github.com/okunishinishi/python-stringcase
 
-branch_coverage = {
+branch_coverage_instr1 = {
     "capitalcase_1": False, 
-    "capitalcase_2": False   
+    "capitalcase_2": False,
+}
+
+branch_coverage_instr2 = {
+    "camelcase_1": False,
+    "camelcase_2": False   
 }
 
 """
@@ -26,10 +31,16 @@ def camelcase(string):
 
     string = re.sub(r"\w[\s\W]+\w", "", str(string))
     if not string:
+        branch_coverage_instr2["camelcase_1"] = True
         return string
+    branch_coverage_instr2["camelcase_2"] = True
     return lowercase(string[0]) + re.sub(
         r"[\-_\.\s]([a-z])", lambda matched: uppercase(matched.group(1)), string[1:]
     )
+
+def print_coverage_2():
+    for branch, hit in branch_coverage_instr2.items():
+        print(f"{branch} was {'hit' if hit else 'not hit'}")
 
 
 def capitalcase(string):
@@ -46,13 +57,13 @@ def capitalcase(string):
 
     string = str(string)
     if not string:
-        branch_coverage["capitalcase_1"] = True
+        branch_coverage_instr1["capitalcase_1"] = True
         return string
-    branch_coverage["capitalcase_2"] = True
+    branch_coverage_instr1["capitalcase_2"] = True
     return uppercase(string[0]) + string[1:]
 
-def print_coverage():
-    for branch, hit in branch_coverage.items():
+def print_coverage_1():
+    for branch, hit in branch_coverage_instr1.items():
         print(f"{branch} was {'hit' if hit else 'not hit'}")
 
 
@@ -265,10 +276,19 @@ def alphanumcase(string):
     return re.sub(r"\W+", "", string)
 
 result = capitalcase("")
-print_coverage()
+print_coverage_1()
 
-branch_coverage["capitalcase_1"] = False
-branch_coverage["capitalcase_2"] = False
+branch_coverage_instr1["capitalcase_1"] = False
+branch_coverage_instr1["capitalcase_2"] = False
 
 result = capitalcase("software")
-print_coverage()
+print_coverage_1()
+
+result = camelcase("")
+print_coverage_2()
+
+branch_coverage_instr2["camelcase_1"] = False
+branch_coverage_instr2["camelcase_2"] = False
+
+result = camelcase("software_eng_pr")
+print_coverage_2()
