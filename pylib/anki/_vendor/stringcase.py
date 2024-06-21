@@ -1,6 +1,10 @@
 # stringcase 1.2.0 with python warning fix applied
 # MIT: https://github.com/okunishinishi/python-stringcase
 
+branch_coverage = {
+    "capitalcase_1": False, 
+    "capitalcase_2": False   
+}
 
 """
 String convert functions
@@ -42,8 +46,14 @@ def capitalcase(string):
 
     string = str(string)
     if not string:
+        branch_coverage["capitalcase_1"] = True
         return string
+    branch_coverage["capitalcase_2"] = True
     return uppercase(string[0]) + string[1:]
+
+def print_coverage():
+    for branch, hit in branch_coverage.items():
+        print(f"{branch} was {'hit' if hit else 'not hit'}")
 
 
 def constcase(string):
@@ -253,3 +263,12 @@ def alphanumcase(string):
     """
     # return filter(str.isalnum, str(string))
     return re.sub(r"\W+", "", string)
+
+result = capitalcase("")
+print_coverage()
+
+branch_coverage["capitalcase_1"] = False
+branch_coverage["capitalcase_2"] = False
+
+result = capitalcase("software")
+print_coverage()

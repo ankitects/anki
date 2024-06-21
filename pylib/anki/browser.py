@@ -14,6 +14,7 @@ class BrowserConfig:
     def active_columns_key(is_notes_mode: bool) -> str:
         if is_notes_mode:
             return BrowserConfig.ACTIVE_NOTE_COLUMNS_KEY
+        
         return BrowserConfig.ACTIVE_CARD_COLUMNS_KEY
 
     @staticmethod

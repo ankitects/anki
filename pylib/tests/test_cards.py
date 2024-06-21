@@ -3,7 +3,6 @@
 
 # coding: utf-8
 
-import pytest
 from tests.shared import getEmptyCol
 from anki.cards import Card
 from anki.collection import Collection as aopen
@@ -96,13 +95,4 @@ def test_gendeck():
     note.flush()
     assert note.cards()[3].did == newId
 
-def test_flush_new_card():
-    col = getEmptyCol()
-
-    new_card = Card(col)
-
-    with pytest.raises(Exception) as excinfo:
-        new_card.flush()
-
-    Card.print_coverage()
 
