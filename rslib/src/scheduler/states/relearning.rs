@@ -52,6 +52,14 @@ impl RelearnState {
                 },
             }
             .into()
+        } else if let Some(states) = &ctx.fsrs_next_states {
+            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+            let interval = states.again.interval;
+            ReviewState {
+                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+                ..self.review
+            }
+            .into()
         } else {
             self.review.into()
         }
@@ -74,6 +82,14 @@ impl RelearnState {
                     memory_state,
                     ..self.review
                 },
+            }
+            .into()
+        } else if let Some(states) = &ctx.fsrs_next_states {
+            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+            let interval = states.hard.interval;
+            ReviewState {
+                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+                ..self.review
             }
             .into()
         } else {
@@ -103,14 +119,29 @@ impl RelearnState {
                 },
             }
             .into()
+        } else if let Some(states) = &ctx.fsrs_next_states {
+            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+            let interval = states.good.interval;
+            ReviewState {
+                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+                ..self.review
+            }
+            .into()
         } else {
             self.review.into()
         }
     }
 
     fn answer_easy(self, ctx: &StateContext) -> ReviewState {
+        let scheduled_days = if let Some(states) = &ctx.fsrs_next_states {
+            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+            let interval = states.easy.interval;
+            ctx.with_review_fuzz(interval as f32, minimum, maximum)
+        } else {
+            self.review.scheduled_days + 1
+        };
         ReviewState {
-            scheduled_days: self.review.scheduled_days + 1,
+            scheduled_days,
             elapsed_days: 0,
             memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
             ..self.review
