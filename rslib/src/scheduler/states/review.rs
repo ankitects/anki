@@ -288,7 +288,11 @@ fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, f
     };
     let (minimum, maximum) = ctx.min_and_max_review_intervals(minimum);
     if fuzz {
-        ctx.with_review_fuzz(interval, minimum, maximum)
+        if let Some(load_balancer) = &ctx.load_balancer {
+            load_balancer.find_interval(interval)
+        } else {
+            ctx.with_review_fuzz(interval, minimum, maximum)
+        }
     } else {
         (interval.round() as u32).clamp(minimum, maximum)
     }

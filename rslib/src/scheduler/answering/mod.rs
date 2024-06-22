@@ -16,6 +16,7 @@ use revlog::RevlogEntryPartial;
 
 use super::fsrs::weights::ignore_revlogs_before_ms_from_config;
 use super::queue::BuryMode;
+use super::states::load_balancer::LoadBalancer;
 use super::states::steps::LearningSteps;
 use super::states::CardState;
 use super::states::FilteredState;
@@ -26,6 +27,7 @@ use super::timespan::answer_button_time_collapsible;
 use super::timing::SchedTimingToday;
 use crate::card::CardQueue;
 use crate::card::CardType;
+use crate::config::BoolKey;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
@@ -77,7 +79,10 @@ impl CardStateUpdater {
     /// Returns information required when transitioning from one card state to
     /// another with `next_states()`. This separate structure decouples the
     /// state handling code from the rest of the Anki codebase.
-    pub(crate) fn state_context(&self) -> StateContext<'_> {
+    pub(crate) fn state_context<'a>(
+        &'a self,
+        load_balancer: Option<LoadBalancer<'a>>,
+    ) -> StateContext<'a> {
         StateContext {
             fuzz_factor: get_fuzz_factor(self.fuzz_seed),
             steps: self.learn_steps(),
@@ -89,6 +94,7 @@ impl CardStateUpdater {
             interval_multiplier: self.config.inner.interval_multiplier,
             maximum_review_interval: self.config.inner.maximum_review_interval,
             leech_threshold: self.config.inner.leech_threshold,
+            load_balancer,
             relearn_steps: self.relearn_steps(),
             lapse_multiplier: self.config.inner.lapse_multiplier,
             minimum_lapse_interval: self.config.inner.minimum_lapse_interval,
@@ -215,9 +221,33 @@ impl Collection {
     /// Return the next states that will be applied for each answer button.
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
+        let deck_id = card.deck_id;
+        let note_id = card.note_id;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
-        let state_ctx = ctx.state_context();
+        let today = self.timing_today()?.days_elapsed;
+
+        let load_balancer = if self.get_config_bool(BoolKey::LoadBalancerEnable) {
+            if self.get_config_bool(BoolKey::LoadBalancerPerDeck) {
+                Some(LoadBalancer::new_from_deck(
+                    today,
+                    &self.storage,
+                    note_id,
+                    deck_id,
+                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings),
+                ))
+            } else {
+                Some(LoadBalancer::new_from_collection(
+                    today,
+                    &self.storage,
+                    note_id,
+                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings),
+                ))
+            }
+        } else {
+            None
+        };
+        let state_ctx = ctx.state_context(load_balancer);
         Ok(current.next_states(&state_ctx))
     }
 
