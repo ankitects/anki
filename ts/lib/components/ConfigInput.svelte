@@ -3,6 +3,8 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { pageTheme } from "$lib/sveltelib/theme";
+
     const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
     export let grow = true;
@@ -11,6 +13,7 @@
 <div
     class="config-input position-relative justify-content-end"
     class:flex-grow-1={grow}
+    class:nightMode={$pageTheme.isDark}
 >
     <div class="revert" class:rtl>
         <slot name="revert" />
@@ -38,6 +41,10 @@
         }
         .revert:hover {
             color: var(--fg);
+        }
+        &.nightMode :global(input),
+        &.nightMode :global(textarea) {
+            background-color: rgb(59, 59, 59);
         }
     }
 </style>
