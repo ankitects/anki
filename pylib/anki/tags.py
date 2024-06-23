@@ -158,12 +158,25 @@ class TagManager(DeprecatedNamesMixin):
     ) -> None:
         print("tags.register() is deprecated and no longer works")
 
+    branch_coverage = {
+        "legacy_bulk_add_1": False,  # if branch for add=True
+        "legacy_bulk_add_2": False   # else branch
+    }
+
     def _legacy_bulk_add(self, ids: list[NoteId], tags: str, add: bool = True) -> None:
         "Add tags in bulk. TAGS is space-separated."
         if add:
+            self.branch_coverage["legacy_bulk_add_1"] = True
             self.bulk_add(ids, tags)
         else:
+            self.branch_coverage["legacy_bulk_add_2"] = True
             self.bulk_remove(ids, tags)
+
+
+    def print_coverage(self):
+        for branch, hit in self.branch_coverage.items():
+            print(f"{branch} was {'hit' if hit else 'not hit'}")
+
 
     def _legacy_bulk_rem(self, ids: list[NoteId], tags: str) -> None:
         self._legacy_bulk_add(ids, tags, False)
