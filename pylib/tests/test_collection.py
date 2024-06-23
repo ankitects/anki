@@ -177,23 +177,18 @@ def test_db_named_args(capsys):
     
 
 def test_legacy_bulk_add():
-    # Set up a TagManager instance
     col = getEmptyCol()
     tag_manager = col.tags
 
-    # Set up initial conditions
     ids = [1, 2]
     tags = "tag1 tag2"
 
-    # Test add=True
     tag_manager._legacy_bulk_add(ids, tags, True)
     assert tag_manager.branch_coverage["legacy_bulk_add_1"] == True
     assert tag_manager.branch_coverage["legacy_bulk_add_2"] == False
 
-    # Test add=False
     tag_manager._legacy_bulk_add(ids, tags, False)
     assert tag_manager.branch_coverage["legacy_bulk_add_2"] == True
 
-    # Report coverage
     tag_manager.print_coverage()
    

@@ -159,8 +159,8 @@ class TagManager(DeprecatedNamesMixin):
         print("tags.register() is deprecated and no longer works")
 
     branch_coverage = {
-        "legacy_bulk_add_1": False,  # if branch for add=True
-        "legacy_bulk_add_2": False   # else branch
+        "legacy_bulk_add_1": False,
+        "legacy_bulk_add_2": False
     }
 
     def _legacy_bulk_add(self, ids: list[NoteId], tags: str, add: bool = True) -> None:
