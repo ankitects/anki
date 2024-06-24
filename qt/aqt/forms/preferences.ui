@@ -286,11 +286,7 @@
               <property name="maximum">
                <number>999</number>
               </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="label_29">
-              <property name="text">
+              <property name="suffix">
                <string>preferences_mins</string>
               </property>
              </widget>
@@ -305,13 +301,6 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QLabel" name="label_40">
-              <property name="text">
-               <string>preferences_hours_past_midnight</string>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="1">
              <widget class="QSpinBox" name="dayOffset">
               <property name="maximumSize">
@@ -322,6 +311,9 @@
               </property>
               <property name="maximum">
                <number>23</number>
+              </property>
+              <property name="suffix">
+               <string>preferences_hours_past_midnight</string>
               </property>
              </widget>
             </item>
@@ -345,17 +337,13 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="2">
-             <widget class="QLabel" name="label_39">
-              <property name="text">
-               <string>preferences_mins</string>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="1">
              <widget class="QSpinBox" name="timeLimit">
               <property name="maximum">
                <number>9999</number>
+              </property>
+              <property name="suffix">
+               <string>preferences_mins</string>
               </property>
              </widget>
             </item>
@@ -748,11 +736,7 @@
               <property name="maximum">
                <number>99999</number>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_8">
-              <property name="text">
+              <property name="suffix">
                <string>scheduling_seconds</string>
               </property>
              </widget>
