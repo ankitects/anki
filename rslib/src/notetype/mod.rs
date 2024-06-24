@@ -495,13 +495,18 @@ impl Notetype {
         self.reposition_sort_idx();
 
         let mut parsed_templates = self.parsed_templates();
+        let mut parsed_browser_templates = self.parsed_browser_templates();
         let reqs = self.updated_requirements(&parsed_templates);
 
         // handle renamed+deleted fields
         if let Some(existing) = existing {
             let fields = self.renamed_and_removed_fields(existing);
             if !fields.is_empty() {
-                self.update_templates_for_renamed_and_removed_fields(fields, &mut parsed_templates);
+                self.update_templates_for_renamed_and_removed_fields(
+                    fields,
+                    &mut parsed_templates,
+                    &mut parsed_browser_templates,
+                );
             }
         }
         self.config.reqs = reqs;
@@ -556,24 +561,49 @@ impl Notetype {
         &mut self,
         fields: HashMap<String, Option<String>>,
         parsed: &mut [(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+        parsed_browser: &mut [(Option<ParsedTemplate>, Option<ParsedTemplate>)],
     ) {
         let first_remaining_field_name = &self.fields.first().unwrap().name;
         let is_cloze = self.is_cloze();
-        for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
+
+        let q_update_fields = |q_opt: &mut Option<ParsedTemplate>, template_target: &mut String| {
             if let Some(q) = q_opt {
                 q.rename_and_remove_fields(&fields);
                 if !q.contains_field_replacement() || is_cloze && !q.contains_cloze_replacement() {
                     q.add_missing_field_replacement(first_remaining_field_name, is_cloze);
                 }
-                self.templates[idx].config.q_format = q.template_to_string();
+                *template_target = q.template_to_string();
             }
+        };
+
+        let a_update_fields = |a_opt: &mut Option<ParsedTemplate>, template_target: &mut String| {
             if let Some(a) = a_opt {
                 a.rename_and_remove_fields(&fields);
                 if is_cloze && !a.contains_cloze_replacement() {
                     a.add_missing_field_replacement(first_remaining_field_name, is_cloze);
                 }
-                self.templates[idx].config.a_format = a.template_to_string();
+                *template_target = a.template_to_string();
             }
+        };
+
+        // Update main templates
+        for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
+            q_update_fields(q_opt, &mut self.templates[idx].config.q_format);
+
+            a_update_fields(a_opt, &mut self.templates[idx].config.a_format);
+        }
+
+        // Update browser templates, if they exist
+        for (idx, (q_browser_opt, a_browser_opt)) in parsed_browser.iter_mut().enumerate() {
+            q_update_fields(
+                q_browser_opt,
+                &mut self.templates[idx].config.q_format_browser,
+            );
+
+            a_update_fields(
+                a_browser_opt,
+                &mut self.templates[idx].config.a_format_browser,
+            );
         }
     }
 
@@ -581,6 +611,17 @@ impl Notetype {
         self.templates
             .iter()
             .map(|t| (t.parsed_question(), t.parsed_answer()))
+            .collect()
+    }
+    fn parsed_browser_templates(&self) -> Vec<(Option<ParsedTemplate>, Option<ParsedTemplate>)> {
+        self.templates
+            .iter()
+            .map(|t| {
+                (
+                    t.parsed_question_format_for_browser(),
+                    t.parsed_answer_format_for_browser(),
+                )
+            })
             .collect()
     }
 
@@ -790,12 +831,17 @@ mod test {
         nt_norm.add_template("Card 1", "front {{foo}}", "back {{bar}}");
         nt_norm.templates[0].ord = Some(0);
         let mut parsed = nt_norm.parsed_templates();
+        let mut parsed_browser = nt_norm.parsed_browser_templates();
 
         let mut field_map: HashMap<String, Option<String>> = HashMap::new();
         field_map.insert("foo".to_owned(), None);
         field_map.insert("bar".to_owned(), None);
 
-        nt_norm.update_templates_for_renamed_and_removed_fields(field_map, &mut parsed);
+        nt_norm.update_templates_for_renamed_and_removed_fields(
+            field_map,
+            &mut parsed,
+            &mut parsed_browser,
+        );
         assert_eq!(nt_norm.templates[0].config.q_format, "front {{baz}}");
         assert_eq!(nt_norm.templates[0].config.a_format, "back ");
 
@@ -815,7 +861,11 @@ mod test {
         field_map.insert("foo".to_owned(), None);
         field_map.insert("bar".to_owned(), None);
 
-        nt_cloze.update_templates_for_renamed_and_removed_fields(field_map, &mut parsed);
+        nt_cloze.update_templates_for_renamed_and_removed_fields(
+            field_map,
+            &mut parsed,
+            &mut parsed_browser,
+        );
         assert_eq!(nt_cloze.templates[0].config.q_format, "front {{cloze:baz}}");
         assert_eq!(nt_cloze.templates[0].config.a_format, "back {{cloze:baz}}");
 
@@ -837,7 +887,11 @@ mod test {
         let mut field_map: HashMap<String, Option<String>> = HashMap::new();
         field_map.insert("bar".to_owned(), None);
 
-        nt_cloze.update_templates_for_renamed_and_removed_fields(field_map, &mut parsed);
+        nt_cloze.update_templates_for_renamed_and_removed_fields(
+            field_map,
+            &mut parsed,
+            &mut parsed_browser,
+        );
         assert_eq!(nt_cloze.templates[0].config.q_format, "front {{cloze:foo}}");
         assert_eq!(nt_cloze.templates[0].config.a_format, "back {{cloze:foo}}");
     }
