@@ -576,17 +576,21 @@ impl Notetype {
             }
         };
 
-        // Update main templates
-        for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
-            q_update_fields(q_opt, &mut self.templates[idx].config.q_format);
-
+        let a_update_fields = |a_opt: &mut Option<ParsedTemplate>, template_target: &mut String| {
             if let Some(a) = a_opt {
                 a.rename_and_remove_fields(&fields);
                 if is_cloze && !a.contains_cloze_replacement() {
                     a.add_missing_field_replacement(first_remaining_field_name, is_cloze);
                 }
-                self.templates[idx].config.a_format = a.template_to_string();
+                *template_target = a.template_to_string();
             }
+        };
+
+        // Update main templates
+        for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
+            q_update_fields(q_opt, &mut self.templates[idx].config.q_format);
+
+            a_update_fields(a_opt, &mut self.templates[idx].config.a_format);
         }
 
         // Update browser templates, if they exist
@@ -596,13 +600,10 @@ impl Notetype {
                 &mut self.templates[idx].config.q_format_browser,
             );
 
-            if let Some(a_browser) = a_browser_opt {
-                a_browser.rename_and_remove_fields(&fields);
-                if is_cloze && !a_browser.contains_cloze_replacement() {
-                    a_browser.add_missing_field_replacement(first_remaining_field_name, is_cloze);
-                }
-                self.templates[idx].config.a_format_browser = a_browser.template_to_string();
-            }
+            a_update_fields(
+                a_browser_opt,
+                &mut self.templates[idx].config.a_format_browser,
+            );
         }
     }
 
