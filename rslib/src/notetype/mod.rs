@@ -566,15 +566,20 @@ impl Notetype {
         let first_remaining_field_name = &self.fields.first().unwrap().name;
         let is_cloze = self.is_cloze();
 
-        // Update main templates
-        for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
+        let q_update_fields = |q_opt: &mut Option<ParsedTemplate>, template_target: &mut String| {
             if let Some(q) = q_opt {
                 q.rename_and_remove_fields(&fields);
                 if !q.contains_field_replacement() || is_cloze && !q.contains_cloze_replacement() {
                     q.add_missing_field_replacement(first_remaining_field_name, is_cloze);
                 }
-                self.templates[idx].config.q_format = q.template_to_string();
+                *template_target = q.template_to_string();
             }
+        };
+
+        // Update main templates
+        for (idx, (q_opt, a_opt)) in parsed.iter_mut().enumerate() {
+            q_update_fields(q_opt, &mut self.templates[idx].config.q_format);
+
             if let Some(a) = a_opt {
                 a.rename_and_remove_fields(&fields);
                 if is_cloze && !a.contains_cloze_replacement() {
@@ -586,15 +591,11 @@ impl Notetype {
 
         // Update browser templates, if they exist
         for (idx, (q_browser_opt, a_browser_opt)) in parsed_browser.iter_mut().enumerate() {
-            if let Some(q_browser) = q_browser_opt {
-                q_browser.rename_and_remove_fields(&fields);
-                if !q_browser.contains_field_replacement()
-                    || is_cloze && !q_browser.contains_cloze_replacement()
-                {
-                    q_browser.add_missing_field_replacement(first_remaining_field_name, is_cloze);
-                }
-                self.templates[idx].config.q_format_browser = q_browser.template_to_string();
-            }
+            q_update_fields(
+                q_browser_opt,
+                &mut self.templates[idx].config.q_format_browser,
+            );
+
             if let Some(a_browser) = a_browser_opt {
                 a_browser.rename_and_remove_fields(&fields);
                 if is_cloze && !a_browser.contains_cloze_replacement() {
