@@ -46,5 +46,5 @@ then (ivl / cast({today}-due+0.001 as real)) else 100000+due end)",
         }
     };
 
-    format!("{} limit {}", order, term.limit)
+    format!("{}, fnvhash(c.id, c.mod) limit {}", order, term.limit)
 }
