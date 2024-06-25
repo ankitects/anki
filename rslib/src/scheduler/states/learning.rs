@@ -75,8 +75,14 @@ impl LearnState {
             } else {
                 ctx.graduating_interval_good
             };
+
+            let interval = match &ctx.load_balancer {
+                Some(lb) => lb.find_interval(interval as f32),
+                None => ctx.with_review_fuzz(interval as f32, minimum, maximum),
+            };
+
             ReviewState {
-                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+                scheduled_days: interval,
                 ease_factor: ctx.initial_ease_factor,
                 memory_state,
                 ..Default::default()
@@ -94,8 +100,14 @@ impl LearnState {
         } else {
             ctx.graduating_interval_easy
         };
+
+        let interval = match &ctx.load_balancer {
+            Some(lb) => lb.find_interval(interval as f32),
+            None => ctx.with_review_fuzz(interval as f32, minimum, maximum),
+        };
+
         ReviewState {
-            scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+            scheduled_days: interval,
             ease_factor: ctx.initial_ease_factor,
             memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
             ..Default::default()
