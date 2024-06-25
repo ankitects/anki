@@ -141,7 +141,7 @@ impl RelearnState {
             self.review.scheduled_days
         };
         ReviewState {
-            scheduled_days + 1,
+            scheduled_days: scheduled_days + 1,
             elapsed_days: 0,
             memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
             ..self.review
