@@ -625,6 +625,7 @@ exposed_backend_list = [
     "set_wants_abort",
     "evaluate_weights",
     "get_optimal_retention_parameters",
+    "simulate_fsrs_review",
 ]
 
 

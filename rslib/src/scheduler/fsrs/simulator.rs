@@ -7,6 +7,7 @@ use fsrs::simulate;
 use fsrs::SimulatorConfig;
 use itertools::Itertools;
 
+use crate::card::CardQueue;
 use crate::prelude::*;
 use crate::search::SortMode;
 
@@ -22,9 +23,15 @@ impl Collection {
             .get_revlog_entries_for_searched_cards_in_card_order()?;
         let cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
+        let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
+        let converted_cards = cards
+            .into_iter()
+            .filter(|c| c.queue == CardQueue::Review)
+            .filter_map(|c| Card::convert(c, days_elapsed))
+            .collect_vec();
         let p = self.get_optimal_retention_parameters(revlogs)?;
         let config = SimulatorConfig {
-            deck_size: req.deck_size as usize,
+            deck_size: req.deck_size as usize + converted_cards.len(),
             learn_span: req.days_to_simulate as usize,
             max_cost_perday: f64::MAX,
             max_ivl: req.max_interval as f64,
@@ -46,7 +53,6 @@ impl Collection {
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
         };
-        let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let (
             accumulated_knowledge_acquisition,
             daily_review_count,
@@ -57,12 +63,7 @@ impl Collection {
             &req.weights.iter().map(|w| *w as f64).collect_vec(),
             req.desired_retention as f64,
             None,
-            Some(
-                cards
-                    .into_iter()
-                    .filter_map(|c| Card::convert(c, days_elapsed))
-                    .collect_vec(),
-            ),
+            Some(converted_cards),
         );
         Ok(SimulateFsrsReviewResponse {
             accumulated_knowledge_acquisition: accumulated_knowledge_acquisition

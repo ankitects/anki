@@ -7,10 +7,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ComputeRetentionProgress,
         type ComputeWeightsProgress,
     } from "@generated/anki/collection_pb";
-    import { ComputeOptimalRetentionRequest } from "@generated/anki/scheduler_pb";
+    import { ComputeOptimalRetentionRequest, SimulateFsrsReviewRequest } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsWeights,
         computeOptimalRetention,
+        simulateFsrsReview,
         evaluateWeights,
         setWantsAbort,
     } from "@generated/backend";
@@ -67,6 +68,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (optimalRetentionRequest.daysToSimulate > 3650) {
         optimalRetentionRequest.daysToSimulate = 3650;
     }
+
+    const simulateFsrsRequest = new SimulateFsrsReviewRequest({
+        weights: $config.fsrsWeights,
+        desiredRetention: $config.desiredRetention,
+        deckSize: 1000,
+        daysToSimulate: 365,
+        newLimit: $config.newPerDay,
+        reviewLimit: $config.reviewsPerDay,
+        maxInterval: $config.maximumReviewInterval,
+        search: `preset:"${state.getCurrentName()}" -is:suspended`,
+    });
 
     function getRetentionWarning(retention: number): string {
         const decay = -0.5;
@@ -256,6 +268,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         return tr.deckConfigPredictedOptimalRetention({ num: retention.toFixed(2) });
     }
+
+    async function simulateFsrs(): Promise<void> {
+        let result;
+        try {
+            await runWithBackendProgress(
+                async () => {
+                    simulateFsrsRequest.weights = $config.fsrsWeights;
+                    simulateFsrsRequest.desiredRetention = $config.desiredRetention;
+                    simulateFsrsRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
+                    console.log(simulateFsrsRequest);
+                    const resp = await simulateFsrsReview(simulateFsrsRequest);
+                    result = resp;
+                },
+                () => {},
+            );
+        } finally {
+            console.log(result);
+        }
+    }
 </script>
 
 <SpinBoxFloatRow
@@ -374,6 +405,75 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/if}
         {/if}
         <div>{computeRetentionProgressString}</div>
+    </details>
+</div>
+
+<div class="m-2">
+    <details>
+        <summary>FSRS simulator (experimental)</summary>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.daysToSimulate}
+            defaultValue={365}
+            min={1}
+            max={3650}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                Days to simulate
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.deckSize}
+            defaultValue={1000}
+            min={1}
+            max={10000}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                Deck size
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.newLimit}
+            defaultValue={defaults.newPerDay}
+            min={0}
+            max={1000}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                New cards per day
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.reviewLimit}
+            defaultValue={defaults.reviewsPerDay}
+            min={0}
+            max={1000}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                Reviews per day
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.maxInterval}
+            defaultValue={defaults.maximumReviewInterval}
+            min={1}
+            max={36500}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                Maximum review interval
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <button
+            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            disabled={computing}
+            on:click={() => simulateFsrs()}
+        >
+            {"Simulate"}
+        </button>
     </details>
 </div>
 
