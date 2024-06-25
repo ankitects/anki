@@ -42,9 +42,9 @@
         .revert:hover {
             color: var(--fg);
         }
-        &.nightMode :global(input),
+        &.nightMode :global(input[type="date"]),
         &.nightMode :global(textarea) {
-            background-color: rgb(59, 59, 59);
+            background: var(--canvas-inset);
         }
     }
 </style>
