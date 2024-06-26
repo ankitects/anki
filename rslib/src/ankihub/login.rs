@@ -7,7 +7,6 @@ use reqwest::Client;
 use serde;
 use serde::Deserialize;
 use serde::Serialize;
-use serde_json;
 
 use crate::ankihub::http_client::HttpAnkiHubClient;
 use crate::prelude::*;
