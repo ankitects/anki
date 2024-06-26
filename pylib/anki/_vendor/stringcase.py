@@ -89,6 +89,11 @@ def pascalcase(string):
     return capitalcase(camelcase(string))
 
 
+branch_coverage = {
+        "empty_string": False,
+        "non_empty_string": False
+        }
+
 def pathcase(string):
     """Convert string into path case.
     Join punctuation with slash.
@@ -102,9 +107,14 @@ def pathcase(string):
     """
     string = snakecase(string)
     if not string:
+        branch_coverage["empty_string"] = True
         return string
-    return re.sub(r"_", "/", string)
+    branch_coverage["non_empty_string"] = True
+    return re.sub(r"_+", "/", string)
 
+def print_coverage():
+    for branch, hit in branch_coverage.items():
+        print(f"{branch} was {'hit' if hit else 'not hit'}")
 
 def backslashcase(string):
     """Convert string into spinal case.

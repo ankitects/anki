@@ -194,4 +194,6 @@ def test_legacy_bulk_add():
     assert tag_manager.branch_coverage["legacy_bulk_remove"] == True
     assert tag_manager.branch_coverage["legacy_bulk_add"] == False
     tag_manager.print_coverage()
+
+
    
