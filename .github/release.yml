@@ -6,25 +6,20 @@ on:
       - lukas
     paths-ignore:
       - '**/*'
-
 jobs:
   create_release:
     if: contains(github.event.head_commit.message, 'release')
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
     - name: Set up GitHub CLI
       uses: cli/gh-action@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Get current version
       id: get_version
       run: echo "RELEASE_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-
     - name: Create GitHub Release
       env:
         RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
