@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import functools
 import os
 from concurrent.futures import Future
 from typing import Callable
@@ -298,7 +299,7 @@ def sync_login(
     password: str = "",
 ) -> None:
 
-    def on_future_done(fut: Future[SyncAuth]) -> None:
+    def on_future_done(fut: Future[SyncAuth], username: str, password: str) -> None:
         try:
             auth = fut.result()
         except SyncError as e:
@@ -325,7 +326,7 @@ def sync_login(
                 lambda: mw.col.sync_login(
                     username=username, password=password, endpoint=mw.pm.sync_endpoint()
                 ),
-                on_future_done,
+                functools.partial(on_future_done, username=username, password=password),
                 parent=mw,
             )
         else:

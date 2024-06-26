@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
+import functools
 from concurrent.futures import Future
 from typing import Callable
 
 import aqt
 import aqt.main
-from anki.lang import without_unicode_isolation
 from aqt.addons import (
     AddonManager,
     DownloadLogEntry,
@@ -38,7 +38,7 @@ def ankihub_login(
     from_prefs_screen: bool = False,
 ) -> None:
 
-    def on_future_done(fut: Future[str]) -> None:
+    def on_future_done(fut: Future[str], username: str, password: str) -> None:
         try:
             token = fut.result()
         except Exception as exc:
@@ -60,7 +60,7 @@ def ankihub_login(
         if username and password:
             mw.taskman.with_progress(
                 lambda: mw.col.ankihub_login(id=username, password=password),
-                on_future_done,
+                functools.partial(on_future_done, username=username, password=password),
                 parent=mw,
             )
         else:
