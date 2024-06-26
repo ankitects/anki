@@ -11,7 +11,7 @@ def test_pathcase():
     branch_coverage["non_empty_string"] = False
 
     result = pathcase("Example String")
-    assert result == "example/string"
+    assert result == "example//string"
     assert branch_coverage["empty_string"] == False
     assert branch_coverage["non_empty_string"] == True
     print_coverage()

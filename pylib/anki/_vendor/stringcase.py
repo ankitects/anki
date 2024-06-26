@@ -110,7 +110,7 @@ def pathcase(string):
         branch_coverage["empty_string"] = True
         return string
     branch_coverage["non_empty_string"] = True
-    return re.sub(r"_+", "/", string)
+    return re.sub(r"_", "/", string)
 
 def print_coverage():
     for branch, hit in branch_coverage.items():
