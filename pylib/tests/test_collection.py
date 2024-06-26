@@ -184,11 +184,14 @@ def test_legacy_bulk_add():
     tags = "tag1 tag2"
 
     tag_manager._legacy_bulk_add(ids, tags, True)
-    assert tag_manager.branch_coverage["legacy_bulk_add_1"] == True
-    assert tag_manager.branch_coverage["legacy_bulk_add_2"] == False
+    assert tag_manager.branch_coverage["legacy_bulk_add"] == True
+    assert tag_manager.branch_coverage["legacy_bulk_remove"] == False
+    tag_manager.print_coverage()
+
+    tag_manager.branch_coverage["legacy_bulk_add"] = False
 
     tag_manager._legacy_bulk_add(ids, tags, False)
-    assert tag_manager.branch_coverage["legacy_bulk_add_2"] == True
-
+    assert tag_manager.branch_coverage["legacy_bulk_remove"] == True
+    assert tag_manager.branch_coverage["legacy_bulk_add"] == False
     tag_manager.print_coverage()
    
