@@ -1,17 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use lazy_static::lazy_static;
+use regex::Regex;
 use reqwest::Client;
+use serde;
 use serde::Deserialize;
 use serde::Serialize;
+use serde_json;
 
 use crate::ankihub::http_client::HttpAnkiHubClient;
 use crate::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LoginRequest {
-    // FIXME: we need to pass either `username` or `email`
-    pub username: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub username: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
     pub password: String,
 }
 
@@ -21,16 +27,29 @@ pub struct LoginResponse {
 }
 
 pub async fn ankihub_login<S: Into<String>>(
-    username: S,
+    id: S,
     password: S,
     client: Client,
 ) -> Result<LoginResponse> {
     let client = HttpAnkiHubClient::new("", client);
+    lazy_static! {
+        static ref EMAIL_RE: Regex =
+            Regex::new(r"^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$")
+                .unwrap();
+    }
+    let mut request = LoginRequest {
+        username: None,
+        email: None,
+        password: password.into(),
+    };
+    let id: String = id.into();
+    if EMAIL_RE.is_match(&id) {
+        request.email = Some(id);
+    } else {
+        request.username = Some(id);
+    }
     client
-        .login(LoginRequest {
-            username: username.into(),
-            password: password.into(),
-        })
+        .login(request)
         .await?
         .json::<LoginResponse>()
         .await

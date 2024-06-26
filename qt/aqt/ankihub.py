@@ -59,7 +59,7 @@ def ankihub_login(
             return
         if username and password:
             mw.taskman.with_progress(
-                lambda: mw.col.ankihub_login(username=username, password=password),
+                lambda: mw.col.ankihub_login(id=username, password=password),
                 on_future_done,
                 parent=mw,
             )

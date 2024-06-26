@@ -21,7 +21,7 @@ impl crate::services::BackendAnkiHubService for Backend {
         input: anki_proto::ankihub::LoginRequest,
     ) -> Result<anki_proto::ankihub::LoginResponse> {
         let rt = self.runtime_handle();
-        let fut = ankihub_login(input.username, input.password, self.web_client());
+        let fut = ankihub_login(input.id, input.password, self.web_client());
 
         rt.block_on(fut).map(|a| a.into())
     }
