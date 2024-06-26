@@ -58,7 +58,7 @@ sync-ankihub-dialog-heading = Enable AnkiHub?
 sync-ankihub-username-label = Username or Email:
 sync-ankihub-signup-label = Don't have an AnkiHub account? <a href="{ $signup_link }">Sign up now</a><br><a href="{ $password_reset_link }">Forgot password?</a>
 sync-ankihub-sign-in-button-label = Sign in
-sync-ankihub-login-failed = Unable to log in to AnkiHub with provided credentials
+sync-ankihub-login-failed = Unable to log in to AnkiHub with the provided credentials.
 sync-ankihub-addon-installation = AnkiHub Add-on Installation
 
 ## Buttons
