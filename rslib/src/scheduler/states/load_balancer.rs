@@ -75,7 +75,7 @@ impl<'a> LoadBalancer<'a> {
             .map(|before| before as i32 - interval as i32)
             .chain(
                 (interval as u32..after_days)
-                    .filter(|i| *i as u32 > minimum)
+                    .filter(|i| *i >= minimum)
                     .map(|after| after as i32 - interval as i32),
             )
             .enumerate()
