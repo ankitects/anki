@@ -75,7 +75,7 @@ pub(crate) fn with_review_fuzz(
 /// Return the bounds of the fuzz range, respecting `minimum` and `maximum`.
 /// Ensure the upper bound is larger than the lower bound, if `maximum` allows
 /// it and it is larger than 1.
-fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u32) {
+pub(crate) fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u32) {
     let minimum = minimum.min(maximum);
     let interval = interval.clamp(minimum as f32, maximum as f32);
     let (mut lower, mut upper) = fuzz_bounds(interval);

@@ -4,7 +4,7 @@
 use std::cmp::Ordering;
 use std::collections::HashSet;
 
-use super::fuzz::fuzz_bounds;
+use super::fuzz::constrained_fuzz_bounds;
 use crate::decks::DeckId;
 use crate::notes::NoteId;
 use crate::storage::SqliteStorage;
@@ -51,7 +51,7 @@ impl<'a> LoadBalancer<'a> {
         }
     }
 
-    pub fn find_interval(&self, interval: f32) -> u32 {
+    pub fn find_interval(&self, interval: f32, minimum: u32, maximum: u32) -> u32 {
         // if we're sending a card far out into the future, the need to balance is low
         if interval as u32 > MAX_LOAD_BALANCE_INTERVAL {
             println!(
@@ -61,7 +61,7 @@ impl<'a> LoadBalancer<'a> {
             return interval as u32;
         }
 
-        let (before_days, after_days) = fuzz_bounds(interval);
+        let (before_days, after_days) = constrained_fuzz_bounds(interval, minimum, maximum);
         let after_days = after_days + 1; // +1 to make the range inclusive of the actual value
 
         // ok this looks weird but its a totally reasonable thing
