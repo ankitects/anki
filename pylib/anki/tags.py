@@ -179,6 +179,11 @@ class TagManager(DeprecatedNamesMixin):
     def _legacy_bulk_rem(self, ids: list[NoteId], tags: str) -> None:
         self._legacy_bulk_add(ids, tags, False)
 
+    # results = _legacy_bulk_add([1,2], "tag1 tag2", True)
+    # print_coverage2(results)
+    # results = _legacy_bulk_add([1,2], "tag1 tag2", False)
+    # print_coverage2(results)
+
     @deprecated(info="no longer used by Anki, and will be removed in the future")
     def by_deck(self, did: DeckId, children: bool = False) -> list[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
