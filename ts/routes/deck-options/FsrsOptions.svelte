@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ComputeRetentionProgress,
         type ComputeWeightsProgress,
     } from "@generated/anki/collection_pb";
-    import { ComputeOptimalRetentionRequest, SimulateFsrsReviewRequest } from "@generated/anki/scheduler_pb";
+    import { ComputeOptimalRetentionRequest, SimulateFsrsReviewRequest, SimulateFsrsReviewResponse } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsWeights,
         computeOptimalRetention,
@@ -29,6 +29,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
     import WeightsSearchRow from "./WeightsSearchRow.svelte";
+    import { renderSimulationChart } from "../graphs/simulator";
+    import Graph from "../graphs/Graph.svelte";
+    import HoverColumns from "../graphs/HoverColumns.svelte";
+    import CumulativeOverlay from "../graphs/CumulativeOverlay.svelte";
+    import AxisTicks from "../graphs/AxisTicks.svelte";
+    import NoDataOverlay from "../graphs/NoDataOverlay.svelte";
+    import TableData from "../graphs/TableData.svelte";
+    import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -269,8 +277,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return tr.deckConfigPredictedOptimalRetention({ num: retention.toFixed(2) });
     }
 
+    let tableData: TableDatum[] = [] as any;
+    const bounds = defaultGraphBounds();
+    let svg = null as HTMLElement | SVGElement | null;
+    const title = tr.statisticsReviewsTitle();
+    let subtitle = "";
+
     async function simulateFsrs(): Promise<void> {
-        let result;
+        let resp: SimulateFsrsReviewResponse | undefined;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -278,15 +292,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
                     simulateFsrsRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
                     console.log(simulateFsrsRequest);
-                    const resp = await simulateFsrsReview(simulateFsrsRequest);
-                    result = resp;
+                    resp = await simulateFsrsReview(simulateFsrsRequest);
                 },
                 () => {},
             );
         } finally {
-            console.log(result);
+            if (resp) {
+                tableData = renderSimulationChart(svg as SVGElement, bounds, resp);
+            }
         }
     }
+
+
+
 </script>
 
 <SpinBoxFloatRow
@@ -474,6 +492,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             {"Simulate"}
         </button>
+
+        <Graph {title} {subtitle}>
+
+        
+            <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
+                {#each [1, 0] as i}
+                    <g class="bars{i}" />
+                {/each}
+                <!-- <CumulativeOverlay />
+                <HoverColumns /> -->
+                <AxisTicks {bounds} />
+                <NoDataOverlay {bounds} />
+            </svg>
+        
+            <TableData {tableData} />
+        </Graph>
+        
     </details>
 </div>
 
