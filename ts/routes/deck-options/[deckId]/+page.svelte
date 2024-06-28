@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount } from "svelte";
     import DeckOptionsPage from "../DeckOptionsPage.svelte";
     import type { PageData } from "./$types";
-    import { bridgeCommand } from "@tslib/bridgecommand";
+    import { bridgeCommand, bridgeCommandsAvailable } from "@tslib/bridgecommand";
 
     export let data: PageData;
     let page: DeckOptionsPage;
@@ -15,7 +15,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         globalThis.$deckOptions = new Promise((resolve, _reject) => {
             resolve(page);
         });
-        bridgeCommand("deckOptionsReady");
+        if (bridgeCommandsAvailable()) {
+            bridgeCommand("deckOptionsReady");
+        }
     });
 </script>
 
