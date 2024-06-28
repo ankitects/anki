@@ -423,7 +423,7 @@ deck-config-compute-optimal-weights-tooltip2 =
     optionally adjust the search before calculating the parameters, if you'd like to alter which cards are used for
     optimizing the parameters.
 deck-config-compute-optimal-retention-tooltip4 =
-    This tool assumes that you’re starting with 0 learned cards, and will attempt to find the desired retention value 
+    This tool will attempt to find the desired retention value 
     that will lead to the most material learnt, in the least amount of time. The calculated number can serve as a reference
     when deciding what to set your desired retention to. You may wish to choose a higher desired retention, if you’re 
     willing to trade more study time for a greater recall rate. Setting your desired retention lower than the minimum
