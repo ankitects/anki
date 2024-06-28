@@ -415,20 +415,19 @@ deck-config-ignore-before-tooltip =
     This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
 deck-config-compute-optimal-weights-tooltip2 =
     When you click the Optimize button, FSRS will analyze your review history, and generate parameters that are 
-    optimal for your memory and the content you're studying. If your decks vary wildly in difficulty, it 
+    optimal for your memory and the content you're studying. If your decks vary wildly in subjective difficulty, it 
     is recommended to assign them separate presets, as the parameters for easy decks and hard decks will be different. 
     You don't need to optimize your parameters frequently - once every few months is sufficient.
     
     By default, parameters will be calculated from the review history of all decks using the current preset. You can
     optionally adjust the search before calculating the parameters, if you'd like to alter which cards are used for
     optimizing the parameters.
-deck-config-compute-optimal-retention-tooltip3 =
-    This tool assumes that you’re starting with 0 learned cards, and will attempt to find the desired retention value 
-    that will lead to the most material learnt, in the least amount of time. To accurately simulate your learning process, 
-    this feature requires a minimum of 400+ reviews. The calculated number can serve as a reference when deciding what to 
-    set your desired retention to. You may wish to choose a higher desired retention, if you’re willing to trade more study 
-    time for a greater recall rate. Setting your desired retention lower than the minimum is not recommended, as it will 
-    lead to a higher workload, because of the high forgetting rate.
+deck-config-compute-optimal-retention-tooltip4 =
+    This tool will attempt to find the desired retention value 
+    that will lead to the most material learnt, in the least amount of time. The calculated number can serve as a reference
+    when deciding what to set your desired retention to. You may wish to choose a higher desired retention, if you’re 
+    willing to trade more study time for a greater recall rate. Setting your desired retention lower than the minimum
+    is not recommended, as it will lead to a higher workload, because of the high forgetting rate.
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-a-100-day-interval = 
     { $days ->
@@ -499,3 +498,10 @@ deck-config-compute-optimal-retention-tooltip2 =
     reference when deciding what to set your desired retention to. You may wish to choose a higher desired retention,
     if you’re willing to trade more study time for a greater recall rate. Setting your desired retention lower than
     the minimum is not recommended, as it will lead to more work without benefit.
+deck-config-compute-optimal-retention-tooltip3 =
+    This tool assumes that you’re starting with 0 learned cards, and will attempt to find the desired retention value 
+    that will lead to the most material learnt, in the least amount of time. To accurately simulate your learning process, 
+    this feature requires a minimum of 400+ reviews. The calculated number can serve as a reference when deciding what to 
+    set your desired retention to. You may wish to choose a higher desired retention, if you’re willing to trade more study 
+    time for a greater recall rate. Setting your desired retention lower than the minimum is not recommended, as it will 
+    lead to a higher workload, because of the high forgetting rate.
