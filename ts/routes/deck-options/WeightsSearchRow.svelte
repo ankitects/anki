@@ -10,5 +10,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ConfigInput>
-    <input bind:value {placeholder} class="w-100 mb-1" />
+    <input type="text" bind:value {placeholder} class="w-100 mb-1" />
 </ConfigInput>
