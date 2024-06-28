@@ -415,7 +415,7 @@ deck-config-ignore-before-tooltip =
     This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
 deck-config-compute-optimal-weights-tooltip2 =
     When you click the Optimize button, FSRS will analyze your review history, and generate parameters that are 
-    optimal for your memory and the content you're studying. If your decks vary wildly in difficulty, it 
+    optimal for your memory and the content you're studying. If your decks vary wildly in subjective difficulty, it 
     is recommended to assign them separate presets, as the parameters for easy decks and hard decks will be different. 
     You don't need to optimize your parameters frequently - once every few months is sufficient.
     
