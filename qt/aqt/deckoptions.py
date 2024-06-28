@@ -43,6 +43,7 @@ class DeckOptionsDialog(QDialog):
         addCloseShortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS)
+        self.web.set_bridge_command(self._on_bridge_cmd, self)
         self.web.load_sveltekit_page(f"deck-options/{self._deck['id']}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -53,7 +54,10 @@ class DeckOptionsDialog(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )
-        gui_hooks.deck_options_did_load(self)
+
+    def _on_bridge_cmd(self, cmd: str) -> None:
+        if cmd == "deckOptionsReady":
+            gui_hooks.deck_options_did_load(self)
 
     def reject(self) -> None:
         self.mw.col.set_wants_abort()
