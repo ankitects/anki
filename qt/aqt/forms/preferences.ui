@@ -279,15 +279,15 @@
              <widget class="QSpinBox" name="lrnCutoff">
               <property name="maximumSize">
                <size>
-                <width>60</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="maximum">
-               <number>999</number>
-              </property>
               <property name="suffix">
                <string>preferences_mins</string>
+              </property>
+              <property name="maximum">
+               <number>999</number>
               </property>
              </widget>
             </item>
@@ -305,15 +305,15 @@
              <widget class="QSpinBox" name="dayOffset">
               <property name="maximumSize">
                <size>
-                <width>60</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="maximum">
-               <number>23</number>
-              </property>
               <property name="suffix">
                <string>preferences_hours_past_midnight</string>
+              </property>
+              <property name="maximum">
+               <number>23</number>
               </property>
              </widget>
             </item>
@@ -339,11 +339,11 @@
             </item>
             <item row="2" column="1">
              <widget class="QSpinBox" name="timeLimit">
-              <property name="maximum">
-               <number>9999</number>
-              </property>
               <property name="suffix">
                <string>preferences_mins</string>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
               </property>
              </widget>
             </item>
@@ -730,29 +730,16 @@
             </item>
             <item>
              <widget class="QSpinBox" name="network_timeout">
+              <property name="suffix">
+               <string>scheduling_seconds</string>
+              </property>
               <property name="minimum">
                <number>30</number>
               </property>
               <property name="maximum">
                <number>99999</number>
               </property>
-              <property name="suffix">
-               <string>scheduling_seconds</string>
-              </property>
              </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </item>
