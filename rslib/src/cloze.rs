@@ -161,11 +161,15 @@ fn parse_text_with_clozes(text: &str) -> Vec<TextOrCloze<'_>> {
     let mut output = vec![];
     for token in tokenize(text) {
         match token {
-            Token::OpenCloze(ordinal) => open_clozes.push(ExtractedCloze {
-                ordinal,
-                nodes: Vec::with_capacity(1), // common case
-                hint: None,
-            }),
+            Token::OpenCloze(ordinal) => {
+                if open_clozes.len() < 3 {
+                    open_clozes.push(ExtractedCloze {
+                        ordinal,
+                        nodes: Vec::with_capacity(1), // common case
+                        hint: None,
+                    })
+                }
+            }
             Token::Text(mut text) => {
                 if let Some(cloze) = open_clozes.last_mut() {
                     // extract hint if found
@@ -225,7 +229,6 @@ fn reveal_cloze(
     question: bool,
     active_cloze_found_in_text: &mut bool,
     buf: &mut String,
-    nesting_level: usize,
 ) {
     let active = cloze.ordinal == cloze_ord;
     *active_cloze_found_in_text |= active;
@@ -251,19 +254,13 @@ fn reveal_cloze(
                         question,
                         active_cloze_found_in_text,
                         &mut content_buf,
-                        nesting_level + 1,
                     ),
                 }
             }
             write!(
                 buf,
                 r#"<span class="cloze" data-cloze="{}" data-ordinal="{}">[{}]</span>"#,
-                // Limit nesting level to prevent high memory consumption
-                if nesting_level < 11 {
-                    encode_attribute(&content_buf)
-                } else {
-                    "".to_string()
-                },
+                encode_attribute(&content_buf),
                 cloze.ordinal,
                 cloze.hint()
             )
@@ -279,14 +276,9 @@ fn reveal_cloze(
             for node in &cloze.nodes {
                 match node {
                     TextOrCloze::Text(text) => buf.push_str(text),
-                    TextOrCloze::Cloze(cloze) => reveal_cloze(
-                        cloze,
-                        cloze_ord,
-                        question,
-                        active_cloze_found_in_text,
-                        buf,
-                        nesting_level + 1,
-                    ),
+                    TextOrCloze::Cloze(cloze) => {
+                        reveal_cloze(cloze, cloze_ord, question, active_cloze_found_in_text, buf)
+                    }
                 }
             }
             buf.push_str("</span>");
@@ -302,14 +294,9 @@ fn reveal_cloze(
             for node in &cloze.nodes {
                 match node {
                     TextOrCloze::Text(text) => buf.push_str(text),
-                    TextOrCloze::Cloze(cloze) => reveal_cloze(
-                        cloze,
-                        cloze_ord,
-                        question,
-                        active_cloze_found_in_text,
-                        buf,
-                        nesting_level + 1,
-                    ),
+                    TextOrCloze::Cloze(cloze) => {
+                        reveal_cloze(cloze, cloze_ord, question, active_cloze_found_in_text, buf)
+                    }
                 }
             }
             buf.push_str("</span>")
@@ -375,7 +362,6 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
                 question,
                 &mut active_cloze_found_in_text,
                 &mut buf,
-                0,
             ),
         }
     }
