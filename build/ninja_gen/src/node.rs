@@ -214,16 +214,13 @@ pub struct SvelteCheck {
 
 impl BuildAction for SvelteCheck {
     fn command(&self) -> &str {
-        if cfg!(windows) {
-            "cmd /c yarn svelte-check:once"
-        } else {
-            "./yarn svelte-check:once"
-        }
+        "$yarn svelte-check:once"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
         build.add_inputs("svelte-check", inputs![":node_modules:svelte-check"]);
         build.add_inputs("tsconfig", &self.tsconfig);
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
         build.add_inputs("", &self.inputs);
         build.add_inputs("", inputs!["yarn.lock"]);
         build.add_variable(
@@ -298,15 +295,12 @@ pub struct ViteTest {
 
 impl BuildAction for ViteTest {
     fn command(&self) -> &str {
-        if cfg!(windows) {
-            "cmd /c yarn vitest:once"
-        } else {
-            "./yarn vitest:once"
-        }
+        "$yarn vitest:once"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
         build.add_inputs("vitest", inputs![":node_modules:vitest"]);
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
         build.add_inputs("", &self.deps);
         build.add_output_stamp("tests/vitest");
     }
@@ -457,11 +451,7 @@ pub struct SveltekitBuild {
 impl BuildAction for SveltekitBuild {
     fn command(&self) -> &str {
         if std::env::var("HMR").is_err() {
-            if cfg!(windows) {
-                "cmd /c yarn build"
-            } else {
-                "$yarn build"
-            }
+            "$yarn build"
         } else {
             "echo"
         }
