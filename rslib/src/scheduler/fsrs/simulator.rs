@@ -26,8 +26,8 @@ impl Collection {
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let converted_cards = cards
             .into_iter()
-            .filter(|c| c.queue == CardQueue::Review)
-            .filter_map(|c| Card::convert(c, days_elapsed))
+            .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
+            .filter_map(|c| Card::convert(c, days_elapsed, req.days_to_simulate))
             .collect_vec();
         let p = self.get_optimal_retention_parameters(revlogs)?;
         let config = SimulatorConfig {
@@ -78,19 +78,42 @@ impl Collection {
 }
 
 impl Card {
-    fn convert(card: Card, days_elapsed: i32) -> Option<fsrs::Card> {
+    fn convert(card: Card, days_elapsed: i32, day_to_simulate: u32) -> Option<fsrs::Card> {
         match card.memory_state {
-            Some(state) => {
-                let due = card.original_or_current_due();
-                let relative_due = due - days_elapsed;
-                Some(fsrs::Card {
-                    difficulty: state.difficulty as f64,
-                    stability: state.stability as f64,
-                    last_date: (relative_due - card.interval as i32) as f64,
-                    due: relative_due as f64,
-                })
-            }
-            None => None,
+            Some(state) => match card.queue {
+                CardQueue::DayLearn | CardQueue::Review => {
+                    let due = card.original_or_current_due();
+                    let relative_due = due - days_elapsed;
+                    Some(fsrs::Card {
+                        difficulty: state.difficulty as f64,
+                        stability: state.stability as f64,
+                        last_date: (relative_due - card.interval as i32) as f64,
+                        due: relative_due as f64,
+                    })
+                }
+                CardQueue::New => Some(fsrs::Card {
+                    difficulty: 1e-10,
+                    stability: 1e-10,
+                    last_date: 0.0,
+                    due: day_to_simulate as f64,
+                }),
+                CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => {
+                    Some(fsrs::Card {
+                        difficulty: state.difficulty as f64,
+                        stability: state.stability as f64,
+                        last_date: 0.0,
+                        due: 0.0,
+                    })
+                }
+                CardQueue::PreviewRepeat => None,
+                CardQueue::Suspended => None,
+            },
+            None => Some(fsrs::Card {
+                difficulty: 1e-10,
+                stability: 1e-10,
+                last_date: 0.0,
+                due: day_to_simulate as f64,
+            }),
         }
     }
 }

@@ -7,7 +7,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ComputeRetentionProgress,
         type ComputeWeightsProgress,
     } from "@generated/anki/collection_pb";
-    import { ComputeOptimalRetentionRequest, SimulateFsrsReviewRequest, SimulateFsrsReviewResponse } from "@generated/anki/scheduler_pb";
+    import {
+        ComputeOptimalRetentionRequest,
+        SimulateFsrsReviewRequest,
+        SimulateFsrsReviewResponse,
+    } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsWeights,
         computeOptimalRetention,
@@ -302,9 +306,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }
     }
-
-
-
 </script>
 
 <SpinBoxFloatRow
@@ -448,7 +449,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={10000}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Deck size
+                Additional new cards
             </SettingTitle>
         </SpinBoxRow>
 
@@ -459,7 +460,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={1000}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                New cards per day
+                New cards/day
             </SettingTitle>
         </SpinBoxRow>
 
@@ -470,7 +471,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={1000}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Reviews per day
+                Maximum reviews/day
             </SettingTitle>
         </SpinBoxRow>
 
@@ -481,7 +482,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={36500}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Maximum review interval
+                Maximum interval
             </SettingTitle>
         </SpinBoxRow>
 
@@ -494,21 +495,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </button>
 
         <Graph {title} {subtitle}>
-
-        
             <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
                 {#each [1, 0] as i}
-                    <g class="bars{i}" />
+                    <g class="lines{i}" />
                 {/each}
-                <!-- <CumulativeOverlay />
-                <HoverColumns /> -->
+                <CumulativeOverlay />
+                <HoverColumns />
                 <AxisTicks {bounds} />
                 <NoDataOverlay {bounds} />
             </svg>
-        
+
             <TableData {tableData} />
         </Graph>
-        
     </details>
 </div>
 
