@@ -671,11 +671,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         # we've signaled the primary instance, so we should close
         return None
 
-    setup_logging(
-        pm.addon_logs(),
-        level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
-    )
-
     if not pm:
         if i18n_setup:
             QMessageBox.critical(
@@ -686,6 +681,11 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         else:
             QMessageBox.critical(None, "Startup Failed", "Unable to create data folder")
         return None
+    
+    setup_logging(
+        pm.addon_logs(),
+        level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
+    )
 
     # disable icons on mac; this must be done before window created
     if is_mac:
