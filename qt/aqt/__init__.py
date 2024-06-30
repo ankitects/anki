@@ -681,7 +681,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         else:
             QMessageBox.critical(None, "Startup Failed", "Unable to create data folder")
         return None
-    
+
     setup_logging(
         pm.addon_logs(),
         level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
