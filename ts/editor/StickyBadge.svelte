@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
+    import { onEnterOrSpace } from "@tslib/keys";
     import { onMount } from "svelte";
 
     import Badge from "$lib/components/Badge.svelte";
@@ -43,6 +44,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:highlighted={active}
     class:visible={show || !animated}
     on:click|stopPropagation={toggle}
+    on:keydown={onEnterOrSpace(() => toggle())}
+    tabindex="-1"
+    role="button"
 >
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
