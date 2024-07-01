@@ -4,10 +4,12 @@
 use axum::extract::Path;
 use axum::extract::Query;
 use axum::extract::State;
+use axum::response::IntoResponse;
 use axum::response::Response;
 use axum::routing::get;
 use axum::routing::post;
 use axum::Router;
+use hyper::StatusCode;
 
 use crate::sync::collection::protocol::SyncMethod;
 use crate::sync::collection::protocol::SyncProtocol;
@@ -86,6 +88,11 @@ async fn media_begin_post<P: MediaSyncProtocol>(
     media_sync_handler(Path(MediaSyncMethod::Begin), server, req.into_output_type()).await
 }
 
+async fn health_check_handler<P: MediaSyncProtocol>() -> impl IntoResponse {
+    StatusCode::OK
+
+}
+
 async fn media_sync_handler<P: MediaSyncProtocol>(
     Path(method): Path<MediaSyncMethod>,
     State(server): State<P>,
@@ -98,6 +105,11 @@ async fn media_sync_handler<P: MediaSyncProtocol>(
         MediaSyncMethod::DownloadFiles => sync_method!(server, request, download_files),
         MediaSyncMethod::MediaSanity => sync_method!(server, request, media_sanity_check),
     })
+}
+
+pub fn health_check_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
+    Router::new()
+        .route("/", get(health_check_handler::<P>))
 }
 
 pub fn media_sync_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
