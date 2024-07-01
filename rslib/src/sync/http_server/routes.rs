@@ -88,7 +88,8 @@ async fn media_begin_post<P: MediaSyncProtocol>(
     media_sync_handler(Path(MediaSyncMethod::Begin), server, req.into_output_type()).await
 }
 
-async fn health_check_handler<P: MediaSyncProtocol>() -> impl IntoResponse {
+#[allow(clippy::extra_unused_type_parameters)]
+async fn health_check_handler<P>() -> impl IntoResponse {
     StatusCode::OK
 }
 
