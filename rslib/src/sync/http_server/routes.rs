@@ -90,7 +90,6 @@ async fn media_begin_post<P: MediaSyncProtocol>(
 
 async fn health_check_handler<P: MediaSyncProtocol>() -> impl IntoResponse {
     StatusCode::OK
-
 }
 
 async fn media_sync_handler<P: MediaSyncProtocol>(
@@ -108,8 +107,7 @@ async fn media_sync_handler<P: MediaSyncProtocol>(
 }
 
 pub fn health_check_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
-    Router::new()
-        .route("/", get(health_check_handler::<P>))
+    Router::new().route("/", get(health_check_handler::<P>))
 }
 
 pub fn media_sync_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
