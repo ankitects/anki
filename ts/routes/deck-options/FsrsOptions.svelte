@@ -7,10 +7,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ComputeRetentionProgress,
         type ComputeWeightsProgress,
     } from "@generated/anki/collection_pb";
-    import { ComputeOptimalRetentionRequest } from "@generated/anki/scheduler_pb";
+    import {
+        ComputeOptimalRetentionRequest,
+        SimulateFsrsReviewRequest,
+        SimulateFsrsReviewResponse,
+    } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsWeights,
         computeOptimalRetention,
+        simulateFsrsReview,
         evaluateWeights,
         setWantsAbort,
     } from "@generated/backend";
@@ -28,6 +33,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
     import WeightsSearchRow from "./WeightsSearchRow.svelte";
+    import { renderSimulationChart } from "../graphs/simulator";
+    import Graph from "../graphs/Graph.svelte";
+    import HoverColumns from "../graphs/HoverColumns.svelte";
+    import CumulativeOverlay from "../graphs/CumulativeOverlay.svelte";
+    import AxisTicks from "../graphs/AxisTicks.svelte";
+    import NoDataOverlay from "../graphs/NoDataOverlay.svelte";
+    import TableData from "../graphs/TableData.svelte";
+    import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -67,6 +80,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (optimalRetentionRequest.daysToSimulate > 3650) {
         optimalRetentionRequest.daysToSimulate = 3650;
     }
+
+    const simulateFsrsRequest = new SimulateFsrsReviewRequest({
+        weights: $config.fsrsWeights,
+        desiredRetention: $config.desiredRetention,
+        deckSize: 1000,
+        daysToSimulate: 365,
+        newLimit: $config.newPerDay,
+        reviewLimit: $config.reviewsPerDay,
+        maxInterval: $config.maximumReviewInterval,
+        search: `preset:"${state.getCurrentName()}" -is:suspended`,
+    });
 
     function getRetentionWarning(retention: number): string {
         const decay = -0.5;
@@ -256,6 +280,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         return tr.deckConfigPredictedOptimalRetention({ num: retention.toFixed(2) });
     }
+
+    let tableData: TableDatum[] = [] as any;
+    const bounds = defaultGraphBounds();
+    let svg = null as HTMLElement | SVGElement | null;
+    const title = tr.statisticsReviewsTitle();
+    let subtitle = "";
+
+    async function simulateFsrs(): Promise<void> {
+        let resp: SimulateFsrsReviewResponse | undefined;
+        try {
+            await runWithBackendProgress(
+                async () => {
+                    simulateFsrsRequest.weights = $config.fsrsWeights;
+                    simulateFsrsRequest.desiredRetention = $config.desiredRetention;
+                    simulateFsrsRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
+                    console.log(simulateFsrsRequest);
+                    resp = await simulateFsrsReview(simulateFsrsRequest);
+                },
+                () => {},
+            );
+        } finally {
+            if (resp) {
+                tableData = renderSimulationChart(svg as SVGElement, bounds, resp);
+            }
+        }
+    }
 </script>
 
 <SpinBoxFloatRow
@@ -374,6 +424,89 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/if}
         {/if}
         <div>{computeRetentionProgressString}</div>
+    </details>
+</div>
+
+<div class="m-2">
+    <details>
+        <summary>FSRS simulator (experimental)</summary>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.daysToSimulate}
+            defaultValue={365}
+            min={1}
+            max={3650}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                Days to simulate
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.deckSize}
+            defaultValue={1000}
+            min={1}
+            max={10000}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                Additional new cards
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.newLimit}
+            defaultValue={defaults.newPerDay}
+            min={0}
+            max={1000}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                New cards/day
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.reviewLimit}
+            defaultValue={defaults.reviewsPerDay}
+            min={0}
+            max={1000}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                Maximum reviews/day
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <SpinBoxRow
+            bind:value={simulateFsrsRequest.maxInterval}
+            defaultValue={defaults.maximumReviewInterval}
+            min={1}
+            max={36500}
+        >
+            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                Maximum interval
+            </SettingTitle>
+        </SpinBoxRow>
+
+        <button
+            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            disabled={computing}
+            on:click={() => simulateFsrs()}
+        >
+            {"Simulate"}
+        </button>
+
+        <Graph {title} {subtitle}>
+            <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
+                {#each [1, 0] as i}
+                    <g class="lines{i}" />
+                {/each}
+                <CumulativeOverlay />
+                <HoverColumns />
+                <AxisTicks {bounds} />
+                <NoDataOverlay {bounds} />
+            </svg>
+
+            <TableData {tableData} />
+        </Graph>
     </details>
 </div>
 
