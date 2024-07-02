@@ -12,6 +12,7 @@ import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
 from aqt import AnkiQt
+from aqt.ankihub import ankihub_login, ankihub_logout
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
@@ -201,16 +202,27 @@ class Preferences(QDialog):
         self.update_login_status()
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
         qconnect(self.form.syncLogin.clicked, self.sync_login)
+        qconnect(self.form.syncAnkiHubLogout.clicked, self.ankihub_sync_logout)
+        qconnect(self.form.syncAnkiHubLogin.clicked, self.ankihub_sync_login)
 
     def update_login_status(self) -> None:
         if not self.prof.get("syncKey"):
-            self.form.syncUser.setText(tr.preferences_not_logged_in())
+            self.form.syncUser.setText(tr.preferences_ankiweb_intro())
             self.form.syncLogin.setVisible(True)
             self.form.syncLogout.setVisible(False)
         else:
             self.form.syncUser.setText(self.prof.get("syncUser", ""))
             self.form.syncLogin.setVisible(False)
             self.form.syncLogout.setVisible(True)
+
+        if not self.mw.pm.ankihub_token():
+            self.form.syncAnkiHubUser.setText(tr.preferences_ankihub_intro())
+            self.form.syncAnkiHubLogin.setVisible(True)
+            self.form.syncAnkiHubLogout.setVisible(False)
+        else:
+            self.form.syncAnkiHubUser.setText(self.mw.pm.ankihub_username())
+            self.form.syncAnkiHubLogin.setVisible(False)
+            self.form.syncAnkiHubLogout.setVisible(True)
 
     def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
@@ -230,6 +242,20 @@ class Preferences(QDialog):
         self.prof["syncKey"] = None
         self.mw.col.media.force_resync()
         self.update_login_status()
+
+    def ankihub_sync_login(self) -> None:
+        def on_success():
+            if self.mw.pm.ankihub_token():
+                self.update_login_status()
+
+        ankihub_login(self.mw, on_success, from_prefs_screen=True)
+
+    def ankihub_sync_logout(self) -> None:
+        def on_success():
+            self.mw.pm.set_ankihub_token(None)
+            self.update_login_status()
+
+        ankihub_logout(self.mw, on_success, self.mw.pm.ankihub_token())
 
     def confirm_sync_after_login(self) -> None:
         from aqt import mw

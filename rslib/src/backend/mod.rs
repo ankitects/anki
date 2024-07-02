@@ -3,6 +3,7 @@
 
 mod adding;
 mod ankidroid;
+mod ankihub;
 mod ankiweb;
 mod card_rendering;
 mod collection;
