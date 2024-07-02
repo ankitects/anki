@@ -40,6 +40,7 @@ use crate::sync::error::OrHttpErr;
 use crate::sync::http_server::logging::with_logging_layer;
 use crate::sync::http_server::media_manager::ServerMediaManager;
 use crate::sync::http_server::routes::collection_sync_router;
+use crate::sync::http_server::routes::health_check_router;
 use crate::sync::http_server::routes::media_sync_router;
 use crate::sync::http_server::user::User;
 use crate::sync::login::HostKeyRequest;
@@ -236,6 +237,7 @@ impl SimpleServer {
         let addr = listener.local_addr().unwrap();
         let server = with_logging_layer(
             Router::new()
+                .nest("/health", health_check_router())
                 .nest("/sync", collection_sync_router())
                 .nest("/msync", media_sync_router())
                 .with_state(server)
