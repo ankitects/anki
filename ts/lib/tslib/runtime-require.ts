@@ -27,7 +27,8 @@ type AnkiPackages =
     | "anki/location"
     | "anki/surround"
     | "anki/ui"
-    | "anki/reviewer";
+    | "anki/reviewer"
+    | "anki/ExportPage";
 type PackageDeprecation<T extends Record<string, unknown>> = {
     [key in keyof T]?: string;
 };
@@ -77,6 +78,24 @@ function require<T extends AnkiPackages>(name: T): Record<string, unknown> | und
     }
 }
 
+// Resolves as soon as the requested package is available.
+function requireAsync<T extends AnkiPackages>(name: T): Promise<Record<string, unknown>> {
+    return new Promise((resolve) => {
+        const runtimePackage = runtimePackages[name];
+        if (runtimePackage !== undefined) {
+            resolve(runtimePackage);
+        } else {
+            const intervalId = setInterval(() => {
+                const runtimePackage = runtimePackages[name];
+                if (runtimePackage !== undefined) {
+                    clearInterval(intervalId);
+                    resolve(runtimePackage);
+                }
+            }, 50);
+        }
+    });
+}
+
 function listPackages(): string[] {
     return Object.keys(runtimePackages);
 }
@@ -91,8 +110,8 @@ function hasPackages(...names: string[]): boolean {
     return true;
 }
 
-// Export require() as a global.
-Object.assign(globalThis, { require });
+// Export require() and requireAsync() as globals.
+Object.assign(globalThis, { require, requireAsync });
 
 registerPackage("anki/packages", {
     // We also register require here, so add-ons can have a type-save variant of require (TODO, see AnkiPackages above)

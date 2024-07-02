@@ -10,6 +10,8 @@ package anki.frontend;
 import "anki/scheduler.proto";
 import "anki/generic.proto";
 import "anki/search.proto";
+import "anki/notes.proto";
+import "anki/import_export.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -22,6 +24,18 @@ service FrontendService {
   rpc ImportDone(generic.Empty) returns (generic.Empty);
 
   rpc SearchInBrowser(search.SearchNode) returns (generic.Empty);
+
+  // Get an export location chosen by the user
+  rpc GetExportFilePath(ExportFilePathRequest) returns (generic.String);
+
+  // Retrieve note ids to include in export file
+  rpc GetNotesToExport(generic.Empty) returns (notes.NoteIds);
+
+  // Show a tooltip in the main window
+  rpc ShowTooltip(generic.String) returns (generic.Empty);
+
+  rpc TemporarilyCloseAndExportCollectionPackage(
+      import_export.ExportCollectionPackageRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -34,4 +48,10 @@ message SchedulingStatesWithContext {
 message SetSchedulingStatesRequest {
   string key = 1;
   scheduler.SchedulingStates states = 2;
+}
+
+message ExportFilePathRequest {
+  string exporter = 1;
+  string extension = 2;
+  string filename = 3;
 }

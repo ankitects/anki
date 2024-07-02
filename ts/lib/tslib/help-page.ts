@@ -44,5 +44,13 @@ export const HelpPage = {
         root: "https://docs.ankiweb.net/importing/text-files.html",
         updating: "https://docs.ankiweb.net/importing/text-files.html#duplicates-and-updating",
         html: "https://docs.ankiweb.net/importing/text-files.html#html",
+        notetypeColumn: "https://docs.ankiweb.net/importing/text-files.html#notetype-column",
+        deckColumn: "https://docs.ankiweb.net/importing/text-files.html#deck-column",
+        guidColumn: "https://docs.ankiweb.net/importing/text-files.html#guid-column",
+    },
+    Exporting: {
+        root: "https://docs.ankiweb.net/exporting.html",
+        packagedDecks: "https://docs.ankiweb.net/exporting.html#packaged-decks",
+        textFiles: "https://docs.ankiweb.net/exporting.html#text-files",
     },
 };

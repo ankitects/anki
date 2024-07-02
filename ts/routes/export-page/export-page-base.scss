@@ -1,0 +1,18 @@
+@use "../lib/sass/bootstrap-dark";
+
+@import "../lib/sass/base";
+
+@import "../lib/sass/bootstrap-tooltip";
+@import "bootstrap/scss/buttons";
+
+.night-mode {
+    @include bootstrap-dark.night-mode;
+}
+
+body {
+    padding: 0 1em 1em 1em;
+}
+
+html {
+    height: initial;
+}

@@ -676,7 +676,7 @@ def running_in_sandbox():
 
 
 def getSaveFile(
-    parent: QDialog,
+    parent: QWidget,
     title: str,
     dir_description: str,
     key: str,

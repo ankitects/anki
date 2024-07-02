@@ -929,16 +929,6 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         doc="""Called after collection and deck exports.""",
     ),
     Hook(
-        name="legacy_exporter_will_export",
-        args=["legacy_exporter: anki.exporting.Exporter"],
-        doc="""Called before collection and deck exports performed by legacy exporters.""",
-    ),
-    Hook(
-        name="legacy_exporter_did_export",
-        args=["legacy_exporter: anki.exporting.Exporter"],
-        doc="""Called after collection and deck exports performed by legacy exporters.""",
-    ),
-    Hook(
         name="exporters_list_did_initialize",
         args=["exporters: list[Type[aqt.import_export.exporting.Exporter]]"],
         doc="""Called after the list of exporter classes is created.
