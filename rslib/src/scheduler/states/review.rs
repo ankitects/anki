@@ -77,7 +77,7 @@ impl ReviewState {
         ctx: &StateContext,
     ) -> (u32, Option<FsrsMemoryState>) {
         if let Some(states) = &ctx.fsrs_next_states {
-            /// In FSRS, fuzz is applied when the card leaves the relearning 
+            /// In FSRS, fuzz is applied when the card leaves the relearning
             /// stage
             (states.again.interval, Some(states.again.memory.into()))
         } else {
@@ -85,7 +85,7 @@ impl ReviewState {
             minimum = minimum.max(ctx.minimum_lapse_interval);
             let interval = ctx.with_review_fuzz(
                 ((self.scheduled_days as f32) * ctx.lapse_multiplier) as u32,
-                minimum, 
+                minimum,
                 maximum,
             );
             (interval, None)
