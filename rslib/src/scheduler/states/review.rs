@@ -81,7 +81,7 @@ impl ReviewState {
             (states.again.interval, Some(states.again.memory.into()))
         } else {
             let (mut minimum, maximum) = ctx.min_and_max_review_intervals(1);
-            minimum = minimum.max(ctx.minimum_lapse_interval)
+            minimum = minimum.max(ctx.minimum_lapse_interval);
             let interval = ctx.with_review_fuzz(((self.scheduled_days as f32) * ctx.lapse_multiplier) as u32, minimum, maximum);
             (interval, None)
         }
