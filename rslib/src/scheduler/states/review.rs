@@ -84,7 +84,7 @@ impl ReviewState {
             let (mut minimum, maximum) = ctx.min_and_max_review_intervals(1);
             minimum = minimum.max(ctx.minimum_lapse_interval);
             let interval = ctx.with_review_fuzz(
-                ((self.scheduled_days as f32) * ctx.lapse_multiplier) as f32,
+                (self.scheduled_days as f32) * ctx.lapse_multiplier,
                 minimum,
                 maximum,
             );
