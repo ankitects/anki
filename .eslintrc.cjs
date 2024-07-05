@@ -7,7 +7,6 @@ module.exports = {
     },
     plugins: [
         "import",
-        "simple-import-sort",
         "@typescript-eslint",
         "@typescript-eslint/eslint-plugin",
     ],
@@ -20,8 +19,6 @@ module.exports = {
         "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
         "import/newline-after-import": "warn",
         "import/no-useless-path-segments": "warn",
-        "simple-import-sort/imports": "warn",
-        "simple-import-sort/exports": "warn",
         "prefer-const": "warn",
         "no-nested-ternary": "warn",
         "curly": "error",
@@ -53,7 +50,7 @@ module.exports = {
         },
     ],
     env: { browser: true, es2020: true },
-    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor", "extra/*", "vite.config.ts"],
+    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor", "extra/*", "vite.config.ts", "hooks.client.js"],
     globals: {
         globalThis: false,
         NodeListOf: false,

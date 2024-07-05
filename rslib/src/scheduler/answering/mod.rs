@@ -31,6 +31,7 @@ use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
 use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
+use crate::scheduler::states::PreviewState;
 use crate::search::SearchNode;
 
 #[derive(Copy, Clone)]
@@ -309,7 +310,14 @@ impl Collection {
             self.add_leech_tag(card.note_id)?;
         }
 
-        self.update_queues_after_answering_card(&card, timing)
+        self.update_queues_after_answering_card(
+            &card,
+            timing,
+            matches!(
+                answer.new_state,
+                CardState::Filtered(FilteredState::Preview(PreviewState { finished: true, .. }))
+            ),
+        )
     }
 
     fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConfig) -> Result<()> {

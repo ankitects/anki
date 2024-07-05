@@ -53,6 +53,7 @@ message ConfigKey {
     RESET_COUNTS_REVIEWER = 22;
     RANDOM_ORDER_REPOSITION = 23;
     SHIFT_POSITION_OF_EXISTING_CARDS = 24;
+    RENDER_LATEX = 25;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -121,6 +122,7 @@ message Preferences {
     bool paste_strips_formatting = 3;
     string default_search_text = 4;
     bool ignore_accents_in_search = 5;
+    bool render_latex = 6;
   }
   message BackupLimits {
     uint32 daily = 1;

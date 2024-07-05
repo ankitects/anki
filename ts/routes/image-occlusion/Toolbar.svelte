@@ -5,17 +5,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { directionKey } from "@tslib/context-keys";
+    import { on } from "@tslib/events";
     import { getPlatformString } from "@tslib/shortcuts";
-    import { getContext, onMount } from "svelte";
+    import type { Callback } from "@tslib/typing";
+    import { singleCallback } from "@tslib/typing";
+    import { getContext, onDestroy, onMount } from "svelte";
     import type { Readable } from "svelte/store";
 
     import DropdownItem from "$lib/components/DropdownItem.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
+    import {
+        mdiEye,
+        mdiFormatAlignCenter,
+        mdiSquare,
+        mdiViewDashboard,
+    } from "$lib/components/icons";
     import Popover from "$lib/components/Popover.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
 
-    import { mdiEye, mdiFormatAlignCenter, mdiSquare, mdiViewDashboard } from "./icons";
     import { emitChangeSignal } from "./MaskEditor.svelte";
     import { hideAllGuessOne, ioMaskEditorVisible, textEditingState } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
@@ -49,14 +58,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let maksOpacity = false;
     let showFloating = false;
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
-
-    document.addEventListener("click", (event) => {
-        const upperCanvas = document.querySelector(".upper-canvas");
-        if (event.target == upperCanvas) {
-            showAlignTools = false;
-        }
-    });
-
     // handle zoom event when mouse scroll and ctrl key are hold for panzoom
     let spaceClicked = false;
     let controlClicked = false;
@@ -65,86 +66,97 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const spaceKey = " ";
     const controlKey = "Control";
     const shiftKey = "Shift";
+    let removeHandlers: Callback;
 
-    onMount(() => {
-        window.addEventListener("mousedown", () => {
-            window.addEventListener("keydown", (ev) => {
-                if (ev.key === spaceKey) {
-                    spaceClicked = true;
-                }
-            });
-        });
-        window.addEventListener("mousemove", () => {
-            if (spaceClicked || move) {
-                disableFunctions();
-                enablePan(canvas);
-            }
-        });
-        window.addEventListener("mouseup", () => {
-            if (spaceClicked) {
-                spaceClicked = false;
-            }
-            if (move) {
-                move = false;
-            }
+    function onClick(event: MouseEvent) {
+        const upperCanvas = document.querySelector(".upper-canvas");
+        if (event.target == upperCanvas) {
+            showAlignTools = false;
+        }
+    }
+
+    function onMousemove() {
+        if (spaceClicked || move) {
+            disableFunctions();
+            enablePan(canvas);
+        }
+    }
+
+    function onMouseup() {
+        if (spaceClicked) {
+            spaceClicked = false;
+        }
+        if (move) {
+            move = false;
+        }
+    }
+
+    function onKeyup(event: KeyboardEvent) {
+        if (
+            event.key === spaceKey ||
+            event.key === controlKey ||
+            event.key === shiftKey
+        ) {
+            spaceClicked = false;
+            controlClicked = false;
+            shiftClicked = false;
+            move = false;
+
             disableFunctions();
             handleToolChanges(activeTool);
-        });
-        window.addEventListener("keyup", (event) => {
-            if (
-                event.key === spaceKey ||
-                event.key === controlKey ||
-                event.key === shiftKey
-            ) {
-                spaceClicked = false;
-                controlClicked = false;
-                shiftClicked = false;
-                move = false;
+        }
+    }
 
-                disableFunctions();
-                handleToolChanges(activeTool);
-            }
-        });
-        window.addEventListener("keydown", (event) => {
-            if (event.key === spaceKey) {
-                spaceClicked = true;
-            }
-            if (event.key === controlKey) {
-                controlClicked = true;
-            }
-            if (event.key === shiftKey) {
-                shiftClicked = true;
-            }
-        });
-        window.addEventListener("wheel", (event) => {
-            if (event.ctrlKey) {
-                controlClicked = true;
-            }
-            if (event.shiftKey) {
-                shiftClicked = true;
-            }
-        });
-        window.addEventListener(
-            "wheel",
-            (event) => {
-                event.preventDefault();
+    function onKeydown(event: KeyboardEvent) {
+        if (event.key === spaceKey) {
+            spaceClicked = true;
+        }
+        if (event.key === controlKey) {
+            controlClicked = true;
+        }
+        if (event.key === shiftKey) {
+            shiftClicked = true;
+        }
+    }
 
-                if (controlClicked) {
-                    disableFunctions();
-                    enableZoom(canvas);
-                    return;
-                }
+    function onWheel(event: WheelEvent) {
+        if (event.ctrlKey) {
+            controlClicked = true;
+        }
+        if (event.shiftKey) {
+            shiftClicked = true;
+        }
 
-                if (shiftClicked) {
-                    onWheelDragX(canvas, event);
-                    return;
-                }
+        event.preventDefault();
 
-                onWheelDrag(canvas, event);
-            },
-            { passive: false },
-        );
-    });
+        if (controlClicked) {
+            disableFunctions();
+            enableZoom(canvas);
+            return;
+        }
+
+        if (shiftClicked) {
+            onWheelDragX(canvas, event);
+            return;
+        }
+
+        onWheelDrag(canvas, event);
+    }
+
+    // initializes lastPosX and lastPosY because it is undefined in touchmove event
+    function onTouchstart(event: TouchEvent) {
+        const canvas = globalThis.canvas;
+        canvas.lastPosX = event.touches[0].clientX;
+        canvas.lastPosY = event.touches[0].clientY;
+    }
+
+    // initializes lastPosX and lastPosY because it is undefined before mousemove event
+    function onMousemoveDocument(event: MouseEvent) {
+        if (spaceClicked) {
+            canvas.lastPosX = event.clientX;
+            canvas.lastPosY = event.clientY;
+        }
+    }
 
     const handleToolChanges = (activeTool: string) => {
         disableFunctions();
@@ -188,6 +200,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $hideAllGuessOne = occlusionType === "all";
         emitChangeSignal();
     }
+
+    onMount(() => {
+        removeHandlers = singleCallback(
+            on(document, "click", onClick),
+            on(window, "mousemove", onMousemove),
+            on(window, "mouseup", onMouseup),
+            on(window, "keyup", onKeyup),
+            on(window, "keydown", onKeydown),
+            on(window, "wheel", onWheel, { passive: false }),
+            on(document, "touchstart", onTouchstart),
+            on(document, "mousemove", onMousemoveDocument),
+        );
+    });
+
+    onDestroy(() => {
+        removeHandlers();
+    });
 </script>
 
 <div class="tool-bar-container">
@@ -199,15 +228,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             active={activeTool === tool.id}
             on:click={() => {
                 activeTool = tool.id;
+                handleToolChanges(activeTool);
             }}
         >
-            {@html tool.icon}
+            <Icon icon={tool.icon} />
         </IconButton>
         {#if $ioMaskEditorVisible && !$textEditingState}
             <Shortcut
                 keyCombination={tool.shortcut}
                 on:action={() => {
                     activeTool = tool.id;
+                    handleToolChanges(activeTool);
                 }}
             />
         {/if}
@@ -229,7 +260,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {iconSize}
                 on:click={() => (showFloating = !showFloating)}
             >
-                {@html $hideAllGuessOne ? mdiViewDashboard : mdiSquare}
+                <Icon icon={$hideAllGuessOne ? mdiViewDashboard : mdiSquare} />
             </IconButton>
 
             <Popover slot="floating">
@@ -262,7 +293,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? !$undoStack.undoable
                         : !$undoStack.redoable}
                 >
-                    {@html tool.icon}
+                    <Icon icon={tool.icon} />
                 </IconButton>
                 {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut keyCombination={tool.shortcut} on:action={tool.action} />
@@ -283,7 +314,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         tool.action(canvas);
                     }}
                 >
-                    {@html tool.icon}
+                    <Icon icon={tool.icon} />
                 </IconButton>
                 {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut
@@ -309,7 +340,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     makeMaskTransparent(canvas, maksOpacity);
                 }}
             >
-                {@html mdiEye}
+                <Icon icon={mdiEye} />
             </IconButton>
             {#if $ioMaskEditorVisible && !$textEditingState}
                 <Shortcut
@@ -334,7 +365,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         undoStack.onObjectModified();
                     }}
                 >
-                    {@html tool.icon}
+                    <Icon icon={tool.icon} />
                 </IconButton>
                 {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut
@@ -362,7 +393,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         undoStack.onObjectModified();
                     }}
                 >
-                    {@html tool.icon}
+                    <Icon icon={tool.icon} />
                 </IconButton>
                 {#if $ioMaskEditorVisible && !$textEditingState}
                     <Shortcut
@@ -384,7 +415,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     leftPos = e.pageX - 100;
                 }}
             >
-                {@html mdiFormatAlignCenter}
+                <Icon icon={mdiFormatAlignCenter} />
             </IconButton>
         </div>
     </div>
@@ -402,7 +433,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     undoStack.onObjectModified();
                 }}
             >
-                {@html alignTool.icon}
+                <Icon icon={alignTool.icon} />
             </IconButton>
             {#if $ioMaskEditorVisible && !$textEditingState}
                 <Shortcut

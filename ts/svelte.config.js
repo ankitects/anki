@@ -1,6 +1,7 @@
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { dirname, join } from "path";
+import preprocess from "svelte-preprocess";
 import { fileURLToPath } from "url";
 
 // This prevents errors being shown when opening VSCode on the root of the
@@ -9,7 +10,8 @@ const tsFolder = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-    preprocess: vitePreprocess(),
+    // preprocess() slows things down by about 10%, but allows us to use :global { ... }
+    preprocess: [vitePreprocess(), preprocess()],
 
     kit: {
         adapter: adapter(

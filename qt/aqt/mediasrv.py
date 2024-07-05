@@ -69,15 +69,17 @@ class NotFound:
 DynamicRequest = Callable[[], Response]
 
 
-class PageContext(enum.Enum):
-    UNKNOWN = 0
-    EDITOR = 1
-    REVIEWER = 2
+class PageContext(enum.IntEnum):
+    UNKNOWN = enum.auto()
+    EDITOR = enum.auto()
+    REVIEWER = enum.auto()
+    PREVIEWER = enum.auto()
+    CARD_LAYOUT = enum.auto()
     # something in /_anki/pages/
-    NON_LEGACY_PAGE = 3
+    NON_LEGACY_PAGE = enum.auto()
     # Do not use this if you present user content (e.g. content from cards), as it's a
     # security issue.
-    ADDON_PAGE = 4
+    ADDON_PAGE = enum.auto()
 
 
 @dataclass
@@ -174,15 +176,24 @@ def _mime_for_path(path: str) -> str:
         return mime or "application/octet-stream"
 
 
+def _text_response(code: HTTPStatus, text: str) -> Response:
+    """Return an error message.
+
+    Response is returned as text/plain, so no escaping of untrusted
+    input is required."""
+    resp = flask.make_response(text, code)
+    resp.headers["Content-type"] = "text/plain"
+    return resp
+
+
 def _handle_local_file_request(request: LocalFileRequest) -> Response:
     directory = request.root
     path = request.path
     try:
         isdir = os.path.isdir(os.path.join(directory, path))
     except ValueError:
-        return flask.make_response(
-            f"Path for '{directory} - {path}' is too long!",
-            HTTPStatus.BAD_REQUEST,
+        return _text_response(
+            HTTPStatus.BAD_REQUEST, f"Path for '{directory} - {path}' is too long!"
         )
 
     directory = os.path.realpath(directory)
@@ -191,15 +202,14 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
 
     # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
     if not fullpath.startswith(directory):
-        return flask.make_response(
-            f"Path for '{directory} - {path}' is a security leak!",
-            HTTPStatus.FORBIDDEN,
+        return _text_response(
+            HTTPStatus.FORBIDDEN, f"Path for '{directory} - {path}' is a security leak!"
         )
 
     if isdir:
-        return flask.make_response(
-            f"Path for '{directory} - {path}' is a directory (not supported)!",
+        return _text_response(
             HTTPStatus.FORBIDDEN,
+            f"Path for '{directory} - {path}' is a directory (not supported)!",
         )
 
     try:
@@ -219,10 +229,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
             )
         else:
             print(f"Not found: {path}")
-            return flask.make_response(
-                f"Invalid path: {path}",
-                HTTPStatus.NOT_FOUND,
-            )
+            return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {path}")
 
     except Exception as error:
         if dev_mode:
@@ -234,10 +241,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
         # swallow it - user likely surfed away from
         # review screen before an image had finished
         # downloading
-        return flask.make_response(
-            str(error),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
+        return _text_response(HTTPStatus.INTERNAL_SERVER_ERROR, str(error))
 
 
 def _builtin_data(path: str) -> bytes:
@@ -270,10 +274,11 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
     except FileNotFoundError:
         if dev_mode:
             print(f"404: {data_path}")
-        return flask.make_response(
-            f"Invalid path: {path}",
-            HTTPStatus.NOT_FOUND,
-        )
+        resp = _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {path}")
+        # we're including the path verbatim in our response, so we need to either use
+        # plain text, or escape HTML characters to avoid reflecting untrusted input
+        resp.headers["Content-type"] = "text/plain"
+        return resp
     except Exception as error:
         if dev_mode:
             print(
@@ -284,10 +289,7 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
         # swallow it - user likely surfed away from
         # review screen before an image had finished
         # downloading
-        return flask.make_response(
-            str(error),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
+        return _text_response(HTTPStatus.INTERNAL_SERVER_ERROR, str(error))
 
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
@@ -306,10 +308,7 @@ def handle_request(pathin: str) -> Response:
 
     if isinstance(req, NotFound):
         print(req.message)
-        return flask.make_response(
-            f"Invalid path: {pathin}",
-            HTTPStatus.NOT_FOUND,
-        )
+        return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {pathin}")
     elif callable(req):
         return _handle_dynamic_request(req)
     elif isinstance(req, BundledFileRequest):
@@ -317,10 +316,7 @@ def handle_request(pathin: str) -> Response:
     elif isinstance(req, LocalFileRequest):
         return _handle_local_file_request(req)
     else:
-        return flask.make_response(
-            f"unexpected request: {pathin}",
-            HTTPStatus.FORBIDDEN,
-        )
+        return _text_response(HTTPStatus.FORBIDDEN, f"unexpected request: {pathin}")
 
 
 def is_sveltekit_page(path: str) -> bool:
@@ -334,6 +330,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-anki-package",
         "import-csv",
         "import-page",
+        "image-occlusion",
     ]
 
 
@@ -462,17 +459,21 @@ def update_deck_configs() -> bytes:
             update.label = val.label
         elif progress.HasField("compute_weights"):
             val2 = progress.compute_weights
-            update.max = val2.total
+            # prevent an indeterminate progress bar from appearing at the start of each preset
+            update.max = max(val2.total, 1)
             update.value = val2.current
             pct = str(int(val2.current / val2.total * 100) if val2.total > 0 else 0)
             label = tr.deck_config_optimizing_preset(
                 current_count=val2.current_preset, total_count=val2.total_presets
             )
-            update.label = (
-                label
-                + "\n"
-                + tr.deck_config_percent_of_reviews(pct=pct, reviews=val2.reviews)
-            )
+            if val2.reviews:
+                reviews = tr.deck_config_percent_of_reviews(
+                    pct=pct, reviews=val2.reviews
+                )
+            else:
+                reviews = tr.qt_misc_processing()
+
+            update.label = label + "\n" + reviews
         else:
             return
         if update.user_wants_abort:
@@ -656,12 +657,10 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
                     response = flask.make_response(data)
                     response.headers["Content-Type"] = "application/binary"
                 else:
-                    response = flask.make_response("", HTTPStatus.NO_CONTENT)
+                    response = _text_response(HTTPStatus.NO_CONTENT, "")
             except Exception as exc:
                 print(traceback.format_exc())
-                response = flask.make_response(
-                    str(exc), HTTPStatus.INTERNAL_SERVER_ERROR
-                )
+                response = _text_response(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return response
 
         return wrapped
@@ -688,14 +687,19 @@ def _check_dynamic_request_permissions():
         context == PageContext.NON_LEGACY_PAGE
         or context == PageContext.EDITOR
         or context == PageContext.ADDON_PAGE
-        or os.environ.get("ANKI_API_PORT")
     ):
         pass
     elif context == PageContext.REVIEWER and request.path in (
         "/_anki/getSchedulingStatesWithContext",
         "/_anki/setSchedulingStates",
+        "/_anki/i18nResources",
     ):
         # reviewer is only allowed to access custom study methods
+        pass
+    elif (
+        context == PageContext.PREVIEWER or context == PageContext.CARD_LAYOUT
+    ) and request.path == "/_anki/i18nResources":
+        # previewers are only allowed to access i18n resources
         pass
     else:
         # other legacy pages may contain third-party JS, so we do not
@@ -709,7 +713,7 @@ def _handle_dynamic_request(req: DynamicRequest) -> Response:
     try:
         return req()
     except Exception as e:
-        return flask.make_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
+        return _text_response(HTTPStatus.INTERNAL_SERVER_ERROR, str(e))
 
 
 def legacy_page_data() -> Response:
@@ -717,7 +721,7 @@ def legacy_page_data() -> Response:
     if html := aqt.mw.mediaServer.get_page_html(id):
         return Response(html, mimetype="text/html")
     else:
-        return flask.make_response("page not found", HTTPStatus.NOT_FOUND)
+        return _text_response(HTTPStatus.NOT_FOUND, "page not found")
 
 
 def _extract_page_context() -> PageContext:

@@ -9,9 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount } from "svelte";
 
     import Badge from "$lib/components/Badge.svelte";
+    import Icon from "$lib/components/Icon.svelte";
+    import { stickyIcon } from "$lib/components/icons";
 
     import { context as editorFieldContext } from "./EditorField.svelte";
-    import { stickyIcon } from "./icons";
 
     const animated = !document.body.classList.contains("reduce-motion");
 
@@ -47,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
         widthMultiplier={0.7}
     >
-        {@html stickyIcon}
+        <Icon icon={stickyIcon} />
     </Badge>
 </span>
 

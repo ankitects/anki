@@ -35,7 +35,7 @@ git = "https://github.com/ankitects/linkcheck.git"
 rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
-version = "0.6.1"
+version = "0.6.4"
 # git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
 # rev = "58ca25ed2bc4bb1dc376208bbcaed7f5a501b941"
 # path = "../open-spaced-repetition/fsrs-rs"
@@ -111,6 +111,7 @@ rand = "0.8.5"
 regex = "1.10.3"
 reqwest = { version = "0.11.24", default-features = false, features = ["json", "socks", "stream", "multipart"] }
 rusqlite = { version = "0.30.0", features = ["trace", "functions", "collation", "bundled"] }
+rustls-pemfile = "2.1.2"
 scopeguard = "1.2.0"
 serde = { version = "1.0.197", features = ["derive"] }
 serde-aux = "4.5.0"

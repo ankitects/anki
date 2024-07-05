@@ -122,6 +122,7 @@ pub enum AnkiError {
     },
     FsrsUnableToDetermineDesiredRetention,
     SchedulerUpgradeRequired,
+    InvalidCertificateFormat,
 }
 
 // error helpers
@@ -137,9 +138,11 @@ impl AnkiError {
             AnkiError::CardTypeError { source } => {
                 let header =
                     tr.card_templates_invalid_template_number(source.ordinal + 1, &source.notetype);
-                let details = match source.source {
-                    CardTypeErrorDetails::TemplateParseError
-                    | CardTypeErrorDetails::NoSuchField => tr.card_templates_see_preview(),
+                let details = match &source.source {
+                    CardTypeErrorDetails::TemplateParseError => tr.card_templates_see_preview(),
+                    CardTypeErrorDetails::NoSuchField { field } => {
+                        tr.card_templates_field_not_found(field)
+                    }
                     CardTypeErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
                     CardTypeErrorDetails::Duplicate { index } => {
                         tr.card_templates_identical_front(index + 1)
@@ -169,7 +172,8 @@ impl AnkiError {
             | AnkiError::Existing
             | AnkiError::InvalidServiceIndex
             | AnkiError::InvalidMethodIndex
-            | AnkiError::UndoEmpty => format!("{:?}", self),
+            | AnkiError::UndoEmpty
+            | AnkiError::InvalidCertificateFormat => format!("{:?}", self),
             AnkiError::FileIoError { source } => source.message(),
             AnkiError::InvalidInput { source } => source.message(),
             AnkiError::NotFound { source } => source.message(tr),
@@ -194,9 +198,8 @@ impl AnkiError {
             Self::CardTypeError {
                 source: CardTypeError { source, .. },
             } => Some(match source {
-                CardTypeErrorDetails::TemplateParseError | CardTypeErrorDetails::NoSuchField => {
-                    HelpPage::CardTypeTemplateError
-                }
+                CardTypeErrorDetails::TemplateParseError => HelpPage::CardTypeTemplateError,
+                CardTypeErrorDetails::NoSuchField { field: _ } => HelpPage::CardTypeTemplateError,
                 CardTypeErrorDetails::Duplicate { .. } => HelpPage::CardTypeDuplicate,
                 CardTypeErrorDetails::NoFrontField => HelpPage::CardTypeNoFrontField,
                 CardTypeErrorDetails::MissingCloze => HelpPage::CardTypeMissingCloze,
@@ -318,7 +321,7 @@ pub enum CardTypeErrorDetails {
     TemplateParseError,
     Duplicate { index: usize },
     NoFrontField,
-    NoSuchField,
+    NoSuchField { field: String },
     MissingCloze,
     ExtraneousCloze,
 }

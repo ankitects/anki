@@ -6,9 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { removeStyleProperties } from "@tslib/styling";
 
+    import Icon from "$lib/components/Icon.svelte";
+    import { italicIcon } from "$lib/components/icons";
     import type { MatchType } from "$lib/domlib/surround";
 
-    import { italicIcon } from "./icons";
     import TextAttributeButton from "./TextAttributeButton.svelte";
 
     function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
@@ -36,5 +37,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     tooltip={tr.editingItalicText()}
     keyCombination="Control+I"
 >
-    {@html italicIcon}
+    <Icon icon={italicIcon} />
 </TextAttributeButton>

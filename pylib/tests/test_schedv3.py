@@ -724,7 +724,6 @@ def test_preview():
     note["Front"] = "one"
     col.addNote(note)
     c = note.cards()[0]
-    orig = copy.copy(c)
     note2 = col.newNote()
     note2["Front"] = "two"
     col.addNote(note2)
@@ -756,10 +755,6 @@ def test_preview():
     assert c2.queue == QUEUE_TYPE_NEW
     assert c2.reps == 0
     assert c2.type == CARD_TYPE_NEW
-
-    # the other card should appear again
-    c = col.sched.getCard()
-    assert c.id == orig.id
 
     # emptying the filtered deck should restore card
     col.sched.empty_filtered_deck(did)

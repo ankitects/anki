@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import DropdownDivider from "$lib/components/DropdownDivider.svelte";
     import DropdownItem from "$lib/components/DropdownItem.svelte";
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
     import { chevronDown } from "$lib/components/icons";
     import LabelButton from "$lib/components/LabelButton.svelte";
@@ -74,58 +75,64 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let showFloating = false;
 </script>
 
-<LabelButton
-    primary
-    on:click={() => save(UpdateDeckConfigsMode.NORMAL)}
-    tooltip={getPlatformString(saveKeyCombination)}
-    --border-left-radius={!rtl ? "var(--border-radius)" : "0"}
-    --border-right-radius={rtl ? "var(--border-radius)" : "0"}
->
-    <div class="save">{tr.deckConfigSaveButton()}</div>
-</LabelButton>
-<Shortcut
-    keyCombination={saveKeyCombination}
-    on:action={() => save(UpdateDeckConfigsMode.NORMAL)}
-/>
-
-<WithFloating
-    show={showFloating}
-    closeOnInsideClick
-    inline
-    on:close={() => (showFloating = false)}
->
-    <IconButton
-        class="chevron"
-        slot="reference"
-        on:click={() => (showFloating = !showFloating)}
-        --border-right-radius={!rtl ? "var(--border-radius)" : "0"}
-        --border-left-radius={rtl ? "var(--border-radius)" : "0"}
-        iconSize={80}
+<div class="d-flex">
+    <LabelButton
+        primary
+        on:click={() => save(UpdateDeckConfigsMode.NORMAL)}
+        tooltip={getPlatformString(saveKeyCombination)}
+        --border-left-radius={!rtl ? "var(--border-radius)" : "0"}
+        --border-right-radius={rtl ? "var(--border-radius)" : "0"}
     >
-        {@html chevronDown}
-    </IconButton>
-    <Popover slot="floating">
-        <DropdownItem on:click={() => dispatch("add")}>
-            {tr.deckConfigAddGroup()}
-        </DropdownItem>
-        <DropdownItem on:click={() => dispatch("clone")}>
-            {tr.deckConfigCloneGroup()}
-        </DropdownItem>
-        <DropdownItem on:click={() => dispatch("rename")}>
-            {tr.deckConfigRenameGroup()}
-        </DropdownItem>
-        <DropdownItem on:click={removeConfig}>
-            {tr.deckConfigRemoveGroup()}
-        </DropdownItem>
-        <DropdownDivider />
-        <DropdownItem on:click={() => save(UpdateDeckConfigsMode.APPLY_TO_CHILDREN)}>
-            {tr.deckConfigSaveToAllSubdecks()}
-        </DropdownItem>
-        <DropdownItem on:click={() => save(UpdateDeckConfigsMode.COMPUTE_ALL_WEIGHTS)}>
-            {tr.deckConfigSaveAndOptimize()}
-        </DropdownItem>
-    </Popover>
-</WithFloating>
+        <div class="save">{tr.deckConfigSaveButton()}</div>
+    </LabelButton>
+    <Shortcut
+        keyCombination={saveKeyCombination}
+        on:action={() => save(UpdateDeckConfigsMode.NORMAL)}
+    />
+
+    <WithFloating
+        show={showFloating}
+        closeOnInsideClick
+        inline
+        on:close={() => (showFloating = false)}
+    >
+        <IconButton
+            class="chevron"
+            slot="reference"
+            on:click={() => (showFloating = !showFloating)}
+            --border-right-radius={!rtl ? "var(--border-radius)" : "0"}
+            --border-left-radius={rtl ? "var(--border-radius)" : "0"}
+            iconSize={80}
+        >
+            <Icon icon={chevronDown} />
+        </IconButton>
+        <Popover slot="floating">
+            <DropdownItem on:click={() => dispatch("add")}>
+                {tr.deckConfigAddGroup()}
+            </DropdownItem>
+            <DropdownItem on:click={() => dispatch("clone")}>
+                {tr.deckConfigCloneGroup()}
+            </DropdownItem>
+            <DropdownItem on:click={() => dispatch("rename")}>
+                {tr.deckConfigRenameGroup()}
+            </DropdownItem>
+            <DropdownItem on:click={removeConfig}>
+                {tr.deckConfigRemoveGroup()}
+            </DropdownItem>
+            <DropdownDivider />
+            <DropdownItem
+                on:click={() => save(UpdateDeckConfigsMode.APPLY_TO_CHILDREN)}
+            >
+                {tr.deckConfigSaveToAllSubdecks()}
+            </DropdownItem>
+            <DropdownItem
+                on:click={() => save(UpdateDeckConfigsMode.COMPUTE_ALL_WEIGHTS)}
+            >
+                {tr.deckConfigSaveAndOptimize()}
+            </DropdownItem>
+        </Popover>
+    </WithFloating>
+</div>
 
 <style lang="scss">
     .save {

@@ -154,6 +154,16 @@ impl crate::services::BackendSyncService for Backend {
         )?;
         Ok(())
     }
+
+    fn set_custom_certificate(
+        &self,
+        _input: anki_proto::generic::String,
+    ) -> Result<anki_proto::generic::Bool> {
+        #[cfg(feature = "rustls")]
+        return Ok(self.set_custom_certificate_inner(_input.val).is_ok().into());
+        #[cfg(not(feature = "rustls"))]
+        return Ok(false.into());
+    }
 }
 
 impl Backend {
@@ -284,7 +294,7 @@ impl Backend {
             input.username,
             input.password,
             input.endpoint.clone(),
-            self.web_client().clone(),
+            self.web_client(),
         );
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
@@ -323,7 +333,7 @@ impl Backend {
         let rt = self.runtime_handle();
         let time_at_check_begin = TimestampSecs::now();
         let local = self.with_col(|col| col.sync_meta())?;
-        let mut client = HttpSyncClient::new(auth, self.web_client().clone());
+        let mut client = HttpSyncClient::new(auth, self.web_client());
         let state = rt.block_on(online_sync_status_check(local, &mut client))?;
         {
             let mut guard = self.state.lock().unwrap();
@@ -348,7 +358,7 @@ impl Backend {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
-        let client = self.web_client().clone();
+        let client = self.web_client();
         let auth2 = auth.clone();
 
         let ret = self.with_col(|col| {

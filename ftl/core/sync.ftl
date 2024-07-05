@@ -35,6 +35,14 @@ sync-conflict-explanation =
     If you choose upload, Anki will send this device's data to AnkiWeb, and any changes that are waiting on AnkiWeb will be lost.
     
     After all devices are in sync, future reviews and added cards can be merged automatically.
+sync-conflict-explanation2 =
+    There is a conflict between decks on this device and AnkiWeb. You must choose which version to keep:
+
+    - Select **{ sync-download-from-ankiweb }** to replace decks here with AnkiWeb’s version. You will lose any changes you made on this device since your last sync.
+    - Select **{ sync-upload-to-ankiweb }** to overwrite AnkiWeb’s versions with decks from this device, and delete any changes on AnkiWeb.
+
+    Once the conflict is resolved, syncing will work as usual.
+
 sync-ankiweb-id-label = AnkiWeb ID:
 sync-password-label = Password:
 sync-account-required =

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>606</width>
+    <width>636</width>
     <height>638</height>
    </rect>
   </property>
@@ -208,6 +208,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>preferences_minimalist_mode_tooltip</string>
+            </property>
             <property name="text">
              <string>preferences_minimalist_mode</string>
             </property>
@@ -344,7 +347,7 @@
            <property name="title">
             <string>preferences_review</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_16">
+           <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
              <widget class="QCheckBox" name="showPlayButtons">
               <property name="sizePolicy">
@@ -407,6 +410,19 @@
               </property>
               <property name="text">
                <string>preferences_spacebar_rates_card</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="render_latex">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>preferences_generate_latex_images_automatically</string>
               </property>
              </widget>
             </item>
@@ -1095,6 +1111,7 @@
   <tabstop>showProgress</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>spacebar_rates_card</tabstop>
+  <tabstop>render_latex</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>useCurrent</tabstop>

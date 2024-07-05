@@ -3,9 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
-
-    import { mdiClose } from "./icons";
+    import { mdiClose } from "$lib/components/icons";
 
     export let type: "success" | "error" = "success";
     export let message;
@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="toast {type === 'success' ? 'success' : 'error'}">
             {message}
             <IconButton iconSize={96} on:click={closeToast} class="toast-icon">
-                {@html mdiClose}
+                <Icon icon={mdiClose} />
             </IconButton>
         </div>
     </div>

@@ -126,6 +126,7 @@ class Preferences(QDialog):
         form.paste_strips_formatting.setChecked(editing.paste_strips_formatting)
         form.ignore_accents_in_search.setChecked(editing.ignore_accents_in_search)
         form.pastePNG.setChecked(editing.paste_images_as_png)
+        form.render_latex.setChecked(editing.render_latex)
         form.default_search_text.setText(editing.default_search_text)
 
         form.backup_explanation.setText(
@@ -154,6 +155,7 @@ class Preferences(QDialog):
         editing.adding_defaults_to_current_deck = not form.useCurrent.currentIndex()
         editing.paste_images_as_png = self.form.pastePNG.isChecked()
         editing.paste_strips_formatting = self.form.paste_strips_formatting.isChecked()
+        editing.render_latex = self.form.render_latex.isChecked()
         editing.default_search_text = self.form.default_search_text.text()
         editing.ignore_accents_in_search = (
             self.form.ignore_accents_in_search.isChecked()
@@ -190,7 +192,9 @@ class Preferences(QDialog):
         qconnect(self.form.media_log.clicked, self.on_media_log)
         self.form.syncOnProgramOpen.setChecked(self.mw.pm.auto_syncing_enabled())
         self.form.syncMedia.setChecked(self.mw.pm.media_syncing_enabled())
-        self.form.autoSyncMedia.setChecked(self.mw.pm.auto_sync_media_minutes() != 0)
+        self.form.autoSyncMedia.setChecked(
+            self.mw.pm.periodic_sync_media_minutes() != 0
+        )
         self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
 
@@ -228,13 +232,15 @@ class Preferences(QDialog):
         self.update_login_status()
 
     def confirm_sync_after_login(self) -> None:
-        if askUser(tr.preferences_login_successful_sync_now()):
+        from aqt import mw
+
+        if askUser(tr.preferences_login_successful_sync_now(), parent=mw):
             self.accept_with_callback(self.mw.on_sync_button_clicked)
 
     def update_network(self) -> None:
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
         self.prof["syncMedia"] = self.form.syncMedia.isChecked()
-        self.mw.pm.set_auto_sync_media_minutes(
+        self.mw.pm.set_periodic_sync_media_minutes(
             self.form.autoSyncMedia.isChecked() and 15 or 0
         )
         if self.form.fullSync.isChecked():

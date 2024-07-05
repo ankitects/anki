@@ -27,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
+    import WeightsSearchRow from "./WeightsSearchRow.svelte";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -226,6 +227,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: computeRetentionProgressString = renderRetentionProgress(
         computeRetentionProgress,
     );
+    $: totalReviews = computeWeightsProgress?.reviews ?? undefined;
 
     function renderWeightProgress(val: ComputeWeightsProgress | undefined): String {
         if (!val || !val.total) {
@@ -280,11 +282,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </SettingTitle>
     </WeightsInputRow>
 
-    <input
+    <WeightsSearchRow
         bind:value={$config.weightSearch}
         placeholder={defaultWeightSearch}
-        class="w-100 mb-1"
     />
+
     <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
         <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
             {tr.deckConfigIgnoreBefore()}
@@ -312,9 +314,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigEvaluateButton()}
         {/if}
     </button>
-    {#if computingWeights || checkingWeights}<div>
+    <div>
+        {#if computingWeights || checkingWeights}
             {computeWeightsProgressString}
-        </div>{/if}
+        {:else if totalReviews !== undefined}
+            {tr.statisticsReviews({ reviews: totalReviews })}
+        {/if}
+    </div>
 
     <Warning warning={lastOptimizationWarning} className="alert-warning" />
 </div>

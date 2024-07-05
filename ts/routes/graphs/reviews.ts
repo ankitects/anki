@@ -110,8 +110,10 @@ export function renderReviews(
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
 
-    const x = scaleLinear().domain([xMin!, xMax]).nice(desiredBars);
-    x.domain([x.domain()[0], xMax]);
+    const x = scaleLinear().domain([xMin!, xMax]);
+    if (range === GraphRange.AllTime) {
+        x.nice(desiredBars);
+    }
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
     const bins = bin()
