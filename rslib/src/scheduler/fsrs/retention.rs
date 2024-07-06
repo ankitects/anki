@@ -71,8 +71,7 @@ impl Collection {
                         .is_ok()
                 },
             )?
-            .max(0.75)
-            .min(0.95) as f32)
+            .clamp(0.75, 0.95) as f32)
     }
 
     pub fn get_optimal_retention_parameters(
@@ -226,10 +225,10 @@ impl Collection {
     }
 }
 
-fn median_secs(group: &Vec<u32>) -> f64 {
+fn median_secs(group: &[u32]) -> f64 {
     let length = group.len();
     if length > 0 {
-        let mut group_vec = group.clone();
+        let mut group_vec = group.to_vec();
         group_vec.sort_unstable();
         let median_millis = if length % 2 == 0 {
             let mid = length / 2;
