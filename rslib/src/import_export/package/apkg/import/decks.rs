@@ -157,7 +157,7 @@ impl Deck {
 fn update_normal_with_other(normal: &mut NormalDeck, other: &NormalDeck) {
     if !other.description.is_empty() {
         normal.markdown_description = other.markdown_description;
-        normal.description = other.description.clone();
+        normal.description.clone_from(&other.description);
     }
     if other.config_id != 1 {
         normal.config_id = other.config_id;

@@ -130,6 +130,8 @@ class CustomStudy(QDialog):
             ok = tr.custom_study_choose_tags()
             current_spinner_value = 100
             show_cram_type = True
+        else:
+            assert 0
 
         form.spin.setVisible(True)
         form.cardType.setVisible(show_cram_type)
