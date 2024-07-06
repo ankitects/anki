@@ -312,7 +312,6 @@ fn check_web(build: &mut Build) -> Result<()> {
         "check:vitest",
         ViteTest {
             deps: inputs![
-                "yarn",
                 ":node_modules",
                 ":ts:generated",
                 glob!["ts/{svelte.config.js,vite.config.ts,tsconfig.json}"],
@@ -325,7 +324,6 @@ fn check_web(build: &mut Build) -> Result<()> {
         SvelteCheck {
             tsconfig: inputs!["ts/tsconfig.json"],
             inputs: inputs![
-                "yarn",
                 ":node_modules",
                 ":ts:generated",
                 glob!["ts/**/*", "ts/.svelte-kit/**"],

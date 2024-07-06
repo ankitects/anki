@@ -663,7 +663,7 @@ mod test {
         // match the python implementation for now
         assert_eq!(anki_base91(0), "");
         assert_eq!(anki_base91(1), "b");
-        assert_eq!(anki_base91(u64::max_value()), "Rj&Z5m[>Zp");
+        assert_eq!(anki_base91(u64::MAX), "Rj&Z5m[>Zp");
         assert_eq!(anki_base91(1234567890), "saAKk");
     }
 
