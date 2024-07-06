@@ -60,8 +60,9 @@ apple-bundles = "0.17.0"
 async-compression = { version = "0.4.11", features = ["zstd", "tokio"] }
 async-stream = "0.3.5"
 async-trait = "0.1.80"
-axum = { version = "0.6.20", features = ["multipart", "macros", "headers"] }
-axum-client-ip = "0.4.2"
+axum = { version = "0.7", features = ["multipart", "macros"] }
+axum-client-ip = "0.6"
+axum-extra = { version = "0.9.3", features = ["typed-header"] }
 blake3 = "1.5.1"
 bytes = "1.6.0"
 camino = "1.1.7"
@@ -109,7 +110,7 @@ pulldown-cmark = "0.9.6"
 pyo3 = { version = "0.20.3", features = ["extension-module", "abi3", "abi3-py39"] }
 rand = "0.8.5"
 regex = "1.10.5"
-reqwest = { version = "0.11.27", default-features = false, features = ["json", "socks", "stream", "multipart"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "socks", "stream", "multipart"] }
 rusqlite = { version = "0.30.0", features = ["trace", "functions", "collation", "bundled"] }
 rustls-pemfile = "2.1.2"
 scopeguard = "1.2.0"
@@ -129,7 +130,7 @@ tempfile = "3.10.1"
 termcolor = "1.4.1"
 tokio = { version = "1.38", features = ["fs", "rt-multi-thread", "macros", "signal"] }
 tokio-util = { version = "0.7.11", features = ["io"] }
-tower-http = { version = "0.4.4", features = ["trace"] }
+tower-http = { version = "0.5", features = ["trace"] }
 tracing = { version = "0.1.40", features = ["max_level_trace", "release_max_level_debug"] }
 tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.18", features = ["fmt", "env-filter"] }

@@ -226,7 +226,7 @@
   },
   {
     "name": "axum",
-    "version": "0.6.20",
+    "version": "0.7.5",
     "authors": null,
     "repository": "https://github.com/tokio-rs/axum",
     "license": "MIT",
@@ -235,7 +235,7 @@
   },
   {
     "name": "axum-client-ip",
-    "version": "0.4.2",
+    "version": "0.6.0",
     "authors": null,
     "repository": "https://github.com/imbolc/axum-client-ip",
     "license": "MIT",
@@ -244,7 +244,7 @@
   },
   {
     "name": "axum-core",
-    "version": "0.3.4",
+    "version": "0.4.3",
     "authors": null,
     "repository": "https://github.com/tokio-rs/axum",
     "license": "MIT",
@@ -252,8 +252,17 @@
     "description": "Core types and traits for axum"
   },
   {
+    "name": "axum-extra",
+    "version": "0.9.3",
+    "authors": null,
+    "repository": "https://github.com/tokio-rs/axum",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Extra utilities for axum"
+  },
+  {
     "name": "axum-macros",
-    "version": "0.3.8",
+    "version": "0.4.1",
     "authors": null,
     "repository": "https://github.com/tokio-rs/axum",
     "license": "MIT",
@@ -1657,7 +1666,7 @@
   },
   {
     "name": "headers",
-    "version": "0.3.9",
+    "version": "0.4.0",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/headers",
     "license": "MIT",
@@ -1666,7 +1675,7 @@
   },
   {
     "name": "headers-core",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/headers",
     "license": "MIT",
@@ -1755,6 +1764,15 @@
     "description": "A set of types for representing HTTP requests and responses."
   },
   {
+    "name": "http",
+    "version": "1.1.0",
+    "authors": "Alex Crichton <alex@alexcrichton.com>|Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
+    "repository": "https://github.com/hyperium/http",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A set of types for representing HTTP requests and responses."
+  },
+  {
     "name": "http-body",
     "version": "0.4.6",
     "authors": "Carl Lerche <me@carllerche.com>|Lucio Franco <luciofranco14@gmail.com>|Sean McArthur <sean@seanmonstar.com>",
@@ -1764,13 +1782,22 @@
     "description": "Trait representing an asynchronous, streaming, HTTP request or response body."
   },
   {
-    "name": "http-range-header",
-    "version": "0.3.1",
-    "authors": null,
-    "repository": "https://github.com/MarcusGrass/parse-range-headers",
+    "name": "http-body",
+    "version": "1.0.0",
+    "authors": "Carl Lerche <me@carllerche.com>|Lucio Franco <luciofranco14@gmail.com>|Sean McArthur <sean@seanmonstar.com>",
+    "repository": "https://github.com/hyperium/http-body",
     "license": "MIT",
     "license_file": null,
-    "description": "No-dep range header parser"
+    "description": "Trait representing an asynchronous, streaming, HTTP request or response body."
+  },
+  {
+    "name": "http-body-util",
+    "version": "0.1.2",
+    "authors": "Carl Lerche <me@carllerche.com>|Lucio Franco <luciofranco14@gmail.com>|Sean McArthur <sean@seanmonstar.com>",
+    "repository": "https://github.com/hyperium/http-body",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Combinators and adapters for HTTP request or response bodies."
   },
   {
     "name": "http-types",
@@ -1809,8 +1836,17 @@
     "description": "A fast and correct HTTP library."
   },
   {
+    "name": "hyper",
+    "version": "1.4.0",
+    "authors": "Sean McArthur <sean@seanmonstar.com>",
+    "repository": "https://github.com/hyperium/hyper",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A fast and correct HTTP library."
+  },
+  {
     "name": "hyper-rustls",
-    "version": "0.24.2",
+    "version": "0.27.2",
     "authors": null,
     "repository": "https://github.com/rustls/hyper-rustls",
     "license": "Apache-2.0 OR ISC OR MIT",
@@ -1819,12 +1855,21 @@
   },
   {
     "name": "hyper-tls",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/hyper-tls",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Default TLS implementation for use with hyper"
+  },
+  {
+    "name": "hyper-util",
+    "version": "0.1.6",
+    "authors": "Sean McArthur <sean@seanmonstar.com>",
+    "repository": "https://github.com/hyperium/hyper-util",
+    "license": "MIT",
+    "license_file": null,
+    "description": "hyper utilities"
   },
   {
     "name": "iana-time-zone",
@@ -2269,9 +2314,9 @@
   },
   {
     "name": "multer",
-    "version": "2.1.0",
+    "version": "3.1.0",
     "authors": "Rousan Ali <hello@rousan.io>",
-    "repository": "https://github.com/rousan/multer-rs",
+    "repository": "https://github.com/rwf2/multer",
     "license": "MIT",
     "license_file": null,
     "description": "An async parser for `multipart/form-data` content-type in Rust."
@@ -2916,6 +2961,33 @@
     "description": "VERY fast encoder/decoder for QOI (Quite Okay Image) format"
   },
   {
+    "name": "quinn",
+    "version": "0.11.2",
+    "authors": null,
+    "repository": "https://github.com/quinn-rs/quinn",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Versatile QUIC transport protocol implementation"
+  },
+  {
+    "name": "quinn-proto",
+    "version": "0.11.3",
+    "authors": null,
+    "repository": "https://github.com/quinn-rs/quinn",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "State machine for the QUIC transport protocol"
+  },
+  {
+    "name": "quinn-udp",
+    "version": "0.5.2",
+    "authors": null,
+    "repository": "https://github.com/quinn-rs/quinn",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "UDP sockets with ECN information for the QUIC transport protocol"
+  },
+  {
     "name": "quote",
     "version": "1.0.36",
     "authors": "David Tolnay <dtolnay@gmail.com>",
@@ -3151,7 +3223,7 @@
   },
   {
     "name": "reqwest",
-    "version": "0.11.27",
+    "version": "0.12.5",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/seanmonstar/reqwest",
     "license": "Apache-2.0 OR MIT",
@@ -3232,15 +3304,6 @@
   },
   {
     "name": "rustls",
-    "version": "0.21.12",
-    "authors": null,
-    "repository": "https://github.com/rustls/rustls",
-    "license": "Apache-2.0 OR ISC OR MIT",
-    "license_file": null,
-    "description": "Rustls is a modern TLS library written in Rust."
-  },
-  {
-    "name": "rustls",
     "version": "0.22.4",
     "authors": null,
     "repository": "https://github.com/rustls/rustls",
@@ -3249,22 +3312,22 @@
     "description": "Rustls is a modern TLS library written in Rust."
   },
   {
-    "name": "rustls-native-certs",
-    "version": "0.6.3",
+    "name": "rustls",
+    "version": "0.23.10",
     "authors": null,
-    "repository": "https://github.com/ctz/rustls-native-certs",
+    "repository": "https://github.com/rustls/rustls",
+    "license": "Apache-2.0 OR ISC OR MIT",
+    "license_file": null,
+    "description": "Rustls is a modern TLS library written in Rust."
+  },
+  {
+    "name": "rustls-native-certs",
+    "version": "0.7.1",
+    "authors": null,
+    "repository": "https://github.com/rustls/rustls-native-certs",
     "license": "Apache-2.0 OR ISC OR MIT",
     "license_file": null,
     "description": "rustls-native-certs allows rustls to use the platform native certificate store"
-  },
-  {
-    "name": "rustls-pemfile",
-    "version": "1.0.4",
-    "authors": null,
-    "repository": "https://github.com/rustls/pemfile",
-    "license": "Apache-2.0 OR ISC OR MIT",
-    "license_file": null,
-    "description": "Basic .pem file parser for keys and certificates"
   },
   {
     "name": "rustls-pemfile",
@@ -3283,15 +3346,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Shared types for the rustls PKI ecosystem"
-  },
-  {
-    "name": "rustls-webpki",
-    "version": "0.101.7",
-    "authors": null,
-    "repository": "https://github.com/rustls/webpki",
-    "license": "ISC",
-    "license_file": null,
-    "description": "Web PKI X.509 Certificate Verification."
   },
   {
     "name": "rustls-webpki",
@@ -3382,15 +3436,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A RAII scope guard that will run a given closure when it goes out of scope, even if the code between panics (assuming unwinding panic).  Defines the macros `defer!`, `defer_on_unwind!`, `defer_on_success!` as shorthands for guards with one of the implemented strategies."
-  },
-  {
-    "name": "sct",
-    "version": "0.7.1",
-    "authors": "Joseph Birr-Pixton <jpixton@gmail.com>",
-    "repository": "https://github.com/rustls/sct.rs",
-    "license": "Apache-2.0 OR ISC OR MIT",
-    "license_file": null,
-    "description": "Certificate transparency SCT verification library"
   },
   {
     "name": "security-framework",
@@ -3789,6 +3834,15 @@
     "description": "A tool for enlisting the compiler’s help in proving the absence of concurrency"
   },
   {
+    "name": "sync_wrapper",
+    "version": "1.0.1",
+    "authors": "Actyx AG <developer@actyx.io>",
+    "repository": "https://github.com/Actyx/sync_wrapper",
+    "license": "Apache-2.0",
+    "license_file": null,
+    "description": "A tool for enlisting the compiler's help in proving the absence of concurrency"
+  },
+  {
     "name": "synstructure",
     "version": "0.13.1",
     "authors": "Nika Layzell <nika@thelayzells.com>",
@@ -3805,24 +3859,6 @@
     "license": "MIT",
     "license_file": null,
     "description": "Simplified interface to libc::sysctl"
-  },
-  {
-    "name": "system-configuration",
-    "version": "0.5.1",
-    "authors": "Mullvad VPN",
-    "repository": "https://github.com/mullvad/system-configuration-rs",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Bindings to SystemConfiguration framework for macOS"
-  },
-  {
-    "name": "system-configuration-sys",
-    "version": "0.5.0",
-    "authors": "Mullvad VPN",
-    "repository": "https://github.com/mullvad/system-configuration-rs",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Low level bindings to SystemConfiguration framework for macOS"
   },
   {
     "name": "tch",
@@ -3997,7 +4033,7 @@
   },
   {
     "name": "tokio-rustls",
-    "version": "0.24.1",
+    "version": "0.26.0",
     "authors": null,
     "repository": "https://github.com/rustls/tokio-rustls",
     "license": "Apache-2.0 OR MIT",
@@ -4060,7 +4096,7 @@
   },
   {
     "name": "tower-http",
-    "version": "0.4.4",
+    "version": "0.5.2",
     "authors": "Tower Maintainers <team@tower-rs.com>",
     "repository": "https://github.com/tower-rs/tower-http",
     "license": "MIT",
@@ -4528,15 +4564,6 @@
   },
   {
     "name": "webpki-roots",
-    "version": "0.25.4",
-    "authors": null,
-    "repository": "https://github.com/rustls/webpki-roots",
-    "license": "MPL-2.0",
-    "license_file": null,
-    "description": "Mozilla's CA root certificates for use with webpki"
-  },
-  {
-    "name": "webpki-roots",
     "version": "0.26.3",
     "authors": null,
     "repository": "https://github.com/rustls/webpki-roots",
@@ -4861,7 +4888,7 @@
   },
   {
     "name": "winreg",
-    "version": "0.50.0",
+    "version": "0.52.0",
     "authors": "Igor Shaula <gentoo90@gmail.com>",
     "repository": "https://github.com/gentoo90/winreg-rs",
     "license": "MIT",
