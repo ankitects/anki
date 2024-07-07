@@ -57,7 +57,7 @@ class ExportDialog(QDialog):
         self.open()
 
     def setup(self, did: DeckId | None) -> None:
-        self.exporter_classes: list[Type[Exporter]] = [
+        self.exporter_classes: list[type[Exporter]] = [
             ApkgExporter,
             ColpkgExporter,
             NoteCsvExporter,

@@ -124,7 +124,7 @@ class JsonImporter(Importer):
         ImportDialog(mw, JsonFileArgs(path=path))
 
 
-IMPORTERS: list[Type[Importer]] = [
+IMPORTERS: list[type[Importer]] = [
     ColpkgImporter,
     ApkgImporter,
     MnemosyneImporter,
