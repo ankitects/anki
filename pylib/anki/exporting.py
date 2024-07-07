@@ -13,8 +13,9 @@ import threading
 import time
 import unicodedata
 import zipfile
+from collections.abc import Sequence
 from io import BufferedWriter
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
 from zipfile import ZipFile
 
 from anki import hooks

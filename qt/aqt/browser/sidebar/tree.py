@@ -2,8 +2,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import Enum, auto
-from typing import Iterable, cast
+from typing import cast
 
 import aqt
 import aqt.browser

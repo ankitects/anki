@@ -14,7 +14,8 @@ as '2' internally.
 
 from __future__ import annotations
 
-from typing import Literal, Optional, Sequence
+from collections.abc import Sequence
+from typing import Literal, Optional
 
 from anki import frontend_pb2, scheduler_pb2
 from anki._legacy import deprecated

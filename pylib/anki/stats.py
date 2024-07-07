@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import random
 import time
-from typing import Sequence
+from collections.abc import Sequence
 
 import anki.cards
 import anki.collection

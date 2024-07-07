@@ -3,9 +3,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
 
 import aqt.clayout
 from anki import stdmodels

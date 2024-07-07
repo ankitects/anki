@@ -7,9 +7,10 @@ import functools
 import json
 import random
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Literal, Match, Sequence, cast
+from typing import Any, Literal, Match, cast
 
 import aqt
 import aqt.browser

@@ -10,8 +10,9 @@ import re
 import signal
 import weakref
 from argparse import Namespace
+from collections.abc import Sequence
 from concurrent.futures import Future
-from typing import Any, Literal, Sequence, TypeVar, cast
+from typing import Any, Literal, TypeVar, cast
 
 import anki
 import anki.cards
