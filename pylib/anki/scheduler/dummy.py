@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from anki.cards import Card
+import anki.cards
 from anki.decks import DeckId
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 
@@ -16,10 +16,10 @@ class DummyScheduler(SchedulerBaseWithLegacy):
     def reset(self) -> None:
         pass
 
-    def getCard(self) -> Card | None:
+    def getCard(self) -> anki.cards.Card | None:
         raise Exception("v1/v2 scheduler no longer supported")
 
-    def answerCard(self, card: Card, ease: int) -> None:
+    def answerCard(self, card: anki.cards.Card, ease: int) -> None:
         raise Exception("v1/v2 scheduler no longer supported")
 
     def _is_finished(self) -> bool:

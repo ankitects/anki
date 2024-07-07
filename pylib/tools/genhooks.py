@@ -138,10 +138,11 @@ prefix = """\
 from __future__ import annotations
 
 from typing import Any, Callable, Sequence
+
 import anki
+import anki.cards
 import anki.hooks
-from anki.cards import Card
-from anki.notes import Note
+import anki.notes
 """
 
 suffix = ""

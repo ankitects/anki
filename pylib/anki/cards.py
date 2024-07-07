@@ -15,7 +15,6 @@ from anki import cards_pb2, hooks
 from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import *
 from anki.models import NotetypeDict, TemplateDict
-from anki.notes import Note
 from anki.sound import AVTag
 
 # Cards
@@ -36,7 +35,7 @@ FSRSMemoryState = cards_pb2.FsrsMemoryState
 
 
 class Card(DeprecatedNamesMixin):
-    _note: Note | None
+    _note: anki.notes.Note | None
     lastIvl: int
     ord: int
     nid: anki.notes.NoteId
@@ -161,7 +160,7 @@ class Card(DeprecatedNamesMixin):
     def set_render_output(self, output: anki.template.TemplateRenderOutput) -> None:
         self._render_output = output
 
-    def note(self, reload: bool = False) -> Note:
+    def note(self, reload: bool = False) -> anki.notes.Note:
         if not self._note or reload:
             self._note = self.col.get_note(self.nid)
         return self._note

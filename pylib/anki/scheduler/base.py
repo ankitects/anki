@@ -4,10 +4,11 @@
 from __future__ import annotations
 
 import anki
+import anki.cards
 import anki.collection
+import anki.notes
 from anki import decks_pb2, scheduler_pb2
 from anki._legacy import DeprecatedNamesMixin
-from anki.cards import Card
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
 
@@ -25,7 +26,6 @@ RepositionDefaults = scheduler_pb2.RepositionDefaultsResponse
 from typing import Sequence, overload
 
 from anki import config_pb2
-from anki.cards import CardId
 from anki.consts import (
     CARD_TYPE_NEW,
     NEW_CARDS_RANDOM,
@@ -35,7 +35,6 @@ from anki.consts import (
     QUEUE_TYPE_PREVIEW,
 )
 from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
-from anki.notes import NoteId
 from anki.utils import ids2str, int_time
 
 
@@ -57,7 +56,7 @@ class SchedulerBase(DeprecatedNamesMixin):
     def day_cutoff(self) -> int:
         return self._timing_today().next_day_at
 
-    def countIdx(self, card: Card) -> int:
+    def countIdx(self, card: anki.cards.Card) -> int:
         if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
             return QUEUE_TYPE_LRN
         return card.queue
@@ -135,10 +134,10 @@ class SchedulerBase(DeprecatedNamesMixin):
     # Suspending & burying
     ##########################################################################
 
-    def unsuspend_cards(self, ids: Sequence[CardId]) -> OpChanges:
+    def unsuspend_cards(self, ids: Sequence[anki.cards.CardId]) -> OpChanges:
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
-    def unbury_cards(self, ids: Sequence[CardId]) -> OpChanges:
+    def unbury_cards(self, ids: Sequence[anki.cards.CardId]) -> OpChanges:
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
     def unbury_deck(
@@ -148,18 +147,18 @@ class SchedulerBase(DeprecatedNamesMixin):
     ) -> OpChanges:
         return self.col._backend.unbury_deck(deck_id=deck_id, mode=mode)
 
-    def suspend_cards(self, ids: Sequence[CardId]) -> OpChangesWithCount:
+    def suspend_cards(self, ids: Sequence[anki.cards.CardId]) -> OpChangesWithCount:
         return self.col._backend.bury_or_suspend_cards(
             card_ids=ids, note_ids=[], mode=BuryOrSuspend.SUSPEND
         )
 
-    def suspend_notes(self, ids: Sequence[NoteId]) -> OpChangesWithCount:
+    def suspend_notes(self, ids: Sequence[anki.notes.NoteId]) -> OpChangesWithCount:
         return self.col._backend.bury_or_suspend_cards(
             card_ids=[], note_ids=ids, mode=BuryOrSuspend.SUSPEND
         )
 
     def bury_cards(
-        self, ids: Sequence[CardId], manual: bool = True
+        self, ids: Sequence[anki.cards.CardId], manual: bool = True
     ) -> OpChangesWithCount:
         if manual:
             mode = BuryOrSuspend.BURY_USER
@@ -169,7 +168,7 @@ class SchedulerBase(DeprecatedNamesMixin):
             card_ids=ids, note_ids=[], mode=mode
         )
 
-    def bury_notes(self, note_ids: Sequence[NoteId]) -> OpChangesWithCount:
+    def bury_notes(self, note_ids: Sequence[anki.notes.NoteId]) -> OpChangesWithCount:
         return self.col._backend.bury_or_suspend_cards(
             card_ids=[], note_ids=note_ids, mode=BuryOrSuspend.BURY_USER
         )
@@ -179,7 +178,7 @@ class SchedulerBase(DeprecatedNamesMixin):
 
     def schedule_cards_as_new(
         self,
-        card_ids: Sequence[CardId],
+        card_ids: Sequence[anki.cards.CardId],
         *,
         restore_position: bool = False,
         reset_counts: bool = False,
@@ -202,7 +201,7 @@ class SchedulerBase(DeprecatedNamesMixin):
 
     def set_due_date(
         self,
-        card_ids: Sequence[CardId],
+        card_ids: Sequence[anki.cards.CardId],
         days: str,
         config_key: Config.String.V | None = None,
     ) -> OpChanges:
@@ -221,7 +220,7 @@ class SchedulerBase(DeprecatedNamesMixin):
             config_key=key,  # type: ignore
         )
 
-    def reset_cards(self, ids: list[CardId]) -> None:
+    def reset_cards(self, ids: list[anki.cards.CardId]) -> None:
         "Completely reset cards for export."
         sids = ids2str(ids)
         assert self.col.db
@@ -244,7 +243,7 @@ class SchedulerBase(DeprecatedNamesMixin):
 
     def reposition_new_cards(
         self,
-        card_ids: Sequence[CardId],
+        card_ids: Sequence[anki.cards.CardId],
         starting_from: int,
         step_size: int,
         randomize: bool,
@@ -285,7 +284,7 @@ class SchedulerBase(DeprecatedNamesMixin):
 
     def _legacy_sort_cards(
         self,
-        cids: list[CardId],
+        cids: list[anki.cards.CardId],
         start: int = 1,
         step: int = 1,
         shuffle: bool = False,

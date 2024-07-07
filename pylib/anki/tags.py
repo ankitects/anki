@@ -17,11 +17,11 @@ from typing import Collection, Match, Sequence
 
 import anki  # pylint: disable=unused-import
 import anki.collection
+import anki.notes
 from anki import tags_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId
-from anki.notes import NoteId
 from anki.utils import ids2str
 
 # public exports
@@ -59,11 +59,11 @@ class TagManager(DeprecatedNamesMixin):
     # Bulk addition/removal from specific notes
     #############################################################
 
-    def bulk_add(self, note_ids: Sequence[NoteId], tags: str) -> OpChangesWithCount:
+    def bulk_add(self, note_ids: Sequence[anki.notes.NoteId], tags: str) -> OpChangesWithCount:
         """Add space-separate tags to provided notes, returning changed count."""
         return self.col._backend.add_note_tags(note_ids=note_ids, tags=tags)
 
-    def bulk_remove(self, note_ids: Sequence[NoteId], tags: str) -> OpChangesWithCount:
+    def bulk_remove(self, note_ids: Sequence[anki.notes.NoteId], tags: str) -> OpChangesWithCount:
         return self.col._backend.remove_note_tags(note_ids=note_ids, tags=tags)
 
     # Find&replace
@@ -158,14 +158,14 @@ class TagManager(DeprecatedNamesMixin):
     ) -> None:
         print("tags.register() is deprecated and no longer works")
 
-    def _legacy_bulk_add(self, ids: list[NoteId], tags: str, add: bool = True) -> None:
+    def _legacy_bulk_add(self, ids: list[anki.notes.NoteId], tags: str, add: bool = True) -> None:
         "Add tags in bulk. TAGS is space-separated."
         if add:
             self.bulk_add(ids, tags)
         else:
             self.bulk_remove(ids, tags)
 
-    def _legacy_bulk_rem(self, ids: list[NoteId], tags: str) -> None:
+    def _legacy_bulk_rem(self, ids: list[anki.notes.NoteId], tags: str) -> None:
         self._legacy_bulk_add(ids, tags, False)
 
     @deprecated(info="no longer used by Anki, and will be removed in the future")
