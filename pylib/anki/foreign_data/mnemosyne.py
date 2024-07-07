@@ -17,7 +17,6 @@ Notetype  | Card Type
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Tuple, Type
 
 from anki.db import DB
 from anki.decks import DeckId

@@ -6,7 +6,6 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from itertools import chain
-from typing import Type
 
 import aqt.main
 from anki.collection import Collection, Progress

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import csv
 import re
-from typing import Any, Optional, TextIO
+from typing import Any, TextIO
 
 from anki.collection import Collection
 from anki.importing.noteimp import ForeignNote, NoteImporter

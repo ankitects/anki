@@ -15,7 +15,7 @@ import unicodedata
 import zipfile
 from collections.abc import Sequence
 from io import BufferedWriter
-from typing import Any, Optional
+from typing import Any
 from zipfile import ZipFile
 
 from anki import hooks

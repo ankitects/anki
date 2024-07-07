@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import re
 import time
-from typing import TYPE_CHECKING, Optional, TextIO, cast
+from typing import TYPE_CHECKING, TextIO, cast
 
 from markdown import markdown
 

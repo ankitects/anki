@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
 from anki.consts import (

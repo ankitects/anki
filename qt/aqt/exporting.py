@@ -7,7 +7,6 @@ import os
 import re
 import time
 from concurrent.futures import Future
-from typing import Optional
 
 import aqt
 import aqt.forms

@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from typing import Tuple
-
 import aqt
 import aqt.forms
 import aqt.operations

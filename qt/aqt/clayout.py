@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import re
 from concurrent.futures import Future
-from typing import Any, Match, Optional, cast
+from typing import Any, Match, cast
 
 import aqt
 import aqt.forms

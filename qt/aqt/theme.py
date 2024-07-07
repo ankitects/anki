@@ -8,7 +8,7 @@ import os
 import re
 import subprocess
 from dataclasses import dataclass
-from typing import Callable, List, Tuple
+from typing import Callable
 
 import anki.lang
 import aqt

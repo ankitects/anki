@@ -9,7 +9,7 @@ import re
 import sys
 from collections.abc import Sequence
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 import anki
 import anki.lang

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import html
 import unicodedata
-from typing import Optional, Union
+from typing import Union
 
 from anki.collection import Collection
 from anki.config import Config
