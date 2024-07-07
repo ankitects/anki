@@ -50,7 +50,7 @@ class CardLayout(QDialog):
         mw: AnkiQt,
         note: Note,
         ord: int = 0,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         fill_empty: bool = False,
     ) -> None:
         QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
@@ -509,7 +509,7 @@ class CardLayout(QDialog):
     # Preview
     ##########################################################################
 
-    _previewTimer: Optional[QTimer] = None
+    _previewTimer: QTimer | None = None
 
     def renderPreview(self) -> None:
         # schedule a preview when timing stops

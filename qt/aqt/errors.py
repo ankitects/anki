@@ -169,7 +169,7 @@ class ErrorHandler(QObject):
     def __init__(self, mw: AnkiQt) -> None:
         QObject.__init__(self, mw)
         self.mw = mw
-        self.timer: Optional[QTimer] = None
+        self.timer: QTimer | None = None
         qconnect(self.errorTimer, self._setTimer)
         self.pool = ""
         self._oldstderr = sys.stderr

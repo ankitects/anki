@@ -524,10 +524,10 @@ html {{ {font} }}
     def stdHtml(
         self,
         body: str,
-        css: Optional[list[str]] = None,
-        js: Optional[list[str]] = None,
+        css: list[str] | None = None,
+        js: list[str] | None = None,
         head: str = "",
-        context: Optional[Any] = None,
+        context: Any | None = None,
         default_css: bool = True,
     ) -> None:
         css = (["css/webview.css"] if default_css else []) + (
@@ -705,7 +705,7 @@ html {{ {font} }}
     def adjustHeightToFit(self) -> None:
         self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
 
-    def _onHeight(self, qvar: Optional[int]) -> None:
+    def _onHeight(self, qvar: int | None) -> None:
         from aqt import mw
 
         if qvar is None:
@@ -842,5 +842,5 @@ html {{ {font} }}
         )
 
     @deprecated(info="use theme_manager.qcolor() instead")
-    def get_window_bg_color(self, night_mode: Optional[bool] = None) -> QColor:
+    def get_window_bg_color(self, night_mode: bool | None = None) -> QColor:
         return theme_manager.qcolor(colors.CANVAS)

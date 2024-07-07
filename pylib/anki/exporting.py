@@ -26,16 +26,16 @@ from anki.utils import ids2str, namedtmp, split_fields, strip_html
 
 class Exporter:
     includeHTML: bool | None = None
-    ext: Optional[str] = None
-    includeTags: Optional[bool] = None
-    includeSched: Optional[bool] = None
-    includeMedia: Optional[bool] = None
+    ext: str | None = None
+    includeTags: bool | None = None
+    includeSched: bool | None = None
+    includeMedia: bool | None = None
 
     def __init__(
         self,
         col: Collection,
-        did: Optional[DeckId] = None,
-        cids: Optional[list[CardId]] = None,
+        did: DeckId | None = None,
+        cids: list[CardId] | None = None,
     ) -> None:
         self.col = col.weakref()
         self.did = did

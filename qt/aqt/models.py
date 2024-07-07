@@ -40,9 +40,9 @@ class Models(QDialog):
     def __init__(
         self,
         mw: AnkiQt,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         fromMain: bool = False,
-        selected_notetype_id: Optional[NotetypeId] = None,
+        selected_notetype_id: NotetypeId | None = None,
     ):
         self.mw = mw
         parent = parent or mw
@@ -231,13 +231,13 @@ class Models(QDialog):
 
 
 class AddModel(QDialog):
-    model: Optional[NotetypeDict]
+    model: NotetypeDict | None
 
     def __init__(
         self,
         mw: AnkiQt,
         on_success: Callable[[NotetypeDict], None],
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
     ) -> None:
         self.parent_ = parent or mw
         self.mw = mw

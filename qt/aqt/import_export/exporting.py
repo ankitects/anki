@@ -42,7 +42,7 @@ class ExportDialog(QDialog):
         mw: aqt.main.AnkiQt,
         did: DeckId | None = None,
         nids: Sequence[NoteId] | None = None,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
     ):
         QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
         self.mw = mw

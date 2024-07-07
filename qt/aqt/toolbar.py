@@ -86,7 +86,7 @@ class TopWebView(ToolbarWebView):
 
         self.show()
 
-    def _onHeight(self, qvar: Optional[int]) -> None:
+    def _onHeight(self, qvar: int | None) -> None:
         super()._onHeight(qvar)
         if qvar:
             self.web_height = int(qvar)

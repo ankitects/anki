@@ -109,7 +109,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         # backend automatically resets queues as operations are performed
         pass
 
-    def getCard(self) -> Optional[Card]:
+    def getCard(self) -> Card | None:
         """Fetch the next card from the queue. None if finished."""
         try:
             queued_card = self.get_queued_cards().cards[0]
@@ -125,7 +125,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         "Don't use this, it is a stop-gap until this code is refactored."
         return not self.get_queued_cards().cards
 
-    def counts(self, card: Optional[Card] = None) -> tuple[int, int, int]:
+    def counts(self, card: Card | None = None) -> tuple[int, int, int]:
         info = self.get_queued_cards()
         return (info.new_count, info.learning_count, info.review_count)
 

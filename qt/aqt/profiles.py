@@ -544,7 +544,7 @@ create table if not exists profiles
     def set_spacebar_rates_card(self, on: bool) -> None:
         self.meta["spacebar_rates_card"] = on
 
-    def get_answer_key(self, ease: int) -> Optional[str]:
+    def get_answer_key(self, ease: int) -> str | None:
         return self.meta.setdefault("answer_keys", self.default_answer_keys).get(ease)
 
     def set_answer_key(self, ease: int, key: str):
