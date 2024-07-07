@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import io
+import os
 import pickle
 import random
 import shutil
@@ -23,6 +24,7 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, int_version, is_mac, is_win
 from aqt import appHelpSite, gui_hooks
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.theme import Theme, WidgetStyle, theme_manager
 from aqt.toolbar import HideMode
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr

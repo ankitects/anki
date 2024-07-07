@@ -27,6 +27,7 @@ from anki.scheduler.v3 import (
 )
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
+from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
 from aqt.deckoptions import confirm_deck_then_display_options
