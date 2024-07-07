@@ -316,9 +316,7 @@ where id = ? and flds != ?""",
         changes2 = self.col.db.scalar("select total_changes()")
         self.updateCount = changes2 - changes
 
-    def processFields(
-        self, note: ForeignNote, fields: list[str] | None = None
-    ) -> None:
+    def processFields(self, note: ForeignNote, fields: list[str] | None = None) -> None:
         if not fields:
             fields = [""] * len(self.model["flds"])
         for c, f in enumerate(self.mapping):
