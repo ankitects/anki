@@ -140,9 +140,8 @@ from __future__ import annotations
 from typing import Any, Callable, Sequence
 
 import anki
-import anki.cards
 import anki.hooks
-import anki.notes
+from anki import cards, notes
 """
 
 suffix = ""

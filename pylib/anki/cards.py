@@ -9,9 +9,8 @@ import time
 import anki  # pylint: disable=unused-import
 import anki.collection
 import anki.decks
-import anki.notes
 import anki.template
-from anki import cards_pb2, hooks
+from anki import cards_pb2, hooks, notes
 from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import *
 from anki.models import NotetypeDict, TemplateDict
@@ -35,10 +34,10 @@ FSRSMemoryState = cards_pb2.FsrsMemoryState
 
 
 class Card(DeprecatedNamesMixin):
-    _note: anki.notes.Note | None
+    _note: notes.Note | None
     lastIvl: int
     ord: int
-    nid: anki.notes.NoteId
+    nid: notes.NoteId
     id: CardId
     did: anki.decks.DeckId
     odid: anki.decks.DeckId
@@ -75,7 +74,7 @@ class Card(DeprecatedNamesMixin):
         self._render_output = None
         self._note = None
         self.id = CardId(card.id)
-        self.nid = anki.notes.NoteId(card.note_id)
+        self.nid = notes.NoteId(card.note_id)
         self.did = anki.decks.DeckId(card.deck_id)
         self.ord = card.template_idx
         self.mod = card.mtime_secs
@@ -160,7 +159,7 @@ class Card(DeprecatedNamesMixin):
     def set_render_output(self, output: anki.template.TemplateRenderOutput) -> None:
         self._render_output = output
 
-    def note(self, reload: bool = False) -> anki.notes.Note:
+    def note(self, reload: bool = False) -> notes.Note:
         if not self._note or reload:
             self._note = self.col.get_note(self.nid)
         return self._note

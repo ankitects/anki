@@ -65,10 +65,8 @@ import traceback
 import weakref
 from dataclasses import dataclass
 
-import anki.cards
 import anki.latex
-import anki.notes
-from anki import hooks
+from anki import cards, hooks, notes
 from anki._backend import RustBackend, Translations
 from anki.browser import BrowserConfig, BrowserDefaults
 from anki.config import Config, ConfigManager
@@ -105,12 +103,12 @@ class DeckIdLimit:
 
 @dataclass
 class NoteIdsLimit:
-    note_ids: Sequence[anki.notes.NoteId]
+    note_ids: Sequence[notes.NoteId]
 
 
 @dataclass
 class CardIdsLimit:
-    card_ids: Sequence[anki.cards.CardId]
+    card_ids: Sequence[cards.CardId]
 
 
 ExportLimit = Union[DeckIdLimit, NoteIdsLimit, CardIdsLimit, None]
@@ -125,7 +123,7 @@ class ComputedMemoryState:
 
 @dataclass
 class AddNoteRequest:
-    note: anki.notes.Note
+    note: notes.Note
     deck_id: DeckId
 
 
@@ -471,33 +469,33 @@ class Collection(DeprecatedNamesMixin):
     # Object helpers
     ##########################################################################
 
-    def get_card(self, id: anki.cards.CardId) -> anki.cards.Card:
-        return anki.cards.Card(self, id)
+    def get_card(self, id: cards.CardId) -> cards.Card:
+        return cards.Card(self, id)
 
     def update_cards(
-        self, cards: Sequence[anki.cards.Card], skip_undo_entry: bool = False
+        self, cards: Sequence[cards.Card], skip_undo_entry: bool = False
     ) -> OpChanges:
         """Save card changes to database."""
         return self._backend.update_cards(
             cards=[c._to_backend_card() for c in cards], skip_undo_entry=skip_undo_entry
         )
 
-    def update_card(self, card: anki.cards.Card, skip_undo_entry: bool = False) -> OpChanges:
+    def update_card(self, card: cards.Card, skip_undo_entry: bool = False) -> OpChanges:
         """Save card changes to database."""
         return self.update_cards([card], skip_undo_entry=skip_undo_entry)
 
-    def get_note(self, id: anki.notes.NoteId) -> anki.notes.Note:
-        return anki.notes.Note(self, id=id)
+    def get_note(self, id: notes.NoteId) -> notes.Note:
+        return notes.Note(self, id=id)
 
     def update_notes(
-        self, notes: Sequence[anki.notes.Note], skip_undo_entry: bool = False
+        self, notes: Sequence[notes.Note], skip_undo_entry: bool = False
     ) -> OpChanges:
         """Save note changes to database."""
         return self._backend.update_notes(
             notes=[n._to_backend_note() for n in notes], skip_undo_entry=skip_undo_entry
         )
 
-    def update_note(self, note: anki.notes.Note, skip_undo_entry: bool = False) -> OpChanges:
+    def update_note(self, note: notes.Note, skip_undo_entry: bool = False) -> OpChanges:
         """Save note changes to database."""
         return self.update_notes([note], skip_undo_entry=skip_undo_entry)
 
@@ -520,13 +518,13 @@ class Collection(DeprecatedNamesMixin):
     # Notes
     ##########################################################################
 
-    def new_note(self, notetype: NotetypeDict) -> anki.notes.Note:
-        return anki.notes.Note(self, notetype)
+    def new_note(self, notetype: NotetypeDict) -> notes.Note:
+        return notes.Note(self, notetype)
 
-    def add_note(self, note: anki.notes.Note, deck_id: DeckId) -> OpChanges:
+    def add_note(self, note: notes.Note, deck_id: DeckId) -> OpChanges:
         hooks.note_will_be_added(self, note, deck_id)
         out = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
-        note.id = anki.notes.NoteId(out.note_id)
+        note.id = notes.NoteId(out.note_id)
         return out.changes
 
     def add_notes(self, requests: Iterable[AddNoteRequest]) -> OpChanges:
@@ -541,15 +539,15 @@ class Collection(DeprecatedNamesMixin):
             ]
         )
         for idx, request in enumerate(requests):
-            request.note.id = anki.notes.NoteId(out.nids[idx])
+            request.note.id = notes.NoteId(out.nids[idx])
 
         return out.changes
 
-    def remove_notes(self, note_ids: Sequence[anki.notes.NoteId]) -> OpChangesWithCount:
+    def remove_notes(self, note_ids: Sequence[notes.NoteId]) -> OpChangesWithCount:
         hooks.notes_will_be_deleted(self, note_ids)
         return self._backend.remove_notes(note_ids=note_ids, card_ids=[])
 
-    def remove_notes_by_card(self, card_ids: list[anki.cards.CardId]) -> None:
+    def remove_notes_by_card(self, card_ids: list[cards.CardId]) -> None:
         if hooks.notes_will_be_deleted.count():
             nids = self.db.list(
                 f"select nid from cards where id in {ids2str(card_ids)}"
@@ -557,11 +555,11 @@ class Collection(DeprecatedNamesMixin):
             hooks.notes_will_be_deleted(self, nids)
         self._backend.remove_notes(note_ids=[], card_ids=card_ids)
 
-    def card_ids_of_note(self, note_id: anki.notes.NoteId) -> Sequence[anki.cards.CardId]:
-        return [anki.cards.CardId(id) for id in self._backend.cards_of_note(note_id)]
+    def card_ids_of_note(self, note_id: notes.NoteId) -> Sequence[cards.CardId]:
+        return [cards.CardId(id) for id in self._backend.cards_of_note(note_id)]
 
     def defaults_for_adding(
-        self, *, current_review_card: anki.cards.Card | None
+        self, *, current_review_card: cards.Card | None
     ) -> anki.notes.DefaultsForAdding:
         """Get starting deck and notetype for add screen.
         An option in the preferences controls whether this will be based on the current deck
@@ -603,11 +601,11 @@ class Collection(DeprecatedNamesMixin):
     def card_count(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[anki.cards.CardId]) -> None:
+    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[cards.CardId]) -> None:
         "You probably want .remove_notes_by_card() instead."
         self._backend.remove_cards(card_ids=card_ids)
 
-    def set_deck(self, card_ids: Sequence[anki.cards.CardId], deck_id: int) -> OpChangesWithCount:
+    def set_deck(self, card_ids: Sequence[cards.CardId], deck_id: int) -> OpChangesWithCount:
         return self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
 
     def get_empty_cards(self) -> EmptyCardsReport:
@@ -617,7 +615,7 @@ class Collection(DeprecatedNamesMixin):
     ##########################################################################
 
     def after_note_updates(
-        self, nids: list[anki.notes.NoteId], mark_modified: bool, generate_cards: bool = True
+        self, nids: list[notes.NoteId], mark_modified: bool, generate_cards: bool = True,
     ) -> None:
         "If notes modified directly in database, call this afterwards."
         self._backend.after_note_updates(
@@ -632,7 +630,7 @@ class Collection(DeprecatedNamesMixin):
         query: str,
         order: bool | str | BrowserColumns.Column = False,
         reverse: bool = False,
-    ) -> Sequence[anki.cards.CardId]:
+    ) -> Sequence[cards.CardId]:
         """Return card ids matching the provided search.
 
         To programmatically construct a search string, see .build_search_string().
@@ -656,7 +654,7 @@ class Collection(DeprecatedNamesMixin):
         """
         mode = self._build_sort_mode(order, reverse, False)
         return cast(
-            Sequence[anki.cards.CardId], self._backend.search_cards(search=query, order=mode)
+            Sequence[cards.CardId], self._backend.search_cards(search=query, order=mode),
         )
 
     def find_notes(
@@ -664,7 +662,7 @@ class Collection(DeprecatedNamesMixin):
         query: str,
         order: bool | str | BrowserColumns.Column = False,
         reverse: bool = False,
-    ) -> Sequence[anki.notes.NoteId]:
+    ) -> Sequence[notes.NoteId]:
         """Return note ids matching the provided search.
 
         To programmatically construct a search string, see .build_search_string().
@@ -672,7 +670,7 @@ class Collection(DeprecatedNamesMixin):
         """
         mode = self._build_sort_mode(order, reverse, True)
         return cast(
-            Sequence[anki.notes.NoteId], self._backend.search_notes(search=query, order=mode)
+            Sequence[notes.NoteId], self._backend.search_notes(search=query, order=mode),
         )
 
     def _build_sort_mode(
@@ -707,7 +705,7 @@ class Collection(DeprecatedNamesMixin):
     def find_and_replace(
         self,
         *,
-        note_ids: Sequence[anki.notes.NoteId],
+        note_ids: Sequence[notes.NoteId],
         search: str,
         replacement: str,
         regex: bool = False,
@@ -979,7 +977,7 @@ class Collection(DeprecatedNamesMixin):
 
         return CollectionStats(self)
 
-    def card_stats_data(self, card_id: anki.cards.CardId) -> stats_pb2.CardStatsResponse:
+    def card_stats_data(self, card_id: cards.CardId) -> stats_pb2.CardStatsResponse:
         """Returns the data required to show card stats.
 
         If you wish to display the stats in a HTML table like Anki does,
@@ -1075,7 +1073,7 @@ class Collection(DeprecatedNamesMixin):
     ##########################################################################
 
     def set_user_flag_for_cards(
-        self, flag: int, cids: Sequence[anki.cards.CardId]
+        self, flag: int, cids: Sequence[cards.CardId]
     ) -> OpChangesWithCount:
         return self._backend.set_flag(card_ids=cids, flag=flag)
 
@@ -1136,7 +1134,7 @@ class Collection(DeprecatedNamesMixin):
     def extract_cloze_for_typing(self, text: str, ordinal: int) -> str:
         return self._backend.extract_cloze_for_typing(text=text, ordinal=ordinal)
 
-    def compute_memory_state(self, card_id: anki.cards.CardId) -> ComputedMemoryState:
+    def compute_memory_state(self, card_id: cards.CardId) -> ComputedMemoryState:
         resp = self._backend.compute_memory_state(card_id)
         if resp.HasField("state"):
             return ComputedMemoryState(
@@ -1147,7 +1145,7 @@ class Collection(DeprecatedNamesMixin):
         else:
             return ComputedMemoryState(desired_retention=resp.desired_retention)
 
-    def fuzz_delta(self, card_id: anki.cards.CardId, interval: int) -> int:
+    def fuzz_delta(self, card_id: cards.CardId, interval: int) -> int:
         "The delta days of fuzz applied if reviewing the card in v3."
         return self._backend.fuzz_delta(card_id=card_id, interval=interval)
 
@@ -1191,51 +1189,51 @@ class Collection(DeprecatedNamesMixin):
         return status.undo or None
 
     # @deprecated(replaced_by=new_note)
-    def newNote(self, forDeck: bool = True) -> anki.notes.Note:
+    def newNote(self, forDeck: bool = True) -> notes.Note:
         "Return a new note with the current model."
-        return anki.notes.Note(self, self.models.current(forDeck))
+        return notes.Note(self, self.models.current(forDeck))
 
     # @deprecated(replaced_by=add_note)
-    def addNote(self, note: anki.notes.Note) -> int:
+    def addNote(self, note: notes.Note) -> int:
         self.add_note(note, note.note_type()["did"])
         return len(note.cards())
 
     @deprecated(replaced_by=remove_notes)
-    def remNotes(self, ids: Sequence[anki.notes.NoteId]) -> None:
+    def remNotes(self, ids: Sequence[notes.NoteId]) -> None:
         self.remove_notes(ids)
 
     @deprecated(replaced_by=remove_notes)
-    def _remNotes(self, ids: list[anki.notes.NoteId]) -> None:
+    def _remNotes(self, ids: list[notes.NoteId]) -> None:
         pass
 
     @deprecated(replaced_by=card_stats_data)
-    def card_stats(self, card_id: anki.cards.CardId, include_revlog: bool) -> str:
+    def card_stats(self, card_id: cards.CardId, include_revlog: bool) -> str:
         from anki.stats import _legacy_card_stats
 
         return _legacy_card_stats(self, card_id, include_revlog)
 
     @deprecated(replaced_by=card_stats_data)
-    def cardStats(self, card: anki.cards.Card) -> str:
+    def cardStats(self, card: cards.Card) -> str:
         from anki.stats import _legacy_card_stats
 
         return _legacy_card_stats(self, card.id, False)
 
     @deprecated(replaced_by=after_note_updates)
-    def updateFieldCache(self, nids: list[anki.notes.NoteId]) -> None:
+    def updateFieldCache(self, nids: list[notes.NoteId]) -> None:
         self.after_note_updates(nids, mark_modified=False, generate_cards=False)
 
     @deprecated(replaced_by=after_note_updates)
-    def genCards(self, nids: list[anki.notes.NoteId]) -> list[int]:
+    def genCards(self, nids: list[notes.NoteId]) -> list[int]:
         self.after_note_updates(nids, mark_modified=False, generate_cards=True)
         # previously returned empty cards, no longer does
         return []
 
     @deprecated(info="no longer used")
-    def emptyCids(self) -> list[anki.cards.CardId]:
+    def emptyCids(self) -> list[cards.CardId]:
         return []
 
     @deprecated(info="handled by backend")
-    def _logRem(self, ids: list[int | anki.notes.NoteId], type: int) -> None:
+    def _logRem(self, ids: list[int | notes.NoteId], type: int) -> None:
         self.db.executemany(
             "insert into graves values (%d, ?, %d)" % (self.usn(), type),
             ([x] for x in ids),
