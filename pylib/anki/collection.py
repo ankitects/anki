@@ -605,7 +605,9 @@ class Collection(DeprecatedNamesMixin):
         "You probably want .remove_notes_by_card() instead."
         self._backend.remove_cards(card_ids=card_ids)
 
-    def set_deck(self, card_ids: Sequence[cards.CardId], deck_id: int) -> OpChangesWithCount:
+    def set_deck(
+        self, card_ids: Sequence[cards.CardId], deck_id: int
+    ) -> OpChangesWithCount:
         return self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
 
     def get_empty_cards(self) -> EmptyCardsReport:
@@ -615,7 +617,10 @@ class Collection(DeprecatedNamesMixin):
     ##########################################################################
 
     def after_note_updates(
-        self, nids: list[notes.NoteId], mark_modified: bool, generate_cards: bool = True,
+        self,
+        nids: list[notes.NoteId],
+        mark_modified: bool,
+        generate_cards: bool = True,
     ) -> None:
         "If notes modified directly in database, call this afterwards."
         self._backend.after_note_updates(
@@ -654,7 +659,8 @@ class Collection(DeprecatedNamesMixin):
         """
         mode = self._build_sort_mode(order, reverse, False)
         return cast(
-            Sequence[cards.CardId], self._backend.search_cards(search=query, order=mode),
+            Sequence[cards.CardId],
+            self._backend.search_cards(search=query, order=mode),
         )
 
     def find_notes(
@@ -670,7 +676,8 @@ class Collection(DeprecatedNamesMixin):
         """
         mode = self._build_sort_mode(order, reverse, True)
         return cast(
-            Sequence[notes.NoteId], self._backend.search_notes(search=query, order=mode),
+            Sequence[notes.NoteId],
+            self._backend.search_notes(search=query, order=mode),
         )
 
     def _build_sort_mode(

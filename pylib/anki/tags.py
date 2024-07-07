@@ -58,11 +58,15 @@ class TagManager(DeprecatedNamesMixin):
     # Bulk addition/removal from specific notes
     #############################################################
 
-    def bulk_add(self, note_ids: Sequence[notes.NoteId], tags: str) -> OpChangesWithCount:
+    def bulk_add(
+        self, note_ids: Sequence[notes.NoteId], tags: str
+    ) -> OpChangesWithCount:
         """Add space-separate tags to provided notes, returning changed count."""
         return self.col._backend.add_note_tags(note_ids=note_ids, tags=tags)
 
-    def bulk_remove(self, note_ids: Sequence[notes.NoteId], tags: str) -> OpChangesWithCount:
+    def bulk_remove(
+        self, note_ids: Sequence[notes.NoteId], tags: str
+    ) -> OpChangesWithCount:
         return self.col._backend.remove_note_tags(note_ids=note_ids, tags=tags)
 
     # Find&replace
@@ -157,7 +161,9 @@ class TagManager(DeprecatedNamesMixin):
     ) -> None:
         print("tags.register() is deprecated and no longer works")
 
-    def _legacy_bulk_add(self, ids: list[notes.NoteId], tags: str, add: bool = True) -> None:
+    def _legacy_bulk_add(
+        self, ids: list[notes.NoteId], tags: str, add: bool = True
+    ) -> None:
         "Add tags in bulk. TAGS is space-separated."
         if add:
             self.bulk_add(ids, tags)
