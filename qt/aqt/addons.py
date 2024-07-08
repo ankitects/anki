@@ -1114,10 +1114,10 @@ def extract_meta_from_download_url(url: str) -> ExtractedDownloadMeta:
     query = parse_qs(urlobj.query)
 
     if (
-        (t := query.get("t")) is None
-        or (minpt := query.get("minpt")) is None
-        or (maxpt := query.get("maxpt")) is None
-        or (bidx := query.get("bidx")) is None
+        (t := query["t"]) is None
+        or (minpt := query["minpt"]) is None
+        or (maxpt := query["maxpt"]) is None
+        or (bidx := query["bidx"]) is None
     ):
         raise TypeError
 
