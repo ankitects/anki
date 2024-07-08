@@ -212,16 +212,19 @@ class AddonManager:
 
     # in new code, you may want all_addon_meta() instead
     def allAddons(self) -> list[str]:
-        l = []
-        for d in os.listdir(self.addonsFolder()):
-            path = self.addonsFolder(d)
-            if not os.path.exists(os.path.join(path, "__init__.py")):
-                continue
-            l.append(d)
-        l.sort()
-        if os.getenv("ANKIREVADDONS", ""):
-            l = list(reversed(l))
-        return l
+        addons21_directory: Path = Path(self.addonsFolder())
+        potential_addon_directories = [
+            f.name for f in os.scandir(addons21_directory) if f.is_dir()
+        ]
+        addon_directories = [
+            directory
+            for directory in potential_addon_directories
+            if (addons21_directory / directory / "__init__.py").is_file()
+        ]
+        addon_directories.sort()
+        if "ANKIREVADDONS" in os.environ:
+            addon_directories.reverse()
+        return addon_directories
 
     def all_addon_meta(self) -> Iterable[AddonMeta]:
         return map(self.addon_meta, self.allAddons())
