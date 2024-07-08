@@ -1121,11 +1121,14 @@ def extract_meta_from_download_url(url: str) -> ExtractedDownloadMeta:
     ):
         raise TypeError
 
+    def get_first_element(elements: list[str]) -> int:
+        return int(elements[0])
+
     meta = ExtractedDownloadMeta(
-        mod_time=int(t[0]),
-        min_point_version=int(minpt[0]),
-        max_point_version=int(maxpt[0]),
-        branch_index=int(bidx[0]),
+        mod_time=get_first_element(t),
+        min_point_version=get_first_element(minpt),
+        max_point_version=get_first_element(maxpt),
+        branch_index=get_first_element(bidx),
     )
 
     return meta
