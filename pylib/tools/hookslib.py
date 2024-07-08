@@ -126,7 +126,7 @@ class {self.classname()}:
         for hook in self._hooks:
             try:
                 hook({", ".join(arg_names)})
-            except:
+            except Exception:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
@@ -162,7 +162,7 @@ class {self.classname()}:
         for filter in self._hooks:
             try:
                 {arg_names[0]} = filter({", ".join(arg_names)})
-            except:
+            except Exception:
                 # if the hook fails, remove it
                 self._hooks.remove(filter)
                 raise

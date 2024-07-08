@@ -242,7 +242,7 @@ class DataModel(QAbstractTableModel):
         self._state = self._state.toggle_state()
         try:
             self._search_inner(context)
-        except:
+        except Exception:
             # rollback to prevent inconsistent state
             self._state = self._state.toggle_state()
             raise

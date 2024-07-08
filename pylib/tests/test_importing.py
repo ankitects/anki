@@ -26,7 +26,7 @@ def clear_tempfile(tf):
     try:
         tf.close()
         os.unlink(tf.name)
-    except:
+    except Exception:
         pass
 
 
