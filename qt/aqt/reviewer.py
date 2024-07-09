@@ -7,10 +7,10 @@ import functools
 import json
 import random
 import re
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Literal, Match, cast
+from typing import Any, Literal, Match, Union, cast
 
 import aqt
 import aqt.browser
