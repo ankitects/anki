@@ -285,7 +285,7 @@ class ProfileManager:
                 showWarning(tr.profiles_anki_could_not_rename_your_profile())
             else:
                 raise
-        except Exception:
+        except (SystemExit, KeyboardInterrupt, GeneratorExit):
             self.db.rollback()
             raise
         else:
