@@ -4,11 +4,11 @@ ARG DEBIAN_FRONTEND="noninteractive"
 
 RUN useradd -d /state -m -u 998 user
 
-RUN apt-get update && apt install --yes gnupg ca-certificates && \
+RUN apt update && apt install --yes gnupg ca-certificates && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 32A37959C2FA5C3C99EFBC32A79206696452D198 \
     && echo "deb https://apt.buildkite.com/buildkite-agent stable main" > /etc/apt/sources.list.d/buildkite-agent.list \
-    && apt-get update \
-    && apt-get install --yes --no-install-recommends \
+    && apt update \
+    && apt install --yes --no-install-recommends \
     autoconf \
     bash \
     buildkite-agent \

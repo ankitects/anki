@@ -33,8 +33,8 @@ FROM python:${PYTHON_VERSION}-slim as final
 COPY --from=installer /opt/anki/venv /opt/anki/venv
 ENV PATH=/opt/anki/venv/bin:$PATH
 # Install run-time dependencies.
-RUN apt-get update \
-    && apt-get install --yes --no-install-recommends \
+RUN apt update \
+    && apt install --yes --no-install-recommends \
     libasound2 \
     libdbus-1-3 \
     libfontconfig1 \
