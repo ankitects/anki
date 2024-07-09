@@ -213,13 +213,10 @@ class AddonManager:
     # in new code, you may want all_addon_meta() instead
     def allAddons(self) -> list[str]:
         addons21_directory: Path = Path(self.addonsFolder())
-        potential_addon_directories = [
-            f.name for f in os.scandir(addons21_directory) if f.is_dir()
-        ]
         addon_directories = [
-            directory
-            for directory in potential_addon_directories
-            if (addons21_directory / directory / "__init__.py").is_file()
+            f.name
+            for f in os.scandir(addons21_directory)
+            if f.is_dir() and (addons21_directory / f.name / "__init__.py").is_file()
         ]
         addon_directories.sort()
         if "ANKIREVADDONS" in os.environ:
