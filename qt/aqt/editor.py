@@ -9,6 +9,7 @@ import html
 import itertools
 import json
 import mimetypes
+import os
 import re
 import urllib.error
 import urllib.parse
