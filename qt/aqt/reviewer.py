@@ -569,7 +569,7 @@ class Reviewer:
 
     def korean_shortcuts(
         self,
-    ) -> Sequence[Union[tuple[str, Callable], tuple[Qt.Key, Callable]]]:
+    ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
         return [
             ("ㄷ", self.mw.onEditCurrent),
             ("ㅡ", self.showContextMenu),
@@ -589,7 +589,7 @@ class Reviewer:
 
     def _shortcutKeys(
         self,
-    ) -> Sequence[Union[tuple[str, Callable], tuple[Qt.Key, Callable]]]:
+    ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
         return [
             ("e", self.mw.onEditCurrent),
             (" ", self.onEnterKey),
@@ -840,7 +840,7 @@ timerStopped = false;
         if not self.mw.col.conf["dueCounts"]:
             return ""
 
-        counts: list[Union[int, str]]
+        counts: list[int | str]
         idx, counts_ = self._v3.counts()
         counts = cast(list[Union[int, str]], counts_)
         counts[idx] = f"<u>{counts[idx]}</u>"
