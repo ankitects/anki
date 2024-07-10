@@ -301,7 +301,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 iconstr = self.resourceToData(icon)
             else:
                 iconstr = f"/_anki/imgs/{icon}.png"
-            imgelm = f"""<img class="topbut" src="{iconstr}">"""
+            imgelm = f'<img class="topbut" src="{iconstr}">'
         else:
             imgelm = ""
         if label or not imgelm:
