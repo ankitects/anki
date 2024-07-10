@@ -308,10 +308,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         else:
             image_element = ""
 
-        if label or not image_element:
-            label_element = label or cmd
-        else:
+        if not label and image_element:
             label_element = ""
+        else:
+            label_element = label or cmd
 
         title_attribute = shortcut(title_attribute)
         cmd_to_toggle_button = "toggleEditorButton(this);" if toggleable else ""
