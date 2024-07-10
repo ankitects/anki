@@ -30,6 +30,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:nightMode={$pageTheme.isDark}
         class="bordered"
         on:mousedown|preventDefault
+        tabindex="-1"
+        role="button"
     />
     <div
         class:nightMode={$pageTheme.isDark}
@@ -38,6 +40,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:mousedown|preventDefault
         on:pointerdown={onPointerdown(true, true)}
         on:pointermove
+        tabindex="-1"
+        role="button"
     />
     <div
         class:nightMode={$pageTheme.isDark}
@@ -46,6 +50,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:mousedown|preventDefault
         on:pointerdown={onPointerdown(true, false)}
         on:pointermove
+        tabindex="-1"
+        role="button"
     />
     <div
         class:nightMode={$pageTheme.isDark}
@@ -54,6 +60,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:mousedown|preventDefault
         on:pointerdown={onPointerdown(false, true)}
         on:pointermove
+        tabindex="-1"
+        role="button"
     />
     <div
         class:nightMode={$pageTheme.isDark}
@@ -62,6 +70,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:mousedown|preventDefault
         on:pointerdown={onPointerdown(false, false)}
         on:pointermove
+        tabindex="-1"
+        role="button"
     />
 </div>
 
