@@ -313,13 +313,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         else:
             label_element = ""
 
-        id_attribute_assignment = f"id={id}" if id else ""
-        cmd_to_toggle_button = "toggleEditorButton(this);" if toggleable else ""
-
         title_attribute = shortcut(title_attribute)
-
+        cmd_to_toggle_button = "toggleEditorButton(this);" if toggleable else ""
+        id_attribute_assignment = f"id={id}" if id else ""
         class_attribute = "linkb" if rightside else "rounded"
-
         if not disables:
             class_attribute = f"{class_attribute} perm"
 
