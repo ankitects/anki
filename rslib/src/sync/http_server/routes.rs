@@ -88,8 +88,7 @@ async fn media_begin_post<P: MediaSyncProtocol>(
     media_sync_handler(Path(MediaSyncMethod::Begin), server, req.into_output_type()).await
 }
 
-#[allow(clippy::extra_unused_type_parameters)]
-async fn health_check_handler<P>() -> impl IntoResponse {
+async fn health_check_handler() -> impl IntoResponse {
     StatusCode::OK
 }
 
@@ -108,7 +107,7 @@ async fn media_sync_handler<P: MediaSyncProtocol>(
 }
 
 pub fn health_check_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
-    Router::new().route("/", get(health_check_handler::<P>))
+    Router::new().route("/", get(health_check_handler))
 }
 
 pub fn media_sync_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
