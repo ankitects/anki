@@ -3,15 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { OpChanges, Progress } from "@generated/anki/collection_pb";
+    import type { Progress } from "@generated/anki/collection_pb";
     import { runWithBackendProgress } from "@tslib/progress";
 
     import { pageTheme } from "$lib/sveltelib/theme";
 
-    type ResultWithChanges = OpChanges | { changes?: OpChanges };
+    type T = $$Generic;
 
-    export let task: () => Promise<ResultWithChanges | undefined>;
-    export let result: ResultWithChanges | undefined;
+    export let task: () => Promise<T | undefined>;
+    export let result: T | undefined;
     export let error: Error | undefined;
     let label: string = "";
 
@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
     $: (async () => {
-        if (!result && !error) {
+        if (result === undefined && !error) {
             try {
                 result = await runWithBackendProgress(task, onUpdate);
             } catch (err) {
@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <!-- spinner taken from https://loading.io/css/; CC0 -->
-{#if !result}
+{#if result === undefined}
     <div class="progress">
         <div class="spinner" class:nightMode={$pageTheme.isDark}>
             <div />
