@@ -89,7 +89,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => api?.destroy());
 </script>
 
-<div class="field-container" class:hide={field.hidden} on:mouseenter on:mouseleave>
+<div
+    class="field-container"
+    class:hide={field.hidden}
+    on:mouseenter
+    on:mouseleave
+    role="presentation"
+>
     <slot name="field-label" />
 
     <Collapsible collapse={collapsed} let:collapsed={hidden}>
