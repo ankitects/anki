@@ -242,8 +242,8 @@ deck-config-question-action-show-reminder = Show Reminder
 deck-config-question-action = Question action 
 deck-config-question-action-tool-tip = The action to perform after the question is shown, and time has elapsed.
 deck-config-answer-action = Answer action
-deck-config-answer-action-tooltip = The action to perform after the answer is shown, and time has elapsed
-deck-config-wait-for-audio-tooltip = Wait for audio to finish before automatically applying the question action or answer action.
+deck-config-answer-action-tooltip-2 = The action to perform after the answer is shown, and time has elapsed.
+deck-config-wait-for-audio-tooltip-2 = Wait for audio to finish before automatically applying the question action or answer action.
 
 ## Audio section
 
@@ -469,6 +469,9 @@ deck-config-bury-tooltip =
     
     When using the V3 scheduler, interday learning cards can also be buried. Interday
     learning cards are cards with a current learning step of one or more days.
+deck-config-seconds-to-show-question-tooltip = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.
+deck-config-answer-action-tooltip = The action to perform on the current card before automatically advancing to the next one.
+deck-config-wait-for-audio-tooltip = Wait for audio to finish before automatically revealing answer or next question.
 deck-config-compute-optimal-retention-tooltip =
     This tool assumes you're starting with 0 cards, and will attempt to calculate the amount of material you'll
     be able to retain in the given time frame. The estimated retention will greatly depend on your inputs, and
