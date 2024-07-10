@@ -304,25 +304,32 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             image_element = f'<img class="topbut" src="{iconstr}">'
         else:
             image_element = ""
+
         if label or not image_element:
             label_element = label or cmd
         else:
             label_element = ""
+
         if id:
             idstr = f"id={id}"
         else:
             idstr = ""
+
         if toggleable:
             toggleScript = "toggleEditorButton(this);"
         else:
             toggleScript = ""
+
         tip = shortcut(tip)
+
         if rightside:
             class_ = "linkb"
         else:
             class_ = "rounded"
+
         if not disables:
             class_ += " perm"
+
         return f"""<button tabindex=-1
                         {idstr}
                         class="{class_}"
