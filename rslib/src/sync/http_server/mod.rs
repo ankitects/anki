@@ -20,6 +20,7 @@ use std::sync::Mutex;
 
 use anki_io::create_dir_all;
 use axum::extract::DefaultBodyLimit;
+use axum::routing::get;
 use axum::Router;
 use axum_client_ip::SecureClientIpSource;
 use pbkdf2::password_hash::PasswordHash;
@@ -40,7 +41,7 @@ use crate::sync::error::OrHttpErr;
 use crate::sync::http_server::logging::with_logging_layer;
 use crate::sync::http_server::media_manager::ServerMediaManager;
 use crate::sync::http_server::routes::collection_sync_router;
-use crate::sync::http_server::routes::health_check_router;
+use crate::sync::http_server::routes::health_check_handler;
 use crate::sync::http_server::routes::media_sync_router;
 use crate::sync::http_server::user::User;
 use crate::sync::login::HostKeyRequest;
@@ -237,9 +238,9 @@ impl SimpleServer {
         let addr = listener.local_addr().unwrap();
         let server = with_logging_layer(
             Router::new()
-                .nest("/health", health_check_router())
                 .nest("/sync", collection_sync_router())
                 .nest("/msync", media_sync_router())
+                .route("/health", get(health_check_handler))
                 .with_state(server)
                 .layer(DefaultBodyLimit::max(*MAXIMUM_SYNC_PAYLOAD_BYTES))
                 .layer(config.ip_header.into_extension()),

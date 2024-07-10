@@ -88,7 +88,7 @@ async fn media_begin_post<P: MediaSyncProtocol>(
     media_sync_handler(Path(MediaSyncMethod::Begin), server, req.into_output_type()).await
 }
 
-async fn health_check_handler() -> impl IntoResponse {
+pub async fn health_check_handler() -> impl IntoResponse {
     StatusCode::OK
 }
 
@@ -104,10 +104,6 @@ async fn media_sync_handler<P: MediaSyncProtocol>(
         MediaSyncMethod::DownloadFiles => sync_method!(server, request, download_files),
         MediaSyncMethod::MediaSanity => sync_method!(server, request, media_sanity_check),
     })
-}
-
-pub fn health_check_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
-    Router::new().route("/", get(health_check_handler))
 }
 
 pub fn media_sync_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
