@@ -301,13 +301,13 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 iconstr = self.resourceToData(icon)
             else:
                 iconstr = f"/_anki/imgs/{icon}.png"
-            imgelm = f'<img class="topbut" src="{iconstr}">'
+            image_element = f'<img class="topbut" src="{iconstr}">'
         else:
-            imgelm = ""
-        if label or not imgelm:
-            labelelm = label or cmd
+            image_element = ""
+        if label or not image_element:
+            label_element = label or cmd
         else:
-            labelelm = ""
+            label_element = ""
         if id:
             idstr = f"id={id}"
         else:
@@ -331,8 +331,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                         onclick="pycmd('{cmd}');{toggleScript}return false;"
                         onmousedown="window.event.preventDefault();"
                 >
-                    {imgelm}
-                    {labelelm}
+                    {image_element}
+                    {label_element}
                 </button>"""
 
     def setupShortcuts(self) -> None:
