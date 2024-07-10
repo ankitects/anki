@@ -89,6 +89,7 @@ where
         base_folder: base_folder.path().into(),
         ip_header: default_ip_header(),
     })
+    .await
     .unwrap();
     tokio::spawn(server_fut.instrument(Span::current()));
     // when not using ephemeral servers, tests need to be serialized

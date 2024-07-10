@@ -183,7 +183,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return self._interval_for_filtered_state(state.filtered)
         else:
             assert_exhaustive(kind)
-            return 0  # unreachable
+            return 0  # pylint: disable=unreachable
 
     def _interval_for_normal_state(
         self, normal: scheduler_pb2.SchedulingState.Normal
@@ -199,7 +199,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return normal.relearning.learning.scheduled_secs
         else:
             assert_exhaustive(kind)
-            return 0  # unreachable
+            return 0  # pylint: disable=unreachable
 
     def _interval_for_filtered_state(
         self, filtered: scheduler_pb2.SchedulingState.Filtered
@@ -211,7 +211,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return self._interval_for_normal_state(filtered.rescheduling.original_state)
         else:
             assert_exhaustive(kind)
-            return 0  # unreachable
+            return 0  # pylint: disable=unreachable
 
     def nextIvl(self, card: Card, ease: int) -> Any:
         "Don't use this - it is only required by tests, and will be moved in the future."

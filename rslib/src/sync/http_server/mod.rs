@@ -9,9 +9,9 @@ mod user;
 
 use std::collections::HashMap;
 use std::future::Future;
+use std::future::IntoFuture;
 use std::net::IpAddr;
 use std::net::SocketAddr;
-use std::net::TcpListener;
 use std::path::Path;
 use std::path::PathBuf;
 use std::pin::Pin;
@@ -32,6 +32,7 @@ use snafu::whatever;
 use snafu::OptionExt;
 use snafu::ResultExt;
 use snafu::Whatever;
+use tokio::net::TcpListener;
 use tracing::Span;
 
 use crate::error;
@@ -226,7 +227,7 @@ impl SimpleServer {
         })
     }
 
-    pub fn make_server(
+    pub async fn make_server(
         config: SyncServerConfig,
     ) -> error::Result<(SocketAddr, ServerFuture), Whatever> {
         let server = Arc::new(
@@ -234,6 +235,7 @@ impl SimpleServer {
         );
         let address = &format!("{}:{}", config.host, config.port);
         let listener = TcpListener::bind(address)
+            .await
             .with_whatever_context(|_| format!("couldn't bind to {address}"))?;
         let addr = listener.local_addr().unwrap();
         let server = with_logging_layer(
@@ -245,12 +247,14 @@ impl SimpleServer {
                 .layer(DefaultBodyLimit::max(*MAXIMUM_SYNC_PAYLOAD_BYTES))
                 .layer(config.ip_header.into_extension()),
         );
-        let future = axum::Server::from_tcp(listener)
-            .whatever_context("listen failed")?
-            .serve(server.into_make_service_with_connect_info::<SocketAddr>())
-            .with_graceful_shutdown(async {
-                let _ = tokio::signal::ctrl_c().await;
-            });
+        let future = axum::serve(
+            listener,
+            server.into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .with_graceful_shutdown(async {
+            let _ = tokio::signal::ctrl_c().await;
+        })
+        .into_future();
         tracing::info!(%addr, "listening");
         Ok((addr, Box::pin(future)))
     }
@@ -261,10 +265,10 @@ impl SimpleServer {
         let config = envy::prefixed("SYNC_")
             .from_env::<SyncServerConfig>()
             .whatever_context("reading SYNC_* env vars")?;
-        let (_addr, server_fut) = SimpleServer::make_server(config)?;
+        let (_addr, server_fut) = SimpleServer::make_server(config).await?;
         server_fut.await.whatever_context("await server")?;
         Ok(())
     }
 }
 
-pub type ServerFuture = Pin<Box<dyn Future<Output = error::Result<(), hyper::Error>> + Send>>;
+pub type ServerFuture = Pin<Box<dyn Future<Output = error::Result<(), std::io::Error>> + Send>>;
