@@ -295,6 +295,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         disables: bool = True,
         rightside: bool = True,
     ) -> str:
+        title_attribute = tip
+
         if icon:
             if icon.startswith("qrc:/"):
                 iconstr = icon
@@ -311,22 +313,22 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         else:
             label_element = ""
 
-        idstr = f"id={id}" if id else ""
-        toggleScript = "toggleEditorButton(this);" if toggleable else ""
+        id_attribute_assignment = f"id={id}" if id else ""
+        cmd_to_toggle_button = "toggleEditorButton(this);" if toggleable else ""
 
-        tip = shortcut(tip)
+        title_attribute = shortcut(title_attribute)
 
-        class_ = "linkb" if rightside else "rounded"
+        class_attribute = "linkb" if rightside else "rounded"
 
         if not disables:
-            class_ += " perm"
+            class_attribute += " perm"
 
         return f"""<button tabindex=-1
-                        {idstr}
-                        class="{class_}"
+                        {id_attribute_assignment}
+                        class="{class_attribute}"
                         type="button"
-                        title="{tip}"
-                        onclick="pycmd('{cmd}');{toggleScript}return false;"
+                        title="{title_attribute}"
+                        onclick="pycmd('{cmd}');{cmd_to_toggle_button}return false;"
                         onmousedown="window.event.preventDefault();"
                 >
                     {image_element}
