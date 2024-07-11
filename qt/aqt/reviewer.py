@@ -181,10 +181,6 @@ class Reviewer:
 
     # this is only used by add-ons
     def lastCard(self) -> Card | None:
-        def get_card_last_answered_id() -> CardId:
-            ids_of_cards_already_answered = self._answeredIds
-            return ids_of_cards_already_answered[-1]
-
         def get_card(card_id: CardId) -> Card | None:
             try:
                 return self.mw.col.get_card(card_id)
@@ -192,10 +188,11 @@ class Reviewer:
                 # id was deleted
                 return None
 
-        has_answered_cards = bool(self._answeredIds)
+        ids_of_cards_already_answered = self._answeredIds
+        has_answered_cards = bool(ids_of_cards_already_answered)
         if not has_answered_cards:
             return None
-        card_last_answered_id = get_card_last_answered_id()
+        card_last_answered_id = ids_of_cards_already_answered[-1]
         current_card = self.card
         current_card_is_last_answered_card = current_card is not None and (
             card_last_answered_id == current_card.id
