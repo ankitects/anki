@@ -196,7 +196,7 @@ class Reviewer:
             return None
         card_last_answered_id = get_card_last_answered_id()
         current_card = self.card
-        if current_card and (card_last_answered_id == current_card.id):
+        if current_card is not None and (card_last_answered_id == current_card.id):
             return None
         return get_card()
 
