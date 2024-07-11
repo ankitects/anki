@@ -182,7 +182,8 @@ class Reviewer:
     # this is only used by add-ons
     def lastCard(self) -> Card | None:
         def get_card_last_answered_id() -> CardId:
-            return self._answeredIds[-1]
+            ids_of_cards_already_answered = self._answeredIds
+            return ids_of_cards_already_answered[-1]
 
         def get_card():
             card_last_answered_id = get_card_last_answered_id()
@@ -192,7 +193,8 @@ class Reviewer:
                 # id was deleted
                 return None
 
-        if not self._answeredIds:
+        has_answered_cards = bool(self._answeredIds)
+        if not has_answered_cards:
             return None
         card_last_answered_id = get_card_last_answered_id()
         current_card = self.card
