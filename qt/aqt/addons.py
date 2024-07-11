@@ -29,6 +29,7 @@ import anki.utils
 import aqt
 import aqt.forms
 import aqt.main
+from anki._legacy import deprecated
 from anki.collection import AddonInfo
 from anki.httpclient import HttpClient
 from anki.lang import without_unicode_isolation
@@ -210,7 +211,7 @@ class AddonManager:
         qconnect(f.actionAdd_ons.triggered, self.onAddonsDialog)
         sys.path.insert(0, self.addonsFolder())
 
-    # in new code, you may want all_addon_meta() instead
+    @deprecated(info="use all_addon_meta() instead")
     def allAddons(self) -> list[str]:
         l = []
         for d in os.listdir(self.addonsFolder()):
@@ -664,7 +665,8 @@ class AddonManager:
 
         return markdown.markdown(contents, extensions=[md_in_html.makeExtension()])
 
-    def addonFromModule(self, module: str) -> str:  # softly deprecated
+    @deprecated()
+    def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
 
     @staticmethod
