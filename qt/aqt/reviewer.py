@@ -185,9 +185,9 @@ class Reviewer:
             ids_of_cards_already_answered = self._answeredIds
             return ids_of_cards_already_answered[-1]
 
-        def get_card(card_last_answered_id: CardId) -> Card | None:
+        def get_card(card_id: CardId) -> Card | None:
             try:
-                return self.mw.col.get_card(card_last_answered_id)
+                return self.mw.col.get_card(card_id)
             except TypeError:
                 # id was deleted
                 return None
