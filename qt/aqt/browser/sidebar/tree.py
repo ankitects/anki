@@ -267,7 +267,7 @@ class SidebarTreeView(QTreeView):
 
     def update_search(
         self,
-        *terms: Union[str, SearchNode],
+        *terms: str | SearchNode,
         joiner: SearchJoiner = "AND",
     ) -> None:
         """Modify the current search string based on modifier keys, then refresh."""
@@ -525,7 +525,7 @@ class SidebarTreeView(QTreeView):
         *,
         root: SidebarItem,
         name: str,
-        icon: Union[str, ColoredIcon],
+        icon: str | ColoredIcon,
         collapse_key: Config.Bool.V,
         type: SidebarItemType | None = None,
     ) -> SidebarItem:

@@ -591,7 +591,7 @@ class CardLayout(QDialog):
             return res
 
         type_filter = r"\[\[type:.+?\]\]"
-        repl: Union[str, Callable]
+        repl: str | Callable
 
         if type == "q":
             repl = "<input id='typeans' type=text value='example' readonly='readonly'>"

@@ -182,7 +182,7 @@ class DialogManager:
         return True
 
     def register_dialog(
-        self, name: str, creator: Union[Callable, type], instance: Any | None = None
+        self, name: str, creator: Callable | type, instance: Any | None = None
     ) -> None:
         """Allows add-ons to register a custom dialog to be managed by Anki's dialog
         manager, which ensures that only one copy of the window is open at once,

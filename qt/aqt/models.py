@@ -251,7 +251,7 @@ class AddModel(QDialog):
         disable_help_button(self)
         # standard models
         self.notetypes: list[
-            Union[NotetypeDict, Callable[[Collection], NotetypeDict]]
+            NotetypeDict | Callable[[Collection], NotetypeDict]
         ] = []
         for name, func in stdmodels.get_stock_notetypes(self.col):
             item = QListWidgetItem(tr.notetypes_add(val=name))
