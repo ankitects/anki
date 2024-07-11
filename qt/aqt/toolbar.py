@@ -5,7 +5,7 @@ from __future__ import annotations
 import enum
 import re
 from collections.abc import Callable
-from typing import Any, Callable, cast
+from typing import Any, cast
 
 import aqt
 from anki.sync import SyncStatus

@@ -7,7 +7,7 @@ import json
 import re
 from collections.abc import Callable
 from concurrent.futures import Future
-from typing import Any, Match, Union, cast
+from typing import Any, Match, cast
 
 import aqt
 import aqt.forms

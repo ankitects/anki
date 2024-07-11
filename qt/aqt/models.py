@@ -6,7 +6,7 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import Any, Union
+from typing import Any
 
 import aqt.clayout
 from anki import stdmodels

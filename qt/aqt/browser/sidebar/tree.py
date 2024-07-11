@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from enum import Enum, auto
-from typing import Union, cast
+from typing import cast
 
 import aqt
 import aqt.browser

@@ -385,7 +385,7 @@ def test_reviews():
     assert "leech" in c.note().tags
 
 
-def review_limits_setup() -> tuple[anki.collection.Collection, Dict]:
+def review_limits_setup() -> tuple[anki.collection.Collection, dict]:
     col = getEmptyCol()
 
     parent = col.decks.get(col.decks.id("parent"))
