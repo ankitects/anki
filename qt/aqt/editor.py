@@ -318,7 +318,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         id_attribute_assignment = f"id={id}" if id else ""
         class_attribute = "linkb" if rightside else "rounded"
         if not disables:
-            class_attribute = f"{class_attribute} perm"
+            class_attribute += " perm"
 
         return f"""<button tabindex=-1
                         {id_attribute_assignment}
