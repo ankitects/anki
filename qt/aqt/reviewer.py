@@ -192,12 +192,12 @@ class Reviewer:
                 # id was deleted
                 return None
 
-        if self._answeredIds:
-            card_last_answered_id = get_card_last_answered_id()
-            if self.card and (card_last_answered_id == self.card.id):
-                return None
-            return get_card()
-        return None
+        if not self._answeredIds:
+            return None
+        card_last_answered_id = get_card_last_answered_id()
+        if self.card and (card_last_answered_id == self.card.id):
+            return None
+        return get_card()
 
     def cleanup(self) -> None:
         gui_hooks.reviewer_will_end()
