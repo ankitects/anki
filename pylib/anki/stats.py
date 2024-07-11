@@ -9,6 +9,7 @@ import json
 import random
 import time
 from collections.abc import Sequence
+from typing import Any
 
 import anki.cards
 import anki.collection

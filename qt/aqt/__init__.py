@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Union, cast
 
 try:
     import pip_system_certs.wrapt_requests
@@ -50,7 +52,6 @@ import os
 import tempfile
 import traceback
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import anki.lang
 from anki._backend import RustBackend

@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from concurrent.futures import Future
-from typing import Any, Match, cast
+from typing import Any, Match, Union, cast
 
 import aqt
 import aqt.forms

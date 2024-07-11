@@ -10,7 +10,7 @@ import re
 import signal
 import weakref
 from argparse import Namespace
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from concurrent.futures import Future
 from typing import Any, Literal, TypeVar, cast
 

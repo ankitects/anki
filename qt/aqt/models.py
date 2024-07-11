@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import Any
+from typing import Any, Union
 
 import aqt.clayout
 from anki import stdmodels

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from operator import itemgetter
-from typing import Any
+from typing import Any, Union
 
 import aqt
 import aqt.forms

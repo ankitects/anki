@@ -7,7 +7,7 @@ import json
 import math
 import re
 from collections.abc import Sequence
-from typing import Callable
+from typing import Any, Callable
 
 import aqt
 import aqt.browser
