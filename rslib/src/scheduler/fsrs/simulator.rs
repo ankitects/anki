@@ -28,9 +28,8 @@ impl Collection {
             learn_span: req.days_to_simulate as usize,
             max_cost_perday: f64::MAX,
             max_ivl: req.max_interval as f64,
-            recall_costs: [p.recall_secs_hard, p.recall_secs_good, p.recall_secs_easy],
-            forget_cost: p.forget_secs,
-            learn_cost: p.learn_secs,
+            learn_costs: [p.learn_secs, p.learn_secs, p.learn_secs, p.learn_secs],
+            review_costs: [p.forget_secs, p.recall_secs_hard, p.recall_secs_good, p.recall_secs_easy],
             first_rating_prob: [
                 p.first_rating_probability_again,
                 p.first_rating_probability_hard,
@@ -45,6 +44,10 @@ impl Collection {
             loss_aversion: 1.0,
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
+            first_rating_offsets: [-0.72, -0.15, -0.01, 0.0],
+            first_session_lens: [2.02, 1.28, 0.81, 0.0],
+            forget_rating_offset:  -0.28,
+            forget_session_len: 1.05,
         };
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let (
