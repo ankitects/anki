@@ -250,9 +250,7 @@ class AddModel(QDialog):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         disable_help_button(self)
         # standard models
-        self.notetypes: list[
-            NotetypeDict | Callable[[Collection], NotetypeDict]
-        ] = []
+        self.notetypes: list[NotetypeDict | Callable[[Collection], NotetypeDict]] = []
         for name, func in stdmodels.get_stock_notetypes(self.col):
             item = QListWidgetItem(tr.notetypes_add(val=name))
             self.dialog.models.addItem(item)
