@@ -36,6 +36,13 @@ class Preferences(QDialog):
         self.prof = self.mw.pm.profile
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
+        for spinbox in (
+            self.form.lrnCutoff,
+            self.form.dayOffset,
+            self.form.timeLimit,
+            self.form.network_timeout,
+        ):
+            spinbox.setSuffix(f" {spinbox.suffix()}")
         disable_help_button(self)
         self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help).setAutoDefault(
             False
