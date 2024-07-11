@@ -184,15 +184,19 @@ class Reviewer:
         def get_card_last_answered_id() -> CardId:
             return self._answeredIds[-1]
 
-        if self._answeredIds:
+        def get_card():
             card_last_answered_id = get_card_last_answered_id()
-            if self.card and (card_last_answered_id == self.card.id):
-                return None
             try:
                 return self.mw.col.get_card(card_last_answered_id)
             except TypeError:
                 # id was deleted
                 return None
+
+        if self._answeredIds:
+            card_last_answered_id = get_card_last_answered_id()
+            if self.card and (card_last_answered_id == self.card.id):
+                return None
+            return get_card()
         return None
 
     def cleanup(self) -> None:
