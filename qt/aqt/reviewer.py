@@ -181,8 +181,11 @@ class Reviewer:
 
     # this is only used by add-ons
     def lastCard(self) -> Card | None:
+        def get_card_last_answered_id() -> CardId:
+            return self._answeredIds[-1]
+
         if self._answeredIds:
-            card_last_answered_id = self._answeredIds[-1]
+            card_last_answered_id = get_card_last_answered_id()
             if self.card and (card_last_answered_id == self.card.id):
                 return None
             try:
