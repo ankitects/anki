@@ -185,8 +185,7 @@ class Reviewer:
             ids_of_cards_already_answered = self._answeredIds
             return ids_of_cards_already_answered[-1]
 
-        def get_card():
-            card_last_answered_id = get_card_last_answered_id()
+        def get_card(card_last_answered_id):
             try:
                 return self.mw.col.get_card(card_last_answered_id)
             except TypeError:
@@ -200,7 +199,7 @@ class Reviewer:
         current_card = self.card
         if current_card is not None and (card_last_answered_id == current_card.id):
             return None
-        return get_card()
+        return get_card(card_last_answered_id)
 
     def cleanup(self) -> None:
         gui_hooks.reviewer_will_end()
