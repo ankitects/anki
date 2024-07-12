@@ -7,6 +7,8 @@ from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import HelpPage, shortcut, tr
 
+FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+
 
 class ModelChooser(QHBoxLayout):
     "New code should prefer NotetypeChooser."
@@ -16,7 +18,7 @@ class ModelChooser(QHBoxLayout):
         mw: AnkiQt,
         widget: QWidget,
         label: bool = True,
-        on_activated: Optional[Callable[[], None]] = None,
+        on_activated: Optional[FunctionWithoutArgumentsAndReturnValue] = None,
     ) -> None:
         """If provided, on_activated() will be called when the button is clicked,
         and the caller can call .onModelChange() to pull up the dialog when they

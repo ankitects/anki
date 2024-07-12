@@ -9,6 +9,8 @@ from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom, tr
 
+FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+
 
 class EditCurrent(QMainWindow):
     def __init__(self, mw: aqt.AnkiQt) -> None:
@@ -70,7 +72,9 @@ class EditCurrent(QMainWindow):
         self.mw.deferred_delete_and_garbage_collect(self)
         self.close()
 
-    def closeWithCallback(self, onsuccess: Callable[[], None]) -> None:
+    def closeWithCallback(
+        self, onsuccess: FunctionWithoutArgumentsAndReturnValue
+    ) -> None:
         def callback() -> None:
             self._saveAndClose()
             onsuccess()

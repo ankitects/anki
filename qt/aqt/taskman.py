@@ -19,7 +19,8 @@ from anki.collection import Progress
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
 
-Closure = Callable[[], None]
+FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+Closure = FunctionWithoutArgumentsAndReturnValue  # type alias
 
 
 class TaskManager(QObject):

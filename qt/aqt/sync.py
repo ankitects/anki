@@ -35,6 +35,8 @@ from aqt.utils import (
     tr,
 )
 
+FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+
 
 def get_sync_status(
     mw: aqt.main.AnkiQt, callback: Callable[[SyncStatus], None]
@@ -89,7 +91,9 @@ def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:
         mw.col.abort_sync()
 
 
-def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
+def sync_collection(
+    mw: aqt.main.AnkiQt, on_done: FunctionWithoutArgumentsAndReturnValue
+) -> None:
     auth = mw.pm.sync_auth()
     if not auth:
         raise Exception("expected auth")
@@ -133,7 +137,9 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
 
 
 def full_sync(
-    mw: aqt.main.AnkiQt, out: SyncOutput, on_done: Callable[[], None]
+    mw: aqt.main.AnkiQt,
+    out: SyncOutput,
+    on_done: FunctionWithoutArgumentsAndReturnValue,
 ) -> None:
     server_usn = out.server_media_usn if mw.pm.media_syncing_enabled() else None
     if out.required == out.FULL_DOWNLOAD:
@@ -166,7 +172,9 @@ def full_sync(
 
 
 def confirm_full_download(
-    mw: aqt.main.AnkiQt, server_usn: int, on_done: Callable[[], None]
+    mw: aqt.main.AnkiQt,
+    server_usn: int,
+    on_done: FunctionWithoutArgumentsAndReturnValue,
 ) -> None:
     # confirmation step required, as some users customize their notetypes
     # in an empty collection, then want to upload them
@@ -182,7 +190,9 @@ def confirm_full_download(
 
 
 def confirm_full_upload(
-    mw: aqt.main.AnkiQt, server_usn: int, on_done: Callable[[], None]
+    mw: aqt.main.AnkiQt,
+    server_usn: int,
+    on_done: FunctionWithoutArgumentsAndReturnValue,
 ) -> None:
     # confirmation step required, as some users have reported an upload
     # happening despite having their AnkiWeb collection not being empty
@@ -218,7 +228,9 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
 
 
 def full_download(
-    mw: aqt.main.AnkiQt, server_usn: int, on_done: Callable[[], None]
+    mw: aqt.main.AnkiQt,
+    server_usn: int,
+    on_done: FunctionWithoutArgumentsAndReturnValue,
 ) -> None:
     label = tr.sync_downloading_from_ankiweb()
 
@@ -257,7 +269,9 @@ def full_download(
 
 
 def full_upload(
-    mw: aqt.main.AnkiQt, server_usn: int | None, on_done: Callable[[], None]
+    mw: aqt.main.AnkiQt,
+    server_usn: int | None,
+    on_done: FunctionWithoutArgumentsAndReturnValue,
 ) -> None:
     gui_hooks.collection_will_temporarily_close(mw.col)
     mw.col.close_for_full_sync()
@@ -293,7 +307,7 @@ def full_upload(
 
 def sync_login(
     mw: aqt.main.AnkiQt,
-    on_success: Callable[[], None],
+    on_success: FunctionWithoutArgumentsAndReturnValue,
     username: str = "",
     password: str = "",
 ) -> None:

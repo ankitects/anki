@@ -10,6 +10,8 @@ from aqt.errors import addon_debug_info
 from aqt.qt import *
 from aqt.utils import disable_help_button, supportText, tooltip, tr
 
+FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+
 
 class ClosableQDialog(QDialog):
     def reject(self) -> None:
@@ -20,7 +22,9 @@ class ClosableQDialog(QDialog):
         aqt.dialogs.markClosed("About")
         QDialog.accept(self)
 
-    def closeWithCallback(self, callback: Callable[[], None]) -> None:
+    def closeWithCallback(
+        self, callback: FunctionWithoutArgumentsAndReturnValue
+    ) -> None:
         self.reject()
         callback()
 

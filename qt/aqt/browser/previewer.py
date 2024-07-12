@@ -32,6 +32,7 @@ from aqt.utils import disable_help_button, restoreGeom, saveGeom, setWindowIcon,
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 LastStateAndMod = tuple[str, int, int]
+FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 
 class Previewer(QDialog):
@@ -42,7 +43,10 @@ class Previewer(QDialog):
     _show_both_sides = False
 
     def __init__(
-        self, parent: QWidget, mw: AnkiQt, on_close: Callable[[], None]
+        self,
+        parent: QWidget,
+        mw: AnkiQt,
+        on_close: FunctionWithoutArgumentsAndReturnValue,
     ) -> None:
         super().__init__(None, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
@@ -335,7 +339,10 @@ class BrowserPreviewer(MultiCardPreviewer):
     _parent: aqt.browser.Browser | None
 
     def __init__(
-        self, parent: aqt.browser.Browser, mw: AnkiQt, on_close: Callable[[], None]
+        self,
+        parent: aqt.browser.Browser,
+        mw: AnkiQt,
+        on_close: FunctionWithoutArgumentsAndReturnValue,
     ) -> None:
         super().__init__(parent=parent, mw=mw, on_close=on_close)
 

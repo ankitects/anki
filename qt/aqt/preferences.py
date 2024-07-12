@@ -28,6 +28,8 @@ from aqt.utils import (
     tr,
 )
 
+FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+
 
 class Preferences(QDialog):
     def __init__(self, mw: AnkiQt) -> None:
@@ -86,7 +88,9 @@ class Preferences(QDialog):
     def accept(self) -> None:
         self.accept_with_callback()
 
-    def accept_with_callback(self, callback: Callable[[], None] | None = None) -> None:
+    def accept_with_callback(
+        self, callback: FunctionWithoutArgumentsAndReturnValue | None = None
+    ) -> None:
         # avoid exception if main window is already closed
         if not self.mw.col:
             return
@@ -144,7 +148,9 @@ class Preferences(QDialog):
         form.monthly_backups.setValue(self.prefs.backups.monthly)
         form.minutes_between_backups.setValue(self.prefs.backups.minimum_interval_mins)
 
-    def update_collection(self, on_done: Callable[[], None]) -> None:
+    def update_collection(
+        self, on_done: FunctionWithoutArgumentsAndReturnValue
+    ) -> None:
         form = self.form
 
         scheduling = self.prefs.scheduling

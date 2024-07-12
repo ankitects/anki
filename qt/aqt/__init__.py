@@ -6,6 +6,8 @@ from __future__ import annotations
 import logging
 import sys
 
+FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+
 try:
     import pip_system_certs.wrapt_requests
 except ModuleNotFoundError:
@@ -154,7 +156,9 @@ class DialogManager:
     def allClosed(self) -> bool:
         return not any(x[1] for x in self._dialogs.values())
 
-    def closeAll(self, onsuccess: Callable[[], None]) -> Optional[bool]:
+    def closeAll(
+        self, onsuccess: FunctionWithoutArgumentsAndReturnValue
+    ) -> Optional[bool]:
         # can we close immediately?
         if self.allClosed():
             onsuccess()

@@ -25,6 +25,8 @@ from aqt.progress import ProgressUpdate
 from aqt.qt import *
 from aqt.utils import askUser, getFile, showWarning, tooltip, tr
 
+FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+
 
 class Importer(ABC):
     accepted_file_endings: list[str]
@@ -190,7 +192,7 @@ def all_accepted_file_endings(mw: aqt.main.AnkiQt) -> set[str]:
 
 
 def import_collection_package_op(
-    mw: aqt.main.AnkiQt, path: str, success: Callable[[], None]
+    mw: aqt.main.AnkiQt, path: str, success: FunctionWithoutArgumentsAndReturnValue
 ) -> QueryOp[None]:
     def op(_: Collection) -> None:
         col_path = mw.pm.collectionPath()
