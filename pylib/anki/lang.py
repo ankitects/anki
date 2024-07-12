@@ -72,6 +72,7 @@ langs = sorted(
         ("Беларуская мова", "be_BY"),
         ("ଓଡ଼ିଆ", "or_OR"),
         ("Filipino", "tl"),
+        ("ئۇيغۇر", "ug"),
     ]
 )
 
@@ -217,7 +218,7 @@ def get_def_lang(lang: str | None = None) -> tuple[int, str]:
 
 
 def is_rtl(lang: str) -> bool:
-    return lang in ("he", "ar", "fa")
+    return lang in ("he", "ar", "fa", "ug")
 
 
 # strip off unicode isolation markers from a translated string

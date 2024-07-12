@@ -50,7 +50,7 @@ module.exports = {
         },
     ],
     env: { browser: true, es2020: true },
-    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor", "extra/*", "vite.config.ts"],
+    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts", "vendor", "extra/*", "vite.config.ts", "hooks.client.js"],
     globals: {
         globalThis: false,
         NodeListOf: false,

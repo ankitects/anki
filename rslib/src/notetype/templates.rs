@@ -24,6 +24,13 @@ impl CardTemplate {
         ParsedTemplate::from_text(&self.config.a_format).ok()
     }
 
+    pub(crate) fn parsed_question_format_for_browser(&self) -> Option<ParsedTemplate> {
+        ParsedTemplate::from_text(&self.config.q_format_browser).ok()
+    }
+
+    pub(crate) fn parsed_answer_format_for_browser(&self) -> Option<ParsedTemplate> {
+        ParsedTemplate::from_text(&self.config.a_format_browser).ok()
+    }
     pub(crate) fn question_format_for_browser(&self) -> &str {
         if !self.config.q_format_browser.is_empty() {
             &self.config.q_format_browser

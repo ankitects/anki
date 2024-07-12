@@ -44,11 +44,6 @@ interface SetupImageOcclusionOptions {
 
 async function setupImageOcclusion(setupOptions?: SetupImageOcclusionOptions): Promise<void> {
     await waitForImage();
-    await setupI18n({
-        modules: [
-            ModuleName.NOTETYPES,
-        ],
-    });
     window.addEventListener("load", () => {
         window.addEventListener("resize", () => setupImageOcclusion(setupOptions));
     });
@@ -120,7 +115,7 @@ function calculateContainerSize(
 
 let oneTimeSetupDone = false;
 
-function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): void {
+async function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): Promise<void> {
     const canvas = document.querySelector(
         "#image-occlusion-canvas",
     ) as HTMLCanvasElement | null;
@@ -135,6 +130,11 @@ function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): vo
         "#image-occlusion-container img",
     ) as HTMLImageElement;
     if (image == null) {
+        await setupI18n({
+            modules: [
+                ModuleName.NOTETYPES,
+            ],
+        });
         container.innerText = tr.notetypeErrorNoImageToShow();
         return;
     }

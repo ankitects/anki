@@ -47,6 +47,7 @@ pub(super) fn write_nodes(nodes: &[Node]) -> String {
     nodes.iter().map(write_node).collect()
 }
 
+#[allow(clippy::to_string_trait_impl)]
 impl ToString for Node {
     fn to_string(&self) -> String {
         write_node(self)

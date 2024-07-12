@@ -1,25 +1,25 @@
 {
-    "@bufbuild/protobuf@1.4.2": {
+    "@bufbuild/protobuf@1.10.0": {
         "licenses": "(Apache-2.0 AND BSD-3-Clause)",
         "repository": "https://github.com/bufbuild/protobuf-es",
         "path": "node_modules/@bufbuild/protobuf",
         "licenseFile": "node_modules/@bufbuild/protobuf/README.md"
     },
-    "@floating-ui/core@1.6.0": {
+    "@floating-ui/core@1.6.4": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/core",
         "licenseFile": "node_modules/@floating-ui/core/LICENSE"
     },
-    "@floating-ui/dom@1.6.3": {
+    "@floating-ui/dom@1.6.7": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/dom",
         "licenseFile": "node_modules/@floating-ui/dom/LICENSE"
     },
-    "@floating-ui/utils@0.2.1": {
+    "@floating-ui/utils@0.2.4": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
@@ -84,11 +84,11 @@
         "path": "node_modules/acorn-globals/node_modules/acorn",
         "licenseFile": "node_modules/acorn-globals/node_modules/acorn/LICENSE"
     },
-    "acorn@8.11.2": {
+    "acorn@8.12.1": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
-        "path": "node_modules/jsdom/node_modules/acorn",
-        "licenseFile": "node_modules/jsdom/node_modules/acorn/LICENSE"
+        "path": "node_modules/acorn",
+        "licenseFile": "node_modules/acorn/LICENSE"
     },
     "agent-base@6.0.2": {
         "licenses": "MIT",
@@ -271,7 +271,7 @@
         "path": "node_modules/d3-format",
         "licenseFile": "node_modules/d3-format/LICENSE"
     },
-    "d3-geo@3.1.0": {
+    "d3-geo@3.1.1": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-geo",
         "publisher": "Mike Bostock",
@@ -320,7 +320,7 @@
         "path": "node_modules/d3-random",
         "licenseFile": "node_modules/d3-random/LICENSE"
     },
-    "d3-scale-chromatic@3.0.0": {
+    "d3-scale-chromatic@3.1.0": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-scale-chromatic",
         "publisher": "Mike Bostock",
@@ -383,7 +383,7 @@
         "path": "node_modules/d3-zoom",
         "licenseFile": "node_modules/d3-zoom/LICENSE"
     },
-    "d3@7.8.5": {
+    "d3@7.9.0": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3",
         "publisher": "Mike Bostock",
@@ -398,11 +398,10 @@
         "path": "node_modules/data-urls",
         "licenseFile": "node_modules/data-urls/LICENSE.txt"
     },
-    "debug@4.3.4": {
+    "debug@4.3.5": {
         "licenses": "MIT",
         "repository": "https://github.com/debug-js/debug",
         "publisher": "Josh Junon",
-        "email": "josh.junon@protonmail.com",
         "path": "node_modules/debug",
         "licenseFile": "node_modules/debug/LICENSE"
     },
@@ -545,10 +544,10 @@
         "path": "node_modules/is-potential-custom-element-name",
         "licenseFile": "node_modules/is-potential-custom-element-name/LICENSE-MIT.txt"
     },
-    "jquery-ui-dist@1.13.2": {
+    "jquery-ui-dist@1.13.3": {
         "licenses": "MIT",
         "repository": "https://github.com/jquery/jquery-ui",
-        "publisher": "jQuery Foundation and other contributors",
+        "publisher": "OpenJS Foundation and other contributors",
         "path": "node_modules/jquery-ui-dist",
         "licenseFile": "node_modules/jquery-ui-dist/LICENSE.txt"
     },
@@ -604,7 +603,7 @@
         "path": "node_modules/ms",
         "licenseFile": "node_modules/ms/license.md"
     },
-    "nwsapi@2.2.7": {
+    "nwsapi@2.2.10": {
         "licenses": "MIT",
         "repository": "https://github.com/dperini/nwsapi",
         "publisher": "Diego Perini",
@@ -695,7 +694,7 @@
         "path": "node_modules/symbol-tree",
         "licenseFile": "node_modules/symbol-tree/LICENSE"
     },
-    "tough-cookie@4.1.3": {
+    "tough-cookie@4.1.4": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/salesforce/tough-cookie",
         "publisher": "Jeremy Stashewsky",
@@ -780,7 +779,7 @@
         "path": "node_modules/data-urls/node_modules/whatwg-url",
         "licenseFile": "node_modules/data-urls/node_modules/whatwg-url/LICENSE.txt"
     },
-    "ws@8.16.0": {
+    "ws@8.18.0": {
         "licenses": "MIT",
         "repository": "https://github.com/websockets/ws",
         "publisher": "Einar Otto Stangvik",

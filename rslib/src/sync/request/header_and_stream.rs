@@ -7,11 +7,10 @@ use std::io::ErrorKind;
 use std::marker::PhantomData;
 use std::net::IpAddr;
 
-use axum::extract::BodyStream;
-use axum::headers::Header;
-use axum::headers::HeaderName;
-use axum::headers::HeaderValue;
 use axum::http::StatusCode;
+use axum_extra::headers::Header;
+use axum_extra::headers::HeaderName;
+use axum_extra::headers::HeaderValue;
 use bytes::Bytes;
 use futures::Stream;
 use futures::TryStreamExt;
@@ -29,12 +28,14 @@ use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
 use crate::sync::version::SyncVersion;
 
 impl<T> SyncRequest<T> {
-    pub(super) async fn from_header_and_stream(
+    pub(super) async fn from_header_and_stream<S, E>(
         sync_header: SyncHeader,
-        body_stream: BodyStream,
+        body_stream: S,
         ip: IpAddr,
     ) -> HttpResult<SyncRequest<T>>
     where
+        S: Stream<Item = Result<Bytes, E>> + Unpin,
+        E: Display,
         T: DeserializeOwned,
     {
         sync_header.sync_version.ensure_supported()?;
@@ -132,7 +133,7 @@ impl Header for SyncHeader {
         &SYNC_HEADER_NAME
     }
 
-    fn decode<'i, I>(values: &mut I) -> Result<Self, axum::headers::Error>
+    fn decode<'i, I>(values: &mut I) -> Result<Self, axum_extra::headers::Error>
     where
         Self: Sized,
         I: Iterator<Item = &'i HeaderValue>,
@@ -141,7 +142,7 @@ impl Header for SyncHeader {
             .next()
             .and_then(|value| value.to_str().ok())
             .and_then(|s| serde_json::from_str(s).ok())
-            .ok_or_else(axum::headers::Error::invalid)
+            .ok_or_else(axum_extra::headers::Error::invalid)
     }
 
     fn encode<E: Extend<HeaderValue>>(&self, _values: &mut E) {

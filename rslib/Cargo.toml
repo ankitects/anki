@@ -47,6 +47,7 @@ async-compression.workspace = true
 async-trait.workspace = true
 axum.workspace = true
 axum-client-ip.workspace = true
+axum-extra.workspace = true
 blake3.workspace = true
 bytes.workspace = true
 chrono.workspace = true

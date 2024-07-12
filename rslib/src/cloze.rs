@@ -146,10 +146,7 @@ impl ExtractedCloze<'_> {
 
     /// If cloze starts with image-occlusion:, return the text following that.
     fn image_occlusion(&self) -> Option<&str> {
-        let Some(first_node) = self.nodes.first() else {
-            return None;
-        };
-        let TextOrCloze::Text(text) = first_node else {
+        let TextOrCloze::Text(text) = self.nodes.first()? else {
             return None;
         };
         text.strip_prefix("image-occlusion:")
@@ -161,11 +158,15 @@ fn parse_text_with_clozes(text: &str) -> Vec<TextOrCloze<'_>> {
     let mut output = vec![];
     for token in tokenize(text) {
         match token {
-            Token::OpenCloze(ordinal) => open_clozes.push(ExtractedCloze {
-                ordinal,
-                nodes: Vec::with_capacity(1), // common case
-                hint: None,
-            }),
+            Token::OpenCloze(ordinal) => {
+                if open_clozes.len() < 3 {
+                    open_clozes.push(ExtractedCloze {
+                        ordinal,
+                        nodes: Vec::with_capacity(1), // common case
+                        hint: None,
+                    })
+                }
+            }
             Token::Text(mut text) => {
                 if let Some(cloze) = open_clozes.last_mut() {
                     // extract hint if found
