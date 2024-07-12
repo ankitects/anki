@@ -10,6 +10,11 @@ use crate::notes::NoteId;
 use crate::storage::SqliteStorage;
 
 const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
+// due to the nature of load balancing, we may schedule things in the future and
+// so need to keep more than just the `MAX_LOAD_BALANCE_INTERVAL` days in our
+// cache. a flat 10% increase over the max interval should be enough to not have
+// problems
+const LOAD_BALANCE_DAYS: usize = (MAX_LOAD_BALANCE_INTERVAL as f32 * 1.1) as usize;
 
 #[derive(Default)]
 struct LoadBalancerDay {
@@ -48,7 +53,7 @@ impl<'a> LoadBalancerContext<'a> {
 
 pub struct LoadBalancer {
     current_day: u32,
-    days: [LoadBalancerDay; MAX_LOAD_BALANCE_INTERVAL],
+    days: [LoadBalancerDay; LOAD_BALANCE_DAYS],
 }
 
 impl Default for LoadBalancer {
@@ -75,7 +80,7 @@ impl LoadBalancer {
     pub fn load_cache(&mut self, today: u32, storage: &SqliteStorage) {
         println!("filling load balancer cache");
         let cards = storage
-            .get_all_cards_due_in_range(today, today + MAX_LOAD_BALANCE_INTERVAL as u32)
+            .get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)
             .unwrap();
         for (cards, cache_day) in cards.iter().zip(self.days.iter_mut()) {
             for card in cards {
