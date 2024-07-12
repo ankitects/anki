@@ -131,6 +131,9 @@ impl Collection {
         if s.load_balancer_enable {
             self.load_balancer = Some(LoadBalancer::default());
         }
+        else {
+            self.load_balancer = None;
+        }
 
         Ok(())
     }
