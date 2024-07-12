@@ -61,7 +61,7 @@ deck-config-today-only = Today only
 
 deck-config-learning-steps = Learning steps
 # Please don't translate `1m`, `2d`
--deck-config-delay-hint = Delays are typically minutes (eg `1m`) or days (eg `2d`), but hours (eg `1h`) and seconds (eg `30s`) are also supported.
+-deck-config-delay-hint = Delays are typically minutes (e.g. `1m`) or days (e.g. `2d`), but hours (e.g. `1h`) and seconds (e.g. `30s`) are also supported.
 deck-config-learning-steps-tooltip =
     One or more delays, separated by spaces. The first delay will be used
     when you press the `Again` button on a new card, and is 1 minute by default.
@@ -100,7 +100,7 @@ deck-config-leech-threshold-tooltip =
     think of a mnemonic to help you remember it.
 # See actions-suspend-card and scheduling-tag-only for the wording
 deck-config-leech-action-tooltip =
-    `Tag Only`: Add a "leech" tag to the note, and display a pop-up.
+    `Tag Only`: Add a 'leech' tag to the note, and display a pop-up.
     
     `Suspend Card`: In addition to tagging the note, hide the card until it is
     manually unsuspended.
@@ -148,8 +148,8 @@ deck-config-new-gather-priority-tooltip-2 =
     the latest-added first.
     
     `Random notes`: gathers cards of randomly selected notes. When sibling burying is
-    disabled, this allows all cards of a note to be seen in a session (eg. both a front->back
-    and back->front card)
+    disabled, this allows all cards of a note to be seen in a session (e.g. both a front→back
+    and back→front card).
     
     `Random cards`: gathers cards completely randomly.
 deck-config-new-gather-priority-deck = Deck
@@ -251,7 +251,7 @@ deck-config-audio-title = Audio
 deck-config-disable-autoplay = Don't play audio automatically
 deck-config-disable-autoplay-tooltip =
     When enabled, Anki will not play audio automatically.
-    It can be played manually by clicking/tapping on an audio icon, or by using the replay audio action.
+    It can be played manually by clicking/tapping on an audio icon, or by using the Replay action.
 deck-config-skip-question-when-replaying = Skip question when replaying answer
 deck-config-always-include-question-audio-tooltip =
     Whether the question audio should be included when the Replay action is
