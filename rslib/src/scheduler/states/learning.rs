@@ -76,13 +76,8 @@ impl LearnState {
                 ctx.graduating_interval_good
             };
 
-            let interval = match &ctx.load_balancer {
-                Some(lb) => lb.find_interval(interval as f32, minimum, maximum),
-                None => ctx.with_review_fuzz(interval as f32, minimum, maximum),
-            };
-
             ReviewState {
-                scheduled_days: interval,
+                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
                 ease_factor: ctx.initial_ease_factor,
                 memory_state,
                 ..Default::default()
@@ -94,23 +89,15 @@ impl LearnState {
     fn answer_easy(self, ctx: &StateContext) -> ReviewState {
         let (mut minimum, maximum) = ctx.min_and_max_review_intervals(1);
         let interval = if let Some(states) = &ctx.fsrs_next_states {
-            let good = match &ctx.load_balancer {
-                Some(lb) => lb.find_interval(states.good.interval as f32, minimum, maximum),
-                None => ctx.with_review_fuzz(states.good.interval as f32, minimum, maximum),
-            };
+            let good = ctx.with_review_fuzz(states.good.interval as f32, minimum, maximum);
             minimum = good + 1;
             states.easy.interval
         } else {
             ctx.graduating_interval_easy
         };
 
-        let interval = match &ctx.load_balancer {
-            Some(lb) => lb.find_interval(interval as f32, minimum, maximum),
-            None => ctx.with_review_fuzz(interval as f32, minimum, maximum),
-        };
-
         ReviewState {
-            scheduled_days: interval,
+            scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
             ease_factor: ctx.initial_ease_factor,
             memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
             ..Default::default()
