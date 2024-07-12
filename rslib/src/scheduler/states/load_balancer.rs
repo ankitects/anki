@@ -5,55 +5,90 @@ use std::cmp::Ordering;
 use std::collections::HashSet;
 
 use super::fuzz::constrained_fuzz_bounds;
-use crate::decks::DeckId;
+use crate::card::CardId;
 use crate::notes::NoteId;
 use crate::storage::SqliteStorage;
 
-const MAX_LOAD_BALANCE_INTERVAL: u32 = 90;
+const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
 
-pub struct LoadBalancer<'a> {
-    today: u32,
-    note_id: NoteId,
-    deck_id: Option<DeckId>,
-    avoid_siblings: bool,
-    storage: &'a SqliteStorage,
+#[derive(Default)]
+struct LoadBalancerDay {
+    cards: Vec<(CardId, NoteId)>,
 }
 
-impl<'a> LoadBalancer<'a> {
-    pub fn new_from_collection(
-        today: u32,
-        storage: &'a SqliteStorage,
-        note_id: NoteId,
-        avoid_siblings: bool,
-    ) -> LoadBalancer<'a> {
-        LoadBalancer {
-            today,
-            note_id,
-            avoid_siblings,
-            storage,
-            deck_id: None,
+impl LoadBalancerDay {
+    fn add(&mut self, cid: CardId, nid: NoteId) {
+        self.cards.push((cid, nid));
+    }
+
+    fn remove(&mut self, cid: CardId) {
+        if let Some(index) = self.cards.iter().position(|c| c.0 == cid) {
+            self.cards.swap_remove(index);
         }
     }
 
-    pub fn new_from_deck(
-        today: u32,
-        storage: &'a SqliteStorage,
-        note_id: NoteId,
-        deck_id: DeckId,
-        avoid_siblings: bool,
-    ) -> LoadBalancer<'a> {
-        LoadBalancer {
-            today,
-            note_id,
-            avoid_siblings,
-            storage,
-            deck_id: Some(deck_id),
-        }
+    /*
+    fn has_sibling(&self, nid: NoteId) -> bool {
+        self.cards.iter().any(|c| c.1 == nid)
     }
+     */
+}
 
+pub struct LoadBalancerContext<'a> {
+    load_balancer: &'a LoadBalancer,
+    note_id: NoteId,
+}
+
+impl<'a> LoadBalancerContext<'a> {
     pub fn find_interval(&self, interval: f32, minimum: u32, maximum: u32) -> u32 {
+        self.load_balancer
+            .find_interval(interval, minimum, maximum, self.note_id)
+    }
+}
+
+pub struct LoadBalancer {
+    current_day: u32,
+    days: [LoadBalancerDay; MAX_LOAD_BALANCE_INTERVAL],
+}
+
+impl Default for LoadBalancer {
+    fn default() -> LoadBalancer {
+        LoadBalancer {
+            current_day: 0,
+            days: std::array::from_fn(|_| Default::default()),
+        }
+    }
+}
+
+impl LoadBalancer {
+    pub fn is_stale(&self, current_day: u32) -> bool {
+        self.current_day != current_day
+    }
+
+    pub fn review_context(&self, note_id: NoteId) -> LoadBalancerContext {
+        LoadBalancerContext {
+            load_balancer: self,
+            note_id,
+        }
+    }
+
+    pub fn load_cache(&mut self, today: u32, storage: &SqliteStorage) {
+        println!("filling load balancer cache");
+        let cards = storage
+            .get_all_cards_due_in_range(today, today + MAX_LOAD_BALANCE_INTERVAL as u32)
+            .unwrap();
+        for (cards, cache_day) in cards.iter().zip(self.days.iter_mut()) {
+            for card in cards {
+                cache_day.add(card.0, card.1);
+            }
+        }
+
+        self.current_day = today
+    }
+
+    fn find_interval(&self, interval: f32, minimum: u32, maximum: u32, note_id: NoteId) -> u32 {
         // if we're sending a card far out into the future, the need to balance is low
-        if interval as u32 > MAX_LOAD_BALANCE_INTERVAL {
+        if interval as u32 > MAX_LOAD_BALANCE_INTERVAL as u32 {
             println!(
                 "load balancer: interval {} over threshold {}, not balancing",
                 interval, MAX_LOAD_BALANCE_INTERVAL
@@ -81,47 +116,32 @@ impl<'a> LoadBalancer<'a> {
             .enumerate()
             .collect::<Vec<_>>();
 
-        let cards = if let Some(deck_id) = self.deck_id {
-            self.storage
-                .get_cards_in_deck_due_in_range(
-                    self.today + before_days,
-                    self.today + after_days,
-                    deck_id,
-                )
-                .unwrap()
-        } else {
-            self.storage
-                .get_all_cards_due_in_range(self.today + before_days, self.today + after_days)
-                .unwrap()
-        };
+        let interval_days = &self.days[before_days as usize..after_days as usize];
 
-        // table to look up if there are siblings for a card on a day
-        let notes_on_days = if self.avoid_siblings {
-            Some(
+        let notes_on_days = interval_days
+            .iter()
+            .map(|cards| {
                 cards
+                    .cards
                     .iter()
-                    .map(|cards| cards.iter().map(|card| card.1).collect::<HashSet<_>>())
-                    .collect::<Vec<_>>(),
-            )
-        } else {
-            None
-        };
+                    .map(|card| card.1)
+                    .collect::<HashSet<_>>()
+            })
+            .collect::<Vec<_>>();
 
         // DEBUG CODE
         // this will be removed when this feature is fully ready
         // till then, its useful to see what is being done
         let mut sorted_intervals = intervals_to_check.clone();
         sorted_intervals.sort_by(|a, b| {
-            let a_len = cards[a.0].len();
-            let b_len = cards[b.0].len();
+            let a_len = interval_days[a.0].cards.len();
+            let b_len = interval_days[b.0].cards.len();
 
-            if let Some(notes_on_days) = &notes_on_days {
-                let a_has_sibling = notes_on_days[a.0].contains(&self.note_id);
-                let b_has_sibling = notes_on_days[b.0].contains(&self.note_id);
+            let a_has_sibling = notes_on_days[a.0].contains(&note_id);
+            let b_has_sibling = notes_on_days[b.0].contains(&note_id);
 
-                if a_has_sibling != b_has_sibling {
-                    return a_has_sibling.cmp(&b_has_sibling);
-                }
+            if a_has_sibling != b_has_sibling {
+                return a_has_sibling.cmp(&b_has_sibling);
             }
 
             match a_len.cmp(&b_len) {
@@ -134,9 +154,7 @@ impl<'a> LoadBalancer<'a> {
         for (index, interval_offset) in &sorted_intervals {
             println!(
                 "{}{} index {} interval({}) + offset({}) = {} count {}",
-                if notes_on_days.is_some()
-                    && notes_on_days.as_ref().unwrap()[*index].contains(&self.note_id)
-                {
+                if notes_on_days[*index].contains(&note_id) {
                     "x"
                 } else {
                     " "
@@ -146,25 +164,24 @@ impl<'a> LoadBalancer<'a> {
                 interval,
                 interval_offset,
                 interval as i32 + interval_offset,
-                cards[*index].len()
+                interval_days[*index].cards.len()
             );
         }
+        // END DEBUG CODE
 
         // find the day with fewest number of cards, falling back to distance from the
         // initial interval
         let interval_modifier = intervals_to_check
             .into_iter()
             .min_by(|a, b| {
-                let a_len = cards[a.0].len();
-                let b_len = cards[b.0].len();
+                let a_len = interval_days[a.0].cards.len();
+                let b_len = interval_days[b.0].cards.len();
 
-                if let Some(notes_on_days) = &notes_on_days {
-                    let a_has_sibling = notes_on_days[a.0].contains(&self.note_id);
-                    let b_has_sibling = notes_on_days[b.0].contains(&self.note_id);
+                let a_has_sibling = notes_on_days[a.0].contains(&note_id);
+                let b_has_sibling = notes_on_days[b.0].contains(&note_id);
 
-                    if a_has_sibling != b_has_sibling {
-                        return a_has_sibling.cmp(&b_has_sibling);
-                    }
+                if a_has_sibling != b_has_sibling {
+                    return a_has_sibling.cmp(&b_has_sibling);
                 }
 
                 match a_len.cmp(&b_len) {
@@ -184,5 +201,17 @@ impl<'a> LoadBalancer<'a> {
         );
 
         balanced_interval
+    }
+
+    pub fn add_card(&mut self, cid: CardId, nid: NoteId, interval: u32) {
+        if let Some(day) = self.days.get_mut(interval as usize) {
+            day.add(cid, nid);
+        }
+    }
+
+    pub fn remove_card(&mut self, cid: CardId) {
+        for day in self.days.iter_mut() {
+            day.remove(cid);
+        }
     }
 }

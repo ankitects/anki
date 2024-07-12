@@ -16,7 +16,7 @@ use revlog::RevlogEntryPartial;
 
 use super::fsrs::weights::ignore_revlogs_before_ms_from_config;
 use super::queue::BuryMode;
-use super::states::load_balancer::LoadBalancer;
+use super::states::load_balancer::LoadBalancerContext;
 use super::states::steps::LearningSteps;
 use super::states::CardState;
 use super::states::FilteredState;
@@ -81,7 +81,7 @@ impl CardStateUpdater {
     /// state handling code from the rest of the Anki codebase.
     pub(crate) fn state_context<'a>(
         &'a self,
-        load_balancer: Option<LoadBalancer<'a>>,
+        load_balancer: Option<LoadBalancerContext<'a>>,
     ) -> StateContext<'a> {
         StateContext {
             fuzz_factor: get_fuzz_factor(self.fuzz_seed),
@@ -221,32 +221,19 @@ impl Collection {
     /// Return the next states that will be applied for each answer button.
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
-        let deck_id = card.deck_id;
+
         let note_id = card.note_id;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
         let today = self.timing_today()?.days_elapsed;
 
-        let load_balancer = if self.get_config_bool(BoolKey::LoadBalancerEnable) {
-            if self.get_config_bool(BoolKey::LoadBalancerPerDeck) {
-                Some(LoadBalancer::new_from_deck(
-                    today,
-                    &self.storage,
-                    note_id,
-                    deck_id,
-                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings),
-                ))
-            } else {
-                Some(LoadBalancer::new_from_collection(
-                    today,
-                    &self.storage,
-                    note_id,
-                    self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings),
-                ))
+        let load_balancer = self.load_balancer.as_mut().map(|load_balancer| {
+            if load_balancer.is_stale(today) {
+                load_balancer.load_cache(today, &self.storage);
             }
-        } else {
-            None
-        };
+
+            load_balancer.review_context(note_id)
+        });
         let state_ctx = ctx.state_context(load_balancer);
         Ok(current.next_states(&state_ctx))
     }
@@ -335,9 +322,16 @@ impl Collection {
             card.custom_data = data;
             card.validate_custom_data()?;
         }
+
         self.update_card_inner(&mut card, original, usn)?;
         if answer.new_state.leeched() {
             self.add_leech_tag(card.note_id)?;
+        }
+
+        if card.queue == CardQueue::Review {
+            if let Some(load_balancer) = &mut self.load_balancer {
+                load_balancer.add_card(card.id, card.note_id, card.interval);
+            }
         }
 
         self.update_queues_after_answering_card(

@@ -18,7 +18,7 @@ pub use filtered::FilteredState;
 use fsrs::NextStates;
 pub(crate) use interval_kind::IntervalKind;
 pub use learning::LearnState;
-use load_balancer::LoadBalancer;
+use load_balancer::LoadBalancerContext;
 pub use new::NewState;
 pub use normal::NormalState;
 pub use preview_filter::PreviewState;
@@ -101,7 +101,7 @@ pub(crate) struct StateContext<'a> {
     pub interval_multiplier: f32,
     pub maximum_review_interval: u32,
     pub leech_threshold: u32,
-    pub load_balancer: Option<LoadBalancer<'a>>,
+    pub load_balancer: Option<LoadBalancerContext<'a>>,
 
     // relearning
     pub relearn_steps: LearningSteps<'a>,

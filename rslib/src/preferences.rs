@@ -12,6 +12,7 @@ use crate::config::BoolKey;
 use crate::config::StringKey;
 use crate::error::Result;
 use crate::prelude::*;
+use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::scheduler::timing::local_minutes_west_for_stamp;
 
 impl Collection {
@@ -126,6 +127,11 @@ impl Collection {
             s.load_balancer_avoid_siblings,
         )?;
         self.set_config_bool_inner(BoolKey::LoadBalancerPerDeck, s.load_balancer_per_deck)?;
+
+        if s.load_balancer_enable {
+            self.load_balancer = Some(LoadBalancer::default());
+        }
+
         Ok(())
     }
 
