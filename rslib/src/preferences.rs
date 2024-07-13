@@ -99,8 +99,6 @@ impl Collection {
                 .get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons),
             time_limit_secs: self.get_answer_time_limit_secs(),
             load_balancer_enable: self.get_config_bool(BoolKey::LoadBalancerEnable),
-            load_balancer_avoid_siblings: self.get_config_bool(BoolKey::LoadBalancerAvoidSiblings),
-            load_balancer_per_deck: self.get_config_bool(BoolKey::LoadBalancerPerDeck),
         })
     }
 
@@ -120,13 +118,8 @@ impl Collection {
             s.show_intervals_on_buttons,
         )?;
         self.set_answer_time_limit_secs(s.time_limit_secs)?;
-        self.set_config_bool_inner(BoolKey::LoadBalancerEnable, s.load_balancer_enable)?;
-        self.set_config_bool_inner(
-            BoolKey::LoadBalancerAvoidSiblings,
-            s.load_balancer_avoid_siblings,
-        )?;
-        self.set_config_bool_inner(BoolKey::LoadBalancerPerDeck, s.load_balancer_per_deck)?;
 
+        self.set_config_bool_inner(BoolKey::LoadBalancerEnable, s.load_balancer_enable)?;
         if !s.load_balancer_enable {
             self.state.load_balancer = None;
         }

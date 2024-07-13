@@ -463,26 +463,6 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QCheckBox" name="load_balancer_avoid_siblings">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>preferences_load_balancer_avoid_siblings</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="load_balancer_per_deck">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>preferences_load_balancer_per_deck</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>

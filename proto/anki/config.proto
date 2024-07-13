@@ -55,8 +55,6 @@ message ConfigKey {
     SHIFT_POSITION_OF_EXISTING_CARDS = 24;
     RENDER_LATEX = 25;
     LOAD_BALANCER_ENABLE = 26;
-    LOAD_BALANCER_AVOID_SIBLINGS = 27;
-    LOAD_BALANCER_PER_DECK = 28;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -119,8 +117,6 @@ message Preferences {
     bool show_intervals_on_buttons = 4;
     uint32 time_limit_secs = 5;
     bool load_balancer_enable = 6;
-    bool load_balancer_avoid_siblings = 7;
-    bool load_balancer_per_deck = 8;
   }
   message Editing {
     bool adding_defaults_to_current_deck = 1;

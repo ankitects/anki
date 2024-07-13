@@ -79,8 +79,6 @@ preferences-reset-window-sizes-complete = Window sizes and locations have been r
 preferences-shortcut-placeholder = Enter an unused shortcut key, or leave empty to disable.
 preferences-load-balancer = Load Balancer
 preferences-load-balancer-enable = Enable Load Balancer
-preferences-load-balancer-avoid-siblings = Disperse Siblings
-preferences-load-balancer-per-deck = Load balance each deck individually
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

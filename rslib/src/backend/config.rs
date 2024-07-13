@@ -38,8 +38,6 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::ShiftPositionOfExistingCards => BoolKey::ShiftPositionOfExistingCards,
             BoolKeyProto::RenderLatex => BoolKey::RenderLatex,
             BoolKeyProto::LoadBalancerEnable => BoolKey::LoadBalancerEnable,
-            BoolKeyProto::LoadBalancerAvoidSiblings => BoolKey::LoadBalancerAvoidSiblings,
-            BoolKeyProto::LoadBalancerPerDeck => BoolKey::LoadBalancerPerDeck,
         }
     }
 }
