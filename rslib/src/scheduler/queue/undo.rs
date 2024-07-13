@@ -39,7 +39,7 @@ impl Collection {
                     queues.push_undo_entry(update.entry);
                 }
 
-                if let Some(load_balancer) = self.load_balancer.as_mut() {
+                if let Some(load_balancer) = self.state.load_balancer.as_mut() {
                     match &update.entry {
                         QueueEntry::IntradayLearning(entry) => {
                             load_balancer.remove_card(entry.id);

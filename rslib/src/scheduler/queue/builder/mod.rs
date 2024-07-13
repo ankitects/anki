@@ -25,6 +25,7 @@ use crate::deckconfig::ReviewCardOrder;
 use crate::deckconfig::ReviewMix;
 use crate::decks::limits::LimitTreeMap;
 use crate::prelude::*;
+use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::scheduler::timing::SchedTimingToday;
 
 /// Temporary holder for review cards that will be built into a queue.
@@ -268,6 +269,11 @@ impl Collection {
         queues.gather_cards(self)?;
 
         let queues = queues.build(self.learn_ahead_secs() as i64);
+
+        if self.get_config_bool(BoolKey::LoadBalancerEnable) {
+            let today = self.timing_today()?.days_elapsed;
+            self.state.load_balancer = Some(LoadBalancer::new(today, &self.storage));
+        }
 
         Ok(queues)
     }

@@ -225,15 +225,12 @@ impl Collection {
         let note_id = card.note_id;
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
-        let today = self.timing_today()?.days_elapsed;
 
-        let load_balancer = self.load_balancer.as_mut().map(|load_balancer| {
-            if load_balancer.is_stale(today) {
-                load_balancer.load_cache(today, &self.storage);
-            }
-
-            load_balancer.review_context(note_id)
-        });
+        let load_balancer = self
+            .state
+            .load_balancer
+            .as_mut()
+            .map(|load_balancer| load_balancer.review_context(note_id));
         let state_ctx = ctx.state_context(load_balancer);
         Ok(current.next_states(&state_ctx))
     }
@@ -329,7 +326,7 @@ impl Collection {
         }
 
         if card.queue == CardQueue::Review {
-            if let Some(load_balancer) = &mut self.load_balancer {
+            if let Some(load_balancer) = &mut self.state.load_balancer {
                 load_balancer.add_card(card.id, card.note_id, card.interval);
             }
         }

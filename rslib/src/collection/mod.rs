@@ -18,7 +18,6 @@ use anki_i18n::I18n;
 use anki_io::create_dir_all;
 
 use crate::browser_table;
-use crate::config::BoolKey;
 use crate::decks::Deck;
 use crate::decks::DeckId;
 use crate::error::Result;
@@ -64,7 +63,7 @@ impl CollectionBuilder {
         let media_folder = self.media_folder.clone().unwrap_or_default();
         let media_db = self.media_db.clone().unwrap_or_default();
         let storage = SqliteStorage::open_or_create(&col_path, &tr, server, self.check_integrity)?;
-        let mut col = Collection {
+        let col = Collection {
             storage,
             col_path,
             media_folder,
@@ -75,17 +74,7 @@ impl CollectionBuilder {
                 progress: self.progress_handler.clone().unwrap_or_default(),
                 ..Default::default()
             },
-            load_balancer: None,
         };
-
-        if col.get_config_bool(BoolKey::LoadBalancerEnable) {
-            let today = col.timing_today()?.days_elapsed;
-            col.load_balancer = Some(LoadBalancer::default());
-            col.load_balancer
-                .as_mut()
-                .unwrap()
-                .load_cache(today, &col.storage);
-        }
 
         Ok(col)
     }
@@ -150,6 +139,7 @@ pub struct CollectionState {
     /// identical backups.
     pub(crate) last_backup_modified: Option<TimestampMillis>,
     pub(crate) progress: Arc<Mutex<ProgressState>>,
+    pub(crate) load_balancer: Option<LoadBalancer>,
 }
 
 pub struct Collection {
@@ -160,7 +150,6 @@ pub struct Collection {
     pub(crate) tr: I18n,
     pub(crate) server: bool,
     pub(crate) state: CollectionState,
-    pub(crate) load_balancer: Option<LoadBalancer>,
 }
 
 impl Debug for Collection {

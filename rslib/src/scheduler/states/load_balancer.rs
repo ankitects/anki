@@ -16,7 +16,7 @@ const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
 // problems
 const LOAD_BALANCE_DAYS: usize = (MAX_LOAD_BALANCE_INTERVAL as f32 * 1.1) as usize;
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct LoadBalancerDay {
     cards: Vec<(CardId, NoteId)>,
 }
@@ -31,12 +31,6 @@ impl LoadBalancerDay {
             self.cards.swap_remove(index);
         }
     }
-
-    /*
-    fn has_sibling(&self, nid: NoteId) -> bool {
-        self.cards.iter().any(|c| c.1 == nid)
-    }
-     */
 }
 
 pub struct LoadBalancerContext<'a> {
@@ -51,23 +45,25 @@ impl<'a> LoadBalancerContext<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct LoadBalancer {
-    current_day: u32,
     days: [LoadBalancerDay; LOAD_BALANCE_DAYS],
 }
 
-impl Default for LoadBalancer {
-    fn default() -> LoadBalancer {
-        LoadBalancer {
-            current_day: 0,
-            days: std::array::from_fn(|_| Default::default()),
-        }
-    }
-}
-
 impl LoadBalancer {
-    pub fn is_stale(&self, current_day: u32) -> bool {
-        self.current_day != current_day
+    pub fn new(today: u32, storage: &SqliteStorage) -> LoadBalancer {
+        println!("filling load balancer cache");
+        let cards = storage
+            .get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)
+            .unwrap();
+        let mut days = std::array::from_fn(|_| LoadBalancerDay::default());
+        for (cards, cache_day) in cards.iter().zip(days.iter_mut()) {
+            for card in cards {
+                cache_day.add(card.0, card.1);
+            }
+        }
+
+        LoadBalancer { days }
     }
 
     pub fn review_context(&self, note_id: NoteId) -> LoadBalancerContext {
@@ -75,20 +71,6 @@ impl LoadBalancer {
             load_balancer: self,
             note_id,
         }
-    }
-
-    pub fn load_cache(&mut self, today: u32, storage: &SqliteStorage) {
-        println!("filling load balancer cache");
-        let cards = storage
-            .get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)
-            .unwrap();
-        for (cards, cache_day) in cards.iter().zip(self.days.iter_mut()) {
-            for card in cards {
-                cache_day.add(card.0, card.1);
-            }
-        }
-
-        self.current_day = today
     }
 
     fn find_interval(&self, interval: f32, minimum: u32, maximum: u32, note_id: NoteId) -> u32 {
