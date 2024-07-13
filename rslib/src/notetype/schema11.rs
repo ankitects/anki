@@ -23,6 +23,7 @@ use crate::notetype::NoteFieldConfig;
 use crate::notetype::Notetype;
 use crate::notetype::NotetypeConfig;
 use crate::serde::default_on_invalid;
+use crate::serde::default_true;
 use crate::serde::deserialize_bool_from_anything;
 use crate::serde::deserialize_number_from_string;
 use crate::serde::is_default;
@@ -66,6 +67,8 @@ pub struct NotetypeSchema11 {
     pub(crate) original_stock_kind: i32,
     #[serde(default, skip_serializing_if = "is_default")]
     pub(crate) original_id: Option<i64>,
+    #[serde(default = "default_true", skip_serializing_if = "is_default")]
+    pub(crate) load_balancer_disperse_siblings: bool,
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -112,6 +115,7 @@ impl From<NotetypeSchema11> for Notetype {
                 reqs: nt.req.0.into_iter().map(Into::into).collect(),
                 original_stock_kind: nt.original_stock_kind,
                 original_id: nt.original_id,
+                load_balancer_disperse_siblings: nt.load_balancer_disperse_siblings,
                 other: other_to_bytes(&nt.other),
             },
             fields: nt.flds.into_iter().map(Into::into).collect(),
@@ -176,6 +180,7 @@ impl From<Notetype> for NotetypeSchema11 {
             req: CardRequirementsSchema11(c.reqs.into_iter().map(Into::into).collect()),
             original_stock_kind: c.original_stock_kind,
             original_id: c.original_id,
+            load_balancer_disperse_siblings: c.load_balancer_disperse_siblings,
             other: parse_other_fields(&c.other, &RESERVED_NOTETYPE_KEYS),
         }
     }
@@ -197,7 +202,8 @@ static RESERVED_NOTETYPE_KEYS: Set<&'static str> = phf_set! {
     "tmpls",
     "type",
     "sortf",
-    "latexsvg"
+    "latexsvg",
+    "loadBalancerDisperseSiblings",
 };
 
 impl From<CardRequirementSchema11> for CardRequirement {

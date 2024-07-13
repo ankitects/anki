@@ -222,7 +222,21 @@ impl Collection {
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
 
-        let note_id = card.note_id;
+        let note_id = self
+            .storage
+            .get_note(card.note_id)
+            .ok()
+            .flatten()
+            .and_then(|note| {
+                self.storage
+                    .get_notetype(note.notetype_id)
+                    .ok()
+                    .flatten()
+                    .map(|notetype| notetype.config.load_balancer_disperse_siblings)
+            })
+            .unwrap_or(false)
+            .then_some(card.note_id);
+
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
 

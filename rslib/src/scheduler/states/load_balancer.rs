@@ -35,7 +35,7 @@ impl LoadBalancerDay {
 
 pub struct LoadBalancerContext<'a> {
     load_balancer: &'a LoadBalancer,
-    note_id: NoteId,
+    note_id: Option<NoteId>,
 }
 
 impl<'a> LoadBalancerContext<'a> {
@@ -66,14 +66,20 @@ impl LoadBalancer {
         LoadBalancer { days }
     }
 
-    pub fn review_context(&self, note_id: NoteId) -> LoadBalancerContext {
+    pub fn review_context(&self, note_id: Option<NoteId>) -> LoadBalancerContext {
         LoadBalancerContext {
             load_balancer: self,
             note_id,
         }
     }
 
-    fn find_interval(&self, interval: f32, minimum: u32, maximum: u32, note_id: NoteId) -> u32 {
+    fn find_interval(
+        &self,
+        interval: f32,
+        minimum: u32,
+        maximum: u32,
+        note_id: Option<NoteId>,
+    ) -> u32 {
         // if we're sending a card far out into the future, the need to balance is low
         if interval as u32 > MAX_LOAD_BALANCE_INTERVAL as u32 {
             println!(
@@ -124,11 +130,13 @@ impl LoadBalancer {
             let a_len = interval_days[a.0].cards.len();
             let b_len = interval_days[b.0].cards.len();
 
-            let a_has_sibling = notes_on_days[a.0].contains(&note_id);
-            let b_has_sibling = notes_on_days[b.0].contains(&note_id);
+            if let Some(note_id) = note_id {
+                let a_has_sibling = notes_on_days[a.0].contains(&note_id);
+                let b_has_sibling = notes_on_days[b.0].contains(&note_id);
 
-            if a_has_sibling != b_has_sibling {
-                return a_has_sibling.cmp(&b_has_sibling);
+                if a_has_sibling != b_has_sibling {
+                    return a_has_sibling.cmp(&b_has_sibling);
+                }
             }
 
             match a_len.cmp(&b_len) {
@@ -139,13 +147,12 @@ impl LoadBalancer {
         });
 
         for (index, interval_offset) in &sorted_intervals {
+            let has_sibling = note_id
+                .map(|note_id| notes_on_days[*index].contains(&note_id))
+                .unwrap_or(false);
             println!(
                 "{}{} index {} interval({}) + offset({}) = {} count {}",
-                if notes_on_days[*index].contains(&note_id) {
-                    "x"
-                } else {
-                    " "
-                },
+                if has_sibling { "x" } else { " " },
                 if *interval_offset == 0 { "*" } else { " " },
                 index,
                 interval,
@@ -164,11 +171,13 @@ impl LoadBalancer {
                 let a_len = interval_days[a.0].cards.len();
                 let b_len = interval_days[b.0].cards.len();
 
-                let a_has_sibling = notes_on_days[a.0].contains(&note_id);
-                let b_has_sibling = notes_on_days[b.0].contains(&note_id);
+                if let Some(note_id) = note_id {
+                    let a_has_sibling = notes_on_days[a.0].contains(&note_id);
+                    let b_has_sibling = notes_on_days[b.0].contains(&note_id);
 
-                if a_has_sibling != b_has_sibling {
-                    return a_has_sibling.cmp(&b_has_sibling);
+                    if a_has_sibling != b_has_sibling {
+                        return a_has_sibling.cmp(&b_has_sibling);
+                    }
                 }
 
                 match a_len.cmp(&b_len) {

@@ -75,7 +75,6 @@ impl LearnState {
             } else {
                 ctx.graduating_interval_good
             };
-
             ReviewState {
                 scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
                 ease_factor: ctx.initial_ease_factor,
@@ -95,7 +94,6 @@ impl LearnState {
         } else {
             ctx.graduating_interval_easy
         };
-
         ReviewState {
             scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
             ease_factor: ctx.initial_ease_factor,

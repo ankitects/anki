@@ -192,6 +192,7 @@ class Models(QDialog):
         frm.latexsvg.setChecked(nt.get("latexsvg", False))
         frm.latexHeader.setText(nt["latexPre"])
         frm.latexFooter.setText(nt["latexPost"])
+        frm.disperseSiblings.setChecked(nt.get("loadBalancerDisperseSiblings", True))
         d.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=nt["name"]))
         )
@@ -203,6 +204,7 @@ class Models(QDialog):
         nt["latexsvg"] = frm.latexsvg.isChecked()
         nt["latexPre"] = str(frm.latexHeader.toPlainText())
         nt["latexPost"] = str(frm.latexFooter.toPlainText())
+        nt["loadBalancerDisperseSiblings"] = frm.disperseSiblings.isChecked()
         update_notetype_legacy(parent=self, notetype=nt).success(
             self.refresh_list
         ).run_in_background()

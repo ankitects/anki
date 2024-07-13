@@ -42,6 +42,10 @@ where
     }
 }
 
+pub(crate) fn default_true() -> bool {
+    true
+}
+
 // It may be possible to use the num_traits crate instead in the future.
 pub(crate) trait FromI64 {
     fn from_i64(val: i64) -> Self;

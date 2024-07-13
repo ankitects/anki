@@ -111,6 +111,7 @@ impl Notetype {
             css: DEFAULT_CSS.into(),
             latex_pre: DEFAULT_LATEX_HEADER.into(),
             latex_post: DEFAULT_LATEX_FOOTER.into(),
+            load_balancer_disperse_siblings: true,
             ..Default::default()
         }
     }
