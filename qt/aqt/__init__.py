@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 import sys
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 try:
     import pip_system_certs.wrapt_requests
@@ -157,7 +157,7 @@ class DialogManager:
         return not any(x[1] for x in self._dialogs.values())
 
     def closeAll(
-        self, onsuccess: FunctionWithoutArgumentsAndReturnValue
+        self, onsuccess: _FunctionWithoutArgumentsAndReturnValue
     ) -> Optional[bool]:
         # can we close immediately?
         if self.allClosed():

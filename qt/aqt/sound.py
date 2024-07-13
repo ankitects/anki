@@ -40,12 +40,12 @@ from aqt.utils import (
     tr,
 )
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 # AV player protocol
 ##########################################################################
 
-OnDoneCallback = FunctionWithoutArgumentsAndReturnValue
+OnDoneCallback = _FunctionWithoutArgumentsAndReturnValue
 
 
 class Player(ABC):
@@ -551,7 +551,7 @@ class Recorder(ABC):
     def __init__(self, output_path: str) -> None:
         self.output_path = output_path
 
-    def start(self, on_done: FunctionWithoutArgumentsAndReturnValue) -> None:
+    def start(self, on_done: _FunctionWithoutArgumentsAndReturnValue) -> None:
         "Start recording, then call on_done() when started."
         self._started_at = time.time()
         on_done()
@@ -591,7 +591,7 @@ class QtAudioInputRecorder(Recorder):
         self._format = source.format()
         self._audio_input = source
 
-    def start(self, on_done: FunctionWithoutArgumentsAndReturnValue) -> None:
+    def start(self, on_done: _FunctionWithoutArgumentsAndReturnValue) -> None:
         self._iodevice = self._audio_input.start()
         self._buffer = bytearray()
         qconnect(self._iodevice.readyRead, self._on_read_ready)
@@ -655,7 +655,7 @@ class NativeMacRecorder(Recorder):
     def _on_error(self, msg: str) -> None:
         self._error = msg
 
-    def start(self, on_done: FunctionWithoutArgumentsAndReturnValue) -> None:
+    def start(self, on_done: _FunctionWithoutArgumentsAndReturnValue) -> None:
         self._error = None
         assert macos_helper
         macos_helper.start_wav_record(self.output_path, self._on_error)

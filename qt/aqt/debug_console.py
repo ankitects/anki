@@ -25,7 +25,7 @@ from aqt.utils import (
     tr,
 )
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 
 def show_debug_console() -> None:
@@ -43,7 +43,7 @@ UNSAVED_SCRIPT = "Unsaved script"
 class Action:
     name: str
     shortcut: str
-    action: FunctionWithoutArgumentsAndReturnValue
+    action: _FunctionWithoutArgumentsAndReturnValue
 
 
 class DebugConsole(QDialog):

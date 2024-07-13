@@ -28,7 +28,7 @@ from aqt.utils import (
     tr,
 )
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 
 class Preferences(QDialog):
@@ -89,7 +89,7 @@ class Preferences(QDialog):
         self.accept_with_callback()
 
     def accept_with_callback(
-        self, callback: FunctionWithoutArgumentsAndReturnValue | None = None
+        self, callback: _FunctionWithoutArgumentsAndReturnValue | None = None
     ) -> None:
         # avoid exception if main window is already closed
         if not self.mw.col:
@@ -149,7 +149,7 @@ class Preferences(QDialog):
         form.minutes_between_backups.setValue(self.prefs.backups.minimum_interval_mins)
 
     def update_collection(
-        self, on_done: FunctionWithoutArgumentsAndReturnValue
+        self, on_done: _FunctionWithoutArgumentsAndReturnValue
     ) -> None:
         form = self.form
 

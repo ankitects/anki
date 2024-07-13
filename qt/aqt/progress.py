@@ -12,7 +12,7 @@ from anki.collection import Progress
 from aqt.qt import *
 from aqt.utils import disable_help_button, tr
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 # Progress info
 ##########################################################################
@@ -86,7 +86,7 @@ class ProgressManager:
     def single_shot(
         self,
         ms: int,
-        func: FunctionWithoutArgumentsAndReturnValue,
+        func: _FunctionWithoutArgumentsAndReturnValue,
         requires_collection: bool = True,
     ) -> None:
         """Create and start a one-off Anki timer. For an alternative and more
@@ -109,10 +109,10 @@ class ProgressManager:
 
     def _get_handler(
         self,
-        func: FunctionWithoutArgumentsAndReturnValue,
+        func: _FunctionWithoutArgumentsAndReturnValue,
         repeat: bool,
         requires_collection: bool,
-    ) -> FunctionWithoutArgumentsAndReturnValue:
+    ) -> _FunctionWithoutArgumentsAndReturnValue:
         def handler() -> None:
             if requires_collection and not self.mw.col:
                 # no current collection; timer is no longer valid

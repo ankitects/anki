@@ -18,7 +18,7 @@ ValueFromDB = Any
 Row = Sequence[ValueFromDB]
 
 ValueForDB = Union[str, int, float, None]
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 
 class DBProxy:
@@ -31,7 +31,7 @@ class DBProxy:
     # Transactions
     ###############
 
-    def transact(self, op: FunctionWithoutArgumentsAndReturnValue) -> None:
+    def transact(self, op: _FunctionWithoutArgumentsAndReturnValue) -> None:
         """Run the provided operation inside a transaction.
 
         Please note that all backend methods automatically wrap changes in a transaction,

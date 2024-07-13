@@ -34,7 +34,7 @@ from aqt.utils import (
     tr,
 )
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 
 class AddCards(QMainWindow):
@@ -364,7 +364,7 @@ class AddCards(QMainWindow):
 
         self.editor.call_after_note_saved(afterSave)
 
-    def closeWithCallback(self, cb: FunctionWithoutArgumentsAndReturnValue) -> None:
+    def closeWithCallback(self, cb: _FunctionWithoutArgumentsAndReturnValue) -> None:
         def doClose() -> None:
             self._close()
             cb()

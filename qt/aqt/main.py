@@ -94,7 +94,7 @@ from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 install_pylib_legacy()
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 MainWindowState = Literal[
     "startup", "deckBrowser", "overview", "review", "resetRequired", "profileManager"
 ]
@@ -368,7 +368,7 @@ class AnkiQt(QMainWindow):
         return
 
     def onOpenProfile(
-        self, *, callback: FunctionWithoutArgumentsAndReturnValue | None = None
+        self, *, callback: _FunctionWithoutArgumentsAndReturnValue | None = None
     ) -> None:
         def on_done() -> None:
             self.profileDiag.closeWithoutQuitting()
@@ -1054,7 +1054,7 @@ title="{}" {}>{}</button>""".format(
         self.flags.require_refresh()
 
     def _sync_collection_and_media(
-        self, after_sync: FunctionWithoutArgumentsAndReturnValue
+        self, after_sync: _FunctionWithoutArgumentsAndReturnValue
     ) -> None:
         "Caller should ensure auth available."
 

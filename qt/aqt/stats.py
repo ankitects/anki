@@ -25,7 +25,7 @@ from aqt.utils import (
 )
 from aqt.webview import AnkiWebViewKind
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 
 class NewDeckStats(QDialog):
@@ -84,7 +84,7 @@ class NewDeckStats(QDialog):
         QDialog.reject(self)
 
     def closeWithCallback(
-        self, callback: FunctionWithoutArgumentsAndReturnValue
+        self, callback: _FunctionWithoutArgumentsAndReturnValue
     ) -> None:
         self.reject()
         callback()
@@ -190,7 +190,7 @@ class DeckStats(QDialog):
         QDialog.reject(self)
 
     def closeWithCallback(
-        self, callback: FunctionWithoutArgumentsAndReturnValue
+        self, callback: _FunctionWithoutArgumentsAndReturnValue
     ) -> None:
         self.reject()
         callback()

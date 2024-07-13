@@ -9,7 +9,7 @@ from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import HelpPage, shortcut, tr
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 
 class NotetypeChooser(QHBoxLayout):
@@ -35,7 +35,7 @@ class NotetypeChooser(QHBoxLayout):
         mw: AnkiQt,
         widget: QWidget,
         starting_notetype_id: NotetypeId,
-        on_button_activated: FunctionWithoutArgumentsAndReturnValue | None = None,
+        on_button_activated: _FunctionWithoutArgumentsAndReturnValue | None = None,
         on_notetype_changed: Callable[[NotetypeId], None] | None = None,
         show_prefix_label: bool = True,
     ) -> None:

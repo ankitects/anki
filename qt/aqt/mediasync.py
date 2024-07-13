@@ -19,7 +19,7 @@ from aqt.operations import QueryOp
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton, Qt, QTimer, qconnect
 from aqt.utils import disable_help_button, show_info, tr
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 
 class MediaSyncer:
@@ -113,7 +113,7 @@ class MediaSyncer:
         aqt.dialogs.open("sync_log", self.mw, self)
 
     def show_diag_until_finished(
-        self, on_finished: FunctionWithoutArgumentsAndReturnValue
+        self, on_finished: _FunctionWithoutArgumentsAndReturnValue
     ) -> None:
         # nothing to do if not syncing
         if not self.is_syncing():

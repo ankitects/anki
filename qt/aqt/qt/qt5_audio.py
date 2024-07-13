@@ -17,7 +17,7 @@ from . import *  # isort:skip
 from ..sound import Recorder  # isort:skip
 from ..utils import showWarning  # isort:skip
 
-FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
+_FunctionWithoutArgumentsAndReturnValue = Callable[[], None]  # type alias
 
 
 class QtAudioInputRecorder(Recorder):
@@ -52,7 +52,7 @@ class QtAudioInputRecorder(Recorder):
 
         self._audio_input = QAudioInput(device, format, parent)
 
-    def start(self, on_done: FunctionWithoutArgumentsAndReturnValue) -> None:
+    def start(self, on_done: _FunctionWithoutArgumentsAndReturnValue) -> None:
         self._iodevice = self._audio_input.start()
         self._buffer = bytearray()
         qconnect(self._iodevice.readyRead, self._on_read_ready)
