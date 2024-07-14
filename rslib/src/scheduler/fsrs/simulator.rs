@@ -26,28 +26,19 @@ impl Collection {
         let config = SimulatorConfig {
             deck_size: req.deck_size as usize,
             learn_span: req.days_to_simulate as usize,
-            max_cost_perday: f64::MAX,
-            max_ivl: req.max_interval as f64,
-            learn_costs: [p.learn_secs, p.learn_secs, p.learn_secs, p.learn_secs],
-            review_costs: [p.forget_secs, p.recall_secs_hard, p.recall_secs_good, p.recall_secs_easy],
-            first_rating_prob: [
-                p.first_rating_probability_again,
-                p.first_rating_probability_hard,
-                p.first_rating_probability_good,
-                p.first_rating_probability_easy,
-            ],
-            review_rating_prob: [
-                p.review_rating_probability_hard,
-                p.review_rating_probability_good,
-                p.review_rating_probability_easy,
-            ],
+            max_cost_perday: f32::MAX,
+            max_ivl: req.max_interval as f32,
+            learn_costs: p.learn_costs,
+            review_costs: p.review_costs,
+            first_rating_prob: p.first_rating_prob,
+            review_rating_prob: p.review_rating_prob,
+            first_rating_offsets: p.first_rating_offsets,
+            first_session_lens: p.first_session_lens,
+            forget_rating_offset: p.forget_rating_offset,
+            forget_session_len: p.forget_session_len,
             loss_aversion: 1.0,
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
-            first_rating_offsets: [-0.72, -0.15, -0.01, 0.0],
-            first_session_lens: [2.02, 1.28, 0.81, 0.0],
-            forget_rating_offset:  -0.28,
-            forget_session_len: 1.05,
         };
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let (
@@ -57,8 +48,8 @@ impl Collection {
             daily_time_cost,
         ) = simulate(
             &config,
-            &req.weights.iter().map(|w| *w as f64).collect_vec(),
-            req.desired_retention as f64,
+            &req.weights,
+            req.desired_retention,
             None,
             Some(
                 cards
@@ -86,10 +77,10 @@ impl Card {
                 let due = card.original_or_current_due();
                 let relative_due = due - days_elapsed;
                 Some(fsrs::Card {
-                    difficulty: state.difficulty as f64,
-                    stability: state.stability as f64,
-                    last_date: (relative_due - card.interval as i32) as f64,
-                    due: relative_due as f64,
+                    difficulty: state.difficulty,
+                    stability: state.stability,
+                    last_date: (relative_due - card.interval as i32) as f32,
+                    due: relative_due as f32,
                 })
             }
             None => None,
