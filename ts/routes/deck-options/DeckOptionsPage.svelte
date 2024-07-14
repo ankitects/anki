@@ -23,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
     import NewOptions from "./NewOptions.svelte";
     import TimerOptions from "./TimerOptions.svelte";
+    import LoadBalancer from "./LoadBalancer.svelte";
 
     export let state: DeckOptionsState;
     const addons = state.addonComponents;
@@ -55,6 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const timerOptions = {};
     export const audioOptions = {};
     export const advancedOptions = {};
+    export const loadBalancerOptions = {};
 
     let onPresetChange: () => void;
 </script>
@@ -87,6 +89,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             <Row class="row-columns">
                 <BuryOptions {state} api={buryOptions} />
+            </Row>
+
+            <Row class="row-columns">
+                <LoadBalancer {state} api={loadBalancerOptions} />
             </Row>
         </div>
 

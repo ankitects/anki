@@ -164,6 +164,9 @@ message DeckConfig {
     float historical_retention = 40;
     string weight_search = 45;
 
+    bool load_balancer_only_count_self = 47;
+    bool load_balancer_hide_from_others = 48;
+
     bytes other = 255;
   }
 
