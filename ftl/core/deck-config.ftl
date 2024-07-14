@@ -388,7 +388,8 @@ deck-config-historical-retention-tooltip =
     the missing reviews.
 
     Your review history may be incomplete for two reasons:
-    1. Because you've used the 'ignore reviews before' option, which makes Anki ignore the reviews before the provided date.
+    1. Because you've used the 'ignore reviews before' option, which makes Anki ignore the reviews before
+    the provided date when calculating the FSRS memory states.
     2. Because you previously deleted review logs to free up space, or imported material from a different
     SRS program.
 
