@@ -165,6 +165,13 @@ impl Collection {
                         return Err(AnkiError::FsrsWeightsInvalid);
                     }
                 }
+            } else if weight_len == 17 {
+                for i in 0..17 {
+                    if !conf.inner.fsrs_weights[i].is_finite() {
+                        return Err(AnkiError::FsrsWeightsInvalid);
+                    }
+                }
+                conf.inner.fsrs_weights.extend_from_slice(&[0.0, 0.0])
             } else if weight_len != 0 {
                 return Err(AnkiError::FsrsWeightsInvalid);
             }
