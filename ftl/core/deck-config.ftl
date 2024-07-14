@@ -410,8 +410,8 @@ deck-config-reschedule-cards-warning =
 
     Use this option sparingly, as it will add a review entry to each of your cards, and
     increase the size of your collection.
-deck-config-ignore-before-tooltip = 
-    If set, reviews before the provided date will be ignored when optimizing & evaluating FSRS parameters.
+deck-config-ignore-before-tooltip-2 = 
+    If set, cards introduced before the provided date will be ignored when optimizing FSRS parameters.
     This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
 deck-config-compute-optimal-weights-tooltip2 =
     When you click the Optimize button, FSRS will analyze your review history, and generate parameters that are 
@@ -472,6 +472,9 @@ deck-config-bury-tooltip =
 deck-config-seconds-to-show-question-tooltip = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.
 deck-config-answer-action-tooltip = The action to perform on the current card before automatically advancing to the next one.
 deck-config-wait-for-audio-tooltip = Wait for audio to finish before automatically revealing answer or next question.
+deck-config-ignore-before-tooltip = 
+    If set, reviews before the provided date will be ignored when optimizing & evaluating FSRS parameters.
+    This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
 deck-config-compute-optimal-retention-tooltip =
     This tool assumes you're starting with 0 cards, and will attempt to calculate the amount of material you'll
     be able to retain in the given time frame. The estimated retention will greatly depend on your inputs, and
