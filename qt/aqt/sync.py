@@ -31,6 +31,7 @@ from aqt.utils import (
     disable_help_button,
     show_warning,
     showText,
+    showWarning,
     tooltip,
     tr,
 )
