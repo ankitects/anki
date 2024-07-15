@@ -106,9 +106,8 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
             const parent = selectionContainingMultipleObjects?.contains(object)
                 ? selectionContainingMultipleObjects
                 : undefined;
-            // shapes with width or height less than 5 are not valid
             // if shape is Rect and fill is transparent, skip it
-            if (object.width! < 5 || object.height! < 5 || object.fill == "transparent") {
+            if (object.fill == "transparent") {
                 return null;
             }
             return fabricObjectToBaseShapeOrShapes(
