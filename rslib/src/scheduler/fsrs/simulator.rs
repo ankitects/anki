@@ -59,13 +59,10 @@ impl Collection {
             ),
         );
         Ok(SimulateFsrsReviewResponse {
-            accumulated_knowledge_acquisition: accumulated_knowledge_acquisition
-                .iter()
-                .map(|x| *x as f32)
-                .collect_vec(),
+            accumulated_knowledge_acquisition: accumulated_knowledge_acquisition.to_vec(),
             daily_review_count: daily_review_count.iter().map(|x| *x as u32).collect_vec(),
             daily_new_count: daily_new_count.iter().map(|x| *x as u32).collect_vec(),
-            daily_time_cost: daily_time_cost.iter().map(|x| *x as f32).collect_vec(),
+            daily_time_cost: daily_time_cost.to_vec(),
         })
     }
 }
