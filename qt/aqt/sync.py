@@ -29,8 +29,8 @@ from aqt.qt import (
 from aqt.utils import (
     ask_user_dialog,
     disable_help_button,
-    showText,
     show_warning,
+    showText,
     tooltip,
     tr,
 )
