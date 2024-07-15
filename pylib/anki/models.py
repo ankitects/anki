@@ -388,8 +388,8 @@ and notes.mid = ? and cards.ord = ?""",
 
         To get defaults, use
 
-        input = ChangeNotetypeRequest()
-        input.ParseFromString(col.models.change_notetype_info(...))
+        info = col.models.change_notetype_info(...)
+        input = info.input
         input.note_ids.extend([...])
 
         The new_fields and new_templates lists are relative to the new notetype's
