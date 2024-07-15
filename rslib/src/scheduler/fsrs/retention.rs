@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
-use fsrs::extract_simulation_config;
+use fsrs::extract_simulator_config;
 use fsrs::SimulatorConfig;
 use fsrs::FSRS;
 
@@ -72,7 +72,7 @@ impl Collection {
     ) -> Result<SimulatorConfig> {
         let fsrs_revlog: Vec<fsrs::RevlogEntry> = revlogs.into_iter().map(|r| r.into()).collect();
         let params =
-            extract_simulation_config(fsrs_revlog, self.timing_today()?.next_day_at.into());
+            extract_simulator_config(fsrs_revlog, self.timing_today()?.next_day_at.into(), true);
         Ok(params)
     }
 }
