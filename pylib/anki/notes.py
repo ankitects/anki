@@ -106,6 +106,8 @@ class Note(DeprecatedNamesMixin):
             model = self.note_type()
         else:
             model = custom_note_type
+        if model is None:
+            raise NotImplementedError
         template = copy.copy(
             custom_template
             or (
