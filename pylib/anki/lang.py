@@ -180,8 +180,8 @@ def set_lang(lang: str) -> None:
     tr_legacyglobal.backend = weakref.ref(current_i18n)
 
 
-def get_def_lang(lang: str | None = None) -> tuple[int, str]:
-    """Return lang converted to name used on disk and its index, defaulting to system language
+def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
+    """Return user_lang converted to name used on disk and its index, defaulting to system language
     or English if not available."""
     try:
         # getdefaultlocale() is deprecated since Python 3.11, but we need to keep using it as getlocale() behaves differently: https://bugs.python.org/issue38805
@@ -195,7 +195,6 @@ def get_def_lang(lang: str | None = None) -> tuple[int, str]:
     except:
         # fails on osx
         sys_lang = "en_US"
-    user_lang = lang
     if user_lang in compatMap:
         user_lang = compatMap[user_lang]
     idx = None
