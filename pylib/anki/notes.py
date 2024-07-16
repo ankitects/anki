@@ -102,7 +102,10 @@ class Note(DeprecatedNamesMixin):
         card.ord = ord
         card.did = anki.decks.DEFAULT_DECK_ID
 
-        model = custom_note_type or self.note_type()
+        if custom_note_type is None:
+            model = self.note_type()
+        else:
+            model = custom_note_type
         template = copy.copy(
             custom_template
             or (
