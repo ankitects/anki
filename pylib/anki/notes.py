@@ -171,10 +171,7 @@ class Note(DeprecatedNamesMixin):
         return self.col.tags.in_list(tag, self.tags)
 
     def remove_tag(self, tag: str) -> None:
-        rem = []
-        for tag_ in self.tags:
-            if tag_.lower() == tag.lower():
-                rem.append(tag_)
+        rem = [tag_ for tag_ in self.tags if tag_.lower() == tag.lower()]
         for tag_ in rem:
             self.tags.remove(tag_)
 
