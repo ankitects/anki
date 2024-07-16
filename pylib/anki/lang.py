@@ -183,6 +183,14 @@ def set_lang(lang: str) -> None:
 def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
     """Return user_lang converted to name used on disk and its index, defaulting to system language
     or English if not available."""
+
+    def get_index_of_language(wanted_locale: str) -> int | None:
+        indices_generator = (
+            i for i, (_, locale_) in enumerate(langs) if locale_ == wanted_locale
+        )
+        index = next(indices_generator, None)
+        return index
+
     try:
         # getdefaultlocale() is deprecated since Python 3.11, but we need to keep using it as getlocale() behaves differently: https://bugs.python.org/issue38805
         with warnings.catch_warnings():
@@ -197,13 +205,11 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
         sys_lang = "en_US"
     if user_lang in compatMap:
         user_lang = compatMap[user_lang]
+
     idx = None
     lang = None
-    en_idx = None
     for preferred_lang in (user_lang, sys_lang):
         for lang_idx, (_, locale_) in enumerate(langs):
-            if locale_ == "en_US":
-                en_idx = lang_idx
             if locale_ == preferred_lang:
                 idx = lang_idx
                 lang = preferred_lang
@@ -211,8 +217,10 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
             break
     # if the specified language and the system language aren't available, revert to english
     if idx is None:
-        idx = en_idx
         lang = "en_US"
+        idx = get_index_of_language(lang)
+        if idx is None:
+            raise AssertionError("English is supposed to be a supported language.")
     return (idx, lang)
 
 
