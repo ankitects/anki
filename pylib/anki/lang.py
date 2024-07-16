@@ -209,11 +209,9 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
     idx = None
     lang = None
     for preferred_lang in (user_lang, sys_lang):
-        for lang_idx, (_, locale_) in enumerate(langs):
-            if locale_ == preferred_lang:
-                idx = lang_idx
-                lang = preferred_lang
+        idx = get_index_of_language(preferred_lang)
         if idx is not None:
+            lang = preferred_lang
             break
     # if the specified language and the system language aren't available, revert to english
     if idx is None:
