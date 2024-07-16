@@ -94,8 +94,8 @@ class Note(DeprecatedNamesMixin):
         self,
         ord: int = 0,
         *,
-        custom_note_type: NotetypeDict = None,
-        custom_template: TemplateDict = None,
+        custom_note_type: NotetypeDict | None = None,
+        custom_template: TemplateDict | None = None,
         fill_empty: bool = False,
     ) -> anki.cards.Card:
         card = anki.cards.Card(self.col)
