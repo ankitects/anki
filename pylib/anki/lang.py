@@ -202,10 +202,10 @@ def get_def_lang(lang: str | None = None) -> tuple[int, str]:
     lang = None
     en_idx = None
     for preferred_lang in (user_lang, sys_lang):
-        for lang_idx, (name, code) in enumerate(langs):
-            if code == "en_US":
+        for lang_idx, (_, locale_) in enumerate(langs):
+            if locale_ == "en_US":
                 en_idx = lang_idx
-            if code == preferred_lang:
+            if locale_ == preferred_lang:
                 idx = lang_idx
                 lang = preferred_lang
         if idx is not None:
