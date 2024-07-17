@@ -21,6 +21,14 @@ hooks = [
     Hook(name="card_odue_was_invalid"),
     Hook(name="schema_will_change", args=["proceed: bool"], return_type="bool"),
     Hook(
+        name="notes_were_updated",
+        args=["col: anki.collection.Collection", "notes: Sequence[anki.notes.Note]"],
+        doc="""Allows code execution after notes have been updated in the collection.
+        
+        This hook may be called both when users edit notes manually, 
+        and when add-ons like AnkiConnect update notes.""",
+    ),
+    Hook(
         name="notes_will_be_deleted",
         args=["col: anki.collection.Collection", "ids: Sequence[anki.notes.NoteId]"],
         legacy_hook="remNotes",

@@ -494,9 +494,11 @@ class Collection(DeprecatedNamesMixin):
         self, notes: Sequence[Note], skip_undo_entry: bool = False
     ) -> OpChanges:
         """Save note changes to database."""
-        return self._backend.update_notes(
+        changes: OpChanges = self._backend.update_notes(
             notes=[n._to_backend_note() for n in notes], skip_undo_entry=skip_undo_entry
         )
+        hooks.notes_were_updated(self, notes)
+        return changes
 
     def update_note(self, note: Note, skip_undo_entry: bool = False) -> OpChanges:
         """Save note changes to database."""
