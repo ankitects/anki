@@ -212,6 +212,7 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
         idx = get_index_of_language(preferred_lang)
         is_language_supported = idx is not None
         if is_language_supported:
+            assert preferred_lang is not None
             lang = preferred_lang
             break
     # if the specified language and the system language aren't available, revert to english
@@ -222,6 +223,7 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
         is_english_supported = idx is not None
         if not is_english_supported:
             raise AssertionError("English is supposed to be a supported language.")
+    assert idx is not None and lang is not None
     return (idx, lang)
 
 
