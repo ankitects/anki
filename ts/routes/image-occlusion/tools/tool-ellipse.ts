@@ -97,11 +97,6 @@ export const drawEllipse = (canvas: fabric.Canvas): void => {
         if (!ellipse) {
             return;
         }
-        if (ellipse.width < 5 || ellipse.height < 5) {
-            canvas.remove(ellipse);
-            ellipse = undefined;
-            return;
-        }
 
         if (ellipse.originX === "right") {
             ellipse.set({

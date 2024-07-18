@@ -92,11 +92,6 @@ export const drawRectangle = (canvas: fabric.Canvas): void => {
         if (!rect) {
             return;
         }
-        if (rect.width < 5 || rect.height < 5) {
-            canvas.remove(rect);
-            rect = undefined;
-            return;
-        }
 
         if (rect.originX === "right") {
             rect.set({
