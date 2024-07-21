@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         answerAction: {
             title: tr.deckConfigAnswerAction(),
-            help: tr.deckConfigAnswerActionTooltip(),
+            help: tr.deckConfigAnswerActionTooltip2(),
         },
         questionAction: {
             title: tr.deckConfigQuestionAction(),
