@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import re
-from typing import Iterable
+from collections.abc import Iterable
 
 from anki.collection import Collection
 from aqt import gui_hooks

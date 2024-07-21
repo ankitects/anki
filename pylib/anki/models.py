@@ -7,7 +7,8 @@ import copy
 import pprint
 import sys
 import time
-from typing import Any, NewType, Sequence, Union
+from collections.abc import Sequence
+from typing import Any, NewType, Union
 
 import anki  # pylint: disable=unused-import
 import anki.collection

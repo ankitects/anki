@@ -13,7 +13,8 @@ from __future__ import annotations
 
 import pprint
 import re
-from typing import Collection, Match, Sequence
+from collections.abc import Collection, Sequence
+from typing import Match
 
 import anki  # pylint: disable=unused-import
 import anki.collection
