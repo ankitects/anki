@@ -234,7 +234,7 @@ deck-config-stop-timer-on-answer-tooltip =
 ## Auto Advance section
 
 deck-config-seconds-to-show-question = Seconds to show question for
-deck-config-seconds-to-show-question-tooltip-2 = When auto advance is activated, the number of seconds to wait before applying the question action. Set to 0 to disable.
+deck-config-seconds-to-show-question-tooltip-3 = When auto advance is activated, the number of seconds to wait before applying the question action. Set to 0 to disable.
 deck-config-seconds-to-show-answer = Seconds to show answer for
 deck-config-seconds-to-show-answer-tooltip-2 = When auto advance is activated, the number of seconds to wait before applying the answer action. Set to 0 to disable.
 deck-config-question-action-show-answer = Show Answer
@@ -511,3 +511,4 @@ deck-config-compute-optimal-retention-tooltip3 =
     set your desired retention to. You may wish to choose a higher desired retention, if you’re willing to trade more study 
     time for a greater recall rate. Setting your desired retention lower than the minimum is not recommended, as it will 
     lead to a higher workload, because of the high forgetting rate.
+deck-config-seconds-to-show-question-tooltip-2 = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.

@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const settings = {
         secondsToShowQuestion: {
             title: tr.deckConfigSecondsToShowQuestion(),
-            help: tr.deckConfigSecondsToShowQuestionTooltip2(),
+            help: tr.deckConfigSecondsToShowQuestionTooltip3(),
         },
         secondsToShowAnswer: {
             title: tr.deckConfigSecondsToShowAnswer(),
