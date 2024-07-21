@@ -16,7 +16,7 @@
     },
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.8.0",
-        "@poppanator/sveltekit-svg": "^4.2.1",
+        "@poppanator/sveltekit-svg": "^5.0.0-svelte5.5",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
         "@sveltejs/kit": "^2.4.1",

@@ -432,10 +432,10 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.25.tgz#f077fdc0b5d0078d30893396ff4827a13f99e817"
   integrity sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==
 
-"@poppanator/sveltekit-svg@^4.2.1":
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/@poppanator/sveltekit-svg/-/sveltekit-svg-4.2.1.tgz#14de2a7701343e951aff3b347f2548f9936daa0d"
-  integrity sha512-w7jl4EVOOF+X+uv2BEUiMDJwds+GfbczwGpcS0+rsjIsKYmqmwMi4ts3bVZR9ZvdFHWy5rS84U+pSBClz6cbBg==
+"@poppanator/sveltekit-svg@^5.0.0-svelte5.5":
+  version "5.0.0-svelte5.5"
+  resolved "https://registry.yarnpkg.com/@poppanator/sveltekit-svg/-/sveltekit-svg-5.0.0-svelte5.5.tgz#0d9fc6d010a645cb4dde18cdf972baab481677b9"
+  integrity sha512-4OmrM0Q9keA/QyEqwfnq2d69mq/M+9cMCvdPXQ5nIzEIx4D2d/6DthJC9aaX+fNCygZkaJ77yaarVVrZRQ8cEA==
   dependencies:
     "@rollup/pluginutils" "^5.1.0"
 
