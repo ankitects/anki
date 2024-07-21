@@ -38,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         waitForAudio: {
             title: tr.deckConfigWaitForAudio(),
-            help: tr.deckConfigWaitForAudioTooltip(),
+            help: tr.deckConfigWaitForAudioTooltip2(),
         },
         answerAction: {
             title: tr.deckConfigAnswerAction(),
