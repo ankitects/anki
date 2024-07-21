@@ -4,7 +4,8 @@
 from __future__ import annotations
 
 import copy
-from typing import NewType, Sequence
+from collections.abc import Sequence
+from typing import NewType
 
 import anki  # pylint: disable=unused-import
 import anki.cards

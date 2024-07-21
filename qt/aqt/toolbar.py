@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import enum
 import re
-from typing import Any, Callable, Optional, cast
+from collections.abc import Callable
+from typing import Any, cast
 
 import aqt
 from anki.sync import SyncStatus
@@ -86,7 +87,7 @@ class TopWebView(ToolbarWebView):
 
         self.show()
 
-    def _onHeight(self, qvar: Optional[int]) -> None:
+    def _onHeight(self, qvar: int | None) -> None:
         super()._onHeight(qvar)
         if qvar:
             self.web_height = int(qvar)

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from anki.cards import CardId
 from anki.collection import OpChangesWithCount

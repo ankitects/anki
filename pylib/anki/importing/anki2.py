@@ -5,7 +5,7 @@
 
 import os
 import unicodedata
-from typing import Optional
+from typing import Any, Optional
 
 from anki.cards import CardId
 from anki.collection import Collection
