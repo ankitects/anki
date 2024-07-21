@@ -4,7 +4,8 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING, Any, Iterable, NewType, Sequence
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Any, NewType
 
 if TYPE_CHECKING:
     import anki

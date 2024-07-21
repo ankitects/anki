@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import functools
 import re
+from collections.abc import Callable
 
 import anki.lang
 import aqt

@@ -4,6 +4,7 @@ import os
 import re
 import traceback
 import zipfile
+from collections.abc import Callable
 from concurrent.futures import Future
 from typing import Any, Optional
 
