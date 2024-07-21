@@ -95,21 +95,28 @@ class Note(DeprecatedNamesMixin):
         self,
         ord: int = 0,
         *,
-        custom_note_type: NotetypeDict = None,
-        custom_template: TemplateDict = None,
+        custom_note_type: NotetypeDict | None = None,
+        custom_template: TemplateDict | None = None,
         fill_empty: bool = False,
     ) -> anki.cards.Card:
         card = anki.cards.Card(self.col)
         card.ord = ord
         card.did = anki.decks.DEFAULT_DECK_ID
 
-        model = custom_note_type or self.note_type()
-        template = copy.copy(
-            custom_template
-            or (
-                model["tmpls"][ord] if model["type"] == MODEL_STD else model["tmpls"][0]
-            )
-        )
+        if custom_note_type is None:
+            model = self.note_type()
+        else:
+            model = custom_note_type
+        if model is None:
+            raise NotImplementedError
+
+        if custom_template is not None:
+            template = custom_template
+        elif model["type"] == MODEL_STD:
+            template = model["tmpls"][ord]
+        else:
+            template = model["tmpls"][0]
+        template = copy.copy(template)
         # may differ in cloze case
         template["ord"] = card.ord
 
