@@ -388,11 +388,11 @@ deck-config-historical-retention-tooltip =
     the missing reviews.
 
     Your review history may be incomplete for two reasons:
-    1. Because you've used the 'ignore reviews before' option.
+    1. Because you're using the 'ignore reviews before' option.
     2. Because you previously deleted review logs to free up space, or imported material from a different
     SRS program.
 
-    The latter is quite rare, so unless you've used the former option, you probably don't need to adjust
+    The latter is quite rare, so unless you're using the former option, you probably don't need to adjust
     this setting.
 deck-config-weights-tooltip2 =
     FSRS parameters affect how cards are scheduled. Anki will start with default parameters. You can use 
