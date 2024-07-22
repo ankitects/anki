@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import platform
+from collections.abc import Callable
 
 import aqt.forms
 from anki.lang import without_unicode_isolation
@@ -194,6 +195,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Marko Sisovic",
             "Lucas Scharenbroch",
             "Antoine Q.",
+            "Ian Samir Yep Manzano",
         )
     )
 

@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
 from anki.consts import (
@@ -54,7 +52,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
         print("_nextDueMsg() is obsolete")
         return ""
 
-    def rebuildDyn(self, did: Optional[DeckId] = None) -> Optional[int]:
+    def rebuildDyn(self, did: DeckId | None = None) -> int | None:
         did = did or self.col.decks.selected()
         count = self.rebuild_filtered_deck(did).count or None
         if not count:
@@ -63,7 +61,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
         self.col.decks.select(did)
         return count
 
-    def emptyDyn(self, did: Optional[DeckId], lim: Optional[str] = None) -> None:
+    def emptyDyn(self, did: DeckId | None, lim: str | None = None) -> None:
         if lim is None:
             self.empty_filtered_deck(did)
             return
