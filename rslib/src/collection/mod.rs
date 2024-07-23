@@ -25,7 +25,6 @@ use crate::notetype::Notetype;
 use crate::notetype::NotetypeId;
 use crate::progress::ProgressState;
 use crate::scheduler::queue::CardQueues;
-use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::scheduler::SchedulerInfo;
 use crate::storage::SchemaVersion;
 use crate::storage::SqliteStorage;
@@ -139,7 +138,6 @@ pub struct CollectionState {
     /// identical backups.
     pub(crate) last_backup_modified: Option<TimestampMillis>,
     pub(crate) progress: Arc<Mutex<ProgressState>>,
-    pub(crate) load_balancer: Option<LoadBalancer>,
 }
 
 pub struct Collection {

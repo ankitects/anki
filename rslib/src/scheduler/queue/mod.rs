@@ -23,6 +23,7 @@ use self::undo::QueueUpdate;
 use super::states::SchedulingStates;
 use super::timing::SchedTimingToday;
 use crate::prelude::*;
+use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::timestamp::TimestampSecs;
 
 #[derive(Debug)]
@@ -37,6 +38,7 @@ pub(crate) struct CardQueues {
     /// counts are zero. Ensures we don't show a newly-due learning card after a
     /// user returns from editing a review card.
     current_learning_cutoff: TimestampSecs,
+    pub(crate) load_balancer: Option<LoadBalancer>,
 }
 
 #[derive(Debug, Copy, Clone)]

@@ -100,13 +100,14 @@ pub(super) struct QueueSortOptions {
     pub(super) new_review_mix: ReviewMix,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(super) struct QueueBuilder {
     pub(super) new: Vec<NewCard>,
     pub(super) review: Vec<DueCard>,
     pub(super) learning: Vec<DueCard>,
     pub(super) day_learning: Vec<DueCard>,
     limits: LimitTreeMap,
+    load_balancer: Option<LoadBalancer>,
     context: Context,
 }
 
@@ -145,12 +146,18 @@ impl QueueBuilder {
         let sort_options = sort_options(&root_deck, &config_map);
         let deck_map = col.storage.get_decks_map()?;
 
+        let load_balancer = col
+            .get_config_bool(BoolKey::LoadBalancerEnable)
+            .then(|| LoadBalancer::new(timing.days_elapsed, deck_id, &col.storage))
+            .transpose()?;
+
         Ok(QueueBuilder {
             new: Vec::new(),
             review: Vec::new(),
             learning: Vec::new(),
             day_learning: Vec::new(),
             limits,
+            load_balancer,
             context: Context {
                 timing,
                 config_map,
@@ -202,6 +209,7 @@ impl QueueBuilder {
             learn_ahead_secs,
             current_day: self.context.timing.days_elapsed,
             build_time: TimestampMillis::now(),
+            load_balancer: self.load_balancer,
             current_learning_cutoff: now,
         }
     }
@@ -269,11 +277,6 @@ impl Collection {
         queues.gather_cards(self)?;
 
         let queues = queues.build(self.learn_ahead_secs() as i64);
-
-        if self.get_config_bool(BoolKey::LoadBalancerEnable) {
-            let today = self.timing_today()?.days_elapsed;
-            self.state.load_balancer = Some(LoadBalancer::new(today, deck_id, &self.storage)?);
-        }
 
         Ok(queues)
     }

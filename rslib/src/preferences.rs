@@ -120,9 +120,6 @@ impl Collection {
         self.set_answer_time_limit_secs(s.time_limit_secs)?;
 
         self.set_config_bool_inner(BoolKey::LoadBalancerEnable, s.load_balancer_enable)?;
-        if !s.load_balancer_enable {
-            self.state.load_balancer = None;
-        }
 
         Ok(())
     }

@@ -242,8 +242,9 @@ impl Collection {
 
         let load_balancer = self
             .state
-            .load_balancer
+            .card_queues
             .as_mut()
+            .and_then(|card_queues| card_queues.load_balancer.as_mut())
             .map(|load_balancer| load_balancer.review_context(note_id));
         let state_ctx = ctx.state_context(load_balancer);
         Ok(current.next_states(&state_ctx))
@@ -340,8 +341,10 @@ impl Collection {
         }
 
         if card.queue == CardQueue::Review {
-            if let Some(load_balancer) = &mut self.state.load_balancer {
-                load_balancer.add_card(card.id, card.note_id, card.interval);
+            if let Some(card_queues) = self.state.card_queues.as_mut() {
+                if let Some(load_balancer) = card_queues.load_balancer.as_mut() {
+                    load_balancer.add_card(card.id, card.note_id, card.interval)
+                }
             }
         }
 
