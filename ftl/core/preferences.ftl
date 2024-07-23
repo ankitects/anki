@@ -76,6 +76,7 @@ preferences-network-timeout = Network timeout
 preferences-reset-window-sizes = Reset Window Sizes
 preferences-reset-window-sizes-complete = Window sizes and locations have been reset.
 preferences-shortcut-placeholder = Enter an unused shortcut key, or leave empty to disable.
+preferences-third-party-services = Third-party services
 preferences-ankihub-account = AnkiHub Account
 preferences-ankihub-not-logged-in = Not currently logged in to AnkiHub.
 preferences-ankiweb-intro = AnkiWeb is a free service that lets you keep your flashcard data in sync across your devices, and provides a way to recover the data if your device breaks or is lost.
