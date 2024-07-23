@@ -30,6 +30,7 @@ from aqt.qt import (
 from aqt.utils import (
     ask_user_dialog,
     disable_help_button,
+    show_warning,
     showText,
     showWarning,
     tooltip,
@@ -71,7 +72,7 @@ def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception) -> None:
     elif isinstance(err, Interrupted):
         # no message to show
         return
-    showWarning(str(err))
+    show_warning(str(err))
 
 
 def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:

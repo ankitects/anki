@@ -8,6 +8,7 @@ PyQt5-only audio code
 """
 
 import wave
+from collections.abc import Callable
 from concurrent.futures import Future
 from typing import cast
 

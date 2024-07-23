@@ -3,7 +3,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Generator, Iterable, Literal, Sequence, Union, cast
+from collections.abc import Generator, Iterable, Sequence
+from typing import Any, Literal, Union, cast
 
 from anki import (
     ankiweb_pb2,

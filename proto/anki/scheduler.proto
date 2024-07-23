@@ -402,27 +402,26 @@ message ComputeOptimalRetentionResponse {
   float optimal_retention = 1;
 }
 
-message OptimalRetentionParameters {
-  double recall_secs_hard = 1;
-  double recall_secs_good = 2;
-  double recall_secs_easy = 3;
-  double forget_secs = 4;
-  double learn_secs = 5;
-  double first_rating_probability_again = 6;
-  double first_rating_probability_hard = 7;
-  double first_rating_probability_good = 8;
-  double first_rating_probability_easy = 9;
-  double review_rating_probability_hard = 10;
-  double review_rating_probability_good = 11;
-  double review_rating_probability_easy = 12;
-}
-
 message GetOptimalRetentionParametersRequest {
   string search = 1;
 }
 
 message GetOptimalRetentionParametersResponse {
-  OptimalRetentionParameters params = 1;
+  uint32 deck_size = 1;
+  uint32 learn_span = 2;
+  float max_cost_perday = 3;
+  float max_ivl = 4;
+  repeated float learn_costs = 5;
+  repeated float review_costs = 6;
+  repeated float first_rating_prob = 7;
+  repeated float review_rating_prob = 8;
+  repeated float first_rating_offsets = 9;
+  repeated float first_session_lens = 10;
+  float forget_rating_offset = 11;
+  float forget_session_len = 12;
+  float loss_aversion = 13;
+  uint32 learn_limit = 14;
+  uint32 review_limit = 15;
 }
 
 message EvaluateWeightsRequest {
