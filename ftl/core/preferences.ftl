@@ -80,7 +80,7 @@ preferences-third-party-services = Third-party services
 preferences-ankihub-account = AnkiHub Account
 preferences-ankihub-not-logged-in = Not currently logged in to AnkiHub.
 preferences-ankiweb-intro = AnkiWeb is a free service that lets you keep your flashcard data in sync across your devices, and provides a way to recover the data if your device breaks or is lost.
-preferences-ankihub-intro = AnkiHub is a third-party service that provides features such as collaborative deck editing, and AI capabilities. A paid subscription is required to access most features.
+preferences-ankihub-intro = AnkiHub is a service that provides features such as collaborative deck editing, and AI capabilities. A paid subscription is required to access most features.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
