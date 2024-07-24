@@ -20,17 +20,28 @@ const LOAD_BALANCE_DAYS: usize = (MAX_LOAD_BALANCE_INTERVAL as f32 * 1.1) as usi
 #[derive(Debug, Default)]
 struct LoadBalancerDay {
     cards: Vec<(CardId, NoteId)>,
+    notes: HashSet<NoteId>,
 }
 
 impl LoadBalancerDay {
     fn add(&mut self, cid: CardId, nid: NoteId) {
         self.cards.push((cid, nid));
+        self.notes.insert(nid);
     }
 
     fn remove(&mut self, cid: CardId) {
         if let Some(index) = self.cards.iter().position(|c| c.0 == cid) {
-            self.cards.swap_remove(index);
+            let (_, rnid) = self.cards.swap_remove(index);
+
+            // if all cards of a note are removed, remove note
+            if !self.cards.iter().any(|(_cid, nid)| *nid == rnid) {
+                self.notes.remove(&rnid);
+            }
         }
+    }
+
+    fn has_sibling(&self, nid: &NoteId) -> bool {
+        self.notes.contains(nid)
     }
 }
 
@@ -95,9 +106,6 @@ impl LoadBalancer {
         // I want to be as close to the original interval as possible
         // so this enumerates out from the center
         // i.e. 0 -1 1 -2 2 .....
-        // for optimal load balancing, it might be preferable to
-        // just default to the earliest date? it is how the old
-        // addon used to do it...
         let intervals_to_check = (before_days..interval as u32)
             .map(|before| before as i32 - interval as i32)
             .chain(
@@ -110,17 +118,6 @@ impl LoadBalancer {
 
         let interval_days = &self.days[before_days as usize..after_days as usize];
 
-        let notes_on_days = interval_days
-            .iter()
-            .map(|cards| {
-                cards
-                    .cards
-                    .iter()
-                    .map(|card| card.1)
-                    .collect::<HashSet<_>>()
-            })
-            .collect::<Vec<_>>();
-
         // DEBUG CODE
         // this will be removed when this feature is fully ready
         // till then, its useful to see what is being done
@@ -130,8 +127,8 @@ impl LoadBalancer {
             let b_len = interval_days[b.0].cards.len();
 
             if let Some(note_id) = note_id {
-                let a_has_sibling = notes_on_days[a.0].contains(&note_id);
-                let b_has_sibling = notes_on_days[b.0].contains(&note_id);
+                let a_has_sibling = interval_days[a.0].has_sibling(&note_id);
+                let b_has_sibling = interval_days[b.0].has_sibling(&note_id);
 
                 if a_has_sibling != b_has_sibling {
                     return a_has_sibling.cmp(&b_has_sibling);
@@ -147,7 +144,7 @@ impl LoadBalancer {
 
         for (index, interval_offset) in &sorted_intervals {
             let has_sibling = note_id
-                .map(|note_id| notes_on_days[*index].contains(&note_id))
+                .map(|note_id| interval_days[*index].has_sibling(&note_id))
                 .unwrap_or(false);
             println!(
                 "{}{} index {} interval({}) + offset({}) = {} count {}",
@@ -166,23 +163,26 @@ impl LoadBalancer {
         // initial interval
         let interval_modifier = intervals_to_check
             .into_iter()
-            .min_by(|a, b| {
-                let a_len = interval_days[a.0].cards.len();
-                let b_len = interval_days[b.0].cards.len();
-
+            .min_by(|(a_index, a_delta), (b_index, b_delta)| {
                 if let Some(note_id) = note_id {
-                    let a_has_sibling = notes_on_days[a.0].contains(&note_id);
-                    let b_has_sibling = notes_on_days[b.0].contains(&note_id);
+                    let a_has_sibling = interval_days[*a_index].has_sibling(&note_id);
+                    let b_has_sibling = interval_days[*b_index].has_sibling(&note_id);
 
+                    // if one day has a sibling and the other does not, sort the
+                    // sibling-less day ahead of the sibling-full day without
+                    // caring about card counts
                     if a_has_sibling != b_has_sibling {
                         return a_has_sibling.cmp(&b_has_sibling);
                     }
                 }
 
+                let a_len = interval_days[*a_index].cards.len();
+                let b_len = interval_days[*b_index].cards.len();
+
                 match a_len.cmp(&b_len) {
                     Ordering::Greater => Ordering::Greater,
                     Ordering::Less => Ordering::Less,
-                    Ordering::Equal => a.1.abs().cmp(&b.1.abs()),
+                    Ordering::Equal => a_delta.abs().cmp(&b_delta.abs()),
                 }
             })
             .map(|interval| interval.1)
