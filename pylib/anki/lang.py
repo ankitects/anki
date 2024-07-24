@@ -185,11 +185,10 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
     or English if not available."""
 
     def get_index_of_language(wanted_locale: str) -> int | None:
-        indices_generator = (
-            i for i, (_, locale_) in enumerate(langs) if locale_ == wanted_locale
-        )
-        index = next(indices_generator, None)
-        return index
+        for i, (_, locale_) in enumerate(langs):
+            if locale_ == wanted_locale:
+                return i
+        return None
 
     try:
         # getdefaultlocale() is deprecated since Python 3.11, but we need to keep using it as getlocale() behaves differently: https://bugs.python.org/issue38805
