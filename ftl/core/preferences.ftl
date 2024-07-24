@@ -77,10 +77,11 @@ preferences-reset-window-sizes = Reset Window Sizes
 preferences-reset-window-sizes-complete = Window sizes and locations have been reset.
 preferences-shortcut-placeholder = Enter an unused shortcut key, or leave empty to disable.
 preferences-third-party-services = Third-party services
-preferences-ankihub-account = AnkiHub Account
+preferences-ankihub = AnkiHub
 preferences-ankihub-not-logged-in = Not currently logged in to AnkiHub.
 preferences-ankiweb-intro = AnkiWeb is a free service that lets you keep your flashcard data in sync across your devices, and provides a way to recover the data if your device breaks or is lost.
-preferences-ankihub-intro = AnkiHub is a service that provides features such as collaborative deck editing, and AI capabilities. A paid subscription is required to access most features.
+preferences-ankihub-intro = AnkiHub provides collaborative deck editing and additional study tools. A paid subscription is required to access certain features.
+preferences-third-party-description = Third-party services are unaffiliated and not endorsed by Anki. Use of these services may require payment.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
