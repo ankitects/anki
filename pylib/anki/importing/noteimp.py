@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import html
 import unicodedata
-from typing import Optional, Union
+from typing import Union
 
 from anki.collection import Collection
 from anki.config import Config
@@ -76,8 +76,8 @@ class NoteImporter(Importer):
     needDelimiter = False
     allowHTML = False
     importMode = UPDATE_MODE
-    mapping: Optional[list[str]]
-    tagModified: Optional[str]
+    mapping: list[str] | None
+    tagModified: str | None
 
     def __init__(self, col: Collection, file: str) -> None:
         Importer.__init__(self, col, file)
@@ -268,7 +268,7 @@ class NoteImporter(Importer):
 
     def updateData(
         self, n: ForeignNote, id: NoteId, sflds: list[str]
-    ) -> Optional[Updates]:
+    ) -> Updates | None:
         self._ids.append(id)
         self.processFields(n, sflds)
         if self._tagsMapped:
@@ -316,9 +316,7 @@ where id = ? and flds != ?""",
         changes2 = self.col.db.scalar("select total_changes()")
         self.updateCount = changes2 - changes
 
-    def processFields(
-        self, note: ForeignNote, fields: Optional[list[str]] = None
-    ) -> None:
+    def processFields(self, note: ForeignNote, fields: list[str] | None = None) -> None:
         if not fields:
             fields = [""] * len(self.model["flds"])
         for c, f in enumerate(self.mapping):
