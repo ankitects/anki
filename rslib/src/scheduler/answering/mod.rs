@@ -31,6 +31,7 @@ use crate::config::BoolKey;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
+use crate::error::AnkiError;
 use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
 use crate::scheduler::states::PreviewState;
@@ -222,18 +223,17 @@ impl Collection {
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
 
-        let note_id = self
+        let note_id: Option<NoteId> = self
             .storage
-            .get_note(card.note_id)
-            .ok()
-            .flatten()
-            .and_then(|note| {
-                self.storage
-                    .get_notetype(note.notetype_id)
-                    .ok()
-                    .flatten()
-                    .map(|notetype| notetype.config.load_balancer_disperse_siblings)
+            .get_note(card.note_id)?
+            .map(|note| {
+                Ok::<_, AnkiError>(
+                    self.get_notetype(note.notetype_id)?
+                        .map(|notetype| notetype.config.load_balancer_disperse_siblings),
+                )
             })
+            .transpose()?
+            .flatten()
             .unwrap_or(false)
             .then_some(card.note_id);
 
