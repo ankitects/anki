@@ -413,7 +413,6 @@ deck-config-reschedule-cards-warning =
 deck-config-ignore-before-tooltip-2 = 
     If set, cards reviewed before the provided date will be ignored when optimizing FSRS parameters.
     This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
-    If all of your cards have been reviewed before the selected date and you do not plan to add new cards, it's better to use Reset.
 deck-config-compute-optimal-weights-tooltip2 =
     When you click the Optimize button, FSRS will analyze your review history, and generate parameters that are 
     optimal for your memory and the content you're studying. If your decks vary wildly in subjective difficulty, it 
