@@ -92,10 +92,6 @@ pub struct DeckConfSchema11 {
     sm2_retention: f32,
     #[serde(default)]
     weight_search: String,
-    #[serde(default)]
-    load_balancer_only_count_self: bool,
-    #[serde(default)]
-    load_balancer_hide_from_others: bool,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -313,8 +309,6 @@ impl Default for DeckConfSchema11 {
             sm2_retention: 0.9,
             weight_search: "".to_string(),
             ignore_revlogs_before_date: "".to_string(),
-            load_balancer_only_count_self: false,
-            load_balancer_hide_from_others: false,
         }
     }
 }
@@ -394,8 +388,6 @@ impl From<DeckConfSchema11> for DeckConfig {
                 desired_retention: c.desired_retention,
                 historical_retention: c.sm2_retention,
                 weight_search: c.weight_search,
-                load_balancer_only_count_self: c.load_balancer_only_count_self,
-                load_balancer_hide_from_others: c.load_balancer_hide_from_others,
                 other: other_bytes,
             },
         }
@@ -507,8 +499,6 @@ impl From<DeckConfig> for DeckConfSchema11 {
             sm2_retention: i.historical_retention,
             weight_search: i.weight_search,
             ignore_revlogs_before_date: i.ignore_revlogs_before_date,
-            load_balancer_only_count_self: i.load_balancer_only_count_self,
-            load_balancer_hide_from_others: i.load_balancer_hide_from_others,
         }
     }
 }
@@ -541,8 +531,6 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "sm2Retention",
     "weightSearch",
     "ignoreRevlogsBeforeDate",
-    "loadBalancerOnlyCountSelf",
-    "loadBalancerHideFromOthers",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {

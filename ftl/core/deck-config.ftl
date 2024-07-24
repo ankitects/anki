@@ -451,13 +451,6 @@ deck-config-answer-good = Answer Good
 deck-config-days-to-simulate = Days to simulate
 deck-config-desired-retention-below-optimal = Your desired retention is below optimal. Increasing it is recommended.
 
-# Load Balancer
-deck-config-load-balancer-title = Load Balancer
-deck-config-load-balancer-only-count-self = Only count self
-deck-config-load-balancer-only-count-self-tooltip = Cards in this deck only count other cards in this deck when load balancing
-deck-config-load-balancer-hide-from-others = Hide from other decks
-deck-config-load-balancer-hide-from-others-tooltip = Cards in this deck do not count when load balancing other decks.
-
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 deck-config-bury-siblings = Bury siblings

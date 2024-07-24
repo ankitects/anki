@@ -6,7 +6,6 @@ use std::collections::HashSet;
 
 use super::fuzz::constrained_fuzz_bounds;
 use crate::card::CardId;
-use crate::decks::DeckId;
 use crate::notes::NoteId;
 use crate::prelude::Result;
 use crate::storage::SqliteStorage;
@@ -53,72 +52,8 @@ pub struct LoadBalancer {
 }
 
 impl LoadBalancer {
-    pub fn new(today: u32, deck_id: DeckId, storage: &SqliteStorage) -> Result<LoadBalancer> {
-        let cards_on_each_day =
-            storage.get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)?;
-        let decks = storage.get_all_decks()?;
-        let deck_configs = storage.all_deck_config()?;
-
-        let only_count_self = decks
-            .iter()
-            .find(|deck| deck.id == deck_id)
-            .and_then(|deck| deck.config_id())
-            .and_then(|deck_config_id| {
-                deck_configs
-                    .iter()
-                    .find(|deck_config| deck_config.id == deck_config_id)
-            })
-            .map(|current_config| current_config.inner.load_balancer_only_count_self)
-            .unwrap_or(false);
-
-        // here we are checking if we needs to do some additional filtering on the
-        // list of cards to count when load balancing
-        // if `only_count_self` is set, we filter out cards from all other decks
-        let cards = if only_count_self {
-            cards_on_each_day
-                .into_iter()
-                .map(|day| {
-                    day.into_iter()
-                        .filter(|(_, _, did)| *did == deck_id)
-                        .collect()
-                })
-                .collect()
-        } else {
-            // we needs to search all decks that have `hide_from_others` set
-            // so they can be filtered out
-            let decks_to_ignore = decks
-                .iter()
-                .filter(|deck| deck.id != deck_id)
-                .filter_map(|deck| {
-                    deck.config_id()
-                        .and_then(|config_id| {
-                            deck_configs
-                                .iter()
-                                .find(|deck_config| deck_config.id == config_id)
-                        })
-                        .map(|deck_config| (deck.id, deck_config))
-                })
-                .filter_map(|(deck_id, deck_config)| {
-                    deck_config
-                        .inner
-                        .load_balancer_hide_from_others
-                        .then_some(deck_id)
-                })
-                .collect::<HashSet<_>>();
-
-            if !decks_to_ignore.is_empty() {
-                cards_on_each_day
-                    .into_iter()
-                    .map(|day| {
-                        day.into_iter()
-                            .filter(|(_, _, did)| !decks_to_ignore.contains(did))
-                            .collect()
-                    })
-                    .collect()
-            } else {
-                cards_on_each_day
-            }
-        };
+    pub fn new(today: u32, storage: &SqliteStorage) -> Result<LoadBalancer> {
+        let cards = storage.get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)?;
 
         let mut days = std::array::from_fn(|_| LoadBalancerDay::default());
         for (cards, cache_day) in cards.iter().zip(days.iter_mut()) {

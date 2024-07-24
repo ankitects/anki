@@ -148,7 +148,7 @@ impl QueueBuilder {
 
         let load_balancer = col
             .get_config_bool(BoolKey::LoadBalancerEnable)
-            .then(|| LoadBalancer::new(timing.days_elapsed, deck_id, &col.storage))
+            .then(|| LoadBalancer::new(timing.days_elapsed, &col.storage))
             .transpose()?;
 
         Ok(QueueBuilder {

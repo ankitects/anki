@@ -27,7 +27,6 @@ export const HelpPage = {
         dailyLimits: "https://docs.ankiweb.net/deck-options.html#daily-limits",
         audio: "https://docs.ankiweb.net/deck-options.html#audio",
         fsrs: "http://docs.ankiweb.net/deck-options.html#fsrs",
-        loadBalancer: "http://docs.ankiweb.net/deck-options.html",
     },
     Leeches: {
         leeches: "https://docs.ankiweb.net/leeches.html#leeches",

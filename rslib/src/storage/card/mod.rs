@@ -585,7 +585,7 @@ impl super::SqliteStorage {
         &self,
         min_day: u32,
         max_day: u32,
-    ) -> Result<Vec<Vec<(CardId, NoteId, DeckId)>>> {
+    ) -> Result<Vec<Vec<(CardId, NoteId)>>> {
         Ok(self
             .db
             .prepare_cached("select id, nid, did, due from cards where due >= ?1 and due < ?2 ")?
@@ -593,15 +593,14 @@ impl super::SqliteStorage {
                 Ok::<_, rusqlite::Error>((
                     row.get::<_, CardId>(0)?,
                     row.get::<_, NoteId>(1)?,
-                    row.get::<_, DeckId>(2)?,
-                    row.get::<_, i32>(3)?,
+                    row.get::<_, i32>(2)?,
                 ))
             })?
             .flatten()
             .fold(
                 vec![Vec::new(); (max_day - min_day) as usize],
-                |mut acc, (card_id, note_id, deck_id, due)| {
-                    acc[due as usize - min_day as usize].push((card_id, note_id, deck_id));
+                |mut acc, (card_id, note_id, due)| {
+                    acc[due as usize - min_day as usize].push((card_id, note_id));
                     acc
                 },
             ))

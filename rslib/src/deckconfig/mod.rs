@@ -80,8 +80,6 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     historical_retention: 0.9,
     weight_search: String::new(),
     ignore_revlogs_before_date: String::new(),
-    load_balancer_only_count_self: false,
-    load_balancer_hide_from_others: false,
 };
 
 impl Default for DeckConfig {
