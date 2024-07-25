@@ -23,7 +23,7 @@ class Hook:
     name: str
     # string of the typed arguments passed to the callback, eg
     # ["kind: str", "val: int"]
-    args: list[str] = None
+    args: list[str] | None = None
     # string of the return type. if set, hook is a filter.
     return_type: str | None = None
     # if add-ons may be relying on the legacy hook name, add it here
