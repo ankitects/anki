@@ -4,4 +4,3 @@ jsonschema<4.2
 -r requirements.base.txt
 -r requirements.anki.in
 -r requirements.aqt.in
-
