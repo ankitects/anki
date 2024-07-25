@@ -25,6 +25,7 @@
 # ------------------------------------------------------------------------------
 
 # pylint: disable=raise-missing-from
+from __future__ import annotations
 
 import inspect
 import json

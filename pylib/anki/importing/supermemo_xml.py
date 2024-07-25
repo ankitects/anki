@@ -3,6 +3,7 @@
 # pytype: disable=attribute-error
 # type: ignore
 # pylint: disable=C
+from __future__ import annotations
 
 import re
 import sys

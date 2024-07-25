@@ -3,6 +3,7 @@
 
 # make sure not to optimize imports on this file
 # pylint: disable=unused-import
+from __future__ import annotations
 
 import os
 import sys
