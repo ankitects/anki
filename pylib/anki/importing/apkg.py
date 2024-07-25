@@ -8,7 +8,7 @@ import json
 import os
 import unicodedata
 import zipfile
-from typing import Any, Optional
+from typing import Any
 
 from anki.importing.anki2 import Anki2Importer, MediaMapInvalid
 from anki.utils import tmpfile

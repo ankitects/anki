@@ -8,7 +8,7 @@ from __future__ import annotations
 import os
 import sys
 import traceback
-from typing import Callable, TypeVar, Union
+from typing import Callable, TypeVar
 
 try:
     import PyQt6

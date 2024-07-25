@@ -39,7 +39,6 @@ import threading
 import time
 from queue import Empty, Full, Queue
 from shutil import which
-from typing import Optional
 
 from anki.utils import is_win
 

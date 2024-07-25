@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Optional
 
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *

@@ -8,7 +8,7 @@ import traceback
 import zipfile
 from collections.abc import Callable
 from concurrent.futures import Future
-from typing import Any, Optional
+from typing import Any
 
 import anki.importing as importing
 import aqt.deckchooser

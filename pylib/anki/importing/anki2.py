@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 import unicodedata
-from typing import Any, Optional
+from typing import Any
 
 from anki.cards import CardId
 from anki.collection import Collection

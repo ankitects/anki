@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Optional
 
 import aqt.editor
 from anki.collection import OpChanges

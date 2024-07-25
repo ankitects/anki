@@ -10,7 +10,6 @@ import sys
 import time
 import unicodedata
 from string import capwords
-from typing import Optional, Union
 from xml.dom import minidom
 from xml.dom.minidom import Element, Text
 
