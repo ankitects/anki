@@ -15,7 +15,7 @@ from anki.utils import max_id
 class Importer:
     needMapper = False
     needDelimiter = False
-    dst: Optional[Collection]
+    dst: Collection | None
 
     def __init__(self, col: Collection, file: str) -> None:
         self.file = file

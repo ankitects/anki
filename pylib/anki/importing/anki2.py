@@ -31,7 +31,7 @@ class MediaMapInvalid(Exception):
 
 class Anki2Importer(Importer):
     needMapper = False
-    deckPrefix: Optional[str] = None
+    deckPrefix: str | None = None
     allowUpdate = True
     src: Collection
     dst: Collection
@@ -409,7 +409,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             if fname.startswith("_") and not self.dst.media.have(fname):
                 self._writeDstMedia(fname, self._srcMediaData(fname))
 
-    def _mediaData(self, fname: str, dir: Optional[str] = None) -> bytes:
+    def _mediaData(self, fname: str, dir: str | None = None) -> bytes:
         if not dir:
             dir = self.src.media.dir()
         path = os.path.join(dir, fname)

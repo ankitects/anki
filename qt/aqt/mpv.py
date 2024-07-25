@@ -77,7 +77,7 @@ class MPVBase:
     """
 
     executable = which("mpv")
-    popenEnv: Optional[dict[str, str]] = None
+    popenEnv: dict[str, str] | None = None
 
     default_argv = [
         "--idle",

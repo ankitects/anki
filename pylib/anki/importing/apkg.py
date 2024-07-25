@@ -15,7 +15,7 @@ from anki.utils import tmpfile
 
 class AnkiPackageImporter(Anki2Importer):
     nameToNum: dict[str, str]
-    zip: Optional[zipfile.ZipFile]
+    zip: zipfile.ZipFile | None
 
     def run(self) -> None:  # type: ignore
         # extract the deck from the zip file

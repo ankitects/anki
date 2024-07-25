@@ -329,7 +329,7 @@ class SupermemoXmlImporter(NoteImporter):
         self.logger("Load done.")
 
     # PARSE
-    def parse(self, node: Optional[Union[Text, Element]] = None) -> None:
+    def parse(self, node: Text | Element | None = None) -> None:
         "Parse method - parses document elements"
 
         if node is None and self.xmldoc is not None:

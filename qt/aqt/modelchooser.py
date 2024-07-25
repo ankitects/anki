@@ -17,7 +17,7 @@ class ModelChooser(QHBoxLayout):
         mw: AnkiQt,
         widget: QWidget,
         label: bool = True,
-        on_activated: Optional[Callable[[], None]] = None,
+        on_activated: Callable[[], None] | None = None,
     ) -> None:
         """If provided, on_activated() will be called when the button is clicked,
         and the caller can call .onModelChange() to pull up the dialog when they

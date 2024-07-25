@@ -55,7 +55,7 @@ class ChangeMap(QDialog):
                 self.frm.fields.setCurrentRow(n)
             else:
                 self.frm.fields.setCurrentRow(n + 1)
-        self.field: Optional[str] = None
+        self.field: str | None = None
 
     def getField(self) -> str:
         self.exec()
@@ -231,13 +231,13 @@ class ImportDialog(QDialog):
         self.frm.mappingArea.setWidget(self.frame)
         self.mapbox = QVBoxLayout(self.frame)
         self.mapbox.setContentsMargins(0, 0, 0, 0)
-        self.mapwidget: Optional[QWidget] = None
+        self.mapwidget: QWidget | None = None
 
     def hideMapping(self) -> None:
         self.frm.mappingGroup.hide()
 
     def showMapping(
-        self, keepMapping: bool = False, hook: Optional[Callable] = None
+        self, keepMapping: bool = False, hook: Callable | None = None
     ) -> None:
         if hook:
             hook()
