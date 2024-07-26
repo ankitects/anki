@@ -8,8 +8,7 @@ import pprint
 import re
 import sys
 import time
-from collections.abc import Sequence
-from typing import Callable
+from collections.abc import Callable, Sequence
 
 from anki import media_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated_keywords
