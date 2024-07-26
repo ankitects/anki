@@ -13,10 +13,10 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from hashlib import sha1
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.dbproxy import DBProxy

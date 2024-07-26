@@ -7,9 +7,9 @@ import dataclasses
 import json
 import re
 import sys
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import anki
 import anki.lang
