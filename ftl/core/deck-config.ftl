@@ -15,12 +15,12 @@ deck-config-title = Deck Options
 ## Daily limits section
 
 deck-config-daily-limits = Daily Limits
-deck-config-new-limit-tooltip =
+deck-config-new-limit-tooltip-2 =
     The maximum number of new cards to introduce in a day, if new cards are available.
     Because new material will increase your short-term review workload, this should typically
-    be at least 10x smaller than your review limit.
-deck-config-review-limit-tooltip =
-    The maximum number of review cards to show in a day,
+    be at least 10x smaller than your maximum limit.
+deck-config-review-limit-tooltip-2 =
+    The maximum number of cards to show in a day,
     if cards are ready for review.
 deck-config-limit-deck-v3 =
     When studying a deck that has subdecks inside it, the limits set on each
@@ -40,9 +40,9 @@ deck-config-tab-description =
     - `Today only`: Make a temporary change to this deck's limit.
 deck-config-new-cards-ignore-review-limit = New cards ignore maximum limit
 deck-config-new-cards-ignore-review-limit-tooltip =
-    By default, the review limit also applies to new cards, and no new cards will be
+    By default, the maximum limit also applies to new cards, and no new cards will be
     shown when the review limit has been reached. If this option is enabled, new cards
-    will be shown regardless of the review limit.
+    will be shown regardless of the maximum limit.
 deck-config-apply-all-parent-limits = Limits start from top
 deck-config-apply-all-parent-limits-tooltip =
     By default, limits start from the deck you select. If this option is enabled, the limits will
@@ -452,7 +452,17 @@ deck-config-days-to-simulate = Days to simulate
 deck-config-desired-retention-below-optimal = Your desired retention is below optimal. Increasing it is recommended.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
-
+deck-config-new-limit-tooltip =
+    The maximum number of new cards to introduce in a day, if new cards are available.
+    Because new material will increase your short-term review workload, this should typically
+    be at least 10x smaller than your review limit.
+deck-config-review-limit-tooltip =
+    The maximum number of review cards to show in a day,
+    if cards are ready for review.
+deck-config-new-cards-ignore-review-limit-tooltip =
+    By default, the review limit also applies to new cards, and no new cards will be
+    shown when the review limit has been reached. If this option is enabled, new cards
+    will be shown regardless of the review limit.
 deck-config-bury-siblings = Bury siblings
 deck-config-do-not-bury = Do not bury siblings
 deck-config-bury-if-new = Bury if new
