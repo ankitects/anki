@@ -350,7 +350,7 @@ deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
-deck-config-ignore-before = Ignore reviews before
+deck-config-ignore-before = Ignore cards reviewed before
 deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
@@ -388,7 +388,7 @@ deck-config-historical-retention-tooltip =
     the missing reviews.
 
     Your review history may be incomplete for two reasons:
-    1. Because you're using the 'ignore reviews before' option.
+    1. Because you're using the 'ignore cards reviewed before' option.
     2. Because you previously deleted review logs to free up space, or imported material from a different
     SRS program.
 
@@ -411,7 +411,7 @@ deck-config-reschedule-cards-warning =
     Use this option sparingly, as it will add a review entry to each of your cards, and
     increase the size of your collection.
 deck-config-ignore-before-tooltip-2 = 
-    If set, cards introduced before the provided date will be ignored when optimizing FSRS parameters.
+    If set, cards reviewed before the provided date will be ignored when optimizing FSRS parameters.
     This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
 deck-config-compute-optimal-weights-tooltip2 =
     When you click the Optimize button, FSRS will analyze your review history, and generate parameters that are 
