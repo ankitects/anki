@@ -15,11 +15,11 @@ deck-config-title = Deck Options
 ## Daily limits section
 
 deck-config-daily-limits = Daily Limits
-deck-config-new-limit-tooltip-2 =
+deck-config-new-limit-tooltip =
     The maximum number of new cards to introduce in a day, if new cards are available.
     Because new material will increase your short-term review workload, this should typically
     be at least 10x smaller than your maximum limit.
-deck-config-review-limit-tooltip-2 =
+deck-config-review-limit-tooltip =
     The maximum number of cards to show in a day,
     if cards are ready for review.
 deck-config-limit-deck-v3 =
@@ -31,14 +31,14 @@ deck-config-limit-new-bound-by-reviews =
     set to 200, and you have 190 reviews waiting, a maximum of 10 new cards will
     be introduced. If your review limit has been reached, no new cards will be
     shown.
-deck-config-limit-interday-bound-by-reviews-2 =
-    The maximum limit doesn't affect learning cards with less than 1d interval.
+deck-config-limit-interday-bound-by-reviews =
+    The maximum limit doesn't affect (re)learning cards with less than 1d interval.
 deck-config-tab-description =
     - `Preset`: The limit is shared with all decks using this preset.
     - `This deck`: The limit is specific to this deck.
     - `Today only`: Make a temporary change to this deck's limit.
 deck-config-new-cards-ignore-review-limit = New cards ignore maximum limit
-deck-config-new-cards-ignore-review-limit-tooltip-2 =
+deck-config-new-cards-ignore-review-limit-tooltip =
     By default, the maximum limit also applies to new cards, and no new cards will be
     shown when the maximum limit has been reached. If this option is enabled, new cards
     will be shown regardless of the maximum limit.
@@ -187,7 +187,7 @@ deck-config-interday-step-priority = Interday learning/review order
 deck-config-interday-step-priority-tooltip =
     When to show (re)learning cards that cross a day boundary.
     
-    The review limit is always applied first to interday learning cards, and
+    The maximum limit is always applied first to interday learning cards, and
     then reviews. This option will control the order the gathered cards are shown in,
     but interday learning cards will always be gathered first.
 deck-config-review-mix-mix-with-reviews = Mix with reviews
