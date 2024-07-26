@@ -11,12 +11,12 @@ import os
 import re
 import zipfile
 from collections import defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from concurrent.futures import Future
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import IO, Any, Callable, Union
+from typing import IO, Any, Union
 from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
 

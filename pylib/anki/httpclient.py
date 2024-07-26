@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import io
 import os
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import requests
 from requests import Response
