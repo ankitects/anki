@@ -24,24 +24,23 @@ deck-config-review-limit-tooltip-2 =
     if cards are ready for review.
 deck-config-limit-deck-v3 =
     When studying a deck that has subdecks inside it, the limits set on each
-    subdeck control the maximum number of cards drawn from that particular deck.
+    subdeck control the maximum number of cards gathered from that particular deck.
     The selected deck's limits control the total cards that will be shown.
 deck-config-limit-new-bound-by-reviews =
     The review limit affects the new limit. For example, if your review limit is
     set to 200, and you have 190 reviews waiting, a maximum of 10 new cards will
     be introduced. If your review limit has been reached, no new cards will be
     shown.
-deck-config-limit-interday-bound-by-reviews =
-    The review limit also affects interday learning cards. When applying the limit,
-    interday learning cards are fetched first, then reviews.
+deck-config-limit-interday-bound-by-reviews-2 =
+    The maximum limit doesn't affect learning cards with less than 1d interval.
 deck-config-tab-description =
     - `Preset`: The limit is shared with all decks using this preset.
     - `This deck`: The limit is specific to this deck.
     - `Today only`: Make a temporary change to this deck's limit.
 deck-config-new-cards-ignore-review-limit = New cards ignore maximum limit
-deck-config-new-cards-ignore-review-limit-tooltip =
+deck-config-new-cards-ignore-review-limit-tooltip-2 =
     By default, the maximum limit also applies to new cards, and no new cards will be
-    shown when the review limit has been reached. If this option is enabled, new cards
+    shown when the maximum limit has been reached. If this option is enabled, new cards
     will be shown regardless of the maximum limit.
 deck-config-apply-all-parent-limits = Limits start from top
 deck-config-apply-all-parent-limits-tooltip =
@@ -459,6 +458,9 @@ deck-config-new-limit-tooltip =
 deck-config-review-limit-tooltip =
     The maximum number of review cards to show in a day,
     if cards are ready for review.
+deck-config-limit-interday-bound-by-reviews =
+    The review limit also affects interday learning cards. When applying the limit,
+    interday learning cards are fetched first, then reviews.
 deck-config-new-cards-ignore-review-limit-tooltip =
     By default, the review limit also applies to new cards, and no new cards will be
     shown when the review limit has been reached. If this option is enabled, new cards
