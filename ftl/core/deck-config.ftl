@@ -32,7 +32,7 @@ deck-config-limit-new-bound-by-reviews =
     be introduced. If your review limit has been reached, no new cards will be
     shown.
 deck-config-limit-interday-bound-by-reviews =
-    The maximum limit doesn't affect (re)learning cards with less than 1d interval.
+    The limit does not apply to intraday (re)learning cards.
 deck-config-tab-description =
     - `Preset`: The limit is shared with all decks using this preset.
     - `This deck`: The limit is specific to this deck.
