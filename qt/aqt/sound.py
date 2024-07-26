@@ -11,10 +11,11 @@ import sys
 import time
 import wave
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from concurrent.futures import Future
 from operator import itemgetter
 from pathlib import Path
-from typing import Any, Callable, cast
+from typing import Any, cast
 
 from markdown import markdown
 

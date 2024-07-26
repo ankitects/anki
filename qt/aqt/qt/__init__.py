@@ -7,7 +7,8 @@
 import os
 import sys
 import traceback
-from typing import Callable, TypeVar, Union
+from collections.abc import Callable
+from typing import TypeVar, Union
 
 try:
     import PyQt6
