@@ -1113,22 +1113,14 @@ def extract_meta_from_download_url(url: str) -> ExtractedDownloadMeta:
     urlobj = urlparse(url)
     query = parse_qs(urlobj.query)
 
-    if (
-        (t := query["t"]) is None
-        or (minpt := query["minpt"]) is None
-        or (maxpt := query["maxpt"]) is None
-        or (bidx := query["bidx"]) is None
-    ):
-        raise TypeError
-
     def get_first_element(elements: list[str]) -> int:
         return int(elements[0])
 
     meta = ExtractedDownloadMeta(
-        mod_time=get_first_element(t),
-        min_point_version=get_first_element(minpt),
-        max_point_version=get_first_element(maxpt),
-        branch_index=get_first_element(bidx),
+        mod_time=get_first_element(query["t"]),
+        min_point_version=get_first_element(query["minpt"]),
+        max_point_version=get_first_element(query["maxpt"]),
+        branch_index=get_first_element(query["bidx"]),
     )
 
     return meta
