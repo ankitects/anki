@@ -275,7 +275,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         btn = self._addButton(
             icon,
             cmd,
-            title_attribute=tip,
+            tip=tip,
             label=label,
             id=id,
             toggleable=toggleable,
@@ -288,13 +288,15 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self,
         icon: str | None,
         cmd: str,
-        title_attribute: str = "",
+        tip: str = "",
         label: str = "",
         id: str | None = None,
         toggleable: bool = False,
         disables: bool = True,
         rightside: bool = True,
     ) -> str:
+        title_attribute = tip
+
         if icon:
             if icon.startswith("qrc:/"):
                 iconstr = icon
