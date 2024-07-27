@@ -14,7 +14,8 @@ as '2' internally.
 
 from __future__ import annotations
 
-from typing import Literal, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any, Literal
 
 from anki import cards, frontend_pb2, scheduler_pb2
 from anki._legacy import deprecated
@@ -108,7 +109,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         # backend automatically resets queues as operations are performed
         pass
 
-    def getCard(self) -> Optional[cards.Card]:
+    def getCard(self) -> cards.Card | None:
         """Fetch the next card from the queue. None if finished."""
         try:
             queued_card = self.get_queued_cards().cards[0]
@@ -124,7 +125,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         "Don't use this, it is a stop-gap until this code is refactored."
         return not self.get_queued_cards().cards
 
-    def counts(self, card: Optional[cards.Card] = None) -> tuple[int, int, int]:
+    def counts(self, card: cards.Card | None = None) -> tuple[int, int, int]:
         info = self.get_queued_cards()
         return (info.new_count, info.learning_count, info.review_count)
 

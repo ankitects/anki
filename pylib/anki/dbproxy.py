@@ -4,8 +4,9 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable, Iterable, Sequence
 from re import Match
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence, Union
+from typing import TYPE_CHECKING, Any, Union
 
 if TYPE_CHECKING:
     import anki._backend

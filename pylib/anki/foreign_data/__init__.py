@@ -94,8 +94,8 @@ class ForeignCard:
 class ForeignNote:
     fields: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
-    notetype: Union[str, NotetypeId] = ""
-    deck: Union[str, DeckId] = ""
+    notetype: str | NotetypeId = ""
+    deck: str | DeckId = ""
     cards: list[ForeignCard] = field(default_factory=list)
 
 
@@ -103,7 +103,7 @@ class ForeignNote:
 class ForeignData:
     notes: list[ForeignNote] = field(default_factory=list)
     notetypes: list[ForeignNotetype] = field(default_factory=list)
-    default_deck: Union[str, DeckId] = ""
+    default_deck: str | DeckId = ""
 
     def serialize(self) -> str:
         return json.dumps(self, cls=ForeignDataEncoder, separators=(",", ":"))

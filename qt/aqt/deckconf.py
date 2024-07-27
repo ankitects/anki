@@ -173,8 +173,8 @@ class DeckConf(QDialog):
     # Loading
     ##################################################
 
-    def listToUser(self, l: list[Union[int, float]]) -> str:
-        def num_to_user(n: Union[int, float]) -> str:
+    def listToUser(self, l: list[int | float]) -> str:
+        def num_to_user(n: int | float) -> str:
             if n == round(n):
                 return str(int(n))
             else:

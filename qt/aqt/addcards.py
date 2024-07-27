@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import aqt.editor
 import aqt.forms
@@ -54,7 +54,7 @@ class AddCards(QMainWindow):
         self.setupButtons()
         self.col.add_image_occlusion_notetype()
         self.history: list[NoteId] = []
-        self._last_added_note: Optional[Note] = None
+        self._last_added_note: Note | None = None
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
@@ -195,7 +195,7 @@ class AddCards(QMainWindow):
             self, old_note.note_type(), new_note.note_type()
         )
 
-    def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
+    def _load_new_note(self, sticky_fields_from: Note | None = None) -> None:
         note = self._new_note()
         if old_note := sticky_fields_from:
             flds = note.note_type()["flds"]
@@ -209,7 +209,7 @@ class AddCards(QMainWindow):
         self.setAndFocusNote(note)
 
     def on_operation_did_execute(
-        self, changes: OpChanges, handler: Optional[object]
+        self, changes: OpChanges, handler: object | None
     ) -> None:
         if (changes.notetype or changes.deck) and handler is not self.editor:
             self.on_notetype_change(

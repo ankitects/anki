@@ -307,10 +307,24 @@ impl crate::services::SchedulerService for Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        self.get_optimal_retention_parameters(revlogs)
-            .map(|params| GetOptimalRetentionParametersResponse {
-                params: Some(params),
-            })
+        let simulator_config = self.get_optimal_retention_parameters(revlogs)?;
+        Ok(GetOptimalRetentionParametersResponse {
+            deck_size: simulator_config.deck_size as u32,
+            learn_span: simulator_config.learn_span as u32,
+            max_cost_perday: simulator_config.max_cost_perday,
+            max_ivl: simulator_config.max_ivl,
+            learn_costs: simulator_config.learn_costs.to_vec(),
+            review_costs: simulator_config.review_costs.to_vec(),
+            first_rating_prob: simulator_config.first_rating_prob.to_vec(),
+            review_rating_prob: simulator_config.review_rating_prob.to_vec(),
+            first_rating_offsets: simulator_config.first_rating_offsets.to_vec(),
+            first_session_lens: simulator_config.first_session_lens.to_vec(),
+            forget_rating_offset: simulator_config.forget_rating_offset,
+            forget_session_len: simulator_config.forget_session_len,
+            loss_aversion: simulator_config.loss_aversion,
+            learn_limit: simulator_config.learn_limit as u32,
+            review_limit: simulator_config.review_limit as u32,
+        })
     }
 
     fn compute_memory_state(&mut self, input: cards::CardId) -> Result<ComputeMemoryStateResponse> {
