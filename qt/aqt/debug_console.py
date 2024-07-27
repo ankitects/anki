@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path

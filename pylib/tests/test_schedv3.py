@@ -4,7 +4,8 @@
 import copy
 import os
 import time
-from typing import Callable, Dict
+from collections.abc import Callable
+from typing import Dict
 
 import pytest
 
@@ -385,7 +386,7 @@ def test_reviews():
     assert "leech" in c.note().tags
 
 
-def review_limits_setup() -> tuple[anki.collection.Collection, Dict]:
+def review_limits_setup() -> tuple[anki.collection.Collection, dict]:
     col = getEmptyCol()
 
     parent = col.decks.get(col.decks.id("parent"))

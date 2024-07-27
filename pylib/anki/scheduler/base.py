@@ -22,7 +22,8 @@ ScheduleCardsAsNewDefaults = scheduler_pb2.ScheduleCardsAsNewDefaultsResponse
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 RepositionDefaults = scheduler_pb2.RepositionDefaultsResponse
 
-from typing import Sequence, overload
+from collections.abc import Sequence
+from typing import overload
 
 from anki import config_pb2
 from anki.cards import CardId

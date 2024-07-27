@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import itertools
 import time
+from collections.abc import Iterable, Sequence
 from concurrent.futures import Future
-from typing import Iterable, Sequence, TypeVar
+from typing import TypeVar
 
 import aqt
 import aqt.progress
