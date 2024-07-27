@@ -11,10 +11,10 @@ import re
 import sys
 import threading
 import traceback
+from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
-from typing import Callable
 
 import flask
 import flask_cors

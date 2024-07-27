@@ -180,9 +180,16 @@ def set_lang(lang: str) -> None:
     tr_legacyglobal.backend = weakref.ref(current_i18n)
 
 
-def get_def_lang(lang: str | None = None) -> tuple[int, str]:
-    """Return lang converted to name used on disk and its index, defaulting to system language
+def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
+    """Return user_lang converted to name used on disk and its index, defaulting to system language
     or English if not available."""
+
+    def get_index_of_language(wanted_locale: str) -> int | None:
+        for i, (_, locale_) in enumerate(langs):
+            if locale_ == wanted_locale:
+                return i
+        return None
+
     try:
         # getdefaultlocale() is deprecated since Python 3.11, but we need to keep using it as getlocale() behaves differently: https://bugs.python.org/issue38805
         with warnings.catch_warnings():
@@ -195,25 +202,27 @@ def get_def_lang(lang: str | None = None) -> tuple[int, str]:
     except:
         # fails on osx
         sys_lang = "en_US"
-    user_lang = lang
     if user_lang in compatMap:
         user_lang = compatMap[user_lang]
+
     idx = None
     lang = None
-    en_idx = None
     for preferred_lang in (user_lang, sys_lang):
-        for lang_idx, (name, code) in enumerate(langs):
-            if code == "en_US":
-                en_idx = lang_idx
-            if code == preferred_lang:
-                idx = lang_idx
-                lang = preferred_lang
-        if idx is not None:
+        idx = get_index_of_language(preferred_lang)
+        is_language_supported = idx is not None
+        if is_language_supported:
+            assert preferred_lang is not None
+            lang = preferred_lang
             break
     # if the specified language and the system language aren't available, revert to english
-    if idx is None:
-        idx = en_idx
+    is_preferred_language_supported = idx is not None
+    if not is_preferred_language_supported:
         lang = "en_US"
+        idx = get_index_of_language(lang)
+        is_english_supported = idx is not None
+        if not is_english_supported:
+            raise AssertionError("English is supposed to be a supported language.")
+    assert idx is not None and lang is not None
     return (idx, lang)
 
 

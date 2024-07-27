@@ -7,7 +7,6 @@ import os
 import re
 import time
 from concurrent.futures import Future
-from typing import Optional
 
 import aqt
 import aqt.forms
@@ -35,7 +34,7 @@ class ExportDialog(QDialog):
         mw: aqt.main.AnkiQt,
         did: DeckId | None = None,
         cids: list[CardId] | None = None,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
     ):
         QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
         self.mw = mw
