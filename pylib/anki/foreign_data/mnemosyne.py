@@ -17,7 +17,6 @@ Notetype  | Card Type
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Tuple, Type
 
 from anki.db import DB
 from anki.decks import DeckId
@@ -38,7 +37,7 @@ def serialize(db_path: str, deck_id: DeckId) -> str:
 def gather_data(db: DB, deck_id: DeckId) -> ForeignData:
     facts = gather_facts(db)
     gather_cards_into_facts(db, facts)
-    used_fact_views: dict[Type[MnemoFactView], bool] = {}
+    used_fact_views: dict[type[MnemoFactView], bool] = {}
     notes = [fact.foreign_note(used_fact_views) for fact in facts.values()]
     notetypes = [fact_view.foreign_notetype() for fact_view in used_fact_views]
     return ForeignData(notes, notetypes, deck_id)
@@ -54,7 +53,7 @@ def open_mnemosyne_db(db_path: str) -> DB:
 
 class MnemoFactView(ABC):
     notetype: str
-    field_keys: Tuple[str, ...]
+    field_keys: tuple[str, ...]
 
     @classmethod
     @abstractmethod
@@ -162,7 +161,7 @@ class MnemoFact:
     cards: list[MnemoCard] = field(default_factory=list)
 
     def foreign_note(
-        self, used_fact_views: dict[Type[MnemoFactView], bool]
+        self, used_fact_views: dict[type[MnemoFactView], bool]
     ) -> ForeignNote:
         fact_view = self.fact_view()
         used_fact_views[fact_view] = True
@@ -173,7 +172,7 @@ class MnemoFact:
             cards=self.foreign_cards(),
         )
 
-    def fact_view(self) -> Type[MnemoFactView]:
+    def fact_view(self) -> type[MnemoFactView]:
         try:
             fact_view = self.cards[0].fact_view_id
         except IndexError as err:
@@ -190,7 +189,7 @@ class MnemoFact:
 
         raise Exception(f"Fact {id} has unknown fact view: {fact_view}")
 
-    def anki_fields(self, fact_view: Type[MnemoFactView]) -> list[str]:
+    def anki_fields(self, fact_view: type[MnemoFactView]) -> list[str]:
         return [munge_field(self.fields.get(k, "")) for k in fact_view.field_keys]
 
     def anki_tags(self) -> list[str]:

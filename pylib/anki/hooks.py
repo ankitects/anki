@@ -14,6 +14,9 @@ modifying it.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from typing import Any
+
 import decorator
 
 # You can find the definitions in ../tools/genhooks.py

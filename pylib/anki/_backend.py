@@ -6,8 +6,9 @@ from __future__ import annotations
 import sys
 import time
 import traceback
+from collections.abc import Iterable, Sequence
 from threading import current_thread, main_thread
-from typing import TYPE_CHECKING, Any, Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 from weakref import ref
 
 from markdown import markdown

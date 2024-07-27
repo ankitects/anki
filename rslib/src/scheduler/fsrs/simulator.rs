@@ -26,22 +26,16 @@ impl Collection {
         let config = SimulatorConfig {
             deck_size: req.deck_size as usize,
             learn_span: req.days_to_simulate as usize,
-            max_cost_perday: f64::MAX,
-            max_ivl: req.max_interval as f64,
-            recall_costs: [p.recall_secs_hard, p.recall_secs_good, p.recall_secs_easy],
-            forget_cost: p.forget_secs,
-            learn_cost: p.learn_secs,
-            first_rating_prob: [
-                p.first_rating_probability_again,
-                p.first_rating_probability_hard,
-                p.first_rating_probability_good,
-                p.first_rating_probability_easy,
-            ],
-            review_rating_prob: [
-                p.review_rating_probability_hard,
-                p.review_rating_probability_good,
-                p.review_rating_probability_easy,
-            ],
+            max_cost_perday: f32::MAX,
+            max_ivl: req.max_interval as f32,
+            learn_costs: p.learn_costs,
+            review_costs: p.review_costs,
+            first_rating_prob: p.first_rating_prob,
+            review_rating_prob: p.review_rating_prob,
+            first_rating_offsets: p.first_rating_offsets,
+            first_session_lens: p.first_session_lens,
+            forget_rating_offset: p.forget_rating_offset,
+            forget_session_len: p.forget_session_len,
             loss_aversion: 1.0,
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
@@ -54,8 +48,8 @@ impl Collection {
             daily_time_cost,
         ) = simulate(
             &config,
-            &req.weights.iter().map(|w| *w as f64).collect_vec(),
-            req.desired_retention as f64,
+            &req.weights,
+            req.desired_retention,
             None,
             Some(
                 cards
@@ -65,13 +59,10 @@ impl Collection {
             ),
         );
         Ok(SimulateFsrsReviewResponse {
-            accumulated_knowledge_acquisition: accumulated_knowledge_acquisition
-                .iter()
-                .map(|x| *x as f32)
-                .collect_vec(),
+            accumulated_knowledge_acquisition: accumulated_knowledge_acquisition.to_vec(),
             daily_review_count: daily_review_count.iter().map(|x| *x as u32).collect_vec(),
             daily_new_count: daily_new_count.iter().map(|x| *x as u32).collect_vec(),
-            daily_time_cost: daily_time_cost.iter().map(|x| *x as f32).collect_vec(),
+            daily_time_cost: daily_time_cost.to_vec(),
         })
     }
 }
@@ -83,10 +74,10 @@ impl Card {
                 let due = card.original_or_current_due();
                 let relative_due = due - days_elapsed;
                 Some(fsrs::Card {
-                    difficulty: state.difficulty as f64,
-                    stability: state.stability as f64,
-                    last_date: (relative_due - card.interval as i32) as f64,
-                    due: relative_due as f64,
+                    difficulty: state.difficulty,
+                    stability: state.stability,
+                    last_date: (relative_due - card.interval as i32) as f32,
+                    due: relative_due as f32,
                 })
             }
             None => None,

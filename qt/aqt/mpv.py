@@ -25,6 +25,7 @@
 # ------------------------------------------------------------------------------
 
 # pylint: disable=raise-missing-from
+from __future__ import annotations
 
 import inspect
 import json
@@ -38,7 +39,6 @@ import threading
 import time
 from queue import Empty, Full, Queue
 from shutil import which
-from typing import Optional
 
 from anki.utils import is_win
 
@@ -77,7 +77,7 @@ class MPVBase:
     """
 
     executable = which("mpv")
-    popenEnv: Optional[dict[str, str]] = None
+    popenEnv: dict[str, str] | None = None
 
     default_argv = [
         "--idle",
