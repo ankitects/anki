@@ -974,7 +974,7 @@ from cards where did in %s"""
         else:
             conf["legend"] = {"container": "#%sLegend" % id, "noColumns": 10}
         conf["series"] = dict(stack=True)
-        if not "yaxis" in conf:
+        if "yaxis" not in conf:
             conf["yaxis"] = {}
         conf["yaxis"]["labelWidth"] = 40
         if "xaxis" not in conf:
