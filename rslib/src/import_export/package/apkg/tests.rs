@@ -161,7 +161,7 @@ impl Collection {
         ] {
             // data should have been copied correctly
             assert_eq!(
-                read_file(&self.media_folder.join(fname)).unwrap(),
+                read_file(self.media_folder.join(fname)).unwrap(),
                 orig_data
             );
             // and checksums in media db should be valid
