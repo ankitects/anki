@@ -196,6 +196,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Lucas Scharenbroch",
             "Antoine Q.",
             "Ian Samir Yep Manzano",
+            "Asuka Minato",
         )
     )
 
