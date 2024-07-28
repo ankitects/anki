@@ -33,10 +33,9 @@ use crate::sync::request::header_and_stream::encode_zstd_body_stream;
 use crate::sync::response::ORIGINAL_SIZE;
 
 /// Serves two purposes:
-/// - allows us to monitor data sending/receiving and abort if
-///   the transfer stalls
-/// - allows us to monitor amount of data moving, to provide progress
-///   reporting
+/// - allows us to monitor data sending/receiving and abort if the transfer
+///   stalls
+/// - allows us to monitor amount of data moving, to provide progress reporting
 #[derive(Clone)]
 pub struct IoMonitor(pub Arc<Mutex<IoMonitorInner>>);
 
