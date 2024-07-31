@@ -3,10 +3,10 @@
 
 use std::marker::PhantomData;
 
-use axum::body::StreamBody;
-use axum::headers::HeaderName;
+use axum::body::Body;
 use axum::response::IntoResponse;
 use axum::response::Response;
+use axum_extra::headers::HeaderName;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -39,7 +39,7 @@ impl<T> SyncResponse<T> {
     pub fn make_response(self, sync_version: SyncVersion) -> Response {
         if sync_version.is_zstd() {
             let header = (&ORIGINAL_SIZE, self.data.len().to_string());
-            let body = StreamBody::new(encode_zstd_body(self.data));
+            let body = Body::from_stream(encode_zstd_body(self.data));
             ([header], body).into_response()
         } else {
             self.data.into_response()

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import csv
 import re
-from typing import Any, Optional, TextIO
+from typing import Any, TextIO
 
 from anki.collection import Collection
 from anki.importing.noteimp import ForeignNote, NoteImporter
@@ -20,12 +20,12 @@ class TextImporter(NoteImporter):
     def __init__(self, col: Collection, file: str) -> None:
         NoteImporter.__init__(self, col, file)
         self.lines = None
-        self.fileobj: Optional[TextIO] = None
-        self.delimiter: Optional[str] = None
+        self.fileobj: TextIO | None = None
+        self.delimiter: str | None = None
         self.tagsToAdd: list[str] = []
         self.numFields = 0
-        self.dialect: Optional[Any]
-        self.data: Optional[str | list[str]]
+        self.dialect: Any | None
+        self.data: str | list[str] | None
 
     def foreignNotes(self) -> list[ForeignNote]:
         self.open()

@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import aqt
 import aqt.forms
 import aqt.operations
@@ -32,7 +30,7 @@ class FieldDialog(QDialog):
         self,
         mw: AnkiQt,
         nt: NotetypeDict,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         open_at: int = 0,
     ) -> None:
         QDialog.__init__(self, parent or mw)
@@ -62,7 +60,7 @@ class FieldDialog(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.StandardButton.Save).setAutoDefault(
             False
         )
-        self.currentIdx: Optional[int] = None
+        self.currentIdx: int | None = None
         self.fillFields()
         self.setupSignals()
         self.form.fieldList.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
@@ -110,6 +108,9 @@ class FieldDialog(QDialog):
             movePos = dropPos
         elif indicatorPos == QAbstractItemView.DropIndicatorPosition.BelowItem:
             movePos = dropPos + 1
+        else:
+            # for pylint
+            return
         # the item in idx is removed thus subtract 1.
         if idx < dropPos:
             movePos -= 1
@@ -122,8 +123,8 @@ class FieldDialog(QDialog):
         self.loadField(idx)
 
     def _uniqueName(
-        self, prompt: str, ignoreOrd: Optional[int] = None, old: str = ""
-    ) -> Optional[str]:
+        self, prompt: str, ignoreOrd: int | None = None, old: str = ""
+    ) -> str | None:
         txt = getOnlyText(prompt, default=old).replace('"', "").strip()
         if not txt:
             return None

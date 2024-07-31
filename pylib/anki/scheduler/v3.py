@@ -14,7 +14,8 @@ as '2' internally.
 
 from __future__ import annotations
 
-from typing import Literal, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any, Literal
 
 from anki import frontend_pb2, scheduler_pb2
 from anki._legacy import deprecated
@@ -109,7 +110,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         # backend automatically resets queues as operations are performed
         pass
 
-    def getCard(self) -> Optional[Card]:
+    def getCard(self) -> Card | None:
         """Fetch the next card from the queue. None if finished."""
         try:
             queued_card = self.get_queued_cards().cards[0]
@@ -125,7 +126,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         "Don't use this, it is a stop-gap until this code is refactored."
         return not self.get_queued_cards().cards
 
-    def counts(self, card: Optional[Card] = None) -> tuple[int, int, int]:
+    def counts(self, card: Card | None = None) -> tuple[int, int, int]:
         info = self.get_queued_cards()
         return (info.new_count, info.learning_count, info.review_count)
 
@@ -183,7 +184,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return self._interval_for_filtered_state(state.filtered)
         else:
             assert_exhaustive(kind)
-            return 0  # unreachable
+            return 0  # pylint: disable=unreachable
 
     def _interval_for_normal_state(
         self, normal: scheduler_pb2.SchedulingState.Normal
@@ -199,7 +200,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return normal.relearning.learning.scheduled_secs
         else:
             assert_exhaustive(kind)
-            return 0  # unreachable
+            return 0  # pylint: disable=unreachable
 
     def _interval_for_filtered_state(
         self, filtered: scheduler_pb2.SchedulingState.Filtered
@@ -211,7 +212,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return self._interval_for_normal_state(filtered.rescheduling.original_state)
         else:
             assert_exhaustive(kind)
-            return 0  # unreachable
+            return 0  # pylint: disable=unreachable
 
     def nextIvl(self, card: Card, ease: int) -> Any:
         "Don't use this - it is only required by tests, and will be moved in the future."

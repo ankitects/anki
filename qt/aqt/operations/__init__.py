@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from concurrent.futures._base import Future
-from typing import Any, Callable, Generic, Protocol, TypeVar, Union
+from typing import Any, Generic, Protocol, TypeVar, Union
 
 import aqt
 import aqt.gui_hooks

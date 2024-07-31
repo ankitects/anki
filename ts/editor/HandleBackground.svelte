@@ -11,6 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     title={tooltip}
     on:mousedown|preventDefault
     on:dblclick
+    tabindex="-1"
+    role="button"
 />
 
 <style lang="scss">

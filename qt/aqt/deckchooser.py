@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from anki.collection import OpChanges
 from anki.decks import DEFAULT_DECK_ID, DeckId
 from aqt import AnkiQt, gui_hooks

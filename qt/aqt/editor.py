@@ -14,9 +14,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import warnings
+from collections.abc import Callable
 from enum import Enum
 from random import randrange
-from typing import Any, Callable, Match, cast
+from typing import Any, Match, cast
 
 import bs4
 import requests
@@ -323,25 +324,17 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             class_ = "rounded"
         if not disables:
             class_ += " perm"
-        return """<button tabindex=-1
-                        {id}
+        return f"""<button tabindex=-1
+                        {idstr}
                         class="{class_}"
                         type="button"
                         title="{tip}"
-                        onclick="pycmd('{cmd}');{togglesc}return false;"
+                        onclick="pycmd('{cmd}');{toggleScript}return false;"
                         onmousedown="window.event.preventDefault();"
                 >
                     {imgelm}
                     {labelelm}
-                </button>""".format(
-            imgelm=imgelm,
-            cmd=cmd,
-            tip=tip,
-            labelelm=labelelm,
-            id=idstr,
-            togglesc=toggleScript,
-            class_=class_,
-        )
+                </button>"""
 
     def setupShortcuts(self) -> None:
         # if a third element is provided, enable shortcut even when no field selected

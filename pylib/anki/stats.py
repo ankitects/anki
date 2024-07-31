@@ -8,7 +8,8 @@ from __future__ import annotations
 import json
 import random
 import time
-from typing import Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import anki.cards
 import anki.collection
@@ -1089,6 +1090,7 @@ $(function () {
         lim = self._revlogLimit()
         if lim:
             lim = " where " + lim
+        t = 0
         if by == "review":
             t = self.col.db.scalar("select id from revlog %s order by id limit 1" % lim)
         elif by == "add":

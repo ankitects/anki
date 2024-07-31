@@ -10,16 +10,15 @@ use std::marker::PhantomData;
 use std::net::IpAddr;
 
 use async_trait::async_trait;
-use axum::extract::BodyStream;
+use axum::body::Body;
 use axum::extract::FromRequest;
 use axum::extract::Multipart;
 use axum::http::Request;
+use axum::http::StatusCode;
 use axum::RequestPartsExt;
-use axum::TypedHeader;
 use axum_client_ip::SecureClientIp;
+use axum_extra::TypedHeader;
 use header_and_stream::SyncHeader;
-use hyper::Body;
-use hyper::StatusCode;
 use once_cell::sync::Lazy;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -127,9 +126,10 @@ where
         let req = Request::from_parts(parts, body);
 
         if let Some(TypedHeader(sync_header)) = sync_header {
-            let stream = BodyStream::from_request(req, state)
+            let stream = Body::from_request(req, state)
                 .await
-                .expect("infallible");
+                .expect("infallible")
+                .into_data_stream();
             SyncRequest::from_header_and_stream(sync_header, stream, ip).await
         } else {
             let multi = Multipart::from_request(req, state)

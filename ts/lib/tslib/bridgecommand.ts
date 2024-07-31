@@ -14,6 +14,10 @@ export function bridgeLink(command: string, label: string): string {
     return `<a href="javascript:bridgeCommand('${command}')">${label}</a>`;
 }
 
+export function bridgeCommandsAvailable(): boolean {
+    return !!window.bridgeCommand;
+}
+
 export function bridgeCommand<T>(command: string, callback?: (value: T) => void): void {
     window.bridgeCommand<T>(command, callback);
 }

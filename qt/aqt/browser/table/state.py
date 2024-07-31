@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod, abstractproperty
-from typing import Sequence, cast
+from collections.abc import Sequence
+from typing import cast
 
 from anki.browser import BrowserConfig
 from anki.cards import Card, CardId

@@ -9,8 +9,8 @@
         "dev": "cd ts && vite dev",
         "build": "cd ts && vite build",
         "preview": "cd ts && vite preview",
-        "svelte-check:once": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --threshold warning --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-no-noninteractive-tabindex:ignore,a11y-no-static-element-interactions:ignore",
-        "svelte-check": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch  --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-no-noninteractive-tabindex:ignore,a11y-no-static-element-interactions:ignore",
+        "svelte-check:once": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --threshold warning",
+        "svelte-check": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "vitest:once": "cd ts && vitest run",
         "vitest": "cd ts && vitest"
     },
@@ -55,7 +55,7 @@
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
         "typescript": "^5.0.4",
-        "vite": "^5.0.13",
+        "vite": "=5.0.13",
         "vitest": "^1.2.1"
     },
     "dependencies": {
@@ -79,7 +79,8 @@
         "mathjax": "^3.1.2"
     },
     "resolutions": {
-        "canvas": "npm:empty-npm-package"
+        "canvas": "npm:empty-npm-package",
+        "vite": "=5.0.13"
     },
     "browserslist": [
         "defaults",
