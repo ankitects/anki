@@ -1,26 +1,32 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type { SimulateFsrsReviewResponse } from "@generated/anki/scheduler_pb";
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import { axisBottom, axisLeft, line, max, scaleLinear, select } from "d3";
+import { axisBottom, axisLeft, line, max, rollup, scaleLinear, select } from "d3";
 
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip";
 
+export interface Point {
+    x: number;
+    y: number;
+    label: number;
+}
+
 export function renderSimulationChart(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    data: SimulateFsrsReviewResponse,
+    data: Point[],
 ): TableDatum[] {
     // Prepare data
 
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
-    const xMax = data.dailyReviewCount.length - 1;
     const xMin = 0;
+    const xMax = max(data, d => d.x);
+    console.log(xMax);
 
     const x = scaleLinear().domain([xMin, xMax!]).range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
@@ -37,7 +43,8 @@ export function renderSimulationChart(
         }
     };
 
-    const yMax = max(data.dailyReviewCount)!;
+    const yMax = max(data, d => d.y)!;
+    console.log(yMax);
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax])
@@ -57,18 +64,20 @@ export function renderSimulationChart(
 
     svg.selectAll("path").remove();
 
-    svg.select("g.lines0")
-        .append("path")
-        .datum(data.dailyReviewCount)
+    const points = data.map((d) => [x(d.x), y(d.y), d.label]);
+    const groups = rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
+
+    svg.append("g")
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", "green")
         .attr("stroke-width", 1.5)
-        .attr(
-            "d",
-            line<number>()
-                .x((d, i) => x(i))
-                .y(d => y(d)),
-        );
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .selectAll("path")
+        .data(groups.values())
+        .join("path")
+        .style("mix-blend-mode", "multiply")
+        .attr("d", line());
 
     setDataAvailable(svg, true);
 

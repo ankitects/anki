@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
     import WeightsInputRow from "./WeightsInputRow.svelte";
     import WeightsSearchRow from "./WeightsSearchRow.svelte";
-    import { renderSimulationChart } from "../graphs/simulator";
+    import { renderSimulationChart, type Point } from "../graphs/simulator";
     import Graph from "../graphs/Graph.svelte";
     import HoverColumns from "../graphs/HoverColumns.svelte";
     import CumulativeOverlay from "../graphs/CumulativeOverlay.svelte";
@@ -286,23 +286,51 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let svg = null as HTMLElement | SVGElement | null;
     const title = tr.statisticsReviewsTitle();
     let subtitle = "";
+    let simulationNumber = 0;
+
+    let points: Point[] = [];
+
+    function movingAverage(y: number[], windowSize: number): number[] {
+        const result: number[] = [];
+        for (let i = 0; i < y.length; i++) {
+            let sum = 0;
+            let count = 0;
+            for (let j = Math.max(0, i - windowSize + 1); j <= i; j++) {
+                sum += y[j];
+                count++;
+            }
+            result.push(sum / count);
+        }
+        return result;
+    }
 
     async function simulateFsrs(): Promise<void> {
         let resp: SimulateFsrsReviewResponse | undefined;
+        simulationNumber += 1;
         try {
             await runWithBackendProgress(
                 async () => {
                     simulateFsrsRequest.weights = $config.fsrsWeights;
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
                     simulateFsrsRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
-                    console.log(simulateFsrsRequest);
                     resp = await simulateFsrsReview(simulateFsrsRequest);
                 },
                 () => {},
             );
         } finally {
             if (resp) {
-                tableData = renderSimulationChart(svg as SVGElement, bounds, resp);
+                let dailyTimeCost = movingAverage(
+                    resp.dailyTimeCost,
+                    Math.round(simulateFsrsRequest.daysToSimulate / 50),
+                );
+                points = points.concat(
+                    dailyTimeCost.map((v, i) => ({
+                        x: i,
+                        y: v,
+                        label: simulationNumber,
+                    })),
+                );
+                tableData = renderSimulationChart(svg as SVGElement, bounds, points);
             }
         }
     }
@@ -496,9 +524,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <Graph {title} {subtitle}>
             <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
-                {#each [1, 0] as i}
-                    <g class="lines{i}" />
-                {/each}
                 <CumulativeOverlay />
                 <HoverColumns />
                 <AxisTicks {bounds} />
