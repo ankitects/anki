@@ -25,12 +25,13 @@ export function renderSimulationChart(
     const trans = svg.transition().duration(600) as any;
 
     const today = new Date();
-    const dateData = data.map(d => ({
+    const convertedData = data.map(d => ({
         ...d,
-        date: new Date(today.getTime() + d.x * 24 * 60 * 60 * 1000)
+        date: new Date(today.getTime() + d.x * 24 * 60 * 60 * 1000),
+        yMinutes: d.y / 60
     }));
     const xMin = today;
-    const xMax = max(dateData, d => d.date);
+    const xMax = max(convertedData, d => d.date);
 
     const x = scaleTime()
         .domain([xMin, xMax!])
@@ -55,7 +56,7 @@ export function renderSimulationChart(
         }
     };
 
-    const yMax = max(data, d => d.y)!;
+    const yMax = max(convertedData, d => d.yMinutes)!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax])
@@ -71,8 +72,19 @@ export function renderSimulationChart(
         )
         .attr("direction", "ltr");
 
+    svg.select(".y-ticks")
+        .append("text")
+        .attr("class", "y-axis-title")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - bounds.marginLeft)
+        .attr("x", 0 - (bounds.height / 2))
+        .attr("dy", "1em")
+        .attr("fill", "currentColor")
+        .style("text-anchor", "middle")
+        .text("Review Time (minutes) per day");
+
     // x lines
-    const points = dateData.map((d) => [x(d.date), y(d.y), d.label]);
+    const points = convertedData.map((d) => [x(d.date), y(d.yMinutes), d.label]);
     const groups = rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
 
     const color = schemeCategory10;
