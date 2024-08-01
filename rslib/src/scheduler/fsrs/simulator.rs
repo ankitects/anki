@@ -76,8 +76,8 @@ impl Card {
                     let due = card.original_or_current_due();
                     let relative_due = due - days_elapsed;
                     Some(fsrs::Card {
-                        difficulty: state.difficulty as f32,
-                        stability: state.stability as f32,
+                        difficulty: state.difficulty,
+                        stability: state.stability,
                         last_date: (relative_due - card.interval as i32) as f32,
                         due: relative_due as f32,
                     })
@@ -90,8 +90,8 @@ impl Card {
                 }),
                 CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => {
                     Some(fsrs::Card {
-                        difficulty: state.difficulty as f32,
-                        stability: state.stability as f32,
+                        difficulty: state.difficulty,
+                        stability: state.stability,
                         last_date: 0.0,
                         due: 0.0,
                     })

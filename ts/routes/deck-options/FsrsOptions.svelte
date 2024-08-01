@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         ComputeOptimalRetentionRequest,
         SimulateFsrsReviewRequest,
-        SimulateFsrsReviewResponse,
+        type SimulateFsrsReviewResponse,
     } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsWeights,
@@ -41,7 +41,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import NoDataOverlay from "../graphs/NoDataOverlay.svelte";
     import TableData from "../graphs/TableData.svelte";
     import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
-    import { p } from "$lib/domlib/surround/test-utils";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -286,7 +285,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const bounds = defaultGraphBounds();
     let svg = null as HTMLElement | SVGElement | null;
     const title = tr.statisticsReviewsTitle();
-    let subtitle = "";
     let simulationNumber = 0;
 
     let points: Point[] = [];
@@ -320,7 +318,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         } finally {
             if (resp) {
-                let dailyTimeCost = movingAverage(
+                const dailyTimeCost = movingAverage(
                     resp.dailyTimeCost,
                     Math.round(simulateFsrsRequest.daysToSimulate / 50),
                 );
@@ -537,7 +535,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {"Clear last simulation"}
         </button>
 
-        <Graph {title} {subtitle}>
+        <Graph {title}>
             <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
                 <CumulativeOverlay />
                 <HoverColumns />
@@ -551,7 +549,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style>
-    .hidden {
-        display: none;
-    }
 </style>

@@ -1,6 +1,5 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import {
     axisBottom,
@@ -17,7 +16,6 @@ import {
 
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
-import { hideTooltip, showTooltip } from "./tooltip";
 
 export interface Point {
     x: number;
