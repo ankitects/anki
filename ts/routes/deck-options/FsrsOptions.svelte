@@ -536,4 +536,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style>
+    .hidden {
+        display: none;
+    }
 </style>
