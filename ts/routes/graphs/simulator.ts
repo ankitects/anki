@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import { axisBottom, axisLeft, line, max, rollup, scaleLinear, schemeCategory10, select } from "d3";
+import { axisBottom, axisLeft, line, max, rollup, scaleLinear, scaleTime, schemeCategory10, select, timeFormat } from "d3";
 
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
@@ -24,14 +24,27 @@ export function renderSimulationChart(
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
-    const xMin = 0;
-    const xMax = max(data, d => d.x);
+    const today = new Date();
+    const dateData = data.map(d => ({
+        ...d,
+        date: new Date(today.getTime() + d.x * 24 * 60 * 60 * 1000)
+    }));
+    const xMin = today;
+    const xMax = max(dateData, d => d.date);
 
-    const x = scaleLinear().domain([xMin, xMax!]).range([bounds.marginLeft, bounds.width - bounds.marginRight]);
+    const x = scaleTime()
+        .domain([xMin, xMax!])
+        .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
+    const formatDate = timeFormat("%Y-%m-%d");
+
     svg.select<SVGGElement>(".x-ticks")
-        .call((selection) => selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0)))
+        .call((selection) => selection.transition(trans).call(
+            axisBottom(x)
+                .ticks(7)
+                .tickFormat((d: any) => formatDate(d))
+                .tickSizeOuter(0)
+        ))
         .attr("direction", "ltr");
-
     // y scale
 
     const yTickFormat = (n: number): string => {
@@ -59,7 +72,7 @@ export function renderSimulationChart(
         .attr("direction", "ltr");
 
     // x lines
-    const points = data.map((d) => [x(d.x), y(d.y), d.label]);
+    const points = dateData.map((d) => [x(d.date), y(d.y), d.label]);
     const groups = rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
 
     const color = schemeCategory10;
