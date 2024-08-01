@@ -41,6 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import NoDataOverlay from "../graphs/NoDataOverlay.svelte";
     import TableData from "../graphs/TableData.svelte";
     import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
+    import { p } from "$lib/domlib/surround/test-utils";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -334,6 +335,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }
     }
+
+    function clearSimulation(): void {
+        points = points.filter((p) => p.label !== simulationNumber);
+        simulationNumber = Math.max(0, simulationNumber - 1);
+        tableData = renderSimulationChart(svg as SVGElement, bounds, points);
+    }
 </script>
 
 <SpinBoxFloatRow
@@ -520,6 +527,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:click={() => simulateFsrs()}
         >
             {"Simulate"}
+        </button>
+
+        <button
+            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            disabled={computing}
+            on:click={() => clearSimulation()}
+        >
+            {"Clear last simulation"}
         </button>
 
         <Graph {title} {subtitle}>

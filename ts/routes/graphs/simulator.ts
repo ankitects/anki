@@ -2,7 +2,18 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import { axisBottom, axisLeft, line, max, rollup, scaleLinear, scaleTime, schemeCategory10, select, timeFormat } from "d3";
+import {
+    axisBottom,
+    axisLeft,
+    line,
+    max,
+    rollup,
+    scaleLinear,
+    scaleTime,
+    schemeCategory10,
+    select,
+    timeFormat,
+} from "d3";
 
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
@@ -19,16 +30,21 @@ export function renderSimulationChart(
     bounds: GraphBounds,
     data: Point[],
 ): TableDatum[] {
-    // Prepare data
-
     const svg = select(svgElem);
+    svg.selectAll(".lines").remove();
+    svg.selectAll(".legend").remove();
+    if (data.length == 0) {
+        setDataAvailable(svg, false);
+        return [];
+    }
     const trans = svg.transition().duration(600) as any;
 
+    // Prepare data
     const today = new Date();
     const convertedData = data.map(d => ({
         ...d,
         date: new Date(today.getTime() + d.x * 24 * 60 * 60 * 1000),
-        yMinutes: d.y / 60
+        yMinutes: d.y / 60,
     }));
     const xMin = today;
     const xMax = max(convertedData, d => d.date);
@@ -39,12 +55,14 @@ export function renderSimulationChart(
     const formatDate = timeFormat("%Y-%m-%d");
 
     svg.select<SVGGElement>(".x-ticks")
-        .call((selection) => selection.transition(trans).call(
-            axisBottom(x)
-                .ticks(7)
-                .tickFormat((d: any) => formatDate(d))
-                .tickSizeOuter(0)
-        ))
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisBottom(x)
+                    .ticks(7)
+                    .tickFormat((d: any) => formatDate(d))
+                    .tickSizeOuter(0),
+            )
+        )
         .attr("direction", "ltr");
     // y scale
 
@@ -81,7 +99,7 @@ export function renderSimulationChart(
         .attr("dy", "1em")
         .attr("fill", "currentColor")
         .style("text-anchor", "middle")
-        .text("Review Time (minutes) per day");
+        .text("Review Time per day (minutes)");
 
     // x lines
     const points = convertedData.map((d) => [x(d.date), y(d.yMinutes), d.label]);
@@ -89,9 +107,8 @@ export function renderSimulationChart(
 
     const color = schemeCategory10;
 
-    svg.selectAll("path").remove();
-
     svg.append("g")
+        .attr("class", "lines")
         .attr("fill", "none")
         .attr("stroke-width", 1.5)
         .attr("stroke-linejoin", "round")
@@ -105,6 +122,7 @@ export function renderSimulationChart(
         .attr("data-group", d => d[0]);
 
     const legend = svg.append("g")
+        .attr("class", "legend")
         .attr("font-family", "sans-serif")
         .attr("font-size", 10)
         .attr("text-anchor", "start")
