@@ -141,7 +141,7 @@ export function renderSimulationChart(
         .attr("x", bounds.width - bounds.marginRight + 34)
         .attr("y", 9.5)
         .attr("dy", "0.32em")
-        .text(d => `Group ${d}`);
+        .text(d => `Simulation ${d}`);
 
     const toggleGroup = (event: MouseEvent, d: number) => {
         const group = d;

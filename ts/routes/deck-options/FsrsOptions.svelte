@@ -84,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const simulateFsrsRequest = new SimulateFsrsReviewRequest({
         weights: $config.fsrsWeights,
         desiredRetention: $config.desiredRetention,
-        deckSize: 1000,
+        deckSize: 0,
         daysToSimulate: 365,
         newLimit: $config.newPerDay,
         reviewLimit: $config.reviewsPerDay,
@@ -482,7 +482,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={10000}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Additional new cards
+                Additional new cards to simulate
             </SettingTitle>
         </SpinBoxRow>
 
