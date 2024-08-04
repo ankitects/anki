@@ -199,7 +199,7 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
         # this will return a different format on Windows (e.g. Italian_Italy), resulting in us falling back to en_US
         # further below
         (sys_lang, enc) = locale.getlocale()
-    except:
+    except Exception:
         # fails on osx
         sys_lang = "en_US"
     if user_lang in compatMap:

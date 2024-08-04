@@ -35,7 +35,7 @@ def runHook(hook: str, *args: Any) -> None:
         for func in hookFuncs:
             try:
                 func(*args)
-            except:
+            except Exception:
                 hookFuncs.remove(func)
                 raise
 
@@ -46,7 +46,7 @@ def runFilter(hook: str, arg: Any, *args: Any) -> Any:
         for func in hookFuncs:
             try:
                 arg = func(arg, *args)
-            except:
+            except Exception:
                 hookFuncs.remove(func)
                 raise
     return arg

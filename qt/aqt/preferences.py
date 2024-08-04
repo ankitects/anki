@@ -384,7 +384,7 @@ class Preferences(QDialog):
             lang = lang.replace("-", "_")
         try:
             return codes.index(lang)
-        except:
+        except Exception:
             return codes.index("en_US")
 
     def on_language_index_changed(self, idx: int) -> None:
