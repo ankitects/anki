@@ -1114,11 +1114,14 @@ def extract_meta_from_download_url(url: str) -> ExtractedDownloadMeta:
     urlobj = urlparse(url)
     query = parse_qs(urlobj.query)
 
+    def get_first_element(elements: list[str]) -> int:
+        return int(elements[0])
+
     meta = ExtractedDownloadMeta(
-        mod_time=int(query.get("t")[0]),
-        min_point_version=int(query.get("minpt")[0]),
-        max_point_version=int(query.get("maxpt")[0]),
-        branch_index=int(query.get("bidx")[0]),
+        mod_time=get_first_element(query["t"]),
+        min_point_version=get_first_element(query["minpt"]),
+        max_point_version=get_first_element(query["maxpt"]),
+        branch_index=get_first_element(query["bidx"]),
     )
 
     return meta
