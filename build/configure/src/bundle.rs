@@ -95,13 +95,13 @@ const MAC_AMD_AUDIO: OnlineArchive = OnlineArchive {
 };
 
 const MAC_ARM_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-02-29/pyqt6.6-mac-arm64.tar.zst",
-    sha256: "9b2ade4ae9b80506689062845e83e8c60f7fa9843545bf7bb2d11d3e2f105878",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-08-04/pyqt6.7-mac-arm64.tar.zst",
+    sha256: "e369872d8522a4ce58828db465d4cba5168d298987045747dcba61311b21de12",
 };
 
 const MAC_AMD_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-02-29/pyqt6.6-mac-amd64.tar.zst",
-    sha256: "dbd0871e4da22820d1fa9ab29220d631467d1178038dcab4b15169ad7f499b1b",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-08-04/pyqt6.7-mac-amd64.tar.zst",
+    sha256: "228e2bb7263c226db277ad60aa10c26fe225d9be2ce3053ab78788d775a2fe0c",
 };
 
 const MAC_AMD_QT5: OnlineArchive = OnlineArchive {
