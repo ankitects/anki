@@ -722,7 +722,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
             tot = bad + good
             try:
                 pct = good / float(tot) * 100
-            except:
+            except Exception:
                 pct = 0
             i.append(
                 "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"

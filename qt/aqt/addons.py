@@ -248,7 +248,7 @@ class AddonManager:
                 __import__(addon.dir_name)
             except AbortAddonImport:
                 pass
-            except:
+            except Exception:
                 name = html.escape(addon.human_name())
                 page = addon.page()
                 if page:
@@ -341,7 +341,7 @@ class AddonManager:
         except json.JSONDecodeError as e:
             print(f"json error in add-on {module}:\n{e}")
             return dict()
-        except:
+        except Exception:
             # missing meta file, etc
             return dict()
 
@@ -644,7 +644,7 @@ class AddonManager:
         try:
             with open(path, encoding="utf8") as f:
                 return json.load(f)
-        except:
+        except Exception:
             return None
 
     def set_config_help_action(self, module: str, action: Callable[[], str]) -> None:

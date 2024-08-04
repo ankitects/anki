@@ -216,7 +216,7 @@ class ProfileManager:
         self.name = name
         try:
             self.profile = self._unpickle(data)
-        except:
+        except Exception:
             print(traceback.format_exc())
             QMessageBox.warning(
                 None,
@@ -285,7 +285,7 @@ class ProfileManager:
                 showWarning(tr.profiles_anki_could_not_rename_your_profile())
             else:
                 raise
-        except:
+        except BaseException:
             self.db.rollback()
             raise
         else:
@@ -386,7 +386,7 @@ class ProfileManager:
             if self.db:
                 try:
                     self.db.close()
-                except:
+                except Exception:
                     pass
             for suffix in ("", "-journal"):
                 fpath = path + suffix
@@ -406,7 +406,7 @@ create table if not exists profiles
             data = self.db.scalar(
                 "select cast(data as blob) from profiles where name = '_global'"
             )
-        except:
+        except Exception:
             traceback.print_stack()
             if result.loadError:
                 # already failed, prevent infinite loop
@@ -420,7 +420,7 @@ create table if not exists profiles
             try:
                 self.meta = self._unpickle(data)
                 return result
-            except:
+            except Exception:
                 traceback.print_stack()
                 print("resetting corrupt _global")
                 result.loadError = True
