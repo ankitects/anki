@@ -44,7 +44,7 @@ def _patch_pkgutil() -> None:
             reader = module.__loader__.get_resource_reader(package)  # type: ignore[attr-defined]
             with reader.open_resource(resource) as f:
                 return f.read()
-        except:
+        except Exception:
             return None
 
     pkgutil.get_data = get_data_custom

@@ -2,8 +2,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from enum import Enum, auto
-from typing import Iterable, cast
+from typing import cast
 
 import aqt
 import aqt.browser
@@ -43,6 +44,7 @@ from aqt.operations.tag import (
     set_tag_collapsed,
 )
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import (
     KeyboardModifiersPressed,
@@ -266,7 +268,7 @@ class SidebarTreeView(QTreeView):
 
     def update_search(
         self,
-        *terms: Union[str, SearchNode],
+        *terms: str | SearchNode,
         joiner: SearchJoiner = "AND",
     ) -> None:
         """Modify the current search string based on modifier keys, then refresh."""
@@ -524,7 +526,7 @@ class SidebarTreeView(QTreeView):
         *,
         root: SidebarItem,
         name: str,
-        icon: Union[str, ColoredIcon],
+        icon: str | ColoredIcon,
         collapse_key: Config.Bool.V,
         type: SidebarItemType | None = None,
     ) -> SidebarItem:

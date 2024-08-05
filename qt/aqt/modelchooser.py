@@ -1,7 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from __future__ import annotations
 
-from typing import Optional
+from collections.abc import Callable
 
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -16,7 +17,7 @@ class ModelChooser(QHBoxLayout):
         mw: AnkiQt,
         widget: QWidget,
         label: bool = True,
-        on_activated: Optional[Callable[[], None]] = None,
+        on_activated: Callable[[], None] | None = None,
     ) -> None:
         """If provided, on_activated() will be called when the button is clicked,
         and the caller can call .onModelChange() to pull up the dialog when they

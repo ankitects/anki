@@ -6,7 +6,8 @@ from __future__ import annotations
 import json
 import math
 import re
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
 import aqt
 import aqt.browser

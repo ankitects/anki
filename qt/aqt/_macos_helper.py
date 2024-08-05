@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import os
 import sys
+from collections.abc import Callable
 from ctypes import CDLL, CFUNCTYPE, c_bool, c_char_p
-from typing import Callable
 
 import aqt
 import aqt.utils

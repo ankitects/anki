@@ -5,12 +5,13 @@
 Code for generating hooks.
 """
 
+from __future__ import annotations
+
 import os
 import subprocess
 import sys
 from dataclasses import dataclass
 from operator import attrgetter
-from typing import Optional
 
 sys.path.append("pylib/anki/_vendor")
 
@@ -23,19 +24,19 @@ class Hook:
     name: str
     # string of the typed arguments passed to the callback, eg
     # ["kind: str", "val: int"]
-    args: list[str] = None
+    args: list[str] | None = None
     # string of the return type. if set, hook is a filter.
-    return_type: Optional[str] = None
+    return_type: str | None = None
     # if add-ons may be relying on the legacy hook name, add it here
-    legacy_hook: Optional[str] = None
+    legacy_hook: str | None = None
     # if legacy hook takes no arguments but the new hook does, set this
     legacy_no_args: bool = False
     # if the hook replaces a deprecated one, add its name here
-    replaces: Optional[str] = None
+    replaces: str | None = None
     # arguments that the hook being replaced took
-    replaced_hook_args: Optional[list[str]] = None
+    replaced_hook_args: list[str] | None = None
     # docstring to add to hook class
-    doc: Optional[str] = None
+    doc: str | None = None
 
     def callable(self) -> str:
         "Convert args into a Callable."
@@ -47,7 +48,7 @@ class Hook:
         types_str = ", ".join(types)
         return f"Callable[[{types_str}], {self.return_type or 'None'}]"
 
-    def arg_names(self, args: Optional[list[str]]) -> list[str]:
+    def arg_names(self, args: list[str] | None) -> list[str]:
         names = []
         for arg in args or []:
             if not arg:
@@ -126,7 +127,7 @@ class {self.classname()}:
         for hook in self._hooks:
             try:
                 hook({", ".join(arg_names)})
-            except:
+            except Exception:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
@@ -162,7 +163,7 @@ class {self.classname()}:
         for filter in self._hooks:
             try:
                 {arg_names[0]} = filter({", ".join(arg_names)})
-            except:
+            except Exception:
                 # if the hook fails, remove it
                 self._hooks.remove(filter)
                 raise

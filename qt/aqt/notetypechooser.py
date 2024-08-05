@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from anki.collection import OpChanges
 from anki.models import NotetypeId
 from aqt import AnkiQt, gui_hooks

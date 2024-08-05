@@ -8,7 +8,8 @@ import os
 import pathlib
 import sys
 import traceback
-from typing import TYPE_CHECKING, Any, Callable, Union
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Union
 
 from anki._vendor import stringcase  # type: ignore
 

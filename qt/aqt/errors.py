@@ -3,15 +3,19 @@
 
 from __future__ import annotations
 
+import os
 import re
+import sys
 import time
-from typing import TYPE_CHECKING, Optional, TextIO, cast
+import traceback
+from typing import TYPE_CHECKING, TextIO, cast
 
 from markdown import markdown
 
 import aqt
 from anki.collection import HelpPage
 from anki.errors import BackendError, Interrupted
+from anki.utils import is_win
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
 from aqt.utils import openHelp, showWarning, supportText, tooltip, tr
@@ -169,7 +173,7 @@ class ErrorHandler(QObject):
     def __init__(self, mw: AnkiQt) -> None:
         QObject.__init__(self, mw)
         self.mw = mw
-        self.timer: Optional[QTimer] = None
+        self.timer: QTimer | None = None
         qconnect(self.errorTimer, self._setTimer)
         self.pool = ""
         self._oldstderr = sys.stderr

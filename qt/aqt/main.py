@@ -8,10 +8,13 @@ import gc
 import os
 import re
 import signal
+import sys
+import traceback
 import weakref
 from argparse import Namespace
+from collections.abc import Callable, Sequence
 from concurrent.futures import Future
-from typing import Any, Literal, Sequence, TypeVar, cast
+from typing import Any, Literal, TypeVar, cast
 
 import anki
 import anki.cards
@@ -199,7 +202,7 @@ class AnkiQt(QMainWindow):
             self.setupUI()
             self.setupAddons(args)
             self.finish_ui_setup()
-        except:
+        except Exception:
             showInfo(tr.qt_misc_error_during_startup(val=traceback.format_exc()))
             sys.exit(1)
         # must call this after ui set up
@@ -350,7 +353,7 @@ class AnkiQt(QMainWindow):
         f.profiles.addItems(profs)
         try:
             idx = profs.index(self.pm.name)
-        except:
+        except Exception:
             idx = 0
         f.profiles.setCurrentRow(idx)
 
@@ -680,7 +683,7 @@ class AnkiQt(QMainWindow):
             self.maybeOptimize()
             if not dev_mode:
                 corrupt = self.col.db.scalar("pragma quick_check") != "ok"
-        except:
+        except Exception:
             corrupt = True
 
         try:
@@ -692,7 +695,7 @@ class AnkiQt(QMainWindow):
                         force=False,
                         wait_for_completion=False,
                     )
-                except:
+                except Exception:
                     print("backup on close failed")
             self.col.close(downgrade=False)
         except Exception as e:

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import copy
 import time
+from collections.abc import Generator, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Generator, Sequence, Union
+from typing import TYPE_CHECKING, Union
 
 import aqt
 import aqt.browser

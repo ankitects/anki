@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from concurrent.futures import Future
 from dataclasses import dataclass
 
@@ -10,6 +11,7 @@ import aqt.forms
 from anki._legacy import print_deprecation_warning
 from anki.collection import Progress
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.utils import disable_help_button, tr
 
 # Progress info

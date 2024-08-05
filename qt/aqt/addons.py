@@ -9,13 +9,16 @@ import json
 import logging
 import os
 import re
+import sys
+import traceback
 import zipfile
 from collections import defaultdict
+from collections.abc import Callable, Iterable, Sequence
 from concurrent.futures import Future
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import IO, Any, Callable, Iterable, Sequence, Union
+from typing import IO, Any, Union
 from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
 
@@ -247,7 +250,7 @@ class AddonManager:
                 __import__(addon.dir_name)
             except AbortAddonImport:
                 pass
-            except:
+            except Exception:
                 name = html.escape(addon.human_name())
                 page = addon.page()
                 if page:
@@ -340,7 +343,7 @@ class AddonManager:
         except json.JSONDecodeError as e:
             print(f"json error in add-on {module}:\n{e}")
             return dict()
-        except:
+        except Exception:
             # missing meta file, etc
             return dict()
 
@@ -643,7 +646,7 @@ class AddonManager:
         try:
             with open(path, encoding="utf8") as f:
                 return json.load(f)
-        except:
+        except Exception:
             return None
 
     def set_config_help_action(self, module: str, action: Callable[[], str]) -> None:
@@ -1115,11 +1118,14 @@ def extract_meta_from_download_url(url: str) -> ExtractedDownloadMeta:
     urlobj = urlparse(url)
     query = parse_qs(urlobj.query)
 
+    def get_first_element(elements: list[str]) -> int:
+        return int(elements[0])
+
     meta = ExtractedDownloadMeta(
-        mod_time=int(query.get("t")[0]),
-        min_point_version=int(query.get("minpt")[0]),
-        max_point_version=int(query.get("maxpt")[0]),
-        branch_index=int(query.get("bidx")[0]),
+        mod_time=get_first_element(query["t"]),
+        min_point_version=get_first_element(query["minpt"]),
+        max_point_version=get_first_element(query["maxpt"]),
+        branch_index=get_first_element(query["bidx"]),
     )
 
     return meta

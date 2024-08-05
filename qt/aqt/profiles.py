@@ -4,13 +4,14 @@
 from __future__ import annotations
 
 import io
+import os
 import pickle
 import random
 import shutil
 import traceback
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import anki.lang
 import aqt.forms
@@ -23,6 +24,7 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, int_version, is_mac, is_win
 from aqt import appHelpSite, gui_hooks
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.theme import Theme, WidgetStyle, theme_manager
 from aqt.toolbar import HideMode
 from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
@@ -216,7 +218,7 @@ class ProfileManager:
         self.name = name
         try:
             self.profile = self._unpickle(data)
-        except:
+        except Exception:
             print(traceback.format_exc())
             QMessageBox.warning(
                 None,
@@ -285,7 +287,7 @@ class ProfileManager:
                 showWarning(tr.profiles_anki_could_not_rename_your_profile())
             else:
                 raise
-        except:
+        except BaseException:
             self.db.rollback()
             raise
         else:
@@ -386,7 +388,7 @@ class ProfileManager:
             if self.db:
                 try:
                     self.db.close()
-                except:
+                except Exception:
                     pass
             for suffix in ("", "-journal"):
                 fpath = path + suffix
@@ -406,7 +408,7 @@ create table if not exists profiles
             data = self.db.scalar(
                 "select cast(data as blob) from profiles where name = '_global'"
             )
-        except:
+        except Exception:
             traceback.print_stack()
             if result.loadError:
                 # already failed, prevent infinite loop
@@ -420,7 +422,7 @@ create table if not exists profiles
             try:
                 self.meta = self._unpickle(data)
                 return result
-            except:
+            except Exception:
                 traceback.print_stack()
                 print("resetting corrupt _global")
                 result.loadError = True
@@ -544,7 +546,7 @@ create table if not exists profiles
     def set_spacebar_rates_card(self, on: bool) -> None:
         self.meta["spacebar_rates_card"] = on
 
-    def get_answer_key(self, ease: int) -> Optional[str]:
+    def get_answer_key(self, ease: int) -> str | None:
         return self.meta.setdefault("answer_keys", self.default_answer_keys).get(ease)
 
     def set_answer_key(self, ease: int, key: str):
