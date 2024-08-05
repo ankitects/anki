@@ -368,8 +368,8 @@ pub trait FilesHandle {
     /// different variables. This is a shortcut for calling .expand_inputs()
     /// and then .add_inputs_vec()
     /// - If the variable name is non-empty, a variable of the same name will be
-    /// created so the file list can be accessed in the command. By convention,
-    /// this is often `in`.
+    ///   created so the file list can be accessed in the command. By
+    ///   convention, this is often `in`.
     fn add_inputs(&mut self, variable: &'static str, inputs: impl AsRef<BuildInput>);
     fn add_inputs_vec(&mut self, variable: &'static str, inputs: Vec<String>);
     fn add_order_only_inputs(&mut self, variable: &'static str, inputs: impl AsRef<BuildInput>);
@@ -392,14 +392,14 @@ pub trait FilesHandle {
     /// Add outputs to the build statement. Can be called multiple times with
     /// different variables.
     /// - Each output automatically has $builddir/ prefixed to it if it does not
-    /// already start with it.
+    ///   already start with it.
     /// - If the variable name is non-empty, a variable of the same name will be
-    /// created so the file list can be accessed in the command. By convention,
-    /// this is often `out`.
-    /// - If subgroup is true, the files are also placed in a subgroup. Eg
-    /// if a rule `foo` exists and subgroup `bar` is provided, the files are
-    /// accessible via `:foo:bar`. The variable name must not be empty, or
-    /// called `out`.
+    ///   created so the file list can be accessed in the command. By
+    ///   convention, this is often `out`.
+    /// - If subgroup is true, the files are also placed in a subgroup. Eg if a
+    ///   rule `foo` exists and subgroup `bar` is provided, the files are
+    ///   accessible via `:foo:bar`. The variable name must not be empty, or
+    ///   called `out`.
     fn add_outputs_ext(
         &mut self,
         variable: impl Into<String>,
