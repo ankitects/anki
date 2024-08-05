@@ -160,10 +160,7 @@ impl Collection {
             (SAMPLE_JS, JS_DATA),
         ] {
             // data should have been copied correctly
-            assert_eq!(
-                read_file(&self.media_folder.join(fname)).unwrap(),
-                orig_data
-            );
+            assert_eq!(read_file(self.media_folder.join(fname)).unwrap(), orig_data);
             // and checksums in media db should be valid
             assert_eq!(*csums.get(fname).unwrap(), sha1_of_data(orig_data));
         }

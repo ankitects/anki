@@ -87,6 +87,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Christian Krause",
             "Christian Rusche",
             "Dave Druelinger",
+            "David Culley",
             "David Smith",
             "Dmitry Mikheev",
             "Dotan Cohen",
@@ -196,6 +197,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Lucas Scharenbroch",
             "Antoine Q.",
             "Ian Samir Yep Manzano",
+            "Asuka Minato",
         )
     )
 

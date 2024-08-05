@@ -4,7 +4,8 @@
 import copy
 import os
 import time
-from typing import Callable, Dict
+from collections.abc import Callable
+from typing import Dict
 
 import pytest
 

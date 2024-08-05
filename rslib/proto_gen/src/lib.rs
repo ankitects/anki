@@ -29,12 +29,12 @@ use walkdir::WalkDir;
 /// expected to exist (but may be empty).
 ///
 /// - If a method is listed in BackendExampleService and not in ExampleService,
-/// that method is only available with a Backend.
+///   that method is only available with a Backend.
 /// - If a method is listed in both services, you can provide separate
-/// implementations for each of the traits.
+///   implementations for each of the traits.
 /// - If a method is listed only in ExampleService, a forwarding method on
-/// Backend is automatically implemented. This bypasses the trait and implements
-/// directly on Backend.
+///   Backend is automatically implemented. This bypasses the trait and
+///   implements directly on Backend.
 ///
 /// It's important that service and method indices are the same for
 /// client-generated code, so the client code should use the .index fields
