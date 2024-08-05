@@ -9,6 +9,8 @@ import json
 import logging
 import os
 import re
+import sys
+import traceback
 import zipfile
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Sequence
