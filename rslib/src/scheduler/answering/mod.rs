@@ -84,6 +84,7 @@ impl CardStateUpdater {
         load_balancer: LoadBalancerContext<'a>,
     ) -> StateContext<'a> {
         StateContext {
+            fuzz_factor: get_fuzz_factor(self.fuzz_seed),
             steps: self.learn_steps(),
             graduating_interval_good: self.config.inner.graduating_interval_good,
             graduating_interval_easy: self.config.inner.graduating_interval_easy,

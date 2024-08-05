@@ -52,7 +52,7 @@ pub struct LoadBalancerContext<'a> {
 }
 
 impl<'a> LoadBalancerContext<'a> {
-    pub fn find_interval(&self, interval: f32, minimum: u32, maximum: u32) -> u32 {
+    pub fn find_interval(&self, interval: f32, minimum: u32, maximum: u32) -> Option<u32> {
         self.load_balancer
             .find_interval(interval, minimum, maximum, self.note_id)
     }
@@ -117,14 +117,14 @@ impl LoadBalancer {
         minimum: u32,
         maximum: u32,
         note_id: Option<NoteId>,
-    ) -> u32 {
+    ) -> Option<u32> {
         // if we're sending a card far out into the future, the need to balance is low
         if interval as u32 > MAX_LOAD_BALANCE_INTERVAL as u32 {
             println!(
                 "load balancer: interval {} over threshold {}, not balancing",
                 interval, MAX_LOAD_BALANCE_INTERVAL
             );
-            return interval as u32;
+            return None;
         }
 
         let (before_days, after_days) = constrained_fuzz_bounds(interval, minimum, maximum);
@@ -182,7 +182,7 @@ impl LoadBalancer {
             interval as u32, balanced_interval
         );
 
-        balanced_interval
+        Some(balanced_interval)
     }
 
     pub fn add_card(&mut self, cid: CardId, nid: NoteId, interval: u32) {

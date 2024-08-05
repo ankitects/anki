@@ -86,6 +86,7 @@ impl CardState {
 pub(crate) struct StateContext<'a> {
     /// In range `0.0..1.0`. Used to pick the final interval from the fuzz
     /// range.
+    pub fuzz_factor: Option<f32>,
     pub fsrs_next_states: Option<NextStates>,
 
     // learning
@@ -125,6 +126,7 @@ impl<'a> StateContext<'a> {
     #[cfg(test)]
     pub(crate) fn defaults_for_testing() -> Self {
         Self {
+            fuzz_factor: None,
             steps: LearningSteps::new(&[1.0, 10.0]),
             graduating_interval_good: 1,
             graduating_interval_easy: 4,
