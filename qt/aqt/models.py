@@ -62,6 +62,13 @@ class Models(QDialog):
         self.models: Sequence[NotetypeNameIdUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
+
+        self.setWindowFlags(
+            self.windowFlags()
+            | Qt.WindowType.WindowMaximizeButtonHint
+            | Qt.WindowType.WindowMinimizeButtonHint
+        )
+
         self.show()
 
     # Models
