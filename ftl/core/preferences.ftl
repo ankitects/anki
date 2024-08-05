@@ -77,8 +77,6 @@ preferences-network-timeout = Network timeout
 preferences-reset-window-sizes = Reset Window Sizes
 preferences-reset-window-sizes-complete = Window sizes and locations have been reset.
 preferences-shortcut-placeholder = Enter an unused shortcut key, or leave empty to disable.
-preferences-load-balancer = Load Balancer
-preferences-load-balancer-enable = Enable Load Balancer
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

@@ -107,7 +107,7 @@ pub(super) struct QueueBuilder {
     pub(super) learning: Vec<DueCard>,
     pub(super) day_learning: Vec<DueCard>,
     limits: LimitTreeMap,
-    load_balancer: Option<LoadBalancer>,
+    load_balancer: LoadBalancer,
     context: Context,
 }
 
@@ -146,10 +146,7 @@ impl QueueBuilder {
         let sort_options = sort_options(&root_deck, &config_map);
         let deck_map = col.storage.get_decks_map()?;
 
-        let load_balancer = col
-            .get_config_bool(BoolKey::LoadBalancerEnable)
-            .then(|| LoadBalancer::new(timing.days_elapsed, &col.storage))
-            .transpose()?;
+        let load_balancer = LoadBalancer::new(timing.days_elapsed, &col.storage)?;
 
         Ok(QueueBuilder {
             new: Vec::new(),

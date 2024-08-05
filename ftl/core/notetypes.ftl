@@ -35,7 +35,6 @@ notetypes-note-types = Note Types
 notetypes-options = Options
 notetypes-please-add-another-note-type-first = Please add another note type first.
 notetypes-type = Type
-notetypes-load-balancer-disperse-siblings = Prevent sibling overlap when using Load Balancer
 
 ## Image Occlusion
 

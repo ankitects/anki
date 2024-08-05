@@ -31,7 +31,6 @@ use crate::config::BoolKey;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
-use crate::error::AnkiError;
 use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
 use crate::scheduler::states::PreviewState;
@@ -82,10 +81,9 @@ impl CardStateUpdater {
     /// state handling code from the rest of the Anki codebase.
     pub(crate) fn state_context<'a>(
         &'a self,
-        load_balancer: Option<LoadBalancerContext<'a>>,
+        load_balancer: LoadBalancerContext<'a>,
     ) -> StateContext<'a> {
         StateContext {
-            fuzz_factor: get_fuzz_factor(self.fuzz_seed),
             steps: self.learn_steps(),
             graduating_interval_good: self.config.inner.graduating_interval_good,
             graduating_interval_easy: self.config.inner.graduating_interval_easy,
@@ -222,18 +220,18 @@ impl Collection {
     /// Return the next states that will be applied for each answer button.
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
+        let deck = self.get_deck(card.deck_id)?.or_not_found(card.deck_id)?;
 
-        let note_id: Option<NoteId> = self
-            .storage
-            .get_note(card.note_id)?
-            .map(|note| {
-                Ok::<_, AnkiError>(
-                    self.get_notetype(note.notetype_id)?
-                        .map(|notetype| notetype.config.load_balancer_disperse_siblings),
-                )
+        let note_id = deck.config_id()
+            .map(|deck_config_id| {
+                self
+                    .get_deck_config(deck_config_id, false)
             })
             .transpose()?
             .flatten()
+            .map(|deck_config| {
+                deck_config.inner.bury_reviews
+            })
             .unwrap_or(false)
             .then_some(card.note_id);
 
@@ -241,11 +239,10 @@ impl Collection {
         let current = ctx.current_card_state();
 
         let load_balancer = self
-            .state
-            .card_queues
-            .as_mut()
-            .and_then(|card_queues| card_queues.load_balancer.as_mut())
-            .map(|load_balancer| load_balancer.review_context(note_id));
+            .get_queues()?
+            .load_balancer
+            .review_context(note_id);
+
         let state_ctx = ctx.state_context(load_balancer);
         Ok(current.next_states(&state_ctx))
     }
@@ -342,9 +339,7 @@ impl Collection {
 
         if card.queue == CardQueue::Review {
             if let Some(card_queues) = self.state.card_queues.as_mut() {
-                if let Some(load_balancer) = card_queues.load_balancer.as_mut() {
-                    load_balancer.add_card(card.id, card.note_id, card.interval)
-                }
+                card_queues.load_balancer.add_card(card.id, card.note_id, card.interval)
             }
         }
 

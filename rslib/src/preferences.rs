@@ -98,7 +98,6 @@ impl Collection {
             show_intervals_on_buttons: self
                 .get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons),
             time_limit_secs: self.get_answer_time_limit_secs(),
-            load_balancer_enable: self.get_config_bool(BoolKey::LoadBalancerEnable),
         })
     }
 
@@ -118,9 +117,6 @@ impl Collection {
             s.show_intervals_on_buttons,
         )?;
         self.set_answer_time_limit_secs(s.time_limit_secs)?;
-
-        self.set_config_bool_inner(BoolKey::LoadBalancerEnable, s.load_balancer_enable)?;
-
         Ok(())
     }
 
