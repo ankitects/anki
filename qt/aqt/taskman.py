@@ -9,6 +9,7 @@ See QueryOp() and CollectionOp() for higher-level routines.
 
 from __future__ import annotations
 
+import traceback
 from collections.abc import Callable
 from concurrent.futures import Future
 from concurrent.futures.thread import ThreadPoolExecutor

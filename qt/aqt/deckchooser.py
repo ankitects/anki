@@ -9,6 +9,7 @@ from anki.collection import OpChanges
 from anki.decks import DEFAULT_DECK_ID, DeckId
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.utils import HelpPage, shortcut, tr
 
 

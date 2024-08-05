@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 import time
+import traceback
 import wave
 from abc import ABC, abstractmethod
 from collections.abc import Callable

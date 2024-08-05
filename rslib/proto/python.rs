@@ -96,9 +96,10 @@ fn format_comments(comments: &Option<String>) -> String {
 /// If any of the following apply to the input type:
 /// - it has a single field
 /// - its name ends in Request
-/// - it has any optional fields ...then destructuring will be skipped, and the
-///   method will take the input message directly. Returns (params_line,
-///   assignment_lines)
+/// - it has any optional fields
+///
+/// ...then destructuring will be skipped, and the method will take the input
+/// message directly. Returns (params_line, assignment_lines)
 fn maybe_destructured_input(input: &MessageDescriptor) -> (String, String) {
     if (input.name().ends_with("Request") || input.fields().len() < 2)
         && input.oneofs().next().is_none()

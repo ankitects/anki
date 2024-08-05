@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import pprint
 import time
+from typing import NewType
 
 import anki  # pylint: disable=unused-import
 import anki.collection
