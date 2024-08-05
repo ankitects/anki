@@ -44,6 +44,7 @@ from aqt.operations.tag import (
     set_tag_collapsed,
 )
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import (
     KeyboardModifiersPressed,
