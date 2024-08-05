@@ -251,7 +251,7 @@ impl BuildAction for PythonTest {
         build.add_variable("folder", self.folder);
         build.add_variable(
             "pythonpath",
-            &self.python_path.join(if cfg!(windows) { ";" } else { ":" }),
+            self.python_path.join(if cfg!(windows) { ";" } else { ":" }),
         );
         build.add_env_var("PYTHONPATH", "$pythonpath");
         build.add_env_var("ANKI_TEST_MODE", "1");
