@@ -119,10 +119,12 @@ impl LoadBalancer {
         note_id: Option<NoteId>,
     ) -> Option<u32> {
         // if we're sending a card far out into the future, the need to balance is low
-        if interval as u32 > MAX_LOAD_BALANCE_INTERVAL as u32 {
+        if interval as u32 > MAX_LOAD_BALANCE_INTERVAL as u32
+            || minimum > MAX_LOAD_BALANCE_INTERVAL as u32
+        {
             println!(
-                "load balancer: interval {} over threshold {}, not balancing",
-                interval, MAX_LOAD_BALANCE_INTERVAL
+                "load balancer: interval/minimum {}/{} over threshold {}, not balancing",
+                interval, minimum, MAX_LOAD_BALANCE_INTERVAL
             );
             return None;
         }
