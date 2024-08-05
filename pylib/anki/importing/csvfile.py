@@ -99,15 +99,15 @@ class TextImporter(NoteImporter):
         if not self.delimiter:
             try:
                 self.dialect = sniffer.sniff("\n".join(self.data[:10]), self.patterns)
-            except:
+            except Exception:
                 try:
                     self.dialect = sniffer.sniff(self.data[0], self.patterns)
-                except:
+                except Exception:
                     pass
         if self.dialect:
             try:
                 reader = csv.reader(self.data, self.dialect, doublequote=True)
-            except:
+            except Exception:
                 err()
         else:
             if not self.delimiter:
@@ -126,7 +126,7 @@ class TextImporter(NoteImporter):
                 if row:
                     self.numFields = len(row)
                     break
-        except:
+        except Exception:
             err()
         self.initMapping()
 

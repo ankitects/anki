@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 import traceback
 import zipfile
 from collections.abc import Callable

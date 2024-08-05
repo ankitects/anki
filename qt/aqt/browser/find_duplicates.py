@@ -13,6 +13,7 @@ import aqt.forms
 from anki.collection import SearchNode
 from anki.notes import NoteId
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.webview import AnkiWebViewKind
 
 from ..operations import QueryOp

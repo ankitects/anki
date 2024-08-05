@@ -62,6 +62,7 @@ from anki.utils import checksum, is_lin, is_mac
 from aqt import gui_hooks
 from aqt.log import setup_logging
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.utils import TR, tr
 
 if TYPE_CHECKING:
@@ -232,7 +233,7 @@ def setupLangAndBackend(
     global _qtrans
     try:
         locale.setlocale(locale.LC_ALL, "")
-    except:
+    except Exception:
         pass
 
     # add _ and ngettext globals used by legacy code
@@ -630,7 +631,7 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         pmLoadResult = pm.setupMeta()
 
         Collection.initialize_backend_logging()
-    except:
+    except Exception:
         # will handle below
         traceback.print_exc()
         pm = None
@@ -720,7 +721,7 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
     # we must have a usable temp dir
     try:
         tempfile.gettempdir()
-    except:
+    except Exception:
         QMessageBox.critical(
             None,
             tr.qt_misc_error(),
