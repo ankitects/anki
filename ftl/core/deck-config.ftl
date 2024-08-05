@@ -16,7 +16,7 @@ deck-config-title = Deck Options
 
 deck-config-daily-limits = Daily Limits
 deck-config-new-limit-tooltip =
-    the maximum number of new cards to introduce in a day, if new cards are available.
+    The maximum number of new cards to introduce in a day, if new cards are available.
     Because new material will increase your short-term review workload, this should typically
     be at least 10x smaller than your maximum limit.
 deck-config-review-limit-tooltip =
