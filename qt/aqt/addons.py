@@ -1086,12 +1086,7 @@ def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
         match = re.match(
             "attachment; filename=(.+)", resp.headers["content-disposition"]
         )
-        if match is None:
-            e = ValueError(
-                "Couldn't find the file name for the add-on "
-                "in the headers of the download URL."
-            )
-            return DownloadError(exception=e)
+        assert match is not None
         fname = match.group(1)
 
         meta = extract_meta_from_download_url(resp.url)
