@@ -6,6 +6,7 @@ use std::collections::HashSet;
 
 use super::fuzz::constrained_fuzz_bounds;
 use crate::card::CardId;
+use crate::decks::DeckId;
 use crate::notes::NoteId;
 use crate::prelude::Result;
 use crate::storage::SqliteStorage;
@@ -63,8 +64,35 @@ pub struct LoadBalancer {
 }
 
 impl LoadBalancer {
-    pub fn new(today: u32, storage: &SqliteStorage) -> Result<LoadBalancer> {
-        let cards = storage.get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)?;
+    pub fn new(today: u32, deck_id: DeckId, storage: &SqliteStorage) -> Result<LoadBalancer> {
+        let cards_on_each_day =
+            storage.get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)?;
+        let decks = storage.get_all_decks()?;
+
+        let current_deck_config_id = decks
+            .iter()
+            .find(|deck| deck.id == deck_id)
+            .and_then(|deck| deck.config_id());
+
+        let cards = match current_deck_config_id {
+            Some(current_deck_config_id) => {
+                let decks_in_preset = decks
+                    .iter()
+                    .filter(|deck| deck.config_id() == Some(current_deck_config_id))
+                    .map(|deck| deck.id)
+                    .collect::<Vec<_>>();
+
+                cards_on_each_day
+                    .into_iter()
+                    .map(|day| {
+                        day.into_iter()
+                            .filter(|(_, _, did)| decks_in_preset.contains(did))
+                            .collect()
+                    })
+                    .collect()
+            }
+            None => cards_on_each_day,
+        };
 
         let mut days = std::array::from_fn(|_| LoadBalancerDay::default());
         for (cards, cache_day) in cards.iter().zip(days.iter_mut()) {
