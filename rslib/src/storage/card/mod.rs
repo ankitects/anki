@@ -588,7 +588,7 @@ impl super::SqliteStorage {
     ) -> Result<Vec<Vec<(CardId, NoteId)>>> {
         Ok(self
             .db
-            .prepare_cached("select id, nid, did, due from cards where due >= ?1 and due < ?2 ")?
+            .prepare_cached("select id, nid, due from cards where due >= ?1 and due < ?2 ")?
             .query_and_then([min_day, max_day], |row: &Row| {
                 Ok::<_, rusqlite::Error>((
                     row.get::<_, CardId>(0)?,

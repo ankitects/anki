@@ -125,7 +125,6 @@ impl<'a> StateContext<'a> {
     #[cfg(test)]
     pub(crate) fn defaults_for_testing() -> Self {
         Self {
-            fuzz_factor: None,
             steps: LearningSteps::new(&[1.0, 10.0]),
             graduating_interval_good: 1,
             graduating_interval_easy: 4,
