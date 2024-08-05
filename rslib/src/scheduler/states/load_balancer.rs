@@ -118,47 +118,6 @@ impl LoadBalancer {
 
         let interval_days = &self.days[before_days as usize..after_days as usize];
 
-        // DEBUG CODE
-        // this will be removed when this feature is fully ready
-        // till then, its useful to see what is being done
-        let mut sorted_intervals = intervals_to_check.clone();
-        sorted_intervals.sort_by(|a, b| {
-            let a_len = interval_days[a.0].cards.len();
-            let b_len = interval_days[b.0].cards.len();
-
-            if let Some(note_id) = note_id {
-                let a_has_sibling = interval_days[a.0].has_sibling(&note_id);
-                let b_has_sibling = interval_days[b.0].has_sibling(&note_id);
-
-                if a_has_sibling != b_has_sibling {
-                    return a_has_sibling.cmp(&b_has_sibling);
-                }
-            }
-
-            match a_len.cmp(&b_len) {
-                Ordering::Greater => Ordering::Greater,
-                Ordering::Less => Ordering::Less,
-                Ordering::Equal => a.1.abs().cmp(&b.1.abs()),
-            }
-        });
-
-        for (index, interval_offset) in &sorted_intervals {
-            let has_sibling = note_id
-                .map(|note_id| interval_days[*index].has_sibling(&note_id))
-                .unwrap_or(false);
-            println!(
-                "{}{} index {} interval({}) + offset({}) = {} count {}",
-                if has_sibling { "x" } else { " " },
-                if *interval_offset == 0 { "*" } else { " " },
-                index,
-                interval,
-                interval_offset,
-                interval as i32 + interval_offset,
-                interval_days[*index].cards.len()
-            );
-        }
-        // END DEBUG CODE
-
         // find the day with fewest number of cards, falling back to distance from the
         // initial interval
         let interval_modifier = intervals_to_check
