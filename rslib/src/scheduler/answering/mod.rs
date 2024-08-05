@@ -81,7 +81,7 @@ impl CardStateUpdater {
     /// state handling code from the rest of the Anki codebase.
     pub(crate) fn state_context<'a>(
         &'a self,
-        load_balancer: LoadBalancerContext<'a>,
+        load_balancer: Option<LoadBalancerContext<'a>>,
     ) -> StateContext<'a> {
         StateContext {
             fuzz_factor: get_fuzz_factor(self.fuzz_seed),
@@ -223,16 +223,12 @@ impl Collection {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
         let deck = self.get_deck(card.deck_id)?.or_not_found(card.deck_id)?;
 
-        let note_id = deck.config_id()
-            .map(|deck_config_id| {
-                self
-                    .get_deck_config(deck_config_id, false)
-            })
+        let note_id = deck
+            .config_id()
+            .map(|deck_config_id| self.get_deck_config(deck_config_id, false))
             .transpose()?
             .flatten()
-            .map(|deck_config| {
-                deck_config.inner.bury_reviews
-            })
+            .map(|deck_config| deck_config.inner.bury_reviews)
             .unwrap_or(false)
             .then_some(card.note_id);
 
@@ -240,9 +236,10 @@ impl Collection {
         let current = ctx.current_card_state();
 
         let load_balancer = self
-            .get_queues()?
-            .load_balancer
-            .review_context(note_id);
+            .state
+            .card_queues
+            .as_ref()
+            .map(|card_queues| card_queues.load_balancer.review_context(note_id));
 
         let state_ctx = ctx.state_context(load_balancer);
         Ok(current.next_states(&state_ctx))
@@ -340,7 +337,9 @@ impl Collection {
 
         if card.queue == CardQueue::Review {
             if let Some(card_queues) = self.state.card_queues.as_mut() {
-                card_queues.load_balancer.add_card(card.id, card.note_id, card.interval)
+                card_queues
+                    .load_balancer
+                    .add_card(card.id, card.note_id, card.interval)
             }
         }
 

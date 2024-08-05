@@ -177,14 +177,7 @@ impl LoadBalancer {
             .map(|interval| interval.1)
             .unwrap_or(0);
 
-        let balanced_interval = (interval as i32 + interval_modifier) as u32;
-
-        println!(
-            "load_balancer: interval {} -> {}\n",
-            interval as u32, balanced_interval
-        );
-
-        Some(balanced_interval)
+        Some((interval as i32 + interval_modifier) as u32)
     }
 
     pub fn add_card(&mut self, cid: CardId, nid: NoteId, interval: u32) {
