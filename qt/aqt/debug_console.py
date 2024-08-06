@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 from functools import partial
@@ -293,7 +294,7 @@ class DebugConsole(QDialog):
         try:
             # pylint: disable=exec-used
             exec(text, vars)
-        except:
+        except Exception:
             self._output += traceback.format_exc()
         self._captureOutput(False)
         buf = ""

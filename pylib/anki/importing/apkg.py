@@ -2,12 +2,13 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 # pylint: disable=invalid-name
+from __future__ import annotations
 
 import json
 import os
 import unicodedata
 import zipfile
-from typing import Any, Optional
+from typing import Any
 
 from anki.importing.anki2 import Anki2Importer, MediaMapInvalid
 from anki.utils import tmpfile
@@ -15,7 +16,7 @@ from anki.utils import tmpfile
 
 class AnkiPackageImporter(Anki2Importer):
     nameToNum: dict[str, str]
-    zip: Optional[zipfile.ZipFile]
+    zip: zipfile.ZipFile | None
 
     def run(self) -> None:  # type: ignore
         # extract the deck from the zip file

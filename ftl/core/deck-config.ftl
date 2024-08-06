@@ -18,13 +18,13 @@ deck-config-daily-limits = Daily Limits
 deck-config-new-limit-tooltip =
     The maximum number of new cards to introduce in a day, if new cards are available.
     Because new material will increase your short-term review workload, this should typically
-    be at least 10x smaller than your review limit.
+    be at least 10x smaller than your maximum limit.
 deck-config-review-limit-tooltip =
-    The maximum number of review cards to show in a day,
+    The maximum number of cards to show in a day,
     if cards are ready for review.
 deck-config-limit-deck-v3 =
     When studying a deck that has subdecks inside it, the limits set on each
-    subdeck control the maximum number of cards drawn from that particular deck.
+    subdeck control the maximum number of cards gathered from that particular deck.
     The selected deck's limits control the total cards that will be shown.
 deck-config-limit-new-bound-by-reviews =
     The review limit affects the new limit. For example, if your review limit is
@@ -32,17 +32,16 @@ deck-config-limit-new-bound-by-reviews =
     be introduced. If your review limit has been reached, no new cards will be
     shown.
 deck-config-limit-interday-bound-by-reviews =
-    The review limit also affects interday learning cards. When applying the limit,
-    interday learning cards are fetched first, then reviews.
+    The limit does not apply to intraday (re)learning cards.
 deck-config-tab-description =
     - `Preset`: The limit is shared with all decks using this preset.
     - `This deck`: The limit is specific to this deck.
     - `Today only`: Make a temporary change to this deck's limit.
-deck-config-new-cards-ignore-review-limit = New cards ignore review limit
+deck-config-new-cards-ignore-review-limit = New cards ignore maximum limit
 deck-config-new-cards-ignore-review-limit-tooltip =
-    By default, the review limit also applies to new cards, and no new cards will be
-    shown when the review limit has been reached. If this option is enabled, new cards
-    will be shown regardless of the review limit.
+    By default, the maximum limit also applies to new cards, and no new cards will be
+    shown when the maximum limit has been reached. If this option is enabled, new cards
+    will be shown regardless of the maximum limit.
 deck-config-apply-all-parent-limits = Limits start from top
 deck-config-apply-all-parent-limits-tooltip =
     By default, limits start from the deck you select. If this option is enabled, the limits will
@@ -188,7 +187,7 @@ deck-config-interday-step-priority = Interday learning/review order
 deck-config-interday-step-priority-tooltip =
     When to show (re)learning cards that cross a day boundary.
     
-    The review limit is always applied first to interday learning cards, and
+    The maximum limit is always applied first to interday learning cards, and
     then reviews. This option will control the order the gathered cards are shown in,
     but interday learning cards will always be gathered first.
 deck-config-review-mix-mix-with-reviews = Mix with reviews
@@ -350,7 +349,7 @@ deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize
 deck-config-compute-button = Compute
-deck-config-ignore-before = Ignore reviews before
+deck-config-ignore-before = Ignore cards reviewed before
 deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
@@ -368,7 +367,7 @@ deck-config-reschedule-cards-on-change = Reschedule cards on change
 deck-config-fsrs-tooltip =
     Affects the entire collection.
 
-    The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM2) scheduler.
+    The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM-2) scheduler.
     By more accurately determining when you are likely to forget, it can help you remember
     more material in the same amount of time. This setting is shared by all deck presets.
 
@@ -388,7 +387,7 @@ deck-config-historical-retention-tooltip =
     the missing reviews.
 
     Your review history may be incomplete for two reasons:
-    1. Because you're using the 'ignore reviews before' option.
+    1. Because you're using the 'ignore cards reviewed before' option.
     2. Because you previously deleted review logs to free up space, or imported material from a different
     SRS program.
 
@@ -406,12 +405,12 @@ deck-config-reschedule-cards-on-change-tooltip =
     will be changed.
 deck-config-reschedule-cards-warning =
     Depending on your desired retention, this can result in a large number of cards becoming
-    due, so is not recommended when first switching from SM2.
+    due, so is not recommended when first switching from SM-2.
 
     Use this option sparingly, as it will add a review entry to each of your cards, and
     increase the size of your collection.
 deck-config-ignore-before-tooltip-2 = 
-    If set, cards introduced before the provided date will be ignored when optimizing FSRS parameters.
+    If set, cards reviewed before the provided date will be ignored when optimizing FSRS parameters.
     This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
 deck-config-compute-optimal-weights-tooltip2 =
     When you click the Optimize button, FSRS will analyze your review history, and generate parameters that are 

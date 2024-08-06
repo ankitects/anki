@@ -12,6 +12,7 @@ import aqt
 import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
+from anki.utils import is_mac
 from aqt import AnkiQt
 from aqt.ankihub import ankihub_login, ankihub_logout
 from aqt.operations.collection import set_preferences
@@ -410,7 +411,7 @@ class Preferences(QDialog):
             lang = lang.replace("-", "_")
         try:
             return codes.index(lang)
-        except:
+        except Exception:
             return codes.index("en_US")
 
     def on_language_index_changed(self, idx: int) -> None:

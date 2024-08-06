@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import functools
 import os
+from collections.abc import Callable
 from concurrent.futures import Future
-from typing import Callable
 
 import aqt
 import aqt.main

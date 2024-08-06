@@ -267,7 +267,7 @@ class DeckConf(QDialog):
                 if i == int(i):
                     i = int(i)
                 ret.append(i)
-            except:
+            except Exception:
                 # invalid, don't update
                 showWarning(tr.scheduling_steps_must_be_numbers())
                 return

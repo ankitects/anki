@@ -6,7 +6,8 @@ from __future__ import annotations
 import json
 import re
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import aqt.browser
 from anki.cards import Card

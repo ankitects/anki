@@ -9,10 +9,12 @@ See QueryOp() and CollectionOp() for higher-level routines.
 
 from __future__ import annotations
 
+import traceback
+from collections.abc import Callable
 from concurrent.futures import Future
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock, current_thread, main_thread
-from typing import Any, Callable
+from typing import Any
 
 import aqt
 from anki.collection import Progress
