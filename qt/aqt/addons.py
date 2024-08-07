@@ -1086,9 +1086,11 @@ def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
 
         data = client.stream_content(resp)
 
-        fname = re.match(
+        match = re.match(
             "attachment; filename=(.+)", resp.headers["content-disposition"]
-        ).group(1)
+        )
+        assert match is not None
+        fname = match.group(1)
 
         meta = extract_meta_from_download_url(resp.url)
 
