@@ -652,6 +652,12 @@ create table if not exists profiles
     def set_host_number(self, val: int | None) -> None:
         self.profile["hostNum"] = val or 0
 
+    def enable_update_check(self) -> bool:
+        return self.meta.get("enable_update_check", True)
+
+    def set_update_check(self, on: bool) -> None:
+        self.meta["enable_update_check"] = on
+
     def media_syncing_enabled(self) -> bool:
         return self.profile.get("syncMedia", True)
 

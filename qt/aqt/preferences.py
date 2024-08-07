@@ -207,6 +207,11 @@ class Preferences(QDialog):
         self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
 
+        self.form.enable_update_check.setChecked(self.mw.pm.enable_update_check())
+        qconnect(
+            self.form.enable_update_check.stateChanged, self.mw.pm.set_update_check
+        )
+
         self.update_login_status()
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
         qconnect(self.form.syncLogin.clicked, self.sync_login)
