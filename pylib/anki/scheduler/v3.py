@@ -17,9 +17,8 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any, Literal
 
-from anki import frontend_pb2, scheduler_pb2
+from anki import cards, frontend_pb2, scheduler_pb2
 from anki._legacy import deprecated
-from anki.cards import Card
 from anki.collection import OpChanges
 from anki.consts import *
 from anki.decks import DeckId
@@ -67,7 +66,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     def build_answer(
         self,
         *,
-        card: Card,
+        card: cards.Card,
         states: SchedulingStates,
         rating: CardAnswer.Rating.V,
     ) -> CardAnswer:
@@ -110,14 +109,14 @@ class Scheduler(SchedulerBaseWithLegacy):
         # backend automatically resets queues as operations are performed
         pass
 
-    def getCard(self) -> Card | None:
+    def getCard(self) -> cards.Card | None:
         """Fetch the next card from the queue. None if finished."""
         try:
             queued_card = self.get_queued_cards().cards[0]
         except IndexError:
             return None
 
-        card = Card(self.col)
+        card = cards.Card(self.col)
         card._load_from_backend_card(queued_card.card)
         card.start_timer()
         return card
@@ -126,7 +125,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         "Don't use this, it is a stop-gap until this code is refactored."
         return not self.get_queued_cards().cards
 
-    def counts(self, card: Card | None = None) -> tuple[int, int, int]:
+    def counts(self, card: cards.Card | None = None) -> tuple[int, int, int]:
         info = self.get_queued_cards()
         return (info.new_count, info.learning_count, info.review_count)
 
@@ -142,7 +141,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     def reviewCount(self) -> int:
         return self.counts()[2]
 
-    def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
+    def nextIvlStr(self, card: cards.Card, ease: int, short: bool = False) -> str:
         "Return the next interval for CARD as a string."
         states = self.col._backend.get_scheduling_states(card.id)
         return self.col._backend.describe_next_states(states)[ease - 1]
@@ -150,7 +149,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     # Answering a card (legacy API)
     ##########################################################################
 
-    def answerCard(self, card: Card, ease: Literal[1, 2, 3, 4]) -> OpChanges:
+    def answerCard(self, card: cards.Card, ease: Literal[1, 2, 3, 4]) -> OpChanges:
         if ease == BUTTON_ONE:
             rating = CardAnswer.AGAIN
         elif ease == BUTTON_TWO:
@@ -214,7 +213,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             assert_exhaustive(kind)
             return 0  # pylint: disable=unreachable
 
-    def nextIvl(self, card: Card, ease: int) -> Any:
+    def nextIvl(self, card: cards.Card, ease: int) -> Any:
         "Don't use this - it is only required by tests, and will be moved in the future."
         states = self.col._backend.get_scheduling_states(card.id)
         if ease == BUTTON_ONE:

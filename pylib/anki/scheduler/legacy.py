@@ -5,15 +5,14 @@
 
 from __future__ import annotations
 
+from anki import cards, notes
 from anki._legacy import deprecated
-from anki.cards import Card, CardId
 from anki.consts import (
     CARD_TYPE_RELEARNING,
     QUEUE_TYPE_DAY_LEARN_RELEARN,
     QUEUE_TYPE_REV,
 )
 from anki.decks import DeckConfigDict, DeckId
-from anki.notes import NoteId
 from anki.scheduler.base import SchedulerBase, UnburyDeck
 from anki.utils import from_json_bytes, ids2str
 
@@ -22,11 +21,11 @@ class SchedulerBaseWithLegacy(SchedulerBase):
     "Legacy aliases and helpers. These will go away in the future."
 
     def reschedCards(
-        self, card_ids: list[CardId], min_interval: int, max_interval: int
+        self, card_ids: list[cards.CardId], min_interval: int, max_interval: int
     ) -> None:
         self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
-    def buryNote(self, nid: NoteId) -> None:
+    def buryNote(self, nid: notes.NoteId) -> None:
         note = self.col.get_note(nid)
         self.bury_cards(note.card_ids())
 
@@ -82,7 +81,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             self.col.usn(),
         )
 
-    def remFromDyn(self, cids: list[CardId]) -> None:
+    def remFromDyn(self, cids: list[cards.CardId]) -> None:
         self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
 
     # used by v2 scheduler and some add-ons
@@ -100,7 +99,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             millisecond_delta=milliseconds_delta,
         )
 
-    def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
+    def _updateStats(self, card: cards.Card, type: str, cnt: int = 1) -> None:
         did = card.did
         if type == "new":
             self.update_stats(did, new_delta=cnt)
@@ -127,12 +126,12 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             self.today,
         )
 
-    def answerButtons(self, card: Card) -> int:
+    def answerButtons(self, card: cards.Card) -> int:
         return 4
 
     # legacy in v3 but used by unit tests; redefined in v2/v1
 
-    def _cardConf(self, card: Card) -> DeckConfigDict:
+    def _cardConf(self, card: cards.Card) -> DeckConfigDict:
         return self.col.decks.config_dict_for_deck_id(card.did)
 
     def _fuzzIvlRange(self, ivl: int) -> tuple[int, int]:
