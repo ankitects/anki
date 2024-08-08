@@ -141,12 +141,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <table class="stats-table align-start">
-    {#each statsRows as row}
-        <tr>
-            <th class="align-start">{row.label}</th>
-            <td>{row.value}</td>
-        </tr>
-    {/each}
+    <tbody>
+        {#each statsRows as row}
+            <tr>
+                <th class="align-start">{row.label}</th>
+                <td>{row.value}</td>
+            </tr>
+        {/each}
+    </tbody>
 </table>
 
 <style>
