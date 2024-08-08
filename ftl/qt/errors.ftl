@@ -48,4 +48,3 @@ errors-unable-open-collection =
 errors-windows-tts-runtime-error = The TTS service failed. Please ensure Windows updates are installed, try restarting your computer, or try a different voice.
 
 ## OBSOLETE; you do not need to translate this
-
