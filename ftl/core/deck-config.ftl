@@ -37,7 +37,7 @@ deck-config-tab-description =
     - `Preset`: The limit is shared with all decks using this preset.
     - `This deck`: The limit is specific to this deck.
     - `Today only`: Make a temporary change to this deck's limit.
-deck-config-new-cards-ignore-review-limit = New cards ignore maximum limit
+deck-config-new-cards-ignore-review-limit = New cards ignore review limit
 deck-config-new-cards-ignore-review-limit-tooltip =
     By default, the maximum limit also applies to new cards, and no new cards will be
     shown when the maximum limit has been reached. If this option is enabled, new cards
