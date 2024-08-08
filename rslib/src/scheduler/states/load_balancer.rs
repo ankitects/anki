@@ -1,8 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::cmp::Ordering;
 use std::collections::HashSet;
+
+use rand::distributions::Distribution;
+use rand::distributions::WeightedIndex;
+use rand::rngs::StdRng;
+use rand::SeedableRng;
 
 use super::fuzz::constrained_fuzz_bounds;
 use crate::card::CardId;
@@ -49,12 +53,18 @@ impl LoadBalancerDay {
 pub struct LoadBalancerContext<'a> {
     load_balancer: &'a LoadBalancer,
     note_id: Option<NoteId>,
+    fuzz_seed: Option<u64>,
 }
 
 impl<'a> LoadBalancerContext<'a> {
     pub fn find_interval(&self, interval: f32, minimum: u32, maximum: u32) -> Option<u32> {
         self.load_balancer
-            .find_interval(interval, minimum, maximum, self.note_id)
+            .find_interval(interval, minimum, maximum, self.fuzz_seed, self.note_id)
+    }
+
+    pub fn set_fuzz_seed(mut self, fuzz_seed: Option<u64>) -> Self {
+        self.fuzz_seed = fuzz_seed;
+        self
     }
 }
 
@@ -108,6 +118,7 @@ impl LoadBalancer {
         LoadBalancerContext {
             load_balancer: self,
             note_id,
+            fuzz_seed: None,
         }
     }
 
@@ -116,6 +127,7 @@ impl LoadBalancer {
         interval: f32,
         minimum: u32,
         maximum: u32,
+        fuzz_seed: Option<u64>,
         note_id: Option<NoteId>,
     ) -> Option<u32> {
         // if we're sending a card far out into the future, the need to balance is low
@@ -132,52 +144,74 @@ impl LoadBalancer {
         let (before_days, after_days) = constrained_fuzz_bounds(interval, minimum, maximum);
         let after_days = after_days + 1; // +1 to make the range inclusive of the actual value
 
-        // ok this looks weird but its a totally reasonable thing
-        // I want to be as close to the original interval as possible
-        // so this enumerates out from the center
-        // i.e. 0 -1 1 -2 2 .....
-        let intervals_to_check = (before_days..interval as u32)
-            .map(|before| before as i32 - interval as i32)
-            .chain(
-                (interval as u32..after_days)
-                    .filter(|i| *i >= minimum)
-                    .map(|after| after as i32 - interval as i32),
-            )
+        let interval_days = &self.days[before_days as usize..after_days as usize];
+        let intervals_and_weights = interval_days
+            .iter()
             .enumerate()
+            .map(|(interval_index, interval_day)| {
+                let sibling_multiplier = note_id
+                    .map(|note_id| {
+                        if interval_day.has_sibling(&note_id) {
+                            0.1
+                        } else {
+                            1.0
+                        }
+                    })
+                    .unwrap_or(1.0);
+
+                let card_count = interval_day.cards.len();
+                let weight = if card_count == 0 {
+                    1.0 * sibling_multiplier
+                } else {
+                    (1.0 / card_count as f32).powi(2) * sibling_multiplier
+                };
+
+                (interval_index as u32 + before_days, weight)
+            })
             .collect::<Vec<_>>();
 
-        let interval_days = &self.days[before_days as usize..after_days as usize];
+        let mut rng = StdRng::seed_from_u64(fuzz_seed?);
 
-        // find the day with fewest number of cards, falling back to distance from the
-        // initial interval
-        let interval_modifier = intervals_to_check
-            .into_iter()
-            .min_by(|(a_index, a_delta), (b_index, b_delta)| {
-                if let Some(note_id) = note_id {
-                    let a_has_sibling = interval_days[*a_index].has_sibling(&note_id);
-                    let b_has_sibling = interval_days[*b_index].has_sibling(&note_id);
+        let weighted_intervals =
+            WeightedIndex::new(intervals_and_weights.iter().map(|k| k.1)).ok()?;
 
-                    // if one day has a sibling and the other does not, sort the
-                    // sibling-less day ahead of the sibling-full day without
-                    // caring about card counts
-                    if a_has_sibling != b_has_sibling {
-                        return a_has_sibling.cmp(&b_has_sibling);
-                    }
-                }
+        let selected_interval_index = weighted_intervals.sample(&mut rng);
+        let selected_interval = intervals_and_weights[selected_interval_index].0;
 
-                let a_len = interval_days[*a_index].cards.len();
-                let b_len = interval_days[*b_index].cards.len();
+        // DEBUG
+        let weight_sum: f32 = intervals_and_weights.iter().map(|k| k.1).sum();
+        for (index, interval_day) in interval_days.iter().enumerate() {
+            let interval_index = index as u32 + before_days;
 
-                match a_len.cmp(&b_len) {
-                    Ordering::Greater => Ordering::Greater,
-                    Ordering::Less => Ordering::Less,
-                    Ordering::Equal => a_delta.abs().cmp(&b_delta.abs()),
-                }
-            })
-            .map(|interval| interval.1)
-            .unwrap_or(0);
+            let selected = if interval_index == selected_interval {
+                "*"
+            } else {
+                " "
+            };
+            let sibling = if note_id
+                .map(|note_id| interval_day.has_sibling(&note_id))
+                .unwrap_or(false)
+            {
+                "x"
+            } else {
+                " "
+            };
+            let normalized_weight = intervals_and_weights[index].1 / weight_sum;
+            println!(
+                "{}{} {}: {} {:.2} ({})",
+                selected,
+                sibling,
+                interval_index,
+                interval_day.cards.len(),
+                normalized_weight,
+                intervals_and_weights[index].1
+            );
+        }
 
-        Some((interval as i32 + interval_modifier) as u32)
+        println!("interval {} -> {}\n", interval, selected_interval);
+        // END DEBUG
+
+        Some(selected_interval)
     }
 
     pub fn add_card(&mut self, cid: CardId, nid: NoteId, interval: u32) {

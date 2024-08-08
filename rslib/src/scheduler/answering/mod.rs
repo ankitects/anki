@@ -94,7 +94,8 @@ impl CardStateUpdater {
             interval_multiplier: self.config.inner.interval_multiplier,
             maximum_review_interval: self.config.inner.maximum_review_interval,
             leech_threshold: self.config.inner.leech_threshold,
-            load_balancer,
+            load_balancer: load_balancer
+                .map(|load_balancer| load_balancer.set_fuzz_seed(self.fuzz_seed)),
             relearn_steps: self.relearn_steps(),
             lapse_multiplier: self.config.inner.lapse_multiplier,
             minimum_lapse_interval: self.config.inner.minimum_lapse_interval,
