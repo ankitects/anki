@@ -38,6 +38,18 @@ impl Collection {
                     }
                     queues.push_undo_entry(update.entry);
                 }
+
+                if let Some(card_queues) = self.state.card_queues.as_mut() {
+                    match &update.entry {
+                        QueueEntry::IntradayLearning(entry) => {
+                            card_queues.load_balancer.remove_card(entry.id);
+                        }
+                        QueueEntry::Main(entry) => {
+                            card_queues.load_balancer.remove_card(entry.id);
+                        }
+                    }
+                }
+
                 self.save_undo(UndoableQueueChange::CardAnswerUndone(update));
 
                 Ok(())

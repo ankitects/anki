@@ -34,7 +34,10 @@ static FUZZ_RANGES: [FuzzRange; 3] = [
 impl<'a> StateContext<'a> {
     /// Apply fuzz, respecting the passed bounds.
     pub(crate) fn with_review_fuzz(&self, interval: f32, minimum: u32, maximum: u32) -> u32 {
-        with_review_fuzz(self.fuzz_factor, interval, minimum, maximum)
+        self.load_balancer
+            .as_ref()
+            .and_then(|load_balancer| load_balancer.find_interval(interval, minimum, maximum))
+            .unwrap_or_else(|| with_review_fuzz(self.fuzz_factor, interval, minimum, maximum))
     }
 }
 
@@ -74,7 +77,7 @@ pub(crate) fn with_review_fuzz(
 /// Return the bounds of the fuzz range, respecting `minimum` and `maximum`.
 /// Ensure the upper bound is larger than the lower bound, if `maximum` allows
 /// it and it is larger than 1.
-fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u32) {
+pub(crate) fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u32) {
     let minimum = minimum.min(maximum);
     let interval = interval.clamp(minimum as f32, maximum as f32);
     let (mut lower, mut upper) = fuzz_bounds(interval);
