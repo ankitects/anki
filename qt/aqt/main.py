@@ -1431,7 +1431,8 @@ title="{}" {}>{}</button>""".format(
     def setup_auto_update(self, _log: list[DownloadLogEntry]) -> None:
         from aqt.update import check_for_update
 
-        check_for_update()
+        if aqt.mw.pm.check_for_updates():
+            check_for_update()
 
     # Timers
     ##########################################################################

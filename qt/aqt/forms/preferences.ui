@@ -82,6 +82,19 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="check_for_updates">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_check_for_updates</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
