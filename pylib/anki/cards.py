@@ -37,7 +37,6 @@ FSRSMemoryState = cards_pb2.FsrsMemoryState
 
 USER_FLAG_MASK = 0b111
 
-
 class Card(DeprecatedNamesMixin):
     _note: Note | None
     lastIvl: int
@@ -96,15 +95,12 @@ class Card(DeprecatedNamesMixin):
         self.odid = anki.decks.DeckId(card.original_deck_id)
         self.flags = card.flags
         self.original_position = (
-            card.original_position if card.HasField(
-                "original_position") else None
+            card.original_position if card.HasField("original_position") else None
         )
         self.custom_data = card.custom_data
-        self.memory_state = card.memory_state if card.HasField(
-            "memory_state") else None
+        self.memory_state = card.memory_state if card.HasField("memory_state") else None
         self.desired_retention = (
-            card.desired_retention if card.HasField(
-                "desired_retention") else None
+            card.desired_retention if card.HasField("desired_retention") else None
         )
 
     def _to_backend_card(self) -> cards_pb2.Card:
