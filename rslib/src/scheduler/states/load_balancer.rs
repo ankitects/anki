@@ -21,6 +21,7 @@ const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
 // cache. a flat 10% increase over the max interval should be enough to not have
 // problems
 const LOAD_BALANCE_DAYS: usize = (MAX_LOAD_BALANCE_INTERVAL as f32 * 1.1) as usize;
+const SIBLING_PENTALTY: f32 = 0.001;
 
 #[derive(Debug, Default)]
 struct LoadBalancerDay {
@@ -149,24 +150,23 @@ impl LoadBalancer {
             .iter()
             .enumerate()
             .map(|(interval_index, interval_day)| {
+                let target_interval = interval_index as u32 + before_days;
                 let sibling_multiplier = note_id
-                    .map(|note_id| {
-                        if interval_day.has_sibling(&note_id) {
-                            0.1
-                        } else {
-                            1.0
-                        }
+                    .and_then(|note_id| {
+                        interval_day
+                            .has_sibling(&note_id)
+                            .then_some(SIBLING_PENTALTY)
                     })
                     .unwrap_or(1.0);
 
-                let card_count = interval_day.cards.len();
-                let weight = if card_count == 0 {
-                    1.0 * sibling_multiplier
-                } else {
-                    (1.0 / card_count as f32).powi(2) * sibling_multiplier
+                let card_count_weight = match interval_day.cards.len() {
+                    0 => 1.0,
+                    card_count => (1.0 / card_count as f32).powi(2),
                 };
+                let card_interval_weight = 1.0 / target_interval as f32;
+                let weight = card_count_weight * card_interval_weight * sibling_multiplier;
 
-                (interval_index as u32 + before_days, weight)
+                (target_interval, weight)
             })
             .collect::<Vec<_>>();
 
