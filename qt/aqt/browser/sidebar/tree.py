@@ -149,7 +149,7 @@ class SidebarTreeView(QTreeView):
     def op_executed(
         self, changes: OpChanges, handler: object | None, focused: bool
     ) -> None:
-        if changes.browser_sidebar and not handler is self:
+        if changes.browser_sidebar and handler is not self:
             self._refresh_needed = True
         if focused:
             self.refresh_if_needed()

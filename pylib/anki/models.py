@@ -313,7 +313,7 @@ class ModelManager(DeprecatedNamesMixin):
     def rename_field(
         self, notetype: NotetypeDict, field: FieldDict, new_name: str
     ) -> None:
-        if not field in notetype["flds"]:
+        if field not in notetype["flds"]:
             raise Exception("invalid field")
         field["name"] = new_name
 
