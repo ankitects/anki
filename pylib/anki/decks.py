@@ -85,7 +85,7 @@ class DeckManager(DeprecatedNamesMixin):
         self.col = col.weakref()
         self.decks = DecksDictProxy(col)
 
-    def save(self, deck_or_config: DeckDict | DeckConfigDict = None) -> None:
+    def save(self, deck_or_config: DeckDict | DeckConfigDict | None = None) -> None:
         "Can be called with either a deck or a deck configuration."
         if not deck_or_config:
             print("col.decks.save() should be passed the changed deck")

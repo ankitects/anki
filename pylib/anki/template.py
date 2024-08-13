@@ -147,7 +147,7 @@ class TemplateRenderContext:
         card: anki.cards.Card,
         note: anki.notes.Note,
         browser: bool = False,
-        notetype: NotetypeDict = None,
+        notetype: NotetypeDict | None = None,
         template: dict | None = None,
         fill_empty: bool = False,
     ) -> None:
