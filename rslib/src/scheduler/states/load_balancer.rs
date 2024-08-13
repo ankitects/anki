@@ -159,12 +159,15 @@ impl LoadBalancer {
                     })
                     .unwrap_or(1.0);
 
-                let card_count_weight = match interval_day.cards.len() {
+                let weight = match interval_day.cards.len() {
                     0 => 1.0,
-                    card_count => (1.0 / card_count as f32).powi(2),
+                    card_count => {
+                        let card_count_weight = (1.0 / card_count as f32).powi(2);
+                        let card_interval_weight = 1.0 / target_interval as f32;
+
+                        card_count_weight * card_interval_weight * sibling_multiplier
+                    }
                 };
-                let card_interval_weight = 1.0 / target_interval as f32;
-                let weight = card_count_weight * card_interval_weight * sibling_multiplier;
 
                 (target_interval, weight)
             })
