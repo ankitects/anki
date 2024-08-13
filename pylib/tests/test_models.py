@@ -5,6 +5,7 @@
 import html
 import re
 import time
+from typing import Optional
 
 from anki.consts import MODEL_CLOZE
 from anki.errors import NotFoundError
@@ -365,7 +366,7 @@ def test_modelChange():
     note["Back"] = "b123"
     col.addNote(note)
     # switch fields
-    map = {0: 1, 1: 0}
+    map: dict[int, Optional[int]] = {0: 1, 1: 0}
     noop = {0: 0, 1: 1}
     col.models.change(basic, [note.id], basic, map, None)
     note.load()

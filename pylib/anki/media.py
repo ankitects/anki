@@ -139,6 +139,7 @@ class MediaManager(DeprecatedNamesMixin):
         files = []
         model = self.col.models.get(mid)
         # handle latex
+        assert model is not None
         string = render_latex(string, model, self.col)
         # extract filenames
         for reg in self.regexps:
@@ -193,10 +194,12 @@ class MediaManager(DeprecatedNamesMixin):
         """
         last_progress = time.time()
         checked = 0
+        assert self.col.db is not None
         for nid, mid, flds in self.col.db.execute(
             "select id, mid, flds from notes where flds like '%[%'"
         ):
             model = self.col.models.get(mid)
+            assert model is not None
             _html, errors = render_latex_returning_errors(
                 flds, model, self.col, expand_clozes=True
             )

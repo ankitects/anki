@@ -90,6 +90,7 @@ class Exporter:
         if self.cids is not None:
             cids = self.cids
         elif not self.did:
+            assert self.col.db is not None
             cids = self.col.db.list("select id from cards")
         else:
             cids = self.col.decks.cids(self.did, children=True)
@@ -149,6 +150,7 @@ class TextNoteExporter(Exporter):
     def doExport(self, file: BufferedWriter) -> None:
         cardIds = self.cardIds()
         data = []
+        assert self.col.db is not None
         for id, flds, tags in self.col.db.execute(
             """
 select guid, flds, tags from notes
@@ -210,6 +212,7 @@ class AnkiExporter(Exporter):
         # copy cards, noting used nids
         nids = {}
         data: list[Sequence] = []
+        assert self.src.db is not None
         for row in self.src.db.execute(
             "select * from cards where id in " + ids2str(cids)
         ):
@@ -218,6 +221,7 @@ class AnkiExporter(Exporter):
             row[-2] = 0
             nids[row[1]] = True
             data.append(row)
+        assert self.dst.db is not None
         self.dst.db.executemany(
             "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", data
         )

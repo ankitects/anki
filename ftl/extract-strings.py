@@ -25,7 +25,9 @@ for path in ftl_files:
             raise Exception(f"file had junk! {path} {ent}")
         if isinstance(ent, Message):
             key = ent.id.name
-            val = "".join(serialize_element(elem) for elem in ent.value.elements)
+            pattern = ent.value
+            assert pattern is not None
+            val = "".join(serialize_element(elem) for elem in pattern.elements)
             if val in keys_by_value:
                 print("duplicate found:", keys_by_value[val], key)
             keys_by_value.setdefault(val, []).append(key)

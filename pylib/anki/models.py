@@ -134,12 +134,16 @@ class ModelManager(DeprecatedNamesMixin):
 
     def current(self, for_deck: bool = True) -> NotetypeDict:
         "Get current model. In new code, prefer col.defaults_for_adding()"
-        notetype = self.get(self.col.decks.current().get("mid"))
+        model_id = self.col.decks.current().get("mid")
+        assert model_id is not None
+        notetype = self.get(model_id)
         if not for_deck or not notetype:
             notetype = self.get(self.col.conf["curModel"])
         if notetype:
             return notetype
-        return self.get(NotetypeId(self.all_names_and_ids()[0].id))
+        return_value = self.get(NotetypeId(self.all_names_and_ids()[0].id))
+        assert return_value is not None
+        return return_value
 
     # Retrieving and creating models
     #############################################################
@@ -162,6 +166,7 @@ class ModelManager(DeprecatedNamesMixin):
         if not notetype:
             try:
                 notetype = from_json_bytes(self.col._backend.get_notetype_legacy(id))
+                assert notetype is not None
                 self._update_cache(notetype)
             except NotFoundError:
                 return None
@@ -169,7 +174,12 @@ class ModelManager(DeprecatedNamesMixin):
 
     def all(self) -> list[NotetypeDict]:
         "Get all models."
-        return [self.get(NotetypeId(nt.id)) for nt in self.all_names_and_ids()]
+        result: list[NotetypeDict] = []
+        for nt in self.all_names_and_ids():
+            notetype_map = self.get(NotetypeId(nt.id))
+            assert notetype_map is not None
+            result.append(notetype_map)
+        return result
 
     def by_name(self, name: str) -> NotetypeDict | None:
         "Get model with NAME."
@@ -232,6 +242,7 @@ class ModelManager(DeprecatedNamesMixin):
         # existing code expects the note type to be mutated to reflect
         # the changes made when adding, such as ordinal assignment :-(
         updated = self.get(notetype["id"])
+        assert updated is not None
         notetype.update(updated)
 
     # Tools
@@ -242,10 +253,12 @@ class ModelManager(DeprecatedNamesMixin):
         if isinstance(ntid, dict):
             # legacy callers passed in note type
             ntid = ntid["id"]
+        assert self.col.db is not None
         return self.col.db.list("select id from notes where mid = ?", ntid)
 
     def use_count(self, notetype: NotetypeDict) -> int:
         "Number of note using M."
+        assert self.col.db is not None
         return self.col.db.scalar(
             "select count() from notes where mid = ?", notetype["id"]
         )
@@ -359,6 +372,7 @@ class ModelManager(DeprecatedNamesMixin):
         notetype["tmpls"].insert(idx, template)
 
     def template_use_count(self, ntid: NotetypeId, ord: int) -> int:
+        assert self.col.db is not None
         return self.col.db.scalar(
             """
 select count() from cards, notes where cards.nid = notes.id
@@ -430,6 +444,7 @@ and notes.mid = ? and cards.ord = ?""",
         else:
             template_map = self._convert_legacy_map(cmap, len(newModel["tmpls"]))
 
+        assert self.col.db is not None
         self.col._backend.change_notetype(
             note_ids=nids,
             new_fields=field_map,

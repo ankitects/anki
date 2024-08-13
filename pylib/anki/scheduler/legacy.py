@@ -63,6 +63,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
 
     def emptyDyn(self, did: DeckId | None, lim: str | None = None) -> None:
         if lim is None:
+            assert did is not None
             self.empty_filtered_deck(did)
             return
 
@@ -75,6 +76,7 @@ else
   type
 end)
 """
+        assert self.col.db is not None
         self.col.db.execute(
             f"""
 update cards set did = odid, {queue},

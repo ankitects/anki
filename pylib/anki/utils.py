@@ -55,6 +55,7 @@ def strip_html(txt: str) -> str:
     import anki.lang
     from anki.collection import StripHtmlMode
 
+    assert anki.lang.current_i18n is not None
     return anki.lang.current_i18n.strip_html(text=txt, mode=StripHtmlMode.NORMAL)
 
 
@@ -63,6 +64,7 @@ def strip_html_media(txt: str) -> str:
     import anki.lang
     from anki.collection import StripHtmlMode
 
+    assert anki.lang.current_i18n is not None
     return anki.lang.current_i18n.strip_html(
         text=txt, mode=StripHtmlMode.PRESERVE_MEDIA_FILENAMES
     )
@@ -71,6 +73,7 @@ def strip_html_media(txt: str) -> str:
 def html_to_text_line(txt: str) -> str:
     import anki.lang
 
+    assert anki.lang.current_i18n is not None
     return anki.lang.current_i18n.html_to_text_line(
         text=txt, preserve_media_filenames=True
     )
@@ -165,6 +168,7 @@ def tmpdir() -> str:
     if not _tmpdir:
 
         def cleanup() -> None:
+            assert _tmpdir is not None
             if os.path.exists(_tmpdir):
                 shutil.rmtree(_tmpdir)
 

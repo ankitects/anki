@@ -30,7 +30,7 @@ class HttpClient(DeprecatedNamesMixin):
 
     def __init__(self, progress_hook: ProgressCallback | None = None) -> None:
         self.progress_hook = progress_hook
-        self.session = requests.Session()
+        self.session: requests.Session | None = requests.Session()
 
     def __enter__(self) -> HttpClient:
         return self
@@ -47,7 +47,9 @@ class HttpClient(DeprecatedNamesMixin):
         self.close()
 
     def post(self, url: str, data: bytes, headers: dict[str, str] | None) -> Response:
+        assert headers is not None
         headers["User-Agent"] = self._agent_name()
+        assert self.session is not None
         return self.session.post(
             url,
             data=data,
@@ -61,6 +63,7 @@ class HttpClient(DeprecatedNamesMixin):
         if headers is None:
             headers = {}
         headers["User-Agent"] = self._agent_name()
+        assert self.session is not None
         return self.session.get(
             url, stream=True, headers=headers, timeout=self.timeout, verify=self.verify
         )

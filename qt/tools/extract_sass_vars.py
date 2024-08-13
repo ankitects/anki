@@ -30,7 +30,9 @@ for line in re.split(r"[;\{\}]|\*\/", data):
         elif "rest" in line:
             break
         else:
-            comment = re.match(r"\/\*!\s*(.*)$", line)[1]
+            match = re.match(r"\/\*!\s*(.*)$", line)
+            assert match is not None
+            comment = match[1]
         continue
 
     m = re.match(r"--(.+):(.+)$", line)
