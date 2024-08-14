@@ -7,7 +7,8 @@ import copy
 import pprint
 import sys
 import time
-from typing import Any, NewType, Sequence, Union
+from collections.abc import Sequence
+from typing import Any, NewType, Union
 
 import anki  # pylint: disable=unused-import
 import anki.collection
@@ -312,7 +313,7 @@ class ModelManager(DeprecatedNamesMixin):
     def rename_field(
         self, notetype: NotetypeDict, field: FieldDict, new_name: str
     ) -> None:
-        if not field in notetype["flds"]:
+        if field not in notetype["flds"]:
             raise Exception("invalid field")
         field["name"] = new_name
 
@@ -388,8 +389,8 @@ and notes.mid = ? and cards.ord = ?""",
 
         To get defaults, use
 
-        input = ChangeNotetypeRequest()
-        input.ParseFromString(col.models.change_notetype_info(...))
+        info = col.models.change_notetype_info(...)
+        input = info.input
         input.note_ids.extend([...])
 
         The new_fields and new_templates lists are relative to the new notetype's

@@ -3,9 +3,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import Any, Optional, Sequence
+from typing import Any
 
 import aqt.clayout
 from anki import stdmodels
@@ -40,9 +41,9 @@ class Models(QDialog):
     def __init__(
         self,
         mw: AnkiQt,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         fromMain: bool = False,
-        selected_notetype_id: Optional[NotetypeId] = None,
+        selected_notetype_id: NotetypeId | None = None,
     ):
         self.mw = mw
         parent = parent or mw
@@ -61,6 +62,13 @@ class Models(QDialog):
         self.models: Sequence[NotetypeNameIdUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
+
+        self.setWindowFlags(
+            self.windowFlags()
+            | Qt.WindowType.WindowMaximizeButtonHint
+            | Qt.WindowType.WindowMinimizeButtonHint
+        )
+
         self.show()
 
     # Models
@@ -231,13 +239,13 @@ class Models(QDialog):
 
 
 class AddModel(QDialog):
-    model: Optional[NotetypeDict]
+    model: NotetypeDict | None
 
     def __init__(
         self,
         mw: AnkiQt,
         on_success: Callable[[NotetypeDict], None],
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
     ) -> None:
         self.parent_ = parent or mw
         self.mw = mw
@@ -249,9 +257,7 @@ class AddModel(QDialog):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         disable_help_button(self)
         # standard models
-        self.notetypes: list[
-            Union[NotetypeDict, Callable[[Collection], NotetypeDict]]
-        ] = []
+        self.notetypes: list[NotetypeDict | Callable[[Collection], NotetypeDict]] = []
         for name, func in stdmodels.get_stock_notetypes(self.col):
             item = QListWidgetItem(tr.notetypes_add(val=name))
             self.dialog.models.addItem(item)

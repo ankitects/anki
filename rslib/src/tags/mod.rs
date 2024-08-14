@@ -56,7 +56,7 @@ fn is_tag_separator(c: char) -> bool {
 }
 
 pub(crate) fn immediate_parent_name_unicase(tag_name: UniCase<&str>) -> Option<UniCase<&str>> {
-    tag_name.rsplit_once('\x1f').map(|t| t.0).map(UniCase::new)
+    tag_name.rsplit_once("::").map(|t| t.0).map(UniCase::new)
 }
 
 fn immediate_parent_name_str(tag_name: &str) -> Option<&str> {

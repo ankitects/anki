@@ -13,9 +13,10 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from hashlib import sha1
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator
+from typing import TYPE_CHECKING, Any
 
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.dbproxy import DBProxy
@@ -28,7 +29,7 @@ try:
 
     to_json_bytes: Callable[[Any], bytes] = orjson.dumps
     from_json_bytes = orjson.loads
-except:
+except Exception:
     print("orjson is missing; DB operations will be slower")
 
     def to_json_bytes(obj: Any) -> bytes:
@@ -214,7 +215,7 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
         info = subprocess.STARTUPINFO()  # type: ignore
         try:
             info.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
-        except:
+        except Exception:
             # pylint: disable=no-member
             info.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW  # type: ignore
     else:
@@ -285,7 +286,7 @@ def plat_desc() -> str:
             else:
                 theos = system
             break
-        except:
+        except Exception:
             continue
     return theos
 

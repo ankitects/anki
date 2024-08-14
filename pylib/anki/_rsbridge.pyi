@@ -1,6 +1,5 @@
 from typing import Union
 
-
 class Backend:
     @classmethod
     def command(cls, service: int, method: int, data: bytes) -> bytes: ...

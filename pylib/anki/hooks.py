@@ -14,6 +14,9 @@ modifying it.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from typing import Any
+
 import decorator
 
 # You can find the definitions in ../tools/genhooks.py
@@ -32,7 +35,7 @@ def runHook(hook: str, *args: Any) -> None:
         for func in hookFuncs:
             try:
                 func(*args)
-            except:
+            except Exception:
                 hookFuncs.remove(func)
                 raise
 
@@ -43,7 +46,7 @@ def runFilter(hook: str, arg: Any, *args: Any) -> Any:
         for func in hookFuncs:
             try:
                 arg = func(arg, *args)
-            except:
+            except Exception:
                 hookFuncs.remove(func)
                 raise
     return arg

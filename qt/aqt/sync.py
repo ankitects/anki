@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Callable
 from concurrent.futures import Future
-from typing import Callable
 
 import aqt
 import aqt.main
@@ -29,6 +29,7 @@ from aqt.qt import (
 from aqt.utils import (
     ask_user_dialog,
     disable_help_button,
+    show_warning,
     showText,
     showWarning,
     tooltip,
@@ -70,7 +71,7 @@ def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception) -> None:
     elif isinstance(err, Interrupted):
         # no message to show
         return
-    showWarning(str(err))
+    show_warning(str(err))
 
 
 def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:
@@ -355,12 +356,14 @@ def get_id_and_pass_from_user(
     user = QLineEdit()
     user.setText(username)
     g.addWidget(user, 0, 1)
+    l1.setBuddy(user)
     l2 = QLabel(tr.sync_password_label())
     g.addWidget(l2, 1, 0)
     passwd = QLineEdit()
     passwd.setText(password)
     passwd.setEchoMode(QLineEdit.EchoMode.Password)
     g.addWidget(passwd, 1, 1)
+    l2.setBuddy(passwd)
     vbox.addLayout(g)
     bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)  # type: ignore
     bb.button(QDialogButtonBox.StandardButton.Ok).setAutoDefault(True)

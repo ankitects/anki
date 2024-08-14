@@ -44,6 +44,9 @@
             <property name="text">
              <string>preferences_language</string>
             </property>
+            <property name="buddy">
+             <cstring>lang</cstring>
+            </property>
            </widget>
           </item>
           <item row="0" column="1">
@@ -64,6 +67,9 @@
             <property name="text">
              <string>preferences_video_driver</string>
             </property>
+            <property name="buddy">
+             <cstring>video_driver</cstring>
+            </property>
            </widget>
           </item>
           <item row="1" column="1">
@@ -73,6 +79,19 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="check_for_updates">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_check_for_updates</string>
             </property>
            </widget>
           </item>
@@ -116,6 +135,9 @@
             <property name="text">
              <string>preferences_style</string>
             </property>
+            <property name="buddy">
+             <cstring>styleComboBox</cstring>
+            </property>
            </widget>
           </item>
           <item row="0" column="0">
@@ -123,12 +145,18 @@
             <property name="text">
              <string>preferences_theme</string>
             </property>
+            <property name="buddy">
+             <cstring>theme</cstring>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="uiSizeLabel">
             <property name="text">
              <string>preferences_user_interface_size</string>
+            </property>
+            <property name="buddy">
+             <cstring>uiScale</cstring>
             </property>
            </widget>
           </item>
@@ -264,19 +292,15 @@
              <widget class="QSpinBox" name="lrnCutoff">
               <property name="maximumSize">
                <size>
-                <width>60</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
+              <property name="suffix">
+               <string>preferences_mins</string>
+              </property>
               <property name="maximum">
                <number>999</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="label_29">
-              <property name="text">
-               <string>preferences_mins</string>
               </property>
              </widget>
             </item>
@@ -285,12 +309,8 @@
               <property name="text">
                <string>preferences_timebox_time_limit</string>
               </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QLabel" name="label_40">
-              <property name="text">
-               <string>preferences_hours_past_midnight</string>
+              <property name="buddy">
+               <cstring>timeLimit</cstring>
               </property>
              </widget>
             </item>
@@ -298,9 +318,12 @@
              <widget class="QSpinBox" name="dayOffset">
               <property name="maximumSize">
                <size>
-                <width>60</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="suffix">
+               <string>preferences_hours_past_midnight</string>
               </property>
               <property name="maximum">
                <number>23</number>
@@ -312,6 +335,9 @@
               <property name="text">
                <string>preferences_learn_ahead_limit</string>
               </property>
+              <property name="buddy">
+               <cstring>lrnCutoff</cstring>
+              </property>
              </widget>
             </item>
             <item row="0" column="0">
@@ -319,17 +345,16 @@
               <property name="text">
                <string>preferences_next_day_starts_at</string>
               </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QLabel" name="label_39">
-              <property name="text">
-               <string>preferences_mins</string>
+              <property name="buddy">
+               <cstring>dayOffset</cstring>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
              <widget class="QSpinBox" name="timeLimit">
+              <property name="suffix">
+               <string>preferences_mins</string>
+              </property>
               <property name="maximum">
                <number>9999</number>
               </property>
@@ -513,6 +538,9 @@
               <property name="text">
                <string>preferences_default_deck</string>
               </property>
+              <property name="buddy">
+               <cstring>useCurrent</cstring>
+              </property>
              </widget>
             </item>
             <item>
@@ -552,6 +580,9 @@
              <widget class="QLabel" name="search_text_label">
               <property name="text">
                <string>preferences_default_search_text</string>
+              </property>
+              <property name="buddy">
+               <cstring>default_search_text</cstring>
               </property>
              </widget>
             </item>
@@ -705,10 +736,16 @@
               <property name="text">
                <string>preferences_network_timeout</string>
               </property>
+              <property name="buddy">
+               <cstring>network_timeout</cstring>
+              </property>
              </widget>
             </item>
             <item>
              <widget class="QSpinBox" name="network_timeout">
+              <property name="suffix">
+               <string>scheduling_seconds</string>
+              </property>
               <property name="minimum">
                <number>30</number>
               </property>
@@ -716,26 +753,6 @@
                <number>99999</number>
               </property>
              </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>scheduling_seconds</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </item>
@@ -853,6 +870,9 @@
            <property name="text">
             <string>preferences_custom_sync_url</string>
            </property>
+           <property name="buddy">
+            <cstring>custom_sync_url</cstring>
+           </property>
           </widget>
          </item>
         </layout>
@@ -954,6 +974,9 @@
               <property name="text">
                <string>preferences_daily_backups</string>
               </property>
+              <property name="buddy">
+               <cstring>daily_backups</cstring>
+              </property>
              </widget>
             </item>
             <item row="4" column="2">
@@ -968,6 +991,9 @@
               <property name="text">
                <string>preferences_monthly_backups</string>
               </property>
+              <property name="buddy">
+               <cstring>monthly_backups</cstring>
+              </property>
              </widget>
             </item>
             <item row="4" column="0">
@@ -975,12 +1001,18 @@
               <property name="text">
                <string>preferences_weekly_backups</string>
               </property>
+              <property name="buddy">
+               <cstring>weekly_backups</cstring>
+              </property>
              </widget>
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="label_7">
               <property name="text">
                <string>preferences_minutes_between_backups</string>
+              </property>
+              <property name="buddy">
+               <cstring>minutes_between_backups</cstring>
               </property>
              </widget>
             </item>

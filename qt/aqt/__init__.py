@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Union, cast
 
 try:
     import pip_system_certs.wrapt_requests
@@ -50,7 +52,6 @@ import os
 import tempfile
 import traceback
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import anki.lang
 from anki._backend import RustBackend
@@ -61,6 +62,7 @@ from anki.utils import checksum, is_lin, is_mac
 from aqt import gui_hooks
 from aqt.log import setup_logging
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.utils import TR, tr
 
 if TYPE_CHECKING:
@@ -92,8 +94,8 @@ appHelpSite = HELP_SITE
 from aqt.main import AnkiQt  # isort:skip
 from aqt.profiles import ProfileManager, VideoDriver  # isort:skip
 
-profiler: Optional[cProfile.Profile] = None
-mw: Optional[AnkiQt] = None  # set on init
+profiler: cProfile.Profile | None = None
+mw: AnkiQt | None = None  # set on init
 
 import aqt.forms
 
@@ -154,7 +156,7 @@ class DialogManager:
     def allClosed(self) -> bool:
         return not any(x[1] for x in self._dialogs.values())
 
-    def closeAll(self, onsuccess: Callable[[], None]) -> Optional[bool]:
+    def closeAll(self, onsuccess: Callable[[], None]) -> bool | None:
         # can we close immediately?
         if self.allClosed():
             onsuccess()
@@ -181,7 +183,7 @@ class DialogManager:
         return True
 
     def register_dialog(
-        self, name: str, creator: Union[Callable, type], instance: Optional[Any] = None
+        self, name: str, creator: Callable | type, instance: Any | None = None
     ) -> None:
         """Allows add-ons to register a custom dialog to be managed by Anki's dialog
         manager, which ensures that only one copy of the window is open at once,
@@ -219,19 +221,19 @@ dialogs = DialogManager()
 
 # A reference to the Qt translator needs to be held to prevent it from
 # being immediately deallocated.
-_qtrans: Optional[QTranslator] = None
+_qtrans: QTranslator | None = None
 
 
 def setupLangAndBackend(
     pm: ProfileManager,
     app: QApplication,
-    force: Optional[str] = None,
+    force: str | None = None,
     firstTime: bool = False,
 ) -> RustBackend:
     global _qtrans
     try:
         locale.setlocale(locale.LC_ALL, "")
-    except:
+    except Exception:
         pass
 
     # add _ and ngettext globals used by legacy code
@@ -288,7 +290,7 @@ def setupLangAndBackend(
 class NativeEventFilter(QAbstractNativeEventFilter):
     def nativeEventFilter(
         self, eventType: Any, message: Any
-    ) -> tuple[bool, Optional[sip.voidptr]]:
+    ) -> tuple[bool, sip.voidptr | None]:
         if eventType == "windows_generic_MSG":
             import ctypes
 
@@ -563,7 +565,7 @@ def run() -> None:
         )
 
 
-def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiApp]:
+def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
     """Start AnkiQt application or reuse an existing instance if one exists.
 
     If the function is invoked with exec=False, the AnkiQt will not enter
@@ -629,7 +631,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         pmLoadResult = pm.setupMeta()
 
         Collection.initialize_backend_logging()
-    except:
+    except Exception:
         # will handle below
         traceback.print_exc()
         pm = None
@@ -671,11 +673,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         # we've signaled the primary instance, so we should close
         return None
 
-    setup_logging(
-        pm.addon_logs(),
-        level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
-    )
-
     if not pm:
         if i18n_setup:
             QMessageBox.critical(
@@ -686,6 +683,11 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         else:
             QMessageBox.critical(None, "Startup Failed", "Unable to create data folder")
         return None
+
+    setup_logging(
+        pm.addon_logs(),
+        level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
+    )
 
     # disable icons on mac; this must be done before window created
     if is_mac:
@@ -719,7 +721,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     # we must have a usable temp dir
     try:
         tempfile.gettempdir()
-    except:
+    except Exception:
         QMessageBox.critical(
             None,
             tr.qt_misc_error(),

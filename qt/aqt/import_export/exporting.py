@@ -7,8 +7,8 @@ import os
 import re
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Optional, Sequence, Type
 
 import aqt.forms
 import aqt.main
@@ -42,7 +42,7 @@ class ExportDialog(QDialog):
         mw: aqt.main.AnkiQt,
         did: DeckId | None = None,
         nids: Sequence[NoteId] | None = None,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
     ):
         QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
         self.mw = mw
@@ -56,7 +56,7 @@ class ExportDialog(QDialog):
         self.open()
 
     def setup(self, did: DeckId | None) -> None:
-        self.exporter_classes: list[Type[Exporter]] = [
+        self.exporter_classes: list[type[Exporter]] = [
             ApkgExporter,
             ColpkgExporter,
             NoteCsvExporter,

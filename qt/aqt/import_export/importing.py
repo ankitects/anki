@@ -3,10 +3,11 @@
 
 from __future__ import annotations
 
+import os
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from itertools import chain
-from typing import Type
 
 import aqt.main
 from anki.collection import Collection, Progress
@@ -124,7 +125,7 @@ class JsonImporter(Importer):
         ImportDialog(mw, JsonFileArgs(path=path))
 
 
-IMPORTERS: list[Type[Importer]] = [
+IMPORTERS: list[type[Importer]] = [
     ColpkgImporter,
     ApkgImporter,
     MnemosyneImporter,

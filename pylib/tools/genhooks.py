@@ -137,7 +137,9 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
+
 import anki
 import anki.hooks
 from anki.cards import Card

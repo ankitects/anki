@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
 import aqt
 import aqt.browser
@@ -242,7 +243,7 @@ class DataModel(QAbstractTableModel):
         self._state = self._state.toggle_state()
         try:
             self._search_inner(context)
-        except:
+        except Exception:
             # rollback to prevent inconsistent state
             self._state = self._state.toggle_state()
             raise

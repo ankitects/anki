@@ -9,14 +9,16 @@ import html
 import itertools
 import json
 import mimetypes
+import os
 import re
 import urllib.error
 import urllib.parse
 import urllib.request
 import warnings
+from collections.abc import Callable
 from enum import Enum
 from random import randrange
-from typing import Any, Callable, Match, cast
+from typing import Any, Match, cast
 
 import bs4
 import requests
@@ -59,7 +61,7 @@ from aqt.utils import (
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
-pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico", "avif")
+pics = ("jpg", "jpeg", "png", "gif", "svg", "webp", "ico", "avif")
 audio = (
     "3gp",
     "aac",
@@ -294,6 +296,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         disables: bool = True,
         rightside: bool = True,
     ) -> str:
+        title_attribute = tip
+
         if icon:
             if icon.startswith("qrc:/"):
                 iconstr = icon
@@ -301,47 +305,35 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 iconstr = self.resourceToData(icon)
             else:
                 iconstr = f"/_anki/imgs/{icon}.png"
-            imgelm = f"""<img class="topbut" src="{iconstr}">"""
+            image_element = f'<img class="topbut" src="{iconstr}">'
         else:
-            imgelm = ""
-        if label or not imgelm:
-            labelelm = label or cmd
+            image_element = ""
+
+        if not label and icon:
+            label_element = ""
+        elif label:
+            label_element = label
         else:
-            labelelm = ""
-        if id:
-            idstr = f"id={id}"
-        else:
-            idstr = ""
-        if toggleable:
-            toggleScript = "toggleEditorButton(this);"
-        else:
-            toggleScript = ""
-        tip = shortcut(tip)
-        if rightside:
-            class_ = "linkb"
-        else:
-            class_ = "rounded"
+            label_element = cmd
+
+        title_attribute = shortcut(title_attribute)
+        cmd_to_toggle_button = "toggleEditorButton(this);" if toggleable else ""
+        id_attribute_assignment = f"id={id}" if id else ""
+        class_attribute = "linkb" if rightside else "rounded"
         if not disables:
-            class_ += " perm"
-        return """<button tabindex=-1
-                        {id}
-                        class="{class_}"
+            class_attribute += " perm"
+
+        return f"""<button tabindex=-1
+                        {id_attribute_assignment}
+                        class="{class_attribute}"
                         type="button"
-                        title="{tip}"
-                        onclick="pycmd('{cmd}');{togglesc}return false;"
+                        title="{title_attribute}"
+                        onclick="pycmd('{cmd}');{cmd_to_toggle_button}return false;"
                         onmousedown="window.event.preventDefault();"
                 >
-                    {imgelm}
-                    {labelelm}
-                </button>""".format(
-            imgelm=imgelm,
-            cmd=cmd,
-            tip=tip,
-            labelelm=labelelm,
-            id=idstr,
-            togglesc=toggleScript,
-            class_=class_,
-        )
+                    {image_element}
+                    {label_element}
+                </button>"""
 
     def setupShortcuts(self) -> None:
         # if a third element is provided, enable shortcut even when no field selected

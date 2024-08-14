@@ -152,7 +152,7 @@ statistics-cards-due =
     }
 statistics-backlog-checkbox = Backlog
 statistics-intervals-title = Review Intervals
-statistics-intervals-subtitle = Delays until reviews are shown again.
+statistics-intervals-subtitle = Delays until review cards are shown again.
 statistics-intervals-day-range =
     { $cards ->
         [one] { $cards } card with a { $daysStart }~{ $daysEnd } day interval
