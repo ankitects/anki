@@ -722,7 +722,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
             tot = bad + good
             try:
                 pct = good / float(tot) * 100
-            except:
+            except Exception:
                 pct = 0
             i.append(
                 "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
@@ -974,7 +974,7 @@ from cards where did in %s"""
         else:
             conf["legend"] = {"container": "#%sLegend" % id, "noColumns": 10}
         conf["series"] = dict(stack=True)
-        if not "yaxis" in conf:
+        if "yaxis" not in conf:
             conf["yaxis"] = {}
         conf["yaxis"]["labelWidth"] = 40
         if "xaxis" not in conf:

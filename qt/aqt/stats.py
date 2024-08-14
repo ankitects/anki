@@ -10,6 +10,7 @@ import aqt
 import aqt.forms
 import aqt.main
 from anki.decks import DeckId
+from anki.utils import is_mac
 from aqt import gui_hooks
 from aqt.operations.deck import set_current_deck
 from aqt.qt import *

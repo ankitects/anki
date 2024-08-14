@@ -13,7 +13,7 @@ from typing import TypeVar, Union
 
 try:
     import PyQt6
-except:
+except Exception:
     from .qt5 import *  # type: ignore
 else:
     if os.getenv("ENABLE_QT5_COMPAT"):

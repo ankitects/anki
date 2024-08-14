@@ -504,13 +504,13 @@ if is_win:
         def _voice_to_objects(self, voice: Any) -> list[WindowsVoice]:
             try:
                 langs = voice.GetAttribute("language")
-            except:
+            except Exception:
                 # no associated language; ignore
                 return []
             langs = lcid_hex_str_to_lang_codes(langs)
             try:
                 name = voice.GetAttribute("name")
-            except:
+            except Exception:
                 # some voices may not have a name
                 name = "unknown"
             name = self._tidy_name(name)

@@ -12,6 +12,7 @@ import aqt
 import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
+from anki.utils import is_mac
 from aqt import AnkiQt
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
@@ -206,6 +207,9 @@ class Preferences(QDialog):
         self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
 
+        self.form.check_for_updates.setChecked(self.mw.pm.check_for_updates())
+        qconnect(self.form.check_for_updates.stateChanged, self.mw.pm.set_update_check)
+
         self.update_login_status()
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
         qconnect(self.form.syncLogin.clicked, self.sync_login)
@@ -384,7 +388,7 @@ class Preferences(QDialog):
             lang = lang.replace("-", "_")
         try:
             return codes.index(lang)
-        except:
+        except Exception:
             return codes.index("en_US")
 
     def on_language_index_changed(self, idx: int) -> None:

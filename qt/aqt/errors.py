@@ -3,8 +3,11 @@
 
 from __future__ import annotations
 
+import os
 import re
+import sys
 import time
+import traceback
 from typing import TYPE_CHECKING, TextIO, cast
 
 from markdown import markdown
@@ -12,6 +15,7 @@ from markdown import markdown
 import aqt
 from anki.collection import HelpPage
 from anki.errors import BackendError, Interrupted
+from anki.utils import is_win
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
 from aqt.utils import openHelp, showWarning, supportText, tooltip, tr
