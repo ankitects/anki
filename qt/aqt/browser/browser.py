@@ -20,7 +20,7 @@ from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
-from anki.notes import NoteId
+from anki.notes import Note, NoteId
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
 from anki.utils import is_mac
@@ -1027,6 +1027,7 @@ class Browser(QMainWindow):
         gui_hooks.focus_did_change.append(self.on_focus_change)
         gui_hooks.flag_label_did_change.append(self._update_flag_labels)
         gui_hooks.collection_will_temporarily_close.append(self._on_temporary_close)
+        gui_hooks.add_cards_did_add_note.append(self.on_new_note)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.on_undo_state_change)
@@ -1036,10 +1037,18 @@ class Browser(QMainWindow):
         gui_hooks.focus_did_change.remove(self.on_focus_change)
         gui_hooks.flag_label_did_change.remove(self._update_flag_labels)
         gui_hooks.collection_will_temporarily_close.remove(self._on_temporary_close)
+        gui_hooks.add_cards_did_add_note.remove(self.on_new_note)
 
     def _on_temporary_close(self, col: Collection) -> None:
         # we could reload browser columns in the future; for now we just close
         self.close()
+
+    def on_new_note(self, note: Note) -> None:
+        """
+        When a new note is added, the current search filter is reapplied
+        to refresh the browser table.
+        """
+        self.search()
 
     # Undo
     ######################################################################
