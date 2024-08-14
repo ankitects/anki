@@ -21,7 +21,7 @@ const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
 // cache. a flat 10% increase over the max interval should be enough to not have
 // problems
 const LOAD_BALANCE_DAYS: usize = (MAX_LOAD_BALANCE_INTERVAL as f32 * 1.1) as usize;
-const SIBLING_PENTALTY: f32 = 0.001;
+const SIBLING_PENALTY: f32 = 0.001;
 
 #[derive(Debug, Default)]
 struct LoadBalancerDay {
@@ -155,7 +155,7 @@ impl LoadBalancer {
                     .and_then(|note_id| {
                         interval_day
                             .has_sibling(&note_id)
-                            .then_some(SIBLING_PENTALTY)
+                            .then_some(SIBLING_PENALTY)
                     })
                     .unwrap_or(1.0);
 
