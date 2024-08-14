@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { directionKey, fontFamilyKey, fontSizeKey } from "@tslib/context-keys";
     import { promiseWithResolver } from "@tslib/promise";
     import { singleCallback } from "@tslib/typing";
-    import { getAllContexts, getContext, onMount, tick } from "svelte";
+    import { getAllContexts, getContext, mount, onMount, tick } from "svelte";
     import type { Readable } from "svelte/store";
 
     import { placeCaretAfterContent } from "$lib/domlib/place-caret";
@@ -164,7 +164,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         (async () => {
             await stylesDidLoad;
 
-            new ContentEditable({
+            mount(ContentEditable, {
                 target: element.shadowRoot!,
                 props: {
                     nodes,

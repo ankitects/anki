@@ -33,6 +33,7 @@ declare global {
 }
 
 import { ModuleName } from "@tslib/i18n";
+import { mount } from "svelte";
 
 export const editorModules = [
     ModuleName.EDITING,
@@ -56,29 +57,17 @@ export { editorToolbar } from "./editor-toolbar";
 
 async function setupBrowserEditor(): Promise<void> {
     await setupI18n({ modules: editorModules });
-
-    new BrowserEditor({
-        target: document.body,
-        props: { uiResolve },
-    });
+    mount(BrowserEditor, {target: document.body, props: { uiResolve }});
 }
 
 async function setupNoteCreator(): Promise<void> {
     await setupI18n({ modules: editorModules });
-
-    new NoteCreator({
-        target: document.body,
-        props: { uiResolve },
-    });
+    mount(NoteCreator, {target: document.body, props: { uiResolve }});
 }
 
 async function setupReviewerEditor(): Promise<void> {
     await setupI18n({ modules: editorModules });
-
-    new ReviewerEditor({
-        target: document.body,
-        props: { uiResolve },
-    });
+    mount(ReviewerEditor, {target: document.body, props: { uiResolve }});
 }
 
 export function setupEditor(mode: "add" | "browse" | "review") {
