@@ -4,8 +4,10 @@ import { localizedNumber } from "@tslib/i18n";
 import {
     axisBottom,
     axisLeft,
+    bisector,
     line,
     max,
+    pointer,
     rollup,
     scaleLinear,
     scaleTime,
@@ -16,6 +18,7 @@ import {
 
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
+import { hideTooltip, showTooltip } from "./tooltip";
 
 export interface Point {
     x: number;
@@ -30,6 +33,8 @@ export function renderSimulationChart(
 ): TableDatum[] {
     const svg = select(svgElem);
     svg.selectAll(".lines").remove();
+    svg.selectAll(".hover-columns").remove();
+    svg.selectAll(".focus-line").remove();
     svg.selectAll(".legend").remove();
     if (data.length == 0) {
         setDataAvailable(svg, false);
@@ -118,6 +123,57 @@ export function renderSimulationChart(
         .attr("stroke", (d, i) => color[i % color.length])
         .attr("d", d => line()(d[1].map(p => [p[0], p[1]])))
         .attr("data-group", d => d[0]);
+
+    const focusLine = svg.append("line")
+        .attr("class", "focus-line")
+        .attr("y1", bounds.marginTop)
+        .attr("y2", bounds.height - bounds.marginBottom)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .style("opacity", 0);
+
+    const LongestGroupData = Array.from(groups.values()).reduce((a, b) => a.length > b.length ? a : b);
+    const barWidth = bounds.width / LongestGroupData.length;
+
+    // hover/tooltip
+    svg.append("g")
+        .attr("class", "hover-columns")
+        .selectAll("rect")
+        .data(LongestGroupData)
+        .join("rect")
+        .attr("x", d => d[0] - barWidth / 2)
+        .attr("y", bounds.marginTop)
+        .attr("width", barWidth)
+        .attr("height", bounds.height - bounds.marginTop - bounds.marginBottom)
+        .attr("fill", "transparent")
+        .on("mousemove", mousemove)
+        .on("mouseout", hideTooltip);
+
+    function mousemove(event: MouseEvent, d: any): void {
+        pointer(event, document.body);
+        const date = x.invert(d[0]);
+
+        const groupData: { [key: string]: number } = {};
+
+        groups.forEach((groupPoints, key) => {
+            const bisect = bisector((d: number[]) => x.invert(d[0])).left;
+            const index = bisect(groupPoints, date);
+            const dataPoint = groupPoints[index - 1] || groupPoints[index];
+
+            if (dataPoint) {
+                groupData[key] = y.invert(dataPoint[1]);
+            }
+        });
+
+        focusLine.attr("x1", d[0]).attr("x2", d[0]).style("opacity", 1);
+
+        let tooltipContent = `Date: ${timeFormat("%Y-%m-%d")(date)}<br>`;
+        for (const [key, value] of Object.entries(groupData)) {
+            tooltipContent += `Simulation ${key}: ${value.toFixed(2)} minutes<br>`;
+        }
+
+        showTooltip(tooltipContent, event.pageX, event.pageY);
+    }
 
     const legend = svg.append("g")
         .attr("class", "legend")
