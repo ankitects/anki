@@ -237,10 +237,14 @@ impl Collection {
         let current = ctx.current_card_state();
 
         let load_balancer = self
-            .state
-            .card_queues
-            .as_ref()
-            .map(|card_queues| card_queues.load_balancer.review_context(note_id));
+            .get_config_bool(BoolKey::LoadBalancerEnabled)
+            .then(|| {
+                self.state
+                    .card_queues
+                    .as_ref()
+                    .map(|card_queues| card_queues.load_balancer.review_context(note_id))
+            })
+            .flatten();
 
         let state_ctx = ctx.state_context(load_balancer);
         Ok(current.next_states(&state_ctx))

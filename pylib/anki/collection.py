@@ -972,6 +972,16 @@ class Collection(DeprecatedNamesMixin):
         )
         return self.set_config(key, value, undoable=undoable)
 
+    def _get_enable_load_balancer(self) -> bool:
+        return self.get_config_bool(Config.Bool.LOAD_BALANCER_ENABLED)
+
+    def _set_enable_load_balancer(self, value: bool) -> None:
+        self.set_config_bool(Config.Bool.LOAD_BALANCER_ENABLED, value)
+
+    load_balancer_enabled = property(
+        fget=_get_enable_load_balancer, fset=_set_enable_load_balancer
+    )
+
     # Stats
     ##########################################################################
 

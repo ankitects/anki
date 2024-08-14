@@ -54,6 +54,7 @@ message ConfigKey {
     RANDOM_ORDER_REPOSITION = 23;
     SHIFT_POSITION_OF_EXISTING_CARDS = 24;
     RENDER_LATEX = 25;
+    LOAD_BALANCER_ENABLED = 26;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -115,6 +116,7 @@ message Preferences {
     bool show_remaining_due_counts = 3;
     bool show_intervals_on_buttons = 4;
     uint32 time_limit_secs = 5;
+    bool load_balancer_enabled = 6;
   }
   message Editing {
     bool adding_defaults_to_current_deck = 1;
