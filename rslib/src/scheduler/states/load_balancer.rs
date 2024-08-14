@@ -179,42 +179,7 @@ impl LoadBalancer {
             WeightedIndex::new(intervals_and_weights.iter().map(|k| k.1)).ok()?;
 
         let selected_interval_index = weighted_intervals.sample(&mut rng);
-        let selected_interval = intervals_and_weights[selected_interval_index].0;
-
-        // DEBUG
-        let weight_sum: f32 = intervals_and_weights.iter().map(|k| k.1).sum();
-        for (index, interval_day) in interval_days.iter().enumerate() {
-            let interval_index = index as u32 + before_days;
-
-            let selected = if interval_index == selected_interval {
-                "*"
-            } else {
-                " "
-            };
-            let sibling = if note_id
-                .map(|note_id| interval_day.has_sibling(&note_id))
-                .unwrap_or(false)
-            {
-                "x"
-            } else {
-                " "
-            };
-            let normalized_weight = intervals_and_weights[index].1 / weight_sum;
-            println!(
-                "{}{} {}: {} {:.2} ({})",
-                selected,
-                sibling,
-                interval_index,
-                interval_day.cards.len(),
-                normalized_weight,
-                intervals_and_weights[index].1
-            );
-        }
-
-        println!("interval {} -> {}\n", interval, selected_interval);
-        // END DEBUG
-
-        Some(selected_interval)
+        Some(intervals_and_weights[selected_interval_index].0)
     }
 
     pub fn add_card(&mut self, cid: CardId, nid: NoteId, interval: u32) {
