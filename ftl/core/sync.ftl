@@ -55,11 +55,8 @@ sync-upload-too-large =
     size by removing any unwanted decks (optionally exporting them first), and
     then using Check Database to shrink the file size down. ({ $details })
 sync-sign-in = Sign in
-sync-sign-up = Sign up
-sync-forgot-password = Forgot password?
 sync-ankihub-dialog-heading = AnkiHub Login
 sync-ankihub-username-label = Username or Email:
-sync-ankihub-signup-prompt = Don't have an AnkiHub account?
 sync-ankihub-login-failed = Unable to log in to AnkiHub with the provided credentials.
 sync-ankihub-addon-installation = AnkiHub Add-on Installation
 

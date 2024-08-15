@@ -113,16 +113,6 @@ def get_id_and_pass_from_user(
     vbox.addLayout(g)
 
     vbox.addSpacing(20)
-    sign_in_label = QLabel(
-        f"{tr.sync_ankihub_signup_prompt()} "
-        f'<a href="https://app.ankihub.net/accounts/signup/">{tr.sync_sign_up()}</a><br>'
-        f'<a href="https://app.ankihub.net/accounts/password/reset/">{tr.sync_forgot_password()}</a>'
-    )
-    sign_in_label.setOpenExternalLinks(True)
-    sign_in_label.setWordWrap(True)
-    vbox.addWidget(sign_in_label)
-
-    vbox.addSpacing(20)
     bb = QDialogButtonBox()  # type: ignore
     sign_in_button = QPushButton(tr.sync_sign_in())
     sign_in_button.setAutoDefault(True)
