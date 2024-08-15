@@ -121,11 +121,9 @@ class TagManager(DeprecatedNamesMixin):
     def rem_from_str(self, deltags: str, tags: str) -> str:
         "Delete tags if they exist."
 
-        def wildcard(pat: str, repl: str) -> Match:
+        def wildcard(pat: str, repl: str) -> Match | None:
             pat = re.escape(pat).replace("\\*", ".*")
-            return_value = re.match(f"^{pat}$", repl, re.IGNORECASE)
-            assert return_value is not None
-            return return_value
+            return re.match(f"^{pat}$", repl, re.IGNORECASE)
 
         current_tags = self.split(tags)
         for del_tag in self.split(deltags):
