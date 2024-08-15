@@ -257,7 +257,7 @@ class Preferences(QDialog):
             if self.mw.pm.ankihub_token():
                 self.update_login_status()
 
-        ankihub_login(self.mw, on_success, from_prefs_screen=True)
+        ankihub_login(self.mw, on_success)
 
     def ankihub_sync_logout(self) -> None:
         def on_success():

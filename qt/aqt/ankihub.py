@@ -35,7 +35,6 @@ def ankihub_login(
     on_success: Callable[[], None],
     username: str = "",
     password: str = "",
-    from_prefs_screen: bool = False,
 ) -> None:
 
     def on_future_done(fut: Future[str], username: str, password: str) -> None:
@@ -47,7 +46,7 @@ def ankihub_login(
 
         if not token:
             showWarning(tr.sync_ankihub_login_failed(), parent=mw)
-            ankihub_login(mw, on_success, username, password, from_prefs_screen)
+            ankihub_login(mw, on_success, username, password)
             return
         mw.pm.set_ankihub_token(token)
         mw.pm.set_ankihub_username(username)
@@ -64,9 +63,9 @@ def ankihub_login(
                 parent=mw,
             )
         else:
-            ankihub_login(mw, on_success, username, password, from_prefs_screen)
+            ankihub_login(mw, on_success, username, password)
 
-    get_id_and_pass_from_user(mw, callback, username, password, from_prefs_screen)
+    get_id_and_pass_from_user(mw, callback, username, password)
 
 
 def ankihub_logout(
@@ -87,7 +86,6 @@ def get_id_and_pass_from_user(
     callback: Callable[[str, str], None],
     username: str = "",
     password: str = "",
-    from_prefs_screen: bool = False,
 ) -> None:
     diag = QDialog(mw)
     diag.setWindowTitle("Anki")
@@ -95,9 +93,7 @@ def get_id_and_pass_from_user(
     diag.setWindowModality(Qt.WindowModality.WindowModal)
     diag.setMinimumWidth(600)
     vbox = QVBoxLayout()
-    info_label = QLabel(
-        f"<h1>{tr.sync_ankihub_dialog_heading()}</h1>{tr.preferences_ankihub_intro()}"
-    )
+    info_label = QLabel(f"<h1>{tr.sync_ankihub_dialog_heading()}</h1>")
     info_label.setOpenExternalLinks(True)
     info_label.setWordWrap(True)
     vbox.addWidget(info_label)
@@ -131,7 +127,7 @@ def get_id_and_pass_from_user(
     sign_in_button = QPushButton(tr.sync_sign_in())
     sign_in_button.setAutoDefault(True)
     bb.addButton(
-        QPushButton(tr.actions_cancel() if from_prefs_screen else tr.actions_skip()),
+        QPushButton(tr.actions_cancel()),
         QDialogButtonBox.ButtonRole.RejectRole,
     )
     bb.addButton(
