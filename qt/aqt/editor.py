@@ -1431,7 +1431,19 @@ class EditorWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.WebAction.Cut)
 
     def onCopy(self) -> None:
-        self.triggerPageAction(QWebEnginePage.WebAction.Copy)
+        copy_action = (
+            QWebEnginePage.WebAction.CopyImageToClipboard
+            if self._is_image_context()
+            else QWebEnginePage.WebAction.Copy
+        )
+        self.triggerPageAction(copy_action)
+
+    def _is_image_context(self) -> bool:
+        context_menu_request = self.lastContextMenuRequest()
+        return (
+            context_menu_request.mediaType()
+            == context_menu_request.MediaType.MediaTypeImage
+        )
 
     def _wantsExtendedPaste(self) -> bool:
         strip_html = self.editor.mw.col.get_config_bool(
