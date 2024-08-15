@@ -178,7 +178,7 @@ class AddCards(QMainWindow):
                     break
                 # copy non-empty old fields
                 if (
-                    not old_field_value in copied_field_names
+                    old_field_value not in copied_field_names
                     and old_note.fields[old_idx]
                 ):
                     new_note.fields[new_idx] = old_note.fields[old_idx]

@@ -142,11 +142,5 @@ const getAnchorParent =
 
 const isListItem = (element: Element): element is HTMLLIElement =>
     window.getComputedStyle(element).display === "list-item";
-const isParagraph = (element: Element): element is HTMLParamElement => element.tagName === "P";
-const isBlockElement = (
-    element: Element,
-): element is HTMLLIElement & HTMLParamElement => isListItem(element) || isParagraph(element);
 
 export const getListItem = getAnchorParent(isListItem);
-export const getParagraph = getAnchorParent(isParagraph);
-export const getBlockElement = getAnchorParent(isBlockElement);

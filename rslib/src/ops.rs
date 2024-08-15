@@ -82,7 +82,7 @@ impl Op {
             Op::BuildFilteredDeck => tr.actions_build_filtered_deck(),
             Op::RebuildFilteredDeck => tr.actions_build_filtered_deck(),
             Op::EmptyFilteredDeck => tr.studying_empty(),
-            Op::SetCurrentDeck => tr.browsing_change_deck(),
+            Op::SetCurrentDeck => tr.browsing_select_deck(),
             Op::UpdateDeckConfig => tr.deck_config_title(),
             Op::AddNotetype => tr.actions_add_notetype(),
             Op::RemoveNotetype => tr.actions_remove_notetype(),

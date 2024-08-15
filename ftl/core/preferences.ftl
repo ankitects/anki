@@ -40,6 +40,7 @@ preferences-theme-follow-system = Follow System
 preferences-theme-light = Light
 preferences-theme-dark = Dark
 preferences-v3-scheduler = V3 scheduler
+preferences-check-for-updates = Check for program updates
 preferences-ignore-accents-in-search = Ignore accents in search (slower)
 preferences-backup-explanation =
     Anki periodically backs up your collection. After backups are more than 2 days old,
