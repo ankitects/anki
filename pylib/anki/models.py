@@ -135,7 +135,6 @@ class ModelManager(DeprecatedNamesMixin):
     def current(self, for_deck: bool = True) -> NotetypeDict:
         "Get current model. In new code, prefer col.defaults_for_adding()"
         model_id = self.col.decks.current().get("mid")
-        assert model_id is not None
         notetype = self.get(model_id)
         if not for_deck or not notetype:
             notetype = self.get(self.col.conf["curModel"])
@@ -154,7 +153,7 @@ class ModelManager(DeprecatedNamesMixin):
         except NotFoundError:
             return None
 
-    def get(self, id: NotetypeId) -> NotetypeDict | None:
+    def get(self, id: NotetypeId | None) -> NotetypeDict | None:
         "Get model with ID, or None."
         # deal with various legacy input types
         if id is None:
