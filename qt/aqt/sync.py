@@ -377,6 +377,7 @@ def get_id_and_pass_from_user(
     qconnect(bb.rejected, diag.reject)
     vbox.addWidget(bb)
     diag.setLayout(vbox)
+    diag.adjustSize()
     diag.show()
     user.setFocus()
 
