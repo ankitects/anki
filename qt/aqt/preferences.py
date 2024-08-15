@@ -260,11 +260,7 @@ class Preferences(QDialog):
         ankihub_login(self.mw, on_success)
 
     def ankihub_sync_logout(self) -> None:
-        def on_success():
-            self.mw.pm.set_ankihub_token(None)
-            self.update_login_status()
-
-        ankihub_logout(self.mw, on_success, self.mw.pm.ankihub_token())
+        ankihub_logout(self.mw, self.update_login_status, self.mw.pm.ankihub_token())
 
     def confirm_sync_after_login(self) -> None:
         from aqt import mw

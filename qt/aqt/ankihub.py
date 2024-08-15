@@ -73,8 +73,14 @@ def ankihub_logout(
     on_success: Callable[[], None],
     token: str,
 ) -> None:
+
+    def logout() -> None:
+        mw.pm.set_ankihub_username(None)
+        mw.pm.set_ankihub_token(None)
+        mw.col.ankihub_logout(token=token)
+
     mw.taskman.with_progress(
-        lambda: mw.col.ankihub_logout(token=token),
+        logout,
         # We don't need to wait for the response
         lambda _: on_success(),
         parent=mw,
