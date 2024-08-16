@@ -1433,7 +1433,7 @@ class EditorWebView(AnkiWebView):
     def onCopy(self) -> None:
         self.triggerPageAction(QWebEnginePage.WebAction.Copy)
 
-    def onCopyImage(self) -> None:
+    def on_copy_image(self) -> None:
         self.triggerPageAction(QWebEnginePage.WebAction.CopyImageToClipboard)
 
     def _opened_context_menu_on_image(self) -> bool:
@@ -1606,7 +1606,7 @@ class EditorWebView(AnkiWebView):
     def _maybe_add_copy_image_action(self, menu: QMenu) -> None:
         if self._opened_context_menu_on_image():
             a = menu.addAction(tr.editing_copy_image())
-            qconnect(a.triggered, self.onCopyImage)
+            qconnect(a.triggered, self.on_copy_image)
 
 
 # QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
