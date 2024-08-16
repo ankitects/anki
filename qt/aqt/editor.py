@@ -1433,12 +1433,12 @@ class EditorWebView(AnkiWebView):
     def onCopy(self) -> None:
         copy_action = (
             QWebEnginePage.WebAction.CopyImageToClipboard
-            if self._is_image_context()
+            if self._opened_context_menu_on_image()
             else QWebEnginePage.WebAction.Copy
         )
         self.triggerPageAction(copy_action)
 
-    def _is_image_context(self) -> bool:
+    def _opened_context_menu_on_image(self) -> bool:
         context_menu_request = self.lastContextMenuRequest()
         return (
             context_menu_request.mediaType()
