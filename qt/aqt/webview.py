@@ -383,7 +383,7 @@ class AnkiWebView(QWebEngineView):
         gui_hooks.webview_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
 
-    def _maybe_add_copy_action(self, menu: QMenu):
+    def _maybe_add_copy_action(self, menu: QMenu) -> None:
         if self.hasSelection():
             a = menu.addAction(tr.actions_copy())
             qconnect(a.triggered, self.onCopy)
