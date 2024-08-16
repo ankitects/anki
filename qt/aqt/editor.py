@@ -1431,12 +1431,10 @@ class EditorWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.WebAction.Cut)
 
     def onCopy(self) -> None:
-        copy_action = (
-            QWebEnginePage.WebAction.CopyImageToClipboard
-            if self._opened_context_menu_on_image()
-            else QWebEnginePage.WebAction.Copy
-        )
-        self.triggerPageAction(copy_action)
+        self.triggerPageAction(QWebEnginePage.WebAction.Copy)
+
+    def onCopyImage(self) -> None:
+        self.triggerPageAction(QWebEnginePage.WebAction.CopyImageToClipboard)
 
     def _opened_context_menu_on_image(self) -> bool:
         context_menu_request = self.lastContextMenuRequest()
@@ -1587,14 +1585,28 @@ class EditorWebView(AnkiWebView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
-        a = m.addAction(tr.editing_cut())
-        qconnect(a.triggered, self.onCut)
-        a = m.addAction(tr.actions_copy())
-        qconnect(a.triggered, self.onCopy)
+        self._maybe_add_cut_action(m)
+        self._maybe_add_copy_action(m)
         a = m.addAction(tr.editing_paste())
         qconnect(a.triggered, self.onPaste)
+        self._maybe_add_copy_image_action(m)
         gui_hooks.editor_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
+
+    def _maybe_add_cut_action(self, menu: QMenu) -> None:
+        if self.hasSelection():
+            a = menu.addAction(tr.editing_cut())
+            qconnect(a.triggered, self.onCut)
+
+    def _maybe_add_copy_action(self, menu: QMenu) -> None:
+        if self.hasSelection():
+            a = menu.addAction(tr.actions_copy())
+            qconnect(a.triggered, self.onCopy)
+
+    def _maybe_add_copy_image_action(self, menu: QMenu) -> None:
+        if self._opened_context_menu_on_image():
+            a = menu.addAction(tr.editing_copy_image())
+            qconnect(a.triggered, self.onCopyImage)
 
 
 # QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
