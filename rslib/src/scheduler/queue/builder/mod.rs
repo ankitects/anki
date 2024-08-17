@@ -146,7 +146,11 @@ impl QueueBuilder {
         let sort_options = sort_options(&root_deck, &config_map);
         let deck_map = col.storage.get_decks_map()?;
 
-        let load_balancer = LoadBalancer::new(timing.days_elapsed, &col.storage)?;
+        let did_to_dcid = deck_map
+            .values()
+            .filter_map(|deck| Some((deck.id, deck.config_id()?)))
+            .collect::<HashMap<_, _>>();
+        let load_balancer = LoadBalancer::new(timing.days_elapsed, did_to_dcid, &col.storage)?;
 
         Ok(QueueBuilder {
             new: Vec::new(),

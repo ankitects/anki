@@ -13,7 +13,7 @@ use super::fuzz::constrained_fuzz_bounds;
 use crate::card::CardId;
 use crate::deckconfig::DeckConfigId;
 use crate::notes::NoteId;
-use crate::prelude::Result;
+use crate::prelude::*;
 use crate::storage::SqliteStorage;
 
 const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
@@ -85,24 +85,20 @@ pub struct LoadBalancer {
 }
 
 impl LoadBalancer {
-    pub fn new(today: u32, storage: &SqliteStorage) -> Result<LoadBalancer> {
+    pub fn new(
+        today: u32,
+        did_to_dcid: HashMap<DeckId, DeckConfigId>,
+        storage: &SqliteStorage,
+    ) -> Result<LoadBalancer> {
         let cards_on_each_day =
             storage.get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)?;
-        let decks = storage.get_all_decks()?;
-        let deck_deckconfig_lookup = decks
-            .into_iter()
-            .filter_map(|deck| Some((deck.id, deck.config_id()?)))
-            .collect::<HashMap<_, _>>();
-
         let days_by_preset = cards_on_each_day
             .into_iter()
             // for each day, group all cards on each day by their deck config id
             .map(|cards_on_day| {
                 cards_on_day
                     .into_iter()
-                    .filter_map(|(cid, nid, did)| {
-                        Some((cid, nid, deck_deckconfig_lookup.get(&did)?))
-                    })
+                    .filter_map(|(cid, nid, did)| Some((cid, nid, did_to_dcid.get(&did)?)))
                     .fold(
                         HashMap::<_, Vec<_>>::new(),
                         |mut day_group_by_dcid, (cid, nid, dcid)| {
