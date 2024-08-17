@@ -54,6 +54,11 @@ sync-upload-too-large =
     Your collection file is too large to send to AnkiWeb. You can reduce its
     size by removing any unwanted decks (optionally exporting them first), and
     then using Check Database to shrink the file size down. ({ $details })
+sync-sign-in = Sign in
+sync-ankihub-dialog-heading = AnkiHub Login
+sync-ankihub-username-label = Username or Email:
+sync-ankihub-login-failed = Unable to log in to AnkiHub with the provided credentials.
+sync-ankihub-addon-installation = AnkiHub Add-on Installation
 
 ## Buttons
 
