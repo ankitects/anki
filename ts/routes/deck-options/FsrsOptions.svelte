@@ -477,9 +477,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <SpinBoxRow
             bind:value={simulateFsrsRequest.deckSize}
-            defaultValue={1000}
+            defaultValue={0}
             min={1}
-            max={10000}
+            max={100000}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
                 Additional new cards to simulate
