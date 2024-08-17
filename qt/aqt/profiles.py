@@ -652,6 +652,12 @@ create table if not exists profiles
     def set_host_number(self, val: int | None) -> None:
         self.profile["hostNum"] = val or 0
 
+    def check_for_updates(self) -> bool:
+        return self.meta.get("check_for_updates", True)
+
+    def set_update_check(self, on: bool) -> None:
+        self.meta["check_for_updates"] = on
+
     def media_syncing_enabled(self) -> bool:
         return self.profile.get("syncMedia", True)
 
@@ -710,3 +716,15 @@ create table if not exists profiles
 
     def network_timeout(self) -> int:
         return self.profile.get("networkTimeout") or 60
+
+    def set_ankihub_token(self, val: str | None) -> None:
+        self.profile["thirdPartyAnkiHubToken"] = val
+
+    def ankihub_token(self) -> str | None:
+        return self.profile.get("thirdPartyAnkiHubToken")
+
+    def set_ankihub_username(self, val: str | None) -> None:
+        self.profile["thirdPartyAnkiHubUsername"] = val
+
+    def ankihub_username(self) -> str | None:
+        return self.profile.get("thirdPartyAnkiHubUsername")

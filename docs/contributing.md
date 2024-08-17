@@ -3,31 +3,28 @@
 For info on contributing things other than code, such as translations, decks
 and add-ons, please see https://docs.ankiweb.net/contrib
 
-With most users now on 2.1, the past 2 years have been focused on paying down some
-of the technical debt that Anki's codebase has built up over the years, and making
-changes that will make future maintenance and refactoring easier. A lot of Anki's
-"business logic" has been migrated to Rust, which AnkiMobile and AnkiDroid
-can also take advantage of - previously a lot of effort was wasted writing the same
-code for each platform, and then debugging differences in the implementations.
-Considerable effort has also been put into improving the Python side of things,
-with type hints added to the majority of the codebase, automatic linting/formatting,
-and refactoring of parts of the code.
-
-The import/export code remains to be done, and this will likely
-take a number of months to work through. Until that is complete, new features
-will not be the top priority, unless they are easy wins as part of the refactoring
-process.
-
-If you are planning to contribute any non-trivial changes, please reach out
-on the support site before you begin work. Some areas (primarily pylib/) are
-likely to change/conflict with other work, and larger changes will likely need
-to wait until the refactoring process is done.
-
 ## Help wanted
 
 If you'd like to contribute but don't know what to work on, please take a look
 at the [issues tab](https://github.com/ankitects/anki/issues) of the Anki repo
 on GitHub.
+
+## Larger changes
+
+Before starting work on larger changes, especially ones that aren't listed on the
+issue tracker, please reach out on the forums before you begin work, so we can let
+you know whether they're likely to be accepted or not. When you spent a bunch of time
+on a PR that ends up getting rejected, it's no fun for either you or us.
+
+## Refactoring
+
+Please avoid PRs that focus on refactoring. Every PR has a cost to review, and a chance
+of introducing accidental regressions, and often these costs are not worth it for
+slightly more elegant code.
+
+That's not to say there's no value in refactoring. But such changes are usually better done
+in a PR that happens to be working in the same area - for example, making small changes
+to the code as part of fixing a bug, or a larger refactor when introducing a new feature.
 
 ## Type hints
 

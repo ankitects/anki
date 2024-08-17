@@ -27,7 +27,6 @@ preferences-show-remaining-card-count = Show remaining card count
 preferences-some-settings-will-take-effect-after = Some settings will take effect after you restart Anki.
 preferences-tab-synchronisation = Synchronization
 preferences-synchronize-audio-and-images-too = Synchronize audio and images too
-preferences-not-logged-in = Not currently logged in to AnkiWeb.
 preferences-login-successful-sync-now = Log-in successful. Save preferences and sync now?
 preferences-timebox-time-limit = Timebox time limit
 preferences-user-interface-size = User interface size
@@ -41,6 +40,7 @@ preferences-theme-follow-system = Follow System
 preferences-theme-light = Light
 preferences-theme-dark = Dark
 preferences-v3-scheduler = V3 scheduler
+preferences-check-for-updates = Check for program updates
 preferences-ignore-accents-in-search = Ignore accents in search (slower)
 preferences-backup-explanation =
     Anki periodically backs up your collection. After backups are more than 2 days old,
@@ -77,9 +77,15 @@ preferences-network-timeout = Network timeout
 preferences-reset-window-sizes = Reset Window Sizes
 preferences-reset-window-sizes-complete = Window sizes and locations have been reset.
 preferences-shortcut-placeholder = Enter an unused shortcut key, or leave empty to disable.
+preferences-third-party-services = Third-Party Services
+preferences-ankihub-not-logged-in = Not currently logged in to AnkiHub.
+preferences-ankiweb-intro = AnkiWeb is a free service that lets you keep your flashcard data in sync across your devices, and provides a way to recover the data if your device breaks or is lost.
+preferences-ankihub-intro = AnkiHub provides collaborative deck editing and additional study tools. A paid subscription is required to access certain features.
+preferences-third-party-description = Third-party services are unaffiliated with and not endorsed by Anki. Use of these services may require payment.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 preferences-basic = Basic
 preferences-reviewer = Reviewer
 preferences-media = Media
+preferences-not-logged-in = Not currently logged in to AnkiWeb.

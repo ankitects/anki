@@ -1086,9 +1086,11 @@ def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
 
         data = client.stream_content(resp)
 
-        fname = re.match(
+        match = re.match(
             "attachment; filename=(.+)", resp.headers["content-disposition"]
-        ).group(1)
+        )
+        assert match is not None
+        fname = match.group(1)
 
         meta = extract_meta_from_download_url(resp.url)
 
@@ -1251,7 +1253,9 @@ class DownloaderInstaller(QObject):
         self.mgr.mw.progress.single_shot(50, lambda: self.on_done(self.log))
 
 
-def show_log_to_user(parent: QWidget, log: list[DownloadLogEntry]) -> None:
+def show_log_to_user(
+    parent: QWidget, log: list[DownloadLogEntry], title: str = "Anki"
+) -> None:
     have_problem = download_encountered_problem(log)
 
     if have_problem:
@@ -1261,9 +1265,9 @@ def show_log_to_user(parent: QWidget, log: list[DownloadLogEntry]) -> None:
     text += f"<br><br>{download_log_to_html(log)}"
 
     if have_problem:
-        showWarning(text, textFormat="rich", parent=parent)
+        showWarning(text, textFormat="rich", parent=parent, title=title)
     else:
-        showInfo(text, parent=parent)
+        showInfo(text, parent=parent, title=title)
 
 
 def download_addons(
@@ -1546,6 +1550,32 @@ def prompt_to_update(
             download_addons(parent, mgr, ids, on_done, client)
 
     ChooseAddonsToUpdateDialog(parent, mgr, updated_addons).ask(after_choosing)
+
+
+def install_or_update_addon(
+    parent: QWidget,
+    mgr: AddonManager,
+    addon_id: int,
+    on_done: Callable[[list[DownloadLogEntry]], None],
+) -> None:
+    def check() -> list[AddonInfo]:
+        return fetch_update_info([addon_id])
+
+    def update_info_received(future: Future) -> None:
+        try:
+            items = future.result()
+            updated_addons = mgr.get_updated_addons(items)
+            if not updated_addons:
+                on_done([])
+                return
+            client = HttpClient()
+            download_addons(
+                parent, mgr, [addon.id for addon in updated_addons], on_done, client
+            )
+        except Exception as exc:
+            on_done([(addon_id, DownloadError(exception=exc))])
+
+    mgr.mw.taskman.run_in_background(check, update_info_received)
 
 
 # Editing config
