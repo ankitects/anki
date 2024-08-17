@@ -79,7 +79,7 @@ impl<'a> LoadBalancerContext<'a> {
 
 #[derive(Debug)]
 pub struct LoadBalancer {
-    /// Load balancer operatates at the preset level, it only counts
+    /// Load balancer operates at the preset level, it only counts
     /// cards in the same preset as the card being balanced.
     days_by_preset: HashMap<DeckConfigId, [LoadBalancerDay; LOAD_BALANCE_DAYS]>,
 }
@@ -104,8 +104,8 @@ impl LoadBalancer {
                         Some((cid, nid, deck_deckconfig_lookup.get(&did)?))
                     })
                     .fold(
-                        HashMap::new(),
-                        |mut day_group_by_dcid: HashMap<_, Vec<_>>, (cid, nid, dcid)| {
+                        HashMap::<_, Vec<_>>::new(),
+                        |mut day_group_by_dcid, (cid, nid, dcid)| {
                             day_group_by_dcid.entry(dcid).or_default().push((cid, nid));
 
                             day_group_by_dcid
