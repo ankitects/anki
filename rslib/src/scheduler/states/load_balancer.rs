@@ -182,10 +182,11 @@ impl LoadBalancer {
         }
 
         let (before_days, after_days) = constrained_fuzz_bounds(interval, minimum, maximum);
-        let after_days = after_days + 1; // +1 to make the range inclusive of the actual value
 
         let days = self.days_by_preset.get(&deckconfig_id)?;
-        let interval_days = &days[before_days as usize..after_days as usize];
+        let interval_days = &days[before_days as usize..=after_days as usize];
+
+        // calculate weights for each day
         let intervals_and_weights = interval_days
             .iter()
             .enumerate()
