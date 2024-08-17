@@ -303,6 +303,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return result;
     }
 
+    $: simulateProgressString = "";
+
     async function simulateFsrs(): Promise<void> {
         let resp: SimulateFsrsReviewResponse | undefined;
         simulationNumber += 1;
@@ -312,12 +314,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     simulateFsrsRequest.weights = $config.fsrsWeights;
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
                     simulateFsrsRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
+                    simulateProgressString = "processing...";
                     resp = await simulateFsrsReview(simulateFsrsRequest);
                 },
                 () => {},
             );
         } finally {
             if (resp) {
+                simulateProgressString = "";
                 const dailyTimeCost = movingAverage(
                     resp.dailyTimeCost,
                     Math.round(simulateFsrsRequest.daysToSimulate / 50),
@@ -456,7 +460,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 />
             {/if}
         {/if}
-        <div>{computeRetentionProgressString}</div>
+        <div>{simulateProgressString}</div>
     </details>
 </div>
 
@@ -534,6 +538,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             {"Clear last simulation"}
         </button>
+        <div>{simulateProgressString}</div>
 
         <Graph {title}>
             <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
