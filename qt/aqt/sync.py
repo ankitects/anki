@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import functools
 import os
 from collections.abc import Callable
 from concurrent.futures import Future
@@ -298,14 +299,8 @@ def sync_login(
     username: str = "",
     password: str = "",
 ) -> None:
-    while True:
-        (username, password) = get_id_and_pass_from_user(mw, username, password)
-        if not username and not password:
-            return
-        if username and password:
-            break
 
-    def on_future_done(fut: Future[SyncAuth]) -> None:
+    def on_future_done(fut: Future[SyncAuth], username: str, password: str) -> None:
         try:
             auth = fut.result()
         except SyncError as e:
@@ -324,18 +319,29 @@ def sync_login(
 
         on_success()
 
-    mw.taskman.with_progress(
-        lambda: mw.col.sync_login(
-            username=username, password=password, endpoint=mw.pm.sync_endpoint()
-        ),
-        on_future_done,
-        parent=mw,
-    )
+    def callback(username: str, password: str) -> None:
+        if not username and not password:
+            return
+        if username and password:
+            mw.taskman.with_progress(
+                lambda: mw.col.sync_login(
+                    username=username, password=password, endpoint=mw.pm.sync_endpoint()
+                ),
+                functools.partial(on_future_done, username=username, password=password),
+                parent=mw,
+            )
+        else:
+            sync_login(mw, on_success, username, password)
+
+    get_id_and_pass_from_user(mw, callback, username, password)
 
 
 def get_id_and_pass_from_user(
-    mw: aqt.main.AnkiQt, username: str = "", password: str = ""
-) -> tuple[str, str]:
+    mw: aqt.main.AnkiQt,
+    callback: Callable[[str, str], None],
+    username: str = "",
+    password: str = "",
+) -> None:
     diag = QDialog(mw)
     diag.setWindowTitle("Anki")
     disable_help_button(diag)
@@ -371,13 +377,18 @@ def get_id_and_pass_from_user(
     qconnect(bb.rejected, diag.reject)
     vbox.addWidget(bb)
     diag.setLayout(vbox)
+    diag.adjustSize()
     diag.show()
     user.setFocus()
 
-    accepted = diag.exec()
-    if not accepted:
-        return ("", "")
-    return (user.text().strip(), passwd.text())
+    def on_finished(result: int) -> None:
+        if result == QDialog.DialogCode.Rejected:
+            callback("", "")
+        else:
+            callback(user.text().strip(), passwd.text())
+
+    qconnect(diag.finished, on_finished)
+    diag.open()
 
 
 # export platform version to syncing code
