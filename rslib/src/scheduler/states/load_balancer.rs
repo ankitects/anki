@@ -123,6 +123,24 @@ impl LoadBalancer {
         }
     }
 
+    /// The main load balancing function
+    /// Given an interval and min/max range it does its best to find the best
+    /// day within the standard fuzz range to schedule a card that leads to
+    /// a consistent workload.
+    ///
+    /// It works by using a weighted random, assigning a weight between 0.0 and
+    /// 1.0 to each day in the fuzz range for an interval.
+    /// the weight takes into account the number of cards due on a day as well
+    /// as the interval itself.
+    /// `weight = (1 / (cards_due))**2 * (1 / target_interval)`
+    ///
+    /// By including the target_interval in the calculation, the interval is
+    /// slightly biased to be due earlier. Without this, the load balancer
+    /// ends up being very biased towards later days, especially around
+    /// graduating intervals.
+    ///
+    /// if a note_id is provided, it attempts to avoid placing a card on a day
+    /// that already has that note_id (aka avoid siblings)
     fn find_interval(
         &self,
         interval: f32,
@@ -147,6 +165,8 @@ impl LoadBalancer {
             .enumerate()
             .map(|(interval_index, interval_day)| {
                 let target_interval = interval_index as u32 + before_days;
+
+                // if there is a sibling on this day, give it a very low weight
                 let sibling_multiplier = note_id
                     .and_then(|note_id| {
                         interval_day
@@ -156,7 +176,7 @@ impl LoadBalancer {
                     .unwrap_or(1.0);
 
                 let weight = match interval_day.cards.len() {
-                    0 => 1.0,
+                    0 => 1.0, // if theres no cards due on this day, give it the full 1.0 weight
                     card_count => {
                         let card_count_weight = (1.0 / card_count as f32).powi(2);
                         let card_interval_weight = 1.0 / target_interval as f32;
