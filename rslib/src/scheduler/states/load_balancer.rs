@@ -135,10 +135,6 @@ impl LoadBalancer {
         if interval as u32 > MAX_LOAD_BALANCE_INTERVAL as u32
             || minimum > MAX_LOAD_BALANCE_INTERVAL as u32
         {
-            println!(
-                "load balancer: interval/minimum {}/{} over threshold {}, not balancing",
-                interval, minimum, MAX_LOAD_BALANCE_INTERVAL
-            );
             return None;
         }
 
