@@ -1,0 +1,30 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+import "anki/generic.proto";
+
+package anki.ankihub;
+
+service AnkiHubService {}
+
+service BackendAnkiHubService {
+  rpc AnkihubLogin(LoginRequest) returns (LoginResponse);
+  rpc AnkihubLogout(LogoutRequest) returns (generic.Empty);
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+message LoginRequest {
+  string id = 1;
+  string password = 2;
+}
+
+message LogoutRequest {
+  string token = 1;
+}

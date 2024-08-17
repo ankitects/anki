@@ -40,6 +40,7 @@ pub enum BoolKey {
     WithScheduling,
     WithDeckConfigs,
     Fsrs,
+    LoadBalancerEnabled,
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
     #[strum(to_string = "dayLearnFirst")]
@@ -73,6 +74,7 @@ impl Collection {
             | BoolKey::CardCountsSeparateInactive
             | BoolKey::RestorePositionBrowser
             | BoolKey::RestorePositionReviewer
+            | BoolKey::LoadBalancerEnabled
             | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
 
             // other options default to false
