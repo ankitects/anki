@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
 use std::collections::HashSet;
 
 use rand::distributions::Distribution;
@@ -10,7 +11,7 @@ use rand::SeedableRng;
 
 use super::fuzz::constrained_fuzz_bounds;
 use crate::card::CardId;
-use crate::decks::DeckId;
+use crate::deckconfig::DeckConfigId;
 use crate::notes::NoteId;
 use crate::prelude::Result;
 use crate::storage::SqliteStorage;
@@ -54,13 +55,20 @@ impl LoadBalancerDay {
 pub struct LoadBalancerContext<'a> {
     load_balancer: &'a LoadBalancer,
     note_id: Option<NoteId>,
+    deckconfig_id: DeckConfigId,
     fuzz_seed: Option<u64>,
 }
 
 impl<'a> LoadBalancerContext<'a> {
     pub fn find_interval(&self, interval: f32, minimum: u32, maximum: u32) -> Option<u32> {
-        self.load_balancer
-            .find_interval(interval, minimum, maximum, self.fuzz_seed, self.note_id)
+        self.load_balancer.find_interval(
+            interval,
+            minimum,
+            maximum,
+            self.deckconfig_id,
+            self.fuzz_seed,
+            self.note_id,
+        )
     }
 
     pub fn set_fuzz_seed(mut self, fuzz_seed: Option<u64>) -> Self {
@@ -71,54 +79,70 @@ impl<'a> LoadBalancerContext<'a> {
 
 #[derive(Debug)]
 pub struct LoadBalancer {
-    days: [LoadBalancerDay; LOAD_BALANCE_DAYS],
+    /// Load balancer operatates at the preset level, it only counts
+    /// cards in the same preset as the card being balanced.
+    days_by_preset: HashMap<DeckConfigId, [LoadBalancerDay; LOAD_BALANCE_DAYS]>,
 }
 
 impl LoadBalancer {
-    pub fn new(today: u32, deck_id: DeckId, storage: &SqliteStorage) -> Result<LoadBalancer> {
+    pub fn new(today: u32, storage: &SqliteStorage) -> Result<LoadBalancer> {
         let cards_on_each_day =
             storage.get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)?;
         let decks = storage.get_all_decks()?;
+        let deck_deckconfig_lookup = decks
+            .into_iter()
+            .filter_map(|deck| Some((deck.id, deck.config_id()?)))
+            .collect::<HashMap<_, _>>();
 
-        let current_deck_config_id = decks
-            .iter()
-            .find(|deck| deck.id == deck_id)
-            .and_then(|deck| deck.config_id());
-
-        let cards = match current_deck_config_id {
-            Some(current_deck_config_id) => {
-                let decks_in_preset = decks
-                    .iter()
-                    .filter(|deck| deck.config_id() == Some(current_deck_config_id))
-                    .map(|deck| deck.id)
-                    .collect::<Vec<_>>();
-
-                cards_on_each_day
+        let days_by_preset = cards_on_each_day
+            .into_iter()
+            // for each day, group all cards on each day by their deck config id
+            .map(|cards_on_day| {
+                cards_on_day
                     .into_iter()
-                    .map(|day| {
-                        day.into_iter()
-                            .filter(|(_, _, did)| decks_in_preset.contains(did))
-                            .collect()
+                    .filter_map(|(cid, nid, did)| {
+                        Some((cid, nid, deck_deckconfig_lookup.get(&did)?))
                     })
-                    .collect()
-            }
-            None => cards_on_each_day,
-        };
+                    .fold(
+                        HashMap::new(),
+                        |mut day_group_by_dcid: HashMap<_, Vec<_>>, (cid, nid, dcid)| {
+                            day_group_by_dcid.entry(dcid).or_default().push((cid, nid));
 
-        let mut days = std::array::from_fn(|_| LoadBalancerDay::default());
-        for (cards, cache_day) in cards.iter().zip(days.iter_mut()) {
-            for card in cards {
-                cache_day.add(card.0, card.1);
-            }
-        }
+                            day_group_by_dcid
+                        },
+                    )
+            })
+            .enumerate()
+            // consolidate card by day groups into groups of [LoadBalancerDay; LOAD_BALANCE_DAYS]s
+            .fold(
+                HashMap::new(),
+                |mut deckconfig_group, (day_index, days_grouped_by_dcid)| {
+                    for (group, cards) in days_grouped_by_dcid.into_iter() {
+                        let day = deckconfig_group
+                            .entry(*group)
+                            .or_insert_with(|| std::array::from_fn(|_| LoadBalancerDay::default()));
 
-        Ok(LoadBalancer { days })
+                        for (cid, nid) in cards {
+                            day[day_index].add(cid, nid);
+                        }
+                    }
+
+                    deckconfig_group
+                },
+            );
+
+        Ok(LoadBalancer { days_by_preset })
     }
 
-    pub fn review_context(&self, note_id: Option<NoteId>) -> LoadBalancerContext {
+    pub fn review_context(
+        &self,
+        note_id: Option<NoteId>,
+        deckconfig_id: DeckConfigId,
+    ) -> LoadBalancerContext {
         LoadBalancerContext {
             load_balancer: self,
             note_id,
+            deckconfig_id,
             fuzz_seed: None,
         }
     }
@@ -146,6 +170,7 @@ impl LoadBalancer {
         interval: f32,
         minimum: u32,
         maximum: u32,
+        deckconfig_id: DeckConfigId,
         fuzz_seed: Option<u64>,
         note_id: Option<NoteId>,
     ) -> Option<u32> {
@@ -159,7 +184,8 @@ impl LoadBalancer {
         let (before_days, after_days) = constrained_fuzz_bounds(interval, minimum, maximum);
         let after_days = after_days + 1; // +1 to make the range inclusive of the actual value
 
-        let interval_days = &self.days[before_days as usize..after_days as usize];
+        let days = self.days_by_preset.get(&deckconfig_id)?;
+        let interval_days = &days[before_days as usize..after_days as usize];
         let intervals_and_weights = interval_days
             .iter()
             .enumerate()
@@ -198,15 +224,19 @@ impl LoadBalancer {
         Some(intervals_and_weights[selected_interval_index].0)
     }
 
-    pub fn add_card(&mut self, cid: CardId, nid: NoteId, interval: u32) {
-        if let Some(day) = self.days.get_mut(interval as usize) {
-            day.add(cid, nid);
+    pub fn add_card(&mut self, cid: CardId, nid: NoteId, dcid: DeckConfigId, interval: u32) {
+        if let Some(days) = self.days_by_preset.get_mut(&dcid) {
+            if let Some(day) = days.get_mut(interval as usize) {
+                day.add(cid, nid);
+            }
         }
     }
 
     pub fn remove_card(&mut self, cid: CardId) {
-        for day in self.days.iter_mut() {
-            day.remove(cid);
+        for (_, days) in self.days_by_preset.iter_mut() {
+            for day in days.iter_mut() {
+                day.remove(cid);
+            }
         }
     }
 }

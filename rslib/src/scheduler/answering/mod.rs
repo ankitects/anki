@@ -239,10 +239,15 @@ impl Collection {
         let load_balancer = self
             .get_config_bool(BoolKey::LoadBalancerEnabled)
             .then(|| {
-                self.state
-                    .card_queues
-                    .as_ref()
-                    .map(|card_queues| card_queues.load_balancer.review_context(note_id))
+                let deckconfig_id = deck.config_id();
+
+                self.state.card_queues.as_ref().and_then(|card_queues| {
+                    Some(
+                        card_queues
+                            .load_balancer
+                            .review_context(note_id, deckconfig_id?),
+                    )
+                })
             })
             .flatten();
 
@@ -341,10 +346,16 @@ impl Collection {
         }
 
         if card.queue == CardQueue::Review {
+            let deck = self.get_deck(card.deck_id)?;
             if let Some(card_queues) = self.state.card_queues.as_mut() {
-                card_queues
-                    .load_balancer
-                    .add_card(card.id, card.note_id, card.interval)
+                if let Some(deckconfig_id) = deck.and_then(|deck| deck.config_id()) {
+                    card_queues.load_balancer.add_card(
+                        card.id,
+                        card.note_id,
+                        deckconfig_id,
+                        card.interval,
+                    )
+                }
             }
         }
 
