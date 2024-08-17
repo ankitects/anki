@@ -591,6 +591,20 @@ class Reviewer:
     def _shortcutKeys(
         self,
     ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
+
+        def generate_default_answer_keys():
+            for ease in aqt.mw.pm.default_answer_keys:
+                key = aqt.mw.pm.get_answer_key(ease)
+                if key:
+                    if ease in (1, 2, 3, 4):
+                        ease = cast(Literal[1, 2, 3, 4], ease)
+                        answer_card_according_to_pressed_shortkey = functools.partial(
+                            self._answerCard, ease
+                        )
+                        yield (key, answer_card_according_to_pressed_shortkey)
+                    else:
+                        raise ValueError("Invalid value")
+
         return [
             ("e", self.mw.onEditCurrent),
             (" ", self.onEnterKey),
@@ -617,11 +631,7 @@ class Reviewer:
             ("o", self.onOptions),
             ("i", self.on_card_info),
             ("Ctrl+Alt+i", self.on_previous_card_info),
-            *(
-                (key, functools.partial(self._answerCard, ease))
-                for ease in aqt.mw.pm.default_answer_keys
-                if (key := aqt.mw.pm.get_answer_key(ease))
-            ),
+            *generate_default_answer_keys(),
             ("u", self.mw.undo),
             ("5", self.on_pause_audio),
             ("6", self.on_seek_backward),
