@@ -114,7 +114,13 @@ mod test {
         // if no other step, hard delay is 50% above again secs
         assert_delay_secs!([10.0], 1, Some(600), Some(900), None);
         // but at most one day more than again secs
-        assert_delay_secs!([(3 * DAY / 60) as f32], 1, Some(3 * DAY), Some(4 * DAY), None);
+        assert_delay_secs!(
+            [(3 * DAY / 60) as f32],
+            1,
+            Some(3 * DAY),
+            Some(4 * DAY),
+            None
+        );
 
         assert_delay_secs!([1.0, 10.0], 2, Some(60), Some(330), Some(600));
         assert_delay_secs!([1.0, 10.0], 1, Some(60), Some(600), None);
