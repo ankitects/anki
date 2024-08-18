@@ -45,16 +45,30 @@ impl LearnState {
         }
     }
 
-    fn answer_hard(self, ctx: &StateContext) -> LearnState {
-        LearnState {
-            scheduled_secs: ctx
-                .steps
-                .hard_delay_secs(self.remaining_steps)
-                // user has 0 learning steps, which the UI doesn't allow
-                .unwrap_or(60),
-            elapsed_secs: 0,
-            memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into()),
-            ..self
+    fn answer_hard(self, ctx: &StateContext) -> CardState {
+        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into());
+        if let Some(hard_delay) = ctx.steps.hard_delay_secs(self.remaining_steps) {
+            LearnState {
+                scheduled_secs: hard_delay,
+                elapsed_secs: 0,
+                memory_state,
+                ..self
+            }
+            .into()
+        } else {
+            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+            let interval = if let Some(states) = &ctx.fsrs_next_states {
+                states.hard.interval
+            } else {
+                ctx.graduating_interval_good
+            };
+            ReviewState {
+                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+                ease_factor: ctx.initial_ease_factor,
+                memory_state,
+                ..Default::default()
+            }
+            .into()
         }
     }
 
