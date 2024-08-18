@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-const DEFAULT_SECS_IF_MISSING: u32 = 60;
 const DAY: u32 = 60 * 60 * 24;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -32,12 +31,7 @@ impl<'a> LearningSteps<'a> {
         self.steps.get(index).copied().map(to_secs)
     }
 
-    /// Cards in learning must always have at least one learning step.
-    pub(crate) fn again_delay_secs_learn(&self) -> u32 {
-        self.secs_at_index(0).unwrap_or(DEFAULT_SECS_IF_MISSING)
-    }
-
-    pub(crate) fn again_delay_secs_relearn(&self) -> Option<u32> {
+    pub(crate) fn again_delay_secs_learn(&self) -> Option<u32> {
         self.secs_at_index(0)
     }
 

@@ -29,19 +29,37 @@ impl LearnState {
     pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         SchedulingStates {
             current: self.into(),
-            again: self.answer_again(ctx).into(),
+            again: self.answer_again(ctx),
             hard: self.answer_hard(ctx),
             good: self.answer_good(ctx),
             easy: self.answer_easy(ctx).into(),
         }
     }
 
-    fn answer_again(self, ctx: &StateContext) -> LearnState {
-        LearnState {
-            remaining_steps: ctx.steps.remaining_for_failed(),
-            scheduled_secs: ctx.steps.again_delay_secs_learn(),
-            elapsed_secs: 0,
-            memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.again.memory.into()),
+    fn answer_again(self, ctx: &StateContext) -> CardState {
+        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.again.memory.into());
+        if let Some(again_delay) = ctx.steps.again_delay_secs_learn() {
+            LearnState {
+                remaining_steps: ctx.steps.remaining_for_failed(),
+                scheduled_secs: again_delay,
+                elapsed_secs: 0,
+                memory_state,
+            }
+            .into()
+        } else {
+            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+            let interval = if let Some(states) = &ctx.fsrs_next_states {
+                states.again.interval
+            } else {
+                ctx.graduating_interval_good
+            };
+            ReviewState {
+                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+                ease_factor: ctx.initial_ease_factor,
+                memory_state,
+                ..Default::default()
+            }
+            .into()
         }
     }
 
