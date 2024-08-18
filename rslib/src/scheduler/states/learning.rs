@@ -30,7 +30,7 @@ impl LearnState {
         SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx).into(),
-            hard: self.answer_hard(ctx).into(),
+            hard: self.answer_hard(ctx),
             good: self.answer_good(ctx),
             easy: self.answer_easy(ctx).into(),
         }
