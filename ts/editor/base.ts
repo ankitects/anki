@@ -57,17 +57,17 @@ export { editorToolbar } from "./editor-toolbar";
 
 async function setupBrowserEditor(): Promise<void> {
     await setupI18n({ modules: editorModules });
-    mount(BrowserEditor, {target: document.body, props: { uiResolve }});
+    mount(BrowserEditor, { target: document.body, props: { uiResolve } });
 }
 
 async function setupNoteCreator(): Promise<void> {
     await setupI18n({ modules: editorModules });
-    mount(NoteCreator, {target: document.body, props: { uiResolve }});
+    mount(NoteCreator, { target: document.body, props: { uiResolve } });
 }
 
 async function setupReviewerEditor(): Promise<void> {
     await setupI18n({ modules: editorModules });
-    mount(ReviewerEditor, {target: document.body, props: { uiResolve }});
+    mount(ReviewerEditor, { target: document.body, props: { uiResolve } });
 }
 
 export function setupEditor(mode: "add" | "browse" | "review") {
