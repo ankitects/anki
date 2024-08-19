@@ -160,7 +160,7 @@ deck-config-new-gather-priority-random-notes = Random notes
 deck-config-new-gather-priority-random-cards = Random cards
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip-2 =
-    `Card type`: Displays cards in order of card type number. If you have sibling burying
+    `Card type, then order gathered`: Displays cards in order of card type number. If you have sibling burying
     disabled, this will ensure all front→back cards are seen before any back→front cards.
     This is useful to have all cards of the same note shown in the same session, but not
     too close to one another.
@@ -180,7 +180,7 @@ deck-config-new-card-sort-order-tooltip-2 =
 deck-config-sort-order-card-template-then-random = Card type, then random
 deck-config-sort-order-random-note-then-template = Random note, then card type
 deck-config-sort-order-random = Random
-deck-config-sort-order-template-then-gather = Card type
+deck-config-sort-order-template-then-gather = Card type, then order gathered
 deck-config-sort-order-gather = Order gathered
 deck-config-new-review-priority = New/review order
 deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.
