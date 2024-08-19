@@ -106,7 +106,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </InputBox>
 </div>
 
-<div class="range-box-pad" />
+<div class="range-box-pad"></div>
 
 <style lang="scss">
     .range-box {

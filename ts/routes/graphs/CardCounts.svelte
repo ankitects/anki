@@ -81,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             {total}
                         </td>
                         <td class="right">{graphData.totalCards}</td>
-                        <td />
+                        <td></td>
                     </tr>
                 </tbody>
             </table>
