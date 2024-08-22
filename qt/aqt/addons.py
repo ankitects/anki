@@ -409,7 +409,9 @@ class AddonManager:
                 all_conflicts[other_dir].append(addon.dir_name)
         return all_conflicts
 
-    def _disableConflicting(self, module: str, conflicts: list[str] = None) -> set[str]:
+    def _disableConflicting(
+        self, module: str, conflicts: list[str] | None = None
+    ) -> set[str]:
         if not self.isEnabled(module):
             # disabled add-ons should not trigger conflict handling
             return set()
