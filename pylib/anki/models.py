@@ -563,7 +563,7 @@ and notes.mid = ? and cards.ord = ?""",
         self._mutate_after_write(notetype)
 
     # @deprecated(replaced_by=update_dict)
-    def save(self, notetype: NotetypeDict = None, **legacy_kwargs: bool) -> None:
+    def save(self, notetype: NotetypeDict | None = None, **legacy_kwargs: bool) -> None:
         "Save changes made to provided note type."
         if not notetype:
             print_deprecation_warning(

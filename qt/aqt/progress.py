@@ -42,7 +42,7 @@ class ProgressManager:
         repeat: bool,
         requiresCollection: bool = True,
         *,
-        parent: QObject = None,
+        parent: QObject | None = None,
     ) -> QTimer:
         """Create and start a standard Anki timer. For an alternative see `single_shot()`.
 

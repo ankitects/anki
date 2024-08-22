@@ -137,7 +137,7 @@ class ExportDialog(QDialog):
         return path
 
     def options(self, out_path: str) -> ExportOptions:
-        limit: ExportLimit = None
+        limit: ExportLimit | None = None
         if self.nids:
             limit = NoteIdsLimit(self.nids)
         elif current_deck_id := self.current_deck_id():

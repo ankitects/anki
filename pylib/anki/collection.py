@@ -897,7 +897,7 @@ class Collection(DeprecatedNamesMixin):
     # Config
     ##########################################################################
 
-    def get_config(self, key: str, default: Any = None) -> Any:
+    def get_config(self, key: str, default: Any | None = None) -> Any:
         try:
             return self.conf.get_immutable(key)
         except KeyError:
@@ -939,7 +939,7 @@ class Collection(DeprecatedNamesMixin):
         return self._backend.set_config_string(key=key, value=value, undoable=undoable)
 
     def get_aux_notetype_config(
-        self, id: NotetypeId, key: str, default: Any = None
+        self, id: NotetypeId, key: str, default: Any | None = None
     ) -> Any:
         key = self._backend.get_aux_notetype_config_key(id=id, key=key)
         return self.get_config(key, default=default)
@@ -951,7 +951,7 @@ class Collection(DeprecatedNamesMixin):
         return self.set_config(key, value, undoable=undoable)
 
     def get_aux_template_config(
-        self, id: NotetypeId, card_ordinal: int, key: str, default: Any = None
+        self, id: NotetypeId, card_ordinal: int, key: str, default: Any | None = None
     ) -> Any:
         key = self._backend.get_aux_template_config_key(
             notetype_id=id, card_ordinal=card_ordinal, key=key

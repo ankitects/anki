@@ -62,7 +62,7 @@ class SidebarItem:
         name: str,
         icon: str | ColoredIcon,
         search_node: SearchNode | None = None,
-        on_expanded: Callable[[bool], None] = None,
+        on_expanded: Callable[[bool], None] | None = None,
         expanded: bool = False,
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
         id: int = 0,
