@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
-import functools
 import json
 import random
 import re
 from collections.abc import Callable, Generator, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
+from functools import partial
 from typing import Any, Literal, Match, Union, cast
 
 import aqt
@@ -593,13 +593,13 @@ class Reviewer:
     ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
 
         def generate_default_answer_keys() -> (
-            Generator[tuple[str, functools.partial], None, None]
+            Generator[tuple[str, partial], None, None]
         ):
             for ease in aqt.mw.pm.default_answer_keys:
                 key = aqt.mw.pm.get_answer_key(ease)
                 if key:
                     ease = cast(Literal[1, 2, 3, 4], ease)
-                    answer_card_according_to_pressed_key = functools.partial(
+                    answer_card_according_to_pressed_key = partial(
                         self._answerCard, ease
                     )
                     yield (key, answer_card_according_to_pressed_key)
