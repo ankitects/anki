@@ -62,10 +62,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
         </div>
 
-        {#if scrollStates.top} <div class="scroll-shadow top-0" /> {/if}
-        {#if scrollStates.bottom} <div class="scroll-shadow bottom-0" /> {/if}
-        {#if scrollStates.left} <div class="scroll-shadow start-0" /> {/if}
-        {#if scrollStates.right} <div class="scroll-shadow end-0" /> {/if}
+        {#if scrollStates.top}
+            <div class="scroll-shadow top-0" />
+        {/if}
+        {#if scrollStates.bottom}
+            <div class="scroll-shadow bottom-0" />
+        {/if}
+        {#if scrollStates.left}
+            <div class="scroll-shadow start-0" />
+        {/if}
+        {#if scrollStates.right}
+            <div class="scroll-shadow end-0" />
+        {/if}
     </div>
 </div>
 

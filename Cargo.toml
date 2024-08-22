@@ -1,27 +1,27 @@
 [workspace.package]
 version = "0.0.0"
 authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
+edition = "2021"
 license = "AGPL-3.0-or-later"
 rust-version = "1.65"
-edition = "2021"
 
 [workspace]
 members = [
-  "rslib",
-  "rslib/i18n",
-  "rslib/linkchecker",
-  "rslib/proto",
-  "rslib/io",
-  "rslib/process",
-  "rslib/sync",
-  "pylib/rsbridge",
   "build/configure",
   "build/ninja_gen",
   "build/runner",
   "ftl",
-  "tools/minilints",
-  "qt/bundle/win",
+  "pylib/rsbridge",
   "qt/bundle/mac",
+  "qt/bundle/win",
+  "rslib",
+  "rslib/i18n",
+  "rslib/io",
+  "rslib/linkchecker",
+  "rslib/process",
+  "rslib/proto",
+  "rslib/sync",
+  "tools/minilints",
 ]
 exclude = ["qt/bundle"]
 resolver = "2"
@@ -45,8 +45,8 @@ version = "1.1.4"
 anki = { path = "rslib" }
 anki_i18n = { path = "rslib/i18n" }
 anki_io = { path = "rslib/io" }
-anki_proto = { path = "rslib/proto" }
 anki_process = { path = "rslib/process" }
+anki_proto = { path = "rslib/proto" }
 anki_proto_gen = { path = "rslib/proto_gen" }
 ninja_gen = { "path" = "build/ninja_gen" }
 
@@ -74,6 +74,9 @@ criterion = { version = "0.5.1" }
 csv = "1.3.0"
 data-encoding = "2.6.0"
 difflib = "0.4.0"
+dirs = "5.0.1"
+dunce = "1.0.4"
+envy = "0.4.2"
 flate2 = "1.0.30"
 fluent = "0.16.1"
 fluent-bundle = "0.15.3"
@@ -145,9 +148,6 @@ wiremock = "0.5.22"
 xz2 = "0.1.7"
 zip = { version = "0.6.6", default-features = false, features = ["deflate", "time"] }
 zstd = { version = "0.13.2", features = ["zstdmt"] }
-envy = "0.4.2"
-dirs = "5.0.1"
-dunce = "1.0.4"
 
 # Apply mild optimizations to our dependencies in dev mode, which among other things
 # improves sha2 performance by about 21x. Opt 1 chosen due to

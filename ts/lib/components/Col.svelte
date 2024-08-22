@@ -48,8 +48,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 "md": $calc,
                 "lg": $calc,
                 "xl": $calc,
-                "xxl": $calc
-            )
+                "xxl": $calc,
+            ),
         )
     );
 </style>
