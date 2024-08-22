@@ -153,7 +153,7 @@ class Reviewer:
         self._answeredIds: list[CardId] = []
         self._recordedAudio: str | None = None
         self.typeCorrect: str | None = None  # web init happens before this is set
-        self.state: Literal["question", "answer", "transition", None] | None = None
+        self.state: Literal["question", "answer", "transition"] | None = None
         self._refresh_needed: RefreshNeeded | None = None
         self._v3: V3CardInfo | None = None
         self._state_mutation_key = str(random.randint(0, 2**64 - 1))
