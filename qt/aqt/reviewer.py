@@ -597,7 +597,7 @@ class Reviewer:
         ):
             for ease in aqt.mw.pm.default_answer_keys:
                 key = aqt.mw.pm.get_answer_key(ease)
-                if not key:
+                if key is None:
                     continue
                 ease = cast(Literal[1, 2, 3, 4], ease)
                 answer_card_according_to_pressed_key = partial(self._answerCard, ease)
