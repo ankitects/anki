@@ -862,8 +862,8 @@ class AnkiQt(QMainWindow):
     def requireReset(
         self,
         modal: bool = False,
-        reason: Any = None,
-        context: Any = None,
+        reason: Any | None = None,
+        context: Any | None = None,
     ) -> None:
         traceback.print_stack(file=sys.stdout)
         print("requireReset() is obsolete; please use CollectionOp()")
