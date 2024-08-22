@@ -1,4 +1,4 @@
-FROM debian:10-slim
+FROM debian:11-slim
 
 ARG DEBIAN_FRONTEND="noninteractive"
 
@@ -52,13 +52,6 @@ RUN mkdir -p /etc/buildkite-agent/hooks && chown -R user /etc/buildkite-agent
 
 COPY buildkite.cfg /etc/buildkite-agent/buildkite-agent.cfg
 COPY environment /etc/buildkite-agent/hooks/environment
-
-# Available in Debian 11 as ninja-build, but we're building with Debian 10
-RUN curl -LO https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip \
-    && unzip ninja-linux.zip \
-    && chmod +x ninja \
-    && mv ninja /usr/bin \
-    && rm ninja-linux.zip
 
 RUN mkdir /state/rust && chown user /state/rust
 
