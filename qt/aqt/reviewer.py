@@ -152,8 +152,8 @@ class Reviewer:
         self.previous_card: Card | None = None
         self._answeredIds: list[CardId] = []
         self._recordedAudio: str | None = None
-        self.typeCorrect: str = None  # web init happens before this is set
-        self.state: Literal["question", "answer", "transition", None] = None
+        self.typeCorrect: str | None = None  # web init happens before this is set
+        self.state: Literal["question", "answer", "transition"] | None = None
         self._refresh_needed: RefreshNeeded | None = None
         self._v3: V3CardInfo | None = None
         self._state_mutation_key = str(random.randint(0, 2**64 - 1))
@@ -162,7 +162,7 @@ class Reviewer:
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         self._states_mutated = True
         self._state_mutation_js = None
-        self._reps: int = None
+        self._reps: int | None = None
         self._show_question_timer: QTimer | None = None
         self._show_answer_timer: QTimer | None = None
         self.auto_advance_enabled = False
@@ -369,7 +369,7 @@ class Reviewer:
     def _showQuestion(self) -> None:
         self._reps += 1
         self.state = "question"
-        self.typedAnswer: str = None
+        self.typedAnswer: str | None = None
         c = self.card
         # grab the question and play audio
         q = c.question()
