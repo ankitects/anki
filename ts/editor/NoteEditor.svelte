@@ -618,9 +618,7 @@ Functionality exclusive to specific note-editing views (e.g. in the browser or
 the AddCards dialog) should be implemented in the user of this component.
 -->
 <div class="note-editor">
-    <EditorToolbar {size} {wrap} api={toolbar}>
-        <slot slot="notetypeButtons" name="notetypeButtons" />
-    </EditorToolbar>
+    <EditorToolbar {size} {wrap} api={toolbar}></EditorToolbar>
 
     {#if hint}
         <Absolute bottom right --margin="10px">
