@@ -597,10 +597,10 @@ class Reviewer:
                 key = aqt.mw.pm.get_answer_key(ease)
                 if key:
                     ease = cast(Literal[1, 2, 3, 4], ease)
-                    answer_card_according_to_pressed_shortkey = functools.partial(
+                    answer_card_according_to_pressed_key = functools.partial(
                         self._answerCard, ease
                     )
-                    yield (key, answer_card_according_to_pressed_shortkey)
+                    yield (key, answer_card_according_to_pressed_key)
 
         return [
             ("e", self.mw.onEditCurrent),
