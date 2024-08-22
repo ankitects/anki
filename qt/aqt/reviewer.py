@@ -596,14 +596,11 @@ class Reviewer:
             for ease in aqt.mw.pm.default_answer_keys:
                 key = aqt.mw.pm.get_answer_key(ease)
                 if key:
-                    if ease in (1, 2, 3, 4):
-                        ease = cast(Literal[1, 2, 3, 4], ease)
-                        answer_card_according_to_pressed_shortkey = functools.partial(
-                            self._answerCard, ease
-                        )
-                        yield (key, answer_card_according_to_pressed_shortkey)
-                    else:
-                        raise ValueError("Invalid value")
+                    ease = cast(Literal[1, 2, 3, 4], ease)
+                    answer_card_according_to_pressed_shortkey = functools.partial(
+                        self._answerCard, ease
+                    )
+                    yield (key, answer_card_according_to_pressed_shortkey)
 
         return [
             ("e", self.mw.onEditCurrent),
