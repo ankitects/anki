@@ -581,6 +581,32 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn get_all_cards_due_in_range(
+        &self,
+        min_day: u32,
+        max_day: u32,
+    ) -> Result<Vec<Vec<(CardId, NoteId, DeckId)>>> {
+        Ok(self
+            .db
+            .prepare_cached("select id, nid, did, due from cards where due >= ?1 and due < ?2 ")?
+            .query_and_then([min_day, max_day], |row: &Row| {
+                Ok::<_, rusqlite::Error>((
+                    row.get::<_, CardId>(0)?,
+                    row.get::<_, NoteId>(1)?,
+                    row.get::<_, DeckId>(2)?,
+                    row.get::<_, i32>(3)?,
+                ))
+            })?
+            .flatten()
+            .fold(
+                vec![Vec::new(); (max_day - min_day) as usize],
+                |mut acc, (card_id, note_id, deck_id, due)| {
+                    acc[due as usize - min_day as usize].push((card_id, note_id, deck_id));
+                    acc
+                },
+            ))
+    }
+
     pub(crate) fn congrats_info(&self, current: &Deck, today: u32) -> Result<CongratsInfo> {
         // NOTE: this line is obsolete in v3 as it's run on queue build, but kept to
         // prevent errors for v1/v2 users before they upgrade

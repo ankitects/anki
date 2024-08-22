@@ -897,7 +897,7 @@ class Collection(DeprecatedNamesMixin):
     # Config
     ##########################################################################
 
-    def get_config(self, key: str, default: Any = None) -> Any:
+    def get_config(self, key: str, default: Any | None = None) -> Any:
         try:
             return self.conf.get_immutable(key)
         except KeyError:
@@ -939,7 +939,7 @@ class Collection(DeprecatedNamesMixin):
         return self._backend.set_config_string(key=key, value=value, undoable=undoable)
 
     def get_aux_notetype_config(
-        self, id: NotetypeId, key: str, default: Any = None
+        self, id: NotetypeId, key: str, default: Any | None = None
     ) -> Any:
         key = self._backend.get_aux_notetype_config_key(id=id, key=key)
         return self.get_config(key, default=default)
@@ -951,7 +951,7 @@ class Collection(DeprecatedNamesMixin):
         return self.set_config(key, value, undoable=undoable)
 
     def get_aux_template_config(
-        self, id: NotetypeId, card_ordinal: int, key: str, default: Any = None
+        self, id: NotetypeId, card_ordinal: int, key: str, default: Any | None = None
     ) -> Any:
         key = self._backend.get_aux_template_config_key(
             notetype_id=id, card_ordinal=card_ordinal, key=key
@@ -971,6 +971,16 @@ class Collection(DeprecatedNamesMixin):
             notetype_id=id, card_ordinal=card_ordinal, key=key
         )
         return self.set_config(key, value, undoable=undoable)
+
+    def _get_enable_load_balancer(self) -> bool:
+        return self.get_config_bool(Config.Bool.LOAD_BALANCER_ENABLED)
+
+    def _set_enable_load_balancer(self, value: bool) -> None:
+        self.set_config_bool(Config.Bool.LOAD_BALANCER_ENABLED, value)
+
+    load_balancer_enabled = property(
+        fget=_get_enable_load_balancer, fset=_set_enable_load_balancer
+    )
 
     # Stats
     ##########################################################################
@@ -1120,6 +1130,12 @@ class Collection(DeprecatedNamesMixin):
     def media_sync_status(self) -> MediaSyncStatus:
         "This will throw if the sync failed with an error."
         return self._backend.media_sync_status()
+
+    def ankihub_login(self, id: str, password: str) -> str:
+        return self._backend.ankihub_login(id=id, password=password)
+
+    def ankihub_logout(self, token: str) -> None:
+        self._backend.ankihub_logout(token=token)
 
     def get_preferences(self) -> Preferences:
         return self._backend.get_preferences()

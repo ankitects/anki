@@ -213,7 +213,8 @@ class ProfileManager:
         if name == "_global":
             raise Exception("_global is not a valid name")
         data = self.db.scalar(
-            "select cast(data as blob) from profiles where name = ?", name
+            "select cast(data as blob) from profiles where name = ? collate nocase",
+            name,
         )
         self.name = name
         try:
@@ -232,22 +233,26 @@ class ProfileManager:
         return True
 
     def save(self) -> None:
-        sql = "update profiles set data = ? where name = ?"
+        sql = "update profiles set data = ? where name = ? collate nocase"
         self.db.execute(sql, self._pickle(self.profile), self.name)
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
 
     def create(self, name: str) -> None:
         prof = profileConf.copy()
+        if self.db.scalar("select 1 from profiles where name = ? collate nocase", name):
+            return
         self.db.execute(
-            "insert or ignore into profiles values (?, ?)", name, self._pickle(prof)
+            "insert or ignore into profiles values (?, ?)",
+            name,
+            self._pickle(prof),
         )
         self.db.commit()
 
     def remove(self, name: str) -> None:
         path = self.profileFolder(create=False)
         send_to_trash(Path(path))
-        self.db.execute("delete from profiles where name = ?", name)
+        self.db.execute("delete from profiles where name = ? collate nocase", name)
         self.db.commit()
 
     def trashCollection(self) -> None:
@@ -277,7 +282,9 @@ class ProfileManager:
                 return
 
         # update name
-        self.db.execute("update profiles set name = ? where name = ?", name, oldName)
+        self.db.execute(
+            "update profiles set name = ? where name = ? collate nocase", name, oldName
+        )
         # rename folder
         try:
             os.rename(oldFolder, newFolder)
@@ -403,7 +410,7 @@ class ProfileManager:
             self.db.execute(
                 """
 create table if not exists profiles
-(name text primary key, data blob not null);"""
+(name text primary key collate nocase, data blob not null);"""
             )
             data = self.db.scalar(
                 "select cast(data as blob) from profiles where name = '_global'"
@@ -485,7 +492,7 @@ create table if not exists profiles
 
     def setLang(self, code: str) -> None:
         self.meta["defaultLang"] = code
-        sql = "update profiles set data = ? where name = ?"
+        sql = "update profiles set data = ? where name = ? collate nocase"
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
         anki.lang.set_lang(code)
@@ -716,3 +723,15 @@ create table if not exists profiles
 
     def network_timeout(self) -> int:
         return self.profile.get("networkTimeout") or 60
+
+    def set_ankihub_token(self, val: str | None) -> None:
+        self.profile["thirdPartyAnkiHubToken"] = val
+
+    def ankihub_token(self) -> str | None:
+        return self.profile.get("thirdPartyAnkiHubToken")
+
+    def set_ankihub_username(self, val: str | None) -> None:
+        self.profile["thirdPartyAnkiHubUsername"] = val
+
+    def ankihub_username(self) -> str | None:
+        return self.profile.get("thirdPartyAnkiHubUsername")

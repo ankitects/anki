@@ -5,6 +5,7 @@ pub(crate) mod filtered;
 pub(crate) mod fuzz;
 pub(crate) mod interval_kind;
 pub(crate) mod learning;
+pub(crate) mod load_balancer;
 pub(crate) mod new;
 pub(crate) mod normal;
 pub(crate) mod preview_filter;
@@ -17,6 +18,7 @@ pub use filtered::FilteredState;
 use fsrs::NextStates;
 pub(crate) use interval_kind::IntervalKind;
 pub use learning::LearnState;
+use load_balancer::LoadBalancerContext;
 pub use new::NewState;
 pub use normal::NormalState;
 pub use preview_filter::PreviewState;
@@ -99,6 +101,7 @@ pub(crate) struct StateContext<'a> {
     pub interval_multiplier: f32,
     pub maximum_review_interval: u32,
     pub leech_threshold: u32,
+    pub load_balancer: Option<LoadBalancerContext<'a>>,
 
     // relearning
     pub relearn_steps: LearningSteps<'a>,
@@ -133,6 +136,7 @@ impl<'a> StateContext<'a> {
             interval_multiplier: 1.0,
             maximum_review_interval: 36500,
             leech_threshold: 8,
+            load_balancer: None,
             relearn_steps: LearningSteps::new(&[10.0]),
             lapse_multiplier: 0.0,
             minimum_lapse_interval: 1,

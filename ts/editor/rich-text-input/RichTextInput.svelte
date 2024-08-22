@@ -242,7 +242,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 use:attachContentEditable={{ stylesDidLoad }}
                 on:focusin
                 on:focusout
-            />
+            ></div>
 
             {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
                 <div class="rich-text-widgets">

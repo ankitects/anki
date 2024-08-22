@@ -76,7 +76,7 @@ class ConfigManager:
     def __setitem__(self, key: str, value: Any) -> None:
         self.set(key, value)
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: Any | None = None) -> Any:
         try:
             return self[key]
         except KeyError:

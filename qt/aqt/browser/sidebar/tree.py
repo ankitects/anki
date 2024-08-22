@@ -159,7 +159,7 @@ class SidebarTreeView(QTreeView):
             self.refresh()
             self._refresh_needed = False
 
-    def refresh(self, new_current: SidebarItem = None) -> None:
+    def refresh(self, new_current: SidebarItem | None = None) -> None:
         "Refresh list. No-op if sidebar is not visible."
         if not self.isVisible():
             return

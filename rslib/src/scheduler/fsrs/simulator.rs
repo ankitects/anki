@@ -5,8 +5,10 @@ use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use fsrs::simulate;
 use fsrs::SimulatorConfig;
+use fsrs::DEFAULT_PARAMETERS;
 use itertools::Itertools;
 
+use crate::card::CardQueue;
 use crate::prelude::*;
 use crate::search::SortMode;
 
@@ -22,9 +24,15 @@ impl Collection {
             .get_revlog_entries_for_searched_cards_in_card_order()?;
         let cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
+        let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
+        let converted_cards = cards
+            .into_iter()
+            .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
+            .filter_map(|c| Card::convert(c, days_elapsed, req.days_to_simulate))
+            .collect_vec();
         let p = self.get_optimal_retention_parameters(revlogs)?;
         let config = SimulatorConfig {
-            deck_size: req.deck_size as usize,
+            deck_size: req.deck_size as usize + converted_cards.len(),
             learn_span: req.days_to_simulate as usize,
             max_cost_perday: f32::MAX,
             max_ivl: req.max_interval as f32,
@@ -40,7 +48,19 @@ impl Collection {
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
         };
-        let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
+        let parameters = if req.weights.is_empty() {
+            DEFAULT_PARAMETERS.to_vec()
+        } else if req.weights.len() != 19 {
+            if req.weights.len() == 17 {
+                let mut parameters = req.weights.to_vec();
+                parameters.extend_from_slice(&[0.0, 0.0]);
+                parameters
+            } else {
+                return Err(AnkiError::FsrsWeightsInvalid);
+            }
+        } else {
+            req.weights.to_vec()
+        };
         let (
             accumulated_knowledge_acquisition,
             daily_review_count,
@@ -48,15 +68,10 @@ impl Collection {
             daily_time_cost,
         ) = simulate(
             &config,
-            &req.weights,
+            &parameters,
             req.desired_retention,
             None,
-            Some(
-                cards
-                    .into_iter()
-                    .filter_map(|c| Card::convert(c, days_elapsed))
-                    .collect_vec(),
-            ),
+            Some(converted_cards),
         );
         Ok(SimulateFsrsReviewResponse {
             accumulated_knowledge_acquisition: accumulated_knowledge_acquisition.to_vec(),
@@ -68,19 +83,42 @@ impl Collection {
 }
 
 impl Card {
-    fn convert(card: Card, days_elapsed: i32) -> Option<fsrs::Card> {
+    fn convert(card: Card, days_elapsed: i32, day_to_simulate: u32) -> Option<fsrs::Card> {
         match card.memory_state {
-            Some(state) => {
-                let due = card.original_or_current_due();
-                let relative_due = due - days_elapsed;
-                Some(fsrs::Card {
-                    difficulty: state.difficulty,
-                    stability: state.stability,
-                    last_date: (relative_due - card.interval as i32) as f32,
-                    due: relative_due as f32,
-                })
-            }
-            None => None,
+            Some(state) => match card.queue {
+                CardQueue::DayLearn | CardQueue::Review => {
+                    let due = card.original_or_current_due();
+                    let relative_due = due - days_elapsed;
+                    Some(fsrs::Card {
+                        difficulty: state.difficulty,
+                        stability: state.stability,
+                        last_date: (relative_due - card.interval as i32) as f32,
+                        due: relative_due as f32,
+                    })
+                }
+                CardQueue::New => Some(fsrs::Card {
+                    difficulty: 1e-10,
+                    stability: 1e-10,
+                    last_date: 0.0,
+                    due: day_to_simulate as f32,
+                }),
+                CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => {
+                    Some(fsrs::Card {
+                        difficulty: state.difficulty,
+                        stability: state.stability,
+                        last_date: 0.0,
+                        due: 0.0,
+                    })
+                }
+                CardQueue::PreviewRepeat => None,
+                CardQueue::Suspended => None,
+            },
+            None => Some(fsrs::Card {
+                difficulty: 1e-10,
+                stability: 1e-10,
+                last_date: 0.0,
+                due: day_to_simulate as f32,
+            }),
         }
     }
 }

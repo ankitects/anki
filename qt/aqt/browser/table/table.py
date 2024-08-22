@@ -600,7 +600,9 @@ class Table:
             self._view.verticalScrollBar().setValue(vertical)
 
     def _move_current(
-        self, direction: QAbstractItemView.CursorAction, index: QModelIndex = None
+        self,
+        direction: QAbstractItemView.CursorAction,
+        index: QModelIndex | None = None,
     ) -> None:
         if not self.has_current():
             return

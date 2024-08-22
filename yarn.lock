@@ -2010,7 +2010,7 @@ domutils@^3.0.1:
     domelementtype "^2.3.0"
     domhandler "^5.0.3"
 
-dprint@=0.47.2:
+dprint@^0.47.2:
   version "0.47.2"
   resolved "https://registry.yarnpkg.com/dprint/-/dprint-0.47.2.tgz#f3aca518324b9948066652c87e4c4a3bc509869d"
   integrity sha512-geUcVIIrmLaY+YtuOl4gD7J/QCjsXZa5gUqre9sO6cgH0X/Fa9heBN3l/AWVII6rKPw45ATuCSDWz1pyO+HkPQ==
