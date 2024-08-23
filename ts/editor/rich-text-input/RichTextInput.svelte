@@ -10,7 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
     import type { SurroundedAPI } from "../surround";
-    import type CustomStyles from "./CustomStyles.svelte";
 
     export interface RichTextInputAPI extends EditingInputAPI, SurroundedAPI {
         name: "rich-text";
@@ -22,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inputHandler: InputHandlerAPI;
         /** The API exposed by the editable component */
         editable: ContentEditableAPI;
-        customStyles: Promise<CustomStyles>;
+        customStyles: Promise<Record<string, any>>;
     }
 
     function editingInputIsRichText(
@@ -97,7 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [richTextPromise, resolve] = useRichTextResolve();
     const { mirror, preventResubscription } = useDOMMirror();
     const [inputHandler, setupInputHandler] = useInputHandler();
-    const [customStyles, stylesResolve] = promiseWithResolver<CustomStyles>();
+    const [customStyles, stylesResolve] = promiseWithResolver<Record<string, any>>();
 
     export function attachShadow(element: Element): void {
         element.attachShadow({ mode: "open" });

@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CustomStyles from "./CustomStyles.svelte";
     import { mount } from "svelte";
 
-    export let callback: (styles: CustomStyles) => void;
+    export let callback: (styles: Record<string, any>) => void;
 
     const [userBaseStyle, userBaseResolve] = promiseWithResolver<StyleObject>();
     const [userBaseRule, userBaseRuleResolve] = promiseWithResolver<CSSStyleRule>();
