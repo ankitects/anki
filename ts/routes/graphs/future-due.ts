@@ -41,6 +41,34 @@ function makeQuery(start: number, end: number): string {
     }
 }
 
+function getDueCounts(data, backlog) {
+    // if we're showing the backlog we don't need to do any extra processing
+    if (backlog) {
+        return data;
+    }
+
+    // if we're not showing the backlog, add those cards to what is due today
+    const backlog_count = data.entries().reduce((backlog_count, [days, count]) => {
+        if (days < 0) {
+            backlog_count += count;
+        }
+        return backlog_count;
+    }, 0);
+
+    const modified_data = new Map(
+        data.entries()
+            .filter(([day, _count]) => {
+                if (day < 0) {
+                    return false;
+                }
+                return true;
+            }),
+    );
+
+    modified_data.set(0, modified_data.get(0) + backlog_count);
+    return modified_data;
+}
+
 export function buildHistogram(
     sourceData: GraphData,
     range: GraphRange,
@@ -50,7 +78,7 @@ export function buildHistogram(
 ): FutureDueResponse {
     const output = { histogramData: null, tableData: [] };
     // get min/max
-    const data = sourceData.dueCounts;
+    const data = getDueCounts(sourceData.dueCounts, backlog);
     if (!data) {
         return output;
     }
