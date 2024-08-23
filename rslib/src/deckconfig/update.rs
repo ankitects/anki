@@ -158,22 +158,17 @@ impl Collection {
 
         // add/update provided configs
         for conf in &mut req.configs {
-            let weight_len = conf.inner.fsrs_weights.len();
-            if weight_len == 19 {
-                for i in 0..19 {
-                    if !conf.inner.fsrs_weights[i].is_finite() {
+            match conf.inner.fsrs_weights.len() {
+                17 | 19 => {
+                    if conf.inner.fsrs_weights.iter().any(|&w| !w.is_finite()) {
                         return Err(AnkiError::FsrsWeightsInvalid);
                     }
-                }
-            } else if weight_len == 17 {
-                for i in 0..17 {
-                    if !conf.inner.fsrs_weights[i].is_finite() {
-                        return Err(AnkiError::FsrsWeightsInvalid);
+                    if conf.inner.fsrs_weights.len() == 17 {
+                        conf.inner.fsrs_weights.extend_from_slice(&[0.0, 0.0]);
                     }
                 }
-                conf.inner.fsrs_weights.extend_from_slice(&[0.0, 0.0])
-            } else if weight_len != 0 {
-                return Err(AnkiError::FsrsWeightsInvalid);
+                0 => {}
+                _ => return Err(AnkiError::FsrsWeightsInvalid),
             }
             self.add_or_update_deck_config(conf)?;
             configs_after_update.insert(conf.id, conf.clone());
