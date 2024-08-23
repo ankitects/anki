@@ -214,7 +214,7 @@ impl MediaChecker<'_> {
                 None => continue,
             };
 
-            if fname_os == ".DS_STORE" {
+            if fname_os == ".DS_Store" {
                 continue;
             }
 
@@ -579,7 +579,7 @@ pub(crate) mod test {
         write_file(mgr.media_folder.join("foo[.jpg"), "foo")?;
         write_file(mgr.media_folder.join("_under.jpg"), "foo")?;
         write_file(mgr.media_folder.join("unused.jpg"), "foo")?;
-        write_file(mgr.media_folder.join(".DS_STORE"), ".DS_STORE")?;
+        write_file(mgr.media_folder.join(".DS_Store"), ".DS_Store")?;
 
         let (output, report) = {
             let mut checker = col.media_checker()?;
