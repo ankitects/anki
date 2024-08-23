@@ -214,6 +214,10 @@ impl MediaChecker<'_> {
                 None => continue,
             };
 
+            if fname_os == ".DS_STORE" {
+                continue;
+            }
+
             // skip folders
             if dentry.file_type()?.is_dir() {
                 out.dirs.push(disk_fname.to_string());
@@ -575,6 +579,7 @@ pub(crate) mod test {
         write_file(mgr.media_folder.join("foo[.jpg"), "foo")?;
         write_file(mgr.media_folder.join("_under.jpg"), "foo")?;
         write_file(mgr.media_folder.join("unused.jpg"), "foo")?;
+        write_file(mgr.media_folder.join(".DS_STORE"), ".DS_STORE")?;
 
         let (output, report) = {
             let mut checker = col.media_checker()?;
