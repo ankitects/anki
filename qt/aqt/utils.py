@@ -393,8 +393,8 @@ def showText(
 
 def askUser(
     text: str,
-    parent: QWidget = None,
-    help: HelpPageArgument = None,
+    parent: QWidget | None = None,
+    help: HelpPageArgument | None = None,
     defaultno: bool = False,
     msgfunc: Callable | None = None,
     title: str = "Anki",
@@ -426,7 +426,7 @@ class ButtonedDialog(QMessageBox):
         text: str,
         buttons: list[str],
         parent: QWidget | None = None,
-        help: HelpPageArgument = None,
+        help: HelpPageArgument | None = None,
         title: str = "Anki",
     ):
         QMessageBox.__init__(self, parent)
@@ -459,7 +459,7 @@ def askUserDialog(
     text: str,
     buttons: list[str],
     parent: QWidget | None = None,
-    help: HelpPageArgument = None,
+    help: HelpPageArgument | None = None,
     title: str = "Anki",
 ) -> ButtonedDialog:
     if not parent:
@@ -473,7 +473,7 @@ class GetTextDialog(QDialog):
         self,
         parent: QWidget | None,
         question: str,
-        help: HelpPageArgument = None,
+        help: HelpPageArgument | None = None,
         edit: QLineEdit | None = None,
         default: str = "",
         title: str = "Anki",
@@ -525,7 +525,7 @@ class GetTextDialog(QDialog):
 def getText(
     prompt: str,
     parent: QWidget | None = None,
-    help: HelpPageArgument = None,
+    help: HelpPageArgument | None = None,
     edit: QLineEdit | None = None,
     default: str = "",
     title: str = "Anki",
@@ -558,7 +558,7 @@ def getOnlyText(*args: Any, **kwargs: Any) -> str:
 # fixme: these utilities could be combined into a single base class
 # unused by Anki, but used by add-ons
 def chooseList(
-    prompt: str, choices: list[str], startrow: int = 0, parent: Any = None
+    prompt: str, choices: list[str], startrow: int = 0, parent: Any | None = None
 ) -> int:
     if not parent:
         parent = aqt.mw.app.activeWindow()

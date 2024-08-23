@@ -86,7 +86,7 @@
         ),
         new ValueTab(
             tr.deckConfigTodayOnly(),
-            $limits.newTodayActive ? $limits.newToday ?? null : null,
+            $limits.newTodayActive ? ($limits.newToday ?? null) : null,
             (value) => ($limits.newToday = value ?? undefined),
             null,
             $limits.newToday ?? null,
@@ -110,7 +110,7 @@
         ),
         new ValueTab(
             tr.deckConfigTodayOnly(),
-            $limits.reviewTodayActive ? $limits.reviewToday ?? null : null,
+            $limits.reviewTodayActive ? ($limits.reviewToday ?? null) : null,
             (value) => ($limits.reviewToday = value ?? undefined),
             null,
             $limits.reviewToday ?? null,
