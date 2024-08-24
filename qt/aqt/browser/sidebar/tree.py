@@ -353,7 +353,7 @@ class SidebarTreeView(QTreeView):
         """
         if item is None or item.search_node is None:
             return
-        
+
         if item.search_node.deck:
             self.mw.deckBrowser.set_current_deck(DeckId(item.id))
 
