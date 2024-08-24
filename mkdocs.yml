@@ -1,0 +1,11 @@
+site_name: Anki development
+site_description: Documentation for developers of Anki
+site_url: https://apps.ankiweb.net
+repo_url: https://github.com/ankitects/anki
+repo_name: ankitects/anki
+
+theme:
+  name: "material"
+
+plugins:
+  - search
