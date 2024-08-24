@@ -9,6 +9,15 @@ At the highest level, the Anki codebase is logically separated into two parts:
 - the GUI code
 - the backend code
 
+### GUI (`qt/` and `ts/`)
+
+Anki’s GUI is written parts in Python using the toolkit Qt (via Qt's Python bindings known as PyQt), and parts in a mix of TypeScript, HTML, and CSS.
+
+The Python code that implements Anki’s GUI (using PyQt) is located in `qt/aqt/`. It’s made available as a Python package named `aqt` (installable with `pip install 'aqt[qt6]'`) and is accessible through `import aqt` in Python code.
+
+The web code is split between `ts/` and `qt/aqt/data/web/`.
+The majority of new code now goes into `ts/` rather than `qt/aqt/data/web/` and, during the build process, gets copied into `qt/aqt/data/web/` instead.
+
 ### Library (`rslib/` and `pylib/`)
 
 The code responsible for the actual logic (opening collections, fetching and answering cards, et cetera) — the "backend" methods — is written parts in Python, parts in Rust.
@@ -23,15 +32,6 @@ The way that is implemented is by way of a Python binding named `rsbridge` withi
 The Python library is made available as a Python package named `anki` and is accessible through `import anki` in Python code.
 
 Anki’s GUI relies on this Python library (located in `pylib/anki/`) and you can use it too (by installing it with `pip install anki`) if you want to develop command line programs to programmatically access your Anki decks without the need of running Anki’s GUI.
-
-### GUI (`qt/` and `ts/`)
-
-Anki’s GUI is written parts in Python using the toolkit Qt (via Qt's Python bindings known as PyQt), and parts in a mix of TypeScript, HTML, and CSS.
-
-The Python code that implements Anki’s GUI (using PyQt) is located in `qt/aqt/`. It’s made available as a Python package named `aqt` (installable with `pip install 'aqt[qt6]'`) and is accessible through `import aqt` in Python code.
-
-The web code is split between `ts/` and `qt/aqt/data/web/`.
-The majority of new code now goes into `ts/` rather than `qt/aqt/data/web/` and, during the build process, gets copied into `qt/aqt/data/web/` instead.
 
 ### Visualization of the code base
 
