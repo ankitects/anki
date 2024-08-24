@@ -25,13 +25,14 @@ The Python library is made available as a Python package named `anki` and is acc
 
 Anki’s GUI relies on this Python library (located in `pylib/anki/`) and you can use it too (by installing it with `pip install anki`) if you want to develop command line programs to programmatically access your Anki decks without the need of running Anki’s GUI.
 
-### GUI (aqt & ts)
+### GUI (`qt/` and `ts/`)
 
-Anki's _GUI_ is a mix of Qt (via the PyQt Python bindings for Qt), and
-TypeScript/HTML/CSS. The Qt code lives in `qt/aqt/`, and is importable in Python
-with "import aqt". The web code is split between `qt/aqt/data/web/` and `ts/`,
-with the majority of new code being placed in the latter, and copied into the
-former at build time.
+Anki’s GUI is written parts in Python using the toolkit Qt (via Qt's Python bindings known as PyQt), and parts in a mix of TypeScript, HTML, and CSS.
+
+The Python code that implements Anki’s GUI (using PyQt) is located in `qt/aqt/`. It’s made available as a Python package named `aqt` (installable with `pip install 'aqt[qt6]'`) and is accessible through `import aqt` in Python code.
+
+The web code is split between `ts/` and `qt/aqt/data/web/`.
+The majority of new code now goes into `ts/` rather than `qt/aqt/data/web/` and, during the build process, gets copied into `qt/aqt/data/web/` instead.
 
 ## Protobuf
 
