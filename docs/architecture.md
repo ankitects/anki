@@ -2,13 +2,12 @@
 
 Very brief notes for now.
 
-## Backend/GUI
+## Backend and GUI
 
-At the highest level, Anki is logically separated into two parts.
+At the highest level, the Anki codebase is logically separated into two parts:
 
-A neat visualization of the file layout is available here:
-<https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki>
-(or go to <https://githubnext.com/projects/repo-visualization#explore-for-yourself> and enter `ankitects/anki`).
+- the GUI code
+- the backend code
 
 ### Library (`rslib/` and `pylib/`)
 
@@ -33,6 +32,10 @@ The Python code that implements Anki’s GUI (using PyQt) is located in `qt/aqt/
 
 The web code is split between `ts/` and `qt/aqt/data/web/`.
 The majority of new code now goes into `ts/` rather than `qt/aqt/data/web/` and, during the build process, gets copied into `qt/aqt/data/web/` instead.
+
+### Visualization of the code base
+
+A neat visualization of the file layout is available [here](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki) (or go to [here](https://githubnext.com/projects/repo-visualization#explore-for-yourself) instead and enter `ankitects/anki`).
 
 ## Protobuf
 
