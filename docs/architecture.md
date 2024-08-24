@@ -10,18 +10,20 @@ A neat visualization of the file layout is available here:
 <https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki>
 (or go to <https://githubnext.com/projects/repo-visualization#explore-for-yourself> and enter `ankitects/anki`).
 
-### Library (rslib & pylib)
+### Library (`rslib/` and `pylib/`)
 
-The Python library (pylib) exports "backend" methods - opening collections,
-fetching and answering cards, and so on. It is used by Anki’s GUI, and can also
-be included in command line programs to access Anki decks without the GUI.
+The code responsible for the actual logic (opening collections, fetching and answering cards, et cetera) — the "backend" methods — is written parts in Python, parts in Rust.
+Most of the logic previously implemented in Python was rewritten in Rust so that the code can be shared between the different Anki apps.
 
-The library is accessible in Python with "import anki". Its code lives in
-the `pylib/anki/` folder.
+- The parts of the library code written in Python are located in `pylib/` (more specifically, in `pylib/anki/`).
+- The parts of the library code written in Rust are located in `rslib/`.
 
-These days, the majority of backend logic lives in a Rust library (rslib, located in `rslib/`). Calls to pylib proxy requests to rslib, and return the results.
+The Python code serves as proxy for the Rust library and, when called, forwards the requests to the code in `rslib/` which does the actual computations and then returns the results to the code in `pylib/anki/`.
+The way that is implemented is by way of a Python binding named `rsbridge` within `pylib/` (that is, `pylib/rsbridge/`) that wraps around the Rust code and makes the logic implemented in Rust accessible with Python code.
 
-pylib contains a private Python module called rsbridge (`pylib/rsbridge/`) that wraps the Rust code, making it accessible in Python.
+The Python library is made available as a Python package named `anki` and is accessible through `import anki` in Python code.
+
+Anki’s GUI relies on this Python library (located in `pylib/anki/`) and you can use it too (by installing it with `pip install anki`) if you want to develop command line programs to programmatically access your Anki decks without the need of running Anki’s GUI.
 
 ### GUI (aqt & ts)
 
