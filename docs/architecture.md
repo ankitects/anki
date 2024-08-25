@@ -20,7 +20,7 @@ The majority of new code now goes into `ts/` rather than `qt/aqt/data/web/` and,
 
 ### Library (`rslib/` and `pylib/`)
 
-The code responsible for the actual logic (opening collections, fetching and answering cards, et cetera) — the "backend" methods — is written parts in Python, parts in Rust.
+The code responsible for the actual logic (for example, opening collections, or fetching and answering cards) — the "backend" methods — is written parts in Python, parts in Rust.
 Most of the logic previously implemented in Python was rewritten in Rust so that the code can be shared between the different Anki apps.
 
 - The parts of the library code written in Python are located in `pylib/` (more specifically, in `pylib/anki/`).
