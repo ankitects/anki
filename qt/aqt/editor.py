@@ -233,9 +233,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         func: Callable[[Editor], None],
         tip: str = "",
         label: str = "",
-        id: str = None,
+        id: str | None = None,
         toggleable: bool = False,
-        keys: str = None,
+        keys: str | None = None,
         disables: bool = True,
         rightside: bool = True,
     ) -> str:
