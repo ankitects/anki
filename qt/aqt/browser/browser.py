@@ -1048,7 +1048,9 @@ class Browser(QMainWindow):
         When a new note is added, the current search filter is reapplied
         to refresh the browser table.
         """
+        self.table._model.begin_blocking()
         self.search()
+        self.table._model.end_blocking()
 
     # Undo
     ######################################################################
