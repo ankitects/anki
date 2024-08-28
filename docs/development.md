@@ -189,6 +189,10 @@ For Python:
 ./ninja python:sphinx && open out/python/sphinx/html/py-modindex.html
 ```
 
+## Making `mypy` work
+
+See [this page](./mypy.md)
+
 ## Environmental Variables
 
 If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,
