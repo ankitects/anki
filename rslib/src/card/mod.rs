@@ -327,7 +327,7 @@ impl Collection {
 
     /// Remove cards and any resulting orphaned notes.
     /// Expects a transaction.
-    pub(crate) fn remove_cards_and_orphaned_notes(&mut self, cids: &[CardId]) -> Result<()> {
+    pub(crate) fn remove_cards_and_orphaned_notes(&mut self, cids: &[CardId]) -> Result<usize> {
         let usn = self.usn()?;
         let mut nids = HashSet::new();
         for cid in cids {
@@ -342,7 +342,7 @@ impl Collection {
             }
         }
 
-        Ok(())
+        Ok(cids.len())
     }
 
     pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<usize>> {

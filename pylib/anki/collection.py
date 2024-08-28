@@ -604,9 +604,11 @@ class Collection(DeprecatedNamesMixin):
     def card_count(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[CardId]) -> None:
+    def remove_cards_and_orphaned_notes(
+        self, card_ids: Sequence[CardId]
+    ) -> OpChangesWithCount:
         "You probably want .remove_notes_by_card() instead."
-        self._backend.remove_cards(card_ids=card_ids)
+        return self._backend.remove_cards(card_ids=card_ids)
 
     def set_deck(self, card_ids: Sequence[CardId], deck_id: int) -> OpChangesWithCount:
         return self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
