@@ -10,13 +10,26 @@ the build products and runtime dependencies from the rest of your system.
 
 - [x] [Docker](https://docs.docker.com/get-started/)
 
+| **Aspect**             | **Dockerfile**                                             | **Dockerfile.distroless**                                 |
+| ---------------------- | ---------------------------------------------------------- | --------------------------------------------------------- |
+| **Shell & Tools**      | ✅ Includes shell and tools                                | ❌ Minimal, no shell or tools                             |
+| **Debugging**          | ✅ Easier debugging with shell and tools                   | ❌ Harder to debug due to minimal environment             |
+| **Health Checks**      | ✅ Supports complex health checks                          | ❌ Health checks need to be simple or directly executable |
+| **Image Size**         | ❌ Larger image size                                       | ✅ Smaller image size                                     |
+| **Customization**      | ✅ Easier to customize with additional packages            | ❌ Limited customization options                          |
+| **Attack Surface**     | ❌ Larger attack surface due to more installed packages    | ✅ Reduced attack surface                                 |
+| **Libraries**          | ✅ More libraries available                                | ❌ Limited libraries                                      |
+| **Start-up Time**      | ❌ Slower start-up time due to larger image size           | ✅ Faster start-up time                                   |
+| **Tool Compatibility** | ✅ Compatible with more tools and libraries                | ❌ Compatibility limitations with certain tools           |
+| **Maintenance**        | ❌ Higher maintenance due to larger image and dependencies | ✅ Lower maintenance with minimal base image              |
+
 # Building image
 
-To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `23.12.1`.
+To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `23.12.1` and `<Dockerfile>` with the chosen Dockerfile (e.g., `Dockerfile` or `Dockerfile.distroless`)
 
 ```bash
-# Ensure you are running this command inside /docs/syncserver
-docker build --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
+# Execute this command from the root directory of your project
+docker build -f docs/syncserver/<Dockerfile> --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
 ```
 
 # Run container
