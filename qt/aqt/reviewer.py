@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
-import functools
 import json
 import random
 import re
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Generator, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
+from functools import partial
 from typing import Any, Literal, Match, Union, cast
 
 import aqt
@@ -591,6 +591,18 @@ class Reviewer:
     def _shortcutKeys(
         self,
     ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
+
+        def generate_default_answer_keys() -> (
+            Generator[tuple[str, partial], None, None]
+        ):
+            for ease in aqt.mw.pm.default_answer_keys:
+                key = aqt.mw.pm.get_answer_key(ease)
+                if not key:
+                    continue
+                ease = cast(Literal[1, 2, 3, 4], ease)
+                answer_card_according_to_pressed_key = partial(self._answerCard, ease)
+                yield (key, answer_card_according_to_pressed_key)
+
         return [
             ("e", self.mw.onEditCurrent),
             (" ", self.onEnterKey),
@@ -617,11 +629,7 @@ class Reviewer:
             ("o", self.onOptions),
             ("i", self.on_card_info),
             ("Ctrl+Alt+i", self.on_previous_card_info),
-            *(
-                (key, functools.partial(self._answerCard, ease))
-                for ease in aqt.mw.pm.default_answer_keys
-                if (key := aqt.mw.pm.get_answer_key(ease))
-            ),
+            *generate_default_answer_keys(),
             ("u", self.mw.undo),
             ("5", self.on_pause_audio),
             ("6", self.on_seek_backward),
