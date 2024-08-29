@@ -13,6 +13,7 @@ use anki_proto::deck_config::deck_configs_for_update::CurrentDeck;
 use anki_proto::deck_config::UpdateDeckConfigsMode;
 use anki_proto::decks::deck::normal::DayLimit;
 use fsrs::DEFAULT_PARAMETERS;
+use fsrs::FSRS;
 
 use crate::config::I32ConfigKey;
 use crate::config::StringKey;
@@ -158,18 +159,13 @@ impl Collection {
 
         // add/update provided configs
         for conf in &mut req.configs {
-            match conf.inner.fsrs_weights.len() {
-                17 | 19 => {
-                    if conf.inner.fsrs_weights.iter().any(|&w| !w.is_finite()) {
-                        return Err(AnkiError::FsrsWeightsInvalid);
-                    }
-                    if conf.inner.fsrs_weights.len() == 17 {
-                        conf.inner.fsrs_weights.extend_from_slice(&[0.0, 0.0]);
-                    }
-                }
-                0 => {}
-                _ => return Err(AnkiError::FsrsWeightsInvalid),
+            // we can remove this once https://github.com/open-spaced-repetition/fsrs-rs/pull/217/files
+            // makes it into an FSRS release
+            if conf.inner.fsrs_weights.iter().any(|&w| !w.is_finite()) {
+                return Err(AnkiError::FsrsWeightsInvalid);
             }
+            // check the provided parameters are valid before we save them
+            FSRS::new(Some(&conf.inner.fsrs_weights))?;
             self.add_or_update_deck_config(conf)?;
             configs_after_update.insert(conf.id, conf.clone());
         }
