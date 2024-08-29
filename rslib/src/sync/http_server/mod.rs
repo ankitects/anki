@@ -219,7 +219,12 @@ impl SimpleServer {
             }
         }
     }
-
+    pub fn is_running() -> bool {
+        let config = envy::prefixed("SYNC_")
+            .from_env::<SyncServerConfig>()
+            .unwrap();
+        std::net::TcpStream::connect(&format!("{}:{}", config.host, config.port)).is_ok()
+    }
     pub fn new(base_folder: &Path) -> error::Result<Self, Whatever> {
         let inner = SimpleServerInner::new_from_env(base_folder)?;
         Ok(SimpleServer {
