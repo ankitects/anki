@@ -184,7 +184,7 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
     """Return user_lang converted to name used on disk and its index, defaulting to system language
     or English if not available."""
 
-    def get_index_of_language(wanted_locale: str) -> int | None:
+    def get_index_of_language(wanted_locale: str | None) -> int | None:
         for i, (_, locale_) in enumerate(langs):
             if locale_ == wanted_locale:
                 return i
@@ -208,7 +208,6 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
     idx = None
     lang = None
     for preferred_lang in (user_lang, sys_lang):
-        assert preferred_lang is not None
         idx = get_index_of_language(preferred_lang)
         is_language_supported = idx is not None
         if is_language_supported:
