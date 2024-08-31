@@ -347,16 +347,6 @@ class SidebarTreeView(QTreeView):
     # Slots
     ###########
 
-    def _updated_selected_deck(self, item: SidebarItem | None) -> None:
-        """
-        If provided item is a deck, update the current deck with the ID
-        """
-        if item is None or item.search_node is None:
-            return
-
-        if item.search_node.deck:
-            self.mw.deckBrowser.set_current_deck(DeckId(item.id))
-
     def _on_selection_changed(self, _new: QItemSelection, _old: QItemSelection) -> None:
         valid_drop_types = []
         selected_items = self._selected_items()
@@ -379,7 +369,6 @@ class SidebarTreeView(QTreeView):
                     SidebarItemType.SAVED_SEARCH,
                 ]
 
-        self._updated_selected_deck(selected_items[0])
         self.valid_drop_types = tuple(valid_drop_types)
 
     def handle_drag_drop(self, sources: list[SidebarItem], target: SidebarItem) -> bool:

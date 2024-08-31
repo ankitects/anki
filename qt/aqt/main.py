@@ -35,6 +35,7 @@ from anki._legacy import deprecated
 from anki.collection import Collection, Config, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
+from anki.models import NotetypeId
 from anki.notes import NoteId
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import (
@@ -1233,6 +1234,14 @@ title="{}" {}>{}</button>""".format(
 
     # Other menu operations
     ##########################################################################
+
+    def open_add_cards(
+        self, deck_id: DeckId | None, note_type: NotetypeId | None
+    ) -> None:
+        """
+        Open the Add window with specified choosers for the deck and note type
+        """
+        aqt.dialogs.open("AddCards", self, deck_id=deck_id, note_type=note_type)
 
     def onAddCard(self) -> None:
         aqt.dialogs.open("AddCards", self)

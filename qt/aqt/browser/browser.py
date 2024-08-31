@@ -18,8 +18,10 @@ from anki._legacy import deprecated
 from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
+from anki.decks import DeckId
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
+from anki.models import NotetypeId
 from anki.notes import NoteId
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
@@ -249,6 +251,42 @@ class Browser(QMainWindow):
 
         QMainWindow.resizeEvent(self, event)
 
+    def get_active_deck_id(self) -> DeckId | None:
+        """
+        Returns the first index of the decks selected on the sidebar
+        """
+        selected_decks = self.sidebar._selected_decks()
+        print(selected_decks)
+        if len(selected_decks) > 0:
+            return selected_decks[0]
+
+    def get_active_note_type_id(self) -> NotetypeId | None:
+        """
+        If multiple cards are selected the note type will be derived
+        from the final card selected
+        """
+        if not self.current_card:
+            return None
+
+        note_type = self.current_card.note().note_type()
+        if not note_type:
+            return None
+
+        note_type_id = note_type.get("id")
+        if not isinstance(note_type_id, int):
+            return None
+
+        return NotetypeId(note_type_id)
+
+    def on_add_card(self):
+        """
+        Passes the current deck and note type to the Add cards window initalizer
+        to open with relevant deck and note type choosers
+        """
+        self.mw.open_add_cards(
+            self.get_active_deck_id(), self.get_active_note_type_id()
+        )
+
     def setupMenus(self) -> None:
         # actions
         f = self.form
@@ -291,7 +329,7 @@ class Browser(QMainWindow):
         )
 
         # notes
-        qconnect(f.actionAdd.triggered, self.mw.onAddCard)
+        qconnect(f.actionAdd.triggered, self.on_add_card)
         qconnect(f.actionCopy.triggered, self.on_create_copy)
         qconnect(f.actionAdd_Tags.triggered, self.add_tags_to_selected_notes)
         qconnect(f.actionRemove_Tags.triggered, self.remove_tags_from_selected_notes)
