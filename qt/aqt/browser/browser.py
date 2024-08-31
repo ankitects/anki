@@ -259,7 +259,7 @@ class Browser(QMainWindow):
         print(selected_decks)
         if len(selected_decks) > 0:
             return selected_decks[0]
-        
+
         return None
 
     def get_active_note_type_id(self) -> NotetypeId | None:
