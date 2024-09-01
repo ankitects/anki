@@ -13,4 +13,4 @@ MimeType=application/x-apkg;application/x-anki;application/x-ankiaddon;
 #should be removed eventually as it was upstreamed as to be an XDG specification called SingleMainWindow
 X-GNOME-SingleWindow=true
 SingleMainWindow=true
-StartupWMClass=anki
+StartupWMClass=net.ankiweb.Anki

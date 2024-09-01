@@ -23,13 +23,13 @@ mkdir -p "$PREFIX"/share/applications
 mkdir -p "$PREFIX"/share/man/man1
 cd "$PREFIX"/share/anki && (\
 mv -Z anki.xpm anki.png "$PREFIX"/share/pixmaps/;\
-mv -Z anki.desktop "$PREFIX"/share/applications/;\
+mv -Z net.ankiweb.Anki.desktop "$PREFIX"/share/applications/;\
 mv -Z anki.1 "$PREFIX"/share/man/man1/)
 
 xdg-mime install anki.xml --novendor
-xdg-mime default anki.desktop application/x-colpkg
-xdg-mime default anki.desktop application/x-apkg
-xdg-mime default anki.desktop application/x-ankiaddon
+xdg-mime default net.ankiweb.Anki.desktop application/x-colpkg
+xdg-mime default net.ankiweb.Anki.desktop application/x-apkg
+xdg-mime default net.ankiweb.Anki.desktop application/x-ankiaddon
 
 rm install.sh
 
