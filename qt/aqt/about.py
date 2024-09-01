@@ -199,6 +199,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Ian Samir Yep Manzano",
             "Asuka Minato",
             "Eros Cardoso",
+            "Ingemar Berg",
         )
     )
 
