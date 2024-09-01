@@ -83,6 +83,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {collection}
         </label>
 
+	<!-- This form is an external API and should not be changed -
+	other clients e.g. AnkiDroid programmatically update this form -->
         <input
             type="text"
             bind:value={displayedSearch}
