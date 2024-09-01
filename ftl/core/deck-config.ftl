@@ -160,7 +160,7 @@ deck-config-new-gather-priority-random-notes = Random notes
 deck-config-new-gather-priority-random-cards = Random cards
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip-2 =
-    `Card type`: Displays cards in order of card type number. If you have sibling burying
+    `Card type, then order gathered`: Displays cards in order of card type number. If you have sibling burying
     disabled, this will ensure all front→back cards are seen before any back→front cards.
     This is useful to have all cards of the same note shown in the same session, but not
     too close to one another.
@@ -180,7 +180,7 @@ deck-config-new-card-sort-order-tooltip-2 =
 deck-config-sort-order-card-template-then-random = Card type, then random
 deck-config-sort-order-random-note-then-template = Random note, then card type
 deck-config-sort-order-random = Random
-deck-config-sort-order-template-then-gather = Card type
+deck-config-sort-order-template-then-gather = Card type, then order gathered
 deck-config-sort-order-gather = Order gathered
 deck-config-new-review-priority = New/review order
 deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.
@@ -335,7 +335,7 @@ deck-config-which-deck = Which deck would you like to display options for?
 ## Messages related to the FSRS scheduler
 
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
-deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.
+deck-config-invalid-parameters = The provided FSRS parameters are invalid. Leave them blank to use the default parameters.
 deck-config-not-enough-history = Insufficient review history to perform this operation.
 deck-config-unable-to-determine-desired-retention =
     Unable to determine a minimum recommended retention.
@@ -512,3 +512,4 @@ deck-config-compute-optimal-retention-tooltip3 =
     time for a greater recall rate. Setting your desired retention lower than the minimum is not recommended, as it will 
     lead to a higher workload, because of the high forgetting rate.
 deck-config-seconds-to-show-question-tooltip-2 = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.
+deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.

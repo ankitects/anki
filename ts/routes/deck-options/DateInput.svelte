@@ -13,11 +13,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div>
     <ConfigInput>
-        <Row --cols={2}>
-            <Col>
+        <Row --cols={13}>
+            <Col --col-size={7} breakpoint="xs">
                 <slot />
             </Col>
-            <Col>
+            <Col --col-size={6} breakpoint="xs">
                 <input bind:value={date} type="date" />
             </Col>
         </Row>

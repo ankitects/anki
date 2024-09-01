@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from urllib.parse import quote
 
 import aqt
 import aqt.deckconf
@@ -65,7 +66,7 @@ class ImportDialog(QDialog):
 
         self.web = AnkiWebView(kind=self.args.kind)
         self.web.setVisible(False)
-        self.web.load_sveltekit_page(f"{self.args.ts_page}/{self.args.path}")
+        self.web.load_sveltekit_page(f"{self.args.ts_page}/{quote(self.args.path)}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)

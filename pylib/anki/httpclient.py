@@ -57,7 +57,7 @@ class HttpClient(DeprecatedNamesMixin):
             verify=self.verify,
         )  # pytype: disable=wrong-arg-types
 
-    def get(self, url: str, headers: dict[str, str] = None) -> Response:
+    def get(self, url: str, headers: dict[str, str] | None = None) -> Response:
         if headers is None:
             headers = {}
         headers["User-Agent"] = self._agent_name()

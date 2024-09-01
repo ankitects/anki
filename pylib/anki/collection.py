@@ -604,9 +604,11 @@ class Collection(DeprecatedNamesMixin):
     def card_count(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[CardId]) -> None:
+    def remove_cards_and_orphaned_notes(
+        self, card_ids: Sequence[CardId]
+    ) -> OpChangesWithCount:
         "You probably want .remove_notes_by_card() instead."
-        self._backend.remove_cards(card_ids=card_ids)
+        return self._backend.remove_cards(card_ids=card_ids)
 
     def set_deck(self, card_ids: Sequence[CardId], deck_id: int) -> OpChangesWithCount:
         return self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
@@ -897,7 +899,7 @@ class Collection(DeprecatedNamesMixin):
     # Config
     ##########################################################################
 
-    def get_config(self, key: str, default: Any = None) -> Any:
+    def get_config(self, key: str, default: Any | None = None) -> Any:
         try:
             return self.conf.get_immutable(key)
         except KeyError:
@@ -939,7 +941,7 @@ class Collection(DeprecatedNamesMixin):
         return self._backend.set_config_string(key=key, value=value, undoable=undoable)
 
     def get_aux_notetype_config(
-        self, id: NotetypeId, key: str, default: Any = None
+        self, id: NotetypeId, key: str, default: Any | None = None
     ) -> Any:
         key = self._backend.get_aux_notetype_config_key(id=id, key=key)
         return self.get_config(key, default=default)
@@ -951,7 +953,7 @@ class Collection(DeprecatedNamesMixin):
         return self.set_config(key, value, undoable=undoable)
 
     def get_aux_template_config(
-        self, id: NotetypeId, card_ordinal: int, key: str, default: Any = None
+        self, id: NotetypeId, card_ordinal: int, key: str, default: Any | None = None
     ) -> Any:
         key = self._backend.get_aux_template_config_key(
             notetype_id=id, card_ordinal=card_ordinal, key=key
