@@ -7,7 +7,7 @@ import json
 import math
 import re
 from collections.abc import Callable, Sequence
-from typing import Any
+from typing import Any, cast
 
 import aqt
 import aqt.browser
@@ -74,6 +74,7 @@ from aqt.utils import (
     tr,
 )
 
+from ..addcards import AddCards
 from ..changenotetype import change_notetype_dialog
 from .card_info import BrowserCardInfo
 from .find_and_replace import FindAndReplaceDialog
@@ -256,7 +257,6 @@ class Browser(QMainWindow):
         Returns the first index of the decks selected on the sidebar
         """
         selected_decks = self.sidebar._selected_decks()
-        print(selected_decks)
         if len(selected_decks) > 0:
             return selected_decks[0]
 
@@ -267,27 +267,19 @@ class Browser(QMainWindow):
         If multiple cards are selected the note type will be derived
         from the final card selected
         """
-        if not self.current_card:
-            return None
+        if current_note := self.table.get_current_note():
+            return current_note.mid
 
-        note_type = self.current_card.note().note_type()
-        if not note_type:
-            return None
-
-        note_type_id = note_type.get("id")
-        if not isinstance(note_type_id, int):
-            return None
-
-        return NotetypeId(note_type_id)
+        return None
 
     def on_add_card(self):
-        """
-        Passes the current deck and note type to the Add cards window initalizer
-        to open with relevant deck and note type choosers
-        """
-        self.mw.open_add_cards(
-            self.get_active_deck_id(), self.get_active_note_type_id()
-        )
+        add_cards = cast(AddCards, aqt.dialogs.open("AddCards", self.mw))
+
+        if deck_id := self.get_active_deck_id():
+            add_cards.set_deck(deck_id)
+
+        if note_type_id := self.get_active_note_type_id():
+            add_cards.set_note_type(note_type_id)
 
     def setupMenus(self) -> None:
         # actions

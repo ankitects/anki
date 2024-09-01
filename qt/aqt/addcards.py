@@ -36,12 +36,7 @@ from aqt.utils import (
 
 
 class AddCards(QMainWindow):
-    def __init__(
-        self,
-        mw: AnkiQt,
-        deck_id: DeckId | None = None,
-        note_type: NotetypeId | None = None,
-    ) -> None:
+    def __init__(self, mw: AnkiQt) -> None:
         super().__init__(None, Qt.WindowType.Window)
         self._close_event_has_cleaned_up = False
         self.mw = mw
@@ -52,7 +47,7 @@ class AddCards(QMainWindow):
         self.setWindowTitle(tr.actions_add())
         self.setMinimumHeight(300)
         self.setMinimumWidth(400)
-        self.setup_choosers(deck_id, note_type)
+        self.setup_choosers()
         self.setupEditor()
         add_close_shortcut(self)
         self._load_new_note()
@@ -64,6 +59,12 @@ class AddCards(QMainWindow):
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
         self.show()
+
+    def set_deck(self, deck_id: DeckId) -> None:
+        self.deck_chooser.selected_deck_id = deck_id
+
+    def set_note_type(self, note_type_id: NotetypeId) -> None:
+        self.notetype_chooser.selected_notetype_id = note_type_id
 
     def set_note(self, note: Note, deck_id: DeckId | None = None) -> None:
         """Set tags, field contents and notetype according to `note`. Deck is set
@@ -87,31 +88,22 @@ class AddCards(QMainWindow):
             editor_mode=aqt.editor.EditorMode.ADD_CARDS,
         )
 
-    def setup_choosers(
-        self, deck_id: DeckId | None, note_type: NotetypeId | None
-    ) -> None:
-        """
-        Args:
-            deck_id (DeckId): Deck to add cards to on startup
-            note_type: (NotetypeId): Note type to display on startup
-        """
-        defaults_from_main_window = self.col.defaults_for_adding(
+    def setup_choosers(self) -> None:
+        defaults = self.col.defaults_for_adding(
             current_review_card=self.mw.reviewer.card
         )
-        deck_id = deck_id or DeckId(defaults_from_main_window.deck_id)
-        note_type = note_type or NotetypeId(defaults_from_main_window.notetype_id)
 
         self.notetype_chooser = NotetypeChooser(
             mw=self.mw,
             widget=self.form.modelArea,
-            starting_notetype_id=note_type,
+            starting_notetype_id=NotetypeId(defaults.notetype_id),
             on_button_activated=self.show_notetype_selector,
             on_notetype_changed=self.on_notetype_change,
         )
         self.deck_chooser = DeckChooser(
             self.mw,
             self.form.deckArea,
-            starting_deck_id=deck_id,
+            starting_deck_id=DeckId(defaults.deck_id),
             on_deck_changed=self.on_deck_changed,
         )
 
