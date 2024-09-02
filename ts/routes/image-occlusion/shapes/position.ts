@@ -15,10 +15,10 @@ export function yToNormalized(size: Size, y: number): number {
 
 /** Position in pixels from normalized range, e.g 0.25 in a 600x300px canvas is 150. */
 export function xFromNormalized(size: Size, x: number): number {
-    return Math.round(x * size.width);
+    return Math.round(x * size.width - 0.5);
 }
 
 /** Position in pixels from normalized range, e.g 0.5 in a 600x300px canvas is 150. */
 export function yFromNormalized(size: Size, y: number): number {
-    return Math.round(y * size.height);
+    return Math.round(y * size.height - 0.5);
 }
