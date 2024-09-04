@@ -44,7 +44,7 @@
         "eslint-plugin-compat": "^4.1.4",
         "eslint-plugin-import": "^2.25.4",
         "eslint-plugin-svelte": "^2",
-        "license-checker-rseidelsohn": "^4.2.6",
+        "license-checker-rseidelsohn": "=4.3.0",
         "prettier": "^2.4.1",
         "prettier-plugin-svelte": "^2.10.1",
         "svelte": "^4.0.1",
