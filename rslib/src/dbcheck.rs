@@ -232,7 +232,7 @@ impl Collection {
             current: 0,
             total: total_notes as usize,
         })?;
-        for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
+        for (ntid, group) in &nids_by_notetype.into_iter().chunk_by(|tup| tup.0) {
             debug!("check notetype: {}", ntid);
             let mut group = group.peekable();
             let mut nt = match self.get_notetype(ntid)? {

@@ -195,7 +195,7 @@ fn fsrs_items_for_training(
     let mut review_count: usize = 0;
     let mut revlogs = revlogs
         .into_iter()
-        .group_by(|r| r.cid)
+        .chunk_by(|r| r.cid)
         .into_iter()
         .filter_map(|(_cid, entries)| {
             single_card_revlog_to_items(entries.collect(), next_day_at, true, review_revlogs_before)
