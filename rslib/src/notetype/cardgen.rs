@@ -174,7 +174,7 @@ pub(super) fn group_generated_cards_by_note(
     items: Vec<AlreadyGeneratedCardInfo>,
 ) -> Vec<(NoteId, Vec<AlreadyGeneratedCardInfo>)> {
     let mut out = vec![];
-    for (key, group) in &items.into_iter().group_by(|c| c.nid) {
+    for (key, group) in &items.into_iter().chunk_by(|c| c.nid) {
         out.push((key, group.collect()));
     }
     out
