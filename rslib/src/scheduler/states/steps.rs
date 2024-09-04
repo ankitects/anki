@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-const DEFAULT_SECS_IF_MISSING: u32 = 60;
 const DAY: u32 = 60 * 60 * 24;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -32,12 +31,7 @@ impl<'a> LearningSteps<'a> {
         self.steps.get(index).copied().map(to_secs)
     }
 
-    /// Cards in learning must always have at least one learning step.
-    pub(crate) fn again_delay_secs_learn(&self) -> u32 {
-        self.secs_at_index(0).unwrap_or(DEFAULT_SECS_IF_MISSING)
-    }
-
-    pub(crate) fn again_delay_secs_relearn(&self) -> Option<u32> {
+    pub(crate) fn again_delay_secs_learn(&self) -> Option<u32> {
         self.secs_at_index(0)
     }
 
@@ -118,16 +112,22 @@ mod test {
     #[test]
     fn delay_secs() {
         // if no other step, hard delay is 50% above again secs
-        assert_delay_secs!([10.0], 1, 600, Some(900), None);
+        assert_delay_secs!([10.0], 1, Some(600), Some(900), None);
         // but at most one day more than again secs
-        assert_delay_secs!([(3 * DAY / 60) as f32], 1, 3 * DAY, Some(4 * DAY), None);
+        assert_delay_secs!(
+            [(3 * DAY / 60) as f32],
+            1,
+            Some(3 * DAY),
+            Some(4 * DAY),
+            None
+        );
 
-        assert_delay_secs!([1.0, 10.0], 2, 60, Some(330), Some(600));
-        assert_delay_secs!([1.0, 10.0], 1, 60, Some(600), None);
+        assert_delay_secs!([1.0, 10.0], 2, Some(60), Some(330), Some(600));
+        assert_delay_secs!([1.0, 10.0], 1, Some(60), Some(600), None);
 
-        assert_delay_secs!([1.0, 10.0, 100.0], 3, 60, Some(330), Some(600));
-        assert_delay_secs!([1.0, 10.0, 100.0], 2, 60, Some(600), Some(6000));
-        assert_delay_secs!([1.0, 10.0, 100.0], 1, 60, Some(6000), None);
+        assert_delay_secs!([1.0, 10.0, 100.0], 3, Some(60), Some(330), Some(600));
+        assert_delay_secs!([1.0, 10.0, 100.0], 2, Some(60), Some(600), Some(6000));
+        assert_delay_secs!([1.0, 10.0, 100.0], 1, Some(60), Some(6000), None);
     }
 
     #[test]

@@ -5,7 +5,6 @@ use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use fsrs::simulate;
 use fsrs::SimulatorConfig;
-use fsrs::DEFAULT_PARAMETERS;
 use itertools::Itertools;
 
 use crate::card::CardQueue;
@@ -48,19 +47,6 @@ impl Collection {
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
         };
-        let parameters = if req.weights.is_empty() {
-            DEFAULT_PARAMETERS.to_vec()
-        } else if req.weights.len() != 19 {
-            if req.weights.len() == 17 {
-                let mut parameters = req.weights.to_vec();
-                parameters.extend_from_slice(&[0.0, 0.0]);
-                parameters
-            } else {
-                return Err(AnkiError::FsrsWeightsInvalid);
-            }
-        } else {
-            req.weights.to_vec()
-        };
         let (
             accumulated_knowledge_acquisition,
             daily_review_count,
@@ -68,11 +54,11 @@ impl Collection {
             daily_time_cost,
         ) = simulate(
             &config,
-            &parameters,
+            &req.weights,
             req.desired_retention,
             None,
             Some(converted_cards),
-        );
+        )?;
         Ok(SimulateFsrsReviewResponse {
             accumulated_knowledge_acquisition: accumulated_knowledge_acquisition.to_vec(),
             daily_review_count: daily_review_count.iter().map(|x| *x as u32).collect_vec(),

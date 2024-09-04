@@ -5,6 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Writable } from "svelte/store";
 
+    import "$lib/sveltelib/export-runtime";
+
     import Container from "$lib/components/Container.svelte";
     import Row from "$lib/components/Row.svelte";
     import type { DynamicSvelteComponent } from "$lib/sveltelib/dynamicComponent";

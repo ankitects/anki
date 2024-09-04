@@ -25,7 +25,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SettingTitle from "$lib/components/SettingTitle.svelte";
     import SwitchRow from "$lib/components/SwitchRow.svelte";
 
-    import DateInput from "./DateInput.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
@@ -374,11 +373,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         placeholder={defaultWeightSearch}
     />
 
-    <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
-        <SettingTitle on:click={() => openHelpModal("ignoreBefore")}>
-            {tr.deckConfigIgnoreBefore()}
-        </SettingTitle>
-    </DateInput>
     <button
         class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
         disabled={!computingWeights && computing}

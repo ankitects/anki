@@ -58,6 +58,7 @@ class AddCards(QMainWindow):
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
+        self.setMenuBar(None)
         self.show()
 
     def set_note(self, note: Note, deck_id: DeckId | None = None) -> None:
