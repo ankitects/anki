@@ -131,8 +131,7 @@ impl Card {
         } else {
             self.due_time(timing).map(|due| {
                 due.adding_secs(-86_400 * self.interval as i64)
-                    .elapsed_secs()
-                    .max(0) as u32
+                    .elapsed_secs() as u32
                     / 86_400
             })
         }
