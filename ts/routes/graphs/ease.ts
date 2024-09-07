@@ -17,10 +17,11 @@ import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
     eases: Map<number, number>;
+    average: number;
 }
 
 export function gatherData(data: GraphsResponse): GraphData {
-    return { eases: numericMap(data.eases!.eases) };
+    return { eases: numericMap(data.eases!.eases), average: data.eases!.average };
 }
 
 function makeQuery(start: number, end: number): string {
