@@ -34,7 +34,8 @@ impl GraphsContext {
             }
         }
         if card_with_retrievability_count != 0 {
-            retrievability.average = retrievability.average * 100.0 / card_with_retrievability_count as f32;
+            retrievability.average =
+                retrievability.average * 100.0 / card_with_retrievability_count as f32;
         }
 
         retrievability
