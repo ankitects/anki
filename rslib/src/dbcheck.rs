@@ -394,7 +394,7 @@ impl Collection {
         let qfmt = basic.templates[0].config.q_format.clone();
         let afmt = basic.templates[0].config.a_format.clone();
         for n in 0..extra_cards_required {
-            basic.add_template(&format!("Card {}", n + 2), &qfmt, &afmt);
+            basic.add_template(format!("Card {}", n + 2), &qfmt, &afmt);
         }
         self.add_notetype(&mut basic, true)?;
         Ok(Arc::new(basic))

@@ -20,6 +20,13 @@ impl From<FSRSError> for AnkiError {
                     backtrace: None,
                 },
             },
+            FSRSError::InvalidDeckSize => AnkiError::InvalidInput {
+                source: InvalidInputError {
+                    message: "no cards to simulate".to_string(),
+                    source: None,
+                    backtrace: None,
+                },
+            },
         }
     }
 }
