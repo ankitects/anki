@@ -1864,9 +1864,9 @@ dependencies = [
 
 [[package]]
 name = "fsrs"
-version = "1.2.0"
+version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a6f86707f3588ae410917427aa986e8b281fd0fad96480afd150f3e694c0d76"
+checksum = "1bbd56ab9e6c5d40802c7f73701b9cc4bccf9fa29037799a94ac9f1a94f1a5f7"
 dependencies = [
  "burn",
  "itertools 0.12.1",
