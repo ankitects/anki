@@ -1452,19 +1452,32 @@ class EditorWebView(AnkiWebView):
         return not strip_html
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
-        # Since _on_clipboard_change doesn't always trigger properly on macOS, we do a double check if any changes were made before pasting
+        # Since _on_clipboard_change doesn't always trigger properly on macOS,
+        # we do a double check if any changes were made before pasting
         if self._last_known_clipboard_mime != self.editor.mw.app.clipboard().mimeData():
             self._on_clipboard_change()
         extended = self._wantsExtendedPaste()
-        if html := self._internal_field_text_for_paste:
+
+        def use_internal():
             print("reuse internal")
-            self.editor.doPaste(html, True, extended)
-        else:
+            if html := self._internal_field_text_for_paste:
+                self.editor.doPaste(html, True, extended)
+                return True
+            return False
+
+        def use_clipboard():
             print("use clipboard")
             mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
             html, internal = self._processMime(mime, extended)
             if html:
                 self.editor.doPaste(html, internal, extended)
+                return True
+            return False
+
+        if mode == QClipboard.Mode.Selection:
+            use_clipboard() or use_internal()
+        else:
+            use_internal()
 
     def onPaste(self) -> None:
         self._onPaste(QClipboard.Mode.Clipboard)
