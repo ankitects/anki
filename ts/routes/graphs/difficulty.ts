@@ -17,10 +17,11 @@ import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
     eases: Map<number, number>;
+    average: number;
 }
 
 export function gatherData(data: GraphsResponse): GraphData {
-    return { eases: numericMap(data.difficulty!.eases) };
+    return { eases: numericMap(data.difficulty!.eases), average: data.difficulty!.average };
 }
 
 function makeQuery(start: number, end: number): string {
@@ -101,7 +102,7 @@ export function prepareData(
     const tableData = [
         {
             label: tr.statisticsAverageDifficulty(),
-            value: xTickFormat(sum(Array.from(allEases.entries()).map(([k, v]) => (k + 2.5) * v)) / total),
+            value: xTickFormat(data.average),
         },
     ];
 

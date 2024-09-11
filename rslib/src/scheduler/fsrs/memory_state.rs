@@ -214,7 +214,7 @@ pub(crate) fn fsrs_items_for_memory_state(
 ) -> Result<Vec<(CardId, Option<FsrsItemWithStartingState>)>> {
     revlogs
         .into_iter()
-        .group_by(|r| r.cid)
+        .chunk_by(|r| r.cid)
         .into_iter()
         .map(|(card_id, group)| {
             Ok((
@@ -246,7 +246,7 @@ fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogIn
     let mut out = HashMap::new();
     revlogs
         .iter()
-        .group_by(|r| r.cid)
+        .chunk_by(|r| r.cid)
         .into_iter()
         .for_each(|(card_id, group)| {
             let mut last_reviewed_at = None;
