@@ -188,7 +188,7 @@ impl Collection {
 }
 
 fn invalid_char_for_deck_component(c: char) -> bool {
-    c.is_ascii_control() || c == '"'
+    c.is_ascii_control()
 }
 
 fn normalized_deck_name_component(comp: &str) -> Cow<str> {
