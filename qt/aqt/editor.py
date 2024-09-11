@@ -1475,7 +1475,8 @@ class EditorWebView(AnkiWebView):
             return False
 
         if mode == QClipboard.Mode.Selection:
-            use_clipboard() or reuse_internal()
+            if not use_clipboard():
+                reuse_internal()
         else:
             reuse_internal()
 
