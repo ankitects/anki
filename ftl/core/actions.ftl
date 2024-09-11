@@ -12,6 +12,7 @@ actions-decks = Decks
 actions-decrement-value = Decrement value
 actions-delete = Delete
 actions-export = Export
+actions-empty-cards = Empty Cards
 actions-filter = Filter
 actions-help = Help
 actions-increment-value = Increment value

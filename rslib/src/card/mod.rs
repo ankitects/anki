@@ -327,13 +327,15 @@ impl Collection {
 
     /// Remove cards and any resulting orphaned notes.
     /// Expects a transaction.
-    pub(crate) fn remove_cards_and_orphaned_notes(&mut self, cids: &[CardId]) -> Result<()> {
+    pub(crate) fn remove_cards_and_orphaned_notes(&mut self, cids: &[CardId]) -> Result<usize> {
         let usn = self.usn()?;
         let mut nids = HashSet::new();
+        let mut card_count = 0;
         for cid in cids {
             if let Some(card) = self.storage.get_card(*cid)? {
                 nids.insert(card.note_id);
                 self.remove_card_and_add_grave_undoable(card, usn)?;
+                card_count += 1;
             }
         }
         for nid in nids {
@@ -342,7 +344,7 @@ impl Collection {
             }
         }
 
-        Ok(())
+        Ok(card_count)
     }
 
     pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<usize>> {

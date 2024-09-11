@@ -512,7 +512,7 @@ impl Collection {
         let mut changed_notes = 0;
         let usn = self.usn()?;
 
-        for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
+        for (ntid, group) in &nids_by_notetype.into_iter().chunk_by(|tup| tup.0) {
             let nt = self.get_notetype(ntid)?.or_invalid("missing note type")?;
 
             let mut genctx = None;

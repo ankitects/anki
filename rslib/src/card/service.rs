@@ -14,6 +14,7 @@ use crate::error::OrNotFound;
 use crate::notes::NoteId;
 use crate::prelude::TimestampSecs;
 use crate::prelude::Usn;
+use crate::undo::Op;
 
 impl crate::services::CardsService for Collection {
     fn get_card(
@@ -44,17 +45,20 @@ impl crate::services::CardsService for Collection {
             .map(Into::into)
     }
 
-    fn remove_cards(&mut self, input: anki_proto::cards::RemoveCardsRequest) -> error::Result<()> {
-        self.transact_no_undo(|col| {
+    fn remove_cards(
+        &mut self,
+        input: anki_proto::cards::RemoveCardsRequest,
+    ) -> error::Result<anki_proto::collection::OpChangesWithCount> {
+        self.transact(Op::EmptyCards, |col| {
             col.remove_cards_and_orphaned_notes(
                 &input
                     .card_ids
                     .into_iter()
                     .map(Into::into)
                     .collect::<Vec<_>>(),
-            )?;
-            Ok(())
+            )
         })
+        .map(Into::into)
     }
 
     fn set_deck(
