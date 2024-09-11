@@ -272,10 +272,11 @@ class Browser(QMainWindow):
 
         return None
 
-    def on_add_card(self):
+    def add_card(self, deck_id: DeckId | None):
         add_cards = cast(AddCards, aqt.dialogs.open("AddCards", self.mw))
 
-        if deck_id := self.get_active_deck_id():
+        deck_id = deck_id or self.get_active_deck_id()
+        if deck_id is not None:
             add_cards.set_deck(deck_id)
 
         if note_type_id := self.get_active_note_type_id():
@@ -323,7 +324,7 @@ class Browser(QMainWindow):
         )
 
         # notes
-        qconnect(f.actionAdd.triggered, self.on_add_card)
+        qconnect(f.actionAdd.triggered, self.mw.onAddCard)
         qconnect(f.actionCopy.triggered, self.on_create_copy)
         qconnect(f.actionAdd_Tags.triggered, self.add_tags_to_selected_notes)
         qconnect(f.actionRemove_Tags.triggered, self.remove_tags_from_selected_notes)

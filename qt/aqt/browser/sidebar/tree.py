@@ -459,10 +459,16 @@ class SidebarTreeView(QTreeView):
             if self._enable_delete(item):
                 self._on_delete(item)
 
+    def _enable_add(self, item: SidebarItem) -> bool:
+        return item.item_type.can_be_added_to()
+
     def _enable_delete(self, item: SidebarItem) -> bool:
         return item.item_type.is_deletable() and all(
             s.item_type == item.item_type for s in self._selected_items()
         )
+
+    def _on_add(self, item: SidebarItem):
+        self.browser.add_card(DeckId(item.id))
 
     def _on_delete(self, item: SidebarItem) -> None:
         if item.item_type == SidebarItemType.SAVED_SEARCH:
@@ -893,6 +899,7 @@ class SidebarTreeView(QTreeView):
         menu = QMenu()
         self._maybe_add_type_specific_actions(menu, item)
         menu.addSeparator()
+        self._maybe_add_add_action(menu, item)
         self._maybe_add_delete_action(menu, item, index)
         self._maybe_add_rename_actions(menu, item, index)
         self._maybe_add_find_and_replace_action(menu, item, index)
@@ -931,6 +938,10 @@ class SidebarTreeView(QTreeView):
                     tr.browsing_remove_from_selected_notes(),
                     self.remove_tags_from_selected_notes,
                 )
+
+    def _maybe_add_add_action(self, menu: QMenu, item: SidebarItem) -> None:
+        if self._enable_add(item):
+            menu.addAction(tr.browsing_add_notes(), lambda: self._on_add(item))
 
     def _maybe_add_delete_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
