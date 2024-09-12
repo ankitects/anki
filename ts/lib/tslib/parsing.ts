@@ -3,7 +3,7 @@
 
 /**
  * Parsing with or without this dummy structure changes the output
- * for both `DOMParser.parseAsString` and range.createContextualFragment`.
+ * for both `DOMParser.parseAsString` and `range.createContextualFragment`.
  * Parsing without means that comments or meaningless html elements are dropped,
  * which we want to avoid.
  */
