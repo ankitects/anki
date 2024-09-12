@@ -276,6 +276,8 @@
     <addaction name="menuFlag"/>
     <addaction name="separator"/>
     <addaction name="action_Info"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelete"/>
    </widget>
    <widget class="QMenu" name="menu_Notes">
     <property name="title">
