@@ -24,7 +24,7 @@ deck-config-review-limit-tooltip =
     if cards are ready for review.
 deck-config-limit-deck-v3 =
     When studying a deck that has subdecks inside it, the limits set on each
-    subdeck control the maximum number of cards drawn from that particular deck.
+    subdeck control the maximum number of cards gathered from that particular deck.
     The selected deck's limits control the total cards that will be shown.
 deck-config-limit-new-bound-by-reviews =
     The review limit affects the new limit. For example, if your review limit is
@@ -33,9 +33,9 @@ deck-config-limit-new-bound-by-reviews =
     shown.
 deck-config-limit-interday-bound-by-reviews =
     The review limit also affects interday learning cards. When applying the limit,
-    interday learning cards are fetched first, then reviews.
+    interday learning cards are gathered first, then review cards.
 deck-config-tab-description =
-    - `Preset`: The limit is shared with all decks using this preset.
+    - `Preset`: The limit applies to all decks using this preset.
     - `This deck`: The limit is specific to this deck.
     - `Today only`: Make a temporary change to this deck's limit.
 deck-config-new-cards-ignore-review-limit = New cards ignore review limit
@@ -45,9 +45,10 @@ deck-config-new-cards-ignore-review-limit-tooltip =
     will be shown regardless of the review limit.
 deck-config-apply-all-parent-limits = Limits start from top
 deck-config-apply-all-parent-limits-tooltip =
-    By default, limits start from the deck you select. If this option is enabled, the limits will
+    By default, the daily limits of a higher-level deck do not apply if you're studying from its subdeck.
+    If this option is enabled, the limits will
     start from the top-level deck instead, which can be useful if you wish to study individual
-    sub-decks, while enforcing a total limit on cards/day.
+    subdecks, while enforcing a total limit on cards for the deck tree.
 deck-config-affects-entire-collection = Affects the entire collection.
 
 ## Daily limit tabs: please try to keep these as short as the English version,
@@ -82,7 +83,7 @@ deck-config-new-insertion-order-tooltip =
 deck-config-new-insertion-order-sequential = Sequential (oldest cards first)
 deck-config-new-insertion-order-random = Random
 deck-config-new-insertion-order-random-with-v3 =
-    With the V3 scheduler, it is better to leave this set to sequential, and
+    With the v3 scheduler, it is better to leave this set to sequential, and
     adjust the new card gather order instead.
 
 ## Lapses section
@@ -112,7 +113,7 @@ deck-config-bury-new-siblings = Bury new siblings
 deck-config-bury-review-siblings = Bury review siblings
 deck-config-bury-interday-learning-siblings = Bury interday learning siblings
 deck-config-bury-new-tooltip =
-    Whether other `new` cards of the same note (eg reverse cards, adjacent cloze deletions)
+    Whether other `new` cards of the same note (e.g. reverse cards, adjacent cloze deletions)
     will be delayed until the next day.
 deck-config-bury-review-tooltip = Whether other `review` cards of the same note will be delayed until the next day.
 deck-config-bury-interday-learning-tooltip =
@@ -120,7 +121,7 @@ deck-config-bury-interday-learning-tooltip =
     will be delayed until the next day.
 deck-config-bury-priority-tooltip =
     When Anki gathers cards, it first gathers intraday learning cards, then
-    interday learning cards, then reviews, and finally new cards. This affects
+    interday learning cards, then review cards, and finally new cards. This affects
     how burying works:
     
     - If you have all burying options enabled, the sibling that comes earliest in
@@ -136,9 +137,9 @@ deck-config-bury-priority-tooltip =
 deck-config-ordering-title = Display Order
 deck-config-new-gather-priority = New card gather order
 deck-config-new-gather-priority-tooltip-2 =
-    `Deck`: gathers cards from each deck in order, starting from the top. Cards from each deck are
+    `Deck`: gathers cards from each subdeck in order, starting from the top. Cards from each subdeck are
     gathered in ascending position. If the daily limit of the selected deck is reached, gathering
-    may stop before all decks have been checked. This order is fastest in large collections, and
+    can stop before all subdecks have been checked. This order is fastest in large collections, and
     allows you to prioritize subdecks that are closer to the top.
     
     `Ascending position`: gathers cards by ascending position (due #), which is typically
@@ -151,7 +152,7 @@ deck-config-new-gather-priority-tooltip-2 =
     disabled, this allows all cards of a note to be seen in a session (e.g. both a front→back
     and back→front card).
     
-    `Random cards`: gathers cards completely randomly.
+    `Random cards`: gathers cards in a random order.
 deck-config-new-gather-priority-deck = Deck
 deck-config-new-gather-priority-deck-then-random-notes = Deck then random notes
 deck-config-new-gather-priority-position-lowest-first = Ascending position
@@ -160,7 +161,7 @@ deck-config-new-gather-priority-random-notes = Random notes
 deck-config-new-gather-priority-random-cards = Random cards
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip-2 =
-    `Card type, then order gathered`: Displays cards in order of card type number. If you have sibling burying
+    `Card type, then order gathered`: Shows cards in order of card type number. Cards of each card type number are shown in the order they were gathered. If you have sibling burying
     disabled, this will ensure all front→back cards are seen before any back→front cards.
     This is useful to have all cards of the same note shown in the same session, but not
     too close to one another.
