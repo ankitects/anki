@@ -308,6 +308,8 @@ class DeckBrowser:
 
     def _showOptions(self, did: str) -> None:
         m = QMenu(self.mw)
+        a = m.addAction(tr.browsing_add_notes())
+        a = m.addAction("Edit Notes...")
         a = m.addAction(tr.actions_rename())
         qconnect(a.triggered, lambda b, did=did: self._rename(DeckId(int(did))))
         a = m.addAction(tr.actions_options())
