@@ -1586,35 +1586,34 @@ class EditorWebView(AnkiWebView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
-        self._maybe_add_cut_action(m)
-        self._maybe_add_copy_action(m)
+        if self.hasSelection():
+            self._add_cut_action(m)
+            self._add_copy_action(m)
         a = m.addAction(tr.editing_paste())
         qconnect(a.triggered, self.onPaste)
-        self._maybe_add_image_menu(AnkiWebView(self), m)
+        if self._opened_context_menu_on_image():
+            self._add_image_menu(AnkiWebView(self), m)
         gui_hooks.editor_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
 
-    def _maybe_add_cut_action(self, menu: QMenu) -> None:
-        if self.hasSelection():
-            a = menu.addAction(tr.editing_cut())
-            qconnect(a.triggered, self.onCut)
+    def _add_cut_action(self, menu: QMenu) -> None:
+        a = menu.addAction(tr.editing_cut())
+        qconnect(a.triggered, self.onCut)
 
-    def _maybe_add_copy_action(self, menu: QMenu) -> None:
-        if self.hasSelection():
-            a = menu.addAction(tr.actions_copy())
-            qconnect(a.triggered, self.onCopy)
+    def _add_copy_action(self, menu: QMenu) -> None:
+        a = menu.addAction(tr.actions_copy())
+        qconnect(a.triggered, self.onCopy)
 
-    def _maybe_add_image_menu(self, webview: AnkiWebView, menu: QMenu) -> None:
-        if self._opened_context_menu_on_image():
-            a = menu.addAction(tr.editing_copy_image())
-            qconnect(a.triggered, self.on_copy_image)
+    def _add_image_menu(self, webview: AnkiWebView, menu: QMenu) -> None:
+        a = menu.addAction(tr.editing_copy_image())
+        qconnect(a.triggered, self.on_copy_image)
 
-            if is_win or is_mac:
-                url = webview.lastContextMenuRequest().mediaUrl()
-                file_name = url.fileName()
-                path = os.path.join(mw.col.media.dir(), file_name)
-                a = menu.addAction(tr.editing_show_in_folder())
-                qconnect(a.triggered, lambda: showinFolder(path))
+        if is_win or is_mac:
+            url = webview.lastContextMenuRequest().mediaUrl()
+            file_name = url.fileName()
+            path = os.path.join(mw.col.media.dir(), file_name)
+            a = menu.addAction(tr.editing_show_in_folder())
+            qconnect(a.triggered, lambda: showinFolder(path))
 
 
 # QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
