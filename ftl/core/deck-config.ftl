@@ -367,14 +367,12 @@ deck-config-reschedule-cards-on-change = Reschedule cards on change
 deck-config-fsrs-tooltip =
     Affects the entire collection.
 
-    The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM-2) scheduler.
+    The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM-2) algorithm.
     By more accurately determining how likely you are to forget a card, it can help you remember
-    more material in the same amount of time. This setting is shared by all deck presets.
+    more material in the same amount of time. This setting is shared by all presets.
 
-    If you previously used the 'custom scheduling' version of FSRS, please make
-    sure you clear out the custom scheduling section before enabling this option.
 deck-config-desired-retention-tooltip =
-    The default value of 0.9 will schedule cards so that you have a 90% chance of remembering them when
+    The default value of 0.9 schedules cards so that you have a 90% chance of remembering them when
     they come up for review again. If you increase this value, Anki will show cards more frequently
     to increase the chances of you remembering them. If you decrease the value, Anki will show cards
     less frequently, and you will forget more of them. Be conservative when adjusting this - higher
@@ -392,7 +390,7 @@ deck-config-historical-retention-tooltip =
     SRS program.
 
     The latter is quite rare, so unless you're using the former option, you probably don't need to adjust
-    this setting.
+    this option.
 deck-config-weights-tooltip2 =
     FSRS parameters affect how cards are scheduled. Anki will start with default parameters. You can use 
     the option below to optimize the parameters to best match your performance in decks using this preset.
