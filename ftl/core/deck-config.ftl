@@ -137,22 +137,20 @@ deck-config-bury-priority-tooltip =
 deck-config-ordering-title = Display Order
 deck-config-new-gather-priority = New card gather order
 deck-config-new-gather-priority-tooltip-2 =
-    `Deck`: gathers cards from each subdeck in order, starting from the top. Cards from each subdeck are
+    `Deck`: Gathers cards from each subdeck in order, starting from the top. Cards from each subdeck are
     gathered in ascending position. If the daily limit of the selected deck is reached, gathering
     can stop before all subdecks have been checked. This order is fastest in large collections, and
     allows you to prioritize subdecks that are closer to the top.
     
-    `Ascending position`: gathers cards by ascending position (due #), which is typically
+    `Ascending position`: Gathers cards by ascending position (due #), which is typically
     the oldest-added first.
     
-    `Descending position`: gathers cards by descending position (due #), which is typically
+    `Descending position`: Gathers cards by descending position (due #), which is typically
     the latest-added first.
     
-    `Random notes`: gathers cards of randomly selected notes. When sibling burying is
-    disabled, this allows all cards of a note to be seen in a session (e.g. both a front→back
-    and back→front card).
+    `Random notes`: Picks notes at random, then gathers all of its cards.
     
-    `Random cards`: gathers cards in a random order.
+    `Random cards`: Gathers cards in a random order.
 deck-config-new-gather-priority-deck = Deck
 deck-config-new-gather-priority-deck-then-random-notes = Deck then random notes
 deck-config-new-gather-priority-position-lowest-first = Ascending position
@@ -161,23 +159,23 @@ deck-config-new-gather-priority-random-notes = Random notes
 deck-config-new-gather-priority-random-cards = Random cards
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip-2 =
-    `Card type, then order gathered`: Shows cards in order of card type number. Cards of each card type number are shown in the order they were gathered. If you have sibling burying
-    disabled, this will ensure all front→back cards are seen before any back→front cards.
+    `Card type, then order gathered`: Shows cards in order of card type number.
+    Cards of each card type number are shown in the order they were gathered. 
+    If you have sibling burying disabled, this will ensure all front→back cards are seen before any back→front cards.
     This is useful to have all cards of the same note shown in the same session, but not
     too close to one another.
     
     `Order gathered`: Shows cards exactly as they were gathered. If sibling burying is disabled,
     this will typically result in all cards of a note being seen one after the other.
     
-    `Card type, then random`: Like `Card type`, but shuffles the cards of each card
-    type number. If you use `Ascending position` to gather the oldest cards, you could use
-    this setting to see those cards in a random order, but still ensure cards of the same
-    note do not end up too close to one another.
+    `Card type, then random`: Shows cards in order of card type number. Cards of each card
+    type number are shown in a random order. This order is useful if you don't want sibling cards
+    to appear too close to each other, but still want the cards to appear in a random order.
     
-    `Random note, then card type`: Picks notes at random, then shows all of their siblings
+    `Random note, then card type`: Picks notes at random, then shows all of its cards
     in order.
     
-    `Random`: Fully shuffles the gathered cards.
+    `Random`: Shows cards in a random order.
 deck-config-sort-order-card-template-then-random = Card type, then random
 deck-config-sort-order-random-note-then-template = Random note, then card type
 deck-config-sort-order-random = Random
@@ -190,7 +188,7 @@ deck-config-interday-step-priority-tooltip =
     When to show (re)learning cards that cross a day boundary.
     
     The review limit is always applied first to interday learning cards, and
-    then reviews. This option will control the order the gathered cards are shown in,
+    then review cards. This option will control the order the gathered cards are shown in,
     but interday learning cards will always be gathered first.
 deck-config-review-mix-mix-with-reviews = Mix with reviews
 deck-config-review-mix-show-after-reviews = Show after reviews
@@ -370,13 +368,13 @@ deck-config-fsrs-tooltip =
     Affects the entire collection.
 
     The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM-2) scheduler.
-    By more accurately determining when you are likely to forget, it can help you remember
+    By more accurately determining how likely you are to forget a card, it can help you remember
     more material in the same amount of time. This setting is shared by all deck presets.
 
     If you previously used the 'custom scheduling' version of FSRS, please make
     sure you clear out the custom scheduling section before enabling this option.
 deck-config-desired-retention-tooltip =
-    The default value of 0.9 will schedule cards so you have a 90% chance of remembering them when
+    The default value of 0.9 will schedule cards so that you have a 90% chance of remembering them when
     they come up for review again. If you increase this value, Anki will show cards more frequently
     to increase the chances of you remembering them. If you decrease the value, Anki will show cards
     less frequently, and you will forget more of them. Be conservative when adjusting this - higher
