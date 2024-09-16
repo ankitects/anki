@@ -27,12 +27,12 @@ static LINEBREAKS: Lazy<Regex> = Lazy::new(|| {
     .unwrap()
 });
 
-struct DiffContext {
+struct Diff {
     provided: Vec<char>,
     expected: Vec<char>,
 }
 
-impl DiffContext {
+impl Diff {
     fn new(expected: &str, provided: &str) -> Self {
         Self {
             provided: normalize_to_nfc(provided).chars().collect(),
@@ -42,68 +42,72 @@ impl DiffContext {
         }
     }
 
-    fn slice(&self, chars: &[char], start: usize, end: usize) -> String {
+    fn get_slice(&self, chars: &[char], start: usize, end: usize) -> String {
         chars[start..end].iter().collect()
     }
 
     fn slice_expected(&self, opcode: &Opcode) -> String {
-        self.slice(&self.expected, opcode.second_start, opcode.second_end)
+        self.get_slice(&self.expected, opcode.second_start, opcode.second_end)
     }
 
     fn slice_provided(&self, opcode: &Opcode) -> String {
-        self.slice(&self.provided, opcode.first_start, opcode.first_end)
+        self.get_slice(&self.provided, opcode.first_start, opcode.first_end)
     }
 
-    fn to_tokens(&self) -> DiffOutput {
+    fn to_tokens(&self) -> DiffTokens {
         let mut matcher = SequenceMatcher::new(&self.provided, &self.expected);
-        let mut provided = Vec::new();
-        let mut expected = Vec::new();
+        let mut provided_tokens = Vec::new();
+        let mut expected_tokens = Vec::new();
 
         for opcode in matcher.get_opcodes() {
             match opcode.tag.as_str() {
                 "equal" => {
-                    provided.push(DiffToken::good(self.slice_provided(&opcode)));
-                    expected.push(DiffToken::good(self.slice_expected(&opcode)));
+                    provided_tokens.push(DiffToken::good(self.slice_provided(&opcode)));
+                    expected_tokens.push(DiffToken::good(self.slice_expected(&opcode)));
                 }
                 "delete" => {
-                    provided.push(DiffToken::bad(self.slice_provided(&opcode)));
+                    provided_tokens.push(DiffToken::bad(self.slice_provided(&opcode)));
                 }
                 "insert" => {
                     let expected_str = self.slice_expected(&opcode);
-                    provided.push(DiffToken::missing("-".repeat(expected_str.chars().count())));
-                    expected.push(DiffToken::missing(expected_str));
+                    provided_tokens
+                        .push(DiffToken::missing("-".repeat(expected_str.chars().count())));
+                    expected_tokens.push(DiffToken::missing(expected_str));
                 }
                 "replace" => {
-                    provided.push(DiffToken::bad(self.slice_provided(&opcode)));
-                    expected.push(DiffToken::missing(self.slice_expected(&opcode)));
+                    provided_tokens.push(DiffToken::bad(self.slice_provided(&opcode)));
+                    expected_tokens.push(DiffToken::missing(self.slice_expected(&opcode)));
                 }
                 _ => unreachable!(),
             }
         }
-        DiffOutput { provided, expected }
+        DiffTokens {
+            provided_tokens,
+            expected_tokens,
+        }
     }
 
     fn to_html(&self) -> String {
         let output = self.to_tokens();
-        let provided = render_tokens(&output.provided);
-        let expected = render_tokens(&output.expected);
+        let provided_html = render_tokens(&output.provided_tokens);
+        let expected_html = render_tokens(&output.expected_tokens);
         format!(
             "<code id=typeans>{}</code>",
             if self.provided.is_empty() {
                 htmlescape::encode_minimal(&self.expected.iter().collect::<String>())
             } else if self.provided == self.expected {
-                provided
+                provided_html
             } else {
-                format!("{provided}<br><span id=typearrow>&darr;</span><br>{expected}")
+                format!("{provided_html}<br><span id=typearrow>&darr;</span><br>{expected_html}")
             }
         )
     }
 }
 
 fn prepare_expected(expected: &str) -> String {
-    let without_av = strip_av_tags(expected);
-    let without_newlines = LINEBREAKS.replace_all(&without_av, " ");
-    strip_html(&without_newlines).trim().to_string()
+    let no_av_tags = strip_av_tags(expected);
+    let no_linebreaks = LINEBREAKS.replace_all(&no_av_tags, " ");
+    strip_html(&no_linebreaks).trim().to_string()
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -145,31 +149,31 @@ impl DiffToken {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct DiffOutput {
-    provided: Vec<DiffToken>,
-    expected: Vec<DiffToken>,
+struct DiffTokens {
+    provided_tokens: Vec<DiffToken>,
+    expected_tokens: Vec<DiffToken>,
 }
 
 pub fn compare_answer(expected: &str, provided: &str) -> String {
-    DiffContext::new(expected, provided).to_html()
+    Diff::new(expected, provided).to_html()
 }
 
 fn render_tokens(tokens: &[DiffToken]) -> String {
     tokens
         .iter()
         .map(|token| {
-            let text = with_isolated_leading_mark(&token.text);
-            let encoded = htmlescape::encode_minimal(&text);
+            let isolated_text = isolate_leading_mark(&token.text);
+            let encoded_text = htmlescape::encode_minimal(&isolated_text);
             let class = token.to_class();
-            format!("<span class={class}>{encoded}</span>")
+            format!("<span class={class}>{encoded_text}</span>")
         })
         .collect::<Vec<_>>()
         .concat()
 }
 
-/// If text begins with a mark character, prefix it with a non-breaking
-/// space to prevent the mark from joining to the previous token.
-fn with_isolated_leading_mark(text: &str) -> Cow<str> {
+/// Prefixes a leading mark character with a non-breaking space to prevent it
+/// from joining the previous token.
+fn isolate_leading_mark(text: &str) -> Cow<str> {
     if text
         .chars()
         .next()
@@ -198,10 +202,10 @@ mod test {
 
     #[test]
     fn tokens() {
-        let ctx = DiffContext::new("¿Y ahora qué vamos a hacer?", "y ahora qe vamosa hacer");
+        let ctx = Diff::new("¿Y ahora qué vamos a hacer?", "y ahora qe vamosa hacer");
         let output = ctx.to_tokens();
         assert_eq!(
-            output.provided,
+            output.provided_tokens,
             vec![
                 bad("y"),
                 good(" ahora q"),
@@ -213,7 +217,7 @@ mod test {
             ]
         );
         assert_eq!(
-            output.expected,
+            output.expected_tokens,
             vec![
                 missing("¿Y"),
                 good(" ahora q"),
@@ -228,24 +232,24 @@ mod test {
 
     #[test]
     fn html_and_media() {
-        let ctx = DiffContext::new("[sound:foo.mp3]<b>1</b> &nbsp;2", "1  2");
+        let ctx = Diff::new("[sound:foo.mp3]<b>1</b> &nbsp;2", "1  2");
         // the spacing is handled by wrapping html output in white-space: pre-wrap
-        assert_eq!(ctx.to_tokens().expected, &[good("1  2")]);
+        assert_eq!(ctx.to_tokens().expected_tokens, &[good("1  2")]);
     }
 
     #[test]
     fn missed_chars_only_shown_in_provided_when_after_good() {
-        let ctx = DiffContext::new("1", "23");
-        assert_eq!(ctx.to_tokens().provided, &[bad("23")]);
-        let ctx = DiffContext::new("12", "1");
-        assert_eq!(ctx.to_tokens().provided, &[good("1"), missing("-"),]);
+        let ctx = Diff::new("1", "23");
+        assert_eq!(ctx.to_tokens().provided_tokens, &[bad("23")]);
+        let ctx = Diff::new("12", "1");
+        assert_eq!(ctx.to_tokens().provided_tokens, &[good("1"), missing("-"),]);
     }
 
     #[test]
     fn missed_chars_counted_correctly() {
-        let ctx = DiffContext::new("нос", "нс");
+        let ctx = Diff::new("нос", "нс");
         assert_eq!(
-            ctx.to_tokens().provided,
+            ctx.to_tokens().provided_tokens,
             &[good("н"), missing("-"), good("с")]
         );
     }
@@ -253,9 +257,9 @@ mod test {
     #[test]
     fn handles_certain_unicode_as_expected() {
         // this was not parsed as expected with dissimilar 1.0.4
-        let ctx = DiffContext::new("쓰다듬다", "스다뜸다");
+        let ctx = Diff::new("쓰다듬다", "스다뜸다");
         assert_eq!(
-            ctx.to_tokens().provided,
+            ctx.to_tokens().provided_tokens,
             &[bad("스"), good("다"), bad("뜸"), good("다"),]
         );
     }
@@ -263,7 +267,7 @@ mod test {
     #[test]
     fn does_not_panic_with_certain_unicode() {
         // this was causing a panic with dissimilar 1.0.4
-        let ctx = DiffContext::new(
+        let ctx = Diff::new(
             "Сущность должна быть ответственна только за одно дело",
             concat!(
                 "Single responsibility Сущность выполняет только одну задачу.",
@@ -280,13 +284,13 @@ mod test {
 
     #[test]
     fn empty_input_shows_as_code() {
-        let ctx = DiffContext::new("123", "");
+        let ctx = Diff::new("123", "");
         assert_eq!(ctx.to_html(), "<code id=typeans>123</code>");
     }
 
     #[test]
     fn correct_input_is_collapsed() {
-        let ctx = DiffContext::new("123", "123");
+        let ctx = Diff::new("123", "123");
         assert_eq!(
             ctx.to_html(),
             "<code id=typeans><span class=typeGood>123</span></code>"
@@ -295,7 +299,7 @@ mod test {
 
     #[test]
     fn incorrect_input_is_not_collapsed() {
-        let ctx = DiffContext::new("123", "1123");
+        let ctx = Diff::new("123", "1123");
         assert_eq!(
             ctx.to_html(),
             "<code id=typeans><span class=typeBad>1</span><span class=typeGood>123</span><br><span id=typearrow>&darr;</span><br><span class=typeGood>123</span></code>"
