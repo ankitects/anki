@@ -105,7 +105,7 @@ mod test {
     use super::Intersperser;
 
     fn intersperse(a: &[u32], b: &[u32]) -> Vec<u32> {
-        Intersperser::new(a.iter().cloned(), b.iter().cloned()).collect()
+        Intersperser::new(a.iter().cloned(), b.iter().cloned(), 0).collect()
     }
 
     #[test]
