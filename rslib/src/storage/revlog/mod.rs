@@ -211,7 +211,7 @@ impl SqliteStorage {
 
     pub(crate) fn get_excess_reviews_for_deck_1(&self, deck_id: DeckId) -> Result<ExcessReviews> {
         self.db
-            .prepare_cached("select reviews from excess_reviews where deck_id == ? LIMIT 1")?
+            .prepare_cached("select reviews from excess_reviews where deck_id == ? limit 1")?
             .query_map([deck_id], |row| {
                 Ok(ExcessReviews {
                     reviews: row.get(0)?,
@@ -225,13 +225,11 @@ impl SqliteStorage {
     }
 
     pub(crate) fn get_excess_reviews_for_deck(&self, deck_id: DeckId) -> i32 {
-        let reviews = self.get_excess_reviews_for_deck_1(deck_id)
+        self.get_excess_reviews_for_deck_1(deck_id)
             .unwrap_or(ExcessReviews { reviews: 0 })
             .reviews
             .try_into()
-            .unwrap();
-
-        reviews
+            .unwrap()
     }
 
     pub(crate) fn upgrade_revlog_to_v2(&self) -> Result<()> {
