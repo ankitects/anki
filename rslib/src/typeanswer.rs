@@ -5,8 +5,7 @@ use std::borrow::Cow;
 
 use difflib::sequencematcher::Opcode;
 use difflib::sequencematcher::SequenceMatcher;
-use itertools::Itertools;
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use unic_ucd_category::GeneralCategory;
 
@@ -14,8 +13,8 @@ use crate::card_rendering::strip_av_tags;
 use crate::text::normalize_to_nfc;
 use crate::text::strip_html;
 
-lazy_static! {
-    static ref LINEBREAKS: Regex = Regex::new(
+static LINEBREAKS: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
         r"(?six)
         (
             \n
@@ -23,45 +22,44 @@ lazy_static! {
             <br\s?/?>
             |
             </?div>
-        )+
-    "
+        )+",
     )
-    .unwrap();
-}
+    .unwrap()
+});
 
 struct DiffContext {
-    expected: Vec<char>,
     provided: Vec<char>,
+    expected: Vec<char>,
 }
 
 impl DiffContext {
     fn new(expected: &str, provided: &str) -> Self {
-        DiffContext {
-            provided: prepare_provided(provided).chars().collect_vec(),
-            expected: prepare_expected(expected).chars().collect_vec(),
+        Self {
+            provided: normalize_to_nfc(provided).chars().collect(),
+            expected: normalize_to_nfc(&prepare_expected(expected))
+                .chars()
+                .collect(),
         }
     }
 
+    fn slice(&self, chars: &[char], start: usize, end: usize) -> String {
+        chars[start..end].iter().collect()
+    }
+
     fn slice_expected(&self, opcode: &Opcode) -> String {
-        self.expected[opcode.second_start..opcode.second_end]
-            .iter()
-            .cloned()
-            .collect()
+        self.slice(&self.expected, opcode.second_start, opcode.second_end)
     }
 
     fn slice_provided(&self, opcode: &Opcode) -> String {
-        self.provided[opcode.first_start..opcode.first_end]
-            .iter()
-            .cloned()
-            .collect()
+        self.slice(&self.provided, opcode.first_start, opcode.first_end)
     }
 
     fn to_tokens(&self) -> DiffOutput {
         let mut matcher = SequenceMatcher::new(&self.provided, &self.expected);
-        let opcodes = matcher.get_opcodes();
-        let mut provided = vec![];
-        let mut expected = vec![];
-        for opcode in opcodes {
+        let mut provided = Vec::new();
+        let mut expected = Vec::new();
+
+        for opcode in matcher.get_opcodes() {
             match opcode.tag.as_str() {
                 "equal" => {
                     provided.push(DiffToken::good(self.slice_provided(&opcode)));
@@ -105,13 +103,7 @@ impl DiffContext {
 fn prepare_expected(expected: &str) -> String {
     let without_av = strip_av_tags(expected);
     let without_newlines = LINEBREAKS.replace_all(&without_av, " ");
-    let without_html = strip_html(&without_newlines);
-    let without_outer_whitespace = without_html.trim();
-    normalize_to_nfc(without_outer_whitespace).into()
-}
-
-fn prepare_provided(provided: &str) -> String {
-    normalize_to_nfc(provided).into()
+    strip_html(&without_newlines).trim().to_string()
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -128,24 +120,26 @@ struct DiffToken {
 }
 
 impl DiffToken {
-    fn bad(text: String) -> Self {
-        Self {
-            kind: DiffTokenKind::Bad,
-            text,
-        }
+    fn new(kind: DiffTokenKind, text: String) -> Self {
+        Self { kind, text }
     }
 
     fn good(text: String) -> Self {
-        Self {
-            kind: DiffTokenKind::Good,
-            text,
-        }
+        Self::new(DiffTokenKind::Good, text)
+    }
+
+    fn bad(text: String) -> Self {
+        Self::new(DiffTokenKind::Bad, text)
     }
 
     fn missing(text: String) -> Self {
-        Self {
-            kind: DiffTokenKind::Missing,
-            text,
+        Self::new(DiffTokenKind::Missing, text)
+    }
+    fn to_class(&self) -> &'static str {
+        match self.kind {
+            DiffTokenKind::Good => "typeGood",
+            DiffTokenKind::Bad => "typeBad",
+            DiffTokenKind::Missing => "typeMissed",
         }
     }
 }
@@ -161,31 +155,30 @@ pub fn compare_answer(expected: &str, provided: &str) -> String {
 }
 
 fn render_tokens(tokens: &[DiffToken]) -> String {
-    let text_tokens: Vec<_> = tokens
+    tokens
         .iter()
         .map(|token| {
             let text = with_isolated_leading_mark(&token.text);
             let encoded = htmlescape::encode_minimal(&text);
-            let class = match token.kind {
-                DiffTokenKind::Good => "typeGood",
-                DiffTokenKind::Bad => "typeBad",
-                DiffTokenKind::Missing => "typeMissed",
-            };
+            let class = token.to_class();
             format!("<span class={class}>{encoded}</span>")
         })
-        .collect();
-    text_tokens.join("")
+        .collect::<Vec<_>>()
+        .concat()
 }
 
 /// If text begins with a mark character, prefix it with a non-breaking
 /// space to prevent the mark from joining to the previous token.
 fn with_isolated_leading_mark(text: &str) -> Cow<str> {
-    if let Some(ch) = text.chars().next() {
-        if GeneralCategory::of(ch).is_mark() {
-            return format!("\u{a0}{text}").into();
-        }
+    if text
+        .chars()
+        .next()
+        .map_or(false, |ch| GeneralCategory::of(ch).is_mark())
+    {
+        format!("\u{a0}{text}").into()
+    } else {
+        text.into()
     }
-    text.into()
 }
 
 #[cfg(test)]
