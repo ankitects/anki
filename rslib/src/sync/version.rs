@@ -74,7 +74,7 @@ impl SyncVersion {
         if self.is_multipart() {
             SchemaVersion::V11
         } else {
-            SchemaVersion::V18
+            SchemaVersion::V19
         }
     }
 }

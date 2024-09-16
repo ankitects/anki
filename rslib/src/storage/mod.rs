@@ -24,7 +24,7 @@ pub(crate) use sqlite::SqliteStorage;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SchemaVersion {
     V11,
-    V18,
+    V19,
 }
 
 impl SchemaVersion {

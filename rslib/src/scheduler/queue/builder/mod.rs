@@ -109,6 +109,7 @@ pub(super) struct QueueBuilder {
     limits: LimitTreeMap,
     load_balancer: LoadBalancer,
     context: Context,
+    excess_reviews: i32,
 }
 
 /// Data container and helper for building queues.
@@ -168,6 +169,7 @@ impl QueueBuilder {
                 deck_map,
                 fsrs: col.get_config_bool(BoolKey::Fsrs),
             },
+            excess_reviews: col.storage.get_excess_reviews_for_deck(deck_id),
         })
     }
 
@@ -192,11 +194,13 @@ impl QueueBuilder {
             self.review,
             self.day_learning,
             self.context.sort_options.day_learn_mix,
+            self.excess_reviews,
         );
         let main_iter = merge_new(
             with_interday_learn,
             self.new,
             self.context.sort_options.new_review_mix,
+            self.excess_reviews,
         );
 
         CardQueues {
@@ -239,6 +243,7 @@ fn merge_day_learning(
     reviews: Vec<DueCard>,
     day_learning: Vec<DueCard>,
     mode: ReviewMix,
+    excess_reviews: i32,
 ) -> Box<dyn ExactSizeIterator<Item = MainQueueEntry>> {
     let day_learning_iter = day_learning.into_iter().map(Into::into);
     let reviews_iter = reviews.into_iter().map(Into::into);
@@ -246,7 +251,8 @@ fn merge_day_learning(
     match mode {
         ReviewMix::AfterReviews => Box::new(SizedChain::new(reviews_iter, day_learning_iter)),
         ReviewMix::BeforeReviews => Box::new(SizedChain::new(day_learning_iter, reviews_iter)),
-        ReviewMix::MixWithReviews => Box::new(Intersperser::new(reviews_iter, day_learning_iter)),
+        ReviewMix::MixWithReviews => Box::new(Intersperser::new(reviews_iter, day_learning_iter,
+                                                                excess_reviews)),
     }
 }
 
@@ -254,13 +260,15 @@ fn merge_new(
     review_iter: impl ExactSizeIterator<Item = MainQueueEntry> + 'static,
     new: Vec<NewCard>,
     mode: ReviewMix,
+    excess_reviews: i32,
 ) -> Box<dyn ExactSizeIterator<Item = MainQueueEntry>> {
     let new_iter = new.into_iter().map(Into::into);
 
     match mode {
         ReviewMix::BeforeReviews => Box::new(SizedChain::new(new_iter, review_iter)),
         ReviewMix::AfterReviews => Box::new(SizedChain::new(review_iter, new_iter)),
-        ReviewMix::MixWithReviews => Box::new(Intersperser::new(review_iter, new_iter)),
+        ReviewMix::MixWithReviews => Box::new(Intersperser::new(review_iter, new_iter,
+                                                                excess_reviews)),
     }
 }
 

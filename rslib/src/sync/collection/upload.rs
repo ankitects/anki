@@ -43,7 +43,7 @@ impl Collection {
         self.before_upload()?;
         let col_path = self.col_path.clone();
         let progress = self.new_progress_handler();
-        self.close(Some(SchemaVersion::V18))?;
+        self.close(Some(SchemaVersion::V19))?;
         let col_data = fs::read(&col_path)?;
 
         let total_bytes = col_data.len();

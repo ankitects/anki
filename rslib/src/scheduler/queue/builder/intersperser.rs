@@ -12,6 +12,7 @@ where
     two_idx: usize,
     one_len: usize,
     two_len: usize,
+    one_add: i32,
     ratio: f32,
 }
 
@@ -20,7 +21,7 @@ where
     I: ExactSizeIterator,
     I2: ExactSizeIterator<Item = I::Item>,
 {
-    pub fn new(one: I, two: I2) -> Self {
+    pub fn new(one: I, two: I2, one_add: i32) -> Self {
         let one_len = one.len();
         let two_len = two.len();
         let ratio = (one_len + 1) as f32 / (two_len + 1) as f32;
@@ -31,6 +32,7 @@ where
             two_idx: 0,
             one_len,
             two_len,
+            one_add,
             ratio,
         }
     }
@@ -73,7 +75,7 @@ where
         match (self.one_idx(), self.two_idx()) {
             (Some(idx1), Some(idx2)) => {
                 let relative_idx2 = (idx2 + 1) as f32 * self.ratio;
-                if relative_idx2 < (idx1 + 1) as f32 {
+                if relative_idx2 < (idx1 + 1 + (self.one_add as usize)) as f32 {
                     self.next_two()
                 } else {
                     self.next_one()

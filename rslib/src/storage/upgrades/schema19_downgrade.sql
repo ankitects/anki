@@ -1,0 +1,1 @@
+DROP TABLE excess_reviews;

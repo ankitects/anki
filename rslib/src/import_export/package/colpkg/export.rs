@@ -62,7 +62,7 @@ impl Collection {
         self.close(Some(if legacy {
             SchemaVersion::V11
         } else {
-            SchemaVersion::V18
+            SchemaVersion::V19
         }))?;
 
         export_collection_file(

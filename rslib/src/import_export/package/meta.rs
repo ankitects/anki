@@ -36,7 +36,7 @@ impl VersionExt for Version {
         match self {
             Version::Unknown => unreachable!(),
             Version::Legacy1 | Version::Legacy2 => SchemaVersion::V11,
-            Version::Latest => SchemaVersion::V18,
+            Version::Latest => SchemaVersion::V19,
         }
     }
 }

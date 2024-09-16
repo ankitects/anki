@@ -21,6 +21,11 @@ pub(crate) struct StudiedToday {
     pub seconds: f64,
 }
 
+#[derive(Debug)]
+pub(crate) struct ExcessReviews {
+    pub reviews: u32,
+}
+
 impl FromSql for RevlogReviewKind {
     fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
         if let ValueRef::Integer(i) = value {
@@ -83,6 +88,27 @@ impl SqliteStorage {
                 entry.taken_millis,
                 entry.review_kind as u8
             ])?;
+
+        let cid = entry.cid;
+        let card = self.get_card(cid)?.or_not_found(cid)?;
+        let deck_id = card.deck_id;
+
+        if entry.review_kind == RevlogReviewKind::Review {
+            self.db.execute_batch(&format!(
+                concat!("insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
+                        "update excess_reviews set reviews=reviews+1 where deck_id={}"),
+                deck_id,
+                0,
+                deck_id)).unwrap();
+        } else {
+            self.db.execute_batch(&format!(
+                concat!("insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
+                        "update excess_reviews set reviews=0 where deck_id={}"),
+                deck_id,
+                0,
+                deck_id)).unwrap();
+        }
+
         Ok((added > 0).then(|| RevlogId(self.db.last_insert_rowid())))
     }
 
@@ -181,6 +207,31 @@ impl SqliteStorage {
             .next()
             .unwrap()
             .map_err(Into::into)
+    }
+
+    pub(crate) fn get_excess_reviews_for_deck_1(&self, deck_id: DeckId) -> Result<ExcessReviews> {
+        self.db
+            .prepare_cached("select reviews from excess_reviews where deck_id == ? LIMIT 1")?
+            .query_map([deck_id], |row| {
+                Ok(ExcessReviews {
+                    reviews: row.get(0)?,
+                })
+            })?
+            .next()
+            .unwrap_or(Ok(ExcessReviews {
+                reviews: 0,
+            }))
+            .map_err(Into::into)
+    }
+
+    pub(crate) fn get_excess_reviews_for_deck(&self, deck_id: DeckId) -> i32 {
+        let reviews = self.get_excess_reviews_for_deck_1(deck_id)
+            .unwrap_or(ExcessReviews { reviews: 0 })
+            .reviews
+            .try_into()
+            .unwrap();
+
+        reviews
     }
 
     pub(crate) fn upgrade_revlog_to_v2(&self) -> Result<()> {
