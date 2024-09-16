@@ -251,8 +251,11 @@ fn merge_day_learning(
     match mode {
         ReviewMix::AfterReviews => Box::new(SizedChain::new(reviews_iter, day_learning_iter)),
         ReviewMix::BeforeReviews => Box::new(SizedChain::new(day_learning_iter, reviews_iter)),
-        ReviewMix::MixWithReviews => Box::new(Intersperser::new(reviews_iter, day_learning_iter,
-                                                                excess_reviews)),
+        ReviewMix::MixWithReviews => Box::new(Intersperser::new(
+            reviews_iter,
+            day_learning_iter,
+            excess_reviews,
+        )),
     }
 }
 
@@ -267,8 +270,9 @@ fn merge_new(
     match mode {
         ReviewMix::BeforeReviews => Box::new(SizedChain::new(new_iter, review_iter)),
         ReviewMix::AfterReviews => Box::new(SizedChain::new(review_iter, new_iter)),
-        ReviewMix::MixWithReviews => Box::new(Intersperser::new(review_iter, new_iter,
-                                                                excess_reviews)),
+        ReviewMix::MixWithReviews => {
+            Box::new(Intersperser::new(review_iter, new_iter, excess_reviews))
+        }
     }
 }
 

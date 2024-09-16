@@ -94,19 +94,25 @@ impl SqliteStorage {
         let deck_id = card.deck_id;
 
         if entry.review_kind == RevlogReviewKind::Review {
-            self.db.execute_batch(&format!(
-                concat!("insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
-                        "update excess_reviews set reviews=reviews+1 where deck_id={}"),
-                deck_id,
-                0,
-                deck_id)).unwrap();
+            self.db
+                .execute_batch(&format!(
+                    concat!(
+                        "insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
+                        "update excess_reviews set reviews=reviews+1 where deck_id={}"
+                    ),
+                    deck_id, 0, deck_id
+                ))
+                .unwrap();
         } else {
-            self.db.execute_batch(&format!(
-                concat!("insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
-                        "update excess_reviews set reviews=0 where deck_id={}"),
-                deck_id,
-                0,
-                deck_id)).unwrap();
+            self.db
+                .execute_batch(&format!(
+                    concat!(
+                        "insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
+                        "update excess_reviews set reviews=0 where deck_id={}"
+                    ),
+                    deck_id, 0, deck_id
+                ))
+                .unwrap();
         }
 
         Ok((added > 0).then(|| RevlogId(self.db.last_insert_rowid())))
@@ -218,9 +224,7 @@ impl SqliteStorage {
                 })
             })?
             .next()
-            .unwrap_or(Ok(ExcessReviews {
-                reviews: 0,
-            }))
+            .unwrap_or(Ok(ExcessReviews { reviews: 0 }))
             .map_err(Into::into)
     }
 
