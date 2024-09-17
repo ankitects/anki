@@ -33,7 +33,6 @@ class SearchContext:
     ids: Sequence[ItemId] | None = None
 
 
-@dataclass
 class Cell:
     def __init__(self, text: str, is_rtl: bool, elide_mode: BrowserRow.Cell.TextElideMode.V) -> None:
         self.text: str = text
