@@ -34,10 +34,14 @@ class SearchContext:
 
 
 class Cell:
-    def __init__(self, text: str, is_rtl: bool, elide_mode: BrowserRow.Cell.TextElideMode.V) -> None:
+    def __init__(
+        self, text: str, is_rtl: bool, elide_mode: BrowserRow.Cell.TextElideMode.V
+    ) -> None:
         self.text: str = text
         self.is_rtl: bool = is_rtl
-        self.elide_mode: aqt.Qt.TextElideMode = backend_elide_mode_to_aqt_elide_mode(elide_mode)
+        self.elide_mode: aqt.Qt.TextElideMode = backend_elide_mode_to_aqt_elide_mode(
+            elide_mode
+        )
 
 
 class CellRow:
@@ -78,7 +82,10 @@ class CellRow:
         row.is_disabled = True
         return row
 
-def backend_elide_mode_to_aqt_elide_mode(elide_mode: BrowserRow.Cell.TextElideMode.V) -> aqt.Qt.TextElideMode:
+
+def backend_elide_mode_to_aqt_elide_mode(
+    elide_mode: BrowserRow.Cell.TextElideMode.V,
+) -> aqt.Qt.TextElideMode:
     if elide_mode == BrowserRow.Cell.ElideLeft:
         return aqt.Qt.TextElideMode.ElideLeft
     if elide_mode == BrowserRow.Cell.ElideMiddle:
@@ -86,6 +93,7 @@ def backend_elide_mode_to_aqt_elide_mode(elide_mode: BrowserRow.Cell.TextElideMo
     if elide_mode == BrowserRow.Cell.ElideNone:
         return aqt.Qt.TextElideMode.ElideNone
     return aqt.Qt.TextElideMode.ElideRight
+
 
 def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | None:
     temp_color = None

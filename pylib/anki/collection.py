@@ -861,9 +861,12 @@ class Collection(DeprecatedNamesMixin):
                 return column
         return None
 
-    def browser_row_for_id(
-        self, id_: int
-    ) -> tuple[Generator[tuple[str, bool, BrowserRow.Cell.TextElideMode.V], None, None], BrowserRow.Color.V, str, int]:
+    def browser_row_for_id(self, id_: int) -> tuple[
+        Generator[tuple[str, bool, BrowserRow.Cell.TextElideMode.V], None, None],
+        BrowserRow.Color.V,
+        str,
+        int,
+    ]:
         row = self._backend.browser_row_for_id(id_)
         return (
             ((cell.text, cell.is_rtl, cell.elide_mode) for cell in row.cells),
