@@ -177,7 +177,7 @@ message BrowserRow {
       ElideLeft = 0;
       ElideRight = 1;
       ElideMiddle = 2;
-      ElideNone = 4;
+      ElideNone = 3;
     }
 
     string text = 1;
