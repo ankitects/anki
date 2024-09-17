@@ -49,7 +49,7 @@ class CellRow:
 
     def __init__(
         self,
-        cells: Generator[tuple[str, bool], None, None],
+        cells: Generator[tuple[str, bool, BrowserRow.Cell.TextElideMode.V], None, None],
         color: BrowserRow.Color.V,
         font_name: str,
         font_size: int,
