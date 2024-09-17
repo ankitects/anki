@@ -104,7 +104,7 @@ impl ReviewState {
             memory_state,
         };
 
-        if let Some(again_delay) = ctx.relearn_steps.again_delay_secs_relearn() {
+        if let Some(again_delay) = ctx.relearn_steps.again_delay_secs_learn() {
             RelearnState {
                 learning: LearnState {
                     remaining_steps: ctx.relearn_steps.remaining_for_failed(),

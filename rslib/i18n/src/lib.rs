@@ -464,7 +464,7 @@ pub struct ResourcesForJavascript {
 }
 
 pub fn without_unicode_isolation(s: &str) -> String {
-    s.replace(|c| c == '\u{2068}' || c == '\u{2069}', "")
+    s.replace(['\u{2068}', '\u{2069}'], "")
 }
 
 #[cfg(test)]

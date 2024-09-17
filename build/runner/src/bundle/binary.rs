@@ -46,7 +46,7 @@ pub fn build_bundle_binary() {
             .join("Toolchains/XcodeDefault.xctoolchain/usr/bin/ld-classic");
         if ld_classic.exists() {
             // work around XCode 15's default linker not supporting macOS 10.15-12.
-            command.env("RUSTFLAGS", &format!("-Clink-arg=-fuse-ld={ld_classic}"));
+            command.env("RUSTFLAGS", format!("-Clink-arg=-fuse-ld={ld_classic}"));
         }
     }
     run_command(&mut command);

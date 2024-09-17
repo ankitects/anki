@@ -19,6 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
+    import DateInput from "./DateInput.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -37,6 +38,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         historicalRetention: {
             title: tr.deckConfigHistoricalRetention(),
             help: tr.deckConfigHistoricalRetentionTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
+        ignoreRevlogsBeforeMs: {
+            title: tr.deckConfigIgnoreBefore(),
+            help: tr.deckConfigIgnoreBeforeTooltip2(),
             sched: HelpItemScheduler.FSRS,
         },
         startingEase: {
@@ -216,6 +222,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {tr.deckConfigHistoricalRetention()}
                 </SettingTitle>
             </SpinBoxFloatRow>
+
+            <Item>
+                <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
+                    <SettingTitle
+                        on:click={() =>
+                            openHelpModal(
+                                Object.keys(settings).indexOf("ignoreRevlogsBeforeMs"),
+                            )}
+                    >
+                        {tr.deckConfigIgnoreBefore()}
+                    </SettingTitle>
+                </DateInput>
+            </Item>
         {/if}
 
         <Item>

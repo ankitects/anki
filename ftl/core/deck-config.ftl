@@ -335,7 +335,7 @@ deck-config-which-deck = Which deck would you like to display options for?
 ## Messages related to the FSRS scheduler
 
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
-deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.
+deck-config-invalid-parameters = The provided FSRS parameters are invalid. Leave them blank to use the default parameters.
 deck-config-not-enough-history = Insufficient review history to perform this operation.
 deck-config-unable-to-determine-desired-retention =
     Unable to determine a minimum recommended retention.
@@ -512,3 +512,4 @@ deck-config-compute-optimal-retention-tooltip3 =
     time for a greater recall rate. Setting your desired retention lower than the minimum is not recommended, as it will 
     lead to a higher workload, because of the high forgetting rate.
 deck-config-seconds-to-show-question-tooltip-2 = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.
+deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.
