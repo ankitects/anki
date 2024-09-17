@@ -643,10 +643,9 @@ class StatusDelegate(QItemDelegate):
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
+        option.textElideMode = self._model.get_cell(index).elide_mode
         if self._model.get_cell(index).is_rtl:
             option.direction = Qt.LayoutDirection.RightToLeft
-        if self._model.column_at(index).key == "deck":
-            option.textElideMode = Qt.TextElideMode.ElideMiddle
         if row_color := self._model.get_row(index).color:
             brush = QBrush(theme_manager.qcolor(row_color))
             painter.save()

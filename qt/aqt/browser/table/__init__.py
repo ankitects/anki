@@ -35,8 +35,10 @@ class SearchContext:
 
 @dataclass
 class Cell:
-    text: str
-    is_rtl: bool
+    def __init__(self, text: str, is_rtl: bool, elide_mode: BrowserRow.Cell.TextElideMode.V) -> None:
+        self.text: str = text
+        self.is_rtl: bool = is_rtl
+        self.elide_mode: aqt.Qt.TextElideMode = backend_elide_mode_to_aqt_elide_mode(elide_mode)
 
 
 class CellRow:
@@ -61,7 +63,7 @@ class CellRow:
     @staticmethod
     def generic(length: int, cell_text: str) -> CellRow:
         return CellRow(
-            ((cell_text, False) for cell in range(length)),
+            ((cell_text, False, BrowserRow.Cell.ElideRight) for cell in range(length)),
             BrowserRow.COLOR_DEFAULT,
             "arial",
             12,
@@ -77,6 +79,14 @@ class CellRow:
         row.is_disabled = True
         return row
 
+def backend_elide_mode_to_aqt_elide_mode(elide_mode: BrowserRow.Cell.TextElideMode.V) -> aqt.Qt.TextElideMode:
+    if elide_mode == BrowserRow.Cell.ElideLeft:
+        return aqt.Qt.TextElideMode.ElideLeft
+    if elide_mode == BrowserRow.Cell.ElideMiddle:
+        return aqt.Qt.TextElideMode.ElideMiddle
+    if elide_mode == BrowserRow.Cell.ElideNone:
+        return aqt.Qt.TextElideMode.ElideNone
+    return aqt.Qt.TextElideMode.ElideRight
 
 def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | None:
     temp_color = None
