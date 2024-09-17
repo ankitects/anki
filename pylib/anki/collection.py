@@ -861,10 +861,10 @@ class Collection(DeprecatedNamesMixin):
 
     def browser_row_for_id(
         self, id_: int
-    ) -> tuple[Generator[tuple[str, bool], None, None], BrowserRow.Color.V, str, int]:
+    ) -> tuple[Generator[tuple[str, bool, BrowserRow.Cell.TextElideMode.V], None, None], BrowserRow.Color.V, str, int]:
         row = self._backend.browser_row_for_id(id_)
         return (
-            ((cell.text, cell.is_rtl) for cell in row.cells),
+            ((cell.text, cell.is_rtl, cell.elide_mode) for cell in row.cells),
             row.color,
             row.font_name,
             row.font_size,
