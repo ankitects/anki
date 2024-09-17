@@ -462,11 +462,14 @@ impl RowContext {
         }
     }
 
-    fn get_elide_mode(&self, column: Column) -> anki_proto::search::browser_row::cell::TextElideMode {
+    fn get_elide_mode(
+        &self,
+        column: Column,
+    ) -> anki_proto::search::browser_row::cell::TextElideMode {
         use anki_proto::search::browser_row::cell::TextElideMode;
         match column {
             Column::Deck => TextElideMode::ElideMiddle,
-            _ => TextElideMode::ElideRight
+            _ => TextElideMode::ElideRight,
         }
     }
 
