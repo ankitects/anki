@@ -93,8 +93,8 @@ impl SqliteStorage {
         let card = self.get_card(cid);
 
         if let Ok(Some(card)) = card {
-          let deck_id = card.deck_id;
 
+          let deck_id = card.deck_id;
           if entry.review_kind == RevlogReviewKind::Review {
               self.db
                   .execute_batch(&format!(
