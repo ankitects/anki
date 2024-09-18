@@ -93,10 +93,9 @@ impl SqliteStorage {
         let card = self.get_card(cid);
 
         if let Ok(Some(card)) = card {
-
-          let deck_id = card.deck_id;
-          if entry.review_kind == RevlogReviewKind::Review {
-              self.db
+            let deck_id = card.deck_id;
+            if entry.review_kind == RevlogReviewKind::Review {
+                self.db
                   .execute_batch(&format!(
                       concat!(
                           "insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
@@ -105,8 +104,8 @@ impl SqliteStorage {
                       deck_id, 0, deck_id
                   ))
                   .unwrap();
-          } else {
-              self.db
+            } else {
+                self.db
                   .execute_batch(&format!(
                       concat!(
                           "insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
@@ -115,7 +114,7 @@ impl SqliteStorage {
                       deck_id, 0, deck_id
                   ))
                   .unwrap();
-          }
+            }
         }
 
         Ok((added > 0).then(|| RevlogId(self.db.last_insert_rowid())))
