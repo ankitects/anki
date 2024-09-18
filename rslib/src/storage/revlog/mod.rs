@@ -90,29 +90,32 @@ impl SqliteStorage {
             ])?;
 
         let cid = entry.cid;
-        let card = self.get_card(cid)?.or_not_found(cid)?;
-        let deck_id = card.deck_id;
+        let card = self.get_card(cid);
 
-        if entry.review_kind == RevlogReviewKind::Review {
-            self.db
-                .execute_batch(&format!(
-                    concat!(
-                        "insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
-                        "update excess_reviews set reviews=reviews+1 where deck_id={}"
-                    ),
-                    deck_id, 0, deck_id
-                ))
-                .unwrap();
-        } else {
-            self.db
-                .execute_batch(&format!(
-                    concat!(
-                        "insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
-                        "update excess_reviews set reviews=0 where deck_id={}"
-                    ),
-                    deck_id, 0, deck_id
-                ))
-                .unwrap();
+        if let Ok(Some(card)) = card {
+          let deck_id = card.deck_id;
+
+          if entry.review_kind == RevlogReviewKind::Review {
+              self.db
+                  .execute_batch(&format!(
+                      concat!(
+                          "insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
+                          "update excess_reviews set reviews=reviews+1 where deck_id={}"
+                      ),
+                      deck_id, 0, deck_id
+                  ))
+                  .unwrap();
+          } else {
+              self.db
+                  .execute_batch(&format!(
+                      concat!(
+                          "insert or ignore into excess_reviews (deck_id, reviews) values ({}, {});",
+                          "update excess_reviews set reviews=0 where deck_id={}"
+                      ),
+                      deck_id, 0, deck_id
+                  ))
+                  .unwrap();
+          }
         }
 
         Ok((added > 0).then(|| RevlogId(self.db.last_insert_rowid())))
