@@ -18,6 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ReviewsGraph from "./ReviewsGraph.svelte";
     import StabilityGraph from "./StabilityGraph.svelte";
     import TodayStats from "./TodayStats.svelte";
+    import TrueRetention from "./TrueRetention.svelte";
 
     const graphs = [
         TodayStats,
@@ -33,6 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         HourGraph,
         ButtonsGraph,
         AddedGraph,
+        TrueRetention,
     ];
 </script>
 

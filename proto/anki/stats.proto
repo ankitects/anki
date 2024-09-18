@@ -145,6 +145,23 @@ message GraphsResponse {
     // Buried/suspended cards are counted separately.
     Counts excluding_inactive = 2;
   }
+  message TrueRetentionStats {
+    message TrueRetention {
+      uint32 young_passed = 1;
+      uint32 young_failed = 2;
+      uint32 mature_passed = 3;
+      uint32 mature_failed = 4;
+      uint32 learned = 5;
+      uint32 relearned = 6;
+    }
+
+    TrueRetention today = 1;
+    TrueRetention yesterday = 2;
+    TrueRetention week = 3;
+    TrueRetention month = 4;
+    TrueRetention year = 5;
+    TrueRetention all_time = 6;
+  }
 
   Buttons buttons = 1;
   CardCounts card_counts = 2;
@@ -160,6 +177,7 @@ message GraphsResponse {
   Retrievability retrievability = 12;
   bool fsrs = 13;
   Intervals stability = 14;
+  TrueRetentionStats true_retention = 15;
 }
 
 message GraphPreferences {
