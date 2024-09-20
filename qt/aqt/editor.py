@@ -49,6 +49,7 @@ from aqt.utils import (
     KeyboardModifiersPressed,
     disable_help_button,
     getFile,
+    openFolder,
     openHelp,
     qtMenuShortcutWorkaround,
     restoreGeom,
@@ -1608,10 +1609,13 @@ class EditorWebView(AnkiWebView):
         a = menu.addAction(tr.editing_copy_image())
         qconnect(a.triggered, self.on_copy_image)
 
+        url = webview.lastContextMenuRequest().mediaUrl()
+        file_name = url.fileName()
+        path = os.path.join(mw.col.media.dir(), file_name)
+        a = menu.addAction(tr.editing_open_image())
+        qconnect(a.triggered, lambda: openFolder(path))
+
         if is_win or is_mac:
-            url = webview.lastContextMenuRequest().mediaUrl()
-            file_name = url.fileName()
-            path = os.path.join(mw.col.media.dir(), file_name)
             a = menu.addAction(tr.editing_show_in_folder())
             qconnect(a.triggered, lambda: showinFolder(path))
 
