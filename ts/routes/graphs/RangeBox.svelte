@@ -87,6 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 	other clients e.g. AnkiDroid programmatically update this form -->
         <input
             type="text"
+            id="statisticsSearchText"
             bind:value={displayedSearch}
             on:change={updateSearch}
             on:focus={() => {
