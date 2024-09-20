@@ -83,8 +83,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {collection}
         </label>
 
-        <!-- This form is an external API and should not be changed -
-	other clients e.g. AnkiDroid programmatically update this form -->
+        <!-- This form is an external API and care should be taken when changed -
+	other clients e.g. AnkiDroid programmatically update this form by id -->
         <input
             type="text"
             id="statisticsSearchText"
