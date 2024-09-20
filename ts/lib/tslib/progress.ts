@@ -8,13 +8,19 @@ export async function runWithBackendProgress<T>(
     callback: () => Promise<T>,
     onUpdate: (progress: Progress) => void,
 ): Promise<T> {
-    const intervalId = setInterval(async () => {
+    let done = false;
+    async function progressCallback() {
         const progress = await latestProgress({});
         onUpdate(progress);
-    }, 100);
+        if (done) {
+            return;
+        }
+        setTimeout(progressCallback, 100);
+    }
+    setTimeout(progressCallback, 100);
     try {
         return await callback();
     } finally {
-        clearInterval(intervalId);
+        done = true;
     }
 }
