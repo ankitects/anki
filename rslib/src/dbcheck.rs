@@ -232,7 +232,7 @@ impl Collection {
             current: 0,
             total: total_notes as usize,
         })?;
-        for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
+        for (ntid, group) in &nids_by_notetype.into_iter().chunk_by(|tup| tup.0) {
             debug!("check notetype: {}", ntid);
             let mut group = group.peekable();
             let mut nt = match self.get_notetype(ntid)? {
@@ -394,7 +394,7 @@ impl Collection {
         let qfmt = basic.templates[0].config.q_format.clone();
         let afmt = basic.templates[0].config.a_format.clone();
         for n in 0..extra_cards_required {
-            basic.add_template(&format!("Card {}", n + 2), &qfmt, &afmt);
+            basic.add_template(format!("Card {}", n + 2), &qfmt, &afmt);
         }
         self.add_notetype(&mut basic, true)?;
         Ok(Arc::new(basic))

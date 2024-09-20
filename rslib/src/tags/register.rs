@@ -152,7 +152,7 @@ impl Collection {
 }
 
 fn invalid_char_for_tag(c: char) -> bool {
-    c.is_ascii_control() || is_tag_separator(c) || c == '"'
+    c.is_ascii_control() || is_tag_separator(c)
 }
 
 fn normalized_tag_name_component(comp: &str) -> Cow<str> {

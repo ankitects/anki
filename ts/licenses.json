@@ -5,21 +5,21 @@
         "path": "node_modules/@bufbuild/protobuf",
         "licenseFile": "node_modules/@bufbuild/protobuf/README.md"
     },
-    "@floating-ui/core@1.6.4": {
+    "@floating-ui/core@1.6.7": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/core",
         "licenseFile": "node_modules/@floating-ui/core/LICENSE"
     },
-    "@floating-ui/dom@1.6.7": {
+    "@floating-ui/dom@1.6.10": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/dom",
         "licenseFile": "node_modules/@floating-ui/dom/LICENSE"
     },
-    "@floating-ui/utils@0.2.4": {
+    "@floating-ui/utils@0.2.7": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
@@ -127,7 +127,7 @@
         "path": "node_modules/browser-process-hrtime",
         "licenseFile": "node_modules/browser-process-hrtime/LICENSE"
     },
-    "codemirror@5.65.16": {
+    "codemirror@5.65.17": {
         "licenses": "MIT",
         "repository": "https://github.com/codemirror/CodeMirror",
         "publisher": "Marijn Haverbeke",
@@ -398,7 +398,7 @@
         "path": "node_modules/data-urls",
         "licenseFile": "node_modules/data-urls/LICENSE.txt"
     },
-    "debug@4.3.5": {
+    "debug@4.3.6": {
         "licenses": "MIT",
         "repository": "https://github.com/debug-js/debug",
         "publisher": "Josh Junon",
@@ -466,7 +466,7 @@
         "path": "node_modules/esutils",
         "licenseFile": "node_modules/esutils/LICENSE.BSD"
     },
-    "fabric@5.3.0": {
+    "fabric@5.4.0": {
         "licenses": "MIT",
         "repository": "https://github.com/fabricjs/fabric.js",
         "publisher": "Juriy Zaytsev",
@@ -603,7 +603,7 @@
         "path": "node_modules/ms",
         "licenseFile": "node_modules/ms/license.md"
     },
-    "nwsapi@2.2.10": {
+    "nwsapi@2.2.12": {
         "licenses": "MIT",
         "repository": "https://github.com/dperini/nwsapi",
         "publisher": "Diego Perini",
