@@ -80,6 +80,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Andreas Klauer",
             "Andrew Wright",
             "Aristotelis P.",
+            "Ben Nguyen",
             "Bernhard Ibertsberger",
             "C. van Rooyen",
             "Cenaris Mori",
