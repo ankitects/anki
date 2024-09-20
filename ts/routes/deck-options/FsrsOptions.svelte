@@ -150,7 +150,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             )) ||
                         resp.weights.length === 0
                     ) {
-                        alert(tr.deckConfigFsrsParamsOptimal());
+                        setTimeout(() => alert(tr.deckConfigFsrsParamsOptimal()), 100);
                     }
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
