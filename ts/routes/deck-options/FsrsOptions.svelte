@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     $: computing = computingWeights || checkingWeights || computingRetention;
     $: defaultWeightSearch = `preset:"${state.getCurrentName()}" -is:suspended`;
-    $: roundedRetention = Number($config.desiredRetention.toFixed(2))
+    $: roundedRetention = Number($config.desiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
