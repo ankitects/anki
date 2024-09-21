@@ -320,5 +320,5 @@ export const isPointerInBoundingBox = (pointer): boolean => {
 
 export const getBoundingBox = () => {
     const canvas = globalThis.canvas;
-    return canvas.getObjects().find((obj) => obj.fill === "transparent");
+    return canvas.getObjects().find((obj) => obj.fill === "transparent").getBoundingRect(true);
 };
