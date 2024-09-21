@@ -10,8 +10,6 @@ interface TrueRetentionData {
     youngFailed: number;
     maturePassed: number;
     matureFailed: number;
-    learned: number;
-    relearned: number;
 }
 
 function calculateRetention(passed: number, failed: number): string {
@@ -41,8 +39,6 @@ function createStatsRow(name: string, data: TrueRetentionData): string {
             <td class="trr">${localizedNumber(totalPassed)}</td>
             <td class="trr">${localizedNumber(totalFailed)}</td>
             <td class="trr">${totalRetention}</td>
-            <td class="trr">${localizedNumber(data.learned)}</td>
-            <td class="trr">${localizedNumber(data.relearned)}</td>
         </tr>`;
 }
 
@@ -59,14 +55,11 @@ export function renderTrueRetention(data: GraphsResponse, revlogRange: RevlogRan
             <tr>
                 <td class="trl" rowspan=3><b>${tr.statisticsTrueRetentionRange()}</b></td>
                 <td class="trc" colspan=9><b>${tr.statisticsReviewsTitle()}</b></td>
-                <td class="trc" colspan=2 valign=middle><b>${tr.statisticsCountsTitle()}</b></td>
             </tr>
             <tr>
                 <td class="trc" colspan=3><b>${tr.statisticsCountsYoungCards()}</b></td>
                 <td class="trc" colspan=3><b>${tr.statisticsCountsMatureCards()}</b></td>
                 <td class="trc" colspan=3><b>${tr.statisticsCountsTotalCards()}</b></td>
-                <td class="trc" rowspan=2><b>${tr.statisticsCountsLearningCards()}</b></td>
-                <td class="trc" rowspan=2><b>${tr.statisticsCountsRelearningCards()}</b></td>
             </tr>
             <tr>
                 <td class="trc">${tr.statisticsTrueRetentionPass()}</td>
@@ -79,14 +72,14 @@ export function renderTrueRetention(data: GraphsResponse, revlogRange: RevlogRan
                 <td class="trc">${tr.statisticsTrueRetentionFail()}</td>
                 <td class="trc">${tr.statisticsTrueRetentionRetention()}</td>
             </tr>
-            ${createStatsRow(tr.statisticsTodayTitle(), trueRetention.today!)}
-            ${createStatsRow(tr.statisticsDaysAgoSingle({ days: 1 }), trueRetention.yesterday!)}
-            ${createStatsRow(tr.statisticsDaysAgoSingle({ days: 7 }), trueRetention.week!)}
-            ${createStatsRow(tr.statisticsDaysAgoSingle({ days: 30 }), trueRetention.month!)}
+            ${createStatsRow(tr.statisticsTrueRetentionToday(), trueRetention.today!)}
+            ${createStatsRow(tr.statisticsTrueRetentionYesterday(), trueRetention.yesterday!)}
+            ${createStatsRow(tr.statisticsTrueRetentionWeek(), trueRetention.week!)}
+            ${createStatsRow(tr.statisticsTrueRetentionMonth(), trueRetention.month!)}
             ${
         revlogRange === RevlogRange.Year
-            ? createStatsRow(tr.statisticsRange1YearHistory(), trueRetention.year!)
-            : createStatsRow(tr.statisticsRangeAllHistory(), trueRetention.allTime!)
+            ? createStatsRow(tr.statisticsTrueRetentionYear(), trueRetention.year!)
+            : createStatsRow(tr.statisticsTrueRetentionAllTime(), trueRetention.allTime!)
     }
         </table>`;
 

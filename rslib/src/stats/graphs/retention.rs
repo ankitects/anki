@@ -50,15 +50,10 @@ impl GraphsContext {
             .map(|(name, _, _)| (*name, TrueRetention::default()))
             .collect();
 
-        let mut period_learned_cards: HashMap<&str, HashMap<i64, bool>> = periods
-            .iter()
-            .map(|(name, _, _)| (*name, HashMap::new()))
-            .collect();
         for review in &self.revlog {
             for (period_name, start, end) in &periods {
                 if review.id.as_secs() >= *start && review.id.as_secs() < *end {
                     let period_stat = period_stats.get_mut(period_name).unwrap();
-                    let learned_cards = period_learned_cards.get_mut(period_name).unwrap();
                     const MATURE_IVL: i32 = 21; // mature interval is 21 days
 
                     match review.review_kind {
@@ -94,34 +89,11 @@ impl GraphsContext {
                             {
                                 period_stat.mature_passed += 1;
                             }
-
-                            if review.review_kind == RevlogReviewKind::Learning
-                                && (review.interval >= 1 || review.interval <= -86400)
-                            {
-                                learned_cards.insert(review.cid.into(), true);
-                            }
-
-                            if (review.review_kind == RevlogReviewKind::Relearning
-                                && (review.interval >= 1 || review.interval <= -86400)
-                                && review.last_interval > -86400
-                                && review.last_interval <= 0)
-                                || (review.review_kind == RevlogReviewKind::Learning
-                                    && (review.last_interval <= -86400
-                                        || review.last_interval >= 1)
-                                    && review.button_chosen == 1)
-                            {
-                                period_stat.relearned += 1;
-                            }
                         }
                         RevlogReviewKind::Filtered | RevlogReviewKind::Manual => {}
                     }
                 }
             }
-        }
-
-        // set learned value for each period
-        for (period_name, learned_cards) in &period_learned_cards {
-            period_stats.get_mut(period_name).unwrap().learned = learned_cards.len() as u32;
         }
 
         stats.today = Some(period_stats["today"].clone());

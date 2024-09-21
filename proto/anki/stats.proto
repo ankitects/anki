@@ -151,8 +151,6 @@ message GraphsResponse {
       uint32 young_failed = 2;
       uint32 mature_passed = 3;
       uint32 mature_failed = 4;
-      uint32 learned = 5;
-      uint32 relearned = 6;
     }
 
     TrueRetention today = 1;
