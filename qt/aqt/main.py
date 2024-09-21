@@ -80,6 +80,7 @@ from aqt.utils import (
     checkInvalidFilename,
     current_window,
     disallow_full_screen,
+    get_relative_file_modified_time,
     getFile,
     getOnlyText,
     openHelp,
@@ -424,32 +425,59 @@ class AnkiQt(QMainWindow):
         self.pm.remove(self.pm.name)
         self.refreshProfilesList()
 
-    def onOpenBackup(self) -> None:
-        if not askUser(
-            tr.qt_misc_replace_your_collection_with_an_earlier(),
-            msgfunc=QMessageBox.warning,
-            defaultno=True,
-        ):
-            return
+    def _handle_load_backup_success(self) -> None:
+        """
+        Actions that occur when profile backup has been loaded successfully
+        """
+        if self.state == "profileManager":
+            self.profileDiag.closeWithoutQuitting()
 
-        def doOpen(path: str) -> None:
-            self._openBackup(path)
+        self.loadProfile()
+
+    def _handle_load_backup_failure(self, error: Exception) -> None:
+        """
+        Actions that occur when a profile has loaded unsuccessfully
+        """
+        showWarning(str(error))
+        if self.state != "profileManager":
+            self.loadProfile()
+
+    def onOpenBackup(self) -> None:
+
+        def do_open(path: str) -> None:
+            if not askUser(
+                tr.qt_misc_replace_your_collection_with_an_earlier(
+                    get_relative_file_modified_time(path)
+                ),
+                msgfunc=QMessageBox.warning,
+                defaultno=True,
+            ):
+                return
+
+            showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
+
+            # Collection is still loaded if called from main window, so we unload. This is already
+            # unloaded if called from the ProfileManager window.
+            if self.col:
+                self.unloadProfile(lambda: self._start_restore_backup(path))
+                return
+
+            self._start_restore_backup(path)
 
         getFile(
-            self.profileDiag,
+            self.profileDiag if self.state == "profileManager" else self,
             tr.qt_misc_revert_to_backup(),
-            cb=doOpen,  # type: ignore
+            cb=do_open,  # type: ignore
             filter="*.colpkg",
             dir=self.pm.backupFolder(),
         )
 
-    def _openBackup(self, path: str) -> None:
+    def _start_restore_backup(self, path: str):
         self.restoring_backup = True
-        showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
 
         import_collection_package_op(
-            self, path, success=self.onOpenProfile
-        ).run_in_background()
+            self, path, success=self._handle_load_backup_success
+        ).failure(self._handle_load_backup_failure).run_in_background()
 
     def _on_downgrade(self) -> None:
         self.progress.start()
@@ -1349,6 +1377,7 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionImport.triggered, self.onImport)
         qconnect(m.actionExport.triggered, self.onExport)
         qconnect(m.action_create_backup.triggered, self.on_create_backup_now)
+        qconnect(m.action_open_backup.triggered, self.onOpenBackup)
         qconnect(m.actionExit.triggered, self.close)
 
         # Help
