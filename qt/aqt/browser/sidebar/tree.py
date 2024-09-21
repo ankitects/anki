@@ -459,9 +459,6 @@ class SidebarTreeView(QTreeView):
             if self._enable_delete(item):
                 self._on_delete(item)
 
-    def _enable_add(self, item: SidebarItem) -> bool:
-        return item.item_type.can_be_added_to()
-
     def _enable_delete(self, item: SidebarItem) -> bool:
         return item.item_type.is_deletable() and all(
             s.item_type == item.item_type for s in self._selected_items()
@@ -940,7 +937,7 @@ class SidebarTreeView(QTreeView):
                 )
 
     def _maybe_add_add_action(self, menu: QMenu, item: SidebarItem) -> None:
-        if self._enable_add(item):
+        if item.item_type.can_be_added_to():
             menu.addAction(tr.browsing_add_notes(), lambda: self._on_add(item))
 
     def _maybe_add_delete_action(

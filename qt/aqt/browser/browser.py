@@ -252,16 +252,6 @@ class Browser(QMainWindow):
 
         QMainWindow.resizeEvent(self, event)
 
-    def get_active_deck_id(self) -> DeckId | None:
-        """
-        Returns the first index of the decks selected on the sidebar
-        """
-        selected_decks = self.sidebar._selected_decks()
-        if len(selected_decks) > 0:
-            return selected_decks[0]
-
-        return None
-
     def get_active_note_type_id(self) -> NotetypeId | None:
         """
         If multiple cards are selected the note type will be derived
@@ -272,12 +262,9 @@ class Browser(QMainWindow):
 
         return None
 
-    def add_card(self, deck_id: DeckId | None):
+    def add_card(self, deck_id: DeckId):
         add_cards = cast(AddCards, aqt.dialogs.open("AddCards", self.mw))
-
-        deck_id = deck_id or self.get_active_deck_id()
-        if deck_id is not None:
-            add_cards.set_deck(deck_id)
+        add_cards.set_deck(deck_id)
 
         if note_type_id := self.get_active_note_type_id():
             add_cards.set_note_type(note_type_id)
