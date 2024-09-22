@@ -292,6 +292,10 @@ export class DeckOptionsState {
         });
         return list;
     }
+
+    isModified(): boolean {
+        return this.removedConfigs.length > 0 || this.modifiedConfigs.size > 0;
+    }
 }
 
 function bytesToObject(bytes: Uint8Array): Record<string, unknown> {

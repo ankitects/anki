@@ -7,7 +7,7 @@ import json
 import math
 import re
 from collections.abc import Callable, Sequence
-from typing import Any
+from typing import Any, cast
 
 import aqt
 import aqt.browser
@@ -18,8 +18,10 @@ from anki._legacy import deprecated
 from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
+from anki.decks import DeckId
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
+from anki.models import NotetypeId
 from anki.notes import NoteId
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
@@ -72,6 +74,7 @@ from aqt.utils import (
     tr,
 )
 
+from ..addcards import AddCards
 from ..changenotetype import change_notetype_dialog
 from .card_info import BrowserCardInfo
 from .find_and_replace import FindAndReplaceDialog
@@ -248,6 +251,23 @@ class Browser(QMainWindow):
             self.aspect_ratio = aspect_ratio
 
         QMainWindow.resizeEvent(self, event)
+
+    def get_active_note_type_id(self) -> NotetypeId | None:
+        """
+        If multiple cards are selected the note type will be derived
+        from the final card selected
+        """
+        if current_note := self.table.get_current_note():
+            return current_note.mid
+
+        return None
+
+    def add_card(self, deck_id: DeckId):
+        add_cards = cast(AddCards, aqt.dialogs.open("AddCards", self.mw))
+        add_cards.set_deck(deck_id)
+
+        if note_type_id := self.get_active_note_type_id():
+            add_cards.set_note_type(note_type_id)
 
     def setupMenus(self) -> None:
         # actions

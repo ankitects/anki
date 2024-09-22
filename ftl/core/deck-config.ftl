@@ -423,7 +423,7 @@ deck-config-compute-optimal-retention-tooltip4 =
     This tool will attempt to find the desired retention value 
     that will lead to the most material learnt, in the least amount of time. The calculated number can serve as a reference
     when deciding what to set your desired retention to. You may wish to choose a higher desired retention, if you’re 
-    willing to trade more study time for a greater recall rate. Setting your desired retention lower than the minimum
+    willing to trade more study time for a greater retention rate. Setting your desired retention lower than the minimum
     is not recommended, as it will lead to a higher workload, because of the high forgetting rate.
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-a-100-day-interval = 
