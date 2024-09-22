@@ -87,7 +87,7 @@ statistics-counts-relearning-cards = Relearning
 statistics-counts-title = Card Counts
 statistics-counts-separate-suspended-buried-cards = Separate suspended/buried cards
 statistics-true-retention-title = True Retention
-statistics-true-retention-subtitle = Pass rate of cards with an interval >= 1 day.
+statistics-true-retention-subtitle = Pass rate of cards with an interval ≥ 1 day.
 statistics-true-retention-range = Range
 statistics-true-retention-pass = Pass
 statistics-true-retention-fail = Fail
