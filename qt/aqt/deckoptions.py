@@ -108,9 +108,7 @@ class DeckOptionsDialog(QDialog):
     def has_modified_data(self, callback: Callable[[bool], None]):
         """Calls `callback` with the information of whether any deck options are modified."""
         if self.ready:
-            self.web.evalWithCallback(
-                "anki.deckOptionsPendingChanges()", callback
-            )
+            self.web.evalWithCallback("anki.deckOptionsPendingChanges()", callback)
         else:
             callback(False)
 
