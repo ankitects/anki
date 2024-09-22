@@ -3,7 +3,6 @@
 
 use std::borrow::Cow;
 
-use difflib::sequencematcher::Opcode;
 use difflib::sequencematcher::SequenceMatcher;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -83,8 +82,8 @@ impl Diff {
         let mut expected_tokens = Vec::new();
 
         for opcode in matcher.get_opcodes() {
-            let provided_slice = self.slice_provided(&opcode);
-            let expected_slice = self.slice_expected(&opcode);
+            let provided_slice = slice(&self.provided, opcode.first_start, opcode.first_end);
+            let expected_slice = slice(&self.expected, opcode.second_start, opcode.second_end);
 
             match opcode.tag.as_str() {
                 "equal" => {
@@ -110,18 +109,10 @@ impl Diff {
             expected_tokens,
         }
     }
-
-    // Utility Functions
-    fn slice_expected(&self, opcode: &Opcode) -> String {
-        get_slice(&self.expected, opcode.second_start, opcode.second_end)
-    }
-
-    fn slice_provided(&self, opcode: &Opcode) -> String {
-        get_slice(&self.provided, opcode.first_start, opcode.first_end)
-    }
 }
 
-fn get_slice(chars: &[char], start: usize, end: usize) -> String {
+// Utility Functions
+fn slice(chars: &[char], start: usize, end: usize) -> String {
     chars[start..end].iter().collect()
 }
 
