@@ -133,16 +133,13 @@ fn prepare_expected(expected: &str) -> String {
 
 // Render Functions
 fn render_tokens(tokens: &[DiffToken]) -> String {
-    tokens
-        .iter()
-        .map(|token| {
-            let isolated_text = isolate_leading_mark(&token.text);
-            let encoded_text = htmlescape::encode_minimal(&isolated_text);
-            let class = token.to_class();
-            format!("<span class={class}>{encoded_text}</span>")
-        })
-        .collect::<Vec<_>>()
-        .concat()
+    tokens.iter().fold(String::new(), |mut acc, token| {
+        let isolated_text = isolate_leading_mark(&token.text);
+        let encoded_text = htmlescape::encode_minimal(&isolated_text);
+        let class = token.to_class();
+        acc.push_str(&format!("<span class={class}>{encoded_text}</span>"));
+        acc
+    })
 }
 
 /// Prefixes a leading mark character with a non-breaking space to prevent
