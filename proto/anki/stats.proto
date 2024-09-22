@@ -79,6 +79,7 @@ message GraphsResponse {
   message Retrievability {
     map<uint32, uint32> retrievability = 1;
     float average = 2;
+    float sum = 3;
   }
   message FutureDue {
     map<int32, uint32> future_due = 1;
