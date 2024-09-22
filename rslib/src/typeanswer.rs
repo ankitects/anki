@@ -45,6 +45,7 @@ pub fn compare_answer(expected: &str, provided: &str) -> String {
 struct Diff {
     provided: Vec<char>,
     expected: Vec<char>,
+    expected_original: String,
 }
 
 impl Diff {
@@ -54,19 +55,26 @@ impl Diff {
             expected: normalize_to_nfc(&prepare_expected(expected))
                 .chars()
                 .collect(),
+            expected_original: expected.to_string(),
         }
     }
 
     // Entry Point
     fn to_html(&self) -> String {
-        let output = self.to_tokens();
-        let provided_html = render_tokens(&output.provided_tokens);
-        let expected_html = render_tokens(&output.expected_tokens);
-        format_typeans!(if self.provided == self.expected {
-            provided_html
+        if self.provided == self.expected {
+            format_typeans!(format!(
+                "<span class=typeGood>{}</span>",
+                self.expected_original
+            ))
         } else {
-            format!("{provided_html}<br><span id=typearrow>&darr;</span><br>{expected_html}")
-        })
+            let output = self.to_tokens();
+            let provided_html = render_tokens(&output.provided_tokens);
+            let expected_html = render_tokens(&output.expected_tokens);
+
+            format_typeans!(format!(
+                "{provided_html}<br><span id=typearrow>&darr;</span><br>{expected_html}"
+            ))
+        }
     }
 
     fn to_tokens(&self) -> DiffTokens {
