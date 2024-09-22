@@ -11,6 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let data: PageData;
     let page: DeckOptionsPage;
 
+    globalThis.anki ||= {};
+    globalThis.anki.deckOptionsPendingChanges = () => {
+        return data.state.isModified();
+    };
     onMount(() => {
         globalThis.$deckOptions = new Promise((resolve, _reject) => {
             resolve(page);
