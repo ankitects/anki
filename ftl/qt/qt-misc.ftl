@@ -38,9 +38,6 @@ qt-misc-please-select-1-card = (please select 1 card)
 qt-misc-please-select-a-deck = Please select a deck.
 qt-misc-please-use-fileimport-to-import-this = Please use File>Import to import this file.
 qt-misc-processing = Processing...
-qt-misc-just-now = just now
-qt-misc-unspecified-time = an unspecified time in the past
-qt-misc-ago = ago
 qt-misc-replace-your-collection-with-an-earlier = Replace your collection with an earlier backup from { $val }?
 qt-misc-revert-to-backup = Revert to backup
 # please do not change the quote character, and please only change the font name if you have confirmed the new name is a valid Windows font

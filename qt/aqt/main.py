@@ -80,7 +80,6 @@ from aqt.utils import (
     checkInvalidFilename,
     current_window,
     disallow_full_screen,
-    get_relative_file_modified_time,
     getFile,
     getOnlyText,
     openHelp,
@@ -447,7 +446,7 @@ class AnkiQt(QMainWindow):
         def do_open(path: str) -> None:
             if not askUser(
                 tr.qt_misc_replace_your_collection_with_an_earlier(
-                    get_relative_file_modified_time(path)
+                    os.path.basename(path)
                 ),
                 msgfunc=QMessageBox.warning,
                 defaultno=True,

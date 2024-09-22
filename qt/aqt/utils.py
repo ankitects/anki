@@ -10,7 +10,6 @@ import shutil
 import subprocess
 import sys
 from collections.abc import Callable, Sequence
-from datetime import datetime
 from functools import partial, wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Union
@@ -609,36 +608,6 @@ def setWindowIcon(widget: QWidget) -> None:
 
 # File handling
 ######################################################################
-
-
-def get_relative_file_modified_time(file_path: str) -> str:
-    """
-    Provided a full file path, return relative file time such as:
-     - Normal files: `2 hours ago`, `5 minutes ago`, `1 day ago`
-     - Non-existant files: `an unspecified time in the past`
-     - Just created: `just now`
-    """
-    if not os.path.exists(file_path):
-        return tr.qt_misc_unspecified_time()
-
-    units = [
-        (tr.scheduling_time_span_years, 31556952),
-        (tr.scheduling_time_span_months, 2678400),
-        (tr.scheduling_time_span_days, 86400),
-        (tr.scheduling_time_span_hours, 3600),
-        (tr.scheduling_time_span_minutes, 60),
-        (tr.scheduling_time_span_seconds, 1),
-    ]
-
-    modified_time = os.path.getmtime(file_path)
-    modified_since = datetime.now().timestamp() - modified_time
-
-    for name, seconds in units:
-        if modified_since > seconds:
-            converted_time = int(modified_since // seconds)
-            return f"{name(converted_time)} {tr.qt_misc_ago()}"
-
-    return tr.qt_misc_just_now()
 
 
 def getFile(
