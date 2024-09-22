@@ -109,7 +109,7 @@ class DeckOptionsDialog(QDialog):
         """Calls `callback` with the information of whether any deck options are modified."""
         if self.ready:
             self.web.evalWithCallback(
-                "globalThis.anki.deckOptionsPendingChanges()", callback
+                "anki.deckOptionsPendingChanges()", callback
             )
         else:
             callback(False)
