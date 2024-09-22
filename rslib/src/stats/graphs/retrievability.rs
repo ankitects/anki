@@ -29,13 +29,13 @@ impl GraphsContext {
                     .retrievability
                     .entry(percent_to_bin(r * 100.0))
                     .or_insert_with(Default::default) += 1;
-                retrievability.average += r;
+                retrievability.sum += r;
                 card_with_retrievability_count += 1;
             }
         }
         if card_with_retrievability_count != 0 {
             retrievability.average =
-                retrievability.average * 100.0 / card_with_retrievability_count as f32;
+                retrievability.sum * 100.0 / card_with_retrievability_count as f32;
         }
 
         retrievability
