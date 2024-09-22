@@ -27,9 +27,19 @@ static LINEBREAKS: Lazy<Regex> = Lazy::new(|| {
     .unwrap()
 });
 
+macro_rules! format_typeans {
+    ($typeans:expr) => {
+        format!("<code id=typeans>{}</code>", $typeans)
+    };
+}
+
 // Public API
 pub fn compare_answer(expected: &str, provided: &str) -> String {
-    Diff::new(expected, provided).to_html()
+    if provided.is_empty() {
+        format_typeans!(htmlescape::encode_minimal(expected))
+    } else {
+        Diff::new(expected, provided).to_html()
+    }
 }
 
 struct Diff {
@@ -52,16 +62,11 @@ impl Diff {
         let output = self.to_tokens();
         let provided_html = render_tokens(&output.provided_tokens);
         let expected_html = render_tokens(&output.expected_tokens);
-        format!(
-            "<code id=typeans>{}</code>",
-            if self.provided.is_empty() {
-                htmlescape::encode_minimal(&self.expected.iter().collect::<String>())
-            } else if self.provided == self.expected {
-                provided_html
-            } else {
-                format!("{provided_html}<br><span id=typearrow>&darr;</span><br>{expected_html}")
-            }
-        )
+        format_typeans!(if self.provided == self.expected {
+            provided_html
+        } else {
+            format!("{provided_html}<br><span id=typearrow>&darr;</span><br>{expected_html}")
+        })
     }
 
     fn to_tokens(&self) -> DiffTokens {
@@ -290,8 +295,8 @@ mod test {
 
     #[test]
     fn empty_input_shows_as_code() {
-        let ctx = Diff::new("123", "");
-        assert_eq!(ctx.to_html(), "<code id=typeans>123</code>");
+        let ctx = compare_answer("123", "");
+        assert_eq!(ctx, "<code id=typeans>123</code>");
     }
 
     #[test]
