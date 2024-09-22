@@ -27,6 +27,11 @@ static LINEBREAKS: Lazy<Regex> = Lazy::new(|| {
     .unwrap()
 });
 
+// Public API
+pub fn compare_answer(expected: &str, provided: &str) -> String {
+    Diff::new(expected, provided).to_html()
+}
+
 struct Diff {
     provided: Vec<char>,
     expected: Vec<char>,
@@ -42,51 +47,7 @@ impl Diff {
         }
     }
 
-    fn get_slice(&self, chars: &[char], start: usize, end: usize) -> String {
-        chars[start..end].iter().collect()
-    }
-
-    fn slice_expected(&self, opcode: &Opcode) -> String {
-        self.get_slice(&self.expected, opcode.second_start, opcode.second_end)
-    }
-
-    fn slice_provided(&self, opcode: &Opcode) -> String {
-        self.get_slice(&self.provided, opcode.first_start, opcode.first_end)
-    }
-
-    fn to_tokens(&self) -> DiffTokens {
-        let mut matcher = SequenceMatcher::new(&self.provided, &self.expected);
-        let mut provided_tokens = Vec::new();
-        let mut expected_tokens = Vec::new();
-
-        for opcode in matcher.get_opcodes() {
-            match opcode.tag.as_str() {
-                "equal" => {
-                    provided_tokens.push(DiffToken::good(self.slice_provided(&opcode)));
-                    expected_tokens.push(DiffToken::good(self.slice_expected(&opcode)));
-                }
-                "delete" => {
-                    provided_tokens.push(DiffToken::bad(self.slice_provided(&opcode)));
-                }
-                "insert" => {
-                    let expected_str = self.slice_expected(&opcode);
-                    provided_tokens
-                        .push(DiffToken::missing("-".repeat(expected_str.chars().count())));
-                    expected_tokens.push(DiffToken::missing(expected_str));
-                }
-                "replace" => {
-                    provided_tokens.push(DiffToken::bad(self.slice_provided(&opcode)));
-                    expected_tokens.push(DiffToken::missing(self.slice_expected(&opcode)));
-                }
-                _ => unreachable!(),
-            }
-        }
-        DiffTokens {
-            provided_tokens,
-            expected_tokens,
-        }
-    }
-
+    // Entry Point
     fn to_html(&self) -> String {
         let output = self.to_tokens();
         let provided_html = render_tokens(&output.provided_tokens);
@@ -102,12 +63,93 @@ impl Diff {
             }
         )
     }
+
+    fn to_tokens(&self) -> DiffTokens {
+        let mut matcher = SequenceMatcher::new(&self.provided, &self.expected);
+        let mut provided_tokens = Vec::new();
+        let mut expected_tokens = Vec::new();
+
+        for opcode in matcher.get_opcodes() {
+            let provided_slice = self.slice_provided(&opcode);
+            let expected_slice = self.slice_expected(&opcode);
+
+            match opcode.tag.as_str() {
+                "equal" => {
+                    provided_tokens.push(DiffToken::good(provided_slice));
+                    expected_tokens.push(DiffToken::good(expected_slice));
+                }
+                "delete" => provided_tokens.push(DiffToken::bad(provided_slice)),
+                "insert" => {
+                    provided_tokens.push(DiffToken::missing(
+                        "-".repeat(expected_slice.chars().count()),
+                    ));
+                    expected_tokens.push(DiffToken::missing(expected_slice));
+                }
+                "replace" => {
+                    provided_tokens.push(DiffToken::bad(provided_slice));
+                    expected_tokens.push(DiffToken::missing(expected_slice));
+                }
+                _ => unreachable!(),
+            }
+        }
+        DiffTokens {
+            provided_tokens,
+            expected_tokens,
+        }
+    }
+
+    // Utility Functions
+    fn slice_expected(&self, opcode: &Opcode) -> String {
+        get_slice(&self.expected, opcode.second_start, opcode.second_end)
+    }
+
+    fn slice_provided(&self, opcode: &Opcode) -> String {
+        get_slice(&self.provided, opcode.first_start, opcode.first_end)
+    }
+}
+
+fn get_slice(chars: &[char], start: usize, end: usize) -> String {
+    chars[start..end].iter().collect()
 }
 
 fn prepare_expected(expected: &str) -> String {
     let no_av_tags = strip_av_tags(expected);
     let no_linebreaks = LINEBREAKS.replace_all(&no_av_tags, " ");
     strip_html(&no_linebreaks).trim().to_string()
+}
+
+// Render Functions
+fn render_tokens(tokens: &[DiffToken]) -> String {
+    tokens
+        .iter()
+        .map(|token| {
+            let isolated_text = isolate_leading_mark(&token.text);
+            let encoded_text = htmlescape::encode_minimal(&isolated_text);
+            let class = token.to_class();
+            format!("<span class={class}>{encoded_text}</span>")
+        })
+        .collect::<Vec<_>>()
+        .concat()
+}
+
+/// Prefixes a leading mark character with a non-breaking space to prevent
+/// it from joining the previous token.
+fn isolate_leading_mark(text: &str) -> Cow<str> {
+    if text
+        .chars()
+        .next()
+        .map_or(false, |ch| GeneralCategory::of(ch).is_mark())
+    {
+        format!("\u{a0}{text}").into()
+    } else {
+        text.into()
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct DiffTokens {
+    provided_tokens: Vec<DiffToken>,
+    expected_tokens: Vec<DiffToken>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -139,49 +181,13 @@ impl DiffToken {
     fn missing(text: String) -> Self {
         Self::new(DiffTokenKind::Missing, text)
     }
+
     fn to_class(&self) -> &'static str {
         match self.kind {
             DiffTokenKind::Good => "typeGood",
             DiffTokenKind::Bad => "typeBad",
             DiffTokenKind::Missing => "typeMissed",
         }
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct DiffTokens {
-    provided_tokens: Vec<DiffToken>,
-    expected_tokens: Vec<DiffToken>,
-}
-
-pub fn compare_answer(expected: &str, provided: &str) -> String {
-    Diff::new(expected, provided).to_html()
-}
-
-fn render_tokens(tokens: &[DiffToken]) -> String {
-    tokens
-        .iter()
-        .map(|token| {
-            let isolated_text = isolate_leading_mark(&token.text);
-            let encoded_text = htmlescape::encode_minimal(&isolated_text);
-            let class = token.to_class();
-            format!("<span class={class}>{encoded_text}</span>")
-        })
-        .collect::<Vec<_>>()
-        .concat()
-}
-
-/// Prefixes a leading mark character with a non-breaking space to prevent it
-/// from joining the previous token.
-fn isolate_leading_mark(text: &str) -> Cow<str> {
-    if text
-        .chars()
-        .next()
-        .map_or(false, |ch| GeneralCategory::of(ch).is_mark())
-    {
-        format!("\u{a0}{text}").into()
-    } else {
-        text.into()
     }
 }
 
