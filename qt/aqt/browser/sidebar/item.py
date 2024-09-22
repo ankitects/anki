@@ -48,6 +48,9 @@ class SidebarItemType(Enum):
             SidebarItemType.TAG,
         )
 
+    def can_be_added_to(self) -> bool:
+        return self == SidebarItemType.DECK
+
     def is_deletable(self) -> bool:
         return self in (
             SidebarItemType.SAVED_SEARCH,
