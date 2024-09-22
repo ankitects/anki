@@ -21,6 +21,7 @@ from anki._legacy import DeprecatedNamesMixinForModule
 from anki.collection import Collection, HelpPage
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
 from anki.utils import (
+    call,
     invalid_filename,
     is_mac,
     is_win,
@@ -883,6 +884,33 @@ def openFolder(path: str) -> None:
     else:
         with no_bundled_libs():
             QDesktopServices.openUrl(QUrl(f"file://{path}"))
+
+
+def showinFolder(path: str) -> None:
+    if is_win:
+        call(["explorer", "/select,", f"file://{path}"])
+    elif is_mac:
+        script = f"""
+        tell application "Finder"
+            activate
+            select POSIX file '{path}'
+        end tell
+        """
+        call(osascript_to_args(script))
+    else:
+        # Just open the file in any other platform
+        with no_bundled_libs():
+            QDesktopServices.openUrl(QUrl(f"file://{path}"))
+
+
+def osascript_to_args(script: str):
+    args = [
+        item
+        for line in script.splitlines()
+        for item in ("-e", line.strip())
+        if line.strip()
+    ]
+    return ["osascript"] + args
 
 
 def shortcut(key: str) -> str:

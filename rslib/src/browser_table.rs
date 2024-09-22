@@ -413,6 +413,7 @@ impl RowContext {
         Ok(anki_proto::search::browser_row::Cell {
             text: self.get_cell_text(column)?,
             is_rtl: self.get_is_rtl(column),
+            elide_mode: self.get_elide_mode(column) as i32,
         })
     }
 
@@ -458,6 +459,17 @@ impl RowContext {
                 self.notetype.fields[index].config.rtl
             }
             _ => false,
+        }
+    }
+
+    fn get_elide_mode(
+        &self,
+        column: Column,
+    ) -> anki_proto::search::browser_row::cell::TextElideMode {
+        use anki_proto::search::browser_row::cell::TextElideMode;
+        match column {
+            Column::Deck => TextElideMode::ElideMiddle,
+            _ => TextElideMode::ElideRight,
         }
     }
 

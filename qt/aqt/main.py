@@ -529,8 +529,8 @@ class AnkiQt(QMainWindow):
             )
 
         refresh_reviewer_on_day_rollover_change()
-        self.maybe_auto_sync_on_open_close(_onsuccess)
         gui_hooks.profile_did_open()
+        self.maybe_auto_sync_on_open_close(_onsuccess)
 
     def unloadProfile(self, onsuccess: Callable) -> None:
         def callback() -> None:
