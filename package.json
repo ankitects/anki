@@ -20,7 +20,7 @@
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
         "@sveltejs/kit": "^2.4.1",
-        "@sveltejs/vite-plugin-svelte": "^3.0.0",
+        "@sveltejs/vite-plugin-svelte": "4.0.0-next.7",
         "@types/bootstrap": "^5.0.12",
         "@types/codemirror": "^5.60.0",
         "@types/d3": "^7.0.0",
@@ -55,7 +55,7 @@
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
         "typescript": "^5.0.4",
-        "vite": "=5.0.13",
+        "vite": "=5.4.7",
         "vitest": "^1.2.1"
     },
     "dependencies": {
@@ -80,7 +80,7 @@
     },
     "resolutions": {
         "canvas": "npm:empty-npm-package",
-        "vite": "=5.0.13"
+        "vite": "=5.4.7"
     },
     "browserslist": [
         "defaults",
