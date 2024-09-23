@@ -8,6 +8,7 @@ mod eases;
 mod future_due;
 mod hours;
 mod intervals;
+mod retention;
 mod retrievability;
 mod reviews;
 mod today;
@@ -65,6 +66,7 @@ impl Collection {
         let resp = anki_proto::stats::GraphsResponse {
             added: Some(ctx.added_days()),
             reviews: Some(ctx.review_counts_and_times()),
+            true_retention: Some(ctx.calculate_true_retention()),
             future_due: Some(ctx.future_due()),
             intervals: Some(ctx.intervals()),
             stability: Some(ctx.stability()),

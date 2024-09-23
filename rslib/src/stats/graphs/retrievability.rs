@@ -12,6 +12,7 @@ impl GraphsContext {
     /// (SM-2, FSRS)
     pub(super) fn retrievability(&self) -> Retrievability {
         let mut retrievability = Retrievability::default();
+        let mut card_with_retrievability_count: usize = 0;
         let timing = SchedTimingToday {
             days_elapsed: self.days_elapsed,
             now: Default::default(),
@@ -28,8 +29,15 @@ impl GraphsContext {
                     .retrievability
                     .entry(percent_to_bin(r * 100.0))
                     .or_insert_with(Default::default) += 1;
+                retrievability.sum += r;
+                card_with_retrievability_count += 1;
             }
         }
+        if card_with_retrievability_count != 0 {
+            retrievability.average =
+                retrievability.sum * 100.0 / card_with_retrievability_count as f32;
+        }
+
         retrievability
     }
 }

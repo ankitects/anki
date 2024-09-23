@@ -17,10 +17,16 @@ import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
     retrievability: Map<number, number>;
+    average: number;
+    sum: number;
 }
 
 export function gatherData(data: GraphsResponse): GraphData {
-    return { retrievability: numericMap(data.retrievability!.retrievability) };
+    return {
+        retrievability: numericMap(data.retrievability!.retrievability),
+        average: data.retrievability!.average,
+        sum: data.retrievability!.sum,
+    };
 }
 
 function makeQuery(start: number, end: number): string {
@@ -101,7 +107,11 @@ export function prepareData(
     const tableData = [
         {
             label: tr.statisticsAverageRetrievability(),
-            value: xTickFormat(sum(Array.from(allEases.entries()).map(([k, v]) => (k + 2.5) * v)) / total),
+            value: xTickFormat(data.average),
+        },
+        {
+            label: tr.statisticsEstimatedTotalKnowledge(),
+            value: tr.statisticsCards({ cards: data.sum }),
         },
     ];
 

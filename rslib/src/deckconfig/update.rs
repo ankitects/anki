@@ -159,11 +159,6 @@ impl Collection {
 
         // add/update provided configs
         for conf in &mut req.configs {
-            // we can remove this once https://github.com/open-spaced-repetition/fsrs-rs/pull/217/files
-            // makes it into an FSRS release
-            if conf.inner.fsrs_weights.iter().any(|&w| !w.is_finite()) {
-                return Err(AnkiError::FsrsWeightsInvalid);
-            }
             // check the provided parameters are valid before we save them
             FSRS::new(Some(&conf.inner.fsrs_weights))?;
             self.add_or_update_deck_config(conf)?;

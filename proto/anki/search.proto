@@ -173,8 +173,16 @@ message BrowserColumns {
 
 message BrowserRow {
   message Cell {
+    enum TextElideMode {
+      ElideLeft = 0;
+      ElideRight = 1;
+      ElideMiddle = 2;
+      ElideNone = 3;
+    }
+
     string text = 1;
     bool is_rtl = 2;
+    TextElideMode elide_mode = 3;
   }
   enum Color {
     COLOR_DEFAULT = 0;
