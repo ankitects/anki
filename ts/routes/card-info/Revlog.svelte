@@ -54,10 +54,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         interval: string;
         ease: string;
         takenSecs: string;
+        elapsedTime: string;
     }
 
-    function revlogRowFromEntry(entry: RevlogEntry): RevlogRow {
+    function revlogRowFromEntry(entry: RevlogEntry, prevEntry?: RevlogEntry): RevlogRow {
         const timestamp = new Timestamp(Number(entry.time));
+        const elapsedTime = prevEntry
+            ? timeSpan(Number(entry.time) - Number(prevEntry.time))
+            : "0";
 
         return {
             date: timestamp.dateString(),
@@ -69,10 +73,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             interval: timeSpan(entry.interval),
             ease: formatEaseOrDifficulty(entry.ease),
             takenSecs: timeSpan(entry.takenSecs, true),
+            elapsedTime,
         };
     }
 
-    $: revlogRows = revlog.map(revlogRowFromEntry);
+    $: revlogRows = revlog.map((entry, index) => 
+        revlogRowFromEntry(entry, index < revlog.length - 1 ? revlog[index + 1] : undefined)
+    );
 
     function formatEaseOrDifficulty(ease: number): string {
         if (ease === 0) {
@@ -142,6 +149,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <div class="column-content right">
                 {#each revlogRows as row, _index}
                     <div>{row.takenSecs}</div>
+                {/each}
+            </div>
+        </div>
+        <div class="column">
+            <div class="column-head">Elapsed Time</div>
+            <div class="column-content right">
+                {#each revlogRows as row, _index}
+                    <div>{row.elapsedTime}</div>
                 {/each}
             </div>
         </div>
