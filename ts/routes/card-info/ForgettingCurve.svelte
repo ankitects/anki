@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function prepareData() {
-        let data: DataPoint[] = [];
+        const data: DataPoint[] = [];
         let lastReviewTime = 0;
         let lastStability = 0;
 
