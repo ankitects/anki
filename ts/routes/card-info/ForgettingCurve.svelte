@@ -5,11 +5,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { CardStatsResponse_StatsRevlogEntry as RevlogEntry } from "@generated/anki/stats_pb";
     import { axisBottom, axisLeft, line, max, min, scaleLinear, select } from "d3";
-    import { onMount } from "svelte";
     import { defaultGraphBounds, setDataAvailable } from "../graphs/graph-helpers";
     import Graph from "../graphs/Graph.svelte";
     import NoDataOverlay from "../graphs/NoDataOverlay.svelte";
     import AxisTicks from "../graphs/AxisTicks.svelte";
+    import { writable } from "svelte/store";
+    import InputBox from "../graphs/InputBox.svelte";
 
     export let revlog: RevlogEntry[];
     let svg = null as HTMLElement | SVGElement | null;
@@ -27,12 +28,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         retrievability: number;
     }
 
-    function prepareData() {
+    enum TimeRange {
+        Week,
+        Month,
+        Year,
+        AllTime,
+    }
+
+    let timeRange = writable(TimeRange.AllTime);
+
+    function filterDataByTimeRange(data: DataPoint[], range: TimeRange): DataPoint[] {
+        const maxDays = {
+            [TimeRange.Week]: 7,
+            [TimeRange.Month]: 30,
+            [TimeRange.Year]: 365,
+            [TimeRange.AllTime]: Infinity,
+        }[range];
+
+        return data.filter((point) => point.daysElapsed <= maxDays);
+    }
+
+    function prepareData(timeRange: TimeRange) {
         const data: DataPoint[] = [];
         let lastReviewTime = 0;
         let lastStability = 0;
 
-        revlog.reverse().forEach((entry, index) => {
+        revlog.toReversed().forEach((entry, index) => {
             const reviewTime = Number(entry.time);
             if (index === 0) {
                 lastReviewTime = reviewTime;
@@ -43,10 +64,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             const totalDaysElapsed = (reviewTime - lastReviewTime) / (24 * 60 * 60);
 
-            for (let day = 1; day <= Math.ceil(totalDaysElapsed); day++) {
+            const step = totalDaysElapsed / 20;
+            for (let i = 0; i < 20; i++) {
+                const day = (i + 1) * step;
                 const retrievability = currentRetrievability(lastStability, day);
                 data.push({
-                    daysElapsed: data[data.length - 1].daysElapsed + 1,
+                    daysElapsed: data[data.length - 1].daysElapsed + step,
                     retrievability: retrievability * 100,
                 });
             }
@@ -63,19 +86,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const now = Date.now() / 1000;
         const daysSinceLastReview = Math.floor((now - lastReviewTime) / (24 * 60 * 60));
 
-        for (let day = 1; day <= daysSinceLastReview; day++) {
+        const step = daysSinceLastReview / 20;
+        for (let i = 0; i < 20; i++) {
+            const day = (i + 1) * step;
             const retrievability = currentRetrievability(lastStability, day);
             data.push({
-                daysElapsed: data[data.length - 1].daysElapsed + 1,
+                daysElapsed: data[data.length - 1].daysElapsed + step,
                 retrievability: retrievability * 100,
             });
         }
-
-        return data;
+        const filteredData = filterDataByTimeRange(data, timeRange);
+        return filteredData;
     }
-    function renderForgettingCurve(svgElem: SVGElement) {
-        const data = prepareData();
+
+    function renderForgettingCurve(timeRange: TimeRange, svgElem: SVGElement) {
+        const data = prepareData(timeRange);
         const svg = select(svgElem);
+        svg.selectAll("path").remove();
 
         const trans = svg.transition().duration(600) as any;
 
@@ -144,14 +171,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setDataAvailable(svg, data.length > 0);
     }
 
-    onMount(() => {
-        renderForgettingCurve(svg as SVGElement);
-    });
-
     const title = "Forgetting Curve";
+    const data = prepareData(TimeRange.AllTime);
+
+    $: renderForgettingCurve($timeRange, svg as SVGElement);
 </script>
 
 <div class="forgetting-curve">
+    <InputBox>
+        <div class="time-range-selector">
+            <label>
+                <input type="radio" bind:group={$timeRange} value={TimeRange.Week} />
+                First week
+            </label>
+            <label>
+                <input type="radio" bind:group={$timeRange} value={TimeRange.Month} />
+                First month
+            </label>
+            {#if data.some((point) => point.daysElapsed > 365)}
+                <label>
+                    <input
+                        type="radio"
+                        bind:group={$timeRange}
+                        value={TimeRange.Year}
+                    />
+                    First year
+                </label>
+            {/if}
+            <label>
+                <input type="radio" bind:group={$timeRange} value={TimeRange.AllTime} />
+                All time
+            </label>
+        </div>
+    </InputBox>
     <Graph {title}>
         <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
             <AxisTicks {bounds} />
@@ -164,5 +216,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .forgetting-curve {
         width: 100%;
         max-width: 50em;
+    }
+
+    .time-range-selector {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 1em;
+        width: 100%;
+        max-width: 50em;
+    }
+
+    .time-range-selector label {
+        display: flex;
+        align-items: center;
+    }
+
+    .time-range-selector input {
+        margin-right: 0.5em;
     }
 </style>
