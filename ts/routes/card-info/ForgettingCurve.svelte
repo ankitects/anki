@@ -7,19 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         RevlogEntry_ReviewKind,
         type CardStatsResponse_StatsRevlogEntry as RevlogEntry,
     } from "@generated/anki/stats_pb";
-    import {
-        axisBottom,
-        axisLeft,
-        line,
-        max,
-        min,
-        scaleLinear,
-        select,
-    } from "d3";
-    import {
-        defaultGraphBounds,
-        setDataAvailable,
-    } from "../graphs/graph-helpers";
+    import { axisBottom, axisLeft, line, max, min, scaleLinear, select } from "d3";
+    import { defaultGraphBounds, setDataAvailable } from "../graphs/graph-helpers";
     import Graph from "../graphs/Graph.svelte";
     import NoDataOverlay from "../graphs/NoDataOverlay.svelte";
     import AxisTicks from "../graphs/AxisTicks.svelte";
@@ -33,10 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const FACTOR = 19 / 81;
     const DECAY = -0.5;
 
-    function currentRetrievability(
-        stability: number,
-        daysElapsed: number
-    ): number {
+    function currentRetrievability(stability: number, daysElapsed: number): number {
         return Math.pow((daysElapsed / stability) * FACTOR + 1.0, DECAY);
     }
 
@@ -54,10 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const timeRange = writable(TimeRange.AllTime);
 
-    function filterDataByTimeRange(
-        data: DataPoint[],
-        range: TimeRange
-    ): DataPoint[] {
+    function filterDataByTimeRange(data: DataPoint[], range: TimeRange): DataPoint[] {
         const maxDays = {
             [TimeRange.Week]: 7,
             [TimeRange.Month]: 30,
@@ -71,8 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function filterRevlogByReviewKind(entry: RevlogEntry): boolean {
         return (
             entry.reviewKind !== RevlogEntry_ReviewKind.MANUAL &&
-            (entry.reviewKind !== RevlogEntry_ReviewKind.FILTERED ||
-                entry.ease !== 0)
+            (entry.reviewKind !== RevlogEntry_ReviewKind.FILTERED || entry.ease !== 0)
         );
     }
 
@@ -93,16 +75,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     return;
                 }
 
-                const totalDaysElapsed =
-                    (reviewTime - lastReviewTime) / (24 * 60 * 60);
+                const totalDaysElapsed = (reviewTime - lastReviewTime) / (24 * 60 * 60);
 
                 const step = totalDaysElapsed / 20;
                 for (let i = 0; i < 20; i++) {
                     const day = (i + 1) * step;
-                    const retrievability = currentRetrievability(
-                        lastStability,
-                        day
-                    );
+                    const retrievability = currentRetrievability(lastStability, day);
                     data.push({
                         daysElapsed: data[data.length - 1].daysElapsed + step,
                         retrievability: retrievability * 100,
@@ -123,9 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         const now = Date.now() / 1000;
-        const daysSinceLastReview = Math.floor(
-            (now - lastReviewTime) / (24 * 60 * 60)
-        );
+        const daysSinceLastReview = Math.floor((now - lastReviewTime) / (24 * 60 * 60));
 
         const step = daysSinceLastReview / 20;
         for (let i = 0; i < 20; i++) {
@@ -155,22 +131,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             .domain([
                 Math.max(
                     0,
-                    100 -
-                        1.2 * (100 - (min(data, (d) => d.retrievability) ?? 0))
+                    100 - 1.2 * (100 - (min(data, (d) => d.retrievability) ?? 0)),
                 ),
                 100,
             ])
             .range([bounds.height - bounds.marginBottom, bounds.marginTop]);
 
         svg.select<SVGGElement>(".x-ticks")
-            .attr(
-                "transform",
-                `translate(0,${bounds.height - bounds.marginBottom})`
-            )
+            .attr("transform", `translate(0,${bounds.height - bounds.marginBottom})`)
             .call((selection) =>
                 selection
                     .transition(trans)
-                    .call(axisBottom(x).ticks(5).tickSizeOuter(0))
+                    .call(axisBottom(x).ticks(5).tickSizeOuter(0)),
             )
             .attr("direction", "ltr");
 
@@ -186,7 +158,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         svg.select<SVGGElement>(".y-ticks")
             .attr("transform", `translate(${bounds.marginLeft},0)`)
             .call((selection) =>
-                selection.transition(trans).call(axisLeft(y).tickSizeOuter(0))
+                selection.transition(trans).call(axisLeft(y).tickSizeOuter(0)),
             )
             .attr("direction", "ltr");
 
@@ -226,19 +198,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <InputBox>
         <div class="time-range-selector">
             <label>
-                <input
-                    type="radio"
-                    bind:group={$timeRange}
-                    value={TimeRange.Week}
-                />
+                <input type="radio" bind:group={$timeRange} value={TimeRange.Week} />
                 First week
             </label>
             <label>
-                <input
-                    type="radio"
-                    bind:group={$timeRange}
-                    value={TimeRange.Month}
-                />
+                <input type="radio" bind:group={$timeRange} value={TimeRange.Month} />
                 First month
             </label>
             {#if data.length > 0 && data.some((point) => point.daysElapsed > 365)}
@@ -252,11 +216,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </label>
             {/if}
             <label>
-                <input
-                    type="radio"
-                    bind:group={$timeRange}
-                    value={TimeRange.AllTime}
-                />
+                <input type="radio" bind:group={$timeRange} value={TimeRange.AllTime} />
                 All time
             </label>
         </div>
