@@ -7,11 +7,11 @@
 
 import { registerPackageRaw } from "@tslib/runtime-require";
 import * as svelteRuntime from "svelte";
-import * as svelteInternal from "svelte/internal";
-import * as svelteDiscloseVersion from "svelte/internal/disclose-version";
+// import * as svelteInternal from "svelte/internal";
+// import * as svelteDiscloseVersion from "svelte/internal/disclose-version";
 import * as svelteStore from "svelte/store";
 
 registerPackageRaw("svelte", svelteRuntime);
 registerPackageRaw("svelte/store", svelteStore);
-registerPackageRaw("svelte/internal", svelteInternal);
-registerPackageRaw("svelte/internal/disclose-version", svelteDiscloseVersion);
+// registerPackageRaw("svelte/internal", svelteInternal);
+// registerPackageRaw("svelte/internal/disclose-version", svelteDiscloseVersion);

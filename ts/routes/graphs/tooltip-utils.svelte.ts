@@ -3,33 +3,46 @@
 
 import type { DebouncedFunc } from "lodash-es";
 import { throttle } from "lodash-es";
+import { mount } from "svelte";
 
 import Tooltip from "./Tooltip.svelte";
 
-let tooltip: Tooltip | null = null;
+type TooltipProps = {
+    html: string;
+    x: number;
+    y: number;
+    show: boolean;
+};
+let tooltip: Record<string, any> | null = null;
+let props: TooltipProps = { html: "", x: 0, y: 0, show: false };
 
-function getOrCreateTooltip(): Tooltip {
+function getOrCreateTooltip(): TooltipProps {
     if (tooltip) {
-        return tooltip;
+        return props;
     }
 
     const target = document.createElement("div");
-    tooltip = new Tooltip({ target });
+    const p = $state(props);
+    props = p;
+    tooltip = mount(Tooltip, { target, props });
+
     document.body.appendChild(target);
 
-    return tooltip;
+    return props;
 }
 
 function showTooltipInner(msg: string, x: number, y: number): void {
-    const tooltip = getOrCreateTooltip();
-
-    tooltip.$set({ html: msg, x, y, show: true });
+    const props = getOrCreateTooltip();
+    props.html = msg;
+    props.x = x;
+    props.y = y;
+    props.show = true;
 }
 
 export const showTooltip: DebouncedFunc<(msg: string, x: number, y: number) => void> = throttle(showTooltipInner, 16);
 
 export function hideTooltip(): void {
-    const tooltip = getOrCreateTooltip();
+    const props = getOrCreateTooltip();
     showTooltip.cancel();
-    tooltip.$set({ show: false });
+    props.show = false;
 }

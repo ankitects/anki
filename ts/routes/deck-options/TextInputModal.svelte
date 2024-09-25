@@ -79,7 +79,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     class:invert={$pageTheme.isDark}
                     data-bs-dismiss="modal"
                     aria-label="Close"
-                />
+                ></button>
             </div>
             <div class="modal-body">
                 <form on:submit|preventDefault={onOkClicked}>

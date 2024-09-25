@@ -80,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="editor-container" use:init>
         <!-- svelte-ignore a11y-missing-attribute -->
         <img id="image" />
-        <canvas id="canvas" />
+        <canvas id="canvas"></canvas>
     </div>
 </div>
 

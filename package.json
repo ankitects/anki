@@ -16,11 +16,11 @@
     },
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.8.0",
-        "@poppanator/sveltekit-svg": "^4.2.1",
+        "@poppanator/sveltekit-svg": "^5.0.0-svelte5.5",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
         "@sveltejs/kit": "^2.4.1",
-        "@sveltejs/vite-plugin-svelte": "^3.0.0",
+        "@sveltejs/vite-plugin-svelte": "4.0.0-next.7",
         "@types/bootstrap": "^5.0.12",
         "@types/codemirror": "^5.60.0",
         "@types/d3": "^7.0.0",
@@ -39,15 +39,15 @@
         "dprint": "^0.47.2",
         "esbuild": "^0.18.10",
         "esbuild-sass-plugin": "^2",
-        "esbuild-svelte": "^0.7.4",
+        "esbuild-svelte": "^0.8.1",
         "eslint": "^8.44.0",
         "eslint-plugin-compat": "^4.1.4",
         "eslint-plugin-import": "^2.25.4",
         "eslint-plugin-svelte": "^2",
         "license-checker-rseidelsohn": "=4.3.0",
         "prettier": "^2.4.1",
-        "prettier-plugin-svelte": "^2.10.1",
-        "svelte": "^4.0.1",
+        "prettier-plugin-svelte": "^3.2.6",
+        "svelte": "5.0.0-next.179",
         "svelte-check": "^3.4.4",
         "svelte-preprocess": "^5.0.4",
         "svelte-preprocess-esbuild": "^3.0.1",
@@ -55,7 +55,7 @@
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
         "typescript": "^5.0.4",
-        "vite": "=5.0.13",
+        "vite": "=5.4.7",
         "vitest": "^1.2.1"
     },
     "dependencies": {
@@ -80,7 +80,7 @@
     },
     "resolutions": {
         "canvas": "npm:empty-npm-package",
-        "vite": "=5.0.13"
+        "vite": "=5.4.7"
     },
     "browserslist": [
         "defaults",
