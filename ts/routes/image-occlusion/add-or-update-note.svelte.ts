@@ -6,6 +6,7 @@ import { addImageOcclusionNote, updateImageOcclusionNote } from "@generated/back
 import * as tr from "@generated/ftl";
 import { get } from "svelte/store";
 
+import { mount } from "svelte";
 import type { IOMode } from "./lib";
 import { exportShapesToClozeDeletions } from "./shapes/to-cloze";
 import { notesDataStore, tagsWritable } from "./store";
@@ -52,19 +53,24 @@ export const addOrUpdateNote = async function(
 
 // show toast message
 const showResult = (noteId: number | null, result: OpChanges, count: number) => {
-    const toastComponent = new Toast({
+    const props = $state({
+        message: "",
+        type: "error" as "error" | "success",
+        showToast: true,
+    });
+    mount(Toast, {
         target: document.body,
-        props: {
-            message: "",
-            type: "error",
-        },
+        props,
     });
 
     if (result.note) {
         const msg = noteId ? tr.browsingCardsUpdated({ count: count }) : tr.importingCardsAdded({ count: count });
-        toastComponent.$set({ message: msg, type: "success", showToast: true });
+        props.message = msg;
+        props.type = "success";
+        props.showToast = true;
     } else {
         const msg = tr.notetypesErrorGeneratingCloze();
-        toastComponent.$set({ message: msg, showToast: true });
+        props.message = msg;
+        props.showToast = true;
     }
 };
