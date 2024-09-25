@@ -25,7 +25,7 @@ import {
 import type { GraphBounds, SearchDispatch } from "./graph-helpers";
 import { RevlogRange, setDataAvailable } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
-import { hideTooltip, showTooltip } from "./tooltip";
+import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
 
 export interface GraphData {
     // indexed by day, where day is relative to today

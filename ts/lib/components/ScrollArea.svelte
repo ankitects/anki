@@ -50,29 +50,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             use:initObserver
         >
             <div class="d-flex flex-column flex-grow-1">
-                <div class="scroll-edge" data-edge="top" />
+                <div class="scroll-edge" data-edge="top"></div>
                 <div class="d-flex flex-row flex-grow-1">
-                    <div class="scroll-edge" data-edge="left" />
+                    <div class="scroll-edge" data-edge="left"></div>
                     <div class="scroll-content flex-grow-1">
                         <slot />
                     </div>
-                    <div class="scroll-edge" data-edge="right" />
+                    <div class="scroll-edge" data-edge="right"></div>
                 </div>
-                <div class="scroll-edge" data-edge="bottom" />
+                <div class="scroll-edge" data-edge="bottom"></div>
             </div>
         </div>
 
         {#if scrollStates.top}
-            <div class="scroll-shadow top-0" />
+            <div class="scroll-shadow top-0"></div>
         {/if}
         {#if scrollStates.bottom}
-            <div class="scroll-shadow bottom-0" />
+            <div class="scroll-shadow bottom-0"></div>
         {/if}
         {#if scrollStates.left}
-            <div class="scroll-shadow start-0" />
+            <div class="scroll-shadow start-0"></div>
         {/if}
         {#if scrollStates.right}
-            <div class="scroll-shadow end-0" />
+            <div class="scroll-shadow end-0"></div>
         {/if}
     </div>
 </div>

@@ -23,7 +23,7 @@ import {
 import type { GraphBounds } from "./graph-helpers";
 import { GraphRange } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
-import { hideTooltip, showTooltip } from "./tooltip";
+import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
 
 /** 4 element array */
 type ButtonCounts = number[];

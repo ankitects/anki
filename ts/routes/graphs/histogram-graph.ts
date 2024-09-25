@@ -12,7 +12,7 @@ import { area, axisBottom, axisLeft, axisRight, cumsum, curveBasis, max, pointer
 import type { GraphBounds } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
-import { hideTooltip, showTooltip } from "./tooltip";
+import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
 
 export interface HistogramData {
     scale: ScaleLinear<number, number>;
