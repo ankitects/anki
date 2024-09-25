@@ -7,7 +7,7 @@ import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 import { get } from "svelte/store";
 
-import { addOrUpdateNote } from "./add-or-update-note";
+import { addOrUpdateNote } from "./add-or-update-note.svelte";
 import ImageOcclusionPage from "./ImageOcclusionPage.svelte";
 import type { IOMode } from "./lib";
 import { hideAllGuessOne } from "./store";
