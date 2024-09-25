@@ -27,7 +27,7 @@ export const addOrUpdateNote = async function(
     let backExtra = fieldsData[1].textareaValue;
 
     header = header ? `<div>${header}</div>` : "";
-    backExtra = header ? `<div>${backExtra}</div>` : "";
+    backExtra = backExtra ? `<div>${backExtra}</div>` : "";
 
     if (mode.kind == "edit") {
         const result = await updateImageOcclusionNote({
