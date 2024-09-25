@@ -43,10 +43,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {#if !result}
     <div class="progress">
         <div class="spinner" class:nightMode={$pageTheme.isDark}>
-            <div />
-            <div />
-            <div />
-            <div />
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
         </div>
         <div id="label">{label}</div>
     </div>

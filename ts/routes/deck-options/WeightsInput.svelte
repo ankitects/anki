@@ -27,4 +27,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:blur={update}
     class="w-100"
     placeholder={render(defaults)}
-/>
+></textarea>

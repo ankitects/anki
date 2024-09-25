@@ -7,8 +7,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
+    import { mount } from "svelte";
 
-    export let callback: (styles: CustomStyles) => void;
+    export let callback: (styles: Record<string, any>) => void;
 
     const [userBaseStyle, userBaseResolve] = promiseWithResolver<StyleObject>();
     const [userBaseRule, userBaseRuleResolve] = promiseWithResolver<CSSStyleRule>();
@@ -51,11 +52,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 
     function attachToShadow(element: Element) {
-        const customStyles = new CustomStyles({
+        const customStyles = mount(CustomStyles, {
             target: element.shadowRoot as any,
             props: { styles },
         });
-
         customStyles.addStyleTag("userBase").then((styleTag) => {
             userBaseResolve(styleTag);
             callback(customStyles);

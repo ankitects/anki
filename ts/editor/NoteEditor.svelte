@@ -460,7 +460,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     globalThis.setImageField = setImageField;
 
     function updateOcclusionsField(): void {
-        if (isImageOcclusion) {
+        if (isImageOcclusion && globalThis.canvas) {
             const occlusionsData = exportShapesToClozeDeletions($hideAllGuessOne);
             fieldStores[ioFields.occlusions].set(occlusionsData.clozes);
         }

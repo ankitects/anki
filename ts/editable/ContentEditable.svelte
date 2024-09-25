@@ -54,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:blur
     on:click={updateAllState}
     on:keyup={updateAllState}
-/>
+></anki-editable>
 
 <style lang="scss">
     anki-editable {

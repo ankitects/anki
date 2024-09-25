@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </thead>
         <tbody>
             {#if itemHeight * startIndex > 0}
-                <tr><td style="height: {itemHeight * startIndex}px;" /></tr>
+                <tr><td style="height: {itemHeight * startIndex}px;"></td></tr>
             {/if}
 
             {#each slice as index (index)}
@@ -55,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <td
                         style="height: {itemHeight * itemsCount -
                             itemHeight * endIndex}px;"
-                    />
+                    ></td>
                 </tr>
             {/if}
         </tbody>

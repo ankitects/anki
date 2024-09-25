@@ -26,7 +26,7 @@ import {
 import type { GraphBounds } from "./graph-helpers";
 import { GraphRange, setDataAvailable } from "./graph-helpers";
 import { oddTickClass } from "./graph-styles";
-import { hideTooltip, showTooltip } from "./tooltip";
+import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
 
 interface Hour {
     hour: number;

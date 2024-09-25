@@ -80,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 {#if animated && measuring}
     <!-- Maintain document flow while collapsible height is measured -->
-    <div class="collapsible-placeholder" />
+    <div class="collapsible-placeholder"></div>
 {/if}
 
 <style lang="scss">

@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <th>#</th>
                 <th>{tr.importingStatus()}</th>
                 <th>{tr.editingFields()}</th>
-                <th />
+                <th></th>
             </tr>
             <svelte:fragment slot="row" let:index>
                 <tr>
