@@ -5,6 +5,7 @@ import {
     type CardStatsResponse_StatsRevlogEntry as RevlogEntry,
     RevlogEntry_ReviewKind,
 } from "@generated/anki/stats_pb";
+import * as tr from "@generated/ftl";
 import { timeSpan } from "@tslib/time";
 import { axisBottom, axisLeft, line, pointer, scaleLinear, select } from "d3";
 import { type GraphBounds, setDataAvailable } from "../graphs/graph-helpers";
@@ -175,9 +176,11 @@ export function renderForgettingCurve(
         .style("opacity", 0);
 
     function tooltipText(d: DataPoint): string {
-        return `Days elapsed: ${timeSpan(d.daysElapsed * 86400)}<br>Retrievability: ${
-            d.retrievability.toFixed(2)
-        }%<br>Stability: ${timeSpan(d.stability * 86400)}`;
+        return `${tr.cardStatsReviewLogElapsedTime()}: ${
+            timeSpan(d.daysElapsed * 86400)
+        }<br>${tr.cardStatsFsrsRetrievability()}: ${d.retrievability.toFixed(2)}%<br>${tr.cardStatsFsrsStability()}: ${
+            timeSpan(d.stability * 86400)
+        }`;
     }
 
     // hover/tooltip
