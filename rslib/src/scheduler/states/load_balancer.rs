@@ -192,12 +192,7 @@ impl LoadBalancer {
         let (review_counts, weekdays): (Vec<usize>, Vec<usize>) = interval_days
             .iter()
             .enumerate()
-            .map(|(i, day)| {
-                (
-                    day.cards.len(),
-                    interval_to_weekday(i as u32 + before_days),
-                )
-            })
+            .map(|(i, day)| (day.cards.len(), interval_to_weekday(i as u32 + before_days)))
             .unzip();
 
         let percentages = weekdays
@@ -264,7 +259,6 @@ impl LoadBalancer {
         }
     }
 }
-
 
 // TODO: refactor it to consider `next day starts at`
 fn interval_to_weekday(interval: u32) -> usize {
