@@ -4,10 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { CardStatsResponse_StatsRevlogEntry as RevlogEntry } from "@generated/anki/stats_pb";
-    import {
-        RevlogEntry_ReviewKind as ReviewKind,
-        RevlogEntry_ReviewKind,
-    } from "@generated/anki/stats_pb";
+    import { RevlogEntry_ReviewKind as ReviewKind } from "@generated/anki/stats_pb";
     import * as tr2 from "@generated/ftl";
     import { timeSpan, Timestamp } from "@tslib/time";
     import { filterRevlogByReviewKind } from "./forgetting-curve";
