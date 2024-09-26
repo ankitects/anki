@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use chrono::Datelike;
 use rand::distributions::Distribution;
 use rand::distributions::WeightedIndex;
 use rand::rngs::StdRng;
@@ -57,6 +58,7 @@ pub struct LoadBalancerContext<'a> {
     note_id: Option<NoteId>,
     deckconfig_id: DeckConfigId,
     fuzz_seed: Option<u64>,
+    easy_days_percentages: &'a [f32; 7], // TODO: Is it a correct place to store it?
 }
 
 impl<'a> LoadBalancerContext<'a> {
@@ -68,6 +70,7 @@ impl<'a> LoadBalancerContext<'a> {
             self.deckconfig_id,
             self.fuzz_seed,
             self.note_id,
+            self.easy_days_percentages,
         )
     }
 
@@ -140,6 +143,8 @@ impl LoadBalancer {
             note_id,
             deckconfig_id,
             fuzz_seed: None,
+            easy_days_percentages: &[1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0], /* TODO: make this
+                                                                          * configurable */
         }
     }
 
@@ -169,6 +174,7 @@ impl LoadBalancer {
         deckconfig_id: DeckConfigId,
         fuzz_seed: Option<u64>,
         note_id: Option<NoteId>,
+        easy_days_percentages: &[f32; 7],
     ) -> Option<u32> {
         // if we're sending a card far out into the future, the need to balance is low
         if interval as usize > MAX_LOAD_BALANCE_INTERVAL
@@ -181,6 +187,24 @@ impl LoadBalancer {
 
         let days = self.days_by_preset.get(&deckconfig_id)?;
         let interval_days = &days[before_days as usize..=after_days as usize];
+
+        // calculate review counts and expected distribution
+        let (review_counts, weekdays): (Vec<usize>, Vec<usize>) = interval_days
+            .iter()
+            .enumerate()
+            .map(|(i, day)| {
+                (
+                    day.cards.len(),
+                    interval_to_weekday(i as u32 + before_days),
+                )
+            })
+            .unzip();
+
+        let percentages = weekdays
+            .iter()
+            .map(|&wd| easy_days_percentages[wd])
+            .collect::<Vec<_>>();
+        let expected_distribution = check_review_distribution(&review_counts, &percentages);
 
         // calculate weights for each day
         let intervals_and_weights = interval_days
@@ -198,7 +222,7 @@ impl LoadBalancer {
                     })
                     .unwrap_or(1.0);
 
-                let weight = match interval_day.cards.len() {
+                let weight = match review_counts[interval_index] {
                     0 => 1.0, // if theres no cards due on this day, give it the full 1.0 weight
                     card_count => {
                         let card_count_weight = (1.0 / card_count as f32).powi(2);
@@ -208,7 +232,10 @@ impl LoadBalancer {
                     }
                 };
 
-                (target_interval, weight)
+                (
+                    target_interval,
+                    weight * expected_distribution[interval_index],
+                )
             })
             .collect::<Vec<_>>();
 
@@ -236,4 +263,30 @@ impl LoadBalancer {
             }
         }
     }
+}
+
+
+// TODO: refactor it to consider `next day starts at`
+fn interval_to_weekday(interval: u32) -> usize {
+    let target_datetime = TimestampSecs::now()
+        .adding_secs(interval as i64 * 86400)
+        .local_datetime()
+        .unwrap();
+    target_datetime.weekday().num_days_from_monday() as usize
+}
+
+fn check_review_distribution(actual_reviews: &[usize], percentages: &[f32]) -> Vec<f32> {
+    if percentages.iter().sum::<f32>() == 0.0 {
+        return vec![1.0; actual_reviews.len()];
+    }
+    let total_actual = actual_reviews.iter().sum::<usize>() as f32;
+    let expected_distribution: Vec<f32> = percentages
+        .iter()
+        .map(|&p| p * (total_actual / percentages.iter().sum::<f32>()))
+        .collect();
+    expected_distribution
+        .iter()
+        .zip(actual_reviews.iter())
+        .map(|(&e, &a)| (e - a as f32).max(0.0))
+        .collect()
 }
