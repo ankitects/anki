@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let stats: CardStatsResponse | null = null;
     export let showRevlog: boolean = true;
-    export let showForgettingCurve: boolean = true;
+    export let fsrsEnabled: boolean = stats?.memoryState != null;
 </script>
 
 <Container breakpoint="md" --gutter-inline="1rem" --gutter-block="0.5rem">
@@ -26,10 +26,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         {#if showRevlog}
             <Row>
-                <Revlog revlog={stats.revlog} />
+                <Revlog revlog={stats.revlog} {fsrsEnabled} />
             </Row>
         {/if}
-        {#if showForgettingCurve}
+        {#if fsrsEnabled}
             <Row>
                 <ForgettingCurve revlog={stats.revlog} />
             </Row>

@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         RevlogEntry_ReviewKind,
         type CardStatsResponse_StatsRevlogEntry as RevlogEntry,
     } from "@generated/anki/stats_pb";
+    import * as tr from "@generated/ftl";
     import { axisBottom, axisLeft, line, max, min, scaleLinear, select } from "d3";
     import { defaultGraphBounds, setDataAvailable } from "../graphs/graph-helpers";
     import Graph from "../graphs/Graph.svelte";
@@ -18,7 +19,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let revlog: RevlogEntry[];
     let svg = null as HTMLElement | SVGElement | null;
     const bounds = defaultGraphBounds();
-
     const FACTOR = 19 / 81;
     const DECAY = -0.5;
 
@@ -119,9 +119,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function renderForgettingCurve(timeRange: TimeRange, svgElem: SVGElement) {
         const data = prepareData(timeRange);
         const svg = select(svgElem);
-        svg.selectAll("path").remove();
-
         const trans = svg.transition().duration(600) as any;
+
+        if (data.length === 0) {
+            setDataAvailable(svg, false);
+            return;
+        } else {
+            setDataAvailable(svg, true);
+        }
 
         const x = scaleLinear()
             .domain([0, max(data, (d) => d.daysElapsed) || 0])
@@ -146,32 +151,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             )
             .attr("direction", "ltr");
 
-        svg.select(".x-ticks")
-            .append("text")
-            .attr("class", "x-axis-title")
-            .attr("text-anchor", "middle")
-            .attr("x", bounds.width / 2)
-            .attr("y", bounds.marginBottom)
-            .attr("fill", "currentColor")
-            .text("Days since first review");
-
         svg.select<SVGGElement>(".y-ticks")
             .attr("transform", `translate(${bounds.marginLeft},0)`)
             .call((selection) =>
                 selection.transition(trans).call(axisLeft(y).tickSizeOuter(0)),
             )
             .attr("direction", "ltr");
-
-        svg.select(".y-ticks")
-            .append("text")
-            .attr("class", "y-axis-title")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 0 - bounds.marginLeft)
-            .attr("x", 0 - bounds.height / 2)
-            .attr("dy", "1em")
-            .attr("fill", "currentColor")
-            .style("text-anchor", "middle")
-            .text("Retrievability (%)");
 
         const lineGenerator = line<DataPoint>()
             .x((d) => x(d.daysElapsed))
@@ -184,11 +169,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             .attr("stroke", "steelblue")
             .attr("stroke-width", 1.5)
             .attr("d", lineGenerator);
-
-        setDataAvailable(svg, data.length > 0);
     }
 
-    const title = "Forgetting Curve";
+    const title = tr.cardStatsFsrsForgettingCurveTitle();
     const data = prepareData(TimeRange.AllTime);
 
     $: renderForgettingCurve($timeRange, svg as SVGElement);
@@ -199,11 +182,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="time-range-selector">
             <label>
                 <input type="radio" bind:group={$timeRange} value={TimeRange.Week} />
-                First week
+                {tr.cardStatsFsrsForgettingCurveFirstWeek()}
             </label>
             <label>
                 <input type="radio" bind:group={$timeRange} value={TimeRange.Month} />
-                First month
+                {tr.cardStatsFsrsForgettingCurveFirstMonth()}
             </label>
             {#if data.length > 0 && data.some((point) => point.daysElapsed > 365)}
                 <label>
@@ -212,12 +195,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         bind:group={$timeRange}
                         value={TimeRange.Year}
                     />
-                    First year
+                    {tr.cardStatsFsrsForgettingCurveFirstYear()}
                 </label>
             {/if}
             <label>
                 <input type="radio" bind:group={$timeRange} value={TimeRange.AllTime} />
-                All time
+                {tr.cardStatsFsrsForgettingCurveAllTime()}
             </label>
         </div>
     </InputBox>

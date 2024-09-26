@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { timeSpan, Timestamp } from "@tslib/time";
 
     export let revlog: RevlogEntry[];
+    export let fsrsEnabled: boolean = false;
 
     function reviewKindClass(entry: RevlogEntry): string {
         switch (entry.reviewKind) {
@@ -163,21 +164,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
         </div>
         <div class="column">
-            <div class="column-head">Elapsed Time</div>
+            <div class="column-head">{tr2.cardStatsReviewLogElapsedTime()}</div>
             <div class="column-content right">
                 {#each revlogRows as row, _index}
                     <div>{row.elapsedTime}</div>
                 {/each}
             </div>
         </div>
-        <div class="column">
-            <div class="column-head">Stability</div>
-            <div class="column-content right">
-                {#each revlogRows as row, _index}
-                    <div>{row.stability}</div>
-                {/each}
+        {#if fsrsEnabled}
+            <div class="column">
+                <div class="column-head">{tr2.cardStatsFsrsStability()}</div>
+                <div class="column-content right">
+                    {#each revlogRows as row, _index}
+                        <div>{row.stability}</div>
+                    {/each}
+                </div>
             </div>
-        </div>
+        {/if}
     </div>
 {/if}
 
