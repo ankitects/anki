@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import InputBox from "../graphs/InputBox.svelte";
     import { prepareData, renderForgettingCurve, TimeRange } from "./forgetting-curve";
     import { defaultGraphBounds } from "../graphs/graph-helpers";
+    import HoverColumns from "../graphs/HoverColumns.svelte";
 
     export let revlog: RevlogEntry[];
     let svg = null as HTMLElement | SVGElement | null;
@@ -53,6 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Graph {title}>
         <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
             <AxisTicks {bounds} />
+            <HoverColumns />
             <NoDataOverlay {bounds} />
         </svg>
     </Graph>

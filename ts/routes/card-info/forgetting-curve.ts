@@ -1,12 +1,17 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import {
     type CardStatsResponse_StatsRevlogEntry as RevlogEntry,
     RevlogEntry_ReviewKind,
 } from "@generated/anki/stats_pb";
-import { axisBottom, axisLeft, line, scaleLinear, select } from "d3";
+import { axisBottom, axisLeft, line, pointer, scaleLinear, select } from "d3";
 import { type GraphBounds, setDataAvailable } from "../graphs/graph-helpers";
+import { hideTooltip, showTooltip } from "../graphs/tooltip-utils.svelte";
 
 const FACTOR = 19 / 81;
 const DECAY = -0.5;
+const MIN_POINTS = 100;
 
 function currentRetrievability(stability: number, daysElapsed: number): number {
     return Math.pow((daysElapsed / stability) * FACTOR + 1.0, DECAY);
@@ -60,11 +65,10 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
             }
 
             const totalDaysElapsed = (reviewTime - lastReviewTime) / (24 * 60 * 60);
-
-            const step = totalDaysElapsed / 20;
-            for (let i = 0; i < 20; i++) {
-                const day = (i + 1) * step;
-                const retrievability = currentRetrievability(lastStability, day);
+            const step = Math.min(1, totalDaysElapsed / MIN_POINTS);
+            for (let i = 0; i < Math.max(MIN_POINTS, totalDaysElapsed); i++) {
+                const elapsedDays = (i + 1) * step;
+                const retrievability = currentRetrievability(lastStability, elapsedDays);
                 data.push({
                     daysElapsed: data[data.length - 1].daysElapsed + step,
                     retrievability: retrievability * 100,
@@ -85,12 +89,11 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
     }
 
     const now = Date.now() / 1000;
-    const daysSinceLastReview = Math.floor((now - lastReviewTime) / (24 * 60 * 60));
-
-    const step = daysSinceLastReview / 20;
-    for (let i = 0; i < 20; i++) {
-        const day = (i + 1) * step;
-        const retrievability = currentRetrievability(lastStability, day);
+    const totalDaysSinceLastReview = Math.floor((now - lastReviewTime) / (24 * 60 * 60));
+    const step = Math.min(1, totalDaysSinceLastReview / MIN_POINTS);
+    for (let i = 0; i < Math.max(MIN_POINTS, totalDaysSinceLastReview); i++) {
+        const elapsedDays = (i + 1) * step;
+        const retrievability = currentRetrievability(lastStability, elapsedDays);
         data.push({
             daysElapsed: data[data.length - 1].daysElapsed + step,
             retrievability: retrievability * 100,
@@ -118,6 +121,7 @@ export function renderForgettingCurve(
     }
 
     svg.select(".forgetting-curve-line").remove();
+    svg.select(".hover-columns").remove();
 
     const xMax = Math.max(...data.map((d) => d.daysElapsed));
     const x = scaleLinear()
@@ -156,4 +160,37 @@ export function renderForgettingCurve(
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", lineGenerator);
+
+    const focusLine = svg.append("line")
+        .attr("class", "focus-line")
+        .attr("y1", bounds.marginTop)
+        .attr("y2", bounds.height - bounds.marginBottom)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .style("opacity", 0);
+
+    function tooltipText(d: DataPoint): string {
+        return `Days elapsed: ${d.daysElapsed.toFixed(2)}<br>Retrievability: ${d.retrievability.toFixed(2)}%`;
+    }
+
+    // hover/tooltip
+    svg.append("g")
+        .attr("class", "hover-columns")
+        .selectAll("rect")
+        .data(data)
+        .join("rect")
+        .attr("x", d => x(d.daysElapsed) - 1)
+        .attr("y", bounds.marginTop)
+        .attr("width", 2)
+        .attr("height", bounds.height - bounds.marginTop - bounds.marginBottom)
+        .attr("fill", "transparent")
+        .on("mousemove", (event: MouseEvent, d: DataPoint) => {
+            const [x1, y1] = pointer(event, document.body);
+            focusLine.attr("x1", x(d.daysElapsed) - 1).attr("x2", x(d.daysElapsed) + 1).style("opacity", 1);
+            showTooltip(tooltipText(d), x1, y1);
+        })
+        .on("mouseout", () => {
+            focusLine.style("opacity", 0);
+            hideTooltip();
+        });
 }
