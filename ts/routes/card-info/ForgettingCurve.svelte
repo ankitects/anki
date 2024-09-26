@@ -35,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <input type="radio" bind:group={$timeRange} value={TimeRange.Month} />
                 {tr.cardStatsFsrsForgettingCurveFirstMonth()}
             </label>
-            {#if data.length > 0 && data.some((point) => point.daysElapsed > 365)}
+            {#if data.length > 0 && data.some((point) => point.daysSinceFirstLearn > 365)}
                 <label>
                     <input
                         type="radio"

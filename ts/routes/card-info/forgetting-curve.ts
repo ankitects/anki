@@ -20,7 +20,8 @@ function currentRetrievability(stability: number, daysElapsed: number): number {
 }
 
 interface DataPoint {
-    daysElapsed: number;
+    daysSinceFirstLearn: number;
+    elapsedDaysSinceLastReview: number;
     retrievability: number;
     stability: number;
 }
@@ -40,7 +41,7 @@ function filterDataByTimeRange(data: DataPoint[], range: TimeRange): DataPoint[]
         [TimeRange.AllTime]: Infinity,
     }[range];
 
-    return data.filter((point) => point.daysElapsed <= maxDays);
+    return data.filter((point) => point.daysSinceFirstLearn <= maxDays);
 }
 
 export function filterRevlogByReviewKind(entry: RevlogEntry): boolean {
@@ -63,7 +64,12 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
             if (index === 0) {
                 lastReviewTime = reviewTime;
                 lastStability = entry.memoryState?.stability || 0;
-                data.push({ daysElapsed: 0, retrievability: 100, stability: lastStability });
+                data.push({
+                    daysSinceFirstLearn: 0,
+                    elapsedDaysSinceLastReview: 0,
+                    retrievability: 100,
+                    stability: lastStability,
+                });
                 return;
             }
 
@@ -73,15 +79,17 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
                 const elapsedDays = (i + 1) * step;
                 const retrievability = currentRetrievability(lastStability, elapsedDays);
                 data.push({
-                    daysElapsed: data[data.length - 1].daysElapsed + step,
+                    daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn + step,
+                    elapsedDaysSinceLastReview: elapsedDays,
                     retrievability: retrievability * 100,
                     stability: lastStability,
                 });
             }
 
             data.push({
-                daysElapsed: data[data.length - 1].daysElapsed,
+                daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn,
                 retrievability: 100,
+                elapsedDaysSinceLastReview: 0,
                 stability: lastStability,
             });
 
@@ -100,7 +108,8 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
         const elapsedDays = (i + 1) * step;
         const retrievability = currentRetrievability(lastStability, elapsedDays);
         data.push({
-            daysElapsed: data[data.length - 1].daysElapsed + step,
+            daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn + step,
+            elapsedDaysSinceLastReview: elapsedDays,
             retrievability: retrievability * 100,
             stability: lastStability,
         });
@@ -129,7 +138,7 @@ export function renderForgettingCurve(
     svg.select(".forgetting-curve-line").remove();
     svg.select(".hover-columns").remove();
 
-    const xMax = Math.max(...data.map((d) => d.daysElapsed));
+    const xMax = Math.max(...data.map((d) => d.daysSinceFirstLearn));
     const x = scaleLinear()
         .domain([0, xMax])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
@@ -156,7 +165,7 @@ export function renderForgettingCurve(
         .attr("direction", "ltr");
 
     const lineGenerator = line<DataPoint>()
-        .x((d) => x(d.daysElapsed))
+        .x((d) => x(d.daysSinceFirstLearn))
         .y((d) => y(d.retrievability));
 
     svg.append("path")
@@ -177,7 +186,7 @@ export function renderForgettingCurve(
 
     function tooltipText(d: DataPoint): string {
         return `${tr.cardStatsReviewLogElapsedTime()}: ${
-            timeSpan(d.daysElapsed * 86400)
+            timeSpan(d.elapsedDaysSinceLastReview * 86400)
         }<br>${tr.cardStatsFsrsRetrievability()}: ${d.retrievability.toFixed(2)}%<br>${tr.cardStatsFsrsStability()}: ${
             timeSpan(d.stability * 86400)
         }`;
@@ -189,14 +198,17 @@ export function renderForgettingCurve(
         .selectAll("rect")
         .data(data)
         .join("rect")
-        .attr("x", d => x(d.daysElapsed) - 1)
+        .attr("x", d => x(d.daysSinceFirstLearn) - 1)
         .attr("y", bounds.marginTop)
         .attr("width", 2)
         .attr("height", bounds.height - bounds.marginTop - bounds.marginBottom)
         .attr("fill", "transparent")
         .on("mousemove", (event: MouseEvent, d: DataPoint) => {
             const [x1, y1] = pointer(event, document.body);
-            focusLine.attr("x1", x(d.daysElapsed) - 1).attr("x2", x(d.daysElapsed) + 1).style("opacity", 1);
+            focusLine.attr("x1", x(d.daysSinceFirstLearn) - 1).attr("x2", x(d.daysSinceFirstLearn) + 1).style(
+                "opacity",
+                1,
+            );
             showTooltip(tooltipText(d), x1, y1);
         })
         .on("mouseout", () => {
