@@ -5,6 +5,7 @@ import {
     type CardStatsResponse_StatsRevlogEntry as RevlogEntry,
     RevlogEntry_ReviewKind,
 } from "@generated/anki/stats_pb";
+import { timeSpan } from "@tslib/time";
 import { axisBottom, axisLeft, line, pointer, scaleLinear, select } from "d3";
 import { type GraphBounds, setDataAvailable } from "../graphs/graph-helpers";
 import { hideTooltip, showTooltip } from "../graphs/tooltip-utils.svelte";
@@ -20,6 +21,7 @@ function currentRetrievability(stability: number, daysElapsed: number): number {
 interface DataPoint {
     daysElapsed: number;
     retrievability: number;
+    stability: number;
 }
 
 export enum TimeRange {
@@ -60,7 +62,7 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
             if (index === 0) {
                 lastReviewTime = reviewTime;
                 lastStability = entry.memoryState?.stability || 0;
-                data.push({ daysElapsed: 0, retrievability: 100 });
+                data.push({ daysElapsed: 0, retrievability: 100, stability: lastStability });
                 return;
             }
 
@@ -72,12 +74,14 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
                 data.push({
                     daysElapsed: data[data.length - 1].daysElapsed + step,
                     retrievability: retrievability * 100,
+                    stability: lastStability,
                 });
             }
 
             data.push({
                 daysElapsed: data[data.length - 1].daysElapsed,
                 retrievability: 100,
+                stability: lastStability,
             });
 
             lastReviewTime = reviewTime;
@@ -97,6 +101,7 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
         data.push({
             daysElapsed: data[data.length - 1].daysElapsed + step,
             retrievability: retrievability * 100,
+            stability: lastStability,
         });
     }
     const filteredData = filterDataByTimeRange(data, timeRange);
@@ -170,7 +175,9 @@ export function renderForgettingCurve(
         .style("opacity", 0);
 
     function tooltipText(d: DataPoint): string {
-        return `Days elapsed: ${d.daysElapsed.toFixed(2)}<br>Retrievability: ${d.retrievability.toFixed(2)}%`;
+        return `Days elapsed: ${timeSpan(d.daysElapsed * 86400)}<br>Retrievability: ${
+            d.retrievability.toFixed(2)
+        }%<br>Stability: ${timeSpan(d.stability * 86400)}`;
     }
 
     // hover/tooltip
