@@ -7,7 +7,7 @@ import {
 } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
 import { timeSpan } from "@tslib/time";
-import { axisBottom, axisLeft, line, pointer, scaleLinear, select } from "d3";
+import { axisBottom, axisLeft, line, max, min, pointer, scaleLinear, scaleTime, select } from "d3";
 import { type GraphBounds, setDataAvailable } from "../graphs/graph-helpers";
 import { hideTooltip, showTooltip } from "../graphs/tooltip-utils.svelte";
 
@@ -15,11 +15,12 @@ const FACTOR = 19 / 81;
 const DECAY = -0.5;
 const MIN_POINTS = 100;
 
-function currentRetrievability(stability: number, daysElapsed: number): number {
+function forgettingCurve(stability: number, daysElapsed: number): number {
     return Math.pow((daysElapsed / stability) * FACTOR + 1.0, DECAY);
 }
 
 interface DataPoint {
+    date: Date;
     daysSinceFirstLearn: number;
     elapsedDaysSinceLastReview: number;
     retrievability: number;
@@ -65,6 +66,7 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
                 lastReviewTime = reviewTime;
                 lastStability = entry.memoryState?.stability || 0;
                 data.push({
+                    date: new Date(reviewTime * 1000),
                     daysSinceFirstLearn: 0,
                     elapsedDaysSinceLastReview: 0,
                     retrievability: 100,
@@ -77,8 +79,9 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
             const step = Math.min(1, totalDaysElapsed / MIN_POINTS);
             for (let i = 0; i < Math.max(MIN_POINTS, totalDaysElapsed); i++) {
                 const elapsedDays = (i + 1) * step;
-                const retrievability = currentRetrievability(lastStability, elapsedDays);
+                const retrievability = forgettingCurve(lastStability, elapsedDays);
                 data.push({
+                    date: new Date((lastReviewTime + elapsedDays * 86400) * 1000),
                     daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn + step,
                     elapsedDaysSinceLastReview: elapsedDays,
                     retrievability: retrievability * 100,
@@ -87,6 +90,7 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
             }
 
             data.push({
+                date: new Date((lastReviewTime + totalDaysElapsed * 86400) * 1000),
                 daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn,
                 retrievability: 100,
                 elapsedDaysSinceLastReview: 0,
@@ -106,8 +110,9 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
     const step = Math.min(1, totalDaysSinceLastReview / MIN_POINTS);
     for (let i = 0; i < Math.max(MIN_POINTS, totalDaysSinceLastReview); i++) {
         const elapsedDays = (i + 1) * step;
-        const retrievability = currentRetrievability(lastStability, elapsedDays);
+        const retrievability = forgettingCurve(lastStability, elapsedDays);
         data.push({
+            date: new Date((lastReviewTime + elapsedDays * 86400) * 1000),
             daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn + step,
             elapsedDaysSinceLastReview: elapsedDays,
             retrievability: retrievability * 100,
@@ -138,9 +143,10 @@ export function renderForgettingCurve(
     svg.select(".forgetting-curve-line").remove();
     svg.select(".hover-columns").remove();
 
-    const xMax = Math.max(...data.map((d) => d.daysSinceFirstLearn));
-    const x = scaleLinear()
-        .domain([0, xMax])
+    const xMin = min(data, d => d.date);
+    const xMax = max(data, d => d.date);
+    const x = scaleTime()
+        .domain([xMin!, xMax!])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     const yMin = Math.max(
         0,
@@ -151,12 +157,7 @@ export function renderForgettingCurve(
         .range([bounds.height - bounds.marginBottom, bounds.marginTop]);
 
     svg.select<SVGGElement>(".x-ticks")
-        .attr("transform", `translate(0,${bounds.height - bounds.marginBottom})`)
-        .call((selection) =>
-            selection
-                .transition(trans)
-                .call(axisBottom(x).ticks(5).tickSizeOuter(0))
-        )
+        .call((selection) => selection.transition(trans).call(axisBottom(x).ticks(5).tickSizeOuter(0)))
         .attr("direction", "ltr");
 
     svg.select<SVGGElement>(".y-ticks")
@@ -165,7 +166,7 @@ export function renderForgettingCurve(
         .attr("direction", "ltr");
 
     const lineGenerator = line<DataPoint>()
-        .x((d) => x(d.daysSinceFirstLearn))
+        .x((d) => x(d.date))
         .y((d) => y(d.retrievability));
 
     svg.append("path")
@@ -185,7 +186,8 @@ export function renderForgettingCurve(
         .style("opacity", 0);
 
     function tooltipText(d: DataPoint): string {
-        return `${tr.cardStatsReviewLogElapsedTime()}: ${
+        return `Date: ${d.date.toLocaleString()}<br>
+        ${tr.cardStatsReviewLogElapsedTime()}: ${
             timeSpan(d.elapsedDaysSinceLastReview * 86400)
         }<br>${tr.cardStatsFsrsRetrievability()}: ${d.retrievability.toFixed(2)}%<br>${tr.cardStatsFsrsStability()}: ${
             timeSpan(d.stability * 86400)
@@ -198,14 +200,14 @@ export function renderForgettingCurve(
         .selectAll("rect")
         .data(data)
         .join("rect")
-        .attr("x", d => x(d.daysSinceFirstLearn) - 1)
+        .attr("x", d => x(d.date) - 1)
         .attr("y", bounds.marginTop)
         .attr("width", 2)
         .attr("height", bounds.height - bounds.marginTop - bounds.marginBottom)
         .attr("fill", "transparent")
         .on("mousemove", (event: MouseEvent, d: DataPoint) => {
             const [x1, y1] = pointer(event, document.body);
-            focusLine.attr("x1", x(d.daysSinceFirstLearn) - 1).attr("x2", x(d.daysSinceFirstLearn) + 1).style(
+            focusLine.attr("x1", x(d.date) - 1).attr("x2", x(d.date) + 1).style(
                 "opacity",
                 1,
             );
