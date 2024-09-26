@@ -4,9 +4,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { CardStatsResponse_StatsRevlogEntry as RevlogEntry } from "@generated/anki/stats_pb";
-    import { RevlogEntry_ReviewKind as ReviewKind } from "@generated/anki/stats_pb";
+    import {
+        RevlogEntry_ReviewKind as ReviewKind,
+        RevlogEntry_ReviewKind,
+    } from "@generated/anki/stats_pb";
     import * as tr2 from "@generated/ftl";
     import { timeSpan, Timestamp } from "@tslib/time";
+    import { filterRevlogByReviewKind } from "./forgetting-curve";
 
     export let revlog: RevlogEntry[];
     export let fsrsEnabled: boolean = false;
@@ -59,14 +63,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stability: string;
     }
 
-    function revlogRowFromEntry(
-        entry: RevlogEntry,
-        prevEntry?: RevlogEntry,
-    ): RevlogRow {
+    function revlogRowFromEntry(entry: RevlogEntry, elapsedTime: string): RevlogRow {
         const timestamp = new Timestamp(Number(entry.time));
-        const elapsedTime = prevEntry
-            ? timeSpan(Number(entry.time) - Number(prevEntry.time))
-            : "0";
 
         return {
             date: timestamp.dateString(),
@@ -85,12 +83,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    $: revlogRows = revlog.map((entry, index) =>
-        revlogRowFromEntry(
-            entry,
-            index < revlog.length - 1 ? revlog[index + 1] : undefined,
-        ),
-    );
+    $: revlogRows = revlog.map((entry, index) => {
+        let prevValidEntry: RevlogEntry | undefined;
+        let i = index + 1;
+        while (i < revlog.length) {
+            if (filterRevlogByReviewKind(revlog[i])) {
+                prevValidEntry = revlog[i];
+                break;
+            }
+            i++;
+        }
+
+        let elapsedTime = "N/A";
+        if (filterRevlogByReviewKind(entry)) {
+            elapsedTime = prevValidEntry
+                ? timeSpan(Number(entry.time) - Number(prevValidEntry.time))
+                : "0";
+        }
+
+        return revlogRowFromEntry(entry, elapsedTime);
+    });
 
     function formatEaseOrDifficulty(ease: number): string {
         if (ease === 0) {
