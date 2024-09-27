@@ -37,7 +37,7 @@ from anki.httpclient import HttpClient
 from anki.models import NotetypeId, StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from anki.utils import checksum, is_lin, is_mac, is_win, namedtmp
-from aqt import AnkiQt, colors, gui_hooks, mw
+from aqt import AnkiQt, colors, gui_hooks
 from aqt.operations import QueryOp
 from aqt.operations.note import update_note
 from aqt.operations.notetype import update_notetype_legacy
