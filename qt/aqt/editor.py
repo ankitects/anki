@@ -1593,7 +1593,7 @@ class EditorWebView(AnkiWebView):
         a = m.addAction(tr.editing_paste())
         qconnect(a.triggered, self.onPaste)
         if self._opened_context_menu_on_image():
-            self._add_image_menu(AnkiWebView(self), m)
+            self._add_image_menu(m)
         gui_hooks.editor_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
 
@@ -1605,13 +1605,13 @@ class EditorWebView(AnkiWebView):
         a = menu.addAction(tr.actions_copy())
         qconnect(a.triggered, self.onCopy)
 
-    def _add_image_menu(self, webview: AnkiWebView, menu: QMenu) -> None:
+    def _add_image_menu(self, menu: QMenu) -> None:
         a = menu.addAction(tr.editing_copy_image())
         qconnect(a.triggered, self.on_copy_image)
 
         url = self.lastContextMenuRequest().mediaUrl()
         file_name = url.fileName()
-        path = os.path.join(mw.col.media.dir(), file_name)
+        path = os.path.join(self.editor.mw.col.media.dir(), file_name)
         a = menu.addAction(tr.editing_open_image())
         qconnect(a.triggered, lambda: openFolder(path))
 
