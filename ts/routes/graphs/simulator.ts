@@ -148,7 +148,10 @@ export function renderSimulationChart(
         .attr("height", bounds.height - bounds.marginTop - bounds.marginBottom)
         .attr("fill", "transparent")
         .on("mousemove", mousemove)
-        .on("mouseout", hideTooltip);
+        .on("mouseout", () => {
+            focusLine.style("opacity", 0);
+            hideTooltip();
+        });
 
     function mousemove(event: MouseEvent, d: any): void {
         pointer(event, document.body);
@@ -189,15 +192,15 @@ export function renderSimulationChart(
         .on("click", (event, d) => toggleGroup(event, d));
 
     legend.append("rect")
-        .attr("x", bounds.width - bounds.marginRight + 10)
-        .attr("width", 19)
-        .attr("height", 19)
+        .attr("x", bounds.width - bounds.marginRight - 16)
+        .attr("width", 12)
+        .attr("height", 12)
         .attr("fill", (d, i) => color[i % color.length]);
 
     legend.append("text")
-        .attr("x", bounds.width - bounds.marginRight + 34)
-        .attr("y", 9.5)
-        .attr("dy", "0.32em")
+        .attr("x", bounds.width - bounds.marginRight)
+        .attr("y", 7)
+        .attr("dy", "0.3em")
         .text(d => `Simulation ${d}`);
 
     const toggleGroup = (event: MouseEvent, d: number) => {
