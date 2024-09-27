@@ -70,7 +70,7 @@ export const setupMaskEditorForEdit = async (
     image.src = getImageData(clozeNote.imageData!, clozeNote.imageFileName!);
 
     image.onload = async function() {
-        const size = optimumCssSizeForCanvas({ width: image.width, height: image.height }, containerSize());
+        const size = optimumCssSizeForCanvas({ width: image.naturalWidth, height: image.naturalHeight }, containerSize());
         setCanvasSize(canvas);
         const boundingBox = setupBoundingBox(canvas, size);
         addShapesToCanvasFromCloze(canvas, boundingBox, clozeNote.occlusions);
