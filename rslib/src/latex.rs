@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
-use once_cell::sync::Lazy;
 use regex::Captures;
 use regex::Regex;
 
@@ -11,7 +11,7 @@ use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::media::files::sha1_of_data;
 use crate::text::strip_html;
 
-pub(crate) static LATEX: Lazy<Regex> = Lazy::new(|| {
+pub(crate) static LATEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?xsi)
             \[latex\](.+?)\[/latex\]     # 1 - standard latex
@@ -23,7 +23,7 @@ pub(crate) static LATEX: Lazy<Regex> = Lazy::new(|| {
     )
     .unwrap()
 });
-static LATEX_NEWLINES: Lazy<Regex> = Lazy::new(|| {
+static LATEX_NEWLINES: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?xi)
             <br( /)?>

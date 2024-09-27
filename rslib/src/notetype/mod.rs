@@ -20,6 +20,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 pub use anki_proto::notetypes::notetype::config::card_requirement::Kind as CardRequirementKind;
 pub use anki_proto::notetypes::notetype::config::CardRequirement;
@@ -35,7 +36,6 @@ pub(crate) use cardgen::CardGenContext;
 pub use fields::NoteField;
 pub use notetypechange::ChangeNotetypeInput;
 pub use notetypechange::NotetypeChangeInfo;
-use once_cell::sync::Lazy;
 use regex::Regex;
 pub(crate) use render::RenderCardOutput;
 pub use schema11::CardTemplateSchema11;
@@ -67,7 +67,8 @@ pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_CLOZE_CSS: &str = include_str!("cloze_styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
-static SPECIAL_FIELDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+/// New entries must be handled in render.rs/add_special_fields().
+static SPECIAL_FIELDS: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     HashSet::from_iter(vec![
         "FrontSide",
         "Card",
@@ -364,7 +365,8 @@ impl Notetype {
     }
 
     fn ensure_template_fronts_unique(&self) -> Result<(), CardTypeError> {
-        static CARD_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\{\{\s*Card\s*\}\}").unwrap());
+        static CARD_TAG: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"\{\{\s*Card\s*\}\}").unwrap());
 
         let mut map = HashMap::new();
         for (index, card) in self.templates.iter().enumerate() {

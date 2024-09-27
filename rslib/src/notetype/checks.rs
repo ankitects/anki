@@ -4,9 +4,9 @@
 use std::borrow::Cow;
 use std::fmt::Write;
 use std::ops::Deref;
+use std::sync::LazyLock;
 
 use anki_i18n::without_unicode_isolation;
-use once_cell::sync::Lazy;
 use regex::Captures;
 use regex::Match;
 use regex::Regex;
@@ -24,7 +24,7 @@ struct Template<'a> {
     front: bool,
 }
 
-static FIELD_REPLACEMENT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\{\{.+\}\}").unwrap());
+static FIELD_REPLACEMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{\{.+\}\}").unwrap());
 
 impl Collection {
     pub fn report_media_field_referencing_templates(&mut self, buf: &mut String) -> Result<()> {

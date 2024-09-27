@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
+
 use regex::Regex;
 use reqwest::Client;
 use serde;
@@ -31,7 +32,7 @@ pub async fn ankihub_login<S: Into<String>>(
     client: Client,
 ) -> Result<LoginResponse> {
     let client = HttpAnkiHubClient::new("", client);
-    static EMAIL_RE: Lazy<Regex> = Lazy::new(|| {
+    static EMAIL_RE: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$").unwrap()
     });
     let mut request = LoginRequest {

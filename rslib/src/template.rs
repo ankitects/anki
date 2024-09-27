@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Write;
 use std::iter;
+use std::sync::LazyLock;
 
 use anki_i18n::I18n;
 use nom::branch::alt;
@@ -15,7 +16,6 @@ use nom::combinator::map;
 use nom::combinator::rest;
 use nom::combinator::verify;
 use nom::sequence::delimited;
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::cloze::add_cloze_numbers_in_string;
@@ -546,7 +546,7 @@ fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
 
 /// True if provided text contains only whitespace and/or empty BR/DIV tags.
 pub(crate) fn field_is_empty(text: &str) -> bool {
-    static RE: Lazy<Regex> = Lazy::new(|| {
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(
             r"(?xsi)
             ^(?:

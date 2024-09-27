@@ -16,6 +16,5 @@ globset.workspace = true
 itertools.workspace = true
 maplit.workspace = true
 num_cpus.workspace = true
-once_cell.workspace = true
 walkdir.workspace = true
 which.workspace = true

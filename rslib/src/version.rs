@@ -2,8 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::env;
-
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 pub fn version() -> &'static str {
     include_str!("../../.version").trim()
@@ -14,7 +13,7 @@ pub fn buildhash() -> &'static str {
 }
 
 pub(crate) fn sync_client_version() -> &'static str {
-    static VER: Lazy<String> = Lazy::new(|| {
+    static VER: LazyLock<String> = LazyLock::new(|| {
         format!(
             "anki,{version} ({buildhash}),{platform}",
             version = version(),
@@ -26,7 +25,7 @@ pub(crate) fn sync_client_version() -> &'static str {
 }
 
 pub(crate) fn sync_client_version_short() -> &'static str {
-    static VER: Lazy<String> = Lazy::new(|| {
+    static VER: LazyLock<String> = LazyLock::new(|| {
         format!(
             "{version},{buildhash},{platform}",
             version = version(),

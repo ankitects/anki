@@ -5,6 +5,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Write;
+use std::sync::LazyLock;
 
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusion;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
@@ -14,7 +15,6 @@ use nom::bytes::complete::tag;
 use nom::bytes::complete::take_while;
 use nom::combinator::map;
 use nom::IResult;
-use once_cell::sync::Lazy;
 use regex::Captures;
 use regex::Regex;
 
@@ -24,7 +24,7 @@ use crate::latex::contains_latex;
 use crate::template::RenderContext;
 use crate::text::strip_html_preserving_entities;
 
-static MATHJAX: Lazy<Regex> = Lazy::new(|| {
+static MATHJAX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?xsi)
             (\\[(\[])       # 1 = mathjax opening tag

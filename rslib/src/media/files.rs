@@ -7,6 +7,7 @@ use std::io;
 use std::io::Read;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 use std::time;
 
 use anki_io::create_dir;
@@ -15,7 +16,6 @@ use anki_io::write_file;
 use anki_io::FileIoError;
 use anki_io::FileIoSnafu;
 use anki_io::FileOp;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use sha1::Digest;
 use sha1::Sha1;
@@ -27,7 +27,7 @@ use unicode_normalization::UnicodeNormalization;
 use crate::prelude::*;
 use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
 
-static WINDOWS_DEVICE_NAME: Lazy<Regex> = Lazy::new(|| {
+static WINDOWS_DEVICE_NAME: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?xi)
             # starting with one of the following names
@@ -43,7 +43,7 @@ static WINDOWS_DEVICE_NAME: Lazy<Regex> = Lazy::new(|| {
     )
     .unwrap()
 });
-static WINDOWS_TRAILING_CHAR: Lazy<Regex> = Lazy::new(|| {
+static WINDOWS_TRAILING_CHAR: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?x)
             # filenames can't end with a space or period
@@ -55,7 +55,7 @@ static WINDOWS_TRAILING_CHAR: Lazy<Regex> = Lazy::new(|| {
     )
     .unwrap()
 });
-pub(crate) static NONSYNCABLE_FILENAME: Lazy<Regex> = Lazy::new(|| {
+pub(crate) static NONSYNCABLE_FILENAME: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?xi)
             ^

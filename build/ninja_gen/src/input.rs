@@ -3,9 +3,9 @@
 
 use std::collections::HashMap;
 use std::fmt::Display;
+use std::sync::LazyLock;
 
 use camino::Utf8PathBuf;
-use once_cell::sync::Lazy;
 
 #[derive(Debug, Clone, Hash, Default)]
 pub enum BuildInput {
@@ -119,7 +119,7 @@ pub struct Glob {
     pub exclude: Option<String>,
 }
 
-static CACHED_FILES: Lazy<Vec<Utf8PathBuf>> = Lazy::new(|| cache_files());
+static CACHED_FILES: LazyLock<Vec<Utf8PathBuf>> = LazyLock::new(cache_files);
 
 /// Walking the source tree once instead of for each glob yields ~4x speed
 /// improvements.

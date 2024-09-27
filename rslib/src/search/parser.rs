@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::sync::LazyLock;
+
 use nom::branch::alt;
 use nom::bytes::complete::escaped;
 use nom::bytes::complete::is_not;
@@ -17,7 +19,6 @@ use nom::error::ErrorKind as NomErrorKind;
 use nom::multi::many0;
 use nom::sequence::preceded;
 use nom::sequence::separated_pair;
-use once_cell::sync::Lazy;
 use regex::Captures;
 use regex::Regex;
 
@@ -621,7 +622,7 @@ fn parse_mid(s: &str) -> ParseResult<SearchNode> {
 /// ensure a list of ids contains only numbers and commas, returning unchanged
 /// if true used by nid: and cid:
 fn check_id_list<'a>(s: &'a str, context: &str) -> ParseResult<'a, &'a str> {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d+,)*\d+$").unwrap());
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(\d+,)*\d+$").unwrap());
     if RE.is_match(s) {
         Ok(s)
     } else {
@@ -698,7 +699,7 @@ fn unescape(txt: &str) -> ParseResult<String> {
         ))
     } else {
         Ok(if is_parser_escape(txt) {
-            static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\\[\\":()-]"#).unwrap());
+            static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\\[\\":()-]"#).unwrap());
             RE.replace_all(txt, |caps: &Captures| match &caps[0] {
                 r"\\" => r"\\",
                 "\\\"" => "\"",
@@ -718,7 +719,7 @@ fn unescape(txt: &str) -> ParseResult<String> {
 /// Return invalid escape sequence if any.
 fn invalid_escape_sequence(txt: &str) -> Option<String> {
     // odd number of \s not followed by an escapable character
-    static RE: Lazy<Regex> = Lazy::new(|| {
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(
             r#"(?x)
             (?:^|[^\\])         # not a backslash
@@ -737,7 +738,7 @@ fn invalid_escape_sequence(txt: &str) -> Option<String> {
 /// Check string for escape sequences handled by the parser: ":()-
 fn is_parser_escape(txt: &str) -> bool {
     // odd number of \s followed by a char with special meaning to the parser
-    static RE: Lazy<Regex> = Lazy::new(|| {
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(
             r#"(?x)
             (?:^|[^\\])     # not a backslash

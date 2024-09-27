@@ -12,7 +12,6 @@ anki.workspace = true
 futures.workspace = true
 itertools.workspace = true
 linkcheck.workspace = true
-once_cell.workspace = true
 regex.workspace = true
 reqwest.workspace = true
 strum.workspace = true

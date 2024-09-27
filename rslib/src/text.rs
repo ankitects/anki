@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
-use once_cell::sync::Lazy;
 use percent_encoding_iri::percent_decode_str;
 use percent_encoding_iri::utf8_percent_encode;
 use percent_encoding_iri::AsciiSet;
@@ -78,7 +78,7 @@ pub enum AvTag {
     },
 }
 
-static HTML: Lazy<Regex> = Lazy::new(|| {
+static HTML: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(concat!(
         "(?si)",
         // wrapped text
@@ -88,7 +88,7 @@ static HTML: Lazy<Regex> = Lazy::new(|| {
     ))
     .unwrap()
 });
-static HTML_LINEBREAK_TAGS: Lazy<Regex> = Lazy::new(|| {
+static HTML_LINEBREAK_TAGS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?xsi)
             </?
@@ -104,7 +104,7 @@ static HTML_LINEBREAK_TAGS: Lazy<Regex> = Lazy::new(|| {
     .unwrap()
 });
 
-pub static HTML_MEDIA_TAGS: Lazy<Regex> = Lazy::new(|| {
+pub static HTML_MEDIA_TAGS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?xsi)
             # the start of the image, audio, or object tag
@@ -150,7 +150,7 @@ pub static HTML_MEDIA_TAGS: Lazy<Regex> = Lazy::new(|| {
 });
 
 // videos are also in sound tags
-static AV_TAGS: Lazy<Regex> = Lazy::new(|| {
+static AV_TAGS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?xs)
             \[sound:(.+?)\]     # 1 - the filename in a sound tag
@@ -164,14 +164,15 @@ static AV_TAGS: Lazy<Regex> = Lazy::new(|| {
     .unwrap()
 });
 
-static PERSISTENT_HTML_SPACERS: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?i)<br\s*/?>|<div>|\n").unwrap());
+static PERSISTENT_HTML_SPACERS: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)<br\s*/?>|<div>|\n").unwrap());
 
-static TYPE_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\[\[type:[^]]+\]\]").unwrap());
-pub(crate) static SOUND_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\[sound:([^]]+)\]").unwrap());
+static TYPE_TAG: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\[\[type:[^]]+\]\]").unwrap());
+pub(crate) static SOUND_TAG: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\[sound:([^]]+)\]").unwrap());
 
 /// Files included in CSS with a leading underscore.
-static UNDERSCORED_CSS_IMPORTS: Lazy<Regex> = Lazy::new(|| {
+static UNDERSCORED_CSS_IMPORTS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?xi)
             (?:@import\s+           # import statement with a bare
@@ -193,7 +194,7 @@ static UNDERSCORED_CSS_IMPORTS: Lazy<Regex> = Lazy::new(|| {
 });
 
 /// Strings, src and data attributes with a leading underscore.
-static UNDERSCORED_REFERENCES: Lazy<Regex> = Lazy::new(|| {
+static UNDERSCORED_REFERENCES: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?x)
                 \[sound:(_[^]]+)\]  # a filename in an Anki sound tag
@@ -457,7 +458,7 @@ pub(crate) fn without_combining(s: &str) -> Cow<str> {
 /// Check if string contains an unescaped wildcard.
 pub(crate) fn is_glob(txt: &str) -> bool {
     // even number of \s followed by a wildcard
-    static RE: Lazy<Regex> = Lazy::new(|| {
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(
             r"(?x)
             (?:^|[^\\])     # not a backslash
@@ -478,7 +479,7 @@ pub(crate) fn to_re(txt: &str) -> Cow<str> {
 
 /// Convert Anki style to RegEx using the provided wildcard.
 pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\\?.").unwrap());
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\?.").unwrap());
     RE.replace_all(txt, |caps: &Captures| {
         let s = &caps[0];
         match s {
@@ -494,7 +495,7 @@ pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
 /// Convert to SQL respecting Anki wildcards.
 pub(crate) fn to_sql(txt: &str) -> Cow<str> {
     // escape sequences and unescaped special characters which need conversion
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\\[\\*]|[*%]").unwrap());
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\[\\*]|[*%]").unwrap());
     RE.replace_all(txt, |caps: &Captures| {
         let s = &caps[0];
         match s {
@@ -509,13 +510,13 @@ pub(crate) fn to_sql(txt: &str) -> Cow<str> {
 
 /// Unescape everything.
 pub(crate) fn to_text(txt: &str) -> Cow<str> {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\\(.)").unwrap());
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\(.)").unwrap());
     RE.replace_all(txt, "$1")
 }
 
 /// Escape Anki wildcards and the backslash for escaping them: \*_
 pub(crate) fn escape_anki_wildcards(txt: &str) -> String {
-    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\\*_]").unwrap());
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[\\*_]").unwrap());
     RE.replace_all(txt, r"\$0").into()
 }
 
@@ -548,8 +549,8 @@ pub(crate) fn glob_matcher(search: &str) -> impl Fn(&str) -> bool + '_ {
     }
 }
 
-pub(crate) static REMOTE_FILENAME: Lazy<Regex> =
-    Lazy::new(|| Regex::new("(?i)^https?://").unwrap());
+pub(crate) static REMOTE_FILENAME: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new("(?i)^https?://").unwrap());
 
 /// https://url.spec.whatwg.org/#fragment-percent-encode-set
 const FRAGMENT_QUERY_UNION: &AsciiSet = &CONTROLS
