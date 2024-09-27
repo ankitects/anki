@@ -8,7 +8,6 @@ use std::fmt::Write;
 use std::iter;
 
 use anki_i18n::I18n;
-use lazy_static::lazy_static;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
@@ -16,6 +15,7 @@ use nom::combinator::map;
 use nom::combinator::rest;
 use nom::combinator::verify;
 use nom::sequence::delimited;
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::cloze::add_cloze_numbers_in_string;
@@ -546,18 +546,18 @@ fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
 
 /// True if provided text contains only whitespace and/or empty BR/DIV tags.
 pub(crate) fn field_is_empty(text: &str) -> bool {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+    static RE: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(
             r"(?xsi)
             ^(?:
             [[:space:]]
             |
             </?(?:br|div)\ ?/?>
             )*$
-        "
+        ",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     RE.is_match(text)
 }
 

@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use rand::distributions::Distribution;
 use rand::distributions::Uniform;
 use regex::Regex;
@@ -65,8 +65,8 @@ pub struct DueDateSpecifier {
 }
 
 pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+    static RE: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(
             r"(?x)^
             # a number
             (?P<min>\d+)
@@ -78,10 +78,10 @@ pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
             # optional exclamation mark
             (?P<bang>!)?
             $
-        "
+        ",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     let caps = RE.captures(s).or_invalid(s)?;
     let min: u32 = caps.name("min").unwrap().as_str().parse()?;
     let max = if let Some(max) = caps.name("max") {

@@ -53,8 +53,6 @@ pub mod version;
 
 use std::env;
 
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 
-lazy_static! {
-    pub(crate) static ref PYTHON_UNIT_TESTS: bool = env::var("ANKI_TEST_MODE").is_ok();
-}
+pub(crate) static PYTHON_UNIT_TESTS: Lazy<bool> = Lazy::new(|| env::var("ANKI_TEST_MODE").is_ok());

@@ -6,7 +6,7 @@ use std::fmt::Write;
 use std::ops::Deref;
 
 use anki_i18n::without_unicode_isolation;
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Captures;
 use regex::Match;
 use regex::Regex;
@@ -24,9 +24,7 @@ struct Template<'a> {
     front: bool,
 }
 
-lazy_static! {
-    static ref FIELD_REPLACEMENT: Regex = Regex::new(r"\{\{.+\}\}").unwrap();
-}
+static FIELD_REPLACEMENT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\{\{.+\}\}").unwrap());
 
 impl Collection {
     pub fn report_media_field_referencing_templates(&mut self, buf: &mut String) -> Result<()> {

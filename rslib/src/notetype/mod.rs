@@ -33,9 +33,9 @@ pub use anki_proto::notetypes::Notetype as NotetypeProto;
 pub(crate) use cardgen::AlreadyGeneratedCardInfo;
 pub(crate) use cardgen::CardGenContext;
 pub use fields::NoteField;
-use lazy_static::lazy_static;
 pub use notetypechange::ChangeNotetypeInput;
 pub use notetypechange::NotetypeChangeInfo;
+use once_cell::sync::Lazy;
 use regex::Regex;
 pub(crate) use render::RenderCardOutput;
 pub use schema11::CardTemplateSchema11;
@@ -67,9 +67,8 @@ pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_CLOZE_CSS: &str = include_str!("cloze_styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
-lazy_static! {
-    /// New entries must be handled in render.rs/add_special_fields().
-    static ref SPECIAL_FIELDS: HashSet<&'static str> = HashSet::from_iter(vec![
+static SPECIAL_FIELDS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+    HashSet::from_iter(vec![
         "FrontSide",
         "Card",
         "CardFlag",
@@ -77,8 +76,8 @@ lazy_static! {
         "Subdeck",
         "Tags",
         "Type",
-    ]);
-}
+    ])
+});
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Notetype {
@@ -365,9 +364,7 @@ impl Notetype {
     }
 
     fn ensure_template_fronts_unique(&self) -> Result<(), CardTypeError> {
-        lazy_static! {
-            static ref CARD_TAG: Regex = Regex::new(r"\{\{\s*Card\s*\}\}").unwrap();
-        }
+        static CARD_TAG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\{\{\s*Card\s*\}\}").unwrap());
 
         let mut map = HashMap::new();
         for (index, card) in self.templates.iter().enumerate() {

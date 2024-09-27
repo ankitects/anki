@@ -3,7 +3,7 @@
 
 use std::mem;
 
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::notetype::NotetypeId as NotetypeIdType;
@@ -109,9 +109,8 @@ fn maybe_quote(txt: &str) -> String {
 /// Checks for the reserved keywords "and" and "or", a prepended hyphen,
 /// whitespace and brackets.
 fn needs_quotation(txt: &str) -> bool {
-    lazy_static! {
-        static ref RE: Regex = Regex::new("(?i)^and$|^or$|^-.| |\u{3000}|\\(|\\)").unwrap();
-    }
+    static RE: Lazy<Regex> =
+        Lazy::new(|| Regex::new("(?i)^and$|^or$|^-.| |\u{3000}|\\(|\\)").unwrap());
     RE.is_match(txt)
 }
 
