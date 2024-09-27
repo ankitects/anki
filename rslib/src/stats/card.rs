@@ -7,6 +7,8 @@ use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
+use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
+use crate::scheduler::fsrs::weights::ignore_revlogs_before_ms_from_config;
 use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Collection {
@@ -70,7 +72,7 @@ impl Collection {
             total_secs,
             card_type: nt.get_template(card.template_idx)?.name.clone(),
             notetype: nt.name.clone(),
-            revlog: revlog.iter().rev().map(stats_revlog_entry).collect(),
+            revlog: self.stats_revlog_entries_with_memory_state(&card, revlog)?,
             memory_state: card.memory_state.map(Into::into),
             fsrs_retrievability,
             custom_data: card.custom_data,
@@ -113,6 +115,46 @@ impl Collection {
             ),
         })
     }
+
+    fn stats_revlog_entries_with_memory_state(
+        self: &mut Collection,
+        card: &Card,
+        revlog: Vec<RevlogEntry>,
+    ) -> Result<Vec<anki_proto::stats::card_stats_response::StatsRevlogEntry>> {
+        let deck_id = card.original_deck_id.or(card.deck_id);
+        let deck = self.get_deck(deck_id)?.or_not_found(card.deck_id)?;
+        let conf_id = DeckConfigId(deck.normal()?.config_id);
+        let config = self
+            .storage
+            .get_deck_config(conf_id)?
+            .or_not_found(conf_id)?;
+        let historical_retention = config.inner.historical_retention;
+        let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
+        let next_day_at = self.timing_today()?.next_day_at;
+        let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
+
+        let mut result = Vec::new();
+        let mut accumulated_revlog = Vec::new();
+
+        for entry in revlog {
+            accumulated_revlog.push(entry.clone());
+            let item = single_card_revlog_to_item(
+                &fsrs,
+                accumulated_revlog.clone(),
+                next_day_at,
+                historical_retention,
+                ignore_before,
+            )?;
+            let mut card_clone = card.clone();
+            card_clone.set_memory_state(&fsrs, item, historical_retention)?;
+
+            let mut stats_entry = stats_revlog_entry(&entry);
+            stats_entry.memory_state = card_clone.memory_state.map(Into::into);
+            result.push(stats_entry);
+        }
+
+        Ok(result.into_iter().rev().collect())
+    }
 }
 
 fn average_and_total_secs_strings(revlog: &[RevlogEntry]) -> (f32, f32) {
@@ -138,6 +180,7 @@ fn stats_revlog_entry(
         interval: entry.interval_secs(),
         ease: entry.ease_factor,
         taken_secs: entry.taken_millis as f32 / 1000.,
+        memory_state: None,
     }
 }
 
