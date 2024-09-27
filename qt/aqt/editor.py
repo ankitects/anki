@@ -1609,7 +1609,7 @@ class EditorWebView(AnkiWebView):
         a = menu.addAction(tr.editing_copy_image())
         qconnect(a.triggered, self.on_copy_image)
 
-        url = webview.lastContextMenuRequest().mediaUrl()
+        url = self.lastContextMenuRequest().mediaUrl()
         file_name = url.fileName()
         path = os.path.join(mw.col.media.dir(), file_name)
         a = menu.addAction(tr.editing_open_image())
