@@ -33,79 +33,77 @@ macro_rules! format_typeans {
 }
 
 // Public API
-pub fn compare_answer(expected: &str, provided: &str) -> String {
-    if provided.is_empty() {
-        format_typeans!(htmlescape::encode_minimal(expected))
+pub fn compare_answer(expected: &str, typed: &str) -> String {
+    if typed.is_empty() {
+        format_typeans!(htmlescape::encode_minimal(&prepare_expected(expected)))
     } else {
-        Diff::new(expected, provided).to_html()
+        Diff::new(expected, typed).to_html()
     }
 }
 
 struct Diff {
-    provided: Vec<char>,
+    typed: Vec<char>,
     expected: Vec<char>,
-    expected_original: String,
 }
 
 impl Diff {
-    fn new(expected: &str, provided: &str) -> Self {
+    fn new(expected: &str, typed: &str) -> Self {
         Self {
-            provided: normalize_to_nfc(provided).chars().collect(),
+            typed: normalize_to_nfc(typed).chars().collect(),
             expected: normalize_to_nfc(&prepare_expected(expected))
                 .chars()
                 .collect(),
-            expected_original: expected.to_string(),
         }
     }
 
     // Entry Point
     fn to_html(&self) -> String {
-        if self.provided == self.expected {
+        if self.typed == self.expected {
             format_typeans!(format!(
                 "<span class=typeGood>{}</span>",
-                self.expected_original
+                &self.expected.iter().collect::<String>()
             ))
         } else {
             let output = self.to_tokens();
-            let provided_html = render_tokens(&output.provided_tokens);
+            let typed_html = render_tokens(&output.typed_tokens);
             let expected_html = render_tokens(&output.expected_tokens);
 
             format_typeans!(format!(
-                "{provided_html}<br><span id=typearrow>&darr;</span><br>{expected_html}"
+                "{typed_html}<br><span id=typearrow>&darr;</span><br>{expected_html}"
             ))
         }
     }
 
     fn to_tokens(&self) -> DiffTokens {
-        let mut matcher = SequenceMatcher::new(&self.provided, &self.expected);
-        let mut provided_tokens = Vec::new();
+        let mut matcher = SequenceMatcher::new(&self.typed, &self.expected);
+        let mut typed_tokens = Vec::new();
         let mut expected_tokens = Vec::new();
 
         for opcode in matcher.get_opcodes() {
-            let provided_slice = slice(&self.provided, opcode.first_start, opcode.first_end);
+            let typed_slice = slice(&self.typed, opcode.first_start, opcode.first_end);
             let expected_slice = slice(&self.expected, opcode.second_start, opcode.second_end);
 
             match opcode.tag.as_str() {
                 "equal" => {
-                    provided_tokens.push(DiffToken::good(provided_slice));
+                    typed_tokens.push(DiffToken::good(typed_slice));
                     expected_tokens.push(DiffToken::good(expected_slice));
                 }
-                "delete" => provided_tokens.push(DiffToken::bad(provided_slice)),
+                "delete" => typed_tokens.push(DiffToken::bad(typed_slice)),
                 "insert" => {
-                    provided_tokens.push(DiffToken::missing(
+                    typed_tokens.push(DiffToken::missing(
                         "-".repeat(expected_slice.chars().count()),
                     ));
                     expected_tokens.push(DiffToken::missing(expected_slice));
                 }
                 "replace" => {
-                    provided_tokens.push(DiffToken::bad(provided_slice));
+                    typed_tokens.push(DiffToken::bad(typed_slice));
                     expected_tokens.push(DiffToken::missing(expected_slice));
                 }
                 _ => unreachable!(),
             }
         }
         DiffTokens {
-            provided_tokens,
+            typed_tokens,
             expected_tokens,
         }
     }
@@ -139,7 +137,7 @@ fn isolate_leading_mark(text: &str) -> Cow<str> {
     if text
         .chars()
         .next()
-        .map_or(false, |ch| GeneralCategory::of(ch).is_mark())
+        .map_or(false, |c| GeneralCategory::of(c).is_mark())
     {
         format!("\u{a0}{text}").into()
     } else {
@@ -149,7 +147,7 @@ fn isolate_leading_mark(text: &str) -> Cow<str> {
 
 #[derive(Debug, PartialEq, Eq)]
 struct DiffTokens {
-    provided_tokens: Vec<DiffToken>,
+    typed_tokens: Vec<DiffToken>,
     expected_tokens: Vec<DiffToken>,
 }
 
@@ -212,7 +210,7 @@ mod test {
         let ctx = Diff::new("¿Y ahora qué vamos a hacer?", "y ahora qe vamosa hacer");
         let output = ctx.to_tokens();
         assert_eq!(
-            output.provided_tokens,
+            output.typed_tokens,
             vec![
                 bad("y"),
                 good(" ahora q"),
@@ -245,18 +243,18 @@ mod test {
     }
 
     #[test]
-    fn missed_chars_only_shown_in_provided_when_after_good() {
+    fn missed_chars_only_shown_in_typed_when_after_good() {
         let ctx = Diff::new("1", "23");
-        assert_eq!(ctx.to_tokens().provided_tokens, &[bad("23")]);
+        assert_eq!(ctx.to_tokens().typed_tokens, &[bad("23")]);
         let ctx = Diff::new("12", "1");
-        assert_eq!(ctx.to_tokens().provided_tokens, &[good("1"), missing("-"),]);
+        assert_eq!(ctx.to_tokens().typed_tokens, &[good("1"), missing("-"),]);
     }
 
     #[test]
     fn missed_chars_counted_correctly() {
         let ctx = Diff::new("нос", "нс");
         assert_eq!(
-            ctx.to_tokens().provided_tokens,
+            ctx.to_tokens().typed_tokens,
             &[good("н"), missing("-"), good("с")]
         );
     }
@@ -266,7 +264,7 @@ mod test {
         // this was not parsed as expected with dissimilar 1.0.4
         let ctx = Diff::new("쓰다듬다", "스다뜸다");
         assert_eq!(
-            ctx.to_tokens().provided_tokens,
+            ctx.to_tokens().typed_tokens,
             &[bad("스"), good("다"), bad("뜸"), good("다"),]
         );
     }
@@ -285,13 +283,17 @@ mod test {
     }
 
     #[test]
-    fn whitespace_is_trimmed() {
-        assert_eq!(prepare_expected("<div>foo</div>"), "foo");
+    fn tags_removed() {
+        assert_eq!(prepare_expected("<div>123</div>"), "123");
+        assert_eq!(
+            Diff::new("<div>123</div>", "123").to_html(),
+            "<code id=typeans><span class=typeGood>123</span></code>"
+        );
     }
 
     #[test]
     fn empty_input_shows_as_code() {
-        let ctx = compare_answer("123", "");
+        let ctx = compare_answer("<div>123</div>", "");
         assert_eq!(ctx, "<code id=typeans>123</code>");
     }
 
