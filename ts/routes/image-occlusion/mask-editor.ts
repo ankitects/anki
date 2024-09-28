@@ -113,10 +113,7 @@ function initCanvas(): fabric.Canvas {
         }
         saveChanges();
     });
-    // TODO: Shorten this?
-    canvas.on("object:removed", (evt) => {
-        saveChanges();
-    });
+    canvas.on("object:removed", saveChanges);
     return canvas;
 }
 
