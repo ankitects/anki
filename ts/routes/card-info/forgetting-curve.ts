@@ -13,7 +13,7 @@ import { hideTooltip, showTooltip } from "../graphs/tooltip-utils.svelte";
 
 const FACTOR = 19 / 81;
 const DECAY = -0.5;
-const MIN_POINTS = 100;
+const MIN_POINTS = 1000;
 
 function forgettingCurve(stability: number, daysElapsed: number): number {
     return Math.pow((daysElapsed / stability) * FACTOR + 1.0, DECAY);
@@ -34,14 +34,14 @@ export enum TimeRange {
     AllTime,
 }
 
-function filterDataByTimeRange(data: DataPoint[], range: TimeRange): DataPoint[] {
-    const maxDays = {
-        [TimeRange.Week]: 7,
-        [TimeRange.Month]: 30,
-        [TimeRange.Year]: 365,
-        [TimeRange.AllTime]: Infinity,
-    }[range];
+const MAX_DAYS = {
+    [TimeRange.Week]: 7,
+    [TimeRange.Month]: 30,
+    [TimeRange.Year]: 365,
+    [TimeRange.AllTime]: Infinity,
+};
 
+function filterDataByTimeRange(data: DataPoint[], maxDays: number): DataPoint[] {
     return data.filter((point) => point.daysSinceFirstLearn <= maxDays);
 }
 
@@ -52,13 +52,13 @@ export function filterRevlogByReviewKind(entry: RevlogEntry): boolean {
     );
 }
 
-export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
+export function prepareData(revlog: RevlogEntry[], maxDays: number) {
     const data: DataPoint[] = [];
     let lastReviewTime = 0;
     let lastStability = 0;
+    const step = Math.min(maxDays / MIN_POINTS, 1);
 
     revlog
-        .filter((entry) => filterRevlogByReviewKind(entry))
         .toReversed()
         .forEach((entry, index) => {
             const reviewTime = Number(entry.time);
@@ -76,9 +76,9 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
             }
 
             const totalDaysElapsed = (reviewTime - lastReviewTime) / (24 * 60 * 60);
-            const step = Math.min(1, totalDaysElapsed / MIN_POINTS);
-            for (let i = 0; i < Math.max(MIN_POINTS, totalDaysElapsed); i++) {
-                const elapsedDays = (i + 1) * step;
+            let elapsedDays = 0;
+            while (elapsedDays < totalDaysElapsed) {
+                elapsedDays += step;
                 const retrievability = forgettingCurve(lastStability, elapsedDays);
                 data.push({
                     date: new Date((lastReviewTime + elapsedDays * 86400) * 1000),
@@ -107,9 +107,9 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
 
     const now = Date.now() / 1000;
     const totalDaysSinceLastReview = Math.floor((now - lastReviewTime) / (24 * 60 * 60));
-    const step = Math.min(1, totalDaysSinceLastReview / MIN_POINTS);
-    for (let i = 0; i < Math.max(MIN_POINTS, totalDaysSinceLastReview); i++) {
-        const elapsedDays = (i + 1) * step;
+    let elapsedDays = 0;
+    while (elapsedDays < totalDaysSinceLastReview) {
+        elapsedDays += step;
         const retrievability = forgettingCurve(lastStability, elapsedDays);
         data.push({
             date: new Date((lastReviewTime + elapsedDays * 86400) * 1000),
@@ -119,7 +119,7 @@ export function prepareData(revlog: RevlogEntry[], timeRange: TimeRange) {
             stability: lastStability,
         });
     }
-    const filteredData = filterDataByTimeRange(data, timeRange);
+    const filteredData = filterDataByTimeRange(data, maxDays);
     return filteredData;
 }
 
@@ -129,9 +129,17 @@ export function renderForgettingCurve(
     svgElem: SVGElement,
     bounds: GraphBounds,
 ) {
-    const data = prepareData(revlog, timeRange);
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
+    const filteredRevlog = revlog.filter((entry) => filterRevlogByReviewKind(entry));
+    if (filteredRevlog.length === 0) {
+        setDataAvailable(svg, false);
+        return;
+    }
+    const daysSinceFirstLearn = (Date.now() / 1000 - Number(filteredRevlog[filteredRevlog.length - 1].time))
+        / (24 * 60 * 60);
+    const maxDays = Math.min(daysSinceFirstLearn, MAX_DAYS[timeRange]);
+    const data = prepareData(filteredRevlog, maxDays);
 
     if (data.length === 0) {
         setDataAvailable(svg, false);

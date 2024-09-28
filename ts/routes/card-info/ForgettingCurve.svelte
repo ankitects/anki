@@ -25,32 +25,50 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="forgetting-curve">
-    <InputBox>
-        <div class="time-range-selector">
-            <label>
-                <input type="radio" bind:group={$timeRange} value={TimeRange.Week} />
-                {tr.cardStatsFsrsForgettingCurveFirstWeek()}
-            </label>
-            <label>
-                <input type="radio" bind:group={$timeRange} value={TimeRange.Month} />
-                {tr.cardStatsFsrsForgettingCurveFirstMonth()}
-            </label>
-            {#if data.length > 0 && data.some((point) => point.daysSinceFirstLearn > 365)}
+    {#if data.length > 0}
+        <InputBox>
+            <div class="time-range-selector">
+                {#if data.some((point) => point.daysSinceFirstLearn > 7)}
+                    <label>
+                        <input
+                            type="radio"
+                            bind:group={$timeRange}
+                            value={TimeRange.Week}
+                        />
+                        {tr.cardStatsFsrsForgettingCurveFirstWeek()}
+                    </label>
+                {/if}
+                {#if data.some((point) => point.daysSinceFirstLearn > 30)}
+                    <label>
+                        <input
+                            type="radio"
+                            bind:group={$timeRange}
+                            value={TimeRange.Month}
+                        />
+                        {tr.cardStatsFsrsForgettingCurveFirstMonth()}
+                    </label>
+                {/if}
+                {#if data.some((point) => point.daysSinceFirstLearn > 365)}
+                    <label>
+                        <input
+                            type="radio"
+                            bind:group={$timeRange}
+                            value={TimeRange.Year}
+                        />
+                        {tr.cardStatsFsrsForgettingCurveFirstYear()}
+                    </label>
+                {/if}
                 <label>
                     <input
                         type="radio"
                         bind:group={$timeRange}
-                        value={TimeRange.Year}
+                        value={TimeRange.AllTime}
                     />
-                    {tr.cardStatsFsrsForgettingCurveFirstYear()}
+                    {tr.cardStatsFsrsForgettingCurveAllTime()}
                 </label>
-            {/if}
-            <label>
-                <input type="radio" bind:group={$timeRange} value={TimeRange.AllTime} />
-                {tr.cardStatsFsrsForgettingCurveAllTime()}
-            </label>
-        </div>
-    </InputBox>
+            </div>
+        </InputBox>
+    {/if}
     <Graph {title}>
         <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
             <AxisTicks {bounds} />
