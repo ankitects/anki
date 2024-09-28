@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 
-import { opacityStateStore, textEditingState } from "../store";
+import { opacityStateStore } from "../store";
 import {
     enableUniformScaling,
     isPointerInBoundingBox,
@@ -61,13 +61,5 @@ export const drawText = (canvas: fabric.Canvas): void => {
             canvas.renderAll();
             return;
         }
-    });
-
-    canvas.on("text:editing:entered", function() {
-        textEditingState.set(true);
-    });
-
-    canvas.on("text:editing:exited", function() {
-        textEditingState.set(false);
     });
 };

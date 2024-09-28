@@ -8,7 +8,7 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
-import { notesDataStore, saveChanges, tagsWritable } from "./store";
+import { notesDataStore, saveChanges, tagsWritable, textEditingState } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, makeShapeRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
@@ -112,6 +112,13 @@ function initCanvas(): fabric.Canvas {
             undoStack.onObjectModified();
         }
         saveChanges();
+    });
+    canvas.on("text:editing:entered", function() {
+        textEditingState.set(true);
+    });
+
+    canvas.on("text:editing:exited", function() {
+        textEditingState.set(false);
     });
     canvas.on("object:removed", saveChanges);
     return canvas;
