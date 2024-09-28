@@ -312,8 +312,7 @@ pub(crate) fn single_card_revlog_to_items(
         !(
             // manually rescheduled
             (entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0)
-            || 
-            // cram
+            || // cram
             (entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0)
         )
     });
