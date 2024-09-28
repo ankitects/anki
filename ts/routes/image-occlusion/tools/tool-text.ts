@@ -4,6 +4,7 @@
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 
+import type { Callback } from "@tslib/helpers";
 import { opacityStateStore } from "../store";
 import {
     enableUniformScaling,
@@ -16,7 +17,7 @@ import {
 import { undoStack } from "./tool-undo-redo";
 import { onPinchZoom } from "./tool-zoom";
 
-export const drawText = (canvas: fabric.Canvas): void => {
+export const drawText = (canvas: fabric.Canvas, onActivated: Callback): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
     stopDraw(canvas);
 
@@ -52,7 +53,9 @@ export const drawText = (canvas: fabric.Canvas): void => {
         canvas.add(text);
         canvas.setActiveObject(text);
         undoStack.onObjectAdded(text.id);
+        text.enterEditing();
         text.selectAll();
+        onActivated();
     });
 
     canvas.on("mouse:move", function(o) {

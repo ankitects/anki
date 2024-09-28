@@ -163,13 +163,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const handleToolChanges = (activeTool: string) => {
+    const handleToolChanges = (newActiveTool: string) => {
         disableFunctions();
         enableSelectable(canvas, true);
         // remove unfinished polygon when switching to other tools
         removeUnfinishedPolygon(canvas);
 
-        switch (activeTool) {
+        switch (newActiveTool) {
             case "cursor":
                 drawCursor(canvas);
                 break;
@@ -183,9 +183,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 drawPolygon(canvas);
                 break;
             case "draw-text":
-                drawText(canvas);
-                break;
-            default:
+                drawText(canvas, () => {
+                    activeTool = "cursor";
+                    handleToolChanges(activeTool);
+                });
                 break;
         }
     };
