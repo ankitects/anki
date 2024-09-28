@@ -888,7 +888,7 @@ def openFolder(path: str) -> None:
 
 def showinFolder(path: str) -> None:
     if is_win:
-        call(["explorer", "/select,", f"file://{path}"])
+        subprocess.Popen(f'explorer /select, "file://{path}" ')
     elif is_mac:
         script = f"""
         tell application "Finder"
