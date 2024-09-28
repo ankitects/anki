@@ -106,7 +106,7 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
     }
 
     const now = Date.now() / 1000;
-    const totalDaysSinceLastReview = Math.floor((now - lastReviewTime) / (24 * 60 * 60));
+    const totalDaysSinceLastReview = (now - lastReviewTime) / (24 * 60 * 60);
     let elapsedDays = 0;
     while (elapsedDays < totalDaysSinceLastReview) {
         elapsedDays += step;
