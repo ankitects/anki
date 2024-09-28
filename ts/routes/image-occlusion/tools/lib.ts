@@ -13,6 +13,7 @@ export const TEXT_BACKGROUND_COLOR = "#ffffff";
 export const TEXT_FONT_FAMILY = "Arial";
 export const TEXT_PADDING = 5;
 export const TEXT_FONT_SIZE = 40;
+export const TEXT_COLOR = "#000000";
 
 let _clipboard;
 

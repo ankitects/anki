@@ -20,7 +20,7 @@ export const drawText = (canvas: fabric.Canvas): void => {
     canvas.selectionColor = "rgba(0, 0, 0, 0)";
     stopDraw(canvas);
 
-    let text;
+    let text: fabric.IText;
 
     canvas.on("mouse:down", function(o) {
         if (o.target) {

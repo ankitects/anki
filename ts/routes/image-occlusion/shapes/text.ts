@@ -3,7 +3,7 @@
 
 import { fabric } from "fabric";
 
-import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_FONT_SIZE, TEXT_PADDING } from "../tools/lib";
+import { TEXT_BACKGROUND_COLOR, TEXT_COLOR, TEXT_FONT_FAMILY, TEXT_FONT_SIZE, TEXT_PADDING } from "../tools/lib";
 import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
@@ -23,6 +23,7 @@ export class Text extends Shape {
         ...rest
     }: ConstructorParams<Text> = {}) {
         super(rest);
+        this.fill = TEXT_COLOR;
         this.text = text;
         this.scaleX = scaleX;
         this.scaleY = scaleY;

@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let activeTool = "cursor";
     let showAlignTools = false;
     let leftPos = 82;
-    let maksOpacity = false;
+    let maskOpacity = false;
     let showFloating = false;
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
     // handle zoom event when mouse scroll and ctrl key are hold for panzoom
@@ -207,7 +207,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => {
-        opacityStateStore.set(maksOpacity);
+        opacityStateStore.set(maskOpacity);
         removeHandlers = singleCallback(
             on(document, "click", onClick),
             on(window, "mousemove", onMousemove),
@@ -342,8 +342,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     toggleTranslucentKeyCombination,
                 )})"
                 on:click={() => {
-                    maksOpacity = !maksOpacity;
-                    makeMaskTransparent(canvas, maksOpacity);
+                    maskOpacity = !maskOpacity;
+                    makeMaskTransparent(canvas, maskOpacity);
                 }}
             >
                 <Icon icon={mdiEye} />
@@ -352,8 +352,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <Shortcut
                     keyCombination={toggleTranslucentKeyCombination}
                     on:action={() => {
-                        maksOpacity = !maksOpacity;
-                        makeMaskTransparent(canvas, maksOpacity);
+                        maskOpacity = !maskOpacity;
+                        makeMaskTransparent(canvas, maskOpacity);
                     }}
                 />
             {/if}
