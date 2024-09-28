@@ -95,10 +95,14 @@ impl Collection {
             }
         });
         let fsrs = FSRS::new(Some(current_weights))?;
+        dbg!(&current_weights);
         let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
+        dbg!(&current_rmse);
         let mut weights = fsrs.compute_parameters(items.clone(), Some(progress2))?;
+        dbg!(&weights);
         let optimized_fsrs = FSRS::new(Some(&weights))?;
         let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
+        dbg!(&optimized_rmse);
         if current_rmse <= optimized_rmse {
             weights = current_weights.to_vec();
         }
@@ -308,16 +312,14 @@ pub(crate) fn single_card_revlog_to_items(
     }
 
     // Filter out unwanted entries
-    let mut unique_dates = std::collections::HashSet::new();
     entries.retain(|entry| {
-        let manually_rescheduled =
-            entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0;
-        let cram = entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0;
-        if manually_rescheduled || cram {
-            return false;
-        }
-        // Keep only the first review when multiple reviews done on one day
-        unique_dates.insert(entry.days_elapsed(next_day_at))
+        !(
+            // manually rescheduled
+            (entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0)
+            || 
+            // cram
+            (entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0)
+        )
     });
 
     // Compute delta_t for each entry
@@ -346,6 +348,7 @@ pub(crate) fn single_card_revlog_to_items(
                 .collect();
             FSRSItem { reviews }
         })
+        .filter(|item| item.reviews.last().unwrap().delta_t > 0)
         .collect_vec();
     if items.is_empty() {
         None
