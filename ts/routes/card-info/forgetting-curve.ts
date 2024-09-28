@@ -123,6 +123,15 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
     return filteredData;
 }
 
+export function calculateMaxDays(filteredRevlog: RevlogEntry[], timeRange: TimeRange): number {
+    if (filteredRevlog.length === 0) {
+        return 0;
+    }
+    const daysSinceFirstLearn = (Date.now() / 1000 - Number(filteredRevlog[filteredRevlog.length - 1].time))
+        / (24 * 60 * 60);
+    return Math.min(daysSinceFirstLearn, MAX_DAYS[timeRange]);
+}
+
 export function renderForgettingCurve(
     revlog: RevlogEntry[],
     timeRange: TimeRange,
@@ -136,9 +145,8 @@ export function renderForgettingCurve(
         setDataAvailable(svg, false);
         return;
     }
-    const daysSinceFirstLearn = (Date.now() / 1000 - Number(filteredRevlog[filteredRevlog.length - 1].time))
-        / (24 * 60 * 60);
-    const maxDays = Math.min(daysSinceFirstLearn, MAX_DAYS[timeRange]);
+    const maxDays = calculateMaxDays(filteredRevlog, timeRange);
+
     const data = prepareData(filteredRevlog, maxDays);
 
     if (data.length === 0) {
@@ -194,7 +202,9 @@ export function renderForgettingCurve(
         .style("opacity", 0);
 
     function tooltipText(d: DataPoint): string {
-        return `Date: ${d.date.toLocaleString()}<br>
+        return `${maxDays >= 365 ? "Date" : "Date Time"}: ${
+            maxDays >= 365 ? d.date.toLocaleDateString() : d.date.toLocaleString()
+        }<br>
         ${tr.cardStatsReviewLogElapsedTime()}: ${
             timeSpan(d.elapsedDaysSinceLastReview * 86400)
         }<br>${tr.cardStatsFsrsRetrievability()}: ${d.retrievability.toFixed(2)}%<br>${tr.cardStatsFsrsStability()}: ${
