@@ -343,7 +343,7 @@ pub(crate) fn single_card_revlog_to_items(
                 .collect();
             FSRSItem { reviews }
         })
-        .filter(|item| item.reviews.last().unwrap().delta_t > 0)
+        .filter(|item| !training || item.reviews.last().unwrap().delta_t > 0)
         .collect_vec();
     if items.is_empty() {
         None
