@@ -8,7 +8,7 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
-import { notesDataStore, tagsWritable } from "./store";
+import { notesDataStore, saveChanges, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, makeShapeRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
@@ -24,11 +24,10 @@ export interface ImageLoadedEvent {
 
 export const setupMaskEditor = async (
     path: string,
-    onChange: () => void,
     onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
     const imageData = await getImageForOcclusion({ path });
-    const canvas = initCanvas(onChange);
+    const canvas = initCanvas();
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
@@ -46,7 +45,6 @@ export const setupMaskEditor = async (
 
 export const setupMaskEditorForEdit = async (
     noteId: number,
-    onChange: () => void,
     onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
     const clozeNoteResponse = await getImageOcclusionNote({ noteId: BigInt(noteId) });
@@ -63,14 +61,17 @@ export const setupMaskEditorForEdit = async (
     }
 
     const clozeNote = clozeNoteResponse.value.value;
-    const canvas = initCanvas(onChange);
+    const canvas = initCanvas();
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
     image.src = getImageData(clozeNote.imageData!, clozeNote.imageFileName!);
 
     image.onload = async function() {
-        const size = optimumCssSizeForCanvas({ width: image.naturalWidth, height: image.naturalHeight }, containerSize());
+        const size = optimumCssSizeForCanvas(
+            { width: image.naturalWidth, height: image.naturalHeight },
+            containerSize(),
+        );
         setCanvasSize(canvas);
         const boundingBox = setupBoundingBox(canvas, size);
         addShapesToCanvasFromCloze(canvas, boundingBox, clozeNote.occlusions);
@@ -85,7 +86,7 @@ export const setupMaskEditorForEdit = async (
     return canvas;
 };
 
-function initCanvas(onChange: () => void): fabric.Canvas {
+function initCanvas(): fabric.Canvas {
     const canvas = new fabric.Canvas("canvas");
     tagsWritable.set([]);
     globalThis.canvas = canvas;
@@ -110,9 +111,12 @@ function initCanvas(onChange: () => void): fabric.Canvas {
             modifiedPolygon(canvas, evt.target);
             undoStack.onObjectModified();
         }
-        onChange();
+        saveChanges();
     });
-    canvas.on("object:removed", onChange);
+    // TODO: Shorten this?
+    canvas.on("object:removed", (evt) => {
+        saveChanges();
+    });
     return canvas;
 }
 

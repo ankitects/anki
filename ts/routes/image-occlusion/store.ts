@@ -17,3 +17,19 @@ export const ioImageLoadedStore = writable(false);
 export const opacityStateStore = writable(false);
 // store state of text editing
 export const textEditingState = writable(false);
+// Stores if any objects have been modified on the canvas
+export const saveNeededStore = writable(false);
+
+/**
+ * Saves all shape information as clozes to backend
+ */
+export function saveChanges() {
+    saveNeededStore.set(true);
+}
+
+/**
+ * Clears the pending save operation after completion
+ */
+export function saveCompleted() {
+    saveNeededStore.set(false);
+}

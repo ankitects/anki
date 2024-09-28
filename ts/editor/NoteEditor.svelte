@@ -459,7 +459,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     globalThis.setImageField = setImageField;
 
-    function updateOcclusionsField(): void {
+    function saveOcclusions(): void {
         if (isImageOcclusion && globalThis.canvas) {
             const occlusionsData = exportShapesToClozeDeletions($hideAllGuessOne);
             fieldStores[ioFields.occlusions].set(occlusionsData.clozes);
@@ -572,7 +572,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             triggerChanges,
             setIsImageOcclusion,
             setupMaskEditor,
-            updateOcclusionsField,
+            saveOcclusions,
             ...oldEditorAdapter,
         });
 
@@ -637,7 +637,7 @@ the AddCards dialog) should be implemented in the user of this component.
         <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'};">
             <ImageOcclusionPage
                 mode={imageOcclusionMode}
-                on:change={updateOcclusionsField}
+                on:save={saveOcclusions}
                 on:image-loaded={onImageLoaded}
             />
         </div>

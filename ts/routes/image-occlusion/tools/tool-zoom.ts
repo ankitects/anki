@@ -9,8 +9,8 @@ import Hammer from "hammerjs";
 
 import { isDesktop } from "$lib/tslib/platform";
 
-import { getBoundingBoxSize, redraw } from "./lib";
 import type { Size } from "../types";
+import { getBoundingBoxSize, redraw } from "./lib";
 
 const minScale = 0.5;
 const maxScale = 5;

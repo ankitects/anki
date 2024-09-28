@@ -7,7 +7,7 @@ import { writable } from "svelte/store";
 
 import { mdiRedo, mdiUndo } from "$lib/components/icons";
 
-import { emitChangeSignal } from "../MaskEditor.svelte";
+import { saveChanges } from "../store";
 import { redoKeyCombination, undoKeyCombination } from "./shortcuts";
 
 /**
@@ -84,7 +84,7 @@ class UndoStack {
         this.locked = true;
         this.canvas?.loadFromJSON(this.stack[this.index], () => {
             this.canvas?.renderAll();
-            emitChangeSignal();
+            saveChanges();
             this.locked = false;
         });
         // make bounding box unselectable
@@ -100,12 +100,12 @@ class UndoStack {
             this.push();
         }
         this.shapeIds.add(id);
-        emitChangeSignal();
+        saveChanges();
     }
 
     onObjectModified(): void {
         this.push();
-        emitChangeSignal();
+        saveChanges();
     }
 
     private maybePush(obj: fabric.IEvent<MouseEvent>): void {

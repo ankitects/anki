@@ -25,8 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "$lib/components/Shortcut.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
 
-    import { emitChangeSignal } from "./MaskEditor.svelte";
-    import { hideAllGuessOne, ioMaskEditorVisible, textEditingState } from "./store";
+    import {
+        hideAllGuessOne,
+        ioMaskEditorVisible,
+        textEditingState,
+        saveChanges,
+    } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
     import { enableSelectable, stopDraw } from "./tools/lib";
@@ -198,7 +202,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function changeOcclusionType(occlusionType: "all" | "one"): void {
         $hideAllGuessOne = occlusionType === "all";
-        emitChangeSignal();
+        saveChanges();
     }
 
     onMount(() => {
@@ -372,7 +376,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         keyCombination={tool.shortcut}
                         on:action={() => {
                             tool.action(canvas);
-                            emitChangeSignal();
+                            saveChanges();
                         }}
                     />
                 {/if}
@@ -400,7 +404,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         keyCombination={tool.shortcut}
                         on:action={() => {
                             tool.action(canvas);
-                            emitChangeSignal();
+                            saveChanges();
                         }}
                     />
                 {/if}

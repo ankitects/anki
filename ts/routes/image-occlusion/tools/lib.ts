@@ -330,7 +330,7 @@ export const getBoundingBox = (): fabric.Rect | undefined => {
 export const getBoundingBoxSize = (): Size => {
     const boundingBoxSize = getBoundingBox()?.getBoundingRect(true);
     if (boundingBoxSize) {
-        return {width: boundingBoxSize.width, height: boundingBoxSize.height};
+        return { width: boundingBoxSize.width, height: boundingBoxSize.height };
     }
-    return {width: 0, height: 0};
-}
+    return { width: 0, height: 0 };
+};
