@@ -30,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ioMaskEditorVisible,
         textEditingState,
         saveChanges,
+        opacityStateStore,
     } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
@@ -206,6 +207,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => {
+        opacityStateStore.set(maksOpacity);
         removeHandlers = singleCallback(
             on(document, "click", onClick),
             on(window, "mousemove", onMousemove),
