@@ -17,7 +17,7 @@ function calculateRetention(passed: number, failed: number): string {
     if (total === 0) {
         return "0%";
     }
-    return localizedNumber((passed / total) * 100) + "%";
+    return localizedNumber((passed / total) * 100, 1) + "%";
 }
 
 function createStatsRow(name: string, data: TrueRetentionData): string {
