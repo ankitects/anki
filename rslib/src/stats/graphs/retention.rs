@@ -50,51 +50,50 @@ impl GraphsContext {
             .map(|(name, _, _)| (*name, TrueRetention::default()))
             .collect();
 
-        for review in &self.revlog {
-            for (period_name, start, end) in &periods {
-                if review.id.as_secs() >= *start && review.id.as_secs() < *end {
-                    let period_stat = period_stats.get_mut(period_name).unwrap();
-                    const MATURE_IVL: i32 = 21; // mature interval is 21 days
-
-                    match review.review_kind {
-                        RevlogReviewKind::Learning
-                        | RevlogReviewKind::Review
-                        | RevlogReviewKind::Relearning => {
-                            if review.last_interval < MATURE_IVL
-                                && review.button_chosen == 1
-                                && (review.review_kind == RevlogReviewKind::Review
-                                    || review.last_interval <= -86400
-                                    || review.last_interval >= 1)
-                            {
-                                period_stat.young_failed += 1;
-                            } else if review.last_interval < MATURE_IVL
-                                && review.button_chosen > 1
-                                && (review.review_kind == RevlogReviewKind::Review
-                                    || review.last_interval <= -86400
-                                    || review.last_interval >= 1)
-                            {
-                                period_stat.young_passed += 1;
-                            } else if review.last_interval >= MATURE_IVL
-                                && review.button_chosen == 1
-                                && (review.review_kind == RevlogReviewKind::Review
-                                    || review.last_interval <= -86400
-                                    || review.last_interval >= 1)
-                            {
-                                period_stat.mature_failed += 1;
-                            } else if review.last_interval >= MATURE_IVL
-                                && review.button_chosen > 1
-                                && (review.review_kind == RevlogReviewKind::Review
-                                    || review.last_interval <= -86400
-                                    || review.last_interval >= 1)
-                            {
-                                period_stat.mature_passed += 1;
-                            }
+        self.revlog
+            .iter()
+            .filter(|review| {
+                review.button_chosen > 0 // not manually rescheduled
+                    && (review.review_kind != RevlogReviewKind::Filtered || review.ease_factor != 0)
+                // not cramming
+            })
+            .for_each(|review| {
+                for (period_name, start, end) in &periods {
+                    if review.id.as_secs() >= *start && review.id.as_secs() < *end {
+                        let period_stat = period_stats.get_mut(period_name).unwrap();
+                        const MATURE_IVL: i32 = 21; // mature interval is 21 days
+                        if review.last_interval < MATURE_IVL
+                            && review.button_chosen == 1
+                            && (review.review_kind == RevlogReviewKind::Review
+                                || review.last_interval <= -86400
+                                || review.last_interval >= 1)
+                        {
+                            period_stat.young_failed += 1;
+                        } else if review.last_interval < MATURE_IVL
+                            && review.button_chosen > 1
+                            && (review.review_kind == RevlogReviewKind::Review
+                                || review.last_interval <= -86400
+                                || review.last_interval >= 1)
+                        {
+                            period_stat.young_passed += 1;
+                        } else if review.last_interval >= MATURE_IVL
+                            && review.button_chosen == 1
+                            && (review.review_kind == RevlogReviewKind::Review
+                                || review.last_interval <= -86400
+                                || review.last_interval >= 1)
+                        {
+                            period_stat.mature_failed += 1;
+                        } else if review.last_interval >= MATURE_IVL
+                            && review.button_chosen > 1
+                            && (review.review_kind == RevlogReviewKind::Review
+                                || review.last_interval <= -86400
+                                || review.last_interval >= 1)
+                        {
+                            period_stat.mature_passed += 1;
                         }
-                        RevlogReviewKind::Filtered | RevlogReviewKind::Manual => {}
                     }
                 }
-            }
-        }
+            });
 
         stats.today = Some(period_stats["today"].clone());
         stats.yesterday = Some(period_stats["yesterday"].clone());
