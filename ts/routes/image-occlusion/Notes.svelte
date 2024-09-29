@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Col>
     </Row>
     <Row --cols={1}>
-        <div id="note-container">
+        <div class="note-container">
             <div
                 id="{field.id}--div"
                 bind:innerHTML={field.divValue}
@@ -49,12 +49,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     field.textareaValue = field.divValue;
                 }}
                 contenteditable
-            />
+            ></div>
             <textarea
                 id="{field.id}--textarea"
                 class="text-area"
                 bind:value={field.textareaValue}
-            />
+            ></textarea>
         </div>
     </Row>
 {/each}
@@ -96,5 +96,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ::-webkit-scrollbar {
         width: 0.1em !important;
         height: 0.1em !important;
+    }
+
+    .note-container {
+        width: 100%;
     }
 </style>

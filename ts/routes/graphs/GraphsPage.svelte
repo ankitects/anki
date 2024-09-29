@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/each}
         {/if}
     </div>
-    <div class="spacer" />
+    <div class="spacer"></div>
 </WithGraphData>
 
 <style lang="scss">

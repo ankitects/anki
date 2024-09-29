@@ -3,7 +3,7 @@
 
 import { get } from "svelte/store";
 
-import { addOrUpdateNote } from "../add-or-update-note";
+import { addOrUpdateNote } from "../add-or-update-note.svelte";
 import type { IOMode } from "../lib";
 import { hideAllGuessOne } from "../store";
 import type { PageLoad } from "./$types";

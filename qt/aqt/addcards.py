@@ -60,6 +60,12 @@ class AddCards(QMainWindow):
         self.setMenuBar(None)
         self.show()
 
+    def set_deck(self, deck_id: DeckId) -> None:
+        self.deck_chooser.selected_deck_id = deck_id
+
+    def set_note_type(self, note_type_id: NotetypeId) -> None:
+        self.notetype_chooser.selected_notetype_id = note_type_id
+
     def set_note(self, note: Note, deck_id: DeckId | None = None) -> None:
         """Set tags, field contents and notetype according to `note`. Deck is set
         to `deck_id` or the deck last used with the notetype.
@@ -86,6 +92,7 @@ class AddCards(QMainWindow):
         defaults = self.col.defaults_for_adding(
             current_review_card=self.mw.reviewer.card
         )
+
         self.notetype_chooser = NotetypeChooser(
             mw=self.mw,
             widget=self.form.modelArea,
