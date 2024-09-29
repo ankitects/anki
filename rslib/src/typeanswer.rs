@@ -9,7 +9,6 @@ use regex::Regex;
 use unic_ucd_category::GeneralCategory;
 
 use crate::card_rendering::strip_av_tags;
-use crate::text::normalize_to_nfc;
 use crate::text::normalize_to_nfkd;
 use crate::text::strip_html;
 
@@ -51,7 +50,6 @@ trait DiffTrait {
     fn get_expected_original(&self) -> Cow<str>;
 
     fn new(expected: &str, typed: &str) -> Self;
-    fn normalize_expected(expected: &str) -> Vec<char>;
     fn normalize_typed(typed: &str) -> Vec<char>;
 
     // Entry Point
@@ -110,6 +108,10 @@ trait DiffTrait {
 }
 
 // Utility Functions
+fn normalize(string: &str) -> Vec<char> {
+    normalize_to_nfkd(string).chars().collect()
+}
+
 fn slice(chars: &[char], start: usize, end: usize) -> String {
     chars[start..end].iter().collect()
 }
@@ -165,16 +167,11 @@ impl DiffTrait for Diff {
     fn new(expected: &str, typed: &str) -> Self {
         Self {
             typed: Self::normalize_typed(typed),
-            expected: Self::normalize_expected(expected),
+            expected: normalize(&prepare_expected(expected)),
         }
     }
-    fn normalize_expected(expected: &str) -> Vec<char> {
-        normalize_to_nfc(&prepare_expected(expected))
-            .chars()
-            .collect()
-    }
     fn normalize_typed(typed: &str) -> Vec<char> {
-        normalize_to_nfc(typed).chars().collect()
+        normalize(typed)
     }
 
     fn render_expected_tokens(&self, tokens: &[DiffToken]) -> String {
@@ -205,7 +202,7 @@ impl DiffTrait for DiffNonCombining {
         let mut expected_stripped = String::new();
         // tokenized into "char+combining" for final rendering
         let mut expected_split: Vec<String> = Vec::new();
-        for c in Self::normalize_expected(expected) {
+        for c in normalize(&prepare_expected(expected)) {
             if unicode_normalization::char::is_combining_mark(c) {
                 if let Some(last) = expected_split.last_mut() {
                     last.push(c);
@@ -225,11 +222,7 @@ impl DiffTrait for DiffNonCombining {
             expected_original: prepare_expected(expected),
         }
     }
-    fn normalize_expected(expected: &str) -> Vec<char> {
-        normalize_to_nfkd(&prepare_expected(expected))
-            .chars()
-            .collect()
-    }
+
     fn normalize_typed(typed: &str) -> Vec<char> {
         normalize_to_nfkd(typed)
             .chars()
@@ -320,7 +313,9 @@ mod test {
             vec![
                 bad("y"),
                 good(" ahora q"),
-                bad("e"),
+                missing("-"),
+                good("e"),
+                missing("-"),
                 good(" vamos"),
                 missing("-"),
                 good("a hacer"),
@@ -332,7 +327,9 @@ mod test {
             vec![
                 missing("¿Y"),
                 good(" ahora q"),
-                missing("ué"),
+                missing("u"),
+                good("e"),
+                missing("́"),
                 good(" vamos"),
                 missing(" "),
                 good("a hacer"),
@@ -371,7 +368,7 @@ mod test {
         let ctx = Diff::new("쓰다듬다", "스다뜸다");
         assert_eq!(
             ctx.to_tokens().typed_tokens,
-            &[bad("스"), good("다"), bad("뜸"), good("다"),]
+            &[bad("ᄉ"), good("ᅳ다"), bad("ᄄ"), good("ᅳᆷ다"),]
         );
     }
 
