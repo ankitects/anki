@@ -275,8 +275,8 @@ export const makeShapesRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fab
     canvas.on("object:moving", function(e) {
         const obj = e.target!;
 
-        let objWidth = obj.getScaledWidth();
-        let objHeight = obj.getScaledHeight();
+        const objWidth = obj.getScaledWidth();
+        const objHeight = obj.getScaledHeight();
 
         if (objWidth > boundingBox.width! || objHeight > boundingBox.height!) {
             return;
