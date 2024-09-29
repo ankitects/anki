@@ -167,7 +167,7 @@ impl crate::services::CardRenderingService for Collection {
         &mut self,
         input: anki_proto::card_rendering::CompareAnswerRequest,
     ) -> Result<generic::String> {
-        Ok(compare_answer(&input.expected, &input.provided).into())
+        Ok(compare_answer(&input.expected, &input.provided, input.combining).into())
     }
 
     fn extract_cloze_for_typing(

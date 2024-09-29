@@ -33,6 +33,8 @@ pub(crate) fn apply_filters<'a>(
     // type:cloze is handled specially
     let filters = if filters == ["cloze", "type"] {
         &["type-cloze"]
+    } else if filters == ["nc", "type"] {
+        &["type-nc"]
     } else {
         filters
     };
@@ -80,6 +82,7 @@ fn apply_filter(
         "kana" => kana_filter(text),
         "type" => type_filter(field_name),
         "type-cloze" => type_cloze_filter(field_name),
+        "type-nc" => type_nc_filter(field_name),
         "hint" => hint_filter(text, field_name),
         "cloze" => cloze_filter(text, context),
         "cloze-only" => cloze_only_filter(text, context),
@@ -171,6 +174,10 @@ fn type_cloze_filter<'a>(field_name: &str) -> Cow<'a, str> {
     format!("[[type:cloze:{}]]", field_name).into()
 }
 
+fn type_nc_filter<'a>(field_name: &str) -> Cow<'a, str> {
+    format!("[[type:nc:{}]]", field_name).into()
+}
+
 fn hint_filter<'a>(text: &'a str, field_name: &str) -> Cow<'a, str> {
     if text.trim().is_empty() {
         return text.into();
@@ -238,6 +245,7 @@ field</a>
     fn typing() {
         assert_eq!(type_filter("Front"), "[[type:Front]]");
         assert_eq!(type_cloze_filter("Front"), "[[type:cloze:Front]]");
+        assert_eq!(type_nc_filter("Front"), "[[type:nc:Front]]");
         let ctx = RenderContext {
             fields: &Default::default(),
             nonempty_fields: &Default::default(),
@@ -248,6 +256,10 @@ field</a>
         assert_eq!(
             apply_filters("ignored", &["cloze", "type"], "Text", &ctx),
             ("[[type:cloze:Text]]".into(), vec![])
+        );
+        assert_eq!(
+            apply_filters("ignored", &["nc", "type"], "Text", &ctx),
+            ("[[type:nc:Text]]".into(), vec![])
         );
     }
 
