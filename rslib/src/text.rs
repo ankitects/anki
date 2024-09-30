@@ -13,6 +13,7 @@ use regex::Regex;
 use unicase::eq as uni_eq;
 use unicode_normalization::char::is_combining_mark;
 use unicode_normalization::is_nfc;
+use unicode_normalization::is_nfkd;
 use unicode_normalization::is_nfkd_quick;
 use unicode_normalization::IsNormalized;
 use unicode_normalization::UnicodeNormalization;
@@ -367,16 +368,22 @@ pub(crate) fn sanitize_html_no_images(html: &str) -> String {
 }
 
 pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
-    if !is_nfc(s) {
-        s.chars().nfc().collect::<String>().into()
-    } else {
-        s.into()
+    match is_nfc(s) {
+        false => s.chars().nfc().collect::<String>().into(),
+        true => s.into(),
     }
 }
 
 pub(crate) fn ensure_string_in_nfc(s: &mut String) {
     if !is_nfc(s) {
         *s = s.chars().nfc().collect()
+    }
+}
+
+pub(crate) fn normalize_to_nfkd(s: &str) -> Cow<str> {
+    match is_nfkd(s) {
+        false => s.chars().nfkd().collect::<String>().into(),
+        true => s.into(),
     }
 }
 
