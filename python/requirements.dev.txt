@@ -736,9 +736,9 @@ pip==24.2 \
     # via
     #   -r requirements.bundle.txt
     #   pip-tools
-setuptools==74.1.1 \
-    --hash=sha256:2353af060c06388be1cecbf5953dcdb1f38362f87a2356c480b6b4d5fcfc8847 \
-    --hash=sha256:fc91b5f89e392ef5b77fe143b17e32f65d3024744fba66dc3afe07201684d766
+setuptools==69.5.1 \
+    --hash=sha256:6c1fccdac05a97e598fb0ae3bbed5904ccb317337a51139dcd51453611bbb987 \
+    --hash=sha256:c636ac361bc47580504644275c9ad802c50415c7522212252c033bd15f301f32
     # via
     #   -r requirements.bundle.txt
     #   pip-tools
