@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { localizedDate, localizedNumber } from "@tslib/i18n";
+import { localizedDate } from "@tslib/i18n";
 import {
     axisBottom,
     axisLeft,
@@ -14,7 +14,6 @@ import {
     scaleTime,
     schemeCategory10,
     select,
-    timeFormat,
 } from "d3";
 
 import { timeSpan } from "@tslib/time";
