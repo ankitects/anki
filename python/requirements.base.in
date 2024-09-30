@@ -1,3 +1,2 @@
 pip-tools
 colorama # required on windows
-setuptools<70 # newer versions break pyoxidizer pkg_resources import
