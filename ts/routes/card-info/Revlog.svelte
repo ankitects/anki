@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { RevlogEntry_ReviewKind as ReviewKind } from "@generated/anki/stats_pb";
     import * as tr2 from "@generated/ftl";
     import { timeSpan, Timestamp } from "@tslib/time";
-    import { filterRevlogByReviewKind } from "./forgetting-curve";
+    import { filterRevlogEntryByReviewKind } from "./forgetting-curve";
 
     export let revlog: RevlogEntry[];
     export let fsrsEnabled: boolean = false;
@@ -84,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let prevValidEntry: RevlogEntry | undefined;
         let i = index + 1;
         while (i < revlog.length) {
-            if (filterRevlogByReviewKind(revlog[i])) {
+            if (filterRevlogEntryByReviewKind(revlog[i])) {
                 prevValidEntry = revlog[i];
                 break;
             }
@@ -92,7 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         let elapsedTime = "N/A";
-        if (filterRevlogByReviewKind(entry)) {
+        if (filterRevlogEntryByReviewKind(entry)) {
             elapsedTime = prevValidEntry
                 ? timeSpan(Number(entry.time) - Number(prevValidEntry.time))
                 : "0";

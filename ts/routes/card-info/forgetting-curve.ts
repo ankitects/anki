@@ -45,11 +45,23 @@ function filterDataByTimeRange(data: DataPoint[], maxDays: number): DataPoint[] 
     return data.filter((point) => point.daysSinceFirstLearn <= maxDays);
 }
 
-export function filterRevlogByReviewKind(entry: RevlogEntry): boolean {
+export function filterRevlogEntryByReviewKind(entry: RevlogEntry): boolean {
     return (
         entry.reviewKind !== RevlogEntry_ReviewKind.MANUAL
         && (entry.reviewKind !== RevlogEntry_ReviewKind.FILTERED || entry.ease !== 0)
     );
+}
+
+export function filterRevlog(revlog: RevlogEntry[]): RevlogEntry[] {
+    const result: RevlogEntry[] = [];
+    for (const entry of revlog) {
+        if (entry.reviewKind === RevlogEntry_ReviewKind.MANUAL && entry.ease === 0) {
+            break;
+        }
+        result.push(entry);
+    }
+
+    return result.filter((entry) => filterRevlogEntryByReviewKind(entry));
 }
 
 export function prepareData(revlog: RevlogEntry[], maxDays: number) {
@@ -144,14 +156,13 @@ export function calculateMaxDays(filteredRevlog: RevlogEntry[], timeRange: TimeR
 }
 
 export function renderForgettingCurve(
-    revlog: RevlogEntry[],
+    filteredRevlog: RevlogEntry[],
     timeRange: TimeRange,
     svgElem: SVGElement,
     bounds: GraphBounds,
 ) {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
-    const filteredRevlog = revlog.filter((entry) => filterRevlogByReviewKind(entry));
     if (filteredRevlog.length === 0) {
         setDataAvailable(svg, false);
         return;

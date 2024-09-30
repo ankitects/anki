@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         renderForgettingCurve,
         TimeRange,
         calculateMaxDays,
+        filterRevlog,
     } from "./forgetting-curve";
     import { defaultGraphBounds } from "../graphs/graph-helpers";
     import HoverColumns from "../graphs/HoverColumns.svelte";
@@ -22,7 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let svg = null as HTMLElement | SVGElement | null;
     const bounds = defaultGraphBounds();
     const title = tr.cardStatsFsrsForgettingCurveTitle();
-    const maxDays = calculateMaxDays(revlog, TimeRange.AllTime);
+    const filteredRevlog = filterRevlog(revlog);
+    const maxDays = calculateMaxDays(filteredRevlog, TimeRange.AllTime);
     let defaultTimeRange = TimeRange.Week;
     if (maxDays > 365) {
         defaultTimeRange = TimeRange.AllTime;
@@ -33,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     const timeRange = writable(defaultTimeRange);
 
-    $: renderForgettingCurve(revlog, $timeRange, svg as SVGElement, bounds);
+    $: renderForgettingCurve(filteredRevlog, $timeRange, svg as SVGElement, bounds);
 </script>
 
 <div class="forgetting-curve">
