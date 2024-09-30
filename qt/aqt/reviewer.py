@@ -152,7 +152,7 @@ class Reviewer:
         self.previous_card: Card | None = None
         self._answeredIds: list[CardId] = []
         self._recordedAudio: str | None = None
-        self.combining: bool = True
+        self._combining: bool = True
         self.typeCorrect: str | None = None  # web init happens before this is set
         self.state: Literal["question", "answer", "transition"] | None = None
         self._refresh_needed: RefreshNeeded | None = None
@@ -700,7 +700,7 @@ class Reviewer:
             return self.typeAnsAnswerFilter(buf)
 
     def typeAnsQuestionFilter(self, buf: str) -> str:
-        self.combining = True
+        self._combining = True
         self.typeCorrect = None
         clozeIdx = None
         m = re.search(self.typeAnsPat, buf)
@@ -714,7 +714,7 @@ class Reviewer:
             fld = fld.split(":")[1]
         # loop through fields for a match
         if fld.startswith("nc:"):
-            self.combining = False
+            self._combining = False
             fld = fld.split(":")[1]
         for f in self.card.note_type()["flds"]:
             if f["name"] == fld:
@@ -755,7 +755,7 @@ class Reviewer:
         hadHR = len(buf) != origSize
         expected = self.typeCorrect
         provided = self.typedAnswer
-        output = self.mw.col.compare_answer(expected, provided, self.combining)
+        output = self.mw.col.compare_answer(expected, provided, self._combining)
 
         # and update the type answer area
         def repl(match: Match) -> str:
