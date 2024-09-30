@@ -11,7 +11,7 @@ import { optimumCssSizeForCanvas } from "./canvas-scale";
 import { notesDataStore, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
-import { enableSelectable, makeShapeRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
+import { enableSelectable, makeShapesRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
 import { enablePinchZoom, onResize, setCanvasSize } from "./tools/tool-zoom";
@@ -132,7 +132,7 @@ const setupBoundingBox = (canvas: fabric.Canvas, size: Size): fabric.Rect => {
 
     canvas.add(boundingBox);
     onResize(canvas);
-    makeShapeRemainInCanvas(canvas, boundingBox);
+    makeShapesRemainInCanvas(canvas, boundingBox);
     moveShapeToCanvasBoundaries(canvas, boundingBox);
     // enable pinch zoom for mobile devices
     enablePinchZoom(canvas);

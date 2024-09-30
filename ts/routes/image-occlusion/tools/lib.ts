@@ -268,14 +268,19 @@ export const clear = (canvas: fabric.Canvas): void => {
     canvas.clear();
 };
 
-export const makeShapeRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fabric.Rect) => {
+/**
+ * Creates a canvas event listener on shape movement to restrict movement to within the `boundingBox`
+ */
+export const makeShapesRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fabric.Rect) => {
     canvas.on("object:moving", function(e) {
         const obj = e.target!;
-        if (obj.getScaledHeight() > boundingBox.height! || obj.getScaledWidth() > boundingBox.width!) {
+
+        const objWidth = obj.getScaledWidth();
+        const objHeight = obj.getScaledHeight();
+
+        if (objWidth > boundingBox.width! || objHeight > boundingBox.height!) {
             return;
         }
-
-        obj.setCoords();
 
         const top = obj.top!;
         const left = obj.left!;
@@ -285,8 +290,8 @@ export const makeShapeRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fabr
         const leftBound = boundingBox.left!;
         const rightBound = leftBound + boundingBox.width!;
 
-        obj.left = Math.min(Math.max(left, leftBound), rightBound - obj.width!);
-        obj.top = Math.min(Math.max(top, topBound), bottomBound - obj.height!);
+        obj.left = Math.min(Math.max(left, leftBound), rightBound - objWidth);
+        obj.top = Math.min(Math.max(top, topBound), bottomBound - objHeight);
     });
 };
 
