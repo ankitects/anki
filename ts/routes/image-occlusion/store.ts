@@ -19,17 +19,3 @@ export const opacityStateStore = writable(false);
 export const textEditingState = writable(false);
 // Stores if the canvas shapes data needs to be saved
 export const saveNeededStore = writable(false);
-
-/**
- * Saves all shape information as clozes to backend
- */
-export function saveChanges() {
-    saveNeededStore.set(true);
-}
-
-/**
- * Clears the pending save operation after completion
- */
-export function saveCompleted() {
-    saveNeededStore.set(false);
-}

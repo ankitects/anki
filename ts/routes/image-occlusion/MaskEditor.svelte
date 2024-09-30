@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Toolbar from "./Toolbar.svelte";
     import { MaskEditorAPI } from "./tools/api";
     import { onResize } from "./tools/tool-zoom";
-    import { saveNeededStore, saveCompleted } from "./store";
+    import { saveNeededStore } from "./store";
 
     export let mode: IOMode;
     const iconSize = 80;
@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
         dispatch("save");
-        saveCompleted();
+        saveNeededStore.set(false);
     });
 
     function init(_node: HTMLDivElement) {

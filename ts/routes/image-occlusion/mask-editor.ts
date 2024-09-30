@@ -8,7 +8,7 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
-import { notesDataStore, saveChanges, tagsWritable, textEditingState } from "./store";
+import { notesDataStore, saveNeededStore, tagsWritable, textEditingState } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, makeShapeRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
@@ -111,7 +111,7 @@ function initCanvas(): fabric.Canvas {
             modifiedPolygon(canvas, evt.target);
             undoStack.onObjectModified();
         }
-        saveChanges();
+        saveNeededStore.set(true);
     });
     canvas.on("text:editing:entered", function() {
         textEditingState.set(true);
@@ -120,7 +120,9 @@ function initCanvas(): fabric.Canvas {
     canvas.on("text:editing:exited", function() {
         textEditingState.set(false);
     });
-    canvas.on("object:removed", saveChanges);
+    canvas.on("object:removed", () => {
+        saveNeededStore.set(true);
+    });
     return canvas;
 }
 

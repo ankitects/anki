@@ -29,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         hideAllGuessOne,
         ioMaskEditorVisible,
         textEditingState,
-        saveChanges,
+        saveNeededStore,
         opacityStateStore,
     } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
@@ -204,7 +204,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function changeOcclusionType(occlusionType: "all" | "one"): void {
         $hideAllGuessOne = occlusionType === "all";
-        saveChanges();
+        saveNeededStore.set(true);
     }
 
     onMount(() => {
@@ -379,7 +379,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         keyCombination={tool.shortcut}
                         on:action={() => {
                             tool.action(canvas);
-                            saveChanges();
+                            saveNeededStore.set(true);
                         }}
                     />
                 {/if}
@@ -407,7 +407,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         keyCombination={tool.shortcut}
                         on:action={() => {
                             tool.action(canvas);
-                            saveChanges();
+                            saveNeededStore.set(true);
                         }}
                     />
                 {/if}
