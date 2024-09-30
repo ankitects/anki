@@ -57,6 +57,7 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
     let lastReviewTime = 0;
     let lastStability = 0;
     const step = Math.min(maxDays / MIN_POINTS, 1);
+    let daysSinceFirstLearn = 0;
 
     revlog
         .toReversed()
@@ -77,7 +78,7 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
 
             const totalDaysElapsed = (reviewTime - lastReviewTime) / (24 * 60 * 60);
             let elapsedDays = 0;
-            while (elapsedDays < totalDaysElapsed) {
+            while (elapsedDays < totalDaysElapsed - step) {
                 elapsedDays += step;
                 const retrievability = forgettingCurve(lastStability, elapsedDays);
                 data.push({
@@ -88,10 +89,10 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
                     stability: lastStability,
                 });
             }
-
+            daysSinceFirstLearn += totalDaysElapsed;
             data.push({
                 date: new Date((lastReviewTime + totalDaysElapsed * 86400) * 1000),
-                daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn,
+                daysSinceFirstLearn: daysSinceFirstLearn,
                 retrievability: 100,
                 elapsedDaysSinceLastReview: 0,
                 stability: lastStability,
@@ -108,7 +109,7 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
     const now = Date.now() / 1000;
     const totalDaysSinceLastReview = (now - lastReviewTime) / (24 * 60 * 60);
     let elapsedDays = 0;
-    while (elapsedDays < totalDaysSinceLastReview) {
+    while (elapsedDays < totalDaysSinceLastReview - step) {
         elapsedDays += step;
         const retrievability = forgettingCurve(lastStability, elapsedDays);
         data.push({
@@ -119,6 +120,16 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
             stability: lastStability,
         });
     }
+    daysSinceFirstLearn += totalDaysSinceLastReview;
+    const retrievability = forgettingCurve(lastStability, totalDaysSinceLastReview);
+    data.push({
+        date: new Date(now * 1000),
+        daysSinceFirstLearn: daysSinceFirstLearn,
+        elapsedDaysSinceLastReview: totalDaysSinceLastReview,
+        retrievability: retrievability * 100,
+        stability: lastStability,
+    });
+
     const filteredData = filterDataByTimeRange(data, maxDays);
     return filteredData;
 }
