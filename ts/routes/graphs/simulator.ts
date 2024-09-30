@@ -107,7 +107,6 @@ export function renderSimulationChart(
         .selectAll("path")
         .data(Array.from(groups.entries()))
         .join("path")
-        .style("mix-blend-mode", "multiply")
         .attr("stroke", (d, i) => color[i % color.length])
         .attr("d", d => line()(d[1].map(p => [p[0], p[1]])))
         .attr("data-group", d => d[0]);
