@@ -8,6 +8,7 @@ use std::any::Any;
 use std::env;
 use std::marker::PhantomData;
 use std::net::IpAddr;
+use std::sync::LazyLock;
 
 use async_trait::async_trait;
 use axum::body::Body;
@@ -19,7 +20,6 @@ use axum::RequestPartsExt;
 use axum_client_ip::SecureClientIp;
 use axum_extra::TypedHeader;
 use header_and_stream::SyncHeader;
-use once_cell::sync::Lazy;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_json::Error;
@@ -179,7 +179,7 @@ where
     }
 }
 
-pub static MAXIMUM_SYNC_PAYLOAD_BYTES: Lazy<usize> = Lazy::new(|| {
+pub static MAXIMUM_SYNC_PAYLOAD_BYTES: LazyLock<usize> = LazyLock::new(|| {
     env::var("MAX_SYNC_PAYLOAD_MEGS")
         .map(|v| v.parse().expect("invalid upload limit"))
         .unwrap_or(100)
@@ -189,5 +189,5 @@ pub static MAXIMUM_SYNC_PAYLOAD_BYTES: Lazy<usize> = Lazy::new(|| {
 /// Client ignores this when a non-AnkiWeb endpoint is configured. Controls the
 /// maximum size of a payload after decompression, which effectively limits the
 /// how large a collection file can be uploaded.
-pub static MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED: Lazy<u64> =
-    Lazy::new(|| (*MAXIMUM_SYNC_PAYLOAD_BYTES * 3) as u64);
+pub static MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED: LazyLock<u64> =
+    LazyLock::new(|| (*MAXIMUM_SYNC_PAYLOAD_BYTES * 3) as u64);

@@ -4,9 +4,9 @@
 #![cfg(test)]
 
 use std::future::Future;
+use std::sync::LazyLock;
 
 use axum::http::StatusCode;
-use once_cell::sync::Lazy;
 use reqwest::Client;
 use reqwest::Url;
 use serde_json::json;
@@ -57,7 +57,7 @@ struct TestAuth {
     host_key: String,
 }
 
-static AUTH: Lazy<TestAuth> = Lazy::new(|| {
+static AUTH: LazyLock<TestAuth> = LazyLock::new(|| {
     if let Ok(auth) = std::env::var("TEST_AUTH") {
         let mut auth = auth.split(':');
         TestAuth {
@@ -93,7 +93,7 @@ where
     .unwrap();
     tokio::spawn(server_fut.instrument(Span::current()));
     // when not using ephemeral servers, tests need to be serialized
-    static LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+    static LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
     let _lock: MutexGuard<()>;
     // setup client to connect to it
     let endpoint = if let Ok(endpoint) = std::env::var("TEST_ENDPOINT") {

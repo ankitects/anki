@@ -57,10 +57,9 @@ impl User {
         // Returning HTTP 400 will inform the client that a DB check+full sync
         // is required to fix the issue.
         op(col, state)
-            .map_err(|e| {
+            .inspect_err(|_e| {
                 self.col = None;
                 self.sync_state = None;
-                e
             })
             .or_bad_request("op failed in sync_state")
     }

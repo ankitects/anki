@@ -3,7 +3,7 @@ version = "0.0.0"
 authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
 edition = "2021"
 license = "AGPL-3.0-or-later"
-rust-version = "1.65"
+rust-version = "1.80"
 
 [workspace]
 members = [

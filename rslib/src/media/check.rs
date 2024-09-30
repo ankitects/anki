@@ -6,11 +6,11 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs;
 use std::io;
+use std::sync::LazyLock;
 
 use anki_i18n::without_unicode_isolation;
 use anki_io::write_file;
 use data_encoding::BASE64;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use tracing::debug;
 use tracing::info;
@@ -459,7 +459,7 @@ impl MediaChecker<'_> {
     }
 
     fn maybe_extract_inline_image<'a>(&mut self, fname_decoded: &'a str) -> Result<Cow<'a, str>> {
-        static BASE64_IMG: Lazy<Regex> = Lazy::new(|| {
+        static BASE64_IMG: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new("(?i)^data:image/(jpg|jpeg|png|gif|webp|avif);base64,(.+)$").unwrap()
         });
 

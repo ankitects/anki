@@ -69,7 +69,6 @@ htmlescape.workspace = true
 hyper.workspace = true
 id_tree.workspace = true
 itertools.workspace = true
-lazy_static.workspace = true
 nom.workspace = true
 num_cpus.workspace = true
 num_enum.workspace = true

@@ -5,11 +5,11 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Write;
+use std::sync::LazyLock;
 
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusion;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
-use lazy_static::lazy_static;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_while;
@@ -24,16 +24,16 @@ use crate::latex::contains_latex;
 use crate::template::RenderContext;
 use crate::text::strip_html_preserving_entities;
 
-lazy_static! {
-    static ref MATHJAX: Regex = Regex::new(
+static MATHJAX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r"(?xsi)
             (\\[(\[])       # 1 = mathjax opening tag
             (.*?)           # 2 = inner content
             (\\[])])        # 3 = mathjax closing tag
-           "
+           ",
     )
-    .unwrap();
-}
+    .unwrap()
+});
 
 mod mathjax_caps {
     pub const OPENING_TAG: usize = 1;

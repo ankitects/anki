@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
 use blake3::Hasher;
-use lazy_static::lazy_static;
 use regex::Captures;
 use regex::Regex;
 
@@ -110,9 +110,7 @@ fn apply_filter(
 // Ruby filters
 //----------------------------------------
 
-lazy_static! {
-    static ref FURIGANA: Regex = Regex::new(r" ?([^ >]+?)\[(.+?)\]").unwrap();
-}
+static FURIGANA: LazyLock<Regex> = LazyLock::new(|| Regex::new(r" ?([^ >]+?)\[(.+?)\]").unwrap());
 
 /// Did furigana regex match a sound tag?
 fn captured_sound(caps: &Captures) -> bool {
