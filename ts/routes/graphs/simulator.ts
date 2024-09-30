@@ -179,17 +179,17 @@ export function renderSimulationChart(
         .on("click", (event, d) => toggleGroup(event, d));
 
     legend.append("rect")
-        .attr("x", bounds.width - bounds.marginRight - 16)
+        .attr("x", bounds.width - bounds.marginRight + 36)
         .attr("width", 12)
         .attr("height", 12)
         .attr("fill", (d, i) => color[i % color.length]);
 
     legend.append("text")
-        .attr("x", bounds.width - bounds.marginRight)
+        .attr("x", bounds.width - bounds.marginRight + 52)
         .attr("y", 7)
         .attr("dy", "0.3em")
         .attr("fill", "currentColor")
-        .text(d => `Simulation ${d}`);
+        .text(d => `#${d}`);
 
     const toggleGroup = (event: MouseEvent, d: number) => {
         const group = d;
