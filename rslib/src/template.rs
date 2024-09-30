@@ -6,9 +6,9 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Write;
 use std::iter;
+use std::sync::LazyLock;
 
 use anki_i18n::I18n;
-use lazy_static::lazy_static;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
@@ -546,18 +546,18 @@ fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
 
 /// True if provided text contains only whitespace and/or empty BR/DIV tags.
 pub(crate) fn field_is_empty(text: &str) -> bool {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(
             r"(?xsi)
             ^(?:
             [[:space:]]
             |
             </?(?:br|div)\ ?/?>
             )*$
-        "
+        ",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     RE.is_match(text)
 }
 

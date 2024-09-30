@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
 use difflib::sequencematcher::SequenceMatcher;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use unic_ucd_category::GeneralCategory;
 
@@ -12,7 +12,7 @@ use crate::card_rendering::strip_av_tags;
 use crate::text::normalize_to_nfkd;
 use crate::text::strip_html;
 
-static LINEBREAKS: Lazy<Regex> = Lazy::new(|| {
+static LINEBREAKS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?six)
         (

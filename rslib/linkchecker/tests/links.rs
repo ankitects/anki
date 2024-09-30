@@ -6,6 +6,7 @@
 use std::borrow::Cow;
 use std::env;
 use std::iter;
+use std::sync::LazyLock;
 use std::time::Duration;
 
 use anki::links::help_page_link_suffix;
@@ -13,7 +14,6 @@ use anki::links::help_page_to_link;
 use anki::links::HelpPage;
 use futures::StreamExt;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use linkcheck::validation::check_web;
 use linkcheck::validation::Context;
 use linkcheck::validation::Reason;
@@ -70,9 +70,8 @@ impl From<&'static str> for CheckableUrl {
 }
 
 fn ts_help_pages() -> impl Iterator<Item = &'static str> {
-    lazy_static! {
-        static ref QUOTED_URL: Regex = Regex::new("\"(http.+)\"").unwrap();
-    }
+    static QUOTED_URL: LazyLock<Regex> = LazyLock::new(|| Regex::new("\"(http.+)\"").unwrap());
+
     QUOTED_URL
         .captures_iter(include_str!("../../../ts/lib/tslib/help-page.ts"))
         .map(|caps| caps.get(1).unwrap().as_str())
