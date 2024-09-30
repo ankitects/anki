@@ -10,32 +10,58 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import AxisTicks from "../graphs/AxisTicks.svelte";
     import { writable } from "svelte/store";
     import InputBox from "../graphs/InputBox.svelte";
-    import { prepareData, renderForgettingCurve, TimeRange } from "./forgetting-curve";
+    import {
+        renderForgettingCurve,
+        TimeRange,
+        calculateMaxDays,
+        filterRevlog,
+    } from "./forgetting-curve";
     import { defaultGraphBounds } from "../graphs/graph-helpers";
     import HoverColumns from "../graphs/HoverColumns.svelte";
 
     export let revlog: RevlogEntry[];
     let svg = null as HTMLElement | SVGElement | null;
     const bounds = defaultGraphBounds();
-    const timeRange = writable(TimeRange.AllTime);
     const title = tr.cardStatsFsrsForgettingCurveTitle();
-    const data = prepareData(revlog, TimeRange.AllTime);
+    const filteredRevlog = filterRevlog(revlog);
+    const maxDays = calculateMaxDays(filteredRevlog, TimeRange.AllTime);
+    let defaultTimeRange = TimeRange.Week;
+    if (maxDays > 365) {
+        defaultTimeRange = TimeRange.AllTime;
+    } else if (maxDays > 30) {
+        defaultTimeRange = TimeRange.Year;
+    } else if (maxDays > 7) {
+        defaultTimeRange = TimeRange.Month;
+    }
+    const timeRange = writable(defaultTimeRange);
 
-    $: renderForgettingCurve(revlog, $timeRange, svg as SVGElement, bounds);
+    $: renderForgettingCurve(filteredRevlog, $timeRange, svg as SVGElement, bounds);
 </script>
 
 <div class="forgetting-curve">
     <InputBox>
         <div class="time-range-selector">
-            <label>
-                <input type="radio" bind:group={$timeRange} value={TimeRange.Week} />
-                {tr.cardStatsFsrsForgettingCurveFirstWeek()}
-            </label>
-            <label>
-                <input type="radio" bind:group={$timeRange} value={TimeRange.Month} />
-                {tr.cardStatsFsrsForgettingCurveFirstMonth()}
-            </label>
-            {#if data.length > 0 && data.some((point) => point.daysSinceFirstLearn > 365)}
+            {#if maxDays > 0}
+                <label>
+                    <input
+                        type="radio"
+                        bind:group={$timeRange}
+                        value={TimeRange.Week}
+                    />
+                    {tr.cardStatsFsrsForgettingCurveFirstWeek()}
+                </label>
+            {/if}
+            {#if maxDays > 7}
+                <label>
+                    <input
+                        type="radio"
+                        bind:group={$timeRange}
+                        value={TimeRange.Month}
+                    />
+                    {tr.cardStatsFsrsForgettingCurveFirstMonth()}
+                </label>
+            {/if}
+            {#if maxDays > 30}
                 <label>
                     <input
                         type="radio"
@@ -45,10 +71,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {tr.cardStatsFsrsForgettingCurveFirstYear()}
                 </label>
             {/if}
-            <label>
-                <input type="radio" bind:group={$timeRange} value={TimeRange.AllTime} />
-                {tr.cardStatsFsrsForgettingCurveAllTime()}
-            </label>
+            {#if maxDays > 365}
+                <label>
+                    <input
+                        type="radio"
+                        bind:group={$timeRange}
+                        value={TimeRange.AllTime}
+                    />
+                    {tr.cardStatsFsrsForgettingCurveAllTime()}
+                </label>
+            {/if}
         </div>
     </InputBox>
     <Graph {title}>
