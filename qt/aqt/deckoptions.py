@@ -33,9 +33,9 @@ class DeckOptionsDialog(QDialog):
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self._deck = deck
-        self._setup_ui()
         self._close_event_has_cleaned_up = False
         self._ready = False
+        self._setup_ui()
 
     def _setup_ui(self) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
@@ -60,7 +60,7 @@ class DeckOptionsDialog(QDialog):
 
     def _on_bridge_cmd(self, cmd: str) -> None:
         if cmd == "deckOptionsReady":
-            self.ready = True
+            self._ready = True
             gui_hooks.deck_options_did_load(self)
 
     def closeEvent(self, evt: QCloseEvent) -> None:
@@ -107,7 +107,7 @@ class DeckOptionsDialog(QDialog):
 
     def has_modified_data(self, callback: Callable[[bool], None]):
         """Calls `callback` with the information of whether any deck options are modified."""
-        if self.ready:
+        if self._ready:
             self.web.evalWithCallback("anki.deckOptionsPendingChanges()", callback)
         else:
             callback(False)
