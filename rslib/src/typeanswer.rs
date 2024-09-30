@@ -50,6 +50,7 @@ trait DiffTrait {
     fn get_expected_original(&self) -> Cow<str>;
 
     fn new(expected: &str, typed: &str) -> Self;
+    fn normalize_typed(typed: &str) -> Vec<char>;
 
     // Entry Point
     fn to_html(&self) -> String {
@@ -107,17 +108,8 @@ trait DiffTrait {
 }
 
 // Utility Functions
-fn normalize(string: &str, retain_combining: bool) -> Vec<char> {
-    let binding = normalize_to_nfkd(string);
-    let chars = binding.chars();
-
-    if retain_combining {
-        chars.collect()
-    } else {
-        chars
-            .filter(|c| !unicode_normalization::char::is_combining_mark(*c))
-            .collect()
-    }
+fn normalize(string: &str) -> Vec<char> {
+    normalize_to_nfkd(string).chars().collect()
 }
 
 fn slice(chars: &[char], start: usize, end: usize) -> String {
@@ -174,9 +166,12 @@ impl DiffTrait for Diff {
 
     fn new(expected: &str, typed: &str) -> Self {
         Self {
-            typed: normalize(typed, true),
-            expected: normalize(&prepare_expected(expected), true),
+            typed: Self::normalize_typed(typed),
+            expected: normalize(&prepare_expected(expected)),
         }
+    }
+    fn normalize_typed(typed: &str) -> Vec<char> {
+        normalize(typed)
     }
 
     fn render_expected_tokens(&self, tokens: &[DiffToken]) -> String {
@@ -207,7 +202,7 @@ impl DiffTrait for DiffNonCombining {
         let mut expected_stripped = String::new();
         // tokenized into "char+combining" for final rendering
         let mut expected_split: Vec<String> = Vec::new();
-        for c in normalize(&prepare_expected(expected), true) {
+        for c in normalize(&prepare_expected(expected)) {
             if unicode_normalization::char::is_combining_mark(c) {
                 if let Some(last) = expected_split.last_mut() {
                     last.push(c);
@@ -220,12 +215,19 @@ impl DiffTrait for DiffNonCombining {
 
         Self {
             base: Diff {
-                typed: normalize(typed, false),
+                typed: Self::normalize_typed(typed),
                 expected: expected_stripped.chars().collect(),
             },
             expected_split,
             expected_original: prepare_expected(expected),
         }
+    }
+
+    fn normalize_typed(typed: &str) -> Vec<char> {
+        normalize_to_nfkd(typed)
+            .chars()
+            .filter(|c| !unicode_normalization::char::is_combining_mark(*c))
+            .collect()
     }
 
     // Since the combining characters are still required learning content, use
