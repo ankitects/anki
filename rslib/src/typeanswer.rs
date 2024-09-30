@@ -71,8 +71,8 @@ trait DiffTrait {
 
     fn to_tokens(&self) -> DiffTokens {
         let mut matcher = SequenceMatcher::new(self.get_typed(), self.get_expected());
-        let mut typed_tokens = Vec::with_capacity(self.get_typed().len());
-        let mut expected_tokens = Vec::with_capacity(self.get_expected().len());
+        let mut typed_tokens = Vec::new();
+        let mut expected_tokens = Vec::new();
 
         for opcode in matcher.get_opcodes() {
             let typed_slice = slice(self.get_typed(), opcode.first_start, opcode.first_end);
@@ -132,16 +132,13 @@ fn prepare_expected(expected: &str) -> String {
 
 // Render Functions
 fn render_tokens(tokens: &[DiffToken]) -> String {
-    tokens.iter().fold(
-        String::with_capacity(tokens.len() * 20),
-        |mut acc, token| {
-            let isolated_text = isolate_leading_mark(&token.text);
-            let encoded_text = htmlescape::encode_minimal(&isolated_text);
-            let class = token.to_class();
-            acc.push_str(&format!("<span class={class}>{encoded_text}</span>"));
-            acc
-        },
-    )
+    tokens.iter().fold(String::new(), |mut acc, token| {
+        let isolated_text = isolate_leading_mark(&token.text);
+        let encoded_text = htmlescape::encode_minimal(&isolated_text);
+        let class = token.to_class();
+        acc.push_str(&format!("<span class={class}>{encoded_text}</span>"));
+        acc
+    })
 }
 
 /// Prefixes a leading mark character with a non-breaking space to prevent
@@ -207,10 +204,9 @@ impl DiffTrait for DiffNonCombining {
 
     fn new(expected: &str, typed: &str) -> Self {
         // filter out combining elements
-        let mut expected_stripped = String::with_capacity(expected.len());
+        let mut expected_stripped = String::new();
         // tokenized into "char+combining" for final rendering
-        let mut expected_split: Vec<String> = Vec::with_capacity(expected.len());
-
+        let mut expected_split: Vec<String> = Vec::new();
         for c in normalize(&prepare_expected(expected), true) {
             if unicode_normalization::char::is_combining_mark(c) {
                 if let Some(last) = expected_split.last_mut() {
@@ -237,18 +233,15 @@ impl DiffTrait for DiffNonCombining {
     // having to otherwise e.g. include their field twice in the note template.
     fn render_expected_tokens(&self, tokens: &[DiffToken]) -> String {
         let mut idx = 0;
-        tokens.iter().fold(
-            String::with_capacity(tokens.len() * 20),
-            |mut acc, token| {
-                let end = idx + token.text.chars().count();
-                let txt = self.expected_split[idx..end].concat();
-                idx = end;
-                let encoded_text = htmlescape::encode_minimal(&txt);
-                let class = token.to_class();
-                acc.push_str(&format!("<span class={class}>{encoded_text}</span>"));
-                acc
-            },
-        )
+        tokens.iter().fold(String::new(), |mut acc, token| {
+            let end = idx + token.text.chars().count();
+            let txt = self.expected_split[idx..end].concat();
+            idx = end;
+            let encoded_text = htmlescape::encode_minimal(&txt);
+            let class = token.to_class();
+            acc.push_str(&format!("<span class={class}>{encoded_text}</span>"));
+            acc
+        })
     }
 }
 
