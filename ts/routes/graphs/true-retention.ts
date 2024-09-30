@@ -17,7 +17,7 @@ function calculateRetention(passed: number, failed: number): string {
     if (total === 0) {
         return "0%";
     }
-    return localizedNumber((passed / total) * 100) + "%";
+    return localizedNumber((passed / total) * 100, 1) + "%";
 }
 
 function createStatsRow(name: string, data: TrueRetentionData): string {
@@ -50,8 +50,9 @@ export function renderTrueRetention(data: GraphsResponse, revlogRange: RevlogRan
             td.trl { border: 1px solid; text-align: left; padding: 5px; }
             td.trr { border: 1px solid; text-align: right; padding: 5px; }
             td.trc { border: 1px solid; text-align: center; padding: 5px; }
+            table { width: 100%; margin: 0px 25px 20px 25px; }
         </style>
-        <table style="border-collapse: collapse;" cellspacing="0" cellpadding="2">
+        <table cellspacing="0" cellpadding="2">
             <tr>
                 <td class="trl" rowspan=3><b>${tr.statisticsTrueRetentionRange()}</b></td>
                 <td class="trc" colspan=9><b>${tr.statisticsReviewsTitle()}</b></td>
