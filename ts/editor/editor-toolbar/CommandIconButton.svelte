@@ -27,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function action() {
         execCommand(key);
+        $focusedInput?.refocus();
     }
 
     $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
