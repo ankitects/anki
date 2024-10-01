@@ -740,7 +740,7 @@ class Browser(QMainWindow):
 
     def on_create_copy(self) -> None:
         if note := self.table.get_current_note():
-            deck_id = self.table.get_current_card().did
+            deck_id = self.table.get_current_card().current_deck_id()
             aqt.dialogs.open("AddCards", self.mw).set_note(note, deck_id)
 
     @no_arg_trigger
