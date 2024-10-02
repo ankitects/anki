@@ -34,12 +34,12 @@ macro_rules! format_typeans {
 
 // Public API
 pub fn compare_answer(expected: &str, typed: &str, combining: bool) -> String {
-    if typed.is_empty() {
-        format_typeans!(htmlescape::encode_minimal(&prepare_expected(expected)))
-    } else if combining {
-        Diff::new(expected, typed).to_html()
-    } else {
-        DiffNonCombining::new(expected, typed).to_html()
+    let stripped = strip_expected(expected);
+
+    match typed.is_empty() {
+        true => format_typeans!(htmlescape::encode_minimal(&stripped)),
+        false if combining => Diff::new(&stripped, typed).to_html(),
+        false => DiffNonCombining::new(&stripped, typed).to_html(),
     }
 }
 
@@ -116,7 +116,7 @@ fn slice(chars: &[char], start: usize, end: usize) -> String {
     chars[start..end].iter().collect()
 }
 
-fn prepare_expected(expected: &str) -> String {
+fn strip_expected(expected: &str) -> String {
     let no_av_tags = strip_av_tags(expected);
     let no_linebreaks = LINEBREAKS.replace_all(&no_av_tags, " ");
     strip_html(&no_linebreaks).trim().to_string()
@@ -167,7 +167,7 @@ impl DiffTrait for Diff {
     fn new(expected: &str, typed: &str) -> Self {
         Self {
             typed: Self::normalize_typed(typed),
-            expected: normalize(&prepare_expected(expected)),
+            expected: normalize(expected),
         }
     }
     fn normalize_typed(typed: &str) -> Vec<char> {
@@ -202,7 +202,7 @@ impl DiffTrait for DiffNonCombining {
         let mut expected_stripped = String::new();
         // tokenized into "char+combining" for final rendering
         let mut expected_split: Vec<String> = Vec::new();
-        for c in normalize(&prepare_expected(expected)) {
+        for c in normalize(expected) {
             if unicode_normalization::char::is_combining_mark(c) {
                 if let Some(last) = expected_split.last_mut() {
                     last.push(c);
@@ -219,7 +219,7 @@ impl DiffTrait for DiffNonCombining {
                 expected: expected_stripped.chars().collect(),
             },
             expected_split,
-            expected_original: prepare_expected(expected),
+            expected_original: expected.to_string(),
         }
     }
 
@@ -340,7 +340,8 @@ mod test {
 
     #[test]
     fn html_and_media() {
-        let ctx = Diff::new("[sound:foo.mp3]<b>1</b> &nbsp;2", "1  2");
+        let stripped = strip_expected("[sound:foo.mp3]<b>1</b> &nbsp;2");
+        let ctx = Diff::new(&stripped, "1  2");
         // the spacing is handled by wrapping html output in white-space: pre-wrap
         assert_eq!(ctx.to_tokens().expected_tokens, &[good("1  2")]);
     }
@@ -387,9 +388,10 @@ mod test {
 
     #[test]
     fn tags_removed() {
-        assert_eq!(prepare_expected("<div>123</div>"), "123");
+        let stripped = strip_expected("<div>123</div>");
+        assert_eq!(stripped, "123");
         assert_eq!(
-            Diff::new("<div>123</div>", "123").to_html(),
+            Diff::new(&stripped, "123").to_html(),
             "<code id=typeans><span class=typeGood>123</span></code>"
         );
     }
