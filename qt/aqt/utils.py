@@ -893,7 +893,7 @@ def showinFolder(path: str) -> None:
         script = f"""
         tell application "Finder"
             activate
-            select POSIX file '{path}'
+            select POSIX file "{path}"
         end tell
         """
         call(osascript_to_args(script))
