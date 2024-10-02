@@ -18,7 +18,7 @@ export type ShapeOrShapes = Shape | Shape[];
 export class Shape {
     left: number;
     top: number;
-    fill: string = SHAPE_MASK_COLOR;
+    fill: string;
     /** Whether occlusions from other cloze numbers should be shown on the
      * question side. Used only in reviewer code.
      */

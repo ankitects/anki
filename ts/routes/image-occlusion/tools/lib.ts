@@ -5,6 +5,7 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import { opacityStateStore } from "../store";
+import type { Size } from "../types";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
 export const BORDER_COLOR = "#212121";
@@ -12,6 +13,7 @@ export const TEXT_BACKGROUND_COLOR = "#ffffff";
 export const TEXT_FONT_FAMILY = "Arial";
 export const TEXT_PADDING = 5;
 export const TEXT_FONT_SIZE = 40;
+export const TEXT_COLOR = "#000000";
 
 let _clipboard;
 
@@ -310,20 +312,31 @@ export const selectAllShapes = (canvas: fabric.Canvas) => {
 
 export const isPointerInBoundingBox = (pointer): boolean => {
     const boundingBox = getBoundingBox();
+    if (boundingBox === undefined) {
+        return false;
+    }
     boundingBox.selectable = false;
     boundingBox.evented = false;
     if (
-        pointer.x < boundingBox.left
-        || pointer.x > boundingBox.left + boundingBox.width
-        || pointer.y < boundingBox.top
-        || pointer.y > boundingBox.top + boundingBox.height
+        pointer.x < boundingBox.left!
+        || pointer.x > boundingBox.left! + boundingBox.width!
+        || pointer.y < boundingBox.top!
+        || pointer.y > boundingBox.top! + boundingBox.height!
     ) {
         return false;
     }
     return true;
 };
 
-export const getBoundingBox = () => {
-    const canvas = globalThis.canvas;
+export const getBoundingBox = (): fabric.Rect | undefined => {
+    const canvas: fabric.Canvas = globalThis.canvas;
     return canvas.getObjects().find((obj) => obj.fill === "transparent");
+};
+
+export const getBoundingBoxSize = (): Size => {
+    const boundingBoxSize = getBoundingBox()?.getBoundingRect(true);
+    if (boundingBoxSize) {
+        return { width: boundingBoxSize.width, height: boundingBoxSize.height };
+    }
+    return { width: 0, height: 0 };
 };
