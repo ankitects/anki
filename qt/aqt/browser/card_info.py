@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-import json
-from typing import Callable
+from collections.abc import Callable
 
 import aqt
 from anki.cards import Card, CardId
+from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from aqt.qt import *
 from aqt.utils import (
@@ -54,7 +54,7 @@ class CardInfoDialog(QDialog):
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.BROWSER_CARD_INFO)
         self.web.setVisible(False)
-        self.web.load_ts_page("card-info")
+        self.web.load_sveltekit_page(f"card-info/{card_id}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
@@ -63,13 +63,20 @@ class CardInfoDialog(QDialog):
         layout.addWidget(buttons)
         qconnect(buttons.rejected, self.reject)
         self.setLayout(layout)
-        self.web.eval("anki.cardInfoPromise = anki.setupCardInfo(document.body);")
-        self.update_card(card_id)
 
     def update_card(self, card_id: CardId | None) -> None:
-        self.web.eval(
-            f"anki.cardInfoPromise.then((c) => c.updateStats({json.dumps(card_id)}));"
-        )
+        from aqt.theme import theme_manager
+
+        try:
+            self.mw.col.get_card(card_id)
+        except NotFoundError:
+            card_id = None
+
+        if theme_manager.night_mode:
+            extra = "#night"
+        else:
+            extra = ""
+        self.web.eval(f"window.location.href = '/card-info/{card_id}{extra}';")
 
     def reject(self) -> None:
         if self._on_close:
@@ -90,9 +97,10 @@ class CardInfoManager:
         self._card: Card | None = None
         self._dialog: CardInfoDialog | None = None
 
-    def toggle(self) -> None:
+    def show(self) -> None:
         if self._dialog:
-            self._dialog.reject()
+            self._dialog.activateWindow()
+            self._dialog.raise_()
         else:
             self._dialog = CardInfoDialog(
                 None,
@@ -110,7 +118,7 @@ class CardInfoManager:
 
     def close(self) -> None:
         if self._dialog:
-            self.toggle()
+            self._dialog.reject()
 
     def _on_close(self) -> None:
         self._dialog = None

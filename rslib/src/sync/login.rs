@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use reqwest::Client;
 use reqwest::Url;
 use serde::Deserialize;
 use serde::Serialize;
@@ -34,13 +35,14 @@ pub async fn sync_login<S: Into<String>>(
     username: S,
     password: S,
     endpoint: Option<String>,
+    client: Client,
 ) -> Result<SyncAuth> {
     let auth = anki_proto::sync::SyncAuth {
         endpoint,
         ..Default::default()
     }
     .try_into()?;
-    let client = HttpSyncClient::new(auth);
+    let client = HttpSyncClient::new(auth, client);
     let resp = client
         .host_key(
             HostKeyRequest {

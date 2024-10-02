@@ -129,10 +129,24 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn used_notetypes(&self) -> Result<HashSet<NotetypeId>> {
+        self.db
+            .prepare_cached("SELECT DISTINCT mid FROM notes")?
+            .query_and_then([], |r| Ok(r.get(0)?))?
+            .collect()
+    }
+
     pub fn get_all_notetype_names(&self) -> Result<Vec<(NotetypeId, String)>> {
         self.db
             .prepare_cached(include_str!("get_notetype_names.sql"))?
             .query_and_then([], |row| Ok((row.get(0)?, row.get(1)?)))?
+            .collect()
+    }
+
+    pub fn get_all_notetype_ids(&self) -> Result<Vec<NotetypeId>> {
+        self.db
+            .prepare_cached("SELECT id FROM notetypes")?
+            .query_and_then([], |row| row.get(0).map_err(Into::into))?
             .collect()
     }
 
@@ -331,7 +345,7 @@ impl SqliteStorage {
         let nts = self
             .get_schema11_notetypes()
             .map_err(|e| AnkiError::JsonError {
-                info: format!("decoding models: {}", e),
+                info: format!("decoding models: {:?}", e),
             })?;
         let mut names = HashSet::new();
         for (mut ntid, nt) in nts {
@@ -361,7 +375,7 @@ impl SqliteStorage {
 
     pub(crate) fn downgrade_notetypes_from_schema15(&self) -> Result<()> {
         let nts = self.get_all_notetypes_as_schema11()?;
-        self.set_schema11_notetypes(&nts)
+        self.set_schema11_notetypes(nts)
     }
 
     fn get_schema11_notetypes(&self) -> Result<HashMap<NotetypeId, NotetypeSchema11>> {
@@ -369,7 +383,7 @@ impl SqliteStorage {
         let notetypes = stmt
             .query_and_then([], |row| -> Result<HashMap<NotetypeId, NotetypeSchema11>> {
                 let v: HashMap<NotetypeId, NotetypeSchema11> =
-                    serde_json::from_str(row.get_ref_unwrap(0).as_str()?)?;
+                    serde_json::from_value(serde_json::from_str(row.get_ref_unwrap(0).as_str()?)?)?;
                 Ok(v)
             })?
             .next()
@@ -379,9 +393,9 @@ impl SqliteStorage {
 
     pub(crate) fn set_schema11_notetypes(
         &self,
-        notetypes: &HashMap<NotetypeId, NotetypeSchema11>,
+        notetypes: HashMap<NotetypeId, NotetypeSchema11>,
     ) -> Result<()> {
-        let json = crate::serde::schema11_to_string(notetypes)?;
+        let json = serde_json::to_string(&notetypes)?;
         self.db.execute("update col set models = ?", [json])?;
         Ok(())
     }

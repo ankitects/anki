@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.decks import DeckCollapseScope, DeckDict, DeckId, UpdateDeckConfigs
@@ -16,9 +16,16 @@ def remove_decks(
     *,
     parent: QWidget,
     deck_ids: Sequence[DeckId],
+    deck_name: str,
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.decks.remove(deck_ids)).success(
-        lambda out: tooltip(tr.browsing_cards_deleted(count=out.count), parent=parent)
+        lambda out: tooltip(
+            tr.browsing_cards_deleted_with_deckname(
+                count=out.count,
+                deck_name=deck_name,
+            ),
+            parent=parent,
+        )
     )
 
 

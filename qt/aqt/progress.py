@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
+from concurrent.futures import Future
 from dataclasses import dataclass
 
 import aqt.forms
 from anki._legacy import print_deprecation_warning
 from anki.collection import Progress
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.utils import disable_help_button, tr
 
 # Progress info
@@ -39,7 +42,7 @@ class ProgressManager:
         repeat: bool,
         requiresCollection: bool = True,
         *,
-        parent: QObject = None,
+        parent: QObject | None = None,
     ) -> QTimer:
         """Create and start a standard Anki timer. For an alternative see `single_shot()`.
 
@@ -162,7 +165,7 @@ class ProgressManager:
         self._counter = min
         self._min = min
         self._max = max
-        self._firstTime = time.time()
+        self._firstTime = time.monotonic()
         self._show_timer = QTimer(self.mw)
         self._show_timer.setSingleShot(True)
         self._show_timer.start(immediate and 100 or 600)
@@ -205,7 +208,7 @@ class ProgressManager:
         maybeShow: bool = True,
         max: int | None = None,
     ) -> None:
-        # print self._min, self._counter, self._max, label, time.time() - self._lastTime
+        # print("update", label, self._levels, self._min, self._counter, self._max, label, time.monotonic() - self._shown)
         if not self.mw.inMainThread():
             print("progress.update() called on wrong thread")
             return
@@ -223,22 +226,53 @@ class ProgressManager:
             self._win.form.progressBar.setValue(self._counter)
 
     def finish(self) -> None:
-        self._levels -= 1
-        self._levels = max(0, self._levels)
-        if self._levels == 0:
-            if self._win:
-                self._closeWin()
-            if self._busy_cursor_timer:
-                self._busy_cursor_timer.stop()
-                self._busy_cursor_timer = None
-            self._restore_cursor()
-            if self._show_timer:
-                self._show_timer.stop()
-                self._show_timer = None
-        if self._backend_timer:
-            self._backend_timer.stop()
-            self._backend_timer.deleteLater()
-            self._backend_timer = None
+        def do_window_cleanup(future: Future | None = None):
+            # this method can be called in an async fashion from taskman where a future
+            # is passed or in synchronous manner from the main thread
+            if future is not None:
+                future.result()
+
+            next_levels = self._levels - 1
+            next_levels = max(0, next_levels)
+            try:
+                if next_levels == 0:
+                    if self._win:
+                        self._closeWin()
+                    if self._busy_cursor_timer:
+                        self._busy_cursor_timer.stop()
+                        self._busy_cursor_timer = None
+                    self._restore_cursor()
+                    if self._show_timer:
+                        self._show_timer.stop()
+                        self._show_timer = None
+                if self._backend_timer:
+                    self._backend_timer.stop()
+                    self._backend_timer.deleteLater()
+                    self._backend_timer = None
+            except RuntimeError as exc:
+                # during shutdown, the timers may have already been deleted by Qt
+                print(f"do_window_cleanup error ignored: {exc}")
+            self._levels = next_levels
+
+        # if the window is not currently shown, we can do cleanup immediately, if it is
+        # currently shown then we need to give the window system a half-second to
+        # present the window before we close it again - fixes progress window getting
+        # stuck, especially on ubuntu 16.10+
+        elapsed_time = time.monotonic() - self._shown
+        time_to_wait = 0.5 - elapsed_time
+        # NOTE: we must not yield control if the window is not shown since we don't want
+        # to expose ourselves to the possibility of something showing the window in the
+        # meantime
+        if (not self._shown) or (time_to_wait <= 0):
+            do_window_cleanup()
+        else:
+            # NOTE: we can't use self.single_shot here since it won't call the callback
+            # until _levels = 0, but if we are in this branch then _levels > 0
+            self.mw.taskman.run_in_background(
+                lambda time_to_wait=time_to_wait: time.sleep(time_to_wait),
+                do_window_cleanup,
+                uses_collection=False,
+            )
 
     def clear(self) -> None:
         "Restore the interface after an error."
@@ -251,25 +285,15 @@ class ProgressManager:
             return
         if self._shown:
             return
-        delta = time.time() - self._firstTime
+        delta = time.monotonic() - self._firstTime
         if delta > 0.5:
             self._showWin()
 
     def _showWin(self) -> None:
-        self._shown = time.time()
+        self._shown = time.monotonic()
         self._win.show()
 
     def _closeWin(self) -> None:
-        if self._shown:
-            while True:
-                # give the window system a second to present
-                # window before we close it again - fixes
-                # progress window getting stuck, especially
-                # on ubuntu 16.10+
-                elap = time.time() - self._shown
-                if elap >= 0.5:
-                    break
-                self.app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)  # type: ignore #possibly related to https://github.com/python/mypy/issues/6910
         # if the parent window has been deleted, the progress dialog may have
         # already been dropped; delete it if it hasn't been
         if not sip.isdeleted(self._win):
@@ -323,6 +347,7 @@ class ProgressDialog(QDialog):
     def cancel(self) -> None:
         self._closingDown = True
         self.hide()
+        self.deleteLater()
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         if self._closingDown:

@@ -7,12 +7,18 @@ import os
 import re
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence, Type
 
 import aqt.forms
 import aqt.main
-from anki.collection import DeckIdLimit, ExportLimit, NoteIdsLimit, Progress
+from anki.collection import (
+    DeckIdLimit,
+    ExportAnkiPackageOptions,
+    ExportLimit,
+    NoteIdsLimit,
+    Progress,
+)
 from anki.decks import DeckId, DeckNameId
 from anki.notes import NoteId
 from aqt import gui_hooks
@@ -36,8 +42,9 @@ class ExportDialog(QDialog):
         mw: aqt.main.AnkiQt,
         did: DeckId | None = None,
         nids: Sequence[NoteId] | None = None,
+        parent: QWidget | None = None,
     ):
-        QDialog.__init__(self, mw, Qt.WindowType.Window)
+        QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
         self.mw = mw
         self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
@@ -49,7 +56,7 @@ class ExportDialog(QDialog):
         self.open()
 
     def setup(self, did: DeckId | None) -> None:
-        self.exporter_classes: list[Type[Exporter]] = [
+        self.exporter_classes: list[type[Exporter]] = [
             ApkgExporter,
             ColpkgExporter,
             NoteCsvExporter,
@@ -89,6 +96,9 @@ class ExportDialog(QDialog):
     def exporter_changed(self, idx: int) -> None:
         self.exporter = self.exporter_classes[idx]()
         self.frm.includeSched.setVisible(self.exporter.show_include_scheduling)
+        self.frm.include_deck_configs.setVisible(
+            self.exporter.show_include_deck_configs
+        )
         self.frm.includeMedia.setVisible(self.exporter.show_include_media)
         self.frm.includeTags.setVisible(self.exporter.show_include_tags)
         self.frm.includeHTML.setVisible(self.exporter.show_include_html)
@@ -127,7 +137,7 @@ class ExportDialog(QDialog):
         return path
 
     def options(self, out_path: str) -> ExportOptions:
-        limit: ExportLimit = None
+        limit: ExportLimit | None = None
         if self.nids:
             limit = NoteIdsLimit(self.nids)
         elif current_deck_id := self.current_deck_id():
@@ -136,6 +146,7 @@ class ExportDialog(QDialog):
         return ExportOptions(
             out_path=out_path,
             include_scheduling=self.frm.includeSched.isChecked(),
+            include_deck_configs=self.frm.include_deck_configs.isChecked(),
             include_media=self.frm.includeMedia.isChecked(),
             include_tags=self.frm.includeTags.isChecked(),
             include_html=self.frm.includeHTML.isChecked(),
@@ -169,6 +180,7 @@ class ExportDialog(QDialog):
 class ExportOptions:
     out_path: str
     include_scheduling: bool
+    include_deck_configs: bool
     include_media: bool
     include_tags: bool
     include_html: bool
@@ -183,6 +195,7 @@ class Exporter(ABC):
     extension: str
     show_deck_list = False
     show_include_scheduling = False
+    show_include_deck_configs = False
     show_include_media = False
     show_include_tags = False
     show_include_html = False
@@ -240,6 +253,7 @@ class ApkgExporter(Exporter):
     extension = "apkg"
     show_deck_list = True
     show_include_scheduling = True
+    show_include_deck_configs = True
     show_include_media = True
     show_legacy_support = True
 
@@ -259,9 +273,12 @@ class ApkgExporter(Exporter):
             op=lambda col: col.export_anki_package(
                 out_path=options.out_path,
                 limit=options.limit,
-                with_scheduling=options.include_scheduling,
-                with_media=options.include_media,
-                legacy_support=options.legacy_support,
+                options=ExportAnkiPackageOptions(
+                    with_scheduling=options.include_scheduling,
+                    with_deck_configs=options.include_deck_configs,
+                    with_media=options.include_media,
+                    legacy=options.legacy_support,
+                ),
             ),
             success=on_success,
         ).with_backend_progress(export_progress_update).run_in_background()

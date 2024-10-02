@@ -60,8 +60,8 @@ pub enum SearchNode {
     EditedInDays(u32),
     CardTemplate(TemplateKind),
     Deck(String),
-    /// Matches cards in a single deck (original_deck_id is not checked).
-    DeckIdWithoutChildren(DeckId),
+    /// Matches cards in a list of decks (original_deck_id is not checked).
+    DeckIdsWithoutChildren(String),
     /// Matches cards in a deck or its children (original_deck_id is not
     /// checked).
     DeckIdWithChildren(DeckId),
@@ -92,6 +92,8 @@ pub enum SearchNode {
     Regex(String),
     NoCombining(String),
     WordBoundary(String),
+    CustomData(String),
+    Preset(String),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -103,7 +105,11 @@ pub enum PropertyKind {
     Ease(f32),
     Position(u32),
     Rated(i32, RatingKind),
+    Stability(f32),
+    Difficulty(f32),
+    Retrievability(f32),
     CustomDataNumber { key: String, value: f32 },
+    CustomDataString { key: String, value: String },
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -340,7 +346,7 @@ fn search_node_for_text_with_argument<'a>(
         "introduced" => parse_introduced(val)?,
         "rated" => parse_rated(val)?,
         "is" => parse_state(val)?,
-        "did" => parse_did(val)?,
+        "did" => SearchNode::DeckIdsWithoutChildren(check_id_list(val, key)?.into()),
         "mid" => parse_mid(val)?,
         "nid" => SearchNode::NoteIds(check_id_list(val, key)?.into()),
         "cid" => SearchNode::CardIds(check_id_list(val, key)?.into()),
@@ -348,6 +354,8 @@ fn search_node_for_text_with_argument<'a>(
         "nc" => SearchNode::NoCombining(unescape(val)?),
         "w" => SearchNode::WordBoundary(unescape(val)?),
         "dupe" => parse_dupe(val)?,
+        "has-cd" => SearchNode::CustomData(unescape(val)?),
+        "preset" => SearchNode::Preset(val.into()),
         // anything else is a field search
         _ => parse_single_field(key, val)?,
     })
@@ -406,7 +414,11 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         tag("pos"),
         tag("rated"),
         tag("resched"),
+        tag("s"),
+        tag("d"),
+        tag("r"),
         recognize(preceded(tag("cdn:"), alphanumeric1)),
+        recognize(preceded(tag("cds:"), alphanumeric1)),
     ))(prop_clause)
     .map_err(|_| {
         parse_failure(
@@ -446,13 +458,18 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         "reps" => PropertyKind::Reps(parse_u32(num, prop_clause)?),
         "lapses" => PropertyKind::Lapses(parse_u32(num, prop_clause)?),
         "pos" => PropertyKind::Position(parse_u32(num, prop_clause)?),
-        other => {
-            let Some(prop) = other.strip_prefix("cdn:") else { unreachable!() };
-            PropertyKind::CustomDataNumber {
-                key: prop.into(),
-                value: parse_f32(num, prop_clause)?,
-            }
-        }
+        "s" => PropertyKind::Stability(parse_f32(num, prop_clause)?),
+        "d" => PropertyKind::Difficulty(parse_f32(num, prop_clause)?),
+        "r" => PropertyKind::Retrievability(parse_f32(num, prop_clause)?),
+        prop if prop.starts_with("cdn:") => PropertyKind::CustomDataNumber {
+            key: prop.strip_prefix("cdn:").unwrap().into(),
+            value: parse_f32(num, prop_clause)?,
+        },
+        prop if prop.starts_with("cds:") => PropertyKind::CustomDataString {
+            key: prop.strip_prefix("cds:").unwrap().into(),
+            value: num.into(),
+        },
+        _ => unreachable!(),
     };
 
     Ok(SearchNode::Property {
@@ -595,10 +612,6 @@ fn parse_state(s: &str) -> ParseResult<SearchNode> {
             ))
         }
     }))
-}
-
-fn parse_did(s: &str) -> ParseResult<SearchNode> {
-    parse_i64(s, "did:").map(|n| SearchNode::DeckIdWithoutChildren(n.into()))
 }
 
 fn parse_mid(s: &str) -> ParseResult<SearchNode> {
@@ -824,8 +837,8 @@ mod test {
 
         // parser doesn't unescape unescape \*_
         assert_eq!(
-            parse(r#"\\\*\_"#)?,
-            vec![Search(UnqualifiedText(r#"\\\*\_"#.into())),]
+            parse(r"\\\*\_")?,
+            vec![Search(UnqualifiedText(r"\\\*\_".into())),]
         );
 
         // escaping parentheses is optional (only) inside quotes
@@ -877,6 +890,11 @@ mod test {
             vec![Search(Deck("default one".into()))]
         );
 
+        assert_eq!(
+            parse("preset:default")?,
+            vec![Search(Preset("default".into()))]
+        );
+
         assert_eq!(parse("note:basic")?, vec![Search(Notetype("basic".into()))]);
         assert_eq!(
             parse("tag:hard")?,
@@ -923,6 +941,27 @@ mod test {
                 }
             })]
         );
+        assert_eq!(
+            parse("prop:cds:abc=foo")?,
+            vec![Search(Property {
+                operator: "=".into(),
+                kind: PropertyKind::CustomDataString {
+                    key: "abc".into(),
+                    value: "foo".into()
+                }
+            })]
+        );
+        assert_eq!(
+            parse("\"prop:cds:abc=foo bar\"")?,
+            vec![Search(Property {
+                operator: "=".into(),
+                kind: PropertyKind::CustomDataString {
+                    key: "abc".into(),
+                    value: "foo bar".into()
+                }
+            })]
+        );
+        assert_eq!(parse("has-cd:r")?, vec![Search(CustomData("r".into()))]);
 
         Ok(())
     }
@@ -1142,6 +1181,18 @@ mod test {
             "prop:cdn:=5",
             InvalidPropProperty {
                 provided: "cdn:=5".to_string(),
+            },
+        );
+        assert_err_kind(
+            "prop:cds=s",
+            InvalidPropProperty {
+                provided: "cds=s".to_string(),
+            },
+        );
+        assert_err_kind(
+            "prop:cds:=s",
+            InvalidPropProperty {
+                provided: "cds:=s".to_string(),
             },
         );
 

@@ -79,6 +79,8 @@ class FilteredDeckConfigDialog(QDialog):
         self.form.order.addItems(order_labels)
         self.form.order_2.addItems(order_labels)
 
+        qconnect(self.form.allow_empty.stateChanged, self._on_allow_empty_toggled)
+
         qconnect(self.form.resched.stateChanged, self._onReschedToggled)
 
         qconnect(self.form.search_button.clicked, self.on_search_button)
@@ -98,8 +100,16 @@ class FilteredDeckConfigDialog(QDialog):
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.FILTERED_DECK)
         )
 
-        if self.col.sched_ver() == 1:
-            self.form.secondFilter.setVisible(False)
+        self.form.again_delay_label.setText(
+            tr.decks_delay_for_button(button=tr.studying_again())
+        )
+        self.form.hard_delay_label.setText(
+            tr.decks_delay_for_button(button=tr.studying_hard())
+        )
+        self.form.good_delay_label.setText(
+            tr.decks_delay_for_button(button=tr.studying_good())
+        )
+
         restoreGeom(self, self.GEOMETRY_KEY)
 
     def load_deck_and_show(self, deck: FilteredDeckForUpdate) -> None:
@@ -132,15 +142,9 @@ class FilteredDeckConfigDialog(QDialog):
         form.order.setCurrentIndex(term1.order)
         form.limit.setValue(term1.limit)
 
-        if self.col.sched_ver() == 1:
-            if config.delays:
-                form.steps.setText(self.listToUser(list(config.delays)))
-                form.stepsOn.setChecked(True)
-        else:
-            form.steps.setVisible(False)
-            form.stepsOn.setVisible(False)
-
-        form.previewDelay.setValue(config.preview_delay)
+        form.preview_again.setValue(config.preview_again_secs)
+        form.preview_hard.setValue(config.preview_hard_secs)
+        form.preview_good.setValue(config.preview_good_secs)
 
         if len(config.search_terms) > 1:
             term2: FilteredDeckConfig.SearchTerm = config.search_terms[1]
@@ -209,7 +213,6 @@ class FilteredDeckConfigDialog(QDialog):
         implicit_filters = (
             SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED),
             SearchNode(card_state=SearchNode.CARD_STATE_BURIED),
-            *self._learning_search_node(),
             *self._filtered_search_node(),
         )
         manual_filter = self.col.group_searches(*manual_filters, joiner="OR")
@@ -226,21 +229,6 @@ class FilteredDeckConfigDialog(QDialog):
             return (self.form.search_2.text(),)
         return ()
 
-    def _learning_search_node(self) -> tuple[SearchNode, ...]:
-        """Return a search node that matches learning cards if the old scheduler is enabled.
-        If it's a rebuild, exclude cards from this filtered deck as those will be reset.
-        """
-        if self.col.sched_ver() == 1:
-            if self.deck.id:
-                return (
-                    self.col.group_searches(
-                        SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
-                        SearchNode(negated=SearchNode(deck=self.deck.name)),
-                    ),
-                )
-            return (SearchNode(card_state=SearchNode.CARD_STATE_LEARN),)
-        return ()
-
     def _filtered_search_node(self) -> tuple[SearchNode]:
         """Return a search node that matches cards in filtered decks, if applicable excluding those
         in the deck being rebuild."""
@@ -254,9 +242,10 @@ class FilteredDeckConfigDialog(QDialog):
         return (SearchNode(deck="filtered"),)
 
     def _onReschedToggled(self, _state: int) -> None:
-        self.form.previewDelayWidget.setVisible(
-            not self.form.resched.isChecked() and self.col.sched_ver() > 1
-        )
+        self.form.previewDelayWidget.setVisible(not self.form.resched.isChecked())
+
+    def _on_allow_empty_toggled(self) -> None:
+        self.deck.allow_empty = self.form.allow_empty.isChecked()
 
     def _update_deck(self) -> bool:
         """Update our stored deck with the details from the GUI.
@@ -269,11 +258,6 @@ class FilteredDeckConfigDialog(QDialog):
         config.reschedule = form.resched.isChecked()
 
         del config.delays[:]
-        if self.col.sched_ver() == 1 and form.stepsOn.isChecked():
-            if (delays := self.userToList(form.steps)) is None:
-                return False
-            config.delays.extend(delays)
-
         terms = [
             FilteredDeckConfig.SearchTerm(
                 search=form.search.text(),
@@ -293,7 +277,9 @@ class FilteredDeckConfigDialog(QDialog):
 
         del config.search_terms[:]
         config.search_terms.extend(terms)
-        config.preview_delay = form.previewDelay.value()
+        config.preview_again_secs = form.preview_again.value()
+        config.preview_hard_secs = form.preview_hard.value()
+        config.preview_good_secs = form.preview_good.value()
 
         return True
 
@@ -318,32 +304,3 @@ class FilteredDeckConfigDialog(QDialog):
         add_or_update_filtered_deck(parent=self, deck=self.deck).success(
             success
         ).run_in_background()
-
-    # Step load/save
-    ########################################################
-    # fixme: remove once we drop support for v1
-
-    def listToUser(self, values: list[Union[float, int]]) -> str:
-        return " ".join(
-            [str(int(val)) if int(val) == val else str(val) for val in values]
-        )
-
-    def userToList(self, line: QLineEdit, minSize: int = 1) -> list[float] | None:
-        items = str(line.text()).split(" ")
-        ret = []
-        for item in items:
-            if not item:
-                continue
-            try:
-                i = float(item)
-                if i <= 0:
-                    raise Exception("0 invalid")
-                ret.append(i)
-            except:
-                # invalid, don't update
-                showWarning(tr.scheduling_steps_must_be_numbers())
-                return None
-        if len(ret) < minSize:
-            showWarning(tr.scheduling_at_least_one_step_is_required())
-            return None
-        return ret

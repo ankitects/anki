@@ -1,5 +1,5 @@
 [package]
-name = "makeinstall"
+name = "makeexe"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

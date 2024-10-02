@@ -7,16 +7,16 @@ import json as _json
 import os
 import platform
 import random
-import re
 import shutil
 import string
 import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from hashlib import sha1
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator
+from typing import TYPE_CHECKING, Any
 
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.dbproxy import DBProxy
@@ -29,7 +29,7 @@ try:
 
     to_json_bytes: Callable[[Any], bytes] = orjson.dumps
     from_json_bytes = orjson.loads
-except:
+except Exception:
     print("orjson is missing; DB operations will be slower")
 
     def to_json_bytes(obj: Any) -> bytes:
@@ -69,15 +69,11 @@ def strip_html_media(txt: str) -> str:
 
 
 def html_to_text_line(txt: str) -> str:
-    txt = txt.replace("<br>", " ")
-    txt = txt.replace("<br />", " ")
-    txt = txt.replace("<div>", " ")
-    txt = txt.replace("\n", " ")
-    txt = re.sub(r"\[sound:[^]]+\]", "", txt)
-    txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
-    txt = strip_html_media(txt)
-    txt = txt.strip()
-    return txt
+    import anki.lang
+
+    return anki.lang.current_i18n.html_to_text_line(
+        text=txt, preserve_media_filenames=True
+    )
 
 
 # IDs
@@ -219,7 +215,7 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
         info = subprocess.STARTUPINFO()  # type: ignore
         try:
             info.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
-        except:
+        except Exception:
             # pylint: disable=no-member
             info.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW  # type: ignore
     else:
@@ -253,6 +249,7 @@ is_win = sys.platform.startswith("win32")
 # also covers *BSD
 is_lin = not is_mac and not is_win
 dev_mode = os.getenv("ANKIDEV", "")
+hmr_mode = os.getenv("HMR", "")
 
 INVALID_FILENAME_CHARS = ':*?"<>|'
 
@@ -289,7 +286,7 @@ def plat_desc() -> str:
             else:
                 theos = system
             break
-        except:
+        except Exception:
             continue
     return theos
 
@@ -304,14 +301,42 @@ def version_with_build() -> str:
     return f"{version} ({buildhash})"
 
 
-def point_version() -> int:
+def int_version() -> int:
+    """Anki's version as an integer in the form YYMMPP, e.g. 230900.
+    (year, month, patch).
+    In 2.1.x releases, this was just the last number."""
     from anki.buildinfo import version
 
-    return int(version.rsplit(".", maxsplit=1)[-1])
+    try:
+        [year, month, patch] = version.split(".")
+    except ValueError:
+        [year, month] = version.split(".")
+        patch = "0"
+
+    year_num = int(year)
+    month_num = int(month)
+    patch_num = int(patch)
+
+    return year_num * 10_000 + month_num * 100 + patch_num
 
 
-# keep the legacy alias around without a deprecation warning for now
-pointVersion = point_version
+def int_version_to_str(ver: int) -> str:
+    if ver <= 99:
+        return f"2.1.{ver}"
+    else:
+        year = ver // 10_000
+        month = (ver // 100) % 100
+        patch = ver % 100
+        out = f"{year:02}.{month:02}"
+        if patch:
+            out += f".{patch}"
+        return out
+
+
+# these two legacy aliases are provided without deprecation warnings, as add-ons that want to support
+# old versions could not use the new name without catching cases where it doesn't exist
+point_version = int_version
+pointVersion = int_version
 
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 _deprecated_names.register_deprecated_aliases(

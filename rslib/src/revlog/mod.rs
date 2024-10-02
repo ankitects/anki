@@ -32,7 +32,7 @@ impl From<TimestampMillis> for RevlogId {
     }
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq, Eq)]
+#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq, Eq, Clone)]
 pub struct RevlogEntry {
     pub id: RevlogId,
     pub cid: CardId,
@@ -48,7 +48,8 @@ pub struct RevlogEntry {
     #[serde(rename = "lastIvl", deserialize_with = "deserialize_int_from_number")]
     pub last_interval: i32,
     /// Card's ease after answering, stored as 10x the %, eg 2500 represents
-    /// 250%.
+    /// 250%. When FSRS is active, difficulty is normalized to 100-1100 range,
+    /// so a 0 difficulty can be distinguished from SM-2 learning.
     #[serde(rename = "factor", deserialize_with = "deserialize_int_from_number")]
     pub ease_factor: u32,
     /// Amount of milliseconds taken to answer the card.
@@ -66,9 +67,9 @@ pub enum RevlogReviewKind {
     Learning = 0,
     Review = 1,
     Relearning = 2,
-    /// Old Anki versions called this "Cram" or "Early", and assigned it when
-    /// reviewing cards ahead. It is now only used for filtered decks with
-    /// rescheduling disabled.
+    /// Old Anki versions called this "Cram" or "Early". It's assigned when
+    /// reviewing cards before they're due, or when rescheduling is
+    /// disabled.
     Filtered = 3,
     Manual = 4,
 }
@@ -88,17 +89,22 @@ impl Collection {
     pub(crate) fn log_manually_scheduled_review(
         &mut self,
         card: &Card,
-        original: &Card,
+        original_interval: u32,
         usn: Usn,
     ) -> Result<()> {
+        let ease_factor = u32::from(
+            card.memory_state
+                .map(|s| ((s.difficulty_shifted() * 1000.) as u16))
+                .unwrap_or(card.ease_factor),
+        );
         let entry = RevlogEntry {
             id: RevlogId::new(),
             cid: card.id,
             usn,
             button_chosen: 0,
             interval: i32::try_from(card.interval).unwrap_or(i32::MAX),
-            last_interval: i32::try_from(original.interval).unwrap_or(i32::MAX),
-            ease_factor: u32::from(card.ease_factor),
+            last_interval: i32::try_from(original_interval).unwrap_or(i32::MAX),
+            ease_factor,
             taken_millis: 0,
             review_kind: RevlogReviewKind::Manual,
         };

@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "ninja",
+            "command": "ninja",
+            "args": [
+                "pylib",
+                "qt"
+            ],
+            "windows": {
+                "command": "tools/ninja.bat",
+                "args": [
+                    "pylib",
+                    "qt",
+                    "extract:win_amd64_audio"
+                ]
+            }
+        }
+    ]
+}

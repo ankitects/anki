@@ -13,6 +13,7 @@ import aqt.forms
 from anki.collection import SearchNode
 from anki.notes import NoteId
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.webview import AnkiWebViewKind
 
 from ..operations import QueryOp
@@ -79,6 +80,8 @@ class FindDuplicatesDialog(QDialog):
         self.show()
 
     def show_duplicates_report(self, dupes: list[tuple[str, list[NoteId]]]) -> None:
+        if sip.isdeleted(self):
+            return
         self._dupes = dupes
         if not self._dupesButton:
             self._dupesButton = b = self.form.buttonBox.addButton(

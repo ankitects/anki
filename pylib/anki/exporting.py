@@ -13,8 +13,9 @@ import threading
 import time
 import unicodedata
 import zipfile
+from collections.abc import Sequence
 from io import BufferedWriter
-from typing import Any, Optional, Sequence
+from typing import Any
 from zipfile import ZipFile
 
 from anki import hooks
@@ -26,16 +27,16 @@ from anki.utils import ids2str, namedtmp, split_fields, strip_html
 
 class Exporter:
     includeHTML: bool | None = None
-    ext: Optional[str] = None
-    includeTags: Optional[bool] = None
-    includeSched: Optional[bool] = None
-    includeMedia: Optional[bool] = None
+    ext: str | None = None
+    includeTags: bool | None = None
+    includeSched: bool | None = None
+    includeMedia: bool | None = None
 
     def __init__(
         self,
         col: Collection,
-        did: Optional[DeckId] = None,
-        cids: Optional[list[CardId]] = None,
+        did: DeckId | None = None,
+        cids: list[CardId] | None = None,
     ) -> None:
         self.col = col.weakref()
         self.did = did
@@ -197,9 +198,6 @@ class AnkiExporter(Exporter):
             return []
 
     def exportInto(self, path: str) -> None:
-        # sched info+v2 scheduler not compatible w/ older clients
-        self._v2sched = self.col.sched_ver() != 1 and self.includeSched
-
         # create a new collection at the target
         try:
             os.unlink(path)
@@ -352,13 +350,10 @@ class AnkiPackageExporter(AnkiExporter):
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
-        if not self._v2sched:
-            z.write(colfile, "collection.anki2")
-        else:
-            # prevent older clients from accessing
-            # pylint: disable=unreachable
-            self._addDummyCollection(z)
-            z.write(colfile, "collection.anki21")
+        # prevent older clients from accessing
+        # pylint: disable=unreachable
+        self._addDummyCollection(z)
+        z.write(colfile, "collection.anki21")
 
         # and media
         self.prepareMedia()
@@ -402,7 +397,6 @@ class AnkiPackageExporter(AnkiExporter):
         n = c.newNote()
         n.fields[0] = "This file requires a newer version of Anki."
         c.addNote(n)
-        c.save()
         c.close(downgrade=True)
 
         zip.write(path, "collection.anki2")

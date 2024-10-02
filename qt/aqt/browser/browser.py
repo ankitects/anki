@@ -6,7 +6,8 @@ from __future__ import annotations
 import json
 import math
 import re
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any, cast
 
 import aqt
 import aqt.browser
@@ -17,14 +18,17 @@ from anki._legacy import deprecated
 from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
+from anki.decks import DeckId
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
+from anki.models import NotetypeId
 from anki.notes import NoteId
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
+from aqt.errors import show_exception
 from aqt.exporting import ExportDialog as LegacyExportDialog
 from aqt.import_export.exporting import ExportDialog
 from aqt.operations.card import set_card_deck, set_card_flag
@@ -70,6 +74,7 @@ from aqt.utils import (
     tr,
 )
 
+from ..addcards import AddCards
 from ..changenotetype import change_notetype_dialog
 from .card_info import BrowserCardInfo
 from .find_and_replace import FindAndReplaceDialog
@@ -126,6 +131,8 @@ class Browser(QMainWindow):
         self._previewer: Previewer | None = None
         self._card_info = BrowserCardInfo(self.mw)
         self._closeEventHasCleanedUp = False
+        self.auto_layout = True
+        self.aspect_ratio = 0.0
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
         self.form.splitter.setChildrenCollapsible(False)
@@ -153,7 +160,8 @@ class Browser(QMainWindow):
         restoreState(self, self._editor_state_key)
 
         # responsive layout
-        self.aspect_ratio = self.width() / self.height() if self.height() != 0 else 0
+        if self.height() != 0:
+            self.aspect_ratio = self.width() / self.height()
         self.set_layout(self.mw.pm.browser_layout(), True)
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
@@ -243,6 +251,23 @@ class Browser(QMainWindow):
             self.aspect_ratio = aspect_ratio
 
         QMainWindow.resizeEvent(self, event)
+
+    def get_active_note_type_id(self) -> NotetypeId | None:
+        """
+        If multiple cards are selected the note type will be derived
+        from the final card selected
+        """
+        if current_note := self.table.get_current_note():
+            return current_note.mid
+
+        return None
+
+    def add_card(self, deck_id: DeckId):
+        add_cards = cast(AddCards, aqt.dialogs.open("AddCards", self.mw))
+        add_cards.set_deck(deck_id)
+
+        if note_type_id := self.get_active_note_type_id():
+            add_cards.set_note_type(note_type_id)
 
     def setupMenus(self) -> None:
         # actions
@@ -406,6 +431,7 @@ class Browser(QMainWindow):
         self.form.searchEdit.lineEdit().setPlaceholderText(
             tr.browsing_search_bar_hint()
         )
+        self.form.searchEdit.lineEdit().setMaxLength(2000000)
         self.form.searchEdit.addItems(
             [""] + self.mw.pm.profile.get("searchHistory", [])
         )
@@ -512,7 +538,7 @@ class Browser(QMainWindow):
     def setup_table(self) -> None:
         self.table = Table(self)
         self.table.set_view(self.form.tableView)
-        switch = Switch(12, tr.browsing_cards(), tr.browsing_notes())
+        self._switch = switch = Switch(12, tr.browsing_cards(), tr.browsing_notes())
         switch.setChecked(self.table.is_notes_mode())
         switch.setToolTip(tr.browsing_toggle_showing_cards_notes())
         qconnect(self.form.action_toggle_mode.triggered, switch.toggle)
@@ -608,8 +634,16 @@ class Browser(QMainWindow):
     @ensure_editor_saved
     def on_table_state_changed(self, checked: bool) -> None:
         self.mw.progress.start()
-        self.table.toggle_state(checked, self._lastSearchTxt)
-        self.mw.progress.finish()
+        try:
+            self.table.toggle_state(checked, self._lastSearchTxt)
+        except Exception as err:
+            self.mw.progress.finish()
+            self._switch.blockSignals(True)
+            self._switch.toggle()
+            self._switch.blockSignals(False)
+            show_exception(parent=self, exception=err)
+        else:
+            self.mw.progress.finish()
 
     # Sidebar
     ######################################################################
@@ -676,7 +710,7 @@ class Browser(QMainWindow):
     ######################################################################
 
     def showCardInfo(self) -> None:
-        self._card_info.toggle()
+        self._card_info.show()
 
     def _update_card_info(self) -> None:
         self._card_info.set_card(self.current_card)
@@ -718,7 +752,7 @@ class Browser(QMainWindow):
 
     def createFilteredDeck(self) -> None:
         search = self.current_search()
-        if self.mw.col.sched_ver() != 1 and KeyboardModifiersPressed().alt:
+        if KeyboardModifiersPressed().alt:
             aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search_2=search)
         else:
             aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search=search)
@@ -905,10 +939,10 @@ class Browser(QMainWindow):
     def _on_export_notes(self) -> None:
         if not self.mw.pm.legacy_import_export():
             nids = self.selected_notes()
-            ExportDialog(self.mw, nids=nids)
+            ExportDialog(self.mw, nids=nids, parent=self)
         else:
             cids = self.selectedNotesAsCards()
-            LegacyExportDialog(self.mw, cids=list(cids))
+            LegacyExportDialog(self.mw, cids=list(cids), parent=self)
 
     # Flags & Marking
     ######################################################################

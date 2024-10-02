@@ -86,6 +86,18 @@ statistics-counts-learning-cards = Learning
 statistics-counts-relearning-cards = Relearning
 statistics-counts-title = Card Counts
 statistics-counts-separate-suspended-buried-cards = Separate suspended/buried cards
+statistics-true-retention-title = True Retention
+statistics-true-retention-subtitle = Pass rate of cards with an interval ≥ 1 day.
+statistics-true-retention-range = Range
+statistics-true-retention-pass = Pass
+statistics-true-retention-fail = Fail
+statistics-true-retention-retention = Retention
+statistics-true-retention-today = Today
+statistics-true-retention-yesterday = Yesterday
+statistics-true-retention-week = Last week
+statistics-true-retention-month = Last month
+statistics-true-retention-year = Last year
+statistics-true-retention-all-time = All time
 statistics-range-all-time = all
 statistics-range-1-year-history = last 12 months
 statistics-range-all-history = all history
@@ -93,12 +105,29 @@ statistics-range-deck = deck
 statistics-range-collection = collection
 statistics-range-search = Search
 statistics-card-ease-title = Card Ease
+statistics-card-difficulty-title = Card Difficulty
+statistics-card-stability-title = Card Stability
+statistics-card-stability-subtitle = The delay at which retrievability falls to 90%.
+statistics-average-stability = Average stability
+statistics-card-retrievability-title = Card Retrievability
 statistics-card-ease-subtitle = The lower the ease, the more frequently a card will appear.
+statistics-card-difficulty-subtitle2 = The higher the difficulty, the slower stability will increase.
+statistics-retrievability-subtitle = The probability of recalling a card today.
 # eg "3 cards with 150-170% ease"
 statistics-card-ease-tooltip =
     { $cards ->
         [one] { $cards } card with { $percent } ease
        *[other] { $cards } cards with { $percent } ease
+    }
+statistics-card-difficulty-tooltip =
+    { $cards ->
+        [one] { $cards } card with { $percent } difficulty
+       *[other] { $cards } cards with { $percent } difficulty
+    }
+statistics-retrievability-tooltip =
+    { $cards ->
+        [one] { $cards } card with { $percent } retrievability
+       *[other] { $cards } cards with { $percent } retrievability
     }
 statistics-future-due-title = Future Due
 statistics-future-due-subtitle = The number of reviews due in the future.
@@ -135,7 +164,7 @@ statistics-cards-due =
     }
 statistics-backlog-checkbox = Backlog
 statistics-intervals-title = Review Intervals
-statistics-intervals-subtitle = Delays until reviews are shown again.
+statistics-intervals-subtitle = Delays until review cards are shown again.
 statistics-intervals-day-range =
     { $cards ->
         [one] { $cards } card with a { $daysStart }~{ $daysEnd } day interval
@@ -145,6 +174,16 @@ statistics-intervals-day-single =
     { $cards ->
         [one] { $cards } card with a { $day } day interval
        *[other] { $cards } cards with a { $day } day interval
+    }
+statistics-stability-day-range =
+    { $cards ->
+        [one] { $cards } card with a { $daysStart }~{ $daysEnd } day stability
+       *[other] { $cards } cards with a { $daysStart }~{ $daysEnd } day stability
+    }
+statistics-stability-day-single =
+    { $cards ->
+        [one] { $cards } card with a { $day } day stability
+       *[other] { $cards } cards with a { $day } day stability
     }
 # hour range, eg "From 14:00-15:00"
 statistics-hours-range = From { $hourStart }:00~{ $hourEnd }:00
@@ -200,6 +239,9 @@ statistics-cards-per-day =
        *[other] { $count } cards/day
     }
 statistics-average-ease = Average ease
+statistics-average-difficulty = Average difficulty
+statistics-average-retrievability = Average retrievability
+statistics-estimated-total-knowledge = Estimated total knowledge
 statistics-save-pdf = Save PDF
 statistics-saved = Saved.
 statistics-stats = stats

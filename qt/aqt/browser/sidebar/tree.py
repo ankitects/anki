@@ -2,8 +2,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from enum import Enum, auto
-from typing import Iterable, cast
+from typing import cast
 
 import aqt
 import aqt.browser
@@ -43,6 +44,7 @@ from aqt.operations.tag import (
     set_tag_collapsed,
 )
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.theme import ColoredIcon, theme_manager
 from aqt.utils import (
     KeyboardModifiersPressed,
@@ -147,7 +149,7 @@ class SidebarTreeView(QTreeView):
     def op_executed(
         self, changes: OpChanges, handler: object | None, focused: bool
     ) -> None:
-        if changes.browser_sidebar and not handler is self:
+        if changes.browser_sidebar and handler is not self:
             self._refresh_needed = True
         if focused:
             self.refresh_if_needed()
@@ -157,7 +159,7 @@ class SidebarTreeView(QTreeView):
             self.refresh()
             self._refresh_needed = False
 
-    def refresh(self, new_current: SidebarItem = None) -> None:
+    def refresh(self, new_current: SidebarItem | None = None) -> None:
         "Refresh list. No-op if sidebar is not visible."
         if not self.isVisible():
             return
@@ -266,7 +268,7 @@ class SidebarTreeView(QTreeView):
 
     def update_search(
         self,
-        *terms: Union[str, SearchNode],
+        *terms: str | SearchNode,
         joiner: SearchJoiner = "AND",
     ) -> None:
         """Modify the current search string based on modifier keys, then refresh."""
@@ -462,6 +464,9 @@ class SidebarTreeView(QTreeView):
             s.item_type == item.item_type for s in self._selected_items()
         )
 
+    def _on_add(self, item: SidebarItem):
+        self.browser.add_card(DeckId(item.id))
+
     def _on_delete(self, item: SidebarItem) -> None:
         if item.item_type == SidebarItemType.SAVED_SEARCH:
             self.remove_saved_searches(item)
@@ -524,7 +529,7 @@ class SidebarTreeView(QTreeView):
         *,
         root: SidebarItem,
         name: str,
-        icon: Union[str, ColoredIcon],
+        icon: str | ColoredIcon,
         collapse_key: Config.Bool.V,
         type: SidebarItemType | None = None,
     ) -> SidebarItem:
@@ -670,7 +675,7 @@ class SidebarTreeView(QTreeView):
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
         )
         root.add_simple(
-            name=tr.scheduling_review(),
+            name=tr.browsing_sidebar_card_state_review(),
             icon=colored_icon.with_color(colors.STATE_REVIEW),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_REVIEW),
@@ -891,6 +896,7 @@ class SidebarTreeView(QTreeView):
         menu = QMenu()
         self._maybe_add_type_specific_actions(menu, item)
         menu.addSeparator()
+        self._maybe_add_add_action(menu, item)
         self._maybe_add_delete_action(menu, item, index)
         self._maybe_add_rename_actions(menu, item, index)
         self._maybe_add_find_and_replace_action(menu, item, index)
@@ -929,6 +935,10 @@ class SidebarTreeView(QTreeView):
                     tr.browsing_remove_from_selected_notes(),
                     self.remove_tags_from_selected_notes,
                 )
+
+    def _maybe_add_add_action(self, menu: QMenu, item: SidebarItem) -> None:
+        if item.item_type.can_be_added_to():
+            menu.addAction(tr.browsing_add_notes(), lambda: self._on_add(item))
 
     def _maybe_add_delete_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
@@ -1083,7 +1093,9 @@ class SidebarTreeView(QTreeView):
         ).run_in_background()
 
     def delete_decks(self, _item: SidebarItem) -> None:
-        remove_decks(parent=self, deck_ids=self._selected_decks()).run_in_background()
+        remove_decks(
+            parent=self, deck_name=_item.name, deck_ids=self._selected_decks()
+        ).run_in_background()
 
     # Tags
     ###########################

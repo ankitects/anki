@@ -67,7 +67,7 @@ pub struct DueDateSpecifier {
 pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
     lazy_static! {
         static ref RE: Regex = Regex::new(
-            r#"(?x)^
+            r"(?x)^
             # a number
             (?P<min>\d+)
             # an optional hyphen and another number
@@ -78,7 +78,7 @@ pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
             # optional exclamation mark
             (?P<bang>!)?
             $
-        "#
+        "
         )
         .unwrap();
     }
@@ -134,7 +134,7 @@ impl Collection {
                 let original = card.clone();
                 let days_from_today = distribution.sample(&mut rng);
                 card.set_due_date(today, days_from_today, ease_factor, spec.force_reset);
-                col.log_manually_scheduled_review(&card, &original, usn)?;
+                col.log_manually_scheduled_review(&card, original.interval, usn)?;
                 col.update_card_inner(&mut card, original, usn)?;
             }
             if let Some(key) = context {

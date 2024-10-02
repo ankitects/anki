@@ -8,7 +8,7 @@ use std::process::Command;
 use camino::Utf8PathBuf;
 use clap::Args;
 
-use crate::run::run_silent;
+use crate::run::run_command;
 
 #[derive(Args, Debug)]
 pub struct BuildArtifactsArgs {
@@ -29,7 +29,7 @@ pub fn build_artifacts(args: BuildArtifactsArgs) {
         fs::remove_dir_all(&build_folder).unwrap();
     }
 
-    run_silent(
+    run_command(
         Command::new(&args.pyoxidizer_bin)
             .args([
                 "--system-rust",
@@ -47,6 +47,7 @@ pub fn build_artifacts(args: BuildArtifactsArgs) {
             .env("PROFILE", "release")
             .env("OUT_DIR", &artifacts)
             .env("TARGET", env!("TARGET"))
+            .env("SDKROOT", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")
             .env("MACOSX_DEPLOYMENT_TARGET", macos_deployment_target())
             .env("CARGO_BUILD_TARGET", env!("TARGET")),
     );

@@ -22,8 +22,8 @@ echo "--- Ensure libs importable"
 SKIP_RUN=1 ./run
 
 echo "--- Check Rust libs"
-cargo install cargo-deny
-cargo deny check -A duplicate
+cargo install cargo-deny --version 0.14.24
+cargo deny check
 
 echo "--- Cleanup"
 rm -rf /tmp/* || true

@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
+
 use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::archives::download_and_extract;
@@ -93,13 +95,13 @@ const MAC_AMD_AUDIO: OnlineArchive = OnlineArchive {
 };
 
 const MAC_ARM_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2023-04-12/pyqt6.5-mac-arm64.tar.zst",
-    sha256: "8a82cc4955c653e052af8e71d72e90ecf6cc2daeaa0b6d7d708e71392580af20",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-02-29/pyqt6.6-mac-arm64.tar.zst",
+    sha256: "9b2ade4ae9b80506689062845e83e8c60f7fa9843545bf7bb2d11d3e2f105878",
 };
 
 const MAC_AMD_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2023-04-12/pyqt6.5-mac-amd64.tar.zst",
-    sha256: "f4f998468ea0356af0afb622f2020595e6811197cc444f68f1e6104702584f88",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-02-29/pyqt6.6-mac-amd64.tar.zst",
+    sha256: "dbd0871e4da22820d1fa9ab29220d631467d1178038dcab4b15169ad7f499b1b",
 };
 
 const MAC_AMD_QT5: OnlineArchive = OnlineArchive {
@@ -184,7 +186,7 @@ fn setup_primary_venv(build: &mut Build) -> Result<()> {
         "python/requirements.bundle.txt",
         if cfg!(windows) {
             "python/requirements.qt6_win.txt"
-        } else if cfg!(target_os = "darwin") {
+        } else if cfg!(target_os = "macos") {
             "python/requirements.qt6_mac.txt"
         } else {
             "python/requirements.qt6_lin.txt"
@@ -250,10 +252,13 @@ fn install_anki_wheels(build: &mut Build) -> Result<()> {
 }
 
 fn build_pyoxidizer(build: &mut Build) -> Result<()> {
+    let offline_build = env::var("OFFLINE_BUILD").is_ok();
+
     build.add_action(
         "bundle:pyoxidizer:repo",
         SyncSubmodule {
             path: "qt/bundle/PyOxidizer",
+            offline_build,
         },
     )?;
     build.add_action(
@@ -424,7 +429,7 @@ struct BuildWindowsInstallers {}
 
 impl BuildAction for BuildWindowsInstallers {
     fn command(&self) -> &str {
-        "cargo run -p makeinstall --target-dir=out/rust -- $version $src_root $bundle_root $out"
+        "cargo run -p makeexe --target-dir=out/rust -- $version $src_root $bundle_root $out"
     }
 
     fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {

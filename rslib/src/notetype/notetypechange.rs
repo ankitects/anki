@@ -164,7 +164,7 @@ fn default_template_map(
         new_templates
             .iter_mut()
             .filter(|o| o.is_none())
-            .zip(remaining_templates.into_iter())
+            .zip(remaining_templates)
             .for_each(|(template, old_idx)| *template = Some(*old_idx));
 
         Some(new_templates)
@@ -202,14 +202,17 @@ fn default_field_map(current_notetype: &Notetype, new_notetype: &Notetype) -> Ve
     new_fields
         .iter_mut()
         .filter(|o| o.is_none())
-        .zip(remaining_fields.into_iter())
+        .zip(remaining_fields)
         .for_each(|(field, old_idx)| *field = Some(*old_idx));
 
     new_fields
 }
 
 impl Collection {
-    fn change_notetype_of_notes_inner(&mut self, input: ChangeNotetypeInput) -> Result<()> {
+    pub(crate) fn change_notetype_of_notes_inner(
+        &mut self,
+        input: ChangeNotetypeInput,
+    ) -> Result<()> {
         require!(
             input.current_schema == self.storage.get_collection_timestamps()?.schema_change,
             "schema changed"

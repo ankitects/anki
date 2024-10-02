@@ -9,6 +9,8 @@ mod python;
 mod rust;
 mod web;
 
+use std::env;
+
 use anyhow::Result;
 use aqt::build_and_check_aqt;
 use bundle::build_bundle;
@@ -28,6 +30,8 @@ use rust::check_rust;
 use web::build_and_check_web;
 use web::check_sql;
 
+use crate::python::setup_sphinx;
+
 fn anki_version() -> String {
     std::fs::read_to_string(".version")
         .unwrap()
@@ -42,14 +46,21 @@ fn main() -> Result<()> {
     setup_protoc(build)?;
     check_proto(build, inputs![glob!["proto/**/*.proto"]])?;
 
-    setup_python(build)?;
+    if env::var("OFFLINE_BUILD").is_err() {
+        setup_python(build)?;
+    }
     setup_venv(build)?;
 
     build_rust(build)?;
     build_pylib(build)?;
     build_and_check_web(build)?;
     build_and_check_aqt(build)?;
-    build_bundle(build)?;
+
+    if env::var("OFFLINE_BUILD").is_err() {
+        build_bundle(build)?;
+    }
+
+    setup_sphinx(build)?;
 
     check_rust(build)?;
     check_pylib(build)?;

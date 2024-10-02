@@ -31,6 +31,7 @@ message CardStatsResponse {
     // per mill
     uint32 ease = 5;
     float taken_secs = 6;
+    optional cards.FsrsMemoryState memory_state = 7;
   }
   repeated StatsRevlogEntry revlog = 1;
   int64 card_id = 2;
@@ -52,7 +53,12 @@ message CardStatsResponse {
   float total_secs = 15;
   string card_type = 16;
   string notetype = 17;
-  string custom_data = 18;
+  optional cards.FsrsMemoryState memory_state = 18;
+  // not set if due date/state not available
+  optional float fsrs_retrievability = 19;
+  string custom_data = 20;
+  string preset = 21;
+  optional string original_deck = 22;
 }
 
 message GraphsRequest {
@@ -69,6 +75,12 @@ message GraphsResponse {
   }
   message Eases {
     map<uint32, uint32> eases = 1;
+    float average = 2;
+  }
+  message Retrievability {
+    map<uint32, uint32> retrievability = 1;
+    float average = 2;
+    float sum = 3;
   }
   message FutureDue {
     map<int32, uint32> future_due = 1;
@@ -135,17 +147,37 @@ message GraphsResponse {
     // Buried/suspended cards are counted separately.
     Counts excluding_inactive = 2;
   }
+  message TrueRetentionStats {
+    message TrueRetention {
+      uint32 young_passed = 1;
+      uint32 young_failed = 2;
+      uint32 mature_passed = 3;
+      uint32 mature_failed = 4;
+    }
+
+    TrueRetention today = 1;
+    TrueRetention yesterday = 2;
+    TrueRetention week = 3;
+    TrueRetention month = 4;
+    TrueRetention year = 5;
+    TrueRetention all_time = 6;
+  }
 
   Buttons buttons = 1;
   CardCounts card_counts = 2;
   Hours hours = 3;
   Today today = 4;
   Eases eases = 5;
+  Eases difficulty = 11;
   Intervals intervals = 6;
   FutureDue future_due = 7;
   Added added = 8;
   ReviewCountsAndTimes reviews = 9;
   uint32 rollover_hour = 10;
+  Retrievability retrievability = 12;
+  bool fsrs = 13;
+  Intervals stability = 14;
+  TrueRetentionStats true_retention = 15;
 }
 
 message GraphPreferences {
@@ -166,7 +198,6 @@ message RevlogEntry {
     LEARNING = 0;
     REVIEW = 1;
     RELEARNING = 2;
-    // Recent Anki versions only use this when rescheduling disabled
     FILTERED = 3;
     MANUAL = 4;
   }
@@ -179,4 +210,9 @@ message RevlogEntry {
   uint32 ease_factor = 7;
   uint32 taken_millis = 8;
   ReviewKind review_kind = 9;
+}
+
+message RevlogEntries {
+  repeated RevlogEntry entries = 1;
+  int64 next_day_at = 2;
 }

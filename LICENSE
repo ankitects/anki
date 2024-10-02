@@ -6,9 +6,9 @@ The following included source code items use a license other than AGPL3:
 
 In the pylib folder:
 
- * The SuperMemo importer: GPL3.
+ * The SuperMemo importer: GPL3 and 0BSD.
  * The Pauker importer: BSD-3.
- * statsbg.py: CC BY-SA 3.0.
+ * statsbg.py: CC BY 4.0.
 
 In the qt folder:
 
@@ -17,7 +17,6 @@ In the qt folder:
  * winpaths.py: MIT.
  * MathJax: Apache 2.
  * jQuery and jQuery-UI: MIT.
- * browsersel.js: CC BY 2.5.
  * plot.js: MIT.
  * protobuf.js: BSD 3 clause
 

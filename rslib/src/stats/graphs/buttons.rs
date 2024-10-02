@@ -30,8 +30,12 @@ impl GraphsContext {
             ),
         ];
         'outer: for review in &self.revlog {
-            let Some(interval_bucket) = interval_bucket(review) else { continue; };
-            let Some(button_idx) = button_index(review.button_chosen) else { continue; };
+            let Some(interval_bucket) = interval_bucket(review) else {
+                continue;
+            };
+            let Some(button_idx) = button_index(review.button_chosen) else {
+                continue;
+            };
             let review_secs = review.id.as_secs();
             increment_button_counts(&mut all_time, interval_bucket, button_idx);
             for (stamp, bucket) in &mut conditional_buckets {

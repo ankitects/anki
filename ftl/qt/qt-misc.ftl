@@ -1,6 +1,7 @@
 qt-misc-addon-will-be-installed-when-a = Add-on will be installed when a profile is opened.
 qt-misc-addons = Add-ons
 qt-misc-all-cards-notes-and-media-for = All cards, notes, and media for this profile will be deleted. Are you sure?
+qt-misc-all-cards-notes-and-media-for2 = All cards, notes, and media for the profile "{ $name }" will be deleted. Are you sure?
 qt-misc-anki-updatedanki-has-been-released = <h1>Anki Updated</h1>Anki { $val } has been released.<br><br>
 qt-misc-automatic-syncing-and-backups-have-been = Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki.
 qt-misc-back-side-only = Back Side Only
@@ -37,7 +38,7 @@ qt-misc-please-select-1-card = (please select 1 card)
 qt-misc-please-select-a-deck = Please select a deck.
 qt-misc-please-use-fileimport-to-import-this = Please use File>Import to import this file.
 qt-misc-processing = Processing...
-qt-misc-replace-your-collection-with-an-earlier = Replace your collection with an earlier backup?
+qt-misc-replace-your-collection-with-an-earlier2 = Replace your collection with an earlier backup from { $val }?
 qt-misc-revert-to-backup = Revert to backup
 # please do not change the quote character, and please only change the font name if you have confirmed the new name is a valid Windows font
 qt-misc-segoe-ui = "Segoe UI"
@@ -61,7 +62,7 @@ qt-misc-your-firewall-or-antivirus-program-is = Your firewall or antivirus progr
 qt-misc-error = Error
 qt-misc-no-temp-folder = No usable temporary folder found. Make sure C:\\temp exists or TEMP in your environment points to a valid, writable folder.
 qt-misc-incompatible-video-driver = Your video driver is incompatible. Please start Anki again, and Anki will switch to a slower, more compatible mode.
-qt-misc-error-loading-graphics-driver = Error loading '{ $mode }' graphics driver. Please start Anki again to try next driver. { $context }
+qt-misc-error-loading-graphics-driver = Error loading '{ $mode }' graphics driver. Please start Anki again to try the next driver. { $context }
 qt-misc-anki-is-running = Anki Already Running
 qt-misc-if-instance-is-not-responding = If the existing instance of Anki is not responding, please close it using your task manager, or restart your computer.
 qt-misc-second =
@@ -76,3 +77,4 @@ qt-misc-layout-horizontal-enabled = Horizontal layout enabled
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated
 
+qt-misc-replace-your-collection-with-an-earlier = Replace your collection with an earlier backup?

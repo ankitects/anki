@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from concurrent.futures import Future
-from typing import Any, Match, Optional, cast
+from typing import Any, Match, cast
 
 import aqt
 import aqt.forms
@@ -26,6 +27,7 @@ from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
     HelpPage,
+    ask_user_dialog,
     askUser,
     disable_help_button,
     downArrow,
@@ -49,7 +51,7 @@ class CardLayout(QDialog):
         mw: AnkiQt,
         note: Note,
         ord: int = 0,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         fill_empty: bool = False,
     ) -> None:
         QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
@@ -266,7 +268,10 @@ class CardLayout(QDialog):
 
         self.current_editor_index = 0
         editor.setAcceptRichText(False)
-        editor.setFont(QFont("Courier"))
+        font = QFont("Consolas")
+        if not font.exactMatch():
+            font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
+        editor.setFont(font)
         tab_width = self.fontMetrics().horizontalAdvance(" " * 4)
         editor.setTabStopDistance(tab_width)
 
@@ -289,7 +294,7 @@ class CardLayout(QDialog):
         qconnect(widg.returnPressed, self.on_search_next)
 
     def setup_cloze_number_box(self) -> None:
-        names = (tr.card_templates_cloze(val=n) for n in self.cloze_numbers)
+        names = (tr.card_templates_card(val=n) for n in self.cloze_numbers)
         self.pform.cloze_number_combo.addItems(names)
         try:
             idx = self.cloze_numbers.index(self.ord + 1)
@@ -355,7 +360,7 @@ class CardLayout(QDialog):
             css=["css/reviewer.css"],
             js=[
                 "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
+                "js/vendor/mathjax/tex-chtml-full.js",
                 "js/reviewer.js",
             ],
             context=self,
@@ -505,7 +510,7 @@ class CardLayout(QDialog):
     # Preview
     ##########################################################################
 
-    _previewTimer: Optional[QTimer] = None
+    _previewTimer: QTimer | None = None
 
     def renderPreview(self) -> None:
         # schedule a preview when timing stops
@@ -586,7 +591,7 @@ class CardLayout(QDialog):
             return res
 
         type_filter = r"\[\[type:.+?\]\]"
-        repl: Union[str, Callable]
+        repl: str | Callable
 
         if type == "q":
             repl = "<input id='typeans' type=text value='example' readonly='readonly'>"
@@ -688,7 +693,7 @@ class CardLayout(QDialog):
     def onAddCard(self) -> None:
         cnt = self.mw.col.models.use_count(self.model)
         txt = tr.card_templates_this_will_create_card_proceed(count=cnt)
-        if not askUser(txt):
+        if cnt and not askUser(txt):
             return
         if not self.change_tracker.mark_schema():
             return
@@ -891,11 +896,30 @@ class CardLayout(QDialog):
         ).run_in_background()
 
     def reject(self) -> None:
+        def _reject() -> None:
+            self.cleanup()
+            QDialog.reject(self)
+
+        def callback(choice: int) -> None:
+            if choice == 0:
+                self.accept()
+            elif choice == 1:
+                _reject()
+
         if self.change_tracker.changed():
-            if not askUser(tr.card_templates_discard_changes()):
-                return
-        self.cleanup()
-        return QDialog.reject(self)
+            ask_user_dialog(
+                text=tr.card_templates_discard_changes(),
+                callback=callback,
+                buttons=[
+                    QMessageBox.StandardButton.Save,
+                    QMessageBox.StandardButton.Discard,
+                    QMessageBox.StandardButton.Cancel,
+                ],
+                default_button=2,
+                parent=self,
+            )
+        else:
+            _reject()
 
     def cleanup(self) -> None:
         self.cancelPreviewTimer()

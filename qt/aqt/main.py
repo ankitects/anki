@@ -8,10 +8,13 @@ import gc
 import os
 import re
 import signal
+import sys
+import traceback
 import weakref
 from argparse import Namespace
+from collections.abc import Callable, Sequence
 from concurrent.futures import Future
-from typing import Any, Literal, Sequence, TypeVar, cast
+from typing import Any, Literal, TypeVar, cast
 
 import anki
 import anki.cards
@@ -28,6 +31,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
+from anki._legacy import deprecated
 from anki.collection import Collection, Config, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
@@ -37,10 +41,10 @@ from anki.utils import (
     dev_mode,
     ids2str,
     int_time,
+    int_version,
     is_lin,
     is_mac,
     is_win,
-    point_version,
     split_fields,
 )
 from aqt import gui_hooks
@@ -108,6 +112,7 @@ class MainWebView(AnkiWebView):
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)
         self.setAcceptDrops(True)
+        print("todo: windows paths in import screen")
 
     # Importing files via drag & drop
     ##########################################################################
@@ -197,7 +202,7 @@ class AnkiQt(QMainWindow):
             self.setupUI()
             self.setupAddons(args)
             self.finish_ui_setup()
-        except:
+        except Exception:
             showInfo(tr.qt_misc_error_during_startup(val=traceback.format_exc()))
             sys.exit(1)
         # must call this after ui set up
@@ -348,7 +353,7 @@ class AnkiQt(QMainWindow):
         f.profiles.addItems(profs)
         try:
             idx = profs.index(self.pm.name)
-        except:
+        except Exception:
             idx = 0
         f.profiles.setCurrentRow(idx)
 
@@ -411,7 +416,7 @@ class AnkiQt(QMainWindow):
             return
         # sure?
         if not askUser(
-            tr.qt_misc_all_cards_notes_and_media_for(),
+            tr.qt_misc_all_cards_notes_and_media_for2(name=self.pm.name),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
@@ -419,32 +424,59 @@ class AnkiQt(QMainWindow):
         self.pm.remove(self.pm.name)
         self.refreshProfilesList()
 
-    def onOpenBackup(self) -> None:
-        if not askUser(
-            tr.qt_misc_replace_your_collection_with_an_earlier(),
-            msgfunc=QMessageBox.warning,
-            defaultno=True,
-        ):
-            return
+    def _handle_load_backup_success(self) -> None:
+        """
+        Actions that occur when profile backup has been loaded successfully
+        """
+        if self.state == "profileManager":
+            self.profileDiag.closeWithoutQuitting()
 
-        def doOpen(path: str) -> None:
-            self._openBackup(path)
+        self.loadProfile()
+
+    def _handle_load_backup_failure(self, error: Exception) -> None:
+        """
+        Actions that occur when a profile has loaded unsuccessfully
+        """
+        showWarning(str(error))
+        if self.state != "profileManager":
+            self.loadProfile()
+
+    def onOpenBackup(self) -> None:
+
+        def do_open(path: str) -> None:
+            if not askUser(
+                tr.qt_misc_replace_your_collection_with_an_earlier2(
+                    os.path.basename(path)
+                ),
+                msgfunc=QMessageBox.warning,
+                defaultno=True,
+            ):
+                return
+
+            showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
+
+            # Collection is still loaded if called from main window, so we unload. This is already
+            # unloaded if called from the ProfileManager window.
+            if self.col:
+                self.unloadProfile(lambda: self._start_restore_backup(path))
+                return
+
+            self._start_restore_backup(path)
 
         getFile(
-            self.profileDiag,
+            self.profileDiag if self.state == "profileManager" else self,
             tr.qt_misc_revert_to_backup(),
-            cb=doOpen,  # type: ignore
+            cb=do_open,  # type: ignore
             filter="*.colpkg",
             dir=self.pm.backupFolder(),
         )
 
-    def _openBackup(self, path: str) -> None:
+    def _start_restore_backup(self, path: str):
         self.restoring_backup = True
-        showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
 
         import_collection_package_op(
-            self, path, success=self.onOpenProfile
-        ).run_in_background()
+            self, path, success=self._handle_load_backup_success
+        ).failure(self._handle_load_backup_failure).run_in_background()
 
     def _on_downgrade(self) -> None:
         self.progress.start()
@@ -492,13 +524,39 @@ class AnkiQt(QMainWindow):
             else:
                 self.handleImport(self.pendingImport)
             self.pendingImport = None
-        gui_hooks.profile_did_open()
 
-        def _onsuccess() -> None:
-            self._refresh_after_sync()
+        def _onsuccess(synced: bool) -> None:
+            if synced:
+                self._refresh_after_sync()
             if onsuccess:
                 onsuccess()
+            if not self.safeMode:
+                self.maybe_check_for_addon_updates(self.setup_auto_update)
 
+        last_day_cutoff = self.col.sched.day_cutoff
+
+        def refresh_reviewer_on_day_rollover_change():
+            from aqt.reviewer import RefreshNeeded
+
+            # need to refresh?
+            nonlocal last_day_cutoff
+            current_cutoff = self.col.sched.day_cutoff
+            if self.state == "review" and last_day_cutoff != current_cutoff:
+                last_day_cutoff = self.col.sched.day_cutoff
+                self.reviewer._refresh_needed = RefreshNeeded.QUEUES
+                self.reviewer.refresh_if_needed()
+
+            # schedule another check
+            secs_until_cutoff = current_cutoff - int_time()
+            self._reviewer_refresh_timer = self.progress.timer(
+                secs_until_cutoff * 1000,
+                refresh_reviewer_on_day_rollover_change,
+                repeat=False,
+                parent=self,
+            )
+
+        refresh_reviewer_on_day_rollover_change()
+        gui_hooks.profile_did_open()
         self.maybe_auto_sync_on_open_close(_onsuccess)
 
     def unloadProfile(self, onsuccess: Callable) -> None:
@@ -520,6 +578,7 @@ class AnkiQt(QMainWindow):
 
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
+        self._reviewer_refresh_timer.deleteLater()
 
     def _checkForUnclosedWidgets(self) -> None:
         for w in self.app.topLevelWidgets():
@@ -543,6 +602,7 @@ class AnkiQt(QMainWindow):
         self.backend.await_backup_completion()
         self.deleteLater()
         app = self.app
+        app._unset_windows_shutdown_block_reason()
 
         def exit():
             # try to ensure Qt objects are deleted in a logical order,
@@ -626,7 +686,7 @@ class AnkiQt(QMainWindow):
             self._unloadCollection()
             onsuccess()
 
-        def after_sync() -> None:
+        def after_sync(synced: bool) -> None:
             self.media_syncer.show_diag_until_finished(after_media_sync)
 
         def before_sync() -> None:
@@ -650,7 +710,7 @@ class AnkiQt(QMainWindow):
             self.maybeOptimize()
             if not dev_mode:
                 corrupt = self.col.db.scalar("pragma quick_check") != "ok"
-        except:
+        except Exception:
             corrupt = True
 
         try:
@@ -662,7 +722,7 @@ class AnkiQt(QMainWindow):
                         force=False,
                         wait_for_completion=False,
                     )
-                except:
+                except Exception:
                     print("backup on close failed")
             self.col.close(downgrade=False)
         except Exception as e:
@@ -743,6 +803,7 @@ class AnkiQt(QMainWindow):
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
         if newState != "resetRequired" and newState != "review":
+            self.reviewer.auto_advance_enabled = False
             self.reviewer.cleanup()
             self.toolbarWeb.elevate()
             self.toolbarWeb.show()
@@ -828,8 +889,8 @@ class AnkiQt(QMainWindow):
     def requireReset(
         self,
         modal: bool = False,
-        reason: Any = None,
-        context: Any = None,
+        reason: Any | None = None,
+        context: Any | None = None,
     ) -> None:
         traceback.print_stack(file=sys.stdout)
         print("requireReset() is obsolete; please use CollectionOp()")
@@ -915,9 +976,7 @@ title="{}" {}>{}</button>""".format(
         signal.signal(signal.SIGTERM, self.onUnixSignal)
 
     def onUnixSignal(self, signum: Any, frame: Any) -> None:
-        # schedule a rollback & quit
         def quit() -> None:
-            self.col.db.rollback()
             self.close()
 
         self.progress.single_shot(100, quit)
@@ -942,26 +1001,33 @@ title="{}" {}>{}</button>""".format(
             self.addonManager.loadAddons()
 
     def maybe_check_for_addon_updates(
-        self, on_done: Callable[[], None] | None = None
+        self, on_done: Callable[[list[DownloadLogEntry]], None] | None = None
     ) -> None:
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
 
+        if elap > 86_400 or self.pm.last_run_version != int_version():
+            self.check_for_addon_updates(by_user=False, on_done=on_done)
+        elif on_done:
+            on_done([])
+
+    def check_for_addon_updates(
+        self,
+        by_user: bool,
+        on_done: Callable[[list[DownloadLogEntry]], None] | None = None,
+    ) -> None:
         def wrap_on_updates_installed(log: list[DownloadLogEntry]) -> None:
             self.on_updates_installed(log)
-            if on_done:
-                on_done()
-
-        if elap > 86_400 or self.pm.last_run_version() != point_version():
-            check_and_prompt_for_updates(
-                self,
-                self.addonManager,
-                wrap_on_updates_installed,
-                requested_by_user=False,
-            )
             self.pm.set_last_addon_update_check(int_time())
-        elif on_done:
-            on_done()
+            if on_done:
+                on_done(log)
+
+        check_and_prompt_for_updates(
+            self,
+            self.addonManager,
+            wrap_on_updates_installed,
+            requested_by_user=by_user,
+        )
 
     def on_updates_installed(self, log: list[DownloadLogEntry]) -> None:
         if log:
@@ -1016,12 +1082,8 @@ title="{}" {}>{}</button>""".format(
 
     def _sync_collection_and_media(self, after_sync: Callable[[], None]) -> None:
         "Caller should ensure auth available."
-        # start media sync if not already running
-        if not self.media_syncer.is_syncing():
-            self.media_syncer.start()
 
         def on_collection_sync_finished() -> None:
-            self.col.clear_python_undo()
             self.col.models._clear_cache()
             gui_hooks.sync_did_finish()
             self.reset()
@@ -1031,29 +1093,20 @@ title="{}" {}>{}</button>""".format(
         gui_hooks.sync_will_start()
         sync_collection(self, on_done=on_collection_sync_finished)
 
-    def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:
+    def maybe_auto_sync_on_open_close(self, after_sync: Callable[[bool], None]) -> None:
         "If disabled, after_sync() is called immediately."
-
-        def after_sync_and_call_addon_update() -> None:
-            after_sync()
-            if not self.safeMode:
-                self.maybe_check_for_addon_updates(self.setupAutoUpdate)
-
         if self.can_auto_sync():
-            self._sync_collection_and_media(after_sync_and_call_addon_update)
+            self._sync_collection_and_media(lambda: after_sync(True))
         else:
-            after_sync_and_call_addon_update()
-
-    def maybe_auto_sync_media(self) -> None:
-        if self.can_auto_sync():
-            return
-        # media_syncer takes care of media syncing preference check
-        self.media_syncer.start()
+            after_sync(False)
 
     def can_auto_sync(self) -> bool:
+        "True if syncing on startup/shutdown enabled."
+        return self._can_sync_unattended() and self.pm.auto_syncing_enabled()
+
+    def _can_sync_unattended(self) -> bool:
         return (
-            self.pm.auto_syncing_enabled()
-            and bool(self.pm.sync_auth())
+            bool(self.pm.sync_auth())
             and not self.safeMode
             and not self.restoring_backup
         )
@@ -1106,6 +1159,7 @@ title="{}" {}>{}</button>""".format(
             ("a", self.onAddCard),
             ("b", self.onBrowse),
             ("t", self.onStats),
+            ("Shift+t", self.onStats),
             ("y", self.on_sync_button_clicked),
         ]
         self.applyShortcuts(globalShortcuts)
@@ -1154,7 +1208,6 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        self.pm.set_last_run_version()
         if self.state == "profileManager":
             # if profile manager active, this event may fire via OS X menu bar's
             # quit option
@@ -1195,15 +1248,14 @@ title="{}" {}>{}</button>""".format(
         self.form.actionRedo.setVisible(info.show_redo)
         gui_hooks.undo_state_did_change(info)
 
+    @deprecated(info="checkpoints are no longer supported")
     def checkpoint(self, name: str) -> None:
-        self.col.save(name)
-        self.update_undo_actions()
+        pass
 
+    @deprecated(info="saving is automatic")
     def autosave(self) -> None:
-        self.col.autosave()
-        self.update_undo_actions()
+        pass
 
-    maybeEnableUndo = update_undo_actions
     onUndo = undo
 
     # Other menu operations
@@ -1219,7 +1271,6 @@ title="{}" {}>{}</button>""".format(
         aqt.dialogs.open("EditCurrent", self)
 
     def onOverview(self) -> None:
-        self.col.reset()
         self.moveToState("overview")
 
     def onStats(self) -> None:
@@ -1325,6 +1376,7 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionImport.triggered, self.onImport)
         qconnect(m.actionExport.triggered, self.onExport)
         qconnect(m.action_create_backup.triggered, self.on_create_backup_now)
+        qconnect(m.action_open_backup.triggered, self.onOpenBackup)
         qconnect(m.actionExit.triggered, self.close)
 
         # Help
@@ -1371,7 +1423,7 @@ title="{}" {}>{}</button>""".format(
     def on_toggle_full_screen(self) -> None:
         if disallow_full_screen():
             showWarning(
-                tr.actions_currently_unsupported(),
+                tr.actions_fullscreen_unsupported(),
                 parent=self,
                 help=HelpPage.FULL_SCREEN_ISSUE,
             )
@@ -1404,30 +1456,11 @@ title="{}" {}>{}</button>""".format(
     # Auto update
     ##########################################################################
 
-    def setupAutoUpdate(self) -> None:
-        import aqt.update
+    def setup_auto_update(self, _log: list[DownloadLogEntry]) -> None:
+        from aqt.update import check_for_update
 
-        self.autoUpdate = aqt.update.LatestVersionFinder(self)
-        qconnect(self.autoUpdate.newVerAvail, self.newVerAvail)
-        qconnect(self.autoUpdate.newMsg, self.newMsg)
-        qconnect(self.autoUpdate.clockIsOff, self.clockIsOff)
-        self.autoUpdate.start()
-
-    def newVerAvail(self, ver: str) -> None:
-        if self.pm.meta.get("suppressUpdate", None) != ver:
-            aqt.update.askAndUpdate(self, ver)
-
-    def newMsg(self, data: dict) -> None:
-        aqt.update.showMessages(self, data)
-
-    def clockIsOff(self, diff: int) -> None:
-        if dev_mode:
-            print("clock is off; ignoring")
-            return
-        diffText = tr.qt_misc_second(count=diff)
-        warn = tr.qt_misc_in_order_to_ensure_your_collection(val="%s") % diffText
-        showWarning(warn)
-        self.app.closeAllWindows()
+        if aqt.mw.pm.check_for_updates():
+            check_for_update()
 
     # Timers
     ##########################################################################
@@ -1436,7 +1469,9 @@ title="{}" {}>{}</button>""".format(
         # refresh decks every 10 minutes
         self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True, parent=self)
         # check media sync every 5 minutes
-        self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True, parent=self)
+        self.progress.timer(
+            5 * 60 * 1000, self.on_periodic_sync_timer, True, parent=self
+        )
         # periodic garbage collection
         self.progress.timer(
             15 * 60 * 1000, self.garbage_collect_now, True, False, parent=self
@@ -1458,13 +1493,16 @@ title="{}" {}>{}</button>""".format(
         elif self.state == "overview":
             self.overview.refresh()
 
-    def on_autosync_timer(self) -> None:
+    def on_periodic_sync_timer(self) -> None:
         elap = self.media_syncer.seconds_since_last_sync()
-        minutes = self.pm.auto_sync_media_minutes()
+        minutes = self.pm.periodic_sync_media_minutes()
         if not minutes:
             return
         if elap > minutes * 60:
-            self.maybe_auto_sync_media()
+            if not self._can_sync_unattended():
+                return
+            # media_syncer takes care of media syncing preference check
+            self.media_syncer.start(True)
 
     # Backups
     ##########################################################################
@@ -1487,10 +1525,6 @@ title="{}" {}>{}</button>""".format(
         )
 
     def _create_backup_with_progress(self, user_initiated: bool) -> None:
-        # if there's a legacy undo op, try again later
-        if not user_initiated and self.col.legacy_checkpoint_pending():
-            return
-
         # The initial copy will display a progress window if it takes too long
         def backup(col: Collection) -> bool:
             return col.create_backup(
@@ -1509,7 +1543,6 @@ title="{}" {}>{}</button>""".format(
             )
 
         def after_backup_started(created: bool) -> None:
-            # Legacy checkpoint may have expired.
             self.update_undo_actions()
 
             if user_initiated and not created:
@@ -1523,7 +1556,7 @@ title="{}" {}>{}</button>""".format(
                 parent=self,
                 op=lambda col: col.await_backup_completion(),
                 success=on_success,
-            ).failure(on_failure).run_in_background()
+            ).failure(on_failure).without_collection().run_in_background()
 
         QueryOp(parent=self, op=backup, success=after_backup_started).failure(
             on_failure
@@ -1672,7 +1705,9 @@ title="{}" {}>{}</button>""".format(
 
     def hideStatusTips(self) -> None:
         for action in self.findChildren(QAction):
-            cast(QAction, action).setStatusTip("")
+            # On Windows, this next line gives a 'redundant cast' error after moving to
+            # PyQt6.5.2.
+            cast(QAction, action).setStatusTip("")  # type: ignore
 
     def onMacMinimize(self) -> None:
         self.setWindowState(self.windowState() | Qt.WindowState.WindowMinimized)  # type: ignore

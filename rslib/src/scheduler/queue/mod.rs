@@ -23,6 +23,7 @@ use self::undo::QueueUpdate;
 use super::states::SchedulingStates;
 use super::timing::SchedTimingToday;
 use crate::prelude::*;
+use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::timestamp::TimestampSecs;
 
 #[derive(Debug)]
@@ -37,6 +38,7 @@ pub(crate) struct CardQueues {
     /// counts are zero. Ensures we don't show a newly-due learning card after a
     /// user returns from editing a review card.
     current_learning_cutoff: TimestampSecs,
+    pub(crate) load_balancer: LoadBalancer,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -80,7 +82,7 @@ pub(crate) struct BuryMode {
 impl Collection {
     pub fn get_next_card(&mut self) -> Result<Option<QueuedCard>> {
         self.get_queued_cards(1, false)
-            .map(|queued| queued.cards.get(0).cloned())
+            .map(|queued| queued.cards.first().cloned())
     }
 
     pub fn get_queued_cards(
@@ -216,10 +218,15 @@ impl Collection {
         &mut self,
         card: &Card,
         timing: SchedTimingToday,
+        is_finished_preview: bool,
     ) -> Result<()> {
         if let Some(queues) = &mut self.state.card_queues {
             let entry = queues.pop_entry(card.id)?;
-            let requeued_learning = queues.maybe_requeue_learning_card(card, timing);
+            let requeued_learning = if is_finished_preview {
+                None
+            } else {
+                queues.maybe_requeue_learning_card(card, timing)
+            };
             let cutoff_snapshot = queues.update_learning_cutoff_and_count();
             let queue_build_time = queues.build_time;
             self.save_queue_update_undo(Box::new(QueueUpdate {

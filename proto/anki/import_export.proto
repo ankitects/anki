@@ -14,6 +14,8 @@ import "anki/generic.proto";
 
 service ImportExportService {
   rpc ImportAnkiPackage(ImportAnkiPackageRequest) returns (ImportResponse);
+  rpc GetImportAnkiPackagePresets(generic.Empty)
+      returns (ImportAnkiPackageOptions);
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
   rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);
   rpc ImportCsv(ImportCsvRequest) returns (ImportResponse);
@@ -45,8 +47,23 @@ message ExportCollectionPackageRequest {
   bool legacy = 3;
 }
 
+enum ImportAnkiPackageUpdateCondition {
+  IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_IF_NEWER = 0;
+  IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_ALWAYS = 1;
+  IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_NEVER = 2;
+}
+
+message ImportAnkiPackageOptions {
+  bool merge_notetypes = 1;
+  ImportAnkiPackageUpdateCondition update_notes = 2;
+  ImportAnkiPackageUpdateCondition update_notetypes = 3;
+  bool with_scheduling = 4;
+  bool with_deck_configs = 5;
+}
+
 message ImportAnkiPackageRequest {
   string package_path = 1;
+  ImportAnkiPackageOptions options = 2;
 }
 
 message ImportResponse {
@@ -64,8 +81,6 @@ message ImportResponse {
     repeated Note missing_deck = 7;
     repeated Note empty_first_field = 8;
     CsvMetadata.DupeResolution dupe_resolution = 9;
-    // Usually the sum of all queues, but may be lower if multiple duplicates
-    // have been updated with the same note.
     uint32 found_notes = 10;
   }
   collection.OpChanges changes = 1;
@@ -74,10 +89,15 @@ message ImportResponse {
 
 message ExportAnkiPackageRequest {
   string out_path = 1;
-  bool with_scheduling = 2;
+  ExportAnkiPackageOptions options = 2;
+  ExportLimit limit = 3;
+}
+
+message ExportAnkiPackageOptions {
+  bool with_scheduling = 1;
+  bool with_deck_configs = 2;
   bool with_media = 3;
   bool legacy = 4;
-  ExportLimit limit = 5;
 }
 
 message PackageMetadata {

@@ -29,18 +29,10 @@ impl<'d> DeckContext<'d> {
 }
 
 impl Context<'_> {
-    pub(super) fn import_decks_and_configs(
-        &mut self,
-        keep_filtered: bool,
-        contains_scheduling: bool,
-    ) -> Result<HashMap<DeckId, DeckId>> {
+    pub(super) fn import_decks_and_configs(&mut self) -> Result<HashMap<DeckId, DeckId>> {
         let mut ctx = DeckContext::new(self.target_col, self.usn);
         ctx.import_deck_configs(mem::take(&mut self.data.deck_configs))?;
-        ctx.import_decks(
-            mem::take(&mut self.data.decks),
-            keep_filtered,
-            contains_scheduling,
-        )?;
+        ctx.import_decks(mem::take(&mut self.data.decks))?;
         Ok(ctx.imported_decks)
     }
 }
@@ -54,40 +46,14 @@ impl DeckContext<'_> {
         Ok(())
     }
 
-    fn import_decks(
-        &mut self,
-        mut decks: Vec<Deck>,
-        keep_filtered: bool,
-        contains_scheduling: bool,
-    ) -> Result<()> {
+    fn import_decks(&mut self, mut decks: Vec<Deck>) -> Result<()> {
         // ensure parents are seen before children
         decks.sort_unstable_by_key(|deck| deck.level());
         for deck in &mut decks {
-            self.prepare_deck(deck, keep_filtered, contains_scheduling);
+            self.maybe_reparent(deck);
             self.import_deck(deck)?;
         }
         Ok(())
-    }
-
-    fn prepare_deck(&self, deck: &mut Deck, keep_filtered: bool, contains_scheduling: bool) {
-        self.maybe_reparent(deck);
-        if !keep_filtered && deck.is_filtered() {
-            deck.kind = DeckKind::Normal(NormalDeck {
-                config_id: 1,
-                ..Default::default()
-            });
-        } else if !contains_scheduling {
-            // reset things like today's study count and collapse state
-            deck.common = Default::default();
-            deck.kind = match &mut deck.kind {
-                DeckKind::Normal(normal) => DeckKind::Normal(NormalDeck {
-                    config_id: 1,
-                    description: mem::take(&mut normal.description),
-                    ..Default::default()
-                }),
-                DeckKind::Filtered(_) => unreachable!(),
-            }
-        }
     }
 
     fn import_deck(&mut self, deck: &mut Deck) -> Result<()> {
@@ -191,7 +157,7 @@ impl Deck {
 fn update_normal_with_other(normal: &mut NormalDeck, other: &NormalDeck) {
     if !other.description.is_empty() {
         normal.markdown_description = other.markdown_description;
-        normal.description = other.description.clone();
+        normal.description.clone_from(&other.description);
     }
     if other.config_id != 1 {
         normal.config_id = other.config_id;
@@ -225,7 +191,7 @@ mod test {
             DeckAdder::new("NEW PARENT::child").deck(),
             DeckAdder::new("new parent").deck(),
         ];
-        ctx.import_decks(imports, false, false).unwrap();
+        ctx.import_decks(imports).unwrap();
         let existing_decks: HashSet<_> = ctx
             .target_col
             .get_all_deck_names(true)

@@ -218,7 +218,16 @@ hooks = [
     Hook(
         name="audio_did_pause_or_unpause",
         args=["webview: aqt.webview.AnkiWebView"],
-        doc="""Called when the audio is paused or unpaused.""",
+        doc="""Called when the audio is paused or unpaused.
+        This hook is triggered by the action in Anki's More menu or the related key binding.
+        The webview is provided in case you wish to use this hook with web-based audio.""",
+    ),
+    Hook(
+        name="audio_did_seek_relative",
+        args=["webview: aqt.webview.AnkiWebView", "seek_seconds: int"],
+        doc="""Called when the audio is sought forward (positive seek) or backwards (negative seek).
+        This hook is triggered by the action in Anki's More menu or the related key binding.
+        The webview is provided in case you wish to use this hook with web-based audio.""",
     ),
     # Debug
     ###################
@@ -594,12 +603,6 @@ hooks = [
     # UI state/refreshing
     ###################
     Hook(
-        name="state_did_revert",
-        args=["action: str"],
-        legacy_hook="revertedState",
-        doc="Legacy hook, called after undoing.",
-    ),
-    Hook(
         name="state_did_undo",
         args=["changes: OpChangesAfterUndo"],
         doc="Called after backend undoes a change.",
@@ -814,7 +817,6 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         legacy_hook="colLoading",
     ),
     Hook(name="undo_state_did_change", args=["info: UndoActionsInfo"]),
-    Hook(name="review_did_undo", args=["card_id: int"], legacy_hook="revertedCard"),
     Hook(
         name="style_did_init",
         args=["style: str"],
@@ -872,7 +874,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(
         name="media_sync_did_progress",
-        args=["entry: aqt.mediasync.LogEntryWithTime"],
+        args=["entry: str"],
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
     Hook(
@@ -1013,6 +1015,19 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     Hook(
         name="add_cards_did_change_note_type",
         args=["old: anki.models.NoteType", "new: anki.models.NoteType"],
+        doc="""Deprecated. Use addcards_did_change_note_type instead.
+        Executed after the user selects a new note type when adding
+        cards.""",
+    ),
+    Hook(
+        name="addcards_did_change_note_type",
+        args=[
+            "addcards: aqt.addcards.AddCards",
+            "old: anki.models.NoteType",
+            "new: anki.models.NoteType",
+        ],
+        replaces="add_cards_did_change_note_type",
+        replaced_hook_args=["old: anki.models.NoteType", "new: anki.models.NoteType"],
         doc="""Executed after the user selects a new note type when adding
         cards.""",
     ),
@@ -1129,6 +1144,25 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         "drop_event" indicates whether the event was triggered by a drag-and-drop
         or by a right-click paste.
         """,
+    ),
+    Hook(
+        name="editor_state_did_change",
+        args=[
+            "editor: aqt.editor.Editor",
+            "new_state: aqt.editor.EditorState",
+            "old_state: aqt.editor.EditorState",
+        ],
+        doc="""Called when the input state of the editor changes, e.g. when
+        switching to an image occlusion note type.""",
+    ),
+    Hook(
+        name="editor_mask_editor_did_load_image",
+        args=["editor: aqt.editor.Editor", "path_or_nid: str | anki.notes.NoteId"],
+        doc="""Called when the image occlusion mask editor has completed
+        loading an image.
+        
+        When adding new notes `path_or_nid` will be the path to the image file.
+        When editing existing notes `path_or_nid` will be the note id.""",
     ),
     # Tag
     ###################

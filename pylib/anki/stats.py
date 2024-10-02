@@ -5,11 +5,11 @@
 
 from __future__ import annotations
 
-import datetime
 import json
 import random
 import time
-from typing import Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import anki.cards
 import anki.collection
@@ -153,7 +153,7 @@ sum(case when type = {REVLOG_LRN} then 1 else 0 end), /* learning */
 sum(case when type = {REVLOG_REV} then 1 else 0 end), /* review */
 sum(case when type = {REVLOG_RELRN} then 1 else 0 end), /* relearn */
 sum(case when type = {REVLOG_CRAM} then 1 else 0 end) /* filter */
-from revlog where id > ? """
+from revlog where type != {REVLOG_RESCHED} and id > ? """
             + lim,
             (self.col.sched.day_cutoff - 86400) * 1000,
         )
@@ -691,8 +691,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
             [13, 3],
             [14, 4],
         ]
-        if self.col.sched_ver() != 1:
-            ticks.insert(3, [4, 4])
+        ticks.insert(3, [4, 4])
         txt = self._title(
             "Answer Buttons", "The number of times you have pressed each button."
         )
@@ -723,7 +722,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
             tot = bad + good
             try:
                 pct = good / float(tot) * 100
-            except:
+            except Exception:
                 pct = 0
             i.append(
                 "Correct: <b>%(pct)0.2f%%</b><br>(%(good)d of %(tot)d)"
@@ -748,20 +747,17 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
                 "id > %d" % ((self.col.sched.day_cutoff - (days * 86400)) * 1000)
             )
         if lims:
-            lim = "where " + " and ".join(lims)
+            lim = "and " + " and ".join(lims)
         else:
             lim = ""
-        if self.col.sched_ver() == 1:
-            ease4repl = "3"
-        else:
-            ease4repl = "ease"
+        ease4repl = "ease"
         return self.col.db.all(
             f"""
 select (case
 when type in ({REVLOG_LRN},{REVLOG_RELRN}) then 0
 when lastIvl < 21 then 1
 else 2 end) as thetype,
-(case when type in ({REVLOG_LRN},{REVLOG_RELRN}) and ease = 4 then %s else ease end), count() from revlog %s
+(case when type in ({REVLOG_LRN},{REVLOG_RELRN}) and ease = 4 then %s else ease end), count() from revlog where type != {REVLOG_RESCHED} %s
 group by thetype, ease
 order by thetype, ease"""
             % (ease4repl, lim)
@@ -841,11 +837,7 @@ order by thetype, ease"""
         lim = self._revlogLimit()
         if lim:
             lim = " and " + lim
-        if self.col.sched_ver() == 1:
-            sd = datetime.datetime.fromtimestamp(self.col.crt)
-            rolloverHour = sd.hour
-        else:
-            rolloverHour = self.col.conf.get("rollover", 4)
+        rolloverHour = self.col.conf.get("rollover", 4)
         pd = self._periodDays()
         if pd:
             lim += " and id > %d" % ((self.col.sched.day_cutoff - (86400 * pd)) * 1000)
@@ -982,7 +974,7 @@ from cards where did in %s"""
         else:
             conf["legend"] = {"container": "#%sLegend" % id, "noColumns": 10}
         conf["series"] = dict(stack=True)
-        if not "yaxis" in conf:
+        if "yaxis" not in conf:
             conf["yaxis"] = {}
         conf["yaxis"]["labelWidth"] = 40
         if "xaxis" not in conf:
@@ -1098,6 +1090,7 @@ $(function () {
         lim = self._revlogLimit()
         if lim:
             lim = " where " + lim
+        t = 0
         if by == "review":
             t = self.col.db.scalar("select id from revlog %s order by id limit 1" % lim)
         elif by == "add":

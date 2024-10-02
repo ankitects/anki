@@ -18,12 +18,6 @@ from hookslib import Hook, write_file
 ######################################################################
 
 hooks = [
-    Hook(
-        name="card_did_leech",
-        args=["card: Card"],
-        legacy_hook="leech",
-        doc="Called by v1/v2 scheduler when a card is marked as a leech.",
-    ),
     Hook(name="card_odue_was_invalid"),
     Hook(name="schema_will_change", args=["proceed: bool"], return_type="bool"),
     Hook(
@@ -99,24 +93,6 @@ hooks = [
         doc="Can modify the resulting text after rendering completes.",
     ),
     Hook(
-        name="schedv2_did_answer_review_card",
-        args=["card: anki.cards.Card", "ease: int", "early: bool"],
-    ),
-    Hook(
-        name="scheduler_new_limit_for_single_deck",
-        args=["count: int", "deck: anki.decks.DeckDict"],
-        return_type="int",
-        doc="""Allows changing the number of new card for this deck (without
-        considering descendants).""",
-    ),
-    Hook(
-        name="scheduler_review_limit_for_single_deck",
-        args=["count: int", "deck: anki.decks.DeckDict"],
-        return_type="int",
-        doc="""Allows changing the number of rev card for this deck (without
-        considering descendants).""",
-    ),
-    Hook(
         name="importing_importers",
         args=["importers: list[tuple[str, Any]]"],
         doc="""Allows updating the list of importers.
@@ -161,7 +137,9 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
+
 import anki
 import anki.hooks
 from anki.cards import Card

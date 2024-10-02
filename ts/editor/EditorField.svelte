@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         plainText: boolean;
         description: string;
         collapsed: boolean;
+        hidden: boolean;
     }
 
     export interface EditorFieldAPI {
@@ -25,8 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerPackage } from "@tslib/runtime-require";
 
-    import contextProperty from "../sveltelib/context-property";
-    import lifecycleHooks from "../sveltelib/lifecycle-hooks";
+    import contextProperty from "$lib/sveltelib/context-property";
+    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
 
     const key = Symbol("editorField");
     const [context, setContextProperty] = contextProperty<EditorFieldAPI>(key);
@@ -49,7 +50,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import Collapsible from "../components/Collapsible.svelte";
+    import Collapsible from "$lib/components/Collapsible.svelte";
+
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
 
@@ -87,7 +89,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => api?.destroy());
 </script>
 
-<div class="field-container" on:mouseenter on:mouseleave>
+<div
+    class="field-container"
+    class:hide={field.hidden}
+    on:mouseenter
+    on:mouseleave
+    role="presentation"
+>
     <slot name="field-label" />
 
     <Collapsible collapse={collapsed} let:collapsed={hidden}>
@@ -118,13 +126,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/elevation" as *;
+    @use "../lib/sass/elevation" as *;
 
     /* Make sure labels are readable on custom Qt backgrounds */
     .field-container {
         background: var(--canvas);
         border-radius: var(--border-radius);
         overflow: hidden;
+    }
+
+    .field-container.hide {
+        display: none;
     }
 
     .editor-field {

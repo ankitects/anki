@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import os
+import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
@@ -282,15 +284,17 @@ class DebugConsole(QDialog):
         import traceback
 
         text = self._text.toPlainText()
-        card = self._debugCard
-        bcard = self._debugBrowserCard
-        mw = aqt.mw
-        pp = pprint.pprint
+        vars = {
+            "card": self._debugCard,
+            "bcard": self._debugBrowserCard,
+            "mw": aqt.mw,
+            "pp": pprint.pprint,
+        }
         self._captureOutput(True)
         try:
             # pylint: disable=exec-used
-            exec(text)
-        except:
+            exec(text, vars)
+        except Exception:
             self._output += traceback.format_exc()
         self._captureOutput(False)
         buf = ""

@@ -102,11 +102,21 @@ impl Deck {
 }
 
 impl Collection {
-    pub fn get_all_normal_deck_names(&mut self) -> Result<Vec<(DeckId, String)>> {
+    pub fn get_all_normal_deck_names(
+        &mut self,
+        skip_default: bool,
+    ) -> Result<Vec<(DeckId, String)>> {
         Ok(self
             .storage
             .get_all_deck_names()?
             .into_iter()
+            .filter(|node| {
+                if skip_default {
+                    node.0 != DeckId(1)
+                } else {
+                    true
+                }
+            })
             .filter(|(id, _name)| match self.get_deck(*id) {
                 Ok(Some(deck)) => !deck.is_filtered(),
                 _ => true,
@@ -154,8 +164,8 @@ impl Collection {
         Ok(())
     }
 
-    pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckId, String)>> {
-        if skip_empty_default && self.default_deck_is_empty()? {
+    pub fn get_all_deck_names(&self, skip_default: bool) -> Result<Vec<(DeckId, String)>> {
+        if skip_default {
             Ok(self
                 .storage
                 .get_all_deck_names()?
@@ -178,7 +188,7 @@ impl Collection {
 }
 
 fn invalid_char_for_deck_component(c: char) -> bool {
-    c.is_ascii_control() || c == '"'
+    c.is_ascii_control()
 }
 
 fn normalized_deck_name_component(comp: &str) -> Cow<str> {
@@ -186,7 +196,7 @@ fn normalized_deck_name_component(comp: &str) -> Cow<str> {
     if out.contains(invalid_char_for_deck_component) {
         out = out.replace(invalid_char_for_deck_component, "").into();
     }
-    let trimmed = out.trim();
+    let trimmed = out.trim_matches(|c: char| c.is_whitespace() || c == ':');
     if trimmed.is_empty() {
         "blank".to_string().into()
     } else if trimmed.len() != out.len() {
@@ -226,6 +236,8 @@ mod test {
         // implicitly normalize
         assert_eq!(native_name("fo\x1fo::ba\nr"), "foo\x1fbar");
         assert_eq!(native_name("fo\u{a}o\x1fbar"), "foobar");
+        assert_eq!(native_name("foo:::bar"), "foo\x1fbar");
+        assert_eq!(native_name("foo:::bar:baz: "), "foo\x1fbar:baz");
     }
 
     #[test]

@@ -25,6 +25,7 @@ use crate::deckconfig::ReviewCardOrder;
 use crate::deckconfig::ReviewMix;
 use crate::decks::limits::LimitTreeMap;
 use crate::prelude::*;
+use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::scheduler::timing::SchedTimingToday;
 
 /// Temporary holder for review cards that will be built into a queue.
@@ -99,13 +100,14 @@ pub(super) struct QueueSortOptions {
     pub(super) new_review_mix: ReviewMix,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(super) struct QueueBuilder {
     pub(super) new: Vec<NewCard>,
     pub(super) review: Vec<DueCard>,
     pub(super) learning: Vec<DueCard>,
     pub(super) day_learning: Vec<DueCard>,
     limits: LimitTreeMap,
+    load_balancer: LoadBalancer,
     context: Context,
 }
 
@@ -118,18 +120,25 @@ struct Context {
     sort_options: QueueSortOptions,
     seen_note_ids: HashMap<NoteId, BuryMode>,
     deck_map: HashMap<DeckId, Deck>,
+    fsrs: bool,
 }
 
 impl QueueBuilder {
     pub(super) fn new(col: &mut Collection, deck_id: DeckId) -> Result<Self> {
         let timing = col.timing_for_timestamp(TimestampSecs::now())?;
         let new_cards_ignore_review_limit = col.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit);
+        let apply_all_parent_limits = col.get_config_bool(BoolKey::ApplyAllParentLimits);
         let config_map = col.storage.get_deck_config_map()?;
         let root_deck = col.storage.get_deck(deck_id)?.or_not_found(deck_id)?;
-        let child_decks = col.storage.child_decks(&root_deck)?;
+        let mut decks = col.storage.child_decks(&root_deck)?;
+        decks.insert(0, root_deck.clone());
+        if apply_all_parent_limits {
+            for parent in col.storage.parent_decks(&root_deck)? {
+                decks.insert(0, parent);
+            }
+        }
         let limits = LimitTreeMap::build(
-            &root_deck,
-            child_decks,
+            &decks,
             &config_map,
             timing.days_elapsed,
             new_cards_ignore_review_limit,
@@ -137,12 +146,19 @@ impl QueueBuilder {
         let sort_options = sort_options(&root_deck, &config_map);
         let deck_map = col.storage.get_decks_map()?;
 
+        let did_to_dcid = deck_map
+            .values()
+            .filter_map(|deck| Some((deck.id, deck.config_id()?)))
+            .collect::<HashMap<_, _>>();
+        let load_balancer = LoadBalancer::new(timing.days_elapsed, did_to_dcid, &col.storage)?;
+
         Ok(QueueBuilder {
             new: Vec::new(),
             review: Vec::new(),
             learning: Vec::new(),
             day_learning: Vec::new(),
             limits,
+            load_balancer,
             context: Context {
                 timing,
                 config_map,
@@ -150,6 +166,7 @@ impl QueueBuilder {
                 sort_options,
                 seen_note_ids: HashMap::new(),
                 deck_map,
+                fsrs: col.get_config_bool(BoolKey::Fsrs),
             },
         })
     }
@@ -193,6 +210,7 @@ impl QueueBuilder {
             learn_ahead_secs,
             current_day: self.context.timing.days_elapsed,
             build_time: TimestampMillis::now(),
+            load_balancer: self.load_balancer,
             current_learning_cutoff: now,
         }
     }
@@ -332,7 +350,7 @@ mod test {
 
     #[test]
     fn should_build_empty_queue_if_limit_is_reached() {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
         CardAdder::new().due_dates(["0"]).add(&mut col);
         col.set_deck_review_limit(DeckId(1), 0);
         assert_eq!(col.queue_as_deck_and_template(DeckId(1)), vec![]);
@@ -340,7 +358,7 @@ mod test {
 
     #[test]
     fn new_queue_building() -> Result<()> {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
 
         // parent
         // ┣━━child━━grandchild
@@ -403,7 +421,6 @@ mod test {
     #[test]
     fn review_queue_building() -> Result<()> {
         let mut col = Collection::new();
-        col.set_config_bool(BoolKey::Sched2021, true, false)?;
 
         let mut deck = col.get_or_create_normal_deck("Default").unwrap();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
@@ -456,7 +473,7 @@ mod test {
 
     #[test]
     fn new_card_potentially_burying_review_card() {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
         // add one new and one review card
         CardAdder::new().siblings(2).due_dates(["0"]).add(&mut col);
         // Potentially problematic config: New cards are shown first and would bury
@@ -479,7 +496,7 @@ mod test {
 
     #[test]
     fn new_cards_may_ignore_review_limit() {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
         col.set_config_bool(BoolKey::NewCardsIgnoreReviewLimit, true, false)
             .unwrap();
         col.update_default_deck_config(|config| {
@@ -493,11 +510,27 @@ mod test {
 
     #[test]
     fn reviews_dont_affect_new_limit_before_review_limit_is_reached() {
-        let mut col = Collection::new_v3();
+        let mut col = Collection::new();
         col.update_default_deck_config(|config| {
             config.new_per_day = 1;
         });
         CardAdder::new().siblings(2).due_dates(["0"]).add(&mut col);
         assert_eq!(col.card_queue_len(), 2);
+    }
+
+    #[test]
+    fn may_apply_parent_limits() {
+        let mut col = Collection::new();
+        col.set_config_bool(BoolKey::ApplyAllParentLimits, true, false)
+            .unwrap();
+        col.update_default_deck_config(|config| {
+            config.new_per_day = 0;
+        });
+        let child = DeckAdder::new("Default::child")
+            .with_config(|_| ())
+            .add(&mut col);
+        CardAdder::new().deck(child.id).add(&mut col);
+        col.set_current_deck(child.id).unwrap();
+        assert_eq!(col.card_queue_len(), 0);
     }
 }

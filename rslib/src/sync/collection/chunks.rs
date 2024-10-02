@@ -310,10 +310,7 @@ impl Collection {
 
 impl From<CardEntry> for Card {
     fn from(e: CardEntry) -> Self {
-        let CardData {
-            original_position,
-            custom_data,
-        } = CardData::from_str(&e.data);
+        let data = CardData::from_str(&e.data);
         Card {
             id: e.id,
             note_id: e.nid,
@@ -332,8 +329,10 @@ impl From<CardEntry> for Card {
             original_due: e.odue,
             original_deck_id: e.odid,
             flags: e.flags,
-            original_position,
-            custom_data,
+            original_position: data.original_position,
+            memory_state: data.memory_state(),
+            desired_retention: data.fsrs_desired_retention,
+            custom_data: data.custom_data,
         }
     }
 }

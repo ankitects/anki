@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
+
 use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::build::BuildProfile;
@@ -26,17 +28,21 @@ pub fn build_rust(build: &mut Build) -> Result<()> {
 }
 
 fn prepare_translations(build: &mut Build) -> Result<()> {
+    let offline_build = env::var("OFFLINE_BUILD").is_ok();
+
     // ensure repos are checked out
     build.add_action(
         "ftl:repo:core",
         SyncSubmodule {
             path: "ftl/core-repo",
+            offline_build,
         },
     )?;
     build.add_action(
         "ftl:repo:qt",
         SyncSubmodule {
             path: "ftl/qt-repo",
+            offline_build,
         },
     )?;
     // build anki_i18n and spit out strings.json
@@ -50,8 +56,7 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
             ],
             outputs: &[
                 RustOutput::Data("py", "pylib/anki/_fluent.py"),
-                RustOutput::Data("ts", "ts/lib/ftl.d.ts"),
-                RustOutput::Data("ts", "ts/lib/ftl.js"),
+                RustOutput::Data("ts", "ts/lib/generated/ftl.ts"),
             ],
             target: None,
             extra_args: "-p anki_i18n",
@@ -113,8 +118,7 @@ fn build_proto_descriptors_and_interfaces(build: &mut Build) -> Result<()> {
     let outputs = vec![
         RustOutput::Data("descriptors.bin", "rslib/proto/descriptors.bin"),
         RustOutput::Data("py", "pylib/anki/_backend_generated.py"),
-        RustOutput::Data("ts", "ts/lib/backend.d.ts"),
-        RustOutput::Data("ts", "ts/lib/backend.js"),
+        RustOutput::Data("ts", "ts/lib/generated/backend.ts"),
     ];
     build.add_action(
         "rslib:proto",
@@ -147,6 +151,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
                 ":rslib:proto",
                 // when env vars change the build hash gets updated
                 "$builddir/env",
+                "$builddir/buildhash",
                 // building on Windows requires python3.lib
                 if cfg!(windows) {
                     inputs![":extract:python"]
@@ -242,7 +247,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
     let files = inputs![
         glob![
             "**/*.{py,rs,ts,svelte,mjs}",
-            "{node_modules,qt/bundle/PyOxidizer}/**"
+            "{node_modules,qt/bundle/PyOxidizer,ts/.svelte-kit}/**"
         ],
         "Cargo.lock"
     ];

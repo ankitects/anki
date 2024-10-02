@@ -4,8 +4,11 @@
 from __future__ import annotations
 
 import sys
+import time
 import traceback
-from typing import Any, Sequence
+from collections.abc import Iterable, Sequence
+from threading import current_thread, main_thread
+from typing import TYPE_CHECKING, Any
 from weakref import ref
 
 from markdown import markdown
@@ -17,6 +20,9 @@ from anki._fluent import GeneratedTranslations
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.utils import from_json_bytes, to_json_bytes
+
+if TYPE_CHECKING:
+    from anki.collection import FsrsItem
 
 from .errors import (
     BackendError,
@@ -30,6 +36,7 @@ from .errors import (
     InvalidInput,
     NetworkError,
     NotFoundError,
+    SchedulerUpgradeRequired,
     SearchError,
     SyncError,
     SyncErrorKind,
@@ -119,9 +126,11 @@ class RustBackend(RustBackendGenerated):
         self, module_index: int, message_index: int, **kwargs: str | int | float
     ) -> str:
         args = {
-            k: i18n_pb2.TranslateArgValue(str=v)
-            if isinstance(v, str)
-            else i18n_pb2.TranslateArgValue(number=v)
+            k: (
+                i18n_pb2.TranslateArgValue(str=v)
+                if isinstance(v, str)
+                else i18n_pb2.TranslateArgValue(number=v)
+            )
             for k, v in kwargs.items()
         }
 
@@ -140,11 +149,23 @@ class RustBackend(RustBackendGenerated):
         )
         return self.format_timespan(seconds=seconds, context=context)
 
+    def compute_weights_from_items(self, items: Iterable[FsrsItem]) -> Sequence[float]:
+        return self.compute_fsrs_weights_from_items(items).weights
+
+    def benchmark(self, train_set: Iterable[FsrsItem]) -> Sequence[float]:
+        return self.fsrs_benchmark(train_set=train_set)
+
     def _run_command(self, service: int, method: int, input: bytes) -> bytes:
+        start = time.time()
         try:
             return self._backend.command(service, method, input)
         except Exception as error:
             error_bytes = bytes(error.args[0])
+        finally:
+            elapsed = time.time() - start
+            if current_thread() is main_thread() and elapsed > 0.2:
+                print(f"blocked main thread for {int(elapsed*1000)}ms:")
+                print("".join(traceback.format_stack()))
 
         err = backend_pb2.BackendError()
         err.ParseFromString(error_bytes)
@@ -233,6 +254,9 @@ def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:
 
     elif val == kind.CUSTOM_STUDY_ERROR:
         return CustomStudyError(err.message, help_page, context, backtrace)
+
+    elif val == kind.SCHEDULER_UPGRADE_REQUIRED:
+        return SchedulerUpgradeRequired(err.message, help_page, context, backtrace)
 
     else:
         # sadly we can't do exhaustiveness checking on protobuf enums

@@ -2,6 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::StateContext;
+use crate::collection::Collection;
+use crate::prelude::*;
 
 /// Describes a range of days for which a certain amount of fuzz is applied to
 /// the new interval.
@@ -31,31 +33,53 @@ static FUZZ_RANGES: [FuzzRange; 3] = [
 
 impl<'a> StateContext<'a> {
     /// Apply fuzz, respecting the passed bounds.
-    /// Caller must ensure reasonable bounds.
     pub(crate) fn with_review_fuzz(&self, interval: f32, minimum: u32, maximum: u32) -> u32 {
-        if let Some(fuzz_factor) = self.fuzz_factor {
-            let (lower, upper) = constrained_fuzz_bounds(interval, minimum, maximum);
-            (lower as f32 + fuzz_factor * ((1 + upper - lower) as f32)).floor() as u32
-        } else {
-            (interval.round() as u32).clamp(minimum, maximum)
-        }
+        self.load_balancer
+            .as_ref()
+            .and_then(|load_balancer| load_balancer.find_interval(interval, minimum, maximum))
+            .unwrap_or_else(|| with_review_fuzz(self.fuzz_factor, interval, minimum, maximum))
     }
+}
 
-    pub(crate) fn fuzzed_graduating_interval_good(&self) -> u32 {
-        let (minimum, maximum) = self.min_and_max_review_intervals(1);
-        self.with_review_fuzz(self.graduating_interval_good as f32, minimum, maximum)
+impl Collection {
+    /// Used for FSRS add-on.
+    pub(crate) fn get_fuzz_delta(&self, card_id: CardId, interval: u32) -> Result<i32> {
+        let card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+        let deck = self
+            .storage
+            .get_deck(card.deck_id)?
+            .or_not_found(card.deck_id)?;
+        let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
+        let fuzzed = with_review_fuzz(
+            card.get_fuzz_factor(true),
+            interval as f32,
+            1,
+            config.inner.maximum_review_interval,
+        );
+        Ok((fuzzed as i32) - (interval as i32))
     }
+}
 
-    pub(crate) fn fuzzed_graduating_interval_easy(&self) -> u32 {
-        let (minimum, maximum) = self.min_and_max_review_intervals(1);
-        self.with_review_fuzz(self.graduating_interval_easy as f32, minimum, maximum)
+pub(crate) fn with_review_fuzz(
+    fuzz_factor: Option<f32>,
+    interval: f32,
+    minimum: u32,
+    maximum: u32,
+) -> u32 {
+    if let Some(fuzz_factor) = fuzz_factor {
+        let (lower, upper) = constrained_fuzz_bounds(interval, minimum, maximum);
+        (lower as f32 + fuzz_factor * ((1 + upper - lower) as f32)).floor() as u32
+    } else {
+        (interval.round() as u32).clamp(minimum, maximum)
     }
 }
 
 /// Return the bounds of the fuzz range, respecting `minimum` and `maximum`.
 /// Ensure the upper bound is larger than the lower bound, if `maximum` allows
 /// it and it is larger than 1.
-fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u32) {
+pub(crate) fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u32) {
+    let minimum = minimum.min(maximum);
+    let interval = interval.clamp(minimum as f32, maximum as f32);
     let (mut lower, mut upper) = fuzz_bounds(interval);
 
     // minimum <= maximum and lower <= upper are assumed
@@ -70,7 +94,7 @@ fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u
     (lower, upper)
 }
 
-fn fuzz_bounds(interval: f32) -> (u32, u32) {
+pub(crate) fn fuzz_bounds(interval: f32) -> (u32, u32) {
     let delta = fuzz_delta(interval);
     (
         (interval - delta).round() as u32,
@@ -143,8 +167,13 @@ mod test {
         assert_lower_middle_upper!(20.1, 3, 1000, 17, 20, 23);
 
         // respect limits and preserve uniform distribution of valid intervals
-        assert_lower_middle_upper!(100.0, 101, 1000, 101, 104, 107);
-        assert_lower_middle_upper!(100.0, 1, 99, 93, 96, 99);
+        assert_lower_middle_upper!(100.0, 101, 1000, 101, 105, 108);
+        assert_lower_middle_upper!(100.0, 1, 99, 92, 96, 99);
         assert_lower_middle_upper!(100.0, 97, 103, 97, 100, 103);
+    }
+
+    #[test]
+    fn invalid_values_will_not_panic() {
+        constrained_fuzz_bounds(1.0, 3, 2);
     }
 }

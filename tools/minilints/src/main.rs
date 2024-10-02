@@ -40,6 +40,9 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./tools/workspace-hack",
     "./qt/bundle/PyOxidizer",
     "./target",
+    ".mypy_cache",
+    "./extra",
+    "./ts/.svelte-kit",
 ];
 
 fn main() -> Result<()> {
@@ -88,7 +91,7 @@ impl LintContext {
                 .into_iter()
                 .map(Some)
                 .collect();
-            if exts.contains(&path.extension()) {
+            if exts.contains(&path.extension()) && !sveltekit_temp_file(path.as_str()) {
                 self.check_copyright(path)?;
                 self.check_triple_slash(path)?;
             }
@@ -200,9 +203,14 @@ impl LintContext {
     }
 }
 
+/// Annoyingly, sveltekit writes temp files into ts/ folder when it's running.
+fn sveltekit_temp_file(path: &str) -> bool {
+    path.contains("vite.config.ts.timestamp")
+}
+
 fn check_cargo_deny() -> Result<()> {
-    Command::run("cargo install cargo-deny@0.13.5")?;
-    Command::run("cargo deny check -A duplicate")?;
+    Command::run("cargo install cargo-deny@0.14.24")?;
+    Command::run("cargo deny check")?;
     Ok(())
 }
 

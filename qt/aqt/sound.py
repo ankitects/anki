@@ -9,12 +9,14 @@ import re
 import subprocess
 import sys
 import time
+import traceback
 import wave
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from concurrent.futures import Future
 from operator import itemgetter
 from pathlib import Path
-from typing import Any, Callable, cast
+from typing import Any, cast
 
 from markdown import markdown
 
@@ -155,7 +157,7 @@ class AVPlayer:
         self._play_next_if_idle()
 
     def queue_is_empty(self) -> bool:
-        return bool(self._enqueued)
+        return not bool(self._enqueued)
 
     def stop_and_clear_queue(self) -> None:
         self._enqueued = []
@@ -294,7 +296,9 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         self._terminate_flag = False
         self._taskman.run_in_background(
-            lambda: self._play(tag), lambda res: self._on_done(res, on_done)
+            lambda: self._play(tag),
+            lambda res: self._on_done(res, on_done),
+            uses_collection=False,
         )
 
     def stop(self) -> None:
@@ -304,7 +308,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._process = subprocess.Popen(
-            self.args + [tag.filename],
+            self.args + ["--", tag.filename],
             env=self.env,
             cwd=self._media_folder,
             stdout=subprocess.DEVNULL,
@@ -426,7 +430,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         filename = hooks.media_file_filter(tag.filename)
         path = os.path.join(self.media_folder, filename)
 
-        self.command("loadfile", path, "replace", "pause=no")
+        self.command("loadfile", path, "replace")
         gui_hooks.av_player_did_begin_playing(self, tag)
 
     def stop(self) -> None:
@@ -440,7 +444,9 @@ class MpvManager(MPV, SoundOrVideoPlayer):
 
     def on_property_idle_active(self, value: bool) -> None:
         if value and self._on_done:
-            self._on_done()
+            from aqt import mw
+
+            mw.taskman.run_on_main(self._on_done)
 
     def shutdown(self) -> None:
         self.close()
@@ -474,7 +480,7 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
         filename = hooks.media_file_filter(tag.filename)
 
         self._process = subprocess.Popen(
-            self.args + [filename],
+            self.args + ["--", filename],
             env=self.env,
             cwd=self.media_folder,
             stdin=subprocess.PIPE,
@@ -529,7 +535,9 @@ def encode_mp3(mw: aqt.AnkiQt, src_wav: str, on_done: Callable[[str], None]) -> 
 
         on_done(dst_mp3)
 
-    mw.taskman.run_in_background(lambda: _encode_mp3(src_wav, dst_mp3), _on_done)
+    mw.taskman.run_in_background(
+        lambda: _encode_mp3(src_wav, dst_mp3), _on_done, uses_collection=False
+    )
 
 
 # Recording interface
@@ -623,7 +631,9 @@ class QtAudioInputRecorder(Recorder):
                 fut.result()
                 Recorder.stop(self, on_done)
 
-            self.mw.taskman.run_in_background(write_file, and_then)
+            self.mw.taskman.run_in_background(
+                write_file, and_then, uses_collection=False
+            )
 
         # schedule the stop for half a second in the future,
         # to avoid truncating the end of the recording

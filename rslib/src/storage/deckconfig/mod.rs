@@ -62,6 +62,15 @@ impl SqliteStorage {
             .transpose()
     }
 
+    pub(crate) fn get_deck_config_id_by_name(&self, name: &str) -> Result<Option<DeckConfigId>> {
+        self.db
+            .prepare_cached("select id from deck_config WHERE name = ?")?
+            .query_and_then([name], |row| Ok::<_, AnkiError>(DeckConfigId(row.get(0)?)))?
+            .next()
+            .transpose()
+            .map_err(Into::into)
+    }
+
     pub(crate) fn add_deck_conf(&self, conf: &mut DeckConfig) -> Result<()> {
         let mut conf_bytes = vec![];
         conf.inner.encode(&mut conf_bytes)?;
@@ -255,7 +264,7 @@ impl SqliteStorage {
             .collect();
         self.db.execute(
             "update col set dconf=?",
-            params![crate::serde::schema11_to_string(confmap)?],
+            params![serde_json::to_string(&confmap)?],
         )?;
         Ok(())
     }

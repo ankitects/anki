@@ -6,7 +6,6 @@ mod decks;
 mod media;
 mod notes;
 
-use std::collections::HashSet;
 use std::fs::File;
 use std::path::Path;
 
@@ -21,8 +20,11 @@ use zip::ZipArchive;
 
 use super::super::meta::MetaExt;
 use crate::collection::CollectionBuilder;
+use crate::config::ConfigKey;
 use crate::import_export::gather::ExchangeData;
+use crate::import_export::package::ImportAnkiPackageOptions;
 use crate::import_export::package::Meta;
+use crate::import_export::package::UpdateCondition;
 use crate::import_export::ImportProgress;
 use crate::import_export::NoteLog;
 use crate::media::MediaManager;
@@ -30,8 +32,14 @@ use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
 use crate::search::SearchNode;
 
+/// A map of old to new template indices for a given notetype.
+type TemplateMap = std::collections::HashMap<u16, u16>;
+
 struct Context<'a> {
     target_col: &'a mut Collection,
+    merge_notetypes: bool,
+    update_notes: UpdateCondition,
+    update_notetypes: UpdateCondition,
     media_manager: MediaManager,
     archive: ZipArchive<File>,
     meta: Meta,
@@ -41,13 +49,22 @@ struct Context<'a> {
 }
 
 impl Collection {
-    pub fn import_apkg(&mut self, path: impl AsRef<Path>) -> Result<OpOutput<NoteLog>> {
+    pub fn import_apkg(
+        &mut self,
+        path: impl AsRef<Path>,
+        options: ImportAnkiPackageOptions,
+    ) -> Result<OpOutput<NoteLog>> {
         let file = open_file(path)?;
         let archive = ZipArchive::new(file)?;
         let progress = self.new_progress_handler();
 
         self.transact(Op::Import, |col| {
-            let mut ctx = Context::new(archive, col, progress)?;
+            col.set_config(BoolKey::MergeNotetypes, &options.merge_notetypes)?;
+            col.set_config(BoolKey::WithScheduling, &options.with_scheduling)?;
+            col.set_config(BoolKey::WithDeckConfigs, &options.with_deck_configs)?;
+            col.set_config(ConfigKey::UpdateNotes, &options.update_notes())?;
+            col.set_config(ConfigKey::UpdateNotetypes, &options.update_notetypes())?;
+            let mut ctx = Context::new(archive, col, options, progress)?;
             ctx.import()
         })
     }
@@ -57,6 +74,7 @@ impl<'a> Context<'a> {
     fn new(
         mut archive: ZipArchive<File>,
         target_col: &'a mut Collection,
+        options: ImportAnkiPackageOptions,
         mut progress: ThrottlingProgressHandler<ImportProgress>,
     ) -> Result<Self> {
         let media_manager = target_col.media()?;
@@ -66,11 +84,15 @@ impl<'a> Context<'a> {
             &meta,
             SearchNode::WholeCollection,
             &mut progress,
-            true,
+            options.with_scheduling,
+            options.with_deck_configs,
         )?;
         let usn = target_col.usn()?;
         Ok(Self {
             target_col,
+            merge_notetypes: options.merge_notetypes,
+            update_notes: options.update_notes(),
+            update_notetypes: options.update_notetypes(),
             media_manager,
             archive,
             meta,
@@ -81,12 +103,21 @@ impl<'a> Context<'a> {
     }
 
     fn import(&mut self) -> Result<NoteLog> {
+        let notetypes = self
+            .data
+            .notes
+            .iter()
+            .map(|n| (n.id, n.notetype_id))
+            .collect();
         let mut media_map = self.prepare_media()?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
-        let keep_filtered = self.data.enables_filtered_decks();
-        let contains_scheduling = self.data.contains_scheduling();
-        let imported_decks = self.import_decks_and_configs(keep_filtered, contains_scheduling)?;
-        self.import_cards_and_revlog(&note_imports.id_map, &imported_decks, keep_filtered)?;
+        let imported_decks = self.import_decks_and_configs()?;
+        self.import_cards_and_revlog(
+            &note_imports.id_map,
+            &notetypes,
+            &note_imports.remapped_templates,
+            &imported_decks,
+        )?;
         self.copy_media(&mut media_map)?;
         Ok(note_imports.log)
     }
@@ -99,6 +130,7 @@ impl ExchangeData {
         search: impl TryIntoSearch,
         progress: &mut ThrottlingProgressHandler<ImportProgress>,
         with_scheduling: bool,
+        with_deck_configs: bool,
     ) -> Result<Self> {
         let tempfile = collection_to_tempfile(meta, archive)?;
         let mut col = CollectionBuilder::new(tempfile.path()).build()?;
@@ -107,30 +139,9 @@ impl ExchangeData {
 
         progress.set(ImportProgress::Gathering)?;
         let mut data = ExchangeData::default();
-        data.gather_data(&mut col, search, with_scheduling)?;
+        data.gather_data(&mut col, search, with_scheduling, with_deck_configs)?;
 
         Ok(data)
-    }
-
-    fn enables_filtered_decks(&self) -> bool {
-        // Earlier versions relied on the importer handling filtered decks by converting
-        // them into regular ones, so there is no guarantee that all original decks
-        // are included. And the legacy exporter included the default deck config, so we
-        // can't use it to determine if scheduling is included.
-        self.contains_scheduling()
-            && self.contains_all_original_decks()
-            && !self.deck_configs.is_empty()
-    }
-
-    fn contains_scheduling(&self) -> bool {
-        !self.revlog.is_empty()
-    }
-
-    fn contains_all_original_decks(&self) -> bool {
-        let deck_ids: HashSet<_> = self.decks.iter().map(|d| d.id).collect();
-        self.cards
-            .iter()
-            .all(|c| c.original_deck_id.0 == 0 || deck_ids.contains(&c.original_deck_id))
     }
 }
 

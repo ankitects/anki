@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { SchedulingContext, SchedulingStates, SchedulingStatesWithContext } from "@tslib/anki/scheduler_pb";
+import { SchedulingStatesWithContext } from "@generated/anki/frontend_pb";
+import { SchedulingContext, SchedulingStates } from "@generated/anki/scheduler_pb";
+import { expect, test } from "vitest";
 
 import { applyStateTransform } from "./answering";
 

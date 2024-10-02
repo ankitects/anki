@@ -9,9 +9,10 @@ import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Callable, Sequence
 from functools import partial, wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 from send2trash import send2trash
 
@@ -20,6 +21,7 @@ from anki._legacy import DeprecatedNamesMixinForModule
 from anki.collection import Collection, HelpPage
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
 from anki.utils import (
+    call,
     invalid_filename,
     is_mac,
     is_win,
@@ -81,7 +83,7 @@ from aqt.qt import (
 from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
-    TextFormat = Literal["plain", "rich"]
+    TextFormat = Literal["plain", "rich", "markdown"]
 
 
 def aqt_data_path() -> Path:
@@ -138,15 +140,21 @@ class MessageBox(QMessageBox):
         icon: QMessageBox.Icon = QMessageBox.Icon.NoIcon,
         help: HelpPageArgument | None = None,
         title: str = "Anki",
-        buttons: Sequence[str | QMessageBox.StandardButton] | None = None,
+        buttons: (
+            Sequence[
+                str | QMessageBox.StandardButton | tuple[str, QMessageBox.ButtonRole]
+            ]
+            | None
+        ) = None,
         default_button: int = 0,
         textFormat: Qt.TextFormat = Qt.TextFormat.PlainText,
+        modality: Qt.WindowModality = Qt.WindowModality.WindowModal,
     ) -> None:
         parent = parent or aqt.mw.app.activeWindow() or aqt.mw
         super().__init__(parent)
         self.setText(text)
         self.setWindowTitle(title)
-        self.setWindowModality(Qt.WindowModality.WindowModal)
+        self.setWindowModality(modality)
         self.setIcon(icon)
         if icon == QMessageBox.Icon.Question and theme_manager.night_mode:
             img = self.iconPixmap().toImage()
@@ -160,6 +168,11 @@ class MessageBox(QMessageBox):
                 b = self.addButton(button, QMessageBox.ButtonRole.ActionRole)
             elif isinstance(button, QMessageBox.StandardButton):
                 b = self.addButton(button)
+                # a translator has complained the default Qt translation is inappropriate, so we override it
+                if button == QMessageBox.StandardButton.Discard:
+                    b.setText(tr.actions_discard())
+            elif isinstance(button, tuple):
+                b = self.addButton(button[0], button[1])
             else:
                 continue
             if callback is not None:
@@ -192,8 +205,12 @@ def ask_user(
 def ask_user_dialog(
     text: str,
     callback: Callable[[int], None],
-    buttons: Sequence[str | QMessageBox.StandardButton] | None = None,
+    buttons: (
+        Sequence[str | QMessageBox.StandardButton | tuple[str, QMessageBox.ButtonRole]]
+        | None
+    ) = None,
     default_button: int = 1,
+    parent: QWidget | None = None,
     **kwargs: Any,
 ) -> MessageBox:
     "Shows a question to the user, passes the index of the button clicked to the callback."
@@ -205,6 +222,7 @@ def ask_user_dialog(
         icon=QMessageBox.Icon.Question,
         buttons=buttons,
         default_button=default_button,
+        parent=parent,
         **kwargs,
     )
 
@@ -282,6 +300,8 @@ def showInfo(
         mb.setTextFormat(Qt.TextFormat.PlainText)
     elif textFormat == "rich":
         mb.setTextFormat(Qt.TextFormat.RichText)
+    elif textFormat == "markdown":
+        mb.setTextFormat(Qt.TextFormat.MarkdownText)
     elif textFormat is not None:
         raise Exception("unexpected textFormat type")
     mb.setText(text)
@@ -374,8 +394,8 @@ def showText(
 
 def askUser(
     text: str,
-    parent: QWidget = None,
-    help: HelpPageArgument = None,
+    parent: QWidget | None = None,
+    help: HelpPageArgument | None = None,
     defaultno: bool = False,
     msgfunc: Callable | None = None,
     title: str = "Anki",
@@ -407,7 +427,7 @@ class ButtonedDialog(QMessageBox):
         text: str,
         buttons: list[str],
         parent: QWidget | None = None,
-        help: HelpPageArgument = None,
+        help: HelpPageArgument | None = None,
         title: str = "Anki",
     ):
         QMessageBox.__init__(self, parent)
@@ -440,7 +460,7 @@ def askUserDialog(
     text: str,
     buttons: list[str],
     parent: QWidget | None = None,
-    help: HelpPageArgument = None,
+    help: HelpPageArgument | None = None,
     title: str = "Anki",
 ) -> ButtonedDialog:
     if not parent:
@@ -454,7 +474,7 @@ class GetTextDialog(QDialog):
         self,
         parent: QWidget | None,
         question: str,
-        help: HelpPageArgument = None,
+        help: HelpPageArgument | None = None,
         edit: QLineEdit | None = None,
         default: str = "",
         title: str = "Anki",
@@ -491,6 +511,7 @@ class GetTextDialog(QDialog):
                 b.button(QDialogButtonBox.StandardButton.Help).clicked,
                 self.helpRequested,
             )
+        self.l.setFocus()
 
     def accept(self) -> None:
         return QDialog.accept(self)
@@ -505,7 +526,7 @@ class GetTextDialog(QDialog):
 def getText(
     prompt: str,
     parent: QWidget | None = None,
-    help: HelpPageArgument = None,
+    help: HelpPageArgument | None = None,
     edit: QLineEdit | None = None,
     default: str = "",
     title: str = "Anki",
@@ -538,7 +559,7 @@ def getOnlyText(*args: Any, **kwargs: Any) -> str:
 # fixme: these utilities could be combined into a single base class
 # unused by Anki, but used by add-ons
 def chooseList(
-    prompt: str, choices: list[str], startrow: int = 0, parent: Any = None
+    prompt: str, choices: list[str], startrow: int = 0, parent: Any | None = None
 ) -> int:
     if not parent:
         parent = aqt.mw.app.activeWindow()
@@ -712,9 +733,8 @@ def _qt_state_key(kind: _QtStateKeyKind, key: str) -> str:
 
 
 def saveGeom(widget: QWidget, key: str) -> None:
-    # restoring a fullscreen window is buggy
-    # (at the time of writing; Qt 6.2.2 and 5.15)
-    if not widget.isFullScreen():
+    # restoring a fullscreen window breaks the tab functionality of 5.15
+    if not widget.isFullScreen() or qtmajor == 6:
         key = _qt_state_key(_QtStateKeyKind.GEOMETRY, key)
         aqt.mw.pm.profile[key] = widget.saveGeometry()
 
@@ -864,6 +884,33 @@ def openFolder(path: str) -> None:
     else:
         with no_bundled_libs():
             QDesktopServices.openUrl(QUrl(f"file://{path}"))
+
+
+def showinFolder(path: str) -> None:
+    if is_win:
+        call(["explorer", "/select,", f"file://{path}"])
+    elif is_mac:
+        script = f"""
+        tell application "Finder"
+            activate
+            select POSIX file '{path}'
+        end tell
+        """
+        call(osascript_to_args(script))
+    else:
+        # Just open the file in any other platform
+        with no_bundled_libs():
+            QDesktopServices.openUrl(QUrl(f"file://{path}"))
+
+
+def osascript_to_args(script: str):
+    args = [
+        item
+        for line in script.splitlines()
+        for item in ("-e", line.strip())
+        if line.strip()
+    ]
+    return ["osascript"] + args
 
 
 def shortcut(key: str) -> str:
@@ -1073,19 +1120,13 @@ def qtMenuShortcutWorkaround(qmenu: QMenu) -> None:
 
 
 def disallow_full_screen() -> bool:
-    """Test for OpenGl on Windows, which is known to cause issues with full screen mode.
-    On Qt6, the driver is not detectable, so check if it has been set explicitly.
-    """
+    """Test for OpenGl on Windows, which is known to cause issues with full screen mode."""
     from aqt import mw
     from aqt.profiles import VideoDriver
 
     return is_win and (
-        (qtmajor == 5 and mw.pm.video_driver() == VideoDriver.OpenGL)
-        or (
-            qtmajor == 6
-            and not os.environ.get("ANKI_SOFTWAREOPENGL")
-            and os.environ.get("QT_OPENGL") != "software"
-        )
+        mw.pm.video_driver() == VideoDriver.OpenGL
+        and not os.environ.get("ANKI_SOFTWAREOPENGL")
     )
 
 
@@ -1102,39 +1143,23 @@ def add_ellipsis_to_action_label(*actions: QAction) -> None:
 
 def supportText() -> str:
     import platform
-    import time
 
     from aqt import mw
 
     platname = platform.platform()
 
-    def schedVer() -> str:
-        try:
-            if mw.col.v3_scheduler():
-                return "3"
-            else:
-                return str(mw.col.sched_ver())
-        except:
-            return "?"
-
-    lc = mw.pm.last_addon_update_check()
-    lcfmt = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(lc))
-
     return """\
-Anki {} Python {} Qt {} PyQt {}
+Anki {} {} {}
+Python {} Qt {} PyQt {}
 Platform: {}
-Flags: frz={} ao={} sv={}
-Add-ons, last update check: {}
 """.format(
         version_with_build(),
+        "(src)" if not getattr(sys, "frozen", False) else "",
+        "(ao)" if mw.addonManager.dirty else "",
         platform.python_version(),
         qVersion(),
         PYQT_VERSION_STR,
         platname,
-        getattr(sys, "frozen", False),
-        mw.addonManager.dirty,
-        schedVer(),
-        lcfmt,
     )
 
 

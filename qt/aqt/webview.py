@@ -5,22 +5,29 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import os
 import re
 import sys
+from collections.abc import Callable, Sequence
 from enum import Enum
-from typing import Any, Callable, Optional, Sequence, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import anki
 import anki.lang
 from anki._legacy import deprecated
 from anki.lang import is_rtl
-from anki.utils import is_lin, is_mac, is_win
+from anki.utils import hmr_mode, is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.theme import theme_manager
 from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
+
+if TYPE_CHECKING:
+    from aqt.mediasrv import PageContext
+
 
 # Page for debug messages
 ##########################################################################
@@ -125,10 +132,13 @@ class AnkiWebPage(QWebEnginePage):
     def acceptNavigationRequest(
         self, url: QUrl, navType: Any, isMainFrame: bool
     ) -> bool:
+        from aqt.mediasrv import is_sveltekit_page
+
         if (
             not self.open_links_externally
             or "_anki/pages" in url.path()
             or url.path() == "/_anki/legacyPageData"
+            or is_sveltekit_page(url.path()[1:])
         ):
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
@@ -233,6 +243,7 @@ class AnkiWebViewKind(Enum):
     When introducing a new web view, please add it to the registry below.
     """
 
+    DEFAULT = "default"
     MAIN = "main webview"
     TOP_TOOLBAR = "top toolbar"
     BOTTOM_TOOLBAR = "bottom toolbar"
@@ -248,22 +259,23 @@ class AnkiWebViewKind(Enum):
     EMPTY_CARDS = "empty cards"
     FIND_DUPLICATES = "find duplicates"
     FIELDS = "fields"
+    IMPORT_LOG = "import log"
+    IMPORT_ANKI_PACKAGE = "anki package import"
 
 
 class AnkiWebView(QWebEngineView):
     allow_drops = False
-    _kind: AnkiWebViewKind | None
+    _kind: AnkiWebViewKind
 
     def __init__(
         self,
         parent: QWidget | None = None,
-        title: str = "default",
-        kind: AnkiWebViewKind | None = None,
+        title: str = "",  # used by add-ons; in Anki code use kind instead to set title
+        kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        if kind:
-            self.set_kind(kind)
-        else:
+        self.set_kind(kind)
+        if title:
             self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
@@ -289,7 +301,7 @@ class AnkiWebView(QWebEngineView):
         self.eval(
             """
         document.addEventListener("keydown", function(evt) {
-            if (evt.keyCode === 27) {
+            if (evt.key === "Escape") {
                 pycmd("close");
             }
         });
@@ -301,7 +313,7 @@ class AnkiWebView(QWebEngineView):
         self.set_title(kind.value)
 
     @property
-    def kind(self) -> AnkiWebViewKind | None:
+    def kind(self) -> AnkiWebViewKind:
         """Used by add-ons to identify the webview kind"""
         return self._kind
 
@@ -367,25 +379,35 @@ class AnkiWebView(QWebEngineView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
-        a = m.addAction(tr.actions_copy())
-        qconnect(a.triggered, self.onCopy)
+        self._maybe_add_copy_action(m)
         gui_hooks.webview_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
+
+    def _maybe_add_copy_action(self, menu: QMenu) -> None:
+        if self.hasSelection():
+            a = menu.addAction(tr.actions_copy())
+            qconnect(a.triggered, self.onCopy)
 
     def dropEvent(self, evt: QDropEvent) -> None:
         if self.allow_drops:
             super().dropEvent(evt)
 
-    def setHtml(self, html: str) -> None:  #  type: ignore
+    def setHtml(  #  type: ignore[override]
+        self, html: str, context: PageContext | None = None
+    ) -> None:
+        from aqt.mediasrv import PageContext
+
         # discard any previous pending actions
         self._pendingActions = []
         self._domDone = True
-        self._queueAction("setHtml", html)
+        if context is None:
+            context = PageContext.UNKNOWN
+        self._queueAction("setHtml", html, context)
         self.set_open_links_externally(True)
         self.allow_drops = False
         self.show()
 
-    def _setHtml(self, html: str) -> None:
+    def _setHtml(self, html: str, context: PageContext) -> None:
         """Send page data to media server, then surf to it.
 
         This function used to be implemented by QWebEngine's
@@ -398,7 +420,7 @@ class AnkiWebView(QWebEngineView):
         self._domDone = False
 
         webview_id = id(self)
-        mw.mediaServer.set_page_html(webview_id, html)
+        mw.mediaServer.set_page_html(webview_id, html, context)
         self.load_url(QUrl(f"{mw.serverURL()}_anki/legacyPageData?id={webview_id}"))
 
         # work around webengine stealing focus on setHtml()
@@ -472,7 +494,7 @@ button {
     background: var(--canvas);
     border-radius: var(--border-radius);
     padding: 3px 12px;
-    border: 0.5px solid var(--border);
+    border: 1px solid var(--border);
     box-shadow: 0px 1px 3px var(--border-subtle);
     font-family: Helvetica
 }
@@ -509,10 +531,10 @@ html {{ {font} }}
     def stdHtml(
         self,
         body: str,
-        css: Optional[list[str]] = None,
-        js: Optional[list[str]] = None,
+        css: list[str] | None = None,
+        js: list[str] | None = None,
         head: str = "",
-        context: Optional[Any] = None,
+        context: Any | None = None,
         default_css: bool = True,
     ) -> None:
         css = (["css/webview.css"] if default_css else []) + (
@@ -569,7 +591,23 @@ html {{ {font} }}
 {web_content.body}</body>
 </html>"""
         # print(html)
-        self.setHtml(html)
+        import aqt.browser.previewer
+        import aqt.clayout
+        import aqt.editor
+        import aqt.reviewer
+        from aqt.mediasrv import PageContext
+
+        if isinstance(context, aqt.editor.Editor):
+            page_context = PageContext.EDITOR
+        elif isinstance(context, aqt.reviewer.Reviewer):
+            page_context = PageContext.REVIEWER
+        elif isinstance(context, aqt.browser.previewer.Previewer):
+            page_context = PageContext.PREVIEWER
+        elif isinstance(context, aqt.clayout.CardLayout):
+            page_context = PageContext.CARD_LAYOUT
+        else:
+            page_context = PageContext.UNKNOWN
+        self.setHtml(html, page_context)
 
     @classmethod
     def webBundlePath(cls, path: str) -> str:
@@ -674,7 +712,7 @@ html {{ {font} }}
     def adjustHeightToFit(self) -> None:
         self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
 
-    def _onHeight(self, qvar: Optional[int]) -> None:
+    def _onHeight(self, qvar: int | None) -> None:
         from aqt import mw
 
         if qvar is None:
@@ -736,6 +774,23 @@ html {{ {font} }}
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self.add_dynamic_styling_and_props_then_show()
 
+    def load_sveltekit_page(self, path: str) -> None:
+        from aqt import mw
+
+        self.set_open_links_externally(True)
+        if theme_manager.night_mode:
+            extra = "#night"
+        else:
+            extra = ""
+
+        if hmr_mode:
+            server = "http://127.0.0.1:5173/"
+        else:
+            server = mw.serverURL()
+
+        self.load_url(QUrl(f"{server}{path}{extra}"))
+        self.add_dynamic_styling_and_props_then_show()
+
     def force_load_hack(self) -> None:
         """Force process to initialize.
         Must be done on Windows prior to changing current working directory."""
@@ -752,7 +807,9 @@ html {{ {font} }}
 
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
-        mw.mediaServer.clear_page_html(id(self))
+        # defer page cleanup so that in-flight requests have a chance to complete first
+        # https://forums.ankiweb.net/t/error-when-exiting-browsing-when-the-software-is-installed-in-the-path-c-program-files-anki/38363
+        mw.progress.single_shot(5000, lambda: mw.mediaServer.clear_page_html(id(self)))
         self._page.deleteLater()
 
     def on_theme_did_change(self) -> None:
@@ -792,5 +849,5 @@ html {{ {font} }}
         )
 
     @deprecated(info="use theme_manager.qcolor() instead")
-    def get_window_bg_color(self, night_mode: Optional[bool] = None) -> QColor:
+    def get_window_bg_color(self, night_mode: bool | None = None) -> QColor:
         return theme_manager.qcolor(colors.CANVAS)

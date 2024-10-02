@@ -15,6 +15,7 @@ import "anki/cards.proto";
 service NotesService {
   rpc NewNote(notetypes.NotetypeId) returns (Note);
   rpc AddNote(AddNoteRequest) returns (AddNoteResponse);
+  rpc AddNotes(AddNotesRequest) returns (AddNotesResponse);
   rpc DefaultsForAdding(DefaultsForAddingRequest) returns (DeckAndNotetype);
   rpc DefaultDeckForNotetype(notetypes.NotetypeId) returns (decks.DeckId);
   rpc UpdateNotes(UpdateNotesRequest) returns (collection.OpChanges);
@@ -58,8 +59,17 @@ message AddNoteRequest {
 }
 
 message AddNoteResponse {
-  int64 note_id = 1;
-  collection.OpChanges changes = 2;
+  collection.OpChanges changes = 1;
+  int64 note_id = 2;
+}
+
+message AddNotesRequest {
+  repeated AddNoteRequest requests = 1;
+}
+
+message AddNotesResponse {
+  collection.OpChanges changes = 1;
+  repeated int64 nids = 2;
 }
 
 message UpdateNotesRequest {

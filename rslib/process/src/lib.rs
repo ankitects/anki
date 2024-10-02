@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::ffi::OsStr;
+use std::iter::once;
 use std::process::Command;
 use std::string::FromUtf8Error;
 
@@ -17,7 +18,7 @@ pub enum Error {
         cmdline: String,
         source: std::io::Error,
     },
-    #[snafu(display("Fail with code {code:?}: {cmdline}"))]
+    #[snafu(display("Failed with code {code:?}: {cmdline}"))]
     ReturnedError { cmdline: String, code: Option<i32> },
     #[snafu(display("Couldn't decode stdout/stderr as utf8"))]
     InvalidUtf8 {
@@ -96,8 +97,7 @@ impl CommandExt for Command {
 }
 
 fn get_cmdline(arg: &mut Command) -> String {
-    [arg.get_program().to_string_lossy()]
-        .into_iter()
+    once(arg.get_program().to_string_lossy())
         .chain(arg.get_args().map(|arg| arg.to_string_lossy()))
         .join(" ")
 }

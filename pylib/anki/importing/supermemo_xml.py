@@ -3,13 +3,13 @@
 # pytype: disable=attribute-error
 # type: ignore
 # pylint: disable=C
+from __future__ import annotations
 
 import re
 import sys
 import time
 import unicodedata
 from string import capwords
-from typing import Optional, Union
 from xml.dom import minidom
 from xml.dom.minidom import Element, Text
 
@@ -22,6 +22,7 @@ class SmartDict(dict):
     """
     See http://www.peterbe.com/plog/SmartDict
     Copyright 2005, Peter Bengtsson, peter@fry-it.com
+    0BSD
 
     A smart dict can be instantiated either from a pythonic dict
     or an instance object (eg. SQL recordsets) but it ensures that you can
@@ -328,7 +329,7 @@ class SupermemoXmlImporter(NoteImporter):
         self.logger("Load done.")
 
     # PARSE
-    def parse(self, node: Optional[Union[Text, Element]] = None) -> None:
+    def parse(self, node: Text | Element | None = None) -> None:
         "Parse method - parses document elements"
 
         if node is None and self.xmldoc is not None:

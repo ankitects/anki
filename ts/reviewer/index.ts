@@ -5,16 +5,16 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "css-browser-selector/css_browser_selector.min";
-
 export { default as $, default as jQuery } from "jquery/dist/jquery";
 
-import { setupImageCloze } from "../image-occlusion/review";
+import { imageOcclusionAPI } from "../routes/image-occlusion/review";
 import { mutateNextCardStates } from "./answering";
+import { addBrowserClasses } from "./browser_selector";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
-globalThis.anki.setupImageCloze = setupImageCloze;
+globalThis.anki.imageOcclusion = imageOcclusionAPI;
+globalThis.anki.setupImageCloze = imageOcclusionAPI.setup; // deprecated
 
 import { bridgeCommand } from "@tslib/bridgecommand";
 import { registerPackage } from "@tslib/runtime-require";
@@ -222,8 +222,8 @@ export function _drawMark(mark: boolean): void {
 }
 
 export function _typeAnsPress(): void {
-    const code = (window.event as KeyboardEvent).code;
-    if (["Enter", "NumpadEnter"].includes(code)) {
+    const key = (window.event as KeyboardEvent).key;
+    if (key === "Enter") {
         bridgeCommand("ans");
     }
 }
@@ -262,6 +262,8 @@ document.addEventListener("focusout", (event) => {
         document.body.removeChild(dummyButton);
     }
 });
+
+addBrowserClasses();
 
 registerPackage("anki/reviewer", {
     // If you append a function to this each time the question or answer

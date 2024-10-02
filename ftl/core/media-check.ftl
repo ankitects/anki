@@ -14,6 +14,7 @@ media-check-unused-count = Unused files: { $count }
 media-check-renamed-count = Renamed files: { $count }
 media-check-oversize-count = Over 100MB: { $count }
 media-check-subfolder-count = Subfolders: { $count }
+media-check-extracted-count = Extracted images: { $count }
 
 ## Shown at the top of each section
 

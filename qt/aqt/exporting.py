@@ -34,8 +34,9 @@ class ExportDialog(QDialog):
         mw: aqt.main.AnkiQt,
         did: DeckId | None = None,
         cids: list[CardId] | None = None,
+        parent: QWidget | None = None,
     ):
-        QDialog.__init__(self, mw, Qt.WindowType.Window)
+        QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
         self.mw = mw
         self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()

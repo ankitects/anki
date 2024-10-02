@@ -5,14 +5,27 @@
     "author": "Ankitects Pty Ltd and contributors",
     "license": "AGPL-3.0-or-later",
     "description": "Anki JS support files",
+    "scripts": {
+        "dev": "cd ts && vite dev",
+        "build": "cd ts && vite build",
+        "preview": "cd ts && vite preview",
+        "svelte-check:once": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --threshold warning",
+        "svelte-check": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "vitest:once": "cd ts && vitest run",
+        "vitest": "cd ts && vitest"
+    },
     "devDependencies": {
-        "@bufbuild/protoc-gen-es": "^1.2.1",
+        "@bufbuild/protoc-gen-es": "^1.8.0",
+        "@poppanator/sveltekit-svg": "^5.0.0-svelte5.5",
         "@sqltools/formatter": "^1.2.2",
+        "@sveltejs/adapter-static": "^3.0.0",
+        "@sveltejs/kit": "^2.4.1",
+        "@sveltejs/vite-plugin-svelte": "4.0.0-next.7",
         "@types/bootstrap": "^5.0.12",
         "@types/codemirror": "^5.60.0",
         "@types/d3": "^7.0.0",
         "@types/diff": "^5.0.0",
-        "@types/jest": "^27.0.2",
+        "@types/fabric": "^5.3.7",
         "@types/jquery": "^3.5.0",
         "@types/jqueryui": "^1.12.13",
         "@types/lodash-es": "^4.17.4",
@@ -23,27 +36,28 @@
         "caniuse-lite": "^1.0.30001431",
         "cross-env": "^7.0.2",
         "diff": "^5.0.0",
-        "dprint": "=0.35.3",
+        "dprint": "^0.47.2",
         "esbuild": "^0.18.10",
         "esbuild-sass-plugin": "^2",
-        "esbuild-svelte": "^0.7.4",
+        "esbuild-svelte": "^0.8.1",
         "eslint": "^8.44.0",
         "eslint-plugin-compat": "^4.1.4",
         "eslint-plugin-import": "^2.25.4",
-        "eslint-plugin-simple-import-sort": "^10.0.0",
         "eslint-plugin-svelte": "^2",
-        "jest-cli": "^28.0.0-alpha.5",
-        "jest-environment-jsdom": "^28.0.0-alpha.5",
-        "license-checker-rseidelsohn": "^4.2.6",
+        "license-checker-rseidelsohn": "=4.3.0",
         "prettier": "^2.4.1",
-        "prettier-plugin-svelte": "^2.10.1",
-        "svelte": "^4.0.1",
+        "prettier-plugin-svelte": "^3.2.6",
+        "svelte": "5.0.0-next.179",
         "svelte-check": "^3.4.4",
         "svelte-preprocess": "^5.0.4",
         "svelte-preprocess-esbuild": "^3.0.1",
+        "svgo": "^3.2.0",
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
-        "typescript": "^5.0.4"
+        "typescript": "^5.0.4",
+        "vite": "=5.4.7",
+        "vitest": "^1.2.1",
+        "sass": "<1.77"
     },
     "dependencies": {
         "@bufbuild/protobuf": "^1.2.1",
@@ -53,20 +67,21 @@
         "@popperjs/core": "^2.11.8",
         "bootstrap": "^5.3.0",
         "bootstrap-icons": "^1.10.5",
+        "canvas": "npm:empty-npm-package",
         "codemirror": "^5.63.1",
-        "css-browser-selector": "^0.6.5",
         "d3": "^7.0.0",
         "fabric": "^5.3.0",
+        "hammerjs": "^2.0.8",
         "intl-pluralrules": "^2.0.0",
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
         "lodash-es": "^4.17.21",
         "marked": "^5.1.0",
-        "mathjax": "^3.1.2",
-        "panzoom": "^9.4.3"
+        "mathjax": "^3.1.2"
     },
     "resolutions": {
-        "canvas": "npm:empty-npm-package"
+        "canvas": "npm:empty-npm-package",
+        "vite": "=5.4.7"
     },
     "browserslist": [
         "defaults",
@@ -74,5 +89,6 @@
         "not < 1%",
         "Chrome 77",
         "iOS 14.5"
-    ]
+    ],
+    "type": "module"
 }

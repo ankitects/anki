@@ -104,7 +104,19 @@ lazy_static! {
     pub static ref HTML_MEDIA_TAGS: Regex = Regex::new(
         r#"(?xsi)
             # the start of the image, audio, or object tag
-            <\b(?:img|audio|object)\b[^>]+\b(?:src|data)\b=
+            <\b(?:img|audio|video|object)\b
+
+            # any non-`>`, except inside `"` or `'`
+            (?:
+                [^>]
+            |
+                "[^"]+?"
+            |
+                '[^']+?'
+            )+?
+
+            # capture `src` or `data` attribute
+            \b(?:src|data)\b=
             (?:
                     # 1: double-quoted filename
                     "
@@ -133,16 +145,16 @@ lazy_static! {
 
     // videos are also in sound tags
     static ref AV_TAGS: Regex = Regex::new(
-        r#"(?xs)
+        r"(?xs)
             \[sound:(.+?)\]     # 1 - the filename in a sound tag
             |
             \[anki:tts\]
                 \[(.*?)\]       # 2 - arguments to tts call
                 (.*?)           # 3 - field text
             \[/anki:tts\]
-            "#).unwrap();
+            ").unwrap();
 
-    static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r#"(?i)<br\s*/?>|<div>|\n"#).unwrap();
+    static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r"(?i)<br\s*/?>|<div>|\n").unwrap();
 
     static ref TYPE_TAG: Regex = Regex::new(r"\[\[type:[^]]+\]\]").unwrap();
     pub(crate) static ref SOUND_TAG: Regex = Regex::new(r"\[sound:([^]]+)\]").unwrap();
@@ -368,22 +380,60 @@ pub(crate) fn ensure_string_in_nfc(s: &mut String) {
     }
 }
 
+static EXTRA_NO_COMBINING_REPLACEMENTS: phf::Map<char, &str> = phf::phf_map! {
+'€'  =>  "E",
+'Æ'  =>  "AE",
+'Ð'  =>  "D",
+'Ø'  =>  "O",
+'Þ'  =>  "TH",
+'ß'  =>  "s",
+'æ'  =>  "ae",
+'ð'  =>  "d",
+'ø'  =>  "o",
+'þ'  =>  "th",
+'Đ'  =>  "D",
+'đ'  =>  "d",
+'Ħ'  =>  "H",
+'ħ'  =>  "h",
+'ı'  =>  "i",
+'ĸ'  =>  "k",
+'Ł'  =>  "L",
+'ł'  =>  "l",
+'Ŋ'  =>  "N",
+'ŋ'  =>  "n",
+'Œ'  =>  "OE",
+'œ'  =>  "oe",
+'Ŧ'  =>  "T",
+'ŧ'  =>  "t",
+'Ə'  =>  "E",
+'ǝ'  =>  "e",
+'ɑ'  =>  "a",
+};
+
 /// Convert provided string to NFKD form and strip combining characters.
 pub(crate) fn without_combining(s: &str) -> Cow<str> {
     // if the string is already normalized
     if matches!(is_nfkd_quick(s.chars()), IsNormalized::Yes) {
         // and no combining characters found, return unchanged
-        if !s.chars().any(is_combining_mark) {
+        if !s
+            .chars()
+            .any(|c| is_combining_mark(c) || EXTRA_NO_COMBINING_REPLACEMENTS.contains_key(&c))
+        {
             return s.into();
         }
     }
 
     // we need to create a new string without the combining marks
-    s.chars()
-        .nfkd()
-        .filter(|c| !is_combining_mark(*c))
-        .collect::<String>()
-        .into()
+    let mut out = String::with_capacity(s.len());
+    for chr in s.chars().nfkd().filter(|c| !is_combining_mark(*c)) {
+        if let Some(repl) = EXTRA_NO_COMBINING_REPLACEMENTS.get(&chr) {
+            out.push_str(repl);
+        } else {
+            out.push(chr);
+        }
+    }
+
+    out.into()
 }
 
 /// Check if string contains an unescaped wildcard.
@@ -391,11 +441,11 @@ pub(crate) fn is_glob(txt: &str) -> bool {
     // even number of \s followed by a wildcard
     lazy_static! {
         static ref RE: Regex = Regex::new(
-            r#"(?x)
+            r"(?x)
             (?:^|[^\\])     # not a backslash
             (?:\\\\)*       # even number of backslashes
             [*_]            # wildcard
-            "#
+            "
         )
         .unwrap();
     }

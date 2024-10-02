@@ -35,5 +35,8 @@
         "qt/bundle/PyOxidizer": true
     },
     "rust-analyzer.cargo.buildScripts.enable": true,
-    "python.analysis.typeCheckingMode": "off"
+    "python.analysis.typeCheckingMode": "off",
+    "terminal.integrated.env.windows": {
+        "PATH": "c:\\msys64\\usr\\bin;${env:Path}"
+    }
 }

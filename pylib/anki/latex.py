@@ -5,12 +5,12 @@ from __future__ import annotations
 
 import html
 import os
-import re
 from dataclasses import dataclass
 
 import anki
 import anki.collection
 from anki import card_rendering_pb2, hooks
+from anki.config import Config
 from anki.models import NotetypeDict
 from anki.template import TemplateRenderContext, TemplateRenderOutput
 from anki.utils import call, is_mac, namedtmp, tmpdir
@@ -35,9 +35,6 @@ svgCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
     ["dvisvgm", "--no-fonts", "--exact", "-Z", "2", "tmp.dvi", "-o", "tmp.svg"],
 ]
-
-# if off, use existing media but don't create new
-build = True  # pylint: disable=invalid-name
 
 # add standard tex install location to osx
 if is_mac:
@@ -104,11 +101,15 @@ def render_latex_returning_errors(
     out = ExtractedLatexOutput.from_proto(proto)
     errors = []
     html = out.html
+    render_latex = col.get_config_bool(Config.Bool.RENDER_LATEX)
 
     for latex in out.latex:
         # don't need to render?
-        if not build or col.media.have(latex.filename):
+        if col.media.have(latex.filename):
             continue
+        if not render_latex:
+            errors.append(col.tr.preferences_latex_generation_disabled())
+            return html, errors
 
         err = _save_latex_image(col, latex, header, footer, svg)
         if err is not None:
@@ -126,24 +127,6 @@ def _save_latex_image(
 ) -> str | None:
     # add header/footer
     latex = f"{header}\n{extracted.latex_body}\n{footer}"
-    # it's only really secure if run in a jail, but these are the most common
-    tmplatex = latex.replace("\\includegraphics", "")
-    for bad in (
-        "\\write18",
-        "\\readline",
-        "\\input",
-        "\\include",
-        "\\catcode",
-        "\\openout",
-        "\\write",
-        "\\loop",
-        "\\def",
-        "\\shipout",
-    ):
-        # don't mind if the sequence is only part of a command
-        bad_re = f"\\{bad}[^a-zA-Z]"
-        if re.search(bad_re, tmplatex):
-            return col.tr.media_for_security_reasons_is_not(val=bad)
 
     # commands to use
     if svg:
@@ -187,7 +170,7 @@ def _err_msg(col: anki.collection.Collection, type: str, texpath: str) -> str:
         if not log:
             raise Exception()
         msg += f"<small><pre>{html.escape(log)}</pre></small>"
-    except:
+    except Exception:
         msg += col.tr.media_have_you_installed_latex_and_dvipngdvisvgm()
     return msg
 

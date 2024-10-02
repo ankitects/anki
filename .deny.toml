@@ -1,24 +1,15 @@
 # all-features = true
 # features = []
-no-default-features = false
-feature-depth = 1
 
 [advisories]
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
-vulnerability = "deny"
-unmaintained = "warn"
-yanked = "warn"
-notice = "warn"
 ignore = [
-
+  # gix only used by burn-train
+  "RUSTSEC-2024-0350",
 ]
 
 [licenses]
-unlicensed = "deny"
-copyleft = "deny"
-allow-osi-fsf-free = "neither"
-default = "deny"
 allow = [
   "MIT",
   "Apache-2.0",
@@ -30,6 +21,9 @@ allow = [
   "BSD-3-Clause",
   "OpenSSL",
   "CC0-1.0",
+  "Unlicense",
+  "Zlib",
+  "Unicode-3.0",
 ]
 confidence-threshold = 0.8
 # eg { allow = ["Zlib"], name = "adler32", version = "*" },
@@ -55,7 +49,7 @@ allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 github = ["ankitects"]
 
 [bans]
-multiple-versions = "warn"
+multiple-versions = "allow"
 wildcards = "allow"
 highlight = "all"
 workspace-default-features = "allow"

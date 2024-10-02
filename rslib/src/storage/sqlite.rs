@@ -9,6 +9,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use fnv::FnvHasher;
+use fsrs::FSRS;
 use regex::Regex;
 use rusqlite::functions::FunctionFlags;
 use rusqlite::params;
@@ -69,7 +70,10 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
-    add_extract_custom_data_number_function(&db)?;
+    add_extract_custom_data_function(&db)?;
+    add_extract_fsrs_variable(&db)?;
+    add_extract_fsrs_retrievability(&db)?;
+    add_extract_fsrs_relative_overdueness(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -201,24 +205,165 @@ fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
-/// eg. extract_custom_data_number(card.data, 'r') -> float | null
-fn add_extract_custom_data_number_function(db: &Connection) -> rusqlite::Result<()> {
+/// eg. extract_custom_data(card.data, 'r') -> string | null
+fn add_extract_custom_data_function(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
-        "extract_custom_data_number",
+        "extract_custom_data",
         2,
         FunctionFlags::SQLITE_DETERMINISTIC,
         move |ctx| {
             assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
 
-            let Ok(card_data) = ctx.get_raw(0).as_str() else { return Ok(None) };
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
             if card_data.is_empty() {
                 return Ok(None);
             }
-            let Ok(key) = ctx.get_raw(1).as_str() else { return Ok(None) };
+            let Ok(key) = ctx.get_raw(1).as_str() else {
+                return Ok(None);
+            };
             let custom_data = &CardData::from_str(card_data).custom_data;
-            let Ok(value) = serde_json::from_str::<Value>(custom_data) else { return Ok(None) };
-            let num = value.get(key).and_then(|v| v.as_f64());
-            Ok(num)
+            let Ok(value) = serde_json::from_str::<Value>(custom_data) else {
+                return Ok(None);
+            };
+            let v = value.get(key).map(|v| match v {
+                Value::String(s) => s.to_owned(),
+                _ => v.to_string(),
+            });
+            Ok(v)
+        },
+    )
+}
+
+/// eg. extract_fsrs_variable(card.data, 's' | 'd' | 'dr') -> float | null
+fn add_extract_fsrs_variable(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_fsrs_variable",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+            if card_data.is_empty() {
+                return Ok(None);
+            }
+            let Ok(key) = ctx.get_raw(1).as_str() else {
+                return Ok(None);
+            };
+            let card_data = &CardData::from_str(card_data);
+            Ok(match key {
+                "s" => card_data.fsrs_stability,
+                "d" => card_data.fsrs_difficulty,
+                "dr" => card_data.fsrs_desired_retention,
+                _ => panic!("invalid key: {key}"),
+            })
+        },
+    )
+}
+
+/// eg. extract_fsrs_retrievability(card.data, card.due, card.ivl,
+/// timing.days_elapsed, timing.next_day_at) -> float | null
+fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_fsrs_retrievability",
+        5,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 5, "called with unexpected number of arguments");
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+            if card_data.is_empty() {
+                return Ok(None);
+            }
+            let card_data = &CardData::from_str(card_data);
+            let Ok(due) = ctx.get_raw(1).as_i64() else {
+                return Ok(None);
+            };
+            let days_elapsed = if due > 365_000 {
+                // (re)learning card in seconds
+                let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
+                    return Ok(None);
+                };
+                (next_day_at as u32).saturating_sub(due.max(0) as u32) / 86_400
+            } else {
+                let Ok(ivl) = ctx.get_raw(2).as_i64() else {
+                    return Ok(None);
+                };
+                let Ok(days_elapsed) = ctx.get_raw(3).as_i64() else {
+                    return Ok(None);
+                };
+                let review_day = (due.max(0) as u32).saturating_sub(ivl as u32);
+                (days_elapsed.max(0) as u32).saturating_sub(review_day)
+            };
+            Ok(card_data.memory_state().map(|state| {
+                FSRS::new(None)
+                    .unwrap()
+                    .current_retrievability(state.into(), days_elapsed)
+            }))
+        },
+    )
+}
+
+/// eg. extract_fsrs_relative_overdueness(card.data, card.due,
+/// timing.days_elapsed, card.ivl, timing.next_day_at) -> float | null. The
+/// higher the number, the more overdue.
+fn add_extract_fsrs_relative_overdueness(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_fsrs_relative_overdueness",
+        5,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 5, "called with unexpected number of arguments");
+
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+            if card_data.is_empty() {
+                return Ok(None);
+            }
+            let card_data = &CardData::from_str(card_data);
+            let Ok(due) = ctx.get_raw(1).as_i64() else {
+                return Ok(None);
+            };
+            let days_elapsed = if due > 365_000 {
+                // (re)learning
+                let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
+                    return Ok(None);
+                };
+                (next_day_at as u32).saturating_sub(due.max(0) as u32) / 86_400
+            } else {
+                let Ok(days_elapsed) = ctx.get_raw(2).as_i64() else {
+                    return Ok(None);
+                };
+                let Ok(interval) = ctx.get_raw(3).as_i64() else {
+                    return Ok(None);
+                };
+                let review_day = due.saturating_sub(interval);
+
+                days_elapsed.saturating_sub(review_day) as u32
+            };
+            let Some(state) = card_data.memory_state() else {
+                return Ok(None);
+            };
+            let Some(mut desired_retrievability) = card_data.fsrs_desired_retention else {
+                return Ok(None);
+            };
+            // avoid div by zero
+            desired_retrievability = desired_retrievability.max(0.0001);
+
+            let current_retrievability = FSRS::new(None)
+                .unwrap()
+                .current_retrievability(state.into(), days_elapsed)
+                .max(0.0001);
+
+            Ok(Some(
+                (1. / current_retrievability - 1.) / (1. / desired_retrievability - 1.),
+            ))
         },
     )
 }
@@ -249,7 +394,6 @@ impl SqliteStorage {
         tr: &I18n,
         server: bool,
         check_integrity: bool,
-        force_schema11: bool,
     ) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
         let (create, ver) = schema_version(&db)?;
@@ -301,13 +445,6 @@ impl SqliteStorage {
         }
 
         let storage = Self { db };
-
-        if force_schema11 {
-            if create || upgrade {
-                storage.commit_trx()?;
-            }
-            return storage_with_schema11(storage, ver);
-        }
 
         if create || upgrade {
             storage.upgrade_to_latest_schema(ver, server)?;
@@ -428,21 +565,4 @@ impl SqliteStorage {
     pub(crate) fn db_scalar<T: rusqlite::types::FromSql>(&self, sql: &str) -> Result<T> {
         self.db.query_row(sql, [], |r| r.get(0)).map_err(Into::into)
     }
-}
-
-fn storage_with_schema11(storage: SqliteStorage, ver: u8) -> Result<SqliteStorage> {
-    if ver != 11 {
-        if ver != SCHEMA_MAX_VERSION {
-            // partially upgraded; need to fully upgrade before downgrading
-            storage.begin_trx()?;
-            storage.upgrade_to_latest_schema(ver, false)?;
-            storage.commit_trx()?;
-        }
-        storage.downgrade_to(SchemaVersion::V11)?;
-    }
-    // Requery uses "TRUNCATE" by default if WAL is not enabled.
-    // We copy this behaviour here. See https://github.com/ankidroid/Anki-Android/pull/7977 for
-    // analysis. We may be able to enable WAL at a later time.
-    storage.db.pragma_update(None, "journal_mode", "TRUNCATE")?;
-    Ok(storage)
 }

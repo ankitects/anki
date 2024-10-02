@@ -216,6 +216,7 @@ Section ""
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayName" "Anki"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayVersion" "@@VERSION@@"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "NoModify" 1
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "NoRepair" 1
 

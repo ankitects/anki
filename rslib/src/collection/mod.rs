@@ -40,8 +40,6 @@ pub struct CollectionBuilder {
     server: Option<bool>,
     tr: Option<I18n>,
     check_integrity: bool,
-    // temporary option for AnkiDroid
-    force_schema11: Option<bool>,
     progress_handler: Option<Arc<Mutex<ProgressState>>>,
 }
 
@@ -63,14 +61,7 @@ impl CollectionBuilder {
         let server = self.server.unwrap_or_default();
         let media_folder = self.media_folder.clone().unwrap_or_default();
         let media_db = self.media_db.clone().unwrap_or_default();
-        let force_schema11 = self.force_schema11.unwrap_or_default();
-        let storage = SqliteStorage::open_or_create(
-            &col_path,
-            &tr,
-            server,
-            self.check_integrity,
-            force_schema11,
-        )?;
+        let storage = SqliteStorage::open_or_create(&col_path, &tr, server, self.check_integrity)?;
         let col = Collection {
             storage,
             col_path,
@@ -116,11 +107,6 @@ impl CollectionBuilder {
 
     pub fn set_tr(&mut self, tr: I18n) -> &mut Self {
         self.tr = Some(tr);
-        self
-    }
-
-    pub fn set_force_schema11(&mut self, force: bool) -> &mut Self {
-        self.force_schema11 = Some(force);
         self
     }
 
@@ -185,8 +171,11 @@ impl Collection {
 
     // A count of all changed rows since the collection was opened, which can be
     // used to detect if the collection was modified or not.
-    pub fn changes_since_open(&self) -> u64 {
-        self.storage.db.changes()
+    pub fn changes_since_open(&self) -> Result<u64> {
+        self.storage
+            .db
+            .query_row("select total_changes()", [], |row| row.get(0))
+            .map_err(Into::into)
     }
 
     pub fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {

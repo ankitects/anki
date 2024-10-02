@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { bridgeCommand } from "../../lib/bridgecommand";
-import { on } from "../../lib/events";
-import { promiseWithResolver } from "../../lib/promise";
+import { bridgeCommand } from "@tslib/bridgecommand";
+import { on } from "@tslib/events";
+import { promiseWithResolver } from "@tslib/promise";
 
 function bridgeCopyPasteCommands(input: HTMLElement): { destroy(): void } {
     function onPaste(event: Event): void {

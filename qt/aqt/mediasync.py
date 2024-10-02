@@ -4,111 +4,103 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from concurrent.futures import Future
-from dataclasses import dataclass
-from typing import Any, Callable, Union
+from datetime import datetime
+from typing import Any
 
 import aqt
 import aqt.forms
 import aqt.main
-from anki.collection import Progress
+from anki.collection import Collection
 from anki.errors import Interrupted
-from anki.types import assert_exhaustive
 from anki.utils import int_time
 from aqt import gui_hooks
-from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QTextCursor, QTimer, qconnect
-from aqt.utils import disable_help_button, tr
-
-LogEntry = Union[Progress.MediaSync, str]
-
-
-@dataclass
-class LogEntryWithTime:
-    time: int
-    entry: LogEntry
+from aqt.operations import QueryOp
+from aqt.qt import QDialog, QDialogButtonBox, QPushButton, Qt, QTimer, qconnect
+from aqt.utils import disable_help_button, show_info, tr
 
 
 class MediaSyncer:
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         self.mw = mw
         self._syncing: bool = False
-        self._log: list[LogEntryWithTime] = []
-        self._progress_timer: QTimer | None = None
+        self.last_progress = ""
+        self._last_progress_at = 0
         gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
 
-    def _on_progress(self) -> None:
-        progress = self.mw.col.latest_progress()
-        if not progress.HasField("media_sync"):
-            return
-        sync_progress = progress.media_sync
-        self._log_and_notify(sync_progress)
-
-    def start(self) -> None:
+    def start(self, is_periodic_sync: bool = False) -> None:
         "Start media syncing in the background, if it's not already running."
+        if not self.mw.pm.media_syncing_enabled() or not (
+            auth := self.mw.pm.sync_auth()
+        ):
+            return
+
+        def run(col: Collection) -> None:
+            col.sync_media(auth)
+
+        # this will exit after the thread is spawned, but may block if there's an existing
+        # backend lock
+        QueryOp(parent=aqt.mw, op=run, success=lambda _: 1).failure(
+            lambda e: self._handle_sync_error(e, is_periodic_sync)
+        ).run_in_background()
+
+        self.start_monitoring(is_periodic_sync)
+
+    def start_monitoring(self, is_periodic_sync: bool = False) -> None:
         if self._syncing:
             return
-
-        if not self.mw.pm.media_syncing_enabled():
-            self._log_and_notify(tr.sync_media_disabled())
-            return
-
-        auth = self.mw.pm.sync_auth()
-        if auth is None:
-            return
-
-        self._log_and_notify(tr.sync_media_starting())
         self._syncing = True
-        self._progress_timer = self.mw.progress.timer(
-            1000, self._on_progress, True, True, parent=self.mw
-        )
         gui_hooks.media_sync_did_start_or_stop(True)
+        self._update_progress(tr.sync_media_starting())
 
-        def run() -> None:
-            self.mw.col.sync_media(auth)
+        def monitor() -> None:
+            while True:
+                resp = self.mw.col.media_sync_status()
+                if not resp.active:
+                    return
+                if p := resp.progress:
+                    self._update_progress(f"{p.added}, {p.removed}, {p.checked}")
 
-        self.mw.taskman.run_in_background(run, self._on_finished)
+                time.sleep(0.25)
 
-    def _log_and_notify(self, entry: LogEntry) -> None:
-        entry_with_time = LogEntryWithTime(time=int_time(), entry=entry)
-        self._log.append(entry_with_time)
-        self.mw.taskman.run_on_main(
-            lambda: gui_hooks.media_sync_did_progress(entry_with_time)
+        self.mw.taskman.run_in_background(
+            monitor,
+            lambda fut: self._on_finished(fut, is_periodic_sync),
+            uses_collection=False,
         )
 
-    def _on_finished(self, future: Future) -> None:
+    def _update_progress(self, progress: str) -> None:
+        self.last_progress = progress
+        self.mw.taskman.run_on_main(lambda: gui_hooks.media_sync_did_progress(progress))
+
+    def _on_finished(self, future: Future, is_periodic_sync: bool = False) -> None:
         self._syncing = False
-        if self._progress_timer:
-            self._progress_timer.stop()
-            self._progress_timer.deleteLater()
-            self._progress_timer = None
+        self._last_progress_at = int_time()
         gui_hooks.media_sync_did_start_or_stop(False)
 
         exc = future.exception()
         if exc is not None:
-            self._handle_sync_error(exc)
+            self._handle_sync_error(exc, is_periodic_sync)
         else:
-            self._log_and_notify(tr.sync_media_complete())
+            self._update_progress(tr.sync_media_complete())
 
-    def _handle_sync_error(self, exc: BaseException) -> None:
+    def _handle_sync_error(
+        self, exc: BaseException, is_periodic_sync: bool = False
+    ) -> None:
         if isinstance(exc, Interrupted):
-            self._log_and_notify(tr.sync_media_aborted())
-            return
+            self._update_progress(tr.sync_media_aborted())
+        elif is_periodic_sync:
+            print(str(exc))
         else:
-            # Avoid popups for errors; they can cause a deadlock if
-            # a modal window happens to be active, or a duplicate auth
-            # failed message if the password is changed.
-            self._log_and_notify(str(exc))
-            return
-
-    def entries(self) -> list[LogEntryWithTime]:
-        return self._log
+            show_info(str(exc), modality=Qt.WindowModality.NonModal)
 
     def abort(self) -> None:
         if not self.is_syncing():
             return
-        self._log_and_notify(tr.sync_media_aborting())
         self.mw.col.set_wants_abort()
         self.mw.col.abort_media_sync()
+        self._update_progress(tr.sync_media_aborting())
 
     def is_syncing(self) -> bool:
         return self._syncing
@@ -140,11 +132,7 @@ class MediaSyncer:
         if self.is_syncing():
             return 0
 
-        if self._log:
-            last = self._log[-1].time
-        else:
-            last = 0
-        return int_time() - last
+        return int_time() - self._last_progress_at
 
 
 class MediaSyncDialog(QDialog):
@@ -172,10 +160,7 @@ class MediaSyncDialog(QDialog):
         gui_hooks.media_sync_did_progress.append(self._on_log_entry)
         gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
 
-        self.form.plainTextEdit.setPlainText(
-            "\n".join(self._entry_to_text(x) for x in syncer.entries())
-        )
-        self.form.plainTextEdit.moveCursor(QTextCursor.MoveOperation.End)
+        self._on_log_entry(syncer.last_progress)
         self.show()
 
     def reject(self) -> None:
@@ -197,24 +182,11 @@ class MediaSyncDialog(QDialog):
         self._syncer.abort()
         self.abort_button.setHidden(True)
 
-    def _time_and_text(self, stamp: int, text: str) -> str:
-        asctime = time.asctime(time.localtime(stamp))
-        return f"{asctime}: {text}"
-
-    def _entry_to_text(self, entry: LogEntryWithTime) -> str:
-        if isinstance(entry.entry, str):
-            txt = entry.entry
-        elif isinstance(entry.entry, Progress.MediaSync):
-            txt = self._logentry_to_text(entry.entry)
-        else:
-            assert_exhaustive(entry.entry)
-        return self._time_and_text(entry.time, txt)
-
-    def _logentry_to_text(self, e: Progress.MediaSync) -> str:
-        return f"{e.added}, {e.removed}, {e.checked}"
-
-    def _on_log_entry(self, entry: LogEntryWithTime) -> None:
-        self.form.plainTextEdit.appendPlainText(self._entry_to_text(entry))
+    def _on_log_entry(self, entry: str) -> None:
+        dt = datetime.fromtimestamp(int_time())
+        time = dt.strftime("%H:%M:%S")
+        text = f"{time}: {entry}"
+        self.form.log_label.setText(text)
         if not self._syncer.is_syncing():
             self.abort_button.setHidden(True)
 

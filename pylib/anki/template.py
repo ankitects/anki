@@ -28,8 +28,9 @@ template_legacy.py file, using the legacy addHook() system.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Sequence, Union
+from typing import Any, Union
 
 import anki
 import anki.cards
@@ -146,7 +147,7 @@ class TemplateRenderContext:
         card: anki.cards.Card,
         note: anki.notes.Note,
         browser: bool = False,
-        notetype: NotetypeDict = None,
+        notetype: NotetypeDict | None = None,
         template: dict | None = None,
         fill_empty: bool = False,
     ) -> None:

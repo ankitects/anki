@@ -13,7 +13,7 @@ import "anki/collection.proto";
 service CardsService {
   rpc GetCard(CardId) returns (Card);
   rpc UpdateCards(UpdateCardsRequest) returns (collection.OpChanges);
-  rpc RemoveCards(RemoveCardsRequest) returns (generic.Empty);
+  rpc RemoveCards(RemoveCardsRequest) returns (collection.OpChangesWithCount);
   rpc SetDeck(SetDeckRequest) returns (collection.OpChangesWithCount);
   rpc SetFlag(SetFlagRequest) returns (collection.OpChangesWithCount);
 }
@@ -49,7 +49,14 @@ message Card {
   int64 original_deck_id = 16;
   uint32 flags = 17;
   optional uint32 original_position = 18;
+  optional FsrsMemoryState memory_state = 20;
+  optional float desired_retention = 21;
   string custom_data = 19;
+}
+
+message FsrsMemoryState {
+  float stability = 1;
+  float difficulty = 2;
 }
 
 message UpdateCardsRequest {

@@ -1,11 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
+
 use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::archives::Platform;
 use ninja_gen::build::FilesHandle;
 use ninja_gen::command::RunCommand;
+use ninja_gen::copy::CopyFiles;
 use ninja_gen::glob;
 use ninja_gen::hashmap;
 use ninja_gen::input::BuildInput;
@@ -23,7 +26,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
             "python/requirements.qt6_win.txt",
             "python/requirements.win.txt",
         ]
-    } else if cfg!(target_os = "darwin") {
+    } else if cfg!(target_os = "macos") {
         inputs!["python/requirements.qt6_mac.txt",]
     } else if cfg!(all(target_os = "linux", target_arch = "aarch64")) {
         // system-provided Qt on ARM64
@@ -43,11 +46,11 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
                 "pip-compile",
                 "pip-sync",
                 "mypy",
-                "black",
+                "black", // Required for offline build
                 "isort",
                 "pylint",
                 "pytest",
-                "protoc-gen-mypy",
+                "protoc-gen-mypy", // ditto
             ],
         },
     )?;
@@ -109,6 +112,10 @@ impl BuildAction for GenPythonProto {
         build.add_inputs("protoc", inputs![":protoc_binary"]);
         build.add_inputs("protoc-gen-mypy", inputs![":pyenv:protoc-gen-mypy"]);
         build.add_outputs("", python_outputs);
+    }
+
+    fn hide_last_line(&self) -> bool {
+        true
     }
 }
 
@@ -234,5 +241,50 @@ fn add_pylint(build: &mut Build) -> Result<()> {
         },
     )?;
 
+    Ok(())
+}
+
+struct Sphinx {
+    deps: BuildInput,
+}
+
+impl BuildAction for Sphinx {
+    fn command(&self) -> &str {
+        if env::var("OFFLINE_BUILD").is_err() {
+            "$pip install sphinx sphinx_rtd_theme sphinx-autoapi \
+             && $python python/sphinx/build.py"
+        } else {
+            "$python python/sphinx/build.py"
+        }
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        if env::var("OFFLINE_BUILD").is_err() {
+            build.add_inputs("pip", inputs![":pyenv:pip"]);
+        }
+        build.add_inputs("python", inputs![":pyenv:bin"]);
+        build.add_inputs("", &self.deps);
+        build.add_output_stamp("python/sphinx/stamp");
+    }
+
+    fn hide_success(&self) -> bool {
+        false
+    }
+}
+
+pub(crate) fn setup_sphinx(build: &mut Build) -> Result<()> {
+    build.add_action(
+        "python:sphinx:copy_conf",
+        CopyFiles {
+            inputs: inputs![glob!("python/sphinx/{conf.py,index.rst}")],
+            output_folder: "python/sphinx",
+        },
+    )?;
+    build.add_action(
+        "python:sphinx",
+        Sphinx {
+            deps: inputs![":pylib", ":qt", ":python:sphinx:copy_conf"],
+        },
+    )?;
     Ok(())
 }

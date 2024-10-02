@@ -1,5 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from __future__ import annotations
+
 from typing import cast
 
 from aqt import colors, props
@@ -21,7 +23,7 @@ class Switch(QAbstractButton):
         right_label: str = "",
         left_color: dict[str, str] = colors.ACCENT_CARD | {},
         right_color: dict[str, str] = colors.ACCENT_NOTE | {},
-        parent: QWidget = None,
+        parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent=parent)
         self.setCheckable(True)
@@ -120,9 +122,11 @@ class Switch(QAbstractButton):
 
     def _current_label_rectangle(self) -> QRectF:
         return QRectF(
-            self._left_label_position
-            if self.isChecked()
-            else self._right_label_position,
+            (
+                self._left_label_position
+                if self.isChecked()
+                else self._right_label_position
+            ),
             0,
             self.label_width,
             self.height(),

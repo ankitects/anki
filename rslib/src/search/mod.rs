@@ -28,6 +28,7 @@ pub use writer::replace_search_node;
 use crate::browser_table::Column;
 use crate::card::CardType;
 use crate::prelude::*;
+use crate::scheduler::timing::SchedTimingToday;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ReturnItemType {
@@ -207,7 +208,7 @@ impl Collection {
             SortMode::Builtin { column, reverse } => {
                 prepare_sort(self, column, item_type)?;
                 sql.push_str(" order by ");
-                write_order(sql, item_type, column, reverse)?;
+                write_order(sql, item_type, column, reverse, self.timing_today()?)?;
             }
             SortMode::Custom(order_clause) => {
                 sql.push_str(" order by ");
@@ -332,9 +333,10 @@ fn write_order(
     item_type: ReturnItemType,
     column: Column,
     reverse: bool,
+    timing: SchedTimingToday,
 ) -> Result<()> {
     let order = match item_type {
-        ReturnItemType::Cards => card_order_from_sort_column(column),
+        ReturnItemType::Cards => card_order_from_sort_column(column, timing),
         ReturnItemType::Notes => note_order_from_sort_column(column),
     };
     require!(!order.is_empty(), "Can't sort {item_type:?} by {column:?}.");
@@ -351,17 +353,17 @@ fn write_order(
     Ok(())
 }
 
-fn card_order_from_sort_column(column: Column) -> Cow<'static, str> {
+fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<'static, str> {
     match column {
         Column::CardMod => "c.mod asc".into(),
         Column::Cards => concat!(
             "coalesce((select pos from sort_order where ntid = n.mid and ord = c.ord),",
             // need to fall back on ord 0 for cloze cards
-            "(select pos from sort_order where ntid = n.mid and ord = 0)) asc"
+            "(select pos from sort_order where ntid = n.mid and ord = 0)) asc, ord asc"
         )
         .into(),
         Column::Deck => "(select pos from sort_order where did = c.did) asc".into(),
-        Column::Due => "c.type asc, c.due asc".into(),
+        Column::Due => format!("(case when c.due > 1000000000 or c.type = {} then due else (due - {}) * 86400 + {} end) asc", CardType::New as i8, timing.days_elapsed, TimestampSecs::now().0).into(),
         Column::Ease => format!("c.type = {} asc, c.factor asc", CardType::New as i8).into(),
         Column::Interval => "c.ivl asc".into(),
         Column::Lapses => "c.lapses asc".into(),
@@ -372,6 +374,14 @@ fn card_order_from_sort_column(column: Column) -> Cow<'static, str> {
         Column::SortField => "n.sfld collate nocase asc, c.ord asc".into(),
         Column::Tags => "n.tags asc".into(),
         Column::Answer | Column::Custom | Column::Question => "".into(),
+        Column::Stability => "extract_fsrs_variable(c.data, 's') asc".into(),
+        Column::Difficulty => "extract_fsrs_variable(c.data, 'd') asc".into(),
+        Column::Retrievability => format!(
+            "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {}, {}) asc",
+            timing.days_elapsed,
+            timing.next_day_at.0
+        )
+        .into(),
     }
 }
 
@@ -390,11 +400,17 @@ fn note_order_from_sort_column(column: Column) -> Cow<'static, str> {
         Column::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
         Column::SortField => "n.sfld collate nocase asc".into(),
         Column::Tags => "n.tags asc".into(),
-        Column::Answer | Column::Custom | Column::Question => "".into(),
+        Column::Answer
+        | Column::Custom
+        | Column::Question
+        | Column::Stability
+        | Column::Difficulty
+        | Column::Retrievability => "".into(),
     }
 }
 
 fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType) -> Result<()> {
+    let temp_string;
     let sql = match item_type {
         ReturnItemType::Cards => match column {
             Column::Cards => include_str!("template_order.sql"),
@@ -406,7 +422,10 @@ fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType)
             Column::Cards => include_str!("note_cards_order.sql"),
             Column::CardMod => include_str!("card_mod_order.sql"),
             Column::Deck => include_str!("note_decks_order.sql"),
-            Column::Due => include_str!("note_due_order.sql"),
+            Column::Due => {
+                temp_string = format!("{} ORDER BY MIN({});", include_str!("note_due_order.sql"), format_args!("CASE WHEN due > 1000000000 OR type = {ctype} THEN due ELSE (due - {today}) * 86400 + {current_timestamp} END", ctype = CardType::New as i8, today = col.timing_today()?.days_elapsed, current_timestamp = TimestampSecs::now().0));
+                &temp_string
+            }
             Column::Ease => include_str!("note_ease_order.sql"),
             Column::Interval => include_str!("note_interval_order.sql"),
             Column::Lapses => include_str!("note_lapses_order.sql"),
@@ -419,4 +438,37 @@ fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType)
     col.storage.db.execute_batch(sql)?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use anki_proto::search::browser_columns::Sorting;
+    use strum::IntoEnumIterator;
+
+    use super::*;
+
+    impl SchedTimingToday {
+        pub(crate) fn zero() -> Self {
+            SchedTimingToday {
+                now: TimestampSecs(0),
+                days_elapsed: 0,
+                next_day_at: TimestampSecs(0),
+            }
+        }
+    }
+
+    #[test]
+    fn column_default_sort_order_should_match_order_by_clause() {
+        let timing = SchedTimingToday::zero();
+        for column in Column::iter() {
+            assert_eq!(
+                card_order_from_sort_column(column, timing).is_empty(),
+                matches!(column.default_cards_order(), Sorting::None)
+            );
+            assert_eq!(
+                note_order_from_sort_column(column).is_empty(),
+                matches!(column.default_notes_order(), Sorting::None)
+            );
+        }
+    }
 }

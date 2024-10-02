@@ -4,6 +4,7 @@ use crate::card::Card;
 use crate::card::CardId;
 use crate::card::CardQueue;
 use crate::card::CardType;
+use crate::card::FsrsMemoryState;
 use crate::collection::Collection;
 use crate::decks::DeckId;
 use crate::error;
@@ -13,6 +14,7 @@ use crate::error::OrNotFound;
 use crate::notes::NoteId;
 use crate::prelude::TimestampSecs;
 use crate::prelude::Usn;
+use crate::undo::Op;
 
 impl crate::services::CardsService for Collection {
     fn get_card(
@@ -43,17 +45,20 @@ impl crate::services::CardsService for Collection {
             .map(Into::into)
     }
 
-    fn remove_cards(&mut self, input: anki_proto::cards::RemoveCardsRequest) -> error::Result<()> {
-        self.transact_no_undo(|col| {
+    fn remove_cards(
+        &mut self,
+        input: anki_proto::cards::RemoveCardsRequest,
+    ) -> error::Result<anki_proto::collection::OpChangesWithCount> {
+        self.transact(Op::EmptyCards, |col| {
             col.remove_cards_and_orphaned_notes(
                 &input
                     .card_ids
                     .into_iter()
                     .map(Into::into)
                     .collect::<Vec<_>>(),
-            )?;
-            Ok(())
+            )
         })
+        .map(Into::into)
     }
 
     fn set_deck(
@@ -99,6 +104,8 @@ impl TryFrom<anki_proto::cards::Card> for Card {
             original_deck_id: DeckId(c.original_deck_id),
             flags: c.flags as u8,
             original_position: c.original_position,
+            memory_state: c.memory_state.map(Into::into),
+            desired_retention: c.desired_retention,
             custom_data: c.custom_data,
         })
     }
@@ -125,6 +132,8 @@ impl From<Card> for anki_proto::cards::Card {
             original_deck_id: c.original_deck_id.0,
             flags: c.flags as u32,
             original_position: c.original_position.map(Into::into),
+            memory_state: c.memory_state.map(Into::into),
+            desired_retention: c.desired_retention,
             custom_data: c.custom_data,
         }
     }
@@ -137,5 +146,23 @@ fn to_card_ids(v: Vec<i64>) -> Vec<CardId> {
 impl From<anki_proto::cards::CardId> for CardId {
     fn from(cid: anki_proto::cards::CardId) -> Self {
         CardId(cid.cid)
+    }
+}
+
+impl From<anki_proto::cards::FsrsMemoryState> for FsrsMemoryState {
+    fn from(value: anki_proto::cards::FsrsMemoryState) -> Self {
+        FsrsMemoryState {
+            stability: value.stability,
+            difficulty: value.difficulty,
+        }
+    }
+}
+
+impl From<FsrsMemoryState> for anki_proto::cards::FsrsMemoryState {
+    fn from(value: FsrsMemoryState) -> Self {
+        anki_proto::cards::FsrsMemoryState {
+            stability: value.stability,
+            difficulty: value.difficulty,
+        }
     }
 }

@@ -9,9 +9,9 @@ mod user;
 
 use std::collections::HashMap;
 use std::future::Future;
+use std::future::IntoFuture;
 use std::net::IpAddr;
 use std::net::SocketAddr;
-use std::net::TcpListener;
 use std::path::Path;
 use std::path::PathBuf;
 use std::pin::Pin;
@@ -20,12 +20,19 @@ use std::sync::Mutex;
 
 use anki_io::create_dir_all;
 use axum::extract::DefaultBodyLimit;
+use axum::routing::get;
 use axum::Router;
 use axum_client_ip::SecureClientIpSource;
+use pbkdf2::password_hash::PasswordHash;
+use pbkdf2::password_hash::PasswordHasher;
+use pbkdf2::password_hash::PasswordVerifier;
+use pbkdf2::password_hash::SaltString;
+use pbkdf2::Pbkdf2;
 use snafu::whatever;
 use snafu::OptionExt;
 use snafu::ResultExt;
 use snafu::Whatever;
+use tokio::net::TcpListener;
 use tracing::Span;
 
 use crate::error;
@@ -35,6 +42,7 @@ use crate::sync::error::OrHttpErr;
 use crate::sync::http_server::logging::with_logging_layer;
 use crate::sync::http_server::media_manager::ServerMediaManager;
 use crate::sync::http_server::routes::collection_sync_router;
+use crate::sync::http_server::routes::health_check_handler;
 use crate::sync::http_server::routes::media_sync_router;
 use crate::sync::http_server::user::User;
 use crate::sync::login::HostKeyRequest;
@@ -91,9 +99,26 @@ impl SimpleServerInner {
             match std::env::var(&envvar) {
                 Ok(val) => {
                     let hkey = derive_hkey(&val);
-                    let (name, _) = val.split_once(':').with_whatever_context(|| {
-                        format!("{envvar} should be in 'username:password' format.")
-                    })?;
+                    let (name, pwhash) = {
+                        let (name, password) = val.split_once(':').with_whatever_context(|| {
+                            format!("{envvar} should be in 'username:password' format.")
+                        })?;
+                        if std::env::var("PASSWORDS_HASHED").is_ok() {
+                            (name, password.to_string())
+                        } else {
+                            (
+                                name,
+                                // Plain text passwords provided; hash them with a fixed salt.
+                                Pbkdf2
+                                    .hash_password(
+                                        password.as_bytes(),
+                                        &SaltString::from_b64("tonuvYGpksNFQBlEmm3lxg").unwrap(),
+                                    )
+                                    .expect("couldn't hash password")
+                                    .to_string(),
+                            )
+                        }
+                    };
                     let folder = base_folder.join(name);
                     create_dir_all(&folder).whatever_context("creating SYNC_BASE")?;
                     let media =
@@ -102,6 +127,7 @@ impl SimpleServerInner {
                         hkey,
                         User {
                             name: name.into(),
+                            password_hash: pwhash,
                             col: None,
                             sync_state: None,
                             media,
@@ -150,14 +176,55 @@ impl SimpleServer {
         request: HostKeyRequest,
     ) -> HttpResult<SyncResponse<HostKeyResponse>> {
         let state = self.state.lock().unwrap();
-        let key = derive_hkey(&format!("{}:{}", request.username, request.password));
-        if state.users.contains_key(&key) {
-            SyncResponse::try_from_obj(HostKeyResponse { key })
-        } else {
-            None.or_forbidden("invalid user/pass in get_host_key")
+
+        // This control structure might seem a bit crude,
+        // its goal is to prevent a timing attack from gaining
+        // information about whether a specific user exists.
+        let user = {
+            // This inner block returns Ok(hkey,user) if a user with corresponding
+            // name is found and Err(user) with a random user if it isn't found.
+            // The user is needed to verify against a random hash,
+            // before returning an Error.
+            let mut result: Result<(String, &User), &User> =
+                Err(state.users.iter().next().unwrap().1);
+            for (hkey, user) in state.users.iter() {
+                if user.name == request.username {
+                    result = Ok((hkey.to_string(), user));
+                }
+            }
+            result
+        };
+
+        match user {
+            Ok((key, user)) => {
+                // Verify password
+                let pwhash =
+                    &PasswordHash::new(&user.password_hash).expect("couldn't parse password hash");
+                if Pbkdf2
+                    .verify_password(request.password.as_bytes(), pwhash)
+                    .is_ok()
+                {
+                    SyncResponse::try_from_obj(HostKeyResponse { key })
+                } else {
+                    None.or_forbidden("invalid user/pass in get_host_key")
+                }
+            }
+            Err(user) => {
+                // Verify random password, in order to ensure constant-timedness,
+                // then return an error
+                let pwhash =
+                    &PasswordHash::new(&user.password_hash).expect("couldn't parse password hash");
+                let _ = Pbkdf2.verify_password(request.password.as_bytes(), pwhash);
+                None.or_forbidden("invalid user/pass in get_host_key")
+            }
         }
     }
-
+    pub fn is_running() -> bool {
+        let config = envy::prefixed("SYNC_")
+            .from_env::<SyncServerConfig>()
+            .unwrap();
+        std::net::TcpStream::connect(format!("{}:{}", config.host, config.port)).is_ok()
+    }
     pub fn new(base_folder: &Path) -> error::Result<Self, Whatever> {
         let inner = SimpleServerInner::new_from_env(base_folder)?;
         Ok(SimpleServer {
@@ -165,7 +232,7 @@ impl SimpleServer {
         })
     }
 
-    pub fn make_server(
+    pub async fn make_server(
         config: SyncServerConfig,
     ) -> error::Result<(SocketAddr, ServerFuture), Whatever> {
         let server = Arc::new(
@@ -173,22 +240,26 @@ impl SimpleServer {
         );
         let address = &format!("{}:{}", config.host, config.port);
         let listener = TcpListener::bind(address)
+            .await
             .with_whatever_context(|_| format!("couldn't bind to {address}"))?;
         let addr = listener.local_addr().unwrap();
         let server = with_logging_layer(
             Router::new()
                 .nest("/sync", collection_sync_router())
                 .nest("/msync", media_sync_router())
+                .route("/health", get(health_check_handler))
                 .with_state(server)
                 .layer(DefaultBodyLimit::max(*MAXIMUM_SYNC_PAYLOAD_BYTES))
                 .layer(config.ip_header.into_extension()),
         );
-        let future = axum::Server::from_tcp(listener)
-            .whatever_context("listen failed")?
-            .serve(server.into_make_service_with_connect_info::<SocketAddr>())
-            .with_graceful_shutdown(async {
-                let _ = tokio::signal::ctrl_c().await;
-            });
+        let future = axum::serve(
+            listener,
+            server.into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .with_graceful_shutdown(async {
+            let _ = tokio::signal::ctrl_c().await;
+        })
+        .into_future();
         tracing::info!(%addr, "listening");
         Ok((addr, Box::pin(future)))
     }
@@ -199,10 +270,10 @@ impl SimpleServer {
         let config = envy::prefixed("SYNC_")
             .from_env::<SyncServerConfig>()
             .whatever_context("reading SYNC_* env vars")?;
-        let (_addr, server_fut) = SimpleServer::make_server(config)?;
+        let (_addr, server_fut) = SimpleServer::make_server(config).await?;
         server_fut.await.whatever_context("await server")?;
         Ok(())
     }
 }
 
-pub type ServerFuture = Pin<Box<dyn Future<Output = error::Result<(), hyper::Error>> + Send>>;
+pub type ServerFuture = Pin<Box<dyn Future<Output = error::Result<(), std::io::Error>> + Send>>;

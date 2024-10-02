@@ -57,13 +57,14 @@ impl Card {
             self.reps = 0;
             self.lapses = 0;
         }
+        self.memory_state = None;
 
         last_position.is_none()
     }
 
     /// If the card is new, change its position, and return true.
-    fn set_new_position(&mut self, position: u32, v2: bool) -> bool {
-        if v2 && self.ctype == CardType::New {
+    fn set_new_position(&mut self, position: u32) -> bool {
+        if self.ctype == CardType::New {
             if self.is_filtered() {
                 self.original_due = position as i32;
             } else {
@@ -167,7 +168,7 @@ impl Collection {
                     position += 1;
                 }
                 if log {
-                    col.log_manually_scheduled_review(&card, &original, usn)?;
+                    col.log_manually_scheduled_review(&card, original.interval, usn)?;
                 }
                 col.update_card_inner(&mut card, original, usn)?;
             }
@@ -233,16 +234,18 @@ impl Collection {
         shift: bool,
         usn: Usn,
     ) -> Result<usize> {
-        let v2 = self.scheduler_version() != SchedulerVersion::V1;
+        if self.scheduler_version() == SchedulerVersion::V1 {
+            return Err(AnkiError::SchedulerUpgradeRequired);
+        }
         if shift {
-            self.shift_existing_cards(starting_from, step * cids.len() as u32, usn, v2)?;
+            self.shift_existing_cards(starting_from, step * cids.len() as u32, usn)?;
         }
         let cards = self.all_cards_for_ids(cids, true)?;
         let sorter = NewCardSorter::new(&cards, starting_from, step, order);
         let mut count = 0;
         for mut card in cards {
             let original = card.clone();
-            if card.set_new_position(sorter.position(&card), v2) {
+            if card.set_new_position(sorter.position(&card)) {
                 count += 1;
                 self.update_card_inner(&mut card, original, usn)?;
             }
@@ -280,19 +283,28 @@ impl Collection {
         usn: Usn,
     ) -> Result<usize> {
         let cids = self.search_cards(
-            SearchNode::DeckIdWithoutChildren(deck).and(StateKind::New),
+            SearchNode::DeckIdsWithoutChildren(deck.to_string()).and(StateKind::New),
             SortMode::NoOrder,
         )?;
         self.sort_cards_inner(&cids, 1, 1, order.into(), false, usn)
     }
 
-    fn shift_existing_cards(&mut self, start: u32, by: u32, usn: Usn, v2: bool) -> Result<()> {
+    fn shift_existing_cards(&mut self, start: u32, by: u32, usn: Usn) -> Result<()> {
         for mut card in self.storage.all_cards_at_or_above_position(start)? {
             let original = card.clone();
-            card.set_new_position(card.due as u32 + by, v2);
+            card.set_new_position(card.due as u32 + by);
             self.update_card_inner(&mut card, original, usn)?;
         }
         Ok(())
+    }
+}
+
+impl From<NewCardInsertOrder> for NewCardDueOrder {
+    fn from(o: NewCardInsertOrder) -> Self {
+        match o {
+            NewCardInsertOrder::Due => NewCardDueOrder::NoteId,
+            NewCardInsertOrder::Random => NewCardDueOrder::Random,
+        }
     }
 }
 
@@ -369,14 +381,5 @@ mod test {
         // complete reset
         card.schedule_as_new(1, true, false);
         assert_eq!((card.due, card.reps, card.lapses), (1, 0, 0));
-    }
-}
-
-impl From<NewCardInsertOrder> for NewCardDueOrder {
-    fn from(o: NewCardInsertOrder) -> Self {
-        match o {
-            NewCardInsertOrder::Due => NewCardDueOrder::NoteId,
-            NewCardInsertOrder::Random => NewCardDueOrder::Random,
-        }
     }
 }

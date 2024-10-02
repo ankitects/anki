@@ -9,6 +9,7 @@ use itertools::Itertools;
 
 use super::ExportProgress;
 use crate::decks::immediate_parent_name;
+use crate::decks::NormalDeck;
 use crate::latex::extract_latex;
 use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
@@ -16,8 +17,6 @@ use crate::revlog::RevlogEntry;
 use crate::search::CardTableGuard;
 use crate::search::NoteTableGuard;
 use crate::text::extract_media_refs;
-use crate::text::extract_underscored_css_imports;
-use crate::text::extract_underscored_references;
 
 #[derive(Debug, Default)]
 pub(super) struct ExchangeData {
@@ -38,6 +37,7 @@ impl ExchangeData {
         col: &mut Collection,
         search: impl TryIntoSearch,
         with_scheduling: bool,
+        with_deck_configs: bool,
     ) -> Result<()> {
         self.days_elapsed = col.timing_today()?.days_elapsed;
         self.creation_utc_offset = col.get_creation_utc_offset();
@@ -45,18 +45,26 @@ impl ExchangeData {
         self.notes = notes;
         let (cards, guard) = guard.col.gather_cards()?;
         self.cards = cards;
-        self.decks = guard.col.gather_decks(with_scheduling)?;
+        self.decks = guard.col.gather_decks(with_scheduling, !with_scheduling)?;
         self.notetypes = guard.col.gather_notetypes()?;
-        self.check_ids()?;
+
+        let allow_filtered = self.enables_filtered_decks();
 
         if with_scheduling {
             self.revlog = guard.col.gather_revlog()?;
-            self.deck_configs = guard.col.gather_deck_configs(&self.decks)?;
+            if !allow_filtered {
+                self.restore_cards_from_filtered_decks();
+            }
         } else {
-            self.remove_scheduling_information(guard.col);
+            self.reset_cards_and_notes(guard.col);
         };
 
-        Ok(())
+        if with_deck_configs {
+            self.deck_configs = guard.col.gather_deck_configs(&self.decks)?;
+        }
+        self.reset_decks(!with_deck_configs, !with_scheduling, allow_filtered);
+
+        self.check_ids()
     }
 
     pub(super) fn gather_media_names(
@@ -75,14 +83,13 @@ impl ExchangeData {
             gather_media_names_from_note(note, &mut inserter, &svg_getter);
         }
         for notetype in self.notetypes.iter() {
-            gather_media_names_from_notetype(notetype, &mut inserter);
+            notetype.gather_media_names(&mut inserter);
         }
         Ok(())
     }
 
-    fn remove_scheduling_information(&mut self, col: &Collection) {
+    fn reset_cards_and_notes(&mut self, col: &Collection) {
         self.remove_system_tags();
-        self.reset_deck_config_ids_and_limits();
         self.reset_cards(col);
     }
 
@@ -96,32 +103,89 @@ impl ExchangeData {
         }
     }
 
-    fn reset_deck_config_ids_and_limits(&mut self) {
+    fn reset_decks(
+        &mut self,
+        reset_config_ids: bool,
+        reset_study_info: bool,
+        allow_filtered: bool,
+    ) {
         for deck in self.decks.iter_mut() {
-            if let Ok(normal_mut) = deck.normal_mut() {
-                normal_mut.config_id = 1;
-                normal_mut.review_limit = None;
-                normal_mut.review_limit_today = None;
-                normal_mut.new_limit = None;
-                normal_mut.new_limit_today = None;
-            } else {
-                // filtered decks are reset at import time for legacy reasons
+            if reset_study_info {
+                deck.common = Default::default();
+            }
+            match &mut deck.kind {
+                DeckKind::Normal(normal) => {
+                    if reset_config_ids {
+                        normal.config_id = 1;
+                    }
+                    if reset_study_info {
+                        normal.extend_new = 0;
+                        normal.extend_review = 0;
+                        normal.review_limit = None;
+                        normal.review_limit_today = None;
+                        normal.new_limit = None;
+                        normal.new_limit_today = None;
+                    }
+                }
+                DeckKind::Filtered(_) if reset_study_info || !allow_filtered => {
+                    deck.kind = DeckKind::Normal(NormalDeck {
+                        config_id: 1,
+                        ..Default::default()
+                    })
+                }
+                DeckKind::Filtered(_) => (),
             }
         }
+    }
+
+    /// Because the legacy exporter relied on the importer handling filtered
+    /// decks by converting them into regular ones, there are two scenarios to
+    /// watch out for:
+    /// 1. If exported without scheduling, cards have been reset, but their deck
+    ///    ids may point to filtered decks.
+    /// 2. If exported with scheduling, cards have not been reset, but their
+    ///    original deck ids may point to missing decks.
+    fn enables_filtered_decks(&self) -> bool {
+        self.cards
+            .iter()
+            .all(|c| self.card_and_its_deck_are_normal(c) || self.original_deck_exists(c))
+    }
+
+    fn card_and_its_deck_are_normal(&self, card: &Card) -> bool {
+        card.original_deck_id.0 == 0
+            && self
+                .decks
+                .iter()
+                .find(|d| d.id == card.deck_id)
+                .map(|d| !d.is_filtered())
+                .unwrap_or_default()
+    }
+
+    fn original_deck_exists(&self, card: &Card) -> bool {
+        card.original_deck_id.0 == 1 || self.decks.iter().any(|d| d.id == card.original_deck_id)
     }
 
     fn reset_cards(&mut self, col: &Collection) {
         let mut position = col.get_next_card_position();
         for card in self.cards.iter_mut() {
             // schedule_as_new() removes cards from filtered decks, but we want to
-            // leave cards in their current deck, which gets converted to a regular
-            // deck on import
+            // leave cards in their current deck, which gets converted to a regular one
             let deck_id = card.deck_id;
             if card.schedule_as_new(position, true, true) {
                 position += 1;
             }
             card.flags = 0;
             card.deck_id = deck_id;
+        }
+    }
+
+    fn restore_cards_from_filtered_decks(&mut self) {
+        for card in self.cards.iter_mut() {
+            if card.is_filtered() {
+                // instead of moving between decks, the deck is converted to a regular one
+                card.original_deck_id = card.deck_id;
+                card.remove_from_filtered_deck_restoring_queue();
+            }
         }
     }
 
@@ -158,19 +222,6 @@ fn gather_media_names_from_note(
     }
 }
 
-fn gather_media_names_from_notetype(notetype: &Notetype, inserter: &mut impl FnMut(String)) {
-    for name in extract_underscored_css_imports(&notetype.config.css) {
-        inserter(name.to_string());
-    }
-    for template in &notetype.templates {
-        for template_side in [&template.config.q_format, &template.config.a_format] {
-            for name in extract_underscored_references(template_side) {
-                inserter(name.to_string());
-            }
-        }
-    }
-}
-
 fn svg_getter(notetypes: &[Notetype]) -> impl Fn(NotetypeId) -> bool {
     let svg_map: HashMap<NotetypeId, bool> = notetypes
         .iter()
@@ -198,12 +249,12 @@ impl Collection {
             .map(|cards| (cards, guard))
     }
 
-    /// If with_scheduling, also gather all original decks of cards in filtered
+    /// If with_original, also gather all original decks of cards in filtered
     /// decks, so they don't have to be converted to regular decks on import.
-    /// If not with_scheduling, skip exporting the default deck to avoid
+    /// If skip_default, skip exporting the default deck to avoid
     /// changing the importing client's defaults.
-    fn gather_decks(&mut self, with_scheduling: bool) -> Result<Vec<Deck>> {
-        let decks = if with_scheduling {
+    fn gather_decks(&mut self, with_original: bool, skip_default: bool) -> Result<Vec<Deck>> {
+        let decks = if with_original {
             self.storage.get_decks_and_original_for_search_cards()
         } else {
             self.storage.get_decks_for_search_cards()
@@ -212,7 +263,7 @@ impl Collection {
         Ok(decks
             .into_iter()
             .chain(parents)
-            .filter(|deck| with_scheduling || deck.id != DeckId(1))
+            .filter(|deck| !(skip_default && deck.id.0 == 1))
             .collect())
     }
 
@@ -278,7 +329,7 @@ mod test {
         let mut col = Collection::new();
 
         let note = NoteAdder::basic(&mut col).add(&mut col);
-        data.gather_data(&mut col, SearchNode::WholeCollection, true)
+        data.gather_data(&mut col, SearchNode::WholeCollection, true, true)
             .unwrap();
 
         assert_eq!(data.notes, [note]);
@@ -295,7 +346,7 @@ mod test {
         col.add_note_only_with_id_undoable(&mut note).unwrap();
 
         assert!(data
-            .gather_data(&mut col, SearchNode::WholeCollection, true)
+            .gather_data(&mut col, SearchNode::WholeCollection, true, true)
             .is_err());
     }
 }

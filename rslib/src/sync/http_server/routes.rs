@@ -4,6 +4,8 @@
 use axum::extract::Path;
 use axum::extract::Query;
 use axum::extract::State;
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
 use axum::response::Response;
 use axum::routing::get;
 use axum::routing::post;
@@ -84,6 +86,10 @@ async fn media_begin_post<P: MediaSyncProtocol>(
         .or_internal_err("serialize begin request")?;
     }
     media_sync_handler(Path(MediaSyncMethod::Begin), server, req.into_output_type()).await
+}
+
+pub async fn health_check_handler() -> impl IntoResponse {
+    StatusCode::OK
 }
 
 async fn media_sync_handler<P: MediaSyncProtocol>(

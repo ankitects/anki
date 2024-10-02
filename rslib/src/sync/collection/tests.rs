@@ -7,6 +7,7 @@ use std::future::Future;
 
 use axum::http::StatusCode;
 use once_cell::sync::Lazy;
+use reqwest::Client;
 use reqwest::Url;
 use serde_json::json;
 use tempfile::tempdir;
@@ -88,6 +89,7 @@ where
         base_folder: base_folder.path().into(),
         ip_header: default_ip_header(),
     })
+    .await
     .unwrap();
     tokio::spawn(server_fut.instrument(Span::current()));
     // when not using ephemeral servers, tests need to be serialized
@@ -106,12 +108,15 @@ where
         endpoint: Some(endpoint),
         io_timeout_secs: None,
     };
-    let client = HttpSyncClient::new(auth);
+    let client = HttpSyncClient::new(auth, Client::new());
     op(client).await
 }
 
 fn unwrap_sync_err_kind(err: AnkiError) -> SyncErrorKind {
-    let AnkiError::SyncError { source: SyncError { kind, .. } } = err else {
+    let AnkiError::SyncError {
+        source: SyncError { kind, .. },
+    } = err
+    else {
         panic!("not sync err: {err:?}");
     };
     kind
@@ -355,7 +360,12 @@ async fn sync_errors_should_prompt_db_check() -> Result<()> {
             .sync()
             .await
             .unwrap_err();
-        let AnkiError::SyncError { source: SyncError { info: _, kind } } = err else { panic!() };
+        let AnkiError::SyncError {
+            source: SyncError { info: _, kind },
+        } = err
+        else {
+            panic!()
+        };
         assert_eq!(kind, SyncErrorKind::DatabaseCheckRequired);
 
         // the server should have rolled back
@@ -368,7 +378,12 @@ async fn sync_errors_should_prompt_db_check() -> Result<()> {
             .sync()
             .await
             .unwrap_err();
-        let AnkiError::SyncError { source: SyncError { info: _, kind } } = err else { panic!() };
+        let AnkiError::SyncError {
+            source: SyncError { info: _, kind },
+        } = err
+        else {
+            panic!()
+        };
         assert_eq!(kind, SyncErrorKind::DatabaseCheckRequired);
 
         Ok(())

@@ -43,6 +43,9 @@ message DeckConfig {
       // Decks in alphabetical order (preorder), then ascending position.
       // Siblings are consecutive, provided they have the same position.
       NEW_CARD_GATHER_PRIORITY_DECK = 0;
+      // Notes are randomly picked from each deck in alphabetical order.
+      // Siblings are consecutive, provided they have the same position.
+      NEW_CARD_GATHER_PRIORITY_DECK_THEN_RANDOM_NOTES = 5;
       // Ascending position.
       // Siblings are consecutive, provided they have the same position.
       NEW_CARD_GATHER_PRIORITY_LOWEST_POSITION = 1;
@@ -78,6 +81,8 @@ message DeckConfig {
       REVIEW_CARD_ORDER_EASE_DESCENDING = 6;
       REVIEW_CARD_ORDER_RELATIVE_OVERDUENESS = 7;
       REVIEW_CARD_ORDER_RANDOM = 8;
+      REVIEW_CARD_ORDER_ADDED = 9;
+      REVIEW_CARD_ORDER_REVERSE_ADDED = 10;
     }
     enum ReviewMix {
       REVIEW_MIX_MIX_WITH_REVIEWS = 0;
@@ -88,11 +93,23 @@ message DeckConfig {
       LEECH_ACTION_SUSPEND = 0;
       LEECH_ACTION_TAG_ONLY = 1;
     }
-
+    enum AnswerAction {
+      ANSWER_ACTION_BURY_CARD = 0;
+      ANSWER_ACTION_ANSWER_AGAIN = 1;
+      ANSWER_ACTION_ANSWER_GOOD = 2;
+      ANSWER_ACTION_ANSWER_HARD = 3;
+      ANSWER_ACTION_SHOW_REMINDER = 4;
+    }
+    enum QuestionAction {
+      QUESTION_ACTION_SHOW_ANSWER = 0;
+      QUESTION_ACTION_SHOW_REMINDER = 1;
+    }
     repeated float learn_steps = 1;
     repeated float relearn_steps = 2;
 
-    reserved 3 to 8;
+    repeated float fsrs_weights = 3;
+
+    reserved 4 to 8;
 
     uint32 new_per_day = 9;
     uint32 reviews_per_day = 10;
@@ -127,11 +144,25 @@ message DeckConfig {
     bool disable_autoplay = 23;
     uint32 cap_answer_time_to_secs = 24;
     bool show_timer = 25;
+    bool stop_timer_on_answer = 38;
+    float seconds_to_show_question = 41;
+    float seconds_to_show_answer = 42;
+    QuestionAction question_action = 36;
+    AnswerAction answer_action = 43;
+    bool wait_for_audio = 44;
     bool skip_question_when_replaying_answer = 26;
 
     bool bury_new = 27;
     bool bury_reviews = 28;
     bool bury_interday_learning = 29;
+
+    // for fsrs
+    float desired_retention = 37;
+    string ignore_revlogs_before_date = 46;
+    // used for fsrs_reschedule in the past
+    reserved 39;
+    float historical_retention = 40;
+    string weight_search = 45;
 
     bytes other = 255;
   }
@@ -169,11 +200,19 @@ message DeckConfigsForUpdate {
   CurrentDeck current_deck = 2;
   DeckConfig defaults = 3;
   bool schema_modified = 4;
-  bool v3_scheduler = 5;
   // only applies to v3 scheduler
   string card_state_customizer = 6;
   // only applies to v3 scheduler
   bool new_cards_ignore_review_limit = 7;
+  bool fsrs = 8;
+  bool apply_all_parent_limits = 9;
+  uint32 days_since_last_fsrs_optimize = 10;
+}
+
+enum UpdateDeckConfigsMode {
+  UPDATE_DECK_CONFIGS_MODE_NORMAL = 0;
+  UPDATE_DECK_CONFIGS_MODE_APPLY_TO_CHILDREN = 1;
+  UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_WEIGHTS = 2;
 }
 
 message UpdateDeckConfigsRequest {
@@ -182,8 +221,11 @@ message UpdateDeckConfigsRequest {
   /// be set to whichever entry comes last.
   repeated DeckConfig configs = 2;
   repeated int64 removed_config_ids = 3;
-  bool apply_to_children = 4;
+  UpdateDeckConfigsMode mode = 4;
   string card_state_customizer = 5;
   DeckConfigsForUpdate.CurrentDeck.Limits limits = 6;
   bool new_cards_ignore_review_limit = 7;
+  bool fsrs = 8;
+  bool apply_all_parent_limits = 9;
+  bool fsrs_reschedule = 10;
 }

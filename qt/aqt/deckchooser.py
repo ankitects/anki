@@ -3,10 +3,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from anki.collection import OpChanges
 from anki.decks import DEFAULT_DECK_ID, DeckId
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.utils import HelpPage, shortcut, tr
 
 
@@ -79,7 +82,8 @@ class DeckChooser(QHBoxLayout):
             self.selected_deck_id = DEFAULT_DECK_ID
 
     def _update_button_label(self) -> None:
-        self.deck.setText(self.selected_deck_name().replace("&", "&&"))
+        if not sip.isdeleted(self.deck):
+            self.deck.setText(self.selected_deck_name().replace("&", "&&"))
 
     def show(self) -> None:
         self._widget.show()  # type: ignore

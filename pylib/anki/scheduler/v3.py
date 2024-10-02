@@ -14,9 +14,10 @@ as '2' internally.
 
 from __future__ import annotations
 
-from typing import Literal, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any, Literal
 
-from anki import scheduler_pb2
+from anki import frontend_pb2, scheduler_pb2
 from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import OpChanges
@@ -31,8 +32,8 @@ QueuedCards = scheduler_pb2.QueuedCards
 SchedulingState = scheduler_pb2.SchedulingState
 SchedulingStates = scheduler_pb2.SchedulingStates
 SchedulingContext = scheduler_pb2.SchedulingContext
-SchedulingStatesWithContext = scheduler_pb2.SchedulingStatesWithContext
-SetSchedulingStatesRequest = scheduler_pb2.SetSchedulingStatesRequest
+SchedulingStatesWithContext = frontend_pb2.SchedulingStatesWithContext
+SetSchedulingStatesRequest = frontend_pb2.SetSchedulingStatesRequest
 CardAnswer = scheduler_pb2.CardAnswer
 
 
@@ -104,11 +105,12 @@ class Scheduler(SchedulerBaseWithLegacy):
     # Fetching the next card (legacy API)
     ##########################################################################
 
+    @deprecated(info="no longer required")
     def reset(self) -> None:
         # backend automatically resets queues as operations are performed
         pass
 
-    def getCard(self) -> Optional[Card]:
+    def getCard(self) -> Card | None:
         """Fetch the next card from the queue. None if finished."""
         try:
             queued_card = self.get_queued_cards().cards[0]
@@ -124,7 +126,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         "Don't use this, it is a stop-gap until this code is refactored."
         return not self.get_queued_cards().cards
 
-    def counts(self, card: Optional[Card] = None) -> tuple[int, int, int]:
+    def counts(self, card: Card | None = None) -> tuple[int, int, int]:
         info = self.get_queued_cards()
         return (info.new_count, info.learning_count, info.review_count)
 
@@ -139,14 +141,6 @@ class Scheduler(SchedulerBaseWithLegacy):
     @property
     def reviewCount(self) -> int:
         return self.counts()[2]
-
-    def countIdx(self, card: Card) -> int:
-        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-            return QUEUE_TYPE_LRN
-        return card.queue
-
-    def answerButtons(self, card: Card) -> int:
-        return 4
 
     def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
         "Return the next interval for CARD as a string."
@@ -190,7 +184,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return self._interval_for_filtered_state(state.filtered)
         else:
             assert_exhaustive(kind)
-            return 0  # unreachable
+            return 0  # pylint: disable=unreachable
 
     def _interval_for_normal_state(
         self, normal: scheduler_pb2.SchedulingState.Normal
@@ -206,7 +200,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return normal.relearning.learning.scheduled_secs
         else:
             assert_exhaustive(kind)
-            return 0  # unreachable
+            return 0  # pylint: disable=unreachable
 
     def _interval_for_filtered_state(
         self, filtered: scheduler_pb2.SchedulingState.Filtered
@@ -218,7 +212,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return self._interval_for_normal_state(filtered.rescheduling.original_state)
         else:
             assert_exhaustive(kind)
-            return 0  # unreachable
+            return 0  # pylint: disable=unreachable
 
     def nextIvl(self, card: Card, ease: int) -> Any:
         "Don't use this - it is only required by tests, and will be moved in the future."
@@ -246,10 +240,3 @@ class Scheduler(SchedulerBaseWithLegacy):
             return self.col.db.list("select id from active_decks")
         except DBError:
             return []
-
-    @deprecated(info="no longer used by Anki; will be removed in the future")
-    def totalNewForCurrentDeck(self) -> int:
-        return self.col.db.scalar(
-            f"""
-select count() from cards where queue={QUEUE_TYPE_NEW} and did in (select id from active_decks)"""
-        )

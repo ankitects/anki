@@ -2,7 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
 import aqt
 import aqt.browser
@@ -488,14 +489,15 @@ class Table:
 
     def _on_sort_column_changed(self, section: int, order: Qt.SortOrder) -> None:
         column = self._model.column_at_section(section)
-        if column.sorting == Columns.SORTING_NONE:
+        sorting = column.sorting_notes if self.is_notes_mode() else column.sorting_cards
+        if sorting is Columns.SORTING_NONE:
             showInfo(tr.browsing_sorting_on_this_column_is_not())
             self._set_sort_indicator()
             return
         if self._state.sort_column != column.key:
             self._state.sort_column = column.key
             # numeric fields default to descending
-            if column.sorting == Columns.SORTING_DESCENDING:
+            if sorting is Columns.SORTING_DESCENDING:
                 order = Qt.SortOrder.DescendingOrder
             self._state.sort_backwards = order == Qt.SortOrder.DescendingOrder
             self.browser.search()
@@ -598,7 +600,9 @@ class Table:
             self._view.verticalScrollBar().setValue(vertical)
 
     def _move_current(
-        self, direction: QAbstractItemView.CursorAction, index: QModelIndex = None
+        self,
+        direction: QAbstractItemView.CursorAction,
+        index: QModelIndex | None = None,
     ) -> None:
         if not self.has_current():
             return
@@ -607,7 +611,10 @@ class Table:
                 direction,
                 self.browser.mw.app.keyboardModifiers(),
             )
-        self._view.selectionModel().setCurrentIndex(
+        # Setting current like this avoids a bug with shift-click selection
+        # https://github.com/ankitects/anki/issues/2469
+        self._view.setCurrentIndex(index)
+        self._view.selectionModel().select(
             index,
             QItemSelectionModel.SelectionFlag.Clear
             | QItemSelectionModel.SelectionFlag.Select
@@ -636,6 +643,7 @@ class StatusDelegate(QItemDelegate):
     def paint(
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
+        option.textElideMode = self._model.get_cell(index).elide_mode
         if self._model.get_cell(index).is_rtl:
             option.direction = Qt.LayoutDirection.RightToLeft
         if row_color := self._model.get_row(index).color:

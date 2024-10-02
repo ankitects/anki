@@ -90,17 +90,13 @@ impl Collection {
         let mut count = 0;
         let usn = self.usn()?;
         let sched = self.scheduler_version();
+        if sched == SchedulerVersion::V1 {
+            return Err(AnkiError::SchedulerUpgradeRequired);
+        }
         let desired_queue = match mode {
             BuryOrSuspendMode::Suspend => CardQueue::Suspended,
             BuryOrSuspendMode::BurySched => CardQueue::SchedBuried,
-            BuryOrSuspendMode::BuryUser => {
-                if sched == SchedulerVersion::V1 {
-                    // v1 scheduler only had one bury type
-                    CardQueue::SchedBuried
-                } else {
-                    CardQueue::UserBuried
-                }
-            }
+            BuryOrSuspendMode::BuryUser => CardQueue::UserBuried,
         };
 
         for original in cards {
@@ -108,10 +104,6 @@ impl Collection {
             if card.queue != desired_queue {
                 // do not bury suspended cards as that would unsuspend them
                 if card.queue != CardQueue::Suspended {
-                    if sched == SchedulerVersion::V1 {
-                        card.remove_from_filtered_deck_restoring_queue(sched);
-                        card.remove_from_learning();
-                    }
                     card.queue = desired_queue;
                     count += 1;
                     self.update_card_inner(&mut card, original, usn)?;

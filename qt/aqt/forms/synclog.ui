@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>557</width>
-    <height>295</height>
+    <width>482</width>
+    <height>90</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,12 +15,15 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QPlainTextEdit" name="plainTextEdit">
-     <property name="readOnly">
-      <bool>true</bool>
+    <widget class="QLabel" name="log_label">
+     <property name="text">
+      <string notr="true">TextLabel</string>
      </property>
-     <property name="plainText">
-      <string notr="true"/>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>

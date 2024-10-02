@@ -10,7 +10,7 @@ pub mod answering;
 pub mod bury_and_suspend;
 pub(crate) mod congrats;
 pub(crate) mod filtered;
-mod learning;
+pub mod fsrs;
 pub mod new;
 pub(crate) mod queue;
 mod reviews;
@@ -23,8 +23,6 @@ mod upgrade;
 use chrono::FixedOffset;
 pub use reviews::parse_due_date_str;
 use timing::sched_timing_today;
-use timing::v1_creation_date_adjusted_to_hour;
-use timing::v1_rollover_from_creation_stamp;
 use timing::SchedTimingToday;
 
 #[derive(Debug, Clone, Copy)]
@@ -117,16 +115,14 @@ impl Collection {
 
     pub fn rollover_for_current_scheduler(&self) -> Result<u8> {
         match self.scheduler_version() {
-            SchedulerVersion::V1 => v1_rollover_from_creation_stamp(self.storage.creation_stamp()?),
+            SchedulerVersion::V1 => Err(AnkiError::SchedulerUpgradeRequired),
             SchedulerVersion::V2 => Ok(self.get_v2_rollover().unwrap_or(4)),
         }
     }
 
     pub(crate) fn set_rollover_for_current_scheduler(&mut self, hour: u8) -> Result<()> {
         match self.scheduler_version() {
-            SchedulerVersion::V1 => self.set_creation_stamp(TimestampSecs(
-                v1_creation_date_adjusted_to_hour(self.storage.creation_stamp()?, hour)?,
-            )),
+            SchedulerVersion::V1 => Err(AnkiError::SchedulerUpgradeRequired),
             SchedulerVersion::V2 => self.set_v2_rollover(hour as u32),
         }
     }

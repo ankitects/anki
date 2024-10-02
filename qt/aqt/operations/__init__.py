@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from concurrent.futures._base import Future
-from typing import Any, Callable, Generic, Protocol, TypeVar, Union
+from typing import Any, Generic, Protocol, TypeVar, Union
 
 import aqt
 import aqt.gui_hooks
@@ -14,6 +15,7 @@ from anki.collection import (
     ImportLogWithChanges,
     OpChanges,
     OpChangesAfterUndo,
+    OpChangesOnly,
     OpChangesWithCount,
     OpChangesWithId,
     Progress,
@@ -34,6 +36,7 @@ ResultWithChanges = TypeVar(
     "ResultWithChanges",
     bound=Union[
         OpChanges,
+        OpChangesOnly,
         OpChangesWithCount,
         OpChangesWithId,
         OpChangesAfterUndo,
@@ -124,7 +127,7 @@ class CollectionOp(Generic[ResultWithChanges]):
                 if self._success:
                     self._success(result)
             finally:
-                self._finish_op(mw, result, initiator)
+                on_op_finished(mw, result, initiator)
 
         self._run(mw, wrapped_op, wrapped_done)
 
@@ -141,32 +144,22 @@ class CollectionOp(Generic[ResultWithChanges]):
         else:
             mw.taskman.with_progress(op, on_done, parent=self._parent)
 
-    def _finish_op(
-        self, mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
-    ) -> None:
-        mw.update_undo_actions()
-        mw.autosave()
-        self._fire_change_hooks_after_op_performed(result, initiator)
 
-    def _fire_change_hooks_after_op_performed(
-        self,
-        result: ResultWithChanges,
-        handler: object | None,
-    ) -> None:
-        from aqt import mw
+def on_op_finished(
+    mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
+) -> None:
+    mw.update_undo_actions()
 
-        assert mw
+    if isinstance(result, OpChanges):
+        changes = result
+    else:
+        changes = result.changes  # type: ignore[union-attr]
 
-        if isinstance(result, OpChanges):
-            changes = result
-        else:
-            changes = result.changes  # type: ignore[union-attr]
-
-        # fire new hook
-        aqt.gui_hooks.operation_did_execute(changes, handler)
-        # fire legacy hook so old code notices changes
-        if mw.col.op_made_changes(changes):
-            aqt.gui_hooks.state_did_reset()
+    # fire new hook
+    aqt.gui_hooks.operation_did_execute(changes, initiator)
+    # fire legacy hook so old code notices changes
+    if mw.col.op_made_changes(changes):
+        aqt.gui_hooks.state_did_reset()
 
 
 T = TypeVar("T")
@@ -208,9 +201,20 @@ class QueryOp(Generic[T]):
         self._parent = parent
         self._op = op
         self._success = success
+        self._uses_collection = True
 
     def failure(self, failure: Callable[[Exception], Any] | None) -> QueryOp[T]:
         self._failure = failure
+        return self
+
+    def without_collection(self) -> QueryOp[T]:
+        """Flag this QueryOp as not needing the collection.
+
+        Operations that access the collection are serialized. If you're doing
+        something like a series of network queries, and your operation does not
+        access the collection, then you can call this to allow the requests to
+        run in parallel."""
+        self._uses_collection = False
         return self
 
     def with_progress(
@@ -276,4 +280,6 @@ class QueryOp(Generic[T]):
         elif self._progress:
             mw.taskman.with_progress(op, on_done, label=label, parent=self._parent)
         else:
-            mw.taskman.run_in_background(op, on_done)
+            mw.taskman.run_in_background(
+                op, on_done, uses_collection=self._uses_collection
+            )

@@ -7,13 +7,13 @@ use crate::deckconfig::DeckConfSchema11;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::DeckConfigId;
 use crate::deckconfig::UpdateDeckConfigsRequest;
-use crate::error;
+use crate::error::Result;
 
 impl crate::services::DeckConfigService for Collection {
     fn add_or_update_deck_config_legacy(
         &mut self,
         input: generic::Json,
-    ) -> error::Result<anki_proto::deck_config::DeckConfigId> {
+    ) -> Result<anki_proto::deck_config::DeckConfigId> {
         let conf: DeckConfSchema11 = serde_json::from_slice(&input.json)?;
         let mut conf: DeckConfig = conf.into();
 
@@ -24,7 +24,7 @@ impl crate::services::DeckConfigService for Collection {
         .map(Into::into)
     }
 
-    fn all_deck_config_legacy(&mut self) -> error::Result<generic::Json> {
+    fn all_deck_config_legacy(&mut self) -> Result<generic::Json> {
         let conf: Vec<DeckConfSchema11> = self
             .storage
             .all_deck_config()?
@@ -39,7 +39,7 @@ impl crate::services::DeckConfigService for Collection {
     fn get_deck_config(
         &mut self,
         input: anki_proto::deck_config::DeckConfigId,
-    ) -> error::Result<anki_proto::deck_config::DeckConfig> {
+    ) -> Result<anki_proto::deck_config::DeckConfig> {
         Ok(Collection::get_deck_config(self, input.into(), true)?
             .unwrap()
             .into())
@@ -48,22 +48,19 @@ impl crate::services::DeckConfigService for Collection {
     fn get_deck_config_legacy(
         &mut self,
         input: anki_proto::deck_config::DeckConfigId,
-    ) -> error::Result<generic::Json> {
+    ) -> Result<generic::Json> {
         let conf = Collection::get_deck_config(self, input.into(), true)?.unwrap();
         let conf: DeckConfSchema11 = conf.into();
-        Ok(serde_json::to_vec(&conf)?).map(Into::into)
+        Ok(serde_json::to_vec(&conf)?.into())
     }
 
-    fn new_deck_config_legacy(&mut self) -> error::Result<generic::Json> {
+    fn new_deck_config_legacy(&mut self) -> Result<generic::Json> {
         serde_json::to_vec(&DeckConfSchema11::default())
             .map_err(Into::into)
             .map(Into::into)
     }
 
-    fn remove_deck_config(
-        &mut self,
-        input: anki_proto::deck_config::DeckConfigId,
-    ) -> error::Result<()> {
+    fn remove_deck_config(&mut self, input: anki_proto::deck_config::DeckConfigId) -> Result<()> {
         self.transact_no_undo(|col| col.remove_deck_config_inner(input.into()))
             .map(Into::into)
     }
@@ -71,14 +68,14 @@ impl crate::services::DeckConfigService for Collection {
     fn get_deck_configs_for_update(
         &mut self,
         input: anki_proto::decks::DeckId,
-    ) -> error::Result<anki_proto::deck_config::DeckConfigsForUpdate> {
+    ) -> Result<anki_proto::deck_config::DeckConfigsForUpdate> {
         self.get_deck_configs_for_update(input.did.into())
     }
 
     fn update_deck_configs(
         &mut self,
         input: anki_proto::deck_config::UpdateDeckConfigsRequest,
-    ) -> error::Result<anki_proto::collection::OpChanges> {
+    ) -> Result<anki_proto::collection::OpChanges> {
         self.update_deck_configs(input.into()).map(Into::into)
     }
 }
@@ -97,14 +94,18 @@ impl From<DeckConfig> for anki_proto::deck_config::DeckConfig {
 
 impl From<anki_proto::deck_config::UpdateDeckConfigsRequest> for UpdateDeckConfigsRequest {
     fn from(c: anki_proto::deck_config::UpdateDeckConfigsRequest) -> Self {
+        let mode = c.mode();
         UpdateDeckConfigsRequest {
             target_deck_id: c.target_deck_id.into(),
             configs: c.configs.into_iter().map(Into::into).collect(),
             removed_config_ids: c.removed_config_ids.into_iter().map(Into::into).collect(),
-            apply_to_children: c.apply_to_children,
+            mode,
             card_state_customizer: c.card_state_customizer,
             limits: c.limits.unwrap_or_default(),
             new_cards_ignore_review_limit: c.new_cards_ignore_review_limit,
+            apply_all_parent_limits: c.apply_all_parent_limits,
+            fsrs: c.fsrs,
+            fsrs_reschedule: c.fsrs_reschedule,
         }
     }
 }

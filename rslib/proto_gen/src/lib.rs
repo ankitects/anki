@@ -29,12 +29,12 @@ use walkdir::WalkDir;
 /// expected to exist (but may be empty).
 ///
 /// - If a method is listed in BackendExampleService and not in ExampleService,
-/// that method is only available with a Backend.
+///   that method is only available with a Backend.
 /// - If a method is listed in both services, you can provide separate
-/// implementations for each of the traits.
+///   implementations for each of the traits.
 /// - If a method is listed only in ExampleService, a forwarding method on
-/// Backend is automatically implemented. This bypasses the trait and implements
-/// directly on Backend.
+///   Backend is automatically implemented. This bypasses the trait and
+///   implements directly on Backend.
 ///
 /// It's important that service and method indices are the same for
 /// client-generated code, so the client code should use the .index fields
@@ -53,14 +53,18 @@ pub fn get_services(pool: &DescriptorPool) -> (Vec<CollectionService>, Vec<Backe
                 Either::Left(CollectionService::from_proto(service))
             }
         });
-    assert!(col_services.len() == backend_services.len());
+    // frontend.proto is only in col_services
+    assert_eq!(col_services.len(), backend_services.len());
     // copy collection methods into backend services if they don't have one with
     // a matching name
     for service in &mut backend_services {
         // locate associated collection service
         let Some(col_service) = col_services
             .iter()
-            .find(|cs| cs.name == service.name.trim_start_matches("Backend")) else { panic!("missing associated service: {}", service.name) };
+            .find(|cs| cs.name == service.name.trim_start_matches("Backend"))
+        else {
+            panic!("missing associated service: {}", service.name)
+        };
 
         // add any methods that don't exist in backend trait methods to the delegating
         // methods
@@ -235,7 +239,7 @@ where
     E: Fn(&Utf8Path, &str) -> bool,
 {
     static MESSAGE_OR_ENUM_RE: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r#"pub (struct|enum) ([[:alnum:]]+?)\s"#).unwrap());
+        Lazy::new(|| Regex::new(r"pub (struct|enum) ([[:alnum:]]+?)\s").unwrap());
     let contents = read_to_string(path)?;
     let contents = MESSAGE_OR_ENUM_RE.replace_all(&contents, |caps: &Captures| {
         let is_enum = caps.get(1).unwrap().as_str() == "enum";

@@ -25,6 +25,7 @@
 # ------------------------------------------------------------------------------
 
 # pylint: disable=raise-missing-from
+from __future__ import annotations
 
 import inspect
 import json
@@ -36,11 +37,8 @@ import sys
 import tempfile
 import threading
 import time
-from distutils.spawn import (  # pylint: disable=import-error,no-name-in-module
-    find_executable,
-)
 from queue import Empty, Full, Queue
-from typing import Optional
+from shutil import which
 
 from anki.utils import is_win
 
@@ -78,8 +76,8 @@ class MPVBase:
     based JSON IPC.
     """
 
-    executable = find_executable("mpv")
-    popenEnv: Optional[dict[str, str]] = None
+    executable = which("mpv")
+    popenEnv: dict[str, str] | None = None
 
     default_argv = [
         "--idle",
@@ -90,6 +88,7 @@ class MPVBase:
         "--keep-open=no",
         "--autoload-files=no",
         "--gapless-audio=no",
+        "--reset-on-next-file=pause",
     ]
 
     if is_win:

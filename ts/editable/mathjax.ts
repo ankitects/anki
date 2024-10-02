@@ -7,7 +7,7 @@
 
 import "mathjax/es5/tex-svg-full";
 
-import { mathIcon } from "./icons";
+import mathIcon from "@mdi/svg/svg/math-integral-box.svg?src";
 
 const parser = new DOMParser();
 

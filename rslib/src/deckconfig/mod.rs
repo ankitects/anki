@@ -6,10 +6,12 @@ mod service;
 pub(crate) mod undo;
 mod update;
 
+pub use anki_proto::deck_config::deck_config::config::AnswerAction;
 pub use anki_proto::deck_config::deck_config::config::LeechAction;
 pub use anki_proto::deck_config::deck_config::config::NewCardGatherPriority;
 pub use anki_proto::deck_config::deck_config::config::NewCardInsertOrder;
 pub use anki_proto::deck_config::deck_config::config::NewCardSortOrder;
+pub use anki_proto::deck_config::deck_config::config::QuestionAction;
 pub use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
 pub use anki_proto::deck_config::deck_config::config::ReviewMix;
 pub use anki_proto::deck_config::deck_config::Config as DeckConfigInner;
@@ -62,11 +64,22 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     disable_autoplay: false,
     cap_answer_time_to_secs: 60,
     show_timer: false,
+    stop_timer_on_answer: false,
+    seconds_to_show_question: 0.0,
+    seconds_to_show_answer: 0.0,
+    question_action: QuestionAction::ShowAnswer as i32,
+    answer_action: AnswerAction::BuryCard as i32,
+    wait_for_audio: true,
     skip_question_when_replaying_answer: false,
     bury_new: false,
     bury_reviews: false,
     bury_interday_learning: false,
+    fsrs_weights: vec![],
+    desired_retention: 0.9,
     other: Vec::new(),
+    historical_retention: 0.9,
+    weight_search: String::new(),
+    ignore_revlogs_before_date: String::new(),
 };
 
 impl Default for DeckConfig {
@@ -135,12 +148,12 @@ impl Collection {
         &mut self,
         config: &mut DeckConfig,
     ) -> Result<()> {
-        let usn = Some(self.usn()?);
+        let usn = self.usn()?;
 
         if config.id.0 == 0 {
-            self.add_deck_config_inner(config, usn)
+            self.add_deck_config_inner(config, Some(usn))
         } else {
-            config.set_modified(usn.unwrap());
+            config.set_modified(usn);
             self.storage
                 .add_or_update_deck_config_with_existing_id(config)
         }
@@ -265,6 +278,18 @@ pub(crate) fn ensure_deck_config_values_valid(config: &mut DeckConfigInner) {
         1,
         9999,
     );
+    ensure_f32_valid(
+        &mut config.desired_retention,
+        default.desired_retention,
+        0.7,
+        0.99,
+    );
+    ensure_f32_valid(
+        &mut config.historical_retention,
+        default.historical_retention,
+        0.7,
+        0.97,
+    )
 }
 
 fn ensure_f32_valid(val: &mut f32, default: f32, min: f32, max: f32) {

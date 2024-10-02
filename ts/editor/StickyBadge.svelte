@@ -3,14 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import * as tr from "@tslib/ftl";
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
+    import { onEnterOrSpace } from "@tslib/keys";
     import { onMount } from "svelte";
 
-    import Badge from "../components/Badge.svelte";
+    import Badge from "$lib/components/Badge.svelte";
+    import Icon from "$lib/components/Icon.svelte";
+    import { stickyIcon } from "$lib/components/icons";
+
     import { context as editorFieldContext } from "./EditorField.svelte";
-    import { stickyIcon } from "./icons";
 
     const animated = !document.body.classList.contains("reduce-motion");
 
@@ -41,12 +44,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:highlighted={active}
     class:visible={show || !animated}
     on:click|stopPropagation={toggle}
+    on:keydown={onEnterOrSpace(() => toggle())}
+    tabindex="-1"
+    role="button"
 >
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
         widthMultiplier={0.7}
     >
-        {@html stickyIcon}
+        <Icon icon={stickyIcon} />
     </Badge>
 </span>
 

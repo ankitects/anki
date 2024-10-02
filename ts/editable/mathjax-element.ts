@@ -3,7 +3,9 @@
 
 import { on } from "@tslib/events";
 
-import { placeCaretAfter, placeCaretBefore } from "../domlib/place-caret";
+import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
+
+import { createClassComponent } from "svelte/legacy";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
 import { FrameElement, frameElement } from "./frame-element";
 import Mathjax_svelte from "./Mathjax.svelte";
@@ -112,8 +114,8 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLEl
         this.dataset.mathjax = this.innerHTML;
         this.innerHTML = "";
         this.style.whiteSpace = "normal";
-
-        this.component = new Mathjax_svelte({
+        this.component = createClassComponent({
+            component: Mathjax_svelte,
             target: this,
             props: {
                 mathjax: this.dataset.mathjax,

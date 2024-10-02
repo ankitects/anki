@@ -48,16 +48,6 @@ impl Collection {
 
     pub fn get_scheduling_preferences(&self) -> Result<Scheduling> {
         Ok(Scheduling {
-            scheduler_version: match self.scheduler_version() {
-                crate::config::SchedulerVersion::V1 => 1,
-                crate::config::SchedulerVersion::V2 => {
-                    if self.get_config_bool(BoolKey::Sched2021) {
-                        3
-                    } else {
-                        2
-                    }
-                }
-            },
             rollover: self.rollover_for_current_scheduler()? as u32,
             learn_ahead_secs: self.learn_ahead_secs(),
             new_review_mix: match self.get_new_review_mix() {
@@ -108,6 +98,7 @@ impl Collection {
             show_intervals_on_buttons: self
                 .get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons),
             time_limit_secs: self.get_answer_time_limit_secs(),
+            load_balancer_enabled: self.get_config_bool(BoolKey::LoadBalancerEnabled),
         })
     }
 
@@ -127,6 +118,8 @@ impl Collection {
             s.show_intervals_on_buttons,
         )?;
         self.set_answer_time_limit_secs(s.time_limit_secs)?;
+        self.set_config_bool_inner(BoolKey::LoadBalancerEnabled, s.load_balancer_enabled)?;
+
         Ok(())
     }
 
@@ -138,6 +131,7 @@ impl Collection {
             paste_strips_formatting: self.get_config_bool(BoolKey::PasteStripsFormatting),
             default_search_text: self.get_config_string(StringKey::DefaultSearchText),
             ignore_accents_in_search: self.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+            render_latex: self.get_config_bool(BoolKey::RenderLatex),
         })
     }
 
@@ -151,6 +145,7 @@ impl Collection {
         self.set_config_bool_inner(BoolKey::PasteStripsFormatting, s.paste_strips_formatting)?;
         self.set_config_string_inner(StringKey::DefaultSearchText, &s.default_search_text)?;
         self.set_config_bool_inner(BoolKey::IgnoreAccentsInSearch, s.ignore_accents_in_search)?;
+        self.set_config_bool_inner(BoolKey::RenderLatex, s.render_latex)?;
         Ok(())
     }
 }

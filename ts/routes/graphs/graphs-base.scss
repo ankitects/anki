@@ -1,0 +1,10 @@
+@use "$lib/sass/root-vars";
+@import "$lib/sass/base";
+
+button {
+    margin-bottom: 5px;
+}
+
+html {
+    height: initial;
+}

@@ -7,7 +7,6 @@ use anki_proto::generic;
 use crate::card::CardId;
 use crate::card_rendering::extract_av_tags;
 use crate::card_rendering::strip_av_tags;
-use crate::card_rendering::tts;
 use crate::cloze::extract_cloze_for_typing;
 use crate::collection::Collection;
 use crate::error::OrInvalid;
@@ -21,6 +20,7 @@ use crate::notetype::RenderCardOutput;
 use crate::template::RenderedNode;
 use crate::text::decode_iri_paths;
 use crate::text::encode_iri_paths;
+use crate::text::html_to_text_line;
 use crate::text::sanitize_html_no_images;
 use crate::text::strip_html;
 use crate::text::strip_html_preserving_media_filenames;
@@ -53,7 +53,7 @@ impl crate::services::CardRenderingService for Collection {
         let (text, extracted) = func(&input.text, input.svg);
 
         Ok(anki_proto::card_rendering::ExtractLatexResponse {
-            text,
+            text: text.into_owned(),
             latex: extracted
                 .into_iter()
                 .map(
@@ -152,6 +152,17 @@ impl crate::services::CardRenderingService for Collection {
         strip_html_proto(input)
     }
 
+    fn html_to_text_line(
+        &mut self,
+        input: anki_proto::card_rendering::HtmlToTextLineRequest,
+    ) -> Result<generic::String> {
+        Ok(
+            html_to_text_line(&input.text, input.preserve_media_filenames)
+                .to_string()
+                .into(),
+        )
+    }
+
     fn compare_answer(
         &mut self,
         input: anki_proto::card_rendering::CompareAnswerRequest,
@@ -166,27 +177,6 @@ impl crate::services::CardRenderingService for Collection {
         Ok(extract_cloze_for_typing(&input.text, input.ordinal as u16)
             .to_string()
             .into())
-    }
-
-    fn all_tts_voices(
-        &mut self,
-        input: anki_proto::card_rendering::AllTtsVoicesRequest,
-    ) -> Result<anki_proto::card_rendering::AllTtsVoicesResponse> {
-        tts::all_voices(input.validate)
-            .map(|voices| anki_proto::card_rendering::AllTtsVoicesResponse { voices })
-    }
-
-    fn write_tts_stream(
-        &mut self,
-        request: anki_proto::card_rendering::WriteTtsStreamRequest,
-    ) -> Result<()> {
-        tts::write_stream(
-            &request.path,
-            &request.voice_id,
-            request.speed,
-            &request.text,
-        )
-        .map(Into::into)
     }
 }
 

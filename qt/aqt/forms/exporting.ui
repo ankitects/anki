@@ -68,6 +68,16 @@
       </widget>
      </item>
      <item alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="include_deck_configs">
+       <property name="text">
+        <string>exporting_include_deck_configs</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignLeft">
       <widget class="QCheckBox" name="includeMedia">
        <property name="text">
         <string>exporting_include_media</string>
@@ -127,7 +137,7 @@
         <string>exporting_support_older_anki_versions</string>
        </property>
        <property name="checked">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -162,9 +172,14 @@
   <tabstop>format</tabstop>
   <tabstop>deck</tabstop>
   <tabstop>includeSched</tabstop>
+  <tabstop>include_deck_configs</tabstop>
   <tabstop>includeMedia</tabstop>
+  <tabstop>includeHTML</tabstop>
   <tabstop>includeTags</tabstop>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>includeDeck</tabstop>
+  <tabstop>includeNotetype</tabstop>
+  <tabstop>includeGuid</tabstop>
+  <tabstop>legacy_support</tabstop>
  </tabstops>
  <resources/>
  <connections>

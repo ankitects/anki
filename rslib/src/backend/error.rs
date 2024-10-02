@@ -40,9 +40,16 @@ impl AnkiError {
             AnkiError::FileIoError { .. } => Kind::IoError,
             AnkiError::MediaCheckRequired => Kind::InvalidInput,
             AnkiError::InvalidId => Kind::InvalidInput,
-            AnkiError::InvalidMethodIndex | AnkiError::InvalidServiceIndex => Kind::InvalidInput,
+            AnkiError::InvalidMethodIndex
+            | AnkiError::InvalidServiceIndex
+            | AnkiError::FsrsWeightsInvalid
+            | AnkiError::FsrsUnableToDetermineDesiredRetention
+            | AnkiError::FsrsInsufficientData => Kind::InvalidInput,
             #[cfg(windows)]
             AnkiError::WindowsError { .. } => Kind::OsError,
+            AnkiError::SchedulerUpgradeRequired => Kind::SchedulerUpgradeRequired,
+            AnkiError::FsrsInsufficientReviews { .. } => Kind::InvalidInput,
+            AnkiError::InvalidCertificateFormat => Kind::InvalidCertificateFormat,
         };
 
         anki_proto::backend::BackendError {

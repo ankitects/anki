@@ -161,7 +161,8 @@ message BrowserColumns {
     string cards_mode_label = 2;
     string notes_mode_label = 3;
     // The default sort order
-    Sorting sorting = 4;
+    Sorting sorting_cards = 4;
+    Sorting sorting_notes = 9;
     bool uses_cell_font = 5;
     Alignment alignment = 6;
     string cards_mode_tooltip = 7;
@@ -172,8 +173,16 @@ message BrowserColumns {
 
 message BrowserRow {
   message Cell {
+    enum TextElideMode {
+      ElideLeft = 0;
+      ElideRight = 1;
+      ElideMiddle = 2;
+      ElideNone = 3;
+    }
+
     string text = 1;
     bool is_rtl = 2;
+    TextElideMode elide_mode = 3;
   }
   enum Color {
     COLOR_DEFAULT = 0;

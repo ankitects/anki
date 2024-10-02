@@ -14,7 +14,6 @@ use unicase::UniCase;
 use super::limits::remaining_limits_map;
 use super::limits::RemainingLimits;
 use super::DueCounts;
-use crate::config::SchedulerVersion;
 use crate::ops::OpOutput;
 use crate::prelude::*;
 use crate::undo::Op;
@@ -100,66 +99,6 @@ fn add_counts(node: &mut DeckTreeNode, counts: &HashMap<DeckId, DueCounts>) {
     }
 }
 
-/// Apply parent limits to children, and add child counts to parents.
-fn sum_counts_and_apply_limits_v1(
-    node: &mut DeckTreeNode,
-    limits: &HashMap<DeckId, RemainingLimits>,
-    parent_limits: RemainingLimits,
-) {
-    let mut remaining = limits
-        .get(&DeckId(node.deck_id))
-        .copied()
-        .unwrap_or_default();
-    remaining.cap_to(parent_limits);
-
-    // apply our limit to children and tally their counts
-    let mut child_new_total = 0;
-    let mut child_rev_total = 0;
-    for child in &mut node.children {
-        sum_counts_and_apply_limits_v1(child, limits, remaining);
-        child_new_total += child.new_count;
-        child_rev_total += child.review_count;
-        // no limit on learning cards
-        node.learn_count += child.learn_count;
-    }
-
-    // add child counts to our count, capped to remaining limit
-    node.new_count = (node.new_count + child_new_total).min(remaining.new);
-    node.review_count = (node.review_count + child_rev_total).min(remaining.review);
-}
-
-/// Apply parent new limits to children, and add child counts to parents. Unlike
-/// v1, reviews are not capped by their parents, and we
-/// return the uncapped review amount to add to the parent.
-fn sum_counts_and_apply_limits_v2(
-    node: &mut DeckTreeNode,
-    limits: &HashMap<DeckId, RemainingLimits>,
-    parent_limits: RemainingLimits,
-) -> u32 {
-    let original_rev_count = node.review_count;
-    let mut remaining = limits
-        .get(&DeckId(node.deck_id))
-        .copied()
-        .unwrap_or_default();
-    remaining.new = remaining.new.min(parent_limits.new);
-
-    // apply our limit to children and tally their counts
-    let mut child_new_total = 0;
-    let mut child_rev_total = 0;
-    for child in &mut node.children {
-        child_rev_total += sum_counts_and_apply_limits_v2(child, limits, remaining);
-        child_new_total += child.new_count;
-        // no limit on learning cards
-        node.learn_count += child.learn_count;
-    }
-
-    // add child counts to our count, capped to remaining limit
-    node.new_count = (node.new_count + child_new_total).min(remaining.new);
-    node.review_count = (node.review_count + child_rev_total).min(remaining.review);
-
-    original_rev_count + child_rev_total
-}
-
 /// A temporary container used during count summation and limit application.
 #[derive(Default, Clone)]
 struct NodeCountsV3 {
@@ -203,11 +142,16 @@ impl AddAssign for NodeCountsV3 {
 fn sum_counts_and_apply_limits_v3(
     node: &mut DeckTreeNode,
     limits: &HashMap<DeckId, RemainingLimits>,
+    mut parent_limits: Option<RemainingLimits>,
 ) -> NodeCountsV3 {
-    let remaining = limits
+    let mut remaining = limits
         .get(&DeckId(node.deck_id))
         .copied()
         .unwrap_or_default();
+    if let Some(parent_remaining) = parent_limits {
+        remaining.cap_to(parent_remaining);
+        parent_limits.replace(remaining);
+    }
 
     // initialize with this node's values
     let mut this_node_uncapped = NodeCountsV3 {
@@ -221,7 +165,7 @@ fn sum_counts_and_apply_limits_v3(
 
     // add capped child counts / uncapped total
     for child in &mut node.children {
-        this_node_uncapped += sum_counts_and_apply_limits_v3(child, limits);
+        this_node_uncapped += sum_counts_and_apply_limits_v3(child, limits, parent_limits);
         total_including_children += child.total_including_children;
     }
 
@@ -325,10 +269,11 @@ impl Collection {
             let timing_at_stamp = self.timing_for_timestamp(timestamp)?;
             let days_elapsed = timing_at_stamp.days_elapsed;
             let learn_cutoff = (timestamp.0 as u32) + self.learn_ahead_secs();
-            let sched_ver = self.scheduler_version();
-            let v3 = self.get_config_bool(BoolKey::Sched2021);
             let new_cards_ignore_review_limit =
                 self.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit);
+            let parent_limits = self
+                .get_config_bool(BoolKey::ApplyAllParentLimits)
+                .then(Default::default);
             let counts = self.due_counts(days_elapsed, learn_cutoff)?;
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
@@ -336,18 +281,9 @@ impl Collection {
                 decks_map.values(),
                 &dconf,
                 days_elapsed,
-                v3,
                 new_cards_ignore_review_limit,
             );
-            if sched_ver == SchedulerVersion::V2 {
-                if v3 {
-                    sum_counts_and_apply_limits_v3(&mut tree, &limits);
-                } else {
-                    sum_counts_and_apply_limits_v2(&mut tree, &limits, RemainingLimits::default());
-                }
-            } else {
-                sum_counts_and_apply_limits_v1(&mut tree, &limits, RemainingLimits::default());
-            }
+            sum_counts_and_apply_limits_v3(&mut tree, &limits, parent_limits);
         }
 
         Ok(tree)
@@ -504,7 +440,6 @@ mod test {
         }
 
         let mut col = Collection::new();
-        col.set_config_bool(BoolKey::Sched2021, true, false)?;
 
         let parent_deck = create_deck_with_new_limit(&mut col, "Default", 8);
         let child_deck = create_deck_with_new_limit(&mut col, "Default::child", 4);

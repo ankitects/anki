@@ -10,6 +10,7 @@ use crate::decks::FilteredDeck;
 use crate::decks::FilteredSearchTerm;
 use crate::error::FilteredDeckError;
 use crate::prelude::*;
+use crate::scheduler::timing::SchedTimingToday;
 use crate::search::writer::deck_search;
 use crate::search::writer::normalize_search;
 use crate::search::SortMode;
@@ -21,14 +22,14 @@ pub struct FilteredDeckForUpdate {
     pub id: DeckId,
     pub human_name: String,
     pub config: FilteredDeck,
+    pub allow_empty: bool,
 }
 
 pub(crate) struct DeckFilterContext<'a> {
     pub target_deck: DeckId,
     pub config: &'a FilteredDeck,
-    pub scheduler: SchedulerVersion,
     pub usn: Usn,
-    pub today: u32,
+    pub timing: SchedTimingToday,
 }
 
 impl Collection {
@@ -84,12 +85,11 @@ impl Collection {
 
     // Unlike the old Python code, this also marks the cards as modified.
     fn return_cards_to_home_deck(&mut self, cids: &[CardId]) -> Result<()> {
-        let sched = self.scheduler_version();
         let usn = self.usn()?;
         for cid in cids {
             if let Some(mut card) = self.storage.get_card(*cid)? {
                 let original = card.clone();
-                card.remove_from_filtered_deck_restoring_queue(sched);
+                card.remove_from_filtered_deck_restoring_queue();
                 self.update_card_inner(&mut card, original, usn)?;
             }
         }
@@ -99,13 +99,9 @@ impl Collection {
     fn build_filtered_deck(&mut self, ctx: DeckFilterContext) -> Result<usize> {
         let start = -100_000;
         let mut position = start;
-        let limit = if ctx.scheduler == SchedulerVersion::V1 {
-            1
-        } else {
-            2
-        };
-        for term in ctx.config.search_terms.iter().take(limit) {
-            position = self.move_cards_matching_term(&ctx, term, position)?;
+        let fsrs = self.get_config_bool(BoolKey::Fsrs);
+        for term in ctx.config.search_terms.iter().take(2) {
+            position = self.move_cards_matching_term(&ctx, term, position, fsrs)?;
         }
 
         Ok((position - start) as usize)
@@ -118,21 +114,17 @@ impl Collection {
         ctx: &DeckFilterContext,
         term: &FilteredSearchTerm,
         mut position: i32,
+        fsrs: bool,
     ) -> Result<i32> {
         let search = format!(
-            "{} -is:suspended -is:buried -deck:filtered {}",
+            "{} -is:suspended -is:buried -deck:filtered",
             if term.search.trim().is_empty() {
                 "".to_string()
             } else {
                 format!("({})", term.search)
-            },
-            if ctx.scheduler == SchedulerVersion::V1 {
-                "-is:learn"
-            } else {
-                ""
             }
         );
-        let order = order_and_limit_for_search(term, ctx.today);
+        let order = order_and_limit_for_search(term, ctx.timing, fsrs);
 
         for mut card in self.all_cards_for_search_in_order(&search, SortMode::Custom(order))? {
             let original = card.clone();
@@ -156,6 +148,7 @@ impl Collection {
         mut update: FilteredDeckForUpdate,
     ) -> Result<DeckId> {
         let usn = self.usn()?;
+        let allow_empty = update.allow_empty;
 
         // check the searches are valid, and normalize them
         for term in &mut update.config.search_terms {
@@ -179,7 +172,7 @@ impl Collection {
         let count = self.rebuild_filtered_deck_inner(&deck, usn)?;
 
         // if it failed to match any cards, we revert the changes
-        if count == 0 {
+        if count == 0 && !allow_empty {
             Err(FilteredDeckError::SearchReturnedNoCards.into())
         } else {
             // update current deck and return id
@@ -189,13 +182,17 @@ impl Collection {
     }
 
     fn rebuild_filtered_deck_inner(&mut self, deck: &Deck, usn: Usn) -> Result<usize> {
+        if self.scheduler_version() == SchedulerVersion::V1 {
+            return Err(AnkiError::SchedulerUpgradeRequired);
+        }
+
         let config = deck.filtered()?;
+        let timing = self.timing_today()?;
         let ctx = DeckFilterContext {
             target_deck: deck.id,
             config,
-            scheduler: self.scheduler_version(),
             usn,
-            today: self.timing_today()?.days_elapsed,
+            timing,
         };
 
         self.return_all_cards_in_filtered_deck(deck.id)?;
@@ -242,6 +239,7 @@ impl TryFrom<Deck> for FilteredDeckForUpdate {
                 id: value.id,
                 human_name,
                 config: filtered,
+                allow_empty: false,
             }),
             _ => invalid_input!("not filtered"),
         }

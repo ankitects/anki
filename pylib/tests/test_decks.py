@@ -9,6 +9,7 @@ from tests.shared import assertException, getEmptyCol
 
 def test_basic():
     col = getEmptyCol()
+    col.set_v3_scheduler(False)
     # we start with a standard col
     assert len(col.decks.all_names_and_ids()) == 1
     # it should have an id of 1
@@ -21,22 +22,16 @@ def test_basic():
     assert col.decks.id("new deck") == parentId
     # we start with the default col selected
     assert col.decks.selected() == 1
-    col.reset()
-    assert col.decks.active() == [1]
     # we can select a different col
     col.decks.select(parentId)
     assert col.decks.selected() == parentId
-    assert col.decks.active() == [parentId]
     # let's create a child
     childId = col.decks.id("new deck::child")
-    col.sched.reset()
     # it should have been added to the active list
     assert col.decks.selected() == parentId
-    assert col.decks.active() == [parentId, childId]
     # we can select the child individually too
     col.decks.select(childId)
     assert col.decks.selected() == childId
-    assert col.decks.active() == [childId]
     # parents with a different case should be handled correctly
     col.decks.id("ONE")
     m = col.models.current()

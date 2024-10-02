@@ -2,8 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from enum import Enum, auto
-from typing import Callable, Iterable
 
 from anki.collection import SearchNode
 from aqt.theme import ColoredIcon
@@ -48,6 +48,9 @@ class SidebarItemType(Enum):
             SidebarItemType.TAG,
         )
 
+    def can_be_added_to(self) -> bool:
+        return self == SidebarItemType.DECK
+
     def is_deletable(self) -> bool:
         return self in (
             SidebarItemType.SAVED_SEARCH,
@@ -62,7 +65,7 @@ class SidebarItem:
         name: str,
         icon: str | ColoredIcon,
         search_node: SearchNode | None = None,
-        on_expanded: Callable[[bool], None] = None,
+        on_expanded: Callable[[bool], None] | None = None,
         expanded: bool = False,
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
         id: int = 0,

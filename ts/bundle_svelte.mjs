@@ -31,7 +31,7 @@ if (!sourcemap) {
             define: {
                 "process.browser": "true",
             },
-            tsconfig: "ts/tsconfig.json",
+            tsconfig: "ts/tsconfig_legacy.json",
         }),
         sveltePreprocess({ typescript: false }),
     ];
@@ -52,9 +52,9 @@ build({
     preserveSymlinks: true,
     sourcemap: sourcemap ? "inline" : false,
     plugins: [
-        sassPlugin({ loadPaths: [".", "node_modules"] }),
+        sassPlugin({ loadPaths: ["node_modules"] }),
         sveltePlugin({
-            compilerOptions: { css: inlineCss },
+            compilerOptions: { css: inlineCss ? "injected" : "external" },
             preprocess: sveltePlugins,
             // let us focus on errors; we can see the warnings with svelte-check
             filterWarnings: (_warning) => false,

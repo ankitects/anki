@@ -3,7 +3,7 @@
 
 # pylint: disable=invalid-name
 
-from typing import Optional
+from __future__ import annotations
 
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
@@ -52,7 +52,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
         print("_nextDueMsg() is obsolete")
         return ""
 
-    def rebuildDyn(self, did: Optional[DeckId] = None) -> Optional[int]:
+    def rebuildDyn(self, did: DeckId | None = None) -> int | None:
         did = did or self.col.decks.selected()
         count = self.rebuild_filtered_deck(did).count or None
         if not count:
@@ -61,7 +61,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
         self.col.decks.select(did)
         return count
 
-    def emptyDyn(self, did: Optional[DeckId], lim: Optional[str] = None) -> None:
+    def emptyDyn(self, did: DeckId | None, lim: str | None = None) -> None:
         if lim is None:
             self.empty_filtered_deck(did)
             return
@@ -126,6 +126,9 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             % self._deck_limit(),
             self.today,
         )
+
+    def answerButtons(self, card: Card) -> int:
+        return 4
 
     # legacy in v3 but used by unit tests; redefined in v2/v1
 

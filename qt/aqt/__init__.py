@@ -3,7 +3,17 @@
 
 from __future__ import annotations
 
+import logging
 import sys
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Union, cast
+
+try:
+    import pip_system_certs.wrapt_requests
+except ModuleNotFoundError:
+    print(
+        "Python module pip_system_certs is not installed. System certificate store and custom SSL certificates may not work. See: https://github.com/ankitects/anki/issues/3016"
+    )
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
     raise Exception("Anki requires Python 3.9+")
@@ -19,6 +29,12 @@ except UnicodeEncodeError as exc:
 # if sync server enabled, bypass the rest of the startup
 if "--syncserver" in sys.argv:
     from anki.syncserver import run_sync_server
+    from anki.utils import is_mac
+
+    from .package import _fix_protobuf_path
+
+    if is_mac and getattr(sys, "frozen", False):
+        _fix_protobuf_path()
 
     # does not return
     run_sync_server()
@@ -35,7 +51,7 @@ import locale
 import os
 import tempfile
 import traceback
-from typing import TYPE_CHECKING, Any, Callable, Optional, cast
+from pathlib import Path
 
 import anki.lang
 from anki._backend import RustBackend
@@ -44,7 +60,9 @@ from anki.collection import Collection
 from anki.consts import HELP_SITE
 from anki.utils import checksum, is_lin, is_mac
 from aqt import gui_hooks
+from aqt.log import setup_logging
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.utils import TR, tr
 
 if TYPE_CHECKING:
@@ -76,8 +94,8 @@ appHelpSite = HELP_SITE
 from aqt.main import AnkiQt  # isort:skip
 from aqt.profiles import ProfileManager, VideoDriver  # isort:skip
 
-profiler: Optional[cProfile.Profile] = None
-mw: Optional[AnkiQt] = None  # set on init
+profiler: cProfile.Profile | None = None
+mw: AnkiQt | None = None  # set on init
 
 import aqt.forms
 
@@ -138,7 +156,7 @@ class DialogManager:
     def allClosed(self) -> bool:
         return not any(x[1] for x in self._dialogs.values())
 
-    def closeAll(self, onsuccess: Callable[[], None]) -> Optional[bool]:
+    def closeAll(self, onsuccess: Callable[[], None]) -> bool | None:
         # can we close immediately?
         if self.allClosed():
             onsuccess()
@@ -165,7 +183,7 @@ class DialogManager:
         return True
 
     def register_dialog(
-        self, name: str, creator: Union[Callable, type], instance: Optional[Any] = None
+        self, name: str, creator: Callable | type, instance: Any | None = None
     ) -> None:
         """Allows add-ons to register a custom dialog to be managed by Anki's dialog
         manager, which ensures that only one copy of the window is open at once,
@@ -203,19 +221,19 @@ dialogs = DialogManager()
 
 # A reference to the Qt translator needs to be held to prevent it from
 # being immediately deallocated.
-_qtrans: Optional[QTranslator] = None
+_qtrans: QTranslator | None = None
 
 
 def setupLangAndBackend(
     pm: ProfileManager,
     app: QApplication,
-    force: Optional[str] = None,
+    force: str | None = None,
     firstTime: bool = False,
 ) -> RustBackend:
     global _qtrans
     try:
         locale.setlocale(locale.LC_ALL, "")
-    except:
+    except Exception:
         pass
 
     # add _ and ngettext globals used by legacy code
@@ -269,6 +287,22 @@ def setupLangAndBackend(
 ##########################################################################
 
 
+class NativeEventFilter(QAbstractNativeEventFilter):
+    def nativeEventFilter(
+        self, eventType: Any, message: Any
+    ) -> tuple[bool, sip.voidptr | None]:
+        if eventType == "windows_generic_MSG":
+            import ctypes
+
+            msg = ctypes.wintypes.MSG.from_address(int(message))
+            if msg.message == 17:  # WM_QUERYENDSESSION
+                if mw.can_auto_sync():
+                    mw.app._set_windows_shutdown_block_reason(tr.sync_syncing())
+                    mw.progress.single_shot(100, mw.unloadProfileAndExit)
+                    return (True, 0)
+        return (False, 0)
+
+
 class AnkiApp(QApplication):
     # Single instance support on Win32/Linux
     ##################################################
@@ -282,6 +316,27 @@ class AnkiApp(QApplication):
         QApplication.__init__(self, argv)
         self.installEventFilter(self)
         self._argv = argv
+        self._native_event_filter = NativeEventFilter()
+        if is_win:
+            self.installNativeEventFilter(self._native_event_filter)
+
+    def _set_windows_shutdown_block_reason(self, reason: str) -> None:
+        if is_win:
+            import ctypes
+            from ctypes import windll, wintypes  # type: ignore
+
+            windll.user32.ShutdownBlockReasonCreate(
+                wintypes.HWND.from_param(int(mw.effectiveWinId())),
+                ctypes.c_wchar_p(reason),
+            )
+
+    def _unset_windows_shutdown_block_reason(self) -> None:
+        if is_win:
+            from ctypes import windll, wintypes  # type: ignore
+
+            windll.user32.ShutdownBlockReasonDestroy(
+                wintypes.HWND.from_param(int(mw.effectiveWinId())),
+            )
 
     def secondInstance(self) -> bool:
         # we accept only one command line argument. if it's missing, send
@@ -399,9 +454,11 @@ def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
 
 def setupGL(pm: aqt.profiles.ProfileManager) -> None:
     driver = pm.video_driver()
+    # RHI errors are emitted multiple times so make sure we only handle them once
+    driver_failed = False
 
     # work around pyqt loading wrong GL library
-    if is_lin:
+    if is_lin and not sys.platform.startswith("freebsd"):
         import ctypes
 
         ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
@@ -431,11 +488,16 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             context += f"{ctx.function}"
         if context:
             context = f"'{context}'"
-        if (
+
+        nonlocal driver_failed
+        if not driver_failed and (
             "Failed to create OpenGL context" in msg
             # Based on the message Qt6 shows to the user; have not tested whether
             # we can actually capture this or not.
             or "Failed to initialize graphics backend" in msg
+            # RHI backend
+            or "Failed to create QRhi" in msg
+            or "Failed to get a QRhi" in msg
         ):
             QMessageBox.critical(
                 None,
@@ -446,6 +508,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
                 ),
             )
             pm.set_video_driver(driver.next())
+            driver_failed = True
             return
         else:
             print(f"Qt {category}: {msg} {context}")
@@ -455,8 +518,9 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
     if driver == VideoDriver.OpenGL:
         # Leaving QT_OPENGL unset appears to sometimes produce different results
         # to explicitly setting it to 'auto'; the former seems to be more compatible.
-        pass
-    else:
+        if qtmajor > 5:
+            QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGL)
+    elif driver in (VideoDriver.Software, VideoDriver.ANGLE):
         if is_win:
             # on Windows, this appears to be sufficient on Qt5/Qt6.
             # On Qt6, ANGLE is excluded by the enum.
@@ -469,6 +533,14 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             # Required on Qt6
             if "QTWEBENGINE_CHROMIUM_FLAGS" not in os.environ:
                 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
+        if qtmajor > 5:
+            QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Software)
+    elif driver == VideoDriver.Metal:
+        QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Metal)
+    elif driver == VideoDriver.Vulkan:
+        QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Vulkan)
+    elif driver == VideoDriver.Direct3D:
+        QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Direct3D11)
 
 
 PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
@@ -476,11 +548,8 @@ PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 def write_profile_results() -> None:
     profiler.disable()
-    profile = os.path.join(os.environ.get("BUILD_WORKSPACE_DIRECTORY", ""), "anki.prof")
+    profile = "out/anki.prof"
     profiler.dump_stats(profile)
-    profiler.dump_stats("anki.prof")
-    print("profile stats written to anki.prof")
-    print("use 'bazel run qt:profile' to explore")
 
 
 def run() -> None:
@@ -496,7 +565,7 @@ def run() -> None:
         )
 
 
-def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiApp]:
+def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
     """Start AnkiQt application or reuse an existing instance if one exists.
 
     If the function is invoked with exec=False, the AnkiQt will not enter
@@ -552,7 +621,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     pm = None
     try:
         base_folder = ProfileManager.get_created_base_folder(opts.base)
-        Collection.initialize_backend_logging(str(base_folder / "anki.log"))
 
         # default to specified/system language before getting user's preference so that we can localize some more strings
         lang = anki.lang.get_def_lang(opts.lang)
@@ -561,7 +629,9 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
         pm = ProfileManager(base_folder)
         pmLoadResult = pm.setupMeta()
-    except:
+
+        Collection.initialize_backend_logging()
+    except Exception:
         # will handle below
         traceback.print_exc()
         pm = None
@@ -572,26 +642,32 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         # apply user-provided scale factor
         os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
 
-    # opt in to full hidpi support?
+    # Opt-in to full HiDPI support?
     if not os.environ.get("ANKI_NOHIGHDPI") and qtmajor == 5:
         QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)  # type: ignore
         QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)  # type: ignore
         os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
         os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough"
 
-    # Opt into software rendering. Useful for buggy systems.
+    # Opt-in to software rendering?
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
         QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
 
-    # fix an issue on Windows, where Ctrl+Alt shortcuts are triggered by AltGr,
+    # Fix an issue on Windows, where Ctrl+Alt shortcuts are triggered by AltGr,
     # preventing users from typing things like "@" through AltGr+Q on a German
     # keyboard.
     if is_win and "QT_QPA_PLATFORM" not in os.environ:
         os.environ["QT_QPA_PLATFORM"] = "windows:altgr"
 
+    # Disable sandbox on Qt5 PyPi/packaged builds, as it causes blank screens on modern
+    # glibc versions. We check for specific patch versions, because distros may have
+    # fixed the issue in their own Qt builds.
+    if is_lin and qtfullversion in ([5, 15, 2], [5, 14, 1]):
+        os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
+
     # create the app
     QCoreApplication.setApplicationName("Anki")
-    QGuiApplication.setDesktopFileName("anki.desktop")
+    QGuiApplication.setDesktopFileName("anki")
     app = AnkiApp(argv)
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
@@ -607,6 +683,11 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         else:
             QMessageBox.critical(None, "Startup Failed", "Unable to create data folder")
         return None
+
+    setup_logging(
+        pm.addon_logs(),
+        level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
+    )
 
     # disable icons on mac; this must be done before window created
     if is_mac:
@@ -640,7 +721,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     # we must have a usable temp dir
     try:
         tempfile.gettempdir()
-    except:
+    except Exception:
         QMessageBox.critical(
             None,
             tr.qt_misc_error(),

@@ -62,7 +62,6 @@ impl RemainingLimits {
         deck: &Deck,
         config: Option<&DeckConfig>,
         today: u32,
-        v3: bool,
         new_cards_ignore_review_limit: bool,
     ) -> Self {
         if let Ok(normal) = deck.normal() {
@@ -70,7 +69,6 @@ impl RemainingLimits {
                 return Self::new_for_normal_deck(
                     deck,
                     today,
-                    v3,
                     new_cards_ignore_review_limit,
                     normal,
                     config,
@@ -83,28 +81,11 @@ impl RemainingLimits {
     fn new_for_normal_deck(
         deck: &Deck,
         today: u32,
-        v3: bool,
         new_cards_ignore_review_limit: bool,
         normal: &NormalDeck,
         config: &DeckConfig,
     ) -> RemainingLimits {
-        if v3 {
-            Self::new_for_normal_deck_v3(deck, today, new_cards_ignore_review_limit, normal, config)
-        } else {
-            Self::new_for_normal_deck_v2(deck, today, config)
-        }
-    }
-
-    fn new_for_normal_deck_v2(deck: &Deck, today: u32, config: &DeckConfig) -> RemainingLimits {
-        let review_limit = config.inner.reviews_per_day;
-        let new_limit = config.inner.new_per_day;
-        let (new_today_count, review_today_count) = deck.new_rev_counts(today);
-
-        Self {
-            review: (review_limit as i32 - review_today_count).max(0) as u32,
-            new: (new_limit as i32 - new_today_count).max(0) as u32,
-            cap_new_to_review: false,
-        }
+        Self::new_for_normal_deck_v3(deck, today, new_cards_ignore_review_limit, normal, config)
     }
 
     fn new_for_normal_deck_v3(
@@ -189,7 +170,6 @@ pub(crate) fn remaining_limits_map<'a>(
     decks: impl Iterator<Item = &'a Deck>,
     config: &'a HashMap<DeckConfigId, DeckConfig>,
     today: u32,
-    v3: bool,
     new_cards_ignore_review_limit: bool,
 ) -> HashMap<DeckId, RemainingLimits> {
     decks
@@ -200,7 +180,6 @@ pub(crate) fn remaining_limits_map<'a>(
                     deck,
                     deck.config_id().and_then(|id| config.get(&id)),
                     today,
-                    v3,
                     new_cards_ignore_review_limit,
                 ),
             )
@@ -211,7 +190,6 @@ pub(crate) fn remaining_limits_map<'a>(
 /// Wrapper of [RemainingLimits] with some additional meta data.
 #[derive(Debug, Clone, Copy)]
 struct NodeLimits {
-    deck_id: DeckId,
     /// absolute level in the deck hierarchy
     level: usize,
     limits: RemainingLimits,
@@ -225,13 +203,11 @@ impl NodeLimits {
         new_cards_ignore_review_limit: bool,
     ) -> Self {
         Self {
-            deck_id: deck.id,
             level: deck.name.components().count(),
             limits: RemainingLimits::new(
                 deck,
                 deck.config_id().and_then(|id| config.get(&id)),
                 today,
-                true,
                 new_cards_ignore_review_limit,
             ),
         }
@@ -251,25 +227,24 @@ pub(crate) struct LimitTreeMap {
 }
 
 impl LimitTreeMap {
-    /// Child [Deck]s must be sorted by name.
+    /// [Deck]s must be sorted by name.
     pub(crate) fn build(
-        root_deck: &Deck,
-        child_decks: Vec<Deck>,
+        decks: &[Deck],
         config: &HashMap<DeckConfigId, DeckConfig>,
         today: u32,
         new_cards_ignore_review_limit: bool,
     ) -> Self {
-        let root_limits = NodeLimits::new(root_deck, config, today, new_cards_ignore_review_limit);
+        let root_limits = NodeLimits::new(&decks[0], config, today, new_cards_ignore_review_limit);
         let mut tree = Tree::new();
         let root_id = tree
             .insert(Node::new(root_limits), InsertBehavior::AsRoot)
             .unwrap();
 
         let mut map = HashMap::new();
-        map.insert(root_deck.id, root_id.clone());
+        map.insert(decks[0].id, root_id.clone());
 
         let mut limits = Self { tree, map };
-        let mut remaining_decks = child_decks.into_iter().peekable();
+        let mut remaining_decks = decks[1..].iter().peekable();
         limits.add_child_nodes(
             root_id,
             &mut remaining_decks,
@@ -286,10 +261,10 @@ impl LimitTreeMap {
     /// Given [Deck]s are assumed to arrive in depth-first order.
     /// The tree-from-deck-list logic is taken from
     /// [crate::decks::tree::add_child_nodes].
-    fn add_child_nodes(
+    fn add_child_nodes<'d>(
         &mut self,
         parent_node_id: NodeId,
-        remaining_decks: &mut Peekable<impl Iterator<Item = Deck>>,
+        remaining_decks: &mut Peekable<impl Iterator<Item = &'d Deck>>,
         config: &HashMap<DeckConfigId, DeckConfig>,
         today: u32,
         new_cards_ignore_review_limit: bool,
@@ -386,14 +361,6 @@ impl LimitTreeMap {
 
     pub(crate) fn limit_reached(&self, deck_id: DeckId, kind: LimitKind) -> Result<bool> {
         Ok(self.get_deck_limits(deck_id)?.get(kind) == 0)
-    }
-
-    pub(crate) fn active_decks(&self) -> Vec<DeckId> {
-        self.tree
-            .traverse_pre_order(self.tree.root_node_id().unwrap())
-            .unwrap()
-            .map(|node| node.data().deck_id)
-            .collect()
     }
 
     pub(crate) fn decrement_deck_and_parent_limits(

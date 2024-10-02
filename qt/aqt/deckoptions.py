@@ -14,6 +14,7 @@ from aqt.qt import *
 from aqt.utils import (
     KeyboardModifiersPressed,
     addCloseShortcut,
+    ask_user_dialog,
     disable_help_button,
     restoreGeom,
     saveGeom,
@@ -33,6 +34,8 @@ class DeckOptionsDialog(QDialog):
         self.mw = mw
         self._deck = deck
         self._setup_ui()
+        self._close_event_has_cleaned_up = False
+        self._ready = False
 
     def _setup_ui(self) -> None:
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
@@ -43,27 +46,71 @@ class DeckOptionsDialog(QDialog):
         addCloseShortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS)
-        self.web.load_ts_page("deck-options")
+        self.web.set_bridge_command(self._on_bridge_cmd, self)
+        self.web.load_sveltekit_page(f"deck-options/{self._deck['id']}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
         self.setLayout(layout)
         self.show()
         self.web.hide_while_preserving_layout()
-
-        self.web.eval(
-            f"""const $deckOptions = anki.setupDeckOptions({self._deck["id"]});"""
-        )
         self.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )
-        gui_hooks.deck_options_did_load(self)
+
+    def _on_bridge_cmd(self, cmd: str) -> None:
+        if cmd == "deckOptionsReady":
+            self.ready = True
+            gui_hooks.deck_options_did_load(self)
+
+    def closeEvent(self, evt: QCloseEvent) -> None:
+        if self._close_event_has_cleaned_up:
+            evt.accept()
+            return
+        evt.ignore()
+        self.if_can_close()
+
+    def _close(self):
+        """Close. Ensure the closeEvent is not ignored."""
+        self._close_event_has_cleaned_up = True
+        self.close()
+
+    def if_can_close(self):
+        """Close if there was no modification. Otherwise ask for confirmation first."""
+
+        def callbackWithUserChoice(choice: int):
+            if choice == 0:
+                # The user accepted to discard current input.
+                self._close()
+
+        def if_can_close_callback_with_data_information(has_modified_dataData: bool):
+            if has_modified_dataData:
+                ask_user_dialog(
+                    tr.card_templates_discard_changes(),
+                    callback=callbackWithUserChoice,
+                    buttons=[
+                        QMessageBox.StandardButton.Discard,
+                        (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
+                    ],
+                )
+            else:
+                self._close()
+
+        self.has_modified_data(if_can_close_callback_with_data_information)
 
     def reject(self) -> None:
+        self.mw.col.set_wants_abort()
         self.web.cleanup()
         self.web = None
         saveGeom(self, self.TITLE)
         QDialog.reject(self)
+
+    def has_modified_data(self, callback: Callable[[bool], None]):
+        """Calls `callback` with the information of whether any deck options are modified."""
+        if self.ready:
+            self.web.evalWithCallback("anki.deckOptionsPendingChanges()", callback)
+        else:
+            callback(False)
 
 
 def confirm_deck_then_display_options(active_card: Card | None = None) -> None:
@@ -105,7 +152,7 @@ def display_options_for_deck_id(deck_id: DeckId) -> None:
 
 def display_options_for_deck(deck: DeckDict) -> None:
     if not deck["dyn"]:
-        if KeyboardModifiersPressed().shift or aqt.mw.col.sched_ver() == 1:
+        if KeyboardModifiersPressed().shift or not aqt.mw.col.v3_scheduler():
             deck_legacy = aqt.mw.col.decks.get(DeckId(deck["id"]))
             aqt.deckconf.DeckConf(aqt.mw, deck_legacy)
         else:

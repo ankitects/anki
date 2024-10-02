@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::io::BufWriter;
+use std::io::Cursor;
 use std::io::Write;
 use std::path::Path;
 
 use anki_io::create_dir_all;
-use anki_io::create_file;
+use anki_io::write_file_if_changed;
 use anki_proto_gen::BackendService;
 use anki_proto_gen::Method;
 use anyhow::Result;
@@ -18,7 +18,7 @@ use prost_reflect::MessageDescriptor;
 pub(crate) fn write_python_interface(services: &[BackendService]) -> Result<()> {
     let output_path = Path::new("../../out/pylib/anki/_backend_generated.py");
     create_dir_all(output_path.parent().unwrap())?;
-    let mut out = BufWriter::new(create_file(output_path)?);
+    let mut out = Cursor::new(Vec::new());
     write_header(&mut out)?;
 
     for service in services {
@@ -29,6 +29,7 @@ pub(crate) fn write_python_interface(services: &[BackendService]) -> Result<()> 
             render_method(service, method, &mut out);
         }
     }
+    write_file_if_changed(output_path, out.into_inner())?;
 
     Ok(())
 }
@@ -96,6 +97,7 @@ fn format_comments(comments: &Option<String>) -> String {
 /// - it has a single field
 /// - its name ends in Request
 /// - it has any optional fields
+///
 /// ...then destructuring will be skipped, and the method will take the input
 /// message directly. Returns (params_line, assignment_lines)
 fn maybe_destructured_input(input: &MessageDescriptor) -> (String, String) {
@@ -124,7 +126,7 @@ fn build_method_arguments(input: &MessageDescriptor) -> String {
         args.push("*".to_string());
     }
     for field in fields {
-        let arg = format!("{}: {}", field.name(), python_type(&field));
+        let arg = format!("{}: {}", field.name(), python_type(&field, false));
         args.push(arg);
     }
     args.join(", ")
@@ -150,14 +152,17 @@ fn maybe_destructured_output(output: &MessageDescriptor) -> (String, String) {
     if output.fields().len() == 1 && !matches!(first_field.as_ref().unwrap().kind(), Kind::Enum(_))
     {
         let field = first_field.unwrap();
-        (format!("output.{}", field.name()), python_type(&field))
+        (
+            format!("output.{}", field.name()),
+            python_type(&field, true),
+        )
     } else {
         ("output".into(), full_name_to_python(output.full_name()))
     }
 }
 
 /// e.g. uint32 -> int; repeated bool -> Sequence[bool]
-fn python_type(field: &FieldDescriptor) -> String {
+fn python_type(field: &FieldDescriptor, output: bool) -> String {
     let kind = match field.kind() {
         Kind::Int32
         | Kind::Int64
@@ -177,11 +182,15 @@ fn python_type(field: &FieldDescriptor) -> String {
         Kind::Enum(en) => format!("{}.V", full_name_to_python(en.full_name())),
     };
     if field.is_list() {
-        format!("Sequence[{}]", kind)
+        if output {
+            format!("Sequence[{}]", kind)
+        } else {
+            format!("Iterable[{}]", kind)
+        }
     } else if field.is_map() {
         let map_kind = field.kind();
         let map_kind = map_kind.as_message().unwrap();
-        let map_kv: Vec<_> = map_kind.fields().map(|f| python_type(&f)).collect();
+        let map_kv: Vec<_> = map_kind.fields().map(|f| python_type(&f, output)).collect();
         format!("Mapping[{}, {}]", map_kv[0], map_kv[1])
     } else {
         kind
@@ -220,6 +229,7 @@ col.decks.all_config()
 from typing import *
 
 import anki
+import anki.ankiweb_pb2
 import anki.backend_pb2
 import anki.card_rendering_pb2
 import anki.cards_pb2
@@ -239,6 +249,7 @@ import anki.search_pb2
 import anki.stats_pb2
 import anki.sync_pb2
 import anki.tags_pb2
+import anki.ankihub_pb2
 
 class RustBackendGenerated:
     def _run_command(self, service: int, method: int, input: Any) -> bytes:

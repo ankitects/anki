@@ -4,7 +4,8 @@
 from __future__ import annotations
 
 import copy
-from typing import NewType, Sequence
+from collections.abc import Sequence
+from typing import NewType
 
 import anki  # pylint: disable=unused-import
 import anki.cards
@@ -12,7 +13,7 @@ import anki.collection
 import anki.decks
 import anki.template
 from anki import hooks, notes_pb2
-from anki._legacy import DeprecatedNamesMixin
+from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import MODEL_STD
 from anki.models import NotetypeDict, NotetypeId, TemplateDict
 from anki.utils import join_fields
@@ -78,9 +79,9 @@ class Note(DeprecatedNamesMixin):
             fields=self.fields,
         )
 
+    @deprecated(info="please use col.update_note()")
     def flush(self) -> None:
-        """This preserves any current checkpoint.
-        For an undo entry, use col.update_note() instead."""
+        """For an undo entry, use col.update_note() instead."""
         if self.id == 0:
             raise Exception("can't flush a new note")
         self.col._backend.update_notes(
@@ -94,21 +95,28 @@ class Note(DeprecatedNamesMixin):
         self,
         ord: int = 0,
         *,
-        custom_note_type: NotetypeDict = None,
-        custom_template: TemplateDict = None,
+        custom_note_type: NotetypeDict | None = None,
+        custom_template: TemplateDict | None = None,
         fill_empty: bool = False,
     ) -> anki.cards.Card:
         card = anki.cards.Card(self.col)
         card.ord = ord
         card.did = anki.decks.DEFAULT_DECK_ID
 
-        model = custom_note_type or self.note_type()
-        template = copy.copy(
-            custom_template
-            or (
-                model["tmpls"][ord] if model["type"] == MODEL_STD else model["tmpls"][0]
-            )
-        )
+        if custom_note_type is None:
+            model = self.note_type()
+        else:
+            model = custom_note_type
+        if model is None:
+            raise NotImplementedError
+
+        if custom_template is not None:
+            template = custom_template
+        elif model["type"] == MODEL_STD:
+            template = model["tmpls"][ord]
+        else:
+            template = model["tmpls"][0]
+        template = copy.copy(template)
         # may differ in cloze case
         template["ord"] = card.ord
 
@@ -171,10 +179,7 @@ class Note(DeprecatedNamesMixin):
         return self.col.tags.in_list(tag, self.tags)
 
     def remove_tag(self, tag: str) -> None:
-        rem = []
-        for tag_ in self.tags:
-            if tag_.lower() == tag.lower():
-                rem.append(tag_)
+        rem = [tag_ for tag_ in self.tags if tag_.lower() == tag.lower()]
         for tag_ in rem:
             self.tags.remove(tag_)
 

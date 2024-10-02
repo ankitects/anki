@@ -16,6 +16,7 @@ excluded_source_prefixes = [
     "PyQt6",
     "pip",
     "setuptools",
+    "google"
 ]
 
 excluded_resource_suffixes = [
@@ -38,7 +39,7 @@ def handle_resource(policy, resource):
     if type(resource) == "PythonModuleSource":
         resource.add_include = True
         for prefix in excluded_source_prefixes:
-            if resource.name.startswith(prefix):
+            if resource.name.startswith(prefix) and not resource.name.startswith("pip_system_certs"):
                 resource.add_include = False
 
         # if resource.add_include:
@@ -100,7 +101,28 @@ def handle_resource(policy, resource):
 
 
 def make_exe():
-    dist = default_python_distribution(python_version="3.9")
+    if BUILD_TARGET_TRIPLE == "x86_64-unknown-linux-gnu":
+        dist = PythonDistribution(
+            url = "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64_v2-unknown-linux-gnu-pgo-full.tar.zst",
+            sha256 = "7ccdc1b19599a6660040ec2f0ade755b32bb45c897ea75d0b7826236146b78cf",
+        )
+    elif BUILD_TARGET_TRIPLE == "x86_64-apple-darwin":
+        dist = PythonDistribution(
+            url = "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-apple-darwin-pgo-full.tar.zst",
+            sha256 = "b2f06f0f0ebbbed0eae87a6e8eede2e0d838735386a8b84257d4f02d16b9baec",
+        )
+    elif BUILD_TARGET_TRIPLE == "aarch64-apple-darwin":
+        dist = PythonDistribution(
+            url = "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-aarch64-apple-darwin-pgo-full.tar.zst",
+            sha256 = "154dfa7cd6f9a6047a58811f84bef69b019ea459e5b42991c8af63e1285b445f",
+        )
+    elif BUILD_TARGET_TRIPLE == "x86_64-pc-windows-msvc":
+        dist = PythonDistribution(
+            url = "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-pc-windows-msvc-shared-pgo-full.tar.zst",
+            sha256 = "3b9c7d6ed94260b83ed8f44ee9a7b8fce392259ce6591e538601f7353061a884",
+        )
+    else:
+        fail("unexpected arch")
 
     policy = dist.make_python_packaging_policy()
 
@@ -129,9 +151,6 @@ def make_exe():
     # detected libs do not need this, but we add extra afterwards
     python_config.module_search_paths = ["$ORIGIN/lib"]
     python_config.optimization_level = 2
-    if BUILD_TARGET_TRIPLE == "x86_64-apple-darwin":
-        # jemalloc currently fails to build when run under Rosetta
-        python_config.allocator_backend = "default"
 
     python_config.run_command = "import aqt; aqt.run()"
 

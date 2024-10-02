@@ -10,6 +10,7 @@ use crate::prelude::*;
 #[derive(Debug, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub enum BoolKey {
+    ApplyAllParentLimits,
     BrowserTableShowNotesMode,
     CardCountsSeparateInactive,
     CollapseCardState,
@@ -26,6 +27,7 @@ pub enum BoolKey {
     NewCardsIgnoreReviewLimit,
     PasteImagesAsPng,
     PasteStripsFormatting,
+    RenderLatex,
     PreviewBothSides,
     RestorePositionBrowser,
     RestorePositionReviewer,
@@ -34,7 +36,11 @@ pub enum BoolKey {
     RandomOrderReposition,
     Sched2021,
     ShiftPositionOfExistingCards,
-
+    MergeNotetypes,
+    WithScheduling,
+    WithDeckConfigs,
+    Fsrs,
+    LoadBalancerEnabled,
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
     #[strum(to_string = "dayLearnFirst")]
@@ -50,7 +56,11 @@ pub enum BoolKey {
 /// This is a workaround for old clients that used ints to represent boolean
 /// values. For new config items, prefer using a bool directly.
 #[derive(Deserialize, Default)]
-struct BoolLike(#[serde(deserialize_with = "deserialize_bool_from_anything")] bool);
+struct BoolLike(
+    #[serde(deserialize_with = "deserialize_bool_from_anything")]
+    #[allow(dead_code)]
+    bool,
+);
 
 impl Collection {
     pub fn get_config_bool(&self, key: BoolKey) -> bool {
@@ -64,6 +74,7 @@ impl Collection {
             | BoolKey::CardCountsSeparateInactive
             | BoolKey::RestorePositionBrowser
             | BoolKey::RestorePositionReviewer
+            | BoolKey::LoadBalancerEnabled
             | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
 
             // other options default to false

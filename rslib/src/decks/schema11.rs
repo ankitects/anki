@@ -4,6 +4,8 @@
 use std::collections::HashMap;
 
 use anki_proto::decks::deck::normal::DayLimit;
+use phf::phf_set;
+use phf::Set;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
@@ -13,6 +15,7 @@ use super::DeckCommon;
 use super::FilteredDeck;
 use super::FilteredSearchTerm;
 use super::NormalDeck;
+use crate::notetype::schema11::parse_other_fields;
 use crate::prelude::*;
 use crate::serde::default_on_invalid;
 use crate::serde::deserialize_bool_from_anything;
@@ -151,10 +154,17 @@ pub struct FilteredDeckSchema11 {
     // old scheduler
     #[serde(default, deserialize_with = "default_on_invalid")]
     delays: Option<Vec<f32>>,
+    // old scheduler
+    #[serde(default)]
+    preview_delay: u32,
 
     // new scheduler
     #[serde(default)]
-    preview_delay: u32,
+    preview_again_secs: u32,
+    #[serde(default)]
+    preview_hard_secs: u32,
+    #[serde(default)]
+    preview_good_secs: u32,
 }
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Default, Clone)]
 pub struct DeckTodaySchema11 {
@@ -200,13 +210,6 @@ impl DeckSchema11 {
             DeckSchema11::Filtered(d) => &d.common,
         }
     }
-
-    // pub(crate) fn common_mut(&mut self) -> &mut DeckCommon {
-    //     match self {
-    //         Deck::Normal(d) => &mut d.common,
-    //         Deck::Filtered(d) => &mut d.common,
-    //     }
-    // }
 
     pub fn id(&self) -> DeckId {
         self.common().id
@@ -333,6 +336,9 @@ impl From<FilteredDeckSchema11> for FilteredDeck {
             search_terms: deck.terms.into_iter().map(Into::into).collect(),
             delays: deck.delays.unwrap_or_default(),
             preview_delay: deck.preview_delay,
+            preview_again_secs: deck.preview_again_secs,
+            preview_hard_secs: deck.preview_hard_secs,
+            preview_good_secs: deck.preview_good_secs,
         }
     }
 }
@@ -372,6 +378,9 @@ impl From<Deck> for DeckSchema11 {
                     Some(filt.delays.clone())
                 },
                 preview_delay: filt.preview_delay,
+                preview_again_secs: filt.preview_again_secs,
+                preview_hard_secs: filt.preview_hard_secs,
+                preview_good_secs: filt.preview_good_secs,
                 common: deck.into(),
             }),
         }
@@ -397,10 +406,32 @@ impl From<Deck> for DeckCommonSchema11 {
                 DeckKind::Normal(n) => n.description,
                 DeckKind::Filtered(_) => String::new(),
             },
-            other: serde_json::from_slice(&deck.common.other).unwrap_or_default(),
+            other: parse_other_fields(&deck.common.other, &RESERVED_DECK_KEYS),
         }
     }
 }
+
+static RESERVED_DECK_KEYS: Set<&'static str> = phf_set! {
+    "usn",
+    "revToday",
+    "newLimit",
+    "dyn",
+    "reviewLimit",
+    "newToday",
+    "timeToday",
+    "reviewLimitToday",
+    "extendNew",
+    "mod",
+    "newLimitToday",
+    "desc",
+    "name",
+    "lrnToday",
+    "conf",
+    "browserCollapsed",
+    "extendRev",
+    "id",
+    "collapsed"
+};
 
 impl From<&Deck> for DeckTodaySchema11 {
     fn from(deck: &Deck) -> Self {
@@ -434,5 +465,27 @@ impl From<FilteredSearchTerm> for FilteredSearchTermSchema11 {
             limit: term.limit as i32,
             order: term.order,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use itertools::Itertools;
+
+    use super::*;
+
+    #[test]
+    fn all_reserved_fields_are_removed() -> Result<()> {
+        let key_source = DeckSchema11::default();
+        let mut deck = Deck::new_normal();
+        deck.common.other = serde_json::to_vec(&key_source)?;
+        let DeckSchema11::Normal(s11) = DeckSchema11::from(deck) else {
+            panic!()
+        };
+
+        let empty: &[&String] = &[];
+        assert_eq!(&s11.common.other.keys().collect_vec(), empty);
+
+        Ok(())
     }
 }

@@ -3,20 +3,21 @@
 
 # make sure not to optimize imports on this file
 # pylint: disable=unused-import
+from __future__ import annotations
 
 import os
 import sys
 import traceback
-from typing import Callable, TypeVar, Union
+from collections.abc import Callable
+from typing import TypeVar, Union
 
 try:
     import PyQt6
-except:
+except Exception:
     from .qt5 import *  # type: ignore
 else:
-    if not os.getenv("DISABLE_QT5_COMPAT"):
+    if os.getenv("ENABLE_QT5_COMPAT"):
         print("Running with temporary Qt5 compatibility shims.")
-        print("Run with DISABLE_QT5_COMPAT=1 to confirm compatibility with Qt6.")
         from . import qt5_compat  # needs to be imported first
     from .qt6 import *
 
@@ -49,14 +50,13 @@ _version = QLibraryInfo.version()
 qtmajor = _version.majorVersion()
 qtminor = _version.minorVersion()
 qtpoint = _version.microVersion()
+qtfullversion = _version.segments()
 
 if qtmajor < 5 or (qtmajor == 5 and qtminor < 14):
     raise Exception("Anki does not support your Qt version.")
 
 
-def qconnect(
-    signal: Union[Callable, pyqtSignal, pyqtBoundSignal], func: Callable
-) -> None:
+def qconnect(signal: Callable | pyqtSignal | pyqtBoundSignal, func: Callable) -> None:
     """Helper to work around type checking not working with signal.connect(func)."""
     signal.connect(func)  # type: ignore
 

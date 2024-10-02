@@ -36,6 +36,8 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::ResetCountsReviewer => BoolKey::ResetCountsReviewer,
             BoolKeyProto::RandomOrderReposition => BoolKey::RandomOrderReposition,
             BoolKeyProto::ShiftPositionOfExistingCards => BoolKey::ShiftPositionOfExistingCards,
+            BoolKeyProto::RenderLatex => BoolKey::RenderLatex,
+            BoolKeyProto::LoadBalancerEnabled => BoolKey::LoadBalancerEnabled,
         }
     }
 }

@@ -13,6 +13,7 @@ use anki_proto_gen::Method;
 use anyhow::Context;
 use anyhow::Result;
 use inflections::Inflect;
+use itertools::Itertools;
 use prost_reflect::DescriptorPool;
 
 pub fn write_rust_interface(pool: &DescriptorPool) -> Result<()> {
@@ -20,6 +21,14 @@ pub fn write_rust_interface(pool: &DescriptorPool) -> Result<()> {
     buf.push_str("use crate::error::Result; use prost::Message;");
 
     let (col_services, backend_services) = get_services(pool);
+    let col_services = col_services
+        .into_iter()
+        .filter(|s| s.name != "FrontendService")
+        .collect_vec();
+    let backend_services = backend_services
+        .into_iter()
+        .filter(|s| s.name != "BackendFrontendService")
+        .collect_vec();
 
     render_collection_services(&col_services, &mut buf)?;
     render_backend_services(&backend_services, &mut buf)?;
@@ -269,7 +278,9 @@ impl MethodHelpers for Method {
 }
 
 fn rust_type(name: &str) -> String {
-    let Some((head, tail)) = name.rsplit_once( '.') else { panic!() };
+    let Some((head, tail)) = name.rsplit_once('.') else {
+        panic!()
+    };
     format!(
         "{}::{}",
         head.to_snake_case()

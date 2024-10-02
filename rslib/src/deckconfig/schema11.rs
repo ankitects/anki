@@ -3,6 +3,8 @@
 
 use std::collections::HashMap;
 
+use phf::phf_set;
+use phf::Set;
 use serde::Deserialize as DeTrait;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -21,6 +23,10 @@ use super::INITIAL_EASE_FACTOR_THOUSANDS;
 use crate::serde::default_on_invalid;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
+
+fn wait_for_audio_default() -> bool {
+    true
+}
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -63,8 +69,52 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     bury_interday_learning: bool,
 
+    #[serde(default)]
+    fsrs_weights: Vec<f32>,
+    #[serde(default)]
+    desired_retention: f32,
+    #[serde(default)]
+    ignore_revlogs_before_date: String,
+    #[serde(default)]
+    stop_timer_on_answer: bool,
+    #[serde(default)]
+    seconds_to_show_question: f32,
+    #[serde(default)]
+    seconds_to_show_answer: f32,
+    #[serde(default)]
+    question_action: QuestionAction,
+    #[serde(default)]
+    answer_action: AnswerAction,
+    #[serde(default = "wait_for_audio_default")]
+    wait_for_audio: bool,
+    #[serde(default)]
+    /// historical retention
+    sm2_retention: f32,
+    #[serde(default)]
+    weight_search: String,
+
     #[serde(flatten)]
     other: HashMap<String, Value>,
+}
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
+#[repr(u8)]
+#[derive(Default)]
+pub enum QuestionAction {
+    #[default]
+    ShowAnswer = 0,
+    ShowReminder = 1,
+}
+
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
+#[repr(u8)]
+#[derive(Default)]
+pub enum AnswerAction {
+    #[default]
+    BuryCard = 0,
+    AnswerAgain = 1,
+    AnswerGood = 2,
+    AnswerHard = 3,
+    ShowReminder = 4,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -235,6 +285,12 @@ impl Default for DeckConfSchema11 {
             max_taken: 60,
             autoplay: true,
             timer: 0,
+            stop_timer_on_answer: false,
+            seconds_to_show_question: 0.0,
+            seconds_to_show_answer: 0.0,
+            question_action: QuestionAction::ShowAnswer,
+            answer_action: AnswerAction::BuryCard,
+            wait_for_audio: true,
             replayq: true,
             dynamic: false,
             new: Default::default(),
@@ -248,6 +304,11 @@ impl Default for DeckConfSchema11 {
             new_sort_order: 0,
             new_gather_priority: 0,
             bury_interday_learning: false,
+            fsrs_weights: vec![],
+            desired_retention: 0.9,
+            sm2_retention: 0.9,
+            weight_search: "".to_string(),
+            ignore_revlogs_before_date: "".to_string(),
         }
     }
 }
@@ -312,10 +373,21 @@ impl From<DeckConfSchema11> for DeckConfig {
                 disable_autoplay: !c.autoplay,
                 cap_answer_time_to_secs: c.max_taken.max(0) as u32,
                 show_timer: c.timer != 0,
+                stop_timer_on_answer: c.stop_timer_on_answer,
+                seconds_to_show_question: c.seconds_to_show_question,
+                seconds_to_show_answer: c.seconds_to_show_answer,
+                question_action: c.question_action as i32,
+                answer_action: c.answer_action as i32,
+                wait_for_audio: c.wait_for_audio,
                 skip_question_when_replaying_answer: !c.replayq,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
                 bury_interday_learning: c.bury_interday_learning,
+                fsrs_weights: c.fsrs_weights,
+                ignore_revlogs_before_date: c.ignore_revlogs_before_date,
+                desired_retention: c.desired_retention,
+                historical_retention: c.sm2_retention,
+                weight_search: c.weight_search,
                 other: other_bytes,
             },
         }
@@ -337,15 +409,19 @@ impl From<DeckConfig> for DeckConfSchema11 {
             if let Some(new) = top_other.remove("new") {
                 let val: HashMap<String, Value> = serde_json::from_value(new).unwrap_or_default();
                 new_other = val;
+                new_other.retain(|k, _v| !RESERVED_DECKCONF_NEW_KEYS.contains(k))
             }
             if let Some(rev) = top_other.remove("rev") {
                 let val: HashMap<String, Value> = serde_json::from_value(rev).unwrap_or_default();
                 rev_other = val;
+                rev_other.retain(|k, _v| !RESERVED_DECKCONF_REV_KEYS.contains(k))
             }
             if let Some(lapse) = top_other.remove("lapse") {
                 let val: HashMap<String, Value> = serde_json::from_value(lapse).unwrap_or_default();
                 lapse_other = val;
+                lapse_other.retain(|k, _v| !RESERVED_DECKCONF_LAPSE_KEYS.contains(k))
             }
+            top_other.retain(|k, _v| !RESERVED_DECKCONF_KEYS.contains(k));
         }
         let i = c.inner;
         let new_order = i.new_card_insert_order();
@@ -357,6 +433,21 @@ impl From<DeckConfig> for DeckConfSchema11 {
             max_taken: i.cap_answer_time_to_secs as i32,
             autoplay: !i.disable_autoplay,
             timer: i.show_timer.into(),
+            stop_timer_on_answer: i.stop_timer_on_answer,
+            seconds_to_show_question: i.seconds_to_show_question,
+            seconds_to_show_answer: i.seconds_to_show_answer,
+            answer_action: match i.answer_action {
+                1 => AnswerAction::AnswerAgain,
+                2 => AnswerAction::AnswerGood,
+                3 => AnswerAction::AnswerHard,
+                4 => AnswerAction::ShowReminder,
+                _ => AnswerAction::BuryCard,
+            },
+            question_action: match i.question_action {
+                1 => QuestionAction::ShowReminder,
+                _ => QuestionAction::ShowAnswer,
+            },
+            wait_for_audio: i.wait_for_audio,
             replayq: !i.skip_question_when_replaying_answer,
             dynamic: false,
             new: NewConfSchema11 {
@@ -403,17 +494,82 @@ impl From<DeckConfig> for DeckConfSchema11 {
             new_sort_order: i.new_card_sort_order,
             new_gather_priority: i.new_card_gather_priority,
             bury_interday_learning: i.bury_interday_learning,
+            fsrs_weights: i.fsrs_weights,
+            desired_retention: i.desired_retention,
+            sm2_retention: i.historical_retention,
+            weight_search: i.weight_search,
+            ignore_revlogs_before_date: i.ignore_revlogs_before_date,
         }
     }
 }
 
+static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
+    "id",
+    "newSortOrder",
+    "replayq",
+    "newPerDayMinimum",
+    "usn",
+    "autoplay",
+    "dyn",
+    "maxTaken",
+    "reviewOrder",
+    "buryInterdayLearning",
+    "newMix",
+    "mod",
+    "timer",
+    "name",
+    "interdayLearningMix",
+    "newGatherPriority",
+    "fsrsWeights",
+    "desiredRetention",
+    "stopTimerOnAnswer",
+    "secondsToShowQuestion",
+    "secondsToShowAnswer",
+    "questionAction",
+    "answerAction",
+    "waitForAudio",
+    "sm2Retention",
+    "weightSearch",
+    "ignoreRevlogsBeforeDate",
+};
+
+static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {
+    "order", "delays", "bury", "perDay", "initialFactor", "ints"
+};
+
+static RESERVED_DECKCONF_REV_KEYS: Set<&'static str> = phf_set! {
+    "maxIvl", "hardFactor", "ease4", "ivlFct", "perDay", "bury"
+};
+
+static RESERVED_DECKCONF_LAPSE_KEYS: Set<&'static str> = phf_set! {
+    "leechFails", "mult", "leechAction", "delays", "minInt"
+};
+
 #[cfg(test)]
 mod test {
+    use itertools::Itertools;
     use serde::de::IntoDeserializer;
     use serde_json::json;
     use serde_json::Value;
 
     use super::*;
+    use crate::prelude::*;
+
+    #[test]
+    fn all_reserved_fields_are_removed() -> Result<()> {
+        let key_source = DeckConfSchema11::default();
+        let mut config = DeckConfig::default();
+        let empty: &[&String] = &[];
+
+        config.inner.other = serde_json::to_vec(&key_source)?;
+        let s11 = DeckConfSchema11::from(config);
+        assert_eq!(&s11.other.keys().collect_vec(), empty);
+        assert_eq!(&s11.new.other.keys().collect_vec(), empty);
+        assert_eq!(&s11.rev.other.keys().collect_vec(), empty);
+        assert_eq!(&s11.lapse.other.keys().collect_vec(), empty);
+
+        Ok(())
+    }
 
     #[test]
     fn new_intervals() {

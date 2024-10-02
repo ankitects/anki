@@ -11,6 +11,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use anki_io::create_dir_all;
+use reqwest::Client;
 
 use crate::media::files::add_data_to_folder_uniquely;
 use crate::media::files::mtime_as_i64;
@@ -145,10 +146,12 @@ impl MediaManager {
         self,
         progress: ThrottlingProgressHandler<MediaSyncProgress>,
         auth: SyncAuth,
+        client: Client,
+        server_usn: Option<Usn>,
     ) -> Result<()> {
-        let client = HttpSyncClient::new(auth);
+        let client = HttpSyncClient::new(auth, client);
         let mut syncer = MediaSyncer::new(self, progress, client)?;
-        syncer.sync().await
+        syncer.sync(server_usn).await
     }
 
     pub fn all_checksums_after_checking(

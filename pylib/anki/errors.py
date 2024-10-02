@@ -119,6 +119,10 @@ class SearchError(BackendError):
     pass
 
 
+class SchedulerUpgradeRequired(BackendError):
+    pass
+
+
 class AbortSchemaModification(AnkiException):
     pass
 

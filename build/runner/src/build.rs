@@ -27,7 +27,7 @@ pub fn run_build(args: BuildArgs) {
 
     let path = if cfg!(windows) {
         format!(
-            "out\\bin;out\\extracted\\node;node_modules\\.bin;out\\extracted\\win_amd64_audio;{};\\msys64\\usr\\bin",
+            "out\\bin;out\\extracted\\node;node_modules\\.bin;{};\\msys64\\usr\\bin",
             env::var("PATH").unwrap()
         )
     } else {
@@ -60,7 +60,6 @@ pub fn run_build(args: BuildArgs) {
         .arg("-f")
         .arg(&build_file)
         .args(ninja_args)
-        .env("NINJA_STATUS", "[%f/%t; %r active; %es] ")
         .env("PATH", &path)
         .env(
             "MYPY_CACHE_DIR",
@@ -70,10 +69,10 @@ pub fn run_build(args: BuildArgs) {
         // commands will not show colors by default, as we do not provide a tty
         .env("FORCE_COLOR", "1")
         .env("MYPY_FORCE_COLOR", "1")
-        .env("TERM", std::env::var("TERM").unwrap_or_default())
-        // Prevents 'Warn: You must provide the URL of lib/mappings.wasm'.
-        // Updating svelte-check or its deps will likely remove the need for it.
-        .env("NODE_OPTIONS", "--no-experimental-fetch");
+        .env("TERM", std::env::var("TERM").unwrap_or_default());
+    if env::var("NINJA_STATUS").is_err() {
+        command.env("NINJA_STATUS", "[%f/%t; %r active; %es] ");
+    }
 
     // run build
     let mut status = command.status().expect("ninja not installed");
@@ -155,7 +154,7 @@ fn bootstrap_build() {
 fn maybe_update_buildhash(build_root: &Utf8Path) {
     // only updated on release builds
     let path = build_root.join("buildhash");
-    if env::var("RELEASE").is_ok() || !path.exists() {
+    if (env::var("RELEASE").is_ok() && env::var("OFFLINE_BUILD").is_err()) || !path.exists() {
         write_if_changed(&path, &get_buildhash())
     }
 }
@@ -165,7 +164,8 @@ fn get_buildhash() -> String {
         .args(["rev-parse", "--short=8", "HEAD"])
         .output()
         .expect("git");
-    assert!(output.status.success(), "git failed");
+    assert!(output.status.success(),
+            "Invoking 'git' failed. Make sure you're building from a clone of the git repo, and that 'git' is installed.");
     String::from_utf8(output.stdout).unwrap().trim().into()
 }
 

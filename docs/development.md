@@ -61,6 +61,8 @@ This will build Anki and run it in place.
 The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
+If Anki fails to start, you may need to install [extra libraries](https://docs.ankiweb.net/platform/linux/missing-libraries.html).
+
 ## Running tests/checks
 
 To run all tests at once, from the top-level folder:
@@ -94,6 +96,10 @@ When formatting issues are reported, they can be fixed with
 ```
 cargo clippy --fix
 ```
+
+## Excluding your own untracked files from formatting and checks
+
+If you want to add files or folders to the project tree that should be excluded from version tracking and not be matched by formatters and checks, place them in an `extra` folder and they will automatically be ignored.
 
 ## Optimized builds
 
@@ -169,6 +175,20 @@ Please see [this separate page](./editing.md) for setting up an editor/IDE.
 
 See [this page](./build.md)
 
+## Generating documentation
+
+For Rust:
+
+```
+cargo doc --open
+```
+
+For Python:
+
+```
+./ninja python:sphinx && open out/python/sphinx/html/py-modindex.html
+```
+
 ## Environmental Variables
 
 If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,
@@ -187,7 +207,8 @@ If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 Anki's official binary packages are created with `./ninja bundle`. The bundling
 process was created specifically for the official builds, and is provided as-is;
 we are unfortunately not able to provide assistance with any issues you may run
-into when using it.
+into when using it. You'll need to run
+`git submodule update --checkout qt/bundle/PyOxidizer` first.
 
 ## Mixing development and study
 

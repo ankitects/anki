@@ -6,7 +6,6 @@ use std::mem;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::decks::DeckId as DeckIdType;
 use crate::notetype::NotetypeId as NotetypeIdType;
 use crate::prelude::*;
 use crate::search::parser::parse;
@@ -48,6 +47,13 @@ pub(super) fn write_nodes(nodes: &[Node]) -> String {
     nodes.iter().map(write_node).collect()
 }
 
+#[allow(clippy::to_string_trait_impl)]
+impl ToString for Node {
+    fn to_string(&self) -> String {
+        write_node(self)
+    }
+}
+
 fn write_node(node: &Node) -> String {
     use Node::*;
     match node {
@@ -69,7 +75,7 @@ fn write_search_node(node: &SearchNode) -> String {
         IntroducedInDays(u) => format!("introduced:{}", u),
         CardTemplate(t) => write_template(t),
         Deck(s) => maybe_quote(&format!("deck:{}", s)),
-        DeckIdWithoutChildren(DeckIdType(i)) => format!("did:{}", i),
+        DeckIdsWithoutChildren(s) => format!("did:{}", s),
         // not exposed on the GUI end
         DeckIdWithChildren(_) => "".to_string(),
         NotetypeId(NotetypeIdType(i)) => format!("mid:{}", i),
@@ -86,6 +92,8 @@ fn write_search_node(node: &SearchNode) -> String {
         Regex(s) => maybe_quote(&format!("re:{}", s)),
         NoCombining(s) => maybe_quote(&format!("nc:{}", s)),
         WordBoundary(s) => maybe_quote(&format!("w:{}", s)),
+        CustomData(k) => maybe_quote(&format!("has-cd:{}", k)),
+        Preset(s) => maybe_quote(&format!("preset:{}", s)),
     }
 }
 
@@ -166,12 +174,18 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
         Lapses(u) => format!("prop:lapses{}{}", operator, u),
         Ease(f) => format!("prop:ease{}{}", operator, f),
         Position(u) => format!("prop:pos{}{}", operator, u),
+        Stability(u) => format!("prop:s{}{}", operator, u),
+        Difficulty(u) => format!("prop:d{}{}", operator, u),
+        Retrievability(u) => format!("prop:r{}{}", operator, u),
         Rated(u, ease) => match ease {
             RatingKind::AnswerButton(val) => format!("prop:rated{}{}:{}", operator, u, val),
             RatingKind::AnyAnswerButton => format!("prop:rated{}{}", operator, u),
             RatingKind::ManualReschedule => format!("prop:resched{}{}", operator, u),
         },
         CustomDataNumber { key, value } => format!("prop:cdn:{key}{operator}{value}"),
+        CustomDataString { key, value } => {
+            maybe_quote(&format!("prop:cds:{key}{operator}{value}",))
+        }
     }
 }
 

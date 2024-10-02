@@ -4,7 +4,8 @@
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING, Any, Iterable, NewType, Sequence
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Any, NewType
 
 if TYPE_CHECKING:
     import anki
@@ -84,7 +85,7 @@ class DeckManager(DeprecatedNamesMixin):
         self.col = col.weakref()
         self.decks = DecksDictProxy(col)
 
-    def save(self, deck_or_config: DeckDict | DeckConfigDict = None) -> None:
+    def save(self, deck_or_config: DeckDict | DeckConfigDict | None = None) -> None:
         "Can be called with either a deck or a deck configuration."
         if not deck_or_config:
             print("col.decks.save() should be passed the changed deck")
@@ -424,7 +425,6 @@ class DeckManager(DeprecatedNamesMixin):
         # make sure arg is an int; legacy callers may be passing in a string
         did = DeckId(did)
         self.set_current(did)
-        self.col.reset()
 
     selected = get_current_id
 

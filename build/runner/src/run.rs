@@ -3,10 +3,10 @@
 
 use std::io::ErrorKind;
 use std::process::Command;
-use std::process::Output;
 
 use anki_io::create_dir_all;
 use anki_io::write_file;
+use anki_process::CommandExt;
 use anyhow::Result;
 use clap::Args;
 
@@ -32,7 +32,7 @@ pub fn run_commands(args: RunArgs) -> Result<()> {
         create_dir_all(&dir)?;
     }
     for command in commands {
-        run_silent(&mut build_command(command, &args.env, &args.cwd));
+        run_command(&mut build_command(command, &args.env, &args.cwd));
     }
     if let Some(stamp_file) = args.stamp {
         write_file(stamp_file, b"")?;
@@ -82,26 +82,9 @@ fn split_args(args: Vec<String>) -> Vec<Vec<String>> {
     commands
 }
 
-/// Log stdout/stderr and exit if command failed; return output on success.
-/// If OUTPUT_SUCCESS=1 is defined, output will be shown on success.
-pub fn run_silent(command: &mut Command) -> Output {
-    let output = command
-        .output()
-        .unwrap_or_else(|e| panic!("failed to run command: {:?}: {e}", command));
-    if !output.status.success() {
-        println!(
-            "Command failed: \n{}\n{}",
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr),
-        );
-        std::process::exit(output.status.code().unwrap_or(1));
+pub fn run_command(command: &mut Command) {
+    if let Err(err) = command.ensure_success() {
+        println!("{}", err);
+        std::process::exit(1);
     }
-    if std::env::var("OUTPUT_SUCCESS").is_ok() {
-        println!(
-            "{}{}",
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr)
-        );
-    }
-    output
 }

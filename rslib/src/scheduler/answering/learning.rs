@@ -24,8 +24,17 @@ impl CardStateUpdater {
         self.card.queue = CardQueue::New;
         self.card.due = next.position as i32;
         self.card.original_position = None;
+        self.card.memory_state = None;
 
-        RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover())
+        RevlogEntryPartial::new(
+            current,
+            next.into(),
+            self.card
+                .memory_state
+                .map(|d| d.difficulty_shifted())
+                .unwrap_or_default(),
+            self.secs_until_rollover(),
+        )
     }
 
     pub(super) fn apply_learning_state(
@@ -38,6 +47,7 @@ impl CardStateUpdater {
         if let Some(position) = current.new_position() {
             self.card.original_position = Some(position)
         }
+        self.card.memory_state = next.memory_state;
 
         let interval = next
             .interval_kind()
@@ -53,17 +63,25 @@ impl CardStateUpdater {
             }
         }
 
-        RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover())
+        RevlogEntryPartial::new(
+            current,
+            next.into(),
+            self.card
+                .memory_state
+                .map(|d| d.difficulty_shifted())
+                .unwrap_or_default(),
+            self.secs_until_rollover(),
+        )
     }
 
     /// Adds secs + fuzz to current time
     pub(super) fn fuzzed_next_learning_timestamp(&self, secs: u32) -> i32 {
-        TimestampSecs::now().0 as i32 + self.with_learning_fuzz(secs) as i32
+        TimestampSecs::now().0 as i32 + self.learning_ivl_with_fuzz(self.fuzz_seed, secs) as i32
     }
 
     /// Add up to 25% increase to seconds, but no more than 5 minutes.
-    fn with_learning_fuzz(&self, secs: u32) -> u32 {
-        if let Some(seed) = self.fuzz_seed {
+    pub(super) fn learning_ivl_with_fuzz(&self, input_seed: Option<u64>, secs: u32) -> u32 {
+        if let Some(seed) = input_seed {
             let mut rng = StdRng::seed_from_u64(seed);
             let upper_exclusive = secs + ((secs as f32) * 0.25).min(300.0).floor() as u32;
             if secs >= upper_exclusive {

@@ -6,10 +6,12 @@ use std::collections::HashSet;
 
 use rusqlite::params;
 use rusqlite::Row;
+use unicase::UniCase;
 
 use crate::import_export::package::NoteMeta;
 use crate::notes::NoteTags;
 use crate::prelude::*;
+use crate::tags::immediate_parent_name_unicase;
 use crate::tags::join_tags;
 use crate::tags::split_tags;
 
@@ -145,14 +147,16 @@ impl super::SqliteStorage {
     pub(crate) fn fix_invalid_utf8_in_note(&self, nid: NoteId) -> Result<()> {
         self.db
             .query_row(
-                "select cast(flds as blob) from notes where id=?",
+                "select cast(flds as blob), cast(tags as blob) from notes where id=?",
                 [nid],
                 |row| {
                     let fixed_flds: Vec<u8> = row.get(0)?;
                     let fixed_str = String::from_utf8_lossy(&fixed_flds);
+                    let fixed_tags: Vec<u8> = row.get(1)?;
+                    let fixed_tags = String::from_utf8_lossy(&fixed_tags);
                     self.db.execute(
-                        "update notes set flds = ?, sfld = '' where id = ?",
-                        params![fixed_str, nid],
+                        "update notes set flds = ?, sfld = '', tags = ? where id = ?",
+                        params![fixed_str, fixed_tags, nid],
                     )
                 },
             )
@@ -215,16 +219,20 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn all_tags_in_notes(&self) -> Result<HashSet<String>> {
+    /// All tags referenced by notes, and any parent tags as well.
+    pub(crate) fn all_tags_in_notes(&self) -> Result<HashSet<UniCase<String>>> {
         let mut stmt = self
             .db
             .prepare_cached("select tags from notes where tags != ''")?;
         let mut query = stmt.query([])?;
-        let mut seen: HashSet<String> = HashSet::new();
+        let mut seen: HashSet<UniCase<String>> = HashSet::new();
         while let Some(rows) = query.next()? {
             for tag in split_tags(rows.get_ref_unwrap(0).as_str()?) {
-                if !seen.contains(tag) {
-                    seen.insert(tag.to_string());
+                seen.insert(UniCase::new(tag.to_string()));
+                let mut tag_unicase = UniCase::new(tag);
+                while let Some(parent_name) = immediate_parent_name_unicase(tag_unicase) {
+                    seen.insert(UniCase::new(parent_name.to_string()));
+                    tag_unicase = UniCase::new(&parent_name);
                 }
             }
         }

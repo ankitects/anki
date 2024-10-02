@@ -20,6 +20,11 @@ browsing-cards-deleted =
         [one] { $count } card deleted.
        *[other] { $count } cards deleted.
     }
+browsing-cards-deleted-with-deckname =
+    { $count ->
+        [one] { $count } card deleted from {$deck_name}.
+       *[other] { $count } cards deleted from {$deck_name}.
+    }
 browsing-change-deck = Change Deck
 browsing-change-deck2 = Change Deck...
 browsing-change-note-type = Change Note Type
@@ -77,10 +82,12 @@ browsing-reschedule = Reschedule
 browsing-search-bar-hint = Search cards/notes (type text, then press Enter)
 browsing-search-in = Search in:
 browsing-search-within-formatting-slow = Search within formatting (slow)
+browsing-select-deck = Select Deck
 browsing-selected-notes-only = Selected notes only
 browsing-shift-position-of-existing-cards = Shift position of existing cards
 browsing-sidebar = Sidebar
 browsing-sidebar-filter = Sidebar filter
+# The field that is used for sorting (sort is an adjective here, not a verb)
 browsing-sort-field = Sort Field
 browsing-sorting-on-this-column-is-not = Sorting on this column is not supported. Please choose another.
 browsing-start-position = Start position:
@@ -163,7 +170,7 @@ browsing-reparented-decks =
         [one] Renamed { $count } deck.
        *[other] Renamed { $count } decks.
     }
-
+browsing-sidebar-card-state-review = Review
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

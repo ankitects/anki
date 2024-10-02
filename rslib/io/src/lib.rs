@@ -54,6 +54,15 @@ pub fn remove_file(path: impl AsRef<Path>) -> Result<()> {
     })
 }
 
+/// See [std::fs::remove_dir_all].
+#[allow(dead_code)]
+pub fn remove_dir_all(path: impl AsRef<Path>) -> Result<()> {
+    std::fs::remove_dir_all(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Remove,
+    })
+}
+
 /// See [std::fs::create_dir].
 pub fn create_dir(path: impl AsRef<Path>) -> Result<()> {
     std::fs::create_dir(&path).context(FileIoSnafu {

@@ -3,26 +3,28 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import * as tr from "@tslib/ftl";
     import { promiseWithResolver } from "@tslib/promise";
     import { registerPackage } from "@tslib/runtime-require";
     import { getPlatformString } from "@tslib/shortcuts";
 
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
-    } from "../../components/ButtonGroupItem.svelte";
-    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
-    import IconButton from "../../components/IconButton.svelte";
-    import Shortcut from "../../components/Shortcut.svelte";
+    } from "$lib/components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
+    import Icon from "$lib/components/Icon.svelte";
+    import IconButton from "$lib/components/IconButton.svelte";
+    import { micIcon, paperclipIcon } from "$lib/components/icons";
+    import Shortcut from "$lib/components/Shortcut.svelte";
+
     import { context } from "../NoteEditor.svelte";
     import { setFormat } from "../old-editor-adapter";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { micIcon, paperclipIcon } from "./icons";
     import LatexButton from "./LatexButton.svelte";
 
     const { focusedInput } = context.get();
@@ -92,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {disabled}
                 on:click={attachMediaOnFocus}
             >
-                {@html paperclipIcon}
+                <Icon icon={paperclipIcon} />
             </IconButton>
             <Shortcut
                 keyCombination={attachmentCombination}
@@ -109,7 +111,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {disabled}
                 on:click={attachRecordingOnFocus}
             >
-                {@html micIcon}
+                <Icon icon={micIcon} />
             </IconButton>
             <Shortcut
                 keyCombination={recordCombination}

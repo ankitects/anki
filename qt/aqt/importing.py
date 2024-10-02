@@ -1,11 +1,15 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from __future__ import annotations
+
 import os
 import re
+import sys
 import traceback
 import zipfile
+from collections.abc import Callable
 from concurrent.futures import Future
-from typing import Any, Optional
+from typing import Any
 
 import anki.importing as importing
 import aqt.deckchooser
@@ -54,7 +58,7 @@ class ChangeMap(QDialog):
                 self.frm.fields.setCurrentRow(n)
             else:
                 self.frm.fields.setCurrentRow(n + 1)
-        self.field: Optional[str] = None
+        self.field: str | None = None
 
     def getField(self) -> str:
         self.exec()
@@ -116,7 +120,7 @@ class ImportDialog(QDialog):
         )
         self.deck = aqt.deckchooser.DeckChooser(self.mw, self.frm.deckArea, label=False)
 
-    def modelChanged(self, unused: Any = None) -> None:
+    def modelChanged(self, unused: Any | None = None) -> None:
         self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
@@ -193,7 +197,6 @@ class ImportDialog(QDialog):
         )
         self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.progress.start()
-        self.mw.checkpoint(tr.actions_import())
 
         def on_done(future: Future) -> None:
             self.mw.progress.finish()
@@ -231,13 +234,13 @@ class ImportDialog(QDialog):
         self.frm.mappingArea.setWidget(self.frame)
         self.mapbox = QVBoxLayout(self.frame)
         self.mapbox.setContentsMargins(0, 0, 0, 0)
-        self.mapwidget: Optional[QWidget] = None
+        self.mapwidget: QWidget | None = None
 
     def hideMapping(self) -> None:
         self.frm.mappingGroup.hide()
 
     def showMapping(
-        self, keepMapping: bool = False, hook: Optional[Callable] = None
+        self, keepMapping: bool = False, hook: Callable | None = None
     ) -> None:
         if hook:
             hook()
@@ -387,7 +390,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
                 showWarning(invalidZipMsg())
             except MediaMapInvalid:
                 showWarning(
-                    "Unable to read file. It probably requires a newer version of Anki to import."
+                    "Unable to read file. It probably requires a newer version of Anki to import. Try unchecking 'Legacy import/export Handling' under Preferences > Editing > Import/Export and see if the problem persists."
                 )
             except V2ImportIntoV1:
                 showWarning(

@@ -5,26 +5,44 @@ use std::collections::HashMap;
 
 use rusqlite::types::FromSql;
 use rusqlite::types::FromSqlError;
-use rusqlite::types::ToSqlOutput;
 use rusqlite::types::ValueRef;
-use rusqlite::ToSql;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 
+use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::serde::default_on_invalid;
 
 /// Helper for serdeing the card data column.
-#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub(crate) struct CardData {
     #[serde(
-        skip_serializing_if = "Option::is_none",
         rename = "pos",
+        skip_serializing_if = "Option::is_none",
         deserialize_with = "default_on_invalid"
     )]
     pub(crate) original_position: Option<u32>,
+    #[serde(
+        rename = "s",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_stability: Option<f32>,
+    #[serde(
+        rename = "d",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_difficulty: Option<f32>,
+    #[serde(
+        rename = "dr",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_desired_retention: Option<f32>,
+
     /// A string representation of a JSON object storing optional data
     /// associated with the card, so v3 custom scheduling code can persist
     /// state.
@@ -36,6 +54,9 @@ impl CardData {
     pub(crate) fn from_card(card: &Card) -> Self {
         Self {
             original_position: card.original_position,
+            fsrs_stability: card.memory_state.as_ref().map(|m| m.stability),
+            fsrs_difficulty: card.memory_state.as_ref().map(|m| m.difficulty),
+            fsrs_desired_retention: card.desired_retention,
             custom_data: card.custom_data.clone(),
         }
     }
@@ -43,6 +64,36 @@ impl CardData {
     pub(crate) fn from_str(s: &str) -> Self {
         serde_json::from_str(s).unwrap_or_default()
     }
+
+    pub(crate) fn memory_state(&self) -> Option<FsrsMemoryState> {
+        if let Some(stability) = self.fsrs_stability {
+            if let Some(difficulty) = self.fsrs_difficulty {
+                return Some(FsrsMemoryState {
+                    stability,
+                    difficulty,
+                });
+            }
+        }
+        None
+    }
+
+    pub(crate) fn convert_to_json(&mut self) -> Result<String> {
+        if let Some(v) = &mut self.fsrs_stability {
+            round_to_places(v, 2)
+        }
+        if let Some(v) = &mut self.fsrs_difficulty {
+            round_to_places(v, 3)
+        }
+        if let Some(v) = &mut self.fsrs_desired_retention {
+            round_to_places(v, 2)
+        }
+        serde_json::to_string(&self).map_err(Into::into)
+    }
+}
+
+fn round_to_places(value: &mut f32, decimal_places: u32) {
+    let factor = 10_f32.powi(decimal_places as i32);
+    *value = (*value * factor).round() / factor;
 }
 
 impl FromSql for CardData {
@@ -56,17 +107,9 @@ impl FromSql for CardData {
     }
 }
 
-impl ToSql for CardData {
-    fn to_sql(&self) -> Result<ToSqlOutput<'_>, rusqlite::Error> {
-        Ok(ToSqlOutput::Owned(
-            serde_json::to_string(self).unwrap().into(),
-        ))
-    }
-}
-
 /// Serialize the JSON `data` for a card.
 pub(crate) fn card_data_string(card: &Card) -> String {
-    serde_json::to_string(&CardData::from_card(card)).unwrap()
+    CardData::from_card(card).convert_to_json().unwrap()
 }
 
 fn meta_is_empty(s: &str) -> bool {
@@ -107,5 +150,20 @@ mod test {
         assert!(validate_custom_data(r#"{"日": 5}"#).is_ok());
         assert!(validate_custom_data(r#"{"日本語": 5}"#).is_err());
         assert!(validate_custom_data(&format!(r#"{{"foo": "{}"}}"#, "x".repeat(100))).is_err());
+    }
+
+    #[test]
+    fn compact_floats() {
+        let mut data = CardData {
+            original_position: None,
+            fsrs_stability: Some(123.45678),
+            fsrs_difficulty: Some(1.234567),
+            fsrs_desired_retention: Some(0.987654),
+            custom_data: "".to_string(),
+        };
+        assert_eq!(
+            data.convert_to_json().unwrap(),
+            r#"{"s":123.46,"d":1.235,"dr":0.99}"#
+        );
     }
 }

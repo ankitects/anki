@@ -5,11 +5,12 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::io::Cursor;
 use std::io::Read;
 use std::io::Seek;
 use std::io::SeekFrom;
 
-use anki_io::open_file;
+use anki_io::read_to_string;
 pub use anki_proto::import_export::csv_metadata::Deck as CsvDeck;
 pub use anki_proto::import_export::csv_metadata::Delimiter;
 pub use anki_proto::import_export::csv_metadata::DupeResolution;
@@ -45,7 +46,8 @@ impl Collection {
         deck_id: Option<DeckId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let mut reader = open_file(path)?;
+        let text = read_to_string(path)?;
+        let mut reader = Cursor::new(text);
         let meta =
             self.get_reader_metadata(&mut reader, delimiter, notetype_id, deck_id, is_html)?;
         if meta.preview.is_empty() {
@@ -306,7 +308,7 @@ pub(super) trait DupeResolutionExt: Sized {
 
 impl DupeResolutionExt for DupeResolution {
     fn from_config(col: &Collection) -> Self {
-        Self::from_i32(col.get_config_i32(I32ConfigKey::CsvDuplicateResolution)).unwrap_or_default()
+        Self::try_from(col.get_config_i32(I32ConfigKey::CsvDuplicateResolution)).unwrap_or_default()
     }
 
     fn from_text(text: &str) -> Option<Self> {
@@ -326,7 +328,7 @@ pub(super) trait MatchScopeExt: Sized {
 
 impl MatchScopeExt for MatchScope {
     fn from_config(col: &Collection) -> Self {
-        Self::from_i32(col.get_config_i32(I32ConfigKey::MatchScope)).unwrap_or_default()
+        Self::try_from(col.get_config_i32(I32ConfigKey::MatchScope)).unwrap_or_default()
     }
 
     fn from_text(text: &str) -> Option<Self> {
@@ -458,7 +460,7 @@ fn ensure_first_field_is_mapped(
 fn maybe_set_fallback_columns(metadata: &mut CsvMetadata) -> Result<()> {
     if metadata.column_labels.is_empty() {
         metadata.column_labels =
-            vec![String::new(); metadata.preview.get(0).map_or(0, |row| row.vals.len())];
+            vec![String::new(); metadata.preview.first().map_or(0, |row| row.vals.len())];
     }
     Ok(())
 }

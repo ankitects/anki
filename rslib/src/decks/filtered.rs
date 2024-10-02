@@ -22,7 +22,8 @@ impl Deck {
             limit: 20,
             order: FilteredSearchOrder::Due as i32,
         });
-        filt.preview_delay = 10;
+        filt.preview_again_secs = 60;
+        filt.preview_hard_secs = 600;
         filt.reschedule = true;
         Deck {
             id: DeckId(0),

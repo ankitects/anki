@@ -7,14 +7,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let closeMathjaxEditor: (() => void) | null = null;
 
-    const closeSignalStore = writable<symbol>(Symbol(), (set) => {
-        closeMathjaxEditor = () => set(Symbol());
+    const closeSignalStore = writable<boolean>(false, (set) => {
+        closeMathjaxEditor = () => set(true);
         return () => (closeMathjaxEditor = null);
     });
 </script>
 
 <script lang="ts">
-    import * as tr from "@tslib/ftl";
+    import * as tr from "@generated/ftl";
     import { noop } from "@tslib/functional";
     import { isArrowLeft, isArrowRight } from "@tslib/keys";
     import { getPlatformString } from "@tslib/shortcuts";
@@ -22,7 +22,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, onMount } from "svelte";
     import type { Writable } from "svelte/store";
 
-    import { pageTheme } from "../../sveltelib/theme";
+    import { pageTheme } from "$lib/sveltelib/theme";
+
     import { baseOptions, focusAndSetCaret, latex } from "../code-mirror";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import CodeMirror from "../CodeMirror.svelte";
@@ -106,7 +107,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     });
 
-    $: $closeSignalStore, dispatch("close");
+    $: if ($closeSignalStore) {
+        dispatch("close");
+        $closeSignalStore = false;
+    }
 </script>
 
 <div class="mathjax-editor" class:light-theme={!$pageTheme.isDark}>

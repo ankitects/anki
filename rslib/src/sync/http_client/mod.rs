@@ -34,12 +34,12 @@ pub struct HttpSyncClient {
 }
 
 impl HttpSyncClient {
-    pub fn new(auth: SyncAuth) -> HttpSyncClient {
+    pub fn new(auth: SyncAuth, client: Client) -> HttpSyncClient {
         let io_timeout = Duration::from_secs(auth.io_timeout_secs.unwrap_or(30) as u64);
         HttpSyncClient {
             sync_key: auth.hkey,
             session_key: simple_session_id(),
-            client: Client::builder().http1_only().build().unwrap(),
+            client,
             endpoint: auth
                 .endpoint
                 .unwrap_or_else(|| Url::try_from("https://sync.ankiweb.net/").unwrap()),

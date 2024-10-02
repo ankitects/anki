@@ -11,6 +11,7 @@ use super::SearchNode;
 use super::StateKind;
 use super::TemplateKind;
 use crate::prelude::*;
+use crate::storage::comma_separated_ids;
 use crate::text::escape_anki_wildcards_for_search_node;
 
 pub trait Negated {
@@ -123,7 +124,7 @@ impl SearchBuilder {
 
     /// Construct [SearchBuilder] matching any given deck, excluding children.
     pub fn from_decks(decks: &[DeckId]) -> Self {
-        Self::any(decks.iter().copied().map(SearchNode::DeckIdWithoutChildren))
+        SearchNode::DeckIdsWithoutChildren(comma_separated_ids(decks)).into()
     }
 
     /// Construct [SearchBuilder] matching learning, but not relearning cards.
@@ -160,7 +161,7 @@ impl SearchNode {
         if with_children {
             Self::DeckIdWithChildren(did.into())
         } else {
-            Self::DeckIdWithoutChildren(did.into())
+            Self::DeckIdsWithoutChildren(did.into().to_string())
         }
     }
 

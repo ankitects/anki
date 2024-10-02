@@ -7,6 +7,7 @@ import anki
 import anki.collection
 from anki import decks_pb2, scheduler_pb2
 from anki._legacy import DeprecatedNamesMixin
+from anki.cards import Card
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
 
@@ -21,11 +22,19 @@ ScheduleCardsAsNewDefaults = scheduler_pb2.ScheduleCardsAsNewDefaultsResponse
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 RepositionDefaults = scheduler_pb2.RepositionDefaultsResponse
 
-from typing import Sequence
+from collections.abc import Sequence
+from typing import overload
 
 from anki import config_pb2
 from anki.cards import CardId
-from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW
+from anki.consts import (
+    CARD_TYPE_NEW,
+    NEW_CARDS_RANDOM,
+    QUEUE_TYPE_DAY_LEARN_RELEARN,
+    QUEUE_TYPE_LRN,
+    QUEUE_TYPE_NEW,
+    QUEUE_TYPE_PREVIEW,
+)
 from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
 from anki.notes import NoteId
 from anki.utils import ids2str, int_time
@@ -49,8 +58,19 @@ class SchedulerBase(DeprecatedNamesMixin):
     def day_cutoff(self) -> int:
         return self._timing_today().next_day_at
 
+    def countIdx(self, card: Card) -> int:
+        if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
+            return QUEUE_TYPE_LRN
+        return card.queue
+
     # Deck list
     ##########################################################################
+
+    @overload
+    def deck_due_tree(self, top_deck_id: None = None) -> DeckTreeNode: ...
+
+    @overload
+    def deck_due_tree(self, top_deck_id: DeckId) -> DeckTreeNode | None: ...
 
     def deck_due_tree(self, top_deck_id: DeckId | None = None) -> DeckTreeNode | None:
         """Returns a tree of decks with counts.
@@ -188,7 +208,7 @@ class SchedulerBase(DeprecatedNamesMixin):
         config_key: Config.String.V | None = None,
     ) -> OpChanges:
         """Set cards to be due in `days`, turning them into review cards if necessary.
-        `days` can be of the form '5' or '5..7'
+        `days` can be of the form '5' or '5-7'
         If `config_key` is provided, provided days will be remembered in config."""
         key: config_pb2.OptionalStringConfigKey | None
         if config_key is not None:

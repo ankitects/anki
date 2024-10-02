@@ -13,7 +13,6 @@ use unicase::UniCase;
 
 use super::SqliteStorage;
 use crate::card::CardQueue;
-use crate::config::SchedulerVersion;
 use crate::decks::immediate_parent_name;
 use crate::decks::DeckCommon;
 use crate::decks::DeckKindContainer;
@@ -297,16 +296,13 @@ impl SqliteStorage {
 
     pub(crate) fn due_counts(
         &self,
-        sched: SchedulerVersion,
         day_cutoff: u32,
         learn_cutoff: u32,
     ) -> Result<HashMap<DeckId, DueCounts>> {
-        let sched_ver = sched as u8;
         let params = named_params! {
             ":new_queue": CardQueue::New as u8,
             ":review_queue": CardQueue::Review as u8,
             ":day_cutoff": day_cutoff,
-            ":sched_ver": sched_ver,
             ":learn_queue": CardQueue::Learn as u8,
             ":learn_cutoff": learn_cutoff,
             ":daylearn_queue": CardQueue::DayLearn as u8,
@@ -363,6 +359,13 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn get_active_deck_ids_sorted(&self) -> Result<Vec<DeckId>> {
+        self.db
+            .prepare_cached(include_str!("active_deck_ids_sorted.sql"))?
+            .query_and_then([], |row| row.get(0).map_err(Into::into))?
+            .collect()
+    }
+
     // Upgrading/downgrading/legacy
 
     pub(super) fn add_default_deck(&self, tr: &I18n) -> Result<()> {
@@ -404,7 +407,7 @@ impl SqliteStorage {
 
     pub(crate) fn downgrade_decks_from_schema15(&self) -> Result<()> {
         let decks = self.get_all_decks_as_schema11()?;
-        self.set_schema11_decks(&decks)
+        self.set_schema11_decks(decks)
     }
 
     fn get_schema11_decks(&self) -> Result<HashMap<DeckId, DeckSchema11>> {
@@ -420,8 +423,8 @@ impl SqliteStorage {
         Ok(decks)
     }
 
-    pub(crate) fn set_schema11_decks(&self, decks: &HashMap<DeckId, DeckSchema11>) -> Result<()> {
-        let json = crate::serde::schema11_to_string(decks)?;
+    pub(crate) fn set_schema11_decks(&self, decks: HashMap<DeckId, DeckSchema11>) -> Result<()> {
+        let json = serde_json::to_string(&decks)?;
         self.db.execute("update col set decks = ?", [json])?;
         Ok(())
     }

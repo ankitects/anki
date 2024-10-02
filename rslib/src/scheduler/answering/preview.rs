@@ -4,7 +4,6 @@
 use super::CardStateUpdater;
 use super::RevlogEntryPartial;
 use crate::card::CardQueue;
-use crate::config::SchedulerVersion;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::IntervalKind;
 use crate::scheduler::states::PreviewState;
@@ -17,8 +16,7 @@ impl CardStateUpdater {
     ) -> RevlogEntryPartial {
         let revlog = RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover());
         if next.finished {
-            self.card
-                .remove_from_filtered_deck_restoring_queue(SchedulerVersion::V2);
+            self.card.remove_from_filtered_deck_restoring_queue();
             return revlog;
         }
 
@@ -81,6 +79,13 @@ mod test {
                 finished: true
             }))
         ));
+        assert!(matches!(
+            next.good,
+            CardState::Filtered(FilteredState::Preview(PreviewState {
+                scheduled_secs: 0,
+                finished: true
+            }))
+        ));
 
         // use Again on the preview
         col.answer_card(&mut CardAnswer {
@@ -110,27 +115,14 @@ mod test {
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::PreviewRepeat);
 
-        // good
+        // and then it should return to its old state once good or easy selected,
+        // with the default filtered config
         let next = col.get_scheduling_states(c.id)?;
         col.answer_card(&mut CardAnswer {
             card_id: c.id,
             current_state: next.current,
             new_state: next.good,
             rating: Rating::Good,
-            answered_at: TimestampMillis::now(),
-            milliseconds_taken: 0,
-            custom_data: None,
-        })?;
-        c = col.storage.get_card(c.id)?.unwrap();
-        assert_eq!(c.queue, CardQueue::PreviewRepeat);
-
-        // and then it should return to its old state once easy selected
-        let next = col.get_scheduling_states(c.id)?;
-        col.answer_card(&mut CardAnswer {
-            card_id: c.id,
-            current_state: next.current,
-            new_state: next.easy,
-            rating: Rating::Easy,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
             custom_data: None,

@@ -26,7 +26,10 @@ impl ServerMediaDatabase {
         let mut entries = vec![];
         let mut accumulated_size = 0;
         for filename in files {
-            let Some(entry) = self.get_nonempty_entry(filename).or_internal_err("fetching entry")? else {
+            let Some(entry) = self
+                .get_nonempty_entry(filename)
+                .or_internal_err("fetching entry")?
+            else {
                 return None.or_conflict(format!("missing/empty file entry: {filename}"));
             };
 

@@ -38,7 +38,6 @@ class DeckConf(QDialog):
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
         gui_hooks.deck_conf_did_setup_ui_form(self)
-        self.mw.checkpoint(tr.actions_options())
         self.setupCombos()
         self.setupConfs()
         qconnect(
@@ -174,8 +173,8 @@ class DeckConf(QDialog):
     # Loading
     ##################################################
 
-    def listToUser(self, l: list[Union[int, float]]) -> str:
-        def num_to_user(n: Union[int, float]) -> str:
+    def listToUser(self, l: list[int | float]) -> str:
+        def num_to_user(n: int | float) -> str:
             if n == round(n):
                 return str(int(n))
             else:
@@ -219,9 +218,6 @@ class DeckConf(QDialog):
         f.revplim.setText(self.parentLimText("rev"))
         f.buryRev.setChecked(c.get("bury", True))
         f.hardFactor.setValue(int(c.get("hardFactor", 1.2) * 100))
-        if self.mw.col.sched_ver() == 1:
-            f.hardFactor.setVisible(False)
-            f.hardFactorLabel.setVisible(False)
         # lapse
         c = self.conf["lapse"]
         f.lapSteps.setText(self.listToUser(c["delays"]))
@@ -271,7 +267,7 @@ class DeckConf(QDialog):
                 if i == int(i):
                     i = int(i)
                 ret.append(i)
-            except:
+            except Exception:
                 # invalid, don't update
                 showWarning(tr.scheduling_steps_must_be_numbers())
                 return

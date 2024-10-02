@@ -8,6 +8,7 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use fsrs::MemoryState;
 use num_enum::TryFromPrimitive;
 use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;
@@ -71,7 +72,7 @@ pub enum CardQueueNumber {
     Invalid,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Card {
     pub(crate) id: CardId,
     pub(crate) note_id: NoteId,
@@ -92,9 +93,33 @@ pub struct Card {
     pub(crate) flags: u8,
     /// The position in the new queue before leaving it.
     pub(crate) original_position: Option<u32>,
+    pub(crate) memory_state: Option<FsrsMemoryState>,
+    pub(crate) desired_retention: Option<f32>,
     /// JSON object or empty; exposed through the reviewer for persisting custom
     /// state
     pub(crate) custom_data: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FsrsMemoryState {
+    /// The expected memory stability, in days.
+    pub stability: f32,
+    /// A number in the range 1.0-10.0. Use difficulty() for a normalized
+    /// number.
+    pub difficulty: f32,
+}
+
+impl FsrsMemoryState {
+    /// Returns the difficulty normalized to a 0.0-1.0 range.
+    pub(crate) fn difficulty(&self) -> f32 {
+        (self.difficulty - 1.0) / 9.0
+    }
+
+    /// Returns the difficulty normalized to a 0.1-1.1 range,
+    /// which is used in revlog entries.
+    pub(crate) fn difficulty_shifted(&self) -> f32 {
+        self.difficulty() + 0.1
+    }
 }
 
 impl Default for Card {
@@ -118,6 +143,8 @@ impl Default for Card {
             original_deck_id: DeckId(0),
             flags: 0,
             original_position: None,
+            memory_state: None,
+            desired_retention: None,
             custom_data: String::new(),
         }
     }
@@ -157,8 +184,9 @@ impl Card {
     }
 
     /// Caller must ensure provided deck exists and is not filtered.
-    fn set_deck(&mut self, deck: DeckId, sched: SchedulerVersion) {
-        self.remove_from_filtered_deck_restoring_queue(sched);
+    fn set_deck(&mut self, deck: DeckId) {
+        self.remove_from_filtered_deck_restoring_queue();
+        self.memory_state = None;
         self.deck_id = deck;
     }
 
@@ -186,6 +214,9 @@ impl Card {
         (self.ease_factor as f32) / 1000.0
     }
 
+    /// Don't use this in situations where you may be using original_due, since
+    /// it only applies to the current due date. You may want to use
+    /// is_unix_epoch_timestap() instead.
     pub fn is_intraday_learning(&self) -> bool {
         matches!(self.queue, CardQueue::Learn | CardQueue::PreviewRepeat)
     }
@@ -296,13 +327,15 @@ impl Collection {
 
     /// Remove cards and any resulting orphaned notes.
     /// Expects a transaction.
-    pub(crate) fn remove_cards_and_orphaned_notes(&mut self, cids: &[CardId]) -> Result<()> {
+    pub(crate) fn remove_cards_and_orphaned_notes(&mut self, cids: &[CardId]) -> Result<usize> {
         let usn = self.usn()?;
         let mut nids = HashSet::new();
+        let mut card_count = 0;
         for cid in cids {
             if let Some(card) = self.storage.get_card(*cid)? {
                 nids.insert(card.note_id);
                 self.remove_card_and_add_grave_undoable(card, usn)?;
+                card_count += 1;
             }
         }
         for nid in nids {
@@ -311,17 +344,20 @@ impl Collection {
             }
         }
 
-        Ok(())
+        Ok(card_count)
     }
 
     pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<usize>> {
+        let sched = self.scheduler_version();
+        if sched == SchedulerVersion::V1 {
+            return Err(AnkiError::SchedulerUpgradeRequired);
+        }
         let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
         let config_id = deck.config_id().ok_or(AnkiError::FilteredDeckError {
             source: FilteredDeckError::CanNotMoveCardsInto,
         })?;
         let config = self.get_deck_config(config_id, true)?.unwrap();
         let mut steps_adjuster = RemainingStepsAdjuster::new(&config);
-        let sched = self.scheduler_version();
         let usn = self.usn()?;
         self.transact(Op::SetCardDeck, |col| {
             let mut count = 0;
@@ -332,7 +368,7 @@ impl Collection {
                 count += 1;
                 let original = card.clone();
                 steps_adjuster.adjust_remaining_steps(col, &mut card)?;
-                card.set_deck(deck_id, sched);
+                card.set_deck(deck_id);
                 col.update_card_inner(&mut card, original, usn)?;
             }
             Ok(count)
@@ -431,6 +467,24 @@ impl<'a> RemainingStepsAdjuster<'a> {
                 Entry::Vacant(e) => e.insert(col.deck_config_for_card(card)?),
             },
         )
+    }
+}
+
+impl From<FsrsMemoryState> for MemoryState {
+    fn from(value: FsrsMemoryState) -> Self {
+        MemoryState {
+            stability: value.stability,
+            difficulty: value.difficulty,
+        }
+    }
+}
+
+impl From<MemoryState> for FsrsMemoryState {
+    fn from(value: MemoryState) -> Self {
+        FsrsMemoryState {
+            stability: value.stability,
+            difficulty: value.difficulty,
+        }
     }
 }
 

@@ -7,6 +7,8 @@ export PYTHONPYCACHEPREFIX=out/pycache
 # define these as blank before calling the script if you want to disable them
 export ANKIDEV=${ANKIDEV-1}
 export QTWEBENGINE_REMOTE_DEBUGGING=${QTWEBENGINE_REMOTE_DEBUGGING-8080}
+export QTWEBENGINE_CHROMIUM_FLAGS=${QTWEBENGINE_CHROMIUM_FLAGS---remote-allow-origins=http://localhost:$QTWEBENGINE_REMOTE_DEBUGGING}
+
 # The pages can be accessed by, e.g. surfing to
 # http://localhost:40000/_anki/pages/deckconfig.html
 # Useful in conjunction with tools/web-watch for auto-rebuilding.

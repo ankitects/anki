@@ -27,7 +27,7 @@ pub fn help_page_link_suffix(page: HelpPage) -> &'static str {
         HelpPage::Index => "",
         HelpPage::Templates => "templates/intro.html",
         HelpPage::FilteredDeck => "filtered-decks.html",
-        HelpPage::Importing => "importing.html",
+        HelpPage::Importing => "importing/intro.html",
         HelpPage::CustomizingFields => "editing.html#customizing-fields",
         HelpPage::DeckOptions => "deck-options.html",
         HelpPage::EditingFeatures => "editing.html#editing-features",
@@ -41,6 +41,7 @@ pub fn help_page_link_suffix(page: HelpPage) -> &'static str {
         HelpPage::CardTypeExtraneousCloze => {
             "templates/errors.html#cloze-filter-outside-cloze-notetype"
         }
+        HelpPage::Troubleshooting => "troubleshooting.html",
     }
 }
 
@@ -49,6 +50,6 @@ impl crate::services::LinksService for Collection {
         &mut self,
         input: anki_proto::links::HelpPageLinkRequest,
     ) -> error::Result<anki_proto::generic::String> {
-        Ok(help_page_to_link(HelpPage::from_i32(input.page).unwrap_or(HelpPage::Index)).into())
+        Ok(help_page_to_link(HelpPage::try_from(input.page).unwrap_or(HelpPage::Index)).into())
     }
 }

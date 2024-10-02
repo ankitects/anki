@@ -10,7 +10,7 @@ from typing import Any
 
 import aqt
 import aqt.operations
-from anki.collection import OpChanges
+from anki.collection import Collection, OpChanges
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
@@ -35,6 +35,16 @@ class DeckBrowserBottomBar:
 
 
 @dataclass
+class RenderData:
+    """Data from collection that is required to show the page."""
+
+    tree: DeckTreeNode
+    current_deck_id: DeckId
+    studied_today: str
+    sched_upgrade_required: bool
+
+
+@dataclass
 class DeckBrowserContent:
     """Stores sections of HTML content that the deck browser will be
     populated with.
@@ -54,14 +64,13 @@ class RenderDeckNodeContext:
 
 
 class DeckBrowser:
-    _dueTree: DeckTreeNode
+    _render_data: RenderData
 
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
         self.web = mw.web
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self.scrollPos = QPoint(0, 0)
-        self._v1_message_dismissed_at = 0
         self._refresh_needed = False
 
     def show(self) -> None:
@@ -98,6 +107,7 @@ class DeckBrowser:
             (cmd, arg) = url.split(":", 1)
         else:
             cmd = url
+            arg = ""
         if cmd == "open":
             self.set_current_deck(DeckId(int(arg)))
         elif cmd == "opts":
@@ -116,7 +126,10 @@ class DeckBrowser:
         elif cmd == "v2upgrade":
             self._confirm_upgrade()
         elif cmd == "v2upgradeinfo":
-            openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
+            if self.mw.col.sched_ver() == 1:
+                openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
+            else:
+                openLink("https://faqs.ankiweb.net/the-2021-scheduler.html")
         elif cmd == "select":
             set_current_deck(
                 parent=self.mw, deck_id=DeckId(int(arg))
@@ -144,19 +157,37 @@ class DeckBrowser:
 
     def _renderPage(self, reuse: bool = False) -> None:
         if not reuse:
-            self._dueTree = self.mw.col.sched.deck_due_tree()
-            self.__renderPage(None)
-            return
-        self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
-    def __renderPage(self, offset: int) -> None:
+            def get_data(col: Collection) -> RenderData:
+                return RenderData(
+                    tree=col.sched.deck_due_tree(),
+                    current_deck_id=col.decks.get_current_id(),
+                    studied_today=col.studied_today(),
+                    sched_upgrade_required=not col.v3_scheduler(),
+                )
+
+            def success(output: RenderData) -> None:
+                self._render_data = output
+                self.__renderPage(None)
+
+            QueryOp(
+                parent=self.mw,
+                op=get_data,
+                success=success,
+            ).run_in_background()
+        else:
+            self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
+
+    def __renderPage(self, offset: int | None) -> None:
+        data = self._render_data
         content = DeckBrowserContent(
-            tree=self._renderDeckTree(self._dueTree),
+            tree=self._renderDeckTree(data.tree),
             stats=self._renderStats(),
         )
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
-            self._v1_upgrade_message() + self._body % content.__dict__,
+            self._v1_upgrade_message(data.sched_upgrade_required)
+            + self._body % content.__dict__,
             css=["css/deckbrowser.css"],
             js=[
                 "js/vendor/jquery.min.js",
@@ -175,7 +206,7 @@ class DeckBrowser:
 
     def _renderStats(self) -> str:
         return '<div id="studiedToday"><span>{}</span></div>'.format(
-            self.mw.col.studied_today(),
+            self._render_data.studied_today
         )
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
@@ -187,12 +218,12 @@ class DeckBrowser:
 <th class=optscol></th></tr>""".format(
             tr.decks_deck(),
             tr.actions_new(),
-            tr.card_stats_review_log_type_learn(),
-            tr.statistics_due_count(),
+            tr.decks_learn_header(),
+            tr.decks_review_header(),
         )
         buf += self._topLevelDragRow()
 
-        ctx = RenderDeckNodeContext(current_deck_id=self.mw.col.conf["curDeck"])
+        ctx = RenderDeckNodeContext(current_deck_id=self._render_data.current_deck_id)
 
         for child in top.children:
             buf += self._render_deck_node(child, ctx)
@@ -309,7 +340,7 @@ class DeckBrowser:
         display_options_for_deck_id(did)
 
     def _collapse(self, did: DeckId) -> None:
-        node = self.mw.col.decks.find_deck_in_tree(self._dueTree, did)
+        node = self.mw.col.decks.find_deck_in_tree(self._render_data.tree, did)
         if node:
             node.collapsed = not node.collapsed
             set_deck_collapsed(
@@ -326,7 +357,12 @@ class DeckBrowser:
         ).run_in_background()
 
     def _delete(self, did: DeckId) -> None:
-        remove_decks(parent=self.mw, deck_ids=[did]).run_in_background()
+        deck_name = self.mw.col.decks.find_deck_in_tree(
+            self._render_data.tree, did
+        ).name
+        remove_decks(
+            parent=self.mw, deck_ids=[did], deck_name=deck_name
+        ).run_in_background()
 
     # Top buttons
     ######################################################################
@@ -364,15 +400,17 @@ class DeckBrowser:
 
     ######################################################################
 
-    def _v1_upgrade_message(self) -> str:
-        if self.mw.col.sched_ver() == 2:
+    def _v1_upgrade_message(self, required: bool) -> str:
+        if not required:
             return ""
+
+        update_required = tr.scheduling_update_required().replace("V2", "v3")
 
         return f"""
 <center>
 <div class=callout>
     <div>
-      {tr.scheduling_update_required()}
+      {update_required}
     </div>
     <div>
       <button onclick='pycmd("v2upgrade")'>
@@ -387,8 +425,10 @@ class DeckBrowser:
 """
 
     def _confirm_upgrade(self) -> None:
-        self.mw.col.mod_schema(check=True)
-        self.mw.col.upgrade_to_v2_scheduler()
+        if self.mw.col.sched_ver() == 1:
+            self.mw.col.mod_schema(check=True)
+            self.mw.col.upgrade_to_v2_scheduler()
+        self.mw.col.set_v3_scheduler(True)
 
         showInfo(tr.scheduling_update_done())
         self.refresh()

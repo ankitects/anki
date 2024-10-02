@@ -5,6 +5,8 @@ use std::collections::HashSet;
 use std::sync::Arc;
 
 use anki_i18n::I18n;
+use anki_proto::notetypes::stock_notetype::OriginalStockKind;
+use anki_proto::notetypes::ImageOcclusionField;
 use itertools::Itertools;
 use tracing::debug;
 
@@ -230,10 +232,10 @@ impl Collection {
             current: 0,
             total: total_notes as usize,
         })?;
-        for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
+        for (ntid, group) in &nids_by_notetype.into_iter().chunk_by(|tup| tup.0) {
             debug!("check notetype: {}", ntid);
             let mut group = group.peekable();
-            let nt = match self.get_notetype(ntid)? {
+            let mut nt = match self.get_notetype(ntid)? {
                 None => {
                     let first_note = self.storage.get_note(group.peek().unwrap().1)?.unwrap();
                     out.notetypes_recovered += 1;
@@ -242,10 +244,14 @@ impl Collection {
                 Some(nt) => nt,
             };
 
+            self.add_missing_field_tags(Arc::make_mut(&mut nt))?;
+
             let mut genctx = None;
             for (_, nid) in group {
                 progress.increment(|p| {
-                    let DatabaseCheckProgress::Notes { current, .. } = p else { unreachable!() };
+                    let DatabaseCheckProgress::Notes { current, .. } = p else {
+                        unreachable!()
+                    };
                     current
                 })?;
 
@@ -388,7 +394,7 @@ impl Collection {
         let qfmt = basic.templates[0].config.q_format.clone();
         let afmt = basic.templates[0].config.a_format.clone();
         for n in 0..extra_cards_required {
-            basic.add_template(&format!("Card {}", n + 2), &qfmt, &afmt);
+            basic.add_template(format!("Card {}", n + 2), &qfmt, &afmt);
         }
         self.add_notetype(&mut basic, true)?;
         Ok(Arc::new(basic))
@@ -424,6 +430,30 @@ impl Collection {
             self.set_schema_modified()?;
         }
         Ok(num_invalid_ids)
+    }
+    fn add_missing_field_tags(&mut self, nt: &mut Notetype) -> Result<()> {
+        // we only try to fix I/O, as the other notetypes have been in circulation too
+        // long, and there's too much of a risk that the user has reordered the fields
+        // already. We could try to match on field name in the future though.
+        let usn = self.usn()?;
+        if let OriginalStockKind::ImageOcclusion = nt.config.original_stock_kind() {
+            let mut changed = false;
+            if nt.fields.len() >= 5 {
+                for i in 0..5 {
+                    let conf = &mut nt.fields[i].config;
+                    if !conf.prevent_deletion {
+                        changed = true;
+                        conf.prevent_deletion = i != ImageOcclusionField::Comments as usize;
+                        conf.tag = Some(i as u32);
+                    }
+                }
+            }
+            if changed {
+                nt.set_modified(usn);
+                self.add_or_update_notetype_with_existing_id_inner(nt, None, usn, true)?;
+            }
+        }
+        Ok(())
     }
 }
 

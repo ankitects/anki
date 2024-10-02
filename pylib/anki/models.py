@@ -7,7 +7,8 @@ import copy
 import pprint
 import sys
 import time
-from typing import Any, NewType, Sequence, Union
+from collections.abc import Sequence
+from typing import Any, NewType, Union
 
 import anki  # pylint: disable=unused-import
 import anki.collection
@@ -27,6 +28,7 @@ NotetypeNameIdUseCount = notetypes_pb2.NotetypeNameIdUseCount
 NotetypeNames = notetypes_pb2.NotetypeNames
 ChangeNotetypeInfo = notetypes_pb2.ChangeNotetypeInfo
 ChangeNotetypeRequest = notetypes_pb2.ChangeNotetypeRequest
+StockNotetype = notetypes_pb2.StockNotetype
 
 # legacy types
 NotetypeDict = dict[str, Any]
@@ -216,11 +218,15 @@ class ModelManager(DeprecatedNamesMixin):
         if existing_id is not None and existing_id != notetype["id"]:
             notetype["name"] += f"-{checksum(str(time.time()))[:5]}"
 
-    def update_dict(self, notetype: NotetypeDict) -> OpChanges:
+    def update_dict(
+        self, notetype: NotetypeDict, skip_checks: bool = False
+    ) -> OpChanges:
         "Update a NotetypeDict. Caller will need to re-load notetype if new fields/cards added."
         self._remove_from_cache(notetype["id"])
         self.ensure_name_unique(notetype)
-        return self.col._backend.update_notetype_legacy(to_json_bytes(notetype))
+        return self.col._backend.update_notetype_legacy(
+            json=to_json_bytes(notetype), skip_checks=skip_checks
+        )
 
     def _mutate_after_write(self, notetype: NotetypeDict) -> None:
         # existing code expects the note type to be mutated to reflect
@@ -254,6 +260,7 @@ class ModelManager(DeprecatedNamesMixin):
             self.col.tr.notetypes_copy(val=cloned["name"])
         )
         cloned["id"] = 0
+        cloned["originalId"] = None
         if add:
             self.add(cloned)
         return cloned
@@ -306,7 +313,7 @@ class ModelManager(DeprecatedNamesMixin):
     def rename_field(
         self, notetype: NotetypeDict, field: FieldDict, new_name: str
     ) -> None:
-        if not field in notetype["flds"]:
+        if field not in notetype["flds"]:
             raise Exception("invalid field")
         field["name"] = new_name
 
@@ -382,8 +389,8 @@ and notes.mid = ? and cards.ord = ?""",
 
         To get defaults, use
 
-        input = ChangeNotetypeRequest()
-        input.ParseFromString(col.models.change_notetype_info(...))
+        info = col.models.change_notetype_info(...)
+        input = info.input
         input.note_ids.extend([...])
 
         The new_fields and new_templates lists are relative to the new notetype's
@@ -417,11 +424,8 @@ and notes.mid = ? and cards.ord = ?""",
         self.col.mod_schema(check=True)
         assert fmap
         field_map = self._convert_legacy_map(fmap, len(newModel["flds"]))
-        if (
-            not cmap
-            or newModel["type"] == MODEL_CLOZE
-            or notetype["type"] == MODEL_CLOZE
-        ):
+        is_cloze = newModel["type"] == MODEL_CLOZE or notetype["type"] == MODEL_CLOZE
+        if not cmap or is_cloze:
             template_map = []
         else:
             template_map = self._convert_legacy_map(cmap, len(newModel["tmpls"]))
@@ -434,6 +438,7 @@ and notes.mid = ? and cards.ord = ?""",
             old_notetype_id=notetype["id"],
             new_notetype_id=newModel["id"],
             current_schema=self.col.db.scalar("select scm from col"),
+            is_cloze=is_cloze,
         )
 
     def _convert_legacy_map(
@@ -558,7 +563,7 @@ and notes.mid = ? and cards.ord = ?""",
         self._mutate_after_write(notetype)
 
     # @deprecated(replaced_by=update_dict)
-    def save(self, notetype: NotetypeDict = None, **legacy_kwargs: bool) -> None:
+    def save(self, notetype: NotetypeDict | None = None, **legacy_kwargs: bool) -> None:
         "Save changes made to provided note type."
         if not notetype:
             print_deprecation_warning(

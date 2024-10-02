@@ -8,7 +8,9 @@ use std::fs::File;
 use std::io::Write;
 
 use anki_io::read_file;
+use anki_proto::import_export::ImportAnkiPackageOptions;
 
+use crate::import_export::package::ExportAnkiPackageOptions;
 use crate::media::files::sha1_of_data;
 use crate::media::MediaManager;
 use crate::prelude::*;
@@ -43,14 +45,19 @@ fn roundtrip_inner(legacy: bool) {
     src_col
         .export_apkg(
             &apkg_path,
+            ExportAnkiPackageOptions {
+                with_scheduling: true,
+                with_deck_configs: true,
+                with_media: true,
+                legacy,
+            },
             SearchNode::from_deck_name("parent::sample"),
-            true,
-            true,
-            legacy,
             None,
         )
         .unwrap();
-    target_col.import_apkg(&apkg_path).unwrap();
+    target_col
+        .import_apkg(&apkg_path, ImportAnkiPackageOptions::default())
+        .unwrap();
 
     target_col.assert_decks();
     target_col.assert_notetype(&notetype);
@@ -153,10 +160,7 @@ impl Collection {
             (SAMPLE_JS, JS_DATA),
         ] {
             // data should have been copied correctly
-            assert_eq!(
-                read_file(&self.media_folder.join(fname)).unwrap(),
-                orig_data
-            );
+            assert_eq!(read_file(self.media_folder.join(fname)).unwrap(), orig_data);
             // and checksums in media db should be valid
             assert_eq!(*csums.get(fname).unwrap(), sha1_of_data(orig_data));
         }

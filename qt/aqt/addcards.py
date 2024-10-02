@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import aqt.editor
 import aqt.forms
@@ -22,6 +22,7 @@ from aqt.sound import av_player
 from aqt.utils import (
     HelpPage,
     add_close_shortcut,
+    ask_user_dialog,
     askUser,
     downArrow,
     openHelp,
@@ -48,15 +49,22 @@ class AddCards(QMainWindow):
         self.setMinimumWidth(400)
         self.setup_choosers()
         self.setupEditor()
-        self.setupButtons()
         add_close_shortcut(self)
         self._load_new_note()
+        self.setupButtons()
         self.history: list[NoteId] = []
-        self._last_added_note: Optional[Note] = None
+        self._last_added_note: Note | None = None
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
+        self.setMenuBar(None)
         self.show()
+
+    def set_deck(self, deck_id: DeckId) -> None:
+        self.deck_chooser.selected_deck_id = deck_id
+
+    def set_note_type(self, note_type_id: NotetypeId) -> None:
+        self.notetype_chooser.selected_notetype_id = note_type_id
 
     def set_note(self, note: Note, deck_id: DeckId | None = None) -> None:
         """Set tags, field contents and notetype according to `note`. Deck is set
@@ -67,8 +75,8 @@ class AddCards(QMainWindow):
             self.deck_chooser.selected_deck_id = deck_id
 
         new_note = self._new_note()
-        new_note.fields = note.fields
-        new_note.tags = note.tags
+        new_note.fields = note.fields[:]
+        new_note.tags = note.tags[:]
 
         self.setAndFocusNote(new_note)
 
@@ -84,6 +92,7 @@ class AddCards(QMainWindow):
         defaults = self.col.defaults_for_adding(
             current_review_card=self.mw.reviewer.card
         )
+
         self.notetype_chooser = NotetypeChooser(
             mw=self.mw,
             widget=self.form.modelArea,
@@ -108,10 +117,11 @@ class AddCards(QMainWindow):
         self.addButton = bb.addButton(tr.actions_add(), ar)
         qconnect(self.addButton.clicked, self.add_current_note)
         self.addButton.setShortcut(QKeySequence("Ctrl+Return"))
-        # qt5.14 doesn't handle numpad enter on Windows
+        # qt5.14+ doesn't handle numpad enter on Windows
         self.compat_add_shorcut = QShortcut(QKeySequence("Ctrl+Enter"), self)
         qconnect(self.compat_add_shorcut.activated, self.addButton.click)
         self.addButton.setToolTip(shortcut(tr.adding_add_shortcut_ctrlandenter()))
+
         # close
         self.closeButton = QPushButton(tr.actions_close())
         self.closeButton.setAutoDefault(False)
@@ -175,7 +185,7 @@ class AddCards(QMainWindow):
                     break
                 # copy non-empty old fields
                 if (
-                    not old_field_value in copied_field_names
+                    old_field_value not in copied_field_names
                     and old_note.fields[old_idx]
                 ):
                     new_note.fields[new_idx] = old_note.fields[old_idx]
@@ -188,11 +198,11 @@ class AddCards(QMainWindow):
         self.editor.loadNote(
             focusTo=min(self.editor.last_field_index or 0, len(new_note.fields) - 1)
         )
-        gui_hooks.add_cards_did_change_note_type(
-            old_note.note_type(), new_note.note_type()
+        gui_hooks.addcards_did_change_note_type(
+            self, old_note.note_type(), new_note.note_type()
         )
 
-    def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
+    def _load_new_note(self, sticky_fields_from: Note | None = None) -> None:
         note = self._new_note()
         if old_note := sticky_fields_from:
             flds = note.note_type()["flds"]
@@ -206,7 +216,7 @@ class AddCards(QMainWindow):
         self.setAndFocusNote(note)
 
     def on_operation_did_execute(
-        self, changes: OpChanges, handler: Optional[object]
+        self, changes: OpChanges, handler: object | None
     ) -> None:
         if (changes.notetype or changes.deck) and handler is not self.editor:
             self.on_notetype_change(
@@ -253,7 +263,12 @@ class AddCards(QMainWindow):
         aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
 
     def add_current_note(self) -> None:
-        self.editor.call_after_note_saved(self._add_current_note)
+        if self.editor.current_notetype_is_image_occlusion():
+            self.editor.update_occlusions_field()
+            self.editor.call_after_note_saved(self._add_current_note)
+            self.editor.reset_image_occlusion()
+        else:
+            self.editor.call_after_note_saved(self._add_current_note)
 
     def _add_current_note(self) -> None:
         note = self.editor.note
@@ -283,7 +298,10 @@ class AddCards(QMainWindow):
         # no problem, duplicate, and confirmed cloze cases
         problem = None
         if result == NoteFieldsCheckResult.EMPTY:
-            problem = tr.adding_the_first_field_is_empty()
+            if self.editor.current_notetype_is_image_occlusion():
+                problem = tr.notetypes_no_occlusion_created2()
+            else:
+                problem = tr.adding_the_first_field_is_empty()
         elif result == NoteFieldsCheckResult.MISSING_CLOZE:
             if not askUser(tr.adding_you_have_a_cloze_deletion_note()):
                 return False
@@ -332,12 +350,22 @@ class AddCards(QMainWindow):
         self.close()
 
     def ifCanClose(self, onOk: Callable) -> None:
-        def afterSave() -> None:
-            ok = self.editor.fieldsAreBlank(self._last_added_note) or askUser(
-                tr.adding_close_and_lose_current_input(), defaultno=True
-            )
-            if ok:
+        def callback(choice: int) -> None:
+            if choice == 0:
                 onOk()
+
+        def afterSave() -> None:
+            if self.editor.fieldsAreBlank(self._last_added_note):
+                return onOk()
+
+            ask_user_dialog(
+                tr.adding_discard_current_input(),
+                callback=callback,
+                buttons=[
+                    QMessageBox.StandardButton.Discard,
+                    (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
+                ],
+            )
 
         self.editor.call_after_note_saved(afterSave)
 
