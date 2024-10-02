@@ -40,7 +40,7 @@ pub struct ForeignNote {
 #[serde(default)]
 pub struct ForeignCard {
     /// Seconds-based timestamp
-    pub due: i32,
+    pub due: i64,
     /// In days
     pub interval: u32,
     pub ease_factor: f32,
