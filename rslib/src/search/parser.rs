@@ -60,10 +60,11 @@ pub enum SearchNode {
     EditedInDays(u32),
     CardTemplate(TemplateKind),
     Deck(String),
-    /// Matches cards in a list of decks (original_deck_id is not checked).
+    /// Matches cards in a list of deck ids. Cards are matched even if they are
+    /// in a filtered deck.
     DeckIdsWithoutChildren(String),
     /// Matches cards in a deck or its children (original_deck_id is not
-    /// checked).
+    /// checked, so filtered cards are not matched).
     DeckIdWithChildren(DeckId),
     IntroducedInDays(u32),
     NotetypeId(NotetypeId),
