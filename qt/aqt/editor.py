@@ -1125,7 +1125,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.web.eval("resetIOImageLoaded()")
 
     def update_occlusions_field(self) -> None:
-        self.web.eval("updateOcclusionsField()")
+        self.web.eval("saveOcclusions()")
 
     def _setup_mask_editor(self, io_options: dict):
         self.web.eval(

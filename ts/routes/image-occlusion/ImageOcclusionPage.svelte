@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
 
     <div hidden={activeTabValue != 1}>
-        <MasksEditor {mode} on:change on:image-loaded />
+        <MasksEditor {mode} on:save on:image-loaded />
     </div>
 
     <div hidden={activeTabValue != 2}>

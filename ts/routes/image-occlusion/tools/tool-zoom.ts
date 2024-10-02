@@ -9,7 +9,8 @@ import Hammer from "hammerjs";
 
 import { isDesktop } from "$lib/tslib/platform";
 
-import { getBoundingBox, redraw } from "./lib";
+import type { Size } from "../types";
+import { getBoundingBoxSize, redraw } from "./lib";
 
 const minScale = 0.5;
 const maxScale = 5;
@@ -192,7 +193,7 @@ const onMouseUp = () => {
 };
 
 export const constrainBoundsAroundBgImage = (canvas: fabric.Canvas) => {
-    const boundingBox = getBoundingBox();
+    const boundingBox = getBoundingBoxSize();
     const ioImage = document.getElementById("image") as HTMLImageElement;
 
     const width = boundingBox.width * canvas.getZoom();
@@ -217,7 +218,7 @@ export const setCanvasSize = (canvas: fabric.Canvas) => {
 };
 
 const fitCanvasVptScale = (canvas: fabric.Canvas) => {
-    const boundingBox = getBoundingBox();
+    const boundingBox = getBoundingBoxSize();
     const ratio = getScaleRatio(boundingBox);
     const vpt = canvas.viewportTransform!;
 
@@ -237,7 +238,7 @@ const fitCanvasVptScale = (canvas: fabric.Canvas) => {
     redraw(canvas);
 };
 
-const getScaleRatio = (boundingBox: fabric.Rect) => {
+const getScaleRatio = (boundingBox: Size) => {
     const h1 = boundingBox.height!;
     const w1 = boundingBox.width!;
     const w2 = innerWidth - 42;
