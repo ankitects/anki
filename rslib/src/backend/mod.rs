@@ -19,10 +19,10 @@ use std::ops::Deref;
 use std::result;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::sync::OnceLock;
 use std::thread::JoinHandle;
 
 use futures::future::AbortHandle;
-use once_cell::sync::OnceCell;
 use prost::Message;
 use reqwest::Client;
 use tokio::runtime;
@@ -53,7 +53,7 @@ pub struct BackendInner {
     server: bool,
     sync_abort: Mutex<Option<AbortHandle>>,
     progress_state: Arc<Mutex<ProgressState>>,
-    runtime: OnceCell<Runtime>,
+    runtime: OnceLock<Runtime>,
     state: Mutex<BackendState>,
     backup_task: Mutex<Option<JoinHandle<Result<()>>>>,
     media_sync_task: Mutex<Option<JoinHandle<Result<()>>>>,
@@ -88,7 +88,7 @@ impl Backend {
                 want_abort: false,
                 last_progress: None,
             })),
-            runtime: OnceCell::new(),
+            runtime: OnceLock::new(),
             state: Mutex::new(BackendState::default()),
             backup_task: Mutex::new(None),
             media_sync_task: Mutex::new(None),

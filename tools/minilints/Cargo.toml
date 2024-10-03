@@ -12,6 +12,5 @@ anki_io.workspace = true
 anki_process.workspace = true
 anyhow.workspace = true
 camino.workspace = true
-once_cell.workspace = true
 walkdir.workspace = true
 which.workspace = true

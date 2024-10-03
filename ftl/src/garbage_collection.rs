@@ -6,6 +6,7 @@ use std::fs;
 use std::io::BufReader;
 use std::iter::FromIterator;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use anki_io::create_file;
 use anyhow::Context;
@@ -14,7 +15,6 @@ use clap::Args;
 use fluent_syntax::ast;
 use fluent_syntax::ast::Resource;
 use fluent_syntax::parser;
-use lazy_static::lazy_static;
 use regex::Regex;
 use walkdir::DirEntry;
 use walkdir::WalkDir;
@@ -144,9 +144,8 @@ fn extract_nested_messages_and_terms(
     ftl_roots: &[impl AsRef<str>],
     used_ftls: &mut HashSet<String>,
 ) {
-    lazy_static! {
-        static ref REFERENCE: Regex = Regex::new(r"\{\s*-?([-0-9a-z]+)\s*\}").unwrap();
-    }
+    static REFERENCE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\{\s*-?([-0-9a-z]+)\s*\}").unwrap());
     for_files_with_ending(ftl_roots, ".ftl", |entry| {
         let source = fs::read_to_string(entry.path()).expect("file not readable");
         for caps in REFERENCE.captures_iter(&source) {
@@ -198,11 +197,12 @@ fn entry_use_check(used_ftls: &HashSet<String>) -> impl Fn(&ast::Entry<&str>) ->
 }
 
 fn extract_references_from_file(refs: &mut HashSet<String>, entry: &DirEntry) {
-    lazy_static! {
-        static ref SNAKECASE_TR: Regex = Regex::new(r"\Wtr\s*\.([0-9a-z_]+)\W").unwrap();
-        static ref CAMELCASE_TR: Regex = Regex::new(r"\Wtr2?\.([0-9A-Za-z_]+)\W").unwrap();
-        static ref DESIGNER_STYLE_TR: Regex = Regex::new(r"<string>([0-9a-z_]+)</string>").unwrap();
-    }
+    static SNAKECASE_TR: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\Wtr\s*\.([0-9a-z_]+)\W").unwrap());
+    static CAMELCASE_TR: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\Wtr2?\.([0-9A-Za-z_]+)\W").unwrap());
+    static DESIGNER_STYLE_TR: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"<string>([0-9a-z_]+)</string>").unwrap());
 
     let file_name = entry.file_name().to_str().expect("non-unicode filename");
 

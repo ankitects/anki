@@ -308,16 +308,13 @@ pub(crate) fn single_card_revlog_to_items(
     }
 
     // Filter out unwanted entries
-    let mut unique_dates = std::collections::HashSet::new();
     entries.retain(|entry| {
-        let manually_rescheduled =
-            entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0;
-        let cram = entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0;
-        if manually_rescheduled || cram {
-            return false;
-        }
-        // Keep only the first review when multiple reviews done on one day
-        unique_dates.insert(entry.days_elapsed(next_day_at))
+        !(
+            // manually rescheduled
+            (entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0)
+            || // cram
+            (entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0)
+        )
     });
 
     // Compute delta_t for each entry
@@ -346,6 +343,7 @@ pub(crate) fn single_card_revlog_to_items(
                 .collect();
             FSRSItem { reviews }
         })
+        .filter(|item| !training || item.reviews.last().unwrap().delta_t > 0)
         .collect_vec();
     if items.is_empty() {
         None

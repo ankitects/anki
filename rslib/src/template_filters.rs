@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
 use blake3::Hasher;
-use lazy_static::lazy_static;
 use regex::Captures;
 use regex::Regex;
 
@@ -33,6 +33,8 @@ pub(crate) fn apply_filters<'a>(
     // type:cloze is handled specially
     let filters = if filters == ["cloze", "type"] {
         &["type-cloze"]
+    } else if filters == ["nc", "type"] {
+        &["type-nc"]
     } else {
         filters
     };
@@ -80,6 +82,7 @@ fn apply_filter(
         "kana" => kana_filter(text),
         "type" => type_filter(field_name),
         "type-cloze" => type_cloze_filter(field_name),
+        "type-nc" => type_nc_filter(field_name),
         "hint" => hint_filter(text, field_name),
         "cloze" => cloze_filter(text, context),
         "cloze-only" => cloze_only_filter(text, context),
@@ -107,9 +110,7 @@ fn apply_filter(
 // Ruby filters
 //----------------------------------------
 
-lazy_static! {
-    static ref FURIGANA: Regex = Regex::new(r" ?([^ >]+?)\[(.+?)\]").unwrap();
-}
+static FURIGANA: LazyLock<Regex> = LazyLock::new(|| Regex::new(r" ?([^ >]+?)\[(.+?)\]").unwrap());
 
 /// Did furigana regex match a sound tag?
 fn captured_sound(caps: &Captures) -> bool {
@@ -169,6 +170,10 @@ fn type_filter<'a>(field_name: &str) -> Cow<'a, str> {
 
 fn type_cloze_filter<'a>(field_name: &str) -> Cow<'a, str> {
     format!("[[type:cloze:{}]]", field_name).into()
+}
+
+fn type_nc_filter<'a>(field_name: &str) -> Cow<'a, str> {
+    format!("[[type:nc:{}]]", field_name).into()
 }
 
 fn hint_filter<'a>(text: &'a str, field_name: &str) -> Cow<'a, str> {
@@ -238,6 +243,7 @@ field</a>
     fn typing() {
         assert_eq!(type_filter("Front"), "[[type:Front]]");
         assert_eq!(type_cloze_filter("Front"), "[[type:cloze:Front]]");
+        assert_eq!(type_nc_filter("Front"), "[[type:nc:Front]]");
         let ctx = RenderContext {
             fields: &Default::default(),
             nonempty_fields: &Default::default(),
@@ -248,6 +254,10 @@ field</a>
         assert_eq!(
             apply_filters("ignored", &["cloze", "type"], "Text", &ctx),
             ("[[type:cloze:Text]]".into(), vec![])
+        );
+        assert_eq!(
+            apply_filters("ignored", &["nc", "type"], "Text", &ctx),
+            ("[[type:nc:Text]]".into(), vec![])
         );
     }
 

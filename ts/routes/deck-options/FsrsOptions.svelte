@@ -64,8 +64,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     $: computing = computingWeights || checkingWeights || computingRetention;
     $: defaultWeightSearch = `preset:"${state.getCurrentName()}" -is:suspended`;
-    $: desiredRetentionWarning = getRetentionWarning($config.desiredRetention);
-    $: retentionWarningClass = getRetentionWarningClass($config.desiredRetention);
+    $: roundedRetention = Number($config.desiredRetention.toFixed(2));
+    $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
+    $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     let computeRetentionProgress:
         | ComputeWeightsProgress
@@ -150,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             )) ||
                         resp.weights.length === 0
                     ) {
-                        alert(tr.deckConfigFsrsParamsOptimal());
+                        setTimeout(() => alert(tr.deckConfigFsrsParamsOptimal()), 100);
                     }
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
@@ -323,7 +324,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             if (resp) {
                 const dailyTimeCost = movingAverage(
                     resp.dailyTimeCost,
-                    Math.round(simulateFsrsRequest.daysToSimulate / 50),
+                    Math.ceil(simulateFsrsRequest.daysToSimulate / 50),
                 );
                 points = points.concat(
                     dailyTimeCost.map((v, i) => ({

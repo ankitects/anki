@@ -25,8 +25,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "$lib/components/Shortcut.svelte";
     import WithFloating from "$lib/components/WithFloating.svelte";
 
-    import { emitChangeSignal } from "./MaskEditor.svelte";
-    import { hideAllGuessOne, ioMaskEditorVisible, textEditingState } from "./store";
+    import {
+        hideAllGuessOne,
+        ioMaskEditorVisible,
+        textEditingState,
+        saveNeededStore,
+        opacityStateStore,
+    } from "./store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent } from "./tools/lib";
     import { enableSelectable, stopDraw } from "./tools/lib";
@@ -55,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let activeTool = "cursor";
     let showAlignTools = false;
     let leftPos = 82;
-    let maksOpacity = false;
+    let maskOpacity = false;
     let showFloating = false;
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
     // handle zoom event when mouse scroll and ctrl key are hold for panzoom
@@ -158,13 +163,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const handleToolChanges = (activeTool: string) => {
+    const handleToolChanges = (newActiveTool: string) => {
         disableFunctions();
         enableSelectable(canvas, true);
         // remove unfinished polygon when switching to other tools
         removeUnfinishedPolygon(canvas);
 
-        switch (activeTool) {
+        switch (newActiveTool) {
             case "cursor":
                 drawCursor(canvas);
                 break;
@@ -178,9 +183,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 drawPolygon(canvas);
                 break;
             case "draw-text":
-                drawText(canvas);
-                break;
-            default:
+                drawText(canvas, () => {
+                    activeTool = "cursor";
+                    handleToolChanges(activeTool);
+                });
                 break;
         }
     };
@@ -198,10 +204,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function changeOcclusionType(occlusionType: "all" | "one"): void {
         $hideAllGuessOne = occlusionType === "all";
-        emitChangeSignal();
+        saveNeededStore.set(true);
     }
 
     onMount(() => {
+        opacityStateStore.set(maskOpacity);
         removeHandlers = singleCallback(
             on(document, "click", onClick),
             on(window, "mousemove", onMousemove),
@@ -336,8 +343,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     toggleTranslucentKeyCombination,
                 )})"
                 on:click={() => {
-                    maksOpacity = !maksOpacity;
-                    makeMaskTransparent(canvas, maksOpacity);
+                    maskOpacity = !maskOpacity;
+                    makeMaskTransparent(canvas, maskOpacity);
                 }}
             >
                 <Icon icon={mdiEye} />
@@ -346,8 +353,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <Shortcut
                     keyCombination={toggleTranslucentKeyCombination}
                     on:action={() => {
-                        maksOpacity = !maksOpacity;
-                        makeMaskTransparent(canvas, maksOpacity);
+                        maskOpacity = !maskOpacity;
+                        makeMaskTransparent(canvas, maskOpacity);
                     }}
                 />
             {/if}
@@ -372,7 +379,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         keyCombination={tool.shortcut}
                         on:action={() => {
                             tool.action(canvas);
-                            emitChangeSignal();
+                            saveNeededStore.set(true);
                         }}
                     />
                 {/if}
@@ -400,7 +407,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         keyCombination={tool.shortcut}
                         on:action={() => {
                             tool.action(canvas);
-                            emitChangeSignal();
+                            saveNeededStore.set(true);
                         }}
                     />
                 {/if}

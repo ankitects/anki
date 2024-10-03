@@ -58,10 +58,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
         <div class="counts-table">
             <table>
-                {#each tableData as d, _idx}
-                    <tr>
-                        <!-- prettier-ignore -->
-                        <td>
+                <tbody>
+                    {#each tableData as d, _idx}
+                        <tr>
+                            <!-- prettier-ignore -->
+                            <td>
                             <span style="color: {d.colour};">■&nbsp;</span>
                             {#if $prefs.browserLinksSupported}
                                 <button class="search-link" on:click={() => dispatch('search', { query: d.query })}>{d.label}</button>
@@ -69,19 +70,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 <span>{d.label}</span>
                             {/if}
                         </td>
-                        <td class="right">{d.count}</td>
-                        <td class="right">{d.percent}</td>
-                    </tr>
-                {/each}
+                            <td class="right">{d.count}</td>
+                            <td class="right">{d.percent}</td>
+                        </tr>
+                    {/each}
 
-                <tr>
-                    <td>
-                        <span style="visibility: hidden;">■</span>
-                        {total}
-                    </td>
-                    <td class="right">{graphData.totalCards}</td>
-                    <td />
-                </tr>
+                    <tr>
+                        <td>
+                            <span style="visibility: hidden;">■</span>
+                            {total}
+                        </td>
+                        <td class="right">{graphData.totalCards}</td>
+                        <td></td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </div>

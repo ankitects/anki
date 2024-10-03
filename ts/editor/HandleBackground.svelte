@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:dblclick
     tabindex="-1"
     role="button"
-/>
+></div>
 
 <style lang="scss">
     .handle-background {

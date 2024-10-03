@@ -861,12 +861,15 @@ class Collection(DeprecatedNamesMixin):
                 return column
         return None
 
-    def browser_row_for_id(
-        self, id_: int
-    ) -> tuple[Generator[tuple[str, bool], None, None], BrowserRow.Color.V, str, int]:
+    def browser_row_for_id(self, id_: int) -> tuple[
+        Generator[tuple[str, bool, BrowserRow.Cell.TextElideMode.V], None, None],
+        BrowserRow.Color.V,
+        str,
+        int,
+    ]:
         row = self._backend.browser_row_for_id(id_)
         return (
-            ((cell.text, cell.is_rtl) for cell in row.cells),
+            ((cell.text, cell.is_rtl, cell.elide_mode) for cell in row.cells),
             row.color,
             row.font_name,
             row.font_size,
@@ -1149,8 +1152,12 @@ class Collection(DeprecatedNamesMixin):
         "Not intended for public consumption at this time."
         return self._backend.render_markdown(markdown=text, sanitize=sanitize)
 
-    def compare_answer(self, expected: str, provided: str) -> str:
-        return self._backend.compare_answer(expected=expected, provided=provided)
+    def compare_answer(
+        self, expected: str, provided: str, combining: bool = True
+    ) -> str:
+        return self._backend.compare_answer(
+            expected=expected, provided=provided, combining=combining
+        )
 
     def extract_cloze_for_typing(self, text: str, ordinal: int) -> str:
         return self._backend.extract_cloze_for_typing(text=text, ordinal=ordinal)
