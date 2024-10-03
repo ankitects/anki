@@ -86,10 +86,9 @@ impl Collection {
     }
 
     fn due_date_and_position(&mut self, card: &Card) -> Result<(Option<i64>, Option<i32>)> {
-        let due = if card.original_due != 0 {
-            card.original_due
-        } else {
-            card.due
+        let due = match card.original_position {
+            Some(pos) => pos as i32,
+            None => card.due,
         };
         Ok(match card.ctype {
             CardType::New => {
@@ -111,7 +110,7 @@ impl Collection {
                         Some(due as i64)
                     }
                 },
-                None,
+                Some(due),
             ),
         })
     }
