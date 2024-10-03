@@ -165,7 +165,7 @@ impl LearnState {
     fn answer_easy(self, ctx: &StateContext) -> ReviewState {
         let (mut minimum, maximum) = ctx.min_and_max_review_intervals(1);
         let interval = if let Some(states) = &ctx.fsrs_next_states {
-            let good = ctx.with_review_fuzz(states.good.interval as f32, minimum, maximum);
+            let good = ctx.with_review_fuzz(states.good.interval, minimum, maximum);
             minimum = good + 1;
             states.easy.interval.round().max(1.0) as u32
         } else {

@@ -105,8 +105,7 @@ impl Collection {
                                             Some(state.stability),
                                             card.desired_retention.unwrap(),
                                             0,
-                                        )
-                                            as f32;
+                                        );
                                         card.interval = with_review_fuzz(
                                             card.get_fuzz_factor(true),
                                             interval,

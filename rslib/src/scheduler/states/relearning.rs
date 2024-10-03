@@ -175,7 +175,7 @@ impl RelearnState {
     fn answer_easy(self, ctx: &StateContext) -> ReviewState {
         let scheduled_days = if let Some(states) = &ctx.fsrs_next_states {
             let (mut minimum, maximum) = ctx.min_and_max_review_intervals(1);
-            let good = ctx.with_review_fuzz(states.good.interval as f32, minimum, maximum);
+            let good = ctx.with_review_fuzz(states.good.interval, minimum, maximum);
             minimum = good + 1;
             let interval = states.easy.interval;
             ctx.with_review_fuzz(interval.round().max(1.0), minimum, maximum)

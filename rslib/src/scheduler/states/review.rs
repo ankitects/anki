@@ -104,8 +104,7 @@ impl ReviewState {
                 leeched,
                 memory_state,
             }
-        }
-        .into();
+        };
         let again_relearn = RelearnState {
             learning: LearnState {
                 remaining_steps: ctx.relearn_steps.remaining_for_failed(),
@@ -127,12 +126,10 @@ impl ReviewState {
                 review: again_review,
             }
             .into()
+        } else if scheduled_days < 0.5 {
+            again_relearn.into()
         } else {
-            if scheduled_days < 0.5 {
-                again_relearn.into()
-            } else {
-                again_review.into()
-            }
+            again_review.into()
         }
     }
 
@@ -193,19 +190,19 @@ impl ReviewState {
         };
         let hard = constrain_passing_interval(
             ctx,
-            states.hard.interval as f32,
+            states.hard.interval,
             greater_than_last(states.hard.interval.round() as u32).max(1),
             true,
         );
         let good = constrain_passing_interval(
             ctx,
-            states.good.interval as f32,
+            states.good.interval,
             greater_than_last(states.good.interval.round() as u32).max(hard + 1),
             true,
         );
         let easy = constrain_passing_interval(
             ctx,
-            states.easy.interval as f32,
+            states.easy.interval,
             greater_than_last(states.easy.interval.round() as u32).max(good + 1),
             true,
         );
