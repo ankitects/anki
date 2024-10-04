@@ -23,12 +23,6 @@ body {
     position: relative;
 }
 
-#middle {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
 button {
     min-width: 60px;
     white-space: nowrap;
@@ -81,7 +75,6 @@ button {
     border-top: 1px solid color(border);
     /* Better compatibility with graphics pad/touchscreen */
     -webkit-user-select: none;
-    position: relative;
 }
 
 .nightMode {
