@@ -2,15 +2,6 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script context="module" lang="ts">
-    import { writable } from "svelte/store";
-
-    const changeSignal = writable(Symbol());
-
-    export function emitChangeSignal() {
-        changeSignal.set(Symbol());
-    }
-</script>
 
 <script lang="ts">
     import type { fabric } from "fabric";
@@ -25,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Toolbar from "./Toolbar.svelte";
     import { MaskEditorAPI } from "./tools/api";
     import { onResize } from "./tools/tool-zoom";
+    import { saveNeededStore } from "./store";
 
     export let mode: IOMode;
     const iconSize = 80;
@@ -38,27 +30,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    function onChange() {
-        dispatch("change", { canvas });
-    }
-
     function onImageLoaded({ path, noteId }: ImageLoadedEvent) {
         dispatch("image-loaded", { path, noteId });
     }
 
-    $: $changeSignal, onChange();
+    const unsubscribe = saveNeededStore.subscribe((saveNeeded: boolean) => {
+        if (saveNeeded === false) {
+            return;
+        }
+        dispatch("save");
+        saveNeededStore.set(false);
+    });
 
     function init(_node: HTMLDivElement) {
         if (mode.kind == "add") {
-            setupMaskEditor(mode.imagePath, onChange, onImageLoaded).then((canvas1) => {
+            // Editing occlusions on a new note through the "Add" window
+            setupMaskEditor(mode.imagePath, onImageLoaded).then((canvas1) => {
                 canvas = canvas1;
             });
         } else {
-            setupMaskEditorForEdit(mode.noteId, onChange, onImageLoaded).then(
-                (canvas1) => {
-                    canvas = canvas1;
-                },
-            );
+            // Editing occlusions on an existing note through the "Browser" window
+            setupMaskEditorForEdit(mode.noteId, onImageLoaded).then((canvas1) => {
+                canvas = canvas1;
+            });
         }
     }
 
@@ -68,10 +62,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onDestroy(() => {
         window.removeEventListener("resize", resizeEvent);
+        unsubscribe();
     });
 
     const resizeEvent = () => {
-        onResize(canvas!);
+        if (canvas === null) {
+            return;
+        }
+        onResize(canvas);
     };
 </script>
 
