@@ -1066,7 +1066,12 @@ class GetAddons(QDialog):
     def accept(self) -> None:
         # get codes
         try:
-            ids = [int(n) for n in self.form.code.text().split()]
+            sids = self.form.code.text().split()
+            sids = [
+                re.sub(r"^https://ankiweb.net/shared/info/(\d+)$", r"\1", id_)
+                for id_ in sids
+            ]
+            ids = [int(id_) for id_ in sids]
         except ValueError:
             showWarning(tr.addons_invalid_code())
             return
