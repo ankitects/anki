@@ -370,7 +370,7 @@ fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<
         Column::NoteCreation => "n.id asc, c.ord asc".into(),
         Column::NoteMod => "n.mod asc, c.ord asc".into(),
         Column::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
-        Column::OriginalPosition => "get_original_position(c.due, c.data) asc".into(),
+        Column::OriginalPosition => "coalesce(extract_original_position(c.data), c.due) asc".into(),
         Column::Reps => "c.reps asc".into(),
         Column::SortField => "n.sfld collate nocase asc, c.ord asc".into(),
         Column::Tags => "n.tags asc".into(),

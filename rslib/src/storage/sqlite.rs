@@ -70,7 +70,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
-    add_get_original_position_function(&db)?;
+    add_extract_original_position_function(&db)?;
     add_extract_custom_data_function(&db)?;
     add_extract_fsrs_variable(&db)?;
     add_extract_fsrs_retrievability(&db)?;
@@ -206,31 +206,24 @@ fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
-/// eg. get_original_position(c.due, c.data) -> i64
-/// Check if c.data contains the position, if not it's still in c.due
-fn add_get_original_position_function(db: &Connection) -> rusqlite::Result<()> {
+/// eg. extract_original_position(c.data) -> number | null
+/// Parse original card position from c.data (this is only populated after card
+/// has been reviewed)
+fn add_extract_original_position_function(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
-        "get_original_position",
-        2,
+        "extract_original_position",
+        1,
         FunctionFlags::SQLITE_DETERMINISTIC,
         move |ctx| {
-            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+            assert_eq!(ctx.len(), 1, "called with unexpected number of arguments");
 
-            let Ok(current_due) = ctx.get_raw(0).as_i64() else {
-                return Ok(0);
-            };
-
-            let Ok(card_data) = ctx.get_raw(1).as_str() else {
-                return Ok(current_due);
-            };
-
-            if card_data.is_empty() {
-                return Ok(current_due);
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
             };
 
             match &CardData::from_str(card_data).original_position {
-                Some(position) => Ok(*position as i64),
-                None => Ok(current_due),
+                Some(position) => Ok(Some(*position as i64)),
+                None => Ok(None),
             }
         },
     )

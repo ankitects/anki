@@ -7,4 +7,4 @@ INSERT INTO sort_order (nid)
 SELECT nid
 FROM cards
 GROUP BY nid
-ORDER BY COALESCE(odue, due);
+ORDER BY COALESCE(extract_original_position(data), due);
