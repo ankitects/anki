@@ -55,8 +55,8 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     shortcut,
+    show_in_folder,
     showInfo,
-    showinFolder,
     showWarning,
     tooltip,
     tr,
@@ -1617,7 +1617,7 @@ class EditorWebView(AnkiWebView):
 
         if is_win or is_mac:
             a = menu.addAction(tr.editing_show_in_folder())
-            qconnect(a.triggered, lambda: showinFolder(path))
+            qconnect(a.triggered, lambda: show_in_folder(path))
 
 
 # QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
