@@ -8,9 +8,9 @@ import json
 import os
 import re
 import sys
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 from enum import Enum
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import anki
 import anki.lang
@@ -285,7 +285,7 @@ class AnkiWebView(QWebEngineView):
         self.onBridgeCmd: Callable[[str], Any] = self.defaultOnBridgeCmd
 
         self._domDone = True
-        self._pendingActions: list[tuple[str, Sequence[Any]]] = []
+        self._pendingActions: list[Callable[[], None]] = []
         self.requiresCol = True
         self.setPage(self._page)
         self._disable_zoom = False
@@ -395,14 +395,13 @@ class AnkiWebView(QWebEngineView):
     def setHtml(  #  type: ignore[override]
         self, html: str, context: PageContext | None = None
     ) -> None:
-        from aqt.mediasrv import PageContext
 
         # discard any previous pending actions
         self._pendingActions = []
         self._domDone = True
         if context is None:
             context = PageContext.UNKNOWN
-        self._queueAction("setHtml", html, context)
+        self._queueAction(lambda: self._setHtml(html, context))
         self.set_open_links_externally(True)
         self.allow_drops = False
         self.show()
@@ -631,10 +630,10 @@ html {{ {font} }}
     def eval(self, js: str) -> None:
         self.evalWithCallback(js, None)
 
-    def evalWithCallback(self, js: str, cb: Callable) -> None:
-        self._queueAction("eval", js, cb)
+    def evalWithCallback(self, js: str, cb: Optional[Callable]) -> None:
+        self._queueAction(lambda: self._evalWithCallback(js, cb))
 
-    def _evalWithCallback(self, js: str, cb: Callable[[Any], Any]) -> None:
+    def _evalWithCallback(self, js: str, cb: Optional[Callable[[Any], Any]]) -> None:
         if cb:
 
             def handler(val: Any) -> None:
@@ -647,22 +646,16 @@ html {{ {font} }}
         else:
             self.page().runJavaScript(js)
 
-    def _queueAction(self, name: str, *args: Any) -> None:
-        self._pendingActions.append((name, args))
+    def _queueAction(self, action: Callable[[], None]) -> None:
+        self._pendingActions.append(action)
         self._maybeRunActions()
 
     def _maybeRunActions(self) -> None:
         if sip.isdeleted(self):
             return
         while self._pendingActions and self._domDone:
-            name, args = self._pendingActions.pop(0)
-
-            if name == "eval":
-                self._evalWithCallback(*args)
-            elif name == "setHtml":
-                self._setHtml(*args)
-            else:
-                raise Exception(f"unknown action: {name}")
+            action = self._pendingActions.pop(0)
+            action()
 
     def _openLinksExternally(self, url: str) -> None:
         openLink(url)
