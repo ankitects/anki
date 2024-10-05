@@ -40,13 +40,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             title: tr.deckConfigWaitForAudio(),
             help: tr.deckConfigWaitForAudioTooltip2(),
         },
-        answerAction: {
-            title: tr.deckConfigAnswerAction(),
-            help: tr.deckConfigAnswerActionTooltip2(),
-        },
         questionAction: {
             title: tr.deckConfigQuestionAction(),
             help: tr.deckConfigQuestionActionToolTip(),
+        },
+        answerAction: {
+            title: tr.deckConfigAnswerAction(),
+            help: tr.deckConfigAnswerActionTooltip2(),
         },
     };
     const helpSections = Object.values(settings) as HelpItem[];
@@ -122,20 +122,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <Item>
             <EnumSelectorRow
-                bind:value={$config.answerAction}
-                defaultValue={defaults.answerAction}
-                choices={answerChoices()}
-            >
-                <SettingTitle
-                    on:click={() =>
-                        openHelpModal(Object.keys(settings).indexOf("answerAction"))}
-                >
-                    {settings.answerAction.title}
-                </SettingTitle>
-            </EnumSelectorRow>
-        </Item>
-        <Item>
-            <EnumSelectorRow
                 bind:value={$config.questionAction}
                 defaultValue={defaults.questionAction}
                 choices={questionActionChoices()}
@@ -145,6 +131,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         openHelpModal(Object.keys(settings).indexOf("questionAction"))}
                 >
                     {settings.questionAction.title}
+                </SettingTitle>
+            </EnumSelectorRow>
+        </Item>
+        <Item>
+            <EnumSelectorRow
+                bind:value={$config.answerAction}
+                defaultValue={defaults.answerAction}
+                choices={answerChoices()}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(Object.keys(settings).indexOf("answerAction"))}
+                >
+                    {settings.answerAction.title}
                 </SettingTitle>
             </EnumSelectorRow>
         </Item>

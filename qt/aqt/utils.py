@@ -886,14 +886,14 @@ def openFolder(path: str) -> None:
             QDesktopServices.openUrl(QUrl(f"file://{path}"))
 
 
-def showinFolder(path: str) -> None:
+def show_in_folder(path: str) -> None:
     if is_win:
-        call(["explorer", "/select,", f"file://{path}"])
+        _show_in_folder_win32(path)
     elif is_mac:
         script = f"""
         tell application "Finder"
             activate
-            select POSIX file '{path}'
+            select POSIX file "{path}"
         end tell
         """
         call(osascript_to_args(script))
@@ -901,6 +901,22 @@ def showinFolder(path: str) -> None:
         # Just open the file in any other platform
         with no_bundled_libs():
             QDesktopServices.openUrl(QUrl(f"file://{path}"))
+
+
+def _show_in_folder_win32(path: str) -> None:
+    import win32con  # pylint: disable=import-error
+    import win32gui  # pylint: disable=import-error
+
+    from aqt import mw
+
+    def focus_explorer():
+        hwnd = win32gui.FindWindow("CabinetWClass", None)
+        if hwnd:
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+
+    subprocess.run(["explorer", f"/select,{path}"], check=False)
+    mw.progress.single_shot(500, focus_explorer)
 
 
 def osascript_to_args(script: str):

@@ -20,69 +20,82 @@ function calculateRetention(passed: number, failed: number): string {
     return localizedNumber((passed / total) * 100, 1) + "%";
 }
 
-function createStatsRow(name: string, data: TrueRetentionData): string {
-    const youngRetention = calculateRetention(data.youngPassed, data.youngFailed);
-    const matureRetention = calculateRetention(data.maturePassed, data.matureFailed);
-    const totalPassed = data.youngPassed + data.maturePassed;
-    const totalFailed = data.youngFailed + data.matureFailed;
-    const totalRetention = calculateRetention(totalPassed, totalFailed);
+enum Scope {
+    Young,
+    Mature,
+    Total,
+}
+
+function createStatsRow(period: string, data: TrueRetentionData, scope: Scope): string {
+    let pass: number, fail: number, retention: string;
+    switch (scope) {
+        case Scope.Young:
+            pass = data.youngPassed;
+            fail = data.youngFailed;
+            retention = calculateRetention(data.youngPassed, data.youngFailed);
+            break;
+        case Scope.Mature:
+            pass = data.maturePassed;
+            fail = data.matureFailed;
+            retention = calculateRetention(data.maturePassed, data.matureFailed);
+            break;
+        case Scope.Total:
+            pass = data.youngPassed + data.maturePassed;
+            fail = data.youngFailed + data.matureFailed;
+            retention = calculateRetention(pass, fail);
+            break;
+    }
 
     return `
         <tr>
-            <td class="trl">${name}</td>
-            <td class="trr">${localizedNumber(data.youngPassed)}</td>
-            <td class="trr">${localizedNumber(data.youngFailed)}</td>
-            <td class="trr">${youngRetention}</td>
-            <td class="trr">${localizedNumber(data.maturePassed)}</td>
-            <td class="trr">${localizedNumber(data.matureFailed)}</td>
-            <td class="trr">${matureRetention}</td>
-            <td class="trr">${localizedNumber(totalPassed)}</td>
-            <td class="trr">${localizedNumber(totalFailed)}</td>
-            <td class="trr">${totalRetention}</td>
+            <td class="trl">${period}</td>
+            <td class="trr">${localizedNumber(pass)}</td>
+            <td class="trr">${localizedNumber(fail)}</td>
+            <td class="trr">${retention}</td>
         </tr>`;
 }
 
 export function renderTrueRetention(data: GraphsResponse, revlogRange: RevlogRange): string {
     const trueRetention = data.trueRetention!;
-
-    const tableContent = `
+    let output = "";
+    for (const scope of Object.values(Scope)) {
+        if (typeof scope === "string") { continue; }
+        const tableContent = `
         <style>
-            td.trl { border: 1px solid; text-align: left; padding: 5px; }
-            td.trr { border: 1px solid; text-align: right; padding: 5px; }
-            td.trc { border: 1px solid; text-align: center; padding: 5px; }
-            table { width: 100%; margin: 0px 25px 20px 25px; }
+            td.trl { border: 1px solid; text-align: left; }
+            td.trr { border: 1px solid; text-align: right; }
+            td.trc { border: 1px solid; text-align: center; }
+            table { width: 100%; }
         </style>
         <table cellspacing="0" cellpadding="2">
             <tr>
-                <td class="trl" rowspan=3><b>${tr.statisticsTrueRetentionRange()}</b></td>
-                <td class="trc" colspan=9><b>${tr.statisticsReviewsTitle()}</b></td>
+                <td class="trl"><b>${scopeRange(scope)}</b></td>
+                <td class="trr">${tr.statisticsTrueRetentionPass()}</td>
+                <td class="trr">${tr.statisticsTrueRetentionFail()}</td>
+                <td class="trr">${tr.statisticsTrueRetentionRetention()}</td>
             </tr>
-            <tr>
-                <td class="trc" colspan=3><b>${tr.statisticsCountsYoungCards()}</b></td>
-                <td class="trc" colspan=3><b>${tr.statisticsCountsMatureCards()}</b></td>
-                <td class="trc" colspan=3><b>${tr.statisticsCountsTotalCards()}</b></td>
-            </tr>
-            <tr>
-                <td class="trc">${tr.statisticsTrueRetentionPass()}</td>
-                <td class="trc">${tr.statisticsTrueRetentionFail()}</td>
-                <td class="trc">${tr.statisticsTrueRetentionRetention()}</td>
-                <td class="trc">${tr.statisticsTrueRetentionPass()}</td>
-                <td class="trc">${tr.statisticsTrueRetentionFail()}</td>
-                <td class="trc">${tr.statisticsTrueRetentionRetention()}</td>
-                <td class="trc">${tr.statisticsTrueRetentionPass()}</td>
-                <td class="trc">${tr.statisticsTrueRetentionFail()}</td>
-                <td class="trc">${tr.statisticsTrueRetentionRetention()}</td>
-            </tr>
-            ${createStatsRow(tr.statisticsTrueRetentionToday(), trueRetention.today!)}
-            ${createStatsRow(tr.statisticsTrueRetentionYesterday(), trueRetention.yesterday!)}
-            ${createStatsRow(tr.statisticsTrueRetentionWeek(), trueRetention.week!)}
-            ${createStatsRow(tr.statisticsTrueRetentionMonth(), trueRetention.month!)}
+            ${createStatsRow(tr.statisticsTrueRetentionToday(), trueRetention.today!, scope)}
+            ${createStatsRow(tr.statisticsTrueRetentionYesterday(), trueRetention.yesterday!, scope)}
+            ${createStatsRow(tr.statisticsTrueRetentionWeek(), trueRetention.week!, scope)}
+            ${createStatsRow(tr.statisticsTrueRetentionMonth(), trueRetention.month!, scope)}
             ${
-        revlogRange === RevlogRange.Year
-            ? createStatsRow(tr.statisticsTrueRetentionYear(), trueRetention.year!)
-            : createStatsRow(tr.statisticsTrueRetentionAllTime(), trueRetention.allTime!)
-    }
+            revlogRange === RevlogRange.Year
+                ? createStatsRow(tr.statisticsTrueRetentionYear(), trueRetention.year!, scope)
+                : createStatsRow(tr.statisticsTrueRetentionAllTime(), trueRetention.allTime!, scope)
+        }
         </table>`;
+        output += tableContent;
+    }
 
-    return tableContent;
+    return output;
+}
+function scopeRange(scope: Scope) {
+    switch (scope) {
+        case Scope.Young:
+            return tr.statisticsCountsYoungCards();
+        case Scope.Mature:
+            return tr.statisticsCountsMatureCards();
+        case Scope.Total:
+            return tr.statisticsTotal();
+    }
 }
