@@ -92,6 +92,7 @@ class DeckOptionsDialog(QDialog):
                         QMessageBox.StandardButton.Discard,
                         (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
                     ],
+                    parent=self,
                 )
             else:
                 self._close()
