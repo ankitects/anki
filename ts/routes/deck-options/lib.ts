@@ -12,6 +12,7 @@ import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits 
 import { updateDeckConfigs } from "@generated/backend";
 import { localeCompare } from "@tslib/i18n";
 import { cloneDeep, isEqual } from "lodash-es";
+import { tick } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
 
@@ -363,4 +364,12 @@ export class ValueTab {
         this.value = value;
         this.setter(value);
     }
+}
+
+/** Ensure blur handler has fired so changes get committed. */
+export async function commitEditing(): Promise<void> {
+    if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+    }
+    await tick();
 }
