@@ -238,6 +238,8 @@ class AddonManager:
     def loadAddons(self) -> None:
         from aqt import mw
 
+        assert mw
+
         broken: list[str] = []
         error_text = ""
         for addon in self.all_addon_meta():

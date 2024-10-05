@@ -13,6 +13,8 @@ from aqt.utils import openLink, show_warning, showText, tr
 def check_for_update() -> None:
     from aqt import mw
 
+    assert mw
+
     def do_check(_col: Collection) -> CheckForUpdateResponse:
         return mw.backend.check_for_update(
             version=int_version(),

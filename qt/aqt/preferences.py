@@ -268,6 +268,8 @@ class Preferences(QDialog):
     def confirm_sync_after_login(self) -> None:
         from aqt import mw
 
+        assert mw
+
         if askUser(tr.preferences_login_successful_sync_now(), parent=mw):
             self.accept_with_callback(self.mw.on_sync_button_clicked)
 

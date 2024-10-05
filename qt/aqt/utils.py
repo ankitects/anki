@@ -909,6 +909,8 @@ def _show_in_folder_win32(path: str) -> None:
 
     from aqt import mw
 
+    assert mw
+
     def focus_explorer():
         hwnd = win32gui.FindWindow("CabinetWClass", None)
         if hwnd:
@@ -1140,6 +1142,8 @@ def disallow_full_screen() -> bool:
     from aqt import mw
     from aqt.profiles import VideoDriver
 
+    assert mw
+
     return is_win and (
         mw.pm.video_driver() == VideoDriver.OpenGL
         and not os.environ.get("ANKI_SOFTWAREOPENGL")
@@ -1161,6 +1165,8 @@ def supportText() -> str:
     import platform
 
     from aqt import mw
+
+    assert mw
 
     platname = platform.platform()
 
@@ -1299,6 +1305,8 @@ class KeyboardModifiersPressed:
 
     def __init__(self) -> None:
         from aqt import mw
+
+        assert mw
 
         self._modifiers = mw.app.keyboardModifiers()
 

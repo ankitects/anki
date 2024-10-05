@@ -322,6 +322,8 @@ def addon_fmt(addmgr: AddonManager, addon: AddonMeta) -> str:
 def addon_debug_info() -> str:
     from aqt import mw
 
+    assert mw
+
     addmgr = mw.addonManager
     active = []
     activeids = []

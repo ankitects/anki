@@ -150,6 +150,8 @@ class AnkiWebPage(QWebEnginePage):
         # catch buggy <a href='#' onclick='func()'> links
         from aqt import mw
 
+        assert mw
+
         if url.matches(
             QUrl(mw.serverURL()), cast(Any, QUrl.UrlFormattingOption.RemoveFragment)
         ):
@@ -351,6 +353,8 @@ class AnkiWebView(QWebEngineView):
             if isinstance(w, QDialog) or isinstance(w, QMainWindow):
                 from aqt import mw
 
+                assert mw
+
                 # esc in a child window closes the window
                 if w != mw:
                     w.close()
@@ -415,6 +419,8 @@ class AnkiWebView(QWebEngineView):
         maximum size limit, and due to security changes, it
         will stop working in the future."""
         from aqt import mw
+
+        assert mw
 
         oldFocus = mw.app.focusWidget()
         self._domDone = False
@@ -563,6 +569,8 @@ html {{ {font} }}
 
         from aqt import mw
 
+        assert mw
+
         head = mw.baseHTML() + csstxt + web_content.head
         body_class = theme_manager.body_class()
 
@@ -612,6 +620,8 @@ html {{ {font} }}
     @classmethod
     def webBundlePath(cls, path: str) -> str:
         from aqt import mw
+
+        assert mw
 
         if path.startswith("/"):
             subpath = ""
@@ -672,6 +682,8 @@ html {{ {font} }}
         # or the underlying webview has been deleted
         from aqt import mw
 
+        assert mw
+
         if sip.isdeleted(self):
             return True
         if not mw.col and self.requiresCol:
@@ -714,6 +726,8 @@ html {{ {font} }}
 
     def _onHeight(self, qvar: int | None) -> None:
         from aqt import mw
+
+        assert mw
 
         if qvar is None:
             mw.progress.single_shot(1000, mw.reset)
@@ -766,6 +780,8 @@ html {{ {font} }}
     def load_ts_page(self, name: str) -> None:
         from aqt import mw
 
+        assert mw
+
         self.set_open_links_externally(True)
         if theme_manager.night_mode:
             extra = "#night"
@@ -776,6 +792,8 @@ html {{ {font} }}
 
     def load_sveltekit_page(self, path: str) -> None:
         from aqt import mw
+
+        assert mw
 
         self.set_open_links_externally(True)
         if theme_manager.night_mode:
@@ -805,6 +823,7 @@ html {{ {font} }}
             # this will fail when __del__ is called during app shutdown
             return
 
+        assert mw
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
         # defer page cleanup so that in-flight requests have a chance to complete first
@@ -840,6 +859,8 @@ html {{ {font} }}
 
     def on_body_classes_need_update(self) -> None:
         from aqt import mw
+
+        assert mw
 
         self.eval(
             f"""document.body.classList.toggle("fancy", {json.dumps(not mw.pm.minimalist_mode())}); """
