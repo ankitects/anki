@@ -446,9 +446,13 @@ impl RowContext {
     }
 
     fn card_original_position(&self) -> String {
-        match self.cards[0].original_position {
-            Some(pos) => pos.to_string(),
-            None => self.cards[0].due.to_string(),
+        let card = &self.cards[0];
+        if let Some(pos) = &card.original_position {
+            pos.to_string()
+        } else if card.ctype == CardType::New {
+            card.due.to_string()
+        } else {
+            String::new()
         }
     }
 
