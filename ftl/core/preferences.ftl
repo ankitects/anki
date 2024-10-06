@@ -23,6 +23,7 @@ preferences-show-learning-cards-with-larger-steps = Show learning cards with lar
 preferences-show-next-review-time-above-answer = Show next review time above answer buttons
 preferences-spacebar-rates-card = Spacebar (or enter) also answers card
 preferences-show-play-buttons-on-cards-with = Show play buttons on cards with audio
+preferences-show-on-leech-tooltips = Show on leech tooltips
 preferences-show-remaining-card-count = Show remaining card count
 preferences-some-settings-will-take-effect-after = Some settings will take effect after you restart Anki.
 preferences-tab-synchronisation = Synchronization

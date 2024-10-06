@@ -22,6 +22,7 @@ pub enum BoolKey {
     CollapseToday,
     FutureDueShowBacklog,
     HideAudioPlayButtons,
+    HideOnLeechTooltips,
     IgnoreAccentsInSearch,
     InterruptAudioWhenAnswering,
     NewCardsIgnoreReviewLimit,

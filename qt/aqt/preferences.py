@@ -127,6 +127,7 @@ class Preferences(QDialog):
         form.showEstimates.setChecked(reviewing.show_intervals_on_buttons)
         form.showProgress.setChecked(reviewing.show_remaining_due_counts)
         form.showPlayButtons.setChecked(not reviewing.hide_audio_play_buttons)
+        form.showOnLeechTooltips.setChecked(not reviewing.hide_on_leech_tooltips)
         form.interrupt_audio.setChecked(reviewing.interrupt_audio_when_answering)
 
         editing = self.prefs.editing
@@ -159,6 +160,7 @@ class Preferences(QDialog):
         reviewing.show_intervals_on_buttons = form.showEstimates.isChecked()
         reviewing.time_limit_secs = form.timeLimit.value() * 60
         reviewing.hide_audio_play_buttons = not self.form.showPlayButtons.isChecked()
+        reviewing.hide_on_leech_tooltips = not self.form.showOnLeechTooltips.isChecked()
         reviewing.interrupt_audio_when_answering = self.form.interrupt_audio.isChecked()
 
         editing = self.prefs.editing
