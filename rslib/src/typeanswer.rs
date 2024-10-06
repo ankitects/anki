@@ -50,7 +50,6 @@ trait DiffTrait {
     fn get_expected_original(&self) -> Cow<str>;
 
     fn new(expected: &str, typed: &str) -> Self;
-    fn normalize_typed(typed: &str) -> Vec<char>;
 
     // Entry Point
     fn to_html(&self) -> String {
@@ -166,12 +165,9 @@ impl DiffTrait for Diff {
 
     fn new(expected: &str, typed: &str) -> Self {
         Self {
-            typed: Self::normalize_typed(typed),
+            typed: normalize(typed),
             expected: normalize(expected),
         }
-    }
-    fn normalize_typed(typed: &str) -> Vec<char> {
-        normalize(typed)
     }
 
     fn render_expected_tokens(&self, tokens: &[DiffToken]) -> String {
@@ -199,9 +195,17 @@ impl DiffTrait for DiffNonCombining {
 
     fn new(expected: &str, typed: &str) -> Self {
         // filter out combining elements
-        let mut expected_stripped = String::new();
-        // tokenized into "char+combining" for final rendering
+        let mut typed_stripped: Vec<char> = Vec::new();
+        let mut expected_stripped: Vec<char> = Vec::new();
+        // also tokenize into "char+combining" for final rendering
         let mut expected_split: Vec<String> = Vec::new();
+
+        for c in normalize(typed) {
+            if !unicode_normalization::char::is_combining_mark(c) {
+                typed_stripped.push(c);
+            }
+        }
+
         for c in normalize(expected) {
             if unicode_normalization::char::is_combining_mark(c) {
                 if let Some(last) = expected_split.last_mut() {
@@ -215,19 +219,12 @@ impl DiffTrait for DiffNonCombining {
 
         Self {
             base: Diff {
-                typed: Self::normalize_typed(typed),
-                expected: expected_stripped.chars().collect(),
+                typed: typed_stripped,
+                expected: expected_stripped,
             },
             expected_split,
             expected_original: expected.to_string(),
         }
-    }
-
-    fn normalize_typed(typed: &str) -> Vec<char> {
-        normalize_to_nfkd(typed)
-            .chars()
-            .filter(|c| !unicode_normalization::char::is_combining_mark(*c))
-            .collect()
     }
 
     // Since the combining characters are still required learning content, use
@@ -417,6 +414,18 @@ mod test {
         assert_eq!(
             ctx.to_html(),
             "<code id=typeans><span class=typeBad>1</span><span class=typeGood>123</span><br><span id=typearrow>&darr;</span><br><span class=typeGood>123</span></code>"
+        );
+    }
+
+    #[test]
+    fn combining_marks() {
+        assert_eq!(
+            compare_answer("שִׁנּוּן", "שנון", false),
+            "<code id=typeans><span class=typeGood>שִׁנּוּן</span></code>"
+        );
+        assert_eq!(
+            compare_answer("חוֹף", "חופ", false),
+            "<code id=typeans><span class=typeGood>חו</span><span class=typeBad>פ</span><br><span id=typearrow>&darr;</span><br><span class=typeGood>חוֹ</span><span class=typeMissed>ף</span></code>"
         );
     }
 }
