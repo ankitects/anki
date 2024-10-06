@@ -95,15 +95,13 @@ impl ReviewState {
         let lapses = self.lapses + 1;
         let leeched = leech_threshold_met(lapses, ctx.leech_threshold);
         let (scheduled_days, memory_state) = self.failing_review_interval(ctx);
-        let again_review = {
-            ReviewState {
-                scheduled_days: scheduled_days.round().max(1.0) as u32,
-                elapsed_days: 0,
-                ease_factor: (self.ease_factor + EASE_FACTOR_AGAIN_DELTA).max(MINIMUM_EASE_FACTOR),
-                lapses,
-                leeched,
-                memory_state,
-            }
+        let again_review = ReviewState {
+            scheduled_days: scheduled_days.round().max(1.0) as u32,
+            elapsed_days: 0,
+            ease_factor: (self.ease_factor + EASE_FACTOR_AGAIN_DELTA).max(MINIMUM_EASE_FACTOR),
+            lapses,
+            leeched,
+            memory_state,
         };
         let again_relearn = RelearnState {
             learning: LearnState {
