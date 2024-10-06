@@ -75,7 +75,7 @@ impl ReviewState {
     pub(crate) fn failing_review_interval(
         self,
         ctx: &StateContext,
-    ) -> (u32, Option<FsrsMemoryState>) {
+    ) -> (f32, Option<FsrsMemoryState>) {
         if let Some(states) = &ctx.fsrs_next_states {
             // In FSRS, fuzz is applied when the card leaves the relearning
             // stage
@@ -87,7 +87,7 @@ impl ReviewState {
                 minimum,
                 maximum,
             );
-            (interval, None)
+            (interval as f32, None)
         }
     }
 
@@ -96,12 +96,21 @@ impl ReviewState {
         let leeched = leech_threshold_met(lapses, ctx.leech_threshold);
         let (scheduled_days, memory_state) = self.failing_review_interval(ctx);
         let again_review = ReviewState {
-            scheduled_days,
+            scheduled_days: scheduled_days.round().max(1.0) as u32,
             elapsed_days: 0,
             ease_factor: (self.ease_factor + EASE_FACTOR_AGAIN_DELTA).max(MINIMUM_EASE_FACTOR),
             lapses,
             leeched,
             memory_state,
+        };
+        let again_relearn = RelearnState {
+            learning: LearnState {
+                remaining_steps: ctx.relearn_steps.remaining_for_failed(),
+                scheduled_secs: (scheduled_days * 86_400.0) as u32,
+                elapsed_secs: 0,
+                memory_state,
+            },
+            review: again_review,
         };
 
         if let Some(again_delay) = ctx.relearn_steps.again_delay_secs_learn() {
@@ -115,6 +124,8 @@ impl ReviewState {
                 review: again_review,
             }
             .into()
+        } else if scheduled_days < 0.5 {
+            again_relearn.into()
         } else {
             again_review.into()
         }
@@ -177,20 +188,20 @@ impl ReviewState {
         };
         let hard = constrain_passing_interval(
             ctx,
-            states.hard.interval as f32,
-            greater_than_last(states.hard.interval).max(1),
+            states.hard.interval,
+            greater_than_last(states.hard.interval.round() as u32).max(1),
             true,
         );
         let good = constrain_passing_interval(
             ctx,
-            states.good.interval as f32,
-            greater_than_last(states.good.interval).max(hard + 1),
+            states.good.interval,
+            greater_than_last(states.good.interval.round() as u32).max(hard + 1),
             true,
         );
         let easy = constrain_passing_interval(
             ctx,
-            states.easy.interval as f32,
-            greater_than_last(states.easy.interval).max(good + 1),
+            states.easy.interval,
+            greater_than_last(states.easy.interval.round() as u32).max(good + 1),
             true,
         );
         (hard, good, easy)

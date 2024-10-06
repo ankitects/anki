@@ -48,18 +48,33 @@ impl LearnState {
             .into()
         } else {
             let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
-            let interval = if let Some(states) = &ctx.fsrs_next_states {
-                states.again.interval
+            let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
+                (states.again.interval, states.again.interval < 0.5)
             } else {
-                ctx.graduating_interval_good
+                (ctx.graduating_interval_good as f32, false)
             };
-            ReviewState {
-                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
-                ease_factor: ctx.initial_ease_factor,
-                memory_state,
-                ..Default::default()
+
+            if short_term {
+                LearnState {
+                    remaining_steps: ctx.steps.remaining_for_failed(),
+                    scheduled_secs: (interval * 86_400.0) as u32,
+                    elapsed_secs: 0,
+                    memory_state,
+                }
+                .into()
+            } else {
+                ReviewState {
+                    scheduled_days: ctx.with_review_fuzz(
+                        interval.round().max(1.0),
+                        minimum,
+                        maximum,
+                    ),
+                    ease_factor: ctx.initial_ease_factor,
+                    memory_state,
+                    ..Default::default()
+                }
+                .into()
             }
-            .into()
         }
     }
 
@@ -75,18 +90,33 @@ impl LearnState {
             .into()
         } else {
             let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
-            let interval = if let Some(states) = &ctx.fsrs_next_states {
-                states.hard.interval
+            let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
+                (states.hard.interval, states.hard.interval < 0.5)
             } else {
-                ctx.graduating_interval_good
+                (ctx.graduating_interval_good as f32, false)
             };
-            ReviewState {
-                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
-                ease_factor: ctx.initial_ease_factor,
-                memory_state,
-                ..Default::default()
+
+            if short_term {
+                LearnState {
+                    scheduled_secs: (interval * 86_400.0) as u32,
+                    elapsed_secs: 0,
+                    memory_state,
+                    ..self
+                }
+                .into()
+            } else {
+                ReviewState {
+                    scheduled_days: ctx.with_review_fuzz(
+                        interval.round().max(1.0),
+                        minimum,
+                        maximum,
+                    ),
+                    ease_factor: ctx.initial_ease_factor,
+                    memory_state,
+                    ..Default::default()
+                }
+                .into()
             }
-            .into()
         }
     }
 
@@ -102,27 +132,42 @@ impl LearnState {
             .into()
         } else {
             let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
-            let interval = if let Some(states) = &ctx.fsrs_next_states {
-                states.good.interval
+            let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
+                (states.good.interval, states.good.interval < 0.5)
             } else {
-                ctx.graduating_interval_good
+                (ctx.graduating_interval_good as f32, false)
             };
-            ReviewState {
-                scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
-                ease_factor: ctx.initial_ease_factor,
-                memory_state,
-                ..Default::default()
+
+            if short_term {
+                LearnState {
+                    scheduled_secs: (interval * 86_400.0) as u32,
+                    elapsed_secs: 0,
+                    memory_state,
+                    ..self
+                }
+                .into()
+            } else {
+                ReviewState {
+                    scheduled_days: ctx.with_review_fuzz(
+                        interval.round().max(1.0),
+                        minimum,
+                        maximum,
+                    ),
+                    ease_factor: ctx.initial_ease_factor,
+                    memory_state,
+                    ..Default::default()
+                }
+                .into()
             }
-            .into()
         }
     }
 
     fn answer_easy(self, ctx: &StateContext) -> ReviewState {
         let (mut minimum, maximum) = ctx.min_and_max_review_intervals(1);
         let interval = if let Some(states) = &ctx.fsrs_next_states {
-            let good = ctx.with_review_fuzz(states.good.interval as f32, minimum, maximum);
+            let good = ctx.with_review_fuzz(states.good.interval, minimum, maximum);
             minimum = good + 1;
-            states.easy.interval
+            states.easy.interval.round().max(1.0) as u32
         } else {
             ctx.graduating_interval_easy
         };
