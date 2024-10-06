@@ -105,7 +105,7 @@ impl Collection {
             return Some(original_pos as i32);
         }
         match card.ctype {
-            CardType::New => Some(card.due.into()),
+            CardType::New => Some(card.due),
             _ => None,
         }
     }
