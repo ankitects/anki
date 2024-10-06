@@ -11,7 +11,8 @@ import type {
 import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits } from "@generated/anki/deck_config_pb";
 import { updateDeckConfigs } from "@generated/backend";
 import { localeCompare } from "@tslib/i18n";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep, isEqual, pickBy } from "lodash-es";
+import { tick } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
 
@@ -32,6 +33,25 @@ export interface ConfigListEntry {
     current: boolean;
 }
 
+type Configs =
+    & Required<
+        Pick<
+            PlainMessage<UpdateDeckConfigsRequest>,
+            | "configs"
+            | "cardStateCustomizer"
+            | "limits"
+            | "newCardsIgnoreReviewLimit"
+            | "applyAllParentLimits"
+            | "fsrs"
+            | "fsrsReschedule"
+        >
+    >
+    & { currentConfig: DeckConfig_Config };
+
+type DeepPartial<T extends object, K extends keyof T> = {
+    [key in keyof T]: key extends K ? Partial<T[key]> : T[key];
+};
+
 export class DeckOptionsState {
     readonly currentConfig: Writable<DeckConfig_Config>;
     readonly currentAuxData: Writable<Record<string, unknown>>;
@@ -47,6 +67,8 @@ export class DeckOptionsState {
     readonly fsrsReschedule: Writable<boolean> = writable(false);
     readonly daysSinceLastOptimization: Writable<number>;
     readonly currentPresetName: Writable<string>;
+    /** Used to detect if there are any pending changes */
+    readonly originalConfigs: Configs;
 
     private targetDeckId: DeckOptionsId;
     private configs: ConfigWithCount[];
@@ -101,6 +123,17 @@ export class DeckOptionsState {
         // update our state when the current config is changed
         this.currentConfig.subscribe((val) => this.onCurrentConfigChanged(val));
         this.currentAuxData.subscribe((val) => this.onCurrentAuxDataChanged(val));
+
+        this.originalConfigs = cloneDeep<Configs>({
+            configs: this.configs.map(c => c.config!),
+            cardStateCustomizer: data.cardStateCustomizer,
+            limits: get(this.deckLimits),
+            newCardsIgnoreReviewLimit: data.newCardsIgnoreReviewLimit,
+            applyAllParentLimits: data.applyAllParentLimits,
+            fsrs: data.fsrs,
+            fsrsReschedule: get(this.fsrsReschedule),
+            currentConfig: get(this.currentConfig),
+        });
     }
 
     setCurrentIndex(index: number): void {
@@ -294,7 +327,22 @@ export class DeckOptionsState {
     }
 
     isModified(): boolean {
-        return this.removedConfigs.length > 0 || this.modifiedConfigs.size > 0;
+        const original: DeepPartial<Configs, "limits"> = {
+            ...this.originalConfigs,
+            limits: omitUndefined(this.originalConfigs.limits),
+        };
+        const current: typeof original = {
+            configs: this.configs.map(c => c.config),
+            cardStateCustomizer: get(this.cardStateCustomizer),
+            limits: omitUndefined(get(this.deckLimits)),
+            newCardsIgnoreReviewLimit: get(this.newCardsIgnoreReviewLimit),
+            applyAllParentLimits: get(this.applyAllParentLimits),
+            fsrs: get(this.fsrs),
+            fsrsReschedule: get(this.fsrsReschedule),
+            currentConfig: get(this.currentConfig),
+        };
+
+        return !isEqual(original, current);
     }
 }
 
@@ -363,4 +411,17 @@ export class ValueTab {
         this.value = value;
         this.setter(value);
     }
+}
+
+/** Returns a copy of the given object with the properties whose values are 'undefined' omitted */
+function omitUndefined<T extends object>(obj: T): Partial<T> {
+    return pickBy(obj, val => val !== undefined);
+}
+
+/** Ensure blur handler has fired so changes get committed. */
+export async function commitEditing(): Promise<void> {
+    if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+    }
+    await tick();
 }
