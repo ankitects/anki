@@ -397,19 +397,19 @@ class AnkiApp(QApplication):
     # OS X file/url handler
     ##################################################
 
-    def event(self, a0: QEvent | None) -> bool:
-        assert a0
+    def event(self, evt: QEvent | None) -> bool:
+        assert evt
 
-        if a0.type() == QEvent.Type.FileOpen:
+        if evt.type() == QEvent.Type.FileOpen:
             self.appMsg.emit(a0.file() or "raise")  # type: ignore
             return True
-        return QApplication.event(self, a0)
+        return QApplication.event(self, evt)
 
     # Global cursor: pointer for Qt buttons
     ##################################################
 
-    def eventFilter(self, a0: Any, a1: QEvent | None) -> bool:
-        assert a1
+    def eventFilter(self, src: Any, evt: QEvent | None) -> bool:
+        assert evt
 
         pointer_classes = (
             QPushButton,
@@ -421,18 +421,18 @@ class AnkiApp(QApplication):
             without_qt5_compat_wrapper(QToolButton),
             without_qt5_compat_wrapper(QTabBar),
         )
-        if a1.type() in [QEvent.Type.Enter, QEvent.Type.HoverEnter]:
-            if (isinstance(a0, pointer_classes) and a0.isEnabled()) or (
-                isinstance(a0, without_qt5_compat_wrapper(QComboBox))
-                and not a0.isEditable()
+        if evt.type() in [QEvent.Type.Enter, QEvent.Type.HoverEnter]:
+            if (isinstance(src, pointer_classes) and src.isEnabled()) or (
+                isinstance(src, without_qt5_compat_wrapper(QComboBox))
+                and not src.isEditable()
             ):
                 self.setOverrideCursor(QCursor(Qt.CursorShape.PointingHandCursor))
             else:
                 self.restoreOverrideCursor()
             return False
 
-        elif a1.type() in [QEvent.Type.HoverLeave, QEvent.Type.Leave] or isinstance(
-            a1, QCloseEvent
+        elif evt.type() in [QEvent.Type.HoverLeave, QEvent.Type.Leave] or isinstance(
+            evt, QCloseEvent
         ):
             self.restoreOverrideCursor()
             return False
