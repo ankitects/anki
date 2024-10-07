@@ -137,7 +137,11 @@ class Browser(QMainWindow):
         self.form.setupUi(self)
         self.form.splitter.setChildrenCollapsible(False)
         splitter_handle_event_filter = QSplitterHandleEventFilter(self.form.splitter)
-        self.form.splitter.handle(1).installEventFilter(splitter_handle_event_filter)
+
+        splitter_handle = self.form.splitter.handle(1)
+        assert splitter_handle
+
+        splitter_handle.installEventFilter(splitter_handle_event_filter)
         # set if exactly 1 row is selected; used by the previewer
         self.card: Card | None = None
         self.current_card: Card | None = None
@@ -180,6 +184,8 @@ class Browser(QMainWindow):
             if handler is not self.editor:
                 # fixme: this will leave the splitter shown, but with no current
                 # note being edited
+                assert self.editor
+
                 note = self.editor.note
                 if note:
                     try:
@@ -241,7 +247,9 @@ class Browser(QMainWindow):
             else:
                 self.form.splitter.setOrientation(Qt.Orientation.Horizontal)
 
-    def resizeEvent(self, event: QResizeEvent) -> None:
+    def resizeEvent(self, event: QResizeEvent | None) -> None:
+        assert event
+
         if self.height() != 0:
             aspect_ratio = self.width() / self.height()
 
@@ -283,19 +291,24 @@ class Browser(QMainWindow):
         qconnect(f.actionCreateFilteredDeck.triggered, self.createFilteredDeck)
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
 
+        editor = self.editor
+        assert editor
+        editor_web_view = editor.web
+        assert editor_web_view
+
         # view
         qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_full_screen)
         qconnect(
             f.actionZoomIn.triggered,
-            lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() + 0.1),
+            lambda: editor_web_view.setZoomFactor(editor_web_view.zoomFactor() + 0.1),
         )
         qconnect(
             f.actionZoomOut.triggered,
-            lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() - 0.1),
+            lambda: editor_web_view.setZoomFactor(editor_web_view.zoomFactor() - 0.1),
         )
         qconnect(
             f.actionResetZoom.triggered,
-            lambda: self.editor.web.setZoomFactor(1),
+            lambda: editor_web_view.setZoomFactor(1),
         )
         qconnect(
             self.form.actionLayoutAuto.triggered,
@@ -368,14 +381,21 @@ class Browser(QMainWindow):
         add_ellipsis_to_action_label(f.actionCopy)
         add_ellipsis_to_action_label(f.action_forget)
 
-    def closeEvent(self, evt: QCloseEvent) -> None:
+    def closeEvent(self, evt: QCloseEvent | None) -> None:
+        assert evt
+
         if self._closeEventHasCleanedUp:
             evt.accept()
             return
+
+        assert self.editor
+
         self.editor.call_after_note_saved(self._closeWindow)
         evt.ignore()
 
     def _closeWindow(self) -> None:
+        assert self.editor
+
         self._cleanup_preview()
         self._card_info.close()
         self.editor.cleanup()
@@ -396,7 +416,9 @@ class Browser(QMainWindow):
         self._closeWindow()
         onsuccess()
 
-    def keyPressEvent(self, evt: QKeyEvent) -> None:
+    def keyPressEvent(self, evt: QKeyEvent | None) -> None:
+        assert evt
+
         if evt.key() == Qt.Key.Key_Escape:
             self.close()
         else:
@@ -426,12 +448,13 @@ class Browser(QMainWindow):
         card: Card | None = None,
         search: tuple[str | SearchNode] | None = None,
     ) -> None:
-        qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
+        assert self.mw.pm.profile
+
+        line_edit = self._line_edit()
+        qconnect(line_edit.returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
-        self.form.searchEdit.lineEdit().setPlaceholderText(
-            tr.browsing_search_bar_hint()
-        )
-        self.form.searchEdit.lineEdit().setMaxLength(2000000)
+        line_edit.setPlaceholderText(tr.browsing_search_bar_hint())
+        line_edit.setMaxLength(2000000)
         self.form.searchEdit.addItems(
             [""] + self.mw.pm.profile.get("searchHistory", [])
         )
@@ -464,11 +487,11 @@ class Browser(QMainWindow):
         self._lastSearchTxt = search
         prompt = search if prompt is None else prompt
         self.form.searchEdit.setCurrentIndex(-1)
-        self.form.searchEdit.lineEdit().setText(prompt)
+        self._line_edit().setText(prompt)
         self.search()
 
     def current_search(self) -> str:
-        return self.form.searchEdit.lineEdit().text()
+        return self._line_edit().text()
 
     def search(self) -> None:
         """Search triggered programmatically. Caller must have saved note first."""
@@ -479,6 +502,8 @@ class Browser(QMainWindow):
             showWarning(str(err))
 
     def update_history(self) -> None:
+        assert self.mw.pm.profile
+
         sh = self.mw.pm.profile.get("searchHistory", [])
         if self._lastSearchTxt in sh:
             sh.remove(self._lastSearchTxt)
@@ -524,6 +549,8 @@ class Browser(QMainWindow):
 
     # caller must have called editor.saveNow() before calling this or .reset()
     def begin_reset(self) -> None:
+        assert self.editor
+
         self.editor.set_note(None, hide=False)
         self.mw.progress.start()
         self.table.begin_reset()
@@ -573,8 +600,17 @@ class Browser(QMainWindow):
         # it might differ from the current card
         self.card = self.table.get_single_selected_card()
         self.singleCard = bool(self.card)
-        self.form.splitter.widget(1).setVisible(self.singleCard)
+
+        splitter_widget = self.form.splitter.widget(1)
+        assert splitter_widget
+
+        splitter_widget.setVisible(self.singleCard)
+
+        assert self.editor
+
         if self.singleCard:
+            assert self.card
+
             self.editor.set_note(self.card.note(), focusTo=self.focusTo)
             self.focusTo = None
             self.editor.card = self.card
@@ -740,7 +776,10 @@ class Browser(QMainWindow):
 
     def on_create_copy(self) -> None:
         if note := self.table.get_current_note():
-            deck_id = self.table.get_current_card().current_deck_id()
+            current_card = self.table.get_current_card()
+            assert current_card
+
+            deck_id = current_card.current_deck_id()
             aqt.dialogs.open("AddCards", self.mw).set_note(note, deck_id)
 
     @no_arg_trigger
@@ -761,6 +800,8 @@ class Browser(QMainWindow):
     ######################################################################
 
     def onTogglePreview(self) -> None:
+        assert self.editor
+
         if self._previewer:
             self._previewer.close()
         elif self.editor.note:
@@ -776,6 +817,8 @@ class Browser(QMainWindow):
                 self.onTogglePreview()
 
     def toggle_preview_button_state(self, active: bool) -> None:
+        assert self.editor
+
         if self.editor.web:
             self.editor.web.eval(f"togglePreviewButtonState({json.dumps(active)});")
 
@@ -801,6 +844,8 @@ class Browser(QMainWindow):
         if focus != self.form.tableView:
             return
 
+        assert self.editor
+
         self.editor.set_note(None)
         nids = self.table.to_row_of_unselected_note()
         remove_notes(parent=self, note_ids=nids).run_in_background()
@@ -818,14 +863,24 @@ class Browser(QMainWindow):
     def set_deck_of_selected_cards(self) -> None:
         from aqt.studydeck import StudyDeck
 
+        assert self.mw.col
+        assert self.mw.col.db
+
         cids = self.table.get_selected_card_ids()
         did = self.mw.col.db.scalar("select did from cards where id = ?", cids[0])
-        current = self.mw.col.decks.get(did)["name"]
+
+        deck_dict = self.mw.col.decks.get(did)
+        assert deck_dict
+
+        current = deck_dict["name"]
 
         def callback(ret: StudyDeck) -> None:
             if not ret.name:
                 return
             did = self.col.decks.id(ret.name)
+
+            assert did
+
             set_card_deck(parent=self, card_ids=cids, deck_id=did).run_in_background()
 
         StudyDeck(
@@ -1105,10 +1160,14 @@ class Browser(QMainWindow):
         return self.table.has_next()
 
     def onPreviousCard(self) -> None:
+        assert self.editor
+
         self.focusTo = self.editor.currentField
         self.editor.call_after_note_saved(self.table.to_previous_row)
 
     def onNextCard(self) -> None:
+        assert self.editor
+
         self.focusTo = self.editor.currentField
         self.editor.call_after_note_saved(self.table.to_next_row)
 
@@ -1120,11 +1179,19 @@ class Browser(QMainWindow):
 
     def onFind(self) -> None:
         self.form.searchEdit.setFocus()
-        self.form.searchEdit.lineEdit().selectAll()
+        self._line_edit().selectAll()
 
     def onNote(self) -> None:
+        assert self.editor
+        assert self.editor.web
+
         self.editor.web.setFocus()
         self.editor.loadNote(focusTo=0)
 
     def onCardList(self) -> None:
         self.form.tableView.setFocus()
+
+    def _line_edit(self) -> QLineEdit:
+        line_edit = self.form.searchEdit.lineEdit()
+        assert line_edit
+        return line_edit
