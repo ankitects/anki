@@ -280,7 +280,10 @@ def setupLangAndBackend(
     if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
 
-    return anki.lang.current_i18n
+    backend = anki.lang.current_i18n
+    assert backend
+
+    return backend
 
 
 # App initialisation
@@ -291,8 +294,10 @@ class NativeEventFilter(QAbstractNativeEventFilter):
     def nativeEventFilter(
         self, eventType: Any, message: Any
     ) -> tuple[bool, sip.voidptr | None]:
+        assert mw
+
         if eventType == "windows_generic_MSG":
-            import ctypes
+            import ctypes.wintypes
 
             msg = ctypes.wintypes.MSG.from_address(int(message))
             if msg.message == 17:  # WM_QUERYENDSESSION
@@ -321,6 +326,8 @@ class AnkiApp(QApplication):
             self.installNativeEventFilter(self._native_event_filter)
 
     def _set_windows_shutdown_block_reason(self, reason: str) -> None:
+        assert mw
+
         if is_win:
             import ctypes
             from ctypes import windll, wintypes  # type: ignore
@@ -331,6 +338,8 @@ class AnkiApp(QApplication):
             )
 
     def _unset_windows_shutdown_block_reason(self) -> None:
+        assert mw
+
         if is_win:
             from ctypes import windll, wintypes  # type: ignore
 
@@ -388,16 +397,20 @@ class AnkiApp(QApplication):
     # OS X file/url handler
     ##################################################
 
-    def event(self, evt: QEvent) -> bool:
-        if evt.type() == QEvent.Type.FileOpen:
-            self.appMsg.emit(evt.file() or "raise")  # type: ignore
+    def event(self, a0: QEvent | None) -> bool:
+        assert a0
+
+        if a0.type() == QEvent.Type.FileOpen:
+            self.appMsg.emit(a0.file() or "raise")  # type: ignore
             return True
-        return QApplication.event(self, evt)
+        return QApplication.event(self, a0)
 
     # Global cursor: pointer for Qt buttons
     ##################################################
 
-    def eventFilter(self, src: Any, evt: QEvent) -> bool:
+    def eventFilter(self, a0: Any, a1: QEvent | None) -> bool:
+        assert a1
+
         pointer_classes = (
             QPushButton,
             QCheckBox,
@@ -408,18 +421,18 @@ class AnkiApp(QApplication):
             without_qt5_compat_wrapper(QToolButton),
             without_qt5_compat_wrapper(QTabBar),
         )
-        if evt.type() in [QEvent.Type.Enter, QEvent.Type.HoverEnter]:
-            if (isinstance(src, pointer_classes) and src.isEnabled()) or (
-                isinstance(src, without_qt5_compat_wrapper(QComboBox))
-                and not src.isEditable()
+        if a1.type() in [QEvent.Type.Enter, QEvent.Type.HoverEnter]:
+            if (isinstance(a0, pointer_classes) and a0.isEnabled()) or (
+                isinstance(a0, without_qt5_compat_wrapper(QComboBox))
+                and not a0.isEditable()
             ):
                 self.setOverrideCursor(QCursor(Qt.CursorShape.PointingHandCursor))
             else:
                 self.restoreOverrideCursor()
             return False
 
-        elif evt.type() in [QEvent.Type.HoverLeave, QEvent.Type.Leave] or isinstance(
-            evt, QCloseEvent
+        elif a1.type() in [QEvent.Type.HoverLeave, QEvent.Type.Leave] or isinstance(
+            a1, QCloseEvent
         ):
             self.restoreOverrideCursor()
             return False
@@ -547,6 +560,8 @@ PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 
 def write_profile_results() -> None:
+    assert profiler
+
     profiler.disable()
     profile = "out/anki.prof"
     profiler.dump_stats(profile)
