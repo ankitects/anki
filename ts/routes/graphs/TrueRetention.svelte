@@ -35,7 +35,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .true-retention-table {
         overflow-x: auto;
         margin-top: 1rem;
-        display: flex;
-        justify-content: center;
     }
 </style>

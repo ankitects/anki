@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
-use lazy_static::lazy_static;
 use regex::Captures;
 use regex::Regex;
 
@@ -11,26 +11,28 @@ use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::media::files::sha1_of_data;
 use crate::text::strip_html;
 
-lazy_static! {
-    pub(crate) static ref LATEX: Regex = Regex::new(
+pub(crate) static LATEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r"(?xsi)
             \[latex\](.+?)\[/latex\]     # 1 - standard latex
             |
             \[\$\](.+?)\[/\$\]           # 2 - inline math
             |
             \[\$\$\](.+?)\[/\$\$\]       # 3 - math environment
-            "
+            ",
     )
-    .unwrap();
-    static ref LATEX_NEWLINES: Regex = Regex::new(
+    .unwrap()
+});
+static LATEX_NEWLINES: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r#"(?xi)
             <br( /)?>
             |
             <div>
-        "#
+        "#,
     )
-    .unwrap();
-}
+    .unwrap()
+});
 
 pub(crate) fn contains_latex(text: &str) -> bool {
     LATEX.is_match(text)

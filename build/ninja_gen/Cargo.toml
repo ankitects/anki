@@ -14,7 +14,6 @@ camino.workspace = true
 dunce.workspace = true
 globset.workspace = true
 itertools.workspace = true
-lazy_static.workspace = true
 maplit.workspace = true
 num_cpus.workspace = true
 walkdir.workspace = true

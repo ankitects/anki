@@ -12,9 +12,13 @@ export const addShape = (
     shape: Shape,
 ): void => {
     const fabricShape = shape.toFabric(boundingBox.getBoundingRect(true));
-    addBorder(fabricShape);
     if (fabricShape.type === "i-text") {
         enableUniformScaling(canvas, fabricShape);
+    } else {
+        // No border around i-text shapes since it will be interpretted
+        // as character stroke, this is supposed to create an outline
+        // around the entire shape.
+        addBorder(fabricShape);
     }
     canvas.add(fabricShape);
 };

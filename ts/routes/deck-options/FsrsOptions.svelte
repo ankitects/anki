@@ -324,7 +324,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             if (resp) {
                 const dailyTimeCost = movingAverage(
                     resp.dailyTimeCost,
-                    Math.round(simulateFsrsRequest.daysToSimulate / 50),
+                    Math.ceil(simulateFsrsRequest.daysToSimulate / 50),
                 );
                 points = points.concat(
                     dailyTimeCost.map((v, i) => ({

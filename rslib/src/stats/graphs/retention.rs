@@ -50,51 +50,32 @@ impl GraphsContext {
             .map(|(name, _, _)| (*name, TrueRetention::default()))
             .collect();
 
-        for review in &self.revlog {
-            for (period_name, start, end) in &periods {
-                if review.id.as_secs() >= *start && review.id.as_secs() < *end {
-                    let period_stat = period_stats.get_mut(period_name).unwrap();
-                    const MATURE_IVL: i32 = 21; // mature interval is 21 days
-
-                    match review.review_kind {
-                        RevlogReviewKind::Learning
-                        | RevlogReviewKind::Review
-                        | RevlogReviewKind::Relearning => {
-                            if review.last_interval < MATURE_IVL
-                                && review.button_chosen == 1
-                                && (review.review_kind == RevlogReviewKind::Review
-                                    || review.last_interval <= -86400
-                                    || review.last_interval >= 1)
-                            {
-                                period_stat.young_failed += 1;
-                            } else if review.last_interval < MATURE_IVL
-                                && review.button_chosen > 1
-                                && (review.review_kind == RevlogReviewKind::Review
-                                    || review.last_interval <= -86400
-                                    || review.last_interval >= 1)
-                            {
-                                period_stat.young_passed += 1;
-                            } else if review.last_interval >= MATURE_IVL
-                                && review.button_chosen == 1
-                                && (review.review_kind == RevlogReviewKind::Review
-                                    || review.last_interval <= -86400
-                                    || review.last_interval >= 1)
-                            {
-                                period_stat.mature_failed += 1;
-                            } else if review.last_interval >= MATURE_IVL
-                                && review.button_chosen > 1
-                                && (review.review_kind == RevlogReviewKind::Review
-                                    || review.last_interval <= -86400
-                                    || review.last_interval >= 1)
-                            {
-                                period_stat.mature_passed += 1;
-                            }
+        self.revlog
+            .iter()
+            .filter(|review| {
+                // not manually rescheduled
+                review.button_chosen > 0
+                    // not cramming
+                    && (review.review_kind != RevlogReviewKind::Filtered || review.ease_factor != 0)
+                    // cards with an interval ≥ 1 day
+                    && (review.review_kind == RevlogReviewKind::Review
+                        || review.last_interval <= -86400
+                        || review.last_interval >= 1)
+            })
+            .for_each(|review| {
+                for (period_name, start, end) in &periods {
+                    if review.id.as_secs() >= *start && review.id.as_secs() < *end {
+                        let period_stat = period_stats.get_mut(period_name).unwrap();
+                        const MATURE_IVL: i32 = 21; // mature interval is 21 days
+                        match (review.last_interval < MATURE_IVL, review.button_chosen) {
+                            (true, 1) => period_stat.young_failed += 1,
+                            (true, _) => period_stat.young_passed += 1,
+                            (false, 1) => period_stat.mature_failed += 1,
+                            (false, _) => period_stat.mature_passed += 1,
                         }
-                        RevlogReviewKind::Filtered | RevlogReviewKind::Manual => {}
                     }
                 }
-            }
-        }
+            });
 
         stats.today = Some(period_stats["today"].clone());
         stats.yesterday = Some(period_stats["yesterday"].clone());

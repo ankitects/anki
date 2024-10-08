@@ -1,0 +1,260 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+import {
+    type CardStatsResponse_StatsRevlogEntry as RevlogEntry,
+    RevlogEntry_ReviewKind,
+} from "@generated/anki/stats_pb";
+import * as tr from "@generated/ftl";
+import { timeSpan } from "@tslib/time";
+import { axisBottom, axisLeft, line, max, min, pointer, scaleLinear, scaleTime, select } from "d3";
+import { type GraphBounds, setDataAvailable } from "../graphs/graph-helpers";
+import { hideTooltip, showTooltip } from "../graphs/tooltip-utils.svelte";
+
+const FACTOR = 19 / 81;
+const DECAY = -0.5;
+const MIN_POINTS = 1000;
+
+function forgettingCurve(stability: number, daysElapsed: number): number {
+    return Math.pow((daysElapsed / stability) * FACTOR + 1.0, DECAY);
+}
+
+interface DataPoint {
+    date: Date;
+    daysSinceFirstLearn: number;
+    elapsedDaysSinceLastReview: number;
+    retrievability: number;
+    stability: number;
+}
+
+export enum TimeRange {
+    Week,
+    Month,
+    Year,
+    AllTime,
+}
+
+const MAX_DAYS = {
+    [TimeRange.Week]: 7,
+    [TimeRange.Month]: 30,
+    [TimeRange.Year]: 365,
+    [TimeRange.AllTime]: Infinity,
+};
+
+function filterDataByTimeRange(data: DataPoint[], maxDays: number): DataPoint[] {
+    return data.filter((point) => point.daysSinceFirstLearn <= maxDays);
+}
+
+export function filterRevlogEntryByReviewKind(entry: RevlogEntry): boolean {
+    return (
+        entry.reviewKind !== RevlogEntry_ReviewKind.MANUAL
+        && (entry.reviewKind !== RevlogEntry_ReviewKind.FILTERED || entry.ease !== 0)
+    );
+}
+
+export function filterRevlog(revlog: RevlogEntry[]): RevlogEntry[] {
+    const result: RevlogEntry[] = [];
+    for (const entry of revlog) {
+        if (entry.reviewKind === RevlogEntry_ReviewKind.MANUAL && entry.ease === 0) {
+            break;
+        }
+        result.push(entry);
+    }
+
+    return result.filter((entry) => filterRevlogEntryByReviewKind(entry));
+}
+
+export function prepareData(revlog: RevlogEntry[], maxDays: number) {
+    const data: DataPoint[] = [];
+    let lastReviewTime = 0;
+    let lastStability = 0;
+    const step = Math.min(maxDays / MIN_POINTS, 1);
+    let daysSinceFirstLearn = 0;
+
+    revlog
+        .toReversed()
+        .forEach((entry, index) => {
+            const reviewTime = Number(entry.time);
+            if (index === 0) {
+                lastReviewTime = reviewTime;
+                lastStability = entry.memoryState?.stability || 0;
+                data.push({
+                    date: new Date(reviewTime * 1000),
+                    daysSinceFirstLearn: 0,
+                    elapsedDaysSinceLastReview: 0,
+                    retrievability: 100,
+                    stability: lastStability,
+                });
+                return;
+            }
+
+            const totalDaysElapsed = (reviewTime - lastReviewTime) / (24 * 60 * 60);
+            let elapsedDays = 0;
+            while (elapsedDays < totalDaysElapsed - step) {
+                elapsedDays += step;
+                const retrievability = forgettingCurve(lastStability, elapsedDays);
+                data.push({
+                    date: new Date((lastReviewTime + elapsedDays * 86400) * 1000),
+                    daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn + step,
+                    elapsedDaysSinceLastReview: elapsedDays,
+                    retrievability: retrievability * 100,
+                    stability: lastStability,
+                });
+            }
+            daysSinceFirstLearn += totalDaysElapsed;
+            data.push({
+                date: new Date((lastReviewTime + totalDaysElapsed * 86400) * 1000),
+                daysSinceFirstLearn: daysSinceFirstLearn,
+                retrievability: 100,
+                elapsedDaysSinceLastReview: 0,
+                stability: lastStability,
+            });
+
+            lastReviewTime = reviewTime;
+            lastStability = entry.memoryState?.stability || 0;
+        });
+
+    if (data.length === 0) {
+        return [];
+    }
+
+    const now = Date.now() / 1000;
+    const totalDaysSinceLastReview = (now - lastReviewTime) / (24 * 60 * 60);
+    let elapsedDays = 0;
+    while (elapsedDays < totalDaysSinceLastReview - step) {
+        elapsedDays += step;
+        const retrievability = forgettingCurve(lastStability, elapsedDays);
+        data.push({
+            date: new Date((lastReviewTime + elapsedDays * 86400) * 1000),
+            daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn + step,
+            elapsedDaysSinceLastReview: elapsedDays,
+            retrievability: retrievability * 100,
+            stability: lastStability,
+        });
+    }
+    daysSinceFirstLearn += totalDaysSinceLastReview;
+    const retrievability = forgettingCurve(lastStability, totalDaysSinceLastReview);
+    data.push({
+        date: new Date(now * 1000),
+        daysSinceFirstLearn: daysSinceFirstLearn,
+        elapsedDaysSinceLastReview: totalDaysSinceLastReview,
+        retrievability: retrievability * 100,
+        stability: lastStability,
+    });
+
+    const filteredData = filterDataByTimeRange(data, maxDays);
+    return filteredData;
+}
+
+export function calculateMaxDays(filteredRevlog: RevlogEntry[], timeRange: TimeRange): number {
+    if (filteredRevlog.length === 0) {
+        return 0;
+    }
+    const daysSinceFirstLearn = (Date.now() / 1000 - Number(filteredRevlog[filteredRevlog.length - 1].time))
+        / (24 * 60 * 60);
+    return Math.min(daysSinceFirstLearn, MAX_DAYS[timeRange]);
+}
+
+export function renderForgettingCurve(
+    filteredRevlog: RevlogEntry[],
+    timeRange: TimeRange,
+    svgElem: SVGElement,
+    bounds: GraphBounds,
+) {
+    const svg = select(svgElem);
+    const trans = svg.transition().duration(600) as any;
+    if (filteredRevlog.length === 0) {
+        setDataAvailable(svg, false);
+        return;
+    }
+    const maxDays = calculateMaxDays(filteredRevlog, timeRange);
+
+    const data = prepareData(filteredRevlog, maxDays);
+
+    if (data.length === 0) {
+        setDataAvailable(svg, false);
+        return;
+    } else {
+        setDataAvailable(svg, true);
+    }
+
+    svg.select(".forgetting-curve-line").remove();
+    svg.select(".hover-columns").remove();
+
+    const xMin = min(data, d => d.date);
+    const xMax = max(data, d => d.date);
+    const x = scaleTime()
+        .domain([xMin!, xMax!])
+        .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
+    const yMin = Math.max(
+        0,
+        100 - 1.2 * (100 - Math.min(...data.map((d) => d.retrievability))),
+    );
+    const y = scaleLinear()
+        .domain([yMin, 100])
+        .range([bounds.height - bounds.marginBottom, bounds.marginTop]);
+
+    svg.select<SVGGElement>(".x-ticks")
+        .call((selection) => selection.transition(trans).call(axisBottom(x).ticks(5).tickSizeOuter(0)))
+        .attr("direction", "ltr");
+
+    svg.select<SVGGElement>(".y-ticks")
+        .attr("transform", `translate(${bounds.marginLeft},0)`)
+        .call((selection) => selection.transition(trans).call(axisLeft(y).tickSizeOuter(0)))
+        .attr("direction", "ltr");
+
+    const lineGenerator = line<DataPoint>()
+        .x((d) => x(d.date))
+        .y((d) => y(d.retrievability));
+
+    svg.append("path")
+        .datum(data)
+        .attr("class", "forgetting-curve-line")
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", lineGenerator);
+
+    const focusLine = svg.append("line")
+        .attr("class", "focus-line")
+        .attr("y1", bounds.marginTop)
+        .attr("y2", bounds.height - bounds.marginBottom)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .style("opacity", 0);
+
+    function tooltipText(d: DataPoint): string {
+        return `${maxDays >= 365 ? "Date" : "Date Time"}: ${
+            maxDays >= 365 ? d.date.toLocaleDateString() : d.date.toLocaleString()
+        }<br>
+        ${tr.cardStatsReviewLogElapsedTime()}: ${
+            timeSpan(d.elapsedDaysSinceLastReview * 86400)
+        }<br>${tr.cardStatsFsrsRetrievability()}: ${d.retrievability.toFixed(2)}%<br>${tr.cardStatsFsrsStability()}: ${
+            timeSpan(d.stability * 86400)
+        }`;
+    }
+
+    // hover/tooltip
+    svg.append("g")
+        .attr("class", "hover-columns")
+        .selectAll("rect")
+        .data(data)
+        .join("rect")
+        .attr("x", d => x(d.date) - 1)
+        .attr("y", bounds.marginTop)
+        .attr("width", 2)
+        .attr("height", bounds.height - bounds.marginTop - bounds.marginBottom)
+        .attr("fill", "transparent")
+        .on("mousemove", (event: MouseEvent, d: DataPoint) => {
+            const [x1, y1] = pointer(event, document.body);
+            focusLine.attr("x1", x(d.date) - 1).attr("x2", x(d.date) + 1).style(
+                "opacity",
+                1,
+            );
+            showTooltip(tooltipText(d), x1, y1);
+        })
+        .on("mouseout", () => {
+            focusLine.style("opacity", 0);
+            hideTooltip();
+        });
+}

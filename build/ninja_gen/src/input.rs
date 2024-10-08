@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 use std::fmt::Display;
+use std::sync::LazyLock;
 
 use camino::Utf8PathBuf;
 
@@ -118,9 +119,7 @@ pub struct Glob {
     pub exclude: Option<String>,
 }
 
-lazy_static::lazy_static! {
-    static ref CACHED_FILES: Vec<Utf8PathBuf> = cache_files();
-}
+static CACHED_FILES: LazyLock<Vec<Utf8PathBuf>> = LazyLock::new(cache_files);
 
 /// Walking the source tree once instead of for each glob yields ~4x speed
 /// improvements.

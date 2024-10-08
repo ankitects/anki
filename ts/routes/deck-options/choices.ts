@@ -71,50 +71,47 @@ export function newSortOrderChoices(): Choice<DeckConfig_Config_NewCardSortOrder
 
 export function reviewOrderChoices(fsrs: boolean): Choice<DeckConfig_Config_ReviewCardOrder>[] {
     return [
-        {
-            label: tr.deckConfigSortOrderDueDateThenRandom(),
-            value: DeckConfig_Config_ReviewCardOrder.DAY,
-        },
-        {
-            label: tr.deckConfigSortOrderDueDateThenDeck(),
-            value: DeckConfig_Config_ReviewCardOrder.DAY_THEN_DECK,
-        },
-        {
-            label: tr.deckConfigSortOrderDeckThenDueDate(),
-            value: DeckConfig_Config_ReviewCardOrder.DECK_THEN_DAY,
-        },
-        {
-            label: tr.deckConfigSortOrderAscendingIntervals(),
-            value: DeckConfig_Config_ReviewCardOrder.INTERVALS_ASCENDING,
-        },
-        {
-            label: tr.deckConfigSortOrderDescendingIntervals(),
-            value: DeckConfig_Config_ReviewCardOrder.INTERVALS_DESCENDING,
-        },
-        {
-            label: fsrs ? tr.deckConfigSortOrderDescendingDifficulty() : tr.deckConfigSortOrderAscendingEase(),
-            value: DeckConfig_Config_ReviewCardOrder.EASE_ASCENDING,
-        },
-        {
-            label: fsrs ? tr.deckConfigSortOrderAscendingDifficulty() : tr.deckConfigSortOrderDescendingEase(),
-            value: DeckConfig_Config_ReviewCardOrder.EASE_DESCENDING,
-        },
-        {
-            label: tr.deckConfigSortOrderRelativeOverdueness(),
-            value: DeckConfig_Config_ReviewCardOrder.RELATIVE_OVERDUENESS,
-        },
-        {
-            label: tr.deckConfigSortOrderRandom(),
-            value: DeckConfig_Config_ReviewCardOrder.RANDOM,
-        },
-        {
-            label: tr.decksOrderAdded(),
-            value: DeckConfig_Config_ReviewCardOrder.ADDED,
-        },
-        {
-            label: tr.decksLatestAddedFirst(),
-            value: DeckConfig_Config_ReviewCardOrder.REVERSE_ADDED,
-        },
+        ...[
+            {
+                label: tr.deckConfigSortOrderDueDateThenRandom(),
+                value: DeckConfig_Config_ReviewCardOrder.DAY,
+            },
+            {
+                label: tr.deckConfigSortOrderDueDateThenDeck(),
+                value: DeckConfig_Config_ReviewCardOrder.DAY_THEN_DECK,
+            },
+            {
+                label: tr.deckConfigSortOrderDeckThenDueDate(),
+                value: DeckConfig_Config_ReviewCardOrder.DECK_THEN_DAY,
+            },
+            {
+                label: tr.deckConfigSortOrderAscendingIntervals(),
+                value: DeckConfig_Config_ReviewCardOrder.INTERVALS_ASCENDING,
+            },
+            {
+                label: tr.deckConfigSortOrderDescendingIntervals(),
+                value: DeckConfig_Config_ReviewCardOrder.INTERVALS_DESCENDING,
+            },
+        ],
+        ...difficultyOrders(fsrs),
+        ...[
+            {
+                label: tr.deckConfigSortOrderRelativeOverdueness(),
+                value: DeckConfig_Config_ReviewCardOrder.RELATIVE_OVERDUENESS,
+            },
+            {
+                label: tr.deckConfigSortOrderRandom(),
+                value: DeckConfig_Config_ReviewCardOrder.RANDOM,
+            },
+            {
+                label: tr.decksOrderAdded(),
+                value: DeckConfig_Config_ReviewCardOrder.ADDED,
+            },
+            {
+                label: tr.decksLatestAddedFirst(),
+                value: DeckConfig_Config_ReviewCardOrder.REVERSE_ADDED,
+            },
+        ],
     ];
 }
 
@@ -196,4 +193,21 @@ export function questionActionChoices(): Choice<DeckConfig_Config_QuestionAction
             value: DeckConfig_Config_QuestionAction.SHOW_REMINDER,
         },
     ];
+}
+
+function difficultyOrders(fsrs: boolean): Choice<DeckConfig_Config_ReviewCardOrder>[] {
+    const order = [
+        {
+            label: fsrs ? tr.deckConfigSortOrderDescendingDifficulty() : tr.deckConfigSortOrderAscendingEase(),
+            value: DeckConfig_Config_ReviewCardOrder.EASE_ASCENDING,
+        },
+        {
+            label: fsrs ? tr.deckConfigSortOrderAscendingDifficulty() : tr.deckConfigSortOrderDescendingEase(),
+            value: DeckConfig_Config_ReviewCardOrder.EASE_DESCENDING,
+        },
+    ];
+    if (fsrs) {
+        order.reverse();
+    }
+    return order;
 }

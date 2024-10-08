@@ -161,7 +161,12 @@ impl SqlWriter<'_> {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
             }
             SearchNode::DeckIdsWithoutChildren(dids) => {
-                write!(self.sql, "c.did in ({})", dids).unwrap();
+                write!(
+                    self.sql,
+                    "c.did in ({}) or (c.odid != 0 and c.odid in ({}))",
+                    dids, dids
+                )
+                .unwrap();
             }
             SearchNode::DeckIdWithChildren(did) => self.write_deck_id_with_children(*did)?,
             SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),

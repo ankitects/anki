@@ -2,17 +2,17 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
 use difflib::sequencematcher::SequenceMatcher;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use unic_ucd_category::GeneralCategory;
 
 use crate::card_rendering::strip_av_tags;
-use crate::text::normalize_to_nfc;
+use crate::text::normalize_to_nfkd;
 use crate::text::strip_html;
 
-static LINEBREAKS: Lazy<Regex> = Lazy::new(|| {
+static LINEBREAKS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?six)
         (
@@ -33,90 +33,90 @@ macro_rules! format_typeans {
 }
 
 // Public API
-pub fn compare_answer(expected: &str, provided: &str) -> String {
-    if provided.is_empty() {
-        format_typeans!(htmlescape::encode_minimal(expected))
-    } else {
-        Diff::new(expected, provided).to_html()
+pub fn compare_answer(expected: &str, typed: &str, combining: bool) -> String {
+    let stripped = strip_expected(expected);
+
+    match typed.is_empty() {
+        true => format_typeans!(htmlescape::encode_minimal(&stripped)),
+        false if combining => Diff::new(&stripped, typed).to_html(),
+        false => DiffNonCombining::new(&stripped, typed).to_html(),
     }
 }
 
-struct Diff {
-    provided: Vec<char>,
-    expected: Vec<char>,
-    expected_original: String,
-}
+// Core Logic
+trait DiffTrait {
+    fn get_typed(&self) -> &[char];
+    fn get_expected(&self) -> &[char];
+    fn get_expected_original(&self) -> Cow<str>;
 
-impl Diff {
-    fn new(expected: &str, provided: &str) -> Self {
-        Self {
-            provided: normalize_to_nfc(provided).chars().collect(),
-            expected: normalize_to_nfc(&prepare_expected(expected))
-                .chars()
-                .collect(),
-            expected_original: expected.to_string(),
-        }
-    }
+    fn new(expected: &str, typed: &str) -> Self;
+    fn normalize_typed(typed: &str) -> Vec<char>;
 
     // Entry Point
     fn to_html(&self) -> String {
-        if self.provided == self.expected {
+        if self.get_typed() == self.get_expected() {
             format_typeans!(format!(
                 "<span class=typeGood>{}</span>",
-                self.expected_original
+                self.get_expected_original()
             ))
         } else {
             let output = self.to_tokens();
-            let provided_html = render_tokens(&output.provided_tokens);
-            let expected_html = render_tokens(&output.expected_tokens);
+            let typed_html = render_tokens(&output.typed_tokens);
+            let expected_html = self.render_expected_tokens(&output.expected_tokens);
 
             format_typeans!(format!(
-                "{provided_html}<br><span id=typearrow>&darr;</span><br>{expected_html}"
+                "{typed_html}<br><span id=typearrow>&darr;</span><br>{expected_html}"
             ))
         }
     }
 
     fn to_tokens(&self) -> DiffTokens {
-        let mut matcher = SequenceMatcher::new(&self.provided, &self.expected);
-        let mut provided_tokens = Vec::new();
+        let mut matcher = SequenceMatcher::new(self.get_typed(), self.get_expected());
+        let mut typed_tokens = Vec::new();
         let mut expected_tokens = Vec::new();
 
         for opcode in matcher.get_opcodes() {
-            let provided_slice = slice(&self.provided, opcode.first_start, opcode.first_end);
-            let expected_slice = slice(&self.expected, opcode.second_start, opcode.second_end);
+            let typed_slice = slice(self.get_typed(), opcode.first_start, opcode.first_end);
+            let expected_slice = slice(self.get_expected(), opcode.second_start, opcode.second_end);
 
             match opcode.tag.as_str() {
                 "equal" => {
-                    provided_tokens.push(DiffToken::good(provided_slice));
+                    typed_tokens.push(DiffToken::good(typed_slice));
                     expected_tokens.push(DiffToken::good(expected_slice));
                 }
-                "delete" => provided_tokens.push(DiffToken::bad(provided_slice)),
+                "delete" => typed_tokens.push(DiffToken::bad(typed_slice)),
                 "insert" => {
-                    provided_tokens.push(DiffToken::missing(
+                    typed_tokens.push(DiffToken::missing(
                         "-".repeat(expected_slice.chars().count()),
                     ));
                     expected_tokens.push(DiffToken::missing(expected_slice));
                 }
                 "replace" => {
-                    provided_tokens.push(DiffToken::bad(provided_slice));
+                    typed_tokens.push(DiffToken::bad(typed_slice));
                     expected_tokens.push(DiffToken::missing(expected_slice));
                 }
                 _ => unreachable!(),
             }
         }
         DiffTokens {
-            provided_tokens,
+            typed_tokens,
             expected_tokens,
         }
     }
+
+    fn render_expected_tokens(&self, tokens: &[DiffToken]) -> String;
 }
 
 // Utility Functions
+fn normalize(string: &str) -> Vec<char> {
+    normalize_to_nfkd(string).chars().collect()
+}
+
 fn slice(chars: &[char], start: usize, end: usize) -> String {
     chars[start..end].iter().collect()
 }
 
-fn prepare_expected(expected: &str) -> String {
+fn strip_expected(expected: &str) -> String {
     let no_av_tags = strip_av_tags(expected);
     let no_linebreaks = LINEBREAKS.replace_all(&no_av_tags, " ");
     strip_html(&no_linebreaks).trim().to_string()
@@ -139,17 +139,118 @@ fn isolate_leading_mark(text: &str) -> Cow<str> {
     if text
         .chars()
         .next()
-        .map_or(false, |ch| GeneralCategory::of(ch).is_mark())
+        .map_or(false, |c| GeneralCategory::of(c).is_mark())
     {
-        format!("\u{a0}{text}").into()
+        Cow::Owned(format!("\u{a0}{text}"))
     } else {
-        text.into()
+        Cow::Borrowed(text)
     }
 }
 
+// Default Comparison
+struct Diff {
+    typed: Vec<char>,
+    expected: Vec<char>,
+}
+
+impl DiffTrait for Diff {
+    fn get_typed(&self) -> &[char] {
+        &self.typed
+    }
+    fn get_expected(&self) -> &[char] {
+        &self.expected
+    }
+    fn get_expected_original(&self) -> Cow<str> {
+        Cow::Owned(self.get_expected().iter().collect::<String>())
+    }
+
+    fn new(expected: &str, typed: &str) -> Self {
+        Self {
+            typed: Self::normalize_typed(typed),
+            expected: normalize(expected),
+        }
+    }
+    fn normalize_typed(typed: &str) -> Vec<char> {
+        normalize(typed)
+    }
+
+    fn render_expected_tokens(&self, tokens: &[DiffToken]) -> String {
+        render_tokens(tokens)
+    }
+}
+
+// Non-Combining Comparison
+struct DiffNonCombining {
+    base: Diff,
+    expected_split: Vec<String>,
+    expected_original: String,
+}
+
+impl DiffTrait for DiffNonCombining {
+    fn get_typed(&self) -> &[char] {
+        &self.base.typed
+    }
+    fn get_expected(&self) -> &[char] {
+        &self.base.expected
+    }
+    fn get_expected_original(&self) -> Cow<str> {
+        Cow::Borrowed(&self.expected_original)
+    }
+
+    fn new(expected: &str, typed: &str) -> Self {
+        // filter out combining elements
+        let mut expected_stripped = String::new();
+        // tokenized into "char+combining" for final rendering
+        let mut expected_split: Vec<String> = Vec::new();
+        for c in normalize(expected) {
+            if unicode_normalization::char::is_combining_mark(c) {
+                if let Some(last) = expected_split.last_mut() {
+                    last.push(c);
+                }
+            } else {
+                expected_stripped.push(c);
+                expected_split.push(c.to_string());
+            }
+        }
+
+        Self {
+            base: Diff {
+                typed: Self::normalize_typed(typed),
+                expected: expected_stripped.chars().collect(),
+            },
+            expected_split,
+            expected_original: expected.to_string(),
+        }
+    }
+
+    fn normalize_typed(typed: &str) -> Vec<char> {
+        normalize_to_nfkd(typed)
+            .chars()
+            .filter(|c| !unicode_normalization::char::is_combining_mark(*c))
+            .collect()
+    }
+
+    // Since the combining characters are still required learning content, use
+    // expected_split to show them directly in the "expected" line, rather than
+    // having to otherwise e.g. include their field twice in the note template.
+    fn render_expected_tokens(&self, tokens: &[DiffToken]) -> String {
+        let mut idx = 0;
+        tokens.iter().fold(String::new(), |mut acc, token| {
+            let end = idx + token.text.chars().count();
+            let txt = self.expected_split[idx..end].concat();
+            idx = end;
+            let encoded_text = htmlescape::encode_minimal(&txt);
+            let class = token.to_class();
+            acc.push_str(&format!("<span class={class}>{encoded_text}</span>"));
+            acc
+        })
+    }
+}
+
+// Utility Items
 #[derive(Debug, PartialEq, Eq)]
 struct DiffTokens {
-    provided_tokens: Vec<DiffToken>,
+    typed_tokens: Vec<DiffToken>,
     expected_tokens: Vec<DiffToken>,
 }
 
@@ -170,19 +271,15 @@ impl DiffToken {
     fn new(kind: DiffTokenKind, text: String) -> Self {
         Self { kind, text }
     }
-
     fn good(text: String) -> Self {
         Self::new(DiffTokenKind::Good, text)
     }
-
     fn bad(text: String) -> Self {
         Self::new(DiffTokenKind::Bad, text)
     }
-
     fn missing(text: String) -> Self {
         Self::new(DiffTokenKind::Missing, text)
     }
-
     fn to_class(&self) -> &'static str {
         match self.kind {
             DiffTokenKind::Good => "typeGood",
@@ -212,11 +309,13 @@ mod test {
         let ctx = Diff::new("¿Y ahora qué vamos a hacer?", "y ahora qe vamosa hacer");
         let output = ctx.to_tokens();
         assert_eq!(
-            output.provided_tokens,
+            output.typed_tokens,
             vec![
                 bad("y"),
                 good(" ahora q"),
-                bad("e"),
+                missing("-"),
+                good("e"),
+                missing("-"),
                 good(" vamos"),
                 missing("-"),
                 good("a hacer"),
@@ -228,7 +327,9 @@ mod test {
             vec![
                 missing("¿Y"),
                 good(" ahora q"),
-                missing("ué"),
+                missing("u"),
+                good("e"),
+                missing("́"),
                 good(" vamos"),
                 missing(" "),
                 good("a hacer"),
@@ -239,24 +340,25 @@ mod test {
 
     #[test]
     fn html_and_media() {
-        let ctx = Diff::new("[sound:foo.mp3]<b>1</b> &nbsp;2", "1  2");
+        let stripped = strip_expected("[sound:foo.mp3]<b>1</b> &nbsp;2");
+        let ctx = Diff::new(&stripped, "1  2");
         // the spacing is handled by wrapping html output in white-space: pre-wrap
         assert_eq!(ctx.to_tokens().expected_tokens, &[good("1  2")]);
     }
 
     #[test]
-    fn missed_chars_only_shown_in_provided_when_after_good() {
+    fn missed_chars_only_shown_in_typed_when_after_good() {
         let ctx = Diff::new("1", "23");
-        assert_eq!(ctx.to_tokens().provided_tokens, &[bad("23")]);
+        assert_eq!(ctx.to_tokens().typed_tokens, &[bad("23")]);
         let ctx = Diff::new("12", "1");
-        assert_eq!(ctx.to_tokens().provided_tokens, &[good("1"), missing("-"),]);
+        assert_eq!(ctx.to_tokens().typed_tokens, &[good("1"), missing("-"),]);
     }
 
     #[test]
     fn missed_chars_counted_correctly() {
         let ctx = Diff::new("нос", "нс");
         assert_eq!(
-            ctx.to_tokens().provided_tokens,
+            ctx.to_tokens().typed_tokens,
             &[good("н"), missing("-"), good("с")]
         );
     }
@@ -266,8 +368,8 @@ mod test {
         // this was not parsed as expected with dissimilar 1.0.4
         let ctx = Diff::new("쓰다듬다", "스다뜸다");
         assert_eq!(
-            ctx.to_tokens().provided_tokens,
-            &[bad("스"), good("다"), bad("뜸"), good("다"),]
+            ctx.to_tokens().typed_tokens,
+            &[bad("ᄉ"), good("ᅳ다"), bad("ᄄ"), good("ᅳᆷ다"),]
         );
     }
 
@@ -285,13 +387,18 @@ mod test {
     }
 
     #[test]
-    fn whitespace_is_trimmed() {
-        assert_eq!(prepare_expected("<div>foo</div>"), "foo");
+    fn tags_removed() {
+        let stripped = strip_expected("<div>123</div>");
+        assert_eq!(stripped, "123");
+        assert_eq!(
+            Diff::new(&stripped, "123").to_html(),
+            "<code id=typeans><span class=typeGood>123</span></code>"
+        );
     }
 
     #[test]
     fn empty_input_shows_as_code() {
-        let ctx = compare_answer("123", "");
+        let ctx = compare_answer("<div>123</div>", "", true);
         assert_eq!(ctx, "<code id=typeans>123</code>");
     }
 

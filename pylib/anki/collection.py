@@ -1152,8 +1152,12 @@ class Collection(DeprecatedNamesMixin):
         "Not intended for public consumption at this time."
         return self._backend.render_markdown(markdown=text, sanitize=sanitize)
 
-    def compare_answer(self, expected: str, provided: str) -> str:
-        return self._backend.compare_answer(expected=expected, provided=provided)
+    def compare_answer(
+        self, expected: str, provided: str, combining: bool = True
+    ) -> str:
+        return self._backend.compare_answer(
+            expected=expected, provided=provided, combining=combining
+        )
 
     def extract_cloze_for_typing(self, text: str, ordinal: int) -> str:
         return self._backend.extract_cloze_for_typing(text=text, ordinal=ordinal)

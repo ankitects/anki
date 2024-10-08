@@ -161,10 +161,9 @@ impl SqliteStorage {
             .prepare(include_str!("alloc_id.sql"))?
             .query_row([TimestampMillis::now()], |r| r.get(0))?;
         self.add_or_update_deck_with_existing_id(deck)
-            .map_err(|err| {
+            .inspect_err(|_err| {
                 // restore id of 0
                 deck.id.0 = 0;
-                err
             })
     }
 

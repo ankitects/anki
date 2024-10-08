@@ -52,9 +52,7 @@ pub mod undo;
 pub mod version;
 
 use std::env;
+use std::sync::LazyLock;
 
-use lazy_static::lazy_static;
-
-lazy_static! {
-    pub(crate) static ref PYTHON_UNIT_TESTS: bool = env::var("ANKI_TEST_MODE").is_ok();
-}
+pub(crate) static PYTHON_UNIT_TESTS: LazyLock<bool> =
+    LazyLock::new(|| env::var("ANKI_TEST_MODE").is_ok());

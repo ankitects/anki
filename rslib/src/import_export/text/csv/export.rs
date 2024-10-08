@@ -6,10 +6,10 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use anki_proto::import_export::ExportNoteCsvRequest;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use regex::Regex;
 
 use super::metadata::Delimiter;
@@ -156,23 +156,22 @@ fn field_to_record_field(field: &str, with_html: bool) -> Cow<str> {
 }
 
 fn strip_redundant_sections(text: &str) -> Cow<str> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(
             r"(?isx)
             <style>.*?</style>          # style elements
             |
             \[\[type:[^]]+\]\]          # type replacements
-            "
+            ",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     RE.replace_all(text.as_ref(), "")
 }
 
 fn strip_answer_side_question(text: &str) -> Cow<str> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"(?is)^.*<hr id=answer>\n*").unwrap();
-    }
+    static RE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(?is)^.*<hr id=answer>\n*").unwrap());
     RE.replace_all(text.as_ref(), "")
 }
 

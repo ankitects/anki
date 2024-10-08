@@ -445,7 +445,7 @@ class AnkiQt(QMainWindow):
 
         def do_open(path: str) -> None:
             if not askUser(
-                tr.qt_misc_replace_your_collection_with_an_earlier(
+                tr.qt_misc_replace_your_collection_with_an_earlier2(
                     os.path.basename(path)
                 ),
                 msgfunc=QMessageBox.warning,
