@@ -58,7 +58,6 @@ pub struct LoadBalancerContext<'a> {
     note_id: Option<NoteId>,
     deckconfig_id: DeckConfigId,
     fuzz_seed: Option<u64>,
-    easy_days_percentages: &'a [f32; 7], // TODO: Is it a correct place to store it?
 }
 
 impl<'a> LoadBalancerContext<'a> {
@@ -70,7 +69,6 @@ impl<'a> LoadBalancerContext<'a> {
             self.deckconfig_id,
             self.fuzz_seed,
             self.note_id,
-            self.easy_days_percentages,
         )
     }
 
@@ -85,6 +83,7 @@ pub struct LoadBalancer {
     /// Load balancer operates at the preset level, it only counts
     /// cards in the same preset as the card being balanced.
     days_by_preset: HashMap<DeckConfigId, [LoadBalancerDay; LOAD_BALANCE_DAYS]>,
+    easy_days_percentages_by_preset: HashMap<DeckConfigId, [f32; 7]>,
 }
 
 impl LoadBalancer {
@@ -129,8 +128,26 @@ impl LoadBalancer {
                     deckconfig_group
                 },
             );
+        let easy_days_percentages_by_preset = storage
+            .get_deck_config_map()?
+            .into_iter()
+            .map(|(dcid, conf)| {
+                let easy_days_percentages = if conf.inner.easy_days_percentages.is_empty() {
+                    [1.0; 7]
+                } else {
+                    conf.inner
+                        .easy_days_percentages
+                        .try_into()
+                        .expect("Expected 7 values")
+                };
+                (dcid, easy_days_percentages)
+            })
+            .collect();
 
-        Ok(LoadBalancer { days_by_preset })
+        Ok(LoadBalancer {
+            days_by_preset,
+            easy_days_percentages_by_preset,
+        })
     }
 
     pub fn review_context(
@@ -143,8 +160,6 @@ impl LoadBalancer {
             note_id,
             deckconfig_id,
             fuzz_seed: None,
-            easy_days_percentages: &[1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0], /* TODO: make this
-                                                                          * configurable */
         }
     }
 
@@ -174,7 +189,6 @@ impl LoadBalancer {
         deckconfig_id: DeckConfigId,
         fuzz_seed: Option<u64>,
         note_id: Option<NoteId>,
-        easy_days_percentages: &[f32; 7],
     ) -> Option<u32> {
         // if we're sending a card far out into the future, the need to balance is low
         if interval as usize > MAX_LOAD_BALANCE_INTERVAL
@@ -194,7 +208,8 @@ impl LoadBalancer {
             .enumerate()
             .map(|(i, day)| (day.cards.len(), interval_to_weekday(i as u32 + before_days)))
             .unzip();
-
+        let easy_days_percentages = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
+        dbg!(easy_days_percentages);
         let percentages = weekdays
             .iter()
             .map(|&wd| easy_days_percentages[wd])
