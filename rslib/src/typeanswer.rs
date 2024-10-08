@@ -9,7 +9,7 @@ use regex::Regex;
 use unic_ucd_category::GeneralCategory;
 
 use crate::card_rendering::strip_av_tags;
-use crate::text::normalize_to_nfkd;
+use crate::text::normalize_to_nfc;
 use crate::text::strip_html;
 
 static LINEBREAKS: LazyLock<Regex> = LazyLock::new(|| {
@@ -108,7 +108,7 @@ trait DiffTrait {
 
 // Utility Functions
 fn normalize(string: &str) -> Vec<char> {
-    normalize_to_nfkd(string).chars().collect()
+    normalize_to_nfc(string).chars().collect()
 }
 
 fn slice(chars: &[char], start: usize, end: usize) -> String {
@@ -227,9 +227,9 @@ impl DiffTrait for DiffNonCombining {
         }
     }
 
-    // Since the combining characters are still required learning content, use
+    // Combining characters are still required learning content, so use
     // expected_split to show them directly in the "expected" line, rather than
-    // having to otherwise e.g. include their field twice in the note template.
+    // having to otherwise e.g. include their field twice on the note template.
     fn render_expected_tokens(&self, tokens: &[DiffToken]) -> String {
         let mut idx = 0;
         tokens.iter().fold(String::new(), |mut acc, token| {
@@ -310,9 +310,7 @@ mod test {
             vec![
                 bad("y"),
                 good(" ahora q"),
-                missing("-"),
-                good("e"),
-                missing("-"),
+                bad("e"),
                 good(" vamos"),
                 missing("-"),
                 good("a hacer"),
@@ -324,9 +322,7 @@ mod test {
             vec![
                 missing("¿Y"),
                 good(" ahora q"),
-                missing("u"),
-                good("e"),
-                missing("́"),
+                missing("ué"),
                 good(" vamos"),
                 missing(" "),
                 good("a hacer"),
@@ -366,7 +362,7 @@ mod test {
         let ctx = Diff::new("쓰다듬다", "스다뜸다");
         assert_eq!(
             ctx.to_tokens().typed_tokens,
-            &[bad("ᄉ"), good("ᅳ다"), bad("ᄄ"), good("ᅳᆷ다"),]
+            &[bad("스"), good("다"), bad("뜸"), good("다"),]
         );
     }
 
@@ -418,7 +414,7 @@ mod test {
     }
 
     #[test]
-    fn combining_marks() {
+    fn noncombining_comparison() {
         assert_eq!(
             compare_answer("שִׁנּוּן", "שנון", false),
             "<code id=typeans><span class=typeGood>שִׁנּוּן</span></code>"
