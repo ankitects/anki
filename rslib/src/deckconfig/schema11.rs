@@ -536,6 +536,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "sm2Retention",
     "weightSearch",
     "ignoreRevlogsBeforeDate",
+    "easyDaysPercentages",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {
