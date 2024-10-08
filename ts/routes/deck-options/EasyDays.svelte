@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
     import Item from "$lib/components/Item.svelte";
     import TitledContainer from "$lib/components/TitledContainer.svelte";
@@ -12,70 +13,73 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let api: Record<string, never>;
 
     const config = state.currentConfig;
-    const fsrs = state.fsrs;
+    const defaults = state.defaults;
+
+    if ($config.easyDaysPercentages.length !== 7) {
+        $config.easyDaysPercentages = defaults.easyDaysPercentages;
+    }
+
+    const easyDays = [
+        tr.deckConfigEasyDaysMonday(),
+        tr.deckConfigEasyDaysTuesday(),
+        tr.deckConfigEasyDaysWednesday(),
+        tr.deckConfigEasyDaysThursday(),
+        tr.deckConfigEasyDaysFriday(),
+        tr.deckConfigEasyDaysSaturday(),
+        tr.deckConfigEasyDaysSunday(),
+    ];
 </script>
 
-<TitledContainer title={"Easy Days"}>
+<TitledContainer title={tr.deckConfigEasyDaysTitle()}>
     <DynamicallySlottable slotHost={Item} {api}>
-        {#if $fsrs}
-            <Item>
-                <div class="easy-days-settings">
-                    <table>
-                        <thead>
+        <Item>
+            <div class="easy-days-settings">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>{tr.deckConfigEasyDaysNormal()}</th>
+                            <th>{tr.deckConfigEasyDaysReduced()}</th>
+                            <th>{tr.deckConfigEasyDaysMinimum()}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each easyDays as day, index}
                             <tr>
-                                <th></th>
-                                <th>Normal</th>
-                                <th>Reduced</th>
-                                <th>Minimum</th>
+                                <td>{day}</td>
+                                <td>
+                                    <input
+                                        type="radio"
+                                        bind:group={$config.easyDaysPercentages[index]}
+                                        value={1.0}
+                                        checked={$config.easyDaysPercentages[index] ===
+                                            1.0}
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="radio"
+                                        bind:group={$config.easyDaysPercentages[index]}
+                                        value={0.5}
+                                        checked={$config.easyDaysPercentages[index] ===
+                                            0.5}
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="radio"
+                                        bind:group={$config.easyDaysPercentages[index]}
+                                        value={0.0}
+                                        checked={$config.easyDaysPercentages[index] ===
+                                            0.0}
+                                    />
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {#each ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as day, index}
-                                <tr>
-                                    <td>{day}</td>
-                                    <td>
-                                        <input
-                                            type="radio"
-                                            bind:group={$config.easyDaysPercentages[
-                                                index
-                                            ]}
-                                            value={1.0}
-                                            checked={$config.easyDaysPercentages[
-                                                index
-                                            ] === 1.0}
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="radio"
-                                            bind:group={$config.easyDaysPercentages[
-                                                index
-                                            ]}
-                                            value={0.5}
-                                            checked={$config.easyDaysPercentages[
-                                                index
-                                            ] === 0.5}
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="radio"
-                                            bind:group={$config.easyDaysPercentages[
-                                                index
-                                            ]}
-                                            value={0.0}
-                                            checked={$config.easyDaysPercentages[
-                                                index
-                                            ] === 0.0}
-                                        />
-                                    </td>
-                                </tr>
-                            {/each}
-                        </tbody>
-                    </table>
-                </div>
-            </Item>
-        {/if}
+                        {/each}
+                    </tbody>
+                </table>
+            </div>
+        </Item>
     </DynamicallySlottable>
 </TitledContainer>
 
