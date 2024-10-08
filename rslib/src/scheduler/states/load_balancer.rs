@@ -209,7 +209,6 @@ impl LoadBalancer {
             .map(|(i, day)| (day.cards.len(), interval_to_weekday(i as u32 + before_days)))
             .unzip();
         let easy_days_percentages = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
-        dbg!(easy_days_percentages);
         let percentages = weekdays
             .iter()
             .map(|&wd| easy_days_percentages[wd])

@@ -3,16 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "@generated/ftl";
-    import { HelpPage } from "@tslib/help-page";
-    import type Carousel from "bootstrap/js/dist/carousel";
-    import type Modal from "bootstrap/js/dist/modal";
-
     import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import HelpModal from "$lib/components/HelpModal.svelte";
     import Item from "$lib/components/Item.svelte";
     import TitledContainer from "$lib/components/TitledContainer.svelte";
-    import { type HelpItem } from "$lib/components/types";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
@@ -20,37 +13,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const config = state.currentConfig;
     const fsrs = state.fsrs;
-
-    const settings = {
-        easyDays: {
-            title: "Easy Days",
-            help: "tr.deckConfigMaximumIntervalTooltip()",
-            url: "",
-        },
-    };
-    const helpSections = Object.values(settings) as HelpItem[];
-
-    let modal: Modal;
-    let carousel: Carousel;
-
-    function openHelpModal(index: number): void {
-        modal.show();
-        carousel.to(index);
-    }
 </script>
 
 <TitledContainer title={"Easy Days"}>
-    <HelpModal
-        title={tr.deckConfigAdvancedTitle()}
-        url={HelpPage.DeckOptions.advanced}
-        slot="tooltip"
-        fsrs={$fsrs}
-        {helpSections}
-        on:mount={(e) => {
-            modal = e.detail.modal;
-            carousel = e.detail.carousel;
-        }}
-    />
     <DynamicallySlottable slotHost={Item} {api}>
         {#if $fsrs}
             <Item>
