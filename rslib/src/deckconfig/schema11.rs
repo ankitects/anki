@@ -75,7 +75,7 @@ pub struct DeckConfSchema11 {
     desired_retention: f32,
     #[serde(default)]
     ignore_revlogs_before_date: String,
-    #[serde(deserialize_with = "default_on_invalid")]
+    #[serde(default)]
     easy_days_percentages: Vec<f32>,
     #[serde(default)]
     stop_timer_on_answer: bool,
