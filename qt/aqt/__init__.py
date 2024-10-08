@@ -401,7 +401,7 @@ class AnkiApp(QApplication):
         assert evt
 
         if evt.type() == QEvent.Type.FileOpen:
-            self.appMsg.emit(a0.file() or "raise")  # type: ignore
+            self.appMsg.emit(evt.file() or "raise")  # type: ignore
             return True
         return QApplication.event(self, evt)
 
