@@ -150,7 +150,12 @@ impl QueueBuilder {
             .values()
             .filter_map(|deck| Some((deck.id, deck.config_id()?)))
             .collect::<HashMap<_, _>>();
-        let load_balancer = LoadBalancer::new(timing.days_elapsed, did_to_dcid, &col.storage)?;
+        let load_balancer = LoadBalancer::new(
+            timing.days_elapsed,
+            did_to_dcid,
+            col.timing_today()?.next_day_at,
+            &col.storage,
+        )?;
 
         Ok(QueueBuilder {
             new: Vec::new(),

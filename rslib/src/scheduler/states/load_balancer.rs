@@ -84,12 +84,14 @@ pub struct LoadBalancer {
     /// cards in the same preset as the card being balanced.
     days_by_preset: HashMap<DeckConfigId, [LoadBalancerDay; LOAD_BALANCE_DAYS]>,
     easy_days_percentages_by_preset: HashMap<DeckConfigId, [f32; 7]>,
+    next_day_at: TimestampSecs,
 }
 
 impl LoadBalancer {
     pub fn new(
         today: u32,
         did_to_dcid: HashMap<DeckId, DeckConfigId>,
+        next_day_at: TimestampSecs,
         storage: &SqliteStorage,
     ) -> Result<LoadBalancer> {
         let cards_on_each_day =
@@ -147,6 +149,7 @@ impl LoadBalancer {
         Ok(LoadBalancer {
             days_by_preset,
             easy_days_percentages_by_preset,
+            next_day_at,
         })
     }
 
@@ -206,7 +209,12 @@ impl LoadBalancer {
         let (review_counts, weekdays): (Vec<usize>, Vec<usize>) = interval_days
             .iter()
             .enumerate()
-            .map(|(i, day)| (day.cards.len(), interval_to_weekday(i as u32 + before_days)))
+            .map(|(i, day)| {
+                (
+                    day.cards.len(),
+                    interval_to_weekday(i as u32 + before_days, self.next_day_at),
+                )
+            })
             .unzip();
         let easy_days_percentages = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
         let percentages = weekdays
@@ -274,10 +282,9 @@ impl LoadBalancer {
     }
 }
 
-// TODO: refactor it to consider `next day starts at`
-fn interval_to_weekday(interval: u32) -> usize {
-    let target_datetime = TimestampSecs::now()
-        .adding_secs(interval as i64 * 86400)
+fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
+    let target_datetime = next_day_at
+        .adding_secs((interval - 1) as i64 * 86400)
         .local_datetime()
         .unwrap();
     target_datetime.weekday().num_days_from_monday() as usize
