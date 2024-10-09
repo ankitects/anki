@@ -27,7 +27,7 @@ from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
-from aqt.editor import Editor
+from aqt.editor import Editor, EditorWebView
 from aqt.errors import show_exception
 from aqt.exporting import ExportDialog as LegacyExportDialog
 from aqt.import_export.exporting import ExportDialog
@@ -291,24 +291,19 @@ class Browser(QMainWindow):
         qconnect(f.actionCreateFilteredDeck.triggered, self.createFilteredDeck)
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
 
-        editor = self.editor
-        assert editor
-        editor_web_view = editor.web
-        assert editor_web_view
-
         # view
         qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_full_screen)
         qconnect(
             f.actionZoomIn.triggered,
-            lambda: editor_web_view.setZoomFactor(editor_web_view.zoomFactor() + 0.1),
+            lambda: self._editor_web_view().setZoomFactor(self._editor_web_view().zoomFactor() + 0.1),
         )
         qconnect(
             f.actionZoomOut.triggered,
-            lambda: editor_web_view.setZoomFactor(editor_web_view.zoomFactor() - 0.1),
+            lambda: self._editor_web_view().setZoomFactor(self._editor_web_view().zoomFactor() - 0.1),
         )
         qconnect(
             f.actionResetZoom.triggered,
-            lambda: editor_web_view.setZoomFactor(1),
+            lambda: self._editor_web_view().setZoomFactor(1),
         )
         qconnect(
             self.form.actionLayoutAuto.triggered,
@@ -380,6 +375,12 @@ class Browser(QMainWindow):
 
         add_ellipsis_to_action_label(f.actionCopy)
         add_ellipsis_to_action_label(f.action_forget)
+
+    def _editor_web_view(self) -> EditorWebView:
+        assert self.editor
+        editor_web_view = self.editor.web
+        assert editor_web_view
+        return editor_web_view
 
     def closeEvent(self, evt: QCloseEvent | None) -> None:
         assert evt
