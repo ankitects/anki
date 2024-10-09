@@ -308,7 +308,7 @@ class SidebarTreeView(QTreeView):
     ) -> None:
         if self.current_search and (item := self.model().item_for_index(idx)):
             if item.is_highlighted():
-                assert painter
+                assert painter is not None
 
                 brush = QBrush(theme_manager.qcolor(colors.HIGHLIGHT_BG))
                 painter.save()
@@ -317,7 +317,7 @@ class SidebarTreeView(QTreeView):
         return super().drawRow(painter, options, idx)
 
     def dropEvent(self, event: QDropEvent | None) -> None:
-        assert event
+        assert event is not None
 
         model = self.model()
         if qtmajor == 5:
@@ -329,7 +329,7 @@ class SidebarTreeView(QTreeView):
             event.acceptProposedAction()
 
     def mouseReleaseEvent(self, event: QMouseEvent | None) -> None:
-        assert event
+        assert event is not None
 
         super().mouseReleaseEvent(event)
         if (
@@ -344,7 +344,7 @@ class SidebarTreeView(QTreeView):
                 self._on_search(index)
 
     def keyPressEvent(self, event: QKeyEvent | None) -> None:
-        assert event
+        assert event is not None
 
         index = self.currentIndex()
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
@@ -542,7 +542,7 @@ class SidebarTreeView(QTreeView):
         collapse_key: Config.Bool.V,
         type: SidebarItemType | None = None,
     ) -> SidebarItem:
-        assert type
+        assert type is not None
 
         def update(expanded: bool) -> None:
             CollectionOp(
@@ -992,7 +992,7 @@ class SidebarTreeView(QTreeView):
             menu.addAction(tr.actions_search(), lambda: self.update_search(*nodes))
             return
         sub_menu = menu.addMenu(tr.actions_search())
-        assert sub_menu
+        assert sub_menu is not None
 
         sub_menu.addAction(
             tr.actions_all_selected(), lambda: self.update_search(*nodes)
@@ -1236,16 +1236,16 @@ class SidebarTreeView(QTreeView):
         )
 
     def manage_template(self, item: SidebarItem) -> None:
-        assert item._parent_item
+        assert item._parent_item is not None
 
         note = Note(self.col, self.col.models.get(NotetypeId(item._parent_item.id)))
         CardLayout(self.mw, note, ord=item.id, parent=self, fill_empty=True)
 
     def manage_fields(self, item: SidebarItem) -> None:
-        assert item._parent_item
+        assert item._parent_item is not None
 
         notetype = self.mw.col.models.get(NotetypeId(item._parent_item.id))
-        assert notetype
+        assert notetype is not None
 
         FieldDialog(self.mw, notetype, parent=self, open_at=item.id)
 
@@ -1278,5 +1278,5 @@ class SidebarTreeView(QTreeView):
 
     def _selection_model(self) -> QItemSelectionModel:
         selection_model = self.selectionModel()
-        assert selection_model
+        assert selection_model is not None
         return selection_model

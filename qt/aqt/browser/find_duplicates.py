@@ -77,7 +77,7 @@ class FindDuplicatesDialog(QDialog):
             tr.actions_search(), QDialogButtonBox.ButtonRole.ActionRole
         )
 
-        assert search
+        assert search is not None
 
         qconnect(search.clicked, on_click)
         self.show()
@@ -91,7 +91,7 @@ class FindDuplicatesDialog(QDialog):
                 tr.browsing_tag_duplicates(), QDialogButtonBox.ButtonRole.ActionRole
             )
 
-            assert b
+            assert b is not None
 
             qconnect(b.clicked, self._tag_duplicates)
         text = ""

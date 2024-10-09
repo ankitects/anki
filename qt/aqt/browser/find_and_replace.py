@@ -82,13 +82,13 @@ class FindAndReplaceDialog(QDialog):
         )
 
         find_completer = self.form.find.completer()
-        assert find_completer
+        assert find_completer is not None
         find_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
         self._replace_history = restore_combo_history(
             self.form.replace, self.COMBO_NAME + "Replace"
         )
         replace_completer = self.form.replace.completer()
-        assert replace_completer
+        assert replace_completer is not None
         replace_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
 
         if not self.note_ids:
@@ -135,7 +135,7 @@ class FindAndReplaceDialog(QDialog):
             self.note_ids = []
 
         parent_widget = self.parentWidget()
-        assert parent_widget
+        assert parent_widget is not None
 
         # tags?
         if self.form.field.currentIndex() == 1:

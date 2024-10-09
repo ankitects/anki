@@ -22,12 +22,12 @@ class QSplitterHandleEventFilter(QObject):
         self._splitter = splitter
 
     def eventFilter(self, object: QObject | None, event: QEvent | None) -> bool:
-        assert event
+        assert event is not None
 
         if event.type() == QEvent.Type.MouseButtonDblClick:
             splitter_parent = self._splitter.parentWidget()
 
-            assert splitter_parent
+            assert splitter_parent is not None
 
             if self._splitter.orientation() == Qt.Orientation.Horizontal:
                 half_size = splitter_parent.width() // 2

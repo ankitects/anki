@@ -78,13 +78,13 @@ class CardInfoDialog(QDialog):
             extra = "#night"
         else:
             extra = ""
-        assert self.web
+        assert self.web is not None
         self.web.eval(f"window.location.href = '/card-info/{card_id}{extra}';")
 
     def reject(self) -> None:
         if self._on_close:
             self._on_close()
-        assert self.web
+        assert self.web is not None
         self.web.cleanup()
         self.web = None
         saveGeom(self, self.GEOMETRY_KEY)

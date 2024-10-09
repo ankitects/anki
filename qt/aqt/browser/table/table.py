@@ -117,7 +117,7 @@ class Table:
     # Selecting
 
     def select_all(self) -> None:
-        assert self._view
+        assert self._view is not None
         self._view.selectAll()
 
     def clear_selection(self) -> None:
@@ -141,7 +141,7 @@ class Table:
         """Try to set the selection to the item corresponding to the given card."""
         self._reset_selection()
         if (row := self._model.get_card_row(card_id)) is not None:
-            assert self._view
+            assert self._view is not None
             self._view.selectRow(row)
             self._scroll_to_row(row, scroll_even_if_visible)
         else:
@@ -336,7 +336,7 @@ class Table:
     # Setup
 
     def _setup_view(self) -> None:
-        assert self._view
+        assert self._view is not None
         self._view.setSortingEnabled(True)
         self._view.setModel(self._model)
         self._view.selectionModel()
@@ -347,7 +347,7 @@ class Table:
         self._view.setWordWrap(False)
         self._view.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         horizontal_scroll_bar = self._view.horizontalScrollBar()
-        assert horizontal_scroll_bar
+        assert horizontal_scroll_bar is not None
         horizontal_scroll_bar.setSingleStep(10)
         self._update_font()
         self._view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -363,13 +363,13 @@ class Table:
                 if bsize > curmax:
                     curmax = bsize
 
-        assert self._view
+        assert self._view is not None
         vh = self._view.verticalHeader()
         assert vh is not None
         vh.setDefaultSectionSize(curmax + 6)
 
     def _setup_headers(self) -> None:
-        assert self._view
+        assert self._view is not None
         vh = self._view.verticalHeader()
         assert vh is not None
         hh = self._horizontal_header()
@@ -455,7 +455,7 @@ class Table:
             menu.addAction(action)
         menu.addSeparator()
         sub_menu = menu.addMenu(other_name)
-        assert sub_menu
+        assert sub_menu is not None
         for action in other.actions():
             sub_menu.addAction(action)
         gui_hooks.browser_will_show_context_menu(self.browser, menu)
@@ -463,13 +463,13 @@ class Table:
         menu.exec(QCursor.pos())
 
     def _on_header_context(self, pos: QPoint) -> None:
-        assert self._view
+        assert self._view is not None
         gpos = self._view.mapToGlobal(pos)
         m = QMenu()
         m.setToolTipsVisible(True)
         for key, column in self._model.columns.items():
             a = m.addAction(self._state.column_label(column))
-            assert a
+            assert a is not None
             a.setCheckable(True)
             a.setChecked(self._model.active_column_index(key) is not None)
             a.setToolTip(self._state.column_tooltip(column))
@@ -590,15 +590,15 @@ class Table:
 
     def _scroll_to_row(self, row: int, scroll_even_if_visible: bool = False) -> None:
         """Scroll vertically to row."""
-        assert self._view
+        assert self._view is not None
         top_border = self._view.rowViewportPosition(row)
         bottom_border = top_border + self._view.rowHeight(0)
         viewport = self._view.viewport()
-        assert viewport
+        assert viewport is not None
         visible = top_border >= 0 and bottom_border < viewport.height()
         if not visible or scroll_even_if_visible:
             horizontal_scroll_bar = self._view.horizontalScrollBar()
-            assert horizontal_scroll_bar
+            assert horizontal_scroll_bar is not None
             horizontal = horizontal_scroll_bar.value()
             self._view.scrollTo(
                 self._model.index(row, 0), QAbstractItemView.ScrollHint.PositionAtTop
@@ -607,14 +607,14 @@ class Table:
 
     def _scroll_to_column(self, column: int) -> None:
         """Scroll horizontally to column."""
-        assert self._view
+        assert self._view is not None
         position = self._view.columnViewportPosition(column)
         viewport = self._view.viewport()
-        assert viewport
+        assert viewport is not None
         visible = 0 <= position < viewport.width()
         if not visible:
             vertical_scroll_bar = self._view.verticalScrollBar()
-            assert vertical_scroll_bar
+            assert vertical_scroll_bar is not None
             vertical = vertical_scroll_bar.value()
             self._view.scrollTo(
                 self._model.index(0, column),
@@ -630,7 +630,7 @@ class Table:
         if not self.has_current():
             return
 
-        assert self._view
+        assert self._view is not None
         if index is None:
             index = self._view.moveCursor(
                 direction,
@@ -661,15 +661,15 @@ class Table:
         )
 
     def _selection_model(self) -> QItemSelectionModel:
-        assert self._view
+        assert self._view is not None
         selection_model = self._view.selectionModel()
-        assert selection_model
+        assert selection_model is not None
         return selection_model
 
     def _horizontal_header(self) -> QHeaderView:
-        assert self._view
+        assert self._view is not None
         hh = self._view.horizontalHeader()
-        assert hh
+        assert hh is not None
         return hh
 
 

@@ -92,7 +92,7 @@ class Previewer(QDialog):
         self._replay = self.bbox.addButton(
             tr.actions_replay_audio(), QDialogButtonBox.ButtonRole.ActionRole
         )
-        assert self._replay
+        assert self._replay is not None
         self._replay.setAutoDefault(False)
         self._replay.setShortcut(QKeySequence("R"))
         self._replay.setToolTip(tr.actions_shortcut_key(val="R"))
@@ -116,9 +116,9 @@ class Previewer(QDialog):
         self._on_close()
 
     def _on_replay_audio(self) -> None:
-        assert self._web
+        assert self._web is not None
         card = self.card()
-        assert card
+        assert card is not None
 
         gui_hooks.audio_will_replay(self._web, card, self._state == "question")
 
@@ -131,13 +131,13 @@ class Previewer(QDialog):
         self._open = False
         self._close_callback()
 
-        assert self._web
+        assert self._web is not None
 
         self._web.cleanup()
         self._web = None
 
     def _setup_web_view(self) -> None:
-        assert self._web
+        assert self._web is not None
 
         self._web.stdHtml(
             self.mw.reviewer.revHtml(),
@@ -156,7 +156,7 @@ class Previewer(QDialog):
     def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
             card = self.card()
-            assert card
+            assert card is not None
 
             play_clicked_audio(cmd, card)
 
@@ -168,7 +168,7 @@ class Previewer(QDialog):
             flag = 0
             marked = False
 
-        assert self._web
+        assert self._web is not None
 
         self._web.eval(f"_drawFlag({flag}); _drawMark({json.dumps(marked)});")
 
@@ -228,7 +228,7 @@ class Previewer(QDialog):
 
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
-            assert self._web
+            assert self._web is not None
 
             if c.autoplay():
                 self._web.setPlaybackRequiresGesture(False)
@@ -260,18 +260,18 @@ class Previewer(QDialog):
         else:
             js = f"{func}({json.dumps(txt)}, '{bodyclass}');"
 
-        assert self._web
+        assert self._web is not None
         self._web.eval(js)
         self._card_changed = False
 
     def _on_show_both_sides(self, toggle: bool) -> None:
-        assert self._web
+        assert self._web is not None
 
         self._show_both_sides = toggle
         self.mw.col.set_config_bool(Config.Bool.PREVIEW_BOTH_SIDES, toggle)
 
         card = self.card()
-        assert card
+        assert card is not None
 
         gui_hooks.previewer_will_redraw_after_show_both_sides_toggled(
             self._web, card, self._state == "question", toggle
@@ -284,7 +284,7 @@ class Previewer(QDialog):
     def _state_and_mod(self) -> tuple[str, int, int]:
         c = self.card()
 
-        assert c
+        assert c is not None
 
         n = c.note()
         n.load()
@@ -310,7 +310,7 @@ class MultiCardPreviewer(Previewer):
             QDialogButtonBox.ButtonRole.ActionRole,
         )
 
-        assert self._prev
+        assert self._prev is not None
 
         self._prev.setAutoDefault(False)
         self._prev.setShortcut(QKeySequence("Left"))
@@ -321,7 +321,7 @@ class MultiCardPreviewer(Previewer):
             QDialogButtonBox.ButtonRole.ActionRole,
         )
 
-        assert self._next
+        assert self._next is not None
 
         self._next.setAutoDefault(True)
         self._next.setShortcut(QKeySequence("Right"))
@@ -354,8 +354,8 @@ class MultiCardPreviewer(Previewer):
         if not self._open:
             return
 
-        assert self._prev
-        assert self._next
+        assert self._prev is not None
+        assert self._next is not None
 
         self._prev.setEnabled(self._should_enable_prev())
         self._next.setEnabled(self._should_enable_next())
@@ -382,7 +382,7 @@ class BrowserPreviewer(MultiCardPreviewer):
         super().__init__(parent=parent, mw=mw, on_close=on_close)
 
     def card(self) -> Card | None:
-        assert self._parent
+        assert self._parent is not None
 
         if self._parent.singleCard:
             return self._parent.card
@@ -399,22 +399,22 @@ class BrowserPreviewer(MultiCardPreviewer):
             return changed
 
     def _on_prev_card(self) -> None:
-        assert self._parent
+        assert self._parent is not None
 
         self._parent.onPreviousCard()
 
     def _on_next_card(self) -> None:
-        assert self._parent
+        assert self._parent is not None
 
         self._parent.onNextCard()
 
     def _should_enable_prev(self) -> bool:
-        assert self._parent
+        assert self._parent is not None
 
         return super()._should_enable_prev() or self._parent.has_previous_card()
 
     def _should_enable_next(self) -> bool:
-        assert self._parent
+        assert self._parent is not None
 
         return super()._should_enable_next() or self._parent.has_next_card()
 
