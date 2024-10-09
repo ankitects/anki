@@ -365,13 +365,13 @@ class Table:
 
         assert self._view
         vh = self._view.verticalHeader()
-        assert vh
+        assert vh is not None
         vh.setDefaultSectionSize(curmax + 6)
 
     def _setup_headers(self) -> None:
         assert self._view
         vh = self._view.verticalHeader()
-        assert vh
+        assert vh is not None
         hh = self._horizontal_header()
         vh.hide()
         hh.show()
