@@ -295,11 +295,15 @@ class Browser(QMainWindow):
         qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_full_screen)
         qconnect(
             f.actionZoomIn.triggered,
-            lambda: self._editor_web_view().setZoomFactor(self._editor_web_view().zoomFactor() + 0.1),
+            lambda: self._editor_web_view().setZoomFactor(
+                self._editor_web_view().zoomFactor() + 0.1
+            ),
         )
         qconnect(
             f.actionZoomOut.triggered,
-            lambda: self._editor_web_view().setZoomFactor(self._editor_web_view().zoomFactor() - 0.1),
+            lambda: self._editor_web_view().setZoomFactor(
+                self._editor_web_view().zoomFactor() - 0.1
+            ),
         )
         qconnect(
             f.actionResetZoom.triggered,
