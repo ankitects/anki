@@ -34,6 +34,8 @@ class TextImporter(NoteImporter):
         notes = []
         lineNum = 0
         ignored = 0
+        assert self.data is not None
+        assert self.dialect is not None
         if self.delimiter:
             reader = csv.reader(self.data, delimiter=self.delimiter, doublequote=True)
         else:
@@ -96,6 +98,7 @@ class TextImporter(NoteImporter):
 
         self.dialect = None
         sniffer = csv.Sniffer()
+        assert self.data is not None
         if not self.delimiter:
             try:
                 self.dialect = sniffer.sniff("\n".join(self.data[:10]), self.patterns)

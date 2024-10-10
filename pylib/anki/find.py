@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 class Finder:
     def __init__(self, col: Collection | None) -> None:
+        assert col is not None
         self.col = col.weakref()
         print("Finder() is deprecated, please use col.find_cards() or .find_notes()")
 

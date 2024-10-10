@@ -210,11 +210,13 @@ class DeckManager(DeprecatedNamesMixin):
 
     def collapse(self, did: DeckId) -> None:
         deck = self.get(did)
+        assert deck is not None
         deck["collapsed"] = not deck["collapsed"]
         self.save(deck)
 
     def collapse_browser(self, did: DeckId) -> None:
         deck = self.get(did)
+        assert deck is not None
         collapsed = deck.get("browserCollapsed", False)
         deck["browserCollapsed"] = not collapsed
         self.save(deck)
@@ -232,6 +234,7 @@ class DeckManager(DeprecatedNamesMixin):
         if include_subdecks:
             dids.update([child[1] for did in dids for child in self.children(did)])
         str_ids = ids2str(dids)
+        assert self.col.db is not None
         count = self.col.db.scalar(
             f"select count() from cards where did in {str_ids} or odid in {str_ids}"
         )
@@ -311,6 +314,7 @@ class DeckManager(DeprecatedNamesMixin):
             if not conf:
                 # fall back on default
                 conf = self.get_config(DEFAULT_DECK_CONF_ID)
+            assert conf is not None
             conf["dyn"] = False
             return conf
         # dynamic decks have embedded conf
@@ -395,13 +399,16 @@ class DeckManager(DeprecatedNamesMixin):
 
     def cids(self, did: DeckId, children: bool = False) -> list[anki.cards.CardId]:
         if not children:
+            assert self.col.db is not None
             return self.col.db.list("select id from cards where did=?", did)
         dids = [did]
         for name, id in self.children(did):
             dids.append(id)
+        assert self.col.db is not None
         return self.col.db.list(f"select id from cards where did in {ids2str(dids)}")
 
     def for_card_ids(self, cids: list[anki.cards.CardId]) -> list[DeckId]:
+        assert self.col.db is not None
         return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
 
     # Deck selection
@@ -415,7 +422,9 @@ class DeckManager(DeprecatedNamesMixin):
         return DeckId(self.col._backend.get_current_deck().id)
 
     def current(self) -> DeckDict:
-        return self.get(self.selected())
+        return_value = self.get(self.selected())
+        assert return_value is not None
+        return return_value
 
     def active(self) -> list[DeckId]:
         # some add-ons assume this will always be non-empty
@@ -486,7 +495,9 @@ class DeckManager(DeprecatedNamesMixin):
         "All parents of did."
         # get parent and grandparent names
         parents_names: list[str] = []
-        for part in self.immediate_parent_path(self.get(did)["name"]):
+        deck_map = self.get(did)
+        assert deck_map is not None
+        for part in self.immediate_parent_path(deck_map["name"]):
             if not parents_names:
                 parents_names.append(part)
             else:
@@ -497,7 +508,12 @@ class DeckManager(DeprecatedNamesMixin):
             if name_map:
                 deck = name_map[parent_name]
             else:
-                deck = self.get(self.id(parent_name))
+                tmp1 = self.id(parent_name)
+                assert tmp1 is not None
+                did = tmp1
+                tmp2 = self.get(did)
+                assert tmp2 is not None
+                deck = tmp2
             parents.append(deck)
         return parents
 
@@ -523,11 +539,14 @@ class DeckManager(DeprecatedNamesMixin):
     def new_filtered(self, name: str) -> DeckId:
         "For new code, prefer col.sched.get_or_create_filtered_deck()."
         did = self.id(name, type=DEFAULT_DECK_CONF_ID)
+        assert did is not None
         self.select(did)
         return did
 
     def is_filtered(self, did: DeckId | str) -> bool:
-        return bool(self.get(did)["dyn"])
+        deck_map = self.get(did)
+        assert deck_map is not None
+        return bool(deck_map["dyn"])
 
     # Legacy
     #############
@@ -554,6 +573,7 @@ class DeckManager(DeprecatedNamesMixin):
     @deprecated(info="use col.set_deck() instead")
     def set_deck(self, cids: list[anki.cards.CardId], did: DeckId) -> None:
         self.col.set_deck(card_ids=cids, deck_id=did)
+        assert self.col.db is not None
         self.col.db.execute(
             f"update cards set did=?,usn=?,mod=? where id in {ids2str(cids)}",
             did,

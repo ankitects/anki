@@ -175,6 +175,7 @@ def deprecated(replaced_by: Callable | None = None, info: str = "") -> Callable:
             if info:
                 _print_warning(f"{func.__name__}()", info)
             else:
+                assert replaced_by is not None
                 _print_replacement_warning(func.__name__, replaced_by.__name__)
 
             return func(*args, **kwargs)

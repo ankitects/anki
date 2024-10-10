@@ -168,7 +168,9 @@ class Card(DeprecatedNamesMixin):
         return self._note
 
     def note_type(self) -> NotetypeDict:
-        return self.col.models.get(self.note().mid)
+        return_value = self.col.models.get(self.note().mid)
+        assert return_value is not None
+        return return_value
 
     def template(self) -> TemplateDict:
         notetype = self.note_type()
@@ -204,7 +206,9 @@ class Card(DeprecatedNamesMixin):
     def time_taken(self, capped: bool = True) -> int:
         """Time taken since card timer started, in integer MS.
         If `capped` is true, returned time is limited to deck preset setting."""
-        total = int((time.time() - self.timer_started) * 1000)
+        started = self.timer_started
+        assert started is not None
+        total = int((time.time() - started) * 1000)
         if capped:
             total = min(total, self.time_limit())
         return total

@@ -183,6 +183,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         elif kind == "filtered":
             return self._interval_for_filtered_state(state.filtered)
         else:
+            assert kind is not None
             assert_exhaustive(kind)
             return 0  # pylint: disable=unreachable
 
@@ -199,6 +200,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         elif kind == "relearning":
             return normal.relearning.learning.scheduled_secs
         else:
+            assert kind is not None
             assert_exhaustive(kind)
             return 0  # pylint: disable=unreachable
 
@@ -211,6 +213,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         elif kind == "rescheduling":
             return self._interval_for_normal_state(filtered.rescheduling.original_state)
         else:
+            assert kind is not None
             assert_exhaustive(kind)
             return 0  # pylint: disable=unreachable
 
@@ -237,6 +240,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     @property
     def active_decks(self) -> list[DeckId]:
         try:
+            assert self.col.db is not None
             return self.col.db.list("select id from active_decks")
         except DBError:
             return []

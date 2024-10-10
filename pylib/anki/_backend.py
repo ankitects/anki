@@ -183,16 +183,18 @@ class Translations(GeneratedTranslations):
             print("please use tr.message_name() instead of tr(TR.MESSAGE_NAME)")
 
         (module, message) = key
-        return self.backend().translate(
-            module_index=module, message_index=message, **kwargs
-        )
+        assert self.backend is not None
+        backend_ = self.backend()
+        assert backend_ is not None
+        return backend_.translate(module_index=module, message_index=message, **kwargs)
 
     def _translate(
         self, module: int, message: int, args: dict[str, str | int | float]
     ) -> str:
-        return self.backend().translate(
-            module_index=module, message_index=message, **args
-        )
+        assert self.backend is not None
+        backend_ = self.backend()
+        assert backend_ is not None
+        return backend_.translate(module_index=module, message_index=message, **args)
 
 
 def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:

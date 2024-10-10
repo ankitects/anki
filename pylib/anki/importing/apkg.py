@@ -60,6 +60,7 @@ class AnkiPackageImporter(Anki2Importer):
 
     def _srcMediaData(self, fname: str) -> Any:
         if fname in self.nameToNum:
+            assert self.zip is not None
             return self.zip.read(
                 self.nameToNum[fname]
             )  # pytype: disable=attribute-error

@@ -121,7 +121,7 @@ class TagManager(DeprecatedNamesMixin):
     def rem_from_str(self, deltags: str, tags: str) -> str:
         "Delete tags if they exist."
 
-        def wildcard(pat: str, repl: str) -> Match:
+        def wildcard(pat: str, repl: str) -> Match | None:
             pat = re.escape(pat).replace("\\*", ".*")
             return re.match(f"^{pat}$", repl, re.IGNORECASE)
 
@@ -174,12 +174,14 @@ class TagManager(DeprecatedNamesMixin):
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = f"{basequery} AND c.did=?"
+            assert self.col.db is not None
             res = self.col.db.list(query, did)
             return list(set(self.split(" ".join(res))))
         dids = [did]
         for name, id in self.col.decks.children(did):
             dids.append(id)
         query = f"{basequery} AND c.did IN {ids2str(dids)}"
+        assert self.col.db is not None
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
 

@@ -184,6 +184,7 @@ class TemplateRenderContext:
 
             # add (most) special fields
             fields["Tags"] = self._note.string_tags().strip()
+            assert self._note_type is not None
             fields["Type"] = self._note_type["name"]
             fields["Deck"] = self._col.decks.name(self._card.current_deck_id())
             fields["Subdeck"] = DeckManager.basename(fields["Deck"])
@@ -208,7 +209,9 @@ class TemplateRenderContext:
         return self._note
 
     def note_type(self) -> NotetypeDict:
-        return self._note_type
+        return_value = self._note_type
+        assert return_value is not None
+        return return_value
 
     def latex_svg(self) -> bool:
         return self._latex_svg
@@ -267,6 +270,7 @@ class TemplateRenderContext:
             )
             # when rendering card layout, the css changes have not been
             # committed; we need the current notetype instance instead
+            assert self._note_type is not None
             out.css = self._note_type["css"]
         else:
             # existing card (eg study mode)
