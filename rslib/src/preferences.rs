@@ -99,6 +99,7 @@ impl Collection {
                 .get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons),
             time_limit_secs: self.get_answer_time_limit_secs(),
             load_balancer_enabled: self.get_config_bool(BoolKey::LoadBalancerEnabled),
+            hide_on_leech_tooltips: self.get_config_bool(BoolKey::HideOnLeechTooltips),
         })
     }
 
@@ -119,6 +120,7 @@ impl Collection {
         )?;
         self.set_answer_time_limit_secs(s.time_limit_secs)?;
         self.set_config_bool_inner(BoolKey::LoadBalancerEnabled, s.load_balancer_enabled)?;
+        self.set_config_bool_inner(BoolKey::HideOnLeechTooltips, s.hide_on_leech_tooltips)?;
 
         Ok(())
     }

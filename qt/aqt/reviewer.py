@@ -938,6 +938,9 @@ timerStopped = false;
     ##########################################################################
 
     def onLeech(self, card: Card | None = None) -> None:
+        if self.mw.col.get_config_bool(Config.Bool.HIDE_ON_LEECH_TOOLTIPS):
+            return
+
         # for now
         s = tr.studying_card_was_a_leech()
         # v3 scheduler doesn't report this
