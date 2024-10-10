@@ -117,6 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function focus(): Promise<void> {
         const richText = await richTextPromise;
+        richText.blur();
         richText.focus();
     }
 
