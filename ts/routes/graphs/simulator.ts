@@ -81,6 +81,7 @@ export function renderSimulationChart(
         )
         .attr("direction", "ltr");
 
+    svg.select(".y-ticks .y-axis-title").remove();
     svg.select(".y-ticks")
         .append("text")
         .attr("class", "y-axis-title")

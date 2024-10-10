@@ -80,6 +80,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     historical_retention: 0.9,
     weight_search: String::new(),
     ignore_revlogs_before_date: String::new(),
+    easy_days_percentages: Vec::new(),
 };
 
 impl Default for DeckConfig {
@@ -92,6 +93,7 @@ impl Default for DeckConfig {
             inner: DeckConfigInner {
                 learn_steps: vec![1.0, 10.0],
                 relearn_steps: vec![10.0],
+                easy_days_percentages: vec![1.0; 7],
                 ..DEFAULT_DECK_CONFIG_INNER
             },
         }

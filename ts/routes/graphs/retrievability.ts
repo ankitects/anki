@@ -111,7 +111,7 @@ export function prepareData(
         },
         {
             label: tr.statisticsEstimatedTotalKnowledge(),
-            value: tr.statisticsCards({ cards: data.sum }),
+            value: tr.statisticsCards({ cards: +data.sum.toFixed(0) }),
         },
     ];
 
