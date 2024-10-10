@@ -29,9 +29,11 @@ pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
 
 static TEMPLATE_ERROR_LINK: &str =
-    "https://docs.ankiweb.net/templates/errors/replacement-errors.md";
-static TEMPLATE_BLANK_LINK: &str = "https://docs.ankiweb.net/templates/errors/empty-error.html";
-static TEMPLATE_BLANK_CLOZE_LINK: &str = "https://docs.ankiweb.net/templates/errors/cloze-error.md";
+    "https://docs.ankiweb.net/templates/errors.html#template-syntax-error";
+static TEMPLATE_BLANK_LINK: &str =
+    "https://docs.ankiweb.net/templates/errors.html#front-of-card-is-blank";
+static TEMPLATE_BLANK_CLOZE_LINK: &str =
+    "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-notetype";
 
 // Lexing
 //----------------------------------------
