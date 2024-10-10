@@ -33,11 +33,13 @@ class ItemState(ABC):
     # Stateless Helpers
 
     def note_ids_from_card_ids(self, items: Sequence[ItemId]) -> Sequence[NoteId]:
+        assert self.col.db is not None
         return self.col.db.list(
             f"select distinct nid from cards where id in {ids2str(items)}"
         )
 
     def card_ids_from_note_ids(self, items: Sequence[ItemId]) -> Sequence[CardId]:
+        assert self.col.db is not None
         return self.col.db.list(f"select id from cards where nid in {ids2str(items)}")
 
     def column_key_at(self, index: int) -> str:

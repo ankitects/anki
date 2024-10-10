@@ -49,6 +49,7 @@ class SidebarToolbar(QToolBar):
             action = self.addAction(
                 theme_manager.icon_from_resources(tool[1]), tool[2]()
             )
+            assert action is not None
             action.setCheckable(True)
             action.setShortcut(f"Alt+{row + 1}")
             self._action_group.addAction(action)

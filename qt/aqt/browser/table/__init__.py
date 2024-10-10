@@ -122,7 +122,7 @@ def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> dict[str, str] | No
     return adjusted_bg_color(temp_color)
 
 
-def adjusted_bg_color(color: dict[str, str]) -> dict[str, str]:
+def adjusted_bg_color(color: dict[str, str] | None) -> dict[str, str] | None:
     if color:
         adjusted_color = copy.copy(color)
         light = QColor(color["light"]).lighter(150)

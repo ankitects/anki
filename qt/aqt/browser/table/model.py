@@ -54,6 +54,7 @@ class DataModel(QAbstractTableModel):
         self._stale_cutoff = 0.0
         self._on_row_state_will_change = row_state_will_change_callback
         self._on_row_state_changed = row_state_changed_callback
+        assert aqt.mw is not None
         self._want_tooltips = aqt.mw.pm.show_browser_table_tooltips()
 
     # Row Object Interface

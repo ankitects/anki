@@ -153,6 +153,9 @@ class SidebarItem:
                 SidebarItemType.NOTETYPE_TEMPLATE,
                 SidebarItemType.NOTETYPE_FIELD,
             ]:
+                assert other._parent_item is not None
+                assert self._parent_item is not None
+
                 return (
                     other.id == self.id
                     and other._parent_item.id == self._parent_item.id
