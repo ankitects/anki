@@ -70,6 +70,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
+    add_extract_original_position_function(&db)?;
     add_extract_custom_data_function(&db)?;
     add_extract_fsrs_variable(&db)?;
     add_extract_fsrs_retrievability(&db)?;
@@ -201,6 +202,29 @@ fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
             let mut tags = ctx.get_raw(1).as_str()?.split(' ');
 
             Ok(tags.any(|tag| re.is_match(tag)))
+        },
+    )
+}
+
+/// eg. extract_original_position(c.data) -> number | null
+/// Parse original card position from c.data (this is only populated after card
+/// has been reviewed)
+fn add_extract_original_position_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_original_position",
+        1,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 1, "called with unexpected number of arguments");
+
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+
+            match &CardData::from_str(card_data).original_position {
+                Some(position) => Ok(Some(*position as i64)),
+                None => Ok(None),
+            }
         },
     )
 }

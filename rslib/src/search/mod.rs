@@ -370,6 +370,7 @@ fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<
         Column::NoteCreation => "n.id asc, c.ord asc".into(),
         Column::NoteMod => "n.mod asc, c.ord asc".into(),
         Column::Notetype => "(select pos from sort_order where ntid = n.mid) asc".into(),
+        Column::OriginalPosition => "(select pos from sort_order where nid = c.nid) asc".into(),
         Column::Reps => "c.reps asc".into(),
         Column::SortField => "n.sfld collate nocase asc, c.ord asc".into(),
         Column::Tags => "n.tags asc".into(),
@@ -394,6 +395,7 @@ fn note_order_from_sort_column(column: Column) -> Cow<'static, str> {
         | Column::Ease
         | Column::Interval
         | Column::Lapses
+        | Column::OriginalPosition
         | Column::Reps => "(select pos from sort_order where nid = n.id) asc".into(),
         Column::NoteCreation => "n.id asc".into(),
         Column::NoteMod => "n.mod asc".into(),
@@ -416,6 +418,7 @@ fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType)
             Column::Cards => include_str!("template_order.sql"),
             Column::Deck => include_str!("deck_order.sql"),
             Column::Notetype => include_str!("notetype_order.sql"),
+            Column::OriginalPosition => include_str!("note_original_position_order.sql"),
             _ => return Ok(()),
         },
         ReturnItemType::Notes => match column {
@@ -429,6 +432,7 @@ fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType)
             Column::Ease => include_str!("note_ease_order.sql"),
             Column::Interval => include_str!("note_interval_order.sql"),
             Column::Lapses => include_str!("note_lapses_order.sql"),
+            Column::OriginalPosition => include_str!("note_original_position_order.sql"),
             Column::Reps => include_str!("note_reps_order.sql"),
             Column::Notetype => include_str!("notetype_order.sql"),
             _ => return Ok(()),

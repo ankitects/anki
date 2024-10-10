@@ -46,6 +46,7 @@ pub enum Column {
     NoteMod,
     #[strum(serialize = "note")]
     Notetype,
+    OriginalPosition,
     Question,
     #[strum(serialize = "cardReps")]
     Reps,
@@ -161,6 +162,7 @@ impl Column {
             Self::NoteCreation => tr.browsing_created(),
             Self::NoteMod => tr.search_note_modified(),
             Self::Notetype => tr.card_stats_note_type(),
+            Self::OriginalPosition => tr.card_stats_new_card_position(),
             Self::Question => tr.browsing_question(),
             Self::Reps => tr.scheduling_reviews(),
             Self::SortField => tr.browsing_sort_field(),
@@ -226,6 +228,7 @@ impl Column {
             | Column::Interval
             | Column::NoteCreation
             | Column::NoteMod
+            | Column::OriginalPosition
             | Column::Reps => Sorting::Descending,
             Column::Stability | Column::Difficulty | Column::Retrievability => {
                 if notes {
@@ -432,6 +435,7 @@ impl RowContext {
             Column::NoteCreation => self.note_creation_str(),
             Column::SortField => self.note_field_str(),
             Column::NoteMod => self.note.mtime.date_and_time_string(),
+            Column::OriginalPosition => self.card_original_position(),
             Column::Tags => self.note.tags.join(" "),
             Column::Notetype => self.notetype.name.to_owned(),
             Column::Stability => self.fsrs_stability_str(),
@@ -439,6 +443,17 @@ impl RowContext {
             Column::Retrievability => self.fsrs_retrievability_str(),
             Column::Custom => "".to_string(),
         })
+    }
+
+    fn card_original_position(&self) -> String {
+        let card = &self.cards[0];
+        if let Some(pos) = &card.original_position {
+            pos.to_string()
+        } else if card.ctype == CardType::New {
+            card.due.to_string()
+        } else {
+            String::new()
+        }
     }
 
     fn note_creation_str(&self) -> String {
