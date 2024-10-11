@@ -13,6 +13,7 @@ use rand::SeedableRng;
 use super::fuzz::constrained_fuzz_bounds;
 use crate::card::CardId;
 use crate::deckconfig::DeckConfigId;
+use crate::error::InvalidInputError;
 use crate::notes::NoteId;
 use crate::prelude::*;
 use crate::storage::SqliteStorage;
@@ -130,21 +131,23 @@ impl LoadBalancer {
                     deckconfig_group
                 },
             );
-        let easy_days_percentages_by_preset = storage
-            .get_deck_config_map()?
-            .into_iter()
-            .map(|(dcid, conf)| {
-                let easy_days_percentages = if conf.inner.easy_days_percentages.is_empty() {
-                    [1.0; 7]
-                } else {
-                    conf.inner
-                        .easy_days_percentages
-                        .try_into()
-                        .expect("Expected 7 values")
-                };
-                (dcid, easy_days_percentages)
-            })
-            .collect();
+        let configs = storage.get_deck_config_map()?;
+
+        let mut easy_days_percentages_by_preset = HashMap::with_capacity(configs.len());
+        for (dcid, conf) in configs {
+            let easy_days_percentages = if conf.inner.easy_days_percentages.is_empty() {
+                [1.0; 7]
+            } else {
+                conf.inner.easy_days_percentages.try_into().map_err(|_| {
+                    AnkiError::from(InvalidInputError {
+                        message: "expected 7 days".into(),
+                        source: None,
+                        backtrace: None,
+                    })
+                })?
+            };
+            easy_days_percentages_by_preset.insert(dcid, easy_days_percentages);
+        }
 
         Ok(LoadBalancer {
             days_by_preset,
