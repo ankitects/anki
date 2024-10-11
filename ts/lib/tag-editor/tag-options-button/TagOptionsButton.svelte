@@ -17,11 +17,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:offsetHeight={badgeHeight}
     on:mousedown|preventDefault
 >
-    {#if tagsSelected}
-        <TagsSelectedButton on:tagselectall on:tagcopy on:tagdelete />
-    {:else}
-        <TagAddButton on:tagappend {keyCombination} />
-    {/if}
+    {#key tagsSelected}
+        {#if tagsSelected}
+            <TagsSelectedButton on:tagselectall on:tagcopy on:tagdelete />
+        {:else}
+            <TagAddButton on:tagappend {keyCombination} />
+        {/if}
+    {/key}
 </div>
 
 <style lang="scss">
