@@ -712,10 +712,10 @@ class Reviewer:
             # get field and cloze position
             clozeIdx = self.card.ord + 1
             fld = fld.split(":")[1]
-        # loop through fields for a match
         if fld.startswith("nc:"):
             self._combining = False
             fld = fld.split(":")[1]
+        # loop through fields for a match
         for f in self.card.note_type()["flds"]:
             if f["name"] == fld:
                 self.typeCorrect = self.card.note()[f["name"]]
