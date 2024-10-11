@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use chrono::Datelike;
 use rand::distributions::Distribution;
 use rand::distributions::WeightedIndex;
 use rand::rngs::StdRng;
@@ -12,6 +13,7 @@ use rand::SeedableRng;
 use super::fuzz::constrained_fuzz_bounds;
 use crate::card::CardId;
 use crate::deckconfig::DeckConfigId;
+use crate::error::InvalidInputError;
 use crate::notes::NoteId;
 use crate::prelude::*;
 use crate::storage::SqliteStorage;
@@ -82,12 +84,15 @@ pub struct LoadBalancer {
     /// Load balancer operates at the preset level, it only counts
     /// cards in the same preset as the card being balanced.
     days_by_preset: HashMap<DeckConfigId, [LoadBalancerDay; LOAD_BALANCE_DAYS]>,
+    easy_days_percentages_by_preset: HashMap<DeckConfigId, [f32; 7]>,
+    next_day_at: TimestampSecs,
 }
 
 impl LoadBalancer {
     pub fn new(
         today: u32,
         did_to_dcid: HashMap<DeckId, DeckConfigId>,
+        next_day_at: TimestampSecs,
         storage: &SqliteStorage,
     ) -> Result<LoadBalancer> {
         let cards_on_each_day =
@@ -126,8 +131,29 @@ impl LoadBalancer {
                     deckconfig_group
                 },
             );
+        let configs = storage.get_deck_config_map()?;
 
-        Ok(LoadBalancer { days_by_preset })
+        let mut easy_days_percentages_by_preset = HashMap::with_capacity(configs.len());
+        for (dcid, conf) in configs {
+            let easy_days_percentages = if conf.inner.easy_days_percentages.is_empty() {
+                [1.0; 7]
+            } else {
+                conf.inner.easy_days_percentages.try_into().map_err(|_| {
+                    AnkiError::from(InvalidInputError {
+                        message: "expected 7 days".into(),
+                        source: None,
+                        backtrace: None,
+                    })
+                })?
+            };
+            easy_days_percentages_by_preset.insert(dcid, easy_days_percentages);
+        }
+
+        Ok(LoadBalancer {
+            days_by_preset,
+            easy_days_percentages_by_preset,
+            next_day_at,
+        })
     }
 
     pub fn review_context(
@@ -182,6 +208,24 @@ impl LoadBalancer {
         let days = self.days_by_preset.get(&deckconfig_id)?;
         let interval_days = &days[before_days as usize..=after_days as usize];
 
+        // calculate review counts and expected distribution
+        let (review_counts, weekdays): (Vec<usize>, Vec<usize>) = interval_days
+            .iter()
+            .enumerate()
+            .map(|(i, day)| {
+                (
+                    day.cards.len(),
+                    interval_to_weekday(i as u32 + before_days, self.next_day_at),
+                )
+            })
+            .unzip();
+        let easy_days_percentages = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
+        let percentages = weekdays
+            .iter()
+            .map(|&wd| easy_days_percentages[wd])
+            .collect::<Vec<_>>();
+        let expected_distribution = check_review_distribution(&review_counts, &percentages);
+
         // calculate weights for each day
         let intervals_and_weights = interval_days
             .iter()
@@ -198,7 +242,7 @@ impl LoadBalancer {
                     })
                     .unwrap_or(1.0);
 
-                let weight = match interval_day.cards.len() {
+                let weight = match review_counts[interval_index] {
                     0 => 1.0, // if theres no cards due on this day, give it the full 1.0 weight
                     card_count => {
                         let card_count_weight = (1.0 / card_count as f32).powi(2);
@@ -208,7 +252,10 @@ impl LoadBalancer {
                     }
                 };
 
-                (target_interval, weight)
+                (
+                    target_interval,
+                    weight * expected_distribution[interval_index],
+                )
             })
             .collect::<Vec<_>>();
 
@@ -236,4 +283,28 @@ impl LoadBalancer {
             }
         }
     }
+}
+
+fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
+    let target_datetime = next_day_at
+        .adding_secs((interval - 1) as i64 * 86400)
+        .local_datetime()
+        .unwrap();
+    target_datetime.weekday().num_days_from_monday() as usize
+}
+
+fn check_review_distribution(actual_reviews: &[usize], percentages: &[f32]) -> Vec<f32> {
+    if percentages.iter().sum::<f32>() == 0.0 {
+        return vec![1.0; actual_reviews.len()];
+    }
+    let total_actual = actual_reviews.iter().sum::<usize>() as f32;
+    let expected_distribution: Vec<f32> = percentages
+        .iter()
+        .map(|&p| p * (total_actual / percentages.iter().sum::<f32>()))
+        .collect();
+    expected_distribution
+        .iter()
+        .zip(actual_reviews.iter())
+        .map(|(&e, &a)| (e - a as f32).max(0.0))
+        .collect()
 }
