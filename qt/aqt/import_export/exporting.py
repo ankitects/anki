@@ -88,7 +88,9 @@ class ExportDialog(QDialog):
         self.frm.includeHTML.setChecked(True)
         # set default option if accessed through deck button
         if did:
-            name = self.mw.col.decks.get(did)["name"]
+            deck_dict = self.mw.col.decks.get(did)
+            assert deck_dict
+            name = deck_dict["name"]
             index = self.frm.deck.findText(name)
             self.frm.deck.setCurrentIndex(index)
             self.frm.includeSched.setChecked(False)
