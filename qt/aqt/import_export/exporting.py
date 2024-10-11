@@ -89,7 +89,7 @@ class ExportDialog(QDialog):
         # set default option if accessed through deck button
         if did:
             deck = self.mw.col.decks.get(did)
-            assert deck
+            assert deck is not None
             name = deck["name"]
             index = self.frm.deck.findText(name)
             self.frm.deck.setCurrentIndex(index)

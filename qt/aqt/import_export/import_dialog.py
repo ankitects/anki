@@ -78,7 +78,7 @@ class ImportDialog(QDialog):
     def reject(self) -> None:
         if self.mw.col and self.windowModality() == Qt.WindowModality.ApplicationModal:
             self.mw.col.set_wants_abort()
-        assert self.web
+        assert self.web is not None
         self.web.cleanup()
         self.web = None
         saveGeom(self, self.args.title)
