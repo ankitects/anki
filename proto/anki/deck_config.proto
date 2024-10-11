@@ -109,7 +109,7 @@ message DeckConfig {
 
     repeated float fsrs_weights = 3;
 
-    reserved 4 to 8;
+    reserved 5 to 8;
 
     uint32 new_per_day = 9;
     uint32 reviews_per_day = 10;
@@ -159,6 +159,7 @@ message DeckConfig {
     // for fsrs
     float desired_retention = 37;
     string ignore_revlogs_before_date = 46;
+    repeated float easy_days_percentages = 4;
     // used for fsrs_reschedule in the past
     reserved 39;
     float historical_retention = 40;

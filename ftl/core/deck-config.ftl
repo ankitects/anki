@@ -277,6 +277,19 @@ deck-config-new-interval-tooltip = The multiplier applied to a review interval w
 deck-config-minimum-interval-tooltip = The minimum interval given to a review card after answering `Again`.
 deck-config-custom-scheduling = Custom scheduling
 deck-config-custom-scheduling-tooltip = Affects the entire collection. Use at your own risk!
+# Easy Days section
+
+deck-config-easy-days-title = Easy Days
+deck-config-easy-days-monday = Monday
+deck-config-easy-days-tuesday = Tuesday
+deck-config-easy-days-wednesday = Wednesday
+deck-config-easy-days-thursday = Thursday
+deck-config-easy-days-friday = Friday
+deck-config-easy-days-saturday = Saturday
+deck-config-easy-days-sunday = Sunday
+deck-config-easy-days-normal = Normal
+deck-config-easy-days-reduced = Reduced
+deck-config-easy-days-minimum = Minimum
 
 ## Adding/renaming
 
