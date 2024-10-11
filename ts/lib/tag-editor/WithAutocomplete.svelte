@@ -76,6 +76,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
      * Choose as accepted suggestion
      */
     async function chooseSelected() {
+        if (!suggestionsItems.length) {
+            return;
+        }
+
         active = true;
         dispatch("choose", { chosen: suggestionsItems[selected ?? -1] });
 
@@ -129,7 +133,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     keepOnKeyup
     show={$show}
     preferredPlacement="top"
-    portalTarget={document.body}
     let:asReference
     on:close={() => show.set(false)}
 >
