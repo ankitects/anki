@@ -80,13 +80,16 @@ class FindAndReplaceDialog(QDialog):
         self._find_history = restore_combo_history(
             self.form.find, self.COMBO_NAME + "Find"
         )
-        self.form.find.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
+
+        find_completer = self.form.find.completer()
+        assert find_completer is not None
+        find_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
         self._replace_history = restore_combo_history(
             self.form.replace, self.COMBO_NAME + "Replace"
         )
-        self.form.replace.completer().setCaseSensitivity(
-            Qt.CaseSensitivity.CaseSensitive
-        )
+        replace_completer = self.form.replace.completer()
+        assert replace_completer is not None
+        replace_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
 
         if not self.note_ids:
             # no selected notes to affect
@@ -131,10 +134,13 @@ class FindAndReplaceDialog(QDialog):
             # an empty list means *all* notes
             self.note_ids = []
 
+        parent_widget = self.parentWidget()
+        assert parent_widget is not None
+
         # tags?
         if self.form.field.currentIndex() == 1:
             op = find_and_replace_tag(
-                parent=self.parentWidget(),
+                parent=parent_widget,
                 note_ids=self.note_ids,
                 search=search,
                 replacement=replace,
@@ -149,7 +155,7 @@ class FindAndReplaceDialog(QDialog):
                 field = self.field_names[self.form.field.currentIndex()]
 
             op = find_and_replace(
-                parent=self.parentWidget(),
+                parent=parent_widget,
                 note_ids=self.note_ids,
                 search=search,
                 replacement=replace,
