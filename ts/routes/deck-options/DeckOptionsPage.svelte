@@ -90,11 +90,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Row>
 
             <Row class="row-columns">
-                <BuryOptions {state} api={buryOptions} />
+                <FsrsOptionsOuter {state} api={{}} />
             </Row>
         </div>
 
         <div>
+            <Row class="row-columns">
+                <BuryOptions {state} api={buryOptions} />
+            </Row>
+
             <Row class="row-columns">
                 <AudioOptions {state} api={audioOptions} />
             </Row>
@@ -114,15 +118,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/if}
 
             <Row class="row-columns">
-                <FsrsOptionsOuter {state} api={{}} />
+                <EasyDays {state} api={easyDays} />
             </Row>
 
             <Row class="row-columns">
                 <AdvancedOptions {state} api={advancedOptions} />
-            </Row>
-
-            <Row class="row-columns">
-                <EasyDays {state} api={easyDays} />
             </Row>
         </div>
     </Container>
