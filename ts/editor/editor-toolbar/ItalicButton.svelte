@@ -17,8 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return match.remove();
         }
 
-        const fontStyle = getComputedStyle(element).fontStyle;
-        if (["italic", "oblique"].includes(fontStyle)) {
+        if (["italic", "oblique"].includes(element.style.fontStyle)) {
             return match.clear((): void => {
                 if (
                     removeStyleProperties(element, "font-style") &&

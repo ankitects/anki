@@ -17,9 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return match.remove();
         }
 
-        const fontWeight = getComputedStyle(element).fontWeight;
-        const threshold = 700;
-        if (fontWeight && Number(fontWeight) >= threshold) {
+        const fontWeight = element.style.fontWeight;
+        if (fontWeight === "bold" || Number(fontWeight) >= 700) {
             return match.clear((): void => {
                 if (
                     removeStyleProperties(element, "font-weight") &&
