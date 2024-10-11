@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
@@ -622,20 +623,12 @@ class Table:
             )
             vertical_scroll_bar.setValue(vertical)
 
-    def _move_current(
-        self,
-        direction: QAbstractItemView.CursorAction,
-        index: QModelIndex | None = None,
-    ) -> None:
+    def _move_current_to_index(self, index: QModelIndex) -> None:
         if not self.has_current():
             return
 
         assert self._view is not None
-        if index is None:
-            index = self._view.moveCursor(
-                direction,
-                self.browser.mw.app.keyboardModifiers(),
-            )
+
         # Setting current like this avoids a bug with shift-click selection
         # https://github.com/ankitects/anki/issues/2469
         self._view.setCurrentIndex(index)
@@ -646,10 +639,21 @@ class Table:
             | QItemSelectionModel.SelectionFlag.Rows,
         )
 
+    def _move_current(
+        self,
+        direction: QAbstractItemView.CursorAction,
+    ) -> None:
+        assert self._view is not None
+        index = self._view.moveCursor(
+            direction,
+            self.browser.mw.app.keyboardModifiers(),
+        )
+        self._move_current_to_index(index)
+
     def _move_current_to_row(self, row: int) -> None:
         selection_model = self._selection_model()
         old = selection_model.currentIndex()
-        self._move_current(None, self._model.index(row, 0))  # type: ignore
+        self._move_current_to_index(self._model.index(row, 0))
         if not KeyboardModifiersPressed().shift:
             return
         new = selection_model.currentIndex()
