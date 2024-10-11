@@ -95,7 +95,7 @@ from aqt.main import AnkiQt  # isort:skip
 from aqt.profiles import ProfileManager, VideoDriver  # isort:skip
 
 profiler: cProfile.Profile | None = None
-mw: AnkiQt | None = None  # set on init
+mw: AnkiQt = None  # set on init
 
 import aqt.forms
 
