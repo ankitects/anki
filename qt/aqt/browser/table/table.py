@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
@@ -77,7 +78,7 @@ class Table:
         return self._len_selection
 
     def has_current(self) -> bool:
-        return self._view.selectionModel().currentIndex().isValid()
+        return self._selection_model().currentIndex().isValid()
 
     def has_previous(self) -> bool:
         return self.has_current() and self._current().row() > 0
@@ -117,17 +118,19 @@ class Table:
     # Selecting
 
     def select_all(self) -> None:
+        assert self._view is not None
         self._view.selectAll()
 
     def clear_selection(self) -> None:
         self._len_selection = 0
         self._selected_rows = None
-        self._view.selectionModel().clear()
+        self._selection_model().clear()
 
     def invert_selection(self) -> None:
-        selection = self._view.selectionModel().selection()
+        selection_model = self._selection_model()
+        selection = selection_model.selection()
         self.select_all()
-        self._view.selectionModel().select(
+        selection_model.select(
             selection,
             QItemSelectionModel.SelectionFlag.Deselect
             | QItemSelectionModel.SelectionFlag.Rows,
@@ -139,6 +142,7 @@ class Table:
         """Try to set the selection to the item corresponding to the given card."""
         self._reset_selection()
         if (row := self._model.get_card_row(card_id)) is not None:
+            assert self._view is not None
             self._view.selectRow(row)
             self._scroll_to_row(row, scroll_even_if_visible)
         else:
@@ -249,7 +253,7 @@ class Table:
         return nids
 
     def clear_current(self) -> None:
-        self._view.selectionModel().setCurrentIndex(
+        self._selection_model().setCurrentIndex(
             QModelIndex(),
             QItemSelectionModel.SelectionFlag.NoUpdate,
         )
@@ -260,18 +264,16 @@ class Table:
     # Helpers
 
     def _current(self) -> QModelIndex:
-        return self._view.selectionModel().currentIndex()
+        return self._selection_model().currentIndex()
 
     def _selected(self) -> list[QModelIndex]:
         if self._selected_rows is None:
-            self._selected_rows = self._view.selectionModel().selectedRows()
+            self._selected_rows = self._selection_model().selectedRows()
         return self._selected_rows
 
     def _set_current(self, row: int, column: int = 0) -> None:
-        index = self._model.index(
-            row, self._view.horizontalHeader().logicalIndex(column)
-        )
-        self._view.selectionModel().setCurrentIndex(
+        index = self._model.index(row, self._horizontal_header().logicalIndex(column))
+        self._selection_model().setCurrentIndex(
             index,
             QItemSelectionModel.SelectionFlag.NoUpdate,
         )
@@ -281,7 +283,7 @@ class Table:
         If no selection change is triggered afterwards, `browser.on_all_or_selected_rows_changed()`
         and `browser.on_current_row_changed()` must be called.
         """
-        self._view.selectionModel().reset()
+        self._selection_model().reset()
         self._len_selection = 0
         self._selected_rows = None
 
@@ -292,12 +294,12 @@ class Table:
                 self._model.index(row, 0),
                 self._model.index(row, self._model.len_columns() - 1),
             )
-        self._view.selectionModel().select(
+        self._selection_model().select(
             selection, QItemSelectionModel.SelectionFlag.SelectCurrent
         )
 
     def _set_sort_indicator(self) -> None:
-        hh = self._view.horizontalHeader()
+        hh = self._horizontal_header()
         index = self._model.active_column_index(self._state.sort_column)
         if index is None:
             hh.setSortIndicatorShown(False)
@@ -312,7 +314,7 @@ class Table:
         hh.setSortIndicatorShown(True)
 
     def _set_column_sizes(self) -> None:
-        hh = self._view.horizontalHeader()
+        hh = self._horizontal_header()
         hh.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         hh.setSectionResizeMode(
             hh.logicalIndex(self._model.len_columns() - 1),
@@ -322,29 +324,32 @@ class Table:
         hh.setCascadingSectionResizes(False)
 
     def _save_header(self) -> None:
-        saveHeader(self._view.horizontalHeader(), self._state.GEOMETRY_KEY_PREFIX)
+        saveHeader(self._horizontal_header(), self._state.GEOMETRY_KEY_PREFIX)
 
     def _restore_header(self) -> None:
-        self._view.horizontalHeader().blockSignals(True)
-        restoreHeader(self._view.horizontalHeader(), self._state.GEOMETRY_KEY_PREFIX)
+        hh = self._horizontal_header()
+        hh.blockSignals(True)
+        restoreHeader(hh, self._state.GEOMETRY_KEY_PREFIX)
         self._set_column_sizes()
         self._set_sort_indicator()
-        self._view.horizontalHeader().blockSignals(False)
+        hh.blockSignals(False)
 
     # Setup
 
     def _setup_view(self) -> None:
+        assert self._view is not None
         self._view.setSortingEnabled(True)
         self._view.setModel(self._model)
         self._view.selectionModel()
         self._view.setItemDelegate(StatusDelegate(self.browser, self._model))
-        qconnect(
-            self._view.selectionModel().selectionChanged, self._on_selection_changed
-        )
-        qconnect(self._view.selectionModel().currentChanged, self._on_current_changed)
+        selection_model = self._selection_model()
+        qconnect(selection_model.selectionChanged, self._on_selection_changed)
+        qconnect(selection_model.currentChanged, self._on_current_changed)
         self._view.setWordWrap(False)
         self._view.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-        self._view.horizontalScrollBar().setSingleStep(10)
+        horizontal_scroll_bar = self._view.horizontalScrollBar()
+        assert horizontal_scroll_bar is not None
+        horizontal_scroll_bar.setSingleStep(10)
         self._update_font()
         self._view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         qconnect(self._view.customContextMenuRequested, self._on_context_menu)
@@ -358,11 +363,17 @@ class Table:
                 bsize = t.get("bsize", 0)
                 if bsize > curmax:
                     curmax = bsize
-        self._view.verticalHeader().setDefaultSectionSize(curmax + 6)
+
+        assert self._view is not None
+        vh = self._view.verticalHeader()
+        assert vh is not None
+        vh.setDefaultSectionSize(curmax + 6)
 
     def _setup_headers(self) -> None:
+        assert self._view is not None
         vh = self._view.verticalHeader()
-        hh = self._view.horizontalHeader()
+        assert vh is not None
+        hh = self._horizontal_header()
         vh.hide()
         hh.show()
         hh.setHighlightSections(False)
@@ -397,13 +408,13 @@ class Table:
             ) // self._model.len_columns()
         else:
             # New selection is created. Usually a single row or none at all.
-            self._len_selection = len(self._view.selectionModel().selectedRows())
+            self._len_selection = len(self._selection_model().selectedRows())
         self._selected_rows = None
         self.browser.on_all_or_selected_rows_changed()
 
     def _on_row_state_will_change(self, index: QModelIndex, was_restored: bool) -> None:
         if not was_restored:
-            if self._view.selectionModel().isSelected(index):
+            if self._selection_model().isSelected(index):
                 self._len_selection -= 1
                 self._selected_rows = None
                 self.browser.on_all_or_selected_rows_changed()
@@ -414,7 +425,7 @@ class Table:
 
     def _on_row_state_changed(self, index: QModelIndex, was_restored: bool) -> None:
         if was_restored:
-            if self._view.selectionModel().isSelected(index):
+            if self._selection_model().isSelected(index):
                 self._len_selection += 1
                 self._selected_rows = None
                 self.browser.on_all_or_selected_rows_changed()
@@ -445,6 +456,7 @@ class Table:
             menu.addAction(action)
         menu.addSeparator()
         sub_menu = menu.addMenu(other_name)
+        assert sub_menu is not None
         for action in other.actions():
             sub_menu.addAction(action)
         gui_hooks.browser_will_show_context_menu(self.browser, menu)
@@ -452,11 +464,13 @@ class Table:
         menu.exec(QCursor.pos())
 
     def _on_header_context(self, pos: QPoint) -> None:
+        assert self._view is not None
         gpos = self._view.mapToGlobal(pos)
         m = QMenu()
         m.setToolTipsVisible(True)
         for key, column in self._model.columns.items():
             a = m.addAction(self._state.column_label(column))
+            assert a is not None
             a.setCheckable(True)
             a.setChecked(self._model.active_column_index(key) is not None)
             a.setToolTip(self._state.column_tooltip(column))
@@ -577,62 +591,90 @@ class Table:
 
     def _scroll_to_row(self, row: int, scroll_even_if_visible: bool = False) -> None:
         """Scroll vertically to row."""
+        assert self._view is not None
         top_border = self._view.rowViewportPosition(row)
         bottom_border = top_border + self._view.rowHeight(0)
-        visible = top_border >= 0 and bottom_border < self._view.viewport().height()
+        viewport = self._view.viewport()
+        assert viewport is not None
+        visible = top_border >= 0 and bottom_border < viewport.height()
         if not visible or scroll_even_if_visible:
-            horizontal = self._view.horizontalScrollBar().value()
+            horizontal_scroll_bar = self._view.horizontalScrollBar()
+            assert horizontal_scroll_bar is not None
+            horizontal = horizontal_scroll_bar.value()
             self._view.scrollTo(
                 self._model.index(row, 0), QAbstractItemView.ScrollHint.PositionAtTop
             )
-            self._view.horizontalScrollBar().setValue(horizontal)
+            horizontal_scroll_bar.setValue(horizontal)
 
     def _scroll_to_column(self, column: int) -> None:
         """Scroll horizontally to column."""
+        assert self._view is not None
         position = self._view.columnViewportPosition(column)
-        visible = 0 <= position < self._view.viewport().width()
+        viewport = self._view.viewport()
+        assert viewport is not None
+        visible = 0 <= position < viewport.width()
         if not visible:
-            vertical = self._view.verticalScrollBar().value()
+            vertical_scroll_bar = self._view.verticalScrollBar()
+            assert vertical_scroll_bar is not None
+            vertical = vertical_scroll_bar.value()
             self._view.scrollTo(
                 self._model.index(0, column),
                 QAbstractItemView.ScrollHint.PositionAtCenter,
             )
-            self._view.verticalScrollBar().setValue(vertical)
+            vertical_scroll_bar.setValue(vertical)
 
-    def _move_current(
-        self,
-        direction: QAbstractItemView.CursorAction,
-        index: QModelIndex | None = None,
-    ) -> None:
+    def _move_current_to_index(self, index: QModelIndex) -> None:
         if not self.has_current():
             return
-        if index is None:
-            index = self._view.moveCursor(
-                direction,
-                self.browser.mw.app.keyboardModifiers(),
-            )
+
+        assert self._view is not None
+
         # Setting current like this avoids a bug with shift-click selection
         # https://github.com/ankitects/anki/issues/2469
         self._view.setCurrentIndex(index)
-        self._view.selectionModel().select(
+        self._selection_model().select(
             index,
             QItemSelectionModel.SelectionFlag.Clear
             | QItemSelectionModel.SelectionFlag.Select
             | QItemSelectionModel.SelectionFlag.Rows,
         )
 
+    def _move_current(
+        self,
+        direction: QAbstractItemView.CursorAction,
+    ) -> None:
+        assert self._view is not None
+        index = self._view.moveCursor(
+            direction,
+            self.browser.mw.app.keyboardModifiers(),
+        )
+        self._move_current_to_index(index)
+
     def _move_current_to_row(self, row: int) -> None:
-        old = self._view.selectionModel().currentIndex()
-        self._move_current(None, self._model.index(row, 0))
+        selection_model = self._selection_model()
+        old = selection_model.currentIndex()
+        self._move_current_to_index(self._model.index(row, 0))
         if not KeyboardModifiersPressed().shift:
             return
-        new = self._view.selectionModel().currentIndex()
+        new = selection_model.currentIndex()
         selection = QItemSelection(new, old)
-        self._view.selectionModel().select(
+        selection_model.select(
             selection,
             QItemSelectionModel.SelectionFlag.SelectCurrent
             | QItemSelectionModel.SelectionFlag.Rows,
         )
+
+    def _selection_model(self) -> QItemSelectionModel:
+        assert self._view is not None
+        selection_model = self._view.selectionModel()
+        assert selection_model is not None
+        return selection_model
+
+    def _horizontal_header(self) -> QHeaderView:
+        assert self._view is not None
+        hh = self._view.horizontalHeader()
+        assert hh is not None
+        return hh
 
 
 class StatusDelegate(QItemDelegate):
@@ -641,13 +683,14 @@ class StatusDelegate(QItemDelegate):
         self._model = model
 
     def paint(
-        self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
+        self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
         option.textElideMode = self._model.get_cell(index).elide_mode
         if self._model.get_cell(index).is_rtl:
             option.direction = Qt.LayoutDirection.RightToLeft
         if row_color := self._model.get_row(index).color:
             brush = QBrush(theme_manager.qcolor(row_color))
+            assert painter
             painter.save()
             painter.fillRect(option.rect, brush)
             painter.restore()
