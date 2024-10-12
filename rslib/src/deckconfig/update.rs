@@ -103,6 +103,9 @@ impl Collection {
     fn get_deck_config_use_counts(&self) -> Result<HashMap<DeckConfigId, usize>> {
         let mut counts = HashMap::new();
         for deck in self.storage.get_all_decks()? {
+            if deck.id == DeckId(1) && self.storage.deck_is_empty(deck.id)? {
+                continue;
+            }
             if let Ok(normal) = deck.normal() {
                 *counts.entry(DeckConfigId(normal.config_id)).or_default() += 1;
             }
