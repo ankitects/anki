@@ -12,7 +12,7 @@ import "anki/cards.proto";
 
 service StatsService {
   rpc CardStats(cards.CardId) returns (CardStatsResponse);
-  rpc GetRevlogs(cards.CardId) returns (Revlogs);
+  rpc GetReviewLogs(cards.CardId) returns (ReviewLogs);
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
@@ -22,7 +22,7 @@ service StatsService {
 // backend service.
 service BackendStatsService {}
 
-message Revlogs {
+message ReviewLogs {
   repeated CardStatsResponse.StatsRevlogEntry entries = 1;
 }
 

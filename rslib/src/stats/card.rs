@@ -83,9 +83,9 @@ impl Collection {
         })
     }
 
-    pub fn get_revlogs(&mut self, cid: CardId) -> Result<anki_proto::stats::Revlogs> {
+    pub fn get_review_logs(&mut self, cid: CardId) -> Result<anki_proto::stats::ReviewLogs> {
         let revlogs = self.storage.get_revlog_entries_for_card(cid)?;
-        Ok(anki_proto::stats::Revlogs {
+        Ok(anki_proto::stats::ReviewLogs {
             entries: revlogs.iter().rev().map(stats_revlog_entry).collect(),
         })
     }
