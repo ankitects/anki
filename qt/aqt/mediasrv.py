@@ -608,6 +608,7 @@ exposed_backend_list = [
     "get_change_notetype_info",
     # StatsService
     "card_stats",
+    "get_revlogs",
     "graphs",
     "get_graph_preferences",
     "set_graph_preferences",

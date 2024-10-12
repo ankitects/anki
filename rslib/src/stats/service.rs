@@ -12,6 +12,13 @@ impl crate::services::StatsService for Collection {
         self.card_stats(input.cid.into())
     }
 
+    fn get_revlogs(
+        &mut self,
+        input: anki_proto::cards::CardId,
+    ) -> error::Result<anki_proto::stats::Revlogs> {
+        self.get_revlogs(input.cid.into())
+    }
+
     fn graphs(
         &mut self,
         input: anki_proto::stats::GraphsRequest,
