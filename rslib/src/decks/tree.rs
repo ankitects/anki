@@ -243,7 +243,8 @@ impl Collection {
         add_collapsed_and_filtered(&mut tree, &decks_map, timestamp.is_none());
 
         if self.default_deck_is_empty()? {
-            tree.children.retain(|n| n.deck_id != 1 || n.children.len() > 0);
+            tree.children
+                .retain(|n| n.deck_id != 1 || n.children.len() > 0);
         }
 
         if let Some(timestamp) = timestamp {
