@@ -65,10 +65,10 @@ export function renderTrueRetention(data: GraphsResponse, revlogRange: RevlogRan
             td.trl { border: 1px solid; text-align: left; }
             td.trr { border: 1px solid; text-align: right; }
             td.trc { border: 1px solid; text-align: center; }
-            table { width: 100%; table-layout: fixed; }
+            table.true-retention { width: 100%; table-layout: fixed; }
             colgroup col:first-child { width: 40% }
         </style>
-        <table cellspacing="0" cellpadding="2">
+        <table class="true-retention" cellspacing="0" cellpadding="2">
         <colgroup><col><col><col></colgroup>
             <tr>
                 <td class="trl"><b>${scopeRange(scope)}</b></td>

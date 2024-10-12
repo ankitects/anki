@@ -12,6 +12,7 @@ import "anki/cards.proto";
 
 service StatsService {
   rpc CardStats(cards.CardId) returns (CardStatsResponse);
+  rpc GetReviewLogs(cards.CardId) returns (ReviewLogs);
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
@@ -20,6 +21,10 @@ service StatsService {
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendStatsService {}
+
+message ReviewLogs {
+  repeated CardStatsResponse.StatsRevlogEntry entries = 1;
+}
 
 message CardStatsResponse {
   message StatsRevlogEntry {
