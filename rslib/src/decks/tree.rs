@@ -244,7 +244,7 @@ impl Collection {
 
         if self.default_deck_is_empty()? {
             tree.children
-                .retain(|n| n.deck_id != 1 || n.children.len() > 0);
+                .retain(|n| n.deck_id != 1 || !n.children.is_empty());
         }
 
         if let Some(timestamp) = timestamp {
