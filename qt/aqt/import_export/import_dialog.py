@@ -64,7 +64,7 @@ class ImportDialog(QDialog):
         restoreGeom(self, self.args.title, default_size=self.DEFAULT_SIZE)
         addCloseShortcut(self)
 
-        self.web = AnkiWebView(kind=self.args.kind)
+        self.web: AnkiWebView | None = AnkiWebView(kind=self.args.kind)
         self.web.setVisible(False)
         self.web.load_sveltekit_page(f"{self.args.ts_page}/{quote(self.args.path)}")
         layout = QVBoxLayout()
@@ -78,6 +78,7 @@ class ImportDialog(QDialog):
     def reject(self) -> None:
         if self.mw.col and self.windowModality() == Qt.WindowModality.ApplicationModal:
             self.mw.col.set_wants_abort()
+        assert self.web is not None
         self.web.cleanup()
         self.web = None
         saveGeom(self, self.args.title)
