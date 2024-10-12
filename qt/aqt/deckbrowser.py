@@ -146,9 +146,7 @@ class DeckBrowser:
 
     _body = """
 <center>
-<table cellspacing=0 cellpadding=3>
 %(tree)s
-</table>
 
 <br>
 %(stats)s
@@ -210,6 +208,8 @@ class DeckBrowser:
         )
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
+        if len(top.children) == 0:
+            return "<h1>No Decks</h1>"
         buf = """
 <tr><th colspan=5 align=start>{}</th>
 <th class=count>{}</th>
@@ -228,7 +228,7 @@ class DeckBrowser:
         for child in top.children:
             buf += self._render_deck_node(child, ctx)
 
-        return buf
+        return f"<table cellspacing=0 cellpadding=3>\n{buf}\n</table>"
 
     def _render_deck_node(self, node: DeckTreeNode, ctx: RenderDeckNodeContext) -> str:
         if node.collapsed:

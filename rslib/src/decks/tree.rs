@@ -179,21 +179,6 @@ fn sum_counts_and_apply_limits_v3(
     this_node_capped
 }
 
-fn hide_default_deck(node: &mut DeckTreeNode) {
-    for (idx, child) in node.children.iter().enumerate() {
-        // we can hide the default if it has no children
-        if child.deck_id == 1 && child.children.is_empty() {
-            if child.level == 1 && node.children.len() == 1 {
-                // can't remove if there are no other decks
-            } else {
-                // safe to remove
-                _ = node.children.remove(idx);
-            }
-            return;
-        }
-    }
-}
-
 /// Locate provided deck in tree, and return it.
 pub fn get_deck_in_tree(tree: DeckTreeNode, deck_id: DeckId) -> Option<DeckTreeNode> {
     if tree.deck_id == deck_id.0 {
@@ -256,8 +241,9 @@ impl Collection {
         let decks_map = self.storage.get_decks_map()?;
 
         add_collapsed_and_filtered(&mut tree, &decks_map, timestamp.is_none());
+
         if self.default_deck_is_empty()? {
-            hide_default_deck(&mut tree);
+            tree.children.retain(|n| n.deck_id != 1);
         }
 
         if let Some(timestamp) = timestamp {
