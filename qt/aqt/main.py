@@ -1414,6 +1414,11 @@ title="{}" {}>{}</button>""".format(
         )
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
 
+        # Set zoom shortcuts manually
+        m.actionZoomIn.setShortcut(QKeySequence("Ctrl++"))
+        m.actionZoomOut.setShortcut(QKeySequence("Ctrl+-"))
+        m.actionResetZoom.setShortcut(QKeySequence("Ctrl+0"))
+
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")
 
