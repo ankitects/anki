@@ -487,7 +487,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <SpinBoxRow
             bind:value={simulateFsrsRequest.newLimit}
-            defaultValue={defaults.newPerDay}
+            defaultValue={$config.newPerDay}
             min={0}
             max={1000}
         >
