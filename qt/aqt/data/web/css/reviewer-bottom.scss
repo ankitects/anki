@@ -23,11 +23,14 @@ body {
     position: relative;
 }
 
-#middle {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 5;
+#innertable > tbody > tr {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+
+#innertable > tbody > tr > td {
+    flex: 1;
 }
 
 button {
@@ -82,7 +85,6 @@ button {
     border-top: 1px solid color(border);
     /* Better compatibility with graphics pad/touchscreen */
     -webkit-user-select: none;
-    position: relative;
 }
 
 .nightMode {
