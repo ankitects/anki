@@ -83,6 +83,10 @@ impl<'a> LearningSteps<'a> {
     pub(crate) fn remaining_for_failed(self) -> u32 {
         self.steps.len() as u32
     }
+
+    pub(crate) fn is_empty(&self) -> bool {
+        self.steps.is_empty()
+    }
 }
 
 /// If the given interval in seconds surpasses 1 day, rounds it to a whole
