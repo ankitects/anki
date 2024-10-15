@@ -826,7 +826,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Media downloads
     ######################################################################
 
-    def urlToLink(self, url: str) -> str | None:
+    def urlToLink(self, url: str) -> str:
         fname = self.urlToFile(url)
         if not fname:
             return '<a href="{}">{}</a>'.format(
@@ -1403,6 +1403,7 @@ class EditorWebView(AnkiWebView):
         self._internal_field_text_for_paste: str | None = None
         self._last_known_clipboard_mime: QMimeData | None = None
         clip = self.editor.mw.app.clipboard()
+        assert clip
         clip.dataChanged.connect(self._on_clipboard_change)
         gui_hooks.editor_web_view_did_init(self)
 
@@ -1411,7 +1412,9 @@ class EditorWebView(AnkiWebView):
         self._internal_field_text_for_paste = None
 
     def _on_clipboard_change(self) -> None:
-        self._last_known_clipboard_mime = self.editor.mw.app.clipboard().mimeData()
+        clipboard = self.editor.mw.app.clipboard()
+        assert clipboard
+        self._last_known_clipboard_mime = clipboard.mimeData()
         if self._store_field_content_on_next_clipboard_change:
             # if the flag was set, save the field data
             self._internal_field_text_for_paste = self._get_clipboard_html_for_field()
@@ -1424,7 +1427,9 @@ class EditorWebView(AnkiWebView):
 
     def _get_clipboard_html_for_field(self):
         clip = self.editor.mw.app.clipboard()
+        assert clip
         mime = clip.mimeData()
+        assert mime
         if not mime.hasHtml():
             return
         return mime.html()
@@ -1440,6 +1445,7 @@ class EditorWebView(AnkiWebView):
 
     def _opened_context_menu_on_image(self) -> bool:
         context_menu_request = self.lastContextMenuRequest()
+        assert context_menu_request
         return (
             context_menu_request.mediaType()
             == context_menu_request.MediaType.MediaTypeImage
@@ -1454,8 +1460,11 @@ class EditorWebView(AnkiWebView):
         return not strip_html
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
+        clipboard = self.editor.mw.app.clipboard()
+        assert clipboard
+
         # Since _on_clipboard_change doesn't always trigger properly on macOS, we do a double check if any changes were made before pasting
-        if self._last_known_clipboard_mime != self.editor.mw.app.clipboard().mimeData():
+        if self._last_known_clipboard_mime != clipboard.mimeData():
             self._on_clipboard_change()
         extended = self._wantsExtendedPaste()
         if html := self._internal_field_text_for_paste:
@@ -1463,7 +1472,8 @@ class EditorWebView(AnkiWebView):
             self.editor.doPaste(html, True, extended)
         else:
             print("use clipboard")
-            mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
+            mime = clipboard.mimeData(mode=mode)
+            assert mime
             html, internal = self._processMime(mime, extended)
             if html:
                 self.editor.doPaste(html, internal, extended)
@@ -1474,12 +1484,15 @@ class EditorWebView(AnkiWebView):
     def onMiddleClickPaste(self) -> None:
         self._onPaste(QClipboard.Mode.Selection)
 
-    def dragEnterEvent(self, evt: QDragEnterEvent) -> None:
+    def dragEnterEvent(self, evt: QDragEnterEvent | None) -> None:
+        assert evt
         evt.accept()
 
-    def dropEvent(self, evt: QDropEvent) -> None:
+    def dropEvent(self, evt: QDropEvent | None) -> None:
+        assert evt
         extended = self._wantsExtendedPaste()
         mime = evt.mimeData()
+        assert mime
         cursor_pos = self.mapFromGlobal(QCursor.pos())
 
         if evt.source() and mime.hasHtml():
@@ -1585,12 +1598,13 @@ class EditorWebView(AnkiWebView):
 
         return fname
 
-    def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
+    def contextMenuEvent(self, evt: QContextMenuEvent | None) -> None:
         m = QMenu(self)
         if self.hasSelection():
             self._add_cut_action(m)
             self._add_copy_action(m)
         a = m.addAction(tr.editing_paste())
+        assert a
         qconnect(a.triggered, self.onPaste)
         if self._opened_context_menu_on_image():
             self._add_image_menu(m)
@@ -1599,24 +1613,31 @@ class EditorWebView(AnkiWebView):
 
     def _add_cut_action(self, menu: QMenu) -> None:
         a = menu.addAction(tr.editing_cut())
+        assert a
         qconnect(a.triggered, self.onCut)
 
     def _add_copy_action(self, menu: QMenu) -> None:
         a = menu.addAction(tr.actions_copy())
+        assert a
         qconnect(a.triggered, self.onCopy)
 
     def _add_image_menu(self, menu: QMenu) -> None:
         a = menu.addAction(tr.editing_copy_image())
+        assert a
         qconnect(a.triggered, self.on_copy_image)
 
-        url = self.lastContextMenuRequest().mediaUrl()
+        context_menu_request = self.lastContextMenuRequest()
+        assert context_menu_request
+        url = context_menu_request.mediaUrl()
         file_name = url.fileName()
         path = os.path.join(self.editor.mw.col.media.dir(), file_name)
         a = menu.addAction(tr.editing_open_image())
+        assert a
         qconnect(a.triggered, lambda: openFolder(path))
 
         if is_win or is_mac:
             a = menu.addAction(tr.editing_show_in_folder())
+            assert a
             qconnect(a.triggered, lambda: show_in_folder(path))
 
 
@@ -1648,7 +1669,10 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 
 def set_cloze_button(editor: Editor) -> None:
-    action = "show" if editor.note.note_type()["type"] == MODEL_CLOZE else "hide"
+    assert editor.note
+    note_type = editor.note.note_type()
+    assert note_type
+    action = "show" if note_type["type"] == MODEL_CLOZE else "hide"
     editor.web.eval(
         'require("anki/ui").loaded.then(() =>'
         f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("cloze")'
