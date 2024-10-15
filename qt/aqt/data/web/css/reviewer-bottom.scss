@@ -23,6 +23,16 @@ body {
     position: relative;
 }
 
+#innertable > tbody > tr {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+
+#innertable > tbody > tr > td {
+    flex: 1;
+}
+
 button {
     min-width: 60px;
     white-space: nowrap;
