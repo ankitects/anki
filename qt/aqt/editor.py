@@ -672,7 +672,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
 
     def showDupes(self) -> None:
-        assert self.note
+        assert self.note is not None
         aqt.dialogs.open(
             "Browser",
             self.mw,
@@ -1090,9 +1090,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         """Set up the mask editor for the image in the clipboard."""
 
         clipboard = self.mw.app.clipboard()
-        assert clipboard
+        assert clipboard is not None
         mime = clipboard.mimeData()
-        assert mime
+        assert mime is not None
         if not mime.hasImage():
             showWarning(tr.editing_no_image_found_on_clipboard())
             return
@@ -1248,7 +1248,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 return
         # find the highest existing cloze
         highest = 0
-        assert self.note
+        assert self.note is not None
         for _, val in list(self.note.items()):
             m = re.findall(r"\{\{c(\d+)::", val)
             if m:
