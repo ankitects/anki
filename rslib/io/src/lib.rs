@@ -53,9 +53,10 @@ pub fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<
         op: FileOp::Write,
     })
 }
-/// See [File::set_times].
+/// See [File::set_times]. Note that this won't work on folders.
 pub fn set_file_times(path: impl AsRef<Path>, times: FileTimes) -> Result<()> {
-    open_file(&path)?.set_times(times).context(FileIoSnafu {
+    let file = open_file_ext(&path, OpenOptions::new().write(true).to_owned())?;
+    file.set_times(times).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::SetFileTimes,
     })
