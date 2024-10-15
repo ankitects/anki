@@ -239,13 +239,11 @@ where
 #[cfg(test)]
 mod test {
     use std::fs;
-    use std::fs::FileTimes;
     use std::path::Path;
     use std::time;
     use std::time::Duration;
 
     use anki_io::create_dir;
-    use anki_io::set_file_times;
     use anki_io::write_file;
     use tempfile::tempdir;
 
@@ -259,10 +257,13 @@ mod test {
     fn change_mtime(p: &Path) {
         let mtime = p.metadata().unwrap().modified().unwrap();
         let new_mtime = mtime - Duration::from_secs(3);
-        let times = FileTimes::new()
-            .set_accessed(new_mtime)
-            .set_modified(new_mtime);
-        set_file_times(p, times).unwrap();
+        let secs = new_mtime
+            .duration_since(time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+        // we rely on an external crate, as Rust's File::set_times() does not work
+        // on directories
+        utime::set_file_times(p, secs, secs).unwrap();
     }
 
     #[test]

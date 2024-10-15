@@ -171,6 +171,7 @@ dependencies = [
  "unic-ucd-category",
  "unicase",
  "unicode-normalization",
+ "utime",
  "windows 0.56.0",
  "wiremock",
  "zip",
@@ -6420,6 +6421,16 @@ name = "utf8parse"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
+
+[[package]]
+name = "utime"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "91baa0c65eabd12fcbdac8cc35ff16159cab95cae96d0222d6d0271db6193cef"
+dependencies = [
+ "libc",
+ "winapi",
+]
 
 [[package]]
 name = "uuid"
