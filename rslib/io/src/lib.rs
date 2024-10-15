@@ -53,9 +53,25 @@ pub fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<
         op: FileOp::Write,
     })
 }
-/// See [File::set_times]. Note that this won't work on folders.
+
+/// See [File::set_times].
 pub fn set_file_times(path: impl AsRef<Path>, times: FileTimes) -> Result<()> {
-    let file = open_file_ext(&path, OpenOptions::new().write(true).to_owned())?;
+    #[cfg(not(windows))]
+    let file = open_file(&path)?;
+
+    #[cfg(windows)]
+    let file = {
+        use std::os::windows::fs::OpenOptionsExt;
+        open_file_ext(
+            &path,
+            OpenOptions::new()
+                .write(true)
+                // It's required to modify the time attributes of a directory in windows system.
+                .custom_flags(0x02000000) // FILE_FLAG_BACKUP_SEMANTICS
+                .to_owned(),
+        )?
+    };
+
     file.set_times(times).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::SetFileTimes,
