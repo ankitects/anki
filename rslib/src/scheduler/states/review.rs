@@ -124,7 +124,7 @@ impl ReviewState {
                 review: again_review,
             }
             .into()
-        } else if scheduled_days < 0.5 {
+        } else if ctx.relearn_steps.is_empty() && scheduled_days < 0.5 {
             again_relearn.into()
         } else {
             again_review.into()
