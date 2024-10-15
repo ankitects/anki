@@ -262,12 +262,9 @@ impl Collection {
                             None
                         }
                     });
-                    let search = SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search))
-                        .and(SearchNode::State(StateKind::Suspended).negated())
-                        .try_into_search()?;
                     Ok(UpdateMemoryStateEntry {
                         req: weights,
-                        search,
+                        search: SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search)),
                         ignore_before: config
                             .map(ignore_revlogs_before_ms_from_config)
                             .unwrap_or(Ok(0.into()))?,
