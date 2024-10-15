@@ -227,6 +227,26 @@ impl From<DeckTreeNode> for LegacyDueCounts {
     }
 }
 
+fn hide_default_deck(node: &mut DeckTreeNode) {
+    let mut idx = 0;
+    while idx < node.children.len() {
+        let child = &mut node.children[idx];
+
+        if child.deck_id == 1 {
+            if child.children.is_empty() {
+                _ = node.children.remove(idx);
+            }
+            break;
+        }
+
+        if !child.children.is_empty() {
+            hide_default_deck(child);
+        }
+
+        idx += 1;
+    }
+}
+
 impl Collection {
     /// Get the deck tree.
     /// - If `timestamp` is provided, due counts for the provided timestamp will
@@ -243,8 +263,7 @@ impl Collection {
         add_collapsed_and_filtered(&mut tree, &decks_map, timestamp.is_none());
 
         if self.default_deck_is_empty()? {
-            tree.children
-                .retain(|n| n.deck_id != 1 || !n.children.is_empty());
+            hide_default_deck(&mut tree);
         }
 
         if let Some(timestamp) = timestamp {
