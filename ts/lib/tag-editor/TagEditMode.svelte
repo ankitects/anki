@@ -43,9 +43,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <TagDeleteBadge
         class={hoverClass}
-        on:click={() => {
+        on:click={(evt) => {
             if (!selectMode) {
                 deleteTag();
+                evt.stopPropagation();
             }
         }}
     />

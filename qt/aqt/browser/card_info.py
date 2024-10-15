@@ -52,7 +52,9 @@ class CardInfoDialog(QDialog):
         addCloseShortcut(self)
         setWindowIcon(self)
 
-        self.web = AnkiWebView(kind=AnkiWebViewKind.BROWSER_CARD_INFO)
+        self.web: AnkiWebView | None = AnkiWebView(
+            kind=AnkiWebViewKind.BROWSER_CARD_INFO
+        )
         self.web.setVisible(False)
         self.web.load_sveltekit_page(f"card-info/{card_id}")
         layout = QVBoxLayout()
@@ -76,11 +78,13 @@ class CardInfoDialog(QDialog):
             extra = "#night"
         else:
             extra = ""
+        assert self.web is not None
         self.web.eval(f"window.location.href = '/card-info/{card_id}{extra}';")
 
     def reject(self) -> None:
         if self._on_close:
             self._on_close()
+        assert self.web is not None
         self.web.cleanup()
         self.web = None
         saveGeom(self, self.GEOMETRY_KEY)

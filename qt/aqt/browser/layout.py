@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 from enum import Enum
 
 from aqt.qt import QEvent, QObject, QSplitter, Qt
@@ -19,9 +21,14 @@ class QSplitterHandleEventFilter(QObject):
         super().__init__(splitter)
         self._splitter = splitter
 
-    def eventFilter(self, object: QObject, event: QEvent) -> bool:
+    def eventFilter(self, object: QObject | None, event: QEvent | None) -> bool:
+        assert event is not None
+
         if event.type() == QEvent.Type.MouseButtonDblClick:
             splitter_parent = self._splitter.parentWidget()
+
+            assert splitter_parent is not None
+
             if self._splitter.orientation() == Qt.Orientation.Horizontal:
                 half_size = splitter_parent.width() // 2
             else:

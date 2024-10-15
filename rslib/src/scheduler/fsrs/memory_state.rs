@@ -18,7 +18,6 @@ use crate::scheduler::fsrs::weights::single_card_revlog_to_items;
 use crate::scheduler::fsrs::weights::Weights;
 use crate::scheduler::states::fuzz::with_review_fuzz;
 use crate::search::Negated;
-use crate::search::Node;
 use crate::search::SearchNode;
 use crate::search::StateKind;
 
@@ -39,7 +38,7 @@ pub(crate) struct UpdateMemoryStateRequest {
 
 pub(crate) struct UpdateMemoryStateEntry {
     pub req: Option<UpdateMemoryStateRequest>,
-    pub search: Node,
+    pub search: SearchNode,
     pub ignore_before: TimestampMillis,
 }
 
@@ -61,7 +60,8 @@ impl Collection {
             ignore_before,
         } in entries
         {
-            let search = SearchBuilder::all([search, SearchNode::State(StateKind::New).negated()]);
+            let search =
+                SearchBuilder::all([search.into(), SearchNode::State(StateKind::New).negated()]);
             let revlog = self.revlog_for_srs(search)?;
             let reschedule = req.as_ref().map(|e| e.reschedule).unwrap_or_default();
             let last_revlog_info = if reschedule {
@@ -105,8 +105,7 @@ impl Collection {
                                             Some(state.stability),
                                             card.desired_retention.unwrap(),
                                             0,
-                                        )
-                                            as f32;
+                                        );
                                         card.interval = with_review_fuzz(
                                             card.get_fuzz_factor(true),
                                             interval,

@@ -472,7 +472,7 @@ class Collection(DeprecatedNamesMixin):
     # Object helpers
     ##########################################################################
 
-    def get_card(self, id: CardId) -> Card:
+    def get_card(self, id: CardId | None) -> Card:
         return Card(self, id)
 
     def update_cards(
@@ -1003,6 +1003,11 @@ class Collection(DeprecatedNamesMixin):
         https://ankiweb.net/shared/info/2179254157
         """
         return self._backend.card_stats(card_id)
+
+    def get_review_logs(
+        self, card_id: CardId
+    ) -> Sequence[stats_pb2.CardStatsResponse.StatsRevlogEntry]:
+        return self._backend.get_review_logs(card_id)
 
     def studied_today(self) -> str:
         return self._backend.studied_today()

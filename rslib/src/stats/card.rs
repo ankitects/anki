@@ -3,7 +3,6 @@
 
 use fsrs::FSRS;
 
-use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
@@ -28,7 +27,6 @@ impl Collection {
         let revlog = self.storage.get_revlog_entries_for_card(card.id)?;
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
-        let (due_date, due_position) = self.due_date_and_position(&card)?;
         let timing = self.timing_today()?;
         let days_elapsed = self
             .storage
@@ -62,8 +60,8 @@ impl Collection {
             added: card.id.as_secs().0,
             first_review: revlog.first().map(|entry| entry.id.as_secs().0),
             latest_review: revlog.last().map(|entry| entry.id.as_secs().0),
-            due_date,
-            due_position,
+            due_date: self.due_date(&card)?,
+            due_position: self.position(&card),
             interval: card.interval,
             ease: card.ease_factor as u32,
             reviews: card.reps,
@@ -85,35 +83,38 @@ impl Collection {
         })
     }
 
-    fn due_date_and_position(&mut self, card: &Card) -> Result<(Option<i64>, Option<i32>)> {
-        let due = if card.original_due != 0 {
-            card.original_due
-        } else {
-            card.due
-        };
+    pub fn get_review_logs(&mut self, cid: CardId) -> Result<anki_proto::stats::ReviewLogs> {
+        let revlogs = self.storage.get_revlog_entries_for_card(cid)?;
+        Ok(anki_proto::stats::ReviewLogs {
+            entries: revlogs.iter().rev().map(stats_revlog_entry).collect(),
+        })
+    }
+
+    fn due_date(&mut self, card: &Card) -> Result<Option<i64>> {
         Ok(match card.ctype {
-            CardType::New => {
-                if matches!(card.queue, CardQueue::Review | CardQueue::DayLearn) {
-                    // new preview card not answered yet
-                    (None, card.original_position.map(|u| u as i32))
+            CardType::New => None,
+            CardType::Review | CardType::Learn | CardType::Relearn => {
+                let due = card.due;
+                if !is_unix_epoch_timestamp(due) {
+                    let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
+                    let mut due_timestamp = TimestampSecs::now();
+                    due_timestamp.0 += (days_remaining as i64) * 86_400;
+                    Some(due_timestamp.0)
                 } else {
-                    (None, Some(due))
+                    Some(due as i64)
                 }
             }
-            CardType::Review | CardType::Learn | CardType::Relearn => (
-                {
-                    if !is_unix_epoch_timestamp(due) {
-                        let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
-                        let mut due = TimestampSecs::now();
-                        due.0 += (days_remaining as i64) * 86_400;
-                        Some(due.0)
-                    } else {
-                        Some(due as i64)
-                    }
-                },
-                None,
-            ),
         })
+    }
+
+    fn position(&mut self, card: &Card) -> Option<i32> {
+        if let Some(original_pos) = card.original_position {
+            return Some(original_pos as i32);
+        }
+        match card.ctype {
+            CardType::New => Some(card.due),
+            _ => None,
+        }
     }
 
     fn stats_revlog_entries_with_memory_state(

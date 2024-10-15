@@ -21,20 +21,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithFloating from "$lib/components/WithFloating.svelte";
 
     import type { DeckOptionsState } from "./lib";
+    import { commitEditing } from "./lib";
 
     const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
     const dispatch = createEventDispatcher();
 
     export let state: DeckOptionsState;
-
-    /** Ensure blur handler has fired so changes get committed. */
-    async function commitEditing(): Promise<void> {
-        if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-        }
-        await tick();
-    }
 
     async function removeConfig(): Promise<void> {
         // show pop-up after dropdown has gone away
