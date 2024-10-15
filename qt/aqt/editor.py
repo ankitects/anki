@@ -34,7 +34,7 @@ from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.models import NotetypeId, StockNotetype
+from anki.models import NotetypeDict, NotetypeId, StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from anki.utils import checksum, is_lin, is_mac, is_win, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
@@ -242,6 +242,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         rightside: bool = True,
     ) -> str:
         """Assign func to bridge cmd, register shortcut, return button"""
+
         def wrapped_func(editor: Editor) -> None:
             self.call_after_note_saved(functools.partial(func, editor), keepFocus=True)
 
@@ -359,11 +360,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def _onFields(self) -> None:
         from aqt.fields import FieldDialog
 
-        assert self.note is not None
-        note_type = self.note.note_type()
-        assert note_type is not None
-
-        FieldDialog(self.mw, note_type, parent=self.parentWindow)
+        FieldDialog(self.mw, self.note_type(), parent=self.parentWindow)
 
     def onCardLayout(self) -> None:
         self.call_after_note_saved(self._onCardLayout)
@@ -375,7 +372,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             ord = self.card.ord
         else:
             ord = 0
-            
+
         assert self.note is not None
         CardLayout(
             self.mw,
@@ -437,8 +434,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             gui_hooks.editor_did_focus_field(self.note, self.currentField)
 
         elif cmd.startswith("toggleStickyAll"):
-            model = self.note.note_type()
-            assert model is not None
+            model = self.note_type()
             flds = model["flds"]
 
             any_sticky = any([fld["sticky"] for fld in flds])
@@ -459,8 +455,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             (type, num) = cmd.split(":", 1)
             ord = int(num)
 
-            model = self.note.note_type()
-            assert model is not None
+            model = self.note_type()
             fld = model["flds"][ord]
             new_state = not fld["sticky"]
             fld["sticky"] = new_state
@@ -551,8 +546,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             for fld, val in self.note.items()
         ]
 
-        note_type = self.note.note_type()
-        assert note_type is not None
+        note_type = self.note_type()
         flds = note_type["flds"]
         collapsed = [fld["collapsed"] for fld in flds]
         plain_texts = [fld.get("plainText", False) for fld in flds]
@@ -599,9 +593,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             """
 
         if self.addMode:
-            note_type = self.note.note_type()
-            assert note_type is not None
-            sticky = [field["sticky"] for field in note_type["flds"]]
+            sticky = [field["sticky"] for field in self.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
 
         if (
@@ -626,12 +618,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
 
     def fonts(self) -> list[tuple[str, int, bool]]:
-        assert self.note is not None
-        note_type = self.note.note_type()
-        assert note_type is not None
         return [
             (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
-            for f in note_type["flds"]
+            for f in self.note_type()["flds"]
         ]
 
     def call_after_note_saved(
@@ -683,16 +672,14 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
 
     def showDupes(self) -> None:
-        assert self.note is not None
-        note_type = self.note.note_type()
-        assert note_type is not None
+        assert self.note
         aqt.dialogs.open(
             "Browser",
             self.mw,
             search=(
                 SearchNode(
                     dupe=SearchNode.Dupe(
-                        notetype_id=note_type["id"],
+                        notetype_id=self.note_type()["id"],
                         first_field=self.note.fields[0],
                     )
                 ),
@@ -702,8 +689,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def fieldsAreBlank(self, previousNote: Note | None = None) -> bool:
         if not self.note:
             return True
-        m = self.note.note_type()
-        assert m is not None
+        m = self.note_type()
         for c, f in enumerate(self.note.fields):
             f = f.replace("<br>", "").strip()
             notChangedvalues = {"", "<br>"}
@@ -1064,11 +1050,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         if self.note is None:
             return False
 
-        note_type = self.note.note_type()
-        assert note_type is not None
-
         return (
-            note_type.get("originalStockKind", None)
+            self.note_type().get("originalStockKind", None)
             == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
         )
 
@@ -1256,11 +1239,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     @deprecated(info=_js_legacy)
     def _onCloze(self) -> None:
-        assert self.note is not None
-        note_type = self.note.note_type()
-        assert note_type is not None
         # check that the model is set up for cloze deletion
-        if note_type["type"] != MODEL_CLOZE:
+        if self.note_type()["type"] != MODEL_CLOZE:
             if self.addMode:
                 tooltip(tr.editing_warning_cloze_deletions_will_not_work())
             else:
@@ -1268,6 +1248,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 return
         # find the highest existing cloze
         highest = 0
+        assert self.note
         for _, val in list(self.note.items()):
             m = re.findall(r"\{\{c(\d+)::", val)
             if m:
@@ -1427,6 +1408,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             addImageForOcclusionFromClipboard=Editor.select_image_from_clipboard_and_occlude,
         )
 
+    def note_type(self) -> NotetypeDict:
+        assert self.note is not None
+        note_type = self.note.note_type()
+        assert note_type is not None
+        return note_type
+
 
 # Pasting, drag & drop, and keyboard layouts
 ######################################################################
@@ -1452,9 +1439,7 @@ class EditorWebView(AnkiWebView):
         self._internal_field_text_for_paste = None
 
     def _on_clipboard_change(self) -> None:
-        clipboard = self.editor.mw.app.clipboard()
-        assert clipboard is not None
-        self._last_known_clipboard_mime = clipboard.mimeData()
+        self._last_known_clipboard_mime = self._clipboard().mimeData()
         if self._store_field_content_on_next_clipboard_change:
             # if the flag was set, save the field data
             self._internal_field_text_for_paste = self._get_clipboard_html_for_field()
@@ -1466,8 +1451,7 @@ class EditorWebView(AnkiWebView):
             self._internal_field_text_for_paste = None
 
     def _get_clipboard_html_for_field(self):
-        clip = self.editor.mw.app.clipboard()
-        assert clip is not None
+        clip = self._clipboard()
         mime = clip.mimeData()
         assert mime is not None
         if not mime.hasHtml():
@@ -1500,10 +1484,8 @@ class EditorWebView(AnkiWebView):
         return not strip_html
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
-        clipboard = self.editor.mw.app.clipboard()
-        assert clipboard is not None
-
         # Since _on_clipboard_change doesn't always trigger properly on macOS, we do a double check if any changes were made before pasting
+        clipboard = self._clipboard()
         if self._last_known_clipboard_mime != clipboard.mimeData():
             self._on_clipboard_change()
         extended = self._wantsExtendedPaste()
@@ -1677,8 +1659,13 @@ class EditorWebView(AnkiWebView):
 
         if is_win or is_mac:
             a = menu.addAction(tr.editing_show_in_folder())
-            assert a
+            assert a is not None
             qconnect(a.triggered, lambda: show_in_folder(path))
+
+    def _clipboard(self) -> QClipboard:
+        clipboard = self.editor.mw.app.clipboard()
+        assert clipboard is not None
+        return clipboard
 
 
 # QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
@@ -1709,10 +1696,7 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 
 def set_cloze_button(editor: Editor) -> None:
-    assert editor.note is not None
-    note_type = editor.note.note_type()
-    assert note_type is not None
-    action = "show" if note_type["type"] == MODEL_CLOZE else "hide"
+    action = "show" if editor.note_type()["type"] == MODEL_CLOZE else "hide"
     editor.web.eval(
         'require("anki/ui").loaded.then(() =>'
         f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("cloze")'
