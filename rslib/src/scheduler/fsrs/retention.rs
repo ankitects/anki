@@ -63,7 +63,7 @@ impl Collection {
                         .is_ok()
                 },
             )?
-            .clamp(0.75, 0.95))
+            .clamp(0.7, 0.95))
     }
 
     pub fn get_optimal_retention_parameters(
