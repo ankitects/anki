@@ -52,7 +52,6 @@ ninja_gen = { "path" = "build/ninja_gen" }
 
 # pinned
 unicase = "=2.6.0" # any changes could invalidate sqlite indexes
-utime = "=0.3.1" # marked as deprecated, but no native solution for folder mtimes exists
 
 # normal
 ammonia = "4.0.0"
