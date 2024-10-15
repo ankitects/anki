@@ -66,7 +66,7 @@ pub fn set_file_times(path: impl AsRef<Path>, times: FileTimes) -> Result<()> {
             &path,
             OpenOptions::new()
                 .write(true)
-                // It's required to modify the time attributes of a file in windows system.
+                // It's required to modify the time attributes of a directory in windows system.
                 .custom_flags(0x02000000) // FILE_FLAG_BACKUP_SEMANTICS
                 .to_owned(),
         )?
