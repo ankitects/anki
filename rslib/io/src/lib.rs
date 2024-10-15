@@ -8,6 +8,8 @@ use std::fs::FileTimes;
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Seek;
+#[cfg(windows)]
+use std::os::windows::fs::OpenOptionsExt;
 use std::path::Component;
 use std::path::Path;
 use std::path::PathBuf;
@@ -55,7 +57,20 @@ pub fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<
 }
 /// See [File::set_times].
 pub fn set_file_times(path: impl AsRef<Path>, times: FileTimes) -> Result<()> {
-    open_file(&path)?.set_times(times).context(FileIoSnafu {
+    #[cfg(not(windows))]
+    let file = open_file(&path)?;
+
+    #[cfg(windows)]
+    let file = open_file_ext(
+        &path,
+        OpenOptions::new()
+            .write(true)
+            // It's required to modify the time attributes of a file in windows system.
+            .custom_flags(0x02000000) // FILE_FLAG_BACKUP_SEMANTICS
+            .to_owned(),
+    )?;
+
+    file.set_times(times).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::SetFileTimes,
     })
