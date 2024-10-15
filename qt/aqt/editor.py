@@ -1047,7 +1047,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ######################################################################
 
     def current_notetype_is_image_occlusion(self) -> bool:
-        if self.note is None:
+        if not self.note:
             return False
 
         return (
