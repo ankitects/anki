@@ -69,8 +69,7 @@ class DeckOptionsDialog(QDialog):
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         if self._close_event_has_cleaned_up:
-            evt.accept()
-            return
+            return super().closeEvent(evt)
         evt.ignore()
         self.check_pending_changes()
 
