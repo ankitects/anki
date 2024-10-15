@@ -76,6 +76,8 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     ignore_revlogs_before_date: String,
     #[serde(default)]
+    easy_days_percentages: Vec<f32>,
+    #[serde(default)]
     stop_timer_on_answer: bool,
     #[serde(default)]
     seconds_to_show_question: f32,
@@ -309,6 +311,7 @@ impl Default for DeckConfSchema11 {
             sm2_retention: 0.9,
             weight_search: "".to_string(),
             ignore_revlogs_before_date: "".to_string(),
+            easy_days_percentages: vec![1.0; 7],
         }
     }
 }
@@ -385,6 +388,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 bury_interday_learning: c.bury_interday_learning,
                 fsrs_weights: c.fsrs_weights,
                 ignore_revlogs_before_date: c.ignore_revlogs_before_date,
+                easy_days_percentages: c.easy_days_percentages,
                 desired_retention: c.desired_retention,
                 historical_retention: c.sm2_retention,
                 weight_search: c.weight_search,
@@ -499,6 +503,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             sm2_retention: i.historical_retention,
             weight_search: i.weight_search,
             ignore_revlogs_before_date: i.ignore_revlogs_before_date,
+            easy_days_percentages: i.easy_days_percentages,
         }
     }
 }
@@ -531,6 +536,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "sm2Retention",
     "weightSearch",
     "ignoreRevlogsBeforeDate",
+    "easyDaysPercentages",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {

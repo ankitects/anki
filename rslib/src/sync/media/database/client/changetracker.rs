@@ -261,6 +261,8 @@ mod test {
             .duration_since(time::UNIX_EPOCH)
             .unwrap()
             .as_secs() as i64;
+        // we rely on an external crate, as Rust's File::set_times() does not work
+        // on directories
         utime::set_file_times(p, secs, secs).unwrap();
     }
 

@@ -30,7 +30,7 @@ pub(crate) fn apply_filters<'a>(
 ) -> (Cow<'a, str>, Vec<String>) {
     let mut text: Cow<str> = text.into();
 
-    // type:cloze is handled specially
+    // type:cloze & type:nc are handled specially
     let filters = if filters == ["cloze", "type"] {
         &["type-cloze"]
     } else if filters == ["nc", "type"] {

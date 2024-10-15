@@ -28,10 +28,12 @@ use crate::template_filters::apply_filters;
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
 
-static TEMPLATE_ERROR_LINK: &str = "https://faqs.ankiweb.net/card-template-has-a-problem.html";
+static TEMPLATE_ERROR_LINK: &str =
+    "https://docs.ankiweb.net/templates/errors.html#template-syntax-error";
 static TEMPLATE_BLANK_LINK: &str =
-    "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank";
-static TEMPLATE_BLANK_CLOZE_LINK: &str = "https://faqs.ankiweb.net/no-cloze-found-on-card.html";
+    "https://docs.ankiweb.net/templates/errors.html#front-of-card-is-blank";
+static TEMPLATE_BLANK_CLOZE_LINK: &str =
+    "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-notetype";
 
 // Lexing
 //----------------------------------------

@@ -95,7 +95,7 @@ from aqt.main import AnkiQt  # isort:skip
 from aqt.profiles import ProfileManager, VideoDriver  # isort:skip
 
 profiler: cProfile.Profile | None = None
-mw: AnkiQt | None = None  # set on init
+mw: AnkiQt = None  # type: ignore # set on init
 
 import aqt.forms
 
@@ -280,7 +280,10 @@ def setupLangAndBackend(
     if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
 
-    return anki.lang.current_i18n
+    backend = anki.lang.current_i18n
+    assert backend is not None
+
+    return backend
 
 
 # App initialisation
@@ -291,11 +294,13 @@ class NativeEventFilter(QAbstractNativeEventFilter):
     def nativeEventFilter(
         self, eventType: Any, message: Any
     ) -> tuple[bool, sip.voidptr | None]:
+
         if eventType == "windows_generic_MSG":
-            import ctypes
+            import ctypes.wintypes
 
             msg = ctypes.wintypes.MSG.from_address(int(message))
             if msg.message == 17:  # WM_QUERYENDSESSION
+                assert mw is not None
                 if mw.can_auto_sync():
                     mw.app._set_windows_shutdown_block_reason(tr.sync_syncing())
                     mw.progress.single_shot(100, mw.unloadProfileAndExit)
@@ -325,6 +330,7 @@ class AnkiApp(QApplication):
             import ctypes
             from ctypes import windll, wintypes  # type: ignore
 
+            assert mw is not None
             windll.user32.ShutdownBlockReasonCreate(
                 wintypes.HWND.from_param(int(mw.effectiveWinId())),
                 ctypes.c_wchar_p(reason),
@@ -334,6 +340,7 @@ class AnkiApp(QApplication):
         if is_win:
             from ctypes import windll, wintypes  # type: ignore
 
+            assert mw is not None
             windll.user32.ShutdownBlockReasonDestroy(
                 wintypes.HWND.from_param(int(mw.effectiveWinId())),
             )
@@ -388,7 +395,9 @@ class AnkiApp(QApplication):
     # OS X file/url handler
     ##################################################
 
-    def event(self, evt: QEvent) -> bool:
+    def event(self, evt: QEvent | None) -> bool:
+        assert evt is not None
+
         if evt.type() == QEvent.Type.FileOpen:
             self.appMsg.emit(evt.file() or "raise")  # type: ignore
             return True
@@ -397,7 +406,9 @@ class AnkiApp(QApplication):
     # Global cursor: pointer for Qt buttons
     ##################################################
 
-    def eventFilter(self, src: Any, evt: QEvent) -> bool:
+    def eventFilter(self, src: Any, evt: QEvent | None) -> bool:
+        assert evt is not None
+
         pointer_classes = (
             QPushButton,
             QCheckBox,
@@ -547,6 +558,8 @@ PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 
 def write_profile_results() -> None:
+    assert profiler is not None
+
     profiler.disable()
     profile = "out/anki.prof"
     profiler.dump_stats(profile)

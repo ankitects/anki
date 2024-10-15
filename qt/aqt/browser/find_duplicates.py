@@ -76,6 +76,9 @@ class FindDuplicatesDialog(QDialog):
         search = form.buttonBox.addButton(
             tr.actions_search(), QDialogButtonBox.ButtonRole.ActionRole
         )
+
+        assert search is not None
+
         qconnect(search.clicked, on_click)
         self.show()
 
@@ -87,6 +90,9 @@ class FindDuplicatesDialog(QDialog):
             self._dupesButton = b = self.form.buttonBox.addButton(
                 tr.browsing_tag_duplicates(), QDialogButtonBox.ButtonRole.ActionRole
             )
+
+            assert b is not None
+
             qconnect(b.clicked, self._tag_duplicates)
         text = ""
         groups = len(dupes)

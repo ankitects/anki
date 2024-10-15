@@ -4,6 +4,8 @@
 mod error;
 
 use std::fs::File;
+use std::fs::FileTimes;
+use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Seek;
 use std::path::Component;
@@ -37,11 +39,26 @@ pub fn open_file(path: impl AsRef<Path>) -> Result<File> {
     })
 }
 
+pub fn open_file_ext(path: impl AsRef<Path>, options: OpenOptions) -> Result<File> {
+    options.open(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Open,
+    })
+}
+
 /// See [std::fs::write].
 pub fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<()> {
     std::fs::write(&path, contents).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Write,
+    })
+}
+/// See [File::set_times]. Note that this won't work on folders.
+pub fn set_file_times(path: impl AsRef<Path>, times: FileTimes) -> Result<()> {
+    let file = open_file_ext(&path, OpenOptions::new().write(true).to_owned())?;
+    file.set_times(times).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::SetFileTimes,
     })
 }
 
