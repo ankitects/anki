@@ -224,7 +224,7 @@ class DeckManager(DeprecatedNamesMixin):
 
     def card_count(
         self, dids: DeckId | Iterable[DeckId], include_subdecks: bool
-    ) -> Any:
+    ) -> int:
         if isinstance(dids, int):
             dids = {dids}
         else:
@@ -403,6 +403,19 @@ class DeckManager(DeprecatedNamesMixin):
 
     def for_card_ids(self, cids: list[anki.cards.CardId]) -> list[DeckId]:
         return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
+
+    def is_deck_available(self) -> bool:
+        """
+        Return if a valid deck exists to add to, the default deck
+        unless populated is not a valid starter deck.
+        """
+        decks = self.all_names_and_ids()
+        for deck in decks:
+            if deck.id == 1 and self.card_count(DeckId(deck.id), True) < 1:
+                continue
+            return True
+
+        return False
 
     # Deck selection
     #############################################################

@@ -16,6 +16,7 @@ from anki.utils import html_to_text_line, is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.deckchooser import DeckChooser
 from aqt.notetypechooser import NotetypeChooser
+from aqt.operations.deck import add_deck_dialog
 from aqt.operations.note import add_note
 from aqt.qt import *
 from aqt.sound import av_player
@@ -29,6 +30,7 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     shortcut,
+    showInfo,
     showWarning,
     tooltip,
     tr,
@@ -58,7 +60,8 @@ class AddCards(QMainWindow):
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
         self.setMenuBar(None)
-        self.show()
+        if self.ensure_available_deck():
+            self.show()
 
     def set_deck(self, deck_id: DeckId) -> None:
         self.deck_chooser.selected_deck_id = deck_id
@@ -145,6 +148,26 @@ class AddCards(QMainWindow):
 
     def setAndFocusNote(self, note: Note) -> None:
         self.editor.set_note(note, focusTo=0)
+
+    def ensure_available_deck(self) -> bool:
+        """
+        Ensures there is a valid deck to add cards to,
+        if there isn't the user is prompted to create their
+        first deck.
+        """
+        if self.col and not self.col.decks.is_deck_available():
+            showInfo("You must create a new deck before adding cards")
+            if op := add_deck_dialog(
+                parent=self, default_text=self.col.decks.current()["name"]
+            ):
+                op.with_backend_progress(None).success(
+                    lambda new_deck: self.set_deck(DeckId(new_deck.id))
+                ).run_in_background()
+            else:
+                self.close()
+                return False
+
+        return True
 
     def show_notetype_selector(self) -> None:
         self.editor.call_after_note_saved(self.notetype_chooser.choose_notetype)
