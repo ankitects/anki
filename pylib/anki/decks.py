@@ -434,6 +434,22 @@ class DeckManager(DeprecatedNamesMixin):
     def current(self) -> DeckDict:
         return self.get(self.selected())
 
+    def get_valid_current(self) -> DeckDict | None:
+        """
+        Returns the current selected deck as long as
+        it isn't the default empty deck
+        """
+        current = self.current()
+        if current["id"] == 1 and self.card_count(DeckId(current["id"]), True) < 1:
+            return None
+
+        return current
+
+    def get_valid_current_name(self) -> str | None:
+        if current := self.get_valid_current():
+            return current["name"]
+        return None
+
     def active(self) -> list[DeckId]:
         # some add-ons assume this will always be non-empty
         return self.col.sched.active_decks or [DeckId(1)]

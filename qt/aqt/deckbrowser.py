@@ -394,7 +394,8 @@ class DeckBrowser:
 
     def _on_create(self) -> None:
         if op := add_deck_dialog(
-            parent=self.mw, default_text=self.mw.col.decks.current()["name"]
+            parent=self.mw,
+            default_text=self.mw.col.decks.get_valid_current_name() or "",
         ):
             op.run_in_background()
 
