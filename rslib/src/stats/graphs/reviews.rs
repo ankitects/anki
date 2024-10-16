@@ -38,7 +38,7 @@ impl GraphsContext {
                     count.filtered += 1;
                     time.filtered += review.taken_millis;
                 }
-                RevlogReviewKind::Manual => unreachable!(),
+                RevlogReviewKind::Manual | RevlogReviewKind::Rescheduled => unreachable!(),
             }
         }
         data

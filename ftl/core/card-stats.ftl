@@ -23,6 +23,7 @@ card-stats-review-log-type-review = Review
 card-stats-review-log-type-relearn = Relearn
 card-stats-review-log-type-filtered = Filtered
 card-stats-review-log-type-manual = Manual
+card-stats-review-log-type-rescheduled = Rescheduled
 card-stats-review-log-elapsed-time = Elapsed Time
 card-stats-no-card = (No card to display.)
 card-stats-custom-data = Custom Data
