@@ -146,9 +146,7 @@ class DeckBrowser:
 
     _body = """
 <center>
-<table cellspacing=0 cellpadding=3>
 %(tree)s
-</table>
 
 <br>
 %(stats)s
@@ -210,6 +208,8 @@ class DeckBrowser:
         )
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
+        if len(top.children) == 0:
+            return f'<h1>{tr.decks_none_created()}</h1><button onclick="pycmd(&quot;create&quot;);">{tr.decks_create_initial_deck()}</button>'
         buf = """
 <tr><th colspan=5 align=start>{}</th>
 <th class=count>{}</th>
@@ -228,7 +228,7 @@ class DeckBrowser:
         for child in top.children:
             buf += self._render_deck_node(child, ctx)
 
-        return buf
+        return f"<table cellspacing=0 cellpadding=3>\n{buf}\n</table>"
 
     def _render_deck_node(self, node: DeckTreeNode, ctx: RenderDeckNodeContext) -> str:
         if node.collapsed:
@@ -394,7 +394,8 @@ class DeckBrowser:
 
     def _on_create(self) -> None:
         if op := add_deck_dialog(
-            parent=self.mw, default_text=self.mw.col.decks.current()["name"]
+            parent=self.mw,
+            default_text=self.mw.col.decks.get_valid_current_name() or "",
         ):
             op.run_in_background()
 
