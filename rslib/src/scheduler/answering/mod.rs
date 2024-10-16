@@ -82,6 +82,7 @@ impl CardStateUpdater {
     pub(crate) fn state_context<'a>(
         &'a self,
         load_balancer: Option<LoadBalancerContext<'a>>,
+        fsrs_short_term_with_steps_enabled: bool,
     ) -> StateContext<'a> {
         StateContext {
             fuzz_factor: get_fuzz_factor(self.fuzz_seed),
@@ -110,6 +111,7 @@ impl CardStateUpdater {
                 Default::default()
             },
             fsrs_next_states: self.fsrs_next_states.clone(),
+            fsrs_short_term_with_steps_enabled: fsrs_short_term_with_steps_enabled,
         }
     }
 
@@ -251,7 +253,10 @@ impl Collection {
             })
             .flatten();
 
-        let state_ctx = ctx.state_context(load_balancer);
+        let state_ctx = ctx.state_context(
+            load_balancer,
+            self.get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled),
+        );
         Ok(current.next_states(&state_ctx))
     }
 
