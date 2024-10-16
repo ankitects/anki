@@ -148,6 +148,7 @@ impl<'a> StateContext<'a> {
                 good: 0,
             },
             fsrs_next_states: None,
+            fsrs_short_term_with_steps_enabled: false,
         }
     }
 }
