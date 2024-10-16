@@ -87,6 +87,7 @@ impl RevlogEntry {
 }
 
 impl Collection {
+    // set due date or reset
     pub(crate) fn log_manually_scheduled_review(
         &mut self,
         card: &Card,
@@ -96,6 +97,7 @@ impl Collection {
         self.log_scheduled_review(card, original_interval, usn, RevlogReviewKind::Manual)
     }
 
+    // reschedule cards on change
     pub(crate) fn log_rescheduled_review(
         &mut self,
         card: &Card,

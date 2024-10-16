@@ -119,7 +119,8 @@ impl Collection {
                                         };
                                         *due = (timing.days_elapsed as i32) - days_elapsed
                                             + card.interval as i32;
-                                        // Add a manual revlog entry if the last entry wasn't manual
+                                        // Add a rescheduled revlog entry if the last entry wasn't
+                                        // rescheduled
                                         if !last_info.last_revlog_is_rescheduled {
                                             self.log_rescheduled_review(
                                                 &card,
@@ -321,7 +322,7 @@ pub(crate) fn single_card_revlog_to_item(
                 }))
             }
         } else {
-            // only manual rescheduling; treat like empty
+            // only manual and rescheduled revlogs; treat like empty
             Ok(None)
         }
     } else {
