@@ -19,25 +19,36 @@ impl GraphsContext {
             next_day_at: Default::default(),
         };
         let fsrs = FSRS::new(None).unwrap();
+        let mut note_retrievability: std::collections::HashMap<i64, (f32, u32)> =
+            std::collections::HashMap::new();
         for card in &self.cards {
+            let entry = note_retrievability
+                .entry(card.note_id.0)
+                .or_insert((0.0, 0));
+            entry.1 += 1;
             if let Some(state) = card.memory_state {
-                let r = fsrs.current_retrievability(
-                    state.into(),
-                    card.days_since_last_review(&timing).unwrap_or_default(),
-                );
+                let elapsed_days = card.days_since_last_review(&timing).unwrap_or_default();
+                let r = fsrs.current_retrievability(state.into(), elapsed_days);
+
                 *retrievability
                     .retrievability
                     .entry(percent_to_bin(r * 100.0))
                     .or_insert_with(Default::default) += 1;
-                retrievability.sum += r;
+                retrievability.sum_by_card += r;
                 card_with_retrievability_count += 1;
+                entry.0 += r;
+            } else {
+                entry.0 += 0.0;
             }
         }
         if card_with_retrievability_count != 0 {
             retrievability.average =
-                retrievability.sum * 100.0 / card_with_retrievability_count as f32;
+                retrievability.sum_by_card * 100.0 / card_with_retrievability_count as f32;
         }
-
+        retrievability.sum_by_note = note_retrievability
+            .values()
+            .map(|(sum, count)| sum / *count as f32)
+            .sum();
         retrievability
     }
 }
