@@ -72,6 +72,7 @@ pub enum RevlogReviewKind {
     /// disabled.
     Filtered = 3,
     Manual = 4,
+    Rescheduled = 5,
 }
 
 impl RevlogEntry {
@@ -92,6 +93,25 @@ impl Collection {
         original_interval: u32,
         usn: Usn,
     ) -> Result<()> {
+        self.log_scheduled_review(card, original_interval, usn, RevlogReviewKind::Manual)
+    }
+
+    pub(crate) fn log_rescheduled_review(
+        &mut self,
+        card: &Card,
+        original_interval: u32,
+        usn: Usn,
+    ) -> Result<()> {
+        self.log_scheduled_review(card, original_interval, usn, RevlogReviewKind::Rescheduled)
+    }
+
+    fn log_scheduled_review(
+        &mut self,
+        card: &Card,
+        original_interval: u32,
+        usn: Usn,
+        review_kind: RevlogReviewKind,
+    ) -> Result<()> {
         let ease_factor = u32::from(
             card.memory_state
                 .map(|s| ((s.difficulty_shifted() * 1000.) as u16))
@@ -106,7 +126,7 @@ impl Collection {
             last_interval: i32::try_from(original_interval).unwrap_or(i32::MAX),
             ease_factor,
             taken_millis: 0,
-            review_kind: RevlogReviewKind::Manual,
+            review_kind,
         };
         self.add_revlog_entry_undoable(entry)?;
         Ok(())

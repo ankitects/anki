@@ -46,6 +46,9 @@ impl From<RevlogReviewKind> for i32 {
             RevlogReviewKind::Relearning => anki_proto::stats::revlog_entry::ReviewKind::Relearning,
             RevlogReviewKind::Filtered => anki_proto::stats::revlog_entry::ReviewKind::Filtered,
             RevlogReviewKind::Manual => anki_proto::stats::revlog_entry::ReviewKind::Manual,
+            RevlogReviewKind::Rescheduled => {
+                anki_proto::stats::revlog_entry::ReviewKind::Rescheduled
+            }
         }) as i32
     }
 }

@@ -48,6 +48,7 @@ function filterDataByTimeRange(data: DataPoint[], maxDays: number): DataPoint[] 
 export function filterRevlogEntryByReviewKind(entry: RevlogEntry): boolean {
     return (
         entry.reviewKind !== RevlogEntry_ReviewKind.MANUAL
+        && entry.reviewKind !== RevlogEntry_ReviewKind.RESCHEDULED
         && (entry.reviewKind !== RevlogEntry_ReviewKind.FILTERED || entry.ease !== 0)
     );
 }
