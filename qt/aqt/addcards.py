@@ -156,7 +156,7 @@ class AddCards(QMainWindow):
         first deck.
         """
         if self.col and not self.col.decks.is_deck_available():
-            showInfo("You must create a new deck before adding cards")
+            showInfo(tr.decks_must_create())
             if op := add_deck_dialog(
                 parent=self, default_text=self.col.decks.current()["name"]
             ):

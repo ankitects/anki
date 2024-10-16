@@ -209,7 +209,7 @@ class DeckBrowser:
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
         if len(top.children) == 0:
-            return '<h1>No Decks</h1><button onclick="pycmd(&quot;create&quot;);">Add a deck to get started</button>'
+            return f'<h1>{tr.decks_none_created()}</h1><button onclick="pycmd(&quot;create&quot;);">{tr.decks_create_initial_deck()}</button>'
         buf = """
 <tr><th colspan=5 align=start>{}</th>
 <th class=count>{}</th>
