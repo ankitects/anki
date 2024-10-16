@@ -111,7 +111,7 @@ impl CardStateUpdater {
                 Default::default()
             },
             fsrs_next_states: self.fsrs_next_states.clone(),
-            fsrs_short_term_with_steps_enabled: fsrs_short_term_with_steps_enabled,
+            fsrs_short_term_with_steps_enabled,
         }
     }
 
