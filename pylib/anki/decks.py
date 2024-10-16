@@ -106,9 +106,13 @@ class DeckManager(DeprecatedNamesMixin):
         if id := self.col.decks.id_for_name(name):
             return OpChangesWithId(id=id)
         else:
+            should_set_current = not self.is_deck_available()
             deck = self.col.decks.new_deck()
             deck.name = name
-            return self.add_deck(deck)
+            result = self.add_deck(deck)
+            if should_set_current:
+                self.col.decks.select(DeckId(result.id))
+            return result
 
     def add_deck_legacy(self, deck: DeckDict) -> OpChangesWithId:
         "Add a deck created with new_deck_legacy(). Must have id of 0."
