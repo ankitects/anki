@@ -368,6 +368,15 @@ impl crate::services::BackendSchedulerService for Backend {
         let weights = fsrs.benchmark(train_set);
         Ok(FsrsBenchmarkResponse { weights })
     }
+
+    fn export_dataset(&self, req: scheduler::ExportDatasetRequest) -> Result<()> {
+        self.with_col(|col| {
+            col.export_dataset(
+                req.min_entries.try_into().unwrap(),
+                req.target_path.as_ref(),
+            )
+        })
+    }
 }
 
 fn fsrs_item_proto_to_fsrs(item: anki_proto::scheduler::FsrsItem) -> FSRSItem {

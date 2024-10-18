@@ -8,7 +8,8 @@ use std::time::Duration;
 use anki_io::write_file;
 use anki_proto::scheduler::ComputeFsrsWeightsResponse;
 use anki_proto::stats::revlog_entry;
-use anki_proto::stats::RevlogEntries;
+use anki_proto::stats::Dataset;
+use anki_proto::stats::DeckEntry;
 use chrono::NaiveDate;
 use chrono::NaiveTime;
 use fsrs::CombinedProgressState;
@@ -127,22 +128,46 @@ impl Collection {
     }
 
     /// Used for exporting revlogs for algorithm research.
-    pub fn export_revlog_entries_to_protobuf(
-        &mut self,
-        min_entries: usize,
-        target_path: &Path,
-    ) -> Result<()> {
-        let entries = self.storage.get_all_revlog_entries_in_card_order()?;
-        if entries.len() < min_entries {
+    pub fn export_dataset(&mut self, min_entries: usize, target_path: &Path) -> Result<()> {
+        let revlog_entries = self.storage.get_all_revlog_entries_in_card_order()?;
+        if revlog_entries.len() < min_entries {
             return Err(AnkiError::FsrsInsufficientData);
         }
-        let entries = entries.into_iter().map(revlog_entry_to_proto).collect_vec();
+        let revlogs = revlog_entries
+            .into_iter()
+            .map(revlog_entry_to_proto)
+            .collect_vec();
+        let cards = self.storage.get_all_card_entries()?;
+        let decks = self
+            .storage
+            .get_all_decks()?
+            .into_iter()
+            .filter_map(|deck| {
+                let parent_id = self
+                    .storage
+                    .parent_decks(&deck)
+                    .ok()
+                    .and_then(|parents| parents.first().map(|d| d.id.0))
+                    .unwrap_or(0);
+                if let Some(preset_id) = deck.config_id().map(|id| id.0) {
+                    Some(DeckEntry {
+                        id: deck.id.0,
+                        parent_id,
+                        preset_id,
+                    })
+                } else {
+                    None
+                }
+            })
+            .collect_vec();
         let next_day_at = self.timing_today()?.next_day_at.0;
-        let entries = RevlogEntries {
-            entries,
+        let dataset = Dataset {
+            revlogs,
+            cards,
+            decks,
             next_day_at,
         };
-        let data = entries.encode_to_vec();
+        let data = dataset.encode_to_vec();
         write_file(target_path, data)?;
         Ok(())
     }

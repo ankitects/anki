@@ -67,6 +67,7 @@ service BackendSchedulerService {
       returns (ComputeFsrsWeightsResponse);
   // Generates parameters used for FSRS's scheduler benchmarks.
   rpc FsrsBenchmark(FsrsBenchmarkRequest) returns (FsrsBenchmarkResponse);
+  rpc ExportDataset(ExportDatasetRequest) returns (generic.Empty);
 }
 
 message SchedulingState {
@@ -361,6 +362,11 @@ message FsrsBenchmarkRequest {
 
 message FsrsBenchmarkResponse {
   repeated float weights = 1;
+}
+
+message ExportDatasetRequest {
+  uint32 min_entries = 1;
+  string target_path = 2;
 }
 
 message FsrsItem {
