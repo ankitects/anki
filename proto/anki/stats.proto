@@ -217,7 +217,21 @@ message RevlogEntry {
   ReviewKind review_kind = 9;
 }
 
-message RevlogEntries {
-  repeated RevlogEntry entries = 1;
-  int64 next_day_at = 2;
+message CardEntry {
+  int64 id = 1;
+  int64 note_id = 2;
+  int64 deck_id = 3;
+}
+
+message DeckEntry {
+  int64 id = 1;
+  int64 parent_id = 2;
+  int64 preset_id = 3;
+}
+
+message Dataset {
+  repeated RevlogEntry revlogs = 1;
+  repeated CardEntry cards = 2;
+  repeated DeckEntry decks = 3;
+  int64 next_day_at = 4;
 }

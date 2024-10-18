@@ -9,6 +9,7 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::result;
 
+use anki_proto::stats::CardEntry;
 use rusqlite::named_params;
 use rusqlite::params;
 use rusqlite::types::FromSql;
@@ -87,6 +88,14 @@ fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
     })
 }
 
+fn row_to_card_entry(row: &Row) -> Result<CardEntry> {
+    Ok(CardEntry {
+        id: row.get(0)?,
+        note_id: row.get(1)?,
+        deck_id: row.get(2)?,
+    })
+}
+
 fn row_to_new_card(row: &Row) -> result::Result<NewCard, rusqlite::Error> {
     Ok(NewCard {
         id: row.get(0)?,
@@ -106,6 +115,13 @@ impl super::SqliteStorage {
             .query_row(params![cid], row_to_card)
             .optional()
             .map_err(Into::into)
+    }
+
+    pub(crate) fn get_all_card_entries(&self) -> Result<Vec<CardEntry>> {
+        self.db
+            .prepare_cached(include_str!("get_card_entry.sql"))?
+            .query_and_then([], row_to_card_entry)?
+            .collect()
     }
 
     pub(crate) fn update_card(&self, card: &Card) -> Result<()> {
