@@ -67,7 +67,7 @@ service BackendSchedulerService {
       returns (ComputeFsrsWeightsResponse);
   // Generates parameters used for FSRS's scheduler benchmarks.
   rpc FsrsBenchmark(FsrsBenchmarkRequest) returns (FsrsBenchmarkResponse);
-    // Used for exporting revlogs for algorithm research.
+  // Used for exporting revlogs for algorithm research.
   rpc ExportDataset(ExportDatasetRequest) returns (generic.Empty);
 }
 
