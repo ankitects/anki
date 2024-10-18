@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use std::iter;
@@ -20,6 +21,7 @@ use fsrs::FSRS;
 use itertools::Itertools;
 use prost::Message;
 
+use crate::decks::immediate_parent_name;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
@@ -138,18 +140,23 @@ impl Collection {
             .map(revlog_entry_to_proto)
             .collect_vec();
         let cards = self.storage.get_all_card_entries()?;
+
+        let decks_map = self.storage.get_decks_map()?;
+        let deck_name_to_id: HashMap<String, DeckId> = decks_map
+            .into_iter()
+            .map(|(id, deck)| (deck.name.to_string(), id))
+            .collect();
+
         let decks = self
             .storage
             .get_all_decks()?
             .into_iter()
             .filter_map(|deck| {
-                let parent_id = self
-                    .storage
-                    .parent_decks(&deck)
-                    .ok()
-                    .and_then(|parents| parents.first().map(|d| d.id.0))
-                    .unwrap_or(0);
                 if let Some(preset_id) = deck.config_id().map(|id| id.0) {
+                    let parent_id = immediate_parent_name(&deck.name.to_string())
+                        .and_then(|parent_name| deck_name_to_id.get(parent_name))
+                        .map(|id| id.0)
+                        .unwrap_or(0);
                     Some(DeckEntry {
                         id: deck.id.0,
                         parent_id,
