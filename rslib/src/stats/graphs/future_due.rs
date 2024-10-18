@@ -13,6 +13,7 @@ impl GraphsContext {
     pub(super) fn future_due(&self) -> FutureDue {
         let mut have_backlog = false;
         let mut due_by_day: HashMap<i32, u32> = Default::default();
+        let mut daily_load = 0.0;
         for c in &self.cards {
             if matches!(c.queue, CardQueue::New | CardQueue::Suspended) {
                 continue;
@@ -31,10 +32,16 @@ impl GraphsContext {
             }
             have_backlog |= due_day < 0;
             *due_by_day.entry(due_day).or_default() += 1;
+            if matches!(c.queue, CardQueue::Review | CardQueue::DayLearn) {
+                daily_load += 1.0 / c.interval as f32;
+            } else {
+                daily_load += 1.0;
+            }
         }
         FutureDue {
             future_due: due_by_day,
             have_backlog,
+            daily_load: daily_load as u32,
         }
     }
 }
