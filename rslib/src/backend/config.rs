@@ -38,6 +38,7 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::ShiftPositionOfExistingCards => BoolKey::ShiftPositionOfExistingCards,
             BoolKeyProto::RenderLatex => BoolKey::RenderLatex,
             BoolKeyProto::LoadBalancerEnabled => BoolKey::LoadBalancerEnabled,
+            BoolKeyProto::FsrsShortTermWithStepsEnabled => BoolKey::FsrsShortTermWithStepsEnabled,
         }
     }
 }

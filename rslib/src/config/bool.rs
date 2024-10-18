@@ -41,6 +41,7 @@ pub enum BoolKey {
     WithDeckConfigs,
     Fsrs,
     LoadBalancerEnabled,
+    FsrsShortTermWithStepsEnabled,
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
     #[strum(to_string = "dayLearnFirst")]
