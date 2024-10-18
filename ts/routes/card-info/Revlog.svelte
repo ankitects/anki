@@ -36,6 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 return tr2.cardStatsReviewLogTypeFiltered();
             case ReviewKind.MANUAL:
                 return tr2.cardStatsReviewLogTypeManual();
+            case ReviewKind.RESCHEDULED:
+                return tr2.cardStatsReviewLogTypeRescheduled();
         }
     }
 

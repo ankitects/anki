@@ -84,7 +84,8 @@ impl From<crate::revlog::RevlogReviewKind> for fsrs::RevlogReviewKind {
             crate::revlog::RevlogReviewKind::Review => fsrs::RevlogReviewKind::Review,
             crate::revlog::RevlogReviewKind::Relearning => fsrs::RevlogReviewKind::Relearning,
             crate::revlog::RevlogReviewKind::Filtered => fsrs::RevlogReviewKind::Filtered,
-            crate::revlog::RevlogReviewKind::Manual => fsrs::RevlogReviewKind::Manual,
+            crate::revlog::RevlogReviewKind::Manual
+            | crate::revlog::RevlogReviewKind::Rescheduled => fsrs::RevlogReviewKind::Manual,
         }
     }
 }
