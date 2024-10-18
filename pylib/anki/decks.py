@@ -106,9 +106,13 @@ class DeckManager(DeprecatedNamesMixin):
         if id := self.col.decks.id_for_name(name):
             return OpChangesWithId(id=id)
         else:
+            should_set_current = not self.is_deck_available()
             deck = self.col.decks.new_deck()
             deck.name = name
-            return self.add_deck(deck)
+            result = self.add_deck(deck)
+            if should_set_current:
+                self.col.decks.select(DeckId(result.id))
+            return result
 
     def add_deck_legacy(self, deck: DeckDict) -> OpChangesWithId:
         "Add a deck created with new_deck_legacy(). Must have id of 0."
@@ -224,7 +228,7 @@ class DeckManager(DeprecatedNamesMixin):
 
     def card_count(
         self, dids: DeckId | Iterable[DeckId], include_subdecks: bool
-    ) -> Any:
+    ) -> int:
         if isinstance(dids, int):
             dids = {dids}
         else:
@@ -404,6 +408,19 @@ class DeckManager(DeprecatedNamesMixin):
     def for_card_ids(self, cids: list[anki.cards.CardId]) -> list[DeckId]:
         return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
 
+    def is_deck_available(self) -> bool:
+        """
+        Return if a valid deck exists to add to, the default deck
+        unless populated is not a valid starter deck.
+        """
+        decks = self.all_names_and_ids()
+        for deck in decks:
+            if deck.id == 1 and self.card_count(DeckId(deck.id), True) < 1:
+                continue
+            return True
+
+        return False
+
     # Deck selection
     #############################################################
 
@@ -416,6 +433,22 @@ class DeckManager(DeprecatedNamesMixin):
 
     def current(self) -> DeckDict:
         return self.get(self.selected())
+
+    def get_valid_current(self) -> DeckDict | None:
+        """
+        Returns the current selected deck as long as
+        it isn't the default empty deck
+        """
+        current = self.current()
+        if current["id"] == 1 and self.card_count(DeckId(current["id"]), True) < 1:
+            return None
+
+        return current
+
+    def get_valid_current_name(self) -> str | None:
+        if current := self.get_valid_current():
+            return current["name"]
+        return None
 
     def active(self) -> list[DeckId]:
         # some add-ons assume this will always be non-empty
