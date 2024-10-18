@@ -421,10 +421,8 @@ class Collection(DeprecatedNamesMixin):
         return self._backend.import_json_string(json)
 
     def export_dataset_for_research(
-        self, min_entries: int = 0, target_path: str | None = None
+        self, target_path: str, min_entries: int = 0
     ) -> None:
-        if target_path is None:
-            target_path = os.path.join(os.path.dirname(self.path), "dataset.pb")
         self._backend.export_dataset(min_entries=min_entries, target_path=target_path)
 
     # Image Occlusion
