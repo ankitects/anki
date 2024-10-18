@@ -420,6 +420,11 @@ class Collection(DeprecatedNamesMixin):
     def import_json_string(self, json: str) -> ImportLogWithChanges:
         return self._backend.import_json_string(json)
 
+    def export_dataset_for_research(
+        self, target_path: str, min_entries: int = 0
+    ) -> None:
+        self._backend.export_dataset(min_entries=min_entries, target_path=target_path)
+
     # Image Occlusion
     ##########################################################################
 
