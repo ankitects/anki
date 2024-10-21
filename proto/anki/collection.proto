@@ -127,21 +127,21 @@ message Progress {
     DatabaseCheck database_check = 6;
     string importing = 7;
     string exporting = 8;
-    ComputeWeightsProgress compute_weights = 9;
+    ComputeParamsProgress compute_params = 9;
     ComputeRetentionProgress compute_retention = 10;
     ComputeMemoryProgress compute_memory = 11;
   }
 }
 
-message ComputeWeightsProgress {
+message ComputeParamsProgress {
   // Current iteration
   uint32 current = 1;
   // Total iterations
   uint32 total = 2;
   uint32 reviews = 3;
-  // Only used in 'compute all weights' case
+  // Only used in 'compute all params' case
   uint32 current_preset = 4;
-  // Only used in 'compute all weights' case
+  // Only used in 'compute all params' case
   uint32 total_presets = 5;
 }
 

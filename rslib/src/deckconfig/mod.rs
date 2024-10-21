@@ -79,7 +79,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     desired_retention: 0.9,
     other: Vec::new(),
     historical_retention: 0.9,
-    weight_search: String::new(),
+    param_search: String::new(),
     ignore_revlogs_before_date: String::new(),
     easy_days_percentages: Vec::new(),
 };

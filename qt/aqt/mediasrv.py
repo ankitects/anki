@@ -457,8 +457,8 @@ def update_deck_configs() -> bytes:
             update.max = val.total_cards
             update.value = val.current_cards
             update.label = val.label
-        elif progress.HasField("compute_weights"):
-            val2 = progress.compute_weights
+        elif progress.HasField("compute_params"):
+            val2 = progress.compute_params
             # prevent an indeterminate progress bar from appearing at the start of each preset
             update.max = max(val2.total, 1)
             update.value = val2.current
@@ -621,10 +621,10 @@ exposed_backend_list = [
     "update_image_occlusion_note",
     "get_image_occlusion_fields",
     # SchedulerService
-    "compute_fsrs_weights",
+    "compute_fsrs_params",
     "compute_optimal_retention",
     "set_wants_abort",
-    "evaluate_weights",
+    "evaluate_params",
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
 ]

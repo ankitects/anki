@@ -7,7 +7,7 @@ use std::thread;
 use std::time::Duration;
 
 use anki_io::write_file;
-use anki_proto::scheduler::ComputeFsrsWeightsResponse;
+use anki_proto::scheduler::ComputeFsrsParamsResponse;
 use anki_proto::stats::revlog_entry;
 use anki_proto::stats::Dataset;
 use anki_proto::stats::DeckEntry;
@@ -29,7 +29,7 @@ use crate::search::Node;
 use crate::search::SearchNode;
 use crate::search::SortMode;
 
-pub(crate) type Weights = Vec<f32>;
+pub(crate) type Params = Vec<f32>;
 
 fn ignore_revlogs_before_date_to_ms(
     ignore_revlogs_before_date: &String,
@@ -53,15 +53,15 @@ impl Collection {
     /// Note this does not return an error if there are less than 400 items -
     /// the caller should instead check the fsrs_items count in the return
     /// value.
-    pub fn compute_weights(
+    pub fn compute_params(
         &mut self,
         search: &str,
         ignore_revlogs_before: TimestampMillis,
         current_preset: u32,
         total_presets: u32,
-        current_weights: &Weights,
-    ) -> Result<ComputeFsrsWeightsResponse> {
-        let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
+        current_params: &Params,
+    ) -> Result<ComputeFsrsParamsResponse> {
+        let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
         let (items, review_count) =
@@ -69,8 +69,8 @@ impl Collection {
 
         let fsrs_items = items.len() as u32;
         if fsrs_items == 0 {
-            return Ok(ComputeFsrsWeightsResponse {
-                weights: current_weights.to_vec(),
+            return Ok(ComputeFsrsParamsResponse {
+                params: current_params.to_vec(),
                 fsrs_items,
             });
         }
@@ -97,20 +97,17 @@ impl Collection {
                 }
             }
         });
-        let mut weights = FSRS::new(None)?.compute_parameters(items.clone(), Some(progress2))?;
-        if let Ok(fsrs) = FSRS::new(Some(current_weights)) {
+        let mut params = FSRS::new(None)?.compute_parameters(items.clone(), Some(progress2))?;
+        if let Ok(fsrs) = FSRS::new(Some(current_params)) {
             let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
-            let optimized_fsrs = FSRS::new(Some(&weights))?;
+            let optimized_fsrs = FSRS::new(Some(&params))?;
             let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
             if current_rmse <= optimized_rmse {
-                weights = current_weights.to_vec();
+                params = current_params.to_vec();
             }
         }
 
-        Ok(ComputeFsrsWeightsResponse {
-            weights,
-            fsrs_items,
-        })
+        Ok(ComputeFsrsParamsResponse { params, fsrs_items })
     }
 
     pub(crate) fn revlog_for_srs(
@@ -180,14 +177,14 @@ impl Collection {
         Ok(())
     }
 
-    pub fn evaluate_weights(
+    pub fn evaluate_params(
         &mut self,
-        weights: &Weights,
+        params: &Params,
         search: &str,
         ignore_revlogs_before: TimestampMillis,
     ) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
-        let mut anki_progress = self.new_progress_handler::<ComputeWeightsProgress>();
+        let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
         let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
         let revlogs: Vec<RevlogEntry> = guard
             .col
@@ -196,7 +193,7 @@ impl Collection {
         let (items, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         anki_progress.state.reviews = review_count as u32;
-        let fsrs = FSRS::new(Some(weights))?;
+        let fsrs = FSRS::new(Some(params))?;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
                 .update(false, |p| {
@@ -209,13 +206,13 @@ impl Collection {
 }
 
 #[derive(Default, Clone, Copy, Debug)]
-pub struct ComputeWeightsProgress {
+pub struct ComputeParamsProgress {
     pub current_iteration: u32,
     pub total_iterations: u32,
     pub reviews: u32,
-    /// Only used in 'compute all weights' case
+    /// Only used in 'compute all params' case
     pub current_preset: u32,
-    /// Only used in 'compute all weights' case
+    /// Only used in 'compute all params' case
     pub total_presets: u32,
 }
 
