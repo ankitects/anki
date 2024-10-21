@@ -37,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.deckConfigDesiredRetentionTooltip(),
             sched: HelpItemScheduler.FSRS,
         },
-        modelWeights: {
+        modelParams: {
             title: tr.deckConfigWeights(),
             help:
                 tr.deckConfigWeightsTooltip2() +

@@ -54,7 +54,7 @@ impl Collection {
                     learn_limit,
                     review_limit: usize::MAX,
                 },
-                &req.weights,
+                &req.params,
                 |ip| {
                     anki_progress
                         .update(false, |p| {

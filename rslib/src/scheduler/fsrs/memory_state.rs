@@ -9,13 +9,13 @@ use fsrs::MemoryState;
 use fsrs::FSRS;
 use itertools::Itertools;
 
-use super::weights::ignore_revlogs_before_ms_from_config;
+use super::params::ignore_revlogs_before_ms_from_config;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
-use crate::scheduler::fsrs::weights::single_card_revlog_to_items;
-use crate::scheduler::fsrs::weights::Weights;
+use crate::scheduler::fsrs::params::single_card_revlog_to_items;
+use crate::scheduler::fsrs::params::Params;
 use crate::scheduler::states::fuzz::with_review_fuzz;
 use crate::search::Negated;
 use crate::search::SearchNode;
@@ -29,7 +29,7 @@ pub struct ComputeMemoryProgress {
 
 #[derive(Debug)]
 pub(crate) struct UpdateMemoryStateRequest {
-    pub weights: Weights,
+    pub params: Params,
     pub desired_retention: f32,
     pub historical_retention: f32,
     pub max_interval: u32,
@@ -43,10 +43,10 @@ pub(crate) struct UpdateMemoryStateEntry {
 }
 
 impl Collection {
-    /// For each provided set of weights, locate cards with the provided search,
+    /// For each provided set of params, locate cards with the provided search,
     /// and update their memory state.
     /// Should be called inside a transaction.
-    /// If Weights are None, it means the user disabled FSRS, and the existing
+    /// If Params are None, it means the user disabled FSRS, and the existing
     /// memory state should be removed.
     pub(crate) fn update_memory_state(
         &mut self,
@@ -69,7 +69,7 @@ impl Collection {
             } else {
                 None
             };
-            let fsrs = FSRS::new(req.as_ref().map(|w| &w.weights[..]).or(Some([].as_slice())))?;
+            let fsrs = FSRS::new(req.as_ref().map(|w| &w.params[..]).or(Some([].as_slice())))?;
             let historical_retention = req.as_ref().map(|w| w.historical_retention);
             let items = fsrs_items_for_memory_state(
                 &fsrs,
@@ -337,8 +337,8 @@ mod tests {
     use super::*;
     use crate::card::FsrsMemoryState;
     use crate::revlog::RevlogReviewKind;
-    use crate::scheduler::fsrs::weights::tests::convert;
-    use crate::scheduler::fsrs::weights::tests::revlog;
+    use crate::scheduler::fsrs::params::tests::convert;
+    use crate::scheduler::fsrs::params::tests::revlog;
 
     /// Floating point precision can vary between platforms, and each FSRS
     /// update tends to result in small changes to these numbers, so we

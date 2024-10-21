@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function save(mode: UpdateDeckConfigsMode): Promise<void> {
         await commitEditing();
-        if (mode === UpdateDeckConfigsMode.COMPUTE_ALL_WEIGHTS && !get(state.fsrs)) {
+        if (mode === UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS && !get(state.fsrs)) {
             alert(tr.deckConfigFsrsMustBeEnabled());
             return;
         }
@@ -119,7 +119,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.deckConfigSaveToAllSubdecks()}
             </DropdownItem>
             <DropdownItem
-                on:click={() => save(UpdateDeckConfigsMode.COMPUTE_ALL_WEIGHTS)}
+                on:click={() => save(UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS)}
             >
                 {tr.deckConfigSaveAndOptimize()}
             </DropdownItem>

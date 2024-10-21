@@ -165,7 +165,7 @@ message DeckConfig {
     // used for fsrs_reschedule in the past
     reserved 39;
     float historical_retention = 40;
-    string weight_search = 45;
+    string param_search = 45;
 
     bytes other = 255;
   }
@@ -215,7 +215,7 @@ message DeckConfigsForUpdate {
 enum UpdateDeckConfigsMode {
   UPDATE_DECK_CONFIGS_MODE_NORMAL = 0;
   UPDATE_DECK_CONFIGS_MODE_APPLY_TO_CHILDREN = 1;
-  UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_WEIGHTS = 2;
+  UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_PARAMS = 2;
 }
 
 message UpdateDeckConfigsRequest {

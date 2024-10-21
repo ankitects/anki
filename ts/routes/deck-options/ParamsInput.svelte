@@ -9,8 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let stringValue: string;
     $: stringValue = render(value);
 
-    function render(weights: number[]): string {
-        return weights.map((v) => v.toFixed(4)).join(", ");
+    function render(params: number[]): string {
+        return params.map((v) => v.toFixed(4)).join(", ");
     }
 
     function update(this: HTMLInputElement): void {

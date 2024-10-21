@@ -15,8 +15,8 @@ use crate::import_export::ExportProgress;
 use crate::import_export::ImportProgress;
 use crate::prelude::Collection;
 use crate::scheduler::fsrs::memory_state::ComputeMemoryProgress;
+use crate::scheduler::fsrs::params::ComputeParamsProgress;
 use crate::scheduler::fsrs::retention::ComputeRetentionProgress;
-use crate::scheduler::fsrs::weights::ComputeWeightsProgress;
 use crate::sync::collection::normal::NormalSyncProgress;
 use crate::sync::collection::progress::FullSyncProgress;
 use crate::sync::collection::progress::SyncStage;
@@ -131,7 +131,7 @@ pub enum Progress {
     DatabaseCheck(DatabaseCheckProgress),
     Import(ImportProgress),
     Export(ExportProgress),
-    ComputeWeights(ComputeWeightsProgress),
+    ComputeParams(ComputeParamsProgress),
     ComputeRetention(ComputeRetentionProgress),
     ComputeMemory(ComputeMemoryProgress),
 }
@@ -209,8 +209,8 @@ pub(crate) fn progress_to_proto(
                 }
                 .into(),
             ),
-            Progress::ComputeWeights(progress) => {
-                Value::ComputeWeights(anki_proto::collection::ComputeWeightsProgress {
+            Progress::ComputeParams(progress) => {
+                Value::ComputeParams(anki_proto::collection::ComputeParamsProgress {
                     current: progress.current_iteration,
                     total: progress.total_iterations,
                     reviews: progress.reviews,
@@ -296,9 +296,9 @@ impl From<ExportProgress> for Progress {
     }
 }
 
-impl From<ComputeWeightsProgress> for Progress {
-    fn from(p: ComputeWeightsProgress) -> Self {
-        Progress::ComputeWeights(p)
+impl From<ComputeParamsProgress> for Progress {
+    fn from(p: ComputeParamsProgress) -> Self {
+        Progress::ComputeParams(p)
     }
 }
 

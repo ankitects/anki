@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import {
         ComputeRetentionProgress,
-        type ComputeWeightsProgress,
+        type ComputeParamsProgress,
     } from "@generated/anki/collection_pb";
     import {
         ComputeOptimalRetentionRequest,
@@ -13,10 +13,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type SimulateFsrsReviewResponse,
     } from "@generated/anki/scheduler_pb";
     import {
-        computeFsrsWeights,
+        computeFsrsParams,
         computeOptimalRetention,
         simulateFsrsReview,
-        evaluateWeights,
+        evaluateParams,
         setWantsAbort,
     } from "@generated/backend";
     import * as tr from "@generated/ftl";
@@ -30,8 +30,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
-    import WeightsInputRow from "./WeightsInputRow.svelte";
-    import WeightsSearchRow from "./WeightsSearchRow.svelte";
+    import ParamsInputRow from "./ParamsInputRow.svelte";
+    import ParamsSearchRow from "./ParamsSearchRow.svelte";
     import { renderSimulationChart, type Point } from "../graphs/simulator";
     import Graph from "../graphs/Graph.svelte";
     import HoverColumns from "../graphs/HoverColumns.svelte";
@@ -54,22 +54,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigOptimizeAllTip() : "";
 
-    let computeWeightsProgress: ComputeWeightsProgress | undefined;
-    let computingWeights = false;
-    let checkingWeights = false;
+    let computeParamsProgress: ComputeParamsProgress | undefined;
+    let computingParams = false;
+    let checkingParams = false;
     let computingRetention = false;
     let optimalRetention = 0;
     $: if ($presetName) {
         optimalRetention = 0;
     }
-    $: computing = computingWeights || checkingWeights || computingRetention;
-    $: defaultWeightSearch = `preset:"${state.getCurrentName()}" -is:suspended`;
+    $: computing = computingParams || checkingParams || computingRetention;
+    $: defaultparamSearch = `preset:"${state.getCurrentName()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     let computeRetentionProgress:
-        | ComputeWeightsProgress
+        | ComputeParamsProgress
         | ComputeRetentionProgress
         | undefined;
 
@@ -82,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const simulateFsrsRequest = new SimulateFsrsReviewRequest({
-        weights: fsrsParams($config),
+        params: fsrsParams($config),
         desiredRetention: $config.desiredRetention,
         deckSize: 0,
         daysToSimulate: 365,
@@ -123,8 +123,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    async function computeWeights(): Promise<void> {
-        if (computingWeights) {
+    async function computeParams(): Promise<void> {
+        if (computingParams) {
             await setWantsAbort({});
             return;
         }
@@ -132,47 +132,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             alert(tr.deckConfigPleaseSaveYourChangesFirst());
             return;
         }
-        computingWeights = true;
-        computeWeightsProgress = undefined;
+        computingParams = true;
+        computeParamsProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
                     const params = fsrsParams($config);
-                    const resp = await computeFsrsWeights({
-                        search: $config.weightSearch
-                            ? $config.weightSearch
-                            : defaultWeightSearch,
+                    const resp = await computeFsrsParams({
+                        search: $config.paramSearch
+                            ? $config.paramSearch
+                            : defaultparamSearch,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
-                        currentWeights: params,
+                        currentParams: params,
                     });
                     if (
                         (params.length &&
                             params.every(
-                                (n, i) => n.toFixed(4) === resp.weights[i].toFixed(4),
+                                (n, i) => n.toFixed(4) === resp.params[i].toFixed(4),
                             )) ||
-                        resp.weights.length === 0
+                        resp.params.length === 0
                     ) {
                         setTimeout(() => alert(tr.deckConfigFsrsParamsOptimal()), 100);
                     } else {
-                        $config.fsrsParams5 = resp.weights;
+                        $config.fsrsParams5 = resp.params;
                     }
-                    if (computeWeightsProgress) {
-                        computeWeightsProgress.current = computeWeightsProgress.total;
+                    if (computeParamsProgress) {
+                        computeParamsProgress.current = computeParamsProgress.total;
                     }
                 },
                 (progress) => {
-                    if (progress.value.case === "computeWeights") {
-                        computeWeightsProgress = progress.value.value;
+                    if (progress.value.case === "computeParams") {
+                        computeParamsProgress = progress.value.value;
                     }
                 },
             );
         } finally {
-            computingWeights = false;
+            computingParams = false;
         }
     }
 
-    async function checkWeights(): Promise<void> {
-        if (checkingWeights) {
+    async function checkParams(): Promise<void> {
+        if (checkingParams) {
             await setWantsAbort({});
             return;
         }
@@ -180,21 +180,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             alert(tr.deckConfigPleaseSaveYourChangesFirst());
             return;
         }
-        checkingWeights = true;
-        computeWeightsProgress = undefined;
+        checkingParams = true;
+        computeParamsProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
-                    const search = $config.weightSearch
-                        ? $config.weightSearch
-                        : defaultWeightSearch;
-                    const resp = await evaluateWeights({
-                        weights: fsrsParams($config),
+                    const search = $config.paramSearch
+                        ? $config.paramSearch
+                        : defaultparamSearch;
+                    const resp = await evaluateParams({
+                        params: fsrsParams($config),
                         search,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                     });
-                    if (computeWeightsProgress) {
-                        computeWeightsProgress.current = computeWeightsProgress.total;
+                    if (computeParamsProgress) {
+                        computeParamsProgress.current = computeParamsProgress.total;
                     }
                     setTimeout(
                         () =>
@@ -207,13 +207,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     );
                 },
                 (progress) => {
-                    if (progress.value.case === "computeWeights") {
-                        computeWeightsProgress = progress.value.value;
+                    if (progress.value.case === "computeParams") {
+                        computeParamsProgress = progress.value.value;
                     }
                 },
             );
         } finally {
-            checkingWeights = false;
+            checkingParams = false;
         }
     }
 
@@ -232,7 +232,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await runWithBackendProgress(
                 async () => {
                     optimalRetentionRequest.maxInterval = $config.maximumReviewInterval;
-                    optimalRetentionRequest.weights = fsrsParams($config);
+                    optimalRetentionRequest.params = fsrsParams($config);
                     optimalRetentionRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
                     optimalRetention = resp.optimalRetention;
@@ -249,13 +249,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    $: computeWeightsProgressString = renderWeightProgress(computeWeightsProgress);
+    $: computeParamsProgressString = renderWeightProgress(computeParamsProgress);
     $: computeRetentionProgressString = renderRetentionProgress(
         computeRetentionProgress,
     );
-    $: totalReviews = computeWeightsProgress?.reviews ?? undefined;
+    $: totalReviews = computeParamsProgress?.reviews ?? undefined;
 
-    function renderWeightProgress(val: ComputeWeightsProgress | undefined): String {
+    function renderWeightProgress(val: ComputeParamsProgress | undefined): String {
         if (!val || !val.total) {
             return "";
         }
@@ -313,7 +313,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         try {
             await runWithBackendProgress(
                 async () => {
-                    simulateFsrsRequest.weights = fsrsParams($config);
+                    simulateFsrsRequest.params = fsrsParams($config);
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
                     simulateFsrsRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
                     simulateProgressString = "processing...";
@@ -361,46 +361,46 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
-    <WeightsInputRow
+    <ParamsInputRow
         bind:value={$config.fsrsParams5}
         defaultValue={[]}
         defaults={defaults.fsrsParams5}
     >
-        <SettingTitle on:click={() => openHelpModal("modelWeights")}>
+        <SettingTitle on:click={() => openHelpModal("modelParams")}>
             {tr.deckConfigWeights()}
         </SettingTitle>
-    </WeightsInputRow>
+    </ParamsInputRow>
 
-    <WeightsSearchRow
-        bind:value={$config.weightSearch}
-        placeholder={defaultWeightSearch}
+    <ParamsSearchRow
+        bind:value={$config.paramSearch}
+        placeholder={defaultparamSearch}
     />
 
     <button
-        class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
-        disabled={!computingWeights && computing}
-        on:click={() => computeWeights()}
+        class="btn {computingParams ? 'btn-warning' : 'btn-primary'}"
+        disabled={!computingParams && computing}
+        on:click={() => computeParams()}
     >
-        {#if computingWeights}
+        {#if computingParams}
             {tr.actionsCancel()}
         {:else}
             {tr.deckConfigOptimizeButton()}
         {/if}
     </button>
     <button
-        class="btn {checkingWeights ? 'btn-warning' : 'btn-primary'}"
-        disabled={!checkingWeights && computing}
-        on:click={() => checkWeights()}
+        class="btn {checkingParams ? 'btn-warning' : 'btn-primary'}"
+        disabled={!checkingParams && computing}
+        on:click={() => checkParams()}
     >
-        {#if checkingWeights}
+        {#if checkingParams}
             {tr.actionsCancel()}
         {:else}
             {tr.deckConfigEvaluateButton()}
         {/if}
     </button>
     <div>
-        {#if computingWeights || checkingWeights}
-            {computeWeightsProgressString}
+        {#if computingParams || checkingParams}
+            {computeParamsProgressString}
         {:else if totalReviews !== undefined}
             {tr.statisticsReviews({ reviews: totalReviews })}
         {/if}

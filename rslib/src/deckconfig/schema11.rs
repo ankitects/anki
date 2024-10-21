@@ -94,8 +94,8 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     /// historical retention
     sm2_retention: f32,
-    #[serde(default)]
-    weight_search: String,
+    #[serde(default, rename = "weightSearch")]
+    param_search: String,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -312,7 +312,7 @@ impl Default for DeckConfSchema11 {
             fsrs_params_5: vec![],
             desired_retention: 0.9,
             sm2_retention: 0.9,
-            weight_search: "".to_string(),
+            param_search: "".to_string(),
             ignore_revlogs_before_date: "".to_string(),
             easy_days_percentages: vec![1.0; 7],
         }
@@ -395,7 +395,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 easy_days_percentages: c.easy_days_percentages,
                 desired_retention: c.desired_retention,
                 historical_retention: c.sm2_retention,
-                weight_search: c.weight_search,
+                param_search: c.param_search,
                 other: other_bytes,
             },
         }
@@ -506,7 +506,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             fsrs_params_5: i.fsrs_params_5,
             desired_retention: i.desired_retention,
             sm2_retention: i.historical_retention,
-            weight_search: i.weight_search,
+            param_search: i.param_search,
             ignore_revlogs_before_date: i.ignore_revlogs_before_date,
             easy_days_percentages: i.easy_days_percentages,
         }
