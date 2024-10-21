@@ -53,7 +53,7 @@ impl GraphsContext {
         self.revlog
             .iter()
             .filter(|review| {
-                // not manually rescheduled
+                // not rescheduled/set due date/reset
                 review.button_chosen > 0
                     // not cramming
                     && (review.review_kind != RevlogReviewKind::Filtered || review.ease_factor != 0)

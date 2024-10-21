@@ -294,6 +294,9 @@ pub(crate) fn single_card_revlog_to_items(
             Some(RevlogEntry {
                 review_kind: RevlogReviewKind::Manual,
                 ..
+            }) | Some(RevlogEntry {
+                review_kind: RevlogReviewKind::Rescheduled,
+                ..
             })
         );
     }
@@ -343,10 +346,12 @@ pub(crate) fn single_card_revlog_to_items(
     // Filter out unwanted entries
     entries.retain(|entry| {
         !(
-            // manually rescheduled
+            // set due date or reset
             (entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0)
             || // cram
             (entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0)
+            || // rescheduled
+            (entry.review_kind == RevlogReviewKind::Rescheduled)
         )
     });
 
@@ -407,6 +412,7 @@ fn revlog_entry_to_proto(e: RevlogEntry) -> anki_proto::stats::RevlogEntry {
             RevlogReviewKind::Relearning => revlog_entry::ReviewKind::Relearning,
             RevlogReviewKind::Filtered => revlog_entry::ReviewKind::Filtered,
             RevlogReviewKind::Manual => revlog_entry::ReviewKind::Manual,
+            RevlogReviewKind::Rescheduled => revlog_entry::ReviewKind::Rescheduled,
         } as i32,
     }
 }

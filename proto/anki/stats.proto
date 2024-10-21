@@ -207,6 +207,7 @@ message RevlogEntry {
     RELEARNING = 2;
     FILTERED = 3;
     MANUAL = 4;
+    RESCHEDULED = 5;
   }
   int64 id = 1;
   int64 cid = 2;
