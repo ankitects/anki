@@ -19,6 +19,7 @@ impl GraphsContext {
             next_day_at: Default::default(),
         };
         let fsrs = FSRS::new(None).unwrap();
+        // note id -> (sum, count)
         let mut note_retrievability: std::collections::HashMap<i64, (f32, u32)> =
             std::collections::HashMap::new();
         for card in &self.cards {
