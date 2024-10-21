@@ -33,7 +33,7 @@ impl GraphsContext {
             have_backlog |= due_day < 0;
             *due_by_day.entry(due_day).or_default() += 1;
             if matches!(c.queue, CardQueue::Review | CardQueue::DayLearn) {
-                daily_load += 1.0 / c.interval as f32;
+                daily_load += 1.0 / c.interval.max(1) as f32;
             } else {
                 daily_load += 1.0;
             }
