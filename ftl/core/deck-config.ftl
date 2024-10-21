@@ -152,7 +152,7 @@ deck-config-new-gather-priority-tooltip-2 =
     
     `Random cards`: Gathers cards in a random order.
 deck-config-new-gather-priority-deck = Deck
-deck-config-new-gather-priority-deck-then-random-notes = Deck then random notes
+deck-config-new-gather-priority-deck-then-random-notes = Deck, then random notes
 deck-config-new-gather-priority-position-lowest-first = Ascending position
 deck-config-new-gather-priority-position-highest-first = Descending position
 deck-config-new-gather-priority-random-notes = Random notes
@@ -207,8 +207,8 @@ deck-config-sort-order-ascending-intervals = Ascending intervals
 deck-config-sort-order-descending-intervals = Descending intervals
 deck-config-sort-order-ascending-ease = Ascending ease
 deck-config-sort-order-descending-ease = Descending ease
-deck-config-sort-order-ascending-difficulty = Ascending difficulty
-deck-config-sort-order-descending-difficulty = Descending difficulty
+deck-config-sort-order-ascending-difficulty = Easy cards first
+deck-config-sort-order-descending-difficulty = Difficult cards first
 deck-config-sort-order-relative-overdueness = Relative overdueness
 deck-config-display-order-will-use-current-deck =
     Anki will use the display order from the deck you 
