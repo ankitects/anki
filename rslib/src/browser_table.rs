@@ -115,8 +115,8 @@ impl Card {
         } else if self.is_due_in_days() {
             Some(
                 TimestampSecs::now().adding_secs(
-                    ((self.original_or_current_due() - timing.days_elapsed as i32)
-                        .saturating_mul(86400)) as i64,
+                    (self.original_or_current_due() as i64 - timing.days_elapsed as i64)
+                        .saturating_mul(86400),
                 ),
             )
         } else {
