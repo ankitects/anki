@@ -154,7 +154,7 @@ impl Collection {
             .or_not_found(conf_id)?;
         let desired_retention = config.inner.desired_retention;
         let historical_retention = config.inner.historical_retention;
-        let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
+        let fsrs = FSRS::new(Some(config.fsrs_params()))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
         let item = single_card_revlog_to_item(
             &fsrs,
