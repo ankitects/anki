@@ -69,8 +69,10 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     bury_interday_learning: bool,
 
+    #[serde(default, rename = "fsrsWeights")]
+    fsrs_params_4: Vec<f32>,
     #[serde(default)]
-    fsrs_weights: Vec<f32>,
+    fsrs_params_5: Vec<f32>,
     #[serde(default)]
     desired_retention: f32,
     #[serde(default)]
@@ -306,7 +308,8 @@ impl Default for DeckConfSchema11 {
             new_sort_order: 0,
             new_gather_priority: 0,
             bury_interday_learning: false,
-            fsrs_weights: vec![],
+            fsrs_params_4: vec![],
+            fsrs_params_5: vec![],
             desired_retention: 0.9,
             sm2_retention: 0.9,
             weight_search: "".to_string(),
@@ -386,7 +389,8 @@ impl From<DeckConfSchema11> for DeckConfig {
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
                 bury_interday_learning: c.bury_interday_learning,
-                fsrs_weights: c.fsrs_weights,
+                fsrs_params_4: c.fsrs_params_4,
+                fsrs_params_5: c.fsrs_params_5,
                 ignore_revlogs_before_date: c.ignore_revlogs_before_date,
                 easy_days_percentages: c.easy_days_percentages,
                 desired_retention: c.desired_retention,
@@ -498,7 +502,8 @@ impl From<DeckConfig> for DeckConfSchema11 {
             new_sort_order: i.new_card_sort_order,
             new_gather_priority: i.new_card_gather_priority,
             bury_interday_learning: i.bury_interday_learning,
-            fsrs_weights: i.fsrs_weights,
+            fsrs_params_4: i.fsrs_params_4,
+            fsrs_params_5: i.fsrs_params_5,
             desired_retention: i.desired_retention,
             sm2_retention: i.historical_retention,
             weight_search: i.weight_search,
@@ -526,6 +531,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "interdayLearningMix",
     "newGatherPriority",
     "fsrsWeights",
+    "fsrsParams5",
     "desiredRetention",
     "stopTimerOnAnswer",
     "secondsToShowQuestion",

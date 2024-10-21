@@ -431,7 +431,7 @@ impl Collection {
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let fsrs_next_states = if fsrs_enabled {
-            let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
+            let fsrs = FSRS::new(Some(config.fsrs_params()))?;
             if card.memory_state.is_none() && card.ctype != CardType::New {
                 // Card has been moved or imported into an FSRS deck after weights were set,
                 // and will need its initial memory state to be calculated based on review

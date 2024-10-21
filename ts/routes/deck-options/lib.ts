@@ -415,3 +415,11 @@ export async function commitEditing(): Promise<void> {
     }
     await tick();
 }
+
+export function fsrsParams(config: DeckConfig_Config): number[] {
+    if (config.fsrsParams5) {
+        return config.fsrsParams5;
+    } else {
+        return config.fsrsParams4;
+    }
+}

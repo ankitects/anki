@@ -107,9 +107,11 @@ message DeckConfig {
     repeated float learn_steps = 1;
     repeated float relearn_steps = 2;
 
-    repeated float fsrs_weights = 3;
+    repeated float fsrs_params_4 = 3;
+    repeated float fsrs_params_5 = 5;
 
-    reserved 5 to 8;
+    // consider saving remaining ones for fsrs param changes
+    reserved 6 to 8;
 
     uint32 new_per_day = 9;
     uint32 reviews_per_day = 10;

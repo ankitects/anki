@@ -50,7 +50,7 @@ impl Collection {
         deck: DeckId,
     ) -> Result<anki_proto::deck_config::DeckConfigsForUpdate> {
         let mut defaults = DeckConfig::default();
-        defaults.inner.fsrs_weights = DEFAULT_PARAMETERS.into();
+        defaults.inner.fsrs_params_5 = DEFAULT_PARAMETERS.into();
         let last_optimize = self.get_config_i32(I32ConfigKey::LastFsrsOptimize) as u32;
         let days_since_last_fsrs_optimize = if last_optimize > 0 {
             self.timing_today()?
@@ -88,6 +88,12 @@ impl Collection {
         // grab the config and sort it
         let mut config = self.storage.all_deck_config()?;
         config.sort_unstable_by(|a, b| a.name.cmp(&b.name));
+        // pre-fill empty fsrs 5 params with 4 params
+        config.iter_mut().for_each(|c| {
+            if c.inner.fsrs_params_5.is_empty() {
+                c.inner.fsrs_params_5 = c.inner.fsrs_params_4.clone();
+            }
+        });
 
         // combine with use counts
         let counts = self.get_deck_config_use_counts()?;
@@ -159,8 +165,14 @@ impl Collection {
 
         // add/update provided configs
         for conf in &mut req.configs {
+            // If the user has provided empty FSRS5 params, zero out any
+            // old params as well, so we don't fall back on them, which would
+            // be surprising as they're not shown in the GUI.
+            if conf.inner.fsrs_params_5.is_empty() {
+                conf.inner.fsrs_params_4.clear();
+            }
             // check the provided parameters are valid before we save them
-            FSRS::new(Some(&conf.inner.fsrs_weights))?;
+            FSRS::new(Some(conf.fsrs_params()))?;
             self.add_or_update_deck_config(conf)?;
             configs_after_update.insert(conf.id, conf.clone());
         }
@@ -201,7 +213,7 @@ impl Collection {
                 let previous_order = previous_config
                     .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
-                let previous_weights = previous_config.map(|c| &c.inner.fsrs_weights);
+                let previous_weights = previous_config.map(|c| c.fsrs_params());
                 let previous_retention = previous_config.map(|c| c.inner.desired_retention);
 
                 // if a selected (sub)deck, or its old config was removed, update deck to point
@@ -228,7 +240,7 @@ impl Collection {
                 }
 
                 // if weights differ, memory state needs to be recomputed
-                let current_weights = current_config.map(|c| &c.inner.fsrs_weights);
+                let current_weights = current_config.map(|c| c.fsrs_params());
                 let current_retention = current_config.map(|c| c.inner.desired_retention);
                 if fsrs_toggled
                     || previous_weights != current_weights
@@ -252,7 +264,7 @@ impl Collection {
                     let weights = config.and_then(|c| {
                         if req.fsrs {
                             Some(UpdateMemoryStateRequest {
-                                weights: c.inner.fsrs_weights.clone(),
+                                weights: c.fsrs_params().clone(),
                                 desired_retention: c.inner.desired_retention,
                                 max_interval: c.inner.maximum_review_interval,
                                 reschedule: req.fsrs_reschedule,
@@ -349,11 +361,11 @@ impl Collection {
                 ignore_revlogs_before_ms,
                 idx as u32 + 1,
                 config_len,
-                &config.inner.fsrs_weights,
+                config.fsrs_params(),
             ) {
                 Ok(weights) => {
                     println!("{}: {:?}", config.name, weights.weights);
-                    config.inner.fsrs_weights = weights.weights;
+                    config.inner.fsrs_params_5 = weights.weights;
                 }
                 Err(AnkiError::Interrupted) => return Err(AnkiError::Interrupted),
                 Err(err) => {

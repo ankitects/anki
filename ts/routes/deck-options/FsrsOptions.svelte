@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SwitchRow from "$lib/components/SwitchRow.svelte";
 
     import GlobalLabel from "./GlobalLabel.svelte";
-    import type { DeckOptionsState } from "./lib";
+    import { fsrsParams, type DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
@@ -82,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const simulateFsrsRequest = new SimulateFsrsReviewRequest({
-        weights: $config.fsrsWeights,
+        weights: fsrsParams($config),
         desiredRetention: $config.desiredRetention,
         deckSize: 0,
         daysToSimulate: 365,
@@ -137,26 +137,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         try {
             await runWithBackendProgress(
                 async () => {
+                    const params = fsrsParams($config);
                     const resp = await computeFsrsWeights({
                         search: $config.weightSearch
                             ? $config.weightSearch
                             : defaultWeightSearch,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
-                        currentWeights: $config.fsrsWeights,
+                        currentWeights: params,
                     });
                     if (
-                        ($config.fsrsWeights.length &&
-                            $config.fsrsWeights.every(
+                        (params.length &&
+                            params.every(
                                 (n, i) => n.toFixed(4) === resp.weights[i].toFixed(4),
                             )) ||
                         resp.weights.length === 0
                     ) {
                         setTimeout(() => alert(tr.deckConfigFsrsParamsOptimal()), 100);
+                    } else {
+                        $config.fsrsParams5 = resp.weights;
                     }
                     if (computeWeightsProgress) {
                         computeWeightsProgress.current = computeWeightsProgress.total;
                     }
-                    $config.fsrsWeights = resp.weights;
                 },
                 (progress) => {
                     if (progress.value.case === "computeWeights") {
@@ -187,7 +189,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? $config.weightSearch
                         : defaultWeightSearch;
                     const resp = await evaluateWeights({
-                        weights: $config.fsrsWeights,
+                        weights: fsrsParams($config),
                         search,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                     });
@@ -230,7 +232,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await runWithBackendProgress(
                 async () => {
                     optimalRetentionRequest.maxInterval = $config.maximumReviewInterval;
-                    optimalRetentionRequest.weights = $config.fsrsWeights;
+                    optimalRetentionRequest.weights = fsrsParams($config);
                     optimalRetentionRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
                     optimalRetention = resp.optimalRetention;
@@ -311,7 +313,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         try {
             await runWithBackendProgress(
                 async () => {
-                    simulateFsrsRequest.weights = $config.fsrsWeights;
+                    simulateFsrsRequest.weights = fsrsParams($config);
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
                     simulateFsrsRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
                     simulateProgressString = "processing...";
@@ -360,9 +362,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="ms-1 me-1">
     <WeightsInputRow
-        bind:value={$config.fsrsWeights}
+        bind:value={$config.fsrsParams5}
         defaultValue={[]}
-        defaults={defaults.fsrsWeights}
+        defaults={defaults.fsrsParams5}
     >
         <SettingTitle on:click={() => openHelpModal("modelWeights")}>
             {tr.deckConfigWeights()}
