@@ -420,6 +420,11 @@ class Collection(DeprecatedNamesMixin):
     def import_json_string(self, json: str) -> ImportLogWithChanges:
         return self._backend.import_json_string(json)
 
+    def export_dataset_for_research(
+        self, target_path: str, min_entries: int = 0
+    ) -> None:
+        self._backend.export_dataset(min_entries=min_entries, target_path=target_path)
+
     # Image Occlusion
     ##########################################################################
 
@@ -987,6 +992,16 @@ class Collection(DeprecatedNamesMixin):
         fget=_get_enable_load_balancer, fset=_set_enable_load_balancer
     )
 
+    def _get_enable_fsrs_short_term_with_steps(self) -> bool:
+        return self.get_config_bool(Config.Bool.FSRS_SHORT_TERM_WITH_STEPS_ENABLED)
+
+    def _set_enable_fsrs_short_term_with_steps(self, value: bool) -> None:
+        self.set_config_bool(Config.Bool.FSRS_SHORT_TERM_WITH_STEPS_ENABLED, value)
+
+    fsrs_short_term_with_steps_enabled = property(
+        fget=_get_enable_fsrs_short_term_with_steps,
+        fset=_set_enable_fsrs_short_term_with_steps,
+    )
     # Stats
     ##########################################################################
 

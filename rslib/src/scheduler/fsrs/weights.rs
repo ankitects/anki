@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+use std::collections::HashMap;
 use std::iter;
 use std::path::Path;
 use std::thread;
@@ -8,7 +9,8 @@ use std::time::Duration;
 use anki_io::write_file;
 use anki_proto::scheduler::ComputeFsrsWeightsResponse;
 use anki_proto::stats::revlog_entry;
-use anki_proto::stats::RevlogEntries;
+use anki_proto::stats::Dataset;
+use anki_proto::stats::DeckEntry;
 use chrono::NaiveDate;
 use chrono::NaiveTime;
 use fsrs::CombinedProgressState;
@@ -19,6 +21,7 @@ use fsrs::FSRS;
 use itertools::Itertools;
 use prost::Message;
 
+use crate::decks::immediate_parent_name;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
@@ -94,13 +97,14 @@ impl Collection {
                 }
             }
         });
-        let fsrs = FSRS::new(Some(current_weights))?;
-        let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
-        let mut weights = fsrs.compute_parameters(items.clone(), Some(progress2))?;
-        let optimized_fsrs = FSRS::new(Some(&weights))?;
-        let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
-        if current_rmse <= optimized_rmse {
-            weights = current_weights.to_vec();
+        let mut weights = FSRS::new(None)?.compute_parameters(items.clone(), Some(progress2))?;
+        if let Ok(fsrs) = FSRS::new(Some(current_weights)) {
+            let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
+            let optimized_fsrs = FSRS::new(Some(&weights))?;
+            let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
+            if current_rmse <= optimized_rmse {
+                weights = current_weights.to_vec();
+            }
         }
 
         Ok(ComputeFsrsWeightsResponse {
@@ -127,22 +131,51 @@ impl Collection {
     }
 
     /// Used for exporting revlogs for algorithm research.
-    pub fn export_revlog_entries_to_protobuf(
-        &mut self,
-        min_entries: usize,
-        target_path: &Path,
-    ) -> Result<()> {
-        let entries = self.storage.get_all_revlog_entries_in_card_order()?;
-        if entries.len() < min_entries {
+    pub fn export_dataset(&mut self, min_entries: usize, target_path: &Path) -> Result<()> {
+        let revlog_entries = self.storage.get_all_revlog_entries_in_card_order()?;
+        if revlog_entries.len() < min_entries {
             return Err(AnkiError::FsrsInsufficientData);
         }
-        let entries = entries.into_iter().map(revlog_entry_to_proto).collect_vec();
+        let revlogs = revlog_entries
+            .into_iter()
+            .map(revlog_entry_to_proto)
+            .collect_vec();
+        let cards = self.storage.get_all_card_entries()?;
+
+        let decks_map = self.storage.get_decks_map()?;
+        let deck_name_to_id: HashMap<String, DeckId> = decks_map
+            .into_iter()
+            .map(|(id, deck)| (deck.name.to_string(), id))
+            .collect();
+
+        let decks = self
+            .storage
+            .get_all_decks()?
+            .into_iter()
+            .filter_map(|deck| {
+                if let Some(preset_id) = deck.config_id().map(|id| id.0) {
+                    let parent_id = immediate_parent_name(&deck.name.to_string())
+                        .and_then(|parent_name| deck_name_to_id.get(parent_name))
+                        .map(|id| id.0)
+                        .unwrap_or(0);
+                    Some(DeckEntry {
+                        id: deck.id.0,
+                        parent_id,
+                        preset_id,
+                    })
+                } else {
+                    None
+                }
+            })
+            .collect_vec();
         let next_day_at = self.timing_today()?.next_day_at.0;
-        let entries = RevlogEntries {
-            entries,
+        let dataset = Dataset {
+            revlogs,
+            cards,
+            decks,
             next_day_at,
         };
-        let data = entries.encode_to_vec();
+        let data = dataset.encode_to_vec();
         write_file(target_path, data)?;
         Ok(())
     }
