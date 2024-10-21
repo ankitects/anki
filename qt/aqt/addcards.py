@@ -157,7 +157,7 @@ class AddCards(QMainWindow):
         """
         if self.col and not self.col.decks.is_deck_available():
             showInfo(tr.decks_must_create())
-            if op := add_deck_dialog(parent=self):
+            if op := add_deck_dialog(parent=self.mw):
                 op.with_backend_progress(None).success(
                     lambda new_deck: self.set_deck(DeckId(new_deck.id))
                 ).run_in_background()
