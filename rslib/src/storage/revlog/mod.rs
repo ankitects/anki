@@ -172,12 +172,19 @@ impl SqliteStorage {
         let start = day_cutoff.adding_secs(-86_400).as_millis();
         self.db
             .prepare_cached(include_str!("studied_today.sql"))?
-            .query_map([start.0, RevlogReviewKind::Manual as i64], |row| {
-                Ok(StudiedToday {
-                    cards: row.get(0)?,
-                    seconds: row.get(1)?,
-                })
-            })?
+            .query_map(
+                [
+                    start.0,
+                    RevlogReviewKind::Manual as i64,
+                    RevlogReviewKind::Rescheduled as i64,
+                ],
+                |row| {
+                    Ok(StudiedToday {
+                        cards: row.get(0)?,
+                        seconds: row.get(1)?,
+                    })
+                },
+            )?
             .next()
             .unwrap()
             .map_err(Into::into)
