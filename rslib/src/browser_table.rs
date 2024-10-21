@@ -131,9 +131,9 @@ impl Card {
             Some((timing.next_day_at.0 as u32).saturating_sub(self.due.max(0) as u32) / 86_400)
         } else {
             self.due_time(timing).map(|due| {
-                due.adding_secs(-86_400 * self.interval as i64)
-                    .elapsed_secs() as u32
-                    / 86_400
+                (due.adding_secs(-86_400 * self.interval as i64)
+                    .elapsed_secs()
+                    / 86_400) as u32
             })
         }
     }
