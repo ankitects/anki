@@ -55,6 +55,7 @@ message ConfigKey {
     SHIFT_POSITION_OF_EXISTING_CARDS = 24;
     RENDER_LATEX = 25;
     LOAD_BALANCER_ENABLED = 26;
+    FSRS_SHORT_TERM_WITH_STEPS_ENABLED = 27;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -117,6 +118,7 @@ message Preferences {
     bool show_intervals_on_buttons = 4;
     uint32 time_limit_secs = 5;
     bool load_balancer_enabled = 6;
+    bool fsrs_short_term_with_steps_enabled = 7;
   }
   message Editing {
     bool adding_defaults_to_current_deck = 1;
