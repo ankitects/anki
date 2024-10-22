@@ -115,8 +115,8 @@ impl Card {
         } else if self.is_due_in_days() {
             Some(
                 TimestampSecs::now().adding_secs(
-                    ((self.original_or_current_due() - timing.days_elapsed as i32)
-                        .saturating_mul(86400)) as i64,
+                    (self.original_or_current_due() as i64 - timing.days_elapsed as i64)
+                        .saturating_mul(86400),
                 ),
             )
         } else {
@@ -131,9 +131,9 @@ impl Card {
             Some((timing.next_day_at.0 as u32).saturating_sub(self.due.max(0) as u32) / 86_400)
         } else {
             self.due_time(timing).map(|due| {
-                due.adding_secs(-86_400 * self.interval as i64)
-                    .elapsed_secs() as u32
-                    / 86_400
+                (due.adding_secs(-86_400 * self.interval as i64)
+                    .elapsed_secs()
+                    / 86_400) as u32
             })
         }
     }
