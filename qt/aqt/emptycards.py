@@ -38,7 +38,7 @@ class EmptyCardsDialog(QDialog):
 
     def __init__(self, mw: aqt.main.AnkiQt, report: EmptyCardsReport) -> None:
         super().__init__(mw)
-        self.mw = mw.weakref()
+        self.mw = mw
         self.mw.garbage_collect_on_dialog_finish(self)
         self.report = report
         self.form = aqt.forms.emptycards.Ui_Dialog()
