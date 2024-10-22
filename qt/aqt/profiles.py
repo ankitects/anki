@@ -310,7 +310,9 @@ class ProfileManager:
         return path
 
     def addonFolder(self) -> str:
-        return self._ensureExists(os.path.join(self.base, "addons21"))
+        path = Path(os.environ.get("ANKI_ADDONS") or Path(self.base) / "addons21")
+        path.mkdir(parents=True, exist_ok=True)
+        return str(path.resolve())
 
     def backupFolder(self) -> str:
         return self._ensureExists(os.path.join(self.profileFolder(), "backups"))
