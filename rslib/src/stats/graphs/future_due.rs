@@ -26,17 +26,14 @@ impl GraphsContext {
                 due - (self.days_elapsed as i32)
             };
 
+            daily_load += 1.0 / c.interval.max(1) as f32;
+
             // still want to filtered out buried cards that are due today
             if due_day == 0 && matches!(c.queue, CardQueue::UserBuried | CardQueue::SchedBuried) {
                 continue;
             }
             have_backlog |= due_day < 0;
             *due_by_day.entry(due_day).or_default() += 1;
-            if matches!(c.queue, CardQueue::Review | CardQueue::DayLearn) {
-                daily_load += 1.0 / c.interval.max(1) as f32;
-            } else {
-                daily_load += 1.0;
-            }
         }
         FutureDue {
             future_due: due_by_day,

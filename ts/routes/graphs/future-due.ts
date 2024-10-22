@@ -145,8 +145,8 @@ export function buildHistogram(
         },
         {
             label: tr.statisticsDailyLoad(),
-            value: tr.statisticsReviews({
-                reviews: sourceData.dailyLoad,
+            value: tr.statisticsReviewsPerDay({
+                count: sourceData.dailyLoad,
             }),
         },
     ];
