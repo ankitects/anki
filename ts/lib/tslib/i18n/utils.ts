@@ -17,7 +17,7 @@ export function supportsVerticalText(): boolean {
     );
 }
 
-export function direction(): string {
+export function direction(): "ltr" | "rtl" {
     const firstLang = firstLanguage();
     if (
         firstLang.startsWith("ar")

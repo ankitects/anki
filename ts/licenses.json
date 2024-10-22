@@ -600,8 +600,8 @@
     "ms@2.1.2": {
         "licenses": "MIT",
         "repository": "https://github.com/zeit/ms",
-        "path": "node_modules/ms",
-        "licenseFile": "node_modules/ms/license.md"
+        "path": "node_modules/debug/node_modules/ms",
+        "licenseFile": "node_modules/debug/node_modules/ms/license.md"
     },
     "nwsapi@2.2.12": {
         "licenses": "MIT",
