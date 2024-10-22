@@ -432,7 +432,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={3650}
         >
             <SettingTitle on:click={() => openHelpModal("computeOptimalRetention")}>
-                Days to simulate
+                {tr.deckConfigDaysToSimulate()}
             </SettingTitle>
         </SpinBoxRow>
 
