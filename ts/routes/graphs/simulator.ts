@@ -16,6 +16,7 @@ import {
     select,
 } from "d3";
 
+import * as tr from "@generated/ftl";
 import { timeSpan } from "@tslib/time";
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
@@ -23,7 +24,8 @@ import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
 
 export interface Point {
     x: number;
-    y: number;
+    timeCost: number;
+    count: number;
     label: number;
 }
 
@@ -31,6 +33,7 @@ export function renderSimulationChart(
     svgElem: SVGElement,
     bounds: GraphBounds,
     data: Point[],
+    showTime: boolean,
 ): TableDatum[] {
     const svg = select(svgElem);
     svg.selectAll(".lines").remove();
@@ -62,10 +65,10 @@ export function renderSimulationChart(
     // y scale
 
     const yTickFormat = (n: number): string => {
-        return timeSpan(n, true);
+        return showTime ? timeSpan(n, true) : n.toString();
     };
 
-    const yMax = max(convertedData, d => d.y)!;
+    const yMax = showTime ? max(convertedData, d => d.timeCost)! : max(convertedData, d => d.count)!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax])
@@ -91,10 +94,10 @@ export function renderSimulationChart(
         .attr("dy", "1em")
         .attr("fill", "currentColor")
         .style("text-anchor", "middle")
-        .text("Review Time per day");
+        .text(showTime ? "Review Time per day" : "Review Count per day");
 
     // x lines
-    const points = convertedData.map((d) => [x(d.date), y(d.y), d.label]);
+    const points = convertedData.map((d) => [x(d.date), y(showTime ? d.timeCost : d.count), d.label]);
     const groups = rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
 
     const color = schemeCategory10;
@@ -161,7 +164,9 @@ export function renderSimulationChart(
         const days = +((date.getTime() - Date.now()) / (60 * 60 * 24 * 1000)).toFixed();
         let tooltipContent = `Date: ${localizedDate(date)}<br>In ${days} Days<br>`;
         for (const [key, value] of Object.entries(groupData)) {
-            tooltipContent += `#${key}: ${timeSpan(value)}<br>`;
+            tooltipContent += `#${key}: ${
+                showTime ? timeSpan(value) : tr.statisticsReviews({ reviews: Math.round(value) })
+            }<br>`;
         }
 
         showTooltip(tooltipContent, event.pageX, event.pageY);
