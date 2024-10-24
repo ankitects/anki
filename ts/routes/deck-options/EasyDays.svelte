@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const config = state.currentConfig;
     const defaults = state.defaults;
 
-    if ($config.easyDaysPercentages.length !== 7) {
+    $: if ($config.easyDaysPercentages.length !== 7) {
         $config.easyDaysPercentages = defaults.easyDaysPercentages;
     }
 
