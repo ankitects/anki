@@ -370,9 +370,6 @@ deck-config-historical-retention = Historical retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, steps of 1 day or more are not recommended.
 deck-config-get-params = Get Params
-deck-config-fsrs-on-all-clients =
-    Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
-    not work correctly if one of your clients is older.
 deck-config-predicted-minimum-recommended-retention = Minimum recommended retention: { $num }
 deck-config-complete = { $num }% complete.
 deck-config-iterations = Iteration: { $count }...
@@ -523,3 +520,6 @@ deck-config-compute-optimal-retention-tooltip3 =
     lead to a higher workload, because of the high forgetting rate.
 deck-config-seconds-to-show-question-tooltip-2 = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.
 deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.
+deck-config-fsrs-on-all-clients =
+    Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
+    not work correctly if one of your clients is older.
