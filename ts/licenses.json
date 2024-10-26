@@ -5,21 +5,21 @@
         "path": "node_modules/@bufbuild/protobuf",
         "licenseFile": "node_modules/@bufbuild/protobuf/README.md"
     },
-    "@floating-ui/core@1.6.7": {
+    "@floating-ui/core@1.6.8": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/core",
         "licenseFile": "node_modules/@floating-ui/core/LICENSE"
     },
-    "@floating-ui/dom@1.6.10": {
+    "@floating-ui/dom@1.6.11": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/dom",
         "licenseFile": "node_modules/@floating-ui/dom/LICENSE"
     },
-    "@floating-ui/utils@0.2.7": {
+    "@floating-ui/utils@0.2.8": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
@@ -75,8 +75,8 @@
     "acorn-walk@7.2.0": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
-        "path": "node_modules/acorn-globals/node_modules/acorn-walk",
-        "licenseFile": "node_modules/acorn-globals/node_modules/acorn-walk/LICENSE"
+        "path": "node_modules/acorn-walk",
+        "licenseFile": "node_modules/acorn-walk/LICENSE"
     },
     "acorn@7.4.1": {
         "licenses": "MIT",
@@ -84,7 +84,7 @@
         "path": "node_modules/acorn-globals/node_modules/acorn",
         "licenseFile": "node_modules/acorn-globals/node_modules/acorn/LICENSE"
     },
-    "acorn@8.12.1": {
+    "acorn@8.13.0": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
         "path": "node_modules/acorn",
@@ -127,7 +127,7 @@
         "path": "node_modules/browser-process-hrtime",
         "licenseFile": "node_modules/browser-process-hrtime/LICENSE"
     },
-    "codemirror@5.65.17": {
+    "codemirror@5.65.18": {
         "licenses": "MIT",
         "repository": "https://github.com/codemirror/CodeMirror",
         "publisher": "Marijn Haverbeke",
@@ -398,7 +398,7 @@
         "path": "node_modules/data-urls",
         "licenseFile": "node_modules/data-urls/LICENSE.txt"
     },
-    "debug@4.3.6": {
+    "debug@4.3.7": {
         "licenses": "MIT",
         "repository": "https://github.com/debug-js/debug",
         "publisher": "Josh Junon",
@@ -474,7 +474,7 @@
         "path": "node_modules/fabric",
         "licenseFile": "node_modules/fabric/LICENSE"
     },
-    "form-data@4.0.0": {
+    "form-data@4.0.1": {
         "licenses": "MIT",
         "repository": "https://github.com/form-data/form-data",
         "publisher": "Felix Geisendörfer",
@@ -597,13 +597,13 @@
         "path": "node_modules/mime-types",
         "licenseFile": "node_modules/mime-types/LICENSE"
     },
-    "ms@2.1.2": {
+    "ms@2.1.3": {
         "licenses": "MIT",
-        "repository": "https://github.com/zeit/ms",
+        "repository": "https://github.com/vercel/ms",
         "path": "node_modules/ms",
         "licenseFile": "node_modules/ms/license.md"
     },
-    "nwsapi@2.2.12": {
+    "nwsapi@2.2.13": {
         "licenses": "MIT",
         "repository": "https://github.com/dperini/nwsapi",
         "publisher": "Diego Perini",
