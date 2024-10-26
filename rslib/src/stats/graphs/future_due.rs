@@ -6,7 +6,8 @@ use std::collections::HashMap;
 use anki_proto::stats::graphs_response::FutureDue;
 
 use super::GraphsContext;
-use crate::card::{CardQueue, CardType};
+use crate::card::CardQueue;
+use crate::card::CardType;
 use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl GraphsContext {
