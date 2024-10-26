@@ -94,7 +94,11 @@ impl Collection {
         Ok(match card.ctype {
             CardType::New => None,
             CardType::Review | CardType::Learn | CardType::Relearn => {
-                let due = card.due;
+                let due = if card.original_due != 0 {
+                    card.original_due
+                } else {
+                    card.due
+                };
                 if !is_unix_epoch_timestamp(due) {
                     let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
                     let mut due_timestamp = TimestampSecs::now();
