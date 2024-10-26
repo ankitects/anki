@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use anki_proto::stats::graphs_response::FutureDue;
 
 use super::GraphsContext;
-use crate::card::CardQueue;
+use crate::card::{CardQueue, CardType};
 use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl GraphsContext {
@@ -26,7 +26,7 @@ impl GraphsContext {
                 due - (self.days_elapsed as i32)
             };
 
-            if c.memory_state.is_some() {
+            if c.ctype != CardType::New {
                 daily_load += 1.0 / c.interval.max(1) as f32;
             }
 
