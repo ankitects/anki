@@ -40,6 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import NoDataOverlay from "../graphs/NoDataOverlay.svelte";
     import TableData from "../graphs/TableData.svelte";
     import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
+    import InputBox from "../graphs/InputBox.svelte";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -72,6 +73,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         | ComputeParamsProgress
         | ComputeRetentionProgress
         | undefined;
+
+    let showTime = false;
 
     const optimalRetentionRequest = new ComputeOptimalRetentionRequest({
         daysToSimulate: 365,
@@ -305,6 +308,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return result;
     }
 
+    function addArrays(arr1: number[], arr2: number[]): number[] {
+        return arr1.map((value, index) => value + arr2[index]);
+    }
+
     $: simulateProgressString = "";
 
     async function simulateFsrs(): Promise<void> {
@@ -328,23 +335,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     resp.dailyTimeCost,
                     Math.ceil(simulateFsrsRequest.daysToSimulate / 50),
                 );
+                const dailyReviewCount = movingAverage(
+                    addArrays(resp.dailyReviewCount, resp.dailyNewCount),
+                    Math.ceil(simulateFsrsRequest.daysToSimulate / 50),
+                );
                 points = points.concat(
                     dailyTimeCost.map((v, i) => ({
                         x: i,
-                        y: v,
+                        timeCost: v,
+                        count: dailyReviewCount[i],
                         label: simulationNumber,
                     })),
                 );
-                tableData = renderSimulationChart(svg as SVGElement, bounds, points);
+                tableData = renderSimulationChart(
+                    svg as SVGElement,
+                    bounds,
+                    points,
+                    showTime,
+                );
             }
         }
     }
 
+    $: tableData = renderSimulationChart(svg as SVGElement, bounds, points, showTime);
+
     function clearSimulation(): void {
         points = points.filter((p) => p.label !== simulationNumber);
         simulationNumber = Math.max(0, simulationNumber - 1);
-        tableData = renderSimulationChart(svg as SVGElement, bounds, points);
+        tableData = renderSimulationChart(svg as SVGElement, bounds, points, showTime);
     }
+
+    const label = tr.statisticsReviewsTimeCheckbox();
 </script>
 
 <SpinBoxFloatRow
@@ -472,7 +493,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={3650}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Days to simulate
+                {tr.deckConfigDaysToSimulate()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -491,10 +512,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={simulateFsrsRequest.newLimit}
             defaultValue={defaults.newPerDay}
             min={0}
-            max={1000}
+            max={9999}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                New cards/day
+                {tr.schedulingNewCardsday()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -502,10 +523,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={simulateFsrsRequest.reviewLimit}
             defaultValue={defaults.reviewsPerDay}
             min={0}
-            max={1000}
+            max={9999}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Maximum reviews/day
+                {tr.schedulingMaximumReviewsday()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -516,7 +537,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={36500}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Maximum interval
+                {tr.schedulingMaximumInterval()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -538,6 +559,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div>{simulateProgressString}</div>
 
         <Graph {title}>
+            <InputBox>
+                <label>
+                    <input type="checkbox" bind:checked={showTime} />
+                    {label}
+                </label>
+            </InputBox>
+
             <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
                 <CumulativeOverlay />
                 <HoverColumns />
