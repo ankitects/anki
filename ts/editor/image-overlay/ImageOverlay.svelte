@@ -224,7 +224,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         Number(actualWidth) <= maxWidth && Number(actualHeight) <= maxHeight;
 
     let restoringDisabled: boolean;
-    $: restoringDisabled = !activeImage?.hasAttribute("width") ?? true;
+    $: restoringDisabled = !(activeImage?.hasAttribute("width") ?? true);
 
     const widthObserver = new MutationObserver(() => {
         restoringDisabled = !activeImage!.hasAttribute("width");
