@@ -56,8 +56,8 @@
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
         "typescript": "^5.0.4",
-        "vite": "=5.4.7",
-        "vitest": "^1.2.1"
+        "vite": "^5.4.10",
+        "vitest": "^2"
     },
     "dependencies": {
         "@bufbuild/protobuf": "^1.2.1",
@@ -81,7 +81,6 @@
     },
     "resolutions": {
         "canvas": "npm:empty-npm-package",
-        "vite": "=5.4.7",
         "cookie": "0.7.0"
     },
     "browserslist": [

@@ -3,7 +3,8 @@
 import svg from "@poppanator/sveltekit-svg";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { realpathSync } from "fs";
-import { defineConfig } from "vite";
+import { defineConfig as defineViteConfig, mergeConfig } from "vite";
+import { defineConfig as defineVitestConfig } from "vitest/config";
 
 const configure = (proxy: any, _options: any) => {
     proxy.on("error", (err: any) => {
@@ -17,15 +18,8 @@ const configure = (proxy: any, _options: any) => {
     });
 };
 
-export default defineConfig({
+const viteConfig = defineViteConfig({
     plugins: [sveltekit(), svg({})],
-    test: {
-        include: ["**/*.{test,spec}.{js,ts}"],
-        cache: {
-            // prevent vitest from creating ts/node_modules/.vitest
-            dir: "../node_modules/.vitest",
-        },
-    },
     build: {
         reportCompressedSize: false,
         // defaults use chrome87, but we need 77 for qt 5.14
@@ -52,3 +46,15 @@ export default defineConfig({
         },
     },
 });
+
+const vitestConfig = defineVitestConfig({
+    test: {
+        include: ["**/*.{test,spec}.{js,ts}"],
+        cache: {
+            // prevent vitest from creating ts/node_modules/.vitest
+            dir: "../node_modules/.vitest",
+        },
+    },
+});
+
+export default mergeConfig(viteConfig, vitestConfig);
