@@ -31,12 +31,12 @@ pub(crate) fn apply_filters<'a>(
     let mut text: Cow<str> = text.into();
 
     // type:cloze & type:nc are handled specially
-    let filters = if filters == ["cloze", "type"] {
-        &["type-cloze"]
-    } else if filters == ["nc", "type"] {
-        &["type-nc"]
-    } else {
-        filters
+    // other type: are passed as the default one
+    let filters = match filters {
+        ["cloze", "type"] => &["type-cloze"],
+        ["nc", "type"] => &["type-nc"],
+        [.., "type"] => &["type"],
+        _ => filters,
     };
 
     for (idx, &filter_name) in filters.iter().enumerate() {
@@ -258,6 +258,10 @@ field</a>
         assert_eq!(
             apply_filters("ignored", &["nc", "type"], "Text", &ctx),
             ("[[type:nc:Text]]".into(), vec![])
+        );
+        assert_eq!(
+            apply_filters("ignored", &["some", "unknown", "type"], "Text", &ctx),
+            ("[[type:Text]]".into(), vec![])
         );
     }
 
