@@ -129,7 +129,7 @@ impl Collection {
 
     /// Used for exporting revlogs for algorithm research.
     pub fn export_dataset(&mut self, min_entries: usize, target_path: &Path) -> Result<()> {
-        let revlog_entries = self.storage.get_all_revlog_entries_in_card_order()?;
+        let revlog_entries = self.storage.get_revlog_entries_for_export_dataset()?;
         if revlog_entries.len() < min_entries {
             return Err(AnkiError::FsrsInsufficientData);
         }
