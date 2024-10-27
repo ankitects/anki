@@ -144,7 +144,11 @@ class CustomStudy(QDialog):
         form.spin.setValue(current_spinner_value)
         form.preSpin.setText(text_before_spinner)
         form.postSpin.setText(text_after_spinner)
-        form.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(ok)
+
+        ok_button = form.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
+        assert ok_button is not None
+        ok_button.setText(ok)
+
         self.radioIdx = idx
 
     def accept(self) -> None:
