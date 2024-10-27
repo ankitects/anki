@@ -224,13 +224,14 @@ class Overview:
             dyn = ""
         return f'<div class="descfont descmid description {dyn}">{desc}</div>'
 
-    def _table(self) -> str | None:
+    def _table(self) -> str:
         counts = list(self.mw.col.sched.counts())
         current_did = self.mw.col.decks.get_current_id()
         deck_node = self.mw.col.sched.deck_due_tree(current_did)
 
         but = self.mw.button
         if self.mw.col.v3_scheduler():
+            assert deck_node is not None
             buried_new = deck_node.new_count - counts[0]
             buried_learning = deck_node.learn_count - counts[1]
             buried_review = deck_node.review_count - counts[2]
