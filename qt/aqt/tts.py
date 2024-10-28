@@ -189,6 +189,7 @@ class MacTTSPlayer(TTSProcessPlayer):
             stderr=subprocess.DEVNULL,
         )
         # write the input text to stdin
+        assert self._process.stdin is not None
         self._process.stdin.write(tag.field_text.encode("utf8"))
         self._process.stdin.close()
         self._wait_for_termination(tag)
@@ -247,6 +248,7 @@ class MacTTSFilePlayer(MacTTSPlayer):
             stderr=subprocess.DEVNULL,
         )
         # write the input text to stdin
+        assert self._process.stdin is not None
         self._process.stdin.write(tag.field_text.encode("utf8"))
         self._process.stdin.close()
         self._wait_for_termination(tag)
