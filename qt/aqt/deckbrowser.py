@@ -309,12 +309,16 @@ class DeckBrowser:
     def _showOptions(self, did: str) -> None:
         m = QMenu(self.mw)
         a = m.addAction(tr.actions_rename())
+        assert a is not None
         qconnect(a.triggered, lambda b, did=did: self._rename(DeckId(int(did))))
         a = m.addAction(tr.actions_options())
+        assert a is not None
         qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
         a = m.addAction(tr.actions_export())
+        assert a is not None
         qconnect(a.triggered, lambda b, did=did: self._export(DeckId(int(did))))
         a = m.addAction(tr.actions_delete())
+        assert a is not None
         qconnect(a.triggered, lambda b, did=did: self._delete(DeckId(int(did))))
         gui_hooks.deck_browser_will_show_options_menu(m, int(did))
         m.popup(QCursor.pos())
@@ -357,9 +361,9 @@ class DeckBrowser:
         ).run_in_background()
 
     def _delete(self, did: DeckId) -> None:
-        deck_name = self.mw.col.decks.find_deck_in_tree(
-            self._render_data.tree, did
-        ).name
+        deck = self.mw.col.decks.find_deck_in_tree(self._render_data.tree, did)
+        assert deck is not None
+        deck_name = deck.name
         remove_decks(
             parent=self.mw, deck_ids=[did], deck_name=deck_name
         ).run_in_background()
