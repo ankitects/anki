@@ -7,6 +7,7 @@ use anki_proto::stats::graphs_response::FutureDue;
 
 use super::GraphsContext;
 use crate::card::CardQueue;
+use crate::card::CardType;
 use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl GraphsContext {
@@ -26,7 +27,9 @@ impl GraphsContext {
                 due - (self.days_elapsed as i32)
             };
 
-            daily_load += 1.0 / c.interval.max(1) as f32;
+            if c.ctype != CardType::New {
+                daily_load += 1.0 / c.interval.max(1) as f32;
+            }
 
             // still want to filtered out buried cards that are due today
             if due_day == 0 && matches!(c.queue, CardQueue::UserBuried | CardQueue::SchedBuried) {
