@@ -636,7 +636,8 @@ create table if not exists profiles
         self.meta[f"{self.editor_key(mode)}TagsCollapsed"] = collapsed
 
     def legacy_import_export(self) -> bool:
-        return self.meta.get("legacy_import", False)
+        "Always returns False so users with this option enabled are not stuck on the legacy importer after the UI option is removed."
+        return False
 
     def set_legacy_import_export(self, enabled: bool) -> None:
         self.meta["legacy_import"] = enabled
