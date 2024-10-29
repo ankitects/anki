@@ -735,8 +735,12 @@ def _extract_page_context() -> PageContext:
         return PageContext.NON_LEGACY_PAGE
     elif referer.path == "/_anki/legacyPageData":
         query_params = parse_qs(referer.query)
-        id = int(query_params.get("id", [None])[0])
-        return aqt.mw.mediaServer.get_page_context(id)
+        query_id = query_params.get("id")
+        if not query_id:
+            return PageContext.UNKNOWN
+        id = int(query_id[0])
+        page_context = aqt.mw.mediaServer.get_page_context(id)
+        return page_context if page_context else PageContext.UNKNOWN
     else:
         return PageContext.UNKNOWN
 
