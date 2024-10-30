@@ -130,9 +130,10 @@ class FilteredDeckConfigDialog(QDialog):
             build_label = tr.actions_rebuild()
         else:
             build_label = tr.decks_build()
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(
-            build_label
-        )
+
+        ok_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
+        assert ok_button is not None
+        ok_button.setText(build_label)
 
         form.resched.setChecked(config.reschedule)
         self._onReschedToggled(0)
