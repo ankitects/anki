@@ -359,7 +359,6 @@ class Preferences(QDialog):
         )
         self.form.styleLabel.setVisible(not is_win)
         self.form.styleComboBox.setVisible(not is_win)
-        self.form.legacy_import_export.setChecked(self.mw.pm.legacy_import_export())
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
         self.setup_language()
@@ -376,8 +375,6 @@ class Preferences(QDialog):
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)
             restart_required = True
-
-        self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
 
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())
