@@ -44,7 +44,7 @@ from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.utils import to_json_bytes
 
 CARD_BLANK_HELP = (
-    "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank"
+    "https://docs.ankiweb.net/templates/errors.html#front-of-card-is-blank"
 )
 
 
