@@ -644,10 +644,9 @@ mod test {
 
         // new->learning
         let post_answer = col.answer_again();
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Learn);
         assert_eq!(card.remaining_steps, 2);
@@ -656,10 +655,9 @@ mod test {
         col.storage.db.execute_batch("update cards set due=0")?;
         col.clear_study_queues();
         let post_answer = col.answer_good();
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Learn);
         assert_eq!(card.remaining_steps, 1);
@@ -672,10 +670,9 @@ mod test {
         if let CardState::Normal(NormalState::Review(state)) = &mut post_answer.new_state {
             state.elapsed_days = 1;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Review);
         assert_eq!(card.interval, 1);
@@ -688,10 +685,9 @@ mod test {
         if let CardState::Normal(NormalState::Review(state)) = &mut post_answer.new_state {
             state.elapsed_days = 4;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Review);
         assert_eq!(card.interval, 4);
@@ -704,10 +700,9 @@ mod test {
         if let CardState::Normal(NormalState::Relearning(state)) = &mut post_answer.new_state {
             state.review.elapsed_days = 1;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Learn);
         assert_eq!(card.ctype, CardType::Relearn);
@@ -722,10 +717,9 @@ mod test {
         if let CardState::Normal(NormalState::Relearning(state)) = &mut post_answer.new_state {
             state.review.elapsed_days = 1;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Learn);
         assert_eq!(card.lapses, 1);
@@ -737,10 +731,9 @@ mod test {
         if let CardState::Normal(NormalState::Review(state)) = &mut post_answer.new_state {
             state.elapsed_days = 1;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Review);
         assert_eq!(card.interval, 1);

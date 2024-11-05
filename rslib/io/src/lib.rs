@@ -8,6 +8,7 @@ use std::fs::FileTimes;
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Seek;
+use std::io::Write;
 use std::path::Component;
 use std::path::Path;
 use std::path::PathBuf;
@@ -51,6 +52,21 @@ pub fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<
     std::fs::write(&path, contents).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Write,
+    })
+}
+
+pub fn write_file_and_flush(
+    path: impl AsRef<Path> + Clone,
+    contents: impl AsRef<[u8]>,
+) -> Result<()> {
+    let mut file = create_file(path.clone())?;
+    file.write_all(contents.as_ref()).context(FileIoSnafu {
+        path: path.clone().as_ref(),
+        op: FileOp::Write,
+    })?;
+    file.sync_all().context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Sync,
     })
 }
 
