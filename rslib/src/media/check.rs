@@ -546,6 +546,7 @@ pub(crate) mod test {
     use anki_io::create_dir;
     use anki_io::read_to_string;
     use anki_io::write_file;
+    use anki_io::write_file_and_flush;
     use tempfile::tempdir;
     use tempfile::TempDir;
 
@@ -696,7 +697,7 @@ Unused: unused.jpg
     fn unicode_normalization() -> Result<()> {
         let (_dir, mgr, mut col) = common_setup()?;
 
-        write_file(mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
+        write_file_and_flush(mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
         let mut output = {
             let mut checker = col.media_checker()?;
