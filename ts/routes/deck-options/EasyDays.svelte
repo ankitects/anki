@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Item from "$lib/components/Item.svelte";
     import TitledContainer from "$lib/components/TitledContainer.svelte";
     import type { DeckOptionsState } from "./lib";
+    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -19,6 +20,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if ($config.easyDaysPercentages.length !== 7) {
         $config.easyDaysPercentages = defaults.easyDaysPercentages;
     }
+
+    $: noNormalDay = $config.easyDaysPercentages.some((p) => p === 1.0)
+        ? ""
+        : tr.deckConfigEasyDaysNoNormalDays();
 
     const easyDays = [
         tr.deckConfigEasyDaysMonday(),
@@ -80,6 +85,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </tbody>
                 </table>
             </div>
+        </Item>
+        <Item>
+            <Warning warning={noNormalDay} />
         </Item>
     </DynamicallySlottable>
 </TitledContainer>
