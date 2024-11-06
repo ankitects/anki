@@ -46,13 +46,16 @@ class Preferences(QDialog):
             self.form.network_timeout,
         ):
             spinbox.setSuffix(f" {spinbox.suffix()}")
+
         disable_help_button(self)
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help).setAutoDefault(
-            False
-        )
-        self.form.buttonBox.button(
-            QDialogButtonBox.StandardButton.Close
-        ).setAutoDefault(False)
+        help_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help)
+        assert help_button is not None
+        help_button.setAutoDefault(False)
+
+        close_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close)
+        assert close_button is not None
+        close_button.setAutoDefault(False)
+
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.PREFERENCES)
         )
@@ -218,6 +221,7 @@ class Preferences(QDialog):
         qconnect(self.form.syncAnkiHubLogin.clicked, self.ankihub_sync_login)
 
     def update_login_status(self) -> None:
+        assert self.prof is not None
         if not self.prof.get("syncKey"):
             self.form.syncUser.setText(tr.preferences_ankiweb_intro())
             self.form.syncLogin.setVisible(True)
@@ -241,6 +245,7 @@ class Preferences(QDialog):
 
     def sync_login(self) -> None:
         def on_success():
+            assert self.prof is not None
             if self.prof.get("syncKey"):
                 self.update_login_status()
                 self.confirm_sync_after_login()
@@ -251,6 +256,7 @@ class Preferences(QDialog):
         if self.mw.media_syncer.is_syncing():
             showWarning("Can't log out while sync in progress.")
             return
+        assert self.prof is not None
         self.prof["syncKey"] = None
         self.mw.col.media.force_resync()
         self.update_login_status()
@@ -263,7 +269,10 @@ class Preferences(QDialog):
         ankihub_login(self.mw, on_success)
 
     def ankihub_sync_logout(self) -> None:
-        ankihub_logout(self.mw, self.update_login_status, self.mw.pm.ankihub_token())
+        ankihub_token = self.mw.pm.ankihub_token()
+        if ankihub_token is None:
+            return
+        ankihub_logout(self.mw, self.update_login_status, ankihub_token)
 
     def confirm_sync_after_login(self) -> None:
         from aqt import mw
@@ -272,6 +281,7 @@ class Preferences(QDialog):
             self.accept_with_callback(self.mw.on_sync_button_clicked)
 
     def update_network(self) -> None:
+        assert self.prof is not None
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
         self.prof["syncMedia"] = self.form.syncMedia.isChecked()
         self.mw.pm.set_periodic_sync_media_minutes(
@@ -349,7 +359,6 @@ class Preferences(QDialog):
         )
         self.form.styleLabel.setVisible(not is_win)
         self.form.styleComboBox.setVisible(not is_win)
-        self.form.legacy_import_export.setChecked(self.mw.pm.legacy_import_export())
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
         self.setup_language()
@@ -367,8 +376,6 @@ class Preferences(QDialog):
             self.mw.pm.setUiScale(newScale)
             restart_required = True
 
-        self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
-
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())
 
@@ -378,6 +385,7 @@ class Preferences(QDialog):
         self.mw.set_theme(Theme(index))
 
     def on_reset_window_sizes(self) -> None:
+        assert self.prof is not None
         regexp = re.compile(r"(Geom(etry)?|State|Splitter|Header)(\d+.\d+)?$")
         for key in list(self.prof.keys()):
             if regexp.search(key):

@@ -12,6 +12,7 @@ import "anki/cards.proto";
 
 service StatsService {
   rpc CardStats(cards.CardId) returns (CardStatsResponse);
+  rpc GetReviewLogs(cards.CardId) returns (ReviewLogs);
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
@@ -20,6 +21,10 @@ service StatsService {
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendStatsService {}
+
+message ReviewLogs {
+  repeated CardStatsResponse.StatsRevlogEntry entries = 1;
+}
 
 message CardStatsResponse {
   message StatsRevlogEntry {
@@ -31,6 +36,7 @@ message CardStatsResponse {
     // per mill
     uint32 ease = 5;
     float taken_secs = 6;
+    optional cards.FsrsMemoryState memory_state = 7;
   }
   repeated StatsRevlogEntry revlog = 1;
   int64 card_id = 2;
@@ -74,13 +80,18 @@ message GraphsResponse {
   }
   message Eases {
     map<uint32, uint32> eases = 1;
+    float average = 2;
   }
   message Retrievability {
     map<uint32, uint32> retrievability = 1;
+    float average = 2;
+    float sum_by_card = 3;
+    float sum_by_note = 4;
   }
   message FutureDue {
     map<int32, uint32> future_due = 1;
     bool have_backlog = 2;
+    uint32 daily_load = 3;
   }
   message Today {
     uint32 answer_count = 1;
@@ -143,6 +154,21 @@ message GraphsResponse {
     // Buried/suspended cards are counted separately.
     Counts excluding_inactive = 2;
   }
+  message TrueRetentionStats {
+    message TrueRetention {
+      uint32 young_passed = 1;
+      uint32 young_failed = 2;
+      uint32 mature_passed = 3;
+      uint32 mature_failed = 4;
+    }
+
+    TrueRetention today = 1;
+    TrueRetention yesterday = 2;
+    TrueRetention week = 3;
+    TrueRetention month = 4;
+    TrueRetention year = 5;
+    TrueRetention all_time = 6;
+  }
 
   Buttons buttons = 1;
   CardCounts card_counts = 2;
@@ -158,6 +184,7 @@ message GraphsResponse {
   Retrievability retrievability = 12;
   bool fsrs = 13;
   Intervals stability = 14;
+  TrueRetentionStats true_retention = 15;
 }
 
 message GraphPreferences {
@@ -180,6 +207,7 @@ message RevlogEntry {
     RELEARNING = 2;
     FILTERED = 3;
     MANUAL = 4;
+    RESCHEDULED = 5;
   }
   int64 id = 1;
   int64 cid = 2;
@@ -192,7 +220,21 @@ message RevlogEntry {
   ReviewKind review_kind = 9;
 }
 
-message RevlogEntries {
-  repeated RevlogEntry entries = 1;
-  int64 next_day_at = 2;
+message CardEntry {
+  int64 id = 1;
+  int64 note_id = 2;
+  int64 deck_id = 3;
+}
+
+message DeckEntry {
+  int64 id = 1;
+  int64 parent_id = 2;
+  int64 preset_id = 3;
+}
+
+message Dataset {
+  repeated RevlogEntry revlogs = 1;
+  repeated CardEntry cards = 2;
+  repeated DeckEntry decks = 3;
+  int64 next_day_at = 4;
 }

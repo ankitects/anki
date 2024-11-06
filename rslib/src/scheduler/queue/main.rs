@@ -21,7 +21,7 @@ pub(crate) enum MainQueueEntryKind {
 impl CardQueues {
     /// Remove the head of the main queue, and update counts.
     pub(super) fn pop_main(&mut self) -> Option<MainQueueEntry> {
-        self.main.pop_front().map(|head| {
+        self.main.pop_front().inspect(|head| {
             match head.kind {
                 MainQueueEntryKind::New => self.counts.new -= 1,
                 MainQueueEntryKind::Review => self.counts.review -= 1,
@@ -32,7 +32,6 @@ impl CardQueues {
                     self.counts.learning = self.counts.learning.saturating_sub(1)
                 }
             };
-            head
         })
     }
 

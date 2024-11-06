@@ -165,6 +165,7 @@ message HtmlToTextLineRequest {
 message CompareAnswerRequest {
   string expected = 1;
   string provided = 2;
+  bool combining = 3;
 }
 
 message ExtractClozeForTypingRequest {

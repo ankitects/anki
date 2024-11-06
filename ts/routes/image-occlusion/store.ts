@@ -17,3 +17,5 @@ export const ioImageLoadedStore = writable(false);
 export const opacityStateStore = writable(false);
 // store state of text editing
 export const textEditingState = writable(false);
+// Stores if the canvas shapes data needs to be saved
+export const saveNeededStore = writable(false);

@@ -6,11 +6,11 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs;
 use std::io;
+use std::sync::LazyLock;
 
 use anki_i18n::without_unicode_isolation;
 use anki_io::write_file;
 use data_encoding::BASE64;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use tracing::debug;
 use tracing::info;
@@ -213,6 +213,10 @@ impl MediaChecker<'_> {
                 Some(s) => s,
                 None => continue,
             };
+
+            if fname_os == ".DS_Store" {
+                continue;
+            }
 
             // skip folders
             if dentry.file_type()?.is_dir() {
@@ -455,7 +459,7 @@ impl MediaChecker<'_> {
     }
 
     fn maybe_extract_inline_image<'a>(&mut self, fname_decoded: &'a str) -> Result<Cow<'a, str>> {
-        static BASE64_IMG: Lazy<Regex> = Lazy::new(|| {
+        static BASE64_IMG: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new("(?i)^data:image/(jpg|jpeg|png|gif|webp|avif);base64,(.+)$").unwrap()
         });
 
@@ -542,6 +546,7 @@ pub(crate) mod test {
     use anki_io::create_dir;
     use anki_io::read_to_string;
     use anki_io::write_file;
+    use anki_io::write_file_and_flush;
     use tempfile::tempdir;
     use tempfile::TempDir;
 
@@ -575,6 +580,7 @@ pub(crate) mod test {
         write_file(mgr.media_folder.join("foo[.jpg"), "foo")?;
         write_file(mgr.media_folder.join("_under.jpg"), "foo")?;
         write_file(mgr.media_folder.join("unused.jpg"), "foo")?;
+        write_file(mgr.media_folder.join(".DS_Store"), ".DS_Store")?;
 
         let (output, report) = {
             let mut checker = col.media_checker()?;
@@ -691,7 +697,7 @@ Unused: unused.jpg
     fn unicode_normalization() -> Result<()> {
         let (_dir, mgr, mut col) = common_setup()?;
 
-        write_file(mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
+        write_file_and_flush(mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
         let mut output = {
             let mut checker = col.media_checker()?;

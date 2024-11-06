@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::cell::LazyCell;
 use std::collections::HashSet;
 use std::env;
 use std::fs;
@@ -16,7 +17,6 @@ use anki_process::CommandExt;
 use anyhow::Context;
 use anyhow::Result;
 use camino::Utf8Path;
-use once_cell::unsync::Lazy;
 use walkdir::WalkDir;
 
 const NONSTANDARD_HEADER: &[&str] = &[
@@ -63,7 +63,7 @@ fn main() -> Result<()> {
 
 struct LintContext {
     want_fix: bool,
-    unstaged_changes: Lazy<()>,
+    unstaged_changes: LazyCell<()>,
     found_problems: bool,
     nonstandard_headers: HashSet<&'static Utf8Path>,
 }
@@ -72,7 +72,7 @@ impl LintContext {
     pub fn new(want_fix: bool) -> Self {
         Self {
             want_fix,
-            unstaged_changes: Lazy::new(check_for_unstaged_changes),
+            unstaged_changes: LazyCell::new(check_for_unstaged_changes),
             found_problems: false,
             nonstandard_headers: NONSTANDARD_HEADER.iter().map(Utf8Path::new).collect(),
         }
@@ -113,7 +113,7 @@ impl LintContext {
         let missing = !head.contains("Ankitects Pty Ltd and contributors");
         if missing {
             if self.want_fix {
-                Lazy::force(&self.unstaged_changes);
+                LazyCell::force(&self.unstaged_changes);
                 fix_copyright(path)?;
             } else {
                 println!("missing standard copyright header: {:?}", path);

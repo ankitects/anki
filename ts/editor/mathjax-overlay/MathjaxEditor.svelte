@@ -7,8 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let closeMathjaxEditor: (() => void) | null = null;
 
-    const closeSignalStore = writable<symbol>(Symbol(), (set) => {
-        closeMathjaxEditor = () => set(Symbol());
+    const closeSignalStore = writable<boolean>(false, (set) => {
+        closeMathjaxEditor = () => set(true);
         return () => (closeMathjaxEditor = null);
     });
 </script>
@@ -107,7 +107,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     });
 
-    $: $closeSignalStore, dispatch("close");
+    $: if ($closeSignalStore) {
+        dispatch("close");
+        $closeSignalStore = false;
+    }
 </script>
 
 <div class="mathjax-editor" class:light-theme={!$pageTheme.isDark}>

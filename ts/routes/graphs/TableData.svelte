@@ -12,12 +12,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div>
     <table dir={direction()}>
-        {#each tableData as { label, value }}
-            <tr>
-                <td class="align-end">{label}:</td>
-                <td class="align-start">{value}</td>
-            </tr>
-        {/each}
+        <tbody>
+            {#each tableData as { label, value }}
+                <tr>
+                    <td class="align-end">{label}:</td>
+                    <td class="align-start">{value}</td>
+                </tr>
+            {/each}
+        </tbody>
     </table>
 </div>
 

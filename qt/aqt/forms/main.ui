@@ -75,6 +75,7 @@
     <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="action_create_backup"/>
+    <addaction name="action_open_backup"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -275,6 +276,11 @@
   <action name="action_create_backup">
    <property name="text">
     <string>qt_accel_create_backup</string>
+   </property>
+  </action>
+  <action name="action_open_backup">
+   <property name="text">
+    <string>qt_accel_load_backup</string>
    </property>
   </action>
  </widget>

@@ -7,8 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { RevlogEntry_ReviewKind as ReviewKind } from "@generated/anki/stats_pb";
     import * as tr2 from "@generated/ftl";
     import { timeSpan, Timestamp } from "@tslib/time";
+    import { filterRevlogEntryByReviewKind } from "./forgetting-curve";
 
     export let revlog: RevlogEntry[];
+    export let fsrsEnabled: boolean = false;
 
     function reviewKindClass(entry: RevlogEntry): string {
         switch (entry.reviewKind) {
@@ -34,6 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 return tr2.cardStatsReviewLogTypeFiltered();
             case ReviewKind.MANUAL:
                 return tr2.cardStatsReviewLogTypeManual();
+            case ReviewKind.RESCHEDULED:
+                return tr2.cardStatsReviewLogTypeRescheduled();
         }
     }
 
@@ -54,9 +58,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         interval: string;
         ease: string;
         takenSecs: string;
+        elapsedTime: string;
+        stability: string;
     }
 
-    function revlogRowFromEntry(entry: RevlogEntry): RevlogRow {
+    function revlogRowFromEntry(entry: RevlogEntry, elapsedTime: string): RevlogRow {
         const timestamp = new Timestamp(Number(entry.time));
 
         return {
@@ -69,10 +75,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             interval: timeSpan(entry.interval),
             ease: formatEaseOrDifficulty(entry.ease),
             takenSecs: timeSpan(entry.takenSecs, true),
+            elapsedTime,
+            stability: entry.memoryState?.stability
+                ? timeSpan(entry.memoryState.stability * 86400)
+                : "",
         };
     }
 
-    $: revlogRows = revlog.map(revlogRowFromEntry);
+    $: revlogRows = revlog.map((entry, index) => {
+        let prevValidEntry: RevlogEntry | undefined;
+        let i = index + 1;
+        while (i < revlog.length) {
+            if (filterRevlogEntryByReviewKind(revlog[i])) {
+                prevValidEntry = revlog[i];
+                break;
+            }
+            i++;
+        }
+
+        let elapsedTime = "N/A";
+        if (filterRevlogEntryByReviewKind(entry)) {
+            elapsedTime = prevValidEntry
+                ? timeSpan(Number(entry.time) - Number(prevValidEntry.time))
+                : "0";
+        }
+
+        return revlogRowFromEntry(entry, elapsedTime);
+    });
 
     function formatEaseOrDifficulty(ease: number): string {
         if (ease === 0) {
@@ -145,6 +174,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {/each}
             </div>
         </div>
+        {#if fsrsEnabled}{/if}
     </div>
 {/if}
 

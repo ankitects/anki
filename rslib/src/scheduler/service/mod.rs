@@ -7,7 +7,7 @@ mod states;
 use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
-use anki_proto::scheduler::ComputeFsrsWeightsResponse;
+use anki_proto::scheduler::ComputeFsrsParamsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
@@ -254,16 +254,16 @@ impl crate::services::SchedulerService for Collection {
         self.custom_study_defaults(input.deck_id.into())
     }
 
-    fn compute_fsrs_weights(
+    fn compute_fsrs_params(
         &mut self,
-        input: scheduler::ComputeFsrsWeightsRequest,
-    ) -> Result<scheduler::ComputeFsrsWeightsResponse> {
-        self.compute_weights(
+        input: scheduler::ComputeFsrsParamsRequest,
+    ) -> Result<scheduler::ComputeFsrsParamsResponse> {
+        self.compute_params(
             &input.search,
             input.ignore_revlogs_before_ms.into(),
             1,
             1,
-            &input.current_weights,
+            &input.current_params,
         )
     }
 
@@ -283,16 +283,16 @@ impl crate::services::SchedulerService for Collection {
         })
     }
 
-    fn evaluate_weights(
+    fn evaluate_params(
         &mut self,
-        input: scheduler::EvaluateWeightsRequest,
-    ) -> Result<scheduler::EvaluateWeightsResponse> {
-        let ret = self.evaluate_weights(
-            &input.weights,
+        input: scheduler::EvaluateParamsRequest,
+    ) -> Result<scheduler::EvaluateParamsResponse> {
+        let ret = self.evaluate_params(
+            &input.params,
             &input.search,
             input.ignore_revlogs_before_ms.into(),
         )?;
-        Ok(scheduler::EvaluateWeightsResponse {
+        Ok(scheduler::EvaluateParamsResponse {
             log_loss: ret.log_loss,
             rmse_bins: ret.rmse_bins,
         })
@@ -339,20 +339,17 @@ impl crate::services::SchedulerService for Collection {
 }
 
 impl crate::services::BackendSchedulerService for Backend {
-    fn compute_fsrs_weights_from_items(
+    fn compute_fsrs_params_from_items(
         &self,
-        req: scheduler::ComputeFsrsWeightsFromItemsRequest,
-    ) -> Result<scheduler::ComputeFsrsWeightsResponse> {
+        req: scheduler::ComputeFsrsParamsFromItemsRequest,
+    ) -> Result<scheduler::ComputeFsrsParamsResponse> {
         let fsrs = FSRS::new(None)?;
         let fsrs_items = req.items.len() as u32;
-        let weights = fsrs.compute_parameters(
+        let params = fsrs.compute_parameters(
             req.items.into_iter().map(fsrs_item_proto_to_fsrs).collect(),
             None,
         )?;
-        Ok(ComputeFsrsWeightsResponse {
-            weights,
-            fsrs_items,
-        })
+        Ok(ComputeFsrsParamsResponse { params, fsrs_items })
     }
 
     fn fsrs_benchmark(
@@ -365,8 +362,17 @@ impl crate::services::BackendSchedulerService for Backend {
             .into_iter()
             .map(fsrs_item_proto_to_fsrs)
             .collect();
-        let weights = fsrs.benchmark(train_set);
-        Ok(FsrsBenchmarkResponse { weights })
+        let params = fsrs.benchmark(train_set);
+        Ok(FsrsBenchmarkResponse { params })
+    }
+
+    fn export_dataset(&self, req: scheduler::ExportDatasetRequest) -> Result<()> {
+        self.with_col(|col| {
+            col.export_dataset(
+                req.min_entries.try_into().unwrap(),
+                req.target_path.as_ref(),
+            )
+        })
     }
 }
 

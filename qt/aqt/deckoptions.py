@@ -14,6 +14,7 @@ from aqt.qt import *
 from aqt.utils import (
     KeyboardModifiersPressed,
     addCloseShortcut,
+    ask_user_dialog,
     disable_help_button,
     restoreGeom,
     saveGeom,
@@ -32,6 +33,8 @@ class DeckOptionsDialog(QDialog):
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self._deck = deck
+        self._close_event_has_cleaned_up = False
+        self._ready = False
         self._setup_ui()
 
     def _setup_ui(self) -> None:
@@ -57,24 +60,67 @@ class DeckOptionsDialog(QDialog):
 
     def _on_bridge_cmd(self, cmd: str) -> None:
         if cmd == "deckOptionsReady":
+            self._ready = True
             gui_hooks.deck_options_did_load(self)
+        elif cmd == "confirmDiscardChanges":
+            self.confirm_discard_changes()
+        elif cmd == "_close":
+            self._close()
+
+    def closeEvent(self, evt: QCloseEvent | None) -> None:
+        if self._close_event_has_cleaned_up:
+            return super().closeEvent(evt)
+        assert evt is not None
+        evt.ignore()
+        self.check_pending_changes()
+
+    def _close(self):
+        """Close. Ensure the closeEvent is not ignored."""
+        self._close_event_has_cleaned_up = True
+        self.close()
+
+    def confirm_discard_changes(self) -> None:
+        def callbackWithUserChoice(choice: int) -> None:
+            if choice == 0:
+                # The user accepted to discard current input.
+                self._close()
+
+        ask_user_dialog(
+            tr.card_templates_discard_changes(),
+            callback=callbackWithUserChoice,
+            buttons=[
+                QMessageBox.StandardButton.Discard,
+                (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
+            ],
+            parent=self,
+        )
 
     def reject(self) -> None:
         self.mw.col.set_wants_abort()
         self.web.cleanup()
-        self.web = None
+        self.web = None  # type: ignore
         saveGeom(self, self.TITLE)
         QDialog.reject(self)
+
+    def check_pending_changes(self):
+        if self._ready:
+            self.web.eval("anki.deckOptionsPendingChanges();")
+        else:
+            self._close()
 
 
 def confirm_deck_then_display_options(active_card: Card | None = None) -> None:
     decks = [aqt.mw.col.decks.current()]
     if card := active_card:
         if card.odid and card.odid != decks[0]["id"]:
-            decks.append(aqt.mw.col.decks.get(card.odid))
+            deck = aqt.mw.col.decks.get(card.odid)
+            assert deck is not None
+            decks.append(deck)
 
         if not any(d["id"] == card.did for d in decks):
-            decks.append(aqt.mw.col.decks.get(card.did))
+            deck = aqt.mw.col.decks.get(card.did)
+            assert deck is not None
+            decks.append(deck)
 
     if len(decks) == 1:
         display_options_for_deck(decks[0])
@@ -101,13 +147,16 @@ def _deck_prompt_dialog(decks: list[DeckDict]) -> None:
 
 
 def display_options_for_deck_id(deck_id: DeckId) -> None:
-    display_options_for_deck(aqt.mw.col.decks.get(deck_id))
+    deck = aqt.mw.col.decks.get(deck_id)
+    assert deck is not None
+    display_options_for_deck(deck)
 
 
 def display_options_for_deck(deck: DeckDict) -> None:
     if not deck["dyn"]:
         if KeyboardModifiersPressed().shift or not aqt.mw.col.v3_scheduler():
             deck_legacy = aqt.mw.col.decks.get(DeckId(deck["id"]))
+            assert deck_legacy is not None
             aqt.deckconf.DeckConf(aqt.mw, deck_legacy)
         else:
             DeckOptionsDialog(aqt.mw, deck)

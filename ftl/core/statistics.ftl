@@ -48,6 +48,11 @@ statistics-cards =
         [one] { $cards } card
        *[other] { $cards } cards
     }
+statistics-notes =
+    { $notes ->
+        [one] { $notes } note
+       *[other] { $notes } notes
+    }
 # a count of how many cards have been answered, eg "Total: 34 reviews"
 statistics-reviews =
     { $reviews ->
@@ -86,6 +91,18 @@ statistics-counts-learning-cards = Learning
 statistics-counts-relearning-cards = Relearning
 statistics-counts-title = Card Counts
 statistics-counts-separate-suspended-buried-cards = Separate suspended/buried cards
+statistics-true-retention-title = True Retention
+statistics-true-retention-subtitle = Pass rate of cards with an interval ≥ 1 day.
+statistics-true-retention-range = Range
+statistics-true-retention-pass = Pass
+statistics-true-retention-fail = Fail
+statistics-true-retention-retention = Retention
+statistics-true-retention-today = Today
+statistics-true-retention-yesterday = Yesterday
+statistics-true-retention-week = Last week
+statistics-true-retention-month = Last month
+statistics-true-retention-year = Last year
+statistics-true-retention-all-time = All time
 statistics-range-all-time = all
 statistics-range-1-year-history = last 12 months
 statistics-range-all-history = all history
@@ -208,6 +225,7 @@ statistics-average-answer-time-label = Average answer time
 statistics-average = Average
 statistics-average-interval = Average interval
 statistics-due-tomorrow = Due tomorrow
+statistics-daily-load = Daily load
 # eg 5 of 15 (33.3%)
 statistics-amount-of-total-with-percentage = { $amount } of { $total } ({ $percent }%)
 statistics-average-over-period = Average over period
@@ -229,6 +247,7 @@ statistics-cards-per-day =
 statistics-average-ease = Average ease
 statistics-average-difficulty = Average difficulty
 statistics-average-retrievability = Average retrievability
+statistics-estimated-total-knowledge = Estimated total knowledge
 statistics-save-pdf = Save PDF
 statistics-saved = Saved.
 statistics-stats = stats

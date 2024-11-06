@@ -19,7 +19,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import FsrsOptions from "./FsrsOptions.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import type { DeckOptionsState } from "./lib";
-    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -37,17 +36,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.deckConfigDesiredRetentionTooltip(),
             sched: HelpItemScheduler.FSRS,
         },
-        modelWeights: {
+        modelParams: {
             title: tr.deckConfigWeights(),
             help:
                 tr.deckConfigWeightsTooltip2() +
                 "\n\n" +
                 tr.deckConfigComputeOptimalWeightsTooltip2(),
-            sched: HelpItemScheduler.FSRS,
-        },
-        ignoreRevlogsBeforeMs: {
-            title: tr.deckConfigIgnoreBefore(),
-            help: tr.deckConfigIgnoreBeforeTooltip2(),
             sched: HelpItemScheduler.FSRS,
         },
         rescheduleCardsOnChange: {
@@ -70,8 +64,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         modal.show();
         carousel.to(index);
     }
-
-    $: fsrsClientWarning = $fsrs ? tr.deckConfigFsrsOnAllClients() : "";
 </script>
 
 <TitledContainer title={"FSRS"}>
@@ -97,8 +89,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </SettingTitle>
             </SwitchRow>
         </Item>
-
-        <Warning warning={fsrsClientWarning} />
 
         {#if $fsrs}
             <FsrsOptions

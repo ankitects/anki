@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import { localizedNumber } from "@tslib/i18n";
+
+import { localizedDate } from "@tslib/i18n";
 import {
     axisBottom,
     axisLeft,
@@ -13,16 +14,18 @@ import {
     scaleTime,
     schemeCategory10,
     select,
-    timeFormat,
 } from "d3";
 
+import * as tr from "@generated/ftl";
+import { timeSpan } from "@tslib/time";
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
-import { hideTooltip, showTooltip } from "./tooltip";
+import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
 
 export interface Point {
     x: number;
-    y: number;
+    timeCost: number;
+    count: number;
     label: number;
 }
 
@@ -30,6 +33,7 @@ export function renderSimulationChart(
     svgElem: SVGElement,
     bounds: GraphBounds,
     data: Point[],
+    showTime: boolean,
 ): TableDatum[] {
     const svg = select(svgElem);
     svg.selectAll(".lines").remove();
@@ -47,7 +51,6 @@ export function renderSimulationChart(
     const convertedData = data.map(d => ({
         ...d,
         date: new Date(today.getTime() + d.x * 24 * 60 * 60 * 1000),
-        yMinutes: d.y / 60,
     }));
     const xMin = today;
     const xMax = max(convertedData, d => d.date);
@@ -55,29 +58,17 @@ export function renderSimulationChart(
     const x = scaleTime()
         .domain([xMin, xMax!])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
-    const formatDate = timeFormat("%Y-%m-%d");
 
     svg.select<SVGGElement>(".x-ticks")
-        .call((selection) =>
-            selection.transition(trans).call(
-                axisBottom(x)
-                    .ticks(7)
-                    .tickFormat((d: any) => formatDate(d))
-                    .tickSizeOuter(0),
-            )
-        )
+        .call((selection) => selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0)))
         .attr("direction", "ltr");
     // y scale
 
     const yTickFormat = (n: number): string => {
-        if (Math.round(n) != n) {
-            return "";
-        } else {
-            return localizedNumber(n);
-        }
+        return showTime ? timeSpan(n, true) : n.toString();
     };
 
-    const yMax = max(convertedData, d => d.yMinutes)!;
+    const yMax = showTime ? max(convertedData, d => d.timeCost)! : max(convertedData, d => d.count)!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax])
@@ -93,6 +84,7 @@ export function renderSimulationChart(
         )
         .attr("direction", "ltr");
 
+    svg.select(".y-ticks .y-axis-title").remove();
     svg.select(".y-ticks")
         .append("text")
         .attr("class", "y-axis-title")
@@ -102,10 +94,10 @@ export function renderSimulationChart(
         .attr("dy", "1em")
         .attr("fill", "currentColor")
         .style("text-anchor", "middle")
-        .text("Review Time per day (minutes)");
+        .text(showTime ? "Review Time per day" : "Review Count per day");
 
     // x lines
-    const points = convertedData.map((d) => [x(d.date), y(d.yMinutes), d.label]);
+    const points = convertedData.map((d) => [x(d.date), y(showTime ? d.timeCost : d.count), d.label]);
     const groups = rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
 
     const color = schemeCategory10;
@@ -119,7 +111,6 @@ export function renderSimulationChart(
         .selectAll("path")
         .data(Array.from(groups.entries()))
         .join("path")
-        .style("mix-blend-mode", "multiply")
         .attr("stroke", (d, i) => color[i % color.length])
         .attr("d", d => line()(d[1].map(p => [p[0], p[1]])))
         .attr("data-group", d => d[0]);
@@ -147,7 +138,10 @@ export function renderSimulationChart(
         .attr("height", bounds.height - bounds.marginTop - bounds.marginBottom)
         .attr("fill", "transparent")
         .on("mousemove", mousemove)
-        .on("mouseout", hideTooltip);
+        .on("mouseout", () => {
+            focusLine.style("opacity", 0);
+            hideTooltip();
+        });
 
     function mousemove(event: MouseEvent, d: any): void {
         pointer(event, document.body);
@@ -167,9 +161,12 @@ export function renderSimulationChart(
 
         focusLine.attr("x1", d[0]).attr("x2", d[0]).style("opacity", 1);
 
-        let tooltipContent = `Date: ${timeFormat("%Y-%m-%d")(date)}<br>`;
+        const days = +((date.getTime() - Date.now()) / (60 * 60 * 24 * 1000)).toFixed();
+        let tooltipContent = `Date: ${localizedDate(date)}<br>In ${days} Days<br>`;
         for (const [key, value] of Object.entries(groupData)) {
-            tooltipContent += `Simulation ${key}: ${value.toFixed(2)} minutes<br>`;
+            tooltipContent += `#${key}: ${
+                showTime ? timeSpan(value) : tr.statisticsReviews({ reviews: Math.round(value) })
+            }<br>`;
         }
 
         showTooltip(tooltipContent, event.pageX, event.pageY);
@@ -188,16 +185,17 @@ export function renderSimulationChart(
         .on("click", (event, d) => toggleGroup(event, d));
 
     legend.append("rect")
-        .attr("x", bounds.width - bounds.marginRight + 10)
-        .attr("width", 19)
-        .attr("height", 19)
+        .attr("x", bounds.width - bounds.marginRight + 36)
+        .attr("width", 12)
+        .attr("height", 12)
         .attr("fill", (d, i) => color[i % color.length]);
 
     legend.append("text")
-        .attr("x", bounds.width - bounds.marginRight + 34)
-        .attr("y", 9.5)
-        .attr("dy", "0.32em")
-        .text(d => `Simulation ${d}`);
+        .attr("x", bounds.width - bounds.marginRight + 52)
+        .attr("y", 7)
+        .attr("dy", "0.3em")
+        .attr("fill", "currentColor")
+        .text(d => `#${d}`);
 
     const toggleGroup = (event: MouseEvent, d: number) => {
         const group = d;

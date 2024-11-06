@@ -46,6 +46,7 @@ pub enum Column {
     NoteMod,
     #[strum(serialize = "note")]
     Notetype,
+    OriginalPosition,
     Question,
     #[strum(serialize = "cardReps")]
     Reps,
@@ -114,8 +115,8 @@ impl Card {
         } else if self.is_due_in_days() {
             Some(
                 TimestampSecs::now().adding_secs(
-                    ((self.original_or_current_due() - timing.days_elapsed as i32)
-                        .saturating_mul(86400)) as i64,
+                    (self.original_or_current_due() as i64 - timing.days_elapsed as i64)
+                        .saturating_mul(86400),
                 ),
             )
         } else {
@@ -130,10 +131,9 @@ impl Card {
             Some((timing.next_day_at.0 as u32).saturating_sub(self.due.max(0) as u32) / 86_400)
         } else {
             self.due_time(timing).map(|due| {
-                due.adding_secs(-86_400 * self.interval as i64)
+                (due.adding_secs(-86_400 * self.interval as i64)
                     .elapsed_secs()
-                    .max(0) as u32
-                    / 86_400
+                    / 86_400) as u32
             })
         }
     }
@@ -162,6 +162,7 @@ impl Column {
             Self::NoteCreation => tr.browsing_created(),
             Self::NoteMod => tr.search_note_modified(),
             Self::Notetype => tr.card_stats_note_type(),
+            Self::OriginalPosition => tr.card_stats_new_card_position(),
             Self::Question => tr.browsing_question(),
             Self::Reps => tr.scheduling_reviews(),
             Self::SortField => tr.browsing_sort_field(),
@@ -227,6 +228,7 @@ impl Column {
             | Column::Interval
             | Column::NoteCreation
             | Column::NoteMod
+            | Column::OriginalPosition
             | Column::Reps => Sorting::Descending,
             Column::Stability | Column::Difficulty | Column::Retrievability => {
                 if notes {
@@ -414,6 +416,7 @@ impl RowContext {
         Ok(anki_proto::search::browser_row::Cell {
             text: self.get_cell_text(column)?,
             is_rtl: self.get_is_rtl(column),
+            elide_mode: self.get_elide_mode(column) as i32,
         })
     }
 
@@ -432,6 +435,7 @@ impl RowContext {
             Column::NoteCreation => self.note_creation_str(),
             Column::SortField => self.note_field_str(),
             Column::NoteMod => self.note.mtime.date_and_time_string(),
+            Column::OriginalPosition => self.card_original_position(),
             Column::Tags => self.note.tags.join(" "),
             Column::Notetype => self.notetype.name.to_owned(),
             Column::Stability => self.fsrs_stability_str(),
@@ -439,6 +443,17 @@ impl RowContext {
             Column::Retrievability => self.fsrs_retrievability_str(),
             Column::Custom => "".to_string(),
         })
+    }
+
+    fn card_original_position(&self) -> String {
+        let card = &self.cards[0];
+        if let Some(pos) = &card.original_position {
+            pos.to_string()
+        } else if card.ctype == CardType::New {
+            card.due.to_string()
+        } else {
+            String::new()
+        }
     }
 
     fn note_creation_str(&self) -> String {
@@ -459,6 +474,17 @@ impl RowContext {
                 self.notetype.fields[index].config.rtl
             }
             _ => false,
+        }
+    }
+
+    fn get_elide_mode(
+        &self,
+        column: Column,
+    ) -> anki_proto::search::browser_row::cell::TextElideMode {
+        use anki_proto::search::browser_row::cell::TextElideMode;
+        match column {
+            Column::Deck => TextElideMode::ElideMiddle,
+            _ => TextElideMode::ElideRight,
         }
     }
 

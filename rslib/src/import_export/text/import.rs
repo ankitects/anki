@@ -635,9 +635,9 @@ impl ForeignCard {
     }
 
     fn native_due(self, timing: &SchedTimingToday) -> i32 {
-        let day_start = timing.next_day_at.0 as i32 - 86_400;
+        let day_start = timing.next_day_at.0 - 86_400;
         let due_delta = (self.due - day_start) / 86_400;
-        due_delta + timing.days_elapsed as i32
+        due_delta as i32 + timing.days_elapsed as i32
     }
 }
 

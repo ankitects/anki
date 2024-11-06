@@ -7,6 +7,7 @@
 use std::collections::HashMap;
 use std::env;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use anki_io::read_to_string;
 use anki_io::write_file_if_changed;
@@ -16,7 +17,6 @@ use camino::Utf8Path;
 use inflections::Inflect;
 use itertools::Either;
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use prost_reflect::DescriptorPool;
 use prost_reflect::MessageDescriptor;
 use prost_reflect::MethodDescriptor;
@@ -238,8 +238,8 @@ pub fn add_must_use_annotations_to_file<E>(path: &Utf8Path, is_empty: E) -> Resu
 where
     E: Fn(&Utf8Path, &str) -> bool,
 {
-    static MESSAGE_OR_ENUM_RE: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"pub (struct|enum) ([[:alnum:]]+?)\s").unwrap());
+    static MESSAGE_OR_ENUM_RE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"pub (struct|enum) ([[:alnum:]]+?)\s").unwrap());
     let contents = read_to_string(path)?;
     let contents = MESSAGE_OR_ENUM_RE.replace_all(&contents, |caps: &Captures| {
         let is_enum = caps.get(1).unwrap().as_str() == "enum";

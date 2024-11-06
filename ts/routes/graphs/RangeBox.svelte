@@ -44,6 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    // svelte-ignore reactive_declaration_non_reactive_property
     $: {
         switch (revlogRange as RevlogRange) {
             case RevlogRange.Year:
@@ -83,8 +84,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {collection}
         </label>
 
+        <!-- This form is an external API and care should be taken when changed -
+	other clients e.g. AnkiDroid programmatically update this form by id -->
         <input
             type="text"
+            id="statisticsSearchText"
             bind:value={displayedSearch}
             on:change={updateSearch}
             on:focus={() => {
@@ -106,7 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </InputBox>
 </div>
 
-<div class="range-box-pad" />
+<div class="range-box-pad"></div>
 
 <style lang="scss">
     .range-box {

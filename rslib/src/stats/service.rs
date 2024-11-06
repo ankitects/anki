@@ -12,6 +12,13 @@ impl crate::services::StatsService for Collection {
         self.card_stats(input.cid.into())
     }
 
+    fn get_review_logs(
+        &mut self,
+        input: anki_proto::cards::CardId,
+    ) -> error::Result<anki_proto::stats::ReviewLogs> {
+        self.get_review_logs(input.cid.into())
+    }
+
     fn graphs(
         &mut self,
         input: anki_proto::stats::GraphsRequest,
@@ -39,6 +46,9 @@ impl From<RevlogReviewKind> for i32 {
             RevlogReviewKind::Relearning => anki_proto::stats::revlog_entry::ReviewKind::Relearning,
             RevlogReviewKind::Filtered => anki_proto::stats::revlog_entry::ReviewKind::Filtered,
             RevlogReviewKind::Manual => anki_proto::stats::revlog_entry::ReviewKind::Manual,
+            RevlogReviewKind::Rescheduled => {
+                anki_proto::stats::revlog_entry::ReviewKind::Rescheduled
+            }
         }) as i32
     }
 }

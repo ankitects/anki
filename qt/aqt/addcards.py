@@ -52,13 +52,19 @@ class AddCards(QMainWindow):
         add_close_shortcut(self)
         self._load_new_note()
         self.setupButtons()
-        self.col.add_image_occlusion_notetype()
         self.history: list[NoteId] = []
         self._last_added_note: Note | None = None
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
+        self.setMenuBar(None)
         self.show()
+
+    def set_deck(self, deck_id: DeckId) -> None:
+        self.deck_chooser.selected_deck_id = deck_id
+
+    def set_note_type(self, note_type_id: NotetypeId) -> None:
+        self.notetype_chooser.selected_notetype_id = note_type_id
 
     def set_note(self, note: Note, deck_id: DeckId | None = None) -> None:
         """Set tags, field contents and notetype according to `note`. Deck is set
@@ -86,6 +92,7 @@ class AddCards(QMainWindow):
         defaults = self.col.defaults_for_adding(
             current_review_card=self.mw.reviewer.card
         )
+
         self.notetype_chooser = NotetypeChooser(
             mw=self.mw,
             widget=self.form.modelArea,
@@ -145,10 +152,13 @@ class AddCards(QMainWindow):
     def on_deck_changed(self, deck_id: int) -> None:
         gui_hooks.add_cards_did_change_deck(deck_id)
 
-    def on_notetype_change(self, notetype_id: NotetypeId) -> None:
+    def on_notetype_change(
+        self, notetype_id: NotetypeId, update_deck: bool = True
+    ) -> None:
         # need to adjust current deck?
-        if deck_id := self.col.default_deck_for_notetype(notetype_id):
-            self.deck_chooser.selected_deck_id = deck_id
+        if update_deck:
+            if deck_id := self.col.default_deck_for_notetype(notetype_id):
+                self.deck_chooser.selected_deck_id = deck_id
 
         # only used for detecting changed sticky fields on close
         self._last_added_note = None
@@ -217,7 +227,8 @@ class AddCards(QMainWindow):
                     self.col.defaults_for_adding(
                         current_review_card=self.mw.reviewer.card
                     ).notetype_id
-                )
+                ),
+                update_deck=False,
             )
 
     def _new_note(self) -> Note:

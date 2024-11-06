@@ -11,7 +11,9 @@ import type {
 import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits } from "@generated/anki/deck_config_pb";
 import { updateDeckConfigs } from "@generated/backend";
 import { localeCompare } from "@tslib/i18n";
+import { promiseWithResolver } from "@tslib/promise";
 import { cloneDeep, isEqual } from "lodash-es";
+import { tick } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
 
@@ -32,6 +34,21 @@ export interface ConfigListEntry {
     current: boolean;
 }
 
+type AllConfigs =
+    & Required<
+        Pick<
+            PlainMessage<UpdateDeckConfigsRequest>,
+            | "configs"
+            | "cardStateCustomizer"
+            | "limits"
+            | "newCardsIgnoreReviewLimit"
+            | "applyAllParentLimits"
+            | "fsrs"
+            | "fsrsReschedule"
+        >
+    >
+    & { currentConfig: DeckConfig_Config };
+
 export class DeckOptionsState {
     readonly currentConfig: Writable<DeckConfig_Config>;
     readonly currentAuxData: Writable<Record<string, unknown>>;
@@ -47,6 +64,9 @@ export class DeckOptionsState {
     readonly fsrsReschedule: Writable<boolean> = writable(false);
     readonly daysSinceLastOptimization: Writable<number>;
     readonly currentPresetName: Writable<string>;
+    /** Used to detect if there are any pending changes */
+    readonly originalConfigsPromise: Promise<AllConfigs>;
+    readonly originalConfigsResolve: (value: AllConfigs) => void;
 
     private targetDeckId: DeckOptionsId;
     private configs: ConfigWithCount[];
@@ -101,6 +121,10 @@ export class DeckOptionsState {
         // update our state when the current config is changed
         this.currentConfig.subscribe((val) => this.onCurrentConfigChanged(val));
         this.currentAuxData.subscribe((val) => this.onCurrentAuxDataChanged(val));
+
+        // Must be resolved after all components are mounted, as some components
+        // may modify the config during their initialization.
+        [this.originalConfigsPromise, this.originalConfigsResolve] = promiseWithResolver<AllConfigs>();
     }
 
     setCurrentIndex(index: number): void {
@@ -113,6 +137,10 @@ export class DeckOptionsState {
 
     getCurrentName(): string {
         return this.configs[this.selectedIdx].config.name;
+    }
+
+    getCurrentNameForSearch(): string {
+        return this.getCurrentName().replace(/([\\"])/g, "\\$1");
     }
 
     setCurrentName(name: string): void {
@@ -292,6 +320,29 @@ export class DeckOptionsState {
         });
         return list;
     }
+
+    private getAllConfigs(): AllConfigs {
+        return cloneDeep({
+            configs: this.configs.map(c => c.config),
+            cardStateCustomizer: get(this.cardStateCustomizer),
+            limits: get(this.deckLimits),
+            newCardsIgnoreReviewLimit: get(this.newCardsIgnoreReviewLimit),
+            applyAllParentLimits: get(this.applyAllParentLimits),
+            fsrs: get(this.fsrs),
+            fsrsReschedule: get(this.fsrsReschedule),
+            currentConfig: get(this.currentConfig),
+        });
+    }
+
+    async isModified(): Promise<boolean> {
+        const original = await this.originalConfigsPromise;
+        const current = this.getAllConfigs();
+        return !isEqual(original, current);
+    }
+
+    resolveOriginalConfigs(): void {
+        this.originalConfigsResolve(this.getAllConfigs());
+    }
 }
 
 function bytesToObject(bytes: Uint8Array): Record<string, unknown> {
@@ -358,5 +409,21 @@ export class ValueTab {
     setValue(value: number): void {
         this.value = value;
         this.setter(value);
+    }
+}
+
+/** Ensure blur handler has fired so changes get committed. */
+export async function commitEditing(): Promise<void> {
+    if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+    }
+    await tick();
+}
+
+export function fsrsParams(config: DeckConfig_Config): number[] {
+    if (config.fsrsParams5) {
+        return config.fsrsParams5;
+    } else {
+        return config.fsrsParams4;
     }
 }

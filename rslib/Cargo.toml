@@ -69,7 +69,6 @@ htmlescape.workspace = true
 hyper.workspace = true
 id_tree.workspace = true
 itertools.workspace = true
-lazy_static.workspace = true
 nom.workspace = true
 num_cpus.workspace = true
 num_enum.workspace = true
@@ -104,10 +103,9 @@ tracing-subscriber.workspace = true
 unic-ucd-category.workspace = true
 unicase.workspace = true
 unicode-normalization.workspace = true
-utime.workspace = true
 zip.workspace = true
 zstd.workspace = true
 
 [target.'cfg(windows)'.dependencies.windows]
-version = "0.54.0"
+version = "0.56.0"
 features = ["Media_SpeechSynthesis", "Foundation_Collections", "Storage_Streams"]

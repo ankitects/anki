@@ -33,7 +33,7 @@ import {
 
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { GraphRange, numericMap, setDataAvailable } from "./graph-helpers";
-import { hideTooltip, showTooltip } from "./tooltip";
+import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
 
 interface Reviews {
     learn: number;

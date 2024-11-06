@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import { cloneDeep } from "lodash-es";
 
-import { getBoundingBox } from "../tools/lib";
+import { getBoundingBoxSize } from "../tools/lib";
 import type { Size } from "../types";
 import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";
@@ -97,7 +97,7 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
         ? activeObject
         : null;
     const objects = canvas.getObjects() as fabric.Object[];
-    const boundingBox = getBoundingBox();
+    const boundingBox = getBoundingBoxSize();
     // filter transparent rectangles
     return objects
         .map((object) => {
@@ -168,10 +168,6 @@ function fabricObjectToBaseShapeOrShapes(
         );
         shape.left = newPosition.x;
         shape.top = newPosition.y;
-    }
-
-    if (size == undefined) {
-        size = { width: 0, height: 0 };
     }
 
     shape = shape.toNormal(size);

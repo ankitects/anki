@@ -6,9 +6,9 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Write;
 use std::iter;
+use std::sync::LazyLock;
 
 use anki_i18n::I18n;
-use lazy_static::lazy_static;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
@@ -29,11 +29,11 @@ pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
 
 static TEMPLATE_ERROR_LINK: &str =
-    "https://anki.tenderapp.com/kb/problems/card-template-has-a-problem";
+    "https://docs.ankiweb.net/templates/errors.html#template-syntax-error";
 static TEMPLATE_BLANK_LINK: &str =
-    "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank";
+    "https://docs.ankiweb.net/templates/errors.html#front-of-card-is-blank";
 static TEMPLATE_BLANK_CLOZE_LINK: &str =
-    "https://anki.tenderapp.com/kb/problems/no-cloze-found-on-card";
+    "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-notetype";
 
 // Lexing
 //----------------------------------------
@@ -548,18 +548,18 @@ fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
 
 /// True if provided text contains only whitespace and/or empty BR/DIV tags.
 pub(crate) fn field_is_empty(text: &str) -> bool {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(
             r"(?xsi)
             ^(?:
             [[:space:]]
             |
             </?(?:br|div)\ ?/?>
             )*$
-        "
+        ",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     RE.is_match(text)
 }
 

@@ -3,19 +3,21 @@
 
 use std::borrow::Cow;
 use std::fs;
+use std::fs::FileTimes;
 use std::io;
 use std::io::Read;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 use std::time;
 
 use anki_io::create_dir;
 use anki_io::open_file;
+use anki_io::set_file_times;
 use anki_io::write_file;
 use anki_io::FileIoError;
 use anki_io::FileIoSnafu;
 use anki_io::FileOp;
-use lazy_static::lazy_static;
 use regex::Regex;
 use sha1::Digest;
 use sha1::Sha1;
@@ -27,8 +29,8 @@ use unicode_normalization::UnicodeNormalization;
 use crate::prelude::*;
 use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
 
-lazy_static! {
-    static ref WINDOWS_DEVICE_NAME: Regex = Regex::new(
+static WINDOWS_DEVICE_NAME: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r"(?xi)
             # starting with one of the following names
             ^
@@ -39,30 +41,34 @@ lazy_static! {
             (
                 \. | $
             )
-        "
+        ",
     )
-    .unwrap();
-    static ref WINDOWS_TRAILING_CHAR: Regex = Regex::new(
+    .unwrap()
+});
+static WINDOWS_TRAILING_CHAR: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r"(?x)
             # filenames can't end with a space or period
             (
                 \x20 | \.
             )    
             $
-            "
+            ",
     )
-    .unwrap();
-    pub(crate) static ref NONSYNCABLE_FILENAME: Regex = Regex::new(
+    .unwrap()
+});
+pub(crate) static NONSYNCABLE_FILENAME: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r#"(?xi)
             ^
             (:?
                 thumbs.db | .ds_store
             )
             $
-            "#
+            "#,
     )
-    .unwrap();
-}
+    .unwrap()
+});
 
 /// True if character may cause problems on one or more platforms.
 fn disallowed_char(char: char) -> bool {
@@ -341,11 +347,9 @@ where
         fs::rename(&src_path, &dst_path)?;
 
         // mark it as modified, so we can expire it in the future
-        let secs = time::SystemTime::now()
-            .duration_since(time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
-        if let Err(err) = utime::set_file_times(&dst_path, secs, secs) {
+        let secs = time::SystemTime::now();
+        let times = FileTimes::new().set_accessed(secs).set_modified(secs);
+        if let Err(err) = set_file_times(&dst_path, times) {
             // The libc utimes() call fails on (some? all?) Android devices. Since we don't
             // do automatic expiry yet, we can safely ignore the error.
             if !cfg!(target_os = "android") {

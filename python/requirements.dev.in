@@ -1,4 +1,6 @@
--r requirements.bundle.txt
+-r requirements.base.in
+-r requirements.anki.in
+-r requirements.aqt.in
 
 black
 compare-locales

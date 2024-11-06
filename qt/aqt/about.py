@@ -80,6 +80,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Andreas Klauer",
             "Andrew Wright",
             "Aristotelis P.",
+            "Ben Nguyen",
             "Bernhard Ibertsberger",
             "C. van Rooyen",
             "Cenaris Mori",
@@ -146,6 +147,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Susanna Björverud",
             "Sylvain Durand",
             "Tacutu",
+            "Taylor Obyen",
             "Timm Preetz",
             "Timo Paulssen",
             "Ursus",
@@ -198,6 +200,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Antoine Q.",
             "Ian Samir Yep Manzano",
             "Asuka Minato",
+            "Eros Cardoso",
         )
     )
 

@@ -9,16 +9,15 @@ use fsrs::MemoryState;
 use fsrs::FSRS;
 use itertools::Itertools;
 
-use super::weights::ignore_revlogs_before_ms_from_config;
+use super::params::ignore_revlogs_before_ms_from_config;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
-use crate::scheduler::fsrs::weights::single_card_revlog_to_items;
-use crate::scheduler::fsrs::weights::Weights;
+use crate::scheduler::fsrs::params::single_card_revlog_to_items;
+use crate::scheduler::fsrs::params::Params;
 use crate::scheduler::states::fuzz::with_review_fuzz;
 use crate::search::Negated;
-use crate::search::Node;
 use crate::search::SearchNode;
 use crate::search::StateKind;
 
@@ -30,7 +29,7 @@ pub struct ComputeMemoryProgress {
 
 #[derive(Debug)]
 pub(crate) struct UpdateMemoryStateRequest {
-    pub weights: Weights,
+    pub params: Params,
     pub desired_retention: f32,
     pub historical_retention: f32,
     pub max_interval: u32,
@@ -39,15 +38,15 @@ pub(crate) struct UpdateMemoryStateRequest {
 
 pub(crate) struct UpdateMemoryStateEntry {
     pub req: Option<UpdateMemoryStateRequest>,
-    pub search: Node,
+    pub search: SearchNode,
     pub ignore_before: TimestampMillis,
 }
 
 impl Collection {
-    /// For each provided set of weights, locate cards with the provided search,
+    /// For each provided set of params, locate cards with the provided search,
     /// and update their memory state.
     /// Should be called inside a transaction.
-    /// If Weights are None, it means the user disabled FSRS, and the existing
+    /// If Params are None, it means the user disabled FSRS, and the existing
     /// memory state should be removed.
     pub(crate) fn update_memory_state(
         &mut self,
@@ -61,7 +60,8 @@ impl Collection {
             ignore_before,
         } in entries
         {
-            let search = SearchBuilder::all([search, SearchNode::State(StateKind::New).negated()]);
+            let search =
+                SearchBuilder::all([search.into(), SearchNode::State(StateKind::New).negated()]);
             let revlog = self.revlog_for_srs(search)?;
             let reschedule = req.as_ref().map(|e| e.reschedule).unwrap_or_default();
             let last_revlog_info = if reschedule {
@@ -69,7 +69,7 @@ impl Collection {
             } else {
                 None
             };
-            let fsrs = FSRS::new(req.as_ref().map(|w| &w.weights[..]).or(Some([].as_slice())))?;
+            let fsrs = FSRS::new(req.as_ref().map(|w| &w.params[..]).or(Some([].as_slice())))?;
             let historical_retention = req.as_ref().map(|w| w.historical_retention);
             let items = fsrs_items_for_memory_state(
                 &fsrs,
@@ -105,8 +105,7 @@ impl Collection {
                                             Some(state.stability),
                                             card.desired_retention.unwrap(),
                                             0,
-                                        )
-                                            as f32;
+                                        );
                                         card.interval = with_review_fuzz(
                                             card.get_fuzz_factor(true),
                                             interval,
@@ -120,9 +119,10 @@ impl Collection {
                                         };
                                         *due = (timing.days_elapsed as i32) - days_elapsed
                                             + card.interval as i32;
-                                        // Add a manual revlog entry if the last entry wasn't manual
-                                        if !last_info.last_revlog_is_manual {
-                                            self.log_manually_scheduled_review(
+                                        // Add a rescheduled revlog entry if the last entry wasn't
+                                        // rescheduled
+                                        if !last_info.last_revlog_is_rescheduled {
+                                            self.log_rescheduled_review(
                                                 &card,
                                                 original_interval,
                                                 usn,
@@ -154,7 +154,7 @@ impl Collection {
             .or_not_found(conf_id)?;
         let desired_retention = config.inner.desired_retention;
         let historical_retention = config.inner.historical_retention;
-        let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
+        let fsrs = FSRS::new(Some(config.fsrs_params()))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
         let item = single_card_revlog_to_item(
             &fsrs,
@@ -214,7 +214,7 @@ pub(crate) fn fsrs_items_for_memory_state(
 ) -> Result<Vec<(CardId, Option<FsrsItemWithStartingState>)>> {
     revlogs
         .into_iter()
-        .group_by(|r| r.cid)
+        .chunk_by(|r| r.cid)
         .into_iter()
         .map(|(card_id, group)| {
             Ok((
@@ -238,7 +238,7 @@ struct LastRevlogInfo {
     last_reviewed_at: Option<TimestampSecs>,
     /// If true, the last action on this card was a reschedule, so we
     /// can avoid writing an extra revlog entry on another reschedule.
-    last_revlog_is_manual: bool,
+    last_revlog_is_rescheduled: bool,
 }
 
 /// Return a map of cards to info about last review/reschedule.
@@ -246,22 +246,22 @@ fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogIn
     let mut out = HashMap::new();
     revlogs
         .iter()
-        .group_by(|r| r.cid)
+        .chunk_by(|r| r.cid)
         .into_iter()
         .for_each(|(card_id, group)| {
             let mut last_reviewed_at = None;
-            let mut last_revlog_is_manual = false;
+            let mut last_revlog_is_rescheduled = false;
             for e in group.into_iter() {
                 if e.button_chosen >= 1 {
                     last_reviewed_at = Some(e.id.as_secs());
                 }
-                last_revlog_is_manual = e.review_kind == RevlogReviewKind::Manual;
+                last_revlog_is_rescheduled = e.review_kind == RevlogReviewKind::Rescheduled;
             }
             out.insert(
                 card_id,
                 LastRevlogInfo {
                     last_reviewed_at,
-                    last_revlog_is_manual,
+                    last_revlog_is_rescheduled,
                 },
             );
         });
@@ -322,7 +322,7 @@ pub(crate) fn single_card_revlog_to_item(
                 }))
             }
         } else {
-            // only manual rescheduling; treat like empty
+            // only manual and rescheduled revlogs; treat like empty
             Ok(None)
         }
     } else {
@@ -337,8 +337,8 @@ mod tests {
     use super::*;
     use crate::card::FsrsMemoryState;
     use crate::revlog::RevlogReviewKind;
-    use crate::scheduler::fsrs::weights::tests::convert;
-    use crate::scheduler::fsrs::weights::tests::revlog;
+    use crate::scheduler::fsrs::params::tests::convert;
+    use crate::scheduler::fsrs::params::tests::revlog;
 
     /// Floating point precision can vary between platforms, and each FSRS
     /// update tends to result in small changes to these numbers, so we

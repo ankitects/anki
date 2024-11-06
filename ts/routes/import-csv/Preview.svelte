@@ -13,18 +13,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="outer">
     <table class="preview">
-        {#each $columnOptions.slice(1) as { label, shortLabel }}
-            <th>
-                {shortLabel || label}
-            </th>
-        {/each}
-        {#each $metadata.preview as row}
+        <thead>
             <tr>
-                {#each row.vals as cell}
-                    <td>{cell}</td>
+                {#each $columnOptions.slice(1) as { label, shortLabel }}
+                    <th>
+                        {shortLabel || label}
+                    </th>
                 {/each}
             </tr>
-        {/each}
+        </thead>
+        <tbody>
+            {#each $metadata.preview as row}
+                <tr>
+                    {#each row.vals as cell}
+                        <td>{cell}</td>
+                    {/each}
+                </tr>
+            {/each}
+        </tbody>
     </table>
 </div>
 

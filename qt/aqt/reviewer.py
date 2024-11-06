@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
-import functools
 import json
 import random
 import re
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Generator, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
+from functools import partial
 from typing import Any, Literal, Match, Union, cast
 
 import aqt
@@ -152,6 +152,7 @@ class Reviewer:
         self.previous_card: Card | None = None
         self._answeredIds: list[CardId] = []
         self._recordedAudio: str | None = None
+        self._combining: bool = True
         self.typeCorrect: str | None = None  # web init happens before this is set
         self.state: Literal["question", "answer", "transition"] | None = None
         self._refresh_needed: RefreshNeeded | None = None
@@ -591,6 +592,18 @@ class Reviewer:
     def _shortcutKeys(
         self,
     ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
+
+        def generate_default_answer_keys() -> (
+            Generator[tuple[str, partial], None, None]
+        ):
+            for ease in aqt.mw.pm.default_answer_keys:
+                key = aqt.mw.pm.get_answer_key(ease)
+                if not key:
+                    continue
+                ease = cast(Literal[1, 2, 3, 4], ease)
+                answer_card_according_to_pressed_key = partial(self._answerCard, ease)
+                yield (key, answer_card_according_to_pressed_key)
+
         return [
             ("e", self.mw.onEditCurrent),
             (" ", self.onEnterKey),
@@ -617,11 +630,7 @@ class Reviewer:
             ("o", self.onOptions),
             ("i", self.on_card_info),
             ("Ctrl+Alt+i", self.on_previous_card_info),
-            *(
-                (key, functools.partial(self._answerCard, ease))
-                for ease in aqt.mw.pm.default_answer_keys
-                if (key := aqt.mw.pm.get_answer_key(ease))
-            ),
+            *generate_default_answer_keys(),
             ("u", self.mw.undo),
             ("5", self.on_pause_audio),
             ("6", self.on_seek_backward),
@@ -691,6 +700,7 @@ class Reviewer:
             return self.typeAnsAnswerFilter(buf)
 
     def typeAnsQuestionFilter(self, buf: str) -> str:
+        self._combining = True
         self.typeCorrect = None
         clozeIdx = None
         m = re.search(self.typeAnsPat, buf)
@@ -701,6 +711,9 @@ class Reviewer:
         if fld.startswith("cloze:"):
             # get field and cloze position
             clozeIdx = self.card.ord + 1
+            fld = fld.split(":")[1]
+        if fld.startswith("nc:"):
+            self._combining = False
             fld = fld.split(":")[1]
         # loop through fields for a match
         for f in self.card.note_type()["flds"]:
@@ -742,7 +755,7 @@ class Reviewer:
         hadHR = len(buf) != origSize
         expected = self.typeCorrect
         provided = self.typedAnswer
-        output = self.mw.col.compare_answer(expected, provided)
+        output = self.mw.col.compare_answer(expected, provided, self._combining)
 
         # and update the type answer area
         def repl(match: Match) -> str:
@@ -1142,7 +1155,7 @@ timerStopped = false;
     def on_create_copy(self) -> None:
         if self.card:
             aqt.dialogs.open("AddCards", self.mw).set_note(
-                self.card.note(), self.card.did
+                self.card.note(), self.card.current_deck_id()
             )
 
     def delete_current_note(self) -> None:

@@ -420,6 +420,11 @@ class Collection(DeprecatedNamesMixin):
     def import_json_string(self, json: str) -> ImportLogWithChanges:
         return self._backend.import_json_string(json)
 
+    def export_dataset_for_research(
+        self, target_path: str, min_entries: int = 0
+    ) -> None:
+        self._backend.export_dataset(min_entries=min_entries, target_path=target_path)
+
     # Image Occlusion
     ##########################################################################
 
@@ -472,7 +477,7 @@ class Collection(DeprecatedNamesMixin):
     # Object helpers
     ##########################################################################
 
-    def get_card(self, id: CardId) -> Card:
+    def get_card(self, id: CardId | None) -> Card:
         return Card(self, id)
 
     def update_cards(
@@ -604,9 +609,11 @@ class Collection(DeprecatedNamesMixin):
     def card_count(self) -> Any:
         return self.db.scalar("select count() from cards")
 
-    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[CardId]) -> None:
+    def remove_cards_and_orphaned_notes(
+        self, card_ids: Sequence[CardId]
+    ) -> OpChangesWithCount:
         "You probably want .remove_notes_by_card() instead."
-        self._backend.remove_cards(card_ids=card_ids)
+        return self._backend.remove_cards(card_ids=card_ids)
 
     def set_deck(self, card_ids: Sequence[CardId], deck_id: int) -> OpChangesWithCount:
         return self._backend.set_deck(card_ids=card_ids, deck_id=deck_id)
@@ -859,12 +866,15 @@ class Collection(DeprecatedNamesMixin):
                 return column
         return None
 
-    def browser_row_for_id(
-        self, id_: int
-    ) -> tuple[Generator[tuple[str, bool], None, None], BrowserRow.Color.V, str, int]:
+    def browser_row_for_id(self, id_: int) -> tuple[
+        Generator[tuple[str, bool, BrowserRow.Cell.TextElideMode.V], None, None],
+        BrowserRow.Color.V,
+        str,
+        int,
+    ]:
         row = self._backend.browser_row_for_id(id_)
         return (
-            ((cell.text, cell.is_rtl) for cell in row.cells),
+            ((cell.text, cell.is_rtl, cell.elide_mode) for cell in row.cells),
             row.color,
             row.font_name,
             row.font_size,
@@ -982,6 +992,16 @@ class Collection(DeprecatedNamesMixin):
         fget=_get_enable_load_balancer, fset=_set_enable_load_balancer
     )
 
+    def _get_enable_fsrs_short_term_with_steps(self) -> bool:
+        return self.get_config_bool(Config.Bool.FSRS_SHORT_TERM_WITH_STEPS_ENABLED)
+
+    def _set_enable_fsrs_short_term_with_steps(self, value: bool) -> None:
+        self.set_config_bool(Config.Bool.FSRS_SHORT_TERM_WITH_STEPS_ENABLED, value)
+
+    fsrs_short_term_with_steps_enabled = property(
+        fget=_get_enable_fsrs_short_term_with_steps,
+        fset=_set_enable_fsrs_short_term_with_steps,
+    )
     # Stats
     ##########################################################################
 
@@ -998,6 +1018,11 @@ class Collection(DeprecatedNamesMixin):
         https://ankiweb.net/shared/info/2179254157
         """
         return self._backend.card_stats(card_id)
+
+    def get_review_logs(
+        self, card_id: CardId
+    ) -> Sequence[stats_pb2.CardStatsResponse.StatsRevlogEntry]:
+        return self._backend.get_review_logs(card_id)
 
     def studied_today(self) -> str:
         return self._backend.studied_today()
@@ -1147,8 +1172,12 @@ class Collection(DeprecatedNamesMixin):
         "Not intended for public consumption at this time."
         return self._backend.render_markdown(markdown=text, sanitize=sanitize)
 
-    def compare_answer(self, expected: str, provided: str) -> str:
-        return self._backend.compare_answer(expected=expected, provided=provided)
+    def compare_answer(
+        self, expected: str, provided: str, combining: bool = True
+    ) -> str:
+        return self._backend.compare_answer(
+            expected=expected, provided=provided, combining=combining
+        )
 
     def extract_cloze_for_typing(self, text: str, ordinal: int) -> str:
         return self._backend.extract_cloze_for_typing(text=text, ordinal=ordinal)

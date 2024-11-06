@@ -19,11 +19,16 @@ import type { HistogramData } from "./histogram-graph";
 export interface GraphData {
     dueCounts: Map<number, number>;
     haveBacklog: boolean;
+    dailyLoad: number;
 }
 
 export function gatherData(data: GraphsResponse): GraphData {
     const msg = data.futureDue!;
-    return { dueCounts: numericMap(msg.futureDue), haveBacklog: msg.haveBacklog };
+    return {
+        dueCounts: numericMap(msg.futureDue),
+        haveBacklog: msg.haveBacklog,
+        dailyLoad: msg.dailyLoad,
+    };
 }
 
 export interface FutureDueResponse {
@@ -146,6 +151,12 @@ export function buildHistogram(
             label: tr.statisticsDueTomorrow(),
             value: tr.statisticsReviews({
                 reviews: sourceData.dueCounts.get(1) ?? 0,
+            }),
+        },
+        {
+            label: tr.statisticsDailyLoad(),
+            value: tr.statisticsReviewsPerDay({
+                count: sourceData.dailyLoad,
             }),
         },
     ];

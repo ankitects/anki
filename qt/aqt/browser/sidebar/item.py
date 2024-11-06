@@ -48,6 +48,9 @@ class SidebarItemType(Enum):
             SidebarItemType.TAG,
         )
 
+    def can_be_added_to(self) -> bool:
+        return self == SidebarItemType.DECK
+
     def is_deletable(self) -> bool:
         return self in (
             SidebarItemType.SAVED_SEARCH,
@@ -150,6 +153,9 @@ class SidebarItem:
                 SidebarItemType.NOTETYPE_TEMPLATE,
                 SidebarItemType.NOTETYPE_FIELD,
             ]:
+                assert other._parent_item is not None
+                assert self._parent_item is not None
+
                 return (
                     other.id == self.id
                     and other._parent_item.id == self._parent_item.id

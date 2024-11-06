@@ -30,6 +30,7 @@ class SidebarModel(QAbstractItemModel):
         return idx.internalPointer()
 
     def index_for_item(self, item: SidebarItem) -> QModelIndex:
+        assert item._row_in_parent is not None
         return self.createIndex(item._row_in_parent, 0, item)
 
     def search(self, text: str) -> bool:
@@ -74,6 +75,7 @@ class SidebarModel(QAbstractItemModel):
             return QModelIndex()
 
         row = parentItem._row_in_parent
+        assert row is not None
 
         return self.createIndex(row, 0, parentItem)
 
