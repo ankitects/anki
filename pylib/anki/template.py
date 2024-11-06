@@ -43,10 +43,6 @@ from anki.models import NotetypeDict
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.utils import to_json_bytes
 
-CARD_BLANK_HELP = (
-    "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank"
-)
-
 
 @dataclass
 class TemplateReplacement:
