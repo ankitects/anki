@@ -5,7 +5,7 @@ errors-100-tags-max =
     A maximum of 100 tags can be selected. Listing the
     tags you want instead of the ones you don't want is usually simpler, and there
     is no need to select child tags if you have selected a parent tag.
-errors-multiple-notetypes-selected = Please select notes from only one notetype.
+errors-multiple-notetypes-selected = Please select notes from only one note type.
 errors-please-check-database = Please use the Check Database action, then try again.
 errors-please-check-media = Please use the Check Media action, then try again.
 errors-collection-too-new = This collection requires a newer version of Anki to open.
