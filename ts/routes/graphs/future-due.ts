@@ -41,51 +41,33 @@ function makeQuery(start: number, end: number): string {
     }
 }
 
-function getDueCounts(data, backlog) {
-    // if we're showing the backlog we don't need to do any extra processing
-    if (backlog) {
-        return data;
-    }
-
-    // if we're not showing the backlog, add those cards to what is due today
-    const backlog_count = data.entries().reduce((backlog_count, [days, count]) => {
-        if (days < 0) {
-            backlog_count += count;
+function withoutBacklog(data: Map<number, number>): Map<number, number> {
+    const map = new Map();
+    for (const [day, count] of data.entries()) {
+        if (day >= 0) {
+            map.set(day, count);
         }
-        return backlog_count;
-    }, 0);
-
-    const modified_data = new Map(
-        data.entries()
-            .filter(([day, _count]) => {
-                if (day < 0) {
-                    return false;
-                }
-                return true;
-            }),
-    );
-
-    modified_data.set(0, modified_data.get(0) + backlog_count);
-    return modified_data;
+    }
+    return map;
 }
 
 export function buildHistogram(
     sourceData: GraphData,
     range: GraphRange,
-    backlog: boolean,
+    includeBacklog: boolean,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean,
 ): FutureDueResponse {
     const output = { histogramData: null, tableData: [] };
     // get min/max
-    const data = getDueCounts(sourceData.dueCounts, backlog);
+    const data = includeBacklog ? sourceData.dueCounts : withoutBacklog(sourceData.dueCounts);
     if (!data) {
         return output;
     }
 
     const [xMinOrig, origXMax] = extent<number>(data.keys());
     let xMin = xMinOrig;
-    if (!backlog) {
+    if (!includeBacklog) {
         xMin = 0;
     }
     let xMax = origXMax;
