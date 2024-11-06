@@ -32,7 +32,7 @@ impl GraphsContext {
             }
 
             // still want to filtered out buried cards that are due today
-            if due_day == 0 && matches!(c.queue, CardQueue::UserBuried | CardQueue::SchedBuried) {
+            if due_day <= 0 && matches!(c.queue, CardQueue::UserBuried | CardQueue::SchedBuried) {
                 continue;
             }
             have_backlog |= due_day < 0;
