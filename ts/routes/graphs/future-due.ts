@@ -46,23 +46,33 @@ function makeQuery(start: number, end: number): string {
     }
 }
 
+function withoutBacklog(data: Map<number, number>): Map<number, number> {
+    const map = new Map();
+    for (const [day, count] of data.entries()) {
+        if (day >= 0) {
+            map.set(day, count);
+        }
+    }
+    return map;
+}
+
 export function buildHistogram(
     sourceData: GraphData,
     range: GraphRange,
-    backlog: boolean,
+    includeBacklog: boolean,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean,
 ): FutureDueResponse {
     const output = { histogramData: null, tableData: [] };
     // get min/max
-    const data = sourceData.dueCounts;
+    const data = includeBacklog ? sourceData.dueCounts : withoutBacklog(sourceData.dueCounts);
     if (!data) {
         return output;
     }
 
     const [xMinOrig, origXMax] = extent<number>(data.keys());
     let xMin = xMinOrig;
-    if (!backlog) {
+    if (!includeBacklog) {
         xMin = 0;
     }
     let xMax = origXMax;
