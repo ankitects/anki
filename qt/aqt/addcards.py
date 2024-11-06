@@ -152,10 +152,13 @@ class AddCards(QMainWindow):
     def on_deck_changed(self, deck_id: int) -> None:
         gui_hooks.add_cards_did_change_deck(deck_id)
 
-    def on_notetype_change(self, notetype_id: NotetypeId) -> None:
+    def on_notetype_change(
+        self, notetype_id: NotetypeId, update_deck: bool = True
+    ) -> None:
         # need to adjust current deck?
-        if deck_id := self.col.default_deck_for_notetype(notetype_id):
-            self.deck_chooser.selected_deck_id = deck_id
+        if update_deck:
+            if deck_id := self.col.default_deck_for_notetype(notetype_id):
+                self.deck_chooser.selected_deck_id = deck_id
 
         # only used for detecting changed sticky fields on close
         self._last_added_note = None
@@ -224,7 +227,8 @@ class AddCards(QMainWindow):
                     self.col.defaults_for_adding(
                         current_review_card=self.mw.reviewer.card
                     ).notetype_id
-                )
+                ),
+                update_deck=False,
             )
 
     def _new_note(self) -> Note:
