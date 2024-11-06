@@ -139,6 +139,10 @@ export class DeckOptionsState {
         return this.configs[this.selectedIdx].config.name;
     }
 
+    getCurrentNameForSearch(): string {
+        return this.getCurrentName().replace(/([\\"])/g, "\\$1");
+    }
+
     setCurrentName(name: string): void {
         if (this.configs[this.selectedIdx].config.name === name) {
             return;

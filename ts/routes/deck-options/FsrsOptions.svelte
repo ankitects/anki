@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         optimalRetention = 0;
     }
     $: computing = computingParams || checkingParams || computingRetention;
-    $: defaultparamSearch = `preset:"${state.getCurrentName()}" -is:suspended`;
+    $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
@@ -92,7 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         newLimit: $config.newPerDay,
         reviewLimit: $config.reviewsPerDay,
         maxInterval: $config.maximumReviewInterval,
-        search: `preset:"${state.getCurrentName()}" -is:suspended`,
+        search: `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
     });
 
     function getRetentionWarning(retention: number): string {
@@ -236,7 +236,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 async () => {
                     optimalRetentionRequest.maxInterval = $config.maximumReviewInterval;
                     optimalRetentionRequest.params = fsrsParams($config);
-                    optimalRetentionRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
+                    optimalRetentionRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
                     optimalRetention = resp.optimalRetention;
                     computeRetentionProgress = undefined;
@@ -322,7 +322,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 async () => {
                     simulateFsrsRequest.params = fsrsParams($config);
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
-                    simulateFsrsRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
+                    simulateFsrsRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
                     simulateProgressString = "processing...";
                     resp = await simulateFsrsReview(simulateFsrsRequest);
                 },
