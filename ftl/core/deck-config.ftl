@@ -290,6 +290,7 @@ deck-config-easy-days-sunday = Sunday
 deck-config-easy-days-normal = Normal
 deck-config-easy-days-reduced = Reduced
 deck-config-easy-days-minimum = Minimum
+deck-config-easy-days-no-normal-days = At least one day should be set to '{ deck-config-easy-days-normal }'.
 
 ## Adding/renaming
 
