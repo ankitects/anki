@@ -4,6 +4,7 @@
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashSet;
+use std::fmt::Display;
 use std::hash::Hasher;
 use std::path::Path;
 use std::sync::Arc;
@@ -589,5 +590,24 @@ impl SqliteStorage {
     #[cfg(test)]
     pub(crate) fn db_scalar<T: rusqlite::types::FromSql>(&self, sql: &str) -> Result<T> {
         self.db.query_row(sql, [], |r| r.get(0)).map_err(Into::into)
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum SqlSortOrder {
+    Ascending,
+    Descending,
+}
+
+impl Display for SqlSortOrder {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                SqlSortOrder::Ascending => "asc",
+                SqlSortOrder::Descending => "desc",
+            }
+        )
     }
 }

@@ -210,6 +210,8 @@ deck-config-sort-order-descending-ease = Descending ease
 deck-config-sort-order-ascending-difficulty = Easy cards first
 deck-config-sort-order-descending-difficulty = Difficult cards first
 deck-config-sort-order-retrievability-ascending = Ascending retrievability
+deck-config-sort-order-retrievability-descending = Descending retrievability
+
 deck-config-display-order-will-use-current-deck =
     Anki will use the display order from the deck you 
     select to study, and not any subdecks it may have.

@@ -63,6 +63,9 @@ fn search_order_label(order: FilteredSearchOrder, tr: &I18n) -> String {
         FilteredSearchOrder::RetrievabilityAscending => {
             tr.deck_config_sort_order_retrievability_ascending()
         }
+        FilteredSearchOrder::RetrievabilityDescending => {
+            tr.deck_config_sort_order_retrievability_descending()
+        }
     }
     .into()
 }

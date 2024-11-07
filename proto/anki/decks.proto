@@ -98,6 +98,7 @@ message Deck {
         DUE = 6;
         REVERSE_ADDED = 7;
         RETRIEVABILITY_ASCENDING = 8;
+        RETRIEVABILITY_DESCENDING = 9;
       }
 
       string search = 1;

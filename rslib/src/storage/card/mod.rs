@@ -20,6 +20,7 @@ use rusqlite::Row;
 
 use self::data::CardData;
 use super::ids_to_string;
+use super::sqlite::SqlSortOrder;
 use crate::card::Card;
 use crate::card::CardId;
 use crate::card::CardQueue;
@@ -747,11 +748,13 @@ enum ReviewOrderSubclause {
     DifficultyAscending,
     /// FSRS
     DifficultyDescending,
-    RetrievabilityAscendingSm2 {
+    RetrievabilitySm2 {
         today: u32,
+        order: SqlSortOrder,
     },
-    RetrievabilityAscendingFsrs {
+    RetrievabilityFsrs {
         timing: SchedTimingToday,
+        order: SqlSortOrder,
     },
     Added,
     ReverseAdded,
@@ -770,15 +773,18 @@ impl fmt::Display for ReviewOrderSubclause {
             ReviewOrderSubclause::EaseDescending => "factor desc",
             ReviewOrderSubclause::DifficultyAscending => "extract_fsrs_variable(data, 'd') asc",
             ReviewOrderSubclause::DifficultyDescending => "extract_fsrs_variable(data, 'd') desc",
-            ReviewOrderSubclause::RetrievabilityAscendingSm2 { today } => {
-                temp_string = format!("ivl / cast({today}-due+0.001 as real)", today = today);
+            ReviewOrderSubclause::RetrievabilitySm2 { today, order } => {
+                temp_string = format!(
+                    "ivl / cast({today}-due+0.001 as real) {order}",
+                    today = today
+                );
                 &temp_string
             }
-            ReviewOrderSubclause::RetrievabilityAscendingFsrs { timing } => {
+            ReviewOrderSubclause::RetrievabilityFsrs { timing, order } => {
                 let today = timing.days_elapsed;
                 let next_day_at = timing.next_day_at.0;
                 temp_string =
-                    format!("extract_fsrs_relative_retrievability(data, due, {today}, ivl, {next_day_at}) asc");
+                    format!("extract_fsrs_relative_retrievability(data, due, {today}, ivl, {next_day_at}) {order}");
                 &temp_string
             }
             ReviewOrderSubclause::Added => "nid asc, ord asc",
@@ -808,13 +814,10 @@ fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool
             ReviewOrderSubclause::EaseDescending
         }],
         ReviewCardOrder::RetrievabilityAscending => {
-            vec![if fsrs {
-                ReviewOrderSubclause::RetrievabilityAscendingFsrs { timing }
-            } else {
-                ReviewOrderSubclause::RetrievabilityAscendingSm2 {
-                    today: timing.days_elapsed,
-                }
-            }]
+            build_retrievability_clauses(fsrs, timing, SqlSortOrder::Ascending)
+        }
+        ReviewCardOrder::RetrievabilityDescending => {
+            build_retrievability_clauses(fsrs, timing, SqlSortOrder::Descending)
         }
         ReviewCardOrder::Random => vec![],
         ReviewCardOrder::Added => vec![ReviewOrderSubclause::Added],
@@ -827,6 +830,21 @@ fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool
         .map(ReviewOrderSubclause::to_string)
         .collect();
     v.join(", ")
+}
+
+fn build_retrievability_clauses(
+    fsrs: bool,
+    timing: SchedTimingToday,
+    order: SqlSortOrder,
+) -> Vec<ReviewOrderSubclause> {
+    vec![if fsrs {
+        ReviewOrderSubclause::RetrievabilityFsrs { timing, order }
+    } else {
+        ReviewOrderSubclause::RetrievabilitySm2 {
+            today: timing.days_elapsed,
+            order,
+        }
+    }]
 }
 
 #[derive(Debug, Clone, Copy)]

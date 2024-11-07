@@ -100,6 +100,10 @@ export function reviewOrderChoices(fsrs: boolean): Choice<DeckConfig_Config_Revi
                 value: DeckConfig_Config_ReviewCardOrder.RETRIEVABILITY_ASCENDING,
             },
             {
+                label: tr.deckConfigSortOrderRetrievabilityDescending(),
+                value: DeckConfig_Config_ReviewCardOrder.RETRIEVABILITY_DESCENDING,
+            },
+            {
                 label: tr.deckConfigSortOrderRandom(),
                 value: DeckConfig_Config_ReviewCardOrder.RANDOM,
             },
