@@ -747,10 +747,10 @@ enum ReviewOrderSubclause {
     DifficultyAscending,
     /// FSRS
     DifficultyDescending,
-    RelativeOverdueness {
+    RetrievabilityAscendingSm2 {
         today: u32,
     },
-    RelativeOverduenessFsrs {
+    RetrievabilityAscendingFsrs {
         timing: SchedTimingToday,
     },
     Added,
@@ -770,15 +770,15 @@ impl fmt::Display for ReviewOrderSubclause {
             ReviewOrderSubclause::EaseDescending => "factor desc",
             ReviewOrderSubclause::DifficultyAscending => "extract_fsrs_variable(data, 'd') asc",
             ReviewOrderSubclause::DifficultyDescending => "extract_fsrs_variable(data, 'd') desc",
-            ReviewOrderSubclause::RelativeOverdueness { today } => {
+            ReviewOrderSubclause::RetrievabilityAscendingSm2 { today } => {
                 temp_string = format!("ivl / cast({today}-due+0.001 as real)", today = today);
                 &temp_string
             }
-            ReviewOrderSubclause::RelativeOverduenessFsrs { timing } => {
+            ReviewOrderSubclause::RetrievabilityAscendingFsrs { timing } => {
                 let today = timing.days_elapsed;
                 let next_day_at = timing.next_day_at.0;
                 temp_string =
-                    format!("extract_fsrs_relative_overdueness(data, due, {today}, ivl, {next_day_at}) desc");
+                    format!("extract_fsrs_relative_retrievability(data, due, {today}, ivl, {next_day_at}) asc");
                 &temp_string
             }
             ReviewOrderSubclause::Added => "nid asc, ord asc",
@@ -807,11 +807,11 @@ fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool
         } else {
             ReviewOrderSubclause::EaseDescending
         }],
-        ReviewCardOrder::RelativeOverdueness => {
+        ReviewCardOrder::RetrievabilityAscending => {
             vec![if fsrs {
-                ReviewOrderSubclause::RelativeOverduenessFsrs { timing }
+                ReviewOrderSubclause::RetrievabilityAscendingFsrs { timing }
             } else {
-                ReviewOrderSubclause::RelativeOverdueness {
+                ReviewOrderSubclause::RetrievabilityAscendingSm2 {
                     today: timing.days_elapsed,
                 }
             }]

@@ -27,11 +27,11 @@ pub(crate) fn order_and_limit_for_search(
                 "(case when c.due > 1000000000 then due else (due - {today}) * 86400 + {current_timestamp} end), c.ord");
             &temp_string
         }
-        FilteredSearchOrder::DuePriority => {
+        FilteredSearchOrder::RetrievabilityAscending => {
             let next_day_at = timing.next_day_at.0;
             temp_string = if fsrs {
                 format!(
-                    "extract_fsrs_relative_overdueness(c.data, due, {today}, ivl, {next_day_at}) desc"
+                    "extract_fsrs_relative_retrievability(c.data, due, {today}, ivl, {next_day_at}) asc"
                 )
             } else {
                 format!(
