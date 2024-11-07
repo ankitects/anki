@@ -842,8 +842,14 @@ impl SqlWriter<'_> {
             self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
         )
     }
+
     fn write_deck_preset(&mut self, name: &str) -> Result<()> {
         let dcid = self.col.storage.get_deck_config_id_by_name(name)?;
+        if dcid.is_none() {
+            write!(self.sql, "false").unwrap();
+            return Ok(());
+        };
+
         let mut str_ids = String::new();
         let deck_ids = self
             .col
@@ -1284,6 +1290,13 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
             &s(ctx, "has-cd:r").0,
             "(extract_custom_data(c.data, 'r') is not null)"
         );
+
+        // preset search
+        assert_eq!(
+            &s(ctx, "preset:default").0,
+            "((c.did in (1) or c.odid in (1)))"
+        );
+        assert_eq!(&s(ctx, "preset:typo").0, "(false)");
     }
 
     #[test]
