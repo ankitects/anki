@@ -464,7 +464,7 @@ mod test {
             cards.push(card);
         }
         col.update_cards_maybe_undoable(cards, false)?;
-        col.set_deck_review_order(&mut deck, ReviewCardOrder::RelativeOverdueness);
+        col.set_deck_review_order(&mut deck, ReviewCardOrder::RetrievabilityAscending);
         assert_eq!(col.queue_as_due_and_ivl(deck.id), expected_queue);
 
         Ok(())

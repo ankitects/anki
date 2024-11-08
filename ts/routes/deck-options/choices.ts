@@ -96,8 +96,12 @@ export function reviewOrderChoices(fsrs: boolean): Choice<DeckConfig_Config_Revi
         ...difficultyOrders(fsrs),
         ...[
             {
-                label: tr.deckConfigSortOrderRelativeOverdueness(),
-                value: DeckConfig_Config_ReviewCardOrder.RELATIVE_OVERDUENESS,
+                label: tr.deckConfigSortOrderRetrievabilityAscending(),
+                value: DeckConfig_Config_ReviewCardOrder.RETRIEVABILITY_ASCENDING,
+            },
+            {
+                label: tr.deckConfigSortOrderRetrievabilityDescending(),
+                value: DeckConfig_Config_ReviewCardOrder.RETRIEVABILITY_DESCENDING,
             },
             {
                 label: tr.deckConfigSortOrderRandom(),

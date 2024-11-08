@@ -60,7 +60,12 @@ fn search_order_label(order: FilteredSearchOrder, tr: &I18n) -> String {
         FilteredSearchOrder::Added => tr.decks_order_added(),
         FilteredSearchOrder::Due => tr.decks_order_due(),
         FilteredSearchOrder::ReverseAdded => tr.decks_latest_added_first(),
-        FilteredSearchOrder::DuePriority => tr.decks_relative_overdueness(),
+        FilteredSearchOrder::RetrievabilityAscending => {
+            tr.deck_config_sort_order_retrievability_ascending()
+        }
+        FilteredSearchOrder::RetrievabilityDescending => {
+            tr.deck_config_sort_order_retrievability_descending()
+        }
     }
     .into()
 }

@@ -97,7 +97,8 @@ message Deck {
         ADDED = 5;
         DUE = 6;
         REVERSE_ADDED = 7;
-        DUE_PRIORITY = 8;
+        RETRIEVABILITY_ASCENDING = 8;
+        RETRIEVABILITY_DESCENDING = 9;
       }
 
       string search = 1;
