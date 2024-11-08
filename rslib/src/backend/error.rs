@@ -66,6 +66,7 @@ impl From<SyncErrorKind> for Kind {
     fn from(err: SyncErrorKind) -> Self {
         match err {
             SyncErrorKind::AuthFailed => Kind::SyncAuthError,
+            SyncErrorKind::ServerMessage => Kind::SyncServerMessage,
             _ => Kind::SyncOtherError,
         }
     }
