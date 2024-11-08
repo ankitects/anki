@@ -111,6 +111,7 @@ class NotetypeChooser(QHBoxLayout):
             if not ret.name:
                 return
             notetype = self.mw.col.models.by_name(ret.name)
+            assert notetype is not None
             if (id := notetype["id"]) != self._selected_notetype_id:
                 self.selected_notetype_id = id
 
@@ -146,7 +147,9 @@ class NotetypeChooser(QHBoxLayout):
                 func(self._selected_notetype_id)
 
     def selected_notetype_name(self) -> str:
-        return self.mw.col.models.get(self.selected_notetype_id)["name"]
+        selected_notetype = self.mw.col.models.get(self.selected_notetype_id)
+        assert selected_notetype is not None
+        return selected_notetype["name"]
 
     def _ensure_selected_notetype_valid(self) -> None:
         if not self.mw.col.models.get(self._selected_notetype_id):
