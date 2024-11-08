@@ -1,4 +1,4 @@
-notetypes-notetype = Notetype
+notetypes-notetype = Note Type
 
 ## Default field names in newly created note types
 
