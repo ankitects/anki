@@ -64,7 +64,7 @@ class DeckOptionsDialog(QDialog):
         elif cmd == "confirmDiscardChanges":
             self.confirm_discard_changes()
         elif cmd == "_close":
-            self._close()
+            self.require_close()
 
     def deck_options_ready(self):
         self._ready = True
@@ -77,7 +77,7 @@ class DeckOptionsDialog(QDialog):
         evt.ignore()
         self.check_pending_changes()
 
-    def _close(self):
+    def require_close(self):
         """Close. Ensure the closeEvent is not ignored."""
         self._close_event_has_cleaned_up = True
         self.close()
@@ -86,7 +86,7 @@ class DeckOptionsDialog(QDialog):
         def callbackWithUserChoice(choice: int) -> None:
             if choice == 0:
                 # The user accepted to discard current input.
-                self._close()
+                self.require_close()
 
         ask_user_dialog(
             tr.card_templates_discard_changes(),
@@ -109,7 +109,7 @@ class DeckOptionsDialog(QDialog):
         if self._ready:
             self.web.eval("anki.deckOptionsPendingChanges();")
         else:
-            self._close()
+            self.require_close()
 
 
 def confirm_deck_then_display_options(active_card: Card | None = None) -> None:
