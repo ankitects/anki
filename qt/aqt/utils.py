@@ -275,7 +275,7 @@ def showCritical(
 
 
 def showInfo(
-    text: str,
+    text: str | None,
     parent: QWidget | None = None,
     help: HelpPageArgument | None = None,
     type: str = "info",
@@ -393,7 +393,7 @@ def showText(
 
 
 def askUser(
-    text: str,
+    text: str | None,
     parent: QWidget | None = None,
     help: HelpPageArgument | None = None,
     defaultno: bool = False,
@@ -1281,7 +1281,7 @@ def no_arg_trigger(func: Callable) -> Callable:
     return pyqtSlot()(func)  # type: ignore
 
 
-def is_gesture_or_zoom_event(evt: QEvent) -> bool:
+def is_gesture_or_zoom_event(evt: QEvent | None) -> bool:
     """If the event is a gesture and/or will trigger zoom.
 
     Includes zoom by pinching, and Ctrl-scrolling on Win and Linux.

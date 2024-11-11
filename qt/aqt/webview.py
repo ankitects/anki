@@ -89,17 +89,23 @@ class AnkiWebPage(QWebEnginePage):
         script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
         script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentReady)
         script.setRunsOnSubFrames(False)
-        self.profile().scripts().insert(script)
+
+        profile = self.profile()
+        assert profile is not None
+        scripts = profile.scripts()
+        assert scripts is not None
+        scripts.insert(script)
 
     def javaScriptConsoleMessage(
         self,
         level: QWebEnginePage.JavaScriptConsoleMessageLevel,
-        msg: str,
+        msg: str | None,
         line: int,
-        srcID: str,
+        srcID: str | None,
     ) -> None:
         # not translated because console usually not visible,
         # and may only accept ascii text
+        assert srcID is not None
         if srcID.startswith("data"):
             srcID = ""
         else:
@@ -162,10 +168,10 @@ class AnkiWebPage(QWebEnginePage):
     def _onCmd(self, str: str) -> Any:
         return self._onBridgeCmd(str)
 
-    def javaScriptAlert(self, frame: Any, text: str) -> None:
+    def javaScriptAlert(self, frame: Any, text: str | None) -> None:
         showInfo(text)
 
-    def javaScriptConfirm(self, frame: Any, text: str) -> bool:
+    def javaScriptConfirm(self, frame: Any, text: str | None) -> bool:
         return askUser(text)
 
 
@@ -328,7 +334,7 @@ class AnkiWebView(QWebEngineView):
         # with target="_blank") and return view
         return AnkiWebView()
 
-    def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
+    def eventFilter(self, obj: QObject | None, evt: QEvent | None) -> bool:
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
 
@@ -377,7 +383,7 @@ class AnkiWebView(QWebEngineView):
     def onSelectAll(self) -> None:
         self.triggerPageAction(QWebEnginePage.WebAction.SelectAll)
 
-    def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
+    def contextMenuEvent(self, evt: QContextMenuEvent | None) -> None:
         m = QMenu(self)
         self._maybe_add_copy_action(m)
         gui_hooks.webview_will_show_context_menu(self, m)
@@ -387,9 +393,10 @@ class AnkiWebView(QWebEngineView):
     def _maybe_add_copy_action(self, menu: QMenu) -> None:
         if self.hasSelection():
             a = menu.addAction(tr.actions_copy())
+            assert a is not None
             qconnect(a.triggered, self.onCopy)
 
-    def dropEvent(self, evt: QDropEvent) -> None:
+    def dropEvent(self, evt: QDropEvent | None) -> None:
         if self.allow_drops:
             super().dropEvent(evt)
 
@@ -455,7 +462,9 @@ class AnkiWebView(QWebEngineView):
         return 1
 
     def setPlaybackRequiresGesture(self, value: bool) -> None:
-        self.settings().setAttribute(
+        settings = self.settings()
+        assert settings is not None
+        settings.setAttribute(
             QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, value
         )
 
@@ -632,10 +641,13 @@ html {{ {font} }}
     def eval(self, js: str) -> None:
         self.evalWithCallback(js, None)
 
-    def evalWithCallback(self, js: str, cb: Callable) -> None:
+    def evalWithCallback(self, js: str, cb: Callable | None) -> None:
         self._queueAction("eval", js, cb)
 
-    def _evalWithCallback(self, js: str, cb: Callable[[Any], Any]) -> None:
+    def _evalWithCallback(self, js: str, cb: Callable[[Any], Any] | None) -> None:
+        page = self.page()
+        assert page is not None
+
         if cb:
 
             def handler(val: Any) -> None:
@@ -644,9 +656,9 @@ html {{ {font} }}
                     return
                 cb(val)
 
-            self.page().runJavaScript(js, handler)
+            page.runJavaScript(js, handler)
         else:
-            self.page().runJavaScript(js)
+            page.runJavaScript(js)
 
     def _queueAction(self, name: str, *args: Any) -> None:
         self._pendingActions.append((name, args))
@@ -685,7 +697,9 @@ html {{ {font} }}
             return
 
         if not self._filterSet:
-            self.focusProxy().installEventFilter(self)
+            focus_proxy = self.focusProxy()
+            assert focus_proxy is not None
+            focus_proxy.installEventFilter(self)
             self._filterSet = True
 
         if cmd == "domDone":
