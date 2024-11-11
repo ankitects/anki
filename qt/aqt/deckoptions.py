@@ -46,7 +46,6 @@ class DeckOptionsDialog(QDialog):
         addCloseShortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS)
-        self.web.set_bridge_command(self._on_bridge_cmd, self)
         self.web.load_sveltekit_page(f"deck-options/{self._deck['id']}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -58,45 +57,21 @@ class DeckOptionsDialog(QDialog):
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )
 
-    def _on_bridge_cmd(self, cmd: str) -> None:
-        if cmd == "deck_options_ready":
-            self.deck_options_ready()
-        elif cmd == "confirmDiscardChanges":
-            self.confirm_discard_changes()
-        elif cmd == "_close":
-            self.require_close()
-
-    def deck_options_ready(self):
+    def set_ready(self):
         self._ready = True
         gui_hooks.deck_options_did_load(self)
 
     def closeEvent(self, evt: QCloseEvent | None) -> None:
-        if self._close_event_has_cleaned_up:
+        if self._close_event_has_cleaned_up or not self._ready:
             return super().closeEvent(evt)
         assert evt is not None
         evt.ignore()
-        self.check_pending_changes()
+        self.web.eval("anki.deckOptionsPendingChanges();")
 
     def require_close(self):
         """Close. Ensure the closeEvent is not ignored."""
         self._close_event_has_cleaned_up = True
         self.close()
-
-    def confirm_discard_changes(self) -> None:
-        def callbackWithUserChoice(choice: int) -> None:
-            if choice == 0:
-                # The user accepted to discard current input.
-                self.require_close()
-
-        ask_user_dialog(
-            tr.card_templates_discard_changes(),
-            callback=callbackWithUserChoice,
-            buttons=[
-                QMessageBox.StandardButton.Discard,
-                (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
-            ],
-            parent=self,
-        )
 
     def reject(self) -> None:
         self.mw.col.set_wants_abort()
@@ -104,12 +79,6 @@ class DeckOptionsDialog(QDialog):
         self.web = None  # type: ignore
         saveGeom(self, self.TITLE)
         QDialog.reject(self)
-
-    def check_pending_changes(self):
-        if self._ready:
-            self.web.eval("anki.deckOptionsPendingChanges();")
-        else:
-            self.require_close()
 
 
 def confirm_deck_then_display_options(active_card: Card | None = None) -> None:
