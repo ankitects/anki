@@ -59,13 +59,16 @@ class DeckOptionsDialog(QDialog):
         )
 
     def _on_bridge_cmd(self, cmd: str) -> None:
-        if cmd == "deckOptionsReady":
-            self._ready = True
-            gui_hooks.deck_options_did_load(self)
+        if cmd == "deck_options_ready":
+            self.deck_options_ready()
         elif cmd == "confirmDiscardChanges":
             self.confirm_discard_changes()
         elif cmd == "_close":
             self._close()
+
+    def deck_options_ready(self):
+        self._ready = True
+        gui_hooks.deck_options_did_load(self)
 
     def closeEvent(self, evt: QCloseEvent | None) -> None:
         if self._close_event_has_cleaned_up:
