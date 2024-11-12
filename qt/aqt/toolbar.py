@@ -37,7 +37,9 @@ class BottomToolbar:
 class ToolbarWebView(AnkiWebView):
     hide_condition: Callable[..., bool]
 
-    def __init__(self, mw: aqt.AnkiQt, kind: AnkiWebViewKind | None = None) -> None:
+    def __init__(
+        self, mw: aqt.AnkiQt, kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT
+    ) -> None:
         AnkiWebView.__init__(self, mw, kind=kind)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
@@ -172,7 +174,7 @@ class TopWebView(ToolbarWebView):
         self.eval("""document.body.style.setProperty("min-height", "0px"); """)
         self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
 
-    def resizeEvent(self, event: QResizeEvent) -> None:
+    def resizeEvent(self, event: QResizeEvent | None) -> None:
         super().resizeEvent(event)
 
         self.mw.web.evalWithCallback(
