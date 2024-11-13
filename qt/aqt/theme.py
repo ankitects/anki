@@ -231,7 +231,9 @@ class ThemeManager:
         self._current_widget_style = new_widget_style
         app = aqt.mw.app
         if not self._default_style:
-            self._default_style = app.style().objectName()
+            style = app.style()
+            assert style is not None
+            self._default_style = style.objectName()
         self._apply_palette(app)
         self._apply_style(app)
         gui_hooks.theme_did_change()
