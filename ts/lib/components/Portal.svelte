@@ -39,6 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if !target}
+    <!-- eslint-disable -->
     <!-- svelte-ignore slot_element_deprecated -->
     <slot />
 {/if}
