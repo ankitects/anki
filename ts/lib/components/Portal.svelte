@@ -25,6 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 target: target,
                 props: {
                     children,
+                    $$slots: { default: children },
                 },
             });
         }
@@ -38,5 +39,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if !target}
-    {@render children()}
+    <!-- svelte-ignore slot_element_deprecated -->
+    <slot />
 {/if}

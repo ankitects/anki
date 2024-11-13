@@ -3,10 +3,4 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 
-<script lang="ts">
-	import type { Snippet } from 'svelte';
-
-	const { children }: { children: Snippet } = $props();
-</script>
-
-{@render children?.()}
+<slot />
