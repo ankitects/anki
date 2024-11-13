@@ -132,4 +132,4 @@ requests instead.
 
 ## License
 
-Please add yourself to the CONTRIBUTORS file in your first pull request.
+Please add yourself to the `CONTRIBUTORS.md` and `qt/aqt/about.py` files in your first pull request.
