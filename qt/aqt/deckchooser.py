@@ -99,7 +99,9 @@ class DeckChooser(QHBoxLayout):
         def callback(ret: StudyDeck) -> None:
             if not ret.name:
                 return
-            new_selected_deck_id = self.mw.col.decks.by_name(ret.name)["id"]
+            deck = self.mw.col.decks.by_name(ret.name)
+            assert deck is not None
+            new_selected_deck_id = deck["id"]
             if self.selected_deck_id != new_selected_deck_id:
                 self.selected_deck_id = new_selected_deck_id
                 if func := self.on_deck_changed:
