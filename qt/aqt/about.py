@@ -201,7 +201,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Ian Samir Yep Manzano",
             "Asuka Minato",
             "Eros Cardoso",
-            "3ter", # start - synchronized about.py with differences from contributors.md
+            "3ter",
             "Akshara Balachandra",
             "Aleksa Sarai",
             "Alexander Bocken",
@@ -338,7 +338,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Yuchen Lei",
             "Yutsuten",
             "Zeno Gantner",
-            "Zoom", # end - synchronized about.py with differences from contributors.md
+            "Zoom",
         )
     )
 
