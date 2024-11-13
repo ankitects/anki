@@ -169,9 +169,15 @@ class AnkiWebPage(QWebEnginePage):
         return self._onBridgeCmd(str)
 
     def javaScriptAlert(self, frame: Any, text: str | None) -> None:
+        if text is None:
+            return
+
         showInfo(text)
 
     def javaScriptConfirm(self, frame: Any, text: str | None) -> bool:
+        if text is None:
+            return False
+
         return askUser(text)
 
 
@@ -335,6 +341,8 @@ class AnkiWebView(QWebEngineView):
         return AnkiWebView()
 
     def eventFilter(self, obj: QObject | None, evt: QEvent | None) -> bool:
+        if evt is None:
+            return False
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
 
