@@ -16,8 +16,7 @@ impl GraphsContext {
         let mut due_by_day: HashMap<i32, u32> = Default::default();
         let mut daily_load = 0.0;
         for c in &self.cards {
-            // matched on type, not queue, because burying a new card changes the queue to
-            // buried
+            // matched on type because queue changes on burying or suspending a new card
             if matches!(c.ctype, CardType::New) {
                 continue;
             }
