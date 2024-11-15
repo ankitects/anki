@@ -1128,7 +1128,7 @@ class Collection(DeprecatedNamesMixin):
         self._backend.abort_sync()
 
     def full_upload_or_download(
-        self, *, auth: SyncAuth, server_usn: int | None, upload: bool
+        self, *, auth: SyncAuth | None, server_usn: int | None, upload: bool
     ) -> None:
         self._backend.full_upload_or_download(
             sync_pb2.FullUploadOrDownloadRequest(

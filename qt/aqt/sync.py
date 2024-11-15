@@ -168,7 +168,7 @@ def full_sync(
 
 
 def confirm_full_download(
-    mw: aqt.main.AnkiQt, server_usn: int, on_done: Callable[[], None]
+    mw: aqt.main.AnkiQt, server_usn: int | None, on_done: Callable[[], None]
 ) -> None:
     # confirmation step required, as some users customize their notetypes
     # in an empty collection, then want to upload them
@@ -184,7 +184,7 @@ def confirm_full_download(
 
 
 def confirm_full_upload(
-    mw: aqt.main.AnkiQt, server_usn: int, on_done: Callable[[], None]
+    mw: aqt.main.AnkiQt, server_usn: int | None, on_done: Callable[[], None]
 ) -> None:
     # confirmation step required, as some users have reported an upload
     # happening despite having their AnkiWeb collection not being empty
@@ -220,7 +220,7 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
 
 
 def full_download(
-    mw: aqt.main.AnkiQt, server_usn: int, on_done: Callable[[], None]
+    mw: aqt.main.AnkiQt, server_usn: int | None, on_done: Callable[[], None]
 ) -> None:
     label = tr.sync_downloading_from_ankiweb()
 
@@ -372,7 +372,9 @@ def get_id_and_pass_from_user(
     l2.setBuddy(passwd)
     vbox.addLayout(g)
     bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)  # type: ignore
-    bb.button(QDialogButtonBox.StandardButton.Ok).setAutoDefault(True)
+    ok_button = bb.button(QDialogButtonBox.StandardButton.Ok)
+    assert ok_button is not None
+    ok_button.setAutoDefault(True)
     qconnect(bb.accepted, diag.accept)
     qconnect(bb.rejected, diag.reject)
     vbox.addWidget(bb)
