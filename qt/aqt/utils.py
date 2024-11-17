@@ -118,10 +118,13 @@ HelpPageArgument = Union["HelpPage.V", str]
 
 
 def openHelp(section: HelpPageArgument) -> None:
+    assert tr.backend is not None
+    backend = tr.backend()
+    assert backend is not None
     if isinstance(section, str):
-        link = tr.backend().help_page_link(page=HelpPage.INDEX) + section
+        link = backend.help_page_link(page=HelpPage.INDEX) + section
     else:
-        link = tr.backend().help_page_link(page=section)
+        link = backend.help_page_link(page=section)
     openLink(link)
 
 
@@ -170,17 +173,20 @@ class MessageBox(QMessageBox):
                 b = self.addButton(button)
                 # a translator has complained the default Qt translation is inappropriate, so we override it
                 if button == QMessageBox.StandardButton.Discard:
+                    assert b is not None
                     b.setText(tr.actions_discard())
             elif isinstance(button, tuple):
                 b = self.addButton(button[0], button[1])
             else:
                 continue
             if callback is not None:
+                assert b is not None
                 qconnect(b.clicked, partial(callback, i))
             if i == default_button:
                 self.setDefaultButton(b)
         if help is not None:
             b = self.addButton(QMessageBox.StandardButton.Help)
+            assert b is not None
             qconnect(b.clicked, lambda: openHelp(help))
         self.open()
 
@@ -316,9 +322,11 @@ def showInfo(
         mb.setDefaultButton(default)
     else:
         b = mb.addButton(QMessageBox.StandardButton.Ok)
+        assert b is not None
         b.setDefault(True)
     if help is not None:
         b = mb.addButton(QMessageBox.StandardButton.Help)
+        assert b is not None
         qconnect(b.clicked, lambda: openHelp(help))
         b.setAutoDefault(False)
     return mb.exec()
@@ -363,7 +371,9 @@ def showText(
     if copyBtn:
 
         def onCopy() -> None:
-            QApplication.clipboard().setText(text.toPlainText())
+            clipboard = QApplication.clipboard()
+            assert clipboard is not None
+            clipboard.setText(text.toPlainText())
 
         btn = QPushButton(tr.qt_misc_copy_to_clipboard())
         qconnect(btn.clicked, onCopy)
@@ -415,6 +425,7 @@ def askUser(
             default = QMessageBox.StandardButton.Yes
         r = msgfunc(parent, title, text, sb, default)
         if r == QMessageBox.StandardButton.Help:
+            assert help is not None
             openHelp(help)
         else:
             break
@@ -431,7 +442,7 @@ class ButtonedDialog(QMessageBox):
         title: str = "Anki",
     ):
         QMessageBox.__init__(self, parent)
-        self._buttons: list[QPushButton] = []
+        self._buttons: list[QPushButton | None] = []
         self.setWindowTitle(title)
         self.help = help
         self.setIcon(QMessageBox.Icon.Warning)
@@ -444,11 +455,13 @@ class ButtonedDialog(QMessageBox):
 
     def run(self) -> str:
         self.exec()
-        but = self.clickedButton().text()
-        if but == "Help":
+        clicked_button = self.clickedButton()
+        assert clicked_button is not None
+        txt = clicked_button.text()
+        if txt == "Help":
             # FIXME stop dialog closing?
+            assert self.help is not None
             openHelp(self.help)
-        txt = self.clickedButton().text()
         # work around KDE 'helpfully' adding accelerators to button text of Qt apps
         return txt.replace("&", "")
 
@@ -504,13 +517,18 @@ class GetTextDialog(QDialog):
         b = QDialogButtonBox(buts)  # type: ignore
         v.addWidget(b)
         self.setLayout(v)
-        qconnect(b.button(QDialogButtonBox.StandardButton.Ok).clicked, self.accept)
-        qconnect(b.button(QDialogButtonBox.StandardButton.Cancel).clicked, self.reject)
+        ok_button = b.button(QDialogButtonBox.StandardButton.Ok)
+        assert ok_button is not None
+        qconnect(ok_button.clicked, self.accept)
+
+        cancel_button = b.button(QDialogButtonBox.StandardButton.Cancel)
+        assert cancel_button is not None
+        qconnect(cancel_button.clicked, self.reject)
+
         if help:
-            qconnect(
-                b.button(QDialogButtonBox.StandardButton.Help).clicked,
-                self.helpRequested,
-            )
+            help_button = b.button(QDialogButtonBox.StandardButton.Help)
+            assert help_button is not None
+            qconnect(help_button.clicked, self.helpRequested)
         self.l.setFocus()
 
     def accept(self) -> None:
@@ -520,7 +538,8 @@ class GetTextDialog(QDialog):
         return QDialog.reject(self)
 
     def helpRequested(self) -> None:
-        openHelp(self.help)
+        if self.help is not None:
+            openHelp(self.help)
 
 
 def getText(
@@ -624,6 +643,7 @@ def getFile(
     if dir and key:
         raise Exception("expected dir or key")
     if not dir:
+        assert aqt.mw.pm.profile is not None
         dirkey = f"{key}Directory"
         dir = aqt.mw.pm.profile.get(dirkey, "")
     else:
@@ -635,6 +655,7 @@ def getFile(
         else QFileDialog.FileMode.ExistingFile
     )
     d.setFileMode(mode)
+    assert dir is not None
     if os.path.exists(dir):
         d.setDirectory(dir)
     d.setWindowTitle(title)
@@ -644,6 +665,7 @@ def getFile(
     def accept() -> None:
         files = list(d.selectedFiles())
         if dirkey:
+            assert aqt.mw.pm.profile is not None
             dir = os.path.dirname(files[0])
             aqt.mw.pm.profile[dirkey] = dir
         result = files if multi else files[0]
@@ -683,10 +705,11 @@ def getSaveFile(
     dir_description: str,
     key: str,
     ext: str,
-    fname: str | None = None,
-) -> str:
+    fname: str = "",
+) -> str | None:
     """Ask the user for a file to save. Use DIR_DESCRIPTION as config
     variable. The file dialog will default to open with FNAME."""
+    assert aqt.mw.pm.profile is not None
     config_key = f"{dir_description}Directory"
 
     defaultPath = QStandardPaths.writableLocation(
@@ -709,9 +732,10 @@ def getSaveFile(
         dir = os.path.dirname(file)
         aqt.mw.pm.profile[config_key] = dir
         # check if it exists
-        if os.path.exists(file):
-            if not askUser(tr.qt_misc_this_file_exists_are_you_sure(), parent):
-                return None
+        if os.path.exists(file) and not askUser(
+            tr.qt_misc_this_file_exists_are_you_sure(), parent
+        ):
+            return None
     return file
 
 
@@ -735,6 +759,7 @@ def _qt_state_key(kind: _QtStateKeyKind, key: str) -> str:
 def saveGeom(widget: QWidget, key: str) -> None:
     # restoring a fullscreen window breaks the tab functionality of 5.15
     if not widget.isFullScreen() or qtmajor == 6:
+        assert aqt.mw.pm.profile is not None
         key = _qt_state_key(_QtStateKeyKind.GEOMETRY, key)
         aqt.mw.pm.profile[key] = widget.saveGeometry()
 
@@ -745,6 +770,7 @@ def restoreGeom(
     adjustSize: bool = False,
     default_size: tuple[int, int] | None = None,
 ) -> None:
+    assert aqt.mw.pm.profile is not None
     key = _qt_state_key(_QtStateKeyKind.GEOMETRY, key)
     if existing_geom := aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(existing_geom)
@@ -756,7 +782,9 @@ def restoreGeom(
 
 
 def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
-    handle = widget.window().windowHandle()
+    window = widget.window()
+    assert window is not None
+    handle = window.windowHandle()
     if not handle:
         # window has not yet been shown, retry later
         aqt.mw.progress.timer(
@@ -765,7 +793,9 @@ def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
         return
 
     # ensure widget is smaller than screen bounds
-    geom = handle.screen().availableGeometry()
+    screen = handle.screen()
+    assert screen is not None
+    geom = screen.availableGeometry()
     wsize = widget.size()
     cappedWidth = min(geom.width(), wsize.width())
     cappedHeight = min(geom.height(), wsize.height())
@@ -784,44 +814,52 @@ def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
 
 
 def saveState(widget: QFileDialog | QMainWindow, key: str) -> None:
+    assert aqt.mw.pm.profile is not None
     key = _qt_state_key(_QtStateKeyKind.STATE, key)
     aqt.mw.pm.profile[key] = widget.saveState()
 
 
 def restoreState(widget: QFileDialog | QMainWindow, key: str) -> None:
+    assert aqt.mw.pm.profile is not None
     key = _qt_state_key(_QtStateKeyKind.STATE, key)
     if data := aqt.mw.pm.profile.get(key):
         widget.restoreState(data)
 
 
 def saveSplitter(widget: QSplitter, key: str) -> None:
+    assert aqt.mw.pm.profile is not None
     key = _qt_state_key(_QtStateKeyKind.SPLITTER, key)
     aqt.mw.pm.profile[key] = widget.saveState()
 
 
 def restoreSplitter(widget: QSplitter, key: str) -> None:
+    assert aqt.mw.pm.profile is not None
     key = _qt_state_key(_QtStateKeyKind.SPLITTER, key)
     if data := aqt.mw.pm.profile.get(key):
         widget.restoreState(data)
 
 
 def saveHeader(widget: QHeaderView, key: str) -> None:
+    assert aqt.mw.pm.profile is not None
     key = _qt_state_key(_QtStateKeyKind.HEADER, key)
     aqt.mw.pm.profile[key] = widget.saveState()
 
 
 def restoreHeader(widget: QHeaderView, key: str) -> None:
+    assert aqt.mw.pm.profile is not None
     key = _qt_state_key(_QtStateKeyKind.HEADER, key)
     if state := aqt.mw.pm.profile.get(key):
         widget.restoreState(state)
 
 
 def save_is_checked(widget: QCheckBox, key: str) -> None:
+    assert aqt.mw.pm.profile is not None
     key += "IsChecked"
     aqt.mw.pm.profile[key] = widget.isChecked()
 
 
 def restore_is_checked(widget: QCheckBox, key: str) -> None:
+    assert aqt.mw.pm.profile is not None
     key += "IsChecked"
     if aqt.mw.pm.profile.get(key) is not None:
         widget.setChecked(aqt.mw.pm.profile[key])
@@ -847,8 +885,11 @@ def restore_combo_index_for_session(
 
 
 def save_combo_history(comboBox: QComboBox, history: list[str], name: str) -> str:
+    assert aqt.mw.pm.profile is not None
     name += "BoxHistory"
-    text_input = comboBox.lineEdit().text()
+    line_edit = comboBox.lineEdit()
+    assert line_edit is not None
+    text_input = line_edit.text()
     if text_input in history:
         history.remove(text_input)
     history.insert(0, text_input)
@@ -861,14 +902,17 @@ def save_combo_history(comboBox: QComboBox, history: list[str], name: str) -> st
 
 
 def restore_combo_history(comboBox: QComboBox, name: str) -> list[str]:
+    assert aqt.mw.pm.profile is not None
     name += "BoxHistory"
     history = aqt.mw.pm.profile.get(name, [])
     comboBox.addItems([""] + history)
     if history:
         session_input = aqt.mw.pm.session.get(name)
         if session_input and session_input == history[0]:
-            comboBox.lineEdit().setText(session_input)
-            comboBox.lineEdit().selectAll()
+            line_edit = comboBox.lineEdit()
+            assert line_edit is not None
+            line_edit.setText(session_input)
+            line_edit.selectAll()
     return history
 
 
@@ -980,7 +1024,7 @@ def send_to_trash(path: Path) -> None:
     except Exception as exc:
         # Linux users may not have a trash folder set up
         print("trash failure:", path, exc)
-        if path.is_dir:
+        if path.is_dir():
             shutil.rmtree(path)
         else:
             path.unlink()
@@ -1005,7 +1049,8 @@ def tooltip(
     class CustomLabel(QLabel):
         silentlyClose = True
 
-        def mousePressEvent(self, evt: QMouseEvent) -> None:
+        def mousePressEvent(self, evt: QMouseEvent | None) -> None:
+            assert evt is not None
             evt.accept()
             self.hide()
 
@@ -1074,7 +1119,7 @@ class MenuList:
         print(
             "MenuList will be removed; please copy it into your add-on's code if you need it."
         )
-        self.children: list[MenuListChild] = []
+        self.children: list[MenuListChild | None] = []
 
     def addItem(self, title: str, func: Callable) -> MenuItem:
         item = MenuItem(title, func)
@@ -1114,6 +1159,7 @@ class SubMenu(MenuList):
 
     def renderTo(self, menu: QMenu) -> None:
         submenu = menu.addMenu(self.title)
+        assert submenu is not None
         super().renderTo(submenu)
 
 
@@ -1124,6 +1170,7 @@ class MenuItem:
 
     def renderTo(self, qmenu: QMenu) -> None:
         a = qmenu.addAction(self.title)
+        assert a is not None
         qconnect(a.triggered, self.func)
 
 

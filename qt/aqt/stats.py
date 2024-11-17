@@ -94,7 +94,7 @@ class NewDeckStats(QDialog):
             lambda _: self.refresh()
         ).run_in_background()
 
-    def _imagePath(self) -> str:
+    def _imagePath(self) -> str | None:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
         name = f"anki-{tr.statistics_stats()}{name}"
         file = getSaveFile(
@@ -196,7 +196,7 @@ class DeckStats(QDialog):
         self.reject()
         callback()
 
-    def _imagePath(self) -> str:
+    def _imagePath(self) -> str | None:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
         name = f"anki-{tr.statistics_stats()}{name}"
         file = getSaveFile(
