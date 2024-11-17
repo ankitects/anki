@@ -33,7 +33,7 @@ static TEMPLATE_ERROR_LINK: &str =
 static TEMPLATE_BLANK_LINK: &str =
     "https://docs.ankiweb.net/templates/errors.html#front-of-card-is-blank";
 static TEMPLATE_BLANK_CLOZE_LINK: &str =
-    "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-notetype";
+    "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-note-type";
 
 // Lexing
 //----------------------------------------
