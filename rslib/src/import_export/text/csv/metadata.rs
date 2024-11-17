@@ -497,9 +497,9 @@ fn maybe_set_tags_column(metadata: &mut CsvMetadata, meta_columns: &HashSet<usiz
     if metadata.tags_column == 0 {
         if let Some(CsvNotetype::GlobalNotetype(ref global)) = metadata.notetype {
             let max_field = global.field_columns.iter().max().copied().unwrap_or(0);
-            for idx in (max_field + 1) as usize..metadata.column_labels.len() {
+            for idx in (max_field + 1) as usize..=metadata.column_labels.len() {
                 if !meta_columns.contains(&idx) {
-                    metadata.tags_column = max_field + 1;
+                    metadata.tags_column = idx as u32;
                     break;
                 }
             }
@@ -842,5 +842,24 @@ pub(in crate::import_export) mod test {
             Delimiter::Tab
         );
         assert_eq!(metadata!(col, "\u{feff}tags:foo\n").global_tags, ["foo"]);
+    }
+
+    #[test]
+    fn should_not_set_tags_column_if_all_are_field_columns() {
+        let meta_columns = Default::default();
+        let mut metadata = CsvMetadata::defaults_for_testing();
+        maybe_set_tags_column(&mut metadata, &meta_columns);
+        assert_eq!(metadata.tags_column, 0);
+    }
+
+    #[test]
+    fn should_set_tags_column_to_next_unused_column() {
+        let mut meta_columns = HashSet::default();
+        meta_columns.insert(3);
+        let mut metadata = CsvMetadata::defaults_for_testing();
+        metadata.column_labels.push(String::new());
+        metadata.column_labels.push(String::new());
+        maybe_set_tags_column(&mut metadata, &meta_columns);
+        assert_eq!(metadata.tags_column, 4);
     }
 }
