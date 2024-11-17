@@ -343,7 +343,7 @@ pub(crate) fn single_card_revlog_to_items(
     // Filter out unwanted entries
     entries.retain(|entry| {
         !(
-            // set due date or reset
+            // set due date, reset or rescheduled
             (entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0)
             || // cram
             (entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0)
