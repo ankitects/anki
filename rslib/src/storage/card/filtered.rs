@@ -53,7 +53,7 @@ fn build_retrievability_query(
 ) -> String {
     if fsrs {
         format!(
-            "extract_fsrs_relative_retrievability(c.data, due, {today}, ivl, {next_day_at}) {order}"
+            "extract_fsrs_relative_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, {today}, ivl, {next_day_at}) {order}"
         )
     } else {
         format!(
