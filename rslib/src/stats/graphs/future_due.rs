@@ -17,10 +17,10 @@ impl GraphsContext {
         let mut daily_load = 0.0;
         for c in &self.cards {
             // matched on type because queue changes on burying or suspending a new card
-            if matches!(c.ctype, CardType::New) {
+            if c.ctype == CardType::New {
                 continue;
             }
-            if matches!(c.queue, CardQueue::Suspended) {
+            if c.queue == CardQueue::Suspended {
                 continue;
             }
             let due = c.original_or_current_due();
