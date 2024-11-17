@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EventPredicateResult } from "$lib/sveltelib/event-predicate";
     import { documentClick, documentKeyup } from "$lib/sveltelib/event-store";
     import { registerModalClosingHandler } from "$lib/sveltelib/modal-closing";
-    import portal from "$lib/sveltelib/portal";
+    import Portal from "./Portal.svelte";
     import type { PositioningCallback } from "$lib/sveltelib/position/auto-update";
     import autoUpdate from "$lib/sveltelib/position/auto-update";
     import type { PositionAlgorithm } from "$lib/sveltelib/position/position-algorithm";
@@ -195,17 +195,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 {/if}
 
-<div bind:this={floating} class="floating" class:show use:portal={portalTarget}>
-    {#if show}
-        <slot name="floating" {position} />
-    {/if}
-
-    <div bind:this={arrow} class="floating-arrow" hidden={!show}>
-        {#if !hideArrow}
-            <FloatingArrow />
+<Portal target={portalTarget}>
+    <div bind:this={floating} class="floating" class:show>
+        {#if show}
+            <slot name="floating" {position} />
         {/if}
+
+        <div bind:this={arrow} class="floating-arrow" hidden={!show}>
+            {#if !hideArrow}
+                <FloatingArrow />
+            {/if}
+        </div>
     </div>
-</div>
+</Portal>
 
 <style lang="scss">
     span.floating-reference {
