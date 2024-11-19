@@ -106,7 +106,7 @@ impl Collection {
                 params = current_params.to_vec();
             }
         }
-
+        thread::sleep(Duration::from_millis(100));
         Ok(ComputeFsrsParamsResponse { params, fsrs_items })
     }
 
