@@ -148,7 +148,6 @@ impl AnkiError {
                         tr.card_templates_identical_front(index + 1)
                     }
                     CardTypeErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
-                    CardTypeErrorDetails::ExtraneousCloze => tr.card_templates_extraneous_cloze(),
                 };
                 format!("{}<br>{}", header, details)
             }
@@ -203,7 +202,6 @@ impl AnkiError {
                 CardTypeErrorDetails::Duplicate { .. } => HelpPage::CardTypeDuplicate,
                 CardTypeErrorDetails::NoFrontField => HelpPage::CardTypeNoFrontField,
                 CardTypeErrorDetails::MissingCloze => HelpPage::CardTypeMissingCloze,
-                CardTypeErrorDetails::ExtraneousCloze => HelpPage::CardTypeExtraneousCloze,
             }),
             _ => None,
         }
@@ -323,5 +321,4 @@ pub enum CardTypeErrorDetails {
     NoFrontField,
     NoSuchField { field: String },
     MissingCloze,
-    ExtraneousCloze,
 }
