@@ -81,7 +81,7 @@ impl Collection {
         // adapt the progress handler to our built-in progress handling
         let progress = CombinedProgressState::new_shared();
         let progress2 = progress.clone();
-        thread::spawn(move || {
+        let progress_thread = thread::spawn(move || {
             let mut finished = false;
             while !finished {
                 thread::sleep(Duration::from_millis(100));
@@ -98,6 +98,7 @@ impl Collection {
             }
         });
         let mut params = FSRS::new(None)?.compute_parameters(items.clone(), Some(progress2))?;
+        progress_thread.join().ok();
         if let Ok(fsrs) = FSRS::new(Some(current_params)) {
             let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
             let optimized_fsrs = FSRS::new(Some(&params))?;
@@ -106,7 +107,7 @@ impl Collection {
                 params = current_params.to_vec();
             }
         }
-        thread::sleep(Duration::from_millis(100));
+
         Ok(ComputeFsrsParamsResponse { params, fsrs_items })
     }
 
