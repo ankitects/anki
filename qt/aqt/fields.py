@@ -41,14 +41,14 @@ class FieldDialog(QDialog):
         self.model = nt
         self.mm._remove_from_cache(self.model["id"])
         self.change_tracker = ChangeTracker(self.mw)
+        self.webview = None
+
+        self.form = aqt.forms.fields.Ui_Dialog()
+        self.form.setupUi(self)
 
         self.setWindowTitle(
             without_unicode_isolation(tr.fields_fields_for(val=self.model["name"]))
         )
-
-        self.form = aqt.forms.fields.Ui_Dialog()
-        self.form.setupUi(self)
-        self.webview = None
 
         disable_help_button(self)
         help_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help)
