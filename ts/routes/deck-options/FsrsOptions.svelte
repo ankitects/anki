@@ -155,7 +155,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             )) ||
                         resp.params.length === 0
                     ) {
-                        setTimeout(() => alert(tr.deckConfigFsrsParamsOptimal()), 100);
+                        setTimeout(() => alert(tr.deckConfigFsrsParamsOptimal()), 200);
                     } else {
                         $config.fsrsParams5 = resp.params;
                     }
