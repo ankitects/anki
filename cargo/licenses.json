@@ -1594,7 +1594,7 @@
   },
   {
     "name": "hashbrown",
-    "version": "0.15.0",
+    "version": "0.15.2",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
     "repository": "https://github.com/rust-lang/hashbrown",
     "license": "Apache-2.0 OR MIT",
@@ -3178,7 +3178,7 @@
   },
   {
     "name": "rustls",
-    "version": "0.23.15",
+    "version": "0.23.18",
     "authors": null,
     "repository": "https://github.com/rustls/rustls",
     "license": "Apache-2.0 OR ISC OR MIT",
