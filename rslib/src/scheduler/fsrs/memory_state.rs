@@ -287,7 +287,7 @@ pub(crate) fn single_card_revlog_to_item(
     let first_review = entries
         .iter()
         // ignore manual and rescheduled revlogs and revlogs before the cutoff
-        .find(|e| e.button_chosen > 0 && e.id.0 > ignore_revlogs_before.0)
+        .find(|e| e.button_chosen > 0 && e.id.0 >= ignore_revlogs_before.0)
         .map(|e| FirstReview {
             interval: e.interval.max(1) as f32,
             ease_factor: if e.ease_factor == 0 {
