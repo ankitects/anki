@@ -64,9 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
 
     <Popover slot="floating">
-        <DropdownItem
-            on:click={() => revert()}
-        >
+        <DropdownItem on:click={() => revert()}>
             {tr.deckConfigRevertButtonTooltip()}
         </DropdownItem>
     </Popover>
