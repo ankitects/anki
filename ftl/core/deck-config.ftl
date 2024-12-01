@@ -315,7 +315,7 @@ deck-config-confirm-remove-name = Remove { $name }?
 deck-config-save-button = Save
 deck-config-save-to-all-subdecks = Save to All Subdecks
 deck-config-save-and-optimize = Optimize All Presets
-deck-config-revert-button-tooltip = Restore this setting to its default value.
+deck-config-revert-button-tooltip = Restore this setting to its default value?
 
 ## These strings are shown via the Description button at the bottom of the
 ## overview screen.
