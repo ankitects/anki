@@ -216,13 +216,12 @@ export function renderForgettingCurve(
         .attr("x1", 0)
         .attr("y1", y(100))
         .attr("x2", 0)
-        .attr("y2", y(yMin))
+        .attr("y2", y(0))
         .selectAll("stop")
         .data([
             { offset: "0%", color: "green" },
             { offset: `${100 - desiredRetention * 100}%`, color: "steelblue" },
-            { offset: "50%", color: "salmon" },
-            { offset: "0%", color: "salmon" },
+            { offset: "100%", color: "salmon" },
         ])
         .enter().append("stop")
         .attr("offset", d => d.offset)
