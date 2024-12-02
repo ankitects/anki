@@ -161,7 +161,7 @@ export function renderForgettingCurve(
     timeRange: TimeRange,
     svgElem: SVGElement,
     bounds: GraphBounds,
-    desiredRetention: number
+    desiredRetention: number,
 ) {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -211,22 +211,22 @@ export function renderForgettingCurve(
 
     // gradient color
     svg.append("linearGradient")
-            .attr("id", "line-gradient")
-            .attr("gradientUnits", "userSpaceOnUse")
-            .attr("x1", 0)
-            .attr("y1", y(100))
-            .attr("x2", 0)
-            .attr("y2", y(yMin))
+        .attr("id", "line-gradient")
+        .attr("gradientUnits", "userSpaceOnUse")
+        .attr("x1", 0)
+        .attr("y1", y(100))
+        .attr("x2", 0)
+        .attr("y2", y(yMin))
         .selectAll("stop")
-            .data([
-                {offset: "0%", color: "green"},
-                {offset: `${100-desiredRetention*100}%`, color: "steelblue"},
-                {offset: "50%", color: "salmon"},
-                {offset: "0%", color: "salmon"}
-            ])
+        .data([
+            { offset: "0%", color: "green" },
+            { offset: `${100 - desiredRetention * 100}%`, color: "steelblue" },
+            { offset: "50%", color: "salmon" },
+            { offset: "0%", color: "salmon" },
+        ])
         .enter().append("stop")
-            .attr("offset", d=>d.offset)
-            .attr("stop-color", d=>d.color);
+        .attr("offset", d => d.offset)
+        .attr("stop-color", d => d.color);
 
     svg.append("path")
         .datum(data)

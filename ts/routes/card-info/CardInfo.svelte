@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CardStats from "./CardStats.svelte";
     import Revlog from "./Revlog.svelte";
     import ForgettingCurve from "./ForgettingCurve.svelte";
+
     export let stats: CardStatsResponse | null = null;
     export let showRevlog: boolean = true;
     export let fsrsEnabled: boolean = stats?.memoryState != null;
@@ -31,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
         {#if fsrsEnabled}
             <Row>
-                <ForgettingCurve revlog={stats.revlog} desiredRetention={desiredRetention}/>
+                <ForgettingCurve revlog={stats.revlog} {desiredRetention} />
             </Row>
         {/if}
     {:else}
