@@ -208,11 +208,30 @@ export function renderForgettingCurve(
         .x((d) => x(d.date))
         .y((d) => y(d.retrievability));
 
+    // gradient color
+    svg.append("linearGradient")
+            .attr("id", "line-gradient")
+            .attr("gradientUnits", "userSpaceOnUse")
+            .attr("x1", 0)
+            .attr("y1", y(100))
+            .attr("x2", 0)
+            .attr("y2", y(yMin))
+        .selectAll("stop")
+            .data([
+                {offset: "0%", color: "green"},
+                {offset: `90%`, color: "steelblue"},
+                {offset: "50%", color: "salmon"},
+                {offset: "0%", color: "salmon"}
+            ])
+        .enter().append("stop")
+            .attr("offset", d=>d.offset)
+            .attr("stop-color", d=>d.color);
+
     svg.append("path")
         .datum(data)
         .attr("class", "forgetting-curve-line")
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", "url(#line-gradient)")
         .attr("stroke-width", 1.5)
         .attr("d", lineGenerator);
 
