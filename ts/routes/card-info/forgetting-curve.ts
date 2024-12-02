@@ -214,14 +214,14 @@ export function renderForgettingCurve(
         .attr("id", "line-gradient")
         .attr("gradientUnits", "userSpaceOnUse")
         .attr("x1", 0)
-        .attr("y1", y(100))
+        .attr("y1", y(0))
         .attr("x2", 0)
-        .attr("y2", y(0))
+        .attr("y2", y(100))
         .selectAll("stop")
         .data([
-            { offset: "0%", color: "green" },
-            { offset: `${100 - desiredRetention * 100}%`, color: "steelblue" },
-            { offset: "100%", color: "salmon" },
+            { offset: "0%", color: "tomato" },
+            { offset: `${desiredRetention * 100}%`, color: "steelblue" },
+            { offset: "100%", color: "green" },
         ])
         .enter().append("stop")
         .attr("offset", d => d.offset)
