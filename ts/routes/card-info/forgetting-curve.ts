@@ -161,6 +161,7 @@ export function renderForgettingCurve(
     timeRange: TimeRange,
     svgElem: SVGElement,
     bounds: GraphBounds,
+    desiredRetention: number
 ) {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -219,7 +220,7 @@ export function renderForgettingCurve(
         .selectAll("stop")
             .data([
                 {offset: "0%", color: "green"},
-                {offset: `90%`, color: "steelblue"},
+                {offset: `${100-desiredRetention*100}%`, color: "steelblue"},
                 {offset: "50%", color: "salmon"},
                 {offset: "0%", color: "salmon"}
             ])
