@@ -210,7 +210,7 @@ export function renderForgettingCurve(
         .y((d) => y(d.retrievability));
 
     // gradient color
-    const desiredRetentionY = y(desiredRetention * 100);
+    const desiredRetentionY = desiredRetention * 100;
     svg.append("linearGradient")
         .attr("id", "line-gradient")
         .attr("gradientUnits", "userSpaceOnUse")
@@ -236,15 +236,17 @@ export function renderForgettingCurve(
         .attr("stroke-width", 1.5)
         .attr("d", lineGenerator);
 
-    svg.append("line")
-        .attr("class", "desired-retention-line")
-        .attr("x1", bounds.marginLeft)
-        .attr("x2", bounds.width - bounds.marginRight)
-        .attr("y1", desiredRetentionY)
-        .attr("y2", desiredRetentionY)
-        .attr("stroke", "steelblue")
-        .attr("stroke-dasharray", "4 4")
-        .attr("stroke-width", 1.2);
+    if (desiredRetentionY > yMin) {
+        svg.append("line")
+            .attr("class", "desired-retention-line")
+            .attr("x1", bounds.marginLeft)
+            .attr("x2", bounds.width - bounds.marginRight)
+            .attr("y1", y(desiredRetentionY))
+            .attr("y2", y(desiredRetentionY))
+            .attr("stroke", "steelblue")
+            .attr("stroke-dasharray", "4 4")
+            .attr("stroke-width", 1.2);
+    }
 
     const focusLine = svg.append("line")
         .attr("class", "focus-line")
