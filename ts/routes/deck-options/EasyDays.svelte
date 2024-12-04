@@ -92,7 +92,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .easy-days-settings td {
         padding: 8px;
         text-align: center;
-        border: 1px solid #ddd;
     }
     .header {
         display: grid;
