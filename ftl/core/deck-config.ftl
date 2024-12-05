@@ -526,3 +526,5 @@ deck-config-invalid-weights = Parameters must be either left blank to use the de
 deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
+deck-config-fsrs-simulator-y-axis-title-time = Review Time per day
+deck-config-fsrs-simulator-y-axis-title-count = Review Count per day
