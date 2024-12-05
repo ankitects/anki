@@ -212,7 +212,7 @@ export function renderForgettingCurve(
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - bounds.marginLeft)
         .attr("x", 0 - (bounds.height / 2))
-        .attr("font-size", "13px")
+        .attr("font-size", "1rem")
         .attr("dy", "1.1em")
         .attr("fill", "currentColor")
         .style("text-anchor", "middle")
