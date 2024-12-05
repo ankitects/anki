@@ -292,11 +292,18 @@ export function renderForgettingCurve(
         .attr("fill", "transparent")
         .on("mousemove", (event: MouseEvent, d: DataPoint) => {
             const [x1, y1] = pointer(event, document.body);
+            const [_, y2] = pointer(event, svg.node());
+
+            const lineY = y(desiredRetentionY);
             focusLine.attr("x1", x(d.date) - 1).attr("x2", x(d.date) + 1).style(
                 "opacity",
                 1,
             );
-            showTooltip(tooltipText(d), x1, y1);
+            let text = tooltipText(d);
+            if (y2 >= lineY - 10 && y2 <= lineY + 10) {
+                text += `<br>${tr.deckConfigDesiredRetention()}: ${desiredRetention.toFixed(2)}`;
+            }
+            showTooltip(text, x1, y1);
         })
         .on("mouseout", () => {
             focusLine.style("opacity", 0);
