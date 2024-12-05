@@ -288,6 +288,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let tableData: TableDatum[] = [] as any;
     const bounds = defaultGraphBounds();
+    bounds.marginLeft += 8;
     let svg = null as HTMLElement | SVGElement | null;
     const title = tr.statisticsReviewsTitle();
     let simulationNumber = 0;
