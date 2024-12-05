@@ -205,6 +205,18 @@ export function renderForgettingCurve(
         .call((selection) => selection.transition(trans).call(axisLeft(y).tickSizeOuter(0)))
         .attr("direction", "ltr");
 
+    svg.select(".y-ticks .y-axis-title").remove();
+    svg.select(".y-ticks")
+        .append("text")
+        .attr("class", "y-axis-title")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - bounds.marginLeft)
+        .attr("x", 0 - (bounds.height / 2))
+        .attr("dy", "1em")
+        .attr("fill", "currentColor")
+        .style("text-anchor", "middle")
+        .text(`${tr.cardStatsFsrsForgettingCurveProbabilityOfRecalling()}(%)`);
+
     const lineGenerator = line<DataPoint>()
         .x((d) => x(d.date))
         .y((d) => y(d.retrievability));
