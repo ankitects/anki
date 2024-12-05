@@ -148,15 +148,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                         currentParams: params,
                     });
-                    if (
-                        params.length &&
-                        params.every(
-                            (n, i) => n.toFixed(4) === resp.params[i].toFixed(4),
-                        )
+
+                    if (!resp.fsrsItems) {
+                        setTimeout(
+                            () => alert(tr.deckConfigFsrsParamsNoReviews()),
+                            200,
+                        );
+                    } else if (
+                        (params.length &&
+                            params.every(
+                                (n, i) => n.toFixed(4) === resp.params[i].toFixed(4),
+                            )) ||
+                        resp.params.length === 0
                     ) {
                         setTimeout(() => alert(tr.deckConfigFsrsParamsOptimal()), 200);
-                    } else if (resp.params.length === 0) {
-                        setTimeout(() => alert(tr.deckConfigFsrsParamsFailed()), 200);
                     } else {
                         $config.fsrsParams5 = resp.params;
                     }

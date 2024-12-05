@@ -452,7 +452,7 @@ deck-config-percent-of-reviews =
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
-deck-config-fsrs-params-failed = Failed to optimize, Ensure there are sufficient reviews in cards with this preset.
+deck-config-fsrs-params-no-reviews = There are no reviews on cards with this preset. Please ensure that this preset is assigned to all decks you want to optimize and try again.
 
 deck-config-wait-for-audio = Wait for audio
 deck-config-show-reminder = Show Reminder
