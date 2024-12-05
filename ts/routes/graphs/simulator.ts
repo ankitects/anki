@@ -91,10 +91,15 @@ export function renderSimulationChart(
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - bounds.marginLeft)
         .attr("x", 0 - (bounds.height / 2))
-        .attr("dy", "1em")
+        .attr("font-size", "1rem")
+        .attr("dy", "1.1em")
         .attr("fill", "currentColor")
         .style("text-anchor", "middle")
-        .text(showTime ? "Review Time per day" : "Review Count per day");
+        .text(`${
+            showTime
+                ? tr.deckConfigFsrsSimulatorYAxisTitleTime()
+                : tr.deckConfigFsrsSimulatorYAxisTitleCount()
+        }`);
 
     // x lines
     const points = convertedData.map((d) => [x(d.date), y(showTime ? d.timeCost : d.count), d.label]);
