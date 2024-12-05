@@ -209,10 +209,11 @@ export function renderForgettingCurve(
     svg.select(".y-ticks")
         .append("text")
         .attr("class", "y-axis-title")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - bounds.marginLeft)
-        .attr("x", 0 - (bounds.height / 2))
-        .attr("dy", "1em")
+        .attr("writing-mode", "vertical-rl")
+        .attr("y", bounds.height / 2 - bounds.marginTop)
+        .attr("x", 0 - bounds.marginLeft * 0.8)
+        .attr("font-size", "13px")
+        .attr("dy", "1.1em")
         .attr("fill", "currentColor")
         .style("text-anchor", "middle")
         .text(`${tr.cardStatsFsrsForgettingCurveProbabilityOfRecalling()}(%)`);
@@ -301,7 +302,7 @@ export function renderForgettingCurve(
             );
             let text = tooltipText(d);
             if (y2 >= lineY - 10 && y2 <= lineY + 10) {
-                text += `<br>${tr.deckConfigDesiredRetention()}: ${desiredRetention.toFixed(2)}`;
+                text += `<br>${tr.cardStatsFsrsForgettingCurveDesiredRetention()}: ${desiredRetention.toFixed(2)}`;
             }
             showTooltip(text, x1, y1);
         })
