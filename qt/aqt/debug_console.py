@@ -72,8 +72,10 @@ class DebugConsole(QDialog):
         qconnect(self._script.currentIndexChanged, self._on_script_change)
 
     def _setup_text_edits(self):
-        font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
-        font.setPointSize(self._text.font().pointSize() + 1)
+        font = QFont("Consolas")
+        if not font.exactMatch():
+            font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
+        font.setPointSize(self._text.font().pointSize())
         self._text.setFont(font)
         self._log.setFont(font)
 
