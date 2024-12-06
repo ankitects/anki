@@ -1438,24 +1438,28 @@ class EditorWebView(AnkiWebView):
         self._store_field_content_on_next_clipboard_change = True
         self._internal_field_text_for_paste = None
 
-    def _on_clipboard_change(self) -> None:
-        self._last_known_clipboard_mime = self._clipboard().mimeData()
+    def _on_clipboard_change(
+        self, mode: QClipboard.Mode = QClipboard.Mode.Clipboard
+    ) -> None:
+        self._last_known_clipboard_mime = self._clipboard().mimeData(mode)
         if self._store_field_content_on_next_clipboard_change:
             # if the flag was set, save the field data
-            self._internal_field_text_for_paste = self._get_clipboard_html_for_field()
+            self._internal_field_text_for_paste = self._get_clipboard_html_for_field(
+                mode
+            )
             self._store_field_content_on_next_clipboard_change = False
-        elif (
-            self._internal_field_text_for_paste != self._get_clipboard_html_for_field()
+        elif self._internal_field_text_for_paste != self._get_clipboard_html_for_field(
+            mode
         ):
             # if we've previously saved the field, blank it out if the clipboard state has changed
             self._internal_field_text_for_paste = None
 
-    def _get_clipboard_html_for_field(self):
+    def _get_clipboard_html_for_field(self, mode: QClipboard.Mode) -> str | None:
         clip = self._clipboard()
-        mime = clip.mimeData()
+        mime = clip.mimeData(mode)
         assert mime is not None
         if not mime.hasHtml():
-            return
+            return None
         return mime.html()
 
     def onCut(self) -> None:
@@ -1486,8 +1490,8 @@ class EditorWebView(AnkiWebView):
     def _onPaste(self, mode: QClipboard.Mode) -> None:
         # Since _on_clipboard_change doesn't always trigger properly on macOS, we do a double check if any changes were made before pasting
         clipboard = self._clipboard()
-        if self._last_known_clipboard_mime != clipboard.mimeData():
-            self._on_clipboard_change()
+        if self._last_known_clipboard_mime != clipboard.mimeData(mode):
+            self._on_clipboard_change(mode)
         extended = self._wantsExtendedPaste()
         if html := self._internal_field_text_for_paste:
             print("reuse internal")
