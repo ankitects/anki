@@ -1454,12 +1454,12 @@ class EditorWebView(AnkiWebView):
             # if we've previously saved the field, blank it out if the clipboard state has changed
             self._internal_field_text_for_paste = None
 
-    def _get_clipboard_html_for_field(self, mode: QClipboard.Mode):
+    def _get_clipboard_html_for_field(self, mode: QClipboard.Mode) -> str | None:
         clip = self._clipboard()
         mime = clip.mimeData(mode)
         assert mime is not None
         if not mime.hasHtml():
-            return
+            return None
         return mime.html()
 
     def onCut(self) -> None:
