@@ -5,12 +5,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { cloneDeep, isEqual as isEqualLodash } from "lodash-es";
-    import { getContext } from "svelte";
 
     import { revertIcon } from "$lib/components/icons";
 
     import Badge from "./Badge.svelte";
-    import { touchDeviceKey } from "./context-keys";
     import DropdownItem from "./DropdownItem.svelte";
     import Icon from "./Icon.svelte";
     import Popover from "./Popover.svelte";
@@ -37,8 +35,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: modified = !isEqual(value, defaultValue);
 
     let showFloating = false;
-
-    const isTouchDevice = getContext<boolean>(touchDeviceKey);
 
     function revert(): void {
         value = cloneDeep(defaultValue);
@@ -68,32 +64,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
 
     <Popover slot="floating">
-        <DropdownItem
-            class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
-            on:click={() => revert()}
-        >
-            {tr.deckConfigRevertButtonTooltip()}<Badge iconSize={85}>
-                <Icon icon={revertIcon} />
-            </Badge>
+        <DropdownItem on:click={() => revert()}>
+            {tr.deckConfigRevertButtonTooltip()}
         </DropdownItem>
     </Popover>
 </WithFloating>
 
 <style lang="scss">
-    :global(.spinner:hover .badge, .spinner.spin-always .badge) {
-        animation: spin-animation 1s infinite;
-        animation-timing-function: linear;
-    }
-
-    @keyframes -global-spin-animation {
-        0% {
-            transform: rotate(360deg);
-        }
-        100% {
-            transform: rotate(0deg);
-        }
-    }
-
     :global(.badge) {
         cursor: pointer;
     }
