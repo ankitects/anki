@@ -394,7 +394,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
                 showWarning(invalidZipMsg())
             except MediaMapInvalid:
                 showWarning(
-                    "Unable to read file. It probably requires a newer version of Anki to import. Try unchecking 'Legacy import/export Handling' under Preferences > Editing > Import/Export and see if the problem persists."
+                    "Unable to read file. It probably requires a newer version of Anki to import."
                 )
             except V2ImportIntoV1:
                 showWarning(

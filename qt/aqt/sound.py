@@ -245,7 +245,8 @@ av_player = AVPlayer()
 def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     cmd = cmd[:]
     env = os.environ.copy()
-    if "LD_LIBRARY_PATH" in env:
+    # keep LD_LIBRARY_PATH when in snap environment
+    if "LD_LIBRARY_PATH" in env and "SNAP" not in env:
         del env["LD_LIBRARY_PATH"]
 
     if is_win:
