@@ -7,7 +7,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DeckOptionsPage from "../DeckOptionsPage.svelte";
     import { commitEditing } from "../lib";
     import type { PageData } from "./$types";
-    import { bridgeCommand, bridgeCommandsAvailable } from "@tslib/bridgecommand";
+    import {
+        deckOptionsRequireClose,
+        deckOptionsConfirmDiscardChanges,
+        deckOptionsReady,
+    } from "@generated/backend";
 
     export let data: PageData;
     let page: DeckOptionsPage;
@@ -15,12 +19,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     globalThis.anki ||= {};
     globalThis.anki.deckOptionsPendingChanges = async (): Promise<void> => {
         await commitEditing();
-        if (bridgeCommandsAvailable()) {
-            if (await data.state.isModified()) {
-                bridgeCommand("confirmDiscardChanges");
-            } else {
-                bridgeCommand("_close");
-            }
+        if (await data.state.isModified()) {
+            deckOptionsConfirmDiscardChanges({});
+        } else {
+            deckOptionsRequireClose({});
         }
     };
 
@@ -29,9 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             resolve(page);
         });
         data.state.resolveOriginalConfigs();
-        if (bridgeCommandsAvailable()) {
-            bridgeCommand("deckOptionsReady");
-        }
+        deckOptionsReady({});
     });
 </script>
 
