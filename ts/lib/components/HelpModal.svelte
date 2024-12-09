@@ -208,7 +208,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         text-align: start;
         min-width: 250px;
         background-color: var(--canvas);
-        border: none;
+        border: 1px solid transparent;
         cursor: pointer;
         border-radius: 0;
         &:hover {
