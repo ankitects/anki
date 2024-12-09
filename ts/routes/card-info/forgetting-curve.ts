@@ -249,6 +249,7 @@ export function renderForgettingCurve(
         .attr("stroke-width", 1.5)
         .attr("d", lineGenerator);
 
+    svg.select(".desired-retention-line").remove();
     if (desiredRetentionY > yMin) {
         svg.append("line")
             .attr("class", "desired-retention-line")
