@@ -157,19 +157,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         resp.params.length === 0;
 
                     if (already_optimal) {
-                        if (resp.fsrsItems) {
-                            // If there are reviews
-                            setTimeout(
-                                () => alert(tr.deckConfigFsrsParamsOptimal()),
-                                200,
-                            );
-                        } else {
-                            // If the preset is empty
-                            setTimeout(
-                                () => alert(tr.deckConfigFsrsParamsNoReviews()),
-                                200,
-                            );
-                        }
+                        const msg = resp.fsrsItems
+                            ? tr.deckConfigFsrsParamsOptimal()
+                            : tr.deckConfigFsrsParamsNoReviews();
+                        setTimeout(() => alert(msg), 200);
                     } else {
                         $config.fsrsParams5 = resp.params;
                     }
