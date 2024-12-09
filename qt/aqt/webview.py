@@ -289,6 +289,10 @@ class AnkiWebView(QWebEngineView):
         self.set_kind(kind)
         if title:
             self.set_title(title)
+        self.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.ForceDarkMode,
+            theme_manager.get_night_mode(),
+        )
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
         self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
