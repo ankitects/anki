@@ -315,7 +315,7 @@ deck-config-confirm-remove-name = Remove { $name }?
 deck-config-save-button = Save
 deck-config-save-to-all-subdecks = Save to All Subdecks
 deck-config-save-and-optimize = Optimize All Presets
-deck-config-revert-button-tooltip = Restore this setting to its default value.
+deck-config-revert-button-tooltip = Restore this setting to its default value?
 
 ## These strings are shown via the Description button at the bottom of the
 ## overview screen.
@@ -452,6 +452,7 @@ deck-config-percent-of-reviews =
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
+deck-config-fsrs-params-no-reviews = No reviews found. Please check that this preset is assigned to all decks you want to optimize (including subdecks) and try again.
 
 deck-config-wait-for-audio = Wait for audio
 deck-config-show-reminder = Show Reminder
