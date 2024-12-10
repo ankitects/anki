@@ -840,10 +840,12 @@ html {{ {font} }}
         self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
         if hasattr(QWebEngineSettings.WebAttribute, "ForceDarkMode"):
             force_dark_mode = getattr(QWebEngineSettings.WebAttribute, "ForceDarkMode")
-            self._page.settings().setAttribute(
-                force_dark_mode,
-                theme_manager.get_night_mode(),
-            )
+            page_settings = self._page.settings()
+            if page_settings is not None:
+                page_settings.setAttribute(
+                    force_dark_mode,
+                    theme_manager.get_night_mode(),
+                )
         # update night-mode class, and legacy nightMode/night-mode body classes
         self.eval(
             f"""
