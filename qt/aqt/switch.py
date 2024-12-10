@@ -21,8 +21,8 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
-        left_color: dict[str, str] = {},
-        right_color: dict[str, str] = {},
+        left_color: dict[str, str] | None = None,
+        right_color: dict[str, str] | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent=parent)
