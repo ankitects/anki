@@ -289,10 +289,6 @@ class AnkiWebView(QWebEngineView):
         self.set_kind(kind)
         if title:
             self.set_title(title)
-        self.settings().setAttribute(
-            QWebEngineSettings.WebAttribute.ForceDarkMode,
-            theme_manager.get_night_mode(),
-        )
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
         self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
@@ -842,6 +838,12 @@ html {{ {font} }}
     def on_theme_did_change(self) -> None:
         # avoid flashes if page reloaded
         self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
+        if hasattr(QWebEngineSettings.WebAttribute, "ForceDarkMode"):
+            force_dark_mode = getattr(QWebEngineSettings.WebAttribute, "ForceDarkMode")
+            self._page.settings().setAttribute(
+                force_dark_mode,
+                theme_manager.get_night_mode(),
+            )
         # update night-mode class, and legacy nightMode/night-mode body classes
         self.eval(
             f"""
