@@ -21,8 +21,8 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
-        left_color: dict[str, str] = colors.ACCENT_CARD | {},
-        right_color: dict[str, str] = colors.ACCENT_NOTE | {},
+        left_color: dict[str, str] = {},
+        right_color: dict[str, str] = {},
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent=parent)
@@ -31,8 +31,8 @@ class Switch(QAbstractButton):
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._left_label = left_label
         self._right_label = right_label
-        self._left_color = left_color
-        self._right_color = right_color
+        self._left_color = left_color if left_color else colors.ACCENT_CARD
+        self._right_color = right_color if right_color else colors.ACCENT_NOTE
         self._path_radius = radius
         self._knob_radius = radius - 2
         self._label_padding = 4
