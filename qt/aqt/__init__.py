@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import atexit
 import logging
 import sys
 from collections.abc import Callable
@@ -525,6 +526,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             print(f"Qt {category}: {msg} {context}")
 
     qInstallMessageHandler(msgHandler)
+    atexit.register(qInstallMessageHandler, None)
 
     if driver == VideoDriver.OpenGL:
         # Leaving QT_OPENGL unset appears to sometimes produce different results

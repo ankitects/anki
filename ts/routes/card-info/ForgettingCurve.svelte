@@ -20,6 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HoverColumns from "../graphs/HoverColumns.svelte";
 
     export let revlog: RevlogEntry[];
+    export let desiredRetention: number;
     let svg = null as HTMLElement | SVGElement | null;
     const bounds = defaultGraphBounds();
     const title = tr.cardStatsFsrsForgettingCurveTitle();
@@ -35,7 +36,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     const timeRange = writable(defaultTimeRange);
 
-    $: renderForgettingCurve(filteredRevlog, $timeRange, svg as SVGElement, bounds);
+    $: renderForgettingCurve(
+        filteredRevlog,
+        $timeRange,
+        svg as SVGElement,
+        bounds,
+        desiredRetention,
+    );
 </script>
 
 <div class="forgetting-curve">

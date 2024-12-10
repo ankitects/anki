@@ -161,6 +161,7 @@ export function renderForgettingCurve(
     timeRange: TimeRange,
     svgElem: SVGElement,
     bounds: GraphBounds,
+    desiredRetention: number,
 ) {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -204,17 +205,62 @@ export function renderForgettingCurve(
         .call((selection) => selection.transition(trans).call(axisLeft(y).tickSizeOuter(0)))
         .attr("direction", "ltr");
 
+    svg.select(".y-ticks .y-axis-title").remove();
+    svg.select(".y-ticks")
+        .append("text")
+        .attr("class", "y-axis-title")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - bounds.marginLeft)
+        .attr("x", 0 - (bounds.height / 2))
+        .attr("font-size", "1rem")
+        .attr("dy", "1.1em")
+        .attr("fill", "currentColor")
+        .style("text-anchor", "middle")
+        .text(`${tr.cardStatsFsrsForgettingCurveProbabilityOfRecalling()}(%)`);
+
     const lineGenerator = line<DataPoint>()
         .x((d) => x(d.date))
         .y((d) => y(d.retrievability));
+
+    // gradient color
+    const desiredRetentionY = desiredRetention * 100;
+    svg.append("linearGradient")
+        .attr("id", "line-gradient")
+        .attr("gradientUnits", "userSpaceOnUse")
+        .attr("x1", 0)
+        .attr("y1", y(0))
+        .attr("x2", 0)
+        .attr("y2", y(100))
+        .selectAll("stop")
+        .data([
+            { offset: "0%", color: "tomato" },
+            { offset: `${desiredRetentionY}%`, color: "steelblue" },
+            { offset: "100%", color: "green" },
+        ])
+        .enter().append("stop")
+        .attr("offset", d => d.offset)
+        .attr("stop-color", d => d.color);
 
     svg.append("path")
         .datum(data)
         .attr("class", "forgetting-curve-line")
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", "url(#line-gradient)")
         .attr("stroke-width", 1.5)
         .attr("d", lineGenerator);
+
+    svg.select(".desired-retention-line").remove();
+    if (desiredRetentionY > yMin) {
+        svg.append("line")
+            .attr("class", "desired-retention-line")
+            .attr("x1", bounds.marginLeft)
+            .attr("x2", bounds.width - bounds.marginRight)
+            .attr("y1", y(desiredRetentionY))
+            .attr("y2", y(desiredRetentionY))
+            .attr("stroke", "steelblue")
+            .attr("stroke-dasharray", "4 4")
+            .attr("stroke-width", 1.2);
+    }
 
     const focusLine = svg.append("line")
         .attr("class", "focus-line")
@@ -248,11 +294,18 @@ export function renderForgettingCurve(
         .attr("fill", "transparent")
         .on("mousemove", (event: MouseEvent, d: DataPoint) => {
             const [x1, y1] = pointer(event, document.body);
+            const [_, y2] = pointer(event, svg.node());
+
+            const lineY = y(desiredRetentionY);
             focusLine.attr("x1", x(d.date) - 1).attr("x2", x(d.date) + 1).style(
                 "opacity",
                 1,
             );
-            showTooltip(tooltipText(d), x1, y1);
+            let text = tooltipText(d);
+            if (y2 >= lineY - 10 && y2 <= lineY + 10) {
+                text += `<br>${tr.cardStatsFsrsForgettingCurveDesiredRetention()}: ${desiredRetention.toFixed(2)}`;
+            }
+            showTooltip(text, x1, y1);
         })
         .on("mouseout", () => {
             focusLine.style("opacity", 0);
