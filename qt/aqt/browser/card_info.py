@@ -73,7 +73,17 @@ class CardInfoDialog(QDialog):
             card_id = None
 
         assert self.web is not None
-        self.web.eval(f"window._updateCardId({card_id})")
+        self.web.eval(
+            f"""
+        (function(){{
+            const form = document.querySelector("form#update_card_id");
+            if (form) {{
+                form.dataset.id = "{card_id}";
+                form.requestSubmit();
+            }}
+        }})();
+        """
+        )
 
     def reject(self) -> None:
         if self._on_close:

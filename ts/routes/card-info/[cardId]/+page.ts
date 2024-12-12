@@ -1,7 +1,5 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import { browser } from "$app/environment";
-import { goto } from "$app/navigation";
 import { cardStats } from "@generated/backend";
 
 import type { PageLoad } from "./$types";
@@ -19,12 +17,3 @@ export const load = (async ({ params }) => {
     const info = cid !== null ? await cardStats({ cid }) : null;
     return { info };
 }) satisfies PageLoad;
-
-function _updateCardId(cardId: bigint) {
-    goto(`/card-info/${cardId}`);
-}
-
-if (browser) {
-    // called by CardInfoDialog.update_card in card_info.py
-    window["_updateCardId"] = _updateCardId;
-}
