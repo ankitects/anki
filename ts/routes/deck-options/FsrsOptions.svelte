@@ -485,7 +485,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="m-2">
     <details>
-        <summary>FSRS simulator (experimental)</summary>
+        <summary>{tr.deckConfigFsrsSimulatorExperimental()}</summary>
 
         <SpinBoxRow
             bind:value={simulateFsrsRequest.daysToSimulate}
@@ -505,7 +505,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={100000}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Additional new cards to simulate
+                {tr.deckConfigAdditionalNewCardsToSimulate()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -547,7 +547,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             disabled={computing}
             on:click={() => simulateFsrs()}
         >
-            {"Simulate"}
+            {tr.deckConfigSimulate()}
         </button>
 
         <button
@@ -555,7 +555,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             disabled={computing}
             on:click={() => clearSimulation()}
         >
-            {"Clear last simulation"}
+            {tr.deckConfigClearLastSimulate()}
         </button>
         <div>{simulateProgressString}</div>
 
