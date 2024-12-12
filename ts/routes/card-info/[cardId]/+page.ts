@@ -20,7 +20,7 @@ export const load = (async ({ params }) => {
     return { info };
 }) satisfies PageLoad;
 
-function _updateCardId(cardId: BigInt) {
+function _updateCardId(cardId: bigint) {
     goto(`/card-info/${cardId}`);
 }
 
