@@ -66,7 +66,7 @@
         white-space: nowrap;
         cursor: pointer;
         color: var(--fg-subtle);
-        border: none;
+        border: 1px solid transparent;
         background-color: transparent;
         /* remove default macOS styling */
         box-shadow: none;

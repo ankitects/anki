@@ -144,11 +144,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         animation: spin;
         animation-duration: 1s;
         animation-iteration-count: infinite;
+        z-index: -1;
 
         opacity: 0;
 
         &.loading {
             opacity: 0.5;
+            z-index: 1;
             transition: opacity var(--transition-slow);
         }
     }

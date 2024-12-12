@@ -148,14 +148,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                         currentParams: params,
                     });
-                    if (
+
+                    const already_optimal =
                         (params.length &&
                             params.every(
                                 (n, i) => n.toFixed(4) === resp.params[i].toFixed(4),
                             )) ||
-                        resp.params.length === 0
-                    ) {
-                        setTimeout(() => alert(tr.deckConfigFsrsParamsOptimal()), 200);
+                        resp.params.length === 0;
+
+                    if (already_optimal) {
+                        const msg = resp.fsrsItems
+                            ? tr.deckConfigFsrsParamsOptimal()
+                            : tr.deckConfigFsrsParamsNoReviews();
+                        setTimeout(() => alert(msg), 200);
                     } else {
                         $config.fsrsParams5 = resp.params;
                     }
@@ -478,7 +483,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 />
             {/if}
         {/if}
-        <div>{computeRetentionProgressString}</div>
+
+        {#if computingRetention}
+            <div>{computeRetentionProgressString}</div>
+        {/if}
     </details>
 </div>
 
