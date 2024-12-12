@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaultTimeRange = TimeRange.Week;
     const timeRange: Writable<TimeRange> = writable(defaultTimeRange);
 
-    // https://github.com/sveltejs/svelte/issues/13811 
+    // https://github.com/sveltejs/svelte/issues/13811
     // svelte-ignore reactive_declaration_non_reactive_property
     $: if (maxDays > 365) {
         defaultTimeRange = TimeRange.AllTime;
