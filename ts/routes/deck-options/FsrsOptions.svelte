@@ -559,7 +559,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </button>
         <div>{simulateProgressString}</div>
 
-        <Graph {title}>
+        <Graph>
             <InputBox>
                 <label>
                     <input type="checkbox" bind:checked={showTime} />
