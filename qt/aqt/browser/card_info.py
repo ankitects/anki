@@ -67,32 +67,13 @@ class CardInfoDialog(QDialog):
         self.setLayout(layout)
 
     def update_card(self, card_id: CardId | None) -> None:
-        from aqt.theme import theme_manager
-
         try:
             self.mw.col.get_card(card_id)
         except NotFoundError:
             card_id = None
 
-        if theme_manager.night_mode:
-            extra = "#night"
-        else:
-            extra = ""
         assert self.web is not None
-        self.web.eval(
-            f"""
-        (function(){{
-            const form = document.querySelector("form#update_card_id");
-            if (form) {{
-                form.dataset.id = "{card_id}";
-                form.requestSubmit();
-            }} else {{
-                // fallback to a full reload with window.location
-                window.location.href = '/card-info/{card_id}{extra}';
-            }}
-        }})();
-        """
-        )
+        self.web.eval(f"window.postMessage('{card_id}');")
 
     def reject(self) -> None:
         if self._on_close:
