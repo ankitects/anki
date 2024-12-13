@@ -80,6 +80,7 @@ impl Collection {
             } else {
                 None
             },
+            desired_retention: card.desired_retention,
         })
     }
 

@@ -64,6 +64,7 @@ message CardStatsResponse {
   string custom_data = 20;
   string preset = 21;
   optional string original_deck = 22;
+  optional float desired_retention = 23;
 }
 
 message GraphsRequest {
