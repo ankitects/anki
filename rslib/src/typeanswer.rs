@@ -7,6 +7,8 @@ use std::sync::LazyLock;
 use difflib::sequencematcher::SequenceMatcher;
 use regex::Regex;
 use unic_ucd_category::GeneralCategory;
+use unicode_normalization::char::is_combining_mark;
+use unicode_normalization::UnicodeNormalization;
 
 use crate::card_rendering::strip_av_tags;
 use crate::text::normalize_to_nfc;
@@ -195,18 +197,12 @@ impl DiffTrait for DiffNonCombining {
 
     fn new(expected: &str, typed: &str) -> Self {
         // filter out combining elements
-        let mut typed_stripped: Vec<char> = Vec::new();
+        let typed_stripped: Vec<char> = typed.nfkd().filter(|&c| !is_combining_mark(c)).collect();
         let mut expected_stripped: Vec<char> = Vec::new();
         // also tokenize into "char+combining" for final rendering
         let mut expected_split: Vec<String> = Vec::new();
 
-        for c in normalize(typed) {
-            if !unicode_normalization::char::is_combining_mark(c) {
-                typed_stripped.push(c);
-            }
-        }
-
-        for c in normalize(expected) {
+        for c in expected.nfkd() {
             if unicode_normalization::char::is_combining_mark(c) {
                 if let Some(last) = expected_split.last_mut() {
                     last.push(c);
@@ -422,6 +418,10 @@ mod test {
         assert_eq!(
             compare_answer("חוֹף", "חופ", false),
             "<code id=typeans><span class=typeGood>חו</span><span class=typeBad>פ</span><br><span id=typearrow>&darr;</span><br><span class=typeGood>חוֹ</span><span class=typeMissed>ף</span></code>"
+        );
+        assert_eq!(
+            compare_answer("ば", "は", false),
+            "<code id=typeans><span class=typeGood>ば</span></code>"
         );
     }
 }
