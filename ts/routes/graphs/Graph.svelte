@@ -5,18 +5,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import TitledContainer from "$lib/components/TitledContainer.svelte";
 
-    export let title: string;
+    // When title is null (default), the graph is inlined, not having TitledContainer wrapper.
+    export let title: string | null = null;
     export let subtitle: string | null = null;
 </script>
 
-<TitledContainer class="d-flex flex-column" {title}>
+{#if title == null}
     <div class="graph d-flex flex-grow-1 flex-column justify-content-center">
         {#if subtitle}
             <div class="subtitle">{subtitle}</div>
         {/if}
         <slot />
     </div>
-</TitledContainer>
+{:else}
+    <TitledContainer class="d-flex flex-column" {title}>
+        <div class="graph d-flex flex-grow-1 flex-column justify-content-center">
+            {#if subtitle}
+                <div class="subtitle">{subtitle}</div>
+            {/if}
+            <slot />
+        </div>
+    </TitledContainer>
+{/if}
 
 <style lang="scss">
     @use "$lib/sass/elevation" as *;
