@@ -15,8 +15,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let stats: CardStatsResponse | null = null;
     export let showRevlog: boolean = true;
-    export let fsrsEnabled: boolean = stats?.memoryState != null;
-    export let desiredRetention: number = stats?.desiredRetention ?? 0.9;
+
+    $: fsrsEnabled = stats?.memoryState != null;
+    $: desiredRetention = stats?.desiredRetention ?? 0.9;
 </script>
 
 <Container breakpoint="md" --gutter-inline="1rem" --gutter-block="0.5rem">
