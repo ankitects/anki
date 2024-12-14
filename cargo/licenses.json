@@ -1809,6 +1809,96 @@
     "description": "iana-time-zone support crate for Haiku OS"
   },
   {
+    "name": "icu_collections",
+    "version": "1.5.0",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "Collection of API for use in ICU libraries."
+  },
+  {
+    "name": "icu_locid",
+    "version": "1.5.0",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "API for managing Unicode Language and Locale Identifiers"
+  },
+  {
+    "name": "icu_locid_transform",
+    "version": "1.5.0",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "API for Unicode Language and Locale Identifiers canonicalization"
+  },
+  {
+    "name": "icu_locid_transform_data",
+    "version": "1.5.0",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "Data for the icu_locid_transform crate"
+  },
+  {
+    "name": "icu_normalizer",
+    "version": "1.5.0",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "API for normalizing text into Unicode Normalization Forms"
+  },
+  {
+    "name": "icu_normalizer_data",
+    "version": "1.5.0",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "Data for the icu_normalizer crate"
+  },
+  {
+    "name": "icu_properties",
+    "version": "1.5.1",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "Definitions for Unicode properties"
+  },
+  {
+    "name": "icu_properties_data",
+    "version": "1.5.0",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "Data for the icu_properties crate"
+  },
+  {
+    "name": "icu_provider",
+    "version": "1.5.0",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "Trait and struct definitions for the ICU data provider"
+  },
+  {
+    "name": "icu_provider_macros",
+    "version": "1.5.0",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "Proc macros for ICU data providers"
+  },
+  {
     "name": "id_tree",
     "version": "1.8.0",
     "authors": "Ian Burns <iwburns8@gmail.com>",
@@ -1819,12 +1909,21 @@
   },
   {
     "name": "idna",
-    "version": "0.5.0",
+    "version": "1.0.3",
     "authors": "The rust-url developers",
     "repository": "https://github.com/servo/rust-url/",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "IDNA (Internationalizing Domain Names in Applications) and Punycode."
+  },
+  {
+    "name": "idna_adapter",
+    "version": "1.2.0",
+    "authors": "The rust-url developers",
+    "repository": "https://github.com/hsivonen/idna_adapter",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Back end adapter for idna"
   },
   {
     "name": "image",
@@ -2050,6 +2149,15 @@
     "license": "Apache-2.0 OR Apache-2.0 WITH LLVM-exception OR MIT",
     "license_file": null,
     "description": "Generated bindings for Linux's userspace API"
+  },
+  {
+    "name": "litemap",
+    "version": "0.7.4",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "A key-value Map implementation based on a flat, sorted Vec."
   },
   {
     "name": "lock_api",
@@ -4158,15 +4266,6 @@
     "description": "A case-insensitive wrapper around strings."
   },
   {
-    "name": "unicode-bidi",
-    "version": "0.3.17",
-    "authors": "The Servo Project Developers",
-    "repository": "https://github.com/servo/unicode-bidi",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Implementation of the Unicode Bidirectional Algorithm"
-  },
-  {
     "name": "unicode-ident",
     "version": "1.0.13",
     "authors": "David Tolnay <dtolnay@gmail.com>",
@@ -4231,7 +4330,7 @@
   },
   {
     "name": "url",
-    "version": "2.5.2",
+    "version": "2.5.4",
     "authors": "The rust-url developers",
     "repository": "https://github.com/servo/rust-url",
     "license": "Apache-2.0 OR MIT",
@@ -4246,6 +4345,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Incremental, zero-copy UTF-8 decoding with error handling"
+  },
+  {
+    "name": "utf16_iter",
+    "version": "1.0.5",
+    "authors": "Henri Sivonen <hsivonen@hsivonen.fi>",
+    "repository": "https://github.com/hsivonen/utf16_iter",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Iterator by char over potentially-invalid UTF-16 in &[u16]"
+  },
+  {
+    "name": "utf8_iter",
+    "version": "1.0.4",
+    "authors": "Henri Sivonen <hsivonen@hsivonen.fi>",
+    "repository": "https://github.com/hsivonen/utf8_iter",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Iterator by char over potentially-invalid UTF-8 in &[u8]"
   },
   {
     "name": "uuid",
@@ -4788,6 +4905,24 @@
     "description": "HTTP mocking to test Rust applications."
   },
   {
+    "name": "write16",
+    "version": "1.0.0",
+    "authors": null,
+    "repository": "https://github.com/hsivonen/write16",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A UTF-16 analog of the Write trait"
+  },
+  {
+    "name": "writeable",
+    "version": "0.5.5",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "A more efficient alternative to fmt::Display"
+  },
+  {
     "name": "xml-rs",
     "version": "0.8.22",
     "authors": "Vladimir Matveev <vmatveev@citrine.cc>",
@@ -4858,6 +4993,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Securely clear secrets from memory with a simple trait built on stable Rust primitives which guarantee memory is zeroed using an operation will not be 'optimized away' by the compiler. Uses a portable pure Rust implementation that works everywhere, even WASM!"
+  },
+  {
+    "name": "zerovec",
+    "version": "0.10.4",
+    "authors": "The ICU4X Project Developers",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "Zero-copy vector backed by a byte array"
+  },
+  {
+    "name": "zerovec-derive",
+    "version": "0.10.3",
+    "authors": "Manish Goregaokar <manishsmail@gmail.com>",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "license": "Unicode-3.0",
+    "license_file": null,
+    "description": "Custom derive for the zerovec crate"
   },
   {
     "name": "zip",
