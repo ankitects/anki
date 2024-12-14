@@ -4,7 +4,16 @@ import { cardStats } from "@generated/backend";
 
 import type { PageLoad } from "./$types";
 
+function optionalBigInt(x: any): bigint | null {
+    try {
+        return BigInt(x);
+    } catch (e) {
+        return null;
+    }
+}
+
 export const load = (async ({ params }) => {
-    const info = await cardStats({ cid: BigInt(params.cardId) });
+    const cid = optionalBigInt(params.cardId);
+    const info = cid !== null ? await cardStats({ cid }) : null;
     return { info };
 }) satisfies PageLoad;
