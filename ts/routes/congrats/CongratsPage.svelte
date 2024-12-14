@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (refreshPeriodically) {
             setInterval(async () => {
                 try {
-                    info = await congratsInfo({});
+                    info = await congratsInfo({}, { alertOnError: false });
                 } catch {
                     console.log("congrats fetch failed");
                 }
