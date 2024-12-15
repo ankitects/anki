@@ -284,20 +284,7 @@ pub(crate) fn single_card_revlog_to_item(
         interval: f32,
         ease_factor: f32,
     }
-    let first_review = entries
-        .iter()
-        // ignore manual and rescheduled revlogs and revlogs before the cutoff
-        .find(|e| e.button_chosen > 0 && e.id.0 >= ignore_revlogs_before.0)
-        .map(|e| FirstReview {
-            interval: e.interval.max(1) as f32,
-            ease_factor: if e.ease_factor == 0 {
-                2500
-            } else {
-                e.ease_factor
-            } as f32
-                / 1000.0,
-        });
-    if let Some((mut items, revlogs_complete, _)) =
+    if let Some((mut items, revlogs_complete, _, filtered_entries)) =
         single_card_revlog_to_items(entries, next_day_at, false, ignore_revlogs_before)
     {
         let mut item = items.pop().unwrap();
@@ -306,7 +293,16 @@ pub(crate) fn single_card_revlog_to_item(
                 item,
                 starting_state: None,
             }))
-        } else if let Some(first_review) = first_review {
+        } else if let Some(first_non_manual_entry) = filtered_entries.first() {
+            let first_review = FirstReview {
+                interval: first_non_manual_entry.interval.max(1) as f32,
+                ease_factor: if first_non_manual_entry.ease_factor == 0 {
+                    2500
+                } else {
+                    first_non_manual_entry.ease_factor
+                } as f32
+                    / 1000.0,
+            };
             // the revlog has been truncated, but not fully
             let mut starting_state = fsrs.memory_state_from_sm2(
                 first_review.ease_factor,
@@ -318,14 +314,10 @@ pub(crate) fn single_card_revlog_to_item(
                 starting_state.difficulty = (first_review.ease_factor - 0.1) * 9.0 + 1.0;
             }
             item.reviews.remove(0);
-            if item.reviews.is_empty() {
-                Ok(None)
-            } else {
-                Ok(Some(FsrsItemWithStartingState {
-                    item,
-                    starting_state: Some(starting_state),
-                }))
-            }
+            Ok(Some(FsrsItemWithStartingState {
+                item,
+                starting_state: Some(starting_state),
+            }))
         } else {
             // only manual and rescheduled revlogs; treat like empty
             Ok(None)

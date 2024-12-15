@@ -258,13 +258,17 @@ pub(crate) fn single_card_revlog_to_items(
     next_day_at: TimestampSecs,
     training: bool,
     ignore_revlogs_before: TimestampMillis,
-) -> Option<(Vec<FSRSItem>, bool, usize)> {
+) -> Option<(Vec<FSRSItem>, bool, usize, Vec<RevlogEntry>)> {
     let mut first_of_last_learn_entries = None;
+    let mut first_relearn_entries = None;
     let mut non_manual_entries = None;
     let mut revlogs_complete = false;
     for (index, entry) in entries.iter().enumerate().rev() {
         if matches!(entry.button_chosen, 1..=4) {
-            non_manual_entries = Some(entry);
+            non_manual_entries = Some(index);
+            if entry.review_kind == RevlogReviewKind::Relearning {
+                first_relearn_entries = Some(index);
+            }
         }
         if matches!(
             (entry.review_kind, entry.button_chosen),
@@ -295,18 +299,6 @@ pub(crate) fn single_card_revlog_to_items(
             }
         }
     }
-    if !revlogs_complete {
-        revlogs_complete = matches!(
-            entries.first(),
-            Some(RevlogEntry {
-                review_kind: RevlogReviewKind::Manual,
-                ..
-            }) | Some(RevlogEntry {
-                review_kind: RevlogReviewKind::Rescheduled,
-                ..
-            })
-        );
-    }
     if training {
         // While training ignore the entire card if the first learning step of the last
         // group of learning steps is before the ignore_revlogs_before date
@@ -333,14 +325,7 @@ pub(crate) fn single_card_revlog_to_items(
             }
         }
     }
-    let first_relearn = entries
-        .iter()
-        .enumerate()
-        .find(|(_idx, e)| {
-            e.id.0 > ignore_revlogs_before.0 && e.review_kind == RevlogReviewKind::Relearning
-        })
-        .map(|(idx, _)| idx);
-    if let Some(idx) = first_of_last_learn_entries.or(first_relearn) {
+    if let Some(idx) = first_of_last_learn_entries.or(first_relearn_entries) {
         // start from the (re)learning step
         if idx > 0 {
             entries.drain(..idx);
@@ -348,6 +333,12 @@ pub(crate) fn single_card_revlog_to_items(
     } else if training {
         // when training, we ignore cards that don't have any learning steps
         return None;
+    } else if let Some(idx) = non_manual_entries {
+        // if there are no (re)learning entries but there are non-manual entries,
+        // we ignore all entries before the first non-manual entry
+        if idx > 0 {
+            entries.drain(..idx);
+        }
     }
 
     // Filter out unwanted entries
@@ -393,7 +384,7 @@ pub(crate) fn single_card_revlog_to_items(
     if items.is_empty() {
         None
     } else {
-        Some((items, revlogs_complete, entries.len()))
+        Some((items, revlogs_complete, entries.len(), entries))
     }
 }
 
