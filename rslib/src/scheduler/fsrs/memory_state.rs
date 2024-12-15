@@ -386,8 +386,8 @@ mod tests {
                 difficulty: 5.7909784,
             }),
         );
-        // but if there's only a single revlog entry, we'll fall back on current card
-        // state
+        // but if there's only a single revlog entry, we'll fall back on the first
+        // non-manual entry
         let item = single_card_revlog_to_item(
             &fsrs,
             vec![RevlogEntry {
@@ -398,17 +398,15 @@ mod tests {
             TimestampSecs::now(),
             0.9,
             0.into(),
-        )?;
-        assert!(item.is_none());
-        card.interval = 123;
-        card.ease_factor = 2000;
-        card.ctype = CardType::Review;
-        card.set_memory_state(&fsrs, item, 0.9)?;
+        )?
+        .unwrap();
+        assert!(item.item.reviews.is_empty());
+        card.set_memory_state(&fsrs, Some(item), 0.9)?;
         assert_int_eq(
             card.memory_state,
             Some(FsrsMemoryState {
-                stability: 122.99994,
-                difficulty: 7.334526,
+                stability: 99.999954,
+                difficulty: 5.840841,
             }),
         );
         Ok(())
