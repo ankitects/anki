@@ -3,14 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type {GraphsResponse} from "@generated/anki/stats_pb";
+    import type { GraphsResponse } from "@generated/anki/stats_pb";
     import * as t9n from "@generated/ftl";
 
-    import {type RevlogRange} from "./graph-helpers";
-    import {
-        type PeriodTrueRetentionData,
-        Scope,
-    } from "./true-retention";
+    import { type RevlogRange } from "./graph-helpers";
+    import { type PeriodTrueRetentionData, Scope } from "./true-retention";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
@@ -18,21 +15,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TrueRetentionSingle from "./TrueRetentionSingle.svelte";
 
     interface Props {
-        revlogRange: RevlogRange,
-        sourceData: GraphsResponse | null,
+        revlogRange: RevlogRange;
+        sourceData: GraphsResponse | null;
     }
 
-    let {
-        revlogRange,
-        sourceData = null,
-    }: Props = $props();
+    let { revlogRange, sourceData = null }: Props = $props();
 
     let retentionData: PeriodTrueRetentionData | null = $derived.by(() => {
         if (sourceData === null) {
             return null;
         } else {
             // Assert that all the True Retention data will be defined
-            return sourceData.trueRetention as PeriodTrueRetentionData
+            return sourceData.trueRetention as PeriodTrueRetentionData;
         }
     });
 
@@ -71,13 +65,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {#if retentionData === null}
             <div>No Data!</div>
         {:else if mode === Mode.Young}
-            <TrueRetentionSingle revlogRange={revlogRange} data={retentionData} scope={Scope.Young} />
+            <TrueRetentionSingle
+                {revlogRange}
+                data={retentionData}
+                scope={Scope.Young}
+            />
         {:else if mode === Mode.Mature}
-            <TrueRetentionSingle revlogRange={revlogRange} data={retentionData} scope={Scope.Mature} />
+            <TrueRetentionSingle
+                {revlogRange}
+                data={retentionData}
+                scope={Scope.Mature}
+            />
         {:else if mode === Mode.All}
-            <TrueRetentionSingle revlogRange={revlogRange} data={retentionData} scope={Scope.All} />
+            <TrueRetentionSingle {revlogRange} data={retentionData} scope={Scope.All} />
         {:else if mode === Mode.Summary}
-            <TrueRetentionCombined revlogRange={revlogRange} data={retentionData} />
+            <TrueRetentionCombined {revlogRange} data={retentionData} />
         {:else}
             <div>Bad mode: {mode}</div>
         {/if}

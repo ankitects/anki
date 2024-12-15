@@ -1,15 +1,16 @@
 table {
-  border-collapse: collapse;
+    border-collapse: collapse;
 }
 
 tr {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 }
 
-td, th {
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+td,
+th {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }
 
 .young,
@@ -19,37 +20,37 @@ td, th {
 .pass,
 .fail,
 .retention {
-  text-align: right;
+    text-align: right;
 }
 
 .young {
-  color: #64C476;
+    color: #64c476;
 }
 
 .mature {
-  color: #31A354;
+    color: #31a354;
 }
 
 .total {
-  color: var(--fg);
+    color: var(--fg);
 }
 
 .count {
-  color: var(--fg-subtle);
+    color: var(--fg-subtle);
 }
 
 .pass {
-  color: #3BC464;
+    color: #3bc464;
 }
 
 .fail {
-  color: #C43b3b;
+    color: #c43b3b;
 }
 
 .retention {
-  color: var(--fg);
+    color: var(--fg);
 }
 
 .row-header {
-  color: var(--fg);
+    color: var(--fg);
 }
