@@ -62,13 +62,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </label>
 
         <label>
-            <input type="radio" bind:group={mode} value={Mode.All} />
-            {t9n.statisticsTrueRetentionAll()}
-        </label>
-
-        <label>
             <input type="radio" bind:group={mode} value={Mode.Summary} />
-            {t9n.statisticsTrueRetentionSummary()}
+            {t9n.statisticsTrueRetentionAll()}
         </label>
     </InputBox>
 

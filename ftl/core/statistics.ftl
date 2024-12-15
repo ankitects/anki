@@ -99,7 +99,6 @@ statistics-true-retention-fail = Fail
 statistics-true-retention-count = Count
 statistics-true-retention-retention = Retention
 statistics-true-retention-all = All
-statistics-true-retention-summary = Summary
 statistics-true-retention-today = Today
 statistics-true-retention-yesterday = Yesterday
 statistics-true-retention-week = Last week
