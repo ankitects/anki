@@ -4,24 +4,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as t9n from "@generated/ftl";
-    import {localizedNumber} from "@tslib/i18n";
+    import { localizedNumber } from "@tslib/i18n";
 
-    import {RevlogRange} from "./graph-helpers";
+    import { RevlogRange } from "./graph-helpers";
     import {
         calculateRetentionPercentageString,
         type PeriodTrueRetentionData,
-        type TrueRetentionData
+        type TrueRetentionData,
     } from "./true-retention";
 
     interface Props {
-        revlogRange: RevlogRange,
-        data: PeriodTrueRetentionData,
+        revlogRange: RevlogRange;
+        data: PeriodTrueRetentionData;
     }
 
-    let {
-        revlogRange,
-        data,
-    }: Props = $props();
+    let { revlogRange, data }: Props = $props();
 </script>
 
 {#snippet row(periodTitle: string, data: TrueRetentionData)}
@@ -31,9 +28,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <tr>
         <th scope="row" class="row-header">{periodTitle}</th>
 
-        <td class="young">{calculateRetentionPercentageString(data.youngPassed, data.youngFailed)}</td>
-        <td class="mature">{calculateRetentionPercentageString(data.maturePassed, data.matureFailed)}</td>
-        <td class="total">{calculateRetentionPercentageString(totalPassed, totalFailed)}</td>
+        <td class="young">
+            {calculateRetentionPercentageString(data.youngPassed, data.youngFailed)}
+        </td>
+        <td class="mature">
+            {calculateRetentionPercentageString(data.maturePassed, data.matureFailed)}
+        </td>
+        <td class="total">
+            {calculateRetentionPercentageString(totalPassed, totalFailed)}
+        </td>
 
         <td class="count">{localizedNumber(totalPassed + totalFailed)}</td>
     </tr>
@@ -43,10 +46,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <thead>
         <tr>
             <td></td>
-            <th scope="col" class="col-header young">{t9n.statisticsCountsYoungCards()}</th>
-            <th scope="col" class="col-header mature">{t9n.statisticsCountsMatureCards()}</th>
-            <th scope="col" class="col-header total">{t9n.statisticsCountsTotalCards()}</th>
-            <th scope="col" class="col-header count">{t9n.statisticsTrueRetentionCount()}</th>
+            <th scope="col" class="col-header young">
+                {t9n.statisticsCountsYoungCards()}
+            </th>
+            <th scope="col" class="col-header mature">
+                {t9n.statisticsCountsMatureCards()}
+            </th>
+            <th scope="col" class="col-header total">
+                {t9n.statisticsCountsTotalCards()}
+            </th>
+            <th scope="col" class="col-header count">
+                {t9n.statisticsTrueRetentionCount()}
+            </th>
         </tr>
     </thead>
 

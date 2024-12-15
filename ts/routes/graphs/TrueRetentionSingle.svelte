@@ -4,26 +4,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as t9n from "@generated/ftl";
-    import {RevlogRange} from "./graph-helpers";
+    import { RevlogRange } from "./graph-helpers";
     import {
-        calculateRetentionPercentageString, getFailed, getPassed,
+        calculateRetentionPercentageString,
+        getFailed,
+        getPassed,
         type PeriodTrueRetentionData,
         Scope,
-        type TrueRetentionData
+        type TrueRetentionData,
     } from "./true-retention";
-    import {localizedNumber} from "@tslib/i18n";
+    import { localizedNumber } from "@tslib/i18n";
 
     interface Props {
-        revlogRange: RevlogRange,
-        data: PeriodTrueRetentionData,
-        scope: Scope,
+        revlogRange: RevlogRange;
+        data: PeriodTrueRetentionData;
+        scope: Scope;
     }
 
-    let {
-        revlogRange,
-        data,
-        scope,
-    }: Props = $props();
+    let { revlogRange, data, scope }: Props = $props();
 </script>
 
 {#snippet row(periodTitle: string, data: TrueRetentionData, scope: Scope)}
@@ -43,9 +41,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <thead>
         <tr>
             <td></td>
-            <th scope="col" class="col-header pass">{t9n.statisticsTrueRetentionPass()}</th>
-            <th scope="col" class="col-header fail">{t9n.statisticsTrueRetentionFail()}</th>
-            <th scope="col" class="col-header retention">{t9n.statisticsTrueRetentionRetention()}</th>
+            <th scope="col" class="col-header pass">
+                {t9n.statisticsTrueRetentionPass()}
+            </th>
+            <th scope="col" class="col-header fail">
+                {t9n.statisticsTrueRetentionFail()}
+            </th>
+            <th scope="col" class="col-header retention">
+                {t9n.statisticsTrueRetentionRetention()}
+            </th>
         </tr>
     </thead>
 

@@ -50,7 +50,10 @@ export function getFailed(data: TrueRetentionData, scope: Scope): number {
     }
 }
 
-export function calculateRetentionPercentageString(passed: number, failed: number): string {
+export function calculateRetentionPercentageString(
+    passed: number,
+    failed: number,
+): string {
     let percentage = 0;
     const total = passed + failed;
 
