@@ -260,8 +260,12 @@ pub(crate) fn single_card_revlog_to_items(
     ignore_revlogs_before: TimestampMillis,
 ) -> Option<(Vec<FSRSItem>, bool, usize)> {
     let mut first_of_last_learn_entries = None;
+    let mut non_manual_entries = None;
     let mut revlogs_complete = false;
     for (index, entry) in entries.iter().enumerate().rev() {
+        if matches!(entry.button_chosen, 1..=4) {
+            non_manual_entries = Some(entry);
+        }
         if matches!(
             (entry.review_kind, entry.button_chosen),
             (RevlogReviewKind::Learning, 1..=4)
@@ -274,13 +278,18 @@ pub(crate) fn single_card_revlog_to_items(
             (entry.review_kind, entry.ease_factor),
             (RevlogReviewKind::Manual, 0)
         ) {
-            // If we find a `Learn` entry after the `Forget` entry, we should
-            // ignore the entries before the `Forget` entry
+            // If we find a `Learn` entry after the `Reset` entry, we should
+            // ignore the entries before the `Reset` entry
             if first_of_last_learn_entries.is_some() {
+                revlogs_complete = true;
+                break;
+            // If we find a non-manual entry after the `Reset` entry, we should
+            // ignore the entries before the `Reset` entry
+            } else if non_manual_entries.is_some() {
                 revlogs_complete = false;
                 break;
-            // If we don't find a `Learn` entry after the `Forget` entry, it's
-            // a new card and we should ignore all entries
+            // If we don't find any non-manual entry after the `Reset` entry,
+            // it's a new card and we should ignore all entries
             } else {
                 return None;
             }
