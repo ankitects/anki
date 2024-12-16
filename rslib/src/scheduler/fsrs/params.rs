@@ -263,6 +263,9 @@ pub(crate) fn single_card_revlog_to_items(
     let mut non_manual_entries = None;
     let mut revlogs_complete = false;
     for (index, entry) in entries.iter().enumerate().rev() {
+        if entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0 {
+            continue;
+        }
         if matches!(entry.button_chosen, 1..=4) {
             non_manual_entries = Some(index);
         }
