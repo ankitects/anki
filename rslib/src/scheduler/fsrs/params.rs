@@ -308,17 +308,9 @@ pub(crate) fn single_card_revlog_to_items(
         }
     } else {
         // While reviewing if the first learning step is before the ignore date,
-        // ignore every review before and including the last learning step
+        // fallback to non_manual_entries
         if let Some(idx) = first_of_last_learn_entries {
             if entries[idx].id.0 < ignore_revlogs_before.0 && idx < entries.len() - 1 {
-                let last_learn_entry = entries
-                    .iter()
-                    .enumerate()
-                    .rev()
-                    .find(|(_idx, e)| e.review_kind == RevlogReviewKind::Learning)
-                    .map(|(idx, _)| idx);
-
-                entries.drain(..(last_learn_entry? + 1));
                 revlogs_complete = false;
                 first_of_last_learn_entries = None;
             }
