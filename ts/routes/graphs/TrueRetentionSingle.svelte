@@ -9,7 +9,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         calculateRetentionPercentageString,
         getFailed,
         getPassed,
+        getRowData,
         type PeriodTrueRetentionData,
+        type RowData,
         Scope,
         type TrueRetentionData,
     } from "./true-retention";
@@ -22,20 +24,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let { revlogRange, data, scope }: Props = $props();
+
+    let rowData: RowData[] = $derived(getRowData(data, revlogRange));
 </script>
-
-{#snippet row(periodTitle: string, data: TrueRetentionData, scope: Scope)}
-    {@const passed = getPassed(data, scope)}
-    {@const failed = getFailed(data, scope)}
-
-    <tr>
-        <th scope="row" class="row-header">{periodTitle}</th>
-
-        <td class="pass">{localizedNumber(passed)}</td>
-        <td class="fail">{localizedNumber(failed)}</td>
-        <td class="retention">{calculateRetentionPercentageString(passed, failed)}</td>
-    </tr>
-{/snippet}
 
 <table>
     <thead>
@@ -54,15 +45,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </thead>
 
     <tbody>
-        {@render row(t9n.statisticsTrueRetentionToday(), data.today, scope)}
-        {@render row(t9n.statisticsTrueRetentionYesterday(), data.yesterday, scope)}
-        {@render row(t9n.statisticsTrueRetentionWeek(), data.week, scope)}
-        {@render row(t9n.statisticsTrueRetentionMonth(), data.month, scope)}
-        {@render row(t9n.statisticsTrueRetentionYear(), data.year, scope)}
+        {#each rowData as row}
+            {@const passed = getPassed(row.data, scope)}
+            {@const failed = getFailed(row.data, scope)}
 
-        {#if revlogRange === RevlogRange.All}
-            {@render row(t9n.statisticsTrueRetentionAllTime(), data.allTime, scope)}
-        {/if}
+            <tr>
+                <th scope="row" class="row-header">{row.title}</th>
+
+                <td class="pass">{localizedNumber(passed)}</td>
+                <td class="fail">{localizedNumber(failed)}</td>
+                <td class="retention">
+                    {calculateRetentionPercentageString(passed, failed)}
+                </td>
+            </tr>
+        {/each}
     </tbody>
 </table>
 

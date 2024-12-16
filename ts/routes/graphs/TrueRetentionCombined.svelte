@@ -9,8 +9,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { RevlogRange } from "./graph-helpers";
     import {
         calculateRetentionPercentageString,
+        getRowData,
         type PeriodTrueRetentionData,
-        type TrueRetentionData,
+        type RowData,
     } from "./true-retention";
 
     interface Props {
@@ -19,28 +20,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let { revlogRange, data }: Props = $props();
+
+    let rowData: RowData[] = $derived(getRowData(data, revlogRange));
 </script>
-
-{#snippet row(periodTitle: string, data: TrueRetentionData)}
-    {@const totalPassed = data.youngPassed + data.maturePassed}
-    {@const totalFailed = data.youngFailed + data.matureFailed}
-
-    <tr>
-        <th scope="row" class="row-header">{periodTitle}</th>
-
-        <td class="young">
-            {calculateRetentionPercentageString(data.youngPassed, data.youngFailed)}
-        </td>
-        <td class="mature">
-            {calculateRetentionPercentageString(data.maturePassed, data.matureFailed)}
-        </td>
-        <td class="total">
-            {calculateRetentionPercentageString(totalPassed, totalFailed)}
-        </td>
-
-        <td class="count">{localizedNumber(totalPassed + totalFailed)}</td>
-    </tr>
-{/snippet}
 
 <table>
     <thead>
@@ -62,15 +44,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </thead>
 
     <tbody>
-        {@render row(t9n.statisticsTrueRetentionToday(), data.today)}
-        {@render row(t9n.statisticsTrueRetentionYesterday(), data.yesterday)}
-        {@render row(t9n.statisticsTrueRetentionWeek(), data.week)}
-        {@render row(t9n.statisticsTrueRetentionMonth(), data.month)}
-        {@render row(t9n.statisticsTrueRetentionYear(), data.year)}
+        {#each rowData as row}
+            {@const totalPassed = row.data.youngPassed + row.data.maturePassed}
+            {@const totalFailed = row.data.youngFailed + row.data.matureFailed}
 
-        {#if revlogRange === RevlogRange.All}
-            {@render row(t9n.statisticsTrueRetentionAllTime(), data.allTime)}
-        {/if}
+            <tr>
+                <th scope="row" class="row-header">{row.title}</th>
+
+                <td class="young">
+                    {calculateRetentionPercentageString(
+                        row.data.youngPassed,
+                        row.data.youngFailed,
+                    )}
+                </td>
+                <td class="mature">
+                    {calculateRetentionPercentageString(
+                        row.data.maturePassed,
+                        row.data.matureFailed,
+                    )}
+                </td>
+                <td class="total">
+                    {calculateRetentionPercentageString(totalPassed, totalFailed)}
+                </td>
+
+                <td class="count">{localizedNumber(totalPassed + totalFailed)}</td>
+            </tr>
+        {/each}
     </tbody>
 </table>
 
