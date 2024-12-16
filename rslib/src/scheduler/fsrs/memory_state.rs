@@ -358,9 +358,9 @@ mod tests {
                 RevlogEntry {
                     ease_factor: 2500,
                     interval: 100,
-                    ..revlog(RevlogReviewKind::Review, 100)
+                    ..revlog(RevlogReviewKind::Review, 99)
                 },
-                revlog(RevlogReviewKind::Review, 1),
+                revlog(RevlogReviewKind::Review, 0),
             ],
             TimestampSecs::now(),
             0.9,
