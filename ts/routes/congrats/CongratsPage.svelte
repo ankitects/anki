@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { CongratsInfoResponse } from "@generated/anki/scheduler_pb";
+    import { congratsInfo } from "@generated/backend";
     import * as tr from "@generated/ftl";
     import { bridgeLink } from "@tslib/bridgecommand";
 
@@ -11,8 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Container from "$lib/components/Container.svelte";
 
     import { buildNextLearnMsg } from "./lib";
+    import { onMount } from "svelte";
 
     export let info: CongratsInfoResponse;
+    export let refreshPeriodically = true;
 
     const congrats = tr.schedulingCongratulationsFinished();
     let nextLearnMsg: string;
@@ -25,6 +28,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const customStudy = bridgeLink("customStudy", tr.schedulingCustomStudy());
     const customStudyMsg = tr.schedulingHowToCustomStudy({
         customStudy,
+    });
+
+    onMount(() => {
+        if (refreshPeriodically) {
+            setInterval(async () => {
+                try {
+                    info = await congratsInfo({});
+                } catch {
+                    console.log("congrats fetch failed");
+                }
+            }, 60000);
+        }
     });
 </script>
 

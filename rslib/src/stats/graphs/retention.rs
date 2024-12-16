@@ -53,7 +53,7 @@ impl GraphsContext {
         self.revlog
             .iter()
             .filter(|review| {
-                // not manually rescheduled
+                // not rescheduled/set due date/reset
                 review.button_chosen > 0
                     // not cramming
                     && (review.review_kind != RevlogReviewKind::Filtered || review.ease_factor != 0)
@@ -77,12 +77,12 @@ impl GraphsContext {
                 }
             });
 
-        stats.today = Some(period_stats["today"].clone());
-        stats.yesterday = Some(period_stats["yesterday"].clone());
-        stats.week = Some(period_stats["week"].clone());
-        stats.month = Some(period_stats["month"].clone());
-        stats.year = Some(period_stats["year"].clone());
-        stats.all_time = Some(period_stats["all_time"].clone());
+        stats.today = Some(period_stats["today"]);
+        stats.yesterday = Some(period_stats["yesterday"]);
+        stats.week = Some(period_stats["week"]);
+        stats.month = Some(period_stats["month"]);
+        stats.year = Some(period_stats["year"]);
+        stats.all_time = Some(period_stats["all_time"]);
 
         stats
     }

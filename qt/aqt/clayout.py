@@ -61,7 +61,9 @@ class CardLayout(QDialog):
         self.ord = ord
         self.col = self.mw.col.weakref()
         self.mm = self.mw.col.models
-        self.model = note.note_type()
+        note_type = note.note_type()
+        assert note_type is not None
+        self.model = note_type
         self.templates = self.model["tmpls"]
         self.fill_empty_action_toggled = fill_empty
         self.night_mode_is_enabled = theme_manager.night_mode
@@ -404,6 +406,7 @@ class CardLayout(QDialog):
         m = QMenu(self)
 
         a = m.addAction(tr.card_templates_fill_empty())
+        assert a is not None
         a.setCheckable(True)
         a.setChecked(self.fill_empty_action_toggled)
         qconnect(a.triggered, self.on_fill_empty_action_toggled)
@@ -411,11 +414,13 @@ class CardLayout(QDialog):
             a.setVisible(False)
 
         a = m.addAction(tr.card_templates_night_mode())
+        assert a is not None
         a.setCheckable(True)
         a.setChecked(self.night_mode_is_enabled)
         qconnect(a.triggered, self.on_night_mode_action_toggled)
 
         a = m.addAction(tr.card_templates_add_mobile_class())
+        assert a is not None
         a.setCheckable(True)
         a.setChecked(self.mobile_emulation_enabled)
         qconnect(a.toggled, self.on_mobile_class_action_toggled)
@@ -754,6 +759,7 @@ class CardLayout(QDialog):
         a = m.addAction(
             tr.actions_with_ellipsis(action=tr.card_templates_restore_to_default())
         )
+        assert a is not None
         qconnect(
             a.triggered,
             lambda: self.on_restore_to_default(),  # pylint: disable=unnecessary-lambda
@@ -761,15 +767,19 @@ class CardLayout(QDialog):
 
         if not self._isCloze():
             a = m.addAction(tr.card_templates_add_card_type())
+            assert a is not None
             qconnect(a.triggered, self.onAddCard)
 
             a = m.addAction(tr.card_templates_remove_card_type())
+            assert a is not None
             qconnect(a.triggered, self.onRemove)
 
             a = m.addAction(tr.card_templates_rename_card_type())
+            assert a is not None
             qconnect(a.triggered, self.onRename)
 
             a = m.addAction(tr.card_templates_reposition_card_type())
+            assert a is not None
             qconnect(a.triggered, self.onReorder)
 
             m.addSeparator()
@@ -780,9 +790,11 @@ class CardLayout(QDialog):
             else:
                 s = tr.card_templates_off()
             a = m.addAction(tr.card_templates_deck_override() + s)
+            assert a is not None
             qconnect(a.triggered, self.onTargetDeck)
 
         a = m.addAction(tr.card_templates_browser_appearance())
+        assert a is not None
         qconnect(a.triggered, self.onBrowserDisplay)
 
         m.popup(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
@@ -834,7 +846,9 @@ class CardLayout(QDialog):
         te.setCol(self.col)
         l.addWidget(te)
         if t["did"]:
-            te.setText(self.col.decks.get(t["did"])["name"])
+            deck = self.col.decks.get(t["did"])
+            assert deck is not None
+            te.setText(deck["name"])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         qconnect(bb.rejected, d.close)
@@ -927,10 +941,10 @@ class CardLayout(QDialog):
         saveGeom(self, "CardLayout")
         saveSplitter(self.mainArea, "CardLayoutMainArea")
         self.preview_web.cleanup()
-        self.preview_web = None
-        self.model = None
-        self.rendered_card = None
-        self.mw = None
+        self.preview_web = None  # type: ignore
+        self.model = None  # type: ignore
+        self.rendered_card = None  # type: ignore
+        self.mw = None  # type: ignore
 
     def onHelp(self) -> None:
         openHelp(HelpPage.TEMPLATES)

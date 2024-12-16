@@ -54,7 +54,7 @@ impl Collection {
             daily_time_cost,
         ) = simulate(
             &config,
-            &req.weights,
+            &req.params,
             req.desired_retention,
             None,
             Some(converted_cards),

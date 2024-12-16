@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     globalThis.anki.deckOptionsPendingChanges = async (): Promise<void> => {
         await commitEditing();
         if (bridgeCommandsAvailable()) {
-            if (data.state.isModified()) {
+            if (await data.state.isModified()) {
                 bridgeCommand("confirmDiscardChanges");
             } else {
                 bridgeCommand("_close");
@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         globalThis.$deckOptions = new Promise((resolve, _reject) => {
             resolve(page);
         });
+        data.state.resolveOriginalConfigs();
         if (bridgeCommandsAvailable()) {
             bridgeCommand("deckOptionsReady");
         }

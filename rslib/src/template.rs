@@ -33,7 +33,7 @@ static TEMPLATE_ERROR_LINK: &str =
 static TEMPLATE_BLANK_LINK: &str =
     "https://docs.ankiweb.net/templates/errors.html#front-of-card-is-blank";
 static TEMPLATE_BLANK_CLOZE_LINK: &str =
-    "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-notetype";
+    "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-note-type";
 
 // Lexing
 //----------------------------------------
@@ -628,7 +628,7 @@ pub fn render_card(
             TEMPLATE_BLANK_CLOZE_LINK,
             tr.card_template_rendering_more_info()
         ))
-    } else if !is_cloze && !qtmpl.renders_with_fields(context.nonempty_fields) {
+    } else if !is_cloze && !browser && !qtmpl.renders_with_fields(context.nonempty_fields) {
         Some(format!(
             "<div>{}<br><a href='{}'>{}</a></div>",
             tr.card_template_rendering_empty_front(),

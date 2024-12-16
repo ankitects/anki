@@ -38,7 +38,7 @@ class EmptyCardsDialog(QDialog):
 
     def __init__(self, mw: aqt.main.AnkiQt, report: EmptyCardsReport) -> None:
         super().__init__(mw)
-        self.mw = mw.weakref()
+        self.mw = mw
         self.mw.garbage_collect_on_dialog_finish(self)
         self.report = report
         self.form = aqt.forms.emptycards.Ui_Dialog()
@@ -63,7 +63,7 @@ class EmptyCardsDialog(QDialog):
 
         def on_finished(code: Any) -> None:
             self.form.webview.cleanup()
-            self.form.webview = None
+            self.form.webview = None  # type: ignore
             saveGeom(self, "emptycards")
 
         qconnect(self.finished, on_finished)
@@ -71,6 +71,7 @@ class EmptyCardsDialog(QDialog):
         self._delete_button = self.form.buttonBox.addButton(
             tr.empty_cards_delete_button(), QDialogButtonBox.ButtonRole.ActionRole
         )
+        assert self._delete_button is not None
         self._delete_button.setAutoDefault(False)
         qconnect(self._delete_button.clicked, self._on_delete)
 

@@ -3,6 +3,7 @@
 
 use std::borrow::Cow;
 use std::fs;
+use std::fs::FileTimes;
 use std::io;
 use std::io::Read;
 use std::path::Path;
@@ -12,6 +13,7 @@ use std::time;
 
 use anki_io::create_dir;
 use anki_io::open_file;
+use anki_io::set_file_times;
 use anki_io::write_file;
 use anki_io::FileIoError;
 use anki_io::FileIoSnafu;
@@ -345,11 +347,9 @@ where
         fs::rename(&src_path, &dst_path)?;
 
         // mark it as modified, so we can expire it in the future
-        let secs = time::SystemTime::now()
-            .duration_since(time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
-        if let Err(err) = utime::set_file_times(&dst_path, secs, secs) {
+        let secs = time::SystemTime::now();
+        let times = FileTimes::new().set_accessed(secs).set_modified(secs);
+        if let Err(err) = set_file_times(&dst_path, times) {
             // The libc utimes() call fails on (some? all?) Android devices. Since we don't
             // do automatic expiry yet, we can safely ignore the error.
             if !cfg!(target_os = "android") {

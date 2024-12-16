@@ -7,7 +7,7 @@ use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
-use crate::scheduler::fsrs::weights::ignore_revlogs_before_ms_from_config;
+use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
 use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Collection {
@@ -80,6 +80,7 @@ impl Collection {
             } else {
                 None
             },
+            desired_retention: card.desired_retention,
         })
     }
 
@@ -94,7 +95,11 @@ impl Collection {
         Ok(match card.ctype {
             CardType::New => None,
             CardType::Review | CardType::Learn | CardType::Relearn => {
-                let due = card.due;
+                let due = if card.original_due != 0 {
+                    card.original_due
+                } else {
+                    card.due
+                };
                 if !is_unix_epoch_timestamp(due) {
                     let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
                     let mut due_timestamp = TimestampSecs::now();
@@ -130,7 +135,7 @@ impl Collection {
             .get_deck_config(conf_id)?
             .or_not_found(conf_id)?;
         let historical_retention = config.inner.historical_retention;
-        let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
+        let fsrs = FSRS::new(Some(config.fsrs_params()))?;
         let next_day_at = self.timing_today()?.next_day_at;
         let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
 

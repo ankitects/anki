@@ -103,7 +103,7 @@ class Switch(QAbstractButton):
         self._position = self.end_position
         self.update()
 
-    def paintEvent(self, _event: QPaintEvent) -> None:
+    def paintEvent(self, _event: QPaintEvent | None) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setPen(Qt.PenStyle.NoPen)
@@ -162,12 +162,13 @@ class Switch(QAbstractButton):
             self._current_label_rectangle(), Qt.AlignmentFlag.AlignCenter, self.label
         )
 
-    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+    def mouseReleaseEvent(self, event: QMouseEvent | None) -> None:
         super().mouseReleaseEvent(event)
+        assert event is not None
         if event.button() == Qt.MouseButton.LeftButton:
             self._animate_toggle()
 
-    def enterEvent(self, event: QEnterEvent) -> None:
+    def enterEvent(self, event: QEnterEvent | None) -> None:
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         super().enterEvent(event)
 

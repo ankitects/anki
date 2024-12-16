@@ -67,10 +67,10 @@ class DeckOptionsDialog(QDialog):
         elif cmd == "_close":
             self._close()
 
-    def closeEvent(self, evt: QCloseEvent) -> None:
+    def closeEvent(self, evt: QCloseEvent | None) -> None:
         if self._close_event_has_cleaned_up:
-            evt.accept()
-            return
+            return super().closeEvent(evt)
+        assert evt is not None
         evt.ignore()
         self.check_pending_changes()
 
@@ -98,7 +98,7 @@ class DeckOptionsDialog(QDialog):
     def reject(self) -> None:
         self.mw.col.set_wants_abort()
         self.web.cleanup()
-        self.web = None
+        self.web = None  # type: ignore
         saveGeom(self, self.TITLE)
         QDialog.reject(self)
 
@@ -113,10 +113,14 @@ def confirm_deck_then_display_options(active_card: Card | None = None) -> None:
     decks = [aqt.mw.col.decks.current()]
     if card := active_card:
         if card.odid and card.odid != decks[0]["id"]:
-            decks.append(aqt.mw.col.decks.get(card.odid))
+            deck = aqt.mw.col.decks.get(card.odid)
+            assert deck is not None
+            decks.append(deck)
 
         if not any(d["id"] == card.did for d in decks):
-            decks.append(aqt.mw.col.decks.get(card.did))
+            deck = aqt.mw.col.decks.get(card.did)
+            assert deck is not None
+            decks.append(deck)
 
     if len(decks) == 1:
         display_options_for_deck(decks[0])
@@ -143,13 +147,16 @@ def _deck_prompt_dialog(decks: list[DeckDict]) -> None:
 
 
 def display_options_for_deck_id(deck_id: DeckId) -> None:
-    display_options_for_deck(aqt.mw.col.decks.get(deck_id))
+    deck = aqt.mw.col.decks.get(deck_id)
+    assert deck is not None
+    display_options_for_deck(deck)
 
 
 def display_options_for_deck(deck: DeckDict) -> None:
     if not deck["dyn"]:
         if KeyboardModifiersPressed().shift or not aqt.mw.col.v3_scheduler():
             deck_legacy = aqt.mw.col.decks.get(DeckId(deck["id"]))
+            assert deck_legacy is not None
             aqt.deckconf.DeckConf(aqt.mw, deck_legacy)
         else:
             DeckOptionsDialog(aqt.mw, deck)

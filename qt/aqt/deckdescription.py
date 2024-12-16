@@ -60,6 +60,7 @@ class DeckDescriptionDialog(QDialog):
 
         button_box = QDialogButtonBox()
         ok = button_box.addButton(QDialogButtonBox.StandardButton.Ok)
+        assert ok is not None
         qconnect(ok.clicked, self.save_and_accept)
         box.addWidget(button_box)
 

@@ -4,8 +4,11 @@
 mod error;
 
 use std::fs::File;
+use std::fs::FileTimes;
+use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Seek;
+use std::io::Write;
 use std::path::Component;
 use std::path::Path;
 use std::path::PathBuf;
@@ -37,11 +40,57 @@ pub fn open_file(path: impl AsRef<Path>) -> Result<File> {
     })
 }
 
+pub fn open_file_ext(path: impl AsRef<Path>, options: OpenOptions) -> Result<File> {
+    options.open(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Open,
+    })
+}
+
 /// See [std::fs::write].
 pub fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<()> {
     std::fs::write(&path, contents).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Write,
+    })
+}
+
+pub fn write_file_and_flush(
+    path: impl AsRef<Path> + Clone,
+    contents: impl AsRef<[u8]>,
+) -> Result<()> {
+    let mut file = create_file(path.clone())?;
+    file.write_all(contents.as_ref()).context(FileIoSnafu {
+        path: path.clone().as_ref(),
+        op: FileOp::Write,
+    })?;
+    file.sync_all().context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Sync,
+    })
+}
+
+/// See [File::set_times].
+pub fn set_file_times(path: impl AsRef<Path>, times: FileTimes) -> Result<()> {
+    #[cfg(not(windows))]
+    let file = open_file(&path)?;
+
+    #[cfg(windows)]
+    let file = {
+        use std::os::windows::fs::OpenOptionsExt;
+        open_file_ext(
+            &path,
+            OpenOptions::new()
+                .write(true)
+                // It's required to modify the time attributes of a directory in windows system.
+                .custom_flags(0x02000000) // FILE_FLAG_BACKUP_SEMANTICS
+                .to_owned(),
+        )?
+    };
+
+    file.set_times(times).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::SetFileTimes,
     })
 }
 

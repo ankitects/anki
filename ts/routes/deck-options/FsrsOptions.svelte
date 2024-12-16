@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import {
         ComputeRetentionProgress,
-        type ComputeWeightsProgress,
+        type ComputeParamsProgress,
     } from "@generated/anki/collection_pb";
     import {
         ComputeOptimalRetentionRequest,
@@ -13,10 +13,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type SimulateFsrsReviewResponse,
     } from "@generated/anki/scheduler_pb";
     import {
-        computeFsrsWeights,
+        computeFsrsParams,
         computeOptimalRetention,
         simulateFsrsReview,
-        evaluateWeights,
+        evaluateParams,
         setWantsAbort,
     } from "@generated/backend";
     import * as tr from "@generated/ftl";
@@ -26,12 +26,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SwitchRow from "$lib/components/SwitchRow.svelte";
 
     import GlobalLabel from "./GlobalLabel.svelte";
-    import type { DeckOptionsState } from "./lib";
+    import { fsrsParams, type DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
-    import WeightsInputRow from "./WeightsInputRow.svelte";
-    import WeightsSearchRow from "./WeightsSearchRow.svelte";
+    import ParamsInputRow from "./ParamsInputRow.svelte";
+    import ParamsSearchRow from "./ParamsSearchRow.svelte";
     import { renderSimulationChart, type Point } from "../graphs/simulator";
     import Graph from "../graphs/Graph.svelte";
     import HoverColumns from "../graphs/HoverColumns.svelte";
@@ -40,6 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import NoDataOverlay from "../graphs/NoDataOverlay.svelte";
     import TableData from "../graphs/TableData.svelte";
     import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
+    import InputBox from "../graphs/InputBox.svelte";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -54,24 +55,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigOptimizeAllTip() : "";
 
-    let computeWeightsProgress: ComputeWeightsProgress | undefined;
-    let computingWeights = false;
-    let checkingWeights = false;
+    let computeParamsProgress: ComputeParamsProgress | undefined;
+    let computingParams = false;
+    let checkingParams = false;
     let computingRetention = false;
     let optimalRetention = 0;
     $: if ($presetName) {
         optimalRetention = 0;
     }
-    $: computing = computingWeights || checkingWeights || computingRetention;
-    $: defaultWeightSearch = `preset:"${state.getCurrentName()}" -is:suspended`;
+    $: computing = computingParams || checkingParams || computingRetention;
+    $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     let computeRetentionProgress:
-        | ComputeWeightsProgress
+        | ComputeParamsProgress
         | ComputeRetentionProgress
         | undefined;
+
+    let showTime = false;
 
     const optimalRetentionRequest = new ComputeOptimalRetentionRequest({
         daysToSimulate: 365,
@@ -82,14 +85,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const simulateFsrsRequest = new SimulateFsrsReviewRequest({
-        weights: $config.fsrsWeights,
+        params: fsrsParams($config),
         desiredRetention: $config.desiredRetention,
         deckSize: 0,
         daysToSimulate: 365,
         newLimit: $config.newPerDay,
         reviewLimit: $config.reviewsPerDay,
         maxInterval: $config.maximumReviewInterval,
-        search: `preset:"${state.getCurrentName()}" -is:suspended`,
+        search: `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
     });
 
     function getRetentionWarning(retention: number): string {
@@ -123,8 +126,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    async function computeWeights(): Promise<void> {
-        if (computingWeights) {
+    async function computeParams(): Promise<void> {
+        if (computingParams) {
             await setWantsAbort({});
             return;
         }
@@ -132,45 +135,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             alert(tr.deckConfigPleaseSaveYourChangesFirst());
             return;
         }
-        computingWeights = true;
-        computeWeightsProgress = undefined;
+        computingParams = true;
+        computeParamsProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
-                    const resp = await computeFsrsWeights({
-                        search: $config.weightSearch
-                            ? $config.weightSearch
-                            : defaultWeightSearch,
+                    const params = fsrsParams($config);
+                    const resp = await computeFsrsParams({
+                        search: $config.paramSearch
+                            ? $config.paramSearch
+                            : defaultparamSearch,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
-                        currentWeights: $config.fsrsWeights,
+                        currentParams: params,
                     });
-                    if (
-                        ($config.fsrsWeights.length &&
-                            $config.fsrsWeights.every(
-                                (n, i) => n.toFixed(4) === resp.weights[i].toFixed(4),
+
+                    const already_optimal =
+                        (params.length &&
+                            params.every(
+                                (n, i) => n.toFixed(4) === resp.params[i].toFixed(4),
                             )) ||
-                        resp.weights.length === 0
-                    ) {
-                        setTimeout(() => alert(tr.deckConfigFsrsParamsOptimal()), 100);
+                        resp.params.length === 0;
+
+                    if (already_optimal) {
+                        const msg = resp.fsrsItems
+                            ? tr.deckConfigFsrsParamsOptimal()
+                            : tr.deckConfigFsrsParamsNoReviews();
+                        setTimeout(() => alert(msg), 200);
+                    } else {
+                        $config.fsrsParams5 = resp.params;
                     }
-                    if (computeWeightsProgress) {
-                        computeWeightsProgress.current = computeWeightsProgress.total;
+                    if (computeParamsProgress) {
+                        computeParamsProgress.current = computeParamsProgress.total;
                     }
-                    $config.fsrsWeights = resp.weights;
                 },
                 (progress) => {
-                    if (progress.value.case === "computeWeights") {
-                        computeWeightsProgress = progress.value.value;
+                    if (progress.value.case === "computeParams") {
+                        computeParamsProgress = progress.value.value;
                     }
                 },
             );
         } finally {
-            computingWeights = false;
+            computingParams = false;
         }
     }
 
-    async function checkWeights(): Promise<void> {
-        if (checkingWeights) {
+    async function checkParams(): Promise<void> {
+        if (checkingParams) {
             await setWantsAbort({});
             return;
         }
@@ -178,21 +188,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             alert(tr.deckConfigPleaseSaveYourChangesFirst());
             return;
         }
-        checkingWeights = true;
-        computeWeightsProgress = undefined;
+        checkingParams = true;
+        computeParamsProgress = undefined;
         try {
             await runWithBackendProgress(
                 async () => {
-                    const search = $config.weightSearch
-                        ? $config.weightSearch
-                        : defaultWeightSearch;
-                    const resp = await evaluateWeights({
-                        weights: $config.fsrsWeights,
+                    const search = $config.paramSearch
+                        ? $config.paramSearch
+                        : defaultparamSearch;
+                    const resp = await evaluateParams({
+                        params: fsrsParams($config),
                         search,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                     });
-                    if (computeWeightsProgress) {
-                        computeWeightsProgress.current = computeWeightsProgress.total;
+                    if (computeParamsProgress) {
+                        computeParamsProgress.current = computeParamsProgress.total;
                     }
                     setTimeout(
                         () =>
@@ -205,13 +215,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     );
                 },
                 (progress) => {
-                    if (progress.value.case === "computeWeights") {
-                        computeWeightsProgress = progress.value.value;
+                    if (progress.value.case === "computeParams") {
+                        computeParamsProgress = progress.value.value;
                     }
                 },
             );
         } finally {
-            checkingWeights = false;
+            checkingParams = false;
         }
     }
 
@@ -230,8 +240,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await runWithBackendProgress(
                 async () => {
                     optimalRetentionRequest.maxInterval = $config.maximumReviewInterval;
-                    optimalRetentionRequest.weights = $config.fsrsWeights;
-                    optimalRetentionRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
+                    optimalRetentionRequest.params = fsrsParams($config);
+                    optimalRetentionRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
                     optimalRetention = resp.optimalRetention;
                     computeRetentionProgress = undefined;
@@ -247,13 +257,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    $: computeWeightsProgressString = renderWeightProgress(computeWeightsProgress);
+    $: computeParamsProgressString = renderWeightProgress(computeParamsProgress);
     $: computeRetentionProgressString = renderRetentionProgress(
         computeRetentionProgress,
     );
-    $: totalReviews = computeWeightsProgress?.reviews ?? undefined;
+    $: totalReviews = computeParamsProgress?.reviews ?? undefined;
 
-    function renderWeightProgress(val: ComputeWeightsProgress | undefined): String {
+    function renderWeightProgress(val: ComputeParamsProgress | undefined): String {
         if (!val || !val.total) {
             return "";
         }
@@ -303,6 +313,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return result;
     }
 
+    function addArrays(arr1: number[], arr2: number[]): number[] {
+        return arr1.map((value, index) => value + arr2[index]);
+    }
+
     $: simulateProgressString = "";
 
     async function simulateFsrs(): Promise<void> {
@@ -311,9 +325,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         try {
             await runWithBackendProgress(
                 async () => {
-                    simulateFsrsRequest.weights = $config.fsrsWeights;
+                    simulateFsrsRequest.params = fsrsParams($config);
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
-                    simulateFsrsRequest.search = `preset:"${state.getCurrentName()}" -is:suspended`;
+                    simulateFsrsRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
                     simulateProgressString = "processing...";
                     resp = await simulateFsrsReview(simulateFsrsRequest);
                 },
@@ -326,23 +340,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     resp.dailyTimeCost,
                     Math.ceil(simulateFsrsRequest.daysToSimulate / 50),
                 );
+                const dailyReviewCount = movingAverage(
+                    addArrays(resp.dailyReviewCount, resp.dailyNewCount),
+                    Math.ceil(simulateFsrsRequest.daysToSimulate / 50),
+                );
                 points = points.concat(
                     dailyTimeCost.map((v, i) => ({
                         x: i,
-                        y: v,
+                        timeCost: v,
+                        count: dailyReviewCount[i],
                         label: simulationNumber,
                     })),
                 );
-                tableData = renderSimulationChart(svg as SVGElement, bounds, points);
+                tableData = renderSimulationChart(
+                    svg as SVGElement,
+                    bounds,
+                    points,
+                    showTime,
+                );
             }
         }
     }
 
+    $: tableData = renderSimulationChart(svg as SVGElement, bounds, points, showTime);
+
     function clearSimulation(): void {
         points = points.filter((p) => p.label !== simulationNumber);
         simulationNumber = Math.max(0, simulationNumber - 1);
-        tableData = renderSimulationChart(svg as SVGElement, bounds, points);
+        tableData = renderSimulationChart(svg as SVGElement, bounds, points, showTime);
     }
+
+    const label = tr.statisticsReviewsTimeCheckbox();
 </script>
 
 <SpinBoxFloatRow
@@ -359,46 +387,46 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
-    <WeightsInputRow
-        bind:value={$config.fsrsWeights}
+    <ParamsInputRow
+        bind:value={$config.fsrsParams5}
         defaultValue={[]}
-        defaults={defaults.fsrsWeights}
+        defaults={defaults.fsrsParams5}
     >
-        <SettingTitle on:click={() => openHelpModal("modelWeights")}>
+        <SettingTitle on:click={() => openHelpModal("modelParams")}>
             {tr.deckConfigWeights()}
         </SettingTitle>
-    </WeightsInputRow>
+    </ParamsInputRow>
 
-    <WeightsSearchRow
-        bind:value={$config.weightSearch}
-        placeholder={defaultWeightSearch}
+    <ParamsSearchRow
+        bind:value={$config.paramSearch}
+        placeholder={defaultparamSearch}
     />
 
     <button
-        class="btn {computingWeights ? 'btn-warning' : 'btn-primary'}"
-        disabled={!computingWeights && computing}
-        on:click={() => computeWeights()}
+        class="btn {computingParams ? 'btn-warning' : 'btn-primary'}"
+        disabled={!computingParams && computing}
+        on:click={() => computeParams()}
     >
-        {#if computingWeights}
+        {#if computingParams}
             {tr.actionsCancel()}
         {:else}
             {tr.deckConfigOptimizeButton()}
         {/if}
     </button>
     <button
-        class="btn {checkingWeights ? 'btn-warning' : 'btn-primary'}"
-        disabled={!checkingWeights && computing}
-        on:click={() => checkWeights()}
+        class="btn {checkingParams ? 'btn-warning' : 'btn-primary'}"
+        disabled={!checkingParams && computing}
+        on:click={() => checkParams()}
     >
-        {#if checkingWeights}
+        {#if checkingParams}
             {tr.actionsCancel()}
         {:else}
             {tr.deckConfigEvaluateButton()}
         {/if}
     </button>
     <div>
-        {#if computingWeights || checkingWeights}
-            {computeWeightsProgressString}
+        {#if computingParams || checkingParams}
+            {computeParamsProgressString}
         {:else if totalReviews !== undefined}
             {tr.statisticsReviews({ reviews: totalReviews })}
         {/if}
@@ -430,7 +458,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={3650}
         >
             <SettingTitle on:click={() => openHelpModal("computeOptimalRetention")}>
-                Days to simulate
+                {tr.deckConfigDaysToSimulate()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -455,7 +483,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 />
             {/if}
         {/if}
-        <div>{computeRetentionProgressString}</div>
+
+        {#if computingRetention}
+            <div>{computeRetentionProgressString}</div>
+        {/if}
     </details>
 </div>
 
@@ -470,7 +501,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={3650}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Days to simulate
+                {tr.deckConfigDaysToSimulate()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -489,10 +520,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={simulateFsrsRequest.newLimit}
             defaultValue={$config.newPerDay}
             min={0}
-            max={1000}
+            max={9999}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                New cards/day
+                {tr.schedulingNewCardsday()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -500,10 +531,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={simulateFsrsRequest.reviewLimit}
             defaultValue={defaults.reviewsPerDay}
             min={0}
-            max={1000}
+            max={9999}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Maximum reviews/day
+                {tr.schedulingMaximumReviewsday()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -514,7 +545,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={36500}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Maximum interval
+                {tr.schedulingMaximumInterval()}
             </SettingTitle>
         </SpinBoxRow>
 
@@ -536,6 +567,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div>{simulateProgressString}</div>
 
         <Graph {title}>
+            <InputBox>
+                <label>
+                    <input type="checkbox" bind:checked={showTime} />
+                    {label}
+                </label>
+            </InputBox>
+
             <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
                 <CumulativeOverlay />
                 <HoverColumns />

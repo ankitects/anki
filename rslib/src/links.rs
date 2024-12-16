@@ -38,9 +38,6 @@ pub fn help_page_link_suffix(page: HelpPage) -> &'static str {
             "templates/errors.html#no-field-replacement-on-front-side"
         }
         HelpPage::CardTypeMissingCloze => "templates/errors.html#no-cloze-filter-on-cloze-notetype",
-        HelpPage::CardTypeExtraneousCloze => {
-            "templates/errors.html#cloze-filter-outside-cloze-notetype"
-        }
         HelpPage::Troubleshooting => "troubleshooting.html",
     }
 }

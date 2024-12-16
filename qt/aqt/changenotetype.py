@@ -63,7 +63,7 @@ class ChangeNotetypeDialog(QDialog):
 
     def reject(self) -> None:
         self.web.cleanup()
-        self.web = None
+        self.web = None  # type: ignore
         saveGeom(self, self.TITLE)
         QDialog.reject(self)
 

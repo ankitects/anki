@@ -101,7 +101,7 @@ class StudyDeck(QDialog):
         else:
             self.exec()
 
-    def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
+    def eventFilter(self, obj: QObject | None, evt: QEvent | None) -> bool:
         if isinstance(evt, QKeyEvent) and evt.type() == QEvent.Type.KeyPress:
             new_row = current_row = self.form.list.currentRow()
             rows_count = self.form.list.count()
@@ -178,6 +178,7 @@ class StudyDeck(QDialog):
 
         def success(out: OpChangesWithId) -> None:
             deck = self.mw.col.decks.get(DeckId(out.id))
+            assert deck is not None
             self.name = deck["name"]
             self.accept_with_callback()
 

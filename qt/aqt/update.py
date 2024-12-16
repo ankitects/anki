@@ -52,7 +52,7 @@ def check_for_update() -> None:
 
     QueryOp(parent=mw, op=do_check, success=on_done).failure(
         on_fail
-    ).run_in_background()
+    ).without_collection().run_in_background()
 
 
 def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:

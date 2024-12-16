@@ -226,8 +226,8 @@ impl LoadBalancer {
             .collect::<Vec<_>>();
         let expected_distribution = check_review_distribution(&review_counts, &percentages);
 
-        // calculate weights for each day
-        let intervals_and_weights = interval_days
+        // calculate params for each day
+        let intervals_and_params = interval_days
             .iter()
             .enumerate()
             .map(|(interval_index, interval_day)| {
@@ -262,10 +262,10 @@ impl LoadBalancer {
         let mut rng = StdRng::seed_from_u64(fuzz_seed?);
 
         let weighted_intervals =
-            WeightedIndex::new(intervals_and_weights.iter().map(|k| k.1)).ok()?;
+            WeightedIndex::new(intervals_and_params.iter().map(|k| k.1)).ok()?;
 
         let selected_interval_index = weighted_intervals.sample(&mut rng);
-        Some(intervals_and_weights[selected_interval_index].0)
+        Some(intervals_and_params[selected_interval_index].0)
     }
 
     pub fn add_card(&mut self, cid: CardId, nid: NoteId, dcid: DeckConfigId, interval: u32) {

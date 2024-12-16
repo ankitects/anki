@@ -64,6 +64,7 @@ message CardStatsResponse {
   string custom_data = 20;
   string preset = 21;
   optional string original_deck = 22;
+  optional float desired_retention = 23;
 }
 
 message GraphsRequest {
@@ -85,11 +86,13 @@ message GraphsResponse {
   message Retrievability {
     map<uint32, uint32> retrievability = 1;
     float average = 2;
-    float sum = 3;
+    float sum_by_card = 3;
+    float sum_by_note = 4;
   }
   message FutureDue {
     map<int32, uint32> future_due = 1;
     bool have_backlog = 2;
+    uint32 daily_load = 3;
   }
   message Today {
     uint32 answer_count = 1;
@@ -205,6 +208,7 @@ message RevlogEntry {
     RELEARNING = 2;
     FILTERED = 3;
     MANUAL = 4;
+    RESCHEDULED = 5;
   }
   int64 id = 1;
   int64 cid = 2;
@@ -217,7 +221,21 @@ message RevlogEntry {
   ReviewKind review_kind = 9;
 }
 
-message RevlogEntries {
-  repeated RevlogEntry entries = 1;
-  int64 next_day_at = 2;
+message CardEntry {
+  int64 id = 1;
+  int64 note_id = 2;
+  int64 deck_id = 3;
+}
+
+message DeckEntry {
+  int64 id = 1;
+  int64 parent_id = 2;
+  int64 preset_id = 3;
+}
+
+message Dataset {
+  repeated RevlogEntry revlogs = 1;
+  repeated CardEntry cards = 2;
+  repeated DeckEntry decks = 3;
+  int64 next_day_at = 4;
 }

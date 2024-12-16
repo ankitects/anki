@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let ctx: MapContext;
 
     let unusedMsg: string;
+    // svelte-ignore reactive_declaration_non_reactive_property
     $: unusedMsg =
         ctx === MapContext.Field
             ? tr.changeNotetypeWillDiscardContent()

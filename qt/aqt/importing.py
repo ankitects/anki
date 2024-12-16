@@ -60,7 +60,7 @@ class ChangeMap(QDialog):
                 self.frm.fields.setCurrentRow(n + 1)
         self.field: str | None = None
 
-    def getField(self) -> str:
+    def getField(self) -> str | None:
         self.exec()
         return self.field
 
@@ -91,8 +91,10 @@ class ImportDialog(QDialog):
         self.importer = importer
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
+        help_button = self.frm.buttonBox.button(QDialogButtonBox.StandardButton.Help)
+        assert help_button is not None
         qconnect(
-            self.frm.buttonBox.button(QDialogButtonBox.StandardButton.Help).clicked,
+            help_button.clicked,
             self.helpRequested,
         )
         disable_help_button(self)
@@ -103,6 +105,7 @@ class ImportDialog(QDialog):
         gui_hooks.current_note_type_did_change.append(self.modelChanged)
         qconnect(self.frm.autoDetect.clicked, self.onDelimiter)
         self.updateDelimiterButtonText()
+        assert self.mw.pm.profile is not None
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get("allowHTML", True))
         qconnect(self.frm.importMode.currentIndexChanged, self.importModeChanged)
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get("importMode", 1))
@@ -187,6 +190,7 @@ class ImportDialog(QDialog):
             showWarning(tr.importing_the_first_field_of_the_note())
             return
         self.importer.importMode = self.frm.importMode.currentIndex()
+        assert self.mw.pm.profile is not None
         self.mw.pm.profile["importMode"] = self.importer.importMode
         self.importer.allowHTML = self.frm.allowHTML.isChecked()
         self.mw.pm.profile["allowHTML"] = self.importer.allowHTML
@@ -390,7 +394,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
                 showWarning(invalidZipMsg())
             except MediaMapInvalid:
                 showWarning(
-                    "Unable to read file. It probably requires a newer version of Anki to import. Try unchecking 'Legacy import/export Handling' under Preferences > Editing > Import/Export and see if the problem persists."
+                    "Unable to read file. It probably requires a newer version of Anki to import."
                 )
             except V2ImportIntoV1:
                 showWarning(

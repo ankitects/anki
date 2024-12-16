@@ -84,6 +84,7 @@ class ModelChooser(QHBoxLayout):
             if not ret.name:
                 return
             m = self.deck.models.by_name(ret.name)
+            assert m is not None
             self.deck.conf["curModel"] = m["id"]
             cdeck = self.deck.decks.current()
             cdeck["mid"] = m["id"]

@@ -154,6 +154,17 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn get_revlog_entries_for_export_dataset(&self) -> Result<Vec<RevlogEntry>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " where ease between 1 and 4",
+                " order by cid, id"
+            ))?
+            .query_and_then([], row_to_revlog_entry)?
+            .collect()
+    }
+
     pub(crate) fn get_all_revlog_entries_in_card_order(&self) -> Result<Vec<RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " order by cid, id"))?
@@ -172,12 +183,19 @@ impl SqliteStorage {
         let start = day_cutoff.adding_secs(-86_400).as_millis();
         self.db
             .prepare_cached(include_str!("studied_today.sql"))?
-            .query_map([start.0, RevlogReviewKind::Manual as i64], |row| {
-                Ok(StudiedToday {
-                    cards: row.get(0)?,
-                    seconds: row.get(1)?,
-                })
-            })?
+            .query_map(
+                [
+                    start.0,
+                    RevlogReviewKind::Manual as i64,
+                    RevlogReviewKind::Rescheduled as i64,
+                ],
+                |row| {
+                    Ok(StudiedToday {
+                        cards: row.get(0)?,
+                        seconds: row.get(1)?,
+                    })
+                },
+            )?
             .next()
             .unwrap()
             .map_err(Into::into)

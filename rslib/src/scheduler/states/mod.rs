@@ -88,6 +88,7 @@ pub(crate) struct StateContext<'a> {
     /// range.
     pub fuzz_factor: Option<f32>,
     pub fsrs_next_states: Option<NextStates>,
+    pub fsrs_short_term_with_steps_enabled: bool,
 
     // learning
     pub steps: LearningSteps<'a>,
@@ -147,6 +148,7 @@ impl<'a> StateContext<'a> {
                 good: 0,
             },
             fsrs_next_states: None,
+            fsrs_short_term_with_steps_enabled: false,
         }
     }
 }

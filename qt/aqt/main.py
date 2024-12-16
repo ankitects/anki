@@ -112,7 +112,6 @@ class MainWebView(AnkiWebView):
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)
         self.setAcceptDrops(True)
-        print("todo: windows paths in import screen")
 
     # Importing files via drag & drop
     ##########################################################################

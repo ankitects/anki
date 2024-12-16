@@ -50,7 +50,9 @@ class TagLimit(QDialog):
             list.addItem(item)
             if select:
                 idx = list.indexFromItem(item)
-                list.selectionModel().select(
+                list_selection_model = list.selectionModel()
+                assert list_selection_model is not None
+                list_selection_model.select(
                     idx, QItemSelectionModel.SelectionFlag.Select
                 )
 
@@ -77,12 +79,16 @@ class TagLimit(QDialog):
             if want_active:
                 item = self.form.activeList.item(c)
                 idx = self.form.activeList.indexFromItem(item)
-                if self.form.activeList.selectionModel().isSelected(idx):
+                active_list_selection_model = self.form.activeList.selectionModel()
+                assert active_list_selection_model is not None
+                if active_list_selection_model.isSelected(idx):
                     include_tags.append(tag.name)
             # inactive
             item = self.form.inactiveList.item(c)
             idx = self.form.inactiveList.indexFromItem(item)
-            if self.form.inactiveList.selectionModel().isSelected(idx):
+            inactive_list_selection_model = self.form.inactiveList.selectionModel()
+            assert inactive_list_selection_model is not None
+            if inactive_list_selection_model.isSelected(idx):
                 exclude_tags.append(tag.name)
 
         if (len(include_tags) + len(exclude_tags)) > 100:

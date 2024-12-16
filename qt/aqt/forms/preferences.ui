@@ -612,28 +612,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="title">
-          <string>preferences_import_export</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_11">
-          <item>
-           <widget class="QCheckBox" name="legacy_import_export">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string notr="true">Legacy import/export handling</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -1293,7 +1271,6 @@
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>
-  <tabstop>legacy_import_export</tabstop>
   <tabstop>syncMedia</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
   <tabstop>autoSyncMedia</tabstop>

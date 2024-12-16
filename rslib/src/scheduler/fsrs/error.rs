@@ -12,10 +12,10 @@ impl From<FSRSError> for AnkiError {
             FSRSError::NotEnoughData => AnkiError::FsrsInsufficientData,
             FSRSError::OptimalNotFound => AnkiError::FsrsUnableToDetermineDesiredRetention,
             FSRSError::Interrupted => AnkiError::Interrupted,
-            FSRSError::InvalidParameters => AnkiError::FsrsWeightsInvalid,
+            FSRSError::InvalidParameters => AnkiError::FsrsParamsInvalid,
             FSRSError::InvalidInput => AnkiError::InvalidInput {
                 source: InvalidInputError {
-                    message: "invalid weights provided".to_string(),
+                    message: "invalid params provided".to_string(),
                     source: None,
                     backtrace: None,
                 },

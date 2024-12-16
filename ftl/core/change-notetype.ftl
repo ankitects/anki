@@ -8,7 +8,7 @@ change-notetype-will-discard-cards = Will remove the following cards:
 change-notetype-fields = Fields
 change-notetype-templates = Templates
 change-notetype-to-from-cloze =
-    When changing to or from a Cloze notetype, card numbers remain unchanged.
+    When changing to or from a Cloze note type, card numbers remain unchanged.
     
-    If changing to a regular notetype, and there are more cloze deletions
+    If changing to a regular note type, and there are more cloze deletions
     than available card templates, any extra cards will be removed.

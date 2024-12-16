@@ -152,7 +152,7 @@ deck-config-new-gather-priority-tooltip-2 =
     
     `Random cards`: Gathers cards in a random order.
 deck-config-new-gather-priority-deck = Deck
-deck-config-new-gather-priority-deck-then-random-notes = Deck then random notes
+deck-config-new-gather-priority-deck-then-random-notes = Deck, then random notes
 deck-config-new-gather-priority-position-lowest-first = Ascending position
 deck-config-new-gather-priority-position-highest-first = Descending position
 deck-config-new-gather-priority-random-notes = Random notes
@@ -207,9 +207,11 @@ deck-config-sort-order-ascending-intervals = Ascending intervals
 deck-config-sort-order-descending-intervals = Descending intervals
 deck-config-sort-order-ascending-ease = Ascending ease
 deck-config-sort-order-descending-ease = Descending ease
-deck-config-sort-order-ascending-difficulty = Ascending difficulty
-deck-config-sort-order-descending-difficulty = Descending difficulty
-deck-config-sort-order-relative-overdueness = Relative overdueness
+deck-config-sort-order-ascending-difficulty = Easy cards first
+deck-config-sort-order-descending-difficulty = Difficult cards first
+deck-config-sort-order-retrievability-ascending = Ascending retrievability
+deck-config-sort-order-retrievability-descending = Descending retrievability
+
 deck-config-display-order-will-use-current-deck =
     Anki will use the display order from the deck you 
     select to study, and not any subdecks it may have.
@@ -290,6 +292,7 @@ deck-config-easy-days-sunday = Sunday
 deck-config-easy-days-normal = Normal
 deck-config-easy-days-reduced = Reduced
 deck-config-easy-days-minimum = Minimum
+deck-config-easy-days-no-normal-days = At least one day should be set to '{ deck-config-easy-days-normal }'.
 
 ## Adding/renaming
 
@@ -312,7 +315,7 @@ deck-config-confirm-remove-name = Remove { $name }?
 deck-config-save-button = Save
 deck-config-save-to-all-subdecks = Save to All Subdecks
 deck-config-save-and-optimize = Optimize All Presets
-deck-config-revert-button-tooltip = Restore this setting to its default value.
+deck-config-revert-button-tooltip = Restore this setting to its default value?
 
 ## These strings are shown via the Description button at the bottom of the
 ## overview screen.
@@ -370,9 +373,6 @@ deck-config-historical-retention = Historical retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, steps of 1 day or more are not recommended.
 deck-config-get-params = Get Params
-deck-config-fsrs-on-all-clients =
-    Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
-    not work correctly if one of your clients is older.
 deck-config-predicted-minimum-recommended-retention = Minimum recommended retention: { $num }
 deck-config-complete = { $num }% complete.
 deck-config-iterations = Iteration: { $count }...
@@ -435,8 +435,8 @@ deck-config-compute-optimal-weights-tooltip2 =
 deck-config-compute-optimal-retention-tooltip4 =
     This tool will attempt to find the desired retention value 
     that will lead to the most material learnt, in the least amount of time. The calculated number can serve as a reference
-    when deciding what to set your desired retention to. You may wish to choose a higher desired retention, if you’re 
-    willing to trade more study time for a greater retention rate. Setting your desired retention lower than the minimum
+    when deciding what to set your desired retention to. You may wish to choose a higher desired retention if you’re 
+    willing to invest more study time to achieve it. Setting your desired retention lower than the minimum
     is not recommended, as it will lead to a higher workload, because of the high forgetting rate.
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-a-100-day-interval = 
@@ -452,6 +452,7 @@ deck-config-percent-of-reviews =
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
+deck-config-fsrs-params-no-reviews = No reviews found. Please check that this preset is assigned to all decks you want to optimize (including subdecks) and try again.
 
 deck-config-wait-for-audio = Wait for audio
 deck-config-show-reminder = Show Reminder
@@ -523,3 +524,6 @@ deck-config-compute-optimal-retention-tooltip3 =
     lead to a higher workload, because of the high forgetting rate.
 deck-config-seconds-to-show-question-tooltip-2 = When auto advance is activated, the number of seconds to wait before revealing the answer. Set to 0 to disable.
 deck-config-invalid-weights = Parameters must be either left blank to use the defaults, or must be 17 comma-separated numbers.
+deck-config-fsrs-on-all-clients =
+    Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
+    not work correctly if one of your clients is older.

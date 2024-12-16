@@ -11,7 +11,7 @@ use serde::Serialize;
 
 use crate::ankihub::login::LoginRequest;
 
-static API_VERSION: &str = "18.0";
+static API_VERSION: &str = "19.0";
 static DEFAULT_API_URL: &str = "https://app.ankihub.net/api/";
 
 #[derive(Clone)]

@@ -41,7 +41,7 @@ def _patch_pkgutil() -> None:
     def get_data_custom(package: str, resource: str) -> bytes | None:
         try:
             module = importlib.import_module(package)
-            reader = module.__loader__.get_resource_reader(package)  # type: ignore[attr-defined]
+            reader = module.__loader__.get_resource_reader(package)  # type: ignore
             with reader.open_resource(resource) as f:
                 return f.read()
         except Exception:

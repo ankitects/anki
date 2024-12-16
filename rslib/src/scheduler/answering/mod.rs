@@ -14,7 +14,7 @@ use rand::prelude::*;
 use rand::rngs::StdRng;
 use revlog::RevlogEntryPartial;
 
-use super::fsrs::weights::ignore_revlogs_before_ms_from_config;
+use super::fsrs::params::ignore_revlogs_before_ms_from_config;
 use super::queue::BuryMode;
 use super::states::load_balancer::LoadBalancerContext;
 use super::states::steps::LearningSteps;
@@ -73,6 +73,7 @@ struct CardStateUpdater {
     fsrs_next_states: Option<NextStates>,
     /// Set if FSRS is enabled.
     desired_retention: Option<f32>,
+    fsrs_short_term_with_steps: bool,
 }
 
 impl CardStateUpdater {
@@ -110,6 +111,7 @@ impl CardStateUpdater {
                 Default::default()
             },
             fsrs_next_states: self.fsrs_next_states.clone(),
+            fsrs_short_term_with_steps_enabled: self.fsrs_short_term_with_steps,
         }
     }
 
@@ -429,9 +431,9 @@ impl Collection {
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let fsrs_next_states = if fsrs_enabled {
-            let fsrs = FSRS::new(Some(&config.inner.fsrs_weights))?;
+            let fsrs = FSRS::new(Some(config.fsrs_params()))?;
             if card.memory_state.is_none() && card.ctype != CardType::New {
-                // Card has been moved or imported into an FSRS deck after weights were set,
+                // Card has been moved or imported into an FSRS deck after params were set,
                 // and will need its initial memory state to be calculated based on review
                 // history.
                 let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
@@ -458,6 +460,8 @@ impl Collection {
             None
         };
         let desired_retention = fsrs_enabled.then_some(config.inner.desired_retention);
+        let fsrs_short_term_with_steps =
+            self.get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled);
         Ok(CardStateUpdater {
             fuzz_seed: get_fuzz_seed(&card, false),
             card,
@@ -467,6 +471,7 @@ impl Collection {
             now: TimestampSecs::now(),
             fsrs_next_states,
             desired_retention,
+            fsrs_short_term_with_steps,
         })
     }
 
@@ -639,10 +644,9 @@ mod test {
 
         // new->learning
         let post_answer = col.answer_again();
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Learn);
         assert_eq!(card.remaining_steps, 2);
@@ -651,10 +655,9 @@ mod test {
         col.storage.db.execute_batch("update cards set due=0")?;
         col.clear_study_queues();
         let post_answer = col.answer_good();
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Learn);
         assert_eq!(card.remaining_steps, 1);
@@ -667,10 +670,9 @@ mod test {
         if let CardState::Normal(NormalState::Review(state)) = &mut post_answer.new_state {
             state.elapsed_days = 1;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Review);
         assert_eq!(card.interval, 1);
@@ -683,10 +685,9 @@ mod test {
         if let CardState::Normal(NormalState::Review(state)) = &mut post_answer.new_state {
             state.elapsed_days = 4;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Review);
         assert_eq!(card.interval, 4);
@@ -699,10 +700,9 @@ mod test {
         if let CardState::Normal(NormalState::Relearning(state)) = &mut post_answer.new_state {
             state.review.elapsed_days = 1;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Learn);
         assert_eq!(card.ctype, CardType::Relearn);
@@ -717,10 +717,9 @@ mod test {
         if let CardState::Normal(NormalState::Relearning(state)) = &mut post_answer.new_state {
             state.review.elapsed_days = 1;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Learn);
         assert_eq!(card.lapses, 1);
@@ -732,10 +731,9 @@ mod test {
         if let CardState::Normal(NormalState::Review(state)) = &mut post_answer.new_state {
             state.elapsed_days = 1;
         };
-        assert_eq!(
-            post_answer.new_state,
-            current_state(&mut col, post_answer.card_id)
-        );
+        let mut current = current_state(&mut col, post_answer.card_id);
+        col.set_elapsed_secs_equal(&post_answer.new_state, &mut current);
+        assert_eq!(post_answer.new_state, current);
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Review);
         assert_eq!(card.interval, 1);

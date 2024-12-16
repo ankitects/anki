@@ -37,14 +37,21 @@ def show(mw: aqt.AnkiQt) -> QDialog:
         txt = supportText()
         if mw.addonManager.dirty:
             txt += "\n" + addon_debug_info()
-        QApplication.clipboard().setText(txt)
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(txt)
         tooltip(tr.about_copied_to_clipboard(), parent=dialog)
 
     btn = QPushButton(tr.about_copy_debug_info())
     qconnect(btn.clicked, on_copy)
     abt.buttonBox.addButton(btn, QDialogButtonBox.ButtonRole.ActionRole)
-    abt.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setFocus()
+
+    ok_button = abt.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
+    assert ok_button is not None
+    ok_button.setFocus()
+
     btnLayout = abt.buttonBox.layout()
+    assert btnLayout is not None
     btnLayout.setContentsMargins(12, 12, 12, 12)
 
     # WebView cleanup
@@ -52,7 +59,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
 
     def on_dialog_destroyed() -> None:
         abt.label.cleanup()
-        abt.label = None
+        abt.label = None  # type: ignore
 
     qconnect(dialog.destroyed, on_dialog_destroyed)
 

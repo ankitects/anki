@@ -74,11 +74,12 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     bury_new: false,
     bury_reviews: false,
     bury_interday_learning: false,
-    fsrs_weights: vec![],
+    fsrs_params_4: vec![],
+    fsrs_params_5: vec![],
     desired_retention: 0.9,
     other: Vec::new(),
     historical_retention: 0.9,
-    weight_search: String::new(),
+    param_search: String::new(),
     ignore_revlogs_before_date: String::new(),
     easy_days_percentages: Vec::new(),
 };
@@ -104,6 +105,15 @@ impl DeckConfig {
     pub(crate) fn set_modified(&mut self, usn: Usn) {
         self.mtime_secs = TimestampSecs::now();
         self.usn = usn;
+    }
+
+    /// Retrieve the FSRS 5.0 params, falling back on 4.x ones.
+    pub fn fsrs_params(&self) -> &Vec<f32> {
+        if self.inner.fsrs_params_5.len() == 19 {
+            &self.inner.fsrs_params_5
+        } else {
+            &self.inner.fsrs_params_4
+        }
     }
 }
 

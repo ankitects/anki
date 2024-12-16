@@ -34,11 +34,11 @@ class Flag:
 class FlagManager:
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         self.mw = mw
-        self._flags: list[Flag] | None = None
+        self._flags: list[Flag] = []
 
     def all(self) -> list[Flag]:
         """Return a list of all flags."""
-        if self._flags is None:
+        if not self._flags:
             self._load_flags()
         return self._flags
 
@@ -57,7 +57,7 @@ class FlagManager:
 
     def require_refresh(self) -> None:
         "Discard cached labels."
-        self._flags = None
+        self._flags = []
 
     def _load_flags(self) -> None:
         labels = cast(dict[str, str], self.mw.col.get_config("flagLabels", {}))

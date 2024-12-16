@@ -38,6 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const currentDeck = "\n\n" + tr.deckConfigDisplayOrderWillUseCurrentDeck();
 
     let disabledNewSortOrders: number[] = [];
+    // svelte-ignore reactive_declaration_non_reactive_property
     $: {
         switch ($config.newCardGatherPriority) {
             case GatherOrder.RANDOM_NOTES:

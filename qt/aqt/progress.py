@@ -216,6 +216,8 @@ class ProgressManager:
             self._maybeShow()
         if not self._shown:
             return
+
+        assert self._win is not None
         if label:
             self._win.form.label.setText(label)
 
@@ -290,6 +292,7 @@ class ProgressManager:
             self._showWin()
 
     def _showWin(self) -> None:
+        assert self._win is not None
         self._shown = time.monotonic()
         self._win.show()
 
@@ -297,6 +300,7 @@ class ProgressManager:
         # if the parent window has been deleted, the progress dialog may have
         # already been dropped; delete it if it hasn't been
         if not sip.isdeleted(self._win):
+            assert self._win is not None
             self._win.cancel()
         self._win = None
         self._shown = 0
@@ -314,6 +318,7 @@ class ProgressManager:
     def _on_show_timer(self) -> None:
         if self.mw.app.focusWindow() is None:
             # if no window is focused (eg app is minimized), defer display
+            assert self._show_timer is not None
             self._show_timer.start(10)
             return
 
@@ -334,7 +339,7 @@ class ProgressManager:
 
 
 class ProgressDialog(QDialog):
-    def __init__(self, parent: QWidget) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QDialog.__init__(self, parent)
         disable_help_button(self)
         self.form = aqt.forms.progress.Ui_Dialog()
@@ -349,14 +354,16 @@ class ProgressDialog(QDialog):
         self.hide()
         self.deleteLater()
 
-    def closeEvent(self, evt: QCloseEvent) -> None:
+    def closeEvent(self, evt: QCloseEvent | None) -> None:
+        assert evt is not None
         if self._closingDown:
             evt.accept()
         else:
             self.wantCancel = True
             evt.ignore()
 
-    def keyPressEvent(self, evt: QKeyEvent) -> None:
+    def keyPressEvent(self, evt: QKeyEvent | None) -> None:
+        assert evt is not None
         if evt.key() == Qt.Key.Key_Escape:
             evt.ignore()
             self.wantCancel = True

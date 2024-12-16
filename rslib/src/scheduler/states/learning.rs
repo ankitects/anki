@@ -49,7 +49,11 @@ impl LearnState {
         } else {
             let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
             let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
-                (states.again.interval, states.again.interval < 0.5)
+                (
+                    states.again.interval,
+                    (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
+                        && states.again.interval < 0.5,
+                )
             } else {
                 (ctx.graduating_interval_good as f32, false)
             };
@@ -91,7 +95,11 @@ impl LearnState {
         } else {
             let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
             let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
-                (states.hard.interval, states.hard.interval < 0.5)
+                (
+                    states.hard.interval,
+                    (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
+                        && states.hard.interval < 0.5,
+                )
             } else {
                 (ctx.graduating_interval_good as f32, false)
             };
@@ -133,7 +141,11 @@ impl LearnState {
         } else {
             let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
             let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
-                (states.good.interval, states.good.interval < 0.5)
+                (
+                    states.good.interval,
+                    (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
+                        && states.good.interval < 0.5,
+                )
             } else {
                 (ctx.graduating_interval_good as f32, false)
             };

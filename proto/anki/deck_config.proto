@@ -79,7 +79,8 @@ message DeckConfig {
       REVIEW_CARD_ORDER_INTERVALS_DESCENDING = 4;
       REVIEW_CARD_ORDER_EASE_ASCENDING = 5;
       REVIEW_CARD_ORDER_EASE_DESCENDING = 6;
-      REVIEW_CARD_ORDER_RELATIVE_OVERDUENESS = 7;
+      REVIEW_CARD_ORDER_RETRIEVABILITY_ASCENDING = 7;
+      REVIEW_CARD_ORDER_RETRIEVABILITY_DESCENDING = 11;
       REVIEW_CARD_ORDER_RANDOM = 8;
       REVIEW_CARD_ORDER_ADDED = 9;
       REVIEW_CARD_ORDER_REVERSE_ADDED = 10;
@@ -107,9 +108,11 @@ message DeckConfig {
     repeated float learn_steps = 1;
     repeated float relearn_steps = 2;
 
-    repeated float fsrs_weights = 3;
+    repeated float fsrs_params_4 = 3;
+    repeated float fsrs_params_5 = 5;
 
-    reserved 5 to 8;
+    // consider saving remaining ones for fsrs param changes
+    reserved 6 to 8;
 
     uint32 new_per_day = 9;
     uint32 reviews_per_day = 10;
@@ -163,7 +166,7 @@ message DeckConfig {
     // used for fsrs_reschedule in the past
     reserved 39;
     float historical_retention = 40;
-    string weight_search = 45;
+    string param_search = 45;
 
     bytes other = 255;
   }
@@ -213,7 +216,7 @@ message DeckConfigsForUpdate {
 enum UpdateDeckConfigsMode {
   UPDATE_DECK_CONFIGS_MODE_NORMAL = 0;
   UPDATE_DECK_CONFIGS_MODE_APPLY_TO_CHILDREN = 1;
-  UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_WEIGHTS = 2;
+  UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_PARAMS = 2;
 }
 
 message UpdateDeckConfigsRequest {

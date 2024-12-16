@@ -80,6 +80,7 @@ class MediaChecker:
         label = progress.media_check
 
         try:
+            assert self.progress_dialog is not None
             if self.progress_dialog.wantCancel:
                 self.mw.col.set_wants_abort()
         except AttributeError:
@@ -165,6 +166,7 @@ class MediaChecker:
 
     def _on_render_latex(self) -> None:
         self.progress_dialog = self.mw.progress.start()
+        assert self.progress_dialog is not None
         try:
             out = self.mw.col.media.render_all_latex(self._on_render_latex_progress)
             if self.progress_dialog.wantCancel:
@@ -181,6 +183,7 @@ class MediaChecker:
             tooltip(tr.media_check_all_latex_rendered())
 
     def _on_render_latex_progress(self, count: int) -> bool:
+        assert self.progress_dialog is not None
         if self.progress_dialog.wantCancel:
             return False
 

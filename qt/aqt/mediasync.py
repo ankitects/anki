@@ -119,7 +119,7 @@ class MediaSyncer:
         diag: MediaSyncDialog = aqt.dialogs.open("sync_log", self.mw, self, True)
         diag.show()
 
-        timer: QTimer | None = None
+        timer: QTimer
 
         def check_finished() -> None:
             if not self.is_syncing():

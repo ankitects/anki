@@ -11,7 +11,8 @@ import type {
 import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits } from "@generated/anki/deck_config_pb";
 import { updateDeckConfigs } from "@generated/backend";
 import { localeCompare } from "@tslib/i18n";
-import { cloneDeep, isEqual, pickBy } from "lodash-es";
+import { promiseWithResolver } from "@tslib/promise";
+import { cloneDeep, isEqual } from "lodash-es";
 import { tick } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
@@ -33,7 +34,7 @@ export interface ConfigListEntry {
     current: boolean;
 }
 
-type Configs =
+type AllConfigs =
     & Required<
         Pick<
             PlainMessage<UpdateDeckConfigsRequest>,
@@ -47,10 +48,6 @@ type Configs =
         >
     >
     & { currentConfig: DeckConfig_Config };
-
-type DeepPartial<T extends object, K extends keyof T> = {
-    [key in keyof T]: key extends K ? Partial<T[key]> : T[key];
-};
 
 export class DeckOptionsState {
     readonly currentConfig: Writable<DeckConfig_Config>;
@@ -68,7 +65,8 @@ export class DeckOptionsState {
     readonly daysSinceLastOptimization: Writable<number>;
     readonly currentPresetName: Writable<string>;
     /** Used to detect if there are any pending changes */
-    readonly originalConfigs: Configs;
+    readonly originalConfigsPromise: Promise<AllConfigs>;
+    readonly originalConfigsResolve: (value: AllConfigs) => void;
 
     private targetDeckId: DeckOptionsId;
     private configs: ConfigWithCount[];
@@ -124,16 +122,9 @@ export class DeckOptionsState {
         this.currentConfig.subscribe((val) => this.onCurrentConfigChanged(val));
         this.currentAuxData.subscribe((val) => this.onCurrentAuxDataChanged(val));
 
-        this.originalConfigs = cloneDeep<Configs>({
-            configs: this.configs.map(c => c.config!),
-            cardStateCustomizer: data.cardStateCustomizer,
-            limits: get(this.deckLimits),
-            newCardsIgnoreReviewLimit: data.newCardsIgnoreReviewLimit,
-            applyAllParentLimits: data.applyAllParentLimits,
-            fsrs: data.fsrs,
-            fsrsReschedule: get(this.fsrsReschedule),
-            currentConfig: get(this.currentConfig),
-        });
+        // Must be resolved after all components are mounted, as some components
+        // may modify the config during their initialization.
+        [this.originalConfigsPromise, this.originalConfigsResolve] = promiseWithResolver<AllConfigs>();
     }
 
     setCurrentIndex(index: number): void {
@@ -146,6 +137,10 @@ export class DeckOptionsState {
 
     getCurrentName(): string {
         return this.configs[this.selectedIdx].config.name;
+    }
+
+    getCurrentNameForSearch(): string {
+        return this.getCurrentName().replace(/([\\"])/g, "\\$1");
     }
 
     setCurrentName(name: string): void {
@@ -326,23 +321,27 @@ export class DeckOptionsState {
         return list;
     }
 
-    isModified(): boolean {
-        const original: DeepPartial<Configs, "limits"> = {
-            ...this.originalConfigs,
-            limits: omitUndefined(this.originalConfigs.limits),
-        };
-        const current: typeof original = {
+    private getAllConfigs(): AllConfigs {
+        return cloneDeep({
             configs: this.configs.map(c => c.config),
             cardStateCustomizer: get(this.cardStateCustomizer),
-            limits: omitUndefined(get(this.deckLimits)),
+            limits: get(this.deckLimits),
             newCardsIgnoreReviewLimit: get(this.newCardsIgnoreReviewLimit),
             applyAllParentLimits: get(this.applyAllParentLimits),
             fsrs: get(this.fsrs),
             fsrsReschedule: get(this.fsrsReschedule),
             currentConfig: get(this.currentConfig),
-        };
+        });
+    }
 
+    async isModified(): Promise<boolean> {
+        const original = await this.originalConfigsPromise;
+        const current = this.getAllConfigs();
         return !isEqual(original, current);
+    }
+
+    resolveOriginalConfigs(): void {
+        this.originalConfigsResolve(this.getAllConfigs());
     }
 }
 
@@ -413,15 +412,18 @@ export class ValueTab {
     }
 }
 
-/** Returns a copy of the given object with the properties whose values are 'undefined' omitted */
-function omitUndefined<T extends object>(obj: T): Partial<T> {
-    return pickBy(obj, val => val !== undefined);
-}
-
 /** Ensure blur handler has fired so changes get committed. */
 export async function commitEditing(): Promise<void> {
     if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
     }
     await tick();
+}
+
+export function fsrsParams(config: DeckConfig_Config): number[] {
+    if (config.fsrsParams5) {
+        return config.fsrsParams5;
+    } else {
+        return config.fsrsParams4;
+    }
 }

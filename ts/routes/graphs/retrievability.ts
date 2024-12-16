@@ -18,14 +18,16 @@ import type { HistogramData } from "./histogram-graph";
 export interface GraphData {
     retrievability: Map<number, number>;
     average: number;
-    sum: number;
+    sumByCard: number;
+    sumByNote: number;
 }
 
 export function gatherData(data: GraphsResponse): GraphData {
     return {
         retrievability: numericMap(data.retrievability!.retrievability),
         average: data.retrievability!.average,
-        sum: data.retrievability!.sum,
+        sumByCard: data.retrievability!.sumByCard,
+        sumByNote: data.retrievability!.sumByNote,
     };
 }
 
@@ -111,7 +113,9 @@ export function prepareData(
         },
         {
             label: tr.statisticsEstimatedTotalKnowledge(),
-            value: tr.statisticsCards({ cards: +data.sum.toFixed(0) }),
+            value: `${tr.statisticsCards({ cards: +data.sumByCard.toFixed(0) })} / ${
+                tr.statisticsNotes({ notes: +data.sumByNote.toFixed(0) })
+            }`,
         },
     ];
 

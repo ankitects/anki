@@ -5,6 +5,7 @@ use crate::card::CardQueue;
 use crate::decks::FilteredSearchOrder;
 use crate::decks::FilteredSearchTerm;
 use crate::scheduler::timing::SchedTimingToday;
+use crate::storage::sqlite::SqlSortOrder;
 
 pub(crate) fn order_and_limit_for_search(
     term: &FilteredSearchTerm,
@@ -27,24 +28,40 @@ pub(crate) fn order_and_limit_for_search(
                 "(case when c.due > 1000000000 then due else (due - {today}) * 86400 + {current_timestamp} end), c.ord");
             &temp_string
         }
-        FilteredSearchOrder::DuePriority => {
+        FilteredSearchOrder::RetrievabilityAscending => {
             let next_day_at = timing.next_day_at.0;
-            temp_string = if fsrs {
-                format!(
-                    "extract_fsrs_relative_overdueness(c.data, due, {today}, ivl, {next_day_at}) desc"
-                )
-            } else {
-                format!(
-                    "
-(case when queue={rev_queue} and due <= {today}
-then (ivl / cast({today}-due+0.001 as real)) else 100000+due end)",
-                    rev_queue = CardQueue::Review as i8,
-                    today = today
-                )
-            };
+            temp_string =
+                build_retrievability_query(fsrs, today, next_day_at, SqlSortOrder::Ascending);
+            &temp_string
+        }
+        FilteredSearchOrder::RetrievabilityDescending => {
+            let next_day_at = timing.next_day_at.0;
+            temp_string =
+                build_retrievability_query(fsrs, today, next_day_at, SqlSortOrder::Descending);
             &temp_string
         }
     };
 
     format!("{}, fnvhash(c.id, c.mod) limit {}", order, term.limit)
+}
+
+fn build_retrievability_query(
+    fsrs: bool,
+    today: u32,
+    next_day_at: i64,
+    order: SqlSortOrder,
+) -> String {
+    if fsrs {
+        format!(
+            "extract_fsrs_relative_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, {today}, ivl, {next_day_at}) {order}"
+        )
+    } else {
+        format!(
+            "
+(case when queue={rev_queue} and due <= {today}
+then (ivl / cast({today}-due+0.001 as real)) else 100000+due end) {order}",
+            rev_queue = CardQueue::Review as i8,
+            today = today
+        )
+    }
 }

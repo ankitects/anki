@@ -30,6 +30,7 @@ message BackendError {
     DB_ERROR = 5;
     NETWORK_ERROR = 6;
     SYNC_AUTH_ERROR = 7;
+    SYNC_SERVER_MESSAGE = 23;
     SYNC_OTHER_ERROR = 8;
     JSON_ERROR = 9;
     PROTO_ERROR = 10;

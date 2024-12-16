@@ -54,7 +54,7 @@ impl Collection {
                     learn_limit,
                     review_limit: usize::MAX,
                 },
-                &req.weights,
+                &req.params,
                 |ip| {
                     anki_progress
                         .update(false, |p| {
@@ -63,7 +63,7 @@ impl Collection {
                         .is_ok()
                 },
             )?
-            .clamp(0.75, 0.95))
+            .clamp(0.7, 0.95))
     }
 
     pub fn get_optimal_retention_parameters(
@@ -84,7 +84,8 @@ impl From<crate::revlog::RevlogReviewKind> for fsrs::RevlogReviewKind {
             crate::revlog::RevlogReviewKind::Review => fsrs::RevlogReviewKind::Review,
             crate::revlog::RevlogReviewKind::Relearning => fsrs::RevlogReviewKind::Relearning,
             crate::revlog::RevlogReviewKind::Filtered => fsrs::RevlogReviewKind::Filtered,
-            crate::revlog::RevlogReviewKind::Manual => fsrs::RevlogReviewKind::Manual,
+            crate::revlog::RevlogReviewKind::Manual
+            | crate::revlog::RevlogReviewKind::Rescheduled => fsrs::RevlogReviewKind::Manual,
         }
     }
 }

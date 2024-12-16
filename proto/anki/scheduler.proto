@@ -45,15 +45,15 @@ service SchedulerService {
   rpc CustomStudyDefaults(CustomStudyDefaultsRequest)
       returns (CustomStudyDefaultsResponse);
   rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
-  rpc ComputeFsrsWeights(ComputeFsrsWeightsRequest)
-      returns (ComputeFsrsWeightsResponse);
+  rpc ComputeFsrsParams(ComputeFsrsParamsRequest)
+      returns (ComputeFsrsParamsResponse);
   rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest)
       returns (GetOptimalRetentionParametersResponse);
   rpc ComputeOptimalRetention(ComputeOptimalRetentionRequest)
       returns (ComputeOptimalRetentionResponse);
   rpc SimulateFsrsReview(SimulateFsrsReviewRequest)
       returns (SimulateFsrsReviewResponse);
-  rpc EvaluateWeights(EvaluateWeightsRequest) returns (EvaluateWeightsResponse);
+  rpc EvaluateParams(EvaluateParamsRequest) returns (EvaluateParamsResponse);
   rpc ComputeMemoryState(cards.CardId) returns (ComputeMemoryStateResponse);
   // The number of days the calculated interval was fuzzed by on the previous
   // review (if any). Utilized by the FSRS add-on.
@@ -63,10 +63,12 @@ service SchedulerService {
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendSchedulerService {
-  rpc ComputeFsrsWeightsFromItems(ComputeFsrsWeightsFromItemsRequest)
-      returns (ComputeFsrsWeightsResponse);
+  rpc ComputeFsrsParamsFromItems(ComputeFsrsParamsFromItemsRequest)
+      returns (ComputeFsrsParamsResponse);
   // Generates parameters used for FSRS's scheduler benchmarks.
   rpc FsrsBenchmark(FsrsBenchmarkRequest) returns (FsrsBenchmarkResponse);
+  // Used for exporting revlogs for algorithm research.
+  rpc ExportDataset(ExportDatasetRequest) returns (generic.Empty);
 }
 
 message SchedulingState {
@@ -339,19 +341,19 @@ message RepositionDefaultsResponse {
   bool shift = 2;
 }
 
-message ComputeFsrsWeightsRequest {
+message ComputeFsrsParamsRequest {
   /// The search used to gather cards for training
   string search = 1;
-  repeated float current_weights = 2;
+  repeated float current_params = 2;
   int64 ignore_revlogs_before_ms = 3;
 }
 
-message ComputeFsrsWeightsResponse {
-  repeated float weights = 1;
+message ComputeFsrsParamsResponse {
+  repeated float params = 1;
   uint32 fsrs_items = 2;
 }
 
-message ComputeFsrsWeightsFromItemsRequest {
+message ComputeFsrsParamsFromItemsRequest {
   repeated FsrsItem items = 1;
 }
 
@@ -360,7 +362,12 @@ message FsrsBenchmarkRequest {
 }
 
 message FsrsBenchmarkResponse {
-  repeated float weights = 1;
+  repeated float params = 1;
+}
+
+message ExportDatasetRequest {
+  uint32 min_entries = 1;
+  string target_path = 2;
 }
 
 message FsrsItem {
@@ -373,7 +380,7 @@ message FsrsReview {
 }
 
 message SimulateFsrsReviewRequest {
-  repeated float weights = 1;
+  repeated float params = 1;
   float desired_retention = 2;
   uint32 deck_size = 3;
   uint32 days_to_simulate = 4;
@@ -391,7 +398,7 @@ message SimulateFsrsReviewResponse {
 }
 
 message ComputeOptimalRetentionRequest {
-  repeated float weights = 1;
+  repeated float params = 1;
   uint32 days_to_simulate = 2;
   uint32 max_interval = 3;
   string search = 4;
@@ -424,13 +431,13 @@ message GetOptimalRetentionParametersResponse {
   uint32 review_limit = 15;
 }
 
-message EvaluateWeightsRequest {
-  repeated float weights = 1;
+message EvaluateParamsRequest {
+  repeated float params = 1;
   string search = 2;
   int64 ignore_revlogs_before_ms = 3;
 }
 
-message EvaluateWeightsResponse {
+message EvaluateParamsResponse {
   float log_loss = 1;
   float rmse_bins = 2;
 }

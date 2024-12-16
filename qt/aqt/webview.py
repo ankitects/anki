@@ -8,9 +8,9 @@ import json
 import os
 import re
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import anki
 import anki.lang
@@ -89,17 +89,23 @@ class AnkiWebPage(QWebEnginePage):
         script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
         script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentReady)
         script.setRunsOnSubFrames(False)
-        self.profile().scripts().insert(script)
+
+        profile = self.profile()
+        assert profile is not None
+        scripts = profile.scripts()
+        assert scripts is not None
+        scripts.insert(script)
 
     def javaScriptConsoleMessage(
         self,
         level: QWebEnginePage.JavaScriptConsoleMessageLevel,
-        msg: str,
+        msg: str | None,
         line: int,
-        srcID: str,
+        srcID: str | None,
     ) -> None:
         # not translated because console usually not visible,
         # and may only accept ascii text
+        assert srcID is not None
         if srcID.startswith("data"):
             srcID = ""
         else:
@@ -162,10 +168,16 @@ class AnkiWebPage(QWebEnginePage):
     def _onCmd(self, str: str) -> Any:
         return self._onBridgeCmd(str)
 
-    def javaScriptAlert(self, frame: Any, text: str) -> None:
+    def javaScriptAlert(self, frame: Any, text: str | None) -> None:
+        if text is None:
+            return
+
         showInfo(text)
 
-    def javaScriptConfirm(self, frame: Any, text: str) -> bool:
+    def javaScriptConfirm(self, frame: Any, text: str | None) -> bool:
+        if text is None:
+            return False
+
         return askUser(text)
 
 
@@ -285,7 +297,7 @@ class AnkiWebView(QWebEngineView):
         self.onBridgeCmd: Callable[[str], Any] = self.defaultOnBridgeCmd
 
         self._domDone = True
-        self._pendingActions: list[Callable[[], None]] = []
+        self._pendingActions: list[tuple[str, Sequence[Any]]] = []
         self.requiresCol = True
         self.setPage(self._page)
         self._disable_zoom = False
@@ -328,7 +340,9 @@ class AnkiWebView(QWebEngineView):
         # with target="_blank") and return view
         return AnkiWebView()
 
-    def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
+    def eventFilter(self, obj: QObject | None, evt: QEvent | None) -> bool:
+        if evt is None:
+            return False
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
 
@@ -377,31 +391,34 @@ class AnkiWebView(QWebEngineView):
     def onSelectAll(self) -> None:
         self.triggerPageAction(QWebEnginePage.WebAction.SelectAll)
 
-    def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
+    def contextMenuEvent(self, evt: QContextMenuEvent | None) -> None:
         m = QMenu(self)
         self._maybe_add_copy_action(m)
         gui_hooks.webview_will_show_context_menu(self, m)
-        m.popup(QCursor.pos())
+        if m.actions():
+            m.popup(QCursor.pos())
 
     def _maybe_add_copy_action(self, menu: QMenu) -> None:
         if self.hasSelection():
             a = menu.addAction(tr.actions_copy())
+            assert a is not None
             qconnect(a.triggered, self.onCopy)
 
-    def dropEvent(self, evt: QDropEvent) -> None:
+    def dropEvent(self, evt: QDropEvent | None) -> None:
         if self.allow_drops:
             super().dropEvent(evt)
 
     def setHtml(  #  type: ignore[override]
         self, html: str, context: PageContext | None = None
     ) -> None:
+        from aqt.mediasrv import PageContext
 
         # discard any previous pending actions
         self._pendingActions = []
         self._domDone = True
         if context is None:
             context = PageContext.UNKNOWN
-        self._queueAction(lambda: self._setHtml(html, context))
+        self._queueAction("setHtml", html, context)
         self.set_open_links_externally(True)
         self.allow_drops = False
         self.show()
@@ -453,7 +470,9 @@ class AnkiWebView(QWebEngineView):
         return 1
 
     def setPlaybackRequiresGesture(self, value: bool) -> None:
-        self.settings().setAttribute(
+        settings = self.settings()
+        assert settings is not None
+        settings.setAttribute(
             QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, value
         )
 
@@ -630,10 +649,13 @@ html {{ {font} }}
     def eval(self, js: str) -> None:
         self.evalWithCallback(js, None)
 
-    def evalWithCallback(self, js: str, cb: Optional[Callable]) -> None:
-        self._queueAction(lambda: self._evalWithCallback(js, cb))
+    def evalWithCallback(self, js: str, cb: Callable | None) -> None:
+        self._queueAction("eval", js, cb)
 
-    def _evalWithCallback(self, js: str, cb: Optional[Callable[[Any], Any]]) -> None:
+    def _evalWithCallback(self, js: str, cb: Callable[[Any], Any] | None) -> None:
+        page = self.page()
+        assert page is not None
+
         if cb:
 
             def handler(val: Any) -> None:
@@ -642,20 +664,26 @@ html {{ {font} }}
                     return
                 cb(val)
 
-            self.page().runJavaScript(js, handler)
+            page.runJavaScript(js, handler)
         else:
-            self.page().runJavaScript(js)
+            page.runJavaScript(js)
 
-    def _queueAction(self, action: Callable[[], None]) -> None:
-        self._pendingActions.append(action)
+    def _queueAction(self, name: str, *args: Any) -> None:
+        self._pendingActions.append((name, args))
         self._maybeRunActions()
 
     def _maybeRunActions(self) -> None:
         if sip.isdeleted(self):
             return
         while self._pendingActions and self._domDone:
-            action = self._pendingActions.pop(0)
-            action()
+            name, args = self._pendingActions.pop(0)
+
+            if name == "eval":
+                self._evalWithCallback(*args)
+            elif name == "setHtml":
+                self._setHtml(*args)
+            else:
+                raise Exception(f"unknown action: {name}")
 
     def _openLinksExternally(self, url: str) -> None:
         openLink(url)
@@ -677,7 +705,9 @@ html {{ {font} }}
             return
 
         if not self._filterSet:
-            self.focusProxy().installEventFilter(self)
+            focus_proxy = self.focusProxy()
+            assert focus_proxy is not None
+            focus_proxy.installEventFilter(self)
             self._filterSet = True
 
         if cmd == "domDone":

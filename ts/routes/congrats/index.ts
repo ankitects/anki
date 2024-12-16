@@ -20,20 +20,8 @@ export async function setupCongrats(): Promise<CongratsPage> {
     const page = new CongratsPage({
         // use #congrats if it exists, otherwise entire body
         target: customMountPoint ?? document.body,
-        props: { info },
+        props: { info, refreshPeriodically: !customMountPoint },
     });
-
-    // refresh automatically if a custom area not provided
-    if (!customMountPoint) {
-        setInterval(async () => {
-            try {
-                const info = await congratsInfo({});
-                page.$set({ info });
-            } catch {
-                console.log("congrats fetch failed");
-            }
-        }, 60000);
-    }
 
     return page;
 }

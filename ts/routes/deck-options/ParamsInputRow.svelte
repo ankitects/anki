@@ -6,7 +6,7 @@
     import ConfigInput from "$lib/components/ConfigInput.svelte";
     import RevertButton from "$lib/components/RevertButton.svelte";
 
-    import WeightsInput from "./WeightsInput.svelte";
+    import ParamsInput from "./ParamsInput.svelte";
 
     export let value: number[];
     export let defaultValue: number[];
@@ -15,6 +15,6 @@
 
 <slot />
 <ConfigInput>
-    <WeightsInput bind:value {defaults} />
+    <ParamsInput bind:value {defaults} />
     <RevertButton slot="revert" bind:value {defaultValue} />
 </ConfigInput>

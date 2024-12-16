@@ -24,7 +24,6 @@ decks-order-added = Order added
 decks-order-due = Order due
 decks-please-select-something = Please select something.
 decks-random = Random
-decks-relative-overdueness = Relative overdueness
 decks-repeat-failed-cards-after = Delay Repeat failed cards after
 # e.g. "Delay for Again", "Delay for Hard", "Delay for Good"
 decks-delay-for-button = Delay for { $button }
@@ -37,3 +36,8 @@ decks-learn-header = Learn
 # The count of cards waiting to be reviewed
 decks-review-header = Due
 decks-zero-minutes-hint = (0 = return card to original deck)
+
+## These strings are no longer used - you do not need to translate them if they
+## are not already translated.
+
+decks-relative-overdueness = Relative overdueness
