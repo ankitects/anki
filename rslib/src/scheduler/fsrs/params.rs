@@ -605,7 +605,7 @@ pub(crate) mod tests {
             convert_ignore_before(revlogs, false, days_ago_ms(9))
                 .unwrap()
                 .len(),
-            1
+            2
         );
         // | L L R
         assert_eq!(

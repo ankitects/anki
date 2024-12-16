@@ -313,6 +313,7 @@ pub(crate) fn single_card_revlog_to_item(
             if first_review.ease_factor <= 1.1 {
                 starting_state.difficulty = (first_review.ease_factor - 0.1) * 9.0 + 1.0;
             }
+            // remove the first review because it has been used to calculate the starting state
             item.reviews.remove(0);
             Ok(Some(FsrsItemWithStartingState {
                 item,
