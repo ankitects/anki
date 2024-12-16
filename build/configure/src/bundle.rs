@@ -28,21 +28,18 @@ use crate::platform::overriden_rust_target_triple;
 #[derive(Debug, PartialEq, Eq)]
 enum DistKind {
     Standard,
-    Alternate,
 }
 
 impl DistKind {
     fn folder_name(&self) -> &'static str {
         match self {
             DistKind::Standard => "std",
-            DistKind::Alternate => "alt",
         }
     }
 
     fn name(&self) -> &'static str {
         match self {
             DistKind::Standard => "standard",
-            DistKind::Alternate => "alternate",
         }
     }
 }
@@ -60,14 +57,6 @@ pub fn build_bundle(build: &mut Build) -> Result<()> {
     // package up outputs with Qt/other deps
     download_dist_folder_deps(build)?;
     build_dist_folder(build, DistKind::Standard)?;
-
-    // repeat for Qt5
-    if !targetting_macos_arm() {
-        if !cfg!(target_os = "macos") {
-            setup_qt5_venv(build)?;
-        }
-        build_dist_folder(build, DistKind::Alternate)?;
-    }
 
     build_packages(build)?;
 
@@ -104,11 +93,6 @@ const MAC_AMD_QT6: OnlineArchive = OnlineArchive {
     sha256: "d8c868afe0a5f98980421c06658ec96b6c557006e4702230f574daf88d1c8dd0",
 };
 
-const MAC_AMD_QT5: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/pyqt5.14-mac-amd64.tar.gz",
-    sha256: "474951bed79ddb9570ee4c5a6079041772551ea77e77171d9e33d6f5e7877ec1",
-};
-
 const LINUX_QT_PLUGINS: OnlineArchive = OnlineArchive {
     url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2023-05-02/qt-plugins-linux-amd64.tar.gz",
     sha256: "66bb568aca7242bc55ad419bf5c96755ca15d2a743e1c3a09cba8b83230b138b",
@@ -133,12 +117,7 @@ fn download_dist_folder_deps(build: &mut Build) -> Result<()> {
         } else {
             download_and_extract(build, "mac_amd_audio", MAC_AMD_AUDIO, empty_manifest())?;
             download_and_extract(build, "mac_amd_qt6", MAC_AMD_QT6, empty_manifest())?;
-            download_and_extract(build, "mac_amd_qt5", MAC_AMD_QT5, empty_manifest())?;
-            bundle_deps.extend([
-                ":extract:mac_amd_audio",
-                ":extract:mac_amd_qt6",
-                ":extract:mac_amd_qt5",
-            ]);
+            bundle_deps.extend([":extract:mac_amd_audio", ":extract:mac_amd_qt6"]);
         }
     } else {
         download_and_extract(
@@ -175,12 +154,6 @@ const PRIMARY_VENV: Venv = Venv {
     path_without_builddir: "bundle/pyenv",
 };
 
-/// Only used for copying Qt libs on Windows/Linux.
-const QT5_VENV: Venv = Venv {
-    label: "bundle:pyenv-qt5",
-    path_without_builddir: "bundle/pyenv-qt5",
-};
-
 fn setup_primary_venv(build: &mut Build) -> Result<()> {
     let mut qt6_reqs = inputs![
         "python/requirements.bundle.txt",
@@ -205,26 +178,6 @@ fn setup_primary_venv(build: &mut Build) -> Result<()> {
         },
     )?;
     Ok(())
-}
-
-fn setup_qt5_venv(build: &mut Build) -> Result<()> {
-    let qt5_reqs = inputs![
-        "python/requirements.base.txt",
-        if cfg!(target_os = "macos") {
-            "python/requirements.qt5_14.txt"
-        } else {
-            "python/requirements.qt5_15.txt"
-        }
-    ];
-    build.add_action(
-        QT5_VENV.label,
-        PythonEnvironment {
-            folder: QT5_VENV.path_without_builddir,
-            base_requirements_txt: "python/requirements.base.txt".into(),
-            requirements_txt: qt5_reqs,
-            extra_binary_exports: &[],
-        },
-    )
 }
 
 struct InstallAnkiWheels {
@@ -352,7 +305,6 @@ impl BuildAction for BuildDistFolder {
         build.add_variable("kind", self.kind.name());
         let folder = match self.kind {
             DistKind::Standard => "bundle/std",
-            DistKind::Alternate => "bundle/alt",
         };
         build.add_outputs("out_folder", vec![folder]);
         build.add_outputs("stamp", vec![format!("{folder}.stamp")]);
@@ -364,13 +316,9 @@ impl BuildAction for BuildDistFolder {
 }
 
 fn build_dist_folder(build: &mut Build, kind: DistKind) -> Result<()> {
-    let mut deps = inputs![":bundle:deps", ":bundle:binary", glob!["qt/bundle/**"]];
-    if kind == DistKind::Alternate && !cfg!(target_os = "macos") {
-        deps = inputs![deps, QT5_VENV.label_as_target("")];
-    }
+    let deps = inputs![":bundle:deps", ":bundle:binary", glob!["qt/bundle/**"]];
     let group = match kind {
         DistKind::Standard => "bundle:folder:std",
-        DistKind::Alternate => "bundle:folder:alt",
     };
     build.add_action(group, BuildDistFolder { kind, deps })
 }
@@ -380,13 +328,9 @@ fn build_packages(build: &mut Build) -> Result<()> {
         build_windows_installers(build)
     } else if cfg!(target_os = "macos") {
         build_mac_app(build, DistKind::Standard)?;
-        if !targetting_macos_arm() {
-            build_mac_app(build, DistKind::Alternate)?;
-        }
         build_dmgs(build)
     } else {
-        build_tarball(build, DistKind::Standard)?;
-        build_tarball(build, DistKind::Alternate)
+        build_tarball(build, DistKind::Standard)
     }
 }
 
@@ -407,7 +351,6 @@ impl BuildAction for BuildTarball {
         let version = anki_version();
         let qt = match self.kind {
             DistKind::Standard => "qt6",
-            DistKind::Alternate => "qt5",
         };
         let output_folder_base = format!("anki-{version}-linux-{qt}");
         let output_tarball = format!("bundle/package/{output_folder_base}.tar.zst");
@@ -434,12 +377,12 @@ impl BuildAction for BuildWindowsInstallers {
 
     fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
         let version = anki_version();
-        let outputs = ["qt6", "qt5"].iter().map(|qt| {
+        let outputs = ["qt6"].iter().map(|qt| {
             let output_base = format!("anki-{version}-windows-{qt}");
             format!("bundle/package/{output_base}.exe")
         });
 
-        build.add_inputs("", inputs![":bundle:folder:std", ":bundle:folder:alt"]);
+        build.add_inputs("", inputs![":bundle:folder:std"]);
         build.add_variable("version", &version);
         build.add_variable("bundle_root", "$builddir/bundle");
         build.add_outputs("out", outputs);
@@ -486,11 +429,7 @@ impl BuildAction for BuildDmgs {
         } else {
             "intel"
         };
-        let qt = if targetting_macos_arm() {
-            &["qt6"][..]
-        } else {
-            &["qt6", "qt5"]
-        };
+        let qt = &["qt6"][..];
         let dmgs = qt
             .iter()
             .map(|qt| format!("bundle/dmg/anki-{version}-mac-{platform}-{qt}.dmg"));
