@@ -512,7 +512,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             max={100000}
         >
             <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                Additional new cards to simulate
+                {tr.deckConfigAdditionalSimulateCards()}
             </SettingTitle>
         </SpinBoxRow>
 
