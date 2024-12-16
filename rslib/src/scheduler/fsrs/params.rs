@@ -266,7 +266,7 @@ pub(crate) fn single_card_revlog_to_items(
         if entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0 {
             continue;
         }
-        if matches!(entry.button_chosen, 1..=4) {
+        if matches!(entry.button_chosen, 1..=4) && entry.id.0 > ignore_revlogs_before.0 {
             non_manual_entries = Some(index);
         }
         if matches!(
