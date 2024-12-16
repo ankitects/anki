@@ -294,6 +294,7 @@ pub(crate) fn single_card_revlog_to_item(
                 starting_state: None,
             }))
         } else if let Some(first_non_manual_entry) = filtered_entries.first() {
+            // the revlog has been truncated, but not fully
             let first_review = FirstReview {
                 interval: first_non_manual_entry.interval.max(1) as f32,
                 ease_factor: if first_non_manual_entry.ease_factor == 0 {
@@ -303,7 +304,6 @@ pub(crate) fn single_card_revlog_to_item(
                 } as f32
                     / 1000.0,
             };
-            // the revlog has been truncated, but not fully
             let mut starting_state = fsrs.memory_state_from_sm2(
                 first_review.ease_factor,
                 first_review.interval,
