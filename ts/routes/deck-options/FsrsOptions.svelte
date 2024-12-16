@@ -529,7 +529,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <SpinBoxRow
             bind:value={simulateFsrsRequest.reviewLimit}
-            defaultValue={defaults.reviewsPerDay}
+            defaultValue={$config.reviewsPerDay}
             min={0}
             max={9999}
         >
@@ -540,7 +540,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <SpinBoxRow
             bind:value={simulateFsrsRequest.maxInterval}
-            defaultValue={defaults.maximumReviewInterval}
+            defaultValue={$config.maximumReviewInterval}
             min={1}
             max={36500}
         >
