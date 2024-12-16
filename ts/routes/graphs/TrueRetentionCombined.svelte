@@ -73,4 +73,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </tbody>
 </table>
 
-<style src="./true-retention.scss" lang="scss"></style>
+<style lang="scss">
+    @use "true-retention-base";
+
+    .young,
+    .mature,
+    .total,
+    .count {
+        text-align: right;
+    }
+
+    .young {
+        color: #64c476;
+    }
+
+    .mature {
+        color: #31a354;
+    }
+
+    .total {
+        color: var(--fg);
+    }
+
+    .count {
+        color: var(--fg-subtle);
+    }
+</style>

@@ -20,6 +20,13 @@ export interface PeriodTrueRetentionData {
     allTime: TrueRetentionData;
 }
 
+export enum DisplayMode {
+    Young,
+    Mature,
+    All,
+    Summary,
+}
+
 export enum Scope {
     Young,
     Mature,

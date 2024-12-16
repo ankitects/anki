@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as t9n from "@generated/ftl";
 
     import { type RevlogRange } from "./graph-helpers";
-    import { type PeriodTrueRetentionData, Scope } from "./true-retention";
+    import { DisplayMode, type PeriodTrueRetentionData, Scope } from "./true-retention";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
@@ -30,14 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     });
 
-    enum Mode {
-        Young,
-        Mature,
-        All,
-        Summary,
-    }
-
-    let mode: Mode = $state(Mode.Summary);
+    let mode: DisplayMode = $state(DisplayMode.Summary);
 
     const title = t9n.statisticsTrueRetentionTitle();
     const subtitle = t9n.statisticsTrueRetentionSubtitle();
@@ -46,17 +39,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Graph {title} {subtitle}>
     <InputBox>
         <label>
-            <input type="radio" bind:group={mode} value={Mode.Young} />
+            <input type="radio" bind:group={mode} value={DisplayMode.Young} />
             {t9n.statisticsCountsYoungCards()}
         </label>
 
         <label>
-            <input type="radio" bind:group={mode} value={Mode.Mature} />
+            <input type="radio" bind:group={mode} value={DisplayMode.Mature} />
             {t9n.statisticsCountsMatureCards()}
         </label>
 
         <label>
-            <input type="radio" bind:group={mode} value={Mode.Summary} />
+            <input type="radio" bind:group={mode} value={DisplayMode.Summary} />
             {t9n.statisticsTrueRetentionAll()}
         </label>
     </InputBox>
@@ -64,21 +57,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="table-container">
         {#if retentionData === null}
             <div>No Data!</div>
-        {:else if mode === Mode.Young}
+        {:else if mode === DisplayMode.Young}
             <TrueRetentionSingle
                 {revlogRange}
                 data={retentionData}
                 scope={Scope.Young}
             />
-        {:else if mode === Mode.Mature}
+        {:else if mode === DisplayMode.Mature}
             <TrueRetentionSingle
                 {revlogRange}
                 data={retentionData}
                 scope={Scope.Mature}
             />
-        {:else if mode === Mode.All}
+        {:else if mode === DisplayMode.All}
             <TrueRetentionSingle {revlogRange} data={retentionData} scope={Scope.All} />
-        {:else if mode === Mode.Summary}
+        {:else if mode === DisplayMode.Summary}
             <TrueRetentionCombined {revlogRange} data={retentionData} />
         {:else}
             <div>Bad mode: {mode}</div>

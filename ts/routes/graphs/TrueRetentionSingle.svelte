@@ -61,4 +61,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </tbody>
 </table>
 
-<style src="./true-retention.scss" lang="scss"></style>
+<style lang="scss">
+    @use "true-retention-base";
+
+    .pass,
+    .fail,
+    .retention {
+        text-align: right;
+    }
+
+    .pass {
+        color: #3bc464;
+    }
+
+    .fail {
+        color: #c43b3b;
+    }
+
+    .retention {
+        color: var(--fg);
+    }
+</style>
