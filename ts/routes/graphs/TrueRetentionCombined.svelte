@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as t9n from "@generated/ftl";
     import { localizedNumber } from "@tslib/i18n";
 
-    import { RevlogRange } from "./graph-helpers";
+    import { type RevlogRange } from "./graph-helpers";
     import {
         calculateRetentionPercentageString,
         getRowData,
@@ -19,9 +19,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         data: PeriodTrueRetentionData;
     }
 
-    let { revlogRange, data }: Props = $props();
+    const { revlogRange, data }: Props = $props();
 
-    let rowData: RowData[] = $derived(getRowData(data, revlogRange));
+    const rowData: RowData[] = $derived(getRowData(data, revlogRange));
 </script>
 
 <table>

@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as t9n from "@generated/ftl";
-    import { RevlogRange } from "./graph-helpers";
+    import { type RevlogRange } from "./graph-helpers";
     import {
         calculateRetentionPercentageString,
         getFailed,
@@ -12,8 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getRowData,
         type PeriodTrueRetentionData,
         type RowData,
-        Scope,
-        type TrueRetentionData,
+        type Scope,
     } from "./true-retention";
     import { localizedNumber } from "@tslib/i18n";
 
@@ -23,9 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         scope: Scope;
     }
 
-    let { revlogRange, data, scope }: Props = $props();
+    const { revlogRange, data, scope }: Props = $props();
 
-    let rowData: RowData[] = $derived(getRowData(data, revlogRange));
+    const rowData: RowData[] = $derived(getRowData(data, revlogRange));
 </script>
 
 <table>

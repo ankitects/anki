@@ -19,9 +19,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         sourceData: GraphsResponse | null;
     }
 
-    let { revlogRange, sourceData = null }: Props = $props();
+    const { revlogRange, sourceData = null }: Props = $props();
 
-    let retentionData: PeriodTrueRetentionData | null = $derived.by(() => {
+    const retentionData: PeriodTrueRetentionData | null = $derived.by(() => {
         if (sourceData === null) {
             return null;
         } else {
