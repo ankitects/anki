@@ -299,20 +299,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let points: Point[] = [];
 
-    function movingAverage(y: number[], windowSize: number): number[] {
-        const result: number[] = [];
-        for (let i = 0; i < y.length; i++) {
-            let sum = 0;
-            let count = 0;
-            for (let j = Math.max(0, i - windowSize + 1); j <= i; j++) {
-                sum += y[j];
-                count++;
-            }
-            result.push(sum / count);
-        }
-        return result;
-    }
-
     function addArrays(arr1: number[], arr2: number[]): number[] {
         return arr1.map((value, index) => value + arr2[index]);
     }
@@ -336,19 +322,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } finally {
             simulateProgressString = "";
             if (resp) {
-                const dailyTimeCost = movingAverage(
-                    resp.dailyTimeCost,
-                    Math.ceil(simulateFsrsRequest.daysToSimulate / 50),
-                );
-                const dailyReviewCount = movingAverage(
-                    addArrays(resp.dailyReviewCount, resp.dailyNewCount),
-                    Math.ceil(simulateFsrsRequest.daysToSimulate / 50),
+                const dailyTotalCount = addArrays(
+                    resp.dailyReviewCount,
+                    resp.dailyNewCount,
                 );
                 points = points.concat(
-                    dailyTimeCost.map((v, i) => ({
+                    resp.dailyTimeCost.map((v, i) => ({
                         x: i,
                         timeCost: v,
-                        count: dailyReviewCount[i],
+                        count: dailyTotalCount[i],
                         label: simulationNumber,
                     })),
                 );
