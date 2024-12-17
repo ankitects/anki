@@ -219,12 +219,23 @@ impl LoadBalancer {
                 )
             })
             .unzip();
+
         let easy_days_percentages = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
-        let percentages = weekdays
+        // check if easy days are in effect by seeing if all days have the same
+        // configuration if all days are the same we can skip out on calculating
+        // the distribution
+        let easy_days_are_all_the_same = easy_days_percentages
             .iter()
-            .map(|&wd| easy_days_percentages[wd])
-            .collect::<Vec<_>>();
-        let expected_distribution = check_review_distribution(&review_counts, &percentages);
+            .all(|day| easy_days_percentages[0] == *day);
+        let expected_distribution = if easy_days_are_all_the_same {
+            vec![1.0; weekdays.len()]
+        } else {
+            let percentages = weekdays
+                .iter()
+                .map(|&wd| easy_days_percentages[wd])
+                .collect::<Vec<_>>();
+            check_review_distribution(&review_counts, &percentages)
+        };
 
         // calculate params for each day
         let intervals_and_params = interval_days
