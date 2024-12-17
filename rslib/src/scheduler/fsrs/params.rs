@@ -265,19 +265,20 @@ pub(crate) fn reviews_for_fsrs(
     ignore_revlogs_before: TimestampMillis,
 ) -> Option<ReviewsForFsrs> {
     let mut first_of_last_learn_entries = None;
-    let mut non_manual_entries = None;
+    let mut first_user_grade_idx = None;
     let mut revlogs_complete = false;
+    // Working backwards from the latest review...
     for (index, entry) in entries.iter().enumerate().rev() {
         if entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0 {
             continue;
         }
-        if matches!(entry.button_chosen, 1..=4) && entry.id.0 > ignore_revlogs_before.0 {
-            non_manual_entries = Some(index);
+        let within_cutoff = entry.id.0 > ignore_revlogs_before.0;
+        let user_graded = matches!(entry.button_chosen, 1..=4);
+        if user_graded && within_cutoff {
+            first_user_grade_idx = Some(index);
         }
-        if matches!(
-            (entry.review_kind, entry.button_chosen),
-            (RevlogReviewKind::Learning, 1..=4)
-        ) {
+
+        if user_graded && entry.review_kind == RevlogReviewKind::Learning {
             first_of_last_learn_entries = Some(index);
             revlogs_complete = true;
         } else if first_of_last_learn_entries.is_some() {
@@ -286,25 +287,25 @@ pub(crate) fn reviews_for_fsrs(
             (entry.review_kind, entry.ease_factor),
             (RevlogReviewKind::Manual, 0)
         ) {
-            // If we find a `Learn` entry after the `Reset` entry, we should
-            // ignore the entries before the `Reset` entry
+            // Ignore entries prior to a `Reset` if a learning step has come after,
+            // but consider revlogs complete.
             if first_of_last_learn_entries.is_some() {
                 revlogs_complete = true;
                 break;
-            // If we find a non-manual entry after the `Reset` entry, we should
-            // ignore the entries before the `Reset` entry
-            } else if non_manual_entries.is_some() {
+            // Ignore entries prior to a `Reset` if the user has graded a card
+            // after the reset.
+            } else if first_user_grade_idx.is_some() {
                 revlogs_complete = false;
                 break;
-            // If we don't find any non-manual entry after the `Reset` entry,
-            // it's a new card and we should ignore all entries
+            // User has not graded the card since it was reset, so all history
+            // filtered out.
             } else {
                 return None;
             }
         }
     }
     if training {
-        // While training ignore the entire card if the first learning step of the last
+        // While training, ignore the entire card if the first learning step of the last
         // group of learning steps is before the ignore_revlogs_before date
         if let Some(idx) = first_of_last_learn_entries {
             if entries[idx].id.0 < ignore_revlogs_before.0 {
@@ -312,8 +313,8 @@ pub(crate) fn reviews_for_fsrs(
             }
         }
     } else {
-        // While reviewing if the first learning step is before the ignore date,
-        // fallback to non_manual_entries
+        // While reviewing, if the first learning step is before the ignore date,
+        // we won't start from the learning step.
         if let Some(idx) = first_of_last_learn_entries {
             if entries[idx].id.0 < ignore_revlogs_before.0 && idx < entries.len() - 1 {
                 revlogs_complete = false;
@@ -329,9 +330,9 @@ pub(crate) fn reviews_for_fsrs(
     } else if training {
         // when training, we ignore cards that don't have any learning steps
         return None;
-    } else if let Some(idx) = non_manual_entries {
-        // if there are no learning entries but there are non-manual entries,
-        // we ignore all entries before the first non-manual entry
+    } else if let Some(idx) = first_user_grade_idx {
+        // if there are no learning entries, but the user has reviewed the card,
+        // we ignore all entries before the first grade
         if idx > 0 {
             entries.drain(..idx);
         }
