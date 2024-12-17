@@ -460,7 +460,6 @@ deck-config-answer-again = Answer Again
 deck-config-answer-hard = Answer Hard
 deck-config-answer-good = Answer Good
 deck-config-days-to-simulate = Days to simulate
-deck-config-additional-simulate-cards = Additional new cards to simulate
 deck-config-desired-retention-below-optimal = Your desired retention is below optimal. Increasing it is recommended.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
