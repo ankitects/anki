@@ -288,9 +288,9 @@ export const makeShapesRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fab
         const left = obj.left!;
 
         const topBound = boundingBox.top!;
-        const bottomBound = topBound + boundingBox.height!;
+        const bottomBound = topBound + boundingBox.height! + 5;
         const leftBound = boundingBox.left!;
-        const rightBound = leftBound + boundingBox.width!;
+        const rightBound = leftBound + boundingBox.width! + 5;
 
         obj.left = Math.min(Math.max(left, leftBound), rightBound - objWidth);
         obj.top = Math.min(Math.max(top, topBound), bottomBound - objHeight);

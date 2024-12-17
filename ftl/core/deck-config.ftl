@@ -461,6 +461,12 @@ deck-config-answer-hard = Answer Hard
 deck-config-answer-good = Answer Good
 deck-config-days-to-simulate = Days to simulate
 deck-config-desired-retention-below-optimal = Your desired retention is below optimal. Increasing it is recommended.
+deck-config-fsrs-simulator-y-axis-title-time = Review Time/Day
+deck-config-fsrs-simulator-y-axis-title-count = Review Count/Day
+deck-config-fsrs-simulator-experimental = FSRS simulator (experimental)
+deck-config-additional-new-cards-to-simulate = Additional new cards to simulate
+deck-config-simulate = Simulate
+deck-config-clear-last-simulate = Clear last simulation
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
