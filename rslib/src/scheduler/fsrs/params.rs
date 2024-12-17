@@ -600,6 +600,19 @@ pub(crate) mod tests {
     }
 
     #[test]
+    fn partially_ignored_learning_steps_terminate_training() {
+        let revlogs = &[
+            revlog(RevlogReviewKind::Learning, 10),
+            revlog(RevlogReviewKind::Learning, 8),
+            revlog(RevlogReviewKind::Review, 6),
+        ];
+        // | = Ignore before
+        // L = learning step
+        // L | L R
+        assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(9)), None);
+    }
+
+    #[test]
     fn ignore_before_date_between_learning_steps_when_reviewing() {
         let revlogs = &[
             revlog(RevlogReviewKind::Learning, 10),
