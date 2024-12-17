@@ -14,7 +14,7 @@ use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
-use crate::scheduler::fsrs::params::single_card_revlog_to_items;
+use crate::scheduler::fsrs::params::reviews_for_fsrs;
 use crate::scheduler::fsrs::params::Params;
 use crate::scheduler::states::fuzz::with_review_fuzz;
 use crate::search::Negated;
@@ -71,7 +71,7 @@ impl Collection {
             };
             let fsrs = FSRS::new(req.as_ref().map(|w| &w.params[..]).or(Some([].as_slice())))?;
             let historical_retention = req.as_ref().map(|w| w.historical_retention);
-            let items = fsrs_items_for_memory_state(
+            let items = fsrs_items_for_memory_states(
                 &fsrs,
                 revlog,
                 timing.next_day_at,
@@ -156,7 +156,7 @@ impl Collection {
         let historical_retention = config.inner.historical_retention;
         let fsrs = FSRS::new(Some(config.fsrs_params()))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
-        let item = single_card_revlog_to_item(
+        let item = fsrs_item_for_memory_state(
             &fsrs,
             revlog,
             self.timing_today()?.next_day_at,
@@ -175,7 +175,7 @@ impl Card {
     pub(crate) fn set_memory_state(
         &mut self,
         fsrs: &FSRS,
-        item: Option<FsrsItemWithStartingState>,
+        item: Option<FsrsItemForMemoryState>,
         historical_retention: f32,
     ) -> Result<()> {
         let memory_state = if let Some(i) = item {
@@ -196,22 +196,21 @@ impl Card {
 }
 
 #[derive(Debug)]
-pub(crate) struct FsrsItemWithStartingState {
+pub(crate) struct FsrsItemForMemoryState {
     pub item: FSRSItem,
     /// When revlogs have been truncated, this stores the initial state at first
     /// review
     pub starting_state: Option<MemoryState>,
 }
 
-/// When updating memory state, FSRS only requires the last FSRSItem that
-/// contains the full history.
-pub(crate) fn fsrs_items_for_memory_state(
+/// Like [fsrs_item_for_memory_state], but for updating multiple cards at once.
+pub(crate) fn fsrs_items_for_memory_states(
     fsrs: &FSRS,
     revlogs: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     historical_retention: f32,
     ignore_revlogs_before: TimestampMillis,
-) -> Result<Vec<(CardId, Option<FsrsItemWithStartingState>)>> {
+) -> Result<Vec<(CardId, Option<FsrsItemForMemoryState>)>> {
     revlogs
         .into_iter()
         .chunk_by(|r| r.cid)
@@ -219,7 +218,7 @@ pub(crate) fn fsrs_items_for_memory_state(
         .map(|(card_id, group)| {
             Ok((
                 card_id,
-                single_card_revlog_to_item(
+                fsrs_item_for_memory_state(
                     fsrs,
                     group.collect(),
                     next_day_at,
@@ -273,27 +272,25 @@ fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogIn
 /// a truncated revlog), we return the starting state inferred from the first
 /// revlog entry, so that the first review is not treated as if started from
 /// scratch.
-pub(crate) fn single_card_revlog_to_item(
+pub(crate) fn fsrs_item_for_memory_state(
     fsrs: &FSRS,
     entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     historical_retention: f32,
     ignore_revlogs_before: TimestampMillis,
-) -> Result<Option<FsrsItemWithStartingState>> {
+) -> Result<Option<FsrsItemForMemoryState>> {
     struct FirstReview {
         interval: f32,
         ease_factor: f32,
     }
-    if let Some((mut items, revlogs_complete, _, filtered_entries)) =
-        single_card_revlog_to_items(entries, next_day_at, false, ignore_revlogs_before)
-    {
-        let mut item = items.pop().unwrap();
-        if revlogs_complete {
-            Ok(Some(FsrsItemWithStartingState {
+    if let Some(mut output) = reviews_for_fsrs(entries, next_day_at, false, ignore_revlogs_before) {
+        let mut item = output.fsrs_items.pop().unwrap();
+        if output.revlogs_complete {
+            Ok(Some(FsrsItemForMemoryState {
                 item,
                 starting_state: None,
             }))
-        } else if let Some(first_non_manual_entry) = filtered_entries.first() {
+        } else if let Some(first_non_manual_entry) = output.filtered_revlogs.first() {
             // the revlog has been truncated, but not fully
             let first_review = FirstReview {
                 interval: first_non_manual_entry.interval.max(1) as f32,
@@ -315,7 +312,7 @@ pub(crate) fn single_card_revlog_to_item(
             }
             // remove the first review because it has been converted to the starting state
             item.reviews.remove(0);
-            Ok(Some(FsrsItemWithStartingState {
+            Ok(Some(FsrsItemForMemoryState {
                 item,
                 starting_state: Some(starting_state),
             }))
@@ -353,7 +350,7 @@ mod tests {
         // cards without any learning steps due to truncated history still have memory
         // state calculated
         let fsrs = FSRS::new(Some(&[])).unwrap();
-        let item = single_card_revlog_to_item(
+        let item = fsrs_item_for_memory_state(
             &fsrs,
             vec![
                 RevlogEntry {
@@ -389,7 +386,7 @@ mod tests {
         );
         // but if there's only a single revlog entry, we'll fall back on the first
         // non-manual entry
-        let item = single_card_revlog_to_item(
+        let item = fsrs_item_for_memory_state(
             &fsrs,
             vec![RevlogEntry {
                 ease_factor: 2500,

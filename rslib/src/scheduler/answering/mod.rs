@@ -32,7 +32,7 @@ use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
 use crate::prelude::*;
-use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
+use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;
 use crate::scheduler::states::PreviewState;
 use crate::search::SearchNode;
 
@@ -437,7 +437,7 @@ impl Collection {
                 // and will need its initial memory state to be calculated based on review
                 // history.
                 let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
-                let item = single_card_revlog_to_item(
+                let item = fsrs_item_for_memory_state(
                     &fsrs,
                     revlog,
                     timing.next_day_at,

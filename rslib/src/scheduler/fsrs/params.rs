@@ -229,36 +229,41 @@ fn fsrs_items_for_training(
         .chunk_by(|r| r.cid)
         .into_iter()
         .filter_map(|(_cid, entries)| {
-            single_card_revlog_to_items(entries.collect(), next_day_at, true, review_revlogs_before)
+            reviews_for_fsrs(entries.collect(), next_day_at, true, review_revlogs_before)
         })
         .flat_map(|i| {
-            review_count += i.2;
+            review_count += i.filtered_revlogs.len();
 
-            i.0
+            i.fsrs_items
         })
         .collect_vec();
     revlogs.sort_by_cached_key(|r| r.reviews.len());
     (revlogs, review_count)
 }
 
-/// Transform the revlog history for a card into a list of FSRSItems. FSRS
-/// expects multiple items for a given card when training - for revlog
-/// `[1,2,3]`, we create FSRSItems corresponding to `[1,2]` and `[1,2,3]`
-/// in training, and `[1]`, [1,2]` and `[1,2,3]` when calculating memory
-/// state.
+pub(crate) struct ReviewsForFsrs {
+    /// The revlog entries that remain after filtering (e.g. excluding
+    /// review entries prior to a card being reset).
+    pub filtered_revlogs: Vec<RevlogEntry>,
+    /// FSRS items derived from the filtered revlogs.
+    pub fsrs_items: Vec<FSRSItem>,
+    /// True if there is enough history to derive memory state from history
+    /// alone. If false, memory state will be derived from SM2.
+    pub revlogs_complete: bool,
+}
+
+/// Filter out unwanted revlog entries, then create a series of FSRS items for
+/// training/memory state calculation.
 ///
-/// Returns (items, revlog_complete, review_count).
-/// revlog_complete is assumed when the revlogs have a learning step, or start
-/// with manual scheduling. When revlogs are incomplete, the starting difficulty
-/// is later inferred from the SM2 data, instead of using the standard FSRS
-/// initial difficulty. review_count is the number of reviews used after
-/// filtering out unwanted ones.
-pub(crate) fn single_card_revlog_to_items(
+/// Filtering consists of removing revlog entries before the supplied timestamp,
+/// and removing items such as reviews that happened prior to a card being reset
+/// to new.
+pub(crate) fn reviews_for_fsrs(
     mut entries: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     training: bool,
     ignore_revlogs_before: TimestampMillis,
-) -> Option<(Vec<FSRSItem>, bool, usize, Vec<RevlogEntry>)> {
+) -> Option<ReviewsForFsrs> {
     let mut first_of_last_learn_entries = None;
     let mut non_manual_entries = None;
     let mut revlogs_complete = false;
@@ -375,7 +380,11 @@ pub(crate) fn single_card_revlog_to_items(
     if items.is_empty() {
         None
     } else {
-        Some((items, revlogs_complete, entries.len(), entries))
+        Some(ReviewsForFsrs {
+            fsrs_items: items,
+            revlogs_complete,
+            filtered_revlogs: entries,
+        })
     }
 }
 
@@ -434,8 +443,8 @@ pub(crate) mod tests {
         training: bool,
         ignore_before: TimestampMillis,
     ) -> Option<Vec<FSRSItem>> {
-        single_card_revlog_to_items(revlog.to_vec(), NEXT_DAY_AT, training, ignore_before)
-            .map(|i| i.0)
+        reviews_for_fsrs(revlog.to_vec(), NEXT_DAY_AT, training, ignore_before)
+            .map(|i| i.fsrs_items)
     }
 
     pub(crate) fn convert(revlog: &[RevlogEntry], training: bool) -> Option<Vec<FSRSItem>> {
