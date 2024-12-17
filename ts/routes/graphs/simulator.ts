@@ -157,7 +157,7 @@ export function renderSimulationChart(
         groups.forEach((groupPoints, key) => {
             const bisect = bisector((d: number[]) => x.invert(d[0])).left;
             const index = bisect(groupPoints, date);
-            const dataPoint = groupPoints[index - 1] || groupPoints[index];
+            const dataPoint = groupPoints[index];
 
             if (dataPoint) {
                 groupData[key] = y.invert(dataPoint[1]);
