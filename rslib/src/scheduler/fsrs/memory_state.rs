@@ -290,14 +290,14 @@ pub(crate) fn fsrs_item_for_memory_state(
                 item,
                 starting_state: None,
             }))
-        } else if let Some(first_non_manual_entry) = output.filtered_revlogs.first() {
+        } else if let Some(first_user_grade) = output.filtered_revlogs.first() {
             // the revlog has been truncated, but not fully
             let first_review = FirstReview {
-                interval: first_non_manual_entry.interval.max(1) as f32,
-                ease_factor: if first_non_manual_entry.ease_factor == 0 {
+                interval: first_user_grade.interval.max(1) as f32,
+                ease_factor: if first_user_grade.ease_factor == 0 {
                     2500
                 } else {
-                    first_non_manual_entry.ease_factor
+                    first_user_grade.ease_factor
                 } as f32
                     / 1000.0,
             };
@@ -384,8 +384,8 @@ mod tests {
                 difficulty: 5.7909784,
             }),
         );
-        // but if there's only a single revlog entry, we'll fall back on the first
-        // non-manual entry
+        // cards with a single review-type entry also get memory states from revlog
+        // rather than card states
         let item = fsrs_item_for_memory_state(
             &fsrs,
             vec![RevlogEntry {

@@ -314,7 +314,7 @@ pub(crate) fn reviews_for_fsrs(
         }
     } else {
         // While reviewing, if the first learning step is before the ignore date,
-        // we won't start from the learning step.
+        // we ignore it, and will fall back on SM2 info and the last user grade below.
         if let Some(idx) = first_of_last_learn_entries {
             if entries[idx].id.0 < ignore_revlogs_before.0 && idx < entries.len() - 1 {
                 revlogs_complete = false;
