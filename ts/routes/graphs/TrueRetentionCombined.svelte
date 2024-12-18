@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as t9n from "@generated/ftl";
+    import * as tr from "@generated/ftl";
     import { localizedNumber } from "@tslib/i18n";
 
     import { type RevlogRange } from "./graph-helpers";
@@ -29,16 +29,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <tr>
             <td></td>
             <th scope="col" class="col-header young">
-                {t9n.statisticsCountsYoungCards()}
+                {tr.statisticsCountsYoungCards()}
             </th>
             <th scope="col" class="col-header mature">
-                {t9n.statisticsCountsMatureCards()}
+                {tr.statisticsCountsMatureCards()}
             </th>
             <th scope="col" class="col-header total">
-                {t9n.statisticsCountsTotalCards()}
+                {tr.statisticsCountsTotalCards()}
             </th>
             <th scope="col" class="col-header count">
-                {t9n.statisticsTrueRetentionCount()}
+                {tr.statisticsTrueRetentionCount()}
             </th>
         </tr>
     </thead>

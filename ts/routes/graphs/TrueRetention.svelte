@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { GraphsResponse } from "@generated/anki/stats_pb";
-    import * as t9n from "@generated/ftl";
+    import * as tr from "@generated/ftl";
 
     import { type RevlogRange } from "./graph-helpers";
     import { DisplayMode, type PeriodTrueRetentionData, Scope } from "./true-retention";
@@ -32,25 +32,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let mode: DisplayMode = $state(DisplayMode.Summary);
 
-    const title = t9n.statisticsTrueRetentionTitle();
-    const subtitle = t9n.statisticsTrueRetentionSubtitle();
+    const title = tr.statisticsTrueRetentionTitle();
+    const subtitle = tr.statisticsTrueRetentionSubtitle();
 </script>
 
 <Graph {title} {subtitle}>
     <InputBox>
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Young} />
-            {t9n.statisticsCountsYoungCards()}
+            {tr.statisticsCountsYoungCards()}
         </label>
 
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Mature} />
-            {t9n.statisticsCountsMatureCards()}
+            {tr.statisticsCountsMatureCards()}
         </label>
 
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Summary} />
-            {t9n.statisticsTrueRetentionAll()}
+            {tr.statisticsTrueRetentionAll()}
         </label>
     </InputBox>
 

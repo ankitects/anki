@@ -1,6 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import * as t9n from "@generated/ftl";
+import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { RevlogRange } from "./graph-helpers";
 
@@ -70,30 +70,30 @@ export function getRowData(
 ): RowData[] {
     const rowData: RowData[] = [
         {
-            title: t9n.statisticsTrueRetentionToday(),
+            title: tr.statisticsTrueRetentionToday(),
             data: allData.today,
         },
         {
-            title: t9n.statisticsTrueRetentionYesterday(),
+            title: tr.statisticsTrueRetentionYesterday(),
             data: allData.yesterday,
         },
         {
-            title: t9n.statisticsTrueRetentionWeek(),
+            title: tr.statisticsTrueRetentionWeek(),
             data: allData.week,
         },
         {
-            title: t9n.statisticsTrueRetentionMonth(),
+            title: tr.statisticsTrueRetentionMonth(),
             data: allData.month,
         },
         {
-            title: t9n.statisticsTrueRetentionYear(),
+            title: tr.statisticsTrueRetentionYear(),
             data: allData.year,
         },
     ];
 
     if (revlogRange === RevlogRange.All) {
         rowData.push({
-            title: t9n.statisticsTrueRetentionAllTime(),
+            title: tr.statisticsTrueRetentionAllTime(),
             data: allData.allTime,
         });
     }
