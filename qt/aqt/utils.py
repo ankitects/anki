@@ -959,7 +959,7 @@ def _show_in_folder_win32(path: str) -> None:
             win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
             win32gui.SetForegroundWindow(hwnd)
 
-    subprocess.run(["explorer", f"/select,{path}"], check=False)
+    subprocess.run(["explorer", "/select,", path], check=False)
     mw.progress.single_shot(500, focus_explorer)
 
 
