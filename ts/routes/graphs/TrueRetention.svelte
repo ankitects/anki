@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <div class="table-container">
         {#if retentionData === null}
-            <div>No Data!</div>
+            <div>{tr.statisticsNoData()}</div>
         {:else if mode === DisplayMode.Young}
             <TrueRetentionSingle
                 {revlogRange}
