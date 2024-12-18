@@ -73,7 +73,7 @@ class CardInfoDialog(QDialog):
             card_id = None
 
         assert self.web is not None
-        self.web.eval(f"window.postMessage('{card_id}');")
+        self.web.eval(f"anki.updateCard('{card_id}');")
 
     def reject(self) -> None:
         if self._on_close:

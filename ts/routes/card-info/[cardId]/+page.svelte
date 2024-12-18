@@ -13,12 +13,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const showRevlog = $page.url.searchParams.get("revlog") !== "0";
 
-    function updateCardId(evt: MessageEvent) {
-        goto(`/card-info/${evt.data}`);
-    }
+    globalThis.anki ||= {};
+    globalThis.anki.updateCard = async (card_id: string): Promise<void> => {
+        const path = `/card-info/${card_id}`;
+        return goto(path).catch(() => {
+            window.location.href = path;
+        });
+    };
 </script>
-
-<!-- used by CardInfoDialog.update_card -->
-<svelte:window on:message={updateCardId} />
 
 <CardInfo stats={data.info} {showRevlog} />
