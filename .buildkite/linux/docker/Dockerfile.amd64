@@ -1,4 +1,4 @@
-FROM debian:11-slim
+FROM ubuntu:22.04
 
 ARG DEBIAN_FRONTEND="noninteractive"
 
@@ -32,6 +32,7 @@ RUN apt-get update && apt install --yes gnupg ca-certificates && \
     libssl-dev \
     libxcomposite1 \
     libxcursor1 \
+    libxdamage1 \
     libxi6 \
     libxkbcommon-x11-0 \
     libxkbcommon0 \

@@ -133,25 +133,13 @@ To build wheels on Mac/Linux:
 
 The generated wheels are in out/wheels. You can then install them by copying the paths into a pip install command.
 Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
-`pip install --upgrade --pre aqt[qt6]` line with something like:
+`pip install --upgrade --pre aqt` line with something like:
 
 ```
 /my/pyenv/bin/pip install --upgrade out/wheels/*.whl
 ```
 
 (On Windows you'll need to list out the filenames manually instead of using a wildcard).
-
-You'll also need to install PyQt:
-
-```
-$ /my/pyenv/bin/pip install pyqt6 pyqt6-webengine
-```
-
-or
-
-```
-$ my/pyenv/bin/pip install pyqt5 pyqtwebengine
-```
 
 ## Cleaning up build files
 
