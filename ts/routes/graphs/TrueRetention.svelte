@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import InputBox from "./InputBox.svelte";
     import TrueRetentionCombined from "./TrueRetentionCombined.svelte";
     import TrueRetentionSingle from "./TrueRetentionSingle.svelte";
+    import { assertUnreachable } from "@tslib/typing";
 
     interface Props {
         revlogRange: RevlogRange;
@@ -74,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {:else if mode === DisplayMode.Summary}
             <TrueRetentionCombined {revlogRange} data={retentionData} />
         {:else}
-            <div>Bad mode: {mode}</div>
+            {assertUnreachable(mode)}
         {/if}
     </div>
 </Graph>

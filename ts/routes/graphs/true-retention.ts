@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
+import { assertUnreachable } from "@tslib/typing";
 import { RevlogRange } from "./graph-helpers";
 
 export interface TrueRetentionData {
@@ -42,7 +43,7 @@ export function getPassed(data: TrueRetentionData, scope: Scope): number {
         case Scope.All:
             return data.youngPassed + data.maturePassed;
         default:
-            throw new Error(`Unexpected scope: ${scope}`);
+            assertUnreachable(scope);
     }
 }
 
@@ -55,7 +56,7 @@ export function getFailed(data: TrueRetentionData, scope: Scope): number {
         case Scope.All:
             return data.youngFailed + data.matureFailed;
         default:
-            throw new Error(`Unexpected scope: ${scope}`);
+            assertUnreachable(scope);
     }
 }
 
