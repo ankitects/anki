@@ -57,6 +57,7 @@ impl RelearnState {
             let interval = states.again.interval;
             let again_review = ReviewState {
                 scheduled_days: ctx.with_review_fuzz(interval.round().max(1.0), minimum, maximum),
+                memory_state,
                 ..self.review
             };
             let again_relearn = RelearnState {
@@ -104,6 +105,7 @@ impl RelearnState {
             let interval = states.hard.interval;
             let hard_review = ReviewState {
                 scheduled_days: ctx.with_review_fuzz(interval.round().max(1.0), minimum, maximum),
+                memory_state,
                 ..self.review
             };
             let hard_relearn = RelearnState {
@@ -153,6 +155,7 @@ impl RelearnState {
             let interval = states.good.interval;
             let good_review = ReviewState {
                 scheduled_days: ctx.with_review_fuzz(interval.round().max(1.0), minimum, maximum),
+                memory_state,
                 ..self.review
             };
             let good_relearn = RelearnState {
