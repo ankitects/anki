@@ -15,5 +15,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+        color: grey;
     }
 </style>
