@@ -46,7 +46,6 @@ class DeckOptionsDialog(QDialog):
         addCloseShortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS)
-        self.web.set_bridge_command(self._on_bridge_cmd, self)
         self.web.load_sveltekit_page(f"deck-options/{self._deck['id']}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -58,14 +57,9 @@ class DeckOptionsDialog(QDialog):
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )
 
-    def _on_bridge_cmd(self, cmd: str) -> None:
-        if cmd == "deckOptionsReady":
-            self._ready = True
-            gui_hooks.deck_options_did_load(self)
-        elif cmd == "confirmDiscardChanges":
-            self.confirm_discard_changes()
-        elif cmd == "_close":
-            self._close()
+    def ready(self):
+        self._ready = True
+        gui_hooks.deck_options_did_load(self)
 
     def closeEvent(self, evt: QCloseEvent | None) -> None:
         if self._close_event_has_cleaned_up:
@@ -74,7 +68,7 @@ class DeckOptionsDialog(QDialog):
         evt.ignore()
         self.check_pending_changes()
 
-    def _close(self):
+    def require_close(self):
         """Close. Ensure the closeEvent is not ignored."""
         self._close_event_has_cleaned_up = True
         self.close()
@@ -83,7 +77,7 @@ class DeckOptionsDialog(QDialog):
         def callbackWithUserChoice(choice: int) -> None:
             if choice == 0:
                 # The user accepted to discard current input.
-                self._close()
+                self.require_close()
 
         ask_user_dialog(
             tr.card_templates_discard_changes(),
@@ -106,7 +100,7 @@ class DeckOptionsDialog(QDialog):
         if self._ready:
             self.web.eval("anki.deckOptionsPendingChanges();")
         else:
-            self._close()
+            self.require_close()
 
 
 def confirm_deck_then_display_options(active_card: Card | None = None) -> None:
