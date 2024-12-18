@@ -222,7 +222,7 @@ impl LoadBalancer {
 
         let easy_days_percentages = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
         // check if easy days are in effect by seeing if all days have the same
-        // configuration if all days are the same we can skip out on calculating
+        // configuration. If all days are the same, we can skip out on calculating
         // the distribution
         let easy_days_are_all_the_same = easy_days_percentages
             .iter()
