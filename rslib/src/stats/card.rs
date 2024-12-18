@@ -6,7 +6,7 @@ use fsrs::FSRS;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
-use crate::scheduler::fsrs::memory_state::single_card_revlog_to_item;
+use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
 use crate::scheduler::timing::is_unix_epoch_timestamp;
 
@@ -144,7 +144,7 @@ impl Collection {
 
         for entry in revlog {
             accumulated_revlog.push(entry.clone());
-            let item = single_card_revlog_to_item(
+            let item = fsrs_item_for_memory_state(
                 &fsrs,
                 accumulated_revlog.clone(),
                 next_day_at,

@@ -125,6 +125,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onWheel(event: WheelEvent) {
+        // allow scroll in fields, when mask editor hidden
+        if (!$ioMaskEditorVisible) {
+            return;
+        }
+
         if (event.ctrlKey) {
             controlClicked = true;
         }
