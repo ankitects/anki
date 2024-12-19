@@ -528,7 +528,11 @@ if is_win:
                 native_voice = voice.handle
                 self.speaker.Voice = native_voice
                 self.speaker.Rate = self._rate_for_speed(tag.speed)
-                self.speaker.Speak(tag.field_text, 1)
+
+                # SAPI SpeechVoiceSpeakFlags: https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee125223(v=vs.85)
+                ASYNC = 1
+                IS_NOT_XML = 16
+                self.speaker.Speak(tag.field_text, ASYNC + IS_NOT_XML)
                 gui_hooks.av_player_did_begin_playing(self, tag)
 
                 # wait 100ms
