@@ -1,6 +1,6 @@
 # Anki
 
-[![Build status](https://badge.buildkite.com/c9edf020a4aec976f9835e54751cc5409d843adbb66d043bd3.svg?branch=main)](https://buildkite.com/ankitects/anki-ci)
+[![Build status](https://badge.buildkite.com/c9edf020a4aec976f9835e54751cc5409d843adbb66d043bd3.svg?branch=main)](https://buildkite.com/ankitects/anki-ci) [![Gurubase](https://img.shields.io/badge/Gurubase-Ask%20Anki%20Guru-006BFF)](https://gurubase.io/g/anki)
 
 This repo contains the source code for the computer version of
 [Anki](https://apps.ankiweb.net).
