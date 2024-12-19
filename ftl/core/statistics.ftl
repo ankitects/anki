@@ -149,7 +149,9 @@ statistics-answer-buttons-button-number = Button
 statistics-answer-buttons-button-pressed = Times pressed
 statistics-answer-buttons-subtitle = The number of times you have pressed each button.
 statistics-reviews-title = Reviews
-statistics-reviews-time-checkbox = Time
+statistics-reviews-radio-count = Count
+statistics-reviews-radio-time = Time
+statistics-reviews-radio-memorized = Memorized
 statistics-in-days-single =
     { $days ->
         [0] Today
