@@ -246,8 +246,13 @@ class BottomWebView(ToolbarWebView):
 
         self.hidden = False
         if self.mw.state == "review":
-            self.evalWithCallback(
-                "document.documentElement.offsetHeight", self.animate_height
+            # delay to account for reflow
+            self.mw.progress.single_shot(
+                50,
+                lambda: self.evalWithCallback(
+                    "document.documentElement.offsetHeight", self.animate_height
+                ),
+                False,
             )
         else:
             self.adjustHeightToFit()
