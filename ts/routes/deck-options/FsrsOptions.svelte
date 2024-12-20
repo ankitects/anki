@@ -552,20 +552,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div>{simulateProgressString}</div>
 
         <Graph>
-            <InputBox>
-                <label>
-                    <input type="radio" value={SimulateSubgraph.count} bind:group={simulateSubgraph} />
-                    {tr.statisticsReviewsRadioCount()}
-                </label>
-                <label>
-                    <input type="radio" value={SimulateSubgraph.time} bind:group={simulateSubgraph} />
-                    {tr.statisticsReviewsRadioTime()}
-                </label>
-                <label>
-                    <input type="radio" value={SimulateSubgraph.memorized} bind:group={simulateSubgraph} />
-                    {tr.statisticsReviewsRadioMemorized()}
-                </label>
-            </InputBox>
+            <div class="radio-group">
+                <InputBox>
+                    <label>
+                        <input type="radio" value={SimulateSubgraph.count} bind:group={simulateSubgraph} />
+                        {tr.statisticsReviewsRadioCount()}
+                    </label>
+                    <label>
+                        <input type="radio" value={SimulateSubgraph.time} bind:group={simulateSubgraph} />
+                        {tr.statisticsReviewsRadioTime()}
+                    </label>
+                    <label>
+                        <input type="radio" value={SimulateSubgraph.memorized} bind:group={simulateSubgraph} />
+                        {tr.statisticsReviewsRadioMemorized()}
+                    </label>
+                </InputBox>
+            </div>
 
             <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
                 <CumulativeOverlay />
@@ -580,4 +582,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style>
+    div.radio-group {
+        margin: 0.5em
+    }
 </style>
