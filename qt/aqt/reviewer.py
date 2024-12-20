@@ -10,6 +10,7 @@ from collections.abc import Callable, Generator, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import partial
+from threading import Lock
 from typing import Any, Literal, Match, Union, cast
 
 import aqt
@@ -155,6 +156,7 @@ class Reviewer:
         self._combining: bool = True
         self.typeCorrect: str | None = None  # web init happens before this is set
         self.state: Literal["question", "answer", "transition"] | None = None
+        self._refresh_lock = Lock()
         self._refresh_needed: RefreshNeeded | None = None
         self._v3: V3CardInfo | None = None
         self._state_mutation_key = str(random.randint(0, 2**64 - 1))
@@ -199,22 +201,23 @@ class Reviewer:
         self.auto_advance_enabled = False
 
     def refresh_if_needed(self) -> None:
-        if self._refresh_needed is RefreshNeeded.QUEUES:
-            self.nextCard()
-            self.mw.fade_in_webview()
-            self._refresh_needed = None
-        elif self._refresh_needed is RefreshNeeded.NOTE_TEXT:
-            self._redraw_current_card()
-            self.mw.fade_in_webview()
-            self._refresh_needed = None
-        elif self._refresh_needed is RefreshNeeded.FLAG:
-            self.card.load()
-            self._update_flag_icon()
-            # for when modified in browser
-            self.mw.fade_in_webview()
-            self._refresh_needed = None
-        elif self._refresh_needed:
-            assert_exhaustive(self._refresh_needed)
+        with self._refresh_lock:
+            if self._refresh_needed is RefreshNeeded.QUEUES:
+                self.nextCard()
+                self.mw.fade_in_webview()
+                self._refresh_needed = None
+            elif self._refresh_needed is RefreshNeeded.NOTE_TEXT:
+                self._redraw_current_card()
+                self.mw.fade_in_webview()
+                self._refresh_needed = None
+            elif self._refresh_needed is RefreshNeeded.FLAG:
+                self.card.load()
+                self._update_flag_icon()
+                # for when modified in browser
+                self.mw.fade_in_webview()
+                self._refresh_needed = None
+            elif self._refresh_needed:
+                assert_exhaustive(self._refresh_needed)
 
     def op_executed(
         self, changes: OpChanges, handler: object | None, focused: bool
