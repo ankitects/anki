@@ -184,13 +184,13 @@ export function renderSimulationChart(
         const days = +((date.getTime() - Date.now()) / (60 * 60 * 24 * 1000)).toFixed();
         let tooltipContent = `Date: ${localizedDate(date)}<br>In ${days} Days<br>`;
         for (const [key, value] of Object.entries(groupData)) {
-            tooltipContent += `#${key}: ${
-                subgraph == SimulateSubgraph.time
-                    ? timeSpan(value)
-                    : (subgraph == SimulateSubgraph.count
-                        ? tr.statisticsReviews({ reviews: Math.round(value) })
-                        : tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }))
-            }<br>`;
+            const tooltip = ({
+                [SimulateSubgraph.time]: timeSpan(value),
+                [SimulateSubgraph.count]: tr.statisticsReviews({ reviews: Math.round(value) }),
+                [SimulateSubgraph.memorized]: tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
+            })[subgraph];
+
+            tooltipContent += `#${key}: ${tooltip}<br>`;
         }
 
         showTooltip(tooltipContent, event.pageX, event.pageY);

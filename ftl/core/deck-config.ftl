@@ -468,6 +468,8 @@ deck-config-fsrs-simulator-experimental = FSRS simulator (experimental)
 deck-config-additional-new-cards-to-simulate = Additional new cards to simulate
 deck-config-simulate = Simulate
 deck-config-clear-last-simulate = Clear last simulation
+deck-config-fsrs-simulator-radio-count = Reviews
+deck-config-fsrs-simulator-radio-memorized = Memorized
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 

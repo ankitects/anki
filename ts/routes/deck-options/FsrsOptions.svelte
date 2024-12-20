@@ -574,7 +574,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             value={SimulateSubgraph.count}
                             bind:group={simulateSubgraph}
                         />
-                        {tr.statisticsReviewsRadioCount()}
+                        {tr.deckConfigFsrsSimulatorRadioCount()}
                     </label>
                     <label>
                         <input
@@ -582,7 +582,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             value={SimulateSubgraph.time}
                             bind:group={simulateSubgraph}
                         />
-                        {tr.statisticsReviewsRadioTime()}
+                        {tr.statisticsReviewsTimeCheckbox()}
                     </label>
                     <label>
                         <input
@@ -590,7 +590,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             value={SimulateSubgraph.memorized}
                             bind:group={simulateSubgraph}
                         />
-                        {tr.statisticsReviewsRadioMemorized()}
+                        {tr.deckConfigFsrsSimulatorRadioMemorized()}
                     </label>
                 </InputBox>
             </div>
