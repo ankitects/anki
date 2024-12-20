@@ -185,7 +185,7 @@ export function renderSimulationChart(
         let tooltipContent = `Date: ${localizedDate(date)}<br>In ${days} Days<br>`;
         for (const [key, value] of Object.entries(groupData)) {
             tooltipContent += `#${key}: ${
-                subgraph == SimulateSubgraph.time ? timeSpan(value) : tr.statisticsReviews({ reviews: Math.round(value) })
+                subgraph == SimulateSubgraph.time ? timeSpan(value) : (subgraph == SimulateSubgraph.count ? tr.statisticsReviews({ reviews: Math.round(value) }) : tr.statisticsMemorized({memorized: Math.round(value).toFixed(0)}))
             }<br>`;
         }
 
