@@ -32,7 +32,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
     import ParamsInputRow from "./ParamsInputRow.svelte";
     import ParamsSearchRow from "./ParamsSearchRow.svelte";
-    import { renderSimulationChart, SimulateSubgraph, type Point } from "../graphs/simulator";
+    import {
+        renderSimulationChart,
+        SimulateSubgraph,
+        type Point,
+    } from "../graphs/simulator";
     import Graph from "../graphs/Graph.svelte";
     import HoverColumns from "../graphs/HoverColumns.svelte";
     import CumulativeOverlay from "../graphs/CumulativeOverlay.svelte";
@@ -73,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         | ComputeParamsProgress
         | ComputeRetentionProgress
         | undefined;
-    
+
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
 
     const optimalRetentionRequest = new ComputeOptimalRetentionRequest({
@@ -327,7 +331,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     resp.dailyNewCount,
                 );
 
-                const dailyMemorizedCount = resp.accumulatedKnowledgeAcquisition
+                const dailyMemorizedCount = resp.accumulatedKnowledgeAcquisition;
 
                 points = points.concat(
                     resp.dailyTimeCost.map((v, i) => ({
@@ -349,12 +353,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    $: tableData = renderSimulationChart(svg as SVGElement, bounds, points, simulateSubgraph);
+    $: tableData = renderSimulationChart(
+        svg as SVGElement,
+        bounds,
+        points,
+        simulateSubgraph,
+    );
 
     function clearSimulation(): void {
         points = points.filter((p) => p.label !== simulationNumber);
         simulationNumber = Math.max(0, simulationNumber - 1);
-        tableData = renderSimulationChart(svg as SVGElement, bounds, points, simulateSubgraph);
+        tableData = renderSimulationChart(
+            svg as SVGElement,
+            bounds,
+            points,
+            simulateSubgraph,
+        );
     }
 </script>
 
@@ -555,15 +569,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <div class="radio-group">
                 <InputBox>
                     <label>
-                        <input type="radio" value={SimulateSubgraph.count} bind:group={simulateSubgraph} />
+                        <input
+                            type="radio"
+                            value={SimulateSubgraph.count}
+                            bind:group={simulateSubgraph}
+                        />
                         {tr.statisticsReviewsRadioCount()}
                     </label>
                     <label>
-                        <input type="radio" value={SimulateSubgraph.time} bind:group={simulateSubgraph} />
+                        <input
+                            type="radio"
+                            value={SimulateSubgraph.time}
+                            bind:group={simulateSubgraph}
+                        />
                         {tr.statisticsReviewsRadioTime()}
                     </label>
                     <label>
-                        <input type="radio" value={SimulateSubgraph.memorized} bind:group={simulateSubgraph} />
+                        <input
+                            type="radio"
+                            value={SimulateSubgraph.memorized}
+                            bind:group={simulateSubgraph}
+                        />
                         {tr.statisticsReviewsRadioMemorized()}
                     </label>
                 </InputBox>
@@ -583,6 +609,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style>
     div.radio-group {
-        margin: 0.5em
+        margin: 0.5em;
     }
 </style>

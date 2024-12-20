@@ -31,16 +31,16 @@ export interface Point {
 }
 
 export enum SimulateSubgraph {
-    time ,  
+    time,
     count,
-    memorized
+    memorized,
 }
 
 export function renderSimulationChart(
     svgElem: SVGElement,
     bounds: GraphBounds,
     data: Point[],
-    subgraph: SimulateSubgraph
+    subgraph: SimulateSubgraph,
 ): TableDatum[] {
     const svg = select(svgElem);
     svg.selectAll(".lines").remove();
@@ -76,18 +76,18 @@ export function renderSimulationChart(
     };
 
     const subgraph_data = ({
-        [SimulateSubgraph.count]: convertedData.map(d=>({...d, y: d.count})),
-        [SimulateSubgraph.time]: convertedData.map(d=>({...d, y: d.timeCost})),
-        [SimulateSubgraph.memorized]: convertedData.map(d=>({...d, y: d.memorized})),
-    })[subgraph]
+        [SimulateSubgraph.count]: convertedData.map(d => ({ ...d, y: d.count })),
+        [SimulateSubgraph.time]: convertedData.map(d => ({ ...d, y: d.timeCost })),
+        [SimulateSubgraph.memorized]: convertedData.map(d => ({ ...d, y: d.memorized })),
+    })[subgraph];
 
     const subgraph_title = ({
         [SimulateSubgraph.count]: tr.deckConfigFsrsSimulatorYAxisTitleCount(),
         [SimulateSubgraph.time]: tr.deckConfigFsrsSimulatorYAxisTitleTime(),
         [SimulateSubgraph.memorized]: tr.deckConfigFsrsSimulatorYAxisTitleMemorized(),
-    })[subgraph]
+    })[subgraph];
 
-    const yMax = max(subgraph_data, d=>d.y)!
+    const yMax = max(subgraph_data, d => d.y)!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax])
@@ -185,7 +185,11 @@ export function renderSimulationChart(
         let tooltipContent = `Date: ${localizedDate(date)}<br>In ${days} Days<br>`;
         for (const [key, value] of Object.entries(groupData)) {
             tooltipContent += `#${key}: ${
-                subgraph == SimulateSubgraph.time ? timeSpan(value) : (subgraph == SimulateSubgraph.count ? tr.statisticsReviews({ reviews: Math.round(value) }) : tr.statisticsMemorized({memorized: Math.round(value).toFixed(0)}))
+                subgraph == SimulateSubgraph.time
+                    ? timeSpan(value)
+                    : (subgraph == SimulateSubgraph.count
+                        ? tr.statisticsReviews({ reviews: Math.round(value) })
+                        : tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }))
             }<br>`;
         }
 
