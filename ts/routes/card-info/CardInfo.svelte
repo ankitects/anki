@@ -26,14 +26,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <CardStats {stats} />
         </Row>
 
-        {#if showRevlog}
-            <Row>
-                <Revlog revlog={stats.revlog} {fsrsEnabled} />
-            </Row>
-        {/if}
         {#if fsrsEnabled}
             <Row>
                 <ForgettingCurve revlog={stats.revlog} {desiredRetention} />
+            </Row>
+        {/if}
+        {#if showRevlog}
+            <Row>
+                <Revlog revlog={stats.revlog} {fsrsEnabled} />
             </Row>
         {/if}
     {:else}
