@@ -247,10 +247,15 @@ class BottomWebView(ToolbarWebView):
         self.hidden = False
         if self.mw.state == "review":
             # delay to account for reflow
+            def cb(height: int | None):
+                # "When QWebEnginePage is deleted, the callback is triggered with an invalid value"
+                if height is not None:
+                    self.animate_height(height)
+
             self.mw.progress.single_shot(
                 50,
                 lambda: self.evalWithCallback(
-                    "document.documentElement.offsetHeight", self.animate_height
+                    "document.documentElement.offsetHeight", cb
                 ),
                 False,
             )
