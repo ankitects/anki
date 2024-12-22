@@ -1,5 +1,11 @@
 actions-add = Add
+# In the browser sidebar, when in "Select" mode, you can right-click on
+# selected criteria elements to create a search term that matches
+# cards/notes meeting ALL the selected criteria elements.
 actions-all-selected = All selected
+# In the browser sidebar, when in "Select" mode, you can right-click on
+# selected criteria elements to create a search term that matches
+# cards/notes meeting ANY of the selected criteria elements.
 actions-any-selected = Any selected
 actions-cancel = Cancel
 actions-choose = Choose
