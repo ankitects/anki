@@ -59,6 +59,7 @@ statistics-reviews =
         [one] { $reviews } review
        *[other] { $reviews } reviews
     }
+statistics-memorized = {$memorized} memorized
 # Shown at the bottom of the deck list, and in the statistics screen.
 # eg "Studied 3 cards in 13 seconds today (4.33s/card)."
 # The { statistics-in-time-span-seconds } part should be pasted in from the English
