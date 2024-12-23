@@ -611,6 +611,7 @@ html {{ {font} }}
         # print(html)
         import aqt.browser.previewer
         import aqt.clayout
+        import aqt.deckoptions
         import aqt.editor
         import aqt.reviewer
         from aqt.mediasrv import PageContext
@@ -623,6 +624,8 @@ html {{ {font} }}
             page_context = PageContext.PREVIEWER
         elif isinstance(context, aqt.clayout.CardLayout):
             page_context = PageContext.CARD_LAYOUT
+        elif isinstance(context, aqt.deckoptions.DeckOptionsDialog):
+            page_context = PageContext.DECK_OPTIONS
         else:
             page_context = PageContext.UNKNOWN
         self.setHtml(html, page_context)

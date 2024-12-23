@@ -22,6 +22,15 @@ service FrontendService {
   rpc ImportDone(generic.Empty) returns (generic.Empty);
 
   rpc SearchInBrowser(search.SearchNode) returns (generic.Empty);
+
+  // The RPC Belows are sent by the deck options.
+  // Force closing the deck options.
+  rpc deckOptionsRequireClose(generic.Empty) returns (generic.Empty);
+  // Query the user whether they want to close the deck options and clear the
+  // changes they made.
+  rpc deckOptionsConfirmDiscardChanges(generic.Empty) returns (generic.Empty);
+  // Warns python that the deck option web view is ready to receive requests.
+  rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
