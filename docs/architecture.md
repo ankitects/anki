@@ -2,34 +2,40 @@
 
 Very brief notes for now.
 
-## Backend/GUI
+## Backend and GUI
 
-At the highest level, Anki is logically separated into two parts.
+At the highest level, the Anki codebase is logically separated into two parts:
 
-A neat visualization of the file layout is available here:
-<https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki>
-(or go to <https://githubnext.com/projects/repo-visualization#explore-for-yourself> and enter `ankitects/anki`).
+- the GUI code
+- the backend code
 
-### Library (rslib & pylib)
+### GUI (`qt/` and `ts/`)
 
-The Python library (pylib) exports "backend" methods - opening collections,
-fetching and answering cards, and so on. It is used by Anki’s GUI, and can also
-be included in command line programs to access Anki decks without the GUI.
+Anki’s GUI is written parts in Python using the toolkit Qt (via Qt's Python bindings known as PyQt), and parts in a mix of TypeScript, HTML, and CSS.
 
-The library is accessible in Python with "import anki". Its code lives in
-the `pylib/anki/` folder.
+The Python code that implements Anki’s GUI (using PyQt) is located in `qt/aqt/`. It’s made available as a Python package named `aqt` (installable with `pip install 'aqt[qt6]'`) and is accessible through `import aqt` in Python code.
 
-These days, the majority of backend logic lives in a Rust library (rslib, located in `rslib/`). Calls to pylib proxy requests to rslib, and return the results.
+The web code is split between `ts/` and `qt/aqt/data/web/`.
+The majority of new code now goes into `ts/` rather than `qt/aqt/data/web/` and, during the build process, gets copied into `qt/aqt/data/web/` instead.
 
-pylib contains a private Python module called rsbridge (`pylib/rsbridge/`) that wraps the Rust code, making it accessible in Python.
+### Library (`rslib/` and `pylib/`)
 
-### GUI (aqt & ts)
+The code responsible for the actual logic (for example, opening collections, or fetching and answering cards) — the "backend" methods — is written parts in Python, parts in Rust.
+Most of the logic previously implemented in Python was rewritten in Rust so that the code can be shared between the different Anki apps.
 
-Anki's _GUI_ is a mix of Qt (via the PyQt Python bindings for Qt), and
-TypeScript/HTML/CSS. The Qt code lives in `qt/aqt/`, and is importable in Python
-with "import aqt". The web code is split between `qt/aqt/data/web/` and `ts/`,
-with the majority of new code being placed in the latter, and copied into the
-former at build time.
+- The parts of the library code written in Python are located in `pylib/` (more specifically, in `pylib/anki/`).
+- The parts of the library code written in Rust are located in `rslib/`.
+
+The Python code serves as proxy for the Rust library and, when called, forwards the requests to the code in `rslib/` which does the actual computations and then returns the results to the code in `pylib/anki/`.
+The way that is implemented is by way of a Python binding named `rsbridge` within `pylib/` (that is, `pylib/rsbridge/`) that wraps around the Rust code and makes the logic implemented in Rust accessible with Python code.
+
+The Python library is made available as a Python package named `anki` and is accessible through `import anki` in Python code.
+
+Anki’s GUI relies on this Python library (located in `pylib/anki/`) and you can use it too (by installing it with `pip install anki`) if you want to develop command line programs to programmatically access your Anki decks without the need of running Anki’s GUI.
+
+### Visualization of the code base
+
+A neat visualization of the file layout is available [here](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki) (or go to [here](https://githubnext.com/projects/repo-visualization#explore-for-yourself) instead and enter `ankitects/anki`).
 
 ## Protobuf
 
