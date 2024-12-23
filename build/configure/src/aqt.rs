@@ -125,7 +125,7 @@ fn copy_sveltekit(build: &mut Build) -> Result<()> {
             inputs: inputs![":sveltekit:folder"],
             target_folder: "qt/_aqt/data/web/",
             strip_prefix: "$builddir/",
-            extra_args: "-a",
+            extra_args: "-a --delete",
         },
     )
 }
