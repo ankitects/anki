@@ -25,6 +25,28 @@ const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
 // problems
 const LOAD_BALANCE_DAYS: usize = (MAX_LOAD_BALANCE_INTERVAL as f32 * 1.1) as usize;
 const SIBLING_PENALTY: f32 = 0.001;
+const EASY_DAYS_REDUCED_MODIFIER: f32 = 0.5;
+const EASY_DAYS_NORMAL_LOAD: f32 = 1.0;
+// this is a non-zero value so if all days are minimum, the load balancer will
+// proceed as normal
+const EASY_DAYS_MINIMUM_LOAD: f32 = 0.0001;
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum EasyDay {
+    Minimum,
+    Reduced,
+    Normal,
+}
+
+impl From<f32> for EasyDay {
+    fn from(other: f32) -> EasyDay {
+        match other {
+            1.0 => EasyDay::Normal,
+            0.0 => EasyDay::Minimum,
+            _ => EasyDay::Reduced,
+        }
+    }
+}
 
 #[derive(Debug, Default)]
 struct LoadBalancerDay {
@@ -84,7 +106,7 @@ pub struct LoadBalancer {
     /// Load balancer operates at the preset level, it only counts
     /// cards in the same preset as the card being balanced.
     days_by_preset: HashMap<DeckConfigId, [LoadBalancerDay; LOAD_BALANCE_DAYS]>,
-    easy_days_percentages_by_preset: HashMap<DeckConfigId, [f32; 7]>,
+    easy_days_percentages_by_preset: HashMap<DeckConfigId, [EasyDay; 7]>,
     next_day_at: TimestampSecs,
 }
 
@@ -133,21 +155,26 @@ impl LoadBalancer {
             );
         let configs = storage.get_deck_config_map()?;
 
-        let mut easy_days_percentages_by_preset = HashMap::with_capacity(configs.len());
-        for (dcid, conf) in configs {
-            let easy_days_percentages = if conf.inner.easy_days_percentages.is_empty() {
-                [1.0; 7]
-            } else {
-                conf.inner.easy_days_percentages.try_into().map_err(|_| {
-                    AnkiError::from(InvalidInputError {
-                        message: "expected 7 days".into(),
-                        source: None,
-                        backtrace: None,
-                    })
-                })?
-            };
-            easy_days_percentages_by_preset.insert(dcid, easy_days_percentages);
-        }
+        let easy_days_percentages_by_preset = configs
+            .into_iter()
+            .map(|(dcid, conf)| {
+                let easy_days_percentages: [EasyDay; 7] =
+                    if conf.inner.easy_days_percentages.is_empty() {
+                        [EasyDay::Normal; 7]
+                    } else {
+                        TryInto::<[_; 7]>::try_into(conf.inner.easy_days_percentages)
+                            .map_err(|_| {
+                                AnkiError::from(InvalidInputError {
+                                    message: "expected 7 days".into(),
+                                    source: None,
+                                    backtrace: None,
+                                })
+                            })?
+                            .map(EasyDay::from)
+                    };
+                Ok((dcid, easy_days_percentages))
+            })
+            .collect::<Result<HashMap<_, [EasyDay; 7]>, AnkiError>>()?;
 
         Ok(LoadBalancer {
             days_by_preset,
@@ -220,22 +247,25 @@ impl LoadBalancer {
             })
             .unzip();
 
-        let easy_days_percentages = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
-        // check if easy days are in effect by seeing if all days have the same
-        // configuration. If all days are the same, we can skip out on calculating
-        // the distribution
-        let easy_days_are_all_the_same = easy_days_percentages
+        let easy_days_load = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
+        let total_review_count: usize = review_counts.iter().sum();
+        let easy_days_modifier = weekdays
             .iter()
-            .all(|day| easy_days_percentages[0] == *day);
-        let expected_distribution = if easy_days_are_all_the_same {
-            vec![1.0; weekdays.len()]
-        } else {
-            let percentages = weekdays
-                .iter()
-                .map(|&wd| easy_days_percentages[wd])
-                .collect::<Vec<_>>();
-            check_review_distribution(&review_counts, &percentages)
-        };
+            .zip(review_counts.iter())
+            .map(|(&weekday, &review_count)| match easy_days_load[weekday] {
+                EasyDay::Normal => EASY_DAYS_NORMAL_LOAD,
+                EasyDay::Minimum => EASY_DAYS_MINIMUM_LOAD,
+                EasyDay::Reduced => {
+                    let other_days_total = total_review_count - review_count;
+                    let other_days_avg = other_days_total / (review_counts.len() - 1);
+                    if review_count as f32 > other_days_avg as f32 * EASY_DAYS_REDUCED_MODIFIER {
+                        EASY_DAYS_MINIMUM_LOAD
+                    } else {
+                        EASY_DAYS_NORMAL_LOAD
+                    }
+                }
+            })
+            .collect::<Vec<_>>();
 
         // calculate params for each day
         let intervals_and_params = interval_days
@@ -259,14 +289,14 @@ impl LoadBalancer {
                         let card_count_weight = (1.0 / card_count as f32).powi(2);
                         let card_interval_weight = 1.0 / target_interval as f32;
 
-                        card_count_weight * card_interval_weight * sibling_multiplier
+                        card_count_weight
+                            * card_interval_weight
+                            * sibling_multiplier
+                            * easy_days_modifier[interval_index]
                     }
                 };
 
-                (
-                    target_interval,
-                    weight * expected_distribution[interval_index],
-                )
+                (target_interval, weight)
             })
             .collect::<Vec<_>>();
 
@@ -302,20 +332,4 @@ fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
         .local_datetime()
         .unwrap();
     target_datetime.weekday().num_days_from_monday() as usize
-}
-
-fn check_review_distribution(actual_reviews: &[usize], percentages: &[f32]) -> Vec<f32> {
-    if percentages.iter().sum::<f32>() == 0.0 {
-        return vec![1.0; actual_reviews.len()];
-    }
-    let total_actual = actual_reviews.iter().sum::<usize>() as f32;
-    let expected_distribution: Vec<f32> = percentages
-        .iter()
-        .map(|&p| p * (total_actual / percentages.iter().sum::<f32>()))
-        .collect();
-    expected_distribution
-        .iter()
-        .zip(actual_reviews.iter())
-        .map(|(&e, &a)| (e - a as f32).max(0.0))
-        .collect()
 }
