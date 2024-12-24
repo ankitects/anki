@@ -13,6 +13,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
 use nom::combinator::map;
+use nom::combinator::recognize;
 use nom::combinator::rest;
 use nom::combinator::verify;
 use nom::sequence::delimited;
@@ -47,10 +48,42 @@ pub enum Token<'a> {
     CloseConditional(&'a str),
 }
 
-/// text outside handlebars
+fn text_token_inner(s: &str) -> nom::IResult<&str, &str> {
+    use nom::{FindSubstring, InputTake};
+    let mut offset: usize = 0;
+    let mut curr = s;
+    // consume as many <!-- --> blocks as possible before {{
+    loop {
+        let bracket_pos = curr.find_substring("{{");
+        if bracket_pos.is_none() {
+            return Ok(("", s)); // no {{ ahead, consume all
+        }
+        let comment_pos = curr.find_substring("<!--");
+        match (bracket_pos, comment_pos) {
+            (Some(i), Some(j)) if j < i => {
+                let (rest, pre_comment) = curr.take_split(j);
+                let parsed: nom::IResult<&str, &str> =
+                    recognize(delimited(tag("<!--"), take_until("-->"), tag("-->")))(rest);
+                match parsed {
+                    Ok((rest, comment)) => {
+                        offset += pre_comment.len() + comment.len();
+                        curr = rest;
+                        continue;
+                    }
+                    // current <!-- is unclosed, default to take_until("{{")
+                    Err(_) => return Ok(s.take_split(offset + i)),
+                }
+            }
+            (Some(i), _) => return Ok(s.take_split(offset + i)), // take_until("{{")
+            _ => unreachable!() // handled by the early-exit case at the start
+        }
+    }
+}
+
+/// text outside handlebars and <!-- comments -->
 fn text_token(s: &str) -> nom::IResult<&str, Token> {
     map(
-        verify(alt((take_until("{{"), rest)), |out: &str| !out.is_empty()),
+        verify(text_token_inner, |out: &str| !out.is_empty()),
         Token::Text,
     )(s)
 }
