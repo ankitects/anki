@@ -986,6 +986,25 @@ mod test {
         );
         assert_eq!(orig, &tmpl.template_to_string());
 
+        let orig = "foo <!--{{bar }} --> {{#baz}} --> <!-- {{#def}} --> <!-- 2 --> <!-- quux {{/baz}} <!-- {{nc:abc}}";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(
+            tmpl.0,
+            vec![
+                Text("foo <!--{{bar }} --> ".into()),
+                Conditional {
+                    key: "baz".into(),
+                    children: vec![Text(" --> <!-- {{#def}} --> <!-- 2 --> <!-- quux ".into())]
+                },
+                Text(" <!-- ".into()),
+                Replacement {
+                    key: "abc".into(),
+                    filters: vec!["nc".into()]
+                },
+            ]
+        );
+        assert_eq!(orig, &tmpl.template_to_string());
+
         let tmpl = PT::from_text("{{^baz}}{{/baz}}").unwrap();
         assert_eq!(
             tmpl.0,
@@ -995,9 +1014,18 @@ mod test {
             }]
         );
 
+        let orig = "<!--{{#mis}}{{/matched}}-->";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(tmpl.0, vec![Text("<!--{{#mis}}{{/matched}}-->".into()),]);
+        assert_eq!(orig, &tmpl.template_to_string());
+
         PT::from_text("{{#mis}}{{/matched}}").unwrap_err();
         PT::from_text("{{/matched}}").unwrap_err();
         PT::from_text("{{#mis}}").unwrap_err();
+        PT::from_text("{{#mis}}<!--{{/matched}}-->").unwrap_err();
+        PT::from_text("<!--{{#mis}}{{/matched}}-->").unwrap();
+        PT::from_text("<!--{{foo}}").unwrap();
+        PT::from_text("{{foo}}-->").unwrap();
 
         // whitespace
         assert_eq!(
@@ -1020,6 +1048,11 @@ mod test {
 
         // make sure filters and so on are round-tripped correctly
         let orig = "foo {{one:two}} {{one:two:three}} {{^baz}} {{/baz}} {{foo:}}";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(orig, &tmpl.template_to_string());
+
+        let orig =
+            "foo {{one:two}} <!--abc {{^def}}-->--> {{one:two:three}} {{^baz}} <!-- {{/baz}} 🙂 --> {{/baz}} {{foo:}}";
         let tmpl = PT::from_text(orig).unwrap();
         assert_eq!(orig, &tmpl.template_to_string());
     }
@@ -1050,6 +1083,12 @@ mod test {
             .collect();
 
         let mut tmpl = PT::from_text("{{a}}{{b}}").unwrap();
+        assert_eq!(
+            tmpl.requirements(&field_map),
+            FieldRequirements::Any(vec![0, 1].into_iter().collect())
+        );
+
+        tmpl = PT::from_text("<!--{{c}}-->{{a}}<!--{{c}}-->{{b}}<!--{{c}}-->").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
             FieldRequirements::Any(vec![0, 1].into_iter().collect())
@@ -1099,6 +1138,27 @@ mod test {
         assert_eq!(
             tmpl.requirements(&field_map),
             FieldRequirements::Any(vec![0, 1].into_iter().collect())
+        );
+
+        tmpl = PT::from_text(
+            r#"
+<!--{{^a}}-->
+    {{b}}
+<!--{{/a}}-->
+
+{{#c}}
+    <!--{{a}}-->
+    {{b}}
+    <!--{{c}}-->
+{{/c}}
+"#,
+        )
+        .unwrap();
+        dbg!(&tmpl);
+
+        assert_eq!(
+            tmpl.requirements(&field_map),
+            FieldRequirements::Any(vec![1].into_iter().collect())
         );
     }
 
