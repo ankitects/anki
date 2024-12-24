@@ -401,6 +401,7 @@ class Browser(QMainWindow):
     def _closeWindow(self) -> None:
         assert self.editor is not None
 
+        av_player.stop_and_clear_queue()
         self._cleanup_preview()
         self._card_info.close()
         self.editor.cleanup()
