@@ -157,7 +157,8 @@ class CardLayout(QDialog):
         )
 
     def _fieldsOnTemplate(self, fmt: str) -> str:
-        matches = re.findall("{{[^#/}]+?}}", fmt)
+        fmt_without_comments = re.sub("<!--.*?-->", "", fmt)
+        matches = re.findall("{{[^#/}]+?}}", fmt_without_comments)
         chars_allowed = 30
         field_names: list[str] = []
         for m in matches:
