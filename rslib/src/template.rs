@@ -49,7 +49,8 @@ pub enum Token<'a> {
 }
 
 fn text_token_inner(s: &str) -> nom::IResult<&str, &str> {
-    use nom::{FindSubstring, InputTake};
+    use nom::FindSubstring;
+    use nom::InputTake;
     let mut offset: usize = 0;
     let mut curr = s;
     // consume as many <!-- --> blocks as possible before {{
@@ -75,7 +76,7 @@ fn text_token_inner(s: &str) -> nom::IResult<&str, &str> {
                 }
             }
             (Some(i), _) => return Ok(s.take_split(offset + i)), // take_until("{{")
-            _ => unreachable!() // handled by the early-exit case at the start
+            _ => unreachable!(),                                 // handled at the start
         }
     }
 }
@@ -1154,7 +1155,6 @@ mod test {
 "#,
         )
         .unwrap();
-        dbg!(&tmpl);
 
         assert_eq!(
             tmpl.requirements(&field_map),
