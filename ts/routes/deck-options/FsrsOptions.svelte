@@ -32,7 +32,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
     import ParamsInputRow from "./ParamsInputRow.svelte";
     import ParamsSearchRow from "./ParamsSearchRow.svelte";
-    import { renderSimulationChart, type Point } from "../graphs/simulator";
+    import {
+        renderSimulationChart,
+        SimulateSubgraph,
+        type Point,
+    } from "../graphs/simulator";
     import Graph from "../graphs/Graph.svelte";
     import HoverColumns from "../graphs/HoverColumns.svelte";
     import CumulativeOverlay from "../graphs/CumulativeOverlay.svelte";
@@ -74,7 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         | ComputeRetentionProgress
         | undefined;
 
-    let showTime = false;
+    let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
 
     const optimalRetentionRequest = new ComputeOptimalRetentionRequest({
         daysToSimulate: 365,
@@ -326,33 +330,46 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     resp.dailyReviewCount,
                     resp.dailyNewCount,
                 );
+
+                const dailyMemorizedCount = resp.accumulatedKnowledgeAcquisition;
+
                 points = points.concat(
                     resp.dailyTimeCost.map((v, i) => ({
                         x: i,
                         timeCost: v,
                         count: dailyTotalCount[i],
+                        memorized: dailyMemorizedCount[i],
                         label: simulationNumber,
                     })),
                 );
+
                 tableData = renderSimulationChart(
                     svg as SVGElement,
                     bounds,
                     points,
-                    showTime,
+                    simulateSubgraph,
                 );
             }
         }
     }
 
-    $: tableData = renderSimulationChart(svg as SVGElement, bounds, points, showTime);
+    $: tableData = renderSimulationChart(
+        svg as SVGElement,
+        bounds,
+        points,
+        simulateSubgraph,
+    );
 
     function clearSimulation(): void {
         points = points.filter((p) => p.label !== simulationNumber);
         simulationNumber = Math.max(0, simulationNumber - 1);
-        tableData = renderSimulationChart(svg as SVGElement, bounds, points, showTime);
+        tableData = renderSimulationChart(
+            svg as SVGElement,
+            bounds,
+            points,
+            simulateSubgraph,
+        );
     }
-
-    const label = tr.statisticsReviewsTimeCheckbox();
 </script>
 
 <SpinBoxFloatRow
@@ -549,12 +566,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div>{simulateProgressString}</div>
 
         <Graph>
-            <InputBox>
-                <label>
-                    <input type="checkbox" bind:checked={showTime} />
-                    {label}
-                </label>
-            </InputBox>
+            <div class="radio-group">
+                <InputBox>
+                    <label>
+                        <input
+                            type="radio"
+                            value={SimulateSubgraph.count}
+                            bind:group={simulateSubgraph}
+                        />
+                        {tr.deckConfigFsrsSimulatorRadioCount()}
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            value={SimulateSubgraph.time}
+                            bind:group={simulateSubgraph}
+                        />
+                        {tr.statisticsReviewsTimeCheckbox()}
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            value={SimulateSubgraph.memorized}
+                            bind:group={simulateSubgraph}
+                        />
+                        {tr.deckConfigFsrsSimulatorRadioMemorized()}
+                    </label>
+                </InputBox>
+            </div>
 
             <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
                 <CumulativeOverlay />
@@ -569,4 +608,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style>
+    div.radio-group {
+        margin: 0.5em;
+    }
 </style>
