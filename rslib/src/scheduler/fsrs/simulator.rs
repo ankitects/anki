@@ -75,10 +75,11 @@ impl Card {
                 CardQueue::DayLearn | CardQueue::Review => {
                     let due = card.original_or_current_due();
                     let relative_due = due - days_elapsed;
+                    let last_date = (relative_due - card.interval as i32).min(0) as f32;
                     Some(fsrs::Card {
                         difficulty: state.difficulty,
                         stability: state.stability,
-                        last_date: (relative_due - card.interval as i32) as f32,
+                        last_date,
                         due: relative_due as f32,
                     })
                 }
