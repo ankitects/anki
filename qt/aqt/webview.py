@@ -309,16 +309,22 @@ class AnkiWebView(QWebEngineView):
 
         qconnect(self.loadFinished, self._on_load_finished)
 
-    def _on_load_finished(self) -> None:
-        self.eval(
+    def _force_redraw(self) -> None:
+        self.update()
+        self.repaint()
+
+    def _on_load_finished(self, success: bool) -> None:
+        if success:
+            self._force_redraw()
+            self.eval(
+                """
+            document.addEventListener("keydown", function(evt) {
+                if (evt.key === "Escape") {
+                    pycmd("close");
+                }
+            });
             """
-        document.addEventListener("keydown", function(evt) {
-            if (evt.key === "Escape") {
-                pycmd("close");
-            }
-        });
-        """
-        )
+            )
 
     def set_kind(self, kind: AnkiWebViewKind) -> None:
         self._kind = kind
@@ -444,11 +450,14 @@ class AnkiWebView(QWebEngineView):
         if oldFocus:
             oldFocus.setFocus()
 
+        self._force_redraw()
+
     def load_url(self, url: QUrl) -> None:
         # allow queuing actions when loading url directly
         self._domDone = False
         self.allow_drops = False
         super().load(url)
+        self._force_redraw()
 
     def app_zoom_factor(self) -> float:
         # overridden scale factor?
@@ -656,17 +665,18 @@ html {{ {font} }}
         page = self.page()
         assert page is not None
 
-        if cb:
-
-            def handler(val: Any) -> None:
-                if self._shouldIgnoreWebEvent():
-                    print("ignored late js callback", cb)
-                    return
+        def handler(val: Any) -> None:
+            if self._shouldIgnoreWebEvent():
+                print("ignored late js callback", cb)
+                return
+            if cb:
                 cb(val)
+            self._force_redraw()
 
+        if cb:
             page.runJavaScript(js, handler)
         else:
-            page.runJavaScript(js)
+            page.runJavaScript(js, handler)
 
     def _queueAction(self, name: str, *args: Any) -> None:
         self._pendingActions.append((name, args))
