@@ -18,7 +18,7 @@ import {
 
 import * as tr from "@generated/ftl";
 import { timeSpan } from "@tslib/time";
-import { sum, sumBy } from "lodash-es";
+import { sumBy } from "lodash-es";
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
@@ -220,16 +220,17 @@ export function renderSimulationChart(
     function legendMouseMove(e: MouseEvent, d: number) {
         const data = subgraph_data.filter(datum => datum.label == d);
 
-        const total = sumBy(data, d => d.y);
+        const total = subgraph == SimulateSubgraph.memorized
+            ? data[data.length - 1].memorized - data[0].memorized
+            : sumBy(data, d => d.y);
         const average = total / (data?.length || 1);
-        if (subgraph !== SimulateSubgraph.memorized) {
-            showTooltip(
-                `${tr.statisticsAverage()}: ${formatY(average)}<br/>
+
+        showTooltip(
+            `${tr.statisticsAverage()}: ${formatY(average)}<br/>
             ${tr.statisticsTotal()}: ${formatY(total)}`,
-                e.pageX,
-                e.pageY,
-            );
-        }
+            e.pageX,
+            e.pageY,
+        );
     }
 
     legend.append("rect")
