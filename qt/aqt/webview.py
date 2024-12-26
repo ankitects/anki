@@ -309,13 +309,9 @@ class AnkiWebView(QWebEngineView):
 
         qconnect(self.loadFinished, self._on_load_finished)
 
-    def _force_redraw(self) -> None:
-        self.update()
-        self.repaint()
-
     def _on_load_finished(self, success: bool) -> None:
         if success:
-            self._force_redraw()
+            self.update()
             self.eval(
                 """
             document.addEventListener("keydown", function(evt) {
@@ -450,14 +446,14 @@ class AnkiWebView(QWebEngineView):
         if oldFocus:
             oldFocus.setFocus()
 
-        self._force_redraw()
+        self.update()
 
     def load_url(self, url: QUrl) -> None:
         # allow queuing actions when loading url directly
         self._domDone = False
         self.allow_drops = False
         super().load(url)
-        self._force_redraw()
+        self.update()
 
     def app_zoom_factor(self) -> float:
         # overridden scale factor?
@@ -671,7 +667,7 @@ html {{ {font} }}
                 return
             if cb:
                 cb(val)
-            self._force_redraw()
+            self.update()
 
         if cb:
             page.runJavaScript(js, handler)
