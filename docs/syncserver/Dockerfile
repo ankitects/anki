@@ -1,4 +1,4 @@
-FROM rust:1.82.0-alpine3.20 AS builder
+FROM rust:1.83.0-alpine3.20 AS builder
 
 ARG ANKI_VERSION
 
@@ -9,7 +9,7 @@ RUN cargo install --git https://github.com/ankitects/anki.git \
 --root /anki-server  \
 anki-sync-server
 
-FROM alpine:3.20.2
+FROM alpine:3.21.0
 
 RUN adduser -D -h /home/anki anki
 
