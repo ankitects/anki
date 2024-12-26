@@ -217,6 +217,12 @@ export function renderSimulationChart(
         .on("mousemove", legendMouseMove)
         .on("mouseout", hideTooltip);
 
+    const perDay = ({
+        [SimulateSubgraph.count]: tr.statisticsReviewsPerDay,
+        [SimulateSubgraph.time]: ({count}: {count: number}) => timeSpan(count),
+        [SimulateSubgraph.memorized]: tr.statisticsCardsPerDay,
+    })[subgraph]
+
     function legendMouseMove(e: MouseEvent, d: number) {
         const data = subgraph_data.filter(datum => datum.label == d);
 
@@ -225,8 +231,8 @@ export function renderSimulationChart(
             : sumBy(data, d => d.y);
         const average = total / (data?.length || 1);
 
-        showTooltip(
-            `${tr.statisticsAverage()}: ${formatY(average)}<br/>
+            showTooltip(
+                `${tr.statisticsAverage()}: ${perDay({count: average})}<br/>
             ${tr.statisticsTotal()}: ${formatY(total)}`,
             e.pageX,
             e.pageY,
