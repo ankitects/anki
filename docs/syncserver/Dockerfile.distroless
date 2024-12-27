@@ -11,9 +11,11 @@ anki-sync-server
 
 FROM gcr.io/distroless/cc-debian12
 
+ARG SYNC_PORT=8080
+
 COPY --from=builder /anki-server/bin/anki-sync-server /usr/bin/anki-sync-server
 
-ENV SYNC_PORT=${SYNC_PORT:-"8080"}
+ENV SYNC_PORT=${SYNC_PORT}
 
 EXPOSE ${SYNC_PORT}
 
