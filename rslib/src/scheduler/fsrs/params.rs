@@ -545,7 +545,8 @@ pub(crate) mod tests {
 
     #[test]
     fn card_reset_drops_all_previous_history() {
-        // If Reset comes in between two Learn entries, only the ones after the Reset are used.
+        // If Reset comes in between two Learn entries, only the ones after the Reset
+        // are used.
         assert_eq!(
             convert(
                 &[
@@ -580,7 +581,8 @@ pub(crate) mod tests {
             ),
             None,
         );
-        // If non-learning user-graded entries are found after Reset, return None during training but return the remaining entries during memory state calculation.
+        // If non-learning user-graded entries are found after Reset, return None during
+        // training but return the remaining entries during memory state calculation.
         assert_eq!(
             convert(
                 &[
