@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import * as tr from "@generated/ftl";
-import { localizedNumber } from "@tslib/i18n";
+import { createLocaleNumberFormat } from "@tslib/i18n";
 import { assertUnreachable } from "@tslib/typing";
 import { RevlogRange } from "./graph-helpers";
 
@@ -106,12 +106,18 @@ export function calculateRetentionPercentageString(
     passed: number,
     failed: number,
 ): string {
-    let percentage = 0;
     const total = passed + failed;
 
-    if (total !== 0) {
-        percentage = (passed / total) * 100;
+    if (total === 0) {
+        return tr.statisticsTrueRetentionNotApplicable();
     }
 
-    return localizedNumber(percentage, 1) + "%";
+    const percentage = (passed / total) * 100;
+
+    const numberFormat = createLocaleNumberFormat({
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+    });
+
+    return numberFormat.format(percentage) + "%";
 }
