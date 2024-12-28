@@ -331,6 +331,12 @@ pub(crate) fn reviews_for_fsrs(
         if idx > 0 {
             entries.drain(..idx);
         }
+        for i in 1..entries.len() {
+            if entries[i].id.0 - entries[i - 1].id.0 >= 2*60*60*1000 { //TODO: make the 2h offset configurable via deck options
+                entries.drain(..i);
+                break;
+            }
+        }
     } else if training {
         // when training, we ignore cards that don't have any learning steps
         return None;
