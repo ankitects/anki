@@ -577,7 +577,7 @@ pub(crate) mod tests {
                         ..revlog(RevlogReviewKind::Manual, 7)
                     },
                 ],
-                true,
+                false,
             ),
             None,
         );
