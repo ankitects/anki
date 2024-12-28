@@ -25,11 +25,11 @@ const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
 // problems
 const LOAD_BALANCE_DAYS: usize = (MAX_LOAD_BALANCE_INTERVAL as f32 * 1.1) as usize;
 const SIBLING_PENALTY: f32 = 0.001;
-const EASY_DAYS_REDUCED_MODIFIER: f32 = 0.5;
-const EASY_DAYS_NORMAL_LOAD: f32 = 1.0;
 // this is a non-zero value so if all days are minimum, the load balancer will
 // proceed as normal
 const EASY_DAYS_MINIMUM_LOAD: f32 = 0.0001;
+const EASY_DAYS_NORMAL_LOAD: f32 = 1.0;
+const EASY_DAYS_REDUCED_THRESHOLD: f32 = 0.5;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum EasyDay {
@@ -247,8 +247,27 @@ impl LoadBalancer {
             })
             .unzip();
 
+        // Determine which days to schedule to with respect to Easy Day settings
+        // If a day is Normal, it will always be an option to schedule to
+        // If a day is Minimum, it will almost never be an option to schedule to
+        // If a day is Reduced, it will look at the amount of cards due in the fuzz
+        //    range to determine if scheduling a card on that day would put it
+        //    above the reduced threshold or not.
+        // the resulting easy_days_modifier will be a vec of 0.0s and 1.0s, to be
+        //    used when calculating the day's weight. This turns the day on or off.
+        //    Note that it does not actually set it to 0.0, but a small
+        //    0.0-ish number (see EASY_DAYS_MINIMUM_LOAD) to remove the need to
+        //    handle a handful of zero-related corner cases.
         let easy_days_load = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
         let total_review_count: usize = review_counts.iter().sum();
+        let total_percents: f32 = weekdays
+            .iter()
+            .map(|&weekday| match easy_days_load[weekday] {
+                EasyDay::Normal => EASY_DAYS_NORMAL_LOAD,
+                EasyDay::Minimum => EASY_DAYS_MINIMUM_LOAD,
+                EasyDay::Reduced => EASY_DAYS_REDUCED_THRESHOLD,
+            })
+            .sum();
         let easy_days_modifier = weekdays
             .iter()
             .zip(review_counts.iter())
@@ -256,9 +275,11 @@ impl LoadBalancer {
                 EasyDay::Normal => EASY_DAYS_NORMAL_LOAD,
                 EasyDay::Minimum => EASY_DAYS_MINIMUM_LOAD,
                 EasyDay::Reduced => {
-                    let other_days_total = total_review_count - review_count;
-                    let other_days_avg = other_days_total / (review_counts.len() - 1);
-                    if review_count as f32 > other_days_avg as f32 * EASY_DAYS_REDUCED_MODIFIER {
+                    let other_days_review_total = (total_review_count - review_count) as f32;
+                    let other_days_percent_total = total_percents - EASY_DAYS_REDUCED_THRESHOLD;
+                    let normalized_count = review_count as f32 / EASY_DAYS_REDUCED_THRESHOLD;
+                    let reduced_day_threshold = other_days_review_total / other_days_percent_total;
+                    if normalized_count > reduced_day_threshold {
                         EASY_DAYS_MINIMUM_LOAD
                     } else {
                         EASY_DAYS_NORMAL_LOAD
