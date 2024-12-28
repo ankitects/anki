@@ -377,6 +377,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     defaultValue={defaults.desiredRetention}
     min={0.7}
     max={0.99}
+    percentage={true}
 >
     <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
         {tr.deckConfigDesiredRetention()}

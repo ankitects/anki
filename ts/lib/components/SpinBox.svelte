@@ -16,9 +16,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let step = 1;
     export let min = 1;
     export let max = 9999;
+    /**
+     * Whether the value is shown as a percentage to the user.
+     * It's saved as a proportion.
+     */
+    export let percentage = false;
 
     let input: HTMLInputElement;
     let focused = false;
+    let multiplier: number;
+    $: multiplier = percentage ? 100 : 1;
 
     /** Set value to a new number, clamping it to a valid range, and
         leaving it unchanged if `newValue` is NaN. */
@@ -36,18 +43,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tick().then(() => (input.value = stringValue));
     }
 
+    /**
+     * The number of decimal places to record. May be different than the number of decimal places displayed for percentages.
+     * @param value The size of the step.
+     */
     function decimalPlaces(value: number) {
         if (Math.floor(value) === value) {
+            // If the step is an integer, do not show decimal places.
             return 0;
         }
-        return value.toString().split(".")[1].length || 0;
+        const places = value.toString().split(".")[1].length || 0;
+        const displayedPlace = percentage ? places - 2 : places;
+        return Math.max(0, displayedPlace);
     }
 
     let stringValue: string;
-    $: stringValue = value.toFixed(decimalPlaces(step));
+    $: stringValue = (value * multiplier).toFixed(decimalPlaces(step));
 
     function update(this: HTMLInputElement): void {
-        updateValue(parseFloat(this.value));
+        updateValue(parseFloat(this.value) / multiplier);
     }
 
     function handleWheel(event: WheelEvent) {
@@ -88,15 +102,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type="number"
         pattern="[0-9]*"
         inputmode="numeric"
-        {min}
-        {max}
-        {step}
+        min={min * multiplier}
+        max={max * multiplier}
+        step={step * multiplier}
         value={stringValue}
         bind:this={input}
         on:blur={update}
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
     />
+    {#if percentage}
+        <div>%</div>
+    {/if}
     {#if isDesktop()}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
