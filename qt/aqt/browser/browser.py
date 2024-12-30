@@ -380,6 +380,12 @@ class Browser(QMainWindow):
         add_ellipsis_to_action_label(f.actionCopy)
         add_ellipsis_to_action_label(f.action_forget)
 
+        if isinstance(self, AddCards):
+            f.actionClose.setVisible(False)
+        else:
+            f.actionClose.setVisible(True)
+
+
     def _editor_web_view(self) -> EditorWebView:
         assert self.editor is not None
         editor_web_view = self.editor.web
@@ -393,10 +399,13 @@ class Browser(QMainWindow):
             evt.accept()
             return
 
-        assert self.editor is not None
+        if current_window() == self:
+            self.editor.call_after_note_saved(self._closeWindow)
+            evt.accept()
+        else:
+            evt.ignore()
 
-        self.editor.call_after_note_saved(self._closeWindow)
-        evt.ignore()
+        assert self.editor is not None
 
     def _closeWindow(self) -> None:
         assert self.editor is not None
