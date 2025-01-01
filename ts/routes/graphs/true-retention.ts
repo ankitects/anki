@@ -112,12 +112,11 @@ export function calculateRetentionPercentageString(
         return tr.statisticsTrueRetentionNotApplicable();
     }
 
-    const percentage = (passed / total) * 100;
-
     const numberFormat = createLocaleNumberFormat({
         minimumFractionDigits: 1,
         maximumFractionDigits: 1,
+        style: "percent",
     });
 
-    return numberFormat.format(percentage) + "%";
+    return numberFormat.format(passed / total);
 }
