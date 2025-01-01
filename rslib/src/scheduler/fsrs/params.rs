@@ -612,7 +612,7 @@ pub(crate) mod tests {
                 ],
                 false,
             ),
-            fsrs_items!([review(0), review(1)])
+            fsrs_items!([review(0)], [review(0), review(1)])
         );
     }
 
