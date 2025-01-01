@@ -1433,14 +1433,12 @@ title="{}" {}>{}</button>""".format(
                 window.windowState() ^ Qt.WindowState.WindowFullScreen
             )
 
-        # Hide Menubar on Windows and Linux
+        self.show_menubar()
         if window.windowState() & Qt.WindowState.WindowFullScreen and not is_mac:
             self.fullscreen = True
-            self.hide_menubar()
         else:
             self.fullscreen = False
-            self.show_menubar()
-
+            
         # Update Toolbar states
         self.toolbarWeb.hide_if_allowed()
         self.bottomWeb.hide_if_allowed()
