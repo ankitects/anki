@@ -691,7 +691,7 @@ pub(crate) mod tests {
     }
 
     #[test]
-    fn even_if_no_learning_steps_ignore_reviews_before_during_reviewing() {
+    fn handle_ignore_before_when_no_learning_steps()() {
         let revlogs = &[
             revlog(RevlogReviewKind::Review, 10),
             revlog(RevlogReviewKind::Review, 8),
