@@ -31,8 +31,16 @@ impl Card {
         force_reset: bool,
     ) {
         let new_due = (today + days_from_today) as i32;
+        let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let new_interval =
-            if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
+            if fsrs_enabled {
+                let days_elapsed = self
+                    .storage
+                    .time_of_last_review(card.id)?
+                    .map(|ts| timing.next_day_at.elapsed_days_since(ts))
+                    .unwrap_or_default() as u32;
+                days_elapsed + days_from_today
+            } else if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
                 days_from_today
             } else {
                 self.interval
