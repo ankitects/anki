@@ -1,4 +1,4 @@
-FROM rust:1.82.0-alpine3.20 AS builder
+FROM rust:1.83.0-alpine3.20 AS builder
 
 ARG ANKI_VERSION
 
@@ -9,7 +9,9 @@ RUN cargo install --git https://github.com/ankitects/anki.git \
 --root /anki-server  \
 anki-sync-server
 
-FROM alpine:3.20.2
+FROM alpine:3.21.0
+
+ARG SYNC_PORT=8080
 
 RUN adduser -D -h /home/anki anki
 
@@ -20,7 +22,7 @@ RUN apk update && apk add --no-cache bash && rm -rf /var/cache/apk/*
 
 USER anki
 
-ENV SYNC_PORT=${SYNC_PORT:-"8080"}
+ENV SYNC_PORT=${SYNC_PORT}
 
 EXPOSE ${SYNC_PORT}
 
