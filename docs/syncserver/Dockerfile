@@ -11,6 +11,8 @@ anki-sync-server
 
 FROM alpine:3.20.2
 
+ARG SYNC_PORT=8080
+
 RUN adduser -D -h /home/anki anki
 
 COPY --from=builder /anki-server/bin/anki-sync-server /usr/local/bin/anki-sync-server
@@ -20,7 +22,7 @@ RUN apk update && apk add --no-cache bash && rm -rf /var/cache/apk/*
 
 USER anki
 
-ENV SYNC_PORT=${SYNC_PORT:-"8080"}
+ENV SYNC_PORT=${SYNC_PORT}
 
 EXPOSE ${SYNC_PORT}
 
