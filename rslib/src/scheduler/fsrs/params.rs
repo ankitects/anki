@@ -545,11 +545,12 @@ pub(crate) mod tests {
 
     #[test]
     fn card_reset_drops_all_previous_history() {
+        // If Reset comes in between two Learn entries, only the ones after the Reset
+        // are used.
         assert_eq!(
             convert(
                 &[
                     revlog(RevlogReviewKind::Learning, 10),
-                    revlog(RevlogReviewKind::Review, 9),
                     RevlogEntry {
                         ease_factor: 0,
                         ..revlog(RevlogReviewKind::Manual, 7)
@@ -560,6 +561,58 @@ pub(crate) mod tests {
                 true,
             ),
             fsrs_items!([review(0), review(4)])
+        );
+        // Return None if Reset is the last entry or is followed by only manual entries.
+        assert_eq!(
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 10),
+                    revlog(RevlogReviewKind::Review, 9),
+                    RevlogEntry {
+                        ease_factor: 0,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                    RevlogEntry {
+                        ease_factor: 100,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                ],
+                false,
+            ),
+            None,
+        );
+        // If non-learning user-graded entries are found after Reset, return None during
+        // training but return the remaining entries during memory state calculation.
+        assert_eq!(
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Learning, 10),
+                    revlog(RevlogReviewKind::Review, 9),
+                    RevlogEntry {
+                        ease_factor: 0,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                    revlog(RevlogReviewKind::Review, 1),
+                    revlog(RevlogReviewKind::Relearning, 0),
+                ],
+                true,
+            ),
+            None,
+        );
+        assert_eq!(
+            convert(
+                &[
+                    revlog(RevlogReviewKind::Review, 9),
+                    RevlogEntry {
+                        ease_factor: 0,
+                        ..revlog(RevlogReviewKind::Manual, 7)
+                    },
+                    revlog(RevlogReviewKind::Review, 1),
+                    revlog(RevlogReviewKind::Relearning, 0),
+                ],
+                false,
+            ),
+            fsrs_items!([review(0)], [review(0), review(1)])
         );
     }
 
@@ -634,6 +687,22 @@ pub(crate) mod tests {
         assert_eq!(
             convert_ignore_before(revlogs, false, days_ago_ms(11)),
             convert(revlogs, false)
+        );
+    }
+
+    #[test]
+    fn handle_ignore_before_when_no_learning_steps() {
+        let revlogs = &[
+            revlog(RevlogReviewKind::Review, 10),
+            revlog(RevlogReviewKind::Review, 8),
+            revlog(RevlogReviewKind::Review, 6),
+        ];
+        // R | R R
+        assert_eq!(
+            convert_ignore_before(revlogs, false, days_ago_ms(9))
+                .unwrap()
+                .len(),
+            2
         );
     }
 }
