@@ -25,7 +25,7 @@ the build products and runtime dependencies from the rest of your system.
 
 # Building image
 
-To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `23.12.1` and `<Dockerfile>` with the chosen Dockerfile (e.g., `Dockerfile` or `Dockerfile.distroless`)
+To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `24.11` and `<Dockerfile>` with the chosen Dockerfile (e.g., `Dockerfile` or `Dockerfile.distroless`)
 
 ```bash
 # Execute this command from the root directory of your project
