@@ -55,6 +55,10 @@ export function localizedNumber(n: number, precision = 2): string {
     return rounded.toLocaleString(langs);
 }
 
+export function createLocaleNumberFormat(options?: Intl.NumberFormatOptions): Intl.NumberFormat {
+    return new Intl.NumberFormat(langs, options);
+}
+
 export function localeCompare(
     first: string,
     second: string,
