@@ -1438,7 +1438,7 @@ title="{}" {}>{}</button>""".format(
             self.fullscreen = True
         else:
             self.fullscreen = False
-            
+
         # Update Toolbar states
         self.toolbarWeb.hide_if_allowed()
         self.bottomWeb.hide_if_allowed()
