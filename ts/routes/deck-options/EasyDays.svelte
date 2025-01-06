@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // svelte-ignore reactive_declaration_non_reactive_property
     $: if ($config.easyDaysPercentages.length !== 7) {
-        $config.easyDaysPercentages = defaults.easyDaysPercentages;
+        $config.easyDaysPercentages = defaults.easyDaysPercentages.slice();
     }
 
     $: noNormalDay = $config.easyDaysPercentages.some((p) => p === 1.0)
