@@ -138,8 +138,7 @@ export class DeckOptionsState {
 
     /**
      * Patch the original config if components change it after preset select
-     * [EasyDays] and [DateInput] both do this in certain cases
-     * [SpinBox] and [ParamsInput] also apply their own roundings
+     * `EasyDays` and `DateInput` both do this when their settings are blank
      * We only need to patch when the preset is first selected.
      */
     async markCurrentPresetAsLoaded(): Promise<void> {
