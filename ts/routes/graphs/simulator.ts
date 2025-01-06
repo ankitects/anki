@@ -193,8 +193,7 @@ export function renderSimulationChart(
                     [SimulateSubgraph.count]: tr.statisticsReviews({ reviews: Math.round(value) }),
                     [SimulateSubgraph.memorized]: tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
                 })[subgraph];
-
-                tooltipContent += `#${key}: ${tooltip}<br>`;
+                tooltipContent += `<span style="color:${color[(parseInt(key) - 1) % color.length]}">■</span> #${key}: ${tooltip}<br>`;
             }
         }
 
