@@ -106,6 +106,7 @@ statistics-true-retention-week = Last week
 statistics-true-retention-month = Last month
 statistics-true-retention-year = Last year
 statistics-true-retention-all-time = All time
+statistics-true-retention-not-applicable = N/A
 statistics-range-all-time = all
 statistics-range-1-year-history = last 12 months
 statistics-range-all-history = all history

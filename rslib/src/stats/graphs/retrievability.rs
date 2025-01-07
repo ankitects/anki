@@ -4,7 +4,6 @@
 use anki_proto::stats::graphs_response::Retrievability;
 use fsrs::FSRS;
 
-use crate::card::CardQueue;
 use crate::scheduler::timing::SchedTimingToday;
 use crate::stats::graphs::eases::percent_to_bin;
 use crate::stats::graphs::GraphsContext;
@@ -24,9 +23,6 @@ impl GraphsContext {
         let mut note_retrievability: std::collections::HashMap<i64, (f32, u32)> =
             std::collections::HashMap::new();
         for card in &self.cards {
-            if card.queue == CardQueue::Suspended {
-                continue;
-            }
             let entry = note_retrievability
                 .entry(card.note_id.0)
                 .or_insert((0.0, 0));
