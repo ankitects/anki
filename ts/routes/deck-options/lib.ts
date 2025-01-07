@@ -12,7 +12,7 @@ import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits 
 import { updateDeckConfigs } from "@generated/backend";
 import { localeCompare } from "@tslib/i18n";
 import { promiseWithResolver } from "@tslib/promise";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep, isEqual, isEqualWith } from "lodash-es";
 import { tick } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
@@ -368,7 +368,16 @@ export class DeckOptionsState {
     async isModified(): Promise<boolean> {
         const original = await this.originalConfigsPromise;
         const current = this.getAllConfigs();
-        return !isEqual(original, current);
+        return !isEqualWith(original, current, (lhs, rhs) => {
+            if (typeof lhs === "number" && typeof rhs === "number") {
+                // rslib hands us 32-bit floats (f32), while ts uses 64-bit floats
+                // SpinBox and ParamsInput both round their values as f64 on blur
+                // while the original config's corresponding value remains an f32
+                // so we convert both to f32 before checking for equality
+                return Math.fround(lhs) === Math.fround(rhs);
+            }
+            // undefined means fallback to isEqual
+        });
     }
 
     resolveOriginalConfigs(): void {

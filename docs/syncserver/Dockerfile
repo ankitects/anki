@@ -31,6 +31,6 @@ CMD ["anki-sync-server"]
 # This health check will work for Anki versions 24.08.x and newer.
 # For older versions, it may incorrectly report an unhealthy status, which should not be the case.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget -qO- http://localhost:${SYNC_PORT}/health || exit 1
+    CMD wget -qO- http://127.0.0.1:${SYNC_PORT}/health || exit 1
 
 LABEL maintainer="Jean Khawand <jk@jeankhawand.com>"

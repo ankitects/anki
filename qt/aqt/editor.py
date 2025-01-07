@@ -1473,6 +1473,8 @@ class EditorWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.WebAction.CopyImageToClipboard)
 
     def _opened_context_menu_on_image(self) -> bool:
+        if not hasattr(self, "lastContextMenuRequest"):
+            return False
         context_menu_request = self.lastContextMenuRequest()
         assert context_menu_request is not None
         return (

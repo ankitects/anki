@@ -46,6 +46,7 @@ export const drawText = (canvas: fabric.Canvas, onActivated: Callback): void => 
             padding: TEXT_PADDING,
             opacity: get(opacityStateStore) ? 0.4 : 1,
             lineHeight: 1,
+            lockScalingFlip: true,
         });
         text["id"] = "text-" + new Date().getTime();
 
