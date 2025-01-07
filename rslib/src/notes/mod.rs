@@ -351,6 +351,18 @@ fn invalid_char_for_field(c: char) -> bool {
     c.is_ascii_control() && c != '\n' && c != '\t'
 }
 
+/// Used when calling [Collection::update_note_inner_without_cards] and
+/// [Collection::update_note_inner_without_cards_using_mtime]
+pub(crate) struct UpdateNoteInnerWithoutCardsArgs<'a> {
+    pub(crate) note: &'a mut Note,
+    pub(crate) original: &'a Note,
+    pub(crate) notetype: &'a Notetype,
+    pub(crate) usn: Usn,
+    pub(crate) mark_note_modified: bool,
+    pub(crate) normalize_text: bool,
+    pub(crate) update_tags: bool,
+}
+
 impl Collection {
     pub(crate) fn canonify_note_tags(&mut self, note: &mut Note, usn: Usn) -> Result<()> {
         if !note.tags.is_empty() {
