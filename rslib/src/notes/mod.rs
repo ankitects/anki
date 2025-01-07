@@ -451,29 +451,29 @@ impl Collection {
         normalize_text: bool,
         update_tags: bool,
     ) -> Result<()> {
-        self.update_note_inner_without_cards(
+        self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
             note,
             original,
-            ctx.notetype,
-            ctx.usn,
+            notetype: ctx.notetype,
+            usn: ctx.usn,
             mark_note_modified,
             normalize_text,
             update_tags,
-        )?;
+        })?;
         self.generate_cards_for_existing_note(ctx, note)
     }
 
-    // TODO: refactor into struct
-    #[allow(clippy::too_many_arguments)]
     pub(crate) fn update_note_inner_without_cards(
         &mut self,
-        note: &mut Note,
-        original: &Note,
-        notetype: &Notetype,
-        usn: Usn,
-        mark_note_modified: bool,
-        normalize_text: bool,
-        update_tags: bool,
+        UpdateNoteInnerWithoutCardsArgs {
+            note,
+            original,
+            notetype,
+            usn,
+            mark_note_modified,
+            normalize_text,
+            update_tags,
+        }: UpdateNoteInnerWithoutCardsArgs,
     ) -> Result<()> {
         if update_tags {
             self.canonify_note_tags(note, usn)?;
@@ -559,15 +559,15 @@ impl Collection {
                         out.update_tags,
                     )?;
                 } else {
-                    self.update_note_inner_without_cards(
-                        &mut note,
-                        &original,
-                        &nt,
+                    self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                        note: &mut note,
+                        original: &original,
+                        notetype: &nt,
                         usn,
-                        out.mark_modified,
-                        norm,
-                        out.update_tags,
-                    )?;
+                        mark_note_modified: out.mark_modified,
+                        normalize_text: norm,
+                        update_tags: out.update_tags,
+                    })?;
                 }
 
                 changed_notes += 1;
