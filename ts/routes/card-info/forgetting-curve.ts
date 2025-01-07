@@ -73,7 +73,8 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
     let daysSinceFirstLearn = 0;
 
     revlog
-        .toReversed()
+        .slice()
+        .reverse()
         .forEach((entry, index) => {
             const reviewTime = Number(entry.time);
             if (index === 0) {

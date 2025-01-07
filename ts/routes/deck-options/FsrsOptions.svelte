@@ -63,11 +63,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let computingParams = false;
     let checkingParams = false;
     let computingRetention = false;
+    let simulating = false;
     let optimalRetention = 0;
     $: if ($presetName) {
         optimalRetention = 0;
     }
-    $: computing = computingParams || checkingParams || computingRetention;
+    $: computing =
+        computingParams || checkingParams || computingRetention || simulating;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
@@ -307,8 +309,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return arr1.map((value, index) => value + arr2[index]);
     }
 
-    $: simulateProgressString = "";
-
     async function simulateFsrs(): Promise<void> {
         let resp: SimulateFsrsReviewResponse | undefined;
         simulationNumber += 1;
@@ -318,13 +318,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     simulateFsrsRequest.params = fsrsParams($config);
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
                     simulateFsrsRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
-                    simulateProgressString = "processing...";
+                    simulating = true;
                     resp = await simulateFsrsReview(simulateFsrsRequest);
                 },
                 () => {},
             );
         } finally {
-            simulateProgressString = "";
+            simulating = false;
             if (resp) {
                 const dailyTotalCount = addArrays(
                     resp.dailyReviewCount,
@@ -563,7 +563,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             {tr.deckConfigClearLastSimulate()}
         </button>
-        <div>{simulateProgressString}</div>
+        {#if simulating}
+            {tr.qtMiscProcessing()}
+        {/if}
 
         <Graph>
             <div class="radio-group">

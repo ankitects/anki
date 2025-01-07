@@ -12,7 +12,7 @@ import { DeckConfig, DeckConfig_Config, DeckConfigsForUpdate_CurrentDeck_Limits 
 import { updateDeckConfigs } from "@generated/backend";
 import { localeCompare } from "@tslib/i18n";
 import { promiseWithResolver } from "@tslib/promise";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep, isEqual, isEqualWith } from "lodash-es";
 import { tick } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
@@ -76,6 +76,10 @@ export class DeckOptionsState {
     private removedConfigs: DeckOptionsId[] = [];
     private schemaModified: boolean;
     private _presetAssignmentsChanged = false;
+    // tracks presets that have already been
+    // selected/loaded once, via their ids.
+    // needed for proper change detection
+    private loadedPresets: Set<DeckConfig["id"]> = new Set();
 
     constructor(targetDeckId: DeckOptionsId, data: DeckConfigsForUpdate) {
         this.targetDeckId = targetDeckId;
@@ -122,9 +126,36 @@ export class DeckOptionsState {
         this.currentConfig.subscribe((val) => this.onCurrentConfigChanged(val));
         this.currentAuxData.subscribe((val) => this.onCurrentAuxDataChanged(val));
 
+        // no need to call markCurrentPresetAsLoaded here
+        // since any changes components make will be before
+        // originalConfigsResolve is called on mount
+        this.loadedPresets.add(this.configs[this.selectedIdx].config.id);
+
         // Must be resolved after all components are mounted, as some components
         // may modify the config during their initialization.
         [this.originalConfigsPromise, this.originalConfigsResolve] = promiseWithResolver<AllConfigs>();
+    }
+
+    /**
+     * Patch the original config if components change it after preset select
+     * `EasyDays` and `DateInput` both do this when their settings are blank
+     * We only need to patch when the preset is first selected.
+     */
+    async markCurrentPresetAsLoaded(): Promise<void> {
+        const id = this.configs[this.selectedIdx].config.id;
+        const loaded = this.loadedPresets;
+        // ignore new presets with an id of 0
+        if (id && !loaded.has(id)) {
+            // preset was loaded for the first time, patch original config
+            loaded.add(id);
+            const original = await this.originalConfigsPromise;
+            // can't index into `original` with `this.selectedIdx` due to `sortConfigs`
+            const idx = original.configs.findIndex((conf) => conf.id === id);
+            // this should never be -1, since new presets are excluded, and removed presets aren't considered
+            if (idx !== -1) {
+                original.configs[idx] = cloneDeep(this.configs[this.selectedIdx].config);
+            }
+        }
     }
 
     setCurrentIndex(index: number): void {
@@ -133,6 +164,8 @@ export class DeckOptionsState {
         this.updateCurrentConfig();
         // use counts have changed
         this.updateConfigList();
+        // wait for components that modify config on preset select
+        tick().then(() => this.markCurrentPresetAsLoaded());
     }
 
     getCurrentName(): string {
@@ -203,10 +236,8 @@ export class DeckOptionsState {
             this.schemaModified = true;
         }
         this.configs.splice(this.selectedIdx, 1);
-        this.selectedIdx = Math.max(0, this.selectedIdx - 1);
-        this._presetAssignmentsChanged = true;
-        this.updateCurrentConfig();
-        this.updateConfigList();
+        const newIdx = Math.max(0, this.selectedIdx - 1);
+        this.setCurrentIndex(newIdx);
     }
 
     dataForSaving(
@@ -337,7 +368,16 @@ export class DeckOptionsState {
     async isModified(): Promise<boolean> {
         const original = await this.originalConfigsPromise;
         const current = this.getAllConfigs();
-        return !isEqual(original, current);
+        return !isEqualWith(original, current, (lhs, rhs) => {
+            if (typeof lhs === "number" && typeof rhs === "number") {
+                // rslib hands us 32-bit floats (f32), while ts uses 64-bit floats
+                // SpinBox and ParamsInput both round their values as f64 on blur
+                // while the original config's corresponding value remains an f32
+                // so we convert both to f32 before checking for equality
+                return Math.fround(lhs) === Math.fround(rhs);
+            }
+            // undefined means fallback to isEqual
+        });
     }
 
     resolveOriginalConfigs(): void {
