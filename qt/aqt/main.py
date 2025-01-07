@@ -163,6 +163,15 @@ class MainWebView(AnkiWebView):
             self.mw.toolbarWeb.hide_timer.start()
             self.mw.bottomWeb.hide_timer.start()
             return True
+        
+        if evt.type() == QEvent.Type.MouseMove:
+            if self.mw.fullscreen and not is_mac:
+                cursor_pos = self.mapFromGlobal(QCursor.pos())
+                if cursor_pos.y() < 1:
+                    self.mw.show_menubar()
+                else:
+                    self.mw.hide_menubar()
+            return True
 
         return False
 
@@ -1433,11 +1442,12 @@ title="{}" {}>{}</button>""".format(
                 window.windowState() ^ Qt.WindowState.WindowFullScreen
             )
 
-        self.show_menubar()
         if window.windowState() & Qt.WindowState.WindowFullScreen and not is_mac:
             self.fullscreen = True
+            self.hide_menubar()
         else:
             self.fullscreen = False
+            self.show_menubar()
 
         # Update Toolbar states
         self.toolbarWeb.hide_if_allowed()
