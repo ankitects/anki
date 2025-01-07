@@ -163,7 +163,7 @@ class MainWebView(AnkiWebView):
             self.mw.toolbarWeb.hide_timer.start()
             self.mw.bottomWeb.hide_timer.start()
             return True
-        
+
         if evt.type() == QEvent.Type.MouseMove:
             if self.mw.fullscreen and not is_mac:
                 cursor_pos = self.mapFromGlobal(QCursor.pos())
