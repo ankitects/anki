@@ -464,16 +464,21 @@ impl<'n> NoteContext<'n> {
         self.munge_media(&mut note)?;
         let original = self.get_expected_note(note.id)?;
         let notetype = self.get_expected_notetype(note.notetype_id)?;
+        // Preserve the incoming note's mtime to allow imports of successive exports
+        let incoming_mtime = note.mtime;
         self.target_col
-            .update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
-                note: &mut note,
-                original: &original,
-                notetype: &notetype,
-                usn: self.usn,
-                mark_note_modified: true,
-                normalize_text: self.normalize_notes,
-                update_tags: true,
-            })?;
+            .update_note_inner_without_cards_using_mtime(
+                UpdateNoteInnerWithoutCardsArgs {
+                    note: &mut note,
+                    original: &original,
+                    notetype: &notetype,
+                    usn: self.usn,
+                    mark_note_modified: true,
+                    normalize_text: self.normalize_notes,
+                    update_tags: true,
+                },
+                Some(incoming_mtime),
+            )?;
         self.imports.log_updated(note, source_id);
         Ok(())
     }
