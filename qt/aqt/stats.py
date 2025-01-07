@@ -56,6 +56,7 @@ class NewDeckStats(QDialog):
             self.mw,
             f.deckArea,
             on_deck_changed=self.on_deck_changed,
+            dyn=True,  # include filtered decks
         )
 
         b = f.buttonBox.addButton(

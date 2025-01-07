@@ -341,7 +341,6 @@ class AddCards(QMainWindow):
         evt.ignore()
 
     def _close(self) -> None:
-        av_player.stop_and_clear_queue()
         self.editor.cleanup()
         self.notetype_chooser.cleanup()
         self.deck_chooser.cleanup()
