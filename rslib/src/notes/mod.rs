@@ -463,7 +463,8 @@ impl Collection {
         self.generate_cards_for_existing_note(ctx, note)
     }
 
-    pub(crate) fn update_note_inner_without_cards(
+    #[inline]
+    pub(crate) fn update_note_inner_without_cards_using_mtime(
         &mut self,
         UpdateNoteInnerWithoutCardsArgs {
             note,
@@ -474,15 +475,27 @@ impl Collection {
             normalize_text,
             update_tags,
         }: UpdateNoteInnerWithoutCardsArgs,
+        mtime: Option<TimestampSecs>,
     ) -> Result<()> {
         if update_tags {
             self.canonify_note_tags(note, usn)?;
         }
         note.prepare_for_update(notetype, normalize_text)?;
         if mark_note_modified {
-            note.set_modified(usn);
+            if let Some(mtime) = mtime {
+                note.set_modified_with_mtime(usn, mtime);
+            } else {
+                note.set_modified(usn);
+            }
         }
         self.update_note_undoable(note, original)
+    }
+
+    pub(crate) fn update_note_inner_without_cards(
+        &mut self,
+        args: UpdateNoteInnerWithoutCardsArgs<'_>,
+    ) -> Result<()> {
+        self.update_note_inner_without_cards_using_mtime(args, None)
     }
 
     pub(crate) fn remove_notes_inner(&mut self, nids: &[NoteId], usn: Usn) -> Result<usize> {
