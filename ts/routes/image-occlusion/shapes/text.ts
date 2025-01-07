@@ -48,6 +48,7 @@ export class Text extends Shape {
             backgroundColor: TEXT_BACKGROUND_COLOR,
             padding: TEXT_PADDING,
             lineHeight: 1,
+            lockScalingFlip: true,
         });
     }
 
