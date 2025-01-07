@@ -220,9 +220,14 @@ impl Note {
         Ok(())
     }
 
-    pub(crate) fn set_modified(&mut self, usn: Usn) {
-        self.mtime = TimestampSecs::now();
+    #[inline]
+    pub(crate) fn set_modified_with_mtime(&mut self, usn: Usn, mtime: TimestampSecs) {
+        self.mtime = mtime;
         self.usn = usn;
+    }
+
+    pub(crate) fn set_modified(&mut self, usn: Usn) {
+        self.set_modified_with_mtime(usn, TimestampSecs::now())
     }
 
     pub(crate) fn nonempty_fields<'a>(&self, fields: &'a [NoteField]) -> HashSet<&'a str> {
