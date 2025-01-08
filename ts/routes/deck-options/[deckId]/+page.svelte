@@ -3,11 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@generated/ftl";
+
     import { onMount } from "svelte";
     import DeckOptionsPage from "../DeckOptionsPage.svelte";
     import { commitEditing } from "../lib";
     import type { PageData } from "./$types";
-    import { bridgeCommand, bridgeCommandsAvailable } from "@tslib/bridgecommand";
+    import { deckOptionsRequireClose, deckOptionsReady } from "@generated/backend";
 
     export let data: PageData;
     let page: DeckOptionsPage;
@@ -15,12 +17,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     globalThis.anki ||= {};
     globalThis.anki.deckOptionsPendingChanges = async (): Promise<void> => {
         await commitEditing();
-        if (bridgeCommandsAvailable()) {
-            if (await data.state.isModified()) {
-                bridgeCommand("confirmDiscardChanges");
-            } else {
-                bridgeCommand("_close");
-            }
+        if (
+            !(await data.state.isModified()) ||
+            confirm(tr.cardTemplatesDiscardChanges())
+        ) {
+            // Either there was no change, or the user accepted to discard the changes.
+            deckOptionsRequireClose({});
         }
     };
 
@@ -29,9 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             resolve(page);
         });
         data.state.resolveOriginalConfigs();
-        if (bridgeCommandsAvailable()) {
-            bridgeCommand("deckOptionsReady");
-        }
+        deckOptionsReady({});
     });
 </script>
 
