@@ -968,6 +968,8 @@ mod test {
     use crate::template::FieldRequirements;
     use crate::template::RenderCardRequest;
     use crate::template::RenderContext;
+    use crate::template::COMMENT_END;
+    use crate::template::COMMENT_START;
 
     #[test]
     fn field_empty() {
@@ -1001,6 +1003,40 @@ mod test {
         );
         assert_eq!(orig, &tmpl.template_to_string());
 
+        // Hardcode comment delimiters into tests to keep them concise
+        assert_eq!(COMMENT_START, "<!--");
+        assert_eq!(COMMENT_END, "-->");
+
+        let orig = "foo <!--{{bar }} --> {{#baz}} --> <!-- <!-- {{#def}} --> \u{123}-->\u{456}<!-- 2 --><!----> <!-- quux {{/baz}} <!-- {{nc:abc}}";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(
+            tmpl.0,
+            vec![
+                Text("foo ".into()),
+                Comment("{{bar }} ".into()),
+                Text(" ".into()),
+                Conditional {
+                    key: "baz".into(),
+                    children: vec![
+                        Text(" --> ".into()),
+                        Comment(" <!-- {{#def}} ".into()),
+                        Text(" \u{123}-->\u{456}".into()),
+                        Comment(" 2 ".into()),
+                        Comment("".into()),
+                        Text(" ".into()),
+                        Text("<!-- quux ".into())
+                    ]
+                },
+                Text(" ".into()),
+                Text("<!-- ".into()),
+                Replacement {
+                    key: "abc".into(),
+                    filters: vec!["nc".into()]
+                }
+            ]
+        );
+        assert_eq!(orig, &tmpl.template_to_string());
+
         let tmpl = PT::from_text("{{^baz}}{{/baz}}").unwrap();
         assert_eq!(
             tmpl.0,
@@ -1013,6 +1049,10 @@ mod test {
         PT::from_text("{{#mis}}{{/matched}}").unwrap_err();
         PT::from_text("{{/matched}}").unwrap_err();
         PT::from_text("{{#mis}}").unwrap_err();
+        PT::from_text("{{#mis}}<!--{{/matched}}-->").unwrap_err();
+        PT::from_text("<!--{{#mis}}{{/matched}}-->").unwrap();
+        PT::from_text("<!--{{foo}}").unwrap();
+        PT::from_text("{{foo}}-->").unwrap();
 
         // whitespace
         assert_eq!(
@@ -1035,6 +1075,11 @@ mod test {
 
         // make sure filters and so on are round-tripped correctly
         let orig = "foo {{one:two}} {{one:two:three}} {{^baz}} {{/baz}} {{foo:}}";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(orig, &tmpl.template_to_string());
+
+        let orig =
+            "foo {{one:two}} <!--<!--abc {{^def}}-->--> {{one:two:three}} {{^baz}} <!-- {{/baz}} 🙂 --> {{/baz}} {{foo:}}";
         let tmpl = PT::from_text(orig).unwrap();
         assert_eq!(orig, &tmpl.template_to_string());
     }
@@ -1111,9 +1156,32 @@ mod test {
         )
         .unwrap();
 
+        // Hardcode comment delimiters into tests to keep them concise
+        assert_eq!(COMMENT_START, "<!--");
+        assert_eq!(COMMENT_END, "-->");
+
         assert_eq!(
             tmpl.requirements(&field_map),
             FieldRequirements::Any(vec![0, 1].into_iter().collect())
+        );
+
+        tmpl = PT::from_text(
+            r#"
+<!--{{^a}}-->
+    {{b}}
+<!--{{/a}}-->
+{{#c}}
+    <!--{{a}}-->
+    {{b}}
+    <!--{{c}}-->
+{{/c}}
+"#,
+        )
+        .unwrap();
+
+        assert_eq!(
+            tmpl.requirements(&field_map),
+            FieldRequirements::Any(vec![1].into_iter().collect())
         );
     }
 
@@ -1207,6 +1275,24 @@ mod test {
             tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Text {
                 text: "12f".to_owned()
+            },]
+        );
+
+        // Hardcode comment delimiters into tests to keep them concise
+        assert_eq!(COMMENT_START, "<!--");
+        assert_eq!(COMMENT_END, "-->");
+
+        // commented
+        tmpl = PT::from_text(
+            "{{^E}}1<!--{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}-->\u{123}<!-- this is a comment -->{{/E}}\u{456}",
+        )
+        .unwrap();
+        assert_eq!(
+            tmpl.render(&ctx, &tr).unwrap(),
+            vec![FN::Text {
+                text:
+                    "1<!--{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}-->\u{123}<!-- this is a comment -->\u{456}"
+                        .to_owned()
             },]
         );
 
