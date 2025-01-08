@@ -284,7 +284,7 @@ pub(crate) fn fsrs_item_for_memory_state(
         ease_factor: f32,
     }
     if let Some(mut output) = reviews_for_fsrs(entries, next_day_at, false, ignore_revlogs_before) {
-        let mut item = output.fsrs_items.pop().unwrap();
+        let mut item = output.fsrs_items.pop().unwrap().1;
         if output.revlogs_complete {
             Ok(Some(FsrsItemForMemoryState {
                 item,
