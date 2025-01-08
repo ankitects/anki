@@ -97,7 +97,7 @@ impl Collection {
                 }
             }
         });
-        let mut params = FSRS::new(None)?.compute_parameters(items.clone(), Some(progress2))?;
+        let mut params = FSRS::new(None)?.compute_parameters(items.clone(), Some(progress2), true)?;
         progress_thread.join().ok();
         if let Ok(fsrs) = FSRS::new(Some(current_params)) {
             let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;

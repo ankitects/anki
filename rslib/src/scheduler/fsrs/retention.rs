@@ -53,6 +53,7 @@ impl Collection {
                     loss_aversion: req.loss_aversion as f32,
                     learn_limit,
                     review_limit: usize::MAX,
+                    new_cards_ignore_review_limit: true,
                 },
                 &req.params,
                 |ip| {
