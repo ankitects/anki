@@ -25,11 +25,6 @@ const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
 // problems
 const LOAD_BALANCE_DAYS: usize = (MAX_LOAD_BALANCE_INTERVAL as f32 * 1.1) as usize;
 const SIBLING_PENALTY: f32 = 0.001;
-// this is a non-zero value so if all days are minimum, the load balancer will
-// proceed as normal
-const EASY_DAYS_MINIMUM_LOAD: f32 = 0.0001;
-const EASY_DAYS_NORMAL_LOAD: f32 = 1.0;
-const EASY_DAYS_REDUCED_THRESHOLD: f32 = 0.5;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum EasyDay {
@@ -44,6 +39,18 @@ impl From<f32> for EasyDay {
             1.0 => EasyDay::Normal,
             0.0 => EasyDay::Minimum,
             _ => EasyDay::Reduced,
+        }
+    }
+}
+
+impl EasyDay {
+    fn load_modifier(&self) -> f32 {
+        match self {
+            // this is a non-zero value so if all days are minimum, the load balancer will
+            // proceed as normal
+            EasyDay::Minimum => 0.0001,
+            EasyDay::Reduced => 0.5,
+            EasyDay::Normal => 1.0,
         }
     }
 }
@@ -262,29 +269,29 @@ impl LoadBalancer {
         let total_review_count: usize = review_counts.iter().sum();
         let total_percents: f32 = weekdays
             .iter()
-            .map(|&weekday| match easy_days_load[weekday] {
-                EasyDay::Normal => EASY_DAYS_NORMAL_LOAD,
-                EasyDay::Minimum => EASY_DAYS_MINIMUM_LOAD,
-                EasyDay::Reduced => EASY_DAYS_REDUCED_THRESHOLD,
-            })
+            .map(|&weekday| easy_days_load[weekday].load_modifier())
             .sum();
         let easy_days_modifier = weekdays
             .iter()
             .zip(review_counts.iter())
-            .map(|(&weekday, &review_count)| match easy_days_load[weekday] {
-                EasyDay::Normal => EASY_DAYS_NORMAL_LOAD,
-                EasyDay::Minimum => EASY_DAYS_MINIMUM_LOAD,
-                EasyDay::Reduced => {
-                    let other_days_review_total = (total_review_count - review_count) as f32;
-                    let other_days_percent_total = total_percents - EASY_DAYS_REDUCED_THRESHOLD;
-                    let normalized_count = review_count as f32 / EASY_DAYS_REDUCED_THRESHOLD;
-                    let reduced_day_threshold = other_days_review_total / other_days_percent_total;
-                    if normalized_count > reduced_day_threshold {
-                        EASY_DAYS_MINIMUM_LOAD
-                    } else {
-                        EASY_DAYS_NORMAL_LOAD
+            .map(|(&weekday, &review_count)| {
+                let day = match easy_days_load[weekday] {
+                    EasyDay::Reduced => {
+                        const HALF: f32 = 0.5;
+                        let other_days_review_total = (total_review_count - review_count) as f32;
+                        let other_days_percent_total = total_percents - HALF;
+                        let normalized_count = review_count as f32 / HALF;
+                        let reduced_day_threshold =
+                            other_days_review_total / other_days_percent_total;
+                        if normalized_count > reduced_day_threshold {
+                            EasyDay::Minimum
+                        } else {
+                            EasyDay::Normal
+                        }
                     }
-                }
+                    other => other,
+                };
+                day.load_modifier()
             })
             .collect::<Vec<_>>();
 
