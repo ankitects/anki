@@ -14,7 +14,6 @@ from aqt.qt import *
 from aqt.utils import (
     KeyboardModifiersPressed,
     addCloseShortcut,
-    ask_user_dialog,
     disable_help_button,
     restoreGeom,
     saveGeom,
