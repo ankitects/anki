@@ -55,7 +55,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
     const fsrsReschedule = state.fsrsReschedule;
     const daysSinceLastOptimization = state.daysSinceLastOptimization;
-    const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
 
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigOptimizeAllTip() : "";
@@ -90,6 +89,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (optimalRetentionRequest.daysToSimulate > 3650) {
         optimalRetentionRequest.daysToSimulate = 3650;
     }
+
+    $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit
 
     const simulateFsrsRequest = new SimulateFsrsReviewRequest({
         params: fsrsParams($config),
@@ -320,6 +321,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     simulateFsrsRequest.params = fsrsParams($config);
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
                     simulateFsrsRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
+                    simulateFsrsRequest.newCardsIgnoreReviewLimit = $newCardsIgnoreReviewLimit;
                     simulating = true;
                     resp = await simulateFsrsReview(simulateFsrsRequest);
                 },
