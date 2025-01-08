@@ -431,6 +431,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         imageOcclusionMode = options.mode;
         if (options.mode.kind === "add") {
             fieldStores[ioFields.image].set(options.html);
+            // the image field is set programmatically and does not need debouncing
+            // commit immediately to avoid a race condition with the occlusions field
+            fieldSave.fireImmediately();
 
             // new image is being added
             if (isIOImageLoaded) {
