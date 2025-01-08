@@ -13,6 +13,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
 use nom::combinator::map;
+use nom::combinator::peek;
 use nom::combinator::rest;
 use nom::combinator::verify;
 use nom::sequence::delimited;
@@ -35,12 +36,17 @@ static TEMPLATE_BLANK_LINK: &str =
 static TEMPLATE_BLANK_CLOZE_LINK: &str =
     "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-note-type";
 
+// Template comment delimiters
+static COMMENT_START: &str = "<!--";
+static COMMENT_END: &str = "-->";
+
 // Lexing
 //----------------------------------------
 
 #[derive(Debug)]
 pub enum Token<'a> {
     Text(&'a str),
+    Comment(&'a str),
     Replacement(&'a str),
     OpenConditional(&'a str),
     OpenNegated(&'a str),
@@ -77,9 +83,28 @@ fn take_until_handlebar_start_or<'a, E: nom::error::ParseError<&'a str>>(
 /// text outside handlebars
 fn text_token(s: &str) -> nom::IResult<&str, Token> {
     map(
-        verify(alt((take_until("{{"), rest)), |out: &str| !out.is_empty()),
+        verify(
+            alt((take_until_handlebar_start_or(COMMENT_START), rest)),
+            |out: &str| !out.is_empty(),
+        ),
         Token::Text,
     )(s)
+}
+
+/// a comment block, or if unclosed, until {{ as text
+fn maybe_comment_token(s: &str) -> nom::IResult<&str, Token> {
+    peek(tag(COMMENT_START))(s)?;
+    alt((
+        map(
+            delimited(
+                tag(COMMENT_START),
+                take_until(COMMENT_END),
+                tag(COMMENT_END),
+            ),
+            Token::Comment,
+        ),
+        map(take_until("{{"), Token::Text),
+    ))(s)
 }
 
 /// text wrapped in handlebars
@@ -90,7 +115,7 @@ fn handlebar_token(s: &str) -> nom::IResult<&str, Token> {
 }
 
 fn next_token(input: &str) -> nom::IResult<&str, Token> {
-    alt((handlebar_token, text_token))(input)
+    alt((handlebar_token, maybe_comment_token, text_token))(input)
 }
 
 fn tokens<'a>(template: &'a str) -> Box<dyn Iterator<Item = TemplateResult<Token>> + 'a> {
@@ -188,6 +213,7 @@ fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> 
 #[derive(Debug, PartialEq, Eq)]
 enum ParsedNode {
     Text(String),
+    Comment(String),
     Replacement {
         key: String,
         filters: Vec<String>,
@@ -223,6 +249,7 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
         use Token::*;
         nodes.push(match token? {
             Text(t) => ParsedNode::Text(t.into()),
+            Comment(t) => ParsedNode::Comment(t.into()),
             Replacement(t) => {
                 let mut it = t.rsplit(':');
                 ParsedNode::Replacement {
@@ -348,7 +375,7 @@ fn template_is_empty(
     for node in nodes {
         match node {
             // ignore normal text
-            Text(_) => (),
+            Text(_) | Comment(_) => (),
             Replacement { key, .. } => {
                 if nonempty_fields.contains(key.as_str()) {
                     // a single replacement is enough
@@ -432,6 +459,11 @@ fn render_into(
         match node {
             Text(text) => {
                 append_str_to_nodes(rendered_nodes, text);
+            }
+            Comment(comment) => {
+                append_str_to_nodes(rendered_nodes, COMMENT_START);
+                append_str_to_nodes(rendered_nodes, comment);
+                append_str_to_nodes(rendered_nodes, COMMENT_END);
             }
             Replacement { key, .. } if key == "FrontSide" => {
                 let frontside = context.frontside.as_ref().copied().unwrap_or_default();
@@ -773,6 +805,7 @@ fn rename_and_remove_fields(
     for node in nodes {
         match node {
             ParsedNode::Text(text) => out.push(ParsedNode::Text(text)),
+            ParsedNode::Comment(text) => out.push(ParsedNode::Comment(text)),
             ParsedNode::Replacement { key, filters } => {
                 match fields.get(&key) {
                     // delete the field
@@ -834,6 +867,11 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
     for node in nodes {
         match node {
             ParsedNode::Text(text) => buf.push_str(text),
+            ParsedNode::Comment(text) => {
+                buf.push_str(COMMENT_START);
+                buf.push_str(text);
+                buf.push_str(COMMENT_END);
+            }
             ParsedNode::Replacement { key, filters } => {
                 write!(
                     buf,
@@ -890,6 +928,7 @@ fn find_field_references<'a>(
     for node in nodes {
         match node {
             ParsedNode::Text(_) => {}
+            ParsedNode::Comment(_) => {}
             ParsedNode::Replacement { key, filters } => {
                 if !cloze_only || filters.iter().any(|f| f == "cloze") {
                     fields.insert(key);
