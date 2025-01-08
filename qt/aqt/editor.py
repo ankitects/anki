@@ -700,6 +700,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         return True
 
     def cleanup(self) -> None:
+        av_player.stop_and_clear_queue_if_caller(self.editorMode)
         self.set_note(None)
         # prevent any remaining evalWithCallback() events from firing after C++ object deleted
         if self.web:
@@ -850,7 +851,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             name = urllib.parse.quote(fname.encode("utf8"))
             return f'<img src="{name}">'
         else:
-            av_player.play_file(fname)
+            av_player.play_file_with_caller(fname, self.editorMode)
             return f"[sound:{html.escape(fname, quote=False)}]"
 
     def urlToFile(self, url: str) -> str | None:
@@ -1472,6 +1473,8 @@ class EditorWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.WebAction.CopyImageToClipboard)
 
     def _opened_context_menu_on_image(self) -> bool:
+        if not hasattr(self, "lastContextMenuRequest"):
+            return False
         context_menu_request = self.lastContextMenuRequest()
         assert context_menu_request is not None
         return (
