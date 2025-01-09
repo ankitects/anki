@@ -54,28 +54,19 @@ pub enum Token<'a> {
 }
 
 /// consume till {{ or `tag`
-fn take_until_handlebar_start_or<'a, E: nom::error::ParseError<&'a str>>(
+fn take_until_handlebar_start_or_tag<'a, E: nom::error::ParseError<&'a str>>(
     tag: &'a str,
 ) -> impl Fn(&'a str) -> nom::IResult<&'a str, &'a str, E> {
     move |s| {
-        // if we locate a starting normal or alternate handlebar, use
-        // whichever one we found first
-        let normal_result: nom::IResult<&str, &str> = take_until("{{")(s);
-        let (normal_remaining, normal_span) = normal_result.unwrap_or(("", s));
-        let alt_result: nom::IResult<&str, &str> = take_until(tag)(s);
-        let (alt_remaining, alt_span) = alt_result.unwrap_or(("", s));
-        match (normal_span.len(), alt_span.len()) {
-            (0, 0) => {
-                // neither handlebar kind found
-                rest(s)
-            }
-            (n, a) => {
-                if n < a {
-                    Ok((normal_remaining, normal_span))
-                } else {
-                    Ok((alt_remaining, alt_span))
-                }
-            }
+        match (take_until("{{")(s), take_until(tag)(s)) {
+            // handlebar is closer
+            (hb @ Ok((_, hb_span)), Ok((_, tag_span))) if hb_span.len() < tag_span.len() => hb,
+            // tag is closer or is the only one ahead
+            (_, tag @ Ok(_)) => tag,
+            // hb is the only one ahead
+            (hb @ Ok(_), _) => hb,
+            // neither ahead, consume all
+            _ => rest(s),
         }
     }
 }
@@ -84,7 +75,7 @@ fn take_until_handlebar_start_or<'a, E: nom::error::ParseError<&'a str>>(
 fn text_token(s: &str) -> nom::IResult<&str, Token> {
     map(
         verify(
-            alt((take_until_handlebar_start_or(COMMENT_START), rest)),
+            alt((take_until_handlebar_start_or_tag(COMMENT_START), rest)),
             |out: &str| !out.is_empty(),
         ),
         Token::Text,
@@ -174,7 +165,7 @@ fn legacy_text_token(s: &str) -> nom::IResult<&str, Token> {
             nom::error::ErrorKind::TakeUntil,
         )));
     }
-    map(take_until_handlebar_start_or("<%"), Token::Text)(s)
+    map(take_until_handlebar_start_or_tag("<%"), Token::Text)(s)
 }
 
 fn legacy_next_token(input: &str) -> nom::IResult<&str, Token> {
