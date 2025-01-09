@@ -13,9 +13,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
 use nom::combinator::map;
-use nom::combinator::peek;
 use nom::combinator::rest;
-use nom::combinator::verify;
 use nom::sequence::delimited;
 use regex::Regex;
 
@@ -71,31 +69,16 @@ fn take_until_handlebar_start_or_tag<'a, E: nom::error::ParseError<&'a str>>(
     }
 }
 
-/// text outside handlebars
-fn text_token(s: &str) -> nom::IResult<&str, Token> {
-    map(
-        verify(
-            take_until_handlebar_start_or_tag(COMMENT_START),
-            |out: &str| !out.is_empty(),
-        ),
-        Token::Text,
-    )(s)
-}
-
 /// a comment block, or if unclosed, until {{ as text
-fn maybe_comment_token(s: &str) -> nom::IResult<&str, Token> {
-    peek(tag(COMMENT_START))(s)?;
-    alt((
-        map(
-            delimited(
-                tag(COMMENT_START),
-                take_until(COMMENT_END),
-                tag(COMMENT_END),
-            ),
-            Token::Comment,
+fn comment_token(s: &str) -> nom::IResult<&str, Token> {
+    map(
+        delimited(
+            tag(COMMENT_START),
+            take_until(COMMENT_END),
+            tag(COMMENT_END),
         ),
-        map(take_until("{{"), Token::Text),
-    ))(s)
+        Token::Comment,
+    )(s)
 }
 
 /// text wrapped in handlebars
@@ -105,8 +88,42 @@ fn handlebar_token(s: &str) -> nom::IResult<&str, Token> {
     })(s)
 }
 
+/// Return the next handlebar, comment or text token.
 fn next_token(input: &str) -> nom::IResult<&str, Token> {
-    alt((handlebar_token, maybe_comment_token, text_token))(input)
+    if input.is_empty() {
+        return Err(nom::Err::Error(nom::error::make_error(
+            input,
+            nom::error::ErrorKind::Complete,
+        )));
+    }
+
+    // Loop, starting from the first character
+    for (i, _) in input.char_indices() {
+        let remaining = &input[i..];
+
+        // Valid handlebar clause?
+        if let Ok((after_handlebar, token)) = handlebar_token(remaining) {
+            // Found at the start of string, so that's the next token
+            return Ok(if i == 0 {
+                (after_handlebar, token)
+            } else {
+                // There was some text prior to this, so return it instead
+                (remaining, Token::Text(&input[..i]))
+            });
+        }
+
+        // Check comments too
+        if let Ok((after_comment, token)) = comment_token(remaining) {
+            return Ok(if i == 0 {
+                (after_comment, token)
+            } else {
+                (remaining, Token::Text(&input[..i]))
+            });
+        }
+    }
+
+    // If no matches, return the entire input as text, with nothing remaining
+    Ok(("", Token::Text(input)))
 }
 
 fn tokens<'a>(template: &'a str) -> Box<dyn Iterator<Item = TemplateResult<Token>> + 'a> {
@@ -123,16 +140,9 @@ fn tokens<'a>(template: &'a str) -> Box<dyn Iterator<Item = TemplateResult<Token
 
 fn new_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
     iter::from_fn(move || {
-        if data.is_empty() {
-            return None;
-        }
-        match next_token(data) {
-            Ok((i, o)) => {
-                data = i;
-                Some(Ok(o))
-            }
-            Err(_e) => Some(Err(TemplateError::NoClosingBrackets(data.to_string()))),
-        }
+        let token;
+        (data, token) = next_token(data).ok()?;
+        Some(Ok(token))
     })
 }
 
@@ -975,6 +985,11 @@ mod test {
 
     #[test]
     fn parsing() {
+        let orig = "";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(tmpl.0, vec![]);
+        assert_eq!(orig, &tmpl.template_to_string());
+
         let orig = "foo {{bar}} {{#baz}} quux {{/baz}}";
         let tmpl = PT::from_text(orig).unwrap();
         assert_eq!(
@@ -1014,12 +1029,10 @@ mod test {
                         Text(" \u{123}-->\u{456}".into()),
                         Comment(" 2 ".into()),
                         Comment("".into()),
-                        Text(" ".into()),
-                        Text("<!-- quux ".into())
+                        Text(" <!-- quux ".into()),
                     ]
                 },
-                Text(" ".into()),
-                Text("<!-- ".into()),
+                Text(" <!-- ".into()),
                 Replacement {
                     key: "abc".into(),
                     filters: vec!["nc".into()]
@@ -1059,10 +1072,6 @@ mod test {
             PT::from_text("text }} more").unwrap().0,
             vec![Text("text }} more".into())]
         );
-
-        PT::from_text("{{").unwrap_err();
-        PT::from_text(" {{").unwrap_err();
-        PT::from_text(" {{ ").unwrap_err();
 
         // make sure filters and so on are round-tripped correctly
         let orig = "foo {{one:two}} {{one:two:three}} {{^baz}} {{/baz}} {{foo:}}";
