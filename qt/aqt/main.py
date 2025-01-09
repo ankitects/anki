@@ -152,12 +152,18 @@ class MainWebView(AnkiWebView):
             return handled
 
         if evt.type() == QEvent.Type.Leave:
+            # Show menubar when mouse moves outside main webview in fullscreen
+            if self.mw.fullscreen:
+                self.mw.show_menubar()
+
             # Show toolbar when mouse moves outside main webview
             # and automatically hide it with delay after mouse has entered again
+            # The toolbar's hide timer will also trigger menubar hiding when in fullscreen mode
             if self.mw.pm.hide_top_bar() or self.mw.pm.hide_bottom_bar():
                 self.mw.toolbarWeb.show()
                 self.mw.bottomWeb.show()
-                return True
+
+            return True
 
         if evt.type() == QEvent.Type.Enter:
             self.mw.toolbarWeb.hide_timer.start()
@@ -789,6 +795,9 @@ class AnkiQt(QMainWindow):
 
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
+
+        if self.fullscreen:
+            self.hide_menubar()
 
         if self.pm.hide_top_bar():
             self.toolbarWeb.hide_timer.setInterval(500)
