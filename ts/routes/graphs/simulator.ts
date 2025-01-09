@@ -196,7 +196,9 @@ export function renderSimulationChart(
             const hidden = path.classed("hidden");
 
             if (!hidden) {
-                tooltipContent += `#${key}: ${formatY(value)}<br>`;
+                tooltipContent += `<span style="color:${color[(parseInt(key) - 1) % color.length]}">■</span> #${key}: ${
+                    formatY(value)
+                }<br>`;
             }
         }
 
