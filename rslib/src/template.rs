@@ -119,7 +119,6 @@ pub enum Token<'a> {
     CloseConditional(&'a str),
 }
 
-/// a comment block, or if unclosed, until {{ as text
 fn comment_token(s: &str) -> nom::IResult<&str, Token> {
     map(
         delimited(
