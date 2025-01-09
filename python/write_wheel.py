@@ -159,20 +159,8 @@ if name == "anki":
 else:
     all_requires = extract_requirements(Path("python/requirements.aqt.in")) + [
         "anki==" + version,
-        ExtraRequires(
-            "qt5",
-            [
-                "pyqt5>=5.14",
-                "pyqtwebengine",
-            ],
-        ),
-        ExtraRequires(
-            "qt6",
-            [
                 "pyqt6>=6.2",
                 "pyqt6-webengine>=6.2",
-            ],
-        ),
     ]
     entrypoints = ["anki = aqt:run"]
     top_level = ["aqt", "_aqt"]

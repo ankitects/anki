@@ -75,6 +75,7 @@ class PageContext(enum.IntEnum):
     REVIEWER = enum.auto()
     PREVIEWER = enum.auto()
     CARD_LAYOUT = enum.auto()
+    DECK_OPTIONS = enum.auto()
     # something in /_anki/pages/
     NON_LEGACY_PAGE = enum.auto()
     # Do not use this if you present user content (e.g. content from cards), as it's a
@@ -574,6 +575,26 @@ def change_notetype() -> bytes:
     return b""
 
 
+def deck_options_require_close() -> bytes:
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, DeckOptionsDialog):
+            window.require_close()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
+def deck_options_ready() -> bytes:
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, DeckOptionsDialog):
+            window.set_ready()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -587,6 +608,8 @@ post_handler_list = [
     import_json_file,
     import_json_string,
     search_in_browser,
+    deck_options_require_close,
+    deck_options_ready,
 ]
 
 
@@ -685,11 +708,12 @@ def _check_dynamic_request_permissions():
         aqt.mw.taskman.run_on_main(warn)
         abort(403)
 
-    if (
-        context == PageContext.NON_LEGACY_PAGE
-        or context == PageContext.EDITOR
-        or context == PageContext.ADDON_PAGE
-    ):
+    if context in [
+        PageContext.NON_LEGACY_PAGE,
+        PageContext.EDITOR,
+        PageContext.ADDON_PAGE,
+        PageContext.DECK_OPTIONS,
+    ]:
         pass
     elif context == PageContext.REVIEWER and request.path in (
         "/_anki/getSchedulingStatesWithContext",
