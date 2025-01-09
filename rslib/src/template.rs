@@ -9,12 +9,9 @@ use std::iter;
 use std::sync::LazyLock;
 
 use anki_i18n::I18n;
-use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
 use nom::combinator::map;
-use nom::combinator::rest;
-use nom::combinator::verify;
 use nom::sequence::delimited;
 use regex::Regex;
 
@@ -35,61 +32,118 @@ static TEMPLATE_BLANK_LINK: &str =
 static TEMPLATE_BLANK_CLOZE_LINK: &str =
     "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-note-type";
 
+// Template comment delimiters
+static COMMENT_START: &str = "<!--";
+static COMMENT_END: &str = "-->";
+
+static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TemplateMode {
+    Standard,
+    LegacyAltSyntax,
+}
+
+impl TemplateMode {
+    fn start_tag(&self) -> &'static str {
+        match self {
+            TemplateMode::Standard => "{{",
+            TemplateMode::LegacyAltSyntax => "<%",
+        }
+    }
+
+    fn end_tag(&self) -> &'static str {
+        match self {
+            TemplateMode::Standard => "}}",
+            TemplateMode::LegacyAltSyntax => "%>",
+        }
+    }
+
+    fn handlebar_token<'b>(&self, s: &'b str) -> nom::IResult<&'b str, Token<'b>> {
+        map(
+            delimited(
+                tag(self.start_tag()),
+                take_until(self.end_tag()),
+                tag(self.end_tag()),
+            ),
+            |out| classify_handle(out),
+        )(s)
+    }
+
+    /// Return the next handlebar, comment or text token.
+    fn next_token<'b>(&self, input: &'b str) -> Option<(&'b str, Token<'b>)> {
+        if input.is_empty() {
+            return None;
+        }
+
+        // Loop, starting from the first character
+        for (i, _) in input.char_indices() {
+            let remaining = &input[i..];
+
+            // Valid handlebar clause?
+            if let Ok((after_handlebar, token)) = self.handlebar_token(remaining) {
+                // Found at the start of string, so that's the next token
+                return Some(if i == 0 {
+                    (after_handlebar, token)
+                } else {
+                    // There was some text prior to this, so return it instead
+                    (remaining, Token::Text(&input[..i]))
+                });
+            }
+
+            // Check comments too
+            if let Ok((after_comment, token)) = comment_token(remaining) {
+                return Some(if i == 0 {
+                    (after_comment, token)
+                } else {
+                    (remaining, Token::Text(&input[..i]))
+                });
+            }
+        }
+
+        // If no matches, return the entire input as text, with nothing remaining
+        Some(("", Token::Text(input)))
+    }
+}
+
 // Lexing
 //----------------------------------------
 
 #[derive(Debug)]
 pub enum Token<'a> {
     Text(&'a str),
+    Comment(&'a str),
     Replacement(&'a str),
     OpenConditional(&'a str),
     OpenNegated(&'a str),
     CloseConditional(&'a str),
 }
 
-/// text outside handlebars
-fn text_token(s: &str) -> nom::IResult<&str, Token> {
+fn comment_token(s: &str) -> nom::IResult<&str, Token> {
     map(
-        verify(alt((take_until("{{"), rest)), |out: &str| !out.is_empty()),
-        Token::Text,
+        delimited(
+            tag(COMMENT_START),
+            take_until(COMMENT_END),
+            tag(COMMENT_END),
+        ),
+        Token::Comment,
     )(s)
 }
 
-/// text wrapped in handlebars
-fn handlebar_token(s: &str) -> nom::IResult<&str, Token> {
-    map(delimited(tag("{{"), take_until("}}"), tag("}}")), |out| {
-        classify_handle(out)
-    })(s)
-}
+fn tokens(mut template: &str) -> impl Iterator<Item = TemplateResult<Token<'_>>> {
+    let mode = if template.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
+        template = template
+            .trim_start()
+            .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE);
 
-fn next_token(input: &str) -> nom::IResult<&str, Token> {
-    alt((handlebar_token, text_token))(input)
-}
-
-fn tokens<'a>(template: &'a str) -> Box<dyn Iterator<Item = TemplateResult<Token>> + 'a> {
-    if template.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
-        Box::new(legacy_tokens(
-            template
-                .trim_start()
-                .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE),
-        ))
+        TemplateMode::LegacyAltSyntax
     } else {
-        Box::new(new_tokens(template))
-    }
-}
-
-fn new_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
+        TemplateMode::Standard
+    };
     iter::from_fn(move || {
-        if data.is_empty() {
-            return None;
-        }
-        match next_token(data) {
-            Ok((i, o)) => {
-                data = i;
-                Some(Ok(o))
-            }
-            Err(_e) => Some(Err(TemplateError::NoClosingBrackets(data.to_string()))),
-        }
+        let token;
+        (template, token) = mode.next_token(template)?;
+        Some(Ok(token))
     })
 }
 
@@ -110,75 +164,13 @@ fn classify_handle(s: &str) -> Token {
     }
 }
 
-// Legacy support
-//----------------------------------------
-
-static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
-
-fn legacy_text_token(s: &str) -> nom::IResult<&str, Token> {
-    if s.is_empty() {
-        return Err(nom::Err::Error(nom::error::make_error(
-            s,
-            nom::error::ErrorKind::TakeUntil,
-        )));
-    }
-    // if we locate a starting normal or alternate handlebar, use
-    // whichever one we found first
-    let normal_result: nom::IResult<&str, &str> = take_until("{{")(s);
-    let (normal_remaining, normal_span) = normal_result.unwrap_or(("", s));
-    let alt_result: nom::IResult<&str, &str> = take_until("<%")(s);
-    let (alt_remaining, alt_span) = alt_result.unwrap_or(("", s));
-    match (normal_span.len(), alt_span.len()) {
-        (0, 0) => {
-            // neither handlebar kind found
-            map(rest, Token::Text)(s)
-        }
-        (n, a) => {
-            if n < a {
-                Ok((normal_remaining, Token::Text(normal_span)))
-            } else {
-                Ok((alt_remaining, Token::Text(alt_span)))
-            }
-        }
-    }
-}
-
-fn legacy_next_token(input: &str) -> nom::IResult<&str, Token> {
-    alt((
-        handlebar_token,
-        alternate_handlebar_token,
-        legacy_text_token,
-    ))(input)
-}
-
-/// text wrapped in <% %>
-fn alternate_handlebar_token(s: &str) -> nom::IResult<&str, Token> {
-    map(delimited(tag("<%"), take_until("%>"), tag("%>")), |out| {
-        classify_handle(out)
-    })(s)
-}
-
-fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
-    iter::from_fn(move || {
-        if data.is_empty() {
-            return None;
-        }
-        match legacy_next_token(data) {
-            Ok((i, o)) => {
-                data = i;
-                Some(Ok(o))
-            }
-            Err(_e) => Some(Err(TemplateError::NoClosingBrackets(data.to_string()))),
-        }
-    })
-}
-
 // Parsing
 //----------------------------------------
 
 #[derive(Debug, PartialEq, Eq)]
 enum ParsedNode {
     Text(String),
+    Comment(String),
     Replacement {
         key: String,
         filters: Vec<String>,
@@ -214,6 +206,7 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
         use Token::*;
         nodes.push(match token? {
             Text(t) => ParsedNode::Text(t.into()),
+            Comment(t) => ParsedNode::Comment(t.into()),
             Replacement(t) => {
                 let mut it = t.rsplit(':');
                 ParsedNode::Replacement {
@@ -339,7 +332,7 @@ fn template_is_empty(
     for node in nodes {
         match node {
             // ignore normal text
-            Text(_) => (),
+            Text(_) | Comment(_) => (),
             Replacement { key, .. } => {
                 if nonempty_fields.contains(key.as_str()) {
                     // a single replacement is enough
@@ -423,6 +416,11 @@ fn render_into(
         match node {
             Text(text) => {
                 append_str_to_nodes(rendered_nodes, text);
+            }
+            Comment(comment) => {
+                append_str_to_nodes(rendered_nodes, COMMENT_START);
+                append_str_to_nodes(rendered_nodes, comment);
+                append_str_to_nodes(rendered_nodes, COMMENT_END);
             }
             Replacement { key, .. } if key == "FrontSide" => {
                 let frontside = context.frontside.as_ref().copied().unwrap_or_default();
@@ -764,6 +762,7 @@ fn rename_and_remove_fields(
     for node in nodes {
         match node {
             ParsedNode::Text(text) => out.push(ParsedNode::Text(text)),
+            ParsedNode::Comment(text) => out.push(ParsedNode::Comment(text)),
             ParsedNode::Replacement { key, filters } => {
                 match fields.get(&key) {
                     // delete the field
@@ -825,6 +824,11 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
     for node in nodes {
         match node {
             ParsedNode::Text(text) => buf.push_str(text),
+            ParsedNode::Comment(text) => {
+                buf.push_str(COMMENT_START);
+                buf.push_str(text);
+                buf.push_str(COMMENT_END);
+            }
             ParsedNode::Replacement { key, filters } => {
                 write!(
                     buf,
@@ -881,6 +885,7 @@ fn find_field_references<'a>(
     for node in nodes {
         match node {
             ParsedNode::Text(_) => {}
+            ParsedNode::Comment(_) => {}
             ParsedNode::Replacement { key, filters } => {
                 if !cloze_only || filters.iter().any(|f| f == "cloze") {
                     fields.insert(key);
@@ -920,6 +925,8 @@ mod test {
     use crate::template::FieldRequirements;
     use crate::template::RenderCardRequest;
     use crate::template::RenderContext;
+    use crate::template::COMMENT_END;
+    use crate::template::COMMENT_START;
 
     #[test]
     fn field_empty() {
@@ -934,6 +941,11 @@ mod test {
 
     #[test]
     fn parsing() {
+        let orig = "";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(tmpl.0, vec![]);
+        assert_eq!(orig, &tmpl.template_to_string());
+
         let orig = "foo {{bar}} {{#baz}} quux {{/baz}}";
         let tmpl = PT::from_text(orig).unwrap();
         assert_eq!(
@@ -953,6 +965,38 @@ mod test {
         );
         assert_eq!(orig, &tmpl.template_to_string());
 
+        // Hardcode comment delimiters into tests to keep them concise
+        assert_eq!(COMMENT_START, "<!--");
+        assert_eq!(COMMENT_END, "-->");
+
+        let orig = "foo <!--{{bar }} --> {{#baz}} --> <!-- <!-- {{#def}} --> \u{123}-->\u{456}<!-- 2 --><!----> <!-- quux {{/baz}} <!-- {{nc:abc}}";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(
+            tmpl.0,
+            vec![
+                Text("foo ".into()),
+                Comment("{{bar }} ".into()),
+                Text(" ".into()),
+                Conditional {
+                    key: "baz".into(),
+                    children: vec![
+                        Text(" --> ".into()),
+                        Comment(" <!-- {{#def}} ".into()),
+                        Text(" \u{123}-->\u{456}".into()),
+                        Comment(" 2 ".into()),
+                        Comment("".into()),
+                        Text(" <!-- quux ".into()),
+                    ]
+                },
+                Text(" <!-- ".into()),
+                Replacement {
+                    key: "abc".into(),
+                    filters: vec!["nc".into()]
+                }
+            ]
+        );
+        assert_eq!(orig, &tmpl.template_to_string());
+
         let tmpl = PT::from_text("{{^baz}}{{/baz}}").unwrap();
         assert_eq!(
             tmpl.0,
@@ -965,6 +1009,10 @@ mod test {
         PT::from_text("{{#mis}}{{/matched}}").unwrap_err();
         PT::from_text("{{/matched}}").unwrap_err();
         PT::from_text("{{#mis}}").unwrap_err();
+        PT::from_text("{{#mis}}<!--{{/matched}}-->").unwrap_err();
+        PT::from_text("<!--{{#mis}}{{/matched}}-->").unwrap();
+        PT::from_text("<!--{{foo}}").unwrap();
+        PT::from_text("{{foo}}-->").unwrap();
 
         // whitespace
         assert_eq!(
@@ -981,12 +1029,13 @@ mod test {
             vec![Text("text }} more".into())]
         );
 
-        PT::from_text("{{").unwrap_err();
-        PT::from_text(" {{").unwrap_err();
-        PT::from_text(" {{ ").unwrap_err();
-
         // make sure filters and so on are round-tripped correctly
         let orig = "foo {{one:two}} {{one:two:three}} {{^baz}} {{/baz}} {{foo:}}";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(orig, &tmpl.template_to_string());
+
+        let orig =
+            "foo {{one:two}} <!--<!--abc {{^def}}-->--> {{one:two:three}} {{^baz}} <!-- {{/baz}} 🙂 --> {{/baz}} {{foo:}}";
         let tmpl = PT::from_text(orig).unwrap();
         assert_eq!(orig, &tmpl.template_to_string());
     }
@@ -1063,9 +1112,32 @@ mod test {
         )
         .unwrap();
 
+        // Hardcode comment delimiters into tests to keep them concise
+        assert_eq!(COMMENT_START, "<!--");
+        assert_eq!(COMMENT_END, "-->");
+
         assert_eq!(
             tmpl.requirements(&field_map),
             FieldRequirements::Any(vec![0, 1].into_iter().collect())
+        );
+
+        tmpl = PT::from_text(
+            r#"
+<!--{{^a}}-->
+    {{b}}
+<!--{{/a}}-->
+{{#c}}
+    <!--{{a}}-->
+    {{b}}
+    <!--{{c}}-->
+{{/c}}
+"#,
+        )
+        .unwrap();
+
+        assert_eq!(
+            tmpl.requirements(&field_map),
+            FieldRequirements::Any(vec![1].into_iter().collect())
         );
     }
 
@@ -1100,19 +1172,12 @@ mod test {
         assert_eq!(
             PT::from_text(input).unwrap().0,
             vec![
-                Text("\n".into()),
-                Conditional {
-                    key: "foo".into(),
-                    children: vec![
-                        Text("\n".into()),
-                        Replacement {
-                            key: "Front".into(),
-                            filters: vec![]
-                        },
-                        Text("\n".into())
-                    ]
+                Text("\n{{#foo}}\n".into()),
+                Replacement {
+                    key: "Front".into(),
+                    filters: vec![]
                 },
-                Text("\n".into())
+                Text("\n{{/foo}}\n".into())
             ]
         );
     }
@@ -1159,6 +1224,24 @@ mod test {
             tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Text {
                 text: "12f".to_owned()
+            },]
+        );
+
+        // Hardcode comment delimiters into tests to keep them concise
+        assert_eq!(COMMENT_START, "<!--");
+        assert_eq!(COMMENT_END, "-->");
+
+        // commented
+        tmpl = PT::from_text(
+            "{{^E}}1<!--{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}-->\u{123}<!-- this is a comment -->{{/E}}\u{456}",
+        )
+        .unwrap();
+        assert_eq!(
+            tmpl.render(&ctx, &tr).unwrap(),
+            vec![FN::Text {
+                text:
+                    "1<!--{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}-->\u{123}<!-- this is a comment -->\u{456}"
+                        .to_owned()
             },]
         );
 
