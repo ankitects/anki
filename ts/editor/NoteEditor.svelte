@@ -442,13 +442,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ),
                 );
             }
-        } else {
-            const clozeNote = get(fieldStores[ioFields.occlusions]);
-            if (clozeNote.includes("oi=1")) {
-                $hideAllGuessOne = true;
-            } else {
-                $hideAllGuessOne = false;
-            }
         }
 
         isIOImageLoaded = true;
