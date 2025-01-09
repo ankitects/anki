@@ -9,11 +9,9 @@ use std::iter;
 use std::sync::LazyLock;
 
 use anki_i18n::I18n;
-use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
 use nom::combinator::map;
-use nom::combinator::rest;
 use nom::sequence::delimited;
 use regex::Regex;
 
@@ -38,6 +36,76 @@ static TEMPLATE_BLANK_CLOZE_LINK: &str =
 static COMMENT_START: &str = "<!--";
 static COMMENT_END: &str = "-->";
 
+static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TemplateMode {
+    Standard,
+    LegacyAltSyntax,
+}
+
+impl TemplateMode {
+    fn start_tag(&self) -> &'static str {
+        match self {
+            TemplateMode::Standard => "{{",
+            TemplateMode::LegacyAltSyntax => "<%",
+        }
+    }
+
+    fn end_tag(&self) -> &'static str {
+        match self {
+            TemplateMode::Standard => "}}",
+            TemplateMode::LegacyAltSyntax => "%>",
+        }
+    }
+
+    fn handlebar_token<'b>(&self, s: &'b str) -> nom::IResult<&'b str, Token<'b>> {
+        map(
+            delimited(
+                tag(self.start_tag()),
+                take_until(self.end_tag()),
+                tag(self.end_tag()),
+            ),
+            |out| classify_handle(out),
+        )(s)
+    }
+
+    /// Return the next handlebar, comment or text token.
+    fn next_token<'b>(&self, input: &'b str) -> Option<(&'b str, Token<'b>)> {
+        if input.is_empty() {
+            return None;
+        }
+
+        // Loop, starting from the first character
+        for (i, _) in input.char_indices() {
+            let remaining = &input[i..];
+
+            // Valid handlebar clause?
+            if let Ok((after_handlebar, token)) = self.handlebar_token(remaining) {
+                // Found at the start of string, so that's the next token
+                return Some(if i == 0 {
+                    (after_handlebar, token)
+                } else {
+                    // There was some text prior to this, so return it instead
+                    (remaining, Token::Text(&input[..i]))
+                });
+            }
+
+            // Check comments too
+            if let Ok((after_comment, token)) = comment_token(remaining) {
+                return Some(if i == 0 {
+                    (after_comment, token)
+                } else {
+                    (remaining, Token::Text(&input[..i]))
+                });
+            }
+        }
+
+        // If no matches, return the entire input as text, with nothing remaining
+        Some(("", Token::Text(input)))
+    }
+}
+
 // Lexing
 //----------------------------------------
 
@@ -49,24 +117,6 @@ pub enum Token<'a> {
     OpenConditional(&'a str),
     OpenNegated(&'a str),
     CloseConditional(&'a str),
-}
-
-/// consume till {{ or `tag`
-fn take_until_handlebar_start_or_tag<'a, E: nom::error::ParseError<&'a str>>(
-    tag: &'a str,
-) -> impl Fn(&'a str) -> nom::IResult<&'a str, &'a str, E> {
-    move |s| {
-        match (take_until("{{")(s), take_until(tag)(s)) {
-            // handlebar is closer
-            (hb @ Ok((_, hb_span)), Ok((_, tag_span))) if hb_span.len() < tag_span.len() => hb,
-            // tag is closer or is the only one ahead
-            (_, tag @ Ok(_)) => tag,
-            // hb is the only one ahead
-            (hb @ Ok(_), _) => hb,
-            // neither ahead, consume all
-            _ => rest(s),
-        }
-    }
 }
 
 /// a comment block, or if unclosed, until {{ as text
@@ -81,67 +131,19 @@ fn comment_token(s: &str) -> nom::IResult<&str, Token> {
     )(s)
 }
 
-/// text wrapped in handlebars
-fn handlebar_token(s: &str) -> nom::IResult<&str, Token> {
-    map(delimited(tag("{{"), take_until("}}"), tag("}}")), |out| {
-        classify_handle(out)
-    })(s)
-}
+fn tokens(mut template: &str) -> impl Iterator<Item = TemplateResult<Token<'_>>> {
+    let mode = if template.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
+        template = template
+            .trim_start()
+            .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE);
 
-/// Return the next handlebar, comment or text token.
-fn next_token(input: &str) -> nom::IResult<&str, Token> {
-    if input.is_empty() {
-        return Err(nom::Err::Error(nom::error::make_error(
-            input,
-            nom::error::ErrorKind::Complete,
-        )));
-    }
-
-    // Loop, starting from the first character
-    for (i, _) in input.char_indices() {
-        let remaining = &input[i..];
-
-        // Valid handlebar clause?
-        if let Ok((after_handlebar, token)) = handlebar_token(remaining) {
-            // Found at the start of string, so that's the next token
-            return Ok(if i == 0 {
-                (after_handlebar, token)
-            } else {
-                // There was some text prior to this, so return it instead
-                (remaining, Token::Text(&input[..i]))
-            });
-        }
-
-        // Check comments too
-        if let Ok((after_comment, token)) = comment_token(remaining) {
-            return Ok(if i == 0 {
-                (after_comment, token)
-            } else {
-                (remaining, Token::Text(&input[..i]))
-            });
-        }
-    }
-
-    // If no matches, return the entire input as text, with nothing remaining
-    Ok(("", Token::Text(input)))
-}
-
-fn tokens<'a>(template: &'a str) -> Box<dyn Iterator<Item = TemplateResult<Token>> + 'a> {
-    if template.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
-        Box::new(legacy_tokens(
-            template
-                .trim_start()
-                .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE),
-        ))
+        TemplateMode::LegacyAltSyntax
     } else {
-        Box::new(new_tokens(template))
-    }
-}
-
-fn new_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
+        TemplateMode::Standard
+    };
     iter::from_fn(move || {
         let token;
-        (data, token) = next_token(data).ok()?;
+        (template, token) = mode.next_token(template)?;
         Some(Ok(token))
     })
 }
@@ -161,51 +163,6 @@ fn classify_handle(s: &str) -> Token {
     } else {
         Token::Replacement(start)
     }
-}
-
-// Legacy support
-//----------------------------------------
-
-static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
-
-fn legacy_text_token(s: &str) -> nom::IResult<&str, Token> {
-    if s.is_empty() {
-        return Err(nom::Err::Error(nom::error::make_error(
-            s,
-            nom::error::ErrorKind::TakeUntil,
-        )));
-    }
-    map(take_until_handlebar_start_or_tag("<%"), Token::Text)(s)
-}
-
-fn legacy_next_token(input: &str) -> nom::IResult<&str, Token> {
-    alt((
-        handlebar_token,
-        alternate_handlebar_token,
-        legacy_text_token,
-    ))(input)
-}
-
-/// text wrapped in <% %>
-fn alternate_handlebar_token(s: &str) -> nom::IResult<&str, Token> {
-    map(delimited(tag("<%"), take_until("%>"), tag("%>")), |out| {
-        classify_handle(out)
-    })(s)
-}
-
-fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
-    iter::from_fn(move || {
-        if data.is_empty() {
-            return None;
-        }
-        match legacy_next_token(data) {
-            Ok((i, o)) => {
-                data = i;
-                Some(Ok(o))
-            }
-            Err(_e) => Some(Err(TemplateError::NoClosingBrackets(data.to_string()))),
-        }
-    })
 }
 
 // Parsing
@@ -1216,19 +1173,12 @@ mod test {
         assert_eq!(
             PT::from_text(input).unwrap().0,
             vec![
-                Text("\n".into()),
-                Conditional {
-                    key: "foo".into(),
-                    children: vec![
-                        Text("\n".into()),
-                        Replacement {
-                            key: "Front".into(),
-                            filters: vec![]
-                        },
-                        Text("\n".into())
-                    ]
+                Text("\n{{#foo}}\n".into()),
+                Replacement {
+                    key: "Front".into(),
+                    filters: vec![]
                 },
-                Text("\n".into())
+                Text("\n{{/foo}}\n".into())
             ]
         );
     }
