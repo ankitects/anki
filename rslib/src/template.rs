@@ -75,7 +75,7 @@ fn take_until_handlebar_start_or_tag<'a, E: nom::error::ParseError<&'a str>>(
 fn text_token(s: &str) -> nom::IResult<&str, Token> {
     map(
         verify(
-            alt((take_until_handlebar_start_or_tag(COMMENT_START), rest)),
+            take_until_handlebar_start_or_tag(COMMENT_START),
             |out: &str| !out.is_empty(),
         ),
         Token::Text,
