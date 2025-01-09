@@ -18,6 +18,7 @@ import {
 
 import * as tr from "@generated/ftl";
 import { timeSpan } from "@tslib/time";
+import { sumBy } from "lodash-es";
 import type { GraphBounds, TableDatum } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
@@ -163,6 +164,13 @@ export function renderSimulationChart(
             hideTooltip();
         });
 
+    const formatY: (value: number) => string = ({
+        [SimulateSubgraph.time]: timeSpan,
+        [SimulateSubgraph.count]: (value: number) => tr.statisticsReviews({ reviews: Math.round(value) }),
+        [SimulateSubgraph.memorized]: (value: number) =>
+            tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
+    })[subgraph];
+
     function mousemove(event: MouseEvent, d: any): void {
         pointer(event, document.body);
         const date = x.invert(d[0]);
@@ -188,14 +196,9 @@ export function renderSimulationChart(
             const hidden = path.classed("hidden");
 
             if (!hidden) {
-                const tooltip = ({
-                    [SimulateSubgraph.time]: timeSpan(value),
-                    [SimulateSubgraph.count]: tr.statisticsReviews({ reviews: Math.round(value) }),
-                    [SimulateSubgraph.memorized]: tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
-                })[subgraph];
-                tooltipContent += `<span style="color:${
-                    color[(parseInt(key) - 1) % color.length]
-                }">■</span> #${key}: ${tooltip}<br>`;
+                tooltipContent += `<span style="color:${color[(parseInt(key) - 1) % color.length]}">■</span> #${key}: ${
+                    formatY(value)
+                }<br>`;
             }
         }
 
@@ -212,7 +215,32 @@ export function renderSimulationChart(
         .join("g")
         .attr("transform", (d, i) => `translate(0,${i * 20})`)
         .attr("cursor", "pointer")
-        .on("click", (event, d) => toggleGroup(event, d));
+        .on("click", (event, d) => toggleGroup(event, d))
+        .on("mousemove", legendMouseMove)
+        .on("mouseout", hideTooltip);
+
+    const perDay = ({
+        [SimulateSubgraph.count]: tr.statisticsReviewsPerDay,
+        [SimulateSubgraph.time]: ({ count }: { count: number }) => timeSpan(count),
+        [SimulateSubgraph.memorized]: tr.statisticsCardsPerDay,
+    })[subgraph];
+
+    function legendMouseMove(e: MouseEvent, d: number) {
+        const data = subgraph_data.filter(datum => datum.label == d);
+
+        const total = subgraph == SimulateSubgraph.memorized
+            ? data[data.length - 1].memorized - data[0].memorized
+            : sumBy(data, d => d.y);
+        const average = total / (data?.length || 1);
+
+        showTooltip(
+            `#${d}:<br/>
+                ${tr.statisticsAverage()}: ${perDay({ count: average })}<br/>
+                ${tr.statisticsTotal()}: ${formatY(total)}`,
+            e.pageX,
+            e.pageY,
+        );
+    }
 
     legend.append("rect")
         .attr("x", bounds.width - bounds.marginRight + 36)
