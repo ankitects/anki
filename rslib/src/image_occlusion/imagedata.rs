@@ -97,6 +97,14 @@ impl Collection {
         let idxs = nt.get_io_field_indexes()?;
 
         cloze_note.occlusions = parse_image_occlusions(fields[idxs.occlusions as usize].as_str());
+        cloze_note.occlude_inactive = cloze_note.occlusions.iter().any(|oc| {
+            oc.shapes.iter().any(|sh| {
+                sh.properties
+                    .iter()
+                    .find(|p| p.name == "oi")
+                    .is_some_and(|p| p.value == "1")
+            })
+        });
         cloze_note.header.clone_from(&fields[idxs.header as usize]);
         cloze_note
             .back_extra
