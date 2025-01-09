@@ -147,14 +147,17 @@ class MainWebView(AnkiWebView):
             return
 
     # Main webview specific event handling
-    def eventFilter(self, obj, evt):
+    def eventFilter(self, obj: QObject | None, evt: QEvent | None) -> bool:
         if handled := super().eventFilter(obj, evt):
             return handled
 
         if evt.type() == QEvent.Type.Leave:
+            handled_leave = False
+
             # Show menubar when mouse moves outside main webview in fullscreen
             if self.mw.fullscreen:
                 self.mw.show_menubar()
+                handled_leave = True
 
             # Show toolbar when mouse moves outside main webview
             # and automatically hide it with delay after mouse has entered again
@@ -162,8 +165,9 @@ class MainWebView(AnkiWebView):
             if self.mw.pm.hide_top_bar() or self.mw.pm.hide_bottom_bar():
                 self.mw.toolbarWeb.show()
                 self.mw.bottomWeb.show()
+                handled_leave = True
 
-            return True
+            return handled_leave
 
         if evt.type() == QEvent.Type.Enter:
             self.mw.toolbarWeb.hide_timer.start()
