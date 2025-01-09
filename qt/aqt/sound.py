@@ -427,6 +427,12 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         if self._on_done:
             self._on_done()
 
+        m = re.search(r"(\d+)\.(\d+)\.(\d+)", self.get_property("mpv-version"))
+        if m:
+            self.mpv_version = (int(m[1]), int(m[2]), int(m[3]))
+        else:
+            self.mpv_version = None
+
         try:
             self.command("keybind", "q", "stop")
             self.command("keybind", "Q", "stop")
@@ -442,7 +448,10 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         filename = hooks.media_file_filter(tag.filename)
         path = os.path.join(self.media_folder, filename)
 
-        self.command("loadfile", path, "replace", "pause=no")
+        if self.mpv_version is None or self.mpv_version >= (0, 38, 0):
+            self.command("loadfile", path, "replace", -1, "pause=no")
+        else:
+            self.command("loadfile", path, "replace", "pause=no")
         gui_hooks.av_player_did_begin_playing(self, tag)
 
     def stop(self) -> None:
