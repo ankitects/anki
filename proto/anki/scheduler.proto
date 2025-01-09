@@ -388,6 +388,7 @@ message SimulateFsrsReviewRequest {
   uint32 review_limit = 6;
   uint32 max_interval = 7;
   string search = 8;
+  bool new_cards_ignore_review_limit = 9;
 }
 
 message SimulateFsrsReviewResponse {
