@@ -76,6 +76,7 @@ message GetImageOcclusionNoteResponse {
     string back_extra = 4;
     repeated string tags = 5;
     string image_file_name = 6;
+    bool occlude_inactive = 7;
   }
 
   oneof value {
