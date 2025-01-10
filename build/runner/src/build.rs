@@ -7,6 +7,8 @@ use std::io::Write;
 use std::process::Command;
 use std::time::Instant;
 
+use anki_process::CommandExt;
+use anyhow::Context;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use clap::Args;
@@ -162,11 +164,12 @@ fn maybe_update_buildhash(build_root: &Utf8Path) {
 fn get_buildhash() -> String {
     let output = Command::new("git")
         .args(["rev-parse", "--short=8", "HEAD"])
-        .output()
-        .expect("git");
-    assert!(output.status.success(),
-            "Invoking 'git' failed. Make sure you're building from a clone of the git repo, and that 'git' is installed.");
-    String::from_utf8(output.stdout).unwrap().trim().into()
+        .utf8_output()
+        .context(
+            "Make sure you're building from a clone of the git repo, and that 'git' is installed.",
+        )
+        .unwrap();
+    output.stdout.trim().into()
 }
 
 fn write_if_changed(path: &Utf8Path, contents: &str) {
