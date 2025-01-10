@@ -38,14 +38,27 @@ Once done with build, you can proceed with running this image with the following
 
 ```bash
 # this will create anki server
-docker run -d  -e "SYNC_USER1=admin:admin" -p 8080:8080 --name anki-sync-server anki-sync-server
+docker run -d \
+    -e "SYNC_USER1=admin:admin" \
+    -p 8080:8080 \
+    --mount type=volume,src=anki-sync-server-data,dst=/anki_data \
+    --name anki-sync-server \
+    anki-sync-server
 ```
 
 However, if you want to have multiple users, you have to use the following approach:
 
 ```bash
 # this will create anki server with multiple users
-docker run -d -e "SYNC_USER1=test:test" -e "SYNC_USER2=test2:test2" -p 8080:8080 --name anki-sync-server anki-sync-server
+docker run -d \
+    -e "SYNC_USER1=admin:admin" \
+    -e "SYNC_USER2=admin2:admin2" \
+    -p 8080:8080 \
+    --mount type=volume,src=anki-sync-server-data,dst=/anki_data \
+    --name anki-sync-server \
+    anki-sync-server
 ```
 
-Moreover, you can pass additional env vars mentioned [here](https://docs.ankiweb.net/sync-server.html)
+Moreover, you can pass additional env vars mentioned
+[here](https://docs.ankiweb.net/sync-server.html). Note that you should **not**
+override SYNC_BASE because you risk data loss.
