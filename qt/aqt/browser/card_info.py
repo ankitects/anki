@@ -17,10 +17,12 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     setWindowIcon,
+    tooltip,
     tr,
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
-
+from google.protobuf.json_format import MessageToDict
+import json
 
 class CardInfoDialog(QDialog):
     TITLE = "browser card info"
@@ -60,11 +62,34 @@ class CardInfoDialog(QDialog):
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
-        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-        buttons.setContentsMargins(10, 0, 10, 10)
-        layout.addWidget(buttons)
-        qconnect(buttons.rejected, self.reject)
+
+        button_layout = QHBoxLayout()
+
+        close_button = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        close_button.setContentsMargins(10, 0, 10, 10)
+        button_layout.addWidget(close_button)
+
+        copy_button = QPushButton("Copy card debug info")
+        copy_button.setContentsMargins(10, 0, 10, 10)
+        copy_button.clicked.connect(lambda: self.copy_card_info(card_id))
+        button_layout.addWidget(copy_button)
+        
+        layout.addLayout(button_layout)
+        qconnect(close_button.rejected, self.reject)
         self.setLayout(layout)
+    
+    def copy_card_info(self, card_id: CardId | None) -> None:
+        if card_id is None:
+            return
+
+        info = aqt.mw.col.card_stats_data(card_id)
+        info = MessageToDict(info)
+
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(json.dumps(info, indent=3))
+
+        tooltip(tr.about_copied_to_clipboard())
 
     def update_card(self, card_id: CardId | None) -> None:
         try:
