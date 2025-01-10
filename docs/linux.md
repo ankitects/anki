@@ -52,13 +52,16 @@ To play and record audio during development, install mpv and lame.
 
 ## ARM64 support
 
-Other platforms download PyQt binary wheels from PyPI. There are no PyQt wheels available
-for ARM Linux, so you will need to rely on your system-provided libraries instead. Your distro
-will need to have Python 3.9 or later.
+If you're on a glibc 2.39+ system, you can skip the rest of this section.
 
-After installing the system libraries (eg 'sudo apt install python3-pyqt6.qt{quick,webengine} python3-venv'),
+If your system has an older glibc, you won't be able to use the PyQt wheels that are
+available in pip/PyPy, and will need to use your system-installed PyQt instead.
+Your distro will also need to have Python 3.9 or later.
+
+After installing the system libraries (eg:
+'sudo apt install python3-pyqt6.qt{quick,webengine} python3-venv pyqt6-dev-tools'),
 find the place they are installed (eg '/usr/lib/python3/dist-packages'). On modern Ubuntu, you'll
-need 'sudo apt remove python3-protobuf'. Then before running any commands like './run', tell Anki where
+also need 'sudo apt remove python3-protobuf'. Then before running any commands like './run', tell Anki where
 the packages can be found:
 
 ```

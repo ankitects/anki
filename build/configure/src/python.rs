@@ -28,8 +28,8 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
         ]
     } else if cfg!(target_os = "macos") {
         inputs!["python/requirements.qt6_mac.txt",]
-    } else if cfg!(all(target_os = "linux", target_arch = "aarch64")) {
-        // system-provided Qt on ARM64
+    } else if std::env::var("PYTHONPATH").is_ok() {
+        // assume we have a system-provided Qt
         inputs![]
     } else {
         // normal linux
