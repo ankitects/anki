@@ -19,13 +19,10 @@ Users on ARM64, see the notes at the bottom of this file before proceeding.
 **Ensure some basic tools are installed**:
 
 ```
-$ sudo apt install bash grep findutils curl gcc g++ make git rsync ninja-build
+$ sudo apt install bash grep findutils curl gcc g++ make git rsync
 ```
 
 - The 'find' utility is 'findutils' on Debian.
-- Your distro may call the package 'ninja' instead of 'ninja-build', or it
-  may not have a version new enough - if so, install from the zip mentioned in
-  development.md.
 
 ## Missing Libraries
 
