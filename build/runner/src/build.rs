@@ -77,7 +77,9 @@ pub fn run_build(args: BuildArgs) {
     }
 
     // run build
-    let mut status = command.status().expect("ninja not installed");
+    let Ok(mut status) = command.status() else {
+        panic!("\nn2 and ninja missing/failed. did you forget 'bash tools/install-n2'?");
+    };
     if !status.success() && Instant::now().duration_since(start_time).as_secs() < 3 {
         // if the build fails quickly, there's a reasonable chance that build.ninja
         // references a file that has been renamed/deleted. We currently don't
