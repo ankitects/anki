@@ -17,6 +17,8 @@ COPY --from=builder /anki-server/bin/anki-sync-server /usr/bin/anki-sync-server
 
 ENV SYNC_PORT=${SYNC_PORT}
 
+ENV SYNC_BASE=/anki_data
+
 EXPOSE ${SYNC_PORT}
 
 CMD ["anki-sync-server"]
@@ -25,5 +27,7 @@ CMD ["anki-sync-server"]
 # For older versions, it may incorrectly report an unhealthy status, which should not be the case.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 CMD ["anki-sync-server", "--healthcheck"]
+
+VOLUME /anki_data
 
 LABEL maintainer="Jean Khawand <jk@jeankhawand.com>"
