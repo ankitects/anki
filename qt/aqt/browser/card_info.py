@@ -64,16 +64,15 @@ class CardInfoDialog(QDialog):
         layout.addWidget(self.web)
 
         button_layout = QHBoxLayout()
-
-        close_button = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-        close_button.setContentsMargins(10, 0, 10, 10)
-        button_layout.addWidget(close_button)
+        button_layout.setContentsMargins(10, 0, 10, 10)
 
         copy_button = QPushButton("Copy card debug info")
-        copy_button.setContentsMargins(10, 0, 10, 10)
         copy_button.clicked.connect(lambda: self.copy_card_info(card_id))
         button_layout.addWidget(copy_button)
-        
+
+        close_button = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        button_layout.addWidget(close_button)
+
         layout.addLayout(button_layout)
         qconnect(close_button.rejected, self.reject)
         self.setLayout(layout)
