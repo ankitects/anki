@@ -71,5 +71,25 @@ docker run -d \
 ```
 
 Moreover, you can pass additional env vars mentioned
-[here](https://docs.ankiweb.net/sync-server.html). Note that you should **not**
-override SYNC_BASE because you risk data loss.
+[here](https://docs.ankiweb.net/sync-server.html). Note that `SYNC_BASE` and
+`SYNC_PORT` will be ignored. In the first case for safety reasons, to avoid
+accidentally placing data outside the volume and the second for simplicity
+since the internal port of the container does not matter given that you can
+change the external one.
+
+# Upgrading
+
+If your image was built after January 2025 then you can just build a new image
+and start a new container with the same configuration as the previous
+container. Everything should work as expected.
+
+If the image you were running was built **before January 2025** then it did not
+contain a volume, meaning all syncserver data was stored inside the container.
+If you discard the container, for example because you want to build a new
+container using an updated image, then your syncserver data will be lost.
+
+The easiest way of working around this is by ensuring at least one of your
+devices is fully in sync with your syncserver before upgrading the Docker
+container. Then after upgrading the container when you try to sync your device
+it will tell you that the server has no data. You will then be given the option
+of uploading all local data from the device to syncserver.

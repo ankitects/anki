@@ -7,6 +7,11 @@ set -o pipefail
 export PUID=${PUID:-1000}
 export PGID=${PGID:-1000}
 
+# These values are fixed and cannot be overwritten from the outside for
+# convenience and safety reasons
+export SYNC_PORT=8080
+export SYNC_BASE=/anki_data
+
 # Check if group exists, create if not
 if ! getent group anki-group > /dev/null 2>&1; then
     addgroup -g "$PGID" anki-group
