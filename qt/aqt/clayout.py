@@ -756,20 +756,20 @@ class CardLayout(QDialog):
 
     def onCopyMarkdown(self) -> None:
         template = self.current_template()
-        markdown = \
-            f"**Front Template**\n\n" \
-            "```html\n" \
-            f"{template['qfmt']}\n" \
-            "```\n\n" \
-            "**Back Template**\n\n" \
-            "```html\n" \
-            f"{template['afmt']}\n" \
-            "```\n\n" \
-            "**Styling**\n\n" \
-            "```css\n" \
-            f"{self.model['css']}\n" \
-            "```\n\n" \
-
+        markdown = (
+            f"**Front Template**\n\n"
+            "```html\n"
+            f"{template['qfmt']}\n"
+            "```\n\n"
+            "**Back Template**\n\n"
+            "```html\n"
+            f"{template['afmt']}\n"
+            "```\n\n"
+            "**Styling**\n\n"
+            "```css\n"
+            f"{self.model['css']}\n"
+            "```\n\n"
+        )
         clipboard = QApplication.clipboard()
         assert clipboard is not None
         clipboard.setText(markdown)
