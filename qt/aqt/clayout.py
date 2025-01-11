@@ -754,6 +754,27 @@ class CardLayout(QDialog):
         dst["afmt"] = "{{FrontSide}}\n\n<hr id=answer>\n\n%s" % src["qfmt"]
         dst["qfmt"] = m.group(2).strip()
 
+    def onCopyInfo(self) -> None:
+        template = self.current_template()
+        info = \
+            f"## Front Template\n" \
+            "```html\n" \
+            f"{template['qfmt']}\n" \
+            "```\n" \
+            "## Back Template\n" \
+            "```html\n" \
+            f"{template['afmt']}\n" \
+            "```\n" \
+            "## Styling\n" \
+            "```css\n" \
+            f"{self.model['css']}" \
+            "```\n" \
+
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(info)
+        tooltip(tr.about_copied_to_clipboard())
+
     def onMore(self) -> None:
         m = QMenu(self)
 
@@ -793,6 +814,10 @@ class CardLayout(QDialog):
             a = m.addAction(tr.card_templates_deck_override() + s)
             assert a is not None
             qconnect(a.triggered, self.onTargetDeck)
+
+            a = m.addAction(tr.card_templates_copy_as_markdown())
+            assert a is not None
+            qconnect(a.triggered, self.onCopyInfo)
 
         a = m.addAction(tr.card_templates_browser_appearance())
         assert a is not None
