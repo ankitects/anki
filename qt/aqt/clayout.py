@@ -767,7 +767,7 @@ class CardLayout(QDialog):
             "```\n\n" \
             "**Styling**\n\n" \
             "```css\n" \
-            f"{self.model['css']}" \
+            f"{self.model['css']}\n" \
             "```\n\n" \
 
         clipboard = QApplication.clipboard()
