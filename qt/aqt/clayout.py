@@ -757,18 +757,18 @@ class CardLayout(QDialog):
     def onCopyInfo(self) -> None:
         template = self.current_template()
         info = \
-            f"## Front Template\n" \
+            f"**Front Template**\n\n" \
             "```html\n" \
             f"{template['qfmt']}\n" \
-            "```\n" \
-            "## Back Template\n" \
+            "```\n\n" \
+            "**Back Template**\n\n" \
             "```html\n" \
             f"{template['afmt']}\n" \
-            "```\n" \
-            "## Styling\n" \
+            "```\n\n" \
+            "**Styling**\n\n" \
             "```css\n" \
             f"{self.model['css']}" \
-            "```\n" \
+            "```\n\n" \
 
         clipboard = QApplication.clipboard()
         assert clipboard is not None
