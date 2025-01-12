@@ -10,9 +10,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let data: PageData;
 
-    const importer = {
+    const importer: Importer = {
         doImport: () => importJsonFile({ val: data.path }, {}),
-    } as Importer;
+    };
 </script>
 
 <ImportPage path={data.path} {importer} />

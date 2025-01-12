@@ -19,8 +19,8 @@ function imageLoaded(img: HTMLImageElement): Promise<void> {
 }
 
 function extractImageSrcs(fragment: DocumentFragment): string[] {
-    const srcs = [...fragment.querySelectorAll("img[src]")].map(
-        (img) => (img as HTMLImageElement).src,
+    const srcs = [...fragment.querySelectorAll<HTMLImageElement>("img[src]")].map(
+        (img) => img.src,
     );
     return srcs;
 }

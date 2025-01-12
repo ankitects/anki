@@ -85,7 +85,7 @@ function exampleInput(): SchedulingStatesWithContext {
 
 test("can change oneof", () => {
     let states = exampleInput().states!;
-    const jsonStates = states.toJson({ "emitDefaultValues": true }) as any;
+    const jsonStates = states.toJson({ "emitDefaultValues": true });
     // again should be a relearning state
     const inner = states.again?.kind?.value?.kind;
     assert(inner?.case === "relearning");

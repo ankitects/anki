@@ -46,7 +46,7 @@ export function histogramGraph(
         setDataAvailable(svg, true);
     }
 
-    const binValue = data.binValue ?? ((bin: any): number => bin.length as number);
+    const binValue = data.binValue ?? ((bin: Bin<any, any>) => bin.length);
 
     const x = data.scale.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")

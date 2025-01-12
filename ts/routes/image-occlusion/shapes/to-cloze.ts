@@ -60,7 +60,7 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
             if (shapeOrShapes instanceof Text) {
                 ordinal = 0;
             } else if (missingOrdinals.length > 0) {
-                ordinal = missingOrdinals.shift() as number;
+                ordinal = missingOrdinals.shift()!;
             } else {
                 ordinal = nextOrdinal;
                 nextOrdinal++;
@@ -96,7 +96,7 @@ export function baseShapesFromFabric(): ShapeOrShapes[] {
             && (activeObject.size() > 1)
         ? activeObject
         : null;
-    const objects = canvas.getObjects() as fabric.Object[];
+    const objects = canvas.getObjects();
     const boundingBox = getBoundingBoxSize();
     // filter transparent rectangles
     return objects
