@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
+
+from google.protobuf.json_format import MessageToDict
 
 import aqt
 from anki.cards import Card, CardId
@@ -21,8 +24,7 @@ from aqt.utils import (
     tr,
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
-from google.protobuf.json_format import MessageToDict
-import json
+
 
 class CardInfoDialog(QDialog):
     TITLE = "browser card info"
@@ -76,7 +78,7 @@ class CardInfoDialog(QDialog):
         layout.addLayout(button_layout)
         qconnect(close_button.rejected, self.reject)
         self.setLayout(layout)
-    
+
     def copy_card_info(self, card_id: CardId | None) -> None:
         if card_id is None:
             return
@@ -84,9 +86,16 @@ class CardInfoDialog(QDialog):
         info = aqt.mw.col.card_stats_data(card_id)
         info = MessageToDict(info)
 
+        card = aqt.mw.col.get_card(card_id)
+        deck = aqt.mw.col.decks.get(card.did)
+        config = aqt.mw.col.decks.get_config(deck["conf"])
+
+        info["deck"] = deck
+        info["config"] = config
+
         clipboard = QApplication.clipboard()
         assert clipboard is not None
-        clipboard.setText(json.dumps(info, indent=3))
+        clipboard.setText(json.dumps(info))
 
         tooltip(tr.about_copied_to_clipboard())
 
