@@ -756,18 +756,22 @@ class CardLayout(QDialog):
 
     def onCopyMarkdown(self) -> None:
         template = self.current_template()
+
+        def sanitizeMarkdown(md):
+            return md.replace('```', '\\`\\`\\`')
+
         markdown = (
             f"**Front Template**\n\n"
             "```html\n"
-            f"{template['qfmt']}\n"
+            f"{sanitizeMarkdown(template['qfmt'])}\n"
             "```\n\n"
             "**Back Template**\n\n"
             "```html\n"
-            f"{template['afmt']}\n"
+            f"{sanitizeMarkdown(template['afmt'])}\n"
             "```\n\n"
             "**Styling**\n\n"
             "```css\n"
-            f"{self.model['css']}\n"
+            f"{sanitizeMarkdown(self.model['css'])}\n"
             "```\n\n"
         )
         clipboard = QApplication.clipboard()
