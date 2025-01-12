@@ -93,6 +93,15 @@ class CardInfoDialog(QDialog):
         info["deck"] = deck
         info["config"] = config
 
+        info["config"].pop("name", None)
+        info["deck"].pop("name", None)
+        info["deck"].pop("desc", None)
+        info["deck"].pop("usn", None)
+        info.pop("usn", None)
+        info.pop("cardType", None)
+        info.pop("notetype", None)
+        info.pop("preset", None)
+
         clipboard = QApplication.clipboard()
         assert clipboard is not None
         clipboard.setText(json.dumps(info))
