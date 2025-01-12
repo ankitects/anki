@@ -758,7 +758,7 @@ class CardLayout(QDialog):
         template = self.current_template()
 
         def sanitizeMarkdown(md):
-            return md.replace('```', '\\`\\`\\`')
+            return md.replace("```", "\\`\\`\\`")
 
         markdown = (
             f"## Front Template\n"
