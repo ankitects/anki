@@ -51,7 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? tr.deckConfigGoodAboveEasy()
             : "";
 
-    // svelte-ignore reactive_declaration_non_reactive_property
     $: insertionOrderRandom =
         $config.newCardInsertOrder == DeckConfig_Config_NewCardInsertOrder.RANDOM
             ? tr.deckConfigNewInsertionOrderRandomWithV3()

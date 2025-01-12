@@ -16,7 +16,7 @@
     },
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.8.0",
-        "@poppanator/sveltekit-svg": "^5.0.0-svelte5.5",
+        "@poppanator/sveltekit-svg": "^5.0.0",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
         "@sveltejs/kit": "^2.8.3",
@@ -48,7 +48,7 @@
         "prettier": "^2.4.1",
         "prettier-plugin-svelte": "^3.2.6",
         "sass": "<1.77",
-        "svelte": "5.0.0",
+        "svelte": "^5.17.3",
         "svelte-check": "^3.4.4",
         "svelte-preprocess": "^5.0.4",
         "svelte-preprocess-esbuild": "^3.0.1",
