@@ -761,18 +761,18 @@ class CardLayout(QDialog):
             return md.replace('```', '\\`\\`\\`')
 
         markdown = (
-            f"**Front Template**\n\n"
+            f"## Front Template\n"
             "```html\n"
             f"{sanitizeMarkdown(template['qfmt'])}\n"
-            "```\n\n"
-            "**Back Template**\n\n"
+            "```\n"
+            "## Back Template\n"
             "```html\n"
             f"{sanitizeMarkdown(template['afmt'])}\n"
-            "```\n\n"
-            "**Styling**\n\n"
+            "```\n"
+            "## Styling\n"
             "```css\n"
             f"{sanitizeMarkdown(self.model['css'])}\n"
-            "```\n\n"
+            "```\n"
         )
         clipboard = QApplication.clipboard()
         assert clipboard is not None
@@ -819,7 +819,7 @@ class CardLayout(QDialog):
             assert a is not None
             qconnect(a.triggered, self.onTargetDeck)
 
-            a = m.addAction(tr.card_templates_copy_as_markdown())
+            a = m.addAction(tr.card_templates_copy_info())
             assert a is not None
             qconnect(a.triggered, self.onCopyMarkdown)
 
