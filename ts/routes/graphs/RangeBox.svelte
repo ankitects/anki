@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let displayedSearch = $search;
 
     $: {
-        switch (searchRange as SearchRange) {
+        switch (searchRange) {
             case SearchRange.Deck:
                 $search = displayedSearch = "deck:current";
                 break;
@@ -44,9 +44,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    // svelte-ignore reactive_declaration_non_reactive_property
     $: {
-        switch (revlogRange as RevlogRange) {
+        switch (revlogRange) {
             case RevlogRange.Year:
                 $days = 365;
                 break;

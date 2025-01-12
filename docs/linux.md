@@ -11,11 +11,6 @@ You can see a full list of buildtime and runtime requirements by looking at the
 [Dockerfiles](../.buildkite/linux/docker/Dockerfile.amd64) used to build the
 official releases.
 
-Glibc is required - if you are on a distro like Alpine that uses musl, things
-may not work.
-
-Users on ARM64, see the notes at the bottom of this file before proceeding.
-
 **Ensure some basic tools are installed**:
 
 ```
@@ -50,9 +45,13 @@ error while loading shared libraries: libcrypt.so.1: cannot open shared object f
 
 To play and record audio during development, install mpv and lame.
 
-## ARM64 support
+## Glibc and Qt
 
-If you're on a glibc 2.39+ system, you can skip the rest of this section.
+Anki requires a recent glibc.
+
+If you are using a distro that uses musl, Anki will not work.
+
+If your glibc version is 2.35+ on AMD64 or 2.39+ on ARM64, you can skip the rest of this section.
 
 If your system has an older glibc, you won't be able to use the PyQt wheels that are
 available in pip/PyPy, and will need to use your system-installed PyQt instead.

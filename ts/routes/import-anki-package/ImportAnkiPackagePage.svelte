@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             url: HelpPage.PackageImporting.updating,
         },
     };
-    const helpSections = Object.values(settings) as HelpItem[];
+    const helpSections: HelpItem[] = Object.values(settings);
     let modal: Modal;
     let carousel: Carousel;
 

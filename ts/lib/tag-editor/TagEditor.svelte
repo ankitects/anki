@@ -375,10 +375,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function deleteSelectedTags() {
         tagTypes
-            .map((tag, index) => [tag.selected, index])
+            .map((tag, index): [boolean, number] => [tag.selected, index])
             .filter(([selected]) => selected)
             .reverse()
-            .forEach(([, index]) => deleteTagAt(index as number));
+            .forEach(([, index]) => deleteTagAt(index));
         deselect();
         saveTags();
     }

@@ -53,9 +53,9 @@ async function setupImageOcclusion(setupOptions?: SetupImageOcclusionOptions): P
 /** We must make sure the image has loaded before we can access its dimensions.
  * This can happen if not preloading, or if preloading takes too long. */
 async function waitForImage(): Promise<void> {
-    const image = document.querySelector(
+    const image = document.querySelector<HTMLImageElement>(
         "#image-occlusion-container img",
-    ) as HTMLImageElement | null;
+    );
     if (!image) {
         // error will be handled later
         return;
@@ -116,9 +116,9 @@ function calculateContainerSize(
 let oneTimeSetupDone = false;
 
 async function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOptions): Promise<void> {
-    const canvas = document.querySelector(
+    const canvas = document.querySelector<HTMLCanvasElement>(
         "#image-occlusion-canvas",
-    ) as HTMLCanvasElement | null;
+    );
     if (canvas == null) {
         return;
     }
@@ -126,9 +126,9 @@ async function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOption
     const container = document.getElementById(
         "image-occlusion-container",
     ) as HTMLDivElement;
-    const image = document.querySelector(
+    const image = document.querySelector<HTMLImageElement>(
         "#image-occlusion-container img",
-    ) as HTMLImageElement;
+    );
     if (image == null) {
         await setupI18n({
             modules: [

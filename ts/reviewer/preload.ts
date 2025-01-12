@@ -34,7 +34,7 @@ function createPreloadLink(href: string, as: string): HTMLLinkElement {
 }
 
 function extractExternalStyleSheets(fragment: DocumentFragment): CSSElement[] {
-    return ([...fragment.querySelectorAll("style, link")] as CSSElement[])
+    return [...fragment.querySelectorAll<CSSElement>("style, link")]
         .filter((css) =>
             (css instanceof HTMLStyleElement && css.innerHTML.includes("@import"))
             || (css instanceof HTMLLinkElement && css.rel === "stylesheet")

@@ -18,7 +18,7 @@ function getCSS(nightMode: boolean, fontSize: number): string {
 }
 
 function getStyle(css: string): HTMLStyleElement {
-    const style = document.createElement("style") as HTMLStyleElement;
+    const style = document.createElement("style");
     style.appendChild(document.createTextNode(css));
     return style;
 }

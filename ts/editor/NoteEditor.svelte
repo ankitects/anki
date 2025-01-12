@@ -386,9 +386,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
      * Enable/Disable add-on buttons that do not have the `perm` class
      */
     function setAddonButtonsDisabled(disabled: boolean): void {
-        document.querySelectorAll("button.linkb:not(.perm)").forEach((button) => {
-            (button as HTMLButtonElement).disabled = disabled;
-        });
+        document
+            .querySelectorAll<HTMLButtonElement>("button.linkb:not(.perm)")
+            .forEach((button) => {
+                button.disabled = disabled;
+            });
     }
 
     import { ImageOcclusionFieldIndexes } from "@generated/anki/image_occlusion_pb";

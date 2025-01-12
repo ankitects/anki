@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         callback: (key: KeyType) => Promise<boolean>,
     ): void {
         stateStore.update((map: StateMap): StateMap => {
-            const newMap = new Map() as StateMap;
+            const newMap: StateMap = new Map();
 
             for (const key of map.keys()) {
                 newMap.set(key, callback(key));
