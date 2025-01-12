@@ -27,6 +27,7 @@ pub(crate) fn open_test_collection_with_learning_card() -> Collection {
     let mut col = Collection::new();
     NoteAdder::basic(&mut col).add(&mut col);
     col.answer_again();
+    col.clear_study_queues();
     col
 }
 
@@ -40,6 +41,7 @@ pub(crate) fn open_test_collection_with_relearning_card() -> Collection {
         .unwrap();
     col.clear_study_queues();
     col.answer_again();
+    col.clear_study_queues();
     col
 }
 
