@@ -87,6 +87,7 @@ class CardInfoDialog(QDialog):
         info = MessageToDict(info)
 
         card = aqt.mw.col.get_card(card_id)
+        revlog = aqt.mw.col.db.execute(f"SELECT * FROM revlog WHERE cid == {card_id} ORDER BY id DESC")
         deck = aqt.mw.col.decks.get(card.did)
         config = aqt.mw.col.decks.get_config(deck["conf"])
 
@@ -101,6 +102,9 @@ class CardInfoDialog(QDialog):
         info.pop("cardType", None)
         info.pop("notetype", None)
         info.pop("preset", None)
+
+        new_revlog = [{"row": revlog, "info": card_info_review} for revlog, card_info_review in zip(revlog, info["revlog"])]
+        info["revlog"] = new_revlog
 
         clipboard = QApplication.clipboard()
         assert clipboard is not None
