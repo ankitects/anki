@@ -98,6 +98,9 @@ class TopWebView(ToolbarWebView):
         if self.mw.state != "review":
             return
 
+        # Invariant: The `hide_if_allowed` method ensures that the fullscreen state is checked
+        # and the menubar will be hidden if necessary
+        # Note: The `eventFilter` and `_reviewState` methods in `qt/aqt/main.py` rely on this invariant
         if self.mw.fullscreen:
             self.mw.hide_menubar()
 
