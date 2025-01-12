@@ -41,6 +41,8 @@
 		<true/>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>The microphone will only be used when you tap the record button.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Add-ons may access your camera.</string>		
 		<key>NSRequiresAquaSystemAppearance</key>
 		<true/>
 		<key>NSSupportsAutomaticGraphicsSwitching</key>
