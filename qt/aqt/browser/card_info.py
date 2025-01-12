@@ -103,6 +103,8 @@ class CardInfoDialog(QDialog):
         info.pop("notetype", None)
         info.pop("preset", None)
 
+        info["cardRow"] = aqt.mw.col.db.execute(f"SELECT * FROM cards WHERE id == {card_id} ORDER BY id DESC")[0]
+
         new_revlog = [{"row": revlog, "info": card_info_review} for revlog, card_info_review in zip(revlog, info["revlog"])]
         info["revlog"] = new_revlog
 
