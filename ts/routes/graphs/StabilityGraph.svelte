@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher<SearchEventMap>();
 
     let intervalData: IntervalGraphData | null = null;
-    let histogramData = null as HistogramData | null;
+    let histogramData: HistogramData | null = null;
     let tableData: TableDatum[] = [];
     let range = IntervalRange.Percentile95;
 

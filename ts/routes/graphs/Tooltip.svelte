@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let y: number = 0;
     export let show = true;
 
-    let container = null as unknown as HTMLDivElement;
+    let container: HTMLDivElement | null = null;
 
     let adjustedX: number, adjustedY: number;
 

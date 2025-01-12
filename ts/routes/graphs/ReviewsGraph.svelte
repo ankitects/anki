@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let graphData: GraphData | null = null;
 
     const bounds = defaultGraphBounds();
-    let svg = null as HTMLElement | SVGElement | null;
+    let svg: HTMLElement | SVGElement | null = null;
     let graphRange: GraphRange = GraphRange.Month;
     let showTime = false;
 
@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         graphData = gatherData(sourceData);
     }
 
-    let tableData: TableDatum[] = [] as any;
+    let tableData: TableDatum[] = [];
     $: if (graphData) {
         tableData = renderReviews(
             svg as SVGElement,

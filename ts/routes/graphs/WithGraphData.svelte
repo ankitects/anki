@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setGraphPreferences,
     );
 
-    let sourceData = null as null | GraphsResponse;
+    let sourceData: GraphsResponse | null = null;
     let loading = true;
     $: updateSourceData($search, $days);
 

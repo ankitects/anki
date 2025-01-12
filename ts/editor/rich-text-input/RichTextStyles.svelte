@@ -43,17 +43,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: setStyling("fontSize", fontSize + "px");
     $: setStyling("direction", direction);
 
-    const styles = [
+    const styles: StyleLinkType[] = [
         {
             id: "rootStyle",
-            type: "link" as "link",
+            type: "link",
             href: "./_anki/css/editable.css",
-        } as StyleLinkType,
+        },
     ];
 
     function attachToShadow(element: Element) {
         const customStyles = mount(CustomStyles, {
-            target: element.shadowRoot as any,
+            target: element.shadowRoot!,
             props: { styles },
         });
         customStyles.addStyleTag("userBase").then((styleTag) => {
