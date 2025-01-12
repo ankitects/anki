@@ -20,14 +20,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher<SearchEventMap>();
 
-    let svg = null as HTMLElement | SVGElement | null;
+    let svg: HTMLElement | SVGElement | null = null;
 
     const bounds = defaultGraphBounds();
     bounds.width = 225;
     bounds.marginBottom = 0;
 
-    let graphData = null as unknown as GraphData;
-    let tableData = null as unknown as TableDatum[];
+    let graphData: GraphData = null!;
+    let tableData: TableDatum[] = null!;
 
     $: {
         graphData = gatherData(sourceData, $prefs.cardCountsSeparateInactive);

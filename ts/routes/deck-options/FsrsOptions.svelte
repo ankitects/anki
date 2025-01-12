@@ -300,10 +300,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return tr.deckConfigPredictedOptimalRetention({ num: retention.toFixed(2) });
     }
 
-    let tableData: TableDatum[] = [] as any;
+    let tableData: TableDatum[] = [];
     const bounds = defaultGraphBounds();
     bounds.marginLeft += 8;
-    let svg = null as HTMLElement | SVGElement | null;
+    let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
 
     let points: Point[] = [];

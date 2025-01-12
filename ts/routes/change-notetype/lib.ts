@@ -93,12 +93,12 @@ export class ChangeNotetypeInfoWrapper {
     }
 
     input(): ChangeNotetypeRequest {
-        return this.info.input as ChangeNotetypeRequest;
+        return this.info.input!;
     }
 
     /** Pack changes back into input message for saving. */
     intoInput(): ChangeNotetypeRequest {
-        const input = this.info.input as ChangeNotetypeRequest;
+        const input = this.info.input!;
         input.newFields = nullToNegativeOne(this.fields);
         if (this.templates) {
             input.newTemplates = nullToNegativeOne(this.templates);
@@ -194,7 +194,7 @@ export class ChangeNotetypeState {
                 idx,
                 name: entry.name,
                 current: entry.id === currentId,
-            } as NotetypeListEntry),
+            } satisfies NotetypeListEntry),
         );
     }
 }

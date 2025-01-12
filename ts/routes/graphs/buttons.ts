@@ -75,21 +75,21 @@ export function renderButtons(
                 buttonNum: idx + 1,
                 group: "learning",
                 count,
-            } as Datum;
+            } satisfies Datum;
         }),
         ...sourceData.young.map((count: number, idx: number) => {
             return {
                 buttonNum: idx + 1,
                 group: "young",
                 count,
-            } as Datum;
+            } satisfies Datum;
         }),
         ...sourceData.mature.map((count: number, idx: number) => {
             return {
                 buttonNum: idx + 1,
                 group: "mature",
                 count,
-            } as Datum;
+            } satisfies Datum;
         }),
     ];
 

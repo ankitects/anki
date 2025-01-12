@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher<SearchEventMap>();
 
-    let histogramData = null as HistogramData | null;
+    let histogramData: HistogramData | null = null;
     let tableData: TableDatum[] = [];
 
     $: if (sourceData) {
