@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+# Invokes an external script to transfer files to a Windows machine and run Anki on it.
+# You need to provide your own script if you wish to use this.
+
+(cd ../release/win && ./test)
