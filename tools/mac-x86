@@ -1,7 +1,7 @@
 #!/bin/bash
 # 
 # Run a command with an alternative buildroot and Intel architecture target, for building Intel on an ARM Mac.
-# Eg ./mac-x86 ./tools/run-qt5.14
+# Eg ./tools/mac-x86 ./tools/run-qt5.14
 #
 # Uses hard-coded paths to Python and build folders.
 #
