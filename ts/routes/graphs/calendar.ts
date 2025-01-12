@@ -98,7 +98,7 @@ export function renderCalendar(
         const weekNumber = sourceData.timeFunction.count(timeYear(date), date);
         const weekDay = timeDay.count(sourceData.timeFunction(date), date);
         const yearDay = timeDay.count(timeYear(date), date);
-        dayMap.set(yearDay, { day, count, weekNumber, weekDay, date } as DayDatum);
+        dayMap.set(yearDay, { day, count, weekNumber, weekDay, date });
     }
 
     if (!maxCount) {
@@ -132,7 +132,7 @@ export function renderCalendar(
                 weekNumber,
                 weekDay,
                 date,
-            } as DayDatum);
+            });
         }
     }
     const data = Array.from(dayMap.values());

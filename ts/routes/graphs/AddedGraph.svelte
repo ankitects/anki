@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let sourceData: GraphsResponse | null = null;
     export let prefs: GraphPrefs;
 
-    let histogramData = null as HistogramData | null;
+    let histogramData: HistogramData | null = null;
     let tableData: TableDatum[] = [];
     let graphRange: GraphRange = GraphRange.Month;
 

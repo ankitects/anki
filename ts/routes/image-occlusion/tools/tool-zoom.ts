@@ -66,7 +66,7 @@ const zoomResetInner = (canvas: fabric.Canvas): void => {
 };
 
 export const enablePinchZoom = (canvas: fabric.Canvas) => {
-    const hammer = new Hammer(upperCanvasElement(canvas)) as any;
+    const hammer = new Hammer(upperCanvasElement(canvas));
     hammer.get("pinch").set({ enable: true });
     hammer.on("pinchin pinchout", ev => {
         currentScale = Math.min(Math.max(minScale, ev.scale * zoomScale), maxScale);

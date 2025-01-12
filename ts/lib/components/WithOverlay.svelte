@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { overlayKey } from "./context-keys";
 
     /* Used by Popover to set animation direction depending on placement */
-    const placementPromise = writable(undefined as Promise<Placement> | undefined);
+    const placementPromise = writable<Promise<Placement> | undefined>();
     setContext(overlayKey, placementPromise);
 
     export let padding = 0;

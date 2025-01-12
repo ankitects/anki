@@ -30,13 +30,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bounds.marginLeft = 20;
     bounds.marginRight = 20;
 
-    let svg = null as HTMLElement | SVGElement | null;
+    let svg: HTMLElement | SVGElement | null = null;
     const maxYear = new Date().getFullYear();
     let minYear = 0;
     let targetYear = maxYear;
 
     $: if (sourceData) {
-        graphData = gatherData(sourceData, $prefs.calendarFirstDayOfWeek as number);
+        graphData = gatherData(sourceData, $prefs.calendarFirstDayOfWeek);
         renderCalendar(
             svg as SVGElement,
             bounds,
@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: {
         if (revlogRange < RevlogRange.Year) {
             minYear = maxYear;
-        } else if ((revlogRange as RevlogRange) === RevlogRange.Year) {
+        } else if (revlogRange === RevlogRange.Year) {
             minYear = maxYear - 1;
         } else {
             minYear = 2000;

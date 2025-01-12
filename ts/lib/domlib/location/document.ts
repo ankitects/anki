@@ -50,7 +50,7 @@ export function restoreSelection(base: Node, location: SelectionLocation): void 
             base,
             selection,
             range,
-            location as SelectionLocationContent,
+            location,
         );
     }
 }
