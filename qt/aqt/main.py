@@ -1108,6 +1108,9 @@ title="{}" {}>{}</button>""".format(
             after_sync()
 
         gui_hooks.sync_will_start()
+        media_folder = os.path.join(self.pm.profileFolder(), "collection.media")
+        os.utime(media_folder, None)
+
         sync_collection(self, on_done=on_collection_sync_finished)
 
     def maybe_auto_sync_on_open_close(self, after_sync: Callable[[bool], None]) -> None:
