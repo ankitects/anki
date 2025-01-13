@@ -163,11 +163,20 @@ impl Collection {
             historical_retention,
             ignore_revlogs_before_ms_from_config(&config)?,
         )?;
-        card.set_memory_state(&fsrs, item, historical_retention)?;
-        Ok(ComputeMemoryStateResponse {
-            state: card.memory_state.map(Into::into),
-            desired_retention,
-        })
+        if item.is_some() {
+            card.set_memory_state(&fsrs, item, historical_retention)?;
+            Ok(ComputeMemoryStateResponse {
+                state: card.memory_state.map(Into::into),
+                desired_retention,
+            })
+        } else {
+            card.memory_state = None;
+            card.desired_retention = None;
+            Ok(ComputeMemoryStateResponse {
+                state: None,
+                desired_retention,
+            })
+        }
     }
 }
 
