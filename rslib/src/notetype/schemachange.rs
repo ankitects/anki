@@ -9,6 +9,7 @@ use std::mem;
 use super::CardGenContext;
 use super::CardTemplate;
 use super::Notetype;
+use crate::notes::UpdateNoteInnerWithoutCardsArgs;
 use crate::prelude::*;
 use crate::search::JoinSearches;
 use crate::search::TemplateKind;
@@ -80,15 +81,15 @@ impl Collection {
                 for nid in nids {
                     let mut note = self.storage.get_note(nid)?.unwrap();
                     let original = note.clone();
-                    self.update_note_inner_without_cards(
-                        &mut note,
-                        &original,
-                        nt,
+                    self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                        note: &mut note,
+                        original: &original,
+                        notetype: nt,
                         usn,
-                        true,
+                        mark_note_modified: true,
                         normalize_text,
-                        false,
-                    )?;
+                        update_tags: false,
+                    })?;
                 }
             } else {
                 // nothing to do
@@ -104,15 +105,15 @@ impl Collection {
             let mut note = self.storage.get_note(nid)?.unwrap();
             let original = note.clone();
             note.reorder_fields(&ords);
-            self.update_note_inner_without_cards(
-                &mut note,
-                &original,
-                nt,
+            self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                note: &mut note,
+                original: &original,
+                notetype: nt,
                 usn,
-                true,
+                mark_note_modified: true,
                 normalize_text,
-                false,
-            )?;
+                update_tags: false,
+            })?;
         }
         Ok(())
     }
