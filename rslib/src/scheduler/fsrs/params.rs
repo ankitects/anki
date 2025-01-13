@@ -427,7 +427,7 @@ fn revlog_entry_to_proto(e: RevlogEntry) -> anki_proto::stats::RevlogEntry {
 pub(crate) mod tests {
     use super::*;
 
-    const NEXT_DAY_AT: TimestampSecs = TimestampSecs(86400 * 100);
+    const NEXT_DAY_AT: TimestampSecs = TimestampSecs(86400 * 1000);
 
     fn days_ago_ms(days_ago: i64) -> TimestampMillis {
         ((NEXT_DAY_AT.0 - days_ago * 86400) * 1000).into()
