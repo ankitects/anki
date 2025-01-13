@@ -220,9 +220,14 @@ impl Note {
         Ok(())
     }
 
-    pub(crate) fn set_modified(&mut self, usn: Usn) {
-        self.mtime = TimestampSecs::now();
+    #[inline]
+    pub(crate) fn set_modified_with_mtime(&mut self, usn: Usn, mtime: TimestampSecs) {
+        self.mtime = mtime;
         self.usn = usn;
+    }
+
+    pub(crate) fn set_modified(&mut self, usn: Usn) {
+        self.set_modified_with_mtime(usn, TimestampSecs::now())
     }
 
     pub(crate) fn nonempty_fields<'a>(&self, fields: &'a [NoteField]) -> HashSet<&'a str> {
@@ -346,6 +351,18 @@ fn invalid_char_for_field(c: char) -> bool {
     c.is_ascii_control() && c != '\n' && c != '\t'
 }
 
+/// Used when calling [Collection::update_note_inner_without_cards] and
+/// [Collection::update_note_inner_without_cards_using_mtime]
+pub(crate) struct UpdateNoteInnerWithoutCardsArgs<'a> {
+    pub(crate) note: &'a mut Note,
+    pub(crate) original: &'a Note,
+    pub(crate) notetype: &'a Notetype,
+    pub(crate) usn: Usn,
+    pub(crate) mark_note_modified: bool,
+    pub(crate) normalize_text: bool,
+    pub(crate) update_tags: bool,
+}
+
 impl Collection {
     pub(crate) fn canonify_note_tags(&mut self, note: &mut Note, usn: Usn) -> Result<()> {
         if !note.tags.is_empty() {
@@ -434,38 +451,51 @@ impl Collection {
         normalize_text: bool,
         update_tags: bool,
     ) -> Result<()> {
-        self.update_note_inner_without_cards(
+        self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
             note,
             original,
-            ctx.notetype,
-            ctx.usn,
+            notetype: ctx.notetype,
+            usn: ctx.usn,
             mark_note_modified,
             normalize_text,
             update_tags,
-        )?;
+        })?;
         self.generate_cards_for_existing_note(ctx, note)
     }
 
-    // TODO: refactor into struct
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) fn update_note_inner_without_cards(
+    #[inline]
+    pub(crate) fn update_note_inner_without_cards_using_mtime(
         &mut self,
-        note: &mut Note,
-        original: &Note,
-        notetype: &Notetype,
-        usn: Usn,
-        mark_note_modified: bool,
-        normalize_text: bool,
-        update_tags: bool,
+        UpdateNoteInnerWithoutCardsArgs {
+            note,
+            original,
+            notetype,
+            usn,
+            mark_note_modified,
+            normalize_text,
+            update_tags,
+        }: UpdateNoteInnerWithoutCardsArgs,
+        mtime: Option<TimestampSecs>,
     ) -> Result<()> {
         if update_tags {
             self.canonify_note_tags(note, usn)?;
         }
         note.prepare_for_update(notetype, normalize_text)?;
         if mark_note_modified {
-            note.set_modified(usn);
+            if let Some(mtime) = mtime {
+                note.set_modified_with_mtime(usn, mtime);
+            } else {
+                note.set_modified(usn);
+            }
         }
         self.update_note_undoable(note, original)
+    }
+
+    pub(crate) fn update_note_inner_without_cards(
+        &mut self,
+        args: UpdateNoteInnerWithoutCardsArgs<'_>,
+    ) -> Result<()> {
+        self.update_note_inner_without_cards_using_mtime(args, None)
     }
 
     pub(crate) fn remove_notes_inner(&mut self, nids: &[NoteId], usn: Usn) -> Result<usize> {
@@ -542,15 +572,15 @@ impl Collection {
                         out.update_tags,
                     )?;
                 } else {
-                    self.update_note_inner_without_cards(
-                        &mut note,
-                        &original,
-                        &nt,
+                    self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                        note: &mut note,
+                        original: &original,
+                        notetype: &nt,
                         usn,
-                        out.mark_modified,
-                        norm,
-                        out.update_tags,
-                    )?;
+                        mark_note_modified: out.mark_modified,
+                        normalize_text: norm,
+                        update_tags: out.update_tags,
+                    })?;
                 }
 
                 changed_notes += 1;
