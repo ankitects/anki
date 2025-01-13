@@ -73,7 +73,6 @@ There are a few things to be aware of:
 - You should use ./run and not tools/run-qt5\*, even if your system libraries are Qt5.
 - If your system libraries are Qt5, when creating an aqt wheel, the wheel will not work
   on Qt6 environments.
-- Some of the './ninja check' tests are broken on ARM Linux.
 
 ## Packaging considerations
 
