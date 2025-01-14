@@ -14,6 +14,7 @@ use ninja_gen::node::DPrint;
 use ninja_gen::node::EsbuildScript;
 use ninja_gen::node::Eslint;
 use ninja_gen::node::GenTypescriptProto;
+use ninja_gen::node::Prettier;
 use ninja_gen::node::SqlFormat;
 use ninja_gen::node::SvelteCheck;
 use ninja_gen::node::SveltekitBuild;
@@ -64,6 +65,7 @@ fn setup_node(build: &mut Build) -> Result<()> {
             "vite",
             "vitest",
             "protoc-gen-es",
+            "prettier",
         ],
         hashmap! {
             "jquery" => vec![
@@ -290,10 +292,10 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
 }
 
 fn check_web(build: &mut Build) -> Result<()> {
-    let dprint_files = inputs![glob![
-        "**/*.{ts,mjs,js,md,json,toml,svelte,scss}",
-        "{target,ts/.svelte-kit,node_modules}/**"
-    ]];
+    let fmt_excluded = "{target,ts/.svelte-kit,node_modules}/**";
+    let dprint_files = inputs![glob!["**/*.{ts,mjs,js,md,json,toml,scss}", fmt_excluded]];
+    let prettier_files = inputs![glob!["**/*.svelte", fmt_excluded]];
+
     build.add_action(
         "check:format:dprint",
         DPrint {
@@ -305,6 +307,20 @@ fn check_web(build: &mut Build) -> Result<()> {
         "format:dprint",
         DPrint {
             inputs: dprint_files,
+            check_only: false,
+        },
+    )?;
+    build.add_action(
+        "check:format:prettier",
+        Prettier {
+            inputs: prettier_files.clone(),
+            check_only: true,
+        },
+    )?;
+    build.add_action(
+        "format:prettier",
+        Prettier {
+            inputs: prettier_files,
             check_only: false,
         },
     )?;

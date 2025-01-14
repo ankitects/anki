@@ -7,7 +7,6 @@ option java_multiple_files = true;
 
 package anki.cards;
 
-import "anki/generic.proto";
 import "anki/collection.proto";
 
 service CardsService {

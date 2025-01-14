@@ -46,13 +46,9 @@ impl Collection {
             loss_aversion: 1.0,
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
+            new_cards_ignore_review_limit: req.new_cards_ignore_review_limit,
         };
-        let (
-            accumulated_knowledge_acquisition,
-            daily_review_count,
-            daily_new_count,
-            daily_time_cost,
-        ) = simulate(
+        let result = simulate(
             &config,
             &req.params,
             req.desired_retention,
@@ -60,10 +56,18 @@ impl Collection {
             Some(converted_cards),
         )?;
         Ok(SimulateFsrsReviewResponse {
-            accumulated_knowledge_acquisition: accumulated_knowledge_acquisition.to_vec(),
-            daily_review_count: daily_review_count.iter().map(|x| *x as u32).collect_vec(),
-            daily_new_count: daily_new_count.iter().map(|x| *x as u32).collect_vec(),
-            daily_time_cost: daily_time_cost.to_vec(),
+            accumulated_knowledge_acquisition: result.memorized_cnt_per_day.to_vec(),
+            daily_review_count: result
+                .review_cnt_per_day
+                .iter()
+                .map(|x| *x as u32)
+                .collect_vec(),
+            daily_new_count: result
+                .learn_cnt_per_day
+                .iter()
+                .map(|x| *x as u32)
+                .collect_vec(),
+            daily_time_cost: result.cost_per_day.to_vec(),
         })
     }
 }

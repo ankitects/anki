@@ -130,9 +130,8 @@ export function renderCards(
             count: count[1],
             show: count[2],
             query: count[3],
-            idx,
             total: n,
-        } as SummedDatum;
+        } satisfies SummedDatum;
     });
     // ensuring a non-zero range makes the percentages not break
     // in an empty collection
@@ -181,7 +180,7 @@ export function renderCards(
                 percent: `${percent}%`,
                 colour: barColours[idx],
                 query: d.query,
-            } as TableDatum)
+            } satisfies TableDatum)
             : [];
     });
 

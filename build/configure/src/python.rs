@@ -28,8 +28,8 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
         ]
     } else if cfg!(target_os = "macos") {
         inputs!["python/requirements.qt6_mac.txt",]
-    } else if cfg!(all(target_os = "linux", target_arch = "aarch64")) {
-        // system-provided Qt on ARM64
+    } else if std::env::var("PYTHONPATH").is_ok() {
+        // assume we have a system-provided Qt
         inputs![]
     } else {
         // normal linux
@@ -142,10 +142,10 @@ impl BuildAction for BuildWheel {
 
         let tag = if let Some(platform) = self.platform {
             let platform = match platform {
-                Platform::LinuxX64 => "manylinux_2_31_x86_64",
-                Platform::LinuxArm => "manylinux_2_31_aarch64",
-                Platform::MacX64 => "macosx_10_13_x86_64",
-                Platform::MacArm => "macosx_11_0_arm64",
+                Platform::LinuxX64 => "manylinux_2_35_x86_64",
+                Platform::LinuxArm => "manylinux_2_35_aarch64",
+                Platform::MacX64 => "macosx_12_0_x86_64",
+                Platform::MacArm => "macosx_12_0_arm64",
                 Platform::WindowsX64 => "win_amd64",
             };
             format!("cp39-abi3-{platform}")

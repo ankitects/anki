@@ -21,6 +21,7 @@ from aqt.qt import (
     QPainter,
     QPalette,
     QPixmap,
+    QStyle,
     QStyleFactory,
     Qt,
     qtmajor,
@@ -62,6 +63,7 @@ class ThemeManager:
     _dark_mode_available: bool | None = None
     _default_style: str | None = None
     _current_widget_style: WidgetStyle | None = None
+    _default_button_layout: int | None = None
 
     def rtl(self) -> bool:
         return is_rtl(anki.lang.current_lang)
@@ -234,6 +236,9 @@ class ThemeManager:
             style = app.style()
             assert style is not None
             self._default_style = style.objectName()
+            self._default_button_layout = style.styleHint(
+                QStyle.StyleHint.SH_DialogButtonLayout
+            )
         self._apply_palette(app)
         self._apply_style(app)
         gui_hooks.theme_did_change()

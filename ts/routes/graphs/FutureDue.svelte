@@ -24,9 +24,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher<SearchEventMap>();
 
-    let graphData = null as GraphData | null;
-    let histogramData = null as HistogramData | null;
-    let tableData: TableDatum[] = [] as any;
+    let graphData: GraphData | null = null;
+    let histogramData: HistogramData | null = null;
+    let tableData: TableDatum[] = [];
     let graphRange: GraphRange = GraphRange.Month;
 
     $: if (sourceData) {

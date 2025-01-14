@@ -11,21 +11,13 @@ You can see a full list of buildtime and runtime requirements by looking at the
 [Dockerfiles](../.buildkite/linux/docker/Dockerfile.amd64) used to build the
 official releases.
 
-Glibc is required - if you are on a distro like Alpine that uses musl, things
-may not work.
-
-Users on ARM64, see the notes at the bottom of this file before proceeding.
-
 **Ensure some basic tools are installed**:
 
 ```
-$ sudo apt install bash grep findutils curl gcc g++ make git rsync ninja-build
+$ sudo apt install bash grep findutils curl gcc g++ make git rsync
 ```
 
 - The 'find' utility is 'findutils' on Debian.
-- Your distro may call the package 'ninja' instead of 'ninja-build', or it
-  may not have a version new enough - if so, install from the zip mentioned in
-  development.md.
 
 ## Missing Libraries
 
@@ -53,15 +45,22 @@ error while loading shared libraries: libcrypt.so.1: cannot open shared object f
 
 To play and record audio during development, install mpv and lame.
 
-## ARM64 support
+## Glibc and Qt
 
-Other platforms download PyQt binary wheels from PyPI. There are no PyQt wheels available
-for ARM Linux, so you will need to rely on your system-provided libraries instead. Your distro
-will need to have Python 3.9 or later.
+Anki requires a recent glibc.
 
-After installing the system libraries (eg 'sudo apt install python3-pyqt6.qt{quick,webengine} python3-venv'),
+If you are using a distro that uses musl, Anki will not work.
+
+If your glibc version is 2.35+ on AMD64 or 2.39+ on ARM64, you can skip the rest of this section.
+
+If your system has an older glibc, you won't be able to use the PyQt wheels that are
+available in pip/PyPy, and will need to use your system-installed PyQt instead.
+Your distro will also need to have Python 3.9 or later.
+
+After installing the system libraries (eg:
+'sudo apt install python3-pyqt6.qt{quick,webengine} python3-venv pyqt6-dev-tools'),
 find the place they are installed (eg '/usr/lib/python3/dist-packages'). On modern Ubuntu, you'll
-need 'sudo apt remove python3-protobuf'. Then before running any commands like './run', tell Anki where
+also need 'sudo apt remove python3-protobuf'. Then before running any commands like './run', tell Anki where
 the packages can be found:
 
 ```
@@ -74,7 +73,6 @@ There are a few things to be aware of:
 - You should use ./run and not tools/run-qt5\*, even if your system libraries are Qt5.
 - If your system libraries are Qt5, when creating an aqt wheel, the wheel will not work
   on Qt6 environments.
-- Some of the './ninja check' tests are broken on ARM Linux.
 
 ## Packaging considerations
 

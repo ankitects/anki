@@ -159,7 +159,7 @@ fn parse_text_with_clozes(text: &str) -> Vec<TextOrCloze<'_>> {
     for token in tokenize(text) {
         match token {
             Token::OpenCloze(ordinal) => {
-                if open_clozes.len() < 3 {
+                if open_clozes.len() < 8 {
                     open_clozes.push(ExtractedCloze {
                         ordinal,
                         nodes: Vec::with_capacity(1), // common case

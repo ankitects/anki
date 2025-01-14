@@ -18,7 +18,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: info = state.info;
 
-    // svelte-ignore reactive_declaration_non_reactive_property
     $: unused =
         $info.isCloze && ctx === MapContext.Template ? [] : $info.unusedItems(ctx);
 </script>

@@ -291,7 +291,7 @@ export function renderReviews(
             .attr("direction", "ltr");
 
         svg.select("path.cumulative-overlay")
-            .datum(areaData as any)
+            .datum(areaData)
             .attr(
                 "d",
                 area()

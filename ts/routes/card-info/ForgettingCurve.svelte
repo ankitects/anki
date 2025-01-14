@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let revlog: RevlogEntry[];
     export let desiredRetention: number;
-    let svg = null as HTMLElement | SVGElement | null;
+    let svg: HTMLElement | SVGElement | null = null;
     const bounds = defaultGraphBounds();
     const title = tr.cardStatsFsrsForgettingCurveTitle();
 
@@ -31,8 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaultTimeRange = TimeRange.Week;
     const timeRange: Writable<TimeRange> = writable(defaultTimeRange);
 
-    // https://github.com/sveltejs/svelte/issues/13811
-    // svelte-ignore reactive_declaration_non_reactive_property
     $: if (maxDays > 365) {
         defaultTimeRange = TimeRange.AllTime;
     } else if (maxDays > 30) {

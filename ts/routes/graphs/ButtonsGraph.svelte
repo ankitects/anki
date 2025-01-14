@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const bounds = defaultGraphBounds();
 
-    let svg = null as HTMLElement | SVGElement | null;
+    let svg: HTMLElement | SVGElement | null = null;
 
     $: if (sourceData) {
         renderButtons(svg as SVGElement, bounds, sourceData, graphRange);

@@ -90,6 +90,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         optimalRetentionRequest.daysToSimulate = 3650;
     }
 
+    $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
+
     const simulateFsrsRequest = new SimulateFsrsReviewRequest({
         params: fsrsParams($config),
         desiredRetention: $config.desiredRetention,
@@ -99,6 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewLimit: $config.reviewsPerDay,
         maxInterval: $config.maximumReviewInterval,
         search: `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
+        newCardsIgnoreReviewLimit: $newCardsIgnoreReviewLimit,
     });
 
     function getRetentionWarning(retention: number): string {
@@ -297,10 +300,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return tr.deckConfigPredictedOptimalRetention({ num: retention.toFixed(2) });
     }
 
-    let tableData: TableDatum[] = [] as any;
+    let tableData: TableDatum[] = [];
     const bounds = defaultGraphBounds();
     bounds.marginLeft += 8;
-    let svg = null as HTMLElement | SVGElement | null;
+    let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
 
     let points: Point[] = [];
@@ -318,6 +321,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     simulateFsrsRequest.params = fsrsParams($config);
                     simulateFsrsRequest.desiredRetention = $config.desiredRetention;
                     simulateFsrsRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
+                    simulateFsrsRequest.newCardsIgnoreReviewLimit =
+                        $newCardsIgnoreReviewLimit;
                     simulating = true;
                     resp = await simulateFsrsReview(simulateFsrsRequest);
                 },

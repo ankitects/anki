@@ -207,6 +207,30 @@ impl BuildAction for DPrint {
     }
 }
 
+pub struct Prettier {
+    pub inputs: BuildInput,
+    pub check_only: bool,
+}
+
+impl BuildAction for Prettier {
+    fn command(&self) -> &str {
+        "$prettier $mode $pattern"
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("prettier", inputs![":node_modules:prettier"]);
+        build.add_inputs("", &self.inputs);
+        build.add_variable("pattern", r#""**/*.svelte""#);
+        let (file_ext, mode) = if self.check_only {
+            ("fmt", "--check")
+        } else {
+            ("check", "--write")
+        };
+        build.add_variable("mode", mode);
+        build.add_output_stamp(format!("tests/prettier.{file_ext}"));
+    }
+}
+
 pub struct SvelteCheck {
     pub tsconfig: BuildInput,
     pub inputs: BuildInput,

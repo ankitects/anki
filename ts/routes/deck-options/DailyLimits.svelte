@@ -143,7 +143,7 @@
             url: HelpPage.DeckOptions.newCardsday,
         },
     };
-    const helpSections = Object.values(settings) as HelpItem[];
+    const helpSections: HelpItem[] = Object.values(settings);
 
     let modal: Modal;
     let carousel: Carousel;

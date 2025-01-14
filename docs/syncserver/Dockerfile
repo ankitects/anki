@@ -15,6 +15,8 @@ ARG SYNC_PORT=8080
 
 RUN adduser -D -h /home/anki anki
 
+RUN mkdir -p /anki_data && chown -R anki /anki_data
+
 COPY --from=builder /anki-server/bin/anki-sync-server /usr/local/bin/anki-sync-server
 
 
@@ -24,6 +26,8 @@ USER anki
 
 ENV SYNC_PORT=${SYNC_PORT}
 
+ENV SYNC_BASE=/anki_data
+
 EXPOSE ${SYNC_PORT}
 
 CMD ["anki-sync-server"]
@@ -32,5 +36,7 @@ CMD ["anki-sync-server"]
 # For older versions, it may incorrectly report an unhealthy status, which should not be the case.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget -qO- http://127.0.0.1:${SYNC_PORT}/health || exit 1
+
+VOLUME /anki_data
 
 LABEL maintainer="Jean Khawand <jk@jeankhawand.com>"

@@ -8,7 +8,7 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
-import { notesDataStore, saveNeededStore, tagsWritable, textEditingState } from "./store";
+import { hideAllGuessOne, notesDataStore, saveNeededStore, tagsWritable, textEditingState } from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import { enableSelectable, makeShapesRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
@@ -62,6 +62,8 @@ export const setupMaskEditorForEdit = async (
 
     const clozeNote = clozeNoteResponse.value.value;
     const canvas = initCanvas();
+
+    hideAllGuessOne.set(clozeNote.occludeInactive);
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;

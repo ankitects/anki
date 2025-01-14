@@ -81,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             url: "https://faqs.ankiweb.net/the-2021-scheduler.html#add-ons-and-custom-scheduling",
         },
     };
-    const helpSections = Object.values(settings) as HelpItem[];
+    const helpSections: HelpItem[] = Object.values(settings);
 
     let modal: Modal;
     let carousel: Carousel;

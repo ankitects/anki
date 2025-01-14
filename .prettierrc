@@ -1,0 +1,8 @@
+{
+    "trailingComma": "all",
+    "printWidth": 88,
+    "tabWidth": 4,
+    "semi": true,
+    "htmlWhitespaceSensitivity": "ignore",
+    "plugins": ["prettier-plugin-svelte"]
+}

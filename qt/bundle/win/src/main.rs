@@ -23,7 +23,6 @@ struct Args {
     version: String,
     bundle_root: Utf8PathBuf,
     qt6_setup_path: Utf8PathBuf,
-    qt5_setup_path: Utf8PathBuf,
 }
 
 fn main() -> Result<()> {
@@ -31,12 +30,8 @@ fn main() -> Result<()> {
 
     let src_win_folder = Utf8Path::new("qt/bundle/win");
     let std_dist_folder = args.bundle_root.join("std");
-    let alt_dist_folder = args.bundle_root.join("alt");
     // folder->installer
-    let dists = [
-        (&std_dist_folder, &args.qt6_setup_path),
-        (&alt_dist_folder, &args.qt5_setup_path),
-    ];
+    let dists = [(&std_dist_folder, &args.qt6_setup_path)];
 
     for (folder, _) in dists {
         fs::copy(
@@ -56,16 +51,12 @@ fn main() -> Result<()> {
     )
     .context("uninstaller")?;
 
-    // sign the anki.exe and uninstaller.exe in std, then copy into alt
+    // sign the anki.exe and uninstaller.exe in std
     println!("--- Sign binaries");
     codesign([
         &std_dist_folder.join("anki.exe"),
         &std_dist_folder.join("uninstall.exe"),
     ])?;
-    for fname in &["anki.exe", "uninstall.exe"] {
-        fs::copy(std_dist_folder.join(fname), alt_dist_folder.join(fname))
-            .with_context(|| format!("copy {fname}"))?;
-    }
 
     println!("--- Build manifest");
     for (folder, _) in dists {
