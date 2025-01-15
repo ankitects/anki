@@ -340,6 +340,9 @@ pub(crate) fn reviews_for_fsrs(
         if idx > 0 {
             entries.drain(..idx);
         }
+    } else {
+        // if no valid user grades were found, ignore the card.
+        return None;
     }
 
     // Filter out unwanted entries
@@ -424,7 +427,7 @@ fn revlog_entry_to_proto(e: RevlogEntry) -> anki_proto::stats::RevlogEntry {
 pub(crate) mod tests {
     use super::*;
 
-    const NEXT_DAY_AT: TimestampSecs = TimestampSecs(86400 * 100);
+    const NEXT_DAY_AT: TimestampSecs = TimestampSecs(86400 * 1000);
 
     fn days_ago_ms(days_ago: i64) -> TimestampMillis {
         ((NEXT_DAY_AT.0 - days_ago * 86400) * 1000).into()
@@ -708,5 +711,15 @@ pub(crate) mod tests {
                 .len(),
             2
         );
+    }
+
+    #[test]
+    fn ignore_before_after_last_revlog_entry() {
+        let revlogs = &[
+            revlog(RevlogReviewKind::Learning, 10),
+            revlog(RevlogReviewKind::Review, 6),
+        ];
+        // L R |
+        assert_eq!(convert_ignore_before(revlogs, false, days_ago_ms(4)), None);
     }
 }
