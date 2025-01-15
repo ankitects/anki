@@ -85,8 +85,8 @@ impl Collection {
                 progress.update(true, |state| state.current_cards = idx as u32 + 1)?;
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
-                if let Some(req) = &req {
-                    card.set_memory_state(&fsrs, item, historical_retention.unwrap())?;
+                if let (Some(req), Some(item)) = (&req, item) {
+                    card.set_memory_state(&fsrs, Some(item), historical_retention.unwrap())?;
                     card.desired_retention = desired_retention;
                     // if rescheduling
                     if let Some(reviews) = &last_revlog_info {
@@ -163,11 +163,20 @@ impl Collection {
             historical_retention,
             ignore_revlogs_before_ms_from_config(&config)?,
         )?;
-        card.set_memory_state(&fsrs, item, historical_retention)?;
-        Ok(ComputeMemoryStateResponse {
-            state: card.memory_state.map(Into::into),
-            desired_retention,
-        })
+        if item.is_some() {
+            card.set_memory_state(&fsrs, item, historical_retention)?;
+            Ok(ComputeMemoryStateResponse {
+                state: card.memory_state.map(Into::into),
+                desired_retention,
+            })
+        } else {
+            card.memory_state = None;
+            card.desired_retention = None;
+            Ok(ComputeMemoryStateResponse {
+                state: None,
+                desired_retention,
+            })
+        }
     }
 }
 
