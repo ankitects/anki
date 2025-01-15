@@ -186,7 +186,7 @@ static UNDERSCORED_CSS_IMPORTS: LazyLock<Regex> = LazyLock::new(|| {
                 |                   # or
                 '(_[^']+)'          # single quoted
                 |                   # or
-                (_.+)               # unquoted filename
+                (_.+?)              # unquoted filename
             \s*\))
     "#,
     )
