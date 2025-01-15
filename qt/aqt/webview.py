@@ -445,8 +445,6 @@ class AnkiWebView(QWebEngineView):
         if oldFocus:
             oldFocus.setFocus()
 
-        self.update()
-
     def load_url(self, url: QUrl) -> None:
         # allow queuing actions when loading url directly
         self._domDone = False
