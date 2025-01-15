@@ -309,17 +309,17 @@ class AnkiWebView(QWebEngineView):
 
         qconnect(self.loadFinished, self._on_load_finished)
 
-    def _on_load_finished(self, success: bool) -> None:
-        if success:
-            self.eval(
-                """
-            document.addEventListener("keydown", function(evt) {
-                if (evt.key === "Escape") {
-                    pycmd("close");
-                }
-            });
+    def _on_load_finished(self) -> None:
+        self.eval(
             """
-            )
+        document.addEventListener("keydown", function(evt) {
+            if (evt.key === "Escape") {
+                pycmd("close");
+            }
+        });
+        """
+        )
+
 
     def set_kind(self, kind: AnkiWebViewKind) -> None:
         self._kind = kind
