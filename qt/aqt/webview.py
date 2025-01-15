@@ -667,10 +667,7 @@ html {{ {font} }}
                 cb(val)
             self.update()
 
-        if cb:
-            page.runJavaScript(js, handler)
-        else:
-            page.runJavaScript(js, handler)
+        page.runJavaScript(js, handler)
 
     def _queueAction(self, name: str, *args: Any) -> None:
         self._pendingActions.append((name, args))
