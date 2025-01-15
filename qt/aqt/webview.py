@@ -311,7 +311,6 @@ class AnkiWebView(QWebEngineView):
 
     def _on_load_finished(self, success: bool) -> None:
         if success:
-            self.update()
             self.eval(
                 """
             document.addEventListener("keydown", function(evt) {
@@ -453,7 +452,6 @@ class AnkiWebView(QWebEngineView):
         self._domDone = False
         self.allow_drops = False
         super().load(url)
-        self.update()
 
     def app_zoom_factor(self) -> float:
         # overridden scale factor?
