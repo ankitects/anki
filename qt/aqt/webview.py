@@ -320,7 +320,6 @@ class AnkiWebView(QWebEngineView):
         """
         )
 
-
     def set_kind(self, kind: AnkiWebViewKind) -> None:
         self._kind = kind
         self.set_title(kind.value)
