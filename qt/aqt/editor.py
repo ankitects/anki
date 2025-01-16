@@ -596,12 +596,26 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             sticky = [field["sticky"] for field in self.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
 
-        if (
-            self.editorMode != EditorMode.ADD_CARDS
-            and self.current_notetype_is_image_occlusion()
-        ):
-            io_options = self._create_edit_io_options(note_id=self.note.id)
-            js += " setupMaskEditor(%s);" % json.dumps(io_options)
+        if self.current_notetype_is_image_occlusion():
+            if self.editorMode is EditorMode.ADD_CARDS:
+                mid = self.note.mid
+                io_fields = self.mw.col.get_image_occlusion_fields(mid)
+                media = self.mw.col.media
+                if (
+                    (image_field := self.note.fields[io_fields.image])
+                    and (images := media.files_in_str(mid, image_field))
+                    and (media.have(images[0]))
+                ):
+                    image_path = os.path.join(media.dir(), images[0])
+                    io_options = self._create_add_io_options(
+                        image_path=image_path,
+                        image_field_html=image_field,
+                        notetype_id=mid,
+                    )
+                    js += " setupMaskEditor(%s);" % json.dumps(io_options)
+            else:
+                io_options = self._create_edit_io_options(note_id=self.note.id)
+                js += " setupMaskEditor(%s);" % json.dumps(io_options)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
