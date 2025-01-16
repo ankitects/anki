@@ -53,6 +53,7 @@ TtsVoice = card_rendering_pb2.AllTtsVoicesResponse.TtsVoice
 GetImageForOcclusionResponse = image_occlusion_pb2.GetImageForOcclusionResponse
 AddImageOcclusionNoteRequest = image_occlusion_pb2.AddImageOcclusionNoteRequest
 GetImageOcclusionNoteResponse = image_occlusion_pb2.GetImageOcclusionNoteResponse
+ImageOcclusionFieldIndexes = image_occlusion_pb2.ImageOcclusionFieldIndexes
 AddonInfo = ankiweb_pb2.AddonInfo
 CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
 MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
@@ -457,6 +458,11 @@ class Collection(DeprecatedNamesMixin):
         self, note_id: int | None
     ) -> GetImageOcclusionNoteResponse:
         return self._backend.get_image_occlusion_note(note_id=note_id)
+
+    def get_image_occlusion_fields(
+        self, notetype_id: NotetypeId
+    ) -> ImageOcclusionFieldIndexes:
+        return self._backend.get_image_occlusion_fields(notetype_id)
 
     def update_image_occlusion_note(
         self,
