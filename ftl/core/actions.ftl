@@ -1,12 +1,16 @@
 actions-add = Add
-# In the browser sidebar, when in "Select" mode, you can right-click on
-# selected criteria elements to create a search term that matches
-# cards/notes meeting ALL the selected criteria elements.
+# Action in context menu:
+# In the browser sidebar, when in "Select" mode, right-click on the
+# selected criteria elements. In the context menu, click on "Search" to open
+# a submenu. This entry in the submenu creates a search term that matches
+# cards/notes meeting ALL of the selected criteria.
 # https://github.com/ankitects/anki/pull/1044
 actions-all-selected = All selected
-# In the browser sidebar, when in "Select" mode, you can right-click on
-# selected criteria elements to create a search term that matches
-# cards/notes meeting ANY of the selected criteria elements.
+# Action in context menu:
+# In the browser sidebar, when in "Select" mode, right-click on the
+# selected criteria elements. In the context menu, click on "Search" to open
+# a submenu. This entry in the submenu creates a search term that matches
+# cards/notes meeting ANY of the selected criteria.
 # https://github.com/ankitects/anki/pull/1044
 actions-any-selected = Any selected
 actions-cancel = Cancel
@@ -67,9 +71,12 @@ actions-previous-card-info = Previous Card Info
 actions-with-ellipsis = { $action }...
 actions-fullscreen-unsupported = Full screen mode is not supported for your video driver. Try switching to a different one from the preferences screen.
 
-## Flags
-
 actions-flag-number = Flag { $number }
+
+## The same translation may used for two independent actions:
+## searching for cards with a flag of the specified color, and
+## toggling the flag of the specified color on a card.
+
 actions-flag-red = Red
 actions-flag-orange = Orange
 actions-flag-green = Green
@@ -77,6 +84,9 @@ actions-flag-blue = Blue
 actions-flag-pink = Pink
 actions-flag-turquoise = Turquoise
 actions-flag-purple = Purple
+
+##
+
 actions-set-flag = Set Flag
 actions-nothing-to-undo = Nothing to undo
 actions-nothing-to-redo = Nothing to redo
