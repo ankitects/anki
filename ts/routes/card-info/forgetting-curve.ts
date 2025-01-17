@@ -298,17 +298,6 @@ export function renderForgettingCurve(
             .attr("stroke-width", 1.2);
     }
 
-    svg.select(".today-line").remove();
-    svg.append("line")
-        .attr("class", "today-line")
-        .attr("x1", x(today))
-        .attr("x2", x(today))
-        .attr("y1", bounds.marginTop)
-        .attr("y2", bounds.height - bounds.marginBottom)
-        .attr("stroke", "green")
-        .attr("stroke-dasharray", "4 4")
-        .attr("stroke-width", 1.2);
-
     const focusLine = svg.append("line")
         .attr("class", "focus-line")
         .attr("y1", bounds.marginTop)
