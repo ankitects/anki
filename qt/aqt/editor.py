@@ -524,20 +524,26 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ######################################################################
 
     def set_note(
-        self, note: Note | None, hide: bool = True, focusTo: int | None = None
+        self,
+        note: Note | None,
+        hide: bool = True,
+        focusTo: int | None = None,
+        orig_note_id: NoteId | None = None,
     ) -> None:
         "Make NOTE the current note."
         self.note = note
         self.currentField = None
         if self.note:
-            self.loadNote(focusTo=focusTo)
+            self.loadNote(focusTo=focusTo, orig_note_id=orig_note_id)
         elif hide:
             self.widget.hide()
 
     def loadNoteKeepingFocus(self) -> None:
         self.loadNote(self.currentField)
 
-    def loadNote(self, focusTo: int | None = None) -> None:
+    def loadNote(
+        self, focusTo: int | None = None, orig_note_id: NoteId | None = None
+    ) -> None:
         if not self.note:
             return
 
@@ -596,12 +602,13 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             sticky = [field["sticky"] for field in self.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
 
-        if (
-            self.editorMode != EditorMode.ADD_CARDS
-            and self.current_notetype_is_image_occlusion()
-        ):
-            io_options = self._create_edit_io_options(note_id=self.note.id)
-            js += " setupMaskEditor(%s);" % json.dumps(io_options)
+        if self.current_notetype_is_image_occlusion():
+            if self.editorMode is not EditorMode.ADD_CARDS:
+                io_options = self._create_edit_io_options(note_id=self.note.id)
+                js += " setupMaskEditor(%s);" % json.dumps(io_options)
+            elif orig_note_id:
+                io_options = self._create_clone_io_options(cloned_note_id=orig_note_id)
+                js += " setupMaskEditor(%s);" % json.dumps(io_options)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
@@ -1159,6 +1166,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         return {
             "mode": {"kind": "add", "imagePath": image_path, "notetypeId": notetype_id},
             "html": image_field_html,
+        }
+
+    @staticmethod
+    def _create_clone_io_options(cloned_note_id: NoteId) -> dict:
+        return {
+            "mode": {"kind": "add", "clonedNoteId": cloned_note_id},
         }
 
     @staticmethod
