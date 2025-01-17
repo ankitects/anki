@@ -189,7 +189,7 @@ impl Card {
     ) -> Result<()> {
         let memory_state = if let Some(i) = item {
             Some(fsrs.memory_state(i.item, i.starting_state)?)
-        } else if self.ctype == CardType::New || self.interval == 0 || self.reps == 0 {
+        } else if self.ctype == CardType::New || self.interval == 0 {
             None
         } else {
             // no valid revlog entries; infer state from current card state
