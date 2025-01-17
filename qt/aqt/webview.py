@@ -665,6 +665,9 @@ html {{ {font} }}
                 return
             if cb:
                 cb(val)
+
+            # This ensures that the latest contents are displayed when the webview is interacted with through python code.
+            # (see #3668 for more details about why this is necessary)
             self.update()
 
         page.runJavaScript(js, handler)
