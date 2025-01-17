@@ -1100,6 +1100,13 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         self.parentWindow.activateWindow()
 
+    def extract_img_path_from_html(self, html: str) -> str | None:
+        assert self.note is not None
+        # with allowed_suffixes=pics, all non-pics will be rendered as <a>s and won't be included here
+        if not (images := self.mw.col.media.files_in_str(self.note.mid, html)):
+            return None
+        return os.path.join(self.mw.col.media.dir(), images[0])
+
     def select_image_from_clipboard_and_occlude(self) -> None:
         """Set up the mask editor for the image in the clipboard."""
 
@@ -1107,12 +1114,16 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         assert clipboard is not None
         mime = clipboard.mimeData()
         assert mime is not None
-        if not mime.hasImage():
+        # try checking for urls first, fallback to image data
+        if (
+            (html := self.web._processUrls(mime, allowed_suffixes=pics))
+            and (path := self.extract_img_path_from_html(html))
+        ) or (mime.hasImage() and (path := self._read_pasted_image(mime))):
+            self.setup_mask_editor(path)
+            self.parentWindow.activateWindow()
+        else:
             showWarning(tr.editing_no_image_found_on_clipboard())
             return
-        path = self._read_pasted_image(mime)
-        self.setup_mask_editor(path)
-        self.parentWindow.activateWindow()
 
     def setup_mask_editor_for_new_note(
         self,
