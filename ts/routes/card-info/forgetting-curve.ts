@@ -318,11 +318,14 @@ export function renderForgettingCurve(
         .style("opacity", 0);
 
     function tooltipText(d: DataPoint): string {
-        return `${maxDays >= 365 ? "Date" : "Date Time"}: ${maxDays >= 365 ? d.date.toLocaleDateString() : d.date.toLocaleString()
-            }<br>
-        ${tr.cardStatsReviewLogElapsedTime()}: ${timeSpan(d.elapsedDaysSinceLastReview * 86400)
-            }<br>${tr.cardStatsFsrsRetrievability()}: ${d.retrievability.toFixed(2)}%<br>${tr.cardStatsFsrsStability()}: ${timeSpan(d.stability * 86400)
-            }`;
+        return `${maxDays >= 365 ? "Date" : "Date Time"}: ${
+            maxDays >= 365 ? d.date.toLocaleDateString() : d.date.toLocaleString()
+        }<br>
+        ${tr.cardStatsReviewLogElapsedTime()}: ${
+            timeSpan(d.elapsedDaysSinceLastReview * 86400)
+        }<br>${tr.cardStatsFsrsRetrievability()}: ${d.retrievability.toFixed(2)}%<br>${tr.cardStatsFsrsStability()}: ${
+            timeSpan(d.stability * 86400)
+        }`;
     }
 
     // hover/tooltip
