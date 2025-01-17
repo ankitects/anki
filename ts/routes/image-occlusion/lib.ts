@@ -7,9 +7,14 @@ export interface IOAddingMode {
     imagePath: string;
 }
 
+export interface IOCloningMode {
+    kind: "add";
+    clonedNoteId: number;
+}
+
 export interface IOEditingMode {
     kind: "edit";
     noteId: number;
 }
 
-export type IOMode = IOAddingMode | IOEditingMode;
+export type IOMode = IOAddingMode | IOEditingMode | IOCloningMode;
