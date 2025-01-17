@@ -431,7 +431,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         imageOcclusionMode = undefined;
         await tick();
         imageOcclusionMode = options.mode;
-        if (options.mode.kind === "add") {
+        if (options.mode.kind === "add" && !("clonedNoteId" in options.mode)) {
             fieldStores[ioFields.image].set(options.html);
             // the image field is set programmatically and does not need debouncing
             // commit immediately to avoid a race condition with the occlusions field

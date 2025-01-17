@@ -7,7 +7,7 @@ import * as tr from "@generated/ftl";
 import { get } from "svelte/store";
 
 import { mount } from "svelte";
-import type { IOMode } from "./lib";
+import type { IOAddingMode, IOMode } from "./lib";
 import { exportShapesToClozeDeletions } from "./shapes/to-cloze";
 import { notesDataStore, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
@@ -40,8 +40,9 @@ export const addOrUpdateNote = async function(
         showResult(mode.noteId, result, noteCount);
     } else {
         const result = await addImageOcclusionNote({
-            notetypeId: BigInt(mode.notetypeId),
-            imagePath: mode.imagePath,
+            // IOCloningMode is not used on mobile
+            notetypeId: BigInt((<IOAddingMode> mode).notetypeId),
+            imagePath: (<IOAddingMode> mode).imagePath,
             occlusions: occlusionCloze,
             header,
             backExtra,

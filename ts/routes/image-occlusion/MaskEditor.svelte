@@ -44,10 +44,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function init(_node: HTMLDivElement) {
         if (mode.kind == "add") {
-            // Editing occlusions on a new note through the "Add" window
-            setupMaskEditor(mode.imagePath, onImageLoaded).then((canvas1) => {
-                canvas = canvas1;
-            });
+            if ("clonedNoteId" in mode) {
+                // Editing occlusions on a new note cloned from an existing note via "Create copy"
+                setupMaskEditorForEdit(mode.clonedNoteId, onImageLoaded).then(
+                    (canvas1) => {
+                        canvas = canvas1;
+                    },
+                );
+            } else {
+                // Editing occlusions on a new note through the "Add" window
+                setupMaskEditor(mode.imagePath, onImageLoaded).then((canvas1) => {
+                    canvas = canvas1;
+                });
+            }
         } else {
             // Editing occlusions on an existing note through the "Browser" window
             setupMaskEditorForEdit(mode.noteId, onImageLoaded).then((canvas1) => {
