@@ -90,7 +90,7 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
                 return;
             }
 
-            const totalDaysElapsed = (reviewTime - lastReviewTime) / (24 * 60 * 60);
+            const totalDaysElapsed = (reviewTime - lastReviewTime) / 86400;
             let elapsedDays = 0;
             while (elapsedDays < totalDaysElapsed - step) {
                 elapsedDays += step;
@@ -121,7 +121,7 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
     }
 
     const now = Date.now() / 1000;
-    const totalDaysSinceLastReview = (now - lastReviewTime) / (24 * 60 * 60);
+    const totalDaysSinceLastReview = (now - lastReviewTime) / 86400;
     let elapsedDays = 0;
     while (elapsedDays < totalDaysSinceLastReview - step) {
         elapsedDays += step;
@@ -144,6 +144,20 @@ export function prepareData(revlog: RevlogEntry[], maxDays: number) {
         stability: lastStability,
     });
 
+    const previewDays = maxDays - totalDaysSinceLastReview;
+    let previewDaysElapsed = 0;
+    while (previewDaysElapsed < previewDays) {
+        previewDaysElapsed += step;
+        const retrievability = forgettingCurve(lastStability, elapsedDays + previewDaysElapsed);
+        data.push({
+            date: new Date((now + previewDaysElapsed * 86400) * 1000),
+            daysSinceFirstLearn: data[data.length - 1].daysSinceFirstLearn + step,
+            elapsedDaysSinceLastReview: totalDaysSinceLastReview + previewDaysElapsed,
+            retrievability: retrievability * 100,
+            stability: lastStability,
+        });
+    }
+
     const filteredData = filterDataByTimeRange(data, maxDays);
     return filteredData;
 }
@@ -152,9 +166,14 @@ export function calculateMaxDays(filteredRevlog: RevlogEntry[], timeRange: TimeR
     if (filteredRevlog.length === 0) {
         return 0;
     }
-    const daysSinceFirstLearn = (Date.now() / 1000 - Number(filteredRevlog[filteredRevlog.length - 1].time))
-        / (24 * 60 * 60);
-    return Math.min(daysSinceFirstLearn, MAX_DAYS[timeRange]);
+    const today = new Date();
+    const daysSinceFirstLearn = (today.getTime() / 1000 - Number(filteredRevlog[filteredRevlog.length - 1].time))
+        / 86400;
+    const totalDaysSinceLastReview = (today.getTime() / 1000 - Number(filteredRevlog[0].time))
+        / 86400;
+    const lastScheduledDays = filteredRevlog[0].interval / 86400;
+    const previewDays = Math.max(lastScheduledDays * 1.5 - totalDaysSinceLastReview, lastScheduledDays * 0.5);
+    return Math.min(daysSinceFirstLearn + previewDays, MAX_DAYS[timeRange]);
 }
 
 export function renderForgettingCurve(
@@ -181,7 +200,7 @@ export function renderForgettingCurve(
         setDataAvailable(svg, true);
     }
 
-    svg.select(".forgetting-curve-line").remove();
+    svg.selectAll(".forgetting-curve-line").remove();
     svg.select(".hover-columns").remove();
 
     const xMin = min(data, d => d.date);
@@ -242,12 +261,28 @@ export function renderForgettingCurve(
         .attr("offset", d => d.offset)
         .attr("stop-color", d => d.color);
 
+    // Split data into past and future
+    const today = new Date();
+    const pastData = data.filter(d => d.date <= today);
+    const futureData = data.filter(d => d.date >= today);
+
+    // Draw solid line for past data
     svg.append("path")
-        .datum(data)
+        .datum(pastData)
         .attr("class", "forgetting-curve-line")
         .attr("fill", "none")
         .attr("stroke", "url(#line-gradient)")
         .attr("stroke-width", 1.5)
+        .attr("d", lineGenerator);
+
+    // Draw dashed line for future data
+    svg.append("path")
+        .datum(futureData)
+        .attr("class", "forgetting-curve-line")
+        .attr("fill", "none")
+        .attr("stroke", "url(#line-gradient)")
+        .attr("stroke-width", 1.5)
+        .attr("stroke-dasharray", "4 4")
         .attr("d", lineGenerator);
 
     svg.select(".desired-retention-line").remove();
@@ -263,6 +298,17 @@ export function renderForgettingCurve(
             .attr("stroke-width", 1.2);
     }
 
+    svg.select(".today-line").remove();
+    svg.append("line")
+        .attr("class", "today-line")
+        .attr("x1", x(today))
+        .attr("x2", x(today))
+        .attr("y1", bounds.marginTop)
+        .attr("y2", bounds.height - bounds.marginBottom)
+        .attr("stroke", "green")
+        .attr("stroke-dasharray", "4 4")
+        .attr("stroke-width", 1.2);
+
     const focusLine = svg.append("line")
         .attr("class", "focus-line")
         .attr("y1", bounds.marginTop)
@@ -272,14 +318,11 @@ export function renderForgettingCurve(
         .style("opacity", 0);
 
     function tooltipText(d: DataPoint): string {
-        return `${maxDays >= 365 ? "Date" : "Date Time"}: ${
-            maxDays >= 365 ? d.date.toLocaleDateString() : d.date.toLocaleString()
-        }<br>
-        ${tr.cardStatsReviewLogElapsedTime()}: ${
-            timeSpan(d.elapsedDaysSinceLastReview * 86400)
-        }<br>${tr.cardStatsFsrsRetrievability()}: ${d.retrievability.toFixed(2)}%<br>${tr.cardStatsFsrsStability()}: ${
-            timeSpan(d.stability * 86400)
-        }`;
+        return `${maxDays >= 365 ? "Date" : "Date Time"}: ${maxDays >= 365 ? d.date.toLocaleDateString() : d.date.toLocaleString()
+            }<br>
+        ${tr.cardStatsReviewLogElapsedTime()}: ${timeSpan(d.elapsedDaysSinceLastReview * 86400)
+            }<br>${tr.cardStatsFsrsRetrievability()}: ${d.retrievability.toFixed(2)}%<br>${tr.cardStatsFsrsStability()}: ${timeSpan(d.stability * 86400)
+            }`;
     }
 
     // hover/tooltip
