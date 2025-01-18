@@ -32,6 +32,8 @@ class Note(DeprecatedNamesMixin):
     data = ""
     id: NoteId
     mid: NotetypeId
+    # used when creating a copy of an existing note
+    orig_note_id: NoteId | None = None
 
     def __init__(
         self,

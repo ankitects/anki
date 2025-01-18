@@ -603,8 +603,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             if self.editorMode is not EditorMode.ADD_CARDS:
                 io_options = self._create_edit_io_options(note_id=self.note.id)
                 js += " setupMaskEditor(%s);" % json.dumps(io_options)
-            elif orig_note_id:
-                io_options = self._create_clone_io_options(cloned_note_id=orig_note_id)
+            elif orig_note_id := self.note.orig_note_id:
+                io_options = self._create_clone_io_options(orig_note_id)
                 js += " setupMaskEditor(%s);" % json.dumps(io_options)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
@@ -1166,9 +1166,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         }
 
     @staticmethod
-    def _create_clone_io_options(cloned_note_id: NoteId) -> dict:
+    def _create_clone_io_options(orig_note_id: NoteId) -> dict:
         return {
-            "mode": {"kind": "add", "clonedNoteId": cloned_note_id},
+            "mode": {"kind": "add", "clonedNoteId": orig_note_id},
         }
 
     @staticmethod

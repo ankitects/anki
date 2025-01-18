@@ -77,6 +77,7 @@ class AddCards(QMainWindow):
         new_note = self._new_note()
         new_note.fields = note.fields[:]
         new_note.tags = note.tags[:]
+        new_note.orig_note_id = note.id
 
         self.setAndFocusNote(new_note)
 
