@@ -18,7 +18,7 @@ import warnings
 from collections.abc import Callable
 from enum import Enum
 from random import randrange
-from typing import Any, Match, cast
+from typing import Any, Iterable, Match, cast
 
 import bs4
 import requests
@@ -844,8 +844,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Media downloads
     ######################################################################
 
-    def urlToLink(self, url: str) -> str:
-        fname = self.urlToFile(url)
+    def urlToLink(self, url: str, allowed_suffixes: Iterable[str] = ()) -> str:
+        fname = (
+            self.urlToFile(url, allowed_suffixes)
+            if allowed_suffixes
+            else self.urlToFile(url)
+        )
         if not fname:
             return '<a href="{}">{}</a>'.format(
                 url, html.escape(urllib.parse.unquote(url))
@@ -861,9 +865,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             av_player.play_file_with_caller(fname, self.editorMode)
             return f"[sound:{html.escape(fname, quote=False)}]"
 
-    def urlToFile(self, url: str) -> str | None:
+    def urlToFile(
+        self, url: str, allowed_suffixes: Iterable[str] = pics + audio
+    ) -> str | None:
         l = url.lower()
-        for suffix in pics + audio:
+        for suffix in allowed_suffixes:
             if l.endswith(f".{suffix}"):
                 return self._retrieveURL(url)
         # not a supported type
@@ -1094,6 +1100,13 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         self.parentWindow.activateWindow()
 
+    def extract_img_path_from_html(self, html: str) -> str | None:
+        assert self.note is not None
+        # with allowed_suffixes=pics, all non-pics will be rendered as <a>s and won't be included here
+        if not (images := self.mw.col.media.files_in_str(self.note.mid, html)):
+            return None
+        return os.path.join(self.mw.col.media.dir(), images[0])
+
     def select_image_from_clipboard_and_occlude(self) -> None:
         """Set up the mask editor for the image in the clipboard."""
 
@@ -1101,12 +1114,16 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         assert clipboard is not None
         mime = clipboard.mimeData()
         assert mime is not None
-        if not mime.hasImage():
+        # try checking for urls first, fallback to image data
+        if (
+            (html := self.web._processUrls(mime, allowed_suffixes=pics))
+            and (path := self.extract_img_path_from_html(html))
+        ) or (mime.hasImage() and (path := self._read_pasted_image(mime))):
+            self.setup_mask_editor(path)
+            self.parentWindow.activateWindow()
+        else:
             showWarning(tr.editing_no_image_found_on_clipboard())
             return
-        path = self._read_pasted_image(mime)
-        self.setup_mask_editor(path)
-        self.parentWindow.activateWindow()
 
     def setup_mask_editor_for_new_note(
         self,
@@ -1569,15 +1586,19 @@ class EditorWebView(AnkiWebView):
             html_content = mime.html()[11:] if internal else mime.html()
             return html_content, internal
 
+        # given _processUrls' extra allowed_suffixes kwarg, placate the typechecker
+        def process_url(mime: QMimeData, extended: bool = False) -> str | None:
+            return self._processUrls(mime, extended)
+
         # favour url if it's a local link
         if (
             mime.hasUrls()
             and (urls := mime.urls())
             and urls[0].toString().startswith("file://")
         ):
-            types = (self._processUrls, self._processImage, self._processText)
+            types = (process_url, self._processImage, self._processText)
         else:
-            types = (self._processImage, self._processUrls, self._processText)
+            types = (self._processImage, process_url, self._processText)
 
         for fn in types:
             html = fn(mime, extended)
@@ -1585,7 +1606,12 @@ class EditorWebView(AnkiWebView):
                 return html, True
         return "", False
 
-    def _processUrls(self, mime: QMimeData, extended: bool = False) -> str | None:
+    def _processUrls(
+        self,
+        mime: QMimeData,
+        extended: bool = False,
+        allowed_suffixes: Iterable[str] = (),
+    ) -> str | None:
         if not mime.hasUrls():
             return None
 
@@ -1595,7 +1621,7 @@ class EditorWebView(AnkiWebView):
             # chrome likes to give us the URL twice with a \n
             if lines := url.splitlines():
                 url = lines[0]
-                buf += self.editor.urlToLink(url)
+                buf += self.editor.urlToLink(url, allowed_suffixes=allowed_suffixes)
 
         return buf
 
