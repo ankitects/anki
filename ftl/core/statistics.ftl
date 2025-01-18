@@ -117,11 +117,14 @@ statistics-true-retention-subtitle = Pass rate of cards with an interval ≥ 1 d
 statistics-true-retention-range = Range
 statistics-true-retention-pass = Pass
 statistics-true-retention-fail = Fail
-statistics-true-retention-total = { statistics-counts-total-cards }
+# This will usually be the same as statistics-counts-total-cards
+statistics-true-retention-total = Total
 statistics-true-retention-count = Count
 statistics-true-retention-retention = Retention
-statistics-true-retention-young = { statistics-counts-young-cards }
-statistics-true-retention-mature = { statistics-counts-mature-cards }
+# This will usually be the same as statistics-counts-young-cards
+statistics-true-retention-young = Young
+# This will usually be the same as statistics-counts-mature-cards
+statistics-true-retention-mature = Mature
 statistics-true-retention-all = All
 statistics-true-retention-today = Today
 statistics-true-retention-yesterday = Yesterday
