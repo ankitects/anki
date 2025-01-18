@@ -139,6 +139,8 @@ class Editor:
         # Similar to currentField, but not set to None on a blur. May be
         # outside the bounds of the current notetype.
         self.last_field_index: int | None = None
+        # used when creating a copy of an existing note
+        self.orig_note_id: NoteId | None = None
         # current card, for card layout
         self.card: Card | None = None
         self.state: EditorState = EditorState.INITIAL
@@ -603,7 +605,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             if self.editorMode is not EditorMode.ADD_CARDS:
                 io_options = self._create_edit_io_options(note_id=self.note.id)
                 js += " setupMaskEditor(%s);" % json.dumps(io_options)
-            elif orig_note_id := self.note.orig_note_id:
+            elif orig_note_id := self.orig_note_id:
+                self.orig_note_id = None
                 io_options = self._create_clone_io_options(orig_note_id)
                 js += " setupMaskEditor(%s);" % json.dumps(io_options)
 
