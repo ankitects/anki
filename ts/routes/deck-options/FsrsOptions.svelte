@@ -156,6 +156,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             : defaultparamSearch,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                         currentParams: params,
+                        numOfRelearningSteps: $config.relearnSteps.length,
                     });
 
                     const already_optimal =
