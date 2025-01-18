@@ -75,7 +75,7 @@ class DebugConsole(QDialog):
         font = QFont("Consolas")
         if not font.exactMatch():
             font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
-        font.setPointSize(self._text.font().pointSize())
+        font.setPointSize(self._text.font().pointSize() + 1)
         self._text.setFont(font)
         self._log.setFont(font)
 
