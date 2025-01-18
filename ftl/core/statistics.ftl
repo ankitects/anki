@@ -103,14 +103,25 @@ statistics-counts-separate-suspended-buried-cards = Separate suspended/buried ca
 ## comparison to the "desired retention" parameter of FSRS, which forecasts
 ## future retention. True Retention is the percentage of all reviewed cards
 ## that were marked as "Hard," "Good," or "Easy" within a specific time period.
+##
+## Most of these strings are used as column / row headings in a table.
+## (Excluding -title and -subtitle)
+## It is important to keep these translations short so that they do not make
+## the table too large to display on a single stats card.
+##
+## N.B. Stats cards may be very small on mobile devices and when the Stats
+##      window is certain sizes.
 
 statistics-true-retention-title = True Retention
 statistics-true-retention-subtitle = Pass rate of cards with an interval ≥ 1 day.
 statistics-true-retention-range = Range
 statistics-true-retention-pass = Pass
 statistics-true-retention-fail = Fail
+statistics-true-retention-total = { statistics-counts-total-cards }
 statistics-true-retention-count = Count
 statistics-true-retention-retention = Retention
+statistics-true-retention-young = { statistics-counts-young-cards }
+statistics-true-retention-mature = { statistics-counts-mature-cards }
 statistics-true-retention-all = All
 statistics-true-retention-today = Today
 statistics-true-retention-yesterday = Yesterday
