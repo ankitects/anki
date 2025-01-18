@@ -139,6 +139,8 @@ class Editor:
         # Similar to currentField, but not set to None on a blur. May be
         # outside the bounds of the current notetype.
         self.last_field_index: int | None = None
+        # used when creating a copy of an existing note
+        self.orig_note_id: NoteId | None = None
         # current card, for card layout
         self.card: Card | None = None
         self.state: EditorState = EditorState.INITIAL
@@ -528,22 +530,19 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         note: Note | None,
         hide: bool = True,
         focusTo: int | None = None,
-        orig_note_id: NoteId | None = None,
     ) -> None:
         "Make NOTE the current note."
         self.note = note
         self.currentField = None
         if self.note:
-            self.loadNote(focusTo=focusTo, orig_note_id=orig_note_id)
+            self.loadNote(focusTo=focusTo)
         elif hide:
             self.widget.hide()
 
     def loadNoteKeepingFocus(self) -> None:
         self.loadNote(self.currentField)
 
-    def loadNote(
-        self, focusTo: int | None = None, orig_note_id: NoteId | None = None
-    ) -> None:
+    def loadNote(self, focusTo: int | None = None) -> None:
         if not self.note:
             return
 
@@ -606,8 +605,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             if self.editorMode is not EditorMode.ADD_CARDS:
                 io_options = self._create_edit_io_options(note_id=self.note.id)
                 js += " setupMaskEditor(%s);" % json.dumps(io_options)
-            elif orig_note_id:
-                io_options = self._create_clone_io_options(cloned_note_id=orig_note_id)
+            elif orig_note_id := self.orig_note_id:
+                self.orig_note_id = None
+                io_options = self._create_clone_io_options(orig_note_id)
                 js += " setupMaskEditor(%s);" % json.dumps(io_options)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
@@ -1186,9 +1186,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         }
 
     @staticmethod
-    def _create_clone_io_options(cloned_note_id: NoteId) -> dict:
+    def _create_clone_io_options(orig_note_id: NoteId) -> dict:
         return {
-            "mode": {"kind": "add", "clonedNoteId": cloned_note_id},
+            "mode": {"kind": "add", "clonedNoteId": orig_note_id},
         }
 
     @staticmethod
