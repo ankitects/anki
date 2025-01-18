@@ -11,6 +11,7 @@ echo "--- Install n2"
 ./tools/install-n2
 
 if [ $(uname -m) = "aarch64" ]; then
+    export PYTHONPATH=/usr/lib/python3/dist-packages
     ./ninja wheels:anki
 else
     ./ninja bundle

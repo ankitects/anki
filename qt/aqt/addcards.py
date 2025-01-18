@@ -78,7 +78,7 @@ class AddCards(QMainWindow):
         new_note.fields = note.fields[:]
         new_note.tags = note.tags[:]
 
-        self.setAndFocusNote(new_note)
+        self.setAndFocusNote(new_note, orig_note_id=note.id)
 
     def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(
@@ -143,8 +143,8 @@ class AddCards(QMainWindow):
         b.setEnabled(False)
         self.historyButton = b
 
-    def setAndFocusNote(self, note: Note) -> None:
-        self.editor.set_note(note, focusTo=0)
+    def setAndFocusNote(self, note: Note, orig_note_id: NoteId | None = None) -> None:
+        self.editor.set_note(note, focusTo=0, orig_note_id=orig_note_id)
 
     def show_notetype_selector(self) -> None:
         self.editor.call_after_note_saved(self.notetype_chooser.choose_notetype)

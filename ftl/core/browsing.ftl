@@ -28,6 +28,7 @@ browsing-cards-deleted-with-deckname =
 browsing-change-deck = Change Deck
 browsing-change-deck2 = Change Deck...
 browsing-change-note-type = Change Note Type
+# Action in a context menu (right mouse-click on a card type)
 browsing-change-note-type2 = Change Note Type...
 browsing-change-notetype = Change Note Type
 browsing-clear-unused-tags = Clear Unused Tags

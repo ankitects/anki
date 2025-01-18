@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.utils import is_win
+from anki.utils import is_mac, is_win
 from aqt import colors, props
 from aqt.theme import ThemeManager
 
@@ -26,6 +26,19 @@ qlineargradient(
     stop:1 {shadow}
 );
     """
+
+
+def button_layout(tm: ThemeManager):
+    # https://doc.qt.io/qt-6/stylesheet-reference.html#button-layout
+    if is_win:
+        return 0
+    elif is_mac:
+        return 1
+    # on linux, use non-default layout if available
+    if tm._default_button_layout:
+        return tm._default_button_layout
+    # fallback to GnomeLayout
+    return 3
 
 
 class CustomStyles:
@@ -201,6 +214,9 @@ class CustomStyles:
     }}
     QPushButton:flat {{
         border: none;
+    }}
+    QDialogButtonBox {{
+        button-layout: {button_layout(tm)};
     }}
         """
 

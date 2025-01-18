@@ -222,13 +222,23 @@ impl NoteContext {
     }
 
     fn deck_column(&self) -> Option<usize> {
-        self.with_deck
-            .then(|| 1 + self.notetype_column().unwrap_or_default())
+        self.with_deck.then(|| {
+            1 + self
+                .notetype_column()
+                .or_else(|| self.guid_column())
+                .unwrap_or_default()
+        })
     }
 
     fn tags_column(&self) -> Option<usize> {
-        self.with_tags
-            .then(|| 1 + self.deck_column().unwrap_or_default() + self.field_columns)
+        self.with_tags.then(|| {
+            1 + self
+                .deck_column()
+                .or_else(|| self.notetype_column())
+                .or_else(|| self.guid_column())
+                .unwrap_or_default()
+                + self.field_columns
+        })
     }
 
     fn record<'c, 's: 'c, 'n: 'c>(&'s self, note: &'n Note) -> impl Iterator<Item = Cow<'c, [u8]>> {
