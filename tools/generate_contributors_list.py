@@ -7,7 +7,7 @@ import re
 
 # Get path to input file (CONTRIBUTORS).
 input_file  = "../CONTRIBUTORS"
-# Get path to output file (CONTRIBUTORS_formatted).
+# Get path to output file (about_contributors.py).
 output_file = "../qt/aqt/about_contributors.py"
 # Template file which is used to create the `allusers` function in about.py
 tmp_allusers_template = """#This list has been generated from CONTRIBUTORS file.
