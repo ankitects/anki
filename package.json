@@ -67,7 +67,6 @@
         "@popperjs/core": "^2.11.8",
         "bootstrap": "^5.3.0",
         "bootstrap-icons": "^1.10.5",
-        "canvas": "npm:empty-npm-package",
         "codemirror": "^5.63.1",
         "d3": "^7.0.0",
         "fabric": "^5.3.0",
@@ -80,7 +79,7 @@
         "mathjax": "^3.1.2"
     },
     "resolutions": {
-        "canvas": "npm:empty-npm-package",
+        "canvas": "npm:empty-npm-package@1.0.0",
         "cookie": "0.7.0"
     },
     "browserslist": [
