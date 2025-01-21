@@ -341,6 +341,19 @@ class AddCards(QMainWindow):
         self.ifCanClose(self._close)
         evt.ignore()
 
+    def enterEvent(self, evt: QEnterEvent) -> None:
+        current_deck = self.mw.deckBrowser._render_data
+
+        selected_deck_object = self.mw._selectedDeck()
+        if (
+            isinstance(selected_deck_object, dict)
+            and ("id" in selected_deck_object)
+            and selected_deck_object["id"] != current_deck.current_deck_id
+        ):
+            self.set_deck(selected_deck_object["id"])
+
+        evt.ignore()
+
     def _close(self) -> None:
         self.editor.cleanup()
         self.notetype_chooser.cleanup()
