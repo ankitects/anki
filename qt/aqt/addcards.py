@@ -112,8 +112,8 @@ class AddCards(QMainWindow):
         defaults = self.col.defaults_for_adding(
             current_review_card=self.mw.reviewer.card
         )
-        self.set_deck(DeckId(defaults.deck_id))
         self.set_note_type(NotetypeId(defaults.notetype_id))
+        self.set_deck(DeckId(defaults.deck_id))
 
     def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
