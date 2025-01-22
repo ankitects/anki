@@ -26,11 +26,7 @@ impl Collection {
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let mut converted_cards = cards
             .into_iter()
-            .filter(|c| {
-                c.queue != CardQueue::Suspended
-                    && c.queue != CardQueue::PreviewRepeat
-                    && c.queue != CardQueue::New
-            })
+            .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
             .filter_map(|c| Card::convert(c, days_elapsed, req.days_to_simulate))
             .collect_vec();
         let introduced_today_count = self
