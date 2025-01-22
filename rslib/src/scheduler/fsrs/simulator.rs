@@ -26,21 +26,21 @@ impl Collection {
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let mut converted_cards = cards
             .into_iter()
-            .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
+            .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat && c.queue != CardQueue::New)
             .filter_map(|c| Card::convert(c, days_elapsed, req.days_to_simulate))
             .collect_vec();
         let introduced_today_count = self.search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?.len();
-        let deck_size = req.deck_size as usize + &converted_cards.len();
-        let new_card_count = deck_size - &converted_cards.len();
         if req.new_limit > 0 {
-            let new_cards = (introduced_today_count..new_card_count).map(|i| fsrs::Card {
+            let new_cards = (introduced_today_count..(req.deck_size as usize + introduced_today_count)).map(|i| fsrs::Card {
                 difficulty: f32::NEG_INFINITY,
-                stability: f32::NEG_INFINITY,
+                stability: 1e-8, // Hack to get around the filter
                 last_date: f32::NEG_INFINITY,
-                due: (i / req.new_limit as usize) as f32,
+                due: 1. + (i / req.new_limit as usize) as f32,
             });
+            dbg!(introduced_today_count, req.deck_size as usize, converted_cards.len(), new_cards.clone().collect_vec());
             converted_cards.extend(new_cards);
         }
+        dbg!(&converted_cards);
         let p = self.get_optimal_retention_parameters(revlogs)?;
         let config = SimulatorConfig {
             deck_size: converted_cards.len(),
