@@ -31,11 +31,11 @@ impl Collection {
             .collect_vec();
         let introduced_today_count = self.search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?.len();
         if req.new_limit > 0 {
-            let new_cards = (introduced_today_count..(req.deck_size as usize + introduced_today_count)).map(|i| fsrs::Card {
-                difficulty: 0.,
-                stability: 0., // Not filtered by fsrs-rs
+            let new_cards = (0..req.deck_size as usize).map(|i| fsrs::Card {
+                difficulty: f32::NEG_INFINITY,
+                stability: 1e-8, // Not filtered by fsrs-rs
                 last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
-                due: (i / req.new_limit as usize) as f32,
+                due: ((introduced_today_count + i) / req.new_limit as usize) as f32,
             });
             converted_cards.extend(new_cards);
         }
