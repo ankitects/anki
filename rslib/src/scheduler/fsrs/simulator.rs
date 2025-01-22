@@ -24,7 +24,11 @@ impl Collection {
         let cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
-        let new_cards = cards.iter().filter(|c| c.memory_state == None || c.queue == CardQueue::New).count() + req.deck_size as usize;
+        let new_cards = cards
+            .iter()
+            .filter(|c| c.memory_state == None || c.queue == CardQueue::New)
+            .count()
+            + req.deck_size as usize;
         let mut converted_cards = cards
             .into_iter()
             .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
