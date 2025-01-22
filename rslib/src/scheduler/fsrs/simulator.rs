@@ -24,14 +24,26 @@ impl Collection {
         let cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
-        let converted_cards = cards
+        let mut converted_cards = cards
             .into_iter()
             .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
             .filter_map(|c| Card::convert(c, days_elapsed, req.days_to_simulate))
             .collect_vec();
+        let introduced_today_count = self.search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?.len();
+        let deck_size = req.deck_size as usize + &converted_cards.len();
+        let new_card_count = deck_size - &converted_cards.len();
+        if req.new_limit > 0 {
+            let new_cards = (introduced_today_count..new_card_count).map(|i| fsrs::Card {
+                difficulty: f32::NEG_INFINITY,
+                stability: f32::NEG_INFINITY,
+                last_date: f32::NEG_INFINITY,
+                due: (i / req.new_limit as usize) as f32,
+            });
+            converted_cards.extend(new_cards);
+        }
         let p = self.get_optimal_retention_parameters(revlogs)?;
         let config = SimulatorConfig {
-            deck_size: req.deck_size as usize + converted_cards.len(),
+            deck_size: converted_cards.len(),
             learn_span: req.days_to_simulate as usize,
             max_cost_perday: f32::MAX,
             max_ivl: req.max_interval as f32,
