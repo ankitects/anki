@@ -68,9 +68,7 @@ class CardInfoDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.setContentsMargins(10, 0, 10, 10)
 
-        copy_button = QPushButton("Copy card debug info")
-        copy_button.clicked.connect(lambda: self.copy_card_info(card_id))
-        button_layout.addWidget(copy_button)
+        self.copy_debug_info = QShortcut("ctrl+c", self, activated=lambda: self.copy_card_info(card_id))
 
         close_button = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         button_layout.addWidget(close_button)
