@@ -32,7 +32,7 @@ impl Collection {
         let mut converted_cards = cards
             .into_iter()
             .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
-            .filter_map(|c| Card::convert(c, days_elapsed, req.days_to_simulate))
+            .filter_map(|c| Card::convert(c, days_elapsed))
             .collect_vec();
         let introduced_today_count = self
             .search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?
@@ -91,7 +91,7 @@ impl Collection {
 }
 
 impl Card {
-    fn convert(card: Card, days_elapsed: i32, day_to_simulate: u32) -> Option<fsrs::Card> {
+    fn convert(card: Card, days_elapsed: i32) -> Option<fsrs::Card> {
         match card.memory_state {
             Some(state) => match card.queue {
                 CardQueue::DayLearn | CardQueue::Review => {
