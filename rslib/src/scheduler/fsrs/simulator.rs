@@ -26,14 +26,20 @@ impl Collection {
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let mut converted_cards = cards
             .into_iter()
-            .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat && c.queue != CardQueue::New)
+            .filter(|c| {
+                c.queue != CardQueue::Suspended
+                    && c.queue != CardQueue::PreviewRepeat
+                    && c.queue != CardQueue::New
+            })
             .filter_map(|c| Card::convert(c, days_elapsed, req.days_to_simulate))
             .collect_vec();
-        let introduced_today_count = self.search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?.len();
+        let introduced_today_count = self
+            .search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?
+            .len();
         if req.new_limit > 0 {
             let new_cards = (0..req.deck_size as usize).map(|i| fsrs::Card {
                 difficulty: f32::NEG_INFINITY,
-                stability: 1e-8, // Not filtered by fsrs-rs
+                stability: 1e-8,              // Not filtered by fsrs-rs
                 last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
                 due: ((introduced_today_count + i) / req.new_limit as usize) as f32,
             });
