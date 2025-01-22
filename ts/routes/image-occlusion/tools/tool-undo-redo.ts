@@ -139,6 +139,10 @@ class UndoStack {
     }
 
     redo(): void {
+        if (this.canvas) {
+            // when redoing, removing an unfinished polygon doesn't make sense as a discrete step
+            removeUnfinishedPolygon(this.canvas);
+        }
         if (this.canRedo()) {
             this.index++;
             this.updateState();
