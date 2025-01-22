@@ -26,7 +26,7 @@ impl Collection {
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let new_cards = cards
             .iter()
-            .filter(|c| c.memory_state == None || c.queue == CardQueue::New)
+            .filter(|c| c.memory_state.is_none() || c.queue == CardQueue::New)
             .count()
             + req.deck_size as usize;
         let mut converted_cards = cards
