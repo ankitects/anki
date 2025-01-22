@@ -24,6 +24,7 @@ impl Collection {
         let cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
+        let new_cards = cards.iter().filter(|c| c.memory_state == None || c.queue == CardQueue::New).count() + req.deck_size as usize;
         let mut converted_cards = cards
             .into_iter()
             .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
@@ -33,7 +34,7 @@ impl Collection {
             .search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?
             .len();
         if req.new_limit > 0 {
-            let new_cards = (0..req.deck_size as usize).map(|i| fsrs::Card {
+            let new_cards = (0..new_cards).map(|i| fsrs::Card {
                 difficulty: f32::NEG_INFINITY,
                 stability: 1e-8,              // Not filtered by fsrs-rs
                 last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
@@ -99,12 +100,7 @@ impl Card {
                         due: relative_due as f32,
                     })
                 }
-                CardQueue::New => Some(fsrs::Card {
-                    difficulty: 1e-10,
-                    stability: 1e-10,
-                    last_date: 0.0,
-                    due: day_to_simulate as f32,
-                }),
+                CardQueue::New => None,
                 CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => {
                     Some(fsrs::Card {
                         difficulty: state.difficulty,
@@ -116,12 +112,7 @@ impl Card {
                 CardQueue::PreviewRepeat => None,
                 CardQueue::Suspended => None,
             },
-            None => Some(fsrs::Card {
-                difficulty: 1e-10,
-                stability: 1e-10,
-                last_date: 0.0,
-                due: day_to_simulate as f32,
-            }),
+            None => None,
         }
     }
 }
