@@ -36,7 +36,8 @@ impl Collection {
             .collect_vec();
         let introduced_today_count = self
             .search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?
-            .len();
+            .len()
+            .min(req.new_limit as usize);
         if req.new_limit > 0 {
             let new_cards = (0..new_cards).map(|i| fsrs::Card {
                 difficulty: f32::NEG_INFINITY,
