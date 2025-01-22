@@ -32,15 +32,13 @@ impl Collection {
         let introduced_today_count = self.search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?.len();
         if req.new_limit > 0 {
             let new_cards = (introduced_today_count..(req.deck_size as usize + introduced_today_count)).map(|i| fsrs::Card {
-                difficulty: f32::NEG_INFINITY,
-                stability: 1e-8, // Hack to get around the filter
-                last_date: f32::NEG_INFINITY,
-                due: 1. + (i / req.new_limit as usize) as f32,
+                difficulty: 0.,
+                stability: 0., // Not filtered by fsrs-rs
+                last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
+                due: (i / req.new_limit as usize) as f32,
             });
-            dbg!(introduced_today_count, req.deck_size as usize, converted_cards.len(), new_cards.clone().collect_vec());
             converted_cards.extend(new_cards);
         }
-        dbg!(&converted_cards);
         let p = self.get_optimal_retention_parameters(revlogs)?;
         let config = SimulatorConfig {
             deck_size: converted_cards.len(),
