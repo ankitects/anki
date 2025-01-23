@@ -73,6 +73,7 @@ message Notetype {
     StockNotetype.OriginalStockKind original_stock_kind = 9;
     // the id in the source collection for imported notetypes (Anki 23.10)
     optional int64 original_id = 10;
+    string js = 11;
 
     bytes other = 255;
   }

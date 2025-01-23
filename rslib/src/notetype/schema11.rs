@@ -66,6 +66,8 @@ pub struct NotetypeSchema11 {
     pub(crate) original_stock_kind: i32,
     #[serde(default, skip_serializing_if = "is_default")]
     pub(crate) original_id: Option<i64>,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) js: String,
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -112,6 +114,7 @@ impl From<NotetypeSchema11> for Notetype {
                 reqs: nt.req.0.into_iter().map(Into::into).collect(),
                 original_stock_kind: nt.original_stock_kind,
                 original_id: nt.original_id,
+                js: nt.js,
                 other: other_to_bytes(&nt.other),
             },
             fields: nt.flds.into_iter().map(Into::into).collect(),
@@ -170,6 +173,7 @@ impl From<Notetype> for NotetypeSchema11 {
             tmpls: p.templates.into_iter().map(Into::into).collect(),
             flds: p.fields.into_iter().map(Into::into).collect(),
             css: c.css,
+            js: c.js,
             latex_pre: c.latex_pre,
             latex_post: c.latex_post,
             latexsvg: c.latex_svg,
@@ -197,7 +201,8 @@ static RESERVED_NOTETYPE_KEYS: Set<&'static str> = phf_set! {
     "tmpls",
     "type",
     "sortf",
-    "latexsvg"
+    "latexsvg",
+    "js",
 };
 
 impl From<CardRequirementSchema11> for CardRequirement {

@@ -85,6 +85,16 @@
           </property>
          </widget>
         </item>
+        <item alignment="Qt::AlignLeft">
+         <widget class="QRadioButton" name="script_button">
+          <property name="toolTip">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string notr="true">SCRIPT</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">

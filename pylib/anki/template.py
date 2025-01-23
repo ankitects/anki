@@ -59,6 +59,7 @@ class PartiallyRenderedCard:
     qnodes: TemplateReplacementList
     anodes: TemplateReplacementList
     css: str
+    js: str
     latex_svg: bool
 
     @classmethod
@@ -68,7 +69,7 @@ class PartiallyRenderedCard:
         qnodes = cls.nodes_from_proto(out.question_nodes)
         anodes = cls.nodes_from_proto(out.answer_nodes)
 
-        return PartiallyRenderedCard(qnodes, anodes, out.css, out.latex_svg)
+        return PartiallyRenderedCard(qnodes, anodes, out.css, out.js, out.latex_svg)
 
     @staticmethod
     def nodes_from_proto(
@@ -242,6 +243,7 @@ class TemplateRenderContext:
             question_av_tags=av_tags_to_native(qout.av_tags),
             answer_av_tags=av_tags_to_native(aout.av_tags),
             css=partial.css,
+            js=partial.js,
         )
 
         self._latex_svg = partial.latex_svg
@@ -264,6 +266,7 @@ class TemplateRenderContext:
             # when rendering card layout, the css changes have not been
             # committed; we need the current notetype instance instead
             out.css = self._note_type["css"]
+            out.js = self._note_type["js"]
         else:
             # existing card (eg study mode)
             out = self._col._backend.render_existing_card(
@@ -280,12 +283,15 @@ class TemplateRenderOutput:
     question_av_tags: list[AVTag]
     answer_av_tags: list[AVTag]
     css: str = ""
+    js: str = ""
 
     def question_and_style(self) -> str:
-        return f"<style>{self.css}</style>{self.question_text}"
+        return (
+            f"<style>{self.css}</style><script>{self.js}</script>{self.question_text}"
+        )
 
     def answer_and_style(self) -> str:
-        return f"<style>{self.css}</style>{self.answer_text}"
+        return f"<style>{self.css}</style><script>{self.js}</script>{self.answer_text}"
 
 
 # legacy

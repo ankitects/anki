@@ -19,6 +19,7 @@ pub struct RenderCardOutput {
     pub qnodes: Vec<RenderedNode>,
     pub anodes: Vec<RenderedNode>,
     pub css: String,
+    pub js: String,
     pub latex_svg: bool,
 }
 
@@ -150,6 +151,7 @@ impl Collection {
             qnodes,
             anodes,
             css: nt.config.css.clone(),
+            js: nt.config.js.clone(),
             latex_svg: nt.config.latex_svg,
         })
     }

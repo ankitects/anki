@@ -7,6 +7,7 @@ import json
 import re
 from collections.abc import Callable
 from concurrent.futures import Future
+from enum import Enum, auto
 from typing import Any, Match, cast
 
 import aqt
@@ -43,6 +44,13 @@ from aqt.utils import (
     tr,
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
+
+
+class CurrentEditor(Enum):
+    FRONT = auto()
+    BACK = auto()
+    STYLE = auto()
+    SCRIPT = auto()
 
 
 class CardLayout(QDialog):
@@ -184,6 +192,7 @@ class CardLayout(QDialog):
         self.tform.front_button.setToolTip(shortcut("Ctrl+1"))
         self.tform.back_button.setToolTip(shortcut("Ctrl+2"))
         self.tform.style_button.setToolTip(shortcut("Ctrl+3"))
+        self.tform.script_button.setToolTip(shortcut("Ctrl+4"))
         QShortcut(  # type: ignore
             QKeySequence("Ctrl+1"),
             self,
@@ -198,6 +207,11 @@ class CardLayout(QDialog):
             QKeySequence("Ctrl+3"),
             self,
             activated=self.tform.style_button.click,
+        )
+        QShortcut(  # type: ignore
+            QKeySequence("Ctrl+4"),
+            self,
+            activated=self.tform.script_button.click,
         )
         QShortcut(  # type: ignore
             QKeySequence("F3"),
@@ -257,6 +271,7 @@ class CardLayout(QDialog):
         tform.front_button.setText(tr.card_templates_front_template())
         tform.back_button.setText(tr.card_templates_back_template())
         tform.style_button.setText(tr.card_templates_template_styling())
+        tform.script_button.setText(tr.card_templates_template_scripting())
         tform.template_box.setTitle(tr.card_templates_template_box())
 
         cnt = self.mw.col.models.use_count(self.model)
@@ -268,8 +283,9 @@ class CardLayout(QDialog):
         qconnect(tform.front_button.clicked, self.on_editor_toggled)
         qconnect(tform.back_button.clicked, self.on_editor_toggled)
         qconnect(tform.style_button.clicked, self.on_editor_toggled)
+        qconnect(tform.script_button.clicked, self.on_editor_toggled)
 
-        self.current_editor_index = 0
+        self.current_editor = CurrentEditor.FRONT
         editor.setAcceptRichText(False)
         font = QFont("Consolas")
         if not font.exactMatch():
@@ -316,17 +332,20 @@ class CardLayout(QDialog):
 
     def on_editor_toggled(self) -> None:
         if self.tform.front_button.isChecked():
-            self.current_editor_index = 0
+            self.current_editor = CurrentEditor.FRONT
             self.pform.preview_front.setChecked(True)
             self.on_preview_toggled()
             self.add_field_button.setHidden(False)
         elif self.tform.back_button.isChecked():
-            self.current_editor_index = 1
+            self.current_editor = CurrentEditor.BACK
             self.pform.preview_back.setChecked(True)
             self.on_preview_toggled()
             self.add_field_button.setHidden(False)
-        else:
-            self.current_editor_index = 2
+        elif self.tform.style_button.isChecked():
+            self.current_editor = CurrentEditor.STYLE
+            self.add_field_button.setHidden(True)
+        elif self.tform.script_button.isChecked():
+            self.current_editor = CurrentEditor.SCRIPT
             self.add_field_button.setHidden(True)
 
         self.fill_fields_from_template()
@@ -486,12 +505,16 @@ class CardLayout(QDialog):
         t = self.current_template()
         self.ignore_change_signals = True
 
-        if self.current_editor_index == 0:
+        if self.current_editor == CurrentEditor.FRONT:
             text = t["qfmt"]
-        elif self.current_editor_index == 1:
+        elif self.current_editor == CurrentEditor.BACK:
             text = t["afmt"]
-        else:
+        elif self.current_editor == CurrentEditor.STYLE:
             text = self.model["css"]
+        elif self.current_editor == CurrentEditor.SCRIPT:
+            text = self.model["js"]
+        else:
+            raise Exception("invalid editor state")
 
         self.tform.edit_area.setPlainText(text)
         self.ignore_change_signals = False
@@ -504,12 +527,14 @@ class CardLayout(QDialog):
 
         text = self.tform.edit_area.toPlainText()
 
-        if self.current_editor_index == 0:
+        if self.current_editor == CurrentEditor.FRONT:
             self.current_template()["qfmt"] = text
-        elif self.current_editor_index == 1:
+        elif self.current_editor == CurrentEditor.BACK:
             self.current_template()["afmt"] = text
-        else:
+        elif self.current_editor == CurrentEditor.STYLE:
             self.model["css"] = text
+        elif self.current_editor == CurrentEditor.SCRIPT:
+            self.model["js"] = text
 
         self.renderPreview()
 
@@ -772,6 +797,10 @@ class CardLayout(QDialog):
             "## Styling\n"
             "```css\n"
             f"{sanitizeMarkdown(self.model['css'])}\n"
+            "```\n"
+            f"## Scripting\n"
+            "```javascript\n"
+            f"{sanitizeMarkdown(self.model['js'])}\n"
             "```\n"
         )
         clipboard = QApplication.clipboard()

@@ -9,6 +9,7 @@ card-templates-card-type = Card Type:
 card-templates-front-template = Front Template
 card-templates-back-template = Back Template
 card-templates-template-styling = Styling
+card-templates-template-scripting = Scripting
 card-templates-front-preview = Front Preview
 card-templates-back-preview = Back Preview
 card-templates-preview-box = Preview

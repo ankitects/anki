@@ -127,6 +127,7 @@ message RenderCardResponse {
   repeated RenderedTemplateNode answer_nodes = 2;
   string css = 3;
   bool latex_svg = 4;
+  string js = 5;
 }
 
 message RenderedTemplateNode {
