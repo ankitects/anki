@@ -184,11 +184,16 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
         let group = format!("ts:{name}");
         let deps = inputs![deps, glob!(format!("ts/{name}/**"))];
         let extra_exts = if html { &["css", "html"][..] } else { &["css"] };
+        let entrypoint = if html {
+            format!("ts/routes/{name}/index.ts")
+        } else {
+            format!("ts/{name}/index.ts")
+        };
         build.add_action(
             &group,
             EsbuildScript {
                 script: inputs!["ts/bundle_svelte.mjs"],
-                entrypoint: inputs![format!("ts/{name}/index.ts")],
+                entrypoint: inputs![entrypoint],
                 output_stem: &format!("ts/{name}/{name}"),
                 deps: deps.clone(),
                 extra_exts,
@@ -210,6 +215,16 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":ts:sveltelib",
             ":sass",
             ":sveltekit",
+        ],
+    )?;
+    build_page(
+        "congrats",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":sass",
         ],
     )?;
 
