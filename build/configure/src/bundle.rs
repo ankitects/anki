@@ -214,16 +214,20 @@ fn build_pyoxidizer(build: &mut Build) -> Result<()> {
             offline_build,
         },
     )?;
+    let target =
+        overriden_rust_target_triple().unwrap_or_else(|| Platform::current().as_rust_triple());
+    let output_bin = format!("bundle/rust/{target}/release/pyoxidizer",);
     build.add_action(
         "bundle:pyoxidizer:bin",
         CargoBuild {
-            inputs: inputs![":bundle:pyoxidizer:repo", glob!["qt/bundle/PyOxidizer/**"]],
+            inputs: inputs![
+                ":bundle:pyoxidizer:repo",
+                "out/env",
+                glob!["qt/bundle/PyOxidizer/**"]
+            ],
             // can't use ::Binary() here, as we're in a separate workspace
-            outputs: &[RustOutput::Data(
-                "bin",
-                &with_exe("bundle/rust/release/pyoxidizer"),
-            )],
-            target: None,
+            outputs: &[RustOutput::Data("bin", &with_exe(&output_bin))],
+            target: Some(target),
             extra_args: &format!(
                 "--manifest-path={} --target-dir={} -p pyoxidizer",
                 "qt/bundle/PyOxidizer/Cargo.toml", "$builddir/bundle/rust"
