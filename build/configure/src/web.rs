@@ -225,6 +225,7 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":ts:lib",
             ":ts:components",
             ":sass",
+            ":sveltekit"
         ],
     )?;
 
