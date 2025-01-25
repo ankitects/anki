@@ -151,12 +151,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await runWithBackendProgress(
                 async () => {
                     const params = fsrsParams($config);
+                    const RelearningSteps = $config.relearnSteps;
+                    let numOfRelearningStepsInDay = 0;
+                    let accumulatedTime = 0;
+                    for (let i = 0; i < RelearningSteps.length; i++) {
+                        accumulatedTime += RelearningSteps[i];
+                        if (accumulatedTime >= 1440) {
+                            break;
+                        }
+                        numOfRelearningStepsInDay++;
+                    }
                     const resp = await computeFsrsParams({
                         search: $config.paramSearch
                             ? $config.paramSearch
                             : defaultparamSearch,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                         currentParams: params,
+                        numOfRelearningSteps: numOfRelearningStepsInDay,
                     });
 
                     const already_optimal =
