@@ -63,6 +63,7 @@ impl Collection {
         current_params: &Params,
         num_of_relearning_steps: usize,
     ) -> Result<ComputeFsrsParamsResponse> {
+        self.clear_progress();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
         let (items, review_count) =
