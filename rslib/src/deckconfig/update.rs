@@ -356,12 +356,14 @@ impl Collection {
                 config.inner.param_search.clone()
             };
             let ignore_revlogs_before_ms = ignore_revlogs_before_ms_from_config(config)?;
+            let num_of_relearning_steps = config.inner.relearn_steps.len();
             match self.compute_params(
                 &search,
                 ignore_revlogs_before_ms,
                 idx as u32 + 1,
                 config_len,
                 config.fsrs_params(),
+                num_of_relearning_steps,
             ) {
                 Ok(params) => {
                     println!("{}: {:?}", config.name, params.params);

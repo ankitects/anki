@@ -264,6 +264,7 @@ impl crate::services::SchedulerService for Collection {
             1,
             1,
             &input.current_params,
+            input.num_of_relearning_steps as usize,
         )
     }
 

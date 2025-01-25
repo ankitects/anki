@@ -346,6 +346,7 @@ message ComputeFsrsParamsRequest {
   string search = 1;
   repeated float current_params = 2;
   int64 ignore_revlogs_before_ms = 3;
+  uint32 num_of_relearning_steps = 4;
 }
 
 message ComputeFsrsParamsResponse {
