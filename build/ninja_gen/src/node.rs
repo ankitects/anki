@@ -214,7 +214,7 @@ pub struct Prettier {
 
 impl BuildAction for Prettier {
     fn command(&self) -> &str {
-        "$prettier $mode $pattern"
+        "$prettier --cache $mode $pattern"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
