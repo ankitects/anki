@@ -568,7 +568,7 @@ def write_profile_results() -> None:
 
 
 def run() -> None:
-    print("Preparing to run...")
+    print(f"Starting Anki {_version}...")
     try:
         _run()
     except Exception as e:

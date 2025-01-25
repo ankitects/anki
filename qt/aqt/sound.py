@@ -197,6 +197,7 @@ class AVPlayer:
         self.stop_and_clear_queue()
         for player in self.players:
             player.shutdown()
+        self.players.clear()
 
     def _stop_if_playing(self) -> None:
         if self.current_player:
