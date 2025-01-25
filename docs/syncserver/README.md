@@ -22,14 +22,15 @@ the build products and runtime dependencies from the rest of your system.
 | **Start-up Time**      | ❌ Slower start-up time due to larger image size           | ✅ Faster start-up time                                   |
 | **Tool Compatibility** | ✅ Compatible with more tools and libraries                | ❌ Compatibility limitations with certain tools           |
 | **Maintenance**        | ❌ Higher maintenance due to larger image and dependencies | ✅ Lower maintenance with minimal base image              |
+| **Custom uid/gid**     | ✅ It's possible to pass in PUID and PGID                  | ❌ PUID and PGID are not supported                        |
 
 # Building image
 
 To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `24.11` and `<Dockerfile>` with the chosen Dockerfile (e.g., `Dockerfile` or `Dockerfile.distroless`)
 
 ```bash
-# Execute this command from the root directory of your project
-docker build -f docs/syncserver/<Dockerfile> --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
+# Execute this command from this directory
+docker build -f <Dockerfile> --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
 ```
 
 # Run container
@@ -46,7 +47,17 @@ docker run -d \
     anki-sync-server
 ```
 
-However, if you want to have multiple users, you have to use the following approach:
+If the image you are using was built with `Dockerfile` you can specify the
+`PUID` and `PGID` env variables for the user and group id of the process that
+will run the anki-sync-server process. This is valuable when you want the files
+written and read from the `/anki_data` volume to belong to a particular
+user/group e.g. to access it from the host or another container. Note the the
+ids chosen for `PUID` and `PGID` must not already be in use inside the
+container (1000 and above is fine). For example add `-e "PUID=1050"` and `-e
+"PGID=1050"` to the above command.
+
+If you want to have multiple Anki users that can sync their devices, you can
+specify multiple `SYNC_USER` as follows:
 
 ```bash
 # this will create anki server with multiple users
