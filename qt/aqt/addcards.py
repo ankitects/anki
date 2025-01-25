@@ -108,6 +108,13 @@ class AddCards(QMainWindow):
             on_deck_changed=self.on_deck_changed,
         )
 
+    def reopen(self, mw: AnkiQt) -> None:
+        defaults = self.col.defaults_for_adding(
+            current_review_card=self.mw.reviewer.card
+        )
+        self.set_note_type(NotetypeId(defaults.notetype_id))
+        self.set_deck(DeckId(defaults.deck_id))
+
     def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
 

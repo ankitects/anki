@@ -14,6 +14,7 @@
     export let min = 0;
     export let max = 9999;
     export let step = 0.01;
+    export let percentage = false;
 </script>
 
 <Row --cols={13}>
@@ -22,7 +23,7 @@
     </Col>
     <Col --col-size={6} breakpoint="xs">
         <ConfigInput>
-            <SpinBox bind:value {min} {max} {step} />
+            <SpinBox bind:value {min} {max} {step} {percentage} />
             <RevertButton slot="revert" bind:value {defaultValue} />
         </ConfigInput>
     </Col>
