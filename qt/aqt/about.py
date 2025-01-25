@@ -79,7 +79,10 @@ def show(mw: aqt.AnkiQt) -> QDialog:
         + "</span>"
     )
 
-    # automatically sorted; add new lines at the end
+    # Automatically sorted; add new lines at the end.
+    # This is a list of users who want to appear in the dialog, and includes people who have
+    # contributed in non-code ways, like providing support on the forums, so it cannot be
+    # generated from the CONTRIBUTORS file.
     allusers = sorted(
         (
             "Aaron Harsh",
