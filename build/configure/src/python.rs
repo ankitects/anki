@@ -23,17 +23,18 @@ use ninja_gen::Build;
 pub fn setup_venv(build: &mut Build) -> Result<()> {
     let platform_deps = if cfg!(windows) {
         inputs![
-            "python/requirements.qt6_win.txt",
+            "python/requirements.qt6_6.txt",
             "python/requirements.win.txt",
         ]
     } else if cfg!(target_os = "macos") {
-        inputs!["python/requirements.qt6_mac.txt",]
+        inputs!["python/requirements.qt6_6.txt",]
     } else if std::env::var("PYTHONPATH").is_ok() {
         // assume we have a system-provided Qt
         inputs![]
+    } else if cfg!(target_arch = "aarch64") {
+        inputs!["python/requirements.qt6_8.txt"]
     } else {
-        // normal linux
-        inputs!["python/requirements.qt6_lin.txt"]
+        inputs!["python/requirements.qt6_6.txt"]
     };
     let requirements_txt = inputs!["python/requirements.dev.txt", platform_deps];
     build.add_action(
@@ -55,18 +56,27 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    // optional venvs for testing with Qt5
-    let mut reqs_qt5 = inputs!["python/requirements.bundle.txt"];
+    // optional venvs for testing other Qt versions
+    let mut venv_reqs = inputs!["python/requirements.bundle.txt"];
     if cfg!(windows) {
-        reqs_qt5 = inputs![reqs_qt5, "python/requirements.win.txt"];
+        venv_reqs = inputs![venv_reqs, "python/requirements.win.txt"];
     }
 
+    build.add_action(
+        "pyenv-qt6.8",
+        PythonEnvironment {
+            folder: "pyenv-qt6.8",
+            base_requirements_txt: inputs!["python/requirements.base.txt"],
+            requirements_txt: inputs![&venv_reqs, "python/requirements.qt6_8.txt"],
+            extra_binary_exports: &[],
+        },
+    )?;
     build.add_action(
         "pyenv-qt5.15",
         PythonEnvironment {
             folder: "pyenv-qt5.15",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
-            requirements_txt: inputs![&reqs_qt5, "python/requirements.qt5_15.txt"],
+            requirements_txt: inputs![&venv_reqs, "python/requirements.qt5_15.txt"],
             extra_binary_exports: &[],
         },
     )?;
@@ -75,7 +85,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
         PythonEnvironment {
             folder: "pyenv-qt5.14",
             base_requirements_txt: inputs!["python/requirements.base.txt"],
-            requirements_txt: inputs![reqs_qt5, "python/requirements.qt5_14.txt"],
+            requirements_txt: inputs![venv_reqs, "python/requirements.qt5_14.txt"],
             extra_binary_exports: &[],
         },
     )?;
