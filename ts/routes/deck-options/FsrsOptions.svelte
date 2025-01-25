@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SwitchRow from "$lib/components/SwitchRow.svelte";
 
     import GlobalLabel from "./GlobalLabel.svelte";
-    import { fsrsParams, type DeckOptionsState } from "./lib";
+    import { commitEditing, fsrsParams, type DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
@@ -45,6 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TableData from "../graphs/TableData.svelte";
     import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
     import InputBox from "../graphs/InputBox.svelte";
+    import { UpdateDeckConfigsMode } from "@generated/anki/deck_config_pb";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -57,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const daysSinceLastOptimization = state.daysSinceLastOptimization;
 
     $: lastOptimizationWarning =
-        $daysSinceLastOptimization > 30 ? tr.deckConfigOptimizeAllTip() : "";
+        $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
 
     let computeParamsProgress: ComputeParamsProgress | undefined;
     let computingParams = false;
@@ -300,6 +301,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return tr.deckConfigPredictedOptimalRetention({ num: retention.toFixed(2) });
     }
 
+    async function computeAllParams(): Promise<void> {
+        await commitEditing();
+        state.save(UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS);
+    }
+
     let tableData: TableDatum[] = [];
     const bounds = defaultGraphBounds();
     bounds.marginLeft += 8;
@@ -436,8 +442,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.statisticsReviews({ reviews: totalReviews })}
         {/if}
     </div>
+</div>
 
+<div class="m-1">
     <Warning warning={lastOptimizationWarning} className="alert-warning" />
+
+    <button class="btn btn-primary" on:click={() => computeAllParams()}>
+        {tr.deckConfigSaveAndOptimize()}
+    </button>
 </div>
 
 <div class="m-2">
