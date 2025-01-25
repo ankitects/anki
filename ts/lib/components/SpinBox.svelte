@@ -111,9 +111,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
     />
-    {#if percentage}
-        <div>%</div>
-    {/if}
     {#if isDesktop()}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div

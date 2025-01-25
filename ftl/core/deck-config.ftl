@@ -385,7 +385,7 @@ deck-config-fsrs-tooltip =
     more material in the same amount of time. This setting is shared by all presets.
 
 deck-config-desired-retention-tooltip =
-    The default value of 0.9 schedules cards so that you have a 90% chance of remembering them when
+    By default, Anki schedules cards so that you have a 90% chance of remembering them when
     they come up for review again. If you increase this value, Anki will show cards more frequently
     to increase the chances of you remembering them. If you decrease the value, Anki will show cards
     less frequently, and you will forget more of them. Be conservative when adjusting this - higher
