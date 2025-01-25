@@ -24,14 +24,32 @@ impl Collection {
         let cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
-        let converted_cards = cards
+        let new_cards = cards
+            .iter()
+            .filter(|c| c.memory_state.is_none() || c.queue == CardQueue::New)
+            .count()
+            + req.deck_size as usize;
+        let mut converted_cards = cards
             .into_iter()
             .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
-            .filter_map(|c| Card::convert(c, days_elapsed, req.days_to_simulate))
+            .filter_map(|c| Card::convert(c, days_elapsed))
             .collect_vec();
+        let introduced_today_count = self
+            .search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?
+            .len()
+            .min(req.new_limit as usize);
+        if req.new_limit > 0 {
+            let new_cards = (0..new_cards).map(|i| fsrs::Card {
+                difficulty: f32::NEG_INFINITY,
+                stability: 1e-8,              // Not filtered by fsrs-rs
+                last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
+                due: ((introduced_today_count + i) / req.new_limit as usize) as f32,
+            });
+            converted_cards.extend(new_cards);
+        }
         let p = self.get_optimal_retention_parameters(revlogs)?;
         let config = SimulatorConfig {
-            deck_size: req.deck_size as usize + converted_cards.len(),
+            deck_size: converted_cards.len(),
             learn_span: req.days_to_simulate as usize,
             max_cost_perday: f32::MAX,
             max_ivl: req.max_interval as f32,
@@ -73,7 +91,7 @@ impl Collection {
 }
 
 impl Card {
-    fn convert(card: Card, days_elapsed: i32, day_to_simulate: u32) -> Option<fsrs::Card> {
+    fn convert(card: Card, days_elapsed: i32) -> Option<fsrs::Card> {
         match card.memory_state {
             Some(state) => match card.queue {
                 CardQueue::DayLearn | CardQueue::Review => {
@@ -87,12 +105,7 @@ impl Card {
                         due: relative_due as f32,
                     })
                 }
-                CardQueue::New => Some(fsrs::Card {
-                    difficulty: 1e-10,
-                    stability: 1e-10,
-                    last_date: 0.0,
-                    due: day_to_simulate as f32,
-                }),
+                CardQueue::New => None,
                 CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => {
                     Some(fsrs::Card {
                         difficulty: state.difficulty,
@@ -104,12 +117,7 @@ impl Card {
                 CardQueue::PreviewRepeat => None,
                 CardQueue::Suspended => None,
             },
-            None => Some(fsrs::Card {
-                difficulty: 1e-10,
-                stability: 1e-10,
-                last_date: 0.0,
-                due: day_to_simulate as f32,
-            }),
+            None => None,
         }
     }
 }
