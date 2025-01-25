@@ -20,7 +20,6 @@ args="--resolver=backtracking --allow-unsafe --no-header --strip-extras --genera
 
 # during bundle
 ../out/pyenv/bin/pip-compile $args $upgrade requirements.bundle.in 
-../out/pyenv/bin/pip-compile $args $upgrade requirements.qt6_win.in
-../out/pyenv/bin/pip-compile $args $upgrade requirements.qt6_lin.in
-../out/pyenv/bin/pip-compile $args $upgrade requirements.qt6_mac.in
+for i in requirements.{bundle,qt6*}.in; do ../out/pyenv/bin/pip-compile $args $upgrade $i; done
+
 
