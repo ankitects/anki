@@ -107,8 +107,8 @@ static HTML_LINEBREAK_TAGS: LazyLock<Regex> = LazyLock::new(|| {
 pub static HTML_MEDIA_TAGS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?xsi)
-            # the start of the image, audio, or object tag
-            <\b(?:img|audio|video|object)\b
+            # the start of the image, audio, object, or source tag
+            <\b(?:img|audio|video|object|source)\b
 
             # any non-`>`, except inside `"` or `'`
             (?:
