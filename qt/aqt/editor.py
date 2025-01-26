@@ -1552,7 +1552,8 @@ class EditorWebView(AnkiWebView):
         extended = self._wantsExtendedPaste()
         mime = evt.mimeData()
         assert mime is not None
-        cursor_pos = self.mapFromGlobal(QCursor.pos())
+        evt_pos = evt.position()
+        cursor_pos = QPoint(int(evt_pos.x()), int(evt_pos.y()))
 
         if evt.source() and mime.hasHtml():
             # don't filter html from other fields
