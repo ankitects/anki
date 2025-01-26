@@ -30,7 +30,10 @@ def make_message(headers, payload=None):
             msg[name] = value
     if payload:
         msg.set_payload(payload)
-    return msg
+    # EmailMessage wraps the license line, which results in an invalid file
+    out = bytes(msg)
+    out = out.replace(b"License v3 or\n later", b"License v3 or later")
+    return out
 
 
 def write_wheel_file(filename, contents):
