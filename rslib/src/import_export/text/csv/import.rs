@@ -211,7 +211,7 @@ fn remove_tags_line_from_reader(reader: &mut (impl Read + Seek)) -> Result<()> {
     let mut first_line = String::new();
     buf_reader.read_line(&mut first_line)?;
     let offset = if strip_utf8_bom(&first_line).starts_with("tags:") {
-        first_line.as_bytes().len()
+        first_line.len()
     } else {
         0
     };

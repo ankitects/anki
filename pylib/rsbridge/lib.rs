@@ -56,7 +56,7 @@ impl Backend {
         let in_bytes = input.as_bytes();
         py.allow_threads(|| self.backend.run_service_method(service, method, in_bytes))
             .map(|out_bytes| {
-                let out_obj = PyBytes::new_bound(py, &out_bytes);
+                let out_obj = PyBytes::new(py, &out_bytes);
                 out_obj.into()
             })
             .map_err(BackendError::new_err)
@@ -72,7 +72,7 @@ impl Backend {
                 .map_err(BackendError::new_err)
         });
         let out_bytes = out_res?;
-        let out_obj = PyBytes::new_bound(py, &out_bytes);
+        let out_obj = PyBytes::new(py, &out_bytes);
         Ok(out_obj.into())
     }
 }

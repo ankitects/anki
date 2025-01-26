@@ -168,6 +168,7 @@ impl crate::services::BackendSyncService for Backend {
 
 impl Backend {
     /// Return a handle for regular (non-media) syncing.
+    #[allow(clippy::type_complexity)]
     fn sync_abort_handle(
         &self,
     ) -> Result<(

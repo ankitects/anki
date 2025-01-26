@@ -66,7 +66,7 @@ fn references_media_field(format: &str) -> bool {
 fn captures_contain_field_replacement(caps: Captures) -> bool {
     caps.iter()
         .skip(1)
-        .any(|opt| opt.map_or(false, match_contains_field_replacement))
+        .any(|opt| opt.is_some_and(match_contains_field_replacement))
 }
 
 fn match_contains_field_replacement(m: Match) -> bool {

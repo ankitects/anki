@@ -492,7 +492,7 @@ impl NoteContext<'_> {
     fn is_guid_dupe(&self) -> bool {
         self.dupes
             .first()
-            .map_or(false, |d| d.note.guid == self.note.guid)
+            .is_some_and(|d| d.note.guid == self.note.guid)
     }
 
     fn has_first_field(&self) -> bool {

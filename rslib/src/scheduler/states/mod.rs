@@ -114,7 +114,7 @@ pub(crate) struct StateContext<'a> {
     pub preview_delays: PreviewDelays,
 }
 
-impl<'a> StateContext<'a> {
+impl StateContext<'_> {
     /// Return the minimum and maximum review intervals.
     /// - `maximum` is `self.maximum_review_interval`, but at least 1.
     /// - `minimum` is as passed, but at least 1, and at most `maximum`.
