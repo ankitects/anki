@@ -30,14 +30,14 @@
         "@types/jqueryui": "^1.12.13",
         "@types/lodash-es": "^4.17.4",
         "@types/marked": "^5.0.0",
-        "@types/node": "^16.10.2",
+        "@types/node": "^20",
         "@typescript-eslint/eslint-plugin": "^5.60.1",
         "@typescript-eslint/parser": "^5.60.1",
         "caniuse-lite": "^1.0.30001431",
         "cross-env": "^7.0.2",
         "diff": "^5.0.0",
         "dprint": "^0.47.2",
-        "esbuild": "^0.18.10",
+        "esbuild": "^0.19.10",
         "esbuild-sass-plugin": "^2",
         "esbuild-svelte": "^0.8.1",
         "eslint": "^8.44.0",
@@ -89,5 +89,6 @@
         "Chrome 77",
         "iOS 14.5"
     ],
-    "type": "module"
+    "type": "module",
+    "packageManager": "yarn@4.6.0"
 }
