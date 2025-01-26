@@ -20,6 +20,7 @@ use ninja_gen::python::PythonTypecheck;
 use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Build;
 
+// When updating Qt, make sure to update the .txt file in bundle.rs as well.
 pub fn setup_venv(build: &mut Build) -> Result<()> {
     let platform_deps = if cfg!(windows) {
         inputs![
