@@ -9,6 +9,7 @@ import { mdiRedo, mdiUndo } from "$lib/components/icons";
 
 import { saveNeededStore } from "../store";
 import { redoKeyCombination, undoKeyCombination } from "./shortcuts";
+import { removeUnfinishedPolygon } from "./tool-polygon";
 
 /**
  * Undo redo for rectangle and ellipse handled here,
@@ -126,6 +127,10 @@ class UndoStack {
     }
 
     undo(): void {
+        if (this.canvas && removeUnfinishedPolygon(this.canvas)) {
+            // treat removing the unfinished polygon as an undo step
+            return;
+        }
         if (this.canUndo()) {
             this.index--;
             this.updateState();
@@ -134,6 +139,10 @@ class UndoStack {
     }
 
     redo(): void {
+        if (this.canvas) {
+            // when redoing, removing an unfinished polygon doesn't make sense as a discrete step
+            removeUnfinishedPolygon(this.canvas);
+        }
         if (this.canRedo()) {
             this.index++;
             this.updateState();

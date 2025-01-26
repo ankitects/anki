@@ -314,7 +314,7 @@ deck-config-confirm-remove-name = Remove { $name }?
 
 deck-config-save-button = Save
 deck-config-save-to-all-subdecks = Save to All Subdecks
-deck-config-save-and-optimize = Optimize All Presets
+deck-config-save-and-optimize = Optimize All
 deck-config-revert-button-tooltip = Restore this setting to its default value?
 
 ## These strings are shown via the Description button at the bottom of the
@@ -363,10 +363,10 @@ deck-config-must-have-400-reviews =
 deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
-deck-config-optimize-button = Optimize
+deck-config-optimize-button = Optimize Current
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore cards reviewed before
-deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
+deck-config-time-to-optimize = It's been a while - using the Optimize All button is recommended.
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
 deck-config-historical-retention = Historical retention
@@ -385,7 +385,7 @@ deck-config-fsrs-tooltip =
     more material in the same amount of time. This setting is shared by all presets.
 
 deck-config-desired-retention-tooltip =
-    The default value of 0.9 schedules cards so that you have a 90% chance of remembering them when
+    By default, Anki schedules cards so that you have a 90% chance of remembering them when
     they come up for review again. If you increase this value, Anki will show cards more frequently
     to increase the chances of you remembering them. If you decrease the value, Anki will show cards
     less frequently, and you will forget more of them. Be conservative when adjusting this - higher
@@ -542,3 +542,4 @@ deck-config-invalid-weights = Parameters must be either left blank to use the de
 deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
+deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".

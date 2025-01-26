@@ -846,4 +846,27 @@ Unused: unused.jpg
 
         Ok(())
     }
+
+    #[test]
+    fn source_tags() -> Result<()> {
+        let (_dir, _mgr, mut col) = common_setup()?;
+        let mut checker = col.media_checker()?;
+
+        let field = "<audio controls><source src='foo-ss.mp3' /><source type='audio/ogg' src='bar-ss.ogg' /></audio>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-ss.mp3"));
+        assert!(seen.contains("bar-ss.ogg"));
+
+        let field = r#"
+            <picture>
+                <source src="foo-dd.webp" media="(orientation: portrait)" />
+                <img src="bar-dd.gif" alt="fancy jif" />
+            </picture>
+        "#;
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-dd.webp"));
+        assert!(seen.contains("bar-dd.gif"));
+
+        Ok(())
+    }
 }

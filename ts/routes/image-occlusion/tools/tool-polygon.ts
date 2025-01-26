@@ -235,7 +235,15 @@ export const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon):
     canvas.add(polygon1);
 };
 
-export const removeUnfinishedPolygon = (canvas: fabric.Canvas): void => {
+/**
+ * Removes the currently unfinished polygon, if any, and reset internal state
+ * @returns whether or not such a polygon was removed and state was reset
+ */
+export const removeUnfinishedPolygon = (canvas: fabric.Canvas): boolean => {
+    if (!activeShape) {
+        // generatePolygon should've already removed points/lines and reset state
+        return false;
+    }
     canvas.remove(activeShape).remove(activeLine);
     pointsList.forEach((point) => {
         canvas.remove(point);
@@ -249,4 +257,5 @@ export const removeUnfinishedPolygon = (canvas: fabric.Canvas): void => {
     pointsList = [];
     drawMode = false;
     canvas.selection = true;
+    return true;
 };

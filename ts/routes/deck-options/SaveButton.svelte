@@ -8,7 +8,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { withCollapsedWhitespace } from "@tslib/i18n";
     import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher, tick } from "svelte";
-    import { get } from "svelte/store";
 
     import DropdownDivider from "$lib/components/DropdownDivider.svelte";
     import DropdownItem from "$lib/components/DropdownItem.svelte";
@@ -56,10 +55,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function save(mode: UpdateDeckConfigsMode): Promise<void> {
         await commitEditing();
-        if (mode === UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS && !get(state.fsrs)) {
-            alert(tr.deckConfigFsrsMustBeEnabled());
-            return;
-        }
         state.save(mode);
     }
 
@@ -117,11 +112,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 on:click={() => save(UpdateDeckConfigsMode.APPLY_TO_CHILDREN)}
             >
                 {tr.deckConfigSaveToAllSubdecks()}
-            </DropdownItem>
-            <DropdownItem
-                on:click={() => save(UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS)}
-            >
-                {tr.deckConfigSaveAndOptimize()}
             </DropdownItem>
         </Popover>
     </WithFloating>

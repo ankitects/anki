@@ -388,7 +388,9 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                 .max(0.0001);
 
             Ok(Some(
-                -(1. / current_retrievability - 1.) / (1. / desired_retrievability - 1.),
+                // power should be the reciprocal of the value of DECAY in FSRS-rs, which is
+                // currently -0.5
+                -(current_retrievability.powi(-2) - 1.) / (desired_retrievability.powi(-2) - 1.),
             ))
         },
     )

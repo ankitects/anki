@@ -688,6 +688,35 @@ pub(in crate::import_export) mod test {
     }
 
     #[test]
+    fn should_fallback_to_parsing_deck_ids_as_deck_names() {
+        let mut col = Collection::new();
+        let numeric_deck_id = col.get_or_create_normal_deck("123456789").unwrap().id.0;
+        let numeric_deck_2_id = col
+            .get_or_create_normal_deck(&numeric_deck_id.to_string())
+            .unwrap()
+            .id
+            .0;
+
+        assert_eq!(
+            metadata!(col, "#deck:123456789\n").unwrap_deck_id(),
+            numeric_deck_id
+        );
+        // parsed as id first, fallback to name after
+        assert_eq!(
+            metadata!(col, format!("#deck:{numeric_deck_id}\n")).unwrap_deck_id(),
+            numeric_deck_id
+        );
+        assert_eq!(
+            metadata!(col, format!("#deck:{numeric_deck_2_id}\n")).unwrap_deck_id(),
+            numeric_deck_2_id
+        );
+        assert_eq!(
+            metadata!(col, format!("#deck:1234\n")).unwrap_deck_id(),
+            1 // default deck
+        );
+    }
+
+    #[test]
     fn should_detect_valid_delimiters() {
         let mut col = Collection::new();
         assert_eq!(

@@ -33,9 +33,9 @@ class MediaManager(DeprecatedNamesMixin):
     sound_regexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
     html_media_regexps = [
         # src element quoted case
-        r"(?i)(<(?:img|audio)\b[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        r"(?i)(<(?:img|audio|source)\b[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
-        r"(?i)(<(?:img|audio)\b[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+        r"(?i)(<(?:img|audio|source)\b[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
         # src element quoted case
         r"(?i)(<object\b[^>]* data=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
