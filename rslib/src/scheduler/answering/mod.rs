@@ -620,7 +620,7 @@ fn get_fuzz_factor(seed: Option<u64>) -> Option<f32> {
 }
 
 #[cfg(test)]
-mod test {
+pub(crate) mod test {
     use super::*;
     use crate::card::CardType;
     use crate::deckconfig::ReviewMix;
@@ -741,7 +741,7 @@ mod test {
         Ok(())
     }
 
-    fn v3_test_collection(cards: usize) -> Result<(Collection, Vec<CardId>)> {
+    pub(crate) fn v3_test_collection(cards: usize) -> Result<(Collection, Vec<CardId>)> {
         let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         for _ in 0..cards {
