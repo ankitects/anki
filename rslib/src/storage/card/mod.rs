@@ -736,7 +736,7 @@ impl super::SqliteStorage {
 }
 
 #[derive(Clone, Copy)]
-enum ReviewOrderSubclause {
+pub(crate) enum ReviewOrderSubclause {
     Day,
     Deck,
     Random,
