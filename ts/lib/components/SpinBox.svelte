@@ -92,6 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    let percentage_text = "       %"
     let pressed = false;
     let timeout: number;
     let pressTimer: any;
@@ -110,7 +111,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:blur={update}
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
+        style:padding-left={percentage && percentage_text == "%" ? "1.5em" : undefined}
     />
+    {#if percentage}
+        <span class="suffix">{percentage_text}</span>
+    {/if}
     {#if isDesktop()}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
@@ -181,6 +186,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: relative;
         display: flex;
         justify-content: space-between;
+
+        .suffix {
+            position: absolute;
+            white-space: pre;
+            left: 0.5em;
+            top: 2%;
+            pointer-events: none;
+        }
 
         input {
             flex-grow: 1;
