@@ -121,7 +121,7 @@ fn validate_custom_data(json_str: &str) -> Result<()> {
         let object: HashMap<&str, Value> =
             serde_json::from_str(json_str).or_invalid("custom data not an object")?;
         require!(
-            object.keys().all(|k| k.as_bytes().len() <= 8),
+            object.keys().all(|k| k.len() <= 8),
             "custom data keys must be <= 8 bytes"
         );
         require!(

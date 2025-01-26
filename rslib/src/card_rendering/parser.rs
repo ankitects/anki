@@ -83,9 +83,9 @@ impl<'a> Directive<'a> {
 }
 
 /// Consume 0 or more of anything in " \t\r\n" after `parser`.
-fn trailing_whitespace0<'parser, 's, P, O>(parser: P) -> impl FnMut(&'s str) -> IResult<O>
+fn trailing_whitespace0<'parser, 's, P, O>(parser: P) -> impl FnMut(&'s str) -> IResult<'s, O>
 where
-    P: FnMut(&'s str) -> IResult<O> + 'parser,
+    P: FnMut(&'s str) -> IResult<'s, O> + 'parser,
 {
     terminated(parser, multispace0)
 }
@@ -93,7 +93,7 @@ where
 /// Parse until char in `arr` is found. Always succeeds.
 fn is_not0<'parser, 'arr: 'parser, 's: 'parser>(
     arr: &'arr str,
-) -> impl FnMut(&'s str) -> IResult<&'s str> + 'parser {
+) -> impl FnMut(&'s str) -> IResult<'s, &'s str> + 'parser {
     alt((is_not(arr), success("")))
 }
 
@@ -120,7 +120,7 @@ fn tag_node(s: &str) -> IResult<Node> {
     /// Return a parser to match an opening `name` tag and return its options.
     fn opening_parser<'name, 's: 'name>(
         name: &'name str,
-    ) -> impl FnMut(&'s str) -> IResult<Vec<(&str, &str)>> + 'name {
+    ) -> impl FnMut(&'s str) -> IResult<'s, Vec<(&'s str, &'s str)>> + 'name {
         /// List of whitespace-separated `key=val` tuples, where `val` may be
         /// empty.
         fn options(s: &str) -> IResult<Vec<(&str, &str)>> {
@@ -148,7 +148,7 @@ fn tag_node(s: &str) -> IResult<Node> {
     /// Return a parser to match a closing `name` tag.
     fn closing_parser<'parser, 'name: 'parser, 's: 'parser>(
         name: &'name str,
-    ) -> impl FnMut(&'s str) -> IResult<()> + 'parser {
+    ) -> impl FnMut(&'s str) -> IResult<'s, ()> + 'parser {
         value((), tuple((tag("[/anki:"), tag(name), tag("]"))))
     }
 
@@ -156,7 +156,7 @@ fn tag_node(s: &str) -> IResult<Node> {
     /// is found.
     fn content_parser<'parser, 'name: 'parser, 's: 'parser>(
         name: &'name str,
-    ) -> impl FnMut(&'s str) -> IResult<&str> + 'parser {
+    ) -> impl FnMut(&'s str) -> IResult<'s, &'s str> + 'parser {
         recognize(many0(pair(not(closing_parser(name)), anychar)))
     }
 

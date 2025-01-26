@@ -13,7 +13,7 @@ fn to_secs(v: f32) -> u32 {
     (v * 60.0) as u32
 }
 
-impl<'a> LearningSteps<'a> {
+impl LearningSteps<'_> {
     /// Takes `steps` as minutes.
     pub(crate) fn new(steps: &[f32]) -> LearningSteps<'_> {
         LearningSteps { steps }

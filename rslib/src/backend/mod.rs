@@ -175,9 +175,9 @@ impl Backend {
         // currently limited to http1, as nginx doesn't support http2 proxies
         let mut web_client = self.web_client.lock().unwrap();
 
-        return web_client
+        web_client
             .get_or_insert_with(|| Client::builder().http1_only().build().unwrap())
-            .clone();
+            .clone()
     }
 
     fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {

@@ -90,7 +90,7 @@ pub struct LoadBalancerContext<'a> {
     fuzz_seed: Option<u64>,
 }
 
-impl<'a> LoadBalancerContext<'a> {
+impl LoadBalancerContext<'_> {
     pub fn find_interval(&self, interval: f32, minimum: u32, maximum: u32) -> Option<u32> {
         self.load_balancer.find_interval(
             interval,

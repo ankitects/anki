@@ -140,7 +140,7 @@ fn isolate_leading_mark(text: &str) -> Cow<str> {
     if text
         .chars()
         .next()
-        .map_or(false, |c| GeneralCategory::of(c).is_mark())
+        .is_some_and(|c| GeneralCategory::of(c).is_mark())
     {
         Cow::Owned(format!("\u{a0}{text}"))
     } else {
