@@ -97,7 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function updatePercentageText(value: string) {
-        // Separate the % from the padding text
+        // Separate the % from the padding text.
         percentage_text = tr
             .deckConfigPercentInput({ pct: value })
             .replaceAll("%", "-%-")
@@ -108,10 +108,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         updatePercentageText(input.value);
     }
 
-    // Invisible, used to shift the % sign the correct amount
+    // Invisible, used to shift the % sign the correct amount.
     let percentage_text: string[];
     $: updatePercentageText(stringValue);
-    // If the input box should be moved right for the
+    // If the input box should be moved right for leading percentage symbol.
     $: percentage_padding = percentage && !percentage_text[0] ? "1.5em" : undefined;
 
     let pressed = false;
