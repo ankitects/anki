@@ -1559,7 +1559,7 @@ class EditorWebView(AnkiWebView):
             and (html := self._processUrls(mime, allowed_suffixes=pics))
             and (path := self.editor.extract_img_path_from_html(html))
         ):
-            self.editor.setup_mask_editor_for_new_note(path)
+            self.editor.setup_mask_editor(path)
             return
 
         evt_pos = evt.position()
