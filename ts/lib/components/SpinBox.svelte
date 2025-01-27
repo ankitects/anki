@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Icon from "./Icon.svelte";
     import IconConstrain from "./IconConstrain.svelte";
+    import type { GraphsResponse_TrueRetentionStats } from "@generated/anki/stats_pb";
 
     export let value: number;
     export let step = 1;
@@ -57,12 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return Math.max(0, displayedPlace);
     }
 
-    function toStringValue(value: number) {
-        return (value * multiplier).toFixed(decimalPlaces(step));
-    }
-
     let stringValue: string;
-    $: stringValue = toStringValue(value);
+    $: stringValue = (value * multiplier).toFixed(decimalPlaces(step));
 
     function update(this: HTMLInputElement): void {
         updateValue(parseFloat(this.value) / multiplier);
