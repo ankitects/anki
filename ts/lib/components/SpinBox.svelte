@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let stringValue: string;
-    $: stringValue = toStringValue(value)
+    $: stringValue = toStringValue(value);
 
     function update(this: HTMLInputElement): void {
         updateValue(parseFloat(this.value) / multiplier);
@@ -98,7 +98,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function updatePercentageText(value: string) {
         // Separate the % from the padding text
-        percentage_text = tr.deckConfigPercentInput({pct: value}).replaceAll("%", "-%-").split("-")
+        percentage_text = tr
+            .deckConfigPercentInput({ pct: value })
+            .replaceAll("%", "-%-")
+            .split("-");
     }
 
     function onInput() {
@@ -106,10 +109,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     // Invisible, used to shift the % sign the correct amount
-    let percentage_text: string[]
-    $: updatePercentageText(stringValue)
-    // If the input box should be moved right for the 
-    $: percentage_padding = percentage && !percentage_text[0] ? "1.5em" : undefined
+    let percentage_text: string[];
+    $: updatePercentageText(stringValue);
+    // If the input box should be moved right for the
+    $: percentage_padding = percentage && !percentage_text[0] ? "1.5em" : undefined;
 
     let pressed = false;
     let timeout: number;
@@ -133,15 +136,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         style:padding-left={percentage_padding}
     />
     {#if percentage}
-    <span class="suffix">
-        {#each percentage_text as str}
-            {#if str == "%"}
-                <span style:pointer-events="none">%</span>
-            {:else}
-                <span class="invisible">{str}</span>
-            {/if}
-        {/each}
-    </span>
+        <span class="suffix">
+            {#each percentage_text as str}
+                {#if str == "%"}
+                    <span style:pointer-events="none">%</span>
+                {:else}
+                    <span class="invisible">{str}</span>
+                {/if}
+            {/each}
+        </span>
     {/if}
     {#if isDesktop()}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -220,7 +223,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             left: 0.5em;
             top: 2%;
         }
-        
+
         .invisible {
             color: transparent;
             pointer-events: none;
