@@ -1105,7 +1105,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         # with allowed_suffixes=pics, all non-pics will be rendered as <a>s and won't be included here
         if not (images := self.mw.col.media.files_in_str(self.note.mid, html)):
             return None
-        return os.path.join(self.mw.col.media.dir(), images[0])
+        image_path = urllib.parse.unquote(images[0])
+        return os.path.join(self.mw.col.media.dir(), image_path)
 
     def select_image_from_clipboard_and_occlude(self) -> None:
         """Set up the mask editor for the image in the clipboard."""
