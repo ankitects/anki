@@ -41,8 +41,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         // changed, and will skip the UI update. So we manually update the DOM to ensure it stays
         // in sync.
         tick().then(() => {
-            input.value = stringValue
-            updatePercentageText(stringValue)
+            input.value = stringValue;
+            updatePercentageText(stringValue);
         });
     }
 
