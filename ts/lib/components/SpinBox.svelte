@@ -218,7 +218,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             pointer-events: none;
             white-space: pre;
             left: 0.5em;
-            top: 2%;
+            top: 1px;
         }
 
         .invisible {
