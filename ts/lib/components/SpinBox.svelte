@@ -108,7 +108,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let percentage_text: string[];
     $: updatePercentageText(stringValue);
     // If the input box should be moved right for leading percentage symbol.
-    $: percentage_padding = percentage && !percentage_text[0] ? "1.5em" : undefined;
+    $: percentage_padding = percentage && !percentage_text[0] ? "2.2ch" : undefined;
 
     let pressed = false;
     let timeout: number;
