@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Icon from "./Icon.svelte";
     import IconConstrain from "./IconConstrain.svelte";
-    
+
     export let value: number;
     export let step = 1;
     export let min = 1;
@@ -135,7 +135,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <span class="suffix">
             {#each percentage_text as str}
                 {#if str == "%"}
-                    <span style:pointer-events="none">%</span>
+                    %
                 {:else}
                     <span class="invisible">{str}</span>
                 {/if}
@@ -215,6 +215,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         .suffix {
             position: absolute;
+            pointer-events: none;
             white-space: pre;
             left: 0.5em;
             top: 2%;
