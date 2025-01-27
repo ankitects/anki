@@ -1553,6 +1553,15 @@ class EditorWebView(AnkiWebView):
         extended = self._wantsExtendedPaste()
         mime = evt.mimeData()
         assert mime is not None
+
+        if (
+            self.editor.state is EditorState.IO_PICKER
+            and (html := self._processUrls(mime, allowed_suffixes=pics))
+            and (path := self.editor.extract_img_path_from_html(html))
+        ):
+            self.editor.setup_mask_editor(path)
+            return
+
         evt_pos = evt.position()
         cursor_pos = QPoint(int(evt_pos.x()), int(evt_pos.y()))
 
