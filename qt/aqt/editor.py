@@ -144,6 +144,8 @@ class Editor:
         # current card, for card layout
         self.card: Card | None = None
         self.state: EditorState = EditorState.INITIAL
+        # used for the io mask editor's context menu
+        self.last_io_image_path: str | None = None
         self._init_links()
         self.setupOuter()
         self.add_webview()
@@ -602,6 +604,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             js += " setSticky(%s);" % json.dumps(sticky)
 
         if self.current_notetype_is_image_occlusion():
+            io_field_indices = self.mw.backend.get_image_occlusion_fields(self.note.mid)
+            image_field = self.note.fields[io_field_indices.image]
+            self.last_io_image_path = self.extract_img_path_from_html(image_field)
+
             if self.editorMode is not EditorMode.ADD_CARDS:
                 io_options = self._create_edit_io_options(note_id=self.note.id)
                 js += " setupMaskEditor(%s);" % json.dumps(io_options)
@@ -1140,6 +1146,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
               found image occlusion notetype in the user's collection.
         """
         image_field_html = self._addMedia(image_path)
+        self.last_io_image_path = self.extract_img_path_from_html(image_field_html)
         io_options = self._create_add_io_options(
             image_path=image_path,
             image_field_html=image_field_html,
@@ -1160,6 +1167,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         io_options = self._create_edit_io_options(note_id)
         if image_path:
             image_field_html = self._addMedia(image_path)
+            self.last_io_image_path = self.extract_img_path_from_html(image_field_html)
             self.web.eval(f"resetIOImage({json.dumps(image_path)})")
             self.web.eval(f"setImageField({json.dumps(image_field_html)})")
         self._setup_mask_editor(io_options)
@@ -1685,7 +1693,11 @@ class EditorWebView(AnkiWebView):
         a = m.addAction(tr.editing_paste())
         assert a is not None
         qconnect(a.triggered, self.onPaste)
-        if self._opened_context_menu_on_image():
+        if self.editor.state is EditorState.IO_MASKS and (
+            path := self.editor.last_io_image_path
+        ):
+            self._add_image_menu_with_path(m, path)
+        elif self._opened_context_menu_on_image():
             self._add_image_menu(m)
         gui_hooks.editor_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
@@ -1710,6 +1722,9 @@ class EditorWebView(AnkiWebView):
         url = context_menu_request.mediaUrl()
         file_name = url.fileName()
         path = os.path.join(self.editor.mw.col.media.dir(), file_name)
+        self._add_image_menu_with_path(menu, path)
+
+    def _add_image_menu_with_path(self, menu: QMenu, path: str) -> None:
         a = menu.addAction(tr.editing_open_image())
         assert a is not None
         qconnect(a.triggered, lambda: openFolder(path))
