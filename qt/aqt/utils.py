@@ -429,6 +429,11 @@ def askUser(
             openHelp(help)
         else:
             break
+    # https://doc.qt.io/qt-6/qapplication.html#activeWindow
+    # on some systems, qt unsets the active window when this messagebox causes the previous window to lose focus
+    # to handle that case, this hack sets the previously active window (parent) as the current active window anew
+    if parent and not parent.isActiveWindow():
+        parent.activateWindow()
     return r == QMessageBox.StandardButton.Yes
 
 
