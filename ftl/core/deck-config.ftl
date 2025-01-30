@@ -314,7 +314,7 @@ deck-config-confirm-remove-name = Remove { $name }?
 
 deck-config-save-button = Save
 deck-config-save-to-all-subdecks = Save to All Subdecks
-deck-config-save-and-optimize = Optimize All
+deck-config-save-and-optimize = Optimize All Presets
 deck-config-revert-button-tooltip = Restore this setting to its default value?
 
 ## These strings are shown via the Description button at the bottom of the
@@ -363,7 +363,7 @@ deck-config-must-have-400-reviews =
 deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
-deck-config-optimize-button = Optimize Current
+deck-config-optimize-button = Optimize Current Preset
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore cards reviewed before
 deck-config-time-to-optimize = It's been a while - using the Optimize All button is recommended.
