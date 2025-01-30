@@ -581,7 +581,9 @@ def deck_options_require_close() -> bytes:
         if isinstance(window, DeckOptionsDialog):
             window.require_close()
 
-    aqt.mw.taskman.run_on_main(handle_on_main)
+    # on certain linux systems, askUser's QMessageBox.question unsets the active window
+    # so we wait for the next event loop before querying the next current active window
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
     return b""
 
 
