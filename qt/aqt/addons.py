@@ -1369,7 +1369,8 @@ class ChooseAddonsToUpdateList(QListWidget):
             self.header_checked(self.bool_to_check(not checked))
 
     def on_context_menu(self, point: QPoint) -> None:
-        item = self.itemAt(point)
+        if not (item := self.itemAt(point)):
+            return
         addon_id = item.data(self.ADDON_ID_ROLE)
         m = QMenu()
         a = m.addAction(tr.addons_view_addon_page())
