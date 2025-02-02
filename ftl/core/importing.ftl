@@ -67,6 +67,12 @@ importing-packaged-anki-deckcollection-apkg-colpkg-zip = Packaged Anki Deck/Coll
 importing-pauker-18-lesson-paugz = Pauker 1.8 Lesson (*.pau.gz)
 # the '|' character
 importing-pipe = Pipe
+# Warning displayed when the csv import preview table is clipped (some columns were hidden)
+importing-preview-truncated =
+    { $count ->
+        [one] Only the first column is shown. If this doesn't seem right, try changing the field separator.
+        *[other] Only the first { $count } columns are shown. If this doesn't seem right, try changing the field separator.
+    }
 importing-rows-had-num1d-fields-expected-num2d = '{ $row }' had { $found } fields, expected { $expected }
 importing-selected-file-was-not-in-utf8 = Selected file was not in UTF-8 format. Please see the importing section of the manual.
 importing-semicolon = Semicolon
