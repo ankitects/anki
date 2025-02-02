@@ -6,9 +6,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { type ImportCsvState } from "./lib";
 
     export let state: ImportCsvState;
+    export let maxColumns = 1000;
 
     const metadata = state.metadata;
     const columnOptions = state.columnOptions;
+
+    let rows: string[][];
+    let truncated = false;
+
+    function sanitisePreview(preview: typeof $metadata.preview) {
+        let truncated = false;
+        const rows = preview.map((x) => {
+            if (x.vals.length > maxColumns) {
+                truncated = true;
+                return x.vals.slice(0, maxColumns);
+            }
+            return x.vals;
+        });
+        return { rows, truncated };
+    }
+
+    $: ({ rows, truncated } = sanitisePreview($metadata.preview));
 </script>
 
 <div class="outer">
@@ -23,9 +41,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </tr>
         </thead>
         <tbody>
-            {#each $metadata.preview as row}
+            {#each rows as row}
                 <tr>
-                    {#each row.vals as cell}
+                    {#each row as cell}
                         <td>{cell}</td>
                     {/each}
                 </tr>
