@@ -2665,7 +2665,7 @@
   },
   {
     "name": "openssl",
-    "version": "0.10.68",
+    "version": "0.10.70",
     "authors": "Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "Apache-2.0",
@@ -2692,7 +2692,7 @@
   },
   {
     "name": "openssl-sys",
-    "version": "0.9.104",
+    "version": "0.9.105",
     "authors": "Alex Crichton <alex@alexcrichton.com>|Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "MIT",
