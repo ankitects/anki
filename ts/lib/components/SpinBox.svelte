@@ -222,6 +222,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             white-space: pre;
             left: 0.5em;
             top: 1px;
+
+            @supports (-webkit-touch-callout: none) {
+                /* CSS specific to iOS devices */ 
+                top: 3.5px;
+            }
         }
 
         .invisible {
