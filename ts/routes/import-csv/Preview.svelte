@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import Warning from "../deck-options/Warning.svelte";
     import { type ImportCsvState } from "./lib";
-    import * as _tr from "@generated/ftl";
+    import * as tr from "@generated/ftl";
 
     export let state: ImportCsvState;
     export let maxColumns = 1000;
@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: ({ rows, truncated } = sanitisePreview($metadata.preview));
 
-    $: warning = truncated ? _tr.importingPreviewTruncated({ count: maxColumns }) : "";
+    $: warning = truncated ? tr.importingPreviewTruncated({ count: maxColumns }) : "";
 </script>
 
 <div class="outer">
