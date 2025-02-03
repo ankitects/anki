@@ -224,7 +224,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             top: 1px;
 
             @supports (-webkit-touch-callout: none) {
-                /* CSS specific to iOS devices */ 
+                /* CSS specific to iOS devices */
                 top: 3.5px;
             }
         }
