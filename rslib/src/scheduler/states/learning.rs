@@ -51,7 +51,8 @@ impl LearnState {
             let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
                 (
                     states.again.interval,
-                    (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
+                    ctx.fsrs_enable_short_term
+                        && (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
                         && states.again.interval < 0.5,
                 )
             } else {
@@ -97,7 +98,8 @@ impl LearnState {
             let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
                 (
                     states.hard.interval,
-                    (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
+                    ctx.fsrs_enable_short_term
+                        && (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
                         && states.hard.interval < 0.5,
                 )
             } else {
@@ -143,7 +145,8 @@ impl LearnState {
             let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
                 (
                     states.good.interval,
-                    (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
+                    ctx.fsrs_enable_short_term
+                        && (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
                         && states.good.interval < 0.5,
                 )
             } else {
