@@ -235,8 +235,6 @@ export function renderForgettingCurve(
         .attr("font-size", "1rem")
         .attr("dy", "1.1em")
         .attr("fill", "currentColor")
-        .style("text-anchor", "middle")
-        .text(`${tr.cardStatsFsrsForgettingCurveProbabilityOfRecalling()}(%)`);
 
     const lineGenerator = line<DataPoint>()
         .x((d) => x(d.date))
