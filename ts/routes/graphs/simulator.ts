@@ -107,7 +107,7 @@ export function renderSimulationChart(
         .attr("x", 0 - (bounds.height / 2))
         .attr("font-size", "1rem")
         .attr("dy", "1.1em")
-        .attr("fill", "currentColor")
+        .attr("fill", "currentColor");
 
     // x lines
     const points = subgraph_data.map((d) => [x(d.date), y(d.y), d.label]);

@@ -234,7 +234,7 @@ export function renderForgettingCurve(
         .attr("x", 0 - (bounds.height / 2))
         .attr("font-size", "1rem")
         .attr("dy", "1.1em")
-        .attr("fill", "currentColor")
+        .attr("fill", "currentColor");
 
     const lineGenerator = line<DataPoint>()
         .x((d) => x(d.date))
