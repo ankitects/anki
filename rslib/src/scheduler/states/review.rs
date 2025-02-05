@@ -124,8 +124,8 @@ impl ReviewState {
                 review: again_review,
             }
             .into()
-        } else if (ctx.fsrs_enable_short_term && ctx.fsrs_short_term_with_steps_enabled
-            || ctx.relearn_steps.is_empty())
+        } else if ctx.fsrs_enable_short_term
+            && (ctx.fsrs_short_term_with_steps_enabled || ctx.relearn_steps.is_empty())
             && scheduled_days < 0.5
         {
             again_relearn.into()
