@@ -41,3 +41,7 @@ card-stats-fsrs-forgetting-curve-desired-retention = Desired Retention
 
 card-stats-current-card = Current Card ({ $context })
 card-stats-previous-card = Previous Card ({ $context })
+
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+
+card-stats-fsrs-forgetting-curve-probability-of-recalling = Probability of Recall
