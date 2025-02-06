@@ -218,18 +218,18 @@ deck-config-display-order-will-use-current-deck =
 
 ## Timer section
 
-deck-config-timer-title = Timer
+deck-config-timer-title = Timers
 deck-config-maximum-answer-secs = Maximum answer seconds
 deck-config-maximum-answer-secs-tooltip =
     The maximum number of seconds to record for a single review. If an answer
     exceeds this time (because you stepped away from the screen for example),
     the time taken will be recorded as the limit you have set.
 deck-config-show-answer-timer-tooltip =
-    In the review screen, show a timer that counts the number of seconds you're
-    taking to review each card.
-deck-config-stop-timer-on-answer = Stop timer on answer
+    On the Study screen, show a timer that counts the time you're
+    taking to study each card.
+deck-config-stop-timer-on-answer = Stop on-screen timer on answer
 deck-config-stop-timer-on-answer-tooltip =
-    Whether to stop the timer when the answer is revealed.
+    Whether to stop the on-screen timer when the answer is revealed.
     This doesn't affect statistics.
 
 ## Auto Advance section
