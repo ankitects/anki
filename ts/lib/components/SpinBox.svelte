@@ -40,7 +40,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         // enters '0', if the value gets clamped back to '1', Svelte will think the value hasn't
         // changed, and will skip the UI update. So we manually update the DOM to ensure it stays
         // in sync.
-        tick().then(() => (input.value = stringValue));
+        tick().then(() => {
+            input.value = stringValue;
+            updatePercentageText(stringValue);
+        });
     }
 
     /**
@@ -92,6 +95,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function updatePercentageText(value: string) {
+        // Separate the % from the padding text.
+        percentage_text = tr
+            .deckConfigPercentInput({ pct: value })
+            .replaceAll("%", "-%-")
+            .split("-");
+    }
+
+    function onInput() {
+        updatePercentageText(input.value);
+    }
+
+    // Invisible, used to shift the % sign the correct amount.
+    let percentage_text: string[];
+    $: updatePercentageText(stringValue);
+    // If the input box should be moved right for leading percentage symbol.
+    $: percentage_padding = percentage && !percentage_text[0] ? "2.2ch" : undefined;
+
     let pressed = false;
     let timeout: number;
     let pressTimer: any;
@@ -108,9 +129,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         value={stringValue}
         bind:this={input}
         on:blur={update}
+        on:input={onInput}
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
+        style:padding-left={percentage_padding}
     />
+    {#if percentage}
+        <span class="suffix">
+            {#each percentage_text as str}
+                {#if str == "%"}
+                    %
+                {:else}
+                    <span class="invisible">{str}</span>
+                {/if}
+            {/each}
+        </span>
+    {/if}
     {#if isDesktop()}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
@@ -181,6 +215,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: relative;
         display: flex;
         justify-content: space-between;
+
+        .suffix {
+            position: absolute;
+            pointer-events: none;
+            white-space: pre;
+            left: 0.5em;
+            top: 1px;
+
+            @supports (-webkit-touch-callout: none) {
+                /* CSS specific to iOS devices */
+                top: 3.5px;
+            }
+        }
+
+        .invisible {
+            color: transparent;
+            pointer-events: none;
+        }
 
         input {
             flex-grow: 1;
