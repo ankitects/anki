@@ -212,6 +212,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Asuka Minato",
             "Eros Cardoso",
             "Gregory Abrasaldo",
+            "Danika_Dakika",
         )
     )
 
