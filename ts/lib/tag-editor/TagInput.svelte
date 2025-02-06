@@ -213,6 +213,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
+    async function onCut(event: ClipboardEvent): Promise<void> {
+        onCopy(event);
+
+        const s = input.selectionStart!;
+        const e = input.selectionEnd!;
+        name = name.slice(0, s) + name.slice(e);
+
+        await tick();
+        setPosition(s);
+        dispatch("taginput");
+    }
+
     function onPaste(event: ClipboardEvent): void {
         if (!event.clipboardData) {
             return;
@@ -283,6 +295,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:keyup
     on:input={() => dispatch("taginput")}
     on:copy|preventDefault={onCopy}
+    on:cut|preventDefault={onCut}
     on:paste|preventDefault={onPaste}
     use:updateCurrent
 />
