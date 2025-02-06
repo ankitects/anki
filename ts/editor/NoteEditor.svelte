@@ -471,6 +471,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         isIOImageLoaded = false;
         globalThis.canvas.clear();
         globalThis.canvas = undefined;
+        if (imageOcclusionMode?.kind === "add") {
+            // canvas.clear indirectly calls saveOcclusions
+            saveFieldNow();
+            fieldStores[ioFields.image].set("");
+        }
         const page = document.querySelector(".image-occlusion");
         if (page) {
             page.remove();
