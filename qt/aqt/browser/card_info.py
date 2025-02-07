@@ -68,7 +68,9 @@ class CardInfoDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.setContentsMargins(10, 0, 10, 10)
 
-        self.copy_debug_info = QShortcut("ctrl+c", self, activated=lambda: self.copy_card_info(card_id))
+        self.copy_debug_info = QShortcut(
+            "ctrl+c", self, activated=lambda: self.copy_card_info(card_id)
+        )
 
         close_button = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         button_layout.addWidget(close_button)
@@ -85,7 +87,9 @@ class CardInfoDialog(QDialog):
         info = MessageToDict(info)
 
         card = aqt.mw.col.get_card(card_id)
-        revlog = aqt.mw.col.db.execute(f"SELECT * FROM revlog WHERE cid == {card_id} ORDER BY id DESC")
+        revlog = aqt.mw.col.db.execute(
+            f"SELECT * FROM revlog WHERE cid == {card_id} ORDER BY id DESC"
+        )
         deck = aqt.mw.col.decks.get(card.did)
         config = aqt.mw.col.decks.get_config(deck["conf"]) if "conf" in deck else dict()
 
@@ -101,9 +105,14 @@ class CardInfoDialog(QDialog):
         info.pop("notetype", None)
         info.pop("preset", None)
 
-        info["cardRow"] = aqt.mw.col.db.execute(f"SELECT * FROM cards WHERE id == {card_id} ORDER BY id DESC")[0]
+        info["cardRow"] = aqt.mw.col.db.execute(
+            f"SELECT * FROM cards WHERE id == {card_id} ORDER BY id DESC"
+        )[0]
 
-        new_revlog = [{"row": revlog, "info": card_info_review} for revlog, card_info_review in zip(revlog, info.get("revlog", []))]
+        new_revlog = [
+            {"row": revlog, "info": card_info_review}
+            for revlog, card_info_review in zip(revlog, info.get("revlog", []))
+        ]
         info["revlog"] = new_revlog
 
         clipboard = QApplication.clipboard()
