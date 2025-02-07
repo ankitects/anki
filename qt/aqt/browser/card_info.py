@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable
+from textwrap import indent
 
 from google.protobuf.json_format import MessageToDict
 
@@ -118,7 +119,7 @@ class CardInfoDialog(QDialog):
 
         clipboard = QApplication.clipboard()
         assert clipboard is not None
-        clipboard.setText(json.dumps(info))
+        clipboard.setText(json.dumps(info, indent=2))
 
         tooltip(tr.about_copied_to_clipboard())
 
