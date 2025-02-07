@@ -68,7 +68,7 @@ class CardInfoDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.setContentsMargins(10, 0, 10, 10)
 
-        self.copy_debug_info = QShortcut(
+        self.copy_debug_info = QShortcut(  # type: ignore
             "ctrl+c", self, activated=lambda: self.copy_card_info(card_id)
         )
 
@@ -82,16 +82,19 @@ class CardInfoDialog(QDialog):
     def copy_card_info(self, card_id: CardId | None) -> None:
         if card_id is None:
             return
+        if aqt.mw.col.db is None:
+            raise ValueError(tr.errors_inconsistent_db_state())
 
-        info = aqt.mw.col.card_stats_data(card_id)
-        info = MessageToDict(info)
+        proto_info = aqt.mw.col.card_stats_data(card_id)
+        info = MessageToDict(proto_info)
 
         card = aqt.mw.col.get_card(card_id)
+
         revlog = aqt.mw.col.db.execute(
             f"SELECT * FROM revlog WHERE cid == {card_id} ORDER BY id DESC"
         )
-        deck = aqt.mw.col.decks.get(card.did)
-        config = aqt.mw.col.decks.get_config(deck["conf"]) if "conf" in deck else dict()
+        deck = aqt.mw.col.decks.get(card.did) or dict()
+        config = aqt.mw.col.decks.get_config(deck.get("conf", -1)) or dict()
 
         info["deck"] = deck
         info["config"] = config
