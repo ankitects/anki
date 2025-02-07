@@ -114,6 +114,7 @@ class CardInfoDialog(QDialog):
             for revlog, card_info_review in zip(revlog, info.get("revlog", []))
         ]
         info["revlog"] = new_revlog
+        info["rollover"] = aqt.mw.col.get_config("rollover")
 
         clipboard = QApplication.clipboard()
         assert clipboard is not None
