@@ -64,19 +64,15 @@ class CardInfoDialog(QDialog):
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
-
-        button_layout = QHBoxLayout()
-        button_layout.setContentsMargins(10, 0, 10, 10)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        buttons.setContentsMargins(10, 0, 10, 10)
+        layout.addWidget(buttons)
+        qconnect(buttons.rejected, self.reject)
 
         self.copy_debug_info = QShortcut(  # type: ignore
             "ctrl+c", self, activated=lambda: self.copy_card_info(card_id)
         )
 
-        close_button = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-        button_layout.addWidget(close_button)
-
-        layout.addLayout(button_layout)
-        qconnect(close_button.rejected, self.reject)
         self.setLayout(layout)
 
     def copy_card_info(self, card_id: CardId | None) -> None:
