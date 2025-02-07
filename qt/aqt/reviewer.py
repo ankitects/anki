@@ -289,13 +289,6 @@ class Reviewer:
 
         if js := self._state_mutation_js:
             self._states_mutated = False
-            # if the last element is a comment, then the RUN_STATE_MUTATION code
-            # breaks due to the comment wrongly commenting out python code.
-            # To prevent this we check whether the last line is a comment and
-            # append a new line if true.
-            tmp_js = js.rsplit("\n", 1)
-            if tmp_js[len(tmp_js) - 1].startswith("//"):
-                js += "\n"
             self.web.evalWithCallback(
                 RUN_STATE_MUTATION.format(key=self._state_mutation_key, js=js),
                 on_eval,
@@ -1222,7 +1215,11 @@ timerStopped = false;
     setFlag = set_flag_on_current_card
 
 
+# if the last element is a comment, then the RUN_STATE_MUTATION code
+# breaks due to the comment wrongly commenting out python code.
+# To prevent this we put the js code on a separate line
 RUN_STATE_MUTATION = """
-anki.mutateNextCardStates('{key}', async (states, customData, ctx) => {{ {js} }})
-    .finally(() => bridgeCommand('statesMutated'));
+anki.mutateNextCardStates('{key}', async (states, customData, ctx) => {{
+    {js}
+    }}).finally(() => bridgeCommand('statesMutated'));
 """
