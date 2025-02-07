@@ -87,7 +87,7 @@ class CardInfoDialog(QDialog):
         card = aqt.mw.col.get_card(card_id)
         revlog = aqt.mw.col.db.execute(f"SELECT * FROM revlog WHERE cid == {card_id} ORDER BY id DESC")
         deck = aqt.mw.col.decks.get(card.did)
-        config = aqt.mw.col.decks.get_config(deck["conf"])
+        config = aqt.mw.col.decks.get_config(deck["conf"]) if "conf" in deck else dict()
 
         info["deck"] = deck
         info["config"] = config
@@ -103,7 +103,7 @@ class CardInfoDialog(QDialog):
 
         info["cardRow"] = aqt.mw.col.db.execute(f"SELECT * FROM cards WHERE id == {card_id} ORDER BY id DESC")[0]
 
-        new_revlog = [{"row": revlog, "info": card_info_review} for revlog, card_info_review in zip(revlog, info["revlog"])]
+        new_revlog = [{"row": revlog, "info": card_info_review} for revlog, card_info_review in zip(revlog, info.get("revlog", []))]
         info["revlog"] = new_revlog
 
         clipboard = QApplication.clipboard()
