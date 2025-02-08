@@ -1,3 +1,9 @@
+ProtoBuf is a format used both to save data in storage and transmit
+data between services. You can think of it as similar to JSON with
+schemas, given that you can use basic types, list and records. Except
+that it's usually transmitted and saved in an efficient byteform and
+not in a human readable way.
+
 # Protocol Buffers
 
 Anki uses [different implementations of Protocol Buffers](./architecture.md#protobuf)
