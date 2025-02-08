@@ -218,18 +218,18 @@ deck-config-display-order-will-use-current-deck =
 
 ## Timer section
 
-deck-config-timer-title = Timer
+deck-config-timer-title = Timers
 deck-config-maximum-answer-secs = Maximum answer seconds
 deck-config-maximum-answer-secs-tooltip =
     The maximum number of seconds to record for a single review. If an answer
     exceeds this time (because you stepped away from the screen for example),
     the time taken will be recorded as the limit you have set.
 deck-config-show-answer-timer-tooltip =
-    In the review screen, show a timer that counts the number of seconds you're
-    taking to review each card.
-deck-config-stop-timer-on-answer = Stop timer on answer
+    On the Study screen, show a timer that counts the time you're
+    taking to study each card.
+deck-config-stop-timer-on-answer = Stop on-screen timer on answer
 deck-config-stop-timer-on-answer-tooltip =
-    Whether to stop the timer when the answer is revealed.
+    Whether to stop the on-screen timer when the answer is revealed.
     This doesn't affect statistics.
 
 ## Auto Advance section
@@ -363,10 +363,10 @@ deck-config-must-have-400-reviews =
 deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
-deck-config-optimize-button = Optimize
+deck-config-optimize-button = Optimize Current Preset
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore cards reviewed before
-deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
+deck-config-time-to-optimize = It's been a while - using the Optimize All button is recommended.
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
 deck-config-historical-retention = Historical retention
@@ -385,7 +385,7 @@ deck-config-fsrs-tooltip =
     more material in the same amount of time. This setting is shared by all presets.
 
 deck-config-desired-retention-tooltip =
-    The default value of 0.9 schedules cards so that you have a 90% chance of remembering them when
+    By default, Anki schedules cards so that you have a 90% chance of remembering them when
     they come up for review again. If you increase this value, Anki will show cards more frequently
     to increase the chances of you remembering them. If you decrease the value, Anki will show cards
     less frequently, and you will forget more of them. Be conservative when adjusting this - higher
@@ -449,6 +449,7 @@ deck-config-percent-of-reviews =
         [one] { $pct }% of { $reviews } review
        *[other] { $pct }% of { $reviews } reviews
     }
+deck-config-percent-input = { $pct }%
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
@@ -461,12 +462,9 @@ deck-config-answer-hard = Answer Hard
 deck-config-answer-good = Answer Good
 deck-config-days-to-simulate = Days to simulate
 deck-config-desired-retention-below-optimal = Your desired retention is below optimal. Increasing it is recommended.
-deck-config-fsrs-simulator-y-axis-title-time = Review Time/Day
-deck-config-fsrs-simulator-y-axis-title-count = Review Count/Day
 # Description of the y axis in the FSRS simulation
 # diagram (Deck options -> FSRS) showing the total number of
 # cards that can be recalled or retrieved on a specific date.
-deck-config-fsrs-simulator-y-axis-title-memorized = Memorized Total
 deck-config-fsrs-simulator-experimental = FSRS simulator (experimental)
 deck-config-additional-new-cards-to-simulate = Additional new cards to simulate
 deck-config-simulate = Simulate
@@ -479,6 +477,9 @@ deck-config-fsrs-simulator-radio-memorized = Memorized
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
+deck-config-fsrs-simulator-y-axis-title-time = Review Time/Day
+deck-config-fsrs-simulator-y-axis-title-count = Review Count/Day
+deck-config-fsrs-simulator-y-axis-title-memorized = Memorized Total
 deck-config-bury-siblings = Bury siblings
 deck-config-do-not-bury = Do not bury siblings
 deck-config-bury-if-new = Bury if new
@@ -542,3 +543,4 @@ deck-config-invalid-weights = Parameters must be either left blank to use the de
 deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
+deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".

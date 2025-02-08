@@ -21,7 +21,8 @@ class EditCurrent(QMainWindow):
         self.setWindowTitle(tr.editing_edit_current())
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
-        self.setMenuBar(None)
+        if not is_mac:
+            self.setMenuBar(None)
         self.editor = aqt.editor.Editor(
             self.mw,
             self.form.fieldsArea,

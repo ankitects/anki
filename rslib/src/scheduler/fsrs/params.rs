@@ -16,6 +16,7 @@ use chrono::NaiveTime;
 use fsrs::CombinedProgressState;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
+use fsrs::MemoryState;
 use fsrs::ModelEvaluation;
 use fsrs::FSRS;
 use itertools::Itertools;
@@ -60,8 +61,9 @@ impl Collection {
         current_preset: u32,
         total_presets: u32,
         current_params: &Params,
+        num_of_relearning_steps: usize,
     ) -> Result<ComputeFsrsParamsResponse> {
-        let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
+        self.clear_progress();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
         let (items, review_count) =
@@ -74,31 +76,38 @@ impl Collection {
                 fsrs_items,
             });
         }
-        anki_progress.update(false, |p| {
-            p.current_preset = current_preset;
-            p.total_presets = total_presets;
-        })?;
         // adapt the progress handler to our built-in progress handling
-        let progress = CombinedProgressState::new_shared();
-        let progress2 = progress.clone();
-        let progress_thread = thread::spawn(move || {
-            let mut finished = false;
-            while !finished {
-                thread::sleep(Duration::from_millis(100));
-                let mut guard = progress.lock().unwrap();
-                if let Err(_err) = anki_progress.update(false, |s| {
-                    s.total_iterations = guard.total() as u32;
-                    s.current_iteration = guard.current() as u32;
-                    s.reviews = review_count as u32;
-                    finished = guard.finished();
-                }) {
-                    guard.want_abort = true;
-                    return;
+
+        let create_progress_thread = || -> Result<_> {
+            let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
+            anki_progress.update(false, |p| {
+                p.current_preset = current_preset;
+                p.total_presets = total_presets;
+            })?;
+            let progress = CombinedProgressState::new_shared();
+            let progress2 = progress.clone();
+            let progress_thread = thread::spawn(move || {
+                let mut finished = false;
+                while !finished {
+                    thread::sleep(Duration::from_millis(100));
+                    let mut guard = progress.lock().unwrap();
+                    if let Err(_err) = anki_progress.update(false, |s| {
+                        s.total_iterations = guard.total() as u32;
+                        s.current_iteration = guard.current() as u32;
+                        s.reviews = review_count as u32;
+                        finished = guard.finished();
+                    }) {
+                        guard.want_abort = true;
+                        return;
+                    }
                 }
-            }
-        });
-        let mut params =
-            FSRS::new(None)?.compute_parameters(items.clone(), Some(progress2), true)?;
+            });
+            Ok((progress2, progress_thread))
+        };
+
+        let (progress, progress_thread) = create_progress_thread()?;
+        let fsrs = FSRS::new(None)?;
+        let mut params = fsrs.compute_parameters(items.clone(), Some(progress.clone()), true)?;
         progress_thread.join().ok();
         if let Ok(fsrs) = FSRS::new(Some(current_params)) {
             let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
@@ -106,6 +115,27 @@ impl Collection {
             let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
             if current_rmse <= optimized_rmse {
                 params = current_params.to_vec();
+            }
+            if num_of_relearning_steps > 1 {
+                let memory_state = MemoryState {
+                    stability: 1.0,
+                    difficulty: 1.0,
+                };
+                let s_fail = optimized_fsrs
+                    .next_states(Some(memory_state), 0.9, 2)?
+                    .again;
+                let mut s_short_term = s_fail.memory;
+                for _ in 0..num_of_relearning_steps {
+                    s_short_term = optimized_fsrs
+                        .next_states(Some(s_short_term), 0.9, 0)?
+                        .good
+                        .memory;
+                }
+                if s_short_term.stability > memory_state.stability {
+                    let (progress, progress_thread) = create_progress_thread()?;
+                    params = fsrs.compute_parameters(items.clone(), Some(progress), false)?;
+                    progress_thread.join().ok();
+                }
             }
         }
 

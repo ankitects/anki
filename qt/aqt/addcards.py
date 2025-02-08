@@ -57,7 +57,8 @@ class AddCards(QMainWindow):
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
-        self.setMenuBar(None)
+        if not is_mac:
+            self.setMenuBar(None)
         self.show()
 
     def set_deck(self, deck_id: DeckId) -> None:
@@ -78,7 +79,8 @@ class AddCards(QMainWindow):
         new_note.fields = note.fields[:]
         new_note.tags = note.tags[:]
 
-        self.setAndFocusNote(new_note, orig_note_id=note.id)
+        self.editor.orig_note_id = note.id
+        self.setAndFocusNote(new_note)
 
     def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(
@@ -106,6 +108,13 @@ class AddCards(QMainWindow):
             starting_deck_id=DeckId(defaults.deck_id),
             on_deck_changed=self.on_deck_changed,
         )
+
+    def reopen(self, mw: AnkiQt) -> None:
+        defaults = self.col.defaults_for_adding(
+            current_review_card=self.mw.reviewer.card
+        )
+        self.set_note_type(NotetypeId(defaults.notetype_id))
+        self.set_deck(DeckId(defaults.deck_id))
 
     def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
@@ -143,8 +152,8 @@ class AddCards(QMainWindow):
         b.setEnabled(False)
         self.historyButton = b
 
-    def setAndFocusNote(self, note: Note, orig_note_id: NoteId | None = None) -> None:
-        self.editor.set_note(note, focusTo=0, orig_note_id=orig_note_id)
+    def setAndFocusNote(self, note: Note) -> None:
+        self.editor.set_note(note, focusTo=0)
 
     def show_notetype_selector(self) -> None:
         self.editor.call_after_note_saved(self.notetype_chooser.choose_notetype)

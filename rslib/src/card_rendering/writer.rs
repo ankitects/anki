@@ -12,7 +12,7 @@ use crate::prelude::*;
 use crate::text::decode_entities;
 use crate::text::strip_html_for_tts;
 
-impl<'a> CardNodes<'a> {
+impl CardNodes<'_> {
     pub(super) fn write_without_av_tags(&self) -> String {
         AvStripper::new().write(self)
     }

@@ -35,7 +35,7 @@ git = "https://github.com/ankitects/linkcheck.git"
 rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
-version = "=2.0.0"
+version = "=2.0.3"
 # git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
 # rev = "58ca25ed2bc4bb1dc376208bbcaed7f5a501b941"
 # path = "../open-spaced-repetition/fsrs-rs"
@@ -110,7 +110,7 @@ prost-build = "0.13"
 prost-reflect = "0.14"
 prost-types = "0.13"
 pulldown-cmark = "0.9.6"
-pyo3 = { version = "0.22.5", features = ["extension-module", "abi3", "abi3-py39"] }
+pyo3 = { version = "0.23.4", features = ["extension-module", "abi3", "abi3-py39"] }
 rand = "0.8.5"
 regex = "1.11.0"
 reqwest = { version = "0.12.8", default-features = false, features = ["json", "socks", "stream", "multipart"] }

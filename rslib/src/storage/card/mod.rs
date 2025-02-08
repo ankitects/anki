@@ -736,7 +736,7 @@ impl super::SqliteStorage {
 }
 
 #[derive(Clone, Copy)]
-enum ReviewOrderSubclause {
+pub(crate) enum ReviewOrderSubclause {
     Day,
     Deck,
     Random,
@@ -775,7 +775,8 @@ impl fmt::Display for ReviewOrderSubclause {
             ReviewOrderSubclause::DifficultyDescending => "extract_fsrs_variable(data, 'd') desc",
             ReviewOrderSubclause::RetrievabilitySm2 { today, order } => {
                 temp_string = format!(
-                    "ivl / cast({today}-due+0.001 as real) {order}",
+                    // - (elapsed days+0.001)/(scheduled interval)
+                    "-(1 + cast({today}-due+0.001 as real)/ivl) {order}",
                     today = today
                 );
                 &temp_string

@@ -214,10 +214,11 @@ pub struct Prettier {
 
 impl BuildAction for Prettier {
     fn command(&self) -> &str {
-        "$prettier $mode $pattern"
+        "$yarn prettier --cache $mode $pattern"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
         build.add_inputs("prettier", inputs![":node_modules:prettier"]);
         build.add_inputs("", &self.inputs);
         build.add_variable("pattern", r#""**/*.svelte""#);

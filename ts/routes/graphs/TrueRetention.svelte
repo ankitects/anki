@@ -41,12 +41,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <InputBox>
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Young} />
-            {tr.statisticsCountsYoungCards()}
+            {tr.statisticsTrueRetentionYoung()}
         </label>
 
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Mature} />
-            {tr.statisticsCountsMatureCards()}
+            {tr.statisticsTrueRetentionMature()}
         </label>
 
         <label>
@@ -86,7 +86,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow-x: auto;
 
         display: flex;
-        justify-content: center;
         align-items: center;
     }
 </style>

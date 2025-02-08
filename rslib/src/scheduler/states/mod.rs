@@ -89,7 +89,7 @@ pub(crate) struct StateContext<'a> {
     pub fuzz_factor: Option<f32>,
     pub fsrs_next_states: Option<NextStates>,
     pub fsrs_short_term_with_steps_enabled: bool,
-
+    pub fsrs_allow_short_term: bool,
     // learning
     pub steps: LearningSteps<'a>,
     pub graduating_interval_good: u32,
@@ -114,7 +114,7 @@ pub(crate) struct StateContext<'a> {
     pub preview_delays: PreviewDelays,
 }
 
-impl<'a> StateContext<'a> {
+impl StateContext<'_> {
     /// Return the minimum and maximum review intervals.
     /// - `maximum` is `self.maximum_review_interval`, but at least 1.
     /// - `minimum` is as passed, but at least 1, and at most `maximum`.
@@ -149,6 +149,7 @@ impl<'a> StateContext<'a> {
             },
             fsrs_next_states: None,
             fsrs_short_term_with_steps_enabled: false,
+            fsrs_allow_short_term: false,
         }
     }
 }

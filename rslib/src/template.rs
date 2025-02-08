@@ -512,7 +512,7 @@ fn render_into(
     Ok(())
 }
 
-impl<'a> RenderContext<'a> {
+impl RenderContext<'_> {
     fn evaluate_conditional(&self, key: &str, negated: bool) -> TemplateResult<bool> {
         if self.nonempty_fields.contains(key) {
             Ok(true ^ negated)
@@ -904,7 +904,7 @@ fn find_field_references<'a>(
 
 fn is_cloze_conditional(key: &str) -> bool {
     key.strip_prefix('c')
-        .map_or(false, |s| s.parse::<u32>().is_ok())
+        .is_some_and(|s| s.parse::<u32>().is_ok())
 }
 
 // Tests

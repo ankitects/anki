@@ -277,8 +277,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         hidden: hideFieldInOcclusionType(index, ioFields),
     })) as FieldData[];
 
+    let lastSavedTags: string[] | null = null;
     function saveTags({ detail }: CustomEvent): void {
         tagAmount = detail.tags.filter((tag: string) => tag != "").length;
+        lastSavedTags = detail.tags;
         bridgeCommand(`saveTags:${JSON.stringify(detail.tags)}`);
     }
 
@@ -469,6 +471,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         isIOImageLoaded = false;
         globalThis.canvas.clear();
         globalThis.canvas = undefined;
+        if (imageOcclusionMode?.kind === "add") {
+            // canvas.clear indirectly calls saveOcclusions
+            saveFieldNow();
+            fieldStores[ioFields.image].set("");
+        }
         const page = document.querySelector(".image-occlusion");
         if (page) {
             page.remove();
@@ -534,6 +541,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         isIOImageLoaded,
         imageOcclusionMode,
     );
+
+    $: if (isImageOcclusion && $ioMaskEditorVisible && lastSavedTags) {
+        setTags(lastSavedTags);
+        lastSavedTags = null;
+    }
 
     onMount(() => {
         function wrap(before: string, after: string): void {

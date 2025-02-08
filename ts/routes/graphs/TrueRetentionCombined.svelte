@@ -29,13 +29,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <tr>
             <td></td>
             <th scope="col" class="col-header young">
-                {tr.statisticsCountsYoungCards()}
+                {tr.statisticsTrueRetentionYoung()}
             </th>
             <th scope="col" class="col-header mature">
-                {tr.statisticsCountsMatureCards()}
+                {tr.statisticsTrueRetentionMature()}
             </th>
             <th scope="col" class="col-header total">
-                {tr.statisticsCountsTotalCards()}
+                {tr.statisticsTrueRetentionTotal()}
             </th>
             <th scope="col" class="col-header count">
                 {tr.statisticsTrueRetentionCount()}

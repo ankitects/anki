@@ -346,49 +346,53 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
         move |ctx| {
             assert_eq!(ctx.len(), 5, "called with unexpected number of arguments");
 
-            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+            let Ok(due) = ctx.get_raw(1).as_i64() else {
                 return Ok(None);
             };
-            if card_data.is_empty() {
+            let Ok(interval) = ctx.get_raw(3).as_i64() else {
                 return Ok(None);
-            }
-            let card_data = &CardData::from_str(card_data);
-            let Ok(due) = ctx.get_raw(1).as_i64() else {
+            };
+            let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
                 return Ok(None);
             };
             let days_elapsed = if due > 365_000 {
                 // (re)learning
-                let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
-                    return Ok(None);
-                };
                 next_day_at.saturating_sub(due) as u32 / 86_400
             } else {
                 let Ok(days_elapsed) = ctx.get_raw(2).as_i64() else {
-                    return Ok(None);
-                };
-                let Ok(interval) = ctx.get_raw(3).as_i64() else {
                     return Ok(None);
                 };
                 let review_day = due.saturating_sub(interval);
 
                 days_elapsed.saturating_sub(review_day) as u32
             };
-            let Some(state) = card_data.memory_state() else {
-                return Ok(None);
-            };
-            let Some(mut desired_retrievability) = card_data.fsrs_desired_retention else {
-                return Ok(None);
-            };
-            // avoid div by zero
-            desired_retrievability = desired_retrievability.max(0.0001);
+            if let Ok(card_data) = ctx.get_raw(0).as_str() {
+                if !card_data.is_empty() {
+                    let card_data = &CardData::from_str(card_data);
+                    if let (Some(state), Some(mut desired_retrievability)) =
+                        (card_data.memory_state(), card_data.fsrs_desired_retention)
+                    {
+                        // avoid div by zero
+                        desired_retrievability = desired_retrievability.max(0.0001);
 
-            let current_retrievability = FSRS::new(None)
-                .unwrap()
-                .current_retrievability(state.into(), days_elapsed)
-                .max(0.0001);
+                        let current_retrievability = FSRS::new(None)
+                            .unwrap()
+                            .current_retrievability(state.into(), days_elapsed)
+                            .max(0.0001);
 
+                        return Ok(Some(
+                            // power should be the reciprocal of the value of DECAY in FSRS-rs,
+                            // which is currently -0.5
+                            -(current_retrievability.powi(-2) - 1.)
+                                / (desired_retrievability.powi(-2) - 1.),
+                        ));
+                    }
+                }
+            }
+
+            // FSRS data missing; fall back to SM2 ordering
             Ok(Some(
-                -(1. / current_retrievability - 1.) / (1. / desired_retrievability - 1.),
+                -((days_elapsed as f32) + 0.001) / (interval as f32).max(1.0),
             ))
         },
     )
@@ -609,5 +613,38 @@ impl Display for SqlSortOrder {
                 SqlSortOrder::Descending => "desc",
             }
         )
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::scheduler::answering::test::v3_test_collection;
+    use crate::storage::card::ReviewOrderSubclause;
+
+    #[test]
+    fn missing_memory_state_falls_back_to_sm2() -> Result<()> {
+        let (mut col, _cids) = v3_test_collection(1)?;
+        col.set_config_bool(BoolKey::Fsrs, true, true)?;
+        col.answer_easy();
+
+        let timing = col.timing_today()?;
+        let order = SqlSortOrder::Ascending;
+        let sql_func = ReviewOrderSubclause::RetrievabilityFsrs { timing, order }
+            .to_string()
+            .replace(" asc", "");
+        let sql = format!("select {sql_func} from cards");
+
+        // value from fsrs
+        let mut pos: Option<f64>;
+        pos = col.storage.db_scalar(&sql).unwrap();
+        assert_eq!(pos, Some(0.0));
+        // erasing the memory state should not result in None output
+        col.storage.db.execute("update cards set data=''", [])?;
+        pos = col.storage.db_scalar(&sql).unwrap();
+        assert!(pos.is_some());
+        // but it won't match the fsrs value
+        assert!(pos.unwrap() < -0.0);
+        Ok(())
     }
 }

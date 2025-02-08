@@ -84,13 +84,13 @@ const MAC_AMD_AUDIO: OnlineArchive = OnlineArchive {
 };
 
 const MAC_ARM_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-12-14/pyqt6.8-mac-arm64.tar.zst",
-    sha256: "7753d5bf070d167beaa6b3240691b70c5ceddabb4dd1cca8e13037bfeb6ae32d",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-02-29/pyqt6.6-mac-arm64.tar.zst",
+    sha256: "9b2ade4ae9b80506689062845e83e8c60f7fa9843545bf7bb2d11d3e2f105878",
 };
 
 const MAC_AMD_QT6: OnlineArchive = OnlineArchive {
-    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-12-14/pyqt6.8-mac-amd64.tar.zst",
-    sha256: "d8c868afe0a5f98980421c06658ec96b6c557006e4702230f574daf88d1c8dd0",
+    url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2024-02-29/pyqt6.6-mac-amd64.tar.zst",
+    sha256: "dbd0871e4da22820d1fa9ab29220d631467d1178038dcab4b15169ad7f499b1b",
 };
 
 const LINUX_QT_PLUGINS: OnlineArchive = OnlineArchive {
@@ -157,13 +157,7 @@ const PRIMARY_VENV: Venv = Venv {
 fn setup_primary_venv(build: &mut Build) -> Result<()> {
     let mut qt6_reqs = inputs![
         "python/requirements.bundle.txt",
-        if cfg!(windows) {
-            "python/requirements.qt6_win.txt"
-        } else if cfg!(target_os = "macos") {
-            "python/requirements.qt6_mac.txt"
-        } else {
-            "python/requirements.qt6_lin.txt"
-        }
+        "python/requirements.qt6_6.txt",
     ];
     if cfg!(windows) {
         qt6_reqs = inputs![qt6_reqs, "python/requirements.win.txt"];
@@ -214,16 +208,20 @@ fn build_pyoxidizer(build: &mut Build) -> Result<()> {
             offline_build,
         },
     )?;
+    let target =
+        overriden_rust_target_triple().unwrap_or_else(|| Platform::current().as_rust_triple());
+    let output_bin = format!("bundle/rust/{target}/release/pyoxidizer",);
     build.add_action(
         "bundle:pyoxidizer:bin",
         CargoBuild {
-            inputs: inputs![":bundle:pyoxidizer:repo", glob!["qt/bundle/PyOxidizer/**"]],
+            inputs: inputs![
+                ":bundle:pyoxidizer:repo",
+                "out/env",
+                glob!["qt/bundle/PyOxidizer/**"]
+            ],
             // can't use ::Binary() here, as we're in a separate workspace
-            outputs: &[RustOutput::Data(
-                "bin",
-                &with_exe("bundle/rust/release/pyoxidizer"),
-            )],
-            target: None,
+            outputs: &[RustOutput::Data("bin", &with_exe(&output_bin))],
+            target: Some(target),
             extra_args: &format!(
                 "--manifest-path={} --target-dir={} -p pyoxidizer",
                 "qt/bundle/PyOxidizer/Cargo.toml", "$builddir/bundle/rust"

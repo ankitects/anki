@@ -699,7 +699,7 @@ fn missing_cloze_filter(
 fn has_cloze(template: &Option<ParsedTemplate>) -> bool {
     template
         .as_ref()
-        .map_or(false, |t| !t.all_referenced_cloze_field_names().is_empty())
+        .is_some_and(|t| !t.all_referenced_cloze_field_names().is_empty())
 }
 
 impl From<Notetype> for NotetypeProto {

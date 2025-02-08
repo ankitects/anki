@@ -659,17 +659,17 @@ html {{ {font} }}
         page = self.page()
         assert page is not None
 
-        if cb:
-
-            def handler(val: Any) -> None:
-                if self._shouldIgnoreWebEvent():
-                    print("ignored late js callback", cb)
-                    return
+        def handler(val: Any) -> None:
+            if self._shouldIgnoreWebEvent():
+                print("ignored late js callback", cb)
+                return
+            if cb:
                 cb(val)
 
-            page.runJavaScript(js, handler)
-        else:
-            page.runJavaScript(js)
+            # Without the following, stale frames showing previous or corrupt content get occasionally displayed. (see #3668 for more details)
+            self.update()
+
+        page.runJavaScript(js, handler)
 
     def _queueAction(self, name: str, *args: Any) -> None:
         self._pendingActions.append((name, args))

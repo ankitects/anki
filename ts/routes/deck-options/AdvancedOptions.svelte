@@ -212,6 +212,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.historicalRetention}
                 min={0.5}
                 max={1.0}
+                percentage={true}
             >
                 <SettingTitle
                     on:click={() =>

@@ -167,7 +167,12 @@ impl DeckIdsByNameOrId {
     fn get(&self, name_or_id: &NameOrId) -> Option<DeckId> {
         match name_or_id {
             _ if *name_or_id == NameOrId::default() => self.default,
-            NameOrId::Id(id) => self.ids.get(&DeckId(*id)).copied(),
+            NameOrId::Id(id) => self
+                .ids
+                .get(&DeckId(*id))
+                // try treating it as a numeric deck name
+                .or_else(|| self.names.get(&UniCase::new(id.to_string())))
+                .copied(),
             NameOrId::Name(name) => self.names.get(&UniCase::new(name.to_string())).copied(),
         }
     }
@@ -487,7 +492,7 @@ impl NoteContext<'_> {
     fn is_guid_dupe(&self) -> bool {
         self.dupes
             .first()
-            .map_or(false, |d| d.note.guid == self.note.guid)
+            .is_some_and(|d| d.note.guid == self.note.guid)
     }
 
     fn has_first_field(&self) -> bool {
@@ -504,7 +509,13 @@ impl Note {
 impl Collection {
     pub(super) fn deck_id_by_name_or_id(&mut self, deck: &NameOrId) -> Result<Option<DeckId>> {
         match deck {
-            NameOrId::Id(id) => Ok(self.get_deck(DeckId(*id))?.map(|_| DeckId(*id))),
+            NameOrId::Id(id) => Ok({
+                match self.get_deck(DeckId(*id))?.map(|d| d.id) {
+                    did @ Some(_) => did,
+                    // try treating it as a numeric deck name
+                    _ => self.get_deck_id(&id.to_string())?,
+                }
+            }),
             NameOrId::Name(name) => self.get_deck_id(name),
         }
     }
@@ -514,7 +525,13 @@ impl Collection {
         notetype: &NameOrId,
     ) -> Result<Option<Arc<Notetype>>> {
         match notetype {
-            NameOrId::Id(id) => self.get_notetype(NotetypeId(*id)),
+            NameOrId::Id(id) => Ok({
+                match self.get_notetype(NotetypeId(*id))? {
+                    nt @ Some(_) => nt,
+                    // try treating it as a numeric notetype name
+                    _ => self.get_notetype_by_name(&id.to_string())?,
+                }
+            }),
             NameOrId::Name(name) => self.get_notetype_by_name(name),
         }
     }

@@ -122,6 +122,13 @@ pub struct ProgressState {
     pub last_progress: Option<Progress>,
 }
 
+impl ProgressState {
+    pub fn reset(&mut self) {
+        self.want_abort = false;
+        self.last_progress = None;
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub enum Progress {
     MediaSync(MediaSyncProgress),
@@ -319,6 +326,10 @@ impl Collection {
         &self,
     ) -> ThrottlingProgressHandler<P> {
         ThrottlingProgressHandler::new(self.state.progress.clone())
+    }
+
+    pub(crate) fn clear_progress(&mut self) {
+        self.state.progress.lock().unwrap().reset();
     }
 }
 

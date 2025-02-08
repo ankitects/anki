@@ -16,9 +16,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let step = 1;
     export let min = 1;
     export let max = 9999;
+    /**
+     * Whether the value is shown as a percentage to the user.
+     * It's saved as a proportion.
+     */
+    export let percentage = false;
 
     let input: HTMLInputElement;
     let focused = false;
+    let multiplier: number;
+    $: multiplier = percentage ? 100 : 1;
 
     /** Set value to a new number, clamping it to a valid range, and
         leaving it unchanged if `newValue` is NaN. */
@@ -33,21 +40,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         // enters '0', if the value gets clamped back to '1', Svelte will think the value hasn't
         // changed, and will skip the UI update. So we manually update the DOM to ensure it stays
         // in sync.
-        tick().then(() => (input.value = stringValue));
+        tick().then(() => {
+            input.value = stringValue;
+            updatePercentageText(stringValue);
+        });
     }
 
+    /**
+     * The number of decimal places to record. May be different than the number of decimal places displayed for percentages.
+     * @param value The size of the step.
+     */
     function decimalPlaces(value: number) {
         if (Math.floor(value) === value) {
+            // If the step is an integer, do not show decimal places.
             return 0;
         }
-        return value.toString().split(".")[1].length || 0;
+        const places = value.toString().split(".")[1].length || 0;
+        const displayedPlace = percentage ? places - 2 : places;
+        return Math.max(0, displayedPlace);
     }
 
     let stringValue: string;
-    $: stringValue = value.toFixed(decimalPlaces(step));
+    $: stringValue = (value * multiplier).toFixed(decimalPlaces(step));
 
     function update(this: HTMLInputElement): void {
-        updateValue(parseFloat(this.value));
+        updateValue(parseFloat(this.value) / multiplier);
     }
 
     function handleWheel(event: WheelEvent) {
@@ -78,6 +95,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function updatePercentageText(value: string) {
+        // Separate the % from the padding text.
+        percentage_text = tr
+            .deckConfigPercentInput({ pct: value })
+            .replaceAll("%", "-%-")
+            .split("-");
+    }
+
+    function onInput() {
+        updatePercentageText(input.value);
+    }
+
+    // Invisible, used to shift the % sign the correct amount.
+    let percentage_text: string[];
+    $: updatePercentageText(stringValue);
+    // If the input box should be moved right for leading percentage symbol.
+    $: percentage_padding = percentage && !percentage_text[0] ? "2.2ch" : undefined;
+
     let pressed = false;
     let timeout: number;
     let pressTimer: any;
@@ -88,15 +123,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type="number"
         pattern="[0-9]*"
         inputmode="numeric"
-        {min}
-        {max}
-        {step}
+        min={min * multiplier}
+        max={max * multiplier}
+        step={step * multiplier}
         value={stringValue}
         bind:this={input}
         on:blur={update}
+        on:input={onInput}
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
+        style:padding-left={percentage_padding}
     />
+    {#if percentage}
+        <span class="suffix">
+            {#each percentage_text as str}
+                {#if str == "%"}
+                    %
+                {:else}
+                    <span class="invisible">{str}</span>
+                {/if}
+            {/each}
+        </span>
+    {/if}
     {#if isDesktop()}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
@@ -167,6 +215,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: relative;
         display: flex;
         justify-content: space-between;
+
+        .suffix {
+            position: absolute;
+            pointer-events: none;
+            white-space: pre;
+            left: 0.5em;
+            top: 1px;
+
+            @supports (-webkit-touch-callout: none) {
+                /* CSS specific to iOS devices */
+                top: 3.5px;
+            }
+        }
+
+        .invisible {
+            color: transparent;
+            pointer-events: none;
+        }
 
         input {
             flex-grow: 1;
