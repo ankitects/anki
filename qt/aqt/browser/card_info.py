@@ -78,8 +78,7 @@ class CardInfoDialog(QDialog):
     def copy_card_info(self, card_id: CardId | None) -> None:
         if card_id is None:
             return
-        if aqt.mw.col.db is None:
-            raise ValueError(tr.errors_inconsistent_db_state())
+        assert aqt.mw.col.db, tr.errors_inconsistent_db_state()
 
         proto_info = aqt.mw.col.card_stats_data(card_id)
         info = MessageToDict(proto_info)
