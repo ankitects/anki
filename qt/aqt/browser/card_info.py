@@ -76,6 +76,9 @@ class CardInfoDialog(QDialog):
         self.setLayout(layout)
 
     def copy_card_info(self, card_id: CardId | None) -> None:
+        if self.web and self.web.selectedText():
+            self.web.onCopy()
+            return
         if card_id is None:
             return
         assert aqt.mw.col.db, tr.errors_inconsistent_db_state()
