@@ -96,6 +96,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .header {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
+        word-wrap: break-word;
+        font-size: smaller;
     }
     .header span:nth-child(1) {
         text-align: left;
