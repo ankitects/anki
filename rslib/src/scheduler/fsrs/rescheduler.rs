@@ -167,7 +167,7 @@ impl Rescheduler {
         let easy_days_load = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
 
         let easy_days_modifier =
-            calculate_easy_days_modifiers(&easy_days_load, &weekdays, &review_counts);
+            calculate_easy_days_modifiers(easy_days_load, &weekdays, &review_counts);
 
         // calculate params for each day
         let intervals_and_params = possible_intervals
