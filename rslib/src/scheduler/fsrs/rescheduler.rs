@@ -16,9 +16,9 @@ use crate::scheduler::states::load_balancer::EasyDay;
 pub struct Rescheduler {
     today: i32,
     next_day_at: TimestampSecs,
-    due_cnt_per_day_per_deck_config: HashMap<DeckConfigId, HashMap<i32, u32>>,
-    due_today_per_deck_config: HashMap<DeckConfigId, u32>,
-    reviewed_today_per_deck_config: HashMap<DeckConfigId, u32>,
+    due_cnt_per_day_per_deck_config: HashMap<DeckConfigId, HashMap<i32, usize>>,
+    due_today_per_deck_config: HashMap<DeckConfigId, usize>,
+    reviewed_today_per_deck_config: HashMap<DeckConfigId, usize>,
     deck_config_id_to_easy_days_percentages: HashMap<DeckConfigId, [EasyDay; 7]>,
 }
 
@@ -32,7 +32,7 @@ impl Rescheduler {
             .filter_map(|deck| Some((deck.id, deck.config_id()?)))
             .collect::<HashMap<_, _>>();
 
-        let mut due_cnt_per_day_per_deck_config: HashMap<DeckConfigId, HashMap<i32, u32>> =
+        let mut due_cnt_per_day_per_deck_config: HashMap<DeckConfigId, HashMap<i32, usize>> =
             HashMap::new();
         for (did, due_date, count) in deck_stats {
             let deck_config_id = did_to_dcid[&did];
@@ -59,7 +59,7 @@ impl Rescheduler {
 
         let next_day_at = timing.next_day_at;
         let reviewed_stats = col.storage.studied_today_by_deck(timing.next_day_at)?;
-        let mut reviewed_today_per_deck_config: HashMap<DeckConfigId, u32> = HashMap::new();
+        let mut reviewed_today_per_deck_config: HashMap<DeckConfigId, usize> = HashMap::new();
         for (did, count) in reviewed_stats {
             if let Some(&deck_config_id) = &did_to_dcid.get(&did) {
                 *reviewed_today_per_deck_config
@@ -110,14 +110,14 @@ impl Rescheduler {
         }
     }
 
-    fn due_today(&self, deck_config_id: DeckConfigId) -> u32 {
+    fn due_today(&self, deck_config_id: DeckConfigId) -> usize {
         *self
             .due_today_per_deck_config
             .get(&deck_config_id)
             .unwrap_or(&0)
     }
 
-    fn reviewed_today(&self, deck_config_id: DeckConfigId) -> u32 {
+    fn reviewed_today(&self, deck_config_id: DeckConfigId) -> usize {
         *self
             .reviewed_today_per_deck_config
             .get(&deck_config_id)
@@ -142,7 +142,7 @@ impl Rescheduler {
 
         // Generate possible intervals and their review counts
         let possible_intervals: Vec<u32> = (before_days..=after_days).collect();
-        let review_counts: Vec<u32> = possible_intervals
+        let review_counts: Vec<usize> = possible_intervals
             .iter()
             .map(|&ivl| {
                 let check_due = self.today + ivl as i32 - days_elapsed as i32;
@@ -176,34 +176,8 @@ impl Rescheduler {
             .cloned()
             .unwrap_or([EasyDay::Normal; 7]);
 
-        let total_review_count: u32 = review_counts.iter().sum();
-        let total_percents: f32 = weekdays
-            .iter()
-            .map(|&weekday| easy_days_load[weekday].load_modifier())
-            .sum();
-        let easy_days_modifier = weekdays
-            .iter()
-            .zip(review_counts.iter())
-            .map(|(&weekday, &review_count)| {
-                let day = match easy_days_load[weekday] {
-                    EasyDay::Reduced => {
-                        const HALF: f32 = 0.5;
-                        let other_days_review_total = (total_review_count - review_count) as f32;
-                        let other_days_percent_total = total_percents - HALF;
-                        let normalized_count = review_count as f32 / HALF;
-                        let reduced_day_threshold =
-                            other_days_review_total / other_days_percent_total;
-                        if normalized_count > reduced_day_threshold {
-                            EasyDay::Minimum
-                        } else {
-                            EasyDay::Normal
-                        }
-                    }
-                    other => other,
-                };
-                day.load_modifier()
-            })
-            .collect::<Vec<_>>();
+        let easy_days_modifier =
+            EasyDay::calculate_easy_days_modifiers(&easy_days_load, &weekdays, &review_counts);
 
         // calculate params for each day
         let intervals_and_params = possible_intervals

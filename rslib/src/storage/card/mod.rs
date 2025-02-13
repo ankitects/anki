@@ -624,7 +624,7 @@ impl super::SqliteStorage {
             ))
     }
 
-    pub(crate) fn get_deck_due_counts(&self) -> Result<Vec<(DeckId, i32, u32)>> {
+    pub(crate) fn get_deck_due_counts(&self) -> Result<Vec<(DeckId, i32, usize)>> {
         self.db
             .prepare(include_str!("deck_due_counts.sql"))?
             .query_and_then([], |row| -> Result<_> {

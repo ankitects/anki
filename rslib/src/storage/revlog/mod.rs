@@ -204,7 +204,7 @@ impl SqliteStorage {
     pub(crate) fn studied_today_by_deck(
         &self,
         day_cutoff: TimestampSecs,
-    ) -> Result<Vec<(DeckId, u32)>> {
+    ) -> Result<Vec<(DeckId, usize)>> {
         let start = day_cutoff.adding_secs(-86_400).as_millis();
         self.db
             .prepare_cached(include_str!("studied_today_by_deck.sql"))?
