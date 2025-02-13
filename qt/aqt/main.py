@@ -554,6 +554,8 @@ class AnkiQt(QMainWindow):
                 last_day_cutoff = self.col.sched.day_cutoff
                 self.reviewer._refresh_needed = RefreshNeeded.QUEUES
                 self.reviewer.refresh_if_needed()
+            if last_day_cutoff != current_cutoff:
+                gui_hooks.rollover()
 
             # schedule another check
             secs_until_cutoff = current_cutoff - int_time()
