@@ -11,6 +11,7 @@ use rand::SeedableRng;
 use crate::prelude::*;
 use crate::scheduler::states::fuzz::constrained_fuzz_bounds;
 use crate::scheduler::states::load_balancer::build_easy_days_percentages;
+use crate::scheduler::states::load_balancer::calculate_easy_days_modifiers;
 use crate::scheduler::states::load_balancer::EasyDay;
 
 pub struct Rescheduler {
@@ -177,7 +178,7 @@ impl Rescheduler {
             .unwrap_or([EasyDay::Normal; 7]);
 
         let easy_days_modifier =
-            EasyDay::calculate_easy_days_modifiers(&easy_days_load, &weekdays, &review_counts);
+            calculate_easy_days_modifiers(&easy_days_load, &weekdays, &review_counts);
 
         // calculate params for each day
         let intervals_and_params = possible_intervals

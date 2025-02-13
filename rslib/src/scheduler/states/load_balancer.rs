@@ -53,42 +53,6 @@ impl EasyDay {
             EasyDay::Normal => 1.0,
         }
     }
-
-    pub(crate) fn calculate_easy_days_modifiers(
-        easy_days_load: &[EasyDay; 7],
-        weekdays: &[usize],
-        review_counts: &[usize],
-    ) -> Vec<f32> {
-        let total_review_count: usize = review_counts.iter().sum();
-        let total_percents: f32 = weekdays
-            .iter()
-            .map(|&weekday| easy_days_load[weekday].load_modifier())
-            .sum();
-
-        weekdays
-            .iter()
-            .zip(review_counts.iter())
-            .map(|(&weekday, &review_count)| {
-                let day = match easy_days_load[weekday] {
-                    EasyDay::Reduced => {
-                        const HALF: f32 = 0.5;
-                        let other_days_review_total = (total_review_count - review_count) as f32;
-                        let other_days_percent_total = total_percents - HALF;
-                        let normalized_count = review_count as f32 / HALF;
-                        let reduced_day_threshold =
-                            other_days_review_total / other_days_percent_total;
-                        if normalized_count > reduced_day_threshold {
-                            EasyDay::Minimum
-                        } else {
-                            EasyDay::Normal
-                        }
-                    }
-                    other => other,
-                };
-                day.load_modifier()
-            })
-            .collect()
-    }
 }
 
 #[derive(Debug, Default)]
@@ -283,7 +247,7 @@ impl LoadBalancer {
         //    handle a handful of zero-related corner cases.
         let easy_days_load = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
         let easy_days_modifier =
-            EasyDay::calculate_easy_days_modifiers(easy_days_load, &weekdays, &review_counts);
+            calculate_easy_days_modifiers(easy_days_load, &weekdays, &review_counts);
 
         // calculate params for each day
         let intervals_and_params = interval_days
@@ -368,6 +332,41 @@ pub(crate) fn build_easy_days_percentages(
                     .map(EasyDay::from)
             };
             Ok((dcid, easy_days_percentages))
+        })
+        .collect()
+}
+
+pub(crate) fn calculate_easy_days_modifiers(
+    easy_days_load: &[EasyDay; 7],
+    weekdays: &[usize],
+    review_counts: &[usize],
+) -> Vec<f32> {
+    let total_review_count: usize = review_counts.iter().sum();
+    let total_percents: f32 = weekdays
+        .iter()
+        .map(|&weekday| easy_days_load[weekday].load_modifier())
+        .sum();
+
+    weekdays
+        .iter()
+        .zip(review_counts.iter())
+        .map(|(&weekday, &review_count)| {
+            let day = match easy_days_load[weekday] {
+                EasyDay::Reduced => {
+                    const HALF: f32 = 0.5;
+                    let other_days_review_total = (total_review_count - review_count) as f32;
+                    let other_days_percent_total = total_percents - HALF;
+                    let normalized_count = review_count as f32 / HALF;
+                    let reduced_day_threshold = other_days_review_total / other_days_percent_total;
+                    if normalized_count > reduced_day_threshold {
+                        EasyDay::Minimum
+                    } else {
+                        EasyDay::Normal
+                    }
+                }
+                other => other,
+            };
+            day.load_modifier()
         })
         .collect()
 }
