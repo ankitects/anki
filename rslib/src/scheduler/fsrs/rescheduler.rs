@@ -174,7 +174,7 @@ impl Rescheduler {
             .deck_config_id_to_easy_days_percentages
             .get(&deckconfig_id)
             .cloned()
-            .unwrap_or_else(|| [EasyDay::Normal; 7]);
+            .unwrap_or([EasyDay::Normal; 7]);
 
         let total_review_count: u32 = review_counts.iter().sum();
         let total_percents: f32 = weekdays
