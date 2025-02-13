@@ -67,6 +67,7 @@ class EditCurrent(QMainWindow):
 
     def reopen(self, mw: aqt.AnkiQt) -> None:
         if card := self.mw.reviewer.card:
+            self.editor.card = card
             self.editor.set_note(card.note())
 
     def closeEvent(self, evt: QCloseEvent | None) -> None:
