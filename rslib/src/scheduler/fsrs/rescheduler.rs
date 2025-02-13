@@ -17,10 +17,10 @@ use crate::scheduler::states::load_balancer::EasyDay;
 pub struct Rescheduler {
     today: i32,
     next_day_at: TimestampSecs,
-    due_cnt_per_day_per_deck_config: HashMap<DeckConfigId, HashMap<i32, usize>>,
-    due_today_per_deck_config: HashMap<DeckConfigId, usize>,
-    reviewed_today_per_deck_config: HashMap<DeckConfigId, usize>,
-    deck_config_id_to_easy_days_percentages: HashMap<DeckConfigId, [EasyDay; 7]>,
+    due_cnt_per_day_by_preset: HashMap<DeckConfigId, HashMap<i32, usize>>,
+    due_today_by_preset: HashMap<DeckConfigId, usize>,
+    reviewed_today_by_preset: HashMap<DeckConfigId, usize>,
+    easy_days_percentages_by_preset: HashMap<DeckConfigId, [EasyDay; 7]>,
 }
 
 impl Rescheduler {
@@ -33,11 +33,11 @@ impl Rescheduler {
             .filter_map(|deck| Some((deck.id, deck.config_id()?)))
             .collect::<HashMap<_, _>>();
 
-        let mut due_cnt_per_day_per_deck_config: HashMap<DeckConfigId, HashMap<i32, usize>> =
+        let mut due_cnt_per_day_by_preset: HashMap<DeckConfigId, HashMap<i32, usize>> =
             HashMap::new();
         for (did, due_date, count) in deck_stats {
             let deck_config_id = did_to_dcid[&did];
-            due_cnt_per_day_per_deck_config
+            due_cnt_per_day_by_preset
                 .entry(deck_config_id)
                 .or_default()
                 .entry(due_date)
@@ -46,7 +46,7 @@ impl Rescheduler {
         }
 
         let today = timing.days_elapsed as i32;
-        let due_today_per_deck_config = due_cnt_per_day_per_deck_config
+        let due_today_by_preset = due_cnt_per_day_by_preset
             .iter()
             .map(|(deck_config_id, config_dues)| {
                 let due_today = config_dues
@@ -60,25 +60,23 @@ impl Rescheduler {
 
         let next_day_at = timing.next_day_at;
         let reviewed_stats = col.storage.studied_today_by_deck(timing.next_day_at)?;
-        let mut reviewed_today_per_deck_config: HashMap<DeckConfigId, usize> = HashMap::new();
+        let mut reviewed_today_by_preset: HashMap<DeckConfigId, usize> = HashMap::new();
         for (did, count) in reviewed_stats {
             if let Some(&deck_config_id) = &did_to_dcid.get(&did) {
-                *reviewed_today_per_deck_config
-                    .entry(deck_config_id)
-                    .or_default() += count;
+                *reviewed_today_by_preset.entry(deck_config_id).or_default() += count;
             }
         }
 
-        let deck_config_id_to_easy_days_percentages =
+        let easy_days_percentages_by_preset =
             build_easy_days_percentages(col.storage.get_deck_config_map()?)?;
 
         Ok(Self {
             today,
             next_day_at,
-            due_cnt_per_day_per_deck_config,
-            due_today_per_deck_config,
-            reviewed_today_per_deck_config,
-            deck_config_id_to_easy_days_percentages,
+            due_cnt_per_day_by_preset,
+            due_today_by_preset,
+            reviewed_today_by_preset,
+            easy_days_percentages_by_preset,
         })
     }
 
@@ -88,10 +86,7 @@ impl Rescheduler {
         due_after: i32,
         deck_config_id: DeckConfigId,
     ) {
-        if let Some(counts) = self
-            .due_cnt_per_day_per_deck_config
-            .get_mut(&deck_config_id)
-        {
+        if let Some(counts) = self.due_cnt_per_day_by_preset.get_mut(&deck_config_id) {
             if let Some(count) = counts.get_mut(&due_before) {
                 *count -= 1;
             }
@@ -99,28 +94,22 @@ impl Rescheduler {
         }
 
         if due_before <= self.today && due_after > self.today {
-            if let Some(count) = self.due_today_per_deck_config.get_mut(&deck_config_id) {
+            if let Some(count) = self.due_today_by_preset.get_mut(&deck_config_id) {
                 *count -= 1;
             }
         }
         if due_before > self.today && due_after <= self.today {
-            *self
-                .due_today_per_deck_config
-                .entry(deck_config_id)
-                .or_default() += 1;
+            *self.due_today_by_preset.entry(deck_config_id).or_default() += 1;
         }
     }
 
     fn due_today(&self, deck_config_id: DeckConfigId) -> usize {
-        *self
-            .due_today_per_deck_config
-            .get(&deck_config_id)
-            .unwrap_or(&0)
+        *self.due_today_by_preset.get(&deck_config_id).unwrap_or(&0)
     }
 
     fn reviewed_today(&self, deck_config_id: DeckConfigId) -> usize {
         *self
-            .reviewed_today_per_deck_config
+            .reviewed_today_by_preset
             .get(&deck_config_id)
             .unwrap_or(&0)
     }
@@ -136,9 +125,11 @@ impl Rescheduler {
     ) -> Option<u32> {
         let (before_days, after_days) = constrained_fuzz_bounds(interval, minimum, maximum);
 
+        // Don't reschedule the card when it's overdue
         if after_days < days_elapsed {
-            return Some(before_days.min(after_days));
+            return None;
         }
+        // Don't reschedule the card to the past
         let before_days = before_days.max(days_elapsed);
 
         // Generate possible intervals and their review counts
@@ -146,14 +137,16 @@ impl Rescheduler {
         let review_counts: Vec<usize> = possible_intervals
             .iter()
             .map(|&ivl| {
-                let check_due = self.today + ivl as i32 - days_elapsed as i32;
                 if ivl > days_elapsed {
+                    let check_due = self.today + ivl as i32 - days_elapsed as i32;
                     *self
-                        .due_cnt_per_day_per_deck_config
+                        .due_cnt_per_day_by_preset
                         .get(&deckconfig_id)
                         .and_then(|counts| counts.get(&check_due))
                         .unwrap_or(&0)
                 } else {
+                    // today's workload is the sum of backlogs, cards due today and cards reviewed
+                    // today
                     self.due_today(deckconfig_id) + self.reviewed_today(deckconfig_id)
                 }
             })
@@ -171,11 +164,7 @@ impl Rescheduler {
             })
             .collect();
 
-        let easy_days_load = self
-            .deck_config_id_to_easy_days_percentages
-            .get(&deckconfig_id)
-            .cloned()
-            .unwrap_or([EasyDay::Normal; 7]);
+        let easy_days_load = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
 
         let easy_days_modifier =
             calculate_easy_days_modifiers(&easy_days_load, &weekdays, &review_counts);
