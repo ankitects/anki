@@ -44,7 +44,7 @@ impl From<f32> for EasyDay {
 }
 
 impl EasyDay {
-    fn load_modifier(&self) -> f32 {
+    pub(crate) fn load_modifier(&self) -> f32 {
         match self {
             // this is a non-zero value so if all days are minimum, the load balancer will
             // proceed as normal
@@ -161,27 +161,7 @@ impl LoadBalancer {
                 },
             );
         let configs = storage.get_deck_config_map()?;
-
-        let easy_days_percentages_by_preset = configs
-            .into_iter()
-            .map(|(dcid, conf)| {
-                let easy_days_percentages: [EasyDay; 7] =
-                    if conf.inner.easy_days_percentages.is_empty() {
-                        [EasyDay::Normal; 7]
-                    } else {
-                        TryInto::<[_; 7]>::try_into(conf.inner.easy_days_percentages)
-                            .map_err(|_| {
-                                AnkiError::from(InvalidInputError {
-                                    message: "expected 7 days".into(),
-                                    source: None,
-                                    backtrace: None,
-                                })
-                            })?
-                            .map(EasyDay::from)
-                    };
-                Ok((dcid, easy_days_percentages))
-            })
-            .collect::<Result<HashMap<_, [EasyDay; 7]>, AnkiError>>()?;
+        let easy_days_percentages_by_preset = build_easy_days_percentages(configs)?;
 
         Ok(LoadBalancer {
             days_by_preset,
@@ -352,6 +332,34 @@ impl LoadBalancer {
             }
         }
     }
+}
+
+/// Build a mapping of deck config IDs to their easy days settings.
+/// For each deck config, maintains an array of 7 EasyDay values representing
+/// the load modifier for each day of the week.
+pub(crate) fn build_easy_days_percentages(
+    configs: HashMap<DeckConfigId, DeckConfig>,
+) -> Result<HashMap<DeckConfigId, [EasyDay; 7]>> {
+    configs
+        .into_iter()
+        .map(|(dcid, conf)| {
+            let easy_days_percentages: [EasyDay; 7] = if conf.inner.easy_days_percentages.is_empty()
+            {
+                [EasyDay::Normal; 7]
+            } else {
+                TryInto::<[_; 7]>::try_into(conf.inner.easy_days_percentages)
+                    .map_err(|_| {
+                        AnkiError::from(InvalidInputError {
+                            message: "expected 7 days".into(),
+                            source: None,
+                            backtrace: None,
+                        })
+                    })?
+                    .map(EasyDay::from)
+            };
+            Ok((dcid, easy_days_percentages))
+        })
+        .collect()
 }
 
 fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
