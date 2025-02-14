@@ -215,6 +215,7 @@ impl Collection {
                     .unwrap_or_default();
                 let previous_params = previous_config.map(|c| c.fsrs_params());
                 let previous_retention = previous_config.map(|c| c.inner.desired_retention);
+                let previous_easy_days = previous_config.map(|c| &c.inner.easy_days_percentages);
 
                 // if a selected (sub)deck, or its old config was removed, update deck to point
                 // to new config
@@ -242,9 +243,11 @@ impl Collection {
                 // if params differ, memory state needs to be recomputed
                 let current_params = current_config.map(|c| c.fsrs_params());
                 let current_retention = current_config.map(|c| c.inner.desired_retention);
+                let current_easy_days = current_config.map(|c| &c.inner.easy_days_percentages);
                 if fsrs_toggled
                     || previous_params != current_params
                     || previous_retention != current_retention
+                    || (req.fsrs_reschedule && previous_easy_days != current_easy_days)
                 {
                     decks_needing_memory_recompute
                         .entry(current_config_id)
