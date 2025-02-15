@@ -644,6 +644,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .btn {
-        margin-bottom: .375rem;
+        margin-bottom: 0.375rem;
     }
 </style>
