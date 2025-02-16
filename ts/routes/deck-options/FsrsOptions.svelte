@@ -642,4 +642,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     div.radio-group {
         margin: 0.5em;
     }
+
+    .btn {
+        margin-bottom: 0.375rem;
+    }
 </style>
