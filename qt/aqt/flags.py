@@ -35,6 +35,15 @@ class FlagManager:
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         self.mw = mw
         self._flags: list[Flag] = []
+        self.default_flag_names: dict[int, str] = {
+            1: tr.actions_flag_red(),
+            2: tr.actions_flag_orange(),
+            3: tr.actions_flag_green(),
+            4: tr.actions_flag_blue(),
+            5: tr.actions_flag_pink(),
+            6: tr.actions_flag_turquoise(),
+            7: tr.actions_flag_purple()
+        }
 
     def all(self) -> list[Flag]:
         """Return a list of all flags."""
@@ -52,6 +61,15 @@ class FlagManager:
             return
         labels = self.mw.col.get_config("flagLabels", {})
         labels[str(flag_index)] = self.get_flag(flag_index).label = new_name
+        self.mw.col.set_config("flagLabels", labels)
+        gui_hooks.flag_label_did_change()
+
+    def restore_default_flag_name(self, flag_index: int) -> None:
+        labels = self.mw.col.get_config("flagLabels", {})
+        if str(flag_index) not in labels:
+            return
+        del labels[str(flag_index)]
+        self.get_flag(flag_index).label = self.default_flag_names[flag_index]
         self.mw.col.set_config("flagLabels", labels)
         gui_hooks.flag_label_did_change()
 
