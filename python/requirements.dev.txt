@@ -577,6 +577,10 @@ types-protobuf==5.27.0.20240626 \
     # via
     #   -r requirements.dev.in
     #   mypy-protobuf
+types-pywin32==306.0.0.20240822 \
+    --hash=sha256:31a16f7eaf711166e8aec50ee1ddf0f16b4512e19ecc92a019ae7a0860b64bad \
+    --hash=sha256:34d22b58aaa2cc86fe585b6e2e1eda88a60b010badea0e0e4a410ebe28744645
+    # via -r requirements.dev.in
 types-requests==2.32.0.20240712 \
     --hash=sha256:90c079ff05e549f6bf50e02e910210b98b8ff1ebdd18e19c873cd237737c1358 \
     --hash=sha256:f754283e152c752e46e70942fa2a146b5bc70393522257bb85bd1ef7e019dcc3
