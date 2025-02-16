@@ -218,18 +218,18 @@ deck-config-display-order-will-use-current-deck =
 
 ## Timer section
 
-deck-config-timer-title = Timer
+deck-config-timer-title = Timers
 deck-config-maximum-answer-secs = Maximum answer seconds
 deck-config-maximum-answer-secs-tooltip =
     The maximum number of seconds to record for a single review. If an answer
     exceeds this time (because you stepped away from the screen for example),
     the time taken will be recorded as the limit you have set.
 deck-config-show-answer-timer-tooltip =
-    In the review screen, show a timer that counts the number of seconds you're
-    taking to review each card.
-deck-config-stop-timer-on-answer = Stop timer on answer
+    On the Study screen, show a timer that counts the time you're
+    taking to study each card.
+deck-config-stop-timer-on-answer = Stop on-screen timer on answer
 deck-config-stop-timer-on-answer-tooltip =
-    Whether to stop the timer when the answer is revealed.
+    Whether to stop the on-screen timer when the answer is revealed.
     This doesn't affect statistics.
 
 ## Auto Advance section
@@ -449,6 +449,7 @@ deck-config-percent-of-reviews =
         [one] { $pct }% of { $reviews } review
        *[other] { $pct }% of { $reviews } reviews
     }
+deck-config-percent-input = { $pct }%
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
@@ -461,12 +462,9 @@ deck-config-answer-hard = Answer Hard
 deck-config-answer-good = Answer Good
 deck-config-days-to-simulate = Days to simulate
 deck-config-desired-retention-below-optimal = Your desired retention is below optimal. Increasing it is recommended.
-deck-config-fsrs-simulator-y-axis-title-time = Review Time/Day
-deck-config-fsrs-simulator-y-axis-title-count = Review Count/Day
 # Description of the y axis in the FSRS simulation
 # diagram (Deck options -> FSRS) showing the total number of
 # cards that can be recalled or retrieved on a specific date.
-deck-config-fsrs-simulator-y-axis-title-memorized = Memorized Total
 deck-config-fsrs-simulator-experimental = FSRS simulator (experimental)
 deck-config-additional-new-cards-to-simulate = Additional new cards to simulate
 deck-config-simulate = Simulate
@@ -479,6 +477,9 @@ deck-config-fsrs-simulator-radio-memorized = Memorized
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
+deck-config-fsrs-simulator-y-axis-title-time = Review Time/Day
+deck-config-fsrs-simulator-y-axis-title-count = Review Count/Day
+deck-config-fsrs-simulator-y-axis-title-memorized = Memorized Total
 deck-config-bury-siblings = Bury siblings
 deck-config-do-not-bury = Do not bury siblings
 deck-config-bury-if-new = Bury if new

@@ -51,9 +51,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="forgetting-curve">
-    <InputBox>
-        <div class="time-range-selector">
-            {#if maxDays > 0}
+    {#if maxDays > 7}
+        <InputBox>
+            <div class="time-range-selector">
                 <label>
                     <input
                         type="radio"
@@ -62,8 +62,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     />
                     {tr.cardStatsFsrsForgettingCurveFirstWeek()}
                 </label>
-            {/if}
-            {#if maxDays > 7}
                 <label>
                     <input
                         type="radio"
@@ -72,29 +70,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     />
                     {tr.cardStatsFsrsForgettingCurveFirstMonth()}
                 </label>
-            {/if}
-            {#if maxDays > 30}
-                <label>
-                    <input
-                        type="radio"
-                        bind:group={$timeRange}
-                        value={TimeRange.Year}
-                    />
-                    {tr.cardStatsFsrsForgettingCurveFirstYear()}
-                </label>
-            {/if}
-            {#if maxDays > 365}
-                <label>
-                    <input
-                        type="radio"
-                        bind:group={$timeRange}
-                        value={TimeRange.AllTime}
-                    />
-                    {tr.cardStatsFsrsForgettingCurveAllTime()}
-                </label>
-            {/if}
-        </div>
-    </InputBox>
+                {#if maxDays > 30}
+                    <label>
+                        <input
+                            type="radio"
+                            bind:group={$timeRange}
+                            value={TimeRange.Year}
+                        />
+                        {tr.cardStatsFsrsForgettingCurveFirstYear()}
+                    </label>
+                {/if}
+                {#if maxDays > 365}
+                    <label>
+                        <input
+                            type="radio"
+                            bind:group={$timeRange}
+                            value={TimeRange.AllTime}
+                        />
+                        {tr.cardStatsFsrsForgettingCurveAllTime()}
+                    </label>
+                {/if}
+            </div>
+        </InputBox>
+    {/if}
     <Graph {title}>
         <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
             <AxisTicks {bounds} />
@@ -108,6 +106,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .forgetting-curve {
         width: 100%;
         max-width: 50em;
+        margin-bottom: 10em;
     }
 
     .time-range-selector {

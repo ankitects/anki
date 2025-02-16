@@ -11,7 +11,7 @@ export const HelpPage = {
         hardInterval: "https://docs.ankiweb.net/deck-options.html#hard-interval",
         newInterval: "https://docs.ankiweb.net/deck-options.html#new-interval",
         advanced: "https://docs.ankiweb.net/deck-options.html#advanced",
-        timer: "https://docs.ankiweb.net/deck-options.html#timer",
+        timer: "https://docs.ankiweb.net/deck-options.html#timers",
         autoAdvance: "https://docs.ankiweb.net/deck-options.html#auto-advance",
         learningSteps: "https://docs.ankiweb.net/deck-options.html#learning-steps",
         graduatingInterval: "https://docs.ankiweb.net/deck-options.html#graduating-interval",

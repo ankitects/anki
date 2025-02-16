@@ -21,7 +21,8 @@ class EditCurrent(QMainWindow):
         self.setWindowTitle(tr.editing_edit_current())
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
-        self.setMenuBar(None)
+        if not is_mac:
+            self.setMenuBar(None)
         self.editor = aqt.editor.Editor(
             self.mw,
             self.form.fieldsArea,
@@ -66,6 +67,7 @@ class EditCurrent(QMainWindow):
 
     def reopen(self, mw: aqt.AnkiQt) -> None:
         if card := self.mw.reviewer.card:
+            self.editor.card = card
             self.editor.set_note(card.note())
 
     def closeEvent(self, evt: QCloseEvent | None) -> None:

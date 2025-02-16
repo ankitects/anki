@@ -232,7 +232,8 @@ class ErrorHandler(QObject):
         if "disk I/O error" in error:
             showWarning(markdown(tr.errors_accessing_db()))
             return
-        if is_chromium_cert_error(error):
+        if "unable to get local issuer certificate" in error and is_win:
+            showWarning(tr.errors_windows_ssl_updates())
             return
 
         debug_text = supportText() + "\n" + error

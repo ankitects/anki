@@ -74,6 +74,7 @@ struct CardStateUpdater {
     /// Set if FSRS is enabled.
     desired_retention: Option<f32>,
     fsrs_short_term_with_steps: bool,
+    fsrs_allow_short_term: bool,
 }
 
 impl CardStateUpdater {
@@ -112,6 +113,7 @@ impl CardStateUpdater {
             },
             fsrs_next_states: self.fsrs_next_states.clone(),
             fsrs_short_term_with_steps_enabled: self.fsrs_short_term_with_steps,
+            fsrs_allow_short_term: self.fsrs_allow_short_term,
         }
     }
 
@@ -462,6 +464,16 @@ impl Collection {
         let desired_retention = fsrs_enabled.then_some(config.inner.desired_retention);
         let fsrs_short_term_with_steps =
             self.get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled);
+        let fsrs_allow_short_term = if fsrs_enabled {
+            let params = config.fsrs_params();
+            if params.len() == 19 {
+                params[17] > 0.0 && params[18] > 0.0
+            } else {
+                false
+            }
+        } else {
+            false
+        };
         Ok(CardStateUpdater {
             fuzz_seed: get_fuzz_seed(&card, false),
             card,
@@ -472,6 +484,7 @@ impl Collection {
             fsrs_next_states,
             desired_retention,
             fsrs_short_term_with_steps,
+            fsrs_allow_short_term,
         })
     }
 

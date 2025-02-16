@@ -471,6 +471,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         isIOImageLoaded = false;
         globalThis.canvas.clear();
         globalThis.canvas = undefined;
+        if (imageOcclusionMode?.kind === "add") {
+            // canvas.clear indirectly calls saveOcclusions
+            saveFieldNow();
+            fieldStores[ioFields.image].set("");
+        }
         const page = document.querySelector(".image-occlusion");
         if (page) {
             page.remove();
@@ -705,6 +710,13 @@ the AddCards dialog) should be implemented in the user of this component.
                                 {#if cols[index] === "dupe"}
                                     <DuplicateLink />
                                 {/if}
+                                <slot
+                                    name="field-state"
+                                    {field}
+                                    {index}
+                                    show={fields[index] === $hoveredField ||
+                                        fields[index] === $focusedField}
+                                />
                                 {#if plainTextDefaults[index]}
                                     <RichTextBadge
                                         show={!fieldsCollapsed[index] &&
@@ -722,13 +734,6 @@ the AddCards dialog) should be implemented in the user of this component.
                                         on:toggle={() => togglePlainTextInput(index)}
                                     />
                                 {/if}
-                                <slot
-                                    name="field-state"
-                                    {field}
-                                    {index}
-                                    show={fields[index] === $hoveredField ||
-                                        fields[index] === $focusedField}
-                                />
                             </FieldState>
                         </LabelContainer>
                     </svelte:fragment>
