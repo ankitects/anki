@@ -11,7 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Badge from "$lib/components/Badge.svelte";
     import Icon from "$lib/components/Icon.svelte";
-    import { stickyIcon } from "$lib/components/icons";
+    import { stickyIconHollow } from "$lib/components/icons";
+    import { stickyIconSolid } from "$lib/components/icons";
 
     import { context as editorFieldContext } from "./EditorField.svelte";
 
@@ -51,9 +52,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
         widthMultiplier={0.7}
-    >
-        <Icon icon={stickyIcon} />
-    </Badge>
+    ></Badge>
+    {#if active}
+        <Icon icon={stickyIconSolid} />
+    {:else}
+        <Icon icon={stickyIconHollow} />
+    {/if}
 </span>
 
 <style lang="scss">
