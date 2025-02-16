@@ -453,7 +453,9 @@ class SidebarTreeView(QTreeView):
 
     def _on_rename(self, item: SidebarItem, text: str) -> bool:
         new_name = text.replace('"', "")
-        if new_name and new_name != item.name:
+        if new_name == "" and item.item_type == SidebarItemType.FLAG:
+            self.restore_default_flag_name(item)
+        elif new_name and new_name != item.name:
             if item.item_type == SidebarItemType.DECK:
                 self.rename_deck(item, new_name)
             elif item.item_type == SidebarItemType.SAVED_SEARCH:
@@ -1088,6 +1090,10 @@ class SidebarTreeView(QTreeView):
     def rename_flag(self, item: SidebarItem, new_name: str) -> None:
         item.name = new_name
         self.mw.flags.rename_flag(item.id, new_name)
+
+    def restore_default_flag_name(self, item: SidebarItem) -> None:
+        item.name = self.mw.flags.default_flag_names[item.id]
+        self.mw.flags.restore_default_flag_name(item.id)
 
     # Decks
     ###########################
