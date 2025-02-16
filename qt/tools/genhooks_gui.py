@@ -898,7 +898,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
 
         `output` provides access to the unused/missing file lists and the text output that will be shown in the Check Media screen.""",
     ),
-    Hook(name="rollover", doc="""Called when Anki moves to the next day."""),
+    Hook(name="day_did_change", doc="""Called when Anki moves to the next day."""),
     # Importing/exporting data
     ###################
     Hook(
