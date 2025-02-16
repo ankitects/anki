@@ -42,7 +42,7 @@ class FlagManager:
             4: tr.actions_flag_blue(),
             5: tr.actions_flag_pink(),
             6: tr.actions_flag_turquoise(),
-            7: tr.actions_flag_purple()
+            7: tr.actions_flag_purple(),
         }
 
     def all(self) -> list[Flag]:
