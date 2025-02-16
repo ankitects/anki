@@ -116,9 +116,10 @@ impl Collection {
                                             card.desired_retention.unwrap(),
                                             0,
                                         );
-                                        let new_interval =
-                                            if let Some(rescheduler) = &mut rescheduler {
-                                                rescheduler.find_interval(
+                                        card.interval = rescheduler
+                                            .as_mut()
+                                            .and_then(|r| {
+                                                r.find_interval(
                                                     interval,
                                                     1,
                                                     req.max_interval,
@@ -126,19 +127,15 @@ impl Collection {
                                                     deckconfig_id,
                                                     get_fuzz_seed(&card, true),
                                                 )
-                                            } else {
-                                                None
-                                            };
-                                        if let Some(new_interval) = new_interval {
-                                            card.interval = new_interval;
-                                        } else {
-                                            card.interval = with_review_fuzz(
-                                                card.get_fuzz_factor(true),
-                                                interval,
-                                                1,
-                                                req.max_interval,
-                                            )
-                                        }
+                                            })
+                                            .unwrap_or_else(|| {
+                                                with_review_fuzz(
+                                                    card.get_fuzz_factor(true),
+                                                    interval,
+                                                    1,
+                                                    req.max_interval,
+                                                )
+                                            });
                                         let due = if card.original_due != 0 {
                                             &mut card.original_due
                                         } else {
