@@ -819,9 +819,9 @@ class CardLayout(QDialog):
             assert a is not None
             qconnect(a.triggered, self.onTargetDeck)
 
-            a = m.addAction(tr.card_templates_copy_info())
-            assert a is not None
-            qconnect(a.triggered, self.onCopyMarkdown)
+        a = m.addAction(tr.card_templates_copy_info())
+        assert a is not None
+        qconnect(a.triggered, self.onCopyMarkdown)
 
         a = m.addAction(tr.card_templates_browser_appearance())
         assert a is not None
