@@ -3,16 +3,14 @@
 use std::collections::HashMap;
 
 use chrono::Datelike;
-use rand::distributions::Distribution;
-use rand::distributions::WeightedIndex;
-use rand::rngs::StdRng;
-use rand::SeedableRng;
 
 use crate::prelude::*;
 use crate::scheduler::states::fuzz::constrained_fuzz_bounds;
 use crate::scheduler::states::load_balancer::build_easy_days_percentages;
 use crate::scheduler::states::load_balancer::calculate_easy_days_modifiers;
+use crate::scheduler::states::load_balancer::select_weighted_interval;
 use crate::scheduler::states::load_balancer::EasyDay;
+use crate::scheduler::states::load_balancer::LoadBalancerInterval;
 
 pub struct Rescheduler {
     today: i32,
@@ -165,37 +163,20 @@ impl Rescheduler {
             .collect();
 
         let easy_days_load = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
-
         let easy_days_modifier =
             calculate_easy_days_modifiers(easy_days_load, &weekdays, &review_counts);
 
-        // calculate params for each day
-        let intervals_and_params = possible_intervals
-            .iter()
-            .enumerate()
-            .map(|(interval_index, &target_interval)| {
-                let weight = match review_counts[interval_index] {
-                    0 => 1.0, // if theres no cards due on this day, give it the full 1.0 weight
-                    card_count => {
-                        let card_count_weight = (1.0 / card_count as f32).powi(2);
-                        let card_interval_weight = 1.0 / target_interval as f32;
+        let intervals =
+            possible_intervals
+                .iter()
+                .enumerate()
+                .map(|(interval_index, &target_interval)| LoadBalancerInterval {
+                    target_interval: target_interval,
+                    review_count: review_counts[interval_index],
+                    sibling_modifier: 1.0,
+                    easy_days_modifier: easy_days_modifier[interval_index],
+                });
 
-                        card_count_weight
-                            * card_interval_weight
-                            * easy_days_modifier[interval_index]
-                    }
-                };
-
-                (target_interval, weight)
-            })
-            .collect::<Vec<_>>();
-
-        let mut rng = StdRng::seed_from_u64(fuzz_seed?);
-
-        let weighted_intervals =
-            WeightedIndex::new(intervals_and_params.iter().map(|k| k.1)).ok()?;
-
-        let selected_interval_index = weighted_intervals.sample(&mut rng);
-        Some(intervals_and_params[selected_interval_index].0)
+        select_weighted_interval(intervals, fuzz_seed)
     }
 }
