@@ -386,7 +386,7 @@ pub fn select_weighted_interval(
     let weighted_intervals = WeightedIndex::new(intervals_and_weights.iter().map(|k| k.1)).ok()?;
 
     let selected_interval_index = weighted_intervals.sample(&mut rng);
-    Some(intervals_and_weights[selected_interval_index].0 as u32)
+    Some(intervals_and_weights[selected_interval_index].0)
 }
 
 fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {

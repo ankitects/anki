@@ -171,7 +171,7 @@ impl Rescheduler {
                 .iter()
                 .enumerate()
                 .map(|(interval_index, &target_interval)| LoadBalancerInterval {
-                    target_interval: target_interval,
+                    target_interval,
                     review_count: review_counts[interval_index],
                     sibling_modifier: 1.0,
                     easy_days_modifier: easy_days_modifier[interval_index],
