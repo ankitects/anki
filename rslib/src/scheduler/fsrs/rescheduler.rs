@@ -8,7 +8,7 @@ use crate::prelude::*;
 use crate::scheduler::states::fuzz::constrained_fuzz_bounds;
 use crate::scheduler::states::load_balancer::build_easy_days_percentages;
 use crate::scheduler::states::load_balancer::calculate_easy_days_modifiers;
-use crate::scheduler::states::load_balancer::find_best_interval;
+use crate::scheduler::states::load_balancer::select_weighted_interval;
 use crate::scheduler::states::load_balancer::EasyDay;
 use crate::scheduler::states::load_balancer::LoadBalancerInterval;
 
@@ -177,6 +177,6 @@ impl Rescheduler {
                     easy_days_modifier: easy_days_modifier[interval_index],
                 });
 
-        find_best_interval(intervals, fuzz_seed)
+        select_weighted_interval(intervals, fuzz_seed)
     }
 }

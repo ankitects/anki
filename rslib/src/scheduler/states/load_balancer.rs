@@ -257,7 +257,7 @@ impl LoadBalancer {
                 }
             });
 
-        find_best_interval(intervals, fuzz_seed)
+        select_weighted_interval(intervals, fuzz_seed)
     }
 
     pub fn add_card(&mut self, cid: CardId, nid: NoteId, dcid: DeckConfigId, interval: u32) {
@@ -358,7 +358,7 @@ pub struct LoadBalancerInterval {
     pub easy_days_modifier: f32,
 }
 
-pub fn find_best_interval(
+pub fn select_weighted_interval(
     intervals: impl Iterator<Item = LoadBalancerInterval>,
     fuzz_seed: Option<u64>,
 ) -> Option<u32> {
