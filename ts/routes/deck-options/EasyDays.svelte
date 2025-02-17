@@ -21,9 +21,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $config.easyDaysPercentages = defaults.easyDaysPercentages.slice();
     }
 
-    $: easyDaysChanged =
-        JSON.stringify($config.easyDaysPercentages) !==
-        JSON.stringify(prevEasyDaysPercentages);
+    $: easyDaysChanged = $config.easyDaysPercentages.some(
+        (value, index) => value !== prevEasyDaysPercentages[index],
+    );
 
     $: noNormalDay = $config.easyDaysPercentages.some((p) => p === 1.0)
         ? ""
