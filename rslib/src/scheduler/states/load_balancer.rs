@@ -362,7 +362,7 @@ pub fn find_best_interval(
     intervals: impl Iterator<Item = LoadBalancerInterval>,
     fuzz_seed: Option<u64>,
 ) -> Option<u32> {
-    let intervals_and_params = intervals
+    let intervals_and_weights = intervals
         .map(|interval| {
             let weight = match interval.review_count {
                 0 => 1.0, // if theres no cards due on this day, give it the full 1.0 weight
@@ -383,10 +383,10 @@ pub fn find_best_interval(
 
     let mut rng = StdRng::seed_from_u64(fuzz_seed?);
 
-    let weighted_intervals = WeightedIndex::new(intervals_and_params.iter().map(|k| k.1)).ok()?;
+    let weighted_intervals = WeightedIndex::new(intervals_and_weights.iter().map(|k| k.1)).ok()?;
 
     let selected_interval_index = weighted_intervals.sample(&mut rng);
-    Some(intervals_and_params[selected_interval_index].0 as u32)
+    Some(intervals_and_weights[selected_interval_index].0 as u32)
 }
 
 fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
