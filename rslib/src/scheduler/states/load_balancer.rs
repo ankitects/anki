@@ -234,61 +234,30 @@ impl LoadBalancer {
             })
             .unzip();
 
-        // Determine which days to schedule to with respect to Easy Day settings
-        // If a day is Normal, it will always be an option to schedule to
-        // If a day is Minimum, it will almost never be an option to schedule to
-        // If a day is Reduced, it will look at the amount of cards due in the fuzz
-        //    range to determine if scheduling a card on that day would put it
-        //    above the reduced threshold or not.
-        // the resulting easy_days_modifier will be a vec of 0.0s and 1.0s, to be
-        //    used when calculating the day's weight. This turns the day on or off.
-        //    Note that it does not actually set it to 0.0, but a small
-        //    0.0-ish number (see EASY_DAYS_MINIMUM_LOAD) to remove the need to
-        //    handle a handful of zero-related corner cases.
         let easy_days_load = self.easy_days_percentages_by_preset.get(&deckconfig_id)?;
         let easy_days_modifier =
             calculate_easy_days_modifiers(easy_days_load, &weekdays, &review_counts);
 
-        // calculate params for each day
-        let intervals_and_params = interval_days
+        let intervals = interval_days
             .iter()
             .enumerate()
             .map(|(interval_index, interval_day)| {
-                let target_interval = interval_index as u32 + before_days;
+                LoadBalancerInterval {
+                    target_interval: interval_index as u32 + before_days,
+                    review_count: review_counts[interval_index],
+                    // if there is a sibling on this day, give it a very low weight
+                    sibling_modifier: note_id
+                        .and_then(|note_id| {
+                            interval_day
+                                .has_sibling(&note_id)
+                                .then_some(SIBLING_PENALTY)
+                        })
+                        .unwrap_or(1.0),
+                    easy_days_modifier: easy_days_modifier[interval_index],
+                }
+            });
 
-                // if there is a sibling on this day, give it a very low weight
-                let sibling_multiplier = note_id
-                    .and_then(|note_id| {
-                        interval_day
-                            .has_sibling(&note_id)
-                            .then_some(SIBLING_PENALTY)
-                    })
-                    .unwrap_or(1.0);
-
-                let weight = match review_counts[interval_index] {
-                    0 => 1.0, // if theres no cards due on this day, give it the full 1.0 weight
-                    card_count => {
-                        let card_count_weight = (1.0 / card_count as f32).powi(2);
-                        let card_interval_weight = 1.0 / target_interval as f32;
-
-                        card_count_weight
-                            * card_interval_weight
-                            * sibling_multiplier
-                            * easy_days_modifier[interval_index]
-                    }
-                };
-
-                (target_interval, weight)
-            })
-            .collect::<Vec<_>>();
-
-        let mut rng = StdRng::seed_from_u64(fuzz_seed?);
-
-        let weighted_intervals =
-            WeightedIndex::new(intervals_and_params.iter().map(|k| k.1)).ok()?;
-
-        let selected_interval_index = weighted_intervals.sample(&mut rng);
-        Some(intervals_and_params[selected_interval_index].0)
+        find_best_interval(intervals, fuzz_seed)
     }
 
     pub fn add_card(&mut self, cid: CardId, nid: NoteId, dcid: DeckConfigId, interval: u32) {
@@ -336,6 +305,17 @@ pub(crate) fn build_easy_days_percentages(
         .collect()
 }
 
+// Determine which days to schedule to with respect to Easy Day settings
+// If a day is Normal, it will always be an option to schedule to
+// If a day is Minimum, it will almost never be an option to schedule to
+// If a day is Reduced, it will look at the amount of cards due in the fuzz
+//    range to determine if scheduling a card on that day would put it
+//    above the reduced threshold or not.
+// the resulting easy_days_modifier will be a vec of 0.0s and 1.0s, to be
+//    used when calculating the day's weight. This turns the day on or off.
+//    Note that it does not actually set it to 0.0, but a small
+//    0.0-ish number (see EASY_DAYS_MINIMUM_LOAD) to remove the need to
+//    handle a handful of zero-related corner cases.
 pub(crate) fn calculate_easy_days_modifiers(
     easy_days_load: &[EasyDay; 7],
     weekdays: &[usize],
@@ -369,6 +349,44 @@ pub(crate) fn calculate_easy_days_modifiers(
             day.load_modifier()
         })
         .collect()
+}
+
+pub struct LoadBalancerInterval {
+    pub target_interval: u32,
+    pub review_count: usize,
+    pub sibling_modifier: f32,
+    pub easy_days_modifier: f32,
+}
+
+pub fn find_best_interval(
+    intervals: impl Iterator<Item = LoadBalancerInterval>,
+    fuzz_seed: Option<u64>,
+) -> Option<u32> {
+    let intervals_and_params = intervals
+        .map(|interval| {
+            let weight = match interval.review_count {
+                0 => 1.0, // if theres no cards due on this day, give it the full 1.0 weight
+                card_count => {
+                    let card_count_weight = (1.0 / card_count as f32).powi(2);
+                    let card_interval_weight = 1.0 / interval.target_interval as f32;
+
+                    card_count_weight
+                        * card_interval_weight
+                        * interval.sibling_modifier
+                        * interval.easy_days_modifier
+                }
+            };
+
+            (interval.target_interval, weight)
+        })
+        .collect::<Vec<_>>();
+
+    let mut rng = StdRng::seed_from_u64(fuzz_seed?);
+
+    let weighted_intervals = WeightedIndex::new(intervals_and_params.iter().map(|k| k.1)).ok()?;
+
+    let selected_interval_index = weighted_intervals.sample(&mut rng);
+    Some(intervals_and_params[selected_interval_index].0 as u32)
 }
 
 fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
