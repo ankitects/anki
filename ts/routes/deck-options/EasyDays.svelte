@@ -15,14 +15,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const config = state.currentConfig;
     const defaults = state.defaults;
+    const prevEasyDaysPercentages = $config.easyDaysPercentages.slice();
 
     $: if ($config.easyDaysPercentages.length !== 7) {
         $config.easyDaysPercentages = defaults.easyDaysPercentages.slice();
     }
 
+    $: easyDaysChanged =
+        JSON.stringify($config.easyDaysPercentages) !==
+        JSON.stringify(prevEasyDaysPercentages);
+
     $: noNormalDay = $config.easyDaysPercentages.some((p) => p === 1.0)
         ? ""
         : tr.deckConfigEasyDaysNoNormalDays();
+
+    $: rescheduleWarning = easyDaysChanged ? tr.deckConfigEasyDaysChange() : "";
 
     const easyDays = [
         tr.deckConfigEasyDaysMonday(),
@@ -80,6 +87,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Item>
         <Item>
             <Warning warning={noNormalDay} />
+        </Item>
+        <Item>
+            <Warning warning={rescheduleWarning} />
         </Item>
     </DynamicallySlottable>
 </TitledContainer>
