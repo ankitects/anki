@@ -20,7 +20,7 @@ use crate::scheduler::states::load_balancer::EasyDay;
 use crate::scheduler::states::load_balancer::LoadBalancerInterval;
 use crate::search::SortMode;
 
-fn post_scheduling_fn(
+fn apply_load_balance_and_easy_days(
     interval: f32,
     max_interval: f32,
     day_elapsed: usize,
@@ -108,6 +108,26 @@ impl Collection {
         let easy_days_percentages = parse_easy_days_percentages(req.easy_days_percentages)?;
         let next_day_at = self.timing_today().unwrap().next_day_at;
 
+        let post_scheduling_fn: Option<
+            Box<dyn Fn(f32, f32, usize, Vec<usize>, &mut StdRng) -> f32 + Send + Sync>,
+        > = if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
+            Some(Box::new(
+                move |interval, max_interval, today, due_cnt_per_day, rng| {
+                    apply_load_balance_and_easy_days(
+                        interval,
+                        max_interval,
+                        today,
+                        due_cnt_per_day,
+                        rng,
+                        next_day_at,
+                        &easy_days_percentages,
+                    )
+                },
+            ))
+        } else {
+            None
+        };
+
         let config = SimulatorConfig {
             deck_size: converted_cards.len(),
             learn_span: req.days_to_simulate as usize,
@@ -125,19 +145,7 @@ impl Collection {
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
             new_cards_ignore_review_limit: req.new_cards_ignore_review_limit,
-            post_scheduling_fn: Some(Box::new(
-                move |interval, max_interval, today, due_cnt_per_day, rng| {
-                    post_scheduling_fn(
-                        interval,
-                        max_interval,
-                        today,
-                        due_cnt_per_day,
-                        rng,
-                        next_day_at,
-                        &easy_days_percentages,
-                    )
-                },
-            )),
+            post_scheduling_fn,
         };
         let result = simulate(
             &config,
