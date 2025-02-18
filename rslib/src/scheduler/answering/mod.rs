@@ -608,7 +608,7 @@ impl Card {
 /// Return a consistent seed for a given card at a given number of reps.
 /// If for_reschedule is true, we use card.reps - 1 to match the previous
 /// review.
-fn get_fuzz_seed(card: &Card, for_reschedule: bool) -> Option<u64> {
+pub(crate) fn get_fuzz_seed(card: &Card, for_reschedule: bool) -> Option<u64> {
     let reps = if for_reschedule {
         card.reps.saturating_sub(1)
     } else {
