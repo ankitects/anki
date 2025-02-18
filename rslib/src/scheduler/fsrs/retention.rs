@@ -54,6 +54,7 @@ impl Collection {
                     learn_limit,
                     review_limit: usize::MAX,
                     new_cards_ignore_review_limit: true,
+                    post_scheduling_fn: None,
                 },
                 &req.params,
                 |ip| {

@@ -277,29 +277,30 @@ impl LoadBalancer {
     }
 }
 
-/// Build a mapping of deck config IDs to their easy days settings.
-/// For each deck config, maintains an array of 7 EasyDay values representing
-/// the load modifier for each day of the week.
+pub(crate) fn parse_easy_days_percentages(percentages: Vec<f32>) -> Result<[EasyDay; 7]> {
+    if percentages.is_empty() {
+        return Ok([EasyDay::Normal; 7]);
+    }
+
+    Ok(TryInto::<[_; 7]>::try_into(percentages)
+        .map_err(|_| {
+            AnkiError::from(InvalidInputError {
+                message: "expected 7 days".into(),
+                source: None,
+                backtrace: None,
+            })
+        })?
+        .map(EasyDay::from))
+}
+
 pub(crate) fn build_easy_days_percentages(
     configs: HashMap<DeckConfigId, DeckConfig>,
 ) -> Result<HashMap<DeckConfigId, [EasyDay; 7]>> {
     configs
         .into_iter()
         .map(|(dcid, conf)| {
-            let easy_days_percentages: [EasyDay; 7] = if conf.inner.easy_days_percentages.is_empty()
-            {
-                [EasyDay::Normal; 7]
-            } else {
-                TryInto::<[_; 7]>::try_into(conf.inner.easy_days_percentages)
-                    .map_err(|_| {
-                        AnkiError::from(InvalidInputError {
-                            message: "expected 7 days".into(),
-                            source: None,
-                            backtrace: None,
-                        })
-                    })?
-                    .map(EasyDay::from)
-            };
+            let easy_days_percentages =
+                parse_easy_days_percentages(conf.inner.easy_days_percentages)?;
             Ok((dcid, easy_days_percentages))
         })
         .collect()
@@ -389,7 +390,7 @@ pub fn select_weighted_interval(
     Some(intervals_and_weights[selected_interval_index].0)
 }
 
-fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
+pub fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
     let target_datetime = next_day_at
         .adding_secs((interval - 1) as i64 * 86400)
         .local_datetime()

@@ -6,10 +6,66 @@ use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use fsrs::simulate;
 use fsrs::SimulatorConfig;
 use itertools::Itertools;
+use rand::rngs::StdRng;
+use rand::Rng;
 
 use crate::card::CardQueue;
 use crate::prelude::*;
+use crate::scheduler::states::fuzz::constrained_fuzz_bounds;
+use crate::scheduler::states::load_balancer::calculate_easy_days_modifiers;
+use crate::scheduler::states::load_balancer::interval_to_weekday;
+use crate::scheduler::states::load_balancer::parse_easy_days_percentages;
+use crate::scheduler::states::load_balancer::select_weighted_interval;
+use crate::scheduler::states::load_balancer::EasyDay;
+use crate::scheduler::states::load_balancer::LoadBalancerInterval;
 use crate::search::SortMode;
+
+fn post_scheduling_fn(
+    interval: f32,
+    max_interval: f32,
+    day_elapsed: usize,
+    due_cnt_per_day: Vec<usize>,
+    rng: &mut StdRng,
+    next_day_at: TimestampSecs,
+    easy_days_percentages: &[EasyDay; 7],
+) -> f32 {
+    let (lower, upper) = constrained_fuzz_bounds(interval, 1, max_interval as u32);
+    let mut review_counts = vec![0; upper as usize - lower as usize + 1];
+
+    // Fill review_counts with due counts for each interval
+    let start = day_elapsed + lower as usize;
+    let end = (day_elapsed + upper as usize + 1).min(due_cnt_per_day.len());
+    if start < due_cnt_per_day.len() {
+        let copy_len = (end - start).min(review_counts.len());
+        review_counts[..copy_len].copy_from_slice(&due_cnt_per_day[start..start + copy_len]);
+    }
+
+    let possible_intervals: Vec<u32> = (lower..=upper).collect();
+    let weekdays = possible_intervals
+        .iter()
+        .map(|interval| {
+            interval_to_weekday(
+                *interval,
+                next_day_at.adding_secs(day_elapsed as i64 * 86400),
+            )
+        })
+        .collect::<Vec<_>>();
+    let easy_days_modifier =
+        calculate_easy_days_modifiers(easy_days_percentages, &weekdays, &review_counts);
+
+    let intervals =
+        possible_intervals
+            .iter()
+            .enumerate()
+            .map(|(interval_index, &target_interval)| LoadBalancerInterval {
+                target_interval,
+                review_count: review_counts[interval_index],
+                sibling_modifier: 1.0,
+                easy_days_modifier: easy_days_modifier[interval_index],
+            });
+    let fuzz_seed = rng.gen();
+    select_weighted_interval(intervals, Some(fuzz_seed)).unwrap() as f32
+}
 
 impl Collection {
     pub fn simulate_review(
@@ -48,6 +104,10 @@ impl Collection {
             converted_cards.extend(new_cards);
         }
         let p = self.get_optimal_retention_parameters(revlogs)?;
+
+        let easy_days_percentages = parse_easy_days_percentages(req.easy_days_percentages)?;
+        let next_day_at = self.timing_today().unwrap().next_day_at;
+
         let config = SimulatorConfig {
             deck_size: converted_cards.len(),
             learn_span: req.days_to_simulate as usize,
@@ -65,6 +125,19 @@ impl Collection {
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
             new_cards_ignore_review_limit: req.new_cards_ignore_review_limit,
+            post_scheduling_fn: Some(Box::new(
+                move |interval, max_interval, today, due_cnt_per_day, rng| {
+                    post_scheduling_fn(
+                        interval,
+                        max_interval,
+                        today,
+                        due_cnt_per_day,
+                        rng,
+                        next_day_at,
+                        &easy_days_percentages,
+                    )
+                },
+            )),
         };
         let result = simulate(
             &config,
@@ -74,7 +147,7 @@ impl Collection {
             Some(converted_cards),
         )?;
         Ok(SimulateFsrsReviewResponse {
-            accumulated_knowledge_acquisition: result.memorized_cnt_per_day.to_vec(),
+            accumulated_knowledge_acquisition: result.memorized_cnt_per_day,
             daily_review_count: result
                 .review_cnt_per_day
                 .iter()
@@ -85,7 +158,7 @@ impl Collection {
                 .iter()
                 .map(|x| *x as u32)
                 .collect_vec(),
-            daily_time_cost: result.cost_per_day.to_vec(),
+            daily_time_cost: result.cost_per_day,
         })
     }
 }
