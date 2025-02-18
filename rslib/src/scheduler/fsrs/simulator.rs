@@ -4,6 +4,7 @@
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use fsrs::simulate;
+use fsrs::PostSchedulingFn;
 use fsrs::SimulatorConfig;
 use itertools::Itertools;
 use rand::rngs::StdRng;
@@ -108,25 +109,24 @@ impl Collection {
         let easy_days_percentages = parse_easy_days_percentages(req.easy_days_percentages)?;
         let next_day_at = self.timing_today().unwrap().next_day_at;
 
-        let post_scheduling_fn: Option<
-            Box<dyn Fn(f32, f32, usize, Vec<usize>, &mut StdRng) -> f32 + Send + Sync>,
-        > = if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
-            Some(Box::new(
-                move |interval, max_interval, today, due_cnt_per_day, rng| {
-                    apply_load_balance_and_easy_days(
-                        interval,
-                        max_interval,
-                        today,
-                        due_cnt_per_day,
-                        rng,
-                        next_day_at,
-                        &easy_days_percentages,
-                    )
-                },
-            ))
-        } else {
-            None
-        };
+        let post_scheduling_fn: Option<PostSchedulingFn> =
+            if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
+                Some(PostSchedulingFn(Box::new(
+                    move |interval, max_interval, today, due_cnt_per_day, rng| {
+                        apply_load_balance_and_easy_days(
+                            interval,
+                            max_interval,
+                            today,
+                            due_cnt_per_day,
+                            rng,
+                            next_day_at,
+                            &easy_days_percentages,
+                        )
+                    },
+                )))
+            } else {
+                None
+            };
 
         let config = SimulatorConfig {
             deck_size: converted_cards.len(),

@@ -2099,7 +2099,6 @@ dependencies = [
 [[package]]
 name = "fsrs"
 version = "2.0.4"
-source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?branch=Refactor/provide-a-hook-for-post-scheduling-adjustments#4e9067ab452eaf29c7e3359dbd174c07e8a4c50a"
 dependencies = [
  "burn",
  "itertools 0.12.1",
