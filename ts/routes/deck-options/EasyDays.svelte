@@ -13,6 +13,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
+    const fsrsEnabled = state.fsrs;
+    const reschedule = state.fsrsReschedule;
     const config = state.currentConfig;
     const defaults = state.defaults;
     const prevEasyDaysPercentages = $config.easyDaysPercentages.slice();
@@ -29,7 +31,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ? ""
         : tr.deckConfigEasyDaysNoNormalDays();
 
-    $: rescheduleWarning = easyDaysChanged ? tr.deckConfigEasyDaysChange() : "";
+    $: rescheduleWarning =
+        easyDaysChanged && !($fsrsEnabled && $reschedule)
+            ? tr.deckConfigEasyDaysChange()
+            : "";
 
     const easyDays = [
         tr.deckConfigEasyDaysMonday(),
