@@ -340,7 +340,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     simulateFsrsRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
                     simulateFsrsRequest.newCardsIgnoreReviewLimit =
                         $newCardsIgnoreReviewLimit;
-                    simulateFsrsRequest.easyDaysPercentages = $config.easyDaysPercentages;
+                    simulateFsrsRequest.easyDaysPercentages =
+                        $config.easyDaysPercentages;
                     simulating = true;
                     resp = await simulateFsrsReview(simulateFsrsRequest);
                 },
