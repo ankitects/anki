@@ -75,6 +75,7 @@
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
         "lodash-es": "^4.17.21",
+        "lru-cache": "^10.2.0",
         "marked": "^5.1.0",
         "mathjax": "^3.1.2"
     },
