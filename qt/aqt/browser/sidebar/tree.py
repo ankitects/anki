@@ -1092,8 +1092,8 @@ class SidebarTreeView(QTreeView):
         self.mw.flags.rename_flag(item.id, new_name)
 
     def restore_default_flag_name(self, item: SidebarItem) -> None:
-        item.name = self.mw.flags.default_flag_names[item.id]
         self.mw.flags.restore_default_flag_name(item.id)
+        item.name = self.mw.flags.get_flag(item.id).label
 
     # Decks
     ###########################
