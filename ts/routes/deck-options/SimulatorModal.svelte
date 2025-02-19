@@ -39,7 +39,6 @@
 
     async function simulateFsrs(): Promise<void> {
         let resp: SimulateFsrsReviewResponse | undefined;
-        simulationNumber += 1;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -51,6 +50,7 @@
         } finally {
             simulating = false;
             if (resp) {
+                simulationNumber += 1;
                 const dailyTotalCount = addArrays(
                     resp.dailyReviewCount,
                     resp.dailyNewCount,
@@ -100,7 +100,7 @@
 </script>
 
 <div class="modal" class:show={shown} class:d-block={shown} tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">{tr.deckConfigFsrsSimulatorExperimental()}</h5>
@@ -237,6 +237,10 @@
 <style>
     .modal {
         background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    :global(.modal-xl) {
+        max-width: 100vw;
     }
 
     div.radio-group {
