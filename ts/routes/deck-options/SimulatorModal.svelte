@@ -29,6 +29,7 @@
     export let computing: boolean;
     export let simulating: boolean;
     export let openHelpModal: (key: string) => void;
+    export let onPresetChange: () => void;
 
     let config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
@@ -221,6 +222,7 @@
                         $config.desiredRetention = simulateFsrsRequest.desiredRetention;
                         $newCardsIgnoreReviewLimit =
                             simulateFsrsRequest.newCardsIgnoreReviewLimit;
+                        onPresetChange();
                     }}
                 >
                     <!-- {tr.deckConfigApplyChanges()} -->

@@ -35,6 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
+    export let onPresetChange: () => void;
 
     const presetName = state.currentPresetName;
 
@@ -443,6 +444,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {computing}
     {simulating}
     {openHelpModal}
+    {onPresetChange}
 />
 
 <style>
