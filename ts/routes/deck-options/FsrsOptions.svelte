@@ -263,6 +263,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     optimalRetentionRequest.maxInterval = $config.maximumReviewInterval;
                     optimalRetentionRequest.params = fsrsParams($config);
                     optimalRetentionRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
+                    optimalRetentionRequest.easyDaysPercentages =
+                        $config.easyDaysPercentages;
                     const resp = await computeOptimalRetention(optimalRetentionRequest);
                     optimalRetention = resp.optimalRetention;
                     computeRetentionProgress = undefined;

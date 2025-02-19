@@ -21,7 +21,7 @@ use crate::scheduler::states::load_balancer::EasyDay;
 use crate::scheduler::states::load_balancer::LoadBalancerInterval;
 use crate::search::SortMode;
 
-fn apply_load_balance_and_easy_days(
+pub(crate) fn apply_load_balance_and_easy_days(
     interval: f32,
     max_interval: f32,
     day_elapsed: usize,
@@ -146,6 +146,7 @@ impl Collection {
             review_limit: req.review_limit as usize,
             new_cards_ignore_review_limit: req.new_cards_ignore_review_limit,
             post_scheduling_fn,
+            review_priority_fn: None,
         };
         let result = simulate(
             &config,

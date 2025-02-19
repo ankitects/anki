@@ -3,11 +3,14 @@
 
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use fsrs::extract_simulator_config;
+use fsrs::PostSchedulingFn;
 use fsrs::SimulatorConfig;
 use fsrs::FSRS;
 
+use super::simulator::apply_load_balance_and_easy_days;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
+use crate::scheduler::states::load_balancer::parse_easy_days_percentages;
 use crate::search::SortMode;
 
 #[derive(Default, Clone, Copy, Debug)]
@@ -35,6 +38,26 @@ impl Collection {
         let learn_span = req.days_to_simulate as usize;
         let learn_limit = 10;
         let deck_size = learn_span * learn_limit;
+        let easy_days_percentages = parse_easy_days_percentages(req.easy_days_percentages)?;
+        let next_day_at = self.timing_today().unwrap().next_day_at;
+        let post_scheduling_fn: Option<PostSchedulingFn> =
+            if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
+                Some(PostSchedulingFn(Box::new(
+                    move |interval, max_interval, today, due_cnt_per_day, rng| {
+                        apply_load_balance_and_easy_days(
+                            interval,
+                            max_interval,
+                            today,
+                            due_cnt_per_day,
+                            rng,
+                            next_day_at,
+                            &easy_days_percentages,
+                        )
+                    },
+                )))
+            } else {
+                None
+            };
         Ok(fsrs
             .optimal_retention(
                 &SimulatorConfig {
@@ -54,7 +77,8 @@ impl Collection {
                     learn_limit,
                     review_limit: usize::MAX,
                     new_cards_ignore_review_limit: true,
-                    post_scheduling_fn: None,
+                    post_scheduling_fn: post_scheduling_fn,
+                    review_priority_fn: None,
                 },
                 &req.params,
                 |ip| {

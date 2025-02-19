@@ -2098,7 +2098,7 @@ dependencies = [
 
 [[package]]
 name = "fsrs"
-version = "2.0.4"
+version = "3.0.0"
 dependencies = [
  "burn",
  "itertools 0.12.1",

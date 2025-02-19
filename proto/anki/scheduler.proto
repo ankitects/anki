@@ -406,6 +406,7 @@ message ComputeOptimalRetentionRequest {
   uint32 max_interval = 3;
   string search = 4;
   double loss_aversion = 5;
+  repeated float easy_days_percentages = 6;
 }
 
 message ComputeOptimalRetentionResponse {
