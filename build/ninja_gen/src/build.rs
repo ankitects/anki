@@ -271,14 +271,14 @@ impl BuildStatement<'_> {
             stmt.rule_variables.push(("pool".into(), pool.into()));
         }
         if have_n2 {
-            stmt.rule_variables.push((
-                "hide_success".into(),
-                (action.hide_success() as u8).to_string(),
-            ));
-            stmt.rule_variables.push((
-                "hide_last_line".into(),
-                (action.hide_last_line() as u8).to_string(),
-            ));
+            if action.hide_success() {
+                stmt.rule_variables
+                    .push(("hide_success".into(), "1".into()));
+            }
+            if action.hide_progress() {
+                stmt.rule_variables
+                    .push(("hide_progress".into(), "1".into()));
+            }
         }
 
         stmt

@@ -252,7 +252,7 @@ impl BuildAction for SvelteCheck {
         build.add_output_stamp(format!("tests/svelte-check.{hash}"));
     }
 
-    fn hide_last_line(&self) -> bool {
+    fn hide_progress(&self) -> bool {
         true
     }
 }
