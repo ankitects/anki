@@ -12,6 +12,7 @@ import "anki/cards.proto";
 import "anki/decks.proto";
 import "anki/collection.proto";
 import "anki/config.proto";
+import "anki/deck_config.proto";
 
 service SchedulerService {
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
@@ -391,6 +392,7 @@ message SimulateFsrsReviewRequest {
   string search = 8;
   bool new_cards_ignore_review_limit = 9;
   repeated float easy_days_percentages = 10;
+  deck_config.DeckConfig.Config.ReviewCardOrder review_order = 11;
 }
 
 message SimulateFsrsReviewResponse {

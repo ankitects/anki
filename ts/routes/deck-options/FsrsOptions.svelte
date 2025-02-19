@@ -87,6 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         search: `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
         newCardsIgnoreReviewLimit: $newCardsIgnoreReviewLimit,
         easyDaysPercentages: $config.easyDaysPercentages,
+        reviewOrder: $config.reviewOrder,
     });
 
     function getRetentionWarning(retention: number): string {

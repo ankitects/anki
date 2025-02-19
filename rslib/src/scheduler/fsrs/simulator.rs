@@ -1,10 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
+use fsrs::power_forgetting_curve;
 use fsrs::simulate;
 use fsrs::PostSchedulingFn;
+use fsrs::ReviewPriorityFn;
 use fsrs::SimulatorConfig;
 use itertools::Itertools;
 use rand::rngs::StdRng;
@@ -68,6 +71,55 @@ pub(crate) fn apply_load_balance_and_easy_days(
     select_weighted_interval(intervals, Some(fuzz_seed)).unwrap() as f32
 }
 
+fn create_review_priority_fn(
+    review_order: ReviewCardOrder,
+    deck_size: usize,
+) -> Option<ReviewPriorityFn> {
+    match review_order {
+        ReviewCardOrder::EaseAscending => Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
+            -(card.difficulty * 100.0) as i32
+        }))),
+        ReviewCardOrder::EaseDescending => Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
+            (card.difficulty * 100.0) as i32
+        }))),
+        ReviewCardOrder::IntervalsAscending => {
+            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
+                card.interval as i32
+            })))
+        }
+        ReviewCardOrder::IntervalsDescending => {
+            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
+                -card.interval as i32
+            })))
+        }
+        ReviewCardOrder::RetrievabilityAscending => {
+            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
+                (power_forgetting_curve(card.due - card.last_date, card.stability) * 100.0) as i32
+            })))
+        }
+        ReviewCardOrder::RetrievabilityDescending => {
+            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
+                -(power_forgetting_curve(card.due - card.last_date, card.stability) * 100.0) as i32
+            })))
+        }
+        ReviewCardOrder::Day | ReviewCardOrder::DayThenDeck | ReviewCardOrder::DeckThenDay => {
+            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
+                card.due as i32
+            })))
+        }
+        ReviewCardOrder::Added => {
+            todo!()
+        }
+        ReviewCardOrder::ReverseAdded => {
+            todo!()
+        }
+        ReviewCardOrder::Random => Some(ReviewPriorityFn(Box::new(move |_card: &fsrs::Card| {
+            rand::thread_rng().gen_range(0..deck_size) as i32
+        }))),
+        _ => None,
+    }
+}
+
 impl Collection {
     pub fn simulate_review(
         &mut self,
@@ -101,9 +153,11 @@ impl Collection {
                 stability: 1e-8,              // Not filtered by fsrs-rs
                 last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
                 due: ((introduced_today_count + i) / req.new_limit as usize) as f32,
+                interval: f32::NEG_INFINITY,
             });
             converted_cards.extend(new_cards);
         }
+        let deck_size = converted_cards.len();
         let p = self.get_optimal_retention_parameters(revlogs)?;
 
         let easy_days_percentages = parse_easy_days_percentages(req.easy_days_percentages)?;
@@ -128,8 +182,14 @@ impl Collection {
                 None
             };
 
+        let review_priority_fn = req
+            .review_order
+            .try_into()
+            .ok()
+            .and_then(|order| create_review_priority_fn(order, deck_size));
+
         let config = SimulatorConfig {
-            deck_size: converted_cards.len(),
+            deck_size,
             learn_span: req.days_to_simulate as usize,
             max_cost_perday: f32::MAX,
             max_ivl: req.max_interval as f32,
@@ -146,7 +206,7 @@ impl Collection {
             review_limit: req.review_limit as usize,
             new_cards_ignore_review_limit: req.new_cards_ignore_review_limit,
             post_scheduling_fn,
-            review_priority_fn: None,
+            review_priority_fn,
         };
         let result = simulate(
             &config,
@@ -185,6 +245,7 @@ impl Card {
                         stability: state.stability,
                         last_date,
                         due: relative_due as f32,
+                        interval: card.interval as f32,
                     })
                 }
                 CardQueue::New => None,
@@ -194,6 +255,7 @@ impl Card {
                         stability: state.stability,
                         last_date: 0.0,
                         due: 0.0,
+                        interval: card.interval as f32,
                     })
                 }
                 CardQueue::PreviewRepeat => None,
