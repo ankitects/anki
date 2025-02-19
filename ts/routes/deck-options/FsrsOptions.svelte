@@ -77,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
 
-    const simulateFsrsRequest = new SimulateFsrsReviewRequest({
+    $: simulateFsrsRequest = new SimulateFsrsReviewRequest({
         params: fsrsParams($config),
         desiredRetention: $config.desiredRetention,
         deckSize: 0,

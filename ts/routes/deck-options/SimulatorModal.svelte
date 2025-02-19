@@ -14,12 +14,18 @@
     import { renderSimulationChart } from "../graphs/simulator";
     import { simulateFsrsReview } from "@generated/backend";
     import { runWithBackendProgress } from "@tslib/progress";
-    import type { SimulateFsrsReviewResponse } from "@generated/anki/scheduler_pb";
+    import type {
+        SimulateFsrsReviewRequest,
+        SimulateFsrsReviewResponse,
+    } from "@generated/anki/scheduler_pb";
     import type { DeckOptionsState } from "./lib";
+    import SwitchRow from "$lib/components/SwitchRow.svelte";
+    import GlobalLabel from "./GlobalLabel.svelte";
+    import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
 
     export let shown = false;
     export let state: DeckOptionsState;
-    export let simulateFsrsRequest: any;
+    export let simulateFsrsRequest: SimulateFsrsReviewRequest;
     export let computing: boolean;
     export let simulating: boolean;
     export let openHelpModal: (key: string) => void;
@@ -32,6 +38,7 @@
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
     let points: Point[] = [];
+    let newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
 
     function addArrays(arr1: number[], arr2: number[]): number[] {
         return arr1.map((value, index) => value + arr2[index]);
@@ -134,6 +141,18 @@
                     </SettingTitle>
                 </SpinBoxRow>
 
+                <SpinBoxFloatRow
+                    bind:value={simulateFsrsRequest.desiredRetention}
+                    defaultValue={$config.desiredRetention}
+                    min={0.7}
+                    max={0.99}
+                    percentage={true}
+                >
+                    <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
+                        {tr.deckConfigDesiredRetention()}
+                    </SettingTitle>
+                </SpinBoxFloatRow>
+
                 <SpinBoxRow
                     bind:value={simulateFsrsRequest.newLimit}
                     defaultValue={$config.newPerDay}
@@ -167,6 +186,15 @@
                     </SettingTitle>
                 </SpinBoxRow>
 
+                <SwitchRow
+                    bind:value={simulateFsrsRequest.newCardsIgnoreReviewLimit}
+                    defaultValue={$newCardsIgnoreReviewLimit}
+                >
+                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                        <GlobalLabel title={tr.deckConfigNewCardsIgnoreReviewLimit()} />
+                    </SettingTitle>
+                </SwitchRow>
+
                 <button
                     class="btn {computing ? 'btn-warning' : 'btn-primary'}"
                     disabled={computing}
@@ -181,6 +209,22 @@
                     on:click={clearSimulation}
                 >
                     {tr.deckConfigClearLastSimulate()}
+                </button>
+
+                <button
+                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                    disabled={computing}
+                    on:click={() => {
+                        $config.newPerDay = simulateFsrsRequest.newLimit;
+                        $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
+                        $config.maximumReviewInterval = simulateFsrsRequest.maxInterval;
+                        $config.desiredRetention = simulateFsrsRequest.desiredRetention;
+                        $newCardsIgnoreReviewLimit =
+                            simulateFsrsRequest.newCardsIgnoreReviewLimit;
+                    }}
+                >
+                    <!-- {tr.deckConfigApplyChanges()} -->
+                    {"Save to Preset Options"}
                 </button>
 
                 {#if simulating}
