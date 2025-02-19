@@ -44,7 +44,7 @@ pub trait BuildAction {
         true
     }
 
-    fn hide_last_line(&self) -> bool {
+    fn hide_progress(&self) -> bool {
         false
     }
 
