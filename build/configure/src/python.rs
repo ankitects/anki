@@ -125,7 +125,7 @@ impl BuildAction for GenPythonProto {
         build.add_outputs("", python_outputs);
     }
 
-    fn hide_last_line(&self) -> bool {
+    fn hide_progress(&self) -> bool {
         true
     }
 }

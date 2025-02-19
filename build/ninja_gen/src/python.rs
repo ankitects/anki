@@ -146,7 +146,7 @@ impl BuildAction for PythonTypecheck {
         build.add_output_stamp(format!("tests/python_typecheck.{hash}"));
     }
 
-    fn hide_last_line(&self) -> bool {
+    fn hide_progress(&self) -> bool {
         true
     }
 }
@@ -259,7 +259,7 @@ impl BuildAction for PythonTest {
         build.add_output_stamp(format!("tests/python_pytest.{hash}"));
     }
 
-    fn hide_last_line(&self) -> bool {
+    fn hide_progress(&self) -> bool {
         true
     }
 }
