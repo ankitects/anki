@@ -10,12 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         ComputeOptimalRetentionRequest,
         SimulateFsrsReviewRequest,
-        type SimulateFsrsReviewResponse,
     } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsParams,
         computeOptimalRetention,
-        simulateFsrsReview,
         evaluateParams,
         setWantsAbort,
     } from "@generated/backend";
@@ -32,19 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
     import ParamsInputRow from "./ParamsInputRow.svelte";
     import ParamsSearchRow from "./ParamsSearchRow.svelte";
-    import {
-        renderSimulationChart,
-        SimulateSubgraph,
-        type Point,
-    } from "../graphs/simulator";
-    import Graph from "../graphs/Graph.svelte";
-    import HoverColumns from "../graphs/HoverColumns.svelte";
-    import CumulativeOverlay from "../graphs/CumulativeOverlay.svelte";
-    import AxisTicks from "../graphs/AxisTicks.svelte";
-    import NoDataOverlay from "../graphs/NoDataOverlay.svelte";
-    import TableData from "../graphs/TableData.svelte";
-    import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
-    import InputBox from "../graphs/InputBox.svelte";
+    import SimulatorModal from "./SimulatorModal.svelte";
     import { UpdateDeckConfigsMode } from "@generated/anki/deck_config_pb";
 
     export let state: DeckOptionsState;
@@ -80,8 +66,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         | ComputeParamsProgress
         | ComputeRetentionProgress
         | undefined;
-
-    let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
 
     const optimalRetentionRequest = new ComputeOptimalRetentionRequest({
         daysToSimulate: 365,
@@ -319,83 +303,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state.save(UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS);
     }
 
-    let tableData: TableDatum[] = [];
-    const bounds = defaultGraphBounds();
-    bounds.marginLeft += 8;
-    let svg: HTMLElement | SVGElement | null = null;
-    let simulationNumber = 0;
-
-    let points: Point[] = [];
-
-    function addArrays(arr1: number[], arr2: number[]): number[] {
-        return arr1.map((value, index) => value + arr2[index]);
-    }
-
-    async function simulateFsrs(): Promise<void> {
-        let resp: SimulateFsrsReviewResponse | undefined;
-        simulationNumber += 1;
-        try {
-            await runWithBackendProgress(
-                async () => {
-                    simulateFsrsRequest.params = fsrsParams($config);
-                    simulateFsrsRequest.desiredRetention = $config.desiredRetention;
-                    simulateFsrsRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
-                    simulateFsrsRequest.newCardsIgnoreReviewLimit =
-                        $newCardsIgnoreReviewLimit;
-                    simulateFsrsRequest.easyDaysPercentages =
-                        $config.easyDaysPercentages;
-                    simulating = true;
-                    resp = await simulateFsrsReview(simulateFsrsRequest);
-                },
-                () => {},
-            );
-        } finally {
-            simulating = false;
-            if (resp) {
-                const dailyTotalCount = addArrays(
-                    resp.dailyReviewCount,
-                    resp.dailyNewCount,
-                );
-
-                const dailyMemorizedCount = resp.accumulatedKnowledgeAcquisition;
-
-                points = points.concat(
-                    resp.dailyTimeCost.map((v, i) => ({
-                        x: i,
-                        timeCost: v,
-                        count: dailyTotalCount[i],
-                        memorized: dailyMemorizedCount[i],
-                        label: simulationNumber,
-                    })),
-                );
-
-                tableData = renderSimulationChart(
-                    svg as SVGElement,
-                    bounds,
-                    points,
-                    simulateSubgraph,
-                );
-            }
-        }
-    }
-
-    $: tableData = renderSimulationChart(
-        svg as SVGElement,
-        bounds,
-        points,
-        simulateSubgraph,
-    );
-
-    function clearSimulation(): void {
-        points = points.filter((p) => p.label !== simulationNumber);
-        simulationNumber = Math.max(0, simulationNumber - 1);
-        tableData = renderSimulationChart(
-            svg as SVGElement,
-            bounds,
-            points,
-            simulateSubgraph,
-        );
-    }
+    let showSimulator = false;
 </script>
 
 <SpinBoxFloatRow
@@ -523,130 +431,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <div class="m-2">
-    <details>
-        <summary>{tr.deckConfigFsrsSimulatorExperimental()}</summary>
-
-        <SpinBoxRow
-            bind:value={simulateFsrsRequest.daysToSimulate}
-            defaultValue={365}
-            min={1}
-            max={3650}
-        >
-            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                {tr.deckConfigDaysToSimulate()}
-            </SettingTitle>
-        </SpinBoxRow>
-
-        <SpinBoxRow
-            bind:value={simulateFsrsRequest.deckSize}
-            defaultValue={0}
-            min={0}
-            max={100000}
-        >
-            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                {tr.deckConfigAdditionalNewCardsToSimulate()}
-            </SettingTitle>
-        </SpinBoxRow>
-
-        <SpinBoxRow
-            bind:value={simulateFsrsRequest.newLimit}
-            defaultValue={$config.newPerDay}
-            min={0}
-            max={9999}
-        >
-            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                {tr.schedulingNewCardsday()}
-            </SettingTitle>
-        </SpinBoxRow>
-
-        <SpinBoxRow
-            bind:value={simulateFsrsRequest.reviewLimit}
-            defaultValue={$config.reviewsPerDay}
-            min={0}
-            max={9999}
-        >
-            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                {tr.schedulingMaximumReviewsday()}
-            </SettingTitle>
-        </SpinBoxRow>
-
-        <SpinBoxRow
-            bind:value={simulateFsrsRequest.maxInterval}
-            defaultValue={$config.maximumReviewInterval}
-            min={1}
-            max={36500}
-        >
-            <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                {tr.schedulingMaximumInterval()}
-            </SettingTitle>
-        </SpinBoxRow>
-
-        <button
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-            disabled={computing}
-            on:click={() => simulateFsrs()}
-        >
-            {tr.deckConfigSimulate()}
-        </button>
-
-        <button
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-            disabled={computing}
-            on:click={() => clearSimulation()}
-        >
-            {tr.deckConfigClearLastSimulate()}
-        </button>
-        {#if simulating}
-            {tr.qtMiscProcessing()}
-        {/if}
-
-        <Graph>
-            <div class="radio-group">
-                <InputBox>
-                    <label>
-                        <input
-                            type="radio"
-                            value={SimulateSubgraph.count}
-                            bind:group={simulateSubgraph}
-                        />
-                        {tr.deckConfigFsrsSimulatorRadioCount()}
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            value={SimulateSubgraph.time}
-                            bind:group={simulateSubgraph}
-                        />
-                        {tr.statisticsReviewsTimeCheckbox()}
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            value={SimulateSubgraph.memorized}
-                            bind:group={simulateSubgraph}
-                        />
-                        {tr.deckConfigFsrsSimulatorRadioMemorized()}
-                    </label>
-                </InputBox>
-            </div>
-
-            <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
-                <CumulativeOverlay />
-                <HoverColumns />
-                <AxisTicks {bounds} />
-                <NoDataOverlay {bounds} />
-            </svg>
-
-            <TableData {tableData} />
-        </Graph>
-    </details>
+    <button class="btn btn-primary" on:click={() => (showSimulator = true)}>
+        {tr.deckConfigFsrsSimulatorExperimental()}
+    </button>
 </div>
 
-<style>
-    div.radio-group {
-        margin: 0.5em;
-    }
+<SimulatorModal
+    bind:shown={showSimulator}
+    {state}
+    {simulateFsrsRequest}
+    {computing}
+    {simulating}
+    {openHelpModal}
+/>
 
+<style>
     .btn {
         margin-bottom: 0.375rem;
     }
