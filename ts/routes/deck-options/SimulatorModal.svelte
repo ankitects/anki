@@ -41,12 +41,17 @@
     let points: Point[] = [];
     let newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
 
+    $: daysToSimulate = 365;
+    $: deckSize = 0;
+
     function addArrays(arr1: number[], arr2: number[]): number[] {
         return arr1.map((value, index) => value + arr2[index]);
     }
 
     async function simulateFsrs(): Promise<void> {
         let resp: SimulateFsrsReviewResponse | undefined;
+        simulateFsrsRequest.daysToSimulate = daysToSimulate;
+        simulateFsrsRequest.deckSize = deckSize;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -121,7 +126,7 @@
             </div>
             <div class="modal-body">
                 <SpinBoxRow
-                    bind:value={simulateFsrsRequest.daysToSimulate}
+                    bind:value={daysToSimulate}
                     defaultValue={365}
                     min={1}
                     max={3650}
@@ -131,12 +136,7 @@
                     </SettingTitle>
                 </SpinBoxRow>
 
-                <SpinBoxRow
-                    bind:value={simulateFsrsRequest.deckSize}
-                    defaultValue={0}
-                    min={0}
-                    max={100000}
-                >
+                <SpinBoxRow bind:value={deckSize} defaultValue={0} min={0} max={100000}>
                     <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
                         {tr.deckConfigAdditionalNewCardsToSimulate()}
                     </SettingTitle>
