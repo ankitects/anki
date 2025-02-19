@@ -86,6 +86,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         maxInterval: $config.maximumReviewInterval,
         search: `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
         newCardsIgnoreReviewLimit: $newCardsIgnoreReviewLimit,
+        easyDaysPercentages: $config.easyDaysPercentages,
     });
 
     function getRetentionWarning(retention: number): string {
