@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
+    import { LRUCache } from "lru-cache";
 
     const imageToHeightMap = new Map<string, Writable<number>>();
     const observer = new ResizeObserver((entries: ResizeObserverEntry[]) => {
@@ -15,6 +16,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setTimeout(() => entry.target.dispatchEvent(new Event("resize")));
         }
     });
+
+    type Cache = LRUCache<string, [string, string]>;
+
+    const caches: { [key: string]: Cache } = {};
+
+    function getCache(...keyParts: any) {
+        const key = keyParts.toString(); // primitive parts or arrays only
+        if (!(key in caches)) {
+            caches[key] = new LRUCache({ max: 10 });
+        }
+        return caches[key];
+    }
 </script>
 
 <script lang="ts">
@@ -30,11 +43,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let block: boolean;
     export let fontSize: number;
 
-    $: [converted, title] = convertMathjax(
-        unescapeSomeEntities(mathjax),
-        $pageTheme.isDark,
-        fontSize,
-    );
+    let converted: string, title: string;
+    $: {
+        const cache = getCache($pageTheme.isDark, fontSize);
+        const entry = cache.get(mathjax);
+        if (entry) {
+            [converted, title] = entry;
+        } else {
+            const entry = convertMathjax(
+                unescapeSomeEntities(mathjax),
+                $pageTheme.isDark,
+                fontSize,
+            );
+            [converted, title] = entry;
+            cache.set(mathjax, entry);
+        }
+    }
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
 

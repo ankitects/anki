@@ -2033,6 +2033,7 @@ __metadata:
     jquery-ui-dist: "npm:^1.12.1"
     license-checker-rseidelsohn: "npm:=4.3.0"
     lodash-es: "npm:^4.17.21"
+    lru-cache: "npm:^10.2.0"
     marked: "npm:^5.1.0"
     mathjax: "npm:^3.1.2"
     prettier: "npm:^3.4.2"
