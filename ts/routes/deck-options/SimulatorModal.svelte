@@ -34,8 +34,16 @@
     let config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
     let tableData: TableDatum[] = [];
-    const bounds = defaultGraphBounds();
+    
+    const default_bounds = defaultGraphBounds();
+    let bounds = defaultGraphBounds();
     bounds.marginLeft += 8;
+
+    window.addEventListener("resize", function () {
+        bounds.width = window.innerWidth - bounds.marginLeft - bounds.marginRight
+        bounds.height = window.innerWidth * (default_bounds.height / default_bounds.width)
+    });
+
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
     let points: Point[] = [];
