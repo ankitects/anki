@@ -6,7 +6,6 @@ use std::sync::Arc;
 use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
-use fsrs::power_forgetting_curve;
 use fsrs::simulate;
 use fsrs::PostSchedulingFn;
 use fsrs::ReviewPriorityFn;
@@ -92,16 +91,16 @@ fn create_review_priority_fn(
         ReviewCardOrder::IntervalsDescending => wrap(Box::new(|c| -(c.interval as i32))),
 
         // Retrievability-based ordering
-        ReviewCardOrder::RetrievabilityAscending => wrap(Box::new(|c| {
-            (power_forgetting_curve(c.due - c.last_date, c.stability) * 1000.0) as i32
-        })),
-        ReviewCardOrder::RetrievabilityDescending => wrap(Box::new(|c| {
-            -(power_forgetting_curve(c.due - c.last_date, c.stability) * 1000.0) as i32
-        })),
+        ReviewCardOrder::RetrievabilityAscending => {
+            wrap(Box::new(|c| (c.retrievability() * 1000.0) as i32))
+        }
+        ReviewCardOrder::RetrievabilityDescending => {
+            wrap(Box::new(|c| -(c.retrievability() * 1000.0) as i32))
+        }
 
         // Due date ordering
         ReviewCardOrder::Day | ReviewCardOrder::DayThenDeck | ReviewCardOrder::DeckThenDay => {
-            wrap(Box::new(|c| c.due as i32))
+            wrap(Box::new(|c| c.scheduled_due() as i32))
         }
 
         // Random ordering
