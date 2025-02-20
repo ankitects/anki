@@ -34,23 +34,40 @@
     let config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
     let tableData: TableDatum[] = [];
-    
+
     const default_bounds = defaultGraphBounds();
     let bounds = defaultGraphBounds();
     bounds.marginLeft += 8;
 
     window.addEventListener("resize", function () {
-        bounds.width = window.innerWidth - bounds.marginLeft - bounds.marginRight
-        bounds.height = window.innerWidth * (default_bounds.height / default_bounds.width)
+        bounds.width = window.innerWidth - bounds.marginLeft - bounds.marginRight;
+        bounds.height =
+            window.innerWidth * (default_bounds.height / default_bounds.width);
     });
 
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
     let points: Point[] = [];
     let newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
+    let smooth = true;
 
     $: daysToSimulate = 365;
     $: deckSize = 0;
+    $: windowSize = Math.ceil(daysToSimulate / 365);
+
+    function movingAverage(y: number[], windowSize: number): number[] {
+        const result: number[] = [];
+        for (let i = 0; i < y.length; i++) {
+            let sum = 0;
+            let count = 0;
+            for (let j = Math.max(0, i - windowSize + 1); j <= i; j++) {
+                sum += y[j];
+                count++;
+            }
+            result.push(sum / count);
+        }
+        return result;
+    }
 
     function addArrays(arr1: number[], arr2: number[]): number[] {
         return arr1.map((value, index) => value + arr2[index]);
@@ -111,10 +128,46 @@
     }
 
     $: if (svg) {
+        let pointsToRender = points;
+        if (smooth) {
+            // Group points by label (simulation number)
+            const groupedPoints = points.reduce(
+                (acc, point) => {
+                    acc[point.label] = acc[point.label] || [];
+                    acc[point.label].push(point);
+                    return acc;
+                },
+                {} as Record<number, Point[]>,
+            );
+
+            // Apply smoothing to each group separately
+            pointsToRender = Object.values(groupedPoints).flatMap((group) => {
+                const smoothedTimeCost = movingAverage(
+                    group.map((p) => p.timeCost),
+                    windowSize,
+                );
+                const smoothedCount = movingAverage(
+                    group.map((p) => p.count),
+                    windowSize,
+                );
+                const smoothedMemorized = movingAverage(
+                    group.map((p) => p.memorized),
+                    windowSize,
+                );
+
+                return group.map((p, i) => ({
+                    ...p,
+                    timeCost: smoothedTimeCost[i],
+                    count: smoothedCount[i],
+                    memorized: smoothedMemorized[i],
+                }));
+            });
+        }
+
         tableData = renderSimulationChart(
             svg as SVGElement,
             bounds,
-            points,
+            pointsToRender,
             simulateSubgraph,
         );
     }
@@ -201,6 +254,12 @@
                 >
                     <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
                         <GlobalLabel title={tr.deckConfigNewCardsIgnoreReviewLimit()} />
+                    </SettingTitle>
+                </SwitchRow>
+
+                <SwitchRow bind:value={smooth} defaultValue={true}>
+                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                        <GlobalLabel title={"Smooth Graph"} />
                     </SettingTitle>
                 </SwitchRow>
 
