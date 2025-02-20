@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::sync::Arc;
+
 use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
@@ -78,7 +80,7 @@ fn create_review_priority_fn(
     // Helper function to wrap closure in ReviewPriorityFn
     let wrap = |f: Box<
         (dyn for<'a> Fn(&'a fsrs::Card) -> i32 + std::marker::Send + std::marker::Sync + 'static),
-    >| Some(ReviewPriorityFn(f));
+    >| Some(ReviewPriorityFn(Arc::new(f)));
 
     match review_order {
         // Ease-based ordering
