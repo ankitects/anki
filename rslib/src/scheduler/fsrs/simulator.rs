@@ -75,47 +75,41 @@ fn create_review_priority_fn(
     review_order: ReviewCardOrder,
     deck_size: usize,
 ) -> Option<ReviewPriorityFn> {
+    // Helper function to wrap closure in ReviewPriorityFn
+    let wrap = |f: Box<
+        (dyn for<'a> Fn(&'a fsrs::Card) -> i32 + std::marker::Send + std::marker::Sync + 'static),
+    >| Some(ReviewPriorityFn(f));
+
     match review_order {
-        ReviewCardOrder::EaseAscending => Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
-            -(card.difficulty * 100.0) as i32
-        }))),
-        ReviewCardOrder::EaseDescending => Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
-            (card.difficulty * 100.0) as i32
-        }))),
-        ReviewCardOrder::IntervalsAscending => {
-            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
-                card.interval as i32
-            })))
-        }
-        ReviewCardOrder::IntervalsDescending => {
-            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
-                -card.interval as i32
-            })))
-        }
-        ReviewCardOrder::RetrievabilityAscending => {
-            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
-                (power_forgetting_curve(card.due - card.last_date, card.stability) * 100.0) as i32
-            })))
-        }
-        ReviewCardOrder::RetrievabilityDescending => {
-            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
-                -(power_forgetting_curve(card.due - card.last_date, card.stability) * 100.0) as i32
-            })))
-        }
+        // Ease-based ordering
+        ReviewCardOrder::EaseAscending => wrap(Box::new(|c| -(c.difficulty * 100.0) as i32)),
+        ReviewCardOrder::EaseDescending => wrap(Box::new(|c| (c.difficulty * 100.0) as i32)),
+
+        // Interval-based ordering
+        ReviewCardOrder::IntervalsAscending => wrap(Box::new(|c| c.interval as i32)),
+        ReviewCardOrder::IntervalsDescending => wrap(Box::new(|c| -(c.interval as i32))),
+
+        // Retrievability-based ordering
+        ReviewCardOrder::RetrievabilityAscending => wrap(Box::new(|c| {
+            (power_forgetting_curve(c.due - c.last_date, c.stability) * 100.0) as i32
+        })),
+        ReviewCardOrder::RetrievabilityDescending => wrap(Box::new(|c| {
+            -(power_forgetting_curve(c.due - c.last_date, c.stability) * 100.0) as i32
+        })),
+
+        // Due date ordering
         ReviewCardOrder::Day | ReviewCardOrder::DayThenDeck | ReviewCardOrder::DeckThenDay => {
-            Some(ReviewPriorityFn(Box::new(|card: &fsrs::Card| {
-                card.due as i32
-            })))
+            wrap(Box::new(|c| c.due as i32))
         }
-        ReviewCardOrder::Added => {
-            todo!()
-        }
-        ReviewCardOrder::ReverseAdded => {
-            todo!()
-        }
-        ReviewCardOrder::Random => Some(ReviewPriorityFn(Box::new(move |_card: &fsrs::Card| {
+
+        // Not implemented yet
+        ReviewCardOrder::Added | ReviewCardOrder::ReverseAdded => todo!(),
+
+        // Random ordering
+        ReviewCardOrder::Random => wrap(Box::new(move |_| {
             rand::thread_rng().gen_range(0..deck_size) as i32
-        }))),
+        })),
+
         _ => None,
     }
 }
