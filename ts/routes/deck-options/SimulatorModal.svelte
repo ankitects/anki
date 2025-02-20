@@ -39,11 +39,14 @@
     let bounds = defaultGraphBounds();
     bounds.marginLeft += 8;
 
-    window.addEventListener("resize", function () {
+    function updateBounds() {
         bounds.width = window.innerWidth - bounds.marginLeft - bounds.marginRight;
         bounds.height =
             window.innerWidth * (default_bounds.height / default_bounds.width);
-    });
+    }
+
+    window.addEventListener("resize", updateBounds);
+    updateBounds();
 
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
@@ -259,7 +262,7 @@
 
                 <SwitchRow bind:value={smooth} defaultValue={true}>
                     <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                        <GlobalLabel title={"Smooth Graph"} />
+                        {"Smooth Graph"}
                     </SettingTitle>
                 </SwitchRow>
 
