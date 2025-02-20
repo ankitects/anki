@@ -144,7 +144,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(.CodeMirror-placeholder) {
             font-family: sans-serif;
-            font-size: 55%;
+            font-size: max(12px, 55%);
             text-align: center;
             color: var(--fg-subtle);
         }
