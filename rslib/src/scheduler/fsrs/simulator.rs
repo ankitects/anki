@@ -102,15 +102,13 @@ fn create_review_priority_fn(
             wrap(Box::new(|c| c.due as i32))
         }
 
-        // Not implemented yet
-        ReviewCardOrder::Added | ReviewCardOrder::ReverseAdded => todo!(),
-
         // Random ordering
         ReviewCardOrder::Random => wrap(Box::new(move |_| {
             rand::thread_rng().gen_range(0..deck_size) as i32
         })),
 
-        _ => None,
+        // Not implemented yet
+        ReviewCardOrder::Added | ReviewCardOrder::ReverseAdded => None,
     }
 }
 
