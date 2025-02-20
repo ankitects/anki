@@ -93,10 +93,10 @@ fn create_review_priority_fn(
 
         // Retrievability-based ordering
         ReviewCardOrder::RetrievabilityAscending => wrap(Box::new(|c| {
-            (power_forgetting_curve(c.due - c.last_date, c.stability) * 100.0) as i32
+            (power_forgetting_curve(c.due - c.last_date, c.stability) * 1000.0) as i32
         })),
         ReviewCardOrder::RetrievabilityDescending => wrap(Box::new(|c| {
-            -(power_forgetting_curve(c.due - c.last_date, c.stability) * 100.0) as i32
+            -(power_forgetting_curve(c.due - c.last_date, c.stability) * 1000.0) as i32
         })),
 
         // Due date ordering
