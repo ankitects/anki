@@ -22,6 +22,8 @@
     import SwitchRow from "$lib/components/SwitchRow.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
+    import { reviewOrderChoices } from "./choices";
+    import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
 
     export let shown = false;
     export let state: DeckOptionsState;
@@ -34,6 +36,7 @@
     let config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
     let tableData: TableDatum[] = [];
+    let fsrs = state.fsrs;
 
     const default_bounds = defaultGraphBounds();
     let bounds = defaultGraphBounds();
@@ -251,6 +254,16 @@
                     </SettingTitle>
                 </SpinBoxRow>
 
+                <EnumSelectorRow
+                    bind:value={simulateFsrsRequest.reviewOrder}
+                    defaultValue={$config.reviewOrder}
+                    choices={reviewOrderChoices($fsrs)}
+                >
+                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                        {tr.deckConfigReviewSortOrder()}
+                    </SettingTitle>
+                </EnumSelectorRow>
+
                 <SwitchRow
                     bind:value={simulateFsrsRequest.newCardsIgnoreReviewLimit}
                     defaultValue={$newCardsIgnoreReviewLimit}
@@ -292,6 +305,7 @@
                         $config.desiredRetention = simulateFsrsRequest.desiredRetention;
                         $newCardsIgnoreReviewLimit =
                             simulateFsrsRequest.newCardsIgnoreReviewLimit;
+                        $config.reviewOrder = simulateFsrsRequest.reviewOrder;
                         onPresetChange();
                     }}
                 >
