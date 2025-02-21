@@ -77,7 +77,7 @@ impl Collection {
                     learn_limit,
                     review_limit: usize::MAX,
                     new_cards_ignore_review_limit: true,
-                    post_scheduling_fn: post_scheduling_fn,
+                    post_scheduling_fn,
                     review_priority_fn: None,
                 },
                 &req.params,
