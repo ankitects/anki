@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+use std::sync::Arc;
 
 use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use fsrs::extract_simulator_config;
@@ -42,7 +43,7 @@ impl Collection {
         let next_day_at = self.timing_today().unwrap().next_day_at;
         let post_scheduling_fn: Option<PostSchedulingFn> =
             if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
-                Some(PostSchedulingFn(Box::new(
+                Some(PostSchedulingFn(Arc::new(
                     move |interval, max_interval, today, due_cnt_per_day, rng| {
                         apply_load_balance_and_easy_days(
                             interval,

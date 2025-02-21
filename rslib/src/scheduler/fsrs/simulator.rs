@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+use std::sync::Arc;
+
 use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
+use anki_proto::deck_config::deck_config::config::ReviewCardOrder::*;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use fsrs::simulate;
@@ -26,7 +29,7 @@ pub(crate) fn apply_load_balance_and_easy_days(
     interval: f32,
     max_interval: f32,
     day_elapsed: usize,
-    due_cnt_per_day: Vec<usize>,
+    due_cnt_per_day: &[usize],
     rng: &mut StdRng,
     next_day_at: TimestampSecs,
     easy_days_percentages: &[EasyDay; 7],
@@ -82,31 +85,31 @@ fn create_review_priority_fn(
 
     match review_order {
         // Ease-based ordering
-        ReviewCardOrder::EaseAscending => wrap!(|c| -(c.difficulty * 100.0) as i32),
-        ReviewCardOrder::EaseDescending => wrap!(|c| (c.difficulty * 100.0) as i32),
+        EaseAscending => wrap!(|c| -(c.difficulty * 100.0) as i32),
+        EaseDescending => wrap!(|c| (c.difficulty * 100.0) as i32),
 
         // Interval-based ordering
-        ReviewCardOrder::IntervalsAscending => wrap!(|c| c.interval as i32),
-        ReviewCardOrder::IntervalsDescending => wrap!(|c| -(c.interval as i32)),
+        IntervalsAscending => wrap!(|c| c.interval as i32),
+        IntervalsDescending => wrap!(|c| -(c.interval as i32)),
 
         // Retrievability-based ordering
-        ReviewCardOrder::RetrievabilityAscending => wrap!(|c| (c.retrievability() * 1000.0) as i32),
-        ReviewCardOrder::RetrievabilityDescending => {
+        RetrievabilityAscending => wrap!(|c| (c.retrievability() * 1000.0) as i32),
+        RetrievabilityDescending => {
             wrap!(|c| -(c.retrievability() * 1000.0) as i32)
         }
 
         // Due date ordering
-        ReviewCardOrder::Day | ReviewCardOrder::DayThenDeck | ReviewCardOrder::DeckThenDay => {
+        Day | DayThenDeck | DeckThenDay => {
             wrap!(|c| c.scheduled_due() as i32)
         }
 
         // Random ordering
-        ReviewCardOrder::Random => {
+        Random => {
             wrap!(move |_| rand::thread_rng().gen_range(0..deck_size) as i32)
         }
 
         // Not implemented yet
-        ReviewCardOrder::Added | ReviewCardOrder::ReverseAdded => None,
+        Added | ReverseAdded => None,
     }
 }
 
@@ -155,7 +158,7 @@ impl Collection {
 
         let post_scheduling_fn: Option<PostSchedulingFn> =
             if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
-                Some(PostSchedulingFn(Box::new(
+                Some(PostSchedulingFn(Arc::new(
                     move |interval, max_interval, today, due_cnt_per_day, rng| {
                         apply_load_balance_and_easy_days(
                             interval,
