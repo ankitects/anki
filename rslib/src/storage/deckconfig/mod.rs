@@ -68,7 +68,6 @@ impl SqliteStorage {
             .query_and_then([name], |row| Ok::<_, AnkiError>(DeckConfigId(row.get(0)?)))?
             .next()
             .transpose()
-            .map_err(Into::into)
     }
 
     pub(crate) fn add_deck_conf(&self, conf: &mut DeckConfig) -> Result<()> {
