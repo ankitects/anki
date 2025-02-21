@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Runs the Qt-Designer tool
+./ninja pylib qt
+./out/pyenv/bin/uvx --python 3.9 --with setuptools pyqt6-tools designer $*

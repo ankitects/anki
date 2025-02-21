@@ -25,3 +25,6 @@ types-waitress
 # transitive windows dependencies
 atomicwrites
 colorama
+
+# Qt Designer
+uv  # Used to run pyqt6-tools in separate venv
