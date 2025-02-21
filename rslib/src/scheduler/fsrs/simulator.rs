@@ -76,37 +76,37 @@ fn create_review_priority_fn(
     review_order: ReviewCardOrder,
     deck_size: usize,
 ) -> Option<ReviewPriorityFn> {
-    // Helper function to wrap closure in ReviewPriorityFn
-    let wrap = |f: Box<
-        (dyn for<'a> Fn(&'a fsrs::Card) -> i32 + std::marker::Send + std::marker::Sync + 'static),
-    >| Some(ReviewPriorityFn(Arc::new(f)));
+    // Helper macro to wrap closure in ReviewPriorityFn
+    macro_rules! wrap {
+        ($f:expr) => {
+            Some(ReviewPriorityFn(std::sync::Arc::new($f)))
+        };
+    }
 
     match review_order {
         // Ease-based ordering
-        ReviewCardOrder::EaseAscending => wrap(Box::new(|c| -(c.difficulty * 100.0) as i32)),
-        ReviewCardOrder::EaseDescending => wrap(Box::new(|c| (c.difficulty * 100.0) as i32)),
+        ReviewCardOrder::EaseAscending => wrap!(|c| -(c.difficulty * 100.0) as i32),
+        ReviewCardOrder::EaseDescending => wrap!(|c| (c.difficulty * 100.0) as i32),
 
         // Interval-based ordering
-        ReviewCardOrder::IntervalsAscending => wrap(Box::new(|c| c.interval as i32)),
-        ReviewCardOrder::IntervalsDescending => wrap(Box::new(|c| -(c.interval as i32))),
+        ReviewCardOrder::IntervalsAscending => wrap!(|c| c.interval as i32),
+        ReviewCardOrder::IntervalsDescending => wrap!(|c| -(c.interval as i32)),
 
         // Retrievability-based ordering
-        ReviewCardOrder::RetrievabilityAscending => {
-            wrap(Box::new(|c| (c.retrievability() * 1000.0) as i32))
-        }
+        ReviewCardOrder::RetrievabilityAscending => wrap!(|c| (c.retrievability() * 1000.0) as i32),
         ReviewCardOrder::RetrievabilityDescending => {
-            wrap(Box::new(|c| -(c.retrievability() * 1000.0) as i32))
+            wrap!(|c| -(c.retrievability() * 1000.0) as i32)
         }
 
         // Due date ordering
         ReviewCardOrder::Day | ReviewCardOrder::DayThenDeck | ReviewCardOrder::DeckThenDay => {
-            wrap(Box::new(|c| c.scheduled_due() as i32))
+            wrap!(|c| c.scheduled_due() as i32)
         }
 
         // Random ordering
-        ReviewCardOrder::Random => wrap(Box::new(move |_| {
-            rand::thread_rng().gen_range(0..deck_size) as i32
-        })),
+        ReviewCardOrder::Random => {
+            wrap!(move |_| rand::thread_rng().gen_range(0..deck_size) as i32)
+        }
 
         // Not implemented yet
         ReviewCardOrder::Added | ReviewCardOrder::ReverseAdded => None,
