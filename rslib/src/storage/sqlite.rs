@@ -410,7 +410,7 @@ fn schema_version(db: &Connection) -> Result<(bool, u8)> {
 
     Ok((
         false,
-        db.query_row("select ver from col", [], |r| r.get(0).map_err(Into::into))?,
+        db.query_row("select ver from col", [], |r| r.get(0))?,
     ))
 }
 

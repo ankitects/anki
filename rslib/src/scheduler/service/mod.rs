@@ -55,7 +55,7 @@ impl crate::services::SchedulerService for Collection {
         self.transact_no_undo(|col| {
             let today = col.current_due_day(0)?;
             let usn = col.usn()?;
-            col.update_deck_stats(today, usn, input).map(Into::into)
+            col.update_deck_stats(today, usn, input)
         })
     }
 
@@ -70,7 +70,6 @@ impl crate::services::SchedulerService for Collection {
                 input.new_delta,
                 input.review_delta,
             )
-            .map(Into::into)
         })
     }
 
@@ -229,7 +228,6 @@ impl crate::services::SchedulerService for Collection {
 
     fn upgrade_scheduler(&mut self) -> Result<()> {
         self.transact_no_undo(|col| col.upgrade_to_v2_scheduler())
-            .map(Into::into)
     }
 
     fn get_queued_cards(

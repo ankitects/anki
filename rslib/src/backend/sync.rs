@@ -99,7 +99,7 @@ impl TryFrom<anki_proto::sync::SyncAuth> for SyncAuth {
 impl crate::services::BackendSyncService for Backend {
     fn sync_media(&self, input: anki_proto::sync::SyncAuth) -> Result<()> {
         let auth = input.try_into()?;
-        self.sync_media_in_background(auth, None).map(Into::into)
+        self.sync_media_in_background(auth, None)
     }
 
     fn media_sync_status(&self) -> Result<MediaSyncStatusResponse> {

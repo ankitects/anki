@@ -175,7 +175,7 @@ impl SqliteStorage {
     pub(crate) fn get_all_revlog_entries(&self, after: TimestampSecs) -> Result<Vec<RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id >= ?"))?
-            .query_and_then([after.0 * 1000], |r| row_to_revlog_entry(r).map(Into::into))?
+            .query_and_then([after.0 * 1000], row_to_revlog_entry)?
             .collect()
     }
 

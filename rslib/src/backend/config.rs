@@ -77,7 +77,6 @@ impl crate::services::ConfigService for Collection {
     ) -> Result<()> {
         let val: Value = serde_json::from_slice(&input.value_json)?;
         self.transact_no_undo(|col| col.set_config(input.key.as_str(), &val).map(|_| ()))
-            .map(Into::into)
     }
 
     fn remove_config(
