@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type ImageLoadedEvent,
         resetIOImage,
     } from "../routes/image-occlusion/mask-editor";
-    import { ChangeTimer } from "./change-timer";
+    import { ChangeTimer } from "../editable/change-timer";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
     import EditorToolbar from "./editor-toolbar";
