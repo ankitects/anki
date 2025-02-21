@@ -129,7 +129,7 @@ impl crate::services::SearchService for Collection {
         &mut self,
         input: generic::Int64,
     ) -> Result<anki_proto::search::BrowserRow> {
-        self.browser_row_for_id(input.val).map(Into::into)
+        self.browser_row_for_id(input.val)
     }
 }
 
