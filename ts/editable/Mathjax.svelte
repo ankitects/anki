@@ -38,25 +38,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { pageTheme } from "$lib/sveltelib/theme";
 
     import { convertMathjax, unescapeSomeEntities } from "./mathjax";
+    import { ChangeTimer } from "./change-timer";
 
     export let mathjax: string;
     export let block: boolean;
     export let fontSize: number;
 
     let converted: string, title: string;
+
+    const debouncedMathjax = writable(mathjax);
+    const debouncer = new ChangeTimer();
+    $: debouncer.schedule(() => debouncedMathjax.set(mathjax), 500);
+
     $: {
         const cache = getCache($pageTheme.isDark, fontSize);
-        const entry = cache.get(mathjax);
+        const entry = cache.get($debouncedMathjax);
         if (entry) {
             [converted, title] = entry;
         } else {
             const entry = convertMathjax(
-                unescapeSomeEntities(mathjax),
+                unescapeSomeEntities($debouncedMathjax),
                 $pageTheme.isDark,
                 fontSize,
             );
             [converted, title] = entry;
-            cache.set(mathjax, entry);
+            cache.set($debouncedMathjax, entry);
         }
     }
     $: empty = title === "MathJax";
