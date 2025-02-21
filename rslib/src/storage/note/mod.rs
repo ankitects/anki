@@ -280,7 +280,7 @@ impl super::SqliteStorage {
                 include_str!("get.sql"),
                 " WHERE id IN (SELECT nid FROM search_nids)"
             ))?
-            .query_and_then([], |r| row_to_note(r).map_err(Into::into))?
+            .query_and_then([], row_to_note)?
             .collect()
     }
 

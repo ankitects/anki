@@ -131,7 +131,7 @@ impl From<Card> for anki_proto::cards::Card {
             original_due: c.original_due,
             original_deck_id: c.original_deck_id.0,
             flags: c.flags as u32,
-            original_position: c.original_position.map(Into::into),
+            original_position: c.original_position,
             memory_state: c.memory_state.map(Into::into),
             desired_retention: c.desired_retention,
             custom_data: c.custom_data,

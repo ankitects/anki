@@ -21,7 +21,6 @@ impl crate::services::DeckConfigService for Collection {
             col.add_or_update_deck_config_legacy(&mut conf)?;
             Ok(anki_proto::deck_config::DeckConfigId { dcid: conf.id.0 })
         })
-        .map(Into::into)
     }
 
     fn all_deck_config_legacy(&mut self) -> Result<generic::Json> {
@@ -62,7 +61,6 @@ impl crate::services::DeckConfigService for Collection {
 
     fn remove_deck_config(&mut self, input: anki_proto::deck_config::DeckConfigId) -> Result<()> {
         self.transact_no_undo(|col| col.remove_deck_config_inner(input.into()))
-            .map(Into::into)
     }
 
     fn get_deck_configs_for_update(

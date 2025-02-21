@@ -82,7 +82,6 @@ impl SqliteStorage {
             .query_and_then([machine_name], row_to_deck)?
             .next()
             .transpose()
-            .map_err(Into::into)
     }
 
     pub(crate) fn get_all_decks(&self) -> Result<Vec<Deck>> {

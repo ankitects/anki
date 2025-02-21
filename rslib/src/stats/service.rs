@@ -34,7 +34,7 @@ impl crate::services::StatsService for Collection {
         &mut self,
         input: anki_proto::stats::GraphPreferences,
     ) -> error::Result<()> {
-        self.set_graph_preferences(input).map(Into::into)
+        self.set_graph_preferences(input)
     }
 }
 
