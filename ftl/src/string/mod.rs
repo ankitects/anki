@@ -84,6 +84,7 @@ fn ftl_file_from_key(old_key: &str) -> String {
         "deck-config",
         "empty-cards",
         "media-check",
+        "qt-misc",
     ] {
         if old_key.starts_with(&format!("{prefix}-")) {
             return format!("{prefix}.ftl");
