@@ -37,13 +37,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let openHelpModal: (key: string) => void;
     export let onPresetChange: () => void;
 
-    let config = state.currentConfig;
+    const config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
     let tableData: TableDatum[] = [];
-    let fsrs = state.fsrs;
+    const fsrs = state.fsrs;
 
     const default_bounds = defaultGraphBounds();
-    let bounds = defaultGraphBounds();
+    const bounds = defaultGraphBounds();
     bounds.marginLeft += 8;
 
     function updateBounds() {
@@ -58,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
     let points: Point[] = [];
-    let newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
+    const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
     let smooth = true;
 
     $: daysToSimulate = 365;
