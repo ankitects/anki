@@ -132,7 +132,7 @@ deck-config-bury-priority-tooltip =
     learning or review cards, and you may see both a review sibling and new sibling in the
     same session.
 
-## Ordering section
+## Sort order of cards
 
 deck-config-ordering-title = Display Order
 deck-config-new-gather-priority = New card gather order
@@ -176,10 +176,15 @@ deck-config-new-card-sort-order-tooltip-2 =
     in order.
     
     `Random`: Shows cards in a random order.
+# Combobox entry: Sort order for new cards
 deck-config-sort-order-card-template-then-random = Card type, then random
+# Combobox entry: Sort order for new cards
 deck-config-sort-order-random-note-then-template = Random note, then card type
+# Combobox entry: Sort order for new cards
 deck-config-sort-order-random = Random
+# Combobox entry: Sort order for new cards
 deck-config-sort-order-template-then-gather = Card type, then order gathered
+# Combobox entry: Sort order for new cards
 deck-config-sort-order-gather = Order gathered
 deck-config-new-review-priority = New/review order
 deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.
@@ -200,16 +205,27 @@ deck-config-review-sort-order-tooltip =
     first. If you have a large backlog that will take more than a few days to
     clear, or wish to see cards in subdeck order, you may find the alternate
     sort orders preferable.
+# Combobox entry: Sort the cards first by due date, in ascending order (oldest due date to newest), then randomly within the same due date
 deck-config-sort-order-due-date-then-random = Due date, then random
+# Combobox entry: Sort the cards first by due date, in ascending order (oldest due date to newest), then by deck within the same due date
 deck-config-sort-order-due-date-then-deck = Due date, then deck
+# Combobox entry: Sort the cards first by deck, then by due date in ascending order (oldest due date to newest) within the same deck
 deck-config-sort-order-deck-then-due-date = Deck, then due date
+# Combobox entry: Sort the cards by the interval, in ascending order (shortest to longest)
 deck-config-sort-order-ascending-intervals = Ascending intervals
+# Combobox entry: Sort the cards by the interval, in descending order (longest to shortest)
 deck-config-sort-order-descending-intervals = Descending intervals
+# Combobox entry: Sort the cards by ease, in ascending order (lowest to highest ease)
 deck-config-sort-order-ascending-ease = Ascending ease
+# Combobox entry: Sort the cards by ease, in descending order (highest to lowest ease)
 deck-config-sort-order-descending-ease = Descending ease
+# Combobox entry: Sort the cards by difficulty, in ascending order (easiest to hardest)
 deck-config-sort-order-ascending-difficulty = Easy cards first
+# Combobox entry: Sort the cards by difficulty, in descending order (hardest to easiest)
 deck-config-sort-order-descending-difficulty = Difficult cards first
+# Combobox entry: Sort the cards by retrievability percentage, in ascending order (0% to 100%, least retrievable to most easily retrievable)
 deck-config-sort-order-retrievability-ascending = Ascending retrievability
+# Combobox entry: Sort the cards by retrievability percentage, in descending order (100% to 0%, most easily retrievable to least retrievable)
 deck-config-sort-order-retrievability-descending = Descending retrievability
 
 deck-config-display-order-will-use-current-deck =
