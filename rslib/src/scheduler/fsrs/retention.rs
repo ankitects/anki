@@ -40,7 +40,7 @@ impl Collection {
         let learn_limit = 10;
         let deck_size = learn_span * learn_limit;
         let easy_days_percentages = parse_easy_days_percentages(req.easy_days_percentages)?;
-        let next_day_at = self.timing_today().unwrap().next_day_at;
+        let next_day_at = self.timing_today()?.next_day_at;
         let post_scheduling_fn: Option<PostSchedulingFn> =
             if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
                 Some(PostSchedulingFn(Arc::new(
