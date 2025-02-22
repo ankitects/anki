@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         optimalRetention = 0;
     }
     $: computing =
-        computingParams || checkingParams || computingRetention || simulating;
+        computingParams || checkingParams || computingRetention;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
