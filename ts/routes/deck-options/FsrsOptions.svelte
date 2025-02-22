@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let computingParams = false;
     let checkingParams = false;
     let computingRetention = false;
-    const simulating = false;
+    
     let optimalRetention = 0;
     $: if ($presetName) {
         optimalRetention = 0;
@@ -442,7 +442,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {state}
     {simulateFsrsRequest}
     {computing}
-    {simulating}
     {openHelpModal}
     {onPresetChange}
 />

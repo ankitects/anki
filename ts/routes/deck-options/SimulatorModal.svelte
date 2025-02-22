@@ -33,13 +33,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     export let simulateFsrsRequest: SimulateFsrsReviewRequest;
     export let computing: boolean;
-    export let simulating: boolean;
     export let openHelpModal: (key: string) => void;
     export let onPresetChange: () => void;
 
     const config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
     let tableData: TableDatum[] = [];
+    let simulating: boolean = false;
     const fsrs = state.fsrs;
     const bounds = defaultGraphBounds();
 
