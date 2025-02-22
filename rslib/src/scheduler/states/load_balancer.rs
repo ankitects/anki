@@ -390,7 +390,7 @@ pub fn select_weighted_interval(
     Some(intervals_and_weights[selected_interval_index].0)
 }
 
-pub fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
+pub(crate) fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> usize {
     let target_datetime = next_day_at
         .adding_secs((interval - 1) as i64 * 86400)
         .local_datetime()
