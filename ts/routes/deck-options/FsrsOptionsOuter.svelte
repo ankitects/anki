@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
+    export let onPresetChange: () => void;
 
     const fsrs = state.fsrs;
 
@@ -95,6 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {state}
                 openHelpModal={(key) =>
                     openHelpModal(Object.keys(settings).indexOf(key))}
+                {onPresetChange}
             />
         {/if}
     </DynamicallySlottable>

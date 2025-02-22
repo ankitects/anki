@@ -90,7 +90,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Row>
 
             <Row class="row-columns">
-                <FsrsOptionsOuter {state} api={{}} />
+                <FsrsOptionsOuter {state} api={{}} bind:onPresetChange />
             </Row>
         </div>
 
