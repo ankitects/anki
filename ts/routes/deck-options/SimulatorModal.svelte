@@ -41,19 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
     let tableData: TableDatum[] = [];
     const fsrs = state.fsrs;
-
-    const default_bounds = defaultGraphBounds();
     const bounds = defaultGraphBounds();
-    bounds.marginLeft += 8;
-
-    function updateBounds() {
-        bounds.width = window.innerWidth - bounds.marginLeft - bounds.marginRight;
-        bounds.height =
-            window.innerWidth * (default_bounds.height / default_bounds.width);
-    }
-
-    window.addEventListener("resize", updateBounds);
-    updateBounds();
 
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
@@ -318,7 +306,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </button>
 
                 {#if simulating}
-                    {tr.qtMiscProcessing()}
+                    {tr.actionsProcessing()}
                 {/if}
 
                 <Graph>
