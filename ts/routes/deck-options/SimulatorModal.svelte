@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import { reviewOrderChoices } from "./choices";
     import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
+    import { DeckConfig_Config_LeechAction } from "@generated/anki/deck_config_pb";
 
     export let shown = false;
     export let state: DeckOptionsState;
@@ -48,6 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let points: Point[] = [];
     const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
     let smooth = true;
+    let suspendLeeches = $config.leechAction == DeckConfig_Config_LeechAction.SUSPEND;
 
     $: daysToSimulate = 365;
     $: deckSize = 0;
@@ -75,6 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let resp: SimulateFsrsReviewResponse | undefined;
         simulateFsrsRequest.daysToSimulate = daysToSimulate;
         simulateFsrsRequest.deckSize = deckSize;
+        simulateFsrsRequest.suspendAfterLapseCount = suspendLeeches ? $config.leechThreshold : undefined
         try {
             await runWithBackendProgress(
                 async () => {
@@ -268,6 +271,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SwitchRow bind:value={smooth} defaultValue={true}>
                     <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
                         {"Smooth Graph"}
+                    </SettingTitle>
+                </SwitchRow>
+
+                <SwitchRow bind:value={suspendLeeches} defaultValue={suspendLeeches}>
+                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                        {"Suspend Leeches"}
                     </SettingTitle>
                 </SwitchRow>
 

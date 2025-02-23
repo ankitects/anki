@@ -147,6 +147,7 @@ impl Collection {
                 last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
                 due: ((introduced_today_count + i) / req.new_limit as usize) as f32,
                 interval: f32::NEG_INFINITY,
+                lapses: 0
             });
             converted_cards.extend(new_cards);
         }
@@ -198,6 +199,7 @@ impl Collection {
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
             new_cards_ignore_review_limit: req.new_cards_ignore_review_limit,
+            suspend_after_lapses: req.suspend_after_lapse_count,
             post_scheduling_fn,
             review_priority_fn,
         };
@@ -239,6 +241,7 @@ impl Card {
                         last_date,
                         due: relative_due as f32,
                         interval: card.interval as f32,
+                        lapses: card.lapses
                     })
                 }
                 CardQueue::New => None,
@@ -249,6 +252,7 @@ impl Card {
                         last_date: 0.0,
                         due: 0.0,
                         interval: card.interval as f32,
+                        lapses: card.lapses
                     })
                 }
                 CardQueue::PreviewRepeat => None,
