@@ -50,6 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
     let smooth = true;
     let suspendLeeches = $config.leechAction == DeckConfig_Config_LeechAction.SUSPEND;
+    let leechThreshold = $config.leechThreshold
 
     $: daysToSimulate = 365;
     $: deckSize = 0;
@@ -77,7 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let resp: SimulateFsrsReviewResponse | undefined;
         simulateFsrsRequest.daysToSimulate = daysToSimulate;
         simulateFsrsRequest.deckSize = deckSize;
-        simulateFsrsRequest.suspendAfterLapseCount = suspendLeeches ? $config.leechThreshold : undefined
+        simulateFsrsRequest.suspendAfterLapseCount = suspendLeeches ? leechThreshold : undefined
         try {
             await runWithBackendProgress(
                 async () => {
@@ -274,11 +275,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </SwitchRow>
 
-                <SwitchRow bind:value={suspendLeeches} defaultValue={suspendLeeches}>
+                <SwitchRow bind:value={suspendLeeches} defaultValue={$config.leechAction == DeckConfig_Config_LeechAction.SUSPEND}>
                     <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
                         {"Suspend Leeches"}
                     </SettingTitle>
                 </SwitchRow>
+
+                {#if suspendLeeches}                    
+                    <SpinBoxRow
+                        bind:value={leechThreshold}
+                        defaultValue={$config.leechThreshold}
+                        min={1}
+                        max={9999}
+                    >
+                        <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                            {tr.schedulingLeechThreshold()}
+                        </SettingTitle>
+                    </SpinBoxRow>
+                {/if}
 
                 <button
                     class="btn {computing ? 'btn-warning' : 'btn-primary'}"
