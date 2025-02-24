@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let api = {};
 
-    const outdentKeyCombination = "Control+Shift+,";
+    const outdentKeyCombination = "Shift+Tab";
     function outdentListItem() {
         if (getListItem(document.activeElement!.shadowRoot!)) {
             execCommand("outdent");
@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const indentKeyCombination = "Control+Shift+.";
+    const indentKeyCombination = "Tab";
     function indentListItem() {
         if (getListItem(document.activeElement!.shadowRoot!)) {
             execCommand("indent");
