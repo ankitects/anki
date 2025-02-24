@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type ImageLoadedEvent,
         resetIOImage,
     } from "../routes/image-occlusion/mask-editor";
-    import { ChangeTimer } from "./change-timer";
+    import { ChangeTimer } from "../editable/change-timer";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
     import EditorToolbar from "./editor-toolbar";
@@ -710,6 +710,13 @@ the AddCards dialog) should be implemented in the user of this component.
                                 {#if cols[index] === "dupe"}
                                     <DuplicateLink />
                                 {/if}
+                                <slot
+                                    name="field-state"
+                                    {field}
+                                    {index}
+                                    show={fields[index] === $hoveredField ||
+                                        fields[index] === $focusedField}
+                                />
                                 {#if plainTextDefaults[index]}
                                     <RichTextBadge
                                         show={!fieldsCollapsed[index] &&
@@ -727,13 +734,6 @@ the AddCards dialog) should be implemented in the user of this component.
                                         on:toggle={() => togglePlainTextInput(index)}
                                     />
                                 {/if}
-                                <slot
-                                    name="field-state"
-                                    {field}
-                                    {index}
-                                    show={fields[index] === $hoveredField ||
-                                        fields[index] === $focusedField}
-                                />
                             </FieldState>
                         </LabelContainer>
                     </svelte:fragment>

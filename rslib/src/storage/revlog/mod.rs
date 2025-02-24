@@ -175,7 +175,7 @@ impl SqliteStorage {
     pub(crate) fn get_all_revlog_entries(&self, after: TimestampSecs) -> Result<Vec<RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id >= ?"))?
-            .query_and_then([after.0 * 1000], |r| row_to_revlog_entry(r).map(Into::into))?
+            .query_and_then([after.0 * 1000], row_to_revlog_entry)?
             .collect()
     }
 
@@ -201,6 +201,18 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
+    pub(crate) fn studied_today_by_deck(
+        &self,
+        day_cutoff: TimestampSecs,
+    ) -> Result<Vec<(DeckId, usize)>> {
+        let start = day_cutoff.adding_secs(-86_400).as_millis();
+        self.db
+            .prepare_cached(include_str!("studied_today_by_deck.sql"))?
+            .query_and_then([start.0], |row| -> Result<_> {
+                Ok((DeckId(row.get(0)?), row.get(1)?))
+            })?
+            .collect()
+    }
     pub(crate) fn upgrade_revlog_to_v2(&self) -> Result<()> {
         self.db
             .execute_batch(include_str!("v2_upgrade.sql"))

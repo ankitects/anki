@@ -13,16 +13,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
+    const fsrsEnabled = state.fsrs;
+    const reschedule = state.fsrsReschedule;
     const config = state.currentConfig;
     const defaults = state.defaults;
+    const prevEasyDaysPercentages = $config.easyDaysPercentages.slice();
 
     $: if ($config.easyDaysPercentages.length !== 7) {
         $config.easyDaysPercentages = defaults.easyDaysPercentages.slice();
     }
 
+    $: easyDaysChanged = $config.easyDaysPercentages.some(
+        (value, index) => value !== prevEasyDaysPercentages[index],
+    );
+
     $: noNormalDay = $config.easyDaysPercentages.some((p) => p === 1.0)
         ? ""
         : tr.deckConfigEasyDaysNoNormalDays();
+
+    $: rescheduleWarning =
+        easyDaysChanged && !($fsrsEnabled && $reschedule)
+            ? tr.deckConfigEasyDaysChange()
+            : "";
 
     const easyDays = [
         tr.deckConfigEasyDaysMonday(),
@@ -47,19 +59,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <thead>
                         <tr>
                             <th></th>
-                            <th colspan="3">
-                                <div class="header">
-                                    <span>{tr.deckConfigEasyDaysMinimum()}</span>
-                                    <span>{tr.deckConfigEasyDaysReduced()}</span>
-                                    <span>{tr.deckConfigEasyDaysNormal()}</span>
-                                </div>
+                            <th class="header min-col">
+                                <span>{tr.deckConfigEasyDaysMinimum()}</span>
+                            </th>
+                            <th class="header text-center">
+                                <span>{tr.deckConfigEasyDaysReduced()}</span>
+                            </th>
+                            <th class="header normal-col">
+                                <span>{tr.deckConfigEasyDaysNormal()}</span>
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         {#each easyDays as day, index}
                             <tr>
-                                <td>{day}</td>
+                                <td class="day">{day}</td>
                                 <td colspan="3">
                                     <input
                                         type="range"
@@ -79,6 +93,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Item>
             <Warning warning={noNormalDay} />
         </Item>
+        <Item>
+            <Warning warning={rescheduleWarning} />
+        </Item>
     </DynamicallySlottable>
 </TitledContainer>
 
@@ -86,24 +103,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .easy-days-settings table {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed;
     }
     .easy-days-settings th,
     .easy-days-settings td {
         padding: 8px;
-        text-align: center;
         border-bottom: var(--border) solid 1px;
     }
     .header {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-    .header span:nth-child(1) {
-        text-align: left;
-    }
-    .header span:nth-child(3) {
-        text-align: right;
+        word-wrap: break-word;
+        font-size: smaller;
     }
     .easy-days-settings input[type="range"] {
         width: 100%;
+    }
+
+    .day {
+        word-wrap: break-word;
+        font-size: smaller;
+    }
+
+    .min-col {
+        text-align: start;
+    }
+
+    .normal-col {
+        text-align: end;
     }
 </style>

@@ -37,7 +37,7 @@
         "cross-env": "^7.0.2",
         "diff": "^5.0.0",
         "dprint": "^0.47.2",
-        "esbuild": "^0.19.10",
+        "esbuild": "^0.25.0",
         "esbuild-sass-plugin": "^2",
         "esbuild-svelte": "^0.8.1",
         "eslint": "^8.44.0",
@@ -75,6 +75,7 @@
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
         "lodash-es": "^4.17.21",
+        "lru-cache": "^10.2.0",
         "marked": "^5.1.0",
         "mathjax": "^3.1.2"
     },

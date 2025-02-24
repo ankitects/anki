@@ -624,6 +624,15 @@ impl super::SqliteStorage {
             ))
     }
 
+    pub(crate) fn get_deck_due_counts(&self) -> Result<Vec<(DeckId, i32, usize)>> {
+        self.db
+            .prepare(include_str!("deck_due_counts.sql"))?
+            .query_and_then([], |row| -> Result<_> {
+                Ok((DeckId(row.get(0)?), row.get(1)?, row.get(2)?))
+            })?
+            .collect()
+    }
+
     pub(crate) fn congrats_info(&self, current: &Deck, today: u32) -> Result<CongratsInfo> {
         // NOTE: this line is obsolete in v3 as it's run on queue build, but kept to
         // prevent errors for v1/v2 users before they upgrade

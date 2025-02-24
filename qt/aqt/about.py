@@ -213,6 +213,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Eros Cardoso",
             "Gregory Abrasaldo",
             "Danika_Dakika",
+            "Marcelo Vasconcelos",
+            "Mumtaz Hajjo Alrifai",
             "Thomas Lenz",
         )
     )

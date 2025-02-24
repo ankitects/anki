@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
+
+from google.protobuf.json_format import MessageToDict
 
 import aqt
 from anki.cards import Card, CardId
@@ -17,6 +20,7 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     setWindowIcon,
+    tooltip,
     tr,
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
@@ -64,7 +68,60 @@ class CardInfoDialog(QDialog):
         buttons.setContentsMargins(10, 0, 10, 10)
         layout.addWidget(buttons)
         qconnect(buttons.rejected, self.reject)
+
+        self.copy_debug_info = QShortcut(  # type: ignore
+            "ctrl+c", self, activated=lambda: self.copy_card_info(card_id)
+        )
+
         self.setLayout(layout)
+
+    def copy_card_info(self, card_id: CardId | None) -> None:
+        if self.web and self.web.selectedText():
+            self.web.onCopy()
+            return
+        if card_id is None:
+            return
+        assert aqt.mw.col.db, tr.errors_inconsistent_db_state()
+
+        proto_info = aqt.mw.col.card_stats_data(card_id)
+        info = MessageToDict(proto_info)
+
+        card = aqt.mw.col.get_card(card_id)
+
+        revlog = aqt.mw.col.db.execute(
+            f"SELECT * FROM revlog WHERE cid == {card_id} ORDER BY id DESC"
+        )
+        deck = aqt.mw.col.decks.get(card.did) or dict()
+        config = aqt.mw.col.decks.get_config(deck.get("conf", -1)) or dict()
+
+        info["deck"] = deck
+        info["config"] = config
+
+        info["config"].pop("name", None)
+        info["deck"].pop("name", None)
+        info["deck"].pop("desc", None)
+        info["deck"].pop("usn", None)
+        info.pop("usn", None)
+        info.pop("cardType", None)
+        info.pop("notetype", None)
+        info.pop("preset", None)
+
+        info["cardRow"] = aqt.mw.col.db.execute(
+            f"SELECT * FROM cards WHERE id == {card_id} ORDER BY id DESC"
+        )[0]
+
+        new_revlog = [
+            {"row": revlog, "info": card_info_review}
+            for revlog, card_info_review in zip(revlog, info.get("revlog", []))
+        ]
+        info["revlog"] = new_revlog
+        info["rollover"] = aqt.mw.col.get_config("rollover")
+
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(json.dumps(info, indent=2))
+
+        tooltip(tr.about_copied_to_clipboard())
 
     def update_card(self, card_id: CardId | None) -> None:
         try:

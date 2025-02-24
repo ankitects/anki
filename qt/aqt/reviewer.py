@@ -1215,7 +1215,11 @@ timerStopped = false;
     setFlag = set_flag_on_current_card
 
 
+# if the last element is a comment, then the RUN_STATE_MUTATION code
+# breaks due to the comment wrongly commenting out python code.
+# To prevent this we put the js code on a separate line
 RUN_STATE_MUTATION = """
-anki.mutateNextCardStates('{key}', async (states, customData, ctx) => {{ {js} }})
-    .finally(() => bridgeCommand('statesMutated'));
+anki.mutateNextCardStates('{key}', async (states, customData, ctx) => {{
+    {js}
+    }}).finally(() => bridgeCommand('statesMutated'));
 """

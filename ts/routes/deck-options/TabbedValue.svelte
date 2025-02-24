@@ -70,6 +70,7 @@
         background-color: transparent;
         /* remove default macOS styling */
         box-shadow: none;
+        font-size: smaller;
     }
 
     li.active > button {
