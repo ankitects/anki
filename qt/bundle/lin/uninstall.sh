@@ -6,6 +6,7 @@ if [ "$PREFIX" = "" ]; then
 	PREFIX=/usr/local
 fi
 
+echo "Uninstalling Anki..."
 xdg-mime uninstall "$PREFIX"/share/anki/anki.xml || true
 
 rm -rf "$PREFIX"/share/anki
