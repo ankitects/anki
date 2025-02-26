@@ -132,7 +132,7 @@ deck-config-bury-priority-tooltip =
     learning or review cards, and you may see both a review sibling and new sibling in the
     same session.
 
-## Ordering section
+## Gather order and sort order of cards
 
 deck-config-ordering-title = Display Order
 deck-config-new-gather-priority = New card gather order
@@ -151,12 +151,6 @@ deck-config-new-gather-priority-tooltip-2 =
     `Random notes`: Picks notes at random, then gathers all of its cards.
     
     `Random cards`: Gathers cards in a random order.
-deck-config-new-gather-priority-deck = Deck
-deck-config-new-gather-priority-deck-then-random-notes = Deck, then random notes
-deck-config-new-gather-priority-position-lowest-first = Ascending position
-deck-config-new-gather-priority-position-highest-first = Descending position
-deck-config-new-gather-priority-random-notes = Random notes
-deck-config-new-gather-priority-random-cards = Random cards
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip-2 =
     `Card type, then order gathered`: Shows cards in order of card type number.
@@ -176,11 +170,6 @@ deck-config-new-card-sort-order-tooltip-2 =
     in order.
     
     `Random`: Shows cards in a random order.
-deck-config-sort-order-card-template-then-random = Card type, then random
-deck-config-sort-order-random-note-then-template = Random note, then card type
-deck-config-sort-order-random = Random
-deck-config-sort-order-template-then-gather = Card type, then order gathered
-deck-config-sort-order-gather = Order gathered
 deck-config-new-review-priority = New/review order
 deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.
 deck-config-interday-step-priority = Interday learning/review order
@@ -190,9 +179,6 @@ deck-config-interday-step-priority-tooltip =
     The review limit is always applied first to interday learning cards, and
     then review cards. This option will control the order the gathered cards are shown in,
     but interday learning cards will always be gathered first.
-deck-config-review-mix-mix-with-reviews = Mix with reviews
-deck-config-review-mix-show-after-reviews = Show after reviews
-deck-config-review-mix-show-before-reviews = Show before reviews
 deck-config-review-sort-order = Review sort order
 deck-config-review-sort-order-tooltip =
     The default order prioritizes cards that have been waiting longest, so that
@@ -200,21 +186,63 @@ deck-config-review-sort-order-tooltip =
     first. If you have a large backlog that will take more than a few days to
     clear, or wish to see cards in subdeck order, you may find the alternate
     sort orders preferable.
-deck-config-sort-order-due-date-then-random = Due date, then random
-deck-config-sort-order-due-date-then-deck = Due date, then deck
-deck-config-sort-order-deck-then-due-date = Deck, then due date
-deck-config-sort-order-ascending-intervals = Ascending intervals
-deck-config-sort-order-descending-intervals = Descending intervals
-deck-config-sort-order-ascending-ease = Ascending ease
-deck-config-sort-order-descending-ease = Descending ease
-deck-config-sort-order-ascending-difficulty = Easy cards first
-deck-config-sort-order-descending-difficulty = Difficult cards first
-deck-config-sort-order-retrievability-ascending = Ascending retrievability
-deck-config-sort-order-retrievability-descending = Descending retrievability
 
 deck-config-display-order-will-use-current-deck =
     Anki will use the display order from the deck you 
     select to study, and not any subdecks it may have.
+
+## Gather order and sort order of cards – Combobox entries
+
+# Gather new cards ordered by deck.
+deck-config-new-gather-priority-deck = Deck
+# Gather new cards ordered by deck, then ordered by random notes, ensuring all cards of the same note are grouped together.
+deck-config-new-gather-priority-deck-then-random-notes = Deck, then random notes
+# Gather new cards ordered by position number, ascending (lowest to highest).
+deck-config-new-gather-priority-position-lowest-first = Ascending position
+# Gather new cards ordered by position number, descending (highest to lowest).
+deck-config-new-gather-priority-position-highest-first = Descending position
+# Gather the cards ordered by random notes, ensuring all cards of the same note are grouped together.
+deck-config-new-gather-priority-random-notes = Random notes
+# Gather new cards randomly.
+deck-config-new-gather-priority-random-cards = Random cards
+# Sort the cards first by their type, in ascending order (alphabetically), then randomized within each type.
+deck-config-sort-order-card-template-then-random = Card type, then random
+# Sort the notes first randomly, then the cards by their type, in ascending order (alphabetically), within each note.
+deck-config-sort-order-random-note-then-template = Random note, then card type
+# Sort the cards randomly.
+deck-config-sort-order-random = Random
+# Sort the cards first by their type, in ascending order (alphabetically), then by the order they were gathered, in ascending order (oldest to newest).
+deck-config-sort-order-template-then-gather = Card type, then order gathered
+# Sort the cards by the order they were gathered, in ascending order (oldest to newest).
+deck-config-sort-order-gather = Order gathered
+# How new cards or interday learning cards are mixed with review cards.
+deck-config-review-mix-mix-with-reviews = Mix with reviews
+# How new cards or interday learning cards are mixed with review cards.
+deck-config-review-mix-show-after-reviews = Show after reviews
+# How new cards or interday learning cards are mixed with review cards.
+deck-config-review-mix-show-before-reviews = Show before reviews
+# Sort the cards first by due date, in ascending order (oldest due date to newest), then randomly within the same due date.
+deck-config-sort-order-due-date-then-random = Due date, then random
+# Sort the cards first by due date, in ascending order (oldest due date to newest), then by deck within the same due date.
+deck-config-sort-order-due-date-then-deck = Due date, then deck
+# Sort the cards first by deck, then by due date in ascending order (oldest due date to newest) within the same deck.
+deck-config-sort-order-deck-then-due-date = Deck, then due date
+# Sort the cards by the interval, in ascending order (shortest to longest).
+deck-config-sort-order-ascending-intervals = Ascending intervals
+# Sort the cards by the interval, in descending order (longest to shortest).
+deck-config-sort-order-descending-intervals = Descending intervals
+# Sort the cards by ease, in ascending order (lowest to highest ease).
+deck-config-sort-order-ascending-ease = Ascending ease
+# Sort the cards by ease, in descending order (highest to lowest ease).
+deck-config-sort-order-descending-ease = Descending ease
+# Sort the cards by difficulty, in ascending order (easiest to hardest).
+deck-config-sort-order-ascending-difficulty = Easy cards first
+# Sort the cards by difficulty, in descending order (hardest to easiest).
+deck-config-sort-order-descending-difficulty = Difficult cards first
+# Sort the cards by retrievability percentage, in ascending order (0% to 100%, least retrievable to most easily retrievable).
+deck-config-sort-order-retrievability-ascending = Ascending retrievability
+# Sort the cards by retrievability percentage, in descending order (100% to 0%, most easily retrievable to least retrievable).
+deck-config-sort-order-retrievability-descending = Descending retrievability
 
 ## Timer section
 
