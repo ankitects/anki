@@ -34,6 +34,5 @@ impl BackendCardRenderingService for Backend {
             request.speed,
             &request.text,
         )
-        .map(Into::into)
     }
 }
