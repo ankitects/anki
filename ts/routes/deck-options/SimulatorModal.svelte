@@ -241,66 +241,81 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </SpinBoxRow>
 
-                <SpinBoxRow
-                    bind:value={simulateFsrsRequest.maxInterval}
-                    defaultValue={$config.maximumReviewInterval}
-                    min={1}
-                    max={36500}
-                >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                        {tr.schedulingMaximumInterval()}
-                    </SettingTitle>
-                </SpinBoxRow>
-
-                <EnumSelectorRow
-                    bind:value={simulateFsrsRequest.reviewOrder}
-                    defaultValue={$config.reviewOrder}
-                    choices={reviewOrderChoices($fsrs)}
-                >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                        {tr.deckConfigReviewSortOrder()}
-                    </SettingTitle>
-                </EnumSelectorRow>
-
-                <SwitchRow
-                    bind:value={simulateFsrsRequest.newCardsIgnoreReviewLimit}
-                    defaultValue={$newCardsIgnoreReviewLimit}
-                >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                        <GlobalLabel title={tr.deckConfigNewCardsIgnoreReviewLimit()} />
-                    </SettingTitle>
-                </SwitchRow>
-
-                <SwitchRow bind:value={smooth} defaultValue={true}>
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                        {"Smooth Graph"}
-                    </SettingTitle>
-                </SwitchRow>
-
-                <SwitchRow
-                    bind:value={suspendLeeches}
-                    defaultValue={$config.leechAction ==
-                        DeckConfig_Config_LeechAction.SUSPEND}
-                >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
-                        {"Suspend Leeches"}
-                    </SettingTitle>
-                </SwitchRow>
-
-                {#if suspendLeeches}
+                <details>
+                    <summary>{"Advanced settings"}</summary>
                     <SpinBoxRow
-                        bind:value={leechThreshold}
-                        defaultValue={$config.leechThreshold}
+                        bind:value={simulateFsrsRequest.maxInterval}
+                        defaultValue={$config.maximumReviewInterval}
                         min={1}
-                        max={9999}
+                        max={36500}
                     >
                         <SettingTitle
                             on:click={() => openHelpModal("simulateFsrsReview")}
                         >
-                            {tr.schedulingLeechThreshold()}
+                            {tr.schedulingMaximumInterval()}
                         </SettingTitle>
                     </SpinBoxRow>
-                {/if}
+
+                    <EnumSelectorRow
+                        bind:value={simulateFsrsRequest.reviewOrder}
+                        defaultValue={$config.reviewOrder}
+                        choices={reviewOrderChoices($fsrs)}
+                    >
+                        <SettingTitle
+                            on:click={() => openHelpModal("simulateFsrsReview")}
+                        >
+                            {tr.deckConfigReviewSortOrder()}
+                        </SettingTitle>
+                    </EnumSelectorRow>
+
+                    <SwitchRow
+                        bind:value={simulateFsrsRequest.newCardsIgnoreReviewLimit}
+                        defaultValue={$newCardsIgnoreReviewLimit}
+                    >
+                        <SettingTitle
+                            on:click={() => openHelpModal("simulateFsrsReview")}
+                        >
+                            <GlobalLabel
+                                title={tr.deckConfigNewCardsIgnoreReviewLimit()}
+                            />
+                        </SettingTitle>
+                    </SwitchRow>
+
+                    <SwitchRow bind:value={smooth} defaultValue={true}>
+                        <SettingTitle
+                            on:click={() => openHelpModal("simulateFsrsReview")}
+                        >
+                            {"Smooth Graph"}
+                        </SettingTitle>
+                    </SwitchRow>
+
+                    <SwitchRow
+                        bind:value={suspendLeeches}
+                        defaultValue={$config.leechAction ==
+                            DeckConfig_Config_LeechAction.SUSPEND}
+                    >
+                        <SettingTitle
+                            on:click={() => openHelpModal("simulateFsrsReview")}
+                        >
+                            {"Suspend Leeches"}
+                        </SettingTitle>
+                    </SwitchRow>
+
+                    {#if suspendLeeches}
+                        <SpinBoxRow
+                            bind:value={leechThreshold}
+                            defaultValue={$config.leechThreshold}
+                            min={1}
+                            max={9999}
+                        >
+                            <SettingTitle
+                                on:click={() => openHelpModal("simulateFsrsReview")}
+                            >
+                                {tr.schedulingLeechThreshold()}
+                            </SettingTitle>
+                        </SpinBoxRow>
+                    {/if}
+                </details>
 
                 <button
                     class="btn {computing ? 'btn-warning' : 'btn-primary'}"
@@ -406,5 +421,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .btn {
         margin-bottom: 0.375rem;
+    }
+
+    details {
+        margin-bottom: 1em;
+        padding-left: 1em;
+    }
+
+    summary {
+        margin-bottom: 0.5em;
     }
 </style>
