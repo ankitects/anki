@@ -321,6 +321,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         $newCardsIgnoreReviewLimit =
                             simulateFsrsRequest.newCardsIgnoreReviewLimit;
                         $config.reviewOrder = simulateFsrsRequest.reviewOrder;
+                        $config.leechAction = suspendLeeches ?  DeckConfig_Config_LeechAction.SUSPEND :  DeckConfig_Config_LeechAction.TAG_ONLY;
+                        $config.leechThreshold = leechThreshold;
                         onPresetChange();
                     }}
                 >
