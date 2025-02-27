@@ -147,7 +147,7 @@ impl Collection {
                 last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
                 due: ((introduced_today_count + i) / req.new_limit as usize) as f32,
                 interval: f32::NEG_INFINITY,
-                lapses: 0
+                lapses: 0,
             });
             converted_cards.extend(new_cards);
         }
@@ -241,7 +241,7 @@ impl Card {
                         last_date,
                         due: relative_due as f32,
                         interval: card.interval as f32,
-                        lapses: card.lapses
+                        lapses: card.lapses,
                     })
                 }
                 CardQueue::New => None,
@@ -252,7 +252,7 @@ impl Card {
                         last_date: 0.0,
                         due: 0.0,
                         interval: card.interval as f32,
-                        lapses: card.lapses
+                        lapses: card.lapses,
                     })
                 }
                 CardQueue::PreviewRepeat => None,

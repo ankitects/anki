@@ -50,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
     let smooth = true;
     let suspendLeeches = $config.leechAction == DeckConfig_Config_LeechAction.SUSPEND;
-    let leechThreshold = $config.leechThreshold
+    let leechThreshold = $config.leechThreshold;
 
     $: daysToSimulate = 365;
     $: deckSize = 0;
@@ -78,7 +78,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let resp: SimulateFsrsReviewResponse | undefined;
         simulateFsrsRequest.daysToSimulate = daysToSimulate;
         simulateFsrsRequest.deckSize = deckSize;
-        simulateFsrsRequest.suspendAfterLapseCount = suspendLeeches ? leechThreshold : undefined
+        simulateFsrsRequest.suspendAfterLapseCount = suspendLeeches
+            ? leechThreshold
+            : undefined;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -275,20 +277,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </SwitchRow>
 
-                <SwitchRow bind:value={suspendLeeches} defaultValue={$config.leechAction == DeckConfig_Config_LeechAction.SUSPEND}>
+                <SwitchRow
+                    bind:value={suspendLeeches}
+                    defaultValue={$config.leechAction ==
+                        DeckConfig_Config_LeechAction.SUSPEND}
+                >
                     <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
                         {"Suspend Leeches"}
                     </SettingTitle>
                 </SwitchRow>
 
-                {#if suspendLeeches}                    
+                {#if suspendLeeches}
                     <SpinBoxRow
                         bind:value={leechThreshold}
                         defaultValue={$config.leechThreshold}
                         min={1}
                         max={9999}
                     >
-                        <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                        <SettingTitle
+                            on:click={() => openHelpModal("simulateFsrsReview")}
+                        >
                             {tr.schedulingLeechThreshold()}
                         </SettingTitle>
                     </SpinBoxRow>
@@ -321,7 +329,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         $newCardsIgnoreReviewLimit =
                             simulateFsrsRequest.newCardsIgnoreReviewLimit;
                         $config.reviewOrder = simulateFsrsRequest.reviewOrder;
-                        $config.leechAction = suspendLeeches ?  DeckConfig_Config_LeechAction.SUSPEND :  DeckConfig_Config_LeechAction.TAG_ONLY;
+                        $config.leechAction = suspendLeeches
+                            ? DeckConfig_Config_LeechAction.SUSPEND
+                            : DeckConfig_Config_LeechAction.TAG_ONLY;
                         $config.leechThreshold = leechThreshold;
                         onPresetChange();
                     }}
