@@ -425,7 +425,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     details {
         margin-bottom: 1em;
-        padding-left: 1em;
     }
 
     summary {
