@@ -2098,9 +2098,8 @@ dependencies = [
 
 [[package]]
 name = "fsrs"
-version = "2.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9174d1073f50c78ac1bb74ec9add329139f0bbc95747b1c1a490513ef5df50f"
+version = "3.0.0"
+source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=96520531415e032781adfe212f8a5eed216006be#96520531415e032781adfe212f8a5eed216006be"
 dependencies = [
  "burn",
  "itertools 0.12.1",
@@ -2497,7 +2496,7 @@ dependencies = [
  "log",
  "presser",
  "thiserror 1.0.69",
- "windows 0.56.0",
+ "windows 0.58.0",
 ]
 
 [[package]]
