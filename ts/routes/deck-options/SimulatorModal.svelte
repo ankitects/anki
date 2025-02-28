@@ -29,6 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { reviewOrderChoices } from "./choices";
     import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
     import { DeckConfig_Config_LeechAction } from "@generated/anki/deck_config_pb";
+    import EasyDaysInput from "./EasyDaysInput.svelte";
 
     export let shown = false;
     export let state: DeckOptionsState;
@@ -81,6 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         simulateFsrsRequest.suspendAfterLapseCount = suspendLeeches
             ? leechThreshold
             : undefined;
+        simulateFsrsRequest.easyDaysPercentages = easyDayPercentages;
         try {
             await runWithBackendProgress(
                 async () => {
@@ -175,6 +177,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             simulateSubgraph,
         );
     }
+
+    let easyDayPercentages = [...$config.easyDaysPercentages];
+    config.subscribe(($config) => {
+        easyDayPercentages = [...$config.easyDaysPercentages];
+    });
 </script>
 
 <div class="modal" class:show={shown} class:d-block={shown} tabindex="-1">
@@ -315,6 +322,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             </SettingTitle>
                         </SpinBoxRow>
                     {/if}
+
+                    <details>
+                        <summary>{tr.deckConfigEasyDaysTitle()}</summary>
+                        {#key easyDayPercentages}
+                            <EasyDaysInput bind:values={easyDayPercentages} />
+                        {/key}
+                    </details>
                 </details>
 
                 <button
@@ -348,6 +362,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             ? DeckConfig_Config_LeechAction.SUSPEND
                             : DeckConfig_Config_LeechAction.TAG_ONLY;
                         $config.leechThreshold = leechThreshold;
+                        $config.easyDaysPercentages = [...easyDayPercentages];
                         onPresetChange();
                     }}
                 >
