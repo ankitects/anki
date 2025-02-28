@@ -426,6 +426,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background-color: rgba(0, 0, 0, 0.5);
     }
 
+    .modal-header {
+        position: sticky;
+        top: 0;
+        background-color: var(--bs-body-bg);
+        z-index: 100;
+    }
+
     :global(.modal-xl) {
         max-width: 100vw;
     }
