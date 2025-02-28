@@ -179,9 +179,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let easyDayPercentages = [...$config.easyDaysPercentages];
-    config.subscribe(($config) => {
-        easyDayPercentages = [...$config.easyDaysPercentages];
-    });
 </script>
 
 <div class="modal" class:show={shown} class:d-block={shown} tabindex="-1">
