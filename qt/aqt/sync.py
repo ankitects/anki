@@ -131,7 +131,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         on_future_done,
         label=tr.sync_checking(),
         immediate=True,
-        title=tr.sync_checking()
+        title=tr.sync_checking(),
     )
 
 
@@ -165,7 +165,7 @@ def full_sync(
             default_button=2,
             parent=mw,
             textFormat=Qt.TextFormat.MarkdownText,
-            title=tr.qt_misc_sync()
+            title=tr.qt_misc_sync(),
         )
 
 

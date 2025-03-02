@@ -139,7 +139,7 @@ class ProgressManager:
         label: str | None = None,
         parent: QWidget | None = None,
         immediate: bool = False,
-        title: str = "Anki"
+        title: str = "Anki",
     ) -> ProgressDialog | None:
         self._levels += 1
         if self._levels > 1:
