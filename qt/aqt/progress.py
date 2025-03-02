@@ -139,6 +139,7 @@ class ProgressManager:
         label: str | None = None,
         parent: QWidget | None = None,
         immediate: bool = False,
+        title: str = "Anki"
     ) -> ProgressDialog | None:
         self._levels += 1
         if self._levels > 1:
@@ -154,7 +155,7 @@ class ProgressManager:
         self._win.form.progressBar.setMaximum(max)
         self._win.form.progressBar.setTextVisible(False)
         self._win.form.label.setText(label)
-        self._win.setWindowTitle("Anki")
+        self._win.setWindowTitle(title)
         self._win.setWindowModality(Qt.WindowModality.ApplicationModal)
         self._win.setMinimumWidth(300)
         self._busy_cursor_timer = QTimer(self.mw)
