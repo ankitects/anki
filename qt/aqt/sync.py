@@ -344,7 +344,7 @@ def get_id_and_pass_from_user(
     password: str = "",
 ) -> None:
     diag = QDialog(mw)
-    diag.setWindowTitle("Anki")
+    diag.setWindowTitle(tr.qt_misc_sync())
     disable_help_button(diag)
     diag.setWindowModality(Qt.WindowModality.WindowModal)
     vbox = QVBoxLayout()
