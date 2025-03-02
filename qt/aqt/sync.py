@@ -131,6 +131,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         on_future_done,
         label=tr.sync_checking(),
         immediate=True,
+        title=tr.sync_checking()
     )
 
 
