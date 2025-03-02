@@ -165,6 +165,7 @@ def full_sync(
             default_button=2,
             parent=mw,
             textFormat=Qt.TextFormat.MarkdownText,
+            title=tr.qt_misc_sync()
         )
 
 
