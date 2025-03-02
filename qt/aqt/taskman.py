@@ -68,7 +68,14 @@ class TaskManager(QObject):
         # background task starts, and it takes out a long-running lock on the database,
         # the UI thread will hang until the end of the op.
         if current_thread() is main_thread():
-            self._on_closures_pending()
+            try:
+                self._on_closures_pending()
+            except Exception as e:
+                # We need to raise the exception from the closure, but we don't want it to disrupt the current call stack.
+                def raise_exception() -> None:
+                    raise e
+
+                self.run_on_main(raise_exception)
         else:
             print("bug: run_in_background not called from main thread")
             traceback.print_stack()
