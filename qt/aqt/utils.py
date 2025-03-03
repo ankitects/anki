@@ -217,6 +217,7 @@ def ask_user_dialog(
     ) = None,
     default_button: int = 1,
     parent: QWidget | None = None,
+    title: str = "Anki",
     **kwargs: Any,
 ) -> MessageBox:
     "Shows a question to the user, passes the index of the button clicked to the callback."
@@ -229,6 +230,7 @@ def ask_user_dialog(
         buttons=buttons,
         default_button=default_button,
         parent=parent,
+        title=title,
         **kwargs,
     )
 
