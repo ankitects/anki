@@ -17,7 +17,7 @@ import aqt.forms
 import aqt.operations
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
-from anki.collection import CardId, Collection, Config, NoteId, OpChanges, SearchNode
+from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.decks import DeckId
 from anki.errors import NotFoundError
@@ -51,7 +51,6 @@ from aqt.operations.tag import (
     remove_tags_from_notes,
 )
 from aqt.qt import *
-from aqt.reviewer import V3CardInfo
 from aqt.sound import av_player
 from aqt.switch import Switch
 from aqt.undo import UndoActionsInfo
@@ -1108,7 +1107,7 @@ class Browser(QMainWindow):
                     grade_now,
                     parent=self,
                     card_ids=self.selected_cards(),
-                    rating=V3CardInfo.rating_from_ease(ease),
+                    ease=ease,
                     dialog=dialog,
                 ),
             )

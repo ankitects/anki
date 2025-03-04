@@ -69,9 +69,17 @@ def grade_now(
     *,
     parent: QWidget,
     card_ids: Sequence[CardId],
-    rating: int,
+    ease: int,
     dialog: QDialog,
 ) -> None:
+    if ease == 1:
+        rating = CardAnswer.AGAIN
+    elif ease == 2:
+        rating = CardAnswer.HARD
+    elif ease == 3:
+        rating = CardAnswer.GOOD
+    else:
+        rating = CardAnswer.EASY
     CollectionOp(
         parent,
         lambda col: col._backend.grade_now(
