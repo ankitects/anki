@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import functools
 import json
 import math
 import re
@@ -16,7 +17,7 @@ import aqt.forms
 import aqt.operations
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
-from anki.collection import Collection, Config, OpChanges, SearchNode
+from anki.collection import CardId, Collection, Config, NoteId, OpChanges, SearchNode
 from anki.consts import *
 from anki.decks import DeckId
 from anki.errors import NotFoundError
@@ -37,6 +38,7 @@ from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (
     bury_cards,
     forget_cards,
+    grade_now,
     reposition_new_cards_dialog,
     set_due_date_dialog,
     suspend_cards,
@@ -49,6 +51,7 @@ from aqt.operations.tag import (
     remove_tags_from_notes,
 )
 from aqt.qt import *
+from aqt.reviewer import V3CardInfo
 from aqt.sound import av_player
 from aqt.switch import Switch
 from aqt.undo import UndoActionsInfo
@@ -340,6 +343,7 @@ class Browser(QMainWindow):
         qconnect(f.action_Info.triggered, self.showCardInfo)
         qconnect(f.actionReposition.triggered, self.reposition)
         qconnect(f.action_set_due_date.triggered, self.set_due_date)
+        qconnect(f.action_grade_now.triggered, self.grade_now)
         qconnect(f.action_forget.triggered, self.forget_cards)
         qconnect(f.actionToggle_Suspend.triggered, self.suspend_selected_cards)
         qconnect(f.action_toggle_bury.triggered, self.bury_selected_cards)
@@ -1079,6 +1083,43 @@ class Browser(QMainWindow):
             context=ScheduleCardsAsNew.Context.BROWSER,
         ):
             op.run_in_background()
+
+    @no_arg_trigger
+    @skip_if_selection_is_empty
+    @ensure_editor_saved
+    def grade_now(self) -> None:
+        """Show dialog to grade selected cards."""
+        dialog = QDialog(self)
+        dialog.setWindowTitle(tr.actions_grade_now())
+        layout = QHBoxLayout()
+        dialog.setLayout(layout)
+
+        # Add grade buttons
+        for ease, label in [
+            (1, tr.studying_again()),
+            (2, tr.studying_hard()),
+            (3, tr.studying_good()),
+            (4, tr.studying_easy()),
+        ]:
+            btn = QPushButton(label)
+            qconnect(
+                btn.clicked,
+                functools.partial(
+                    grade_now,
+                    parent=self,
+                    card_ids=self.selected_cards(),
+                    rating=V3CardInfo.rating_from_ease(ease),
+                    dialog=dialog,
+                ),
+            )
+            layout.addWidget(btn)
+
+        # Add cancel button
+        cancel_btn = QPushButton(tr.actions_cancel())
+        qconnect(cancel_btn.clicked, dialog.reject)
+        layout.addWidget(cancel_btn)
+
+        dialog.exec()
 
     # Edit: selection
     ######################################################################

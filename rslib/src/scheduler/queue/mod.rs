@@ -177,6 +177,35 @@ impl CardQueues {
         }
     }
 
+    /// Remove the provided card from anywhere in the queues and
+    /// adjust the counts.
+    pub(crate) fn remove_entry(&mut self, card: &Card) -> Option<QueueEntry> {
+        // Check intraday learning queue
+        let id = card.id;
+        let pos = self.intraday_learning.iter().position(|e| e.id == id);
+        if let Some(pos) = pos {
+            let entry = self.intraday_learning.remove(pos).unwrap();
+            self.counts.learning = self.counts.learning.saturating_sub(1);
+            return Some(entry.into());
+        }
+
+        // Check main queue
+        let pos = self.main.iter().position(|e| e.id == id);
+        if let Some(pos) = pos {
+            let entry = self.main.remove(pos).unwrap();
+            match entry.kind {
+                MainQueueEntryKind::New => self.counts.new -= 1,
+                MainQueueEntryKind::Review => self.counts.review -= 1,
+                MainQueueEntryKind::InterdayLearning => {
+                    self.counts.learning = self.counts.learning.saturating_sub(1)
+                }
+            }
+            return Some(entry.into());
+        }
+
+        None
+    }
+
     fn push_undo_entry(&mut self, entry: QueueEntry) {
         match entry {
             QueueEntry::IntradayLearning(entry) => self.push_intraday_learning(entry),
@@ -237,6 +266,29 @@ impl Collection {
             }));
         } else {
             // we currently allow the queues to be empty for unit tests
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn update_queues_after_grading_card(
+        &mut self,
+        card: &Card,
+        timing: SchedTimingToday,
+    ) -> Result<()> {
+        if let Some(queues) = &mut self.state.card_queues {
+            let entry = queues.remove_entry(card);
+            if let Some(entry) = entry {
+                let requeued_learning = queues.maybe_requeue_learning_card(card, timing);
+                let cutoff_snapshot = queues.update_learning_cutoff_and_count();
+                let queue_build_time = queues.build_time;
+                self.save_queue_update_undo(Box::new(QueueUpdate {
+                    entry,
+                    learning_requeue: requeued_learning,
+                    queue_build_time,
+                    cutoff_snapshot,
+                }));
+            }
         }
 
         Ok(())

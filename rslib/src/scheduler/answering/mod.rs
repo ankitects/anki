@@ -309,16 +309,24 @@ impl Collection {
     /// Answer card, writing its new state to the database.
     /// Provided [CardAnswer] has its answer time capped to deck preset.
     pub fn answer_card(&mut self, answer: &mut CardAnswer) -> Result<OpOutput<()>> {
-        self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer))
+        self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer, false))
     }
 
-    fn answer_card_inner(&mut self, answer: &mut CardAnswer) -> Result<()> {
+    pub fn grade_card(&mut self, answer: &mut CardAnswer) -> Result<()> {
+        self.answer_card_inner(answer, true)
+    }
+
+    fn answer_card_inner(&mut self, answer: &mut CardAnswer, from_queue: bool) -> Result<()> {
         let card = self
             .storage
             .get_card(answer.card_id)?
             .or_not_found(answer.card_id)?;
         let original = card.clone();
         let usn = self.usn()?;
+
+        if card.queue == CardQueue::Suspended {
+            invalid_input!("Can't answer suspended cards");
+        }
 
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
@@ -363,14 +371,22 @@ impl Collection {
             }
         }
 
-        self.update_queues_after_answering_card(
-            &card,
-            timing,
-            matches!(
-                answer.new_state,
-                CardState::Filtered(FilteredState::Preview(PreviewState { finished: true, .. }))
-            ),
-        )
+        // Handle queue updates based on from_queue flag
+        if from_queue {
+            self.update_queues_after_answering_card(
+                &card,
+                timing,
+                matches!(
+                    answer.new_state,
+                    CardState::Filtered(FilteredState::Preview(PreviewState {
+                        finished: true,
+                        ..
+                    }))
+                ),
+            )
+        } else {
+            self.update_queues_after_grading_card(&card, timing)
+        }
     }
 
     fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConfig) -> Result<()> {

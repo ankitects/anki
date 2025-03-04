@@ -36,6 +36,7 @@ service SchedulerService {
   rpc ScheduleCardsAsNewDefaults(ScheduleCardsAsNewDefaultsRequest)
       returns (ScheduleCardsAsNewDefaultsResponse);
   rpc SetDueDate(SetDueDateRequest) returns (collection.OpChanges);
+  rpc GradeNow(GradeNowRequest) returns (collection.OpChanges);
   rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
   rpc SortDeck(SortDeckRequest) returns (collection.OpChangesWithCount);
   rpc GetSchedulingStates(cards.CardId) returns (SchedulingStates);
@@ -236,6 +237,11 @@ message SetDueDateRequest {
   repeated int64 card_ids = 1;
   string days = 2;
   config.OptionalStringConfigKey config_key = 3;
+}
+
+message GradeNowRequest {
+  repeated int64 card_ids = 1;
+  CardAnswer.Rating rating = 2;
 }
 
 message SortCardsRequest {

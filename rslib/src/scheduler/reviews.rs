@@ -143,6 +143,31 @@ impl Collection {
             Ok(())
         })
     }
+
+    pub fn grade_now(&mut self, cids: &[CardId], rating: i32) -> Result<OpOutput<()>> {
+        self.transact(Op::GradeNow, |col| {
+            for &card_id in cids {
+                let states = col.get_scheduling_states(card_id)?;
+                let new_state = match rating {
+                    0 => states.again,
+                    1 => states.hard,
+                    2 => states.good,
+                    3 => states.easy,
+                    _ => invalid_input!("invalid rating"),
+                };
+                let answer = anki_proto::scheduler::CardAnswer {
+                    card_id: card_id.into(),
+                    current_state: Some(states.current.into()),
+                    new_state: Some(new_state.into()),
+                    rating,
+                    milliseconds_taken: 0,
+                    answered_at_millis: TimestampMillis::now().into(),
+                };
+                col.grade_card(&mut answer.into())?;
+            }
+            Ok(())
+        })
+    }
 }
 
 #[cfg(test)]

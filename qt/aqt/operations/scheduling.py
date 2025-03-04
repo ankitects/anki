@@ -65,6 +65,27 @@ def set_due_date_dialog(
         )
 
 
+def grade_now(
+    *,
+    parent: QWidget,
+    card_ids: Sequence[CardId],
+    rating: int,
+    dialog: QDialog,
+) -> None:
+    CollectionOp(
+        parent,
+        lambda col: col._backend.grade_now(
+            card_ids=card_ids,
+            rating=rating,
+        ),
+    ).success(
+        lambda _: tooltip(
+            tr.scheduling_graded_cards_done(cards=len(card_ids)), parent=parent
+        )
+    ).run_in_background()
+    dialog.accept()
+
+
 def forget_cards(
     *,
     parent: QWidget,
