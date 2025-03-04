@@ -309,11 +309,11 @@ impl Collection {
     /// Answer card, writing its new state to the database.
     /// Provided [CardAnswer] has its answer time capped to deck preset.
     pub fn answer_card(&mut self, answer: &mut CardAnswer) -> Result<OpOutput<()>> {
-        self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer, false))
+        self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer, true))
     }
 
     pub fn grade_card(&mut self, answer: &mut CardAnswer) -> Result<()> {
-        self.answer_card_inner(answer, true)
+        self.answer_card_inner(answer, false)
     }
 
     fn answer_card_inner(&mut self, answer: &mut CardAnswer, from_queue: bool) -> Result<()> {
