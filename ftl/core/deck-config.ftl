@@ -400,6 +400,8 @@ deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
 deck-config-historical-retention = Historical retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
+# Mathematical values describing the FSRS algorithm's performance
+deck-config-smaller-is-better-fsrs-values = Log loss : { $logLoss }, RMSE(bins): { $rmse }%.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, steps of 1 day or more are not recommended.
 deck-config-get-params = Get Params
 deck-config-predicted-minimum-recommended-retention = Minimum recommended retention: { $num }
