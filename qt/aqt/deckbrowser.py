@@ -328,7 +328,7 @@ class DeckBrowser:
 
     def _rename(self, did: DeckId) -> None:
         def prompt(name: str) -> None:
-            new_name = getOnlyText(tr.decks_new_deck_name(), default=name)
+            new_name = getOnlyText(tr.decks_new_deck_name(), default=name, title=tr.actions_rename())
             if not new_name or new_name == name:
                 return
             else:
