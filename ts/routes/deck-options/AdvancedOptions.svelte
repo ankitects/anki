@@ -87,7 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: maxIntervalWarningClass =
         $config.maximumReviewInterval < 50 ? "alert-danger" : "alert-warning";
     $: maxIntervalWarning =
-        $config.maximumReviewInterval < 365
+        $config.maximumReviewInterval < 180
             ? tr.deckConfigTooShortMaximumInterval()
             : "";
 
