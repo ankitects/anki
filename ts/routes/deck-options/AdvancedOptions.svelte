@@ -20,6 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import DateInput from "./DateInput.svelte";
+    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -83,6 +84,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
     const helpSections: HelpItem[] = Object.values(settings);
 
+    $: maxIntervalWarningClass =
+        $config.maximumReviewInterval < 50 ? "alert-danger" : "alert-warning";
+    $: maxIntervalWarning =
+        $config.maximumReviewInterval < 365
+            ? tr.deckConfigTooShortMaximumInterval()
+            : "";
+
     let modal: Modal;
     let carousel: Carousel;
 
@@ -119,6 +127,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {settings.maximumInterval.title}
                 </SettingTitle>
             </SpinBoxRow>
+        </Item>
+
+        <Item>
+            <Warning warning={maxIntervalWarning} className={maxIntervalWarningClass}
+            ></Warning>
         </Item>
 
         {#if !$fsrs}
