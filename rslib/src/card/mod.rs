@@ -238,7 +238,7 @@ impl Card {
     fn new_remaining_steps(&self, new_steps: &[f32], old_steps: &[f32]) -> Option<u32> {
         let remaining = self.remaining_steps();
 
-        let new_remaining = if old_steps.len() == 0 {
+        let new_remaining = if old_steps.is_empty() {
             remaining
         } else {
             old_steps
