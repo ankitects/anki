@@ -103,6 +103,14 @@ impl Collection {
     fn add_parent_deck(&mut self, machine_name: &str, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.name = NativeDeckName::from_native_str(machine_name);
+        let parent_deck = self.first_existing_parent(machine_name, 0);
+        if let Ok(Some(parent_deck)) = parent_deck {
+            if let DeckKind::Normal(parent_deck) = parent_deck.kind {
+                if let DeckKind::Normal(deck) = &mut deck.kind {
+                    deck.config_id = parent_deck.config_id;
+                }
+            }
+        }
         deck.set_modified(usn);
         self.add_deck_undoable(&mut deck)
     }
@@ -124,9 +132,9 @@ impl Collection {
                 parent_deck.name,
                 &child_split[parent_count..].join("\x1f")
             ));
-            if let DeckKind::Normal(parent) = parent_deck.kind {
+            if let DeckKind::Normal(parent_deck) = parent_deck.kind {
                 if let DeckKind::Normal(deck) = &mut deck.kind {
-                    deck.config_id = parent.config_id;
+                    deck.config_id = parent_deck.config_id;
                 }
             }
             if need_create {
