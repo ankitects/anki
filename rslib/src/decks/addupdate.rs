@@ -124,6 +124,11 @@ impl Collection {
                 parent_deck.name,
                 &child_split[parent_count..].join("\x1f")
             ));
+            if let DeckKind::Normal(parent) = parent_deck.kind {
+                if let DeckKind::Normal(deck) = &mut deck.kind {
+                    deck.config_id = parent.config_id;
+                }
+            }
             if need_create {
                 self.create_missing_parents(&deck.name, usn)?;
             }
