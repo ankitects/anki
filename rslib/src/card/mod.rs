@@ -242,18 +242,18 @@ impl Card {
             remaining
         } else {
             old_steps
-            .len()
-            .checked_sub(remaining as usize + 1)
-            .and_then(|last_index| {
-                new_steps
-                    .iter()
-                    .rev()
-                    .position(|&step| step <= old_steps[last_index])
-            })
-            // no last delay or last delay is less than all new steps → all steps remain
-            .unwrap_or(new_steps.len())
-            // (re)learning card must have at least 1 step remaining
-            .max(1) as u32
+                .len()
+                .checked_sub(remaining as usize + 1)
+                .and_then(|last_index| {
+                    new_steps
+                        .iter()
+                        .rev()
+                        .position(|&step| step <= old_steps[last_index])
+                })
+                // no last delay or last delay is less than all new steps → all steps remain
+                .unwrap_or(new_steps.len())
+                // (re)learning card must have at least 1 step remaining
+                .max(1) as u32
         };
 
         (remaining != new_remaining).then_some(new_remaining)
@@ -496,12 +496,12 @@ impl From<MemoryState> for FsrsMemoryState {
 
 #[cfg(test)]
 mod test {
+    use crate::prelude::AnkiError;
+    use crate::prelude::Collection;
+    use crate::prelude::DeckId;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
     use crate::tests::DeckAdder;
-    use crate::prelude::Collection;
-    use crate::prelude::DeckId;
-    use crate::prelude::AnkiError;
 
     #[test]
     fn should_increase_remaining_learning_steps_if_new_deck_has_more_unpassed_ones() {
@@ -524,7 +524,7 @@ mod test {
         col.set_deck(&[card_id], deck.id).unwrap();
         assert_eq!(col.get_first_card().remaining_steps, 2);
     }
-    
+
     #[test]
     fn should_not_recalculate_remaining_steps_if_there_are_no_old_steps() -> Result<(), AnkiError> {
         let mut col = Collection::new();
