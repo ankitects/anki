@@ -123,12 +123,15 @@ impl Collection {
             }
             let parent_count = parent_deck.name.components().count();
             let need_create = parent_count != child_split.len() - 1;
+            let rename = self.get_deck(deck.id)?.is_some();
             deck.name = NativeDeckName::from_native_str(format!(
                 "{}\x1f{}",
                 parent_deck.name,
                 &child_split[parent_count..].join("\x1f")
             ));
-            deck.maybe_inherit_parent_config(&parent_deck);
+            if !rename {
+                deck.maybe_inherit_parent_config(&parent_deck);
+            }
             if need_create {
                 self.create_missing_parents(&deck.name, usn)?;
             }
