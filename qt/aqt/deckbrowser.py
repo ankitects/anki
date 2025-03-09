@@ -10,7 +10,7 @@ from typing import Any
 
 import aqt
 import aqt.operations
-from anki.collection import Collection, OpChanges
+from anki.collection import Collection, OpChanges, OpChangesWithId
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
@@ -397,10 +397,21 @@ class DeckBrowser:
         openLink(f"{aqt.appShared}decks/")
 
     def _on_create(self) -> None:
+        def select_deck(changes: OpChangesWithId):
+            for parent in self.mw.col.decks.parents(changes.id):
+                if parent["collapsed"]:
+                    set_deck_collapsed(
+                        parent=self.mw,
+                        deck_id=parent["id"],
+                        collapsed=False,
+                        scope=DeckCollapseScope.REVIEWER,
+                    ).run_in_background(initiator=self)
+            set_current_deck(parent=self.mw, deck_id=DeckId(changes.id)).run_in_background()
+
         if op := add_deck_dialog(
             parent=self.mw, default_text=self.mw.col.decks.current()["name"]
         ):
-            op.run_in_background()
+            op.success(select_deck).run_in_background()
 
     ######################################################################
 
