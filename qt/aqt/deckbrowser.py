@@ -398,7 +398,7 @@ class DeckBrowser:
 
     def _on_create(self) -> None:
         def select_deck(changes: OpChangesWithId):
-            for parent in self.mw.col.decks.parents(changes.id):
+            for parent in self.mw.col.decks.parents(DeckId(changes.id)):
                 if parent["collapsed"]:
                     set_deck_collapsed(
                         parent=self.mw,
@@ -406,7 +406,9 @@ class DeckBrowser:
                         collapsed=False,
                         scope=DeckCollapseScope.REVIEWER,
                     ).run_in_background(initiator=self)
-            set_current_deck(parent=self.mw, deck_id=DeckId(changes.id)).run_in_background()
+            set_current_deck(
+                parent=self.mw, deck_id=DeckId(changes.id)
+            ).run_in_background()
 
         if op := add_deck_dialog(
             parent=self.mw, default_text=self.mw.col.decks.current()["name"]
