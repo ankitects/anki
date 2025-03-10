@@ -288,7 +288,7 @@ class FieldDialog(QDialog):
             self.webview = None
 
         if self.change_tracker.changed():
-            if not askUser("Discard changes?"):
+            if not askUser(tr.card_templates_discard_changes()):
                 return
 
         QDialog.reject(self)
