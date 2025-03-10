@@ -59,7 +59,10 @@ def add_deck_dialog(
     default_text: str = "",
 ) -> CollectionOp[OpChangesWithId] | None:
     if name := getOnlyText(
-        tr.decks_new_deck_name(), default=default_text, parent=parent
+        tr.decks_new_deck_name(),
+        default=default_text,
+        parent=parent,
+        title=tr.decks_create_deck(),
     ).strip():
         return add_deck(parent=parent, name=name)
     else:
