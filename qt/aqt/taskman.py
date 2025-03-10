@@ -98,9 +98,12 @@ class TaskManager(QObject):
         label: str | None = None,
         immediate: bool = False,
         uses_collection=True,
+        title: str = "Anki",
     ) -> None:
         "Use QueryOp()/CollectionOp() in new code."
-        self.mw.progress.start(parent=parent, label=label, immediate=immediate)
+        self.mw.progress.start(
+            parent=parent, label=label, immediate=immediate, title=title
+        )
 
         def wrapped_done(fut: Future) -> None:
             self.mw.progress.finish()

@@ -131,6 +131,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         on_future_done,
         label=tr.sync_checking(),
         immediate=True,
+        title=tr.sync_checking(),
     )
 
 
@@ -164,6 +165,7 @@ def full_sync(
             default_button=2,
             parent=mw,
             textFormat=Qt.TextFormat.MarkdownText,
+            title=tr.qt_misc_sync(),
         )
 
 
@@ -343,7 +345,7 @@ def get_id_and_pass_from_user(
     password: str = "",
 ) -> None:
     diag = QDialog(mw)
-    diag.setWindowTitle("Anki")
+    diag.setWindowTitle(tr.qt_misc_sync())
     disable_help_button(diag)
     diag.setWindowModality(Qt.WindowModality.WindowModal)
     vbox = QVBoxLayout()
