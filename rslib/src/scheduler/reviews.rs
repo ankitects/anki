@@ -164,7 +164,7 @@ impl Collection {
                     answered_at_millis: TimestampMillis::now().into(),
                     from_queue: false,
                 };
-                col.answer_card(&mut answer.into())?;
+                col.answer_card_inner(&mut answer.into())?;
             }
             Ok(())
         })

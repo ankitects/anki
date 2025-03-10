@@ -313,7 +313,7 @@ impl Collection {
         self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer))
     }
 
-    fn answer_card_inner(&mut self, answer: &mut CardAnswer) -> Result<()> {
+    pub(crate) fn answer_card_inner(&mut self, answer: &mut CardAnswer) -> Result<()> {
         let card = self
             .storage
             .get_card(answer.card_id)?
