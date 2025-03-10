@@ -162,8 +162,9 @@ impl Collection {
                     rating,
                     milliseconds_taken: 0,
                     answered_at_millis: TimestampMillis::now().into(),
+                    from_queue: false,
                 };
-                col.grade_card(&mut answer.into())?;
+                col.answer_card(&mut answer.into())?;
             }
             Ok(())
         })

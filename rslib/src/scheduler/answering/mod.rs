@@ -52,6 +52,7 @@ pub struct CardAnswer {
     pub answered_at: TimestampMillis,
     pub milliseconds_taken: u32,
     pub custom_data: Option<String>,
+    pub from_queue: bool,
 }
 
 impl CardAnswer {
@@ -309,24 +310,16 @@ impl Collection {
     /// Answer card, writing its new state to the database.
     /// Provided [CardAnswer] has its answer time capped to deck preset.
     pub fn answer_card(&mut self, answer: &mut CardAnswer) -> Result<OpOutput<()>> {
-        self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer, true))
+        self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer))
     }
 
-    pub fn grade_card(&mut self, answer: &mut CardAnswer) -> Result<()> {
-        self.answer_card_inner(answer, false)
-    }
-
-    fn answer_card_inner(&mut self, answer: &mut CardAnswer, from_queue: bool) -> Result<()> {
+    fn answer_card_inner(&mut self, answer: &mut CardAnswer) -> Result<()> {
         let card = self
             .storage
             .get_card(answer.card_id)?
             .or_not_found(answer.card_id)?;
         let original = card.clone();
         let usn = self.usn()?;
-
-        if card.queue == CardQueue::Suspended {
-            invalid_input!("Can't answer suspended cards");
-        }
 
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
@@ -372,7 +365,7 @@ impl Collection {
         }
 
         // Handle queue updates based on from_queue flag
-        if from_queue {
+        if answer.from_queue {
             self.update_queues_after_answering_card(
                 &card,
                 timing,
@@ -385,6 +378,9 @@ impl Collection {
                 ),
             )
         } else {
+            if card.queue == CardQueue::Suspended {
+                invalid_input!("Can't answer suspended cards");
+            }
             self.update_queues_after_grading_card(&card, timing)
         }
     }
@@ -604,6 +600,7 @@ pub mod test_helpers {
                 answered_at: TimestampMillis::now(),
                 milliseconds_taken: 0,
                 custom_data: None,
+                from_queue: true,
             })?;
             Ok(PostAnswerState {
                 card_id: queued.card.id,
