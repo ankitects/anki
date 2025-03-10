@@ -2,10 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use ammonia::Url;
+use anki_io::metadata;
 use axum::http::StatusCode;
 use serde::Deserialize;
 use serde::Serialize;
 use tracing::debug;
+use tracing::info;
 
 use crate::config::SchedulerVersion;
 use crate::prelude::*;
@@ -18,6 +20,7 @@ use crate::sync::error::OrHttpErr;
 use crate::sync::http_client::HttpSyncClient;
 use crate::sync::request::IntoSyncRequest;
 use crate::sync::request::SyncRequest;
+use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
 use crate::sync::version::SYNC_VERSION_09_V2_SCHEDULER;
 use crate::sync::version::SYNC_VERSION_10_V2_TIMEZONE;
 use crate::sync::version::SYNC_VERSION_MAX;
@@ -49,6 +52,8 @@ pub struct SyncMeta {
     pub v2_scheduler_or_later: bool,
     #[serde(skip)]
     pub v2_timezone: bool,
+    #[serde(skip)]
+    pub collection_bytes: u64,
 }
 
 impl SyncMeta {
@@ -123,6 +128,7 @@ pub struct MetaRequest {
 impl Collection {
     pub fn sync_meta(&self) -> Result<SyncMeta> {
         let stamps = self.storage.get_collection_timestamps()?;
+        let collection_bytes = metadata(&self.col_path)?.len();
         Ok(SyncMeta {
             modified: stamps.collection_change,
             schema: stamps.schema_change,
@@ -136,6 +142,7 @@ impl Collection {
             empty: !self.storage.have_at_least_one_card()?,
             v2_scheduler_or_later: self.scheduler_version() == SchedulerVersion::V2,
             v2_timezone: self.get_creation_utc_offset().is_some(),
+            collection_bytes,
             // must be filled in by calling code
             media_usn: Usn(0),
         })
@@ -152,6 +159,10 @@ pub fn server_meta(req: MetaRequest, col: &mut Collection) -> HttpResult<SyncMet
         });
     }
     let mut meta = col.sync_meta().or_internal_err("sync meta")?;
+    if meta.collection_bytes > *MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED {
+        info!("collection is too large, forcing one-way sync");
+        meta.schema = TimestampMillis::now();
+    }
     if meta.v2_scheduler_or_later && req.sync_version < SYNC_VERSION_09_V2_SCHEDULER {
         meta.server_message = "Your client does not support the v2 scheduler".into();
         meta.should_continue = false;
