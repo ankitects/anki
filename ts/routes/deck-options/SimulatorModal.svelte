@@ -319,13 +319,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             </SettingTitle>
                         </SpinBoxRow>
                     {/if}
+                </details>
 
-                    <details>
-                        <summary>{tr.deckConfigEasyDaysTitle()}</summary>
-                        {#key easyDayPercentages}
-                            <EasyDaysInput bind:values={easyDayPercentages} />
-                        {/key}
-                    </details>
+                <details>
+                    <summary>{tr.deckConfigEasyDaysTitle()}</summary>
+                    {#key easyDayPercentages}
+                        <EasyDaysInput bind:values={easyDayPercentages} />
+                    {/key}
                 </details>
 
                 <button
@@ -440,10 +440,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .btn {
         margin-bottom: 0.375rem;
-    }
-
-    details {
-        margin-bottom: 1em;
     }
 
     summary {
