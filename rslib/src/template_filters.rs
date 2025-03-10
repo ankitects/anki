@@ -192,7 +192,7 @@ fn hint_filter<'a>(text: &'a str, field_name: &str) -> Cow<'a, str> {
 <a class=hint href="#"
 onclick="this.style.display='none';
 document.getElementById('hint{}').style.display='block';
-return false;">
+return false;" draggable=false>
 {}</a>
 <div id="hint{}" class=hint style="display: none">{}</div>
 "##,
@@ -232,7 +232,7 @@ mod test {
 <a class=hint href="#"
 onclick="this.style.display='none';
 document.getElementById('hint83fe48607f0f3a66').style.display='block';
-return false;">
+return false;" draggable=false>
 field</a>
 <div id="hint83fe48607f0f3a66" class=hint style="display: none">foo</div>
 "##
