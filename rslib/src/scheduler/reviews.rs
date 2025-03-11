@@ -8,6 +8,7 @@ use rand::distributions::Distribution;
 use rand::distributions::Uniform;
 use regex::Regex;
 
+use super::answering::CardAnswer;
 use crate::card::Card;
 use crate::card::CardId;
 use crate::card::CardQueue;
@@ -158,21 +159,22 @@ impl Collection {
                     3 => states.easy,
                     _ => invalid_input!("invalid rating"),
                 };
-                let answer = anki_proto::scheduler::CardAnswer {
+                let mut answer: CardAnswer = anki_proto::scheduler::CardAnswer {
                     card_id: card_id.into(),
                     current_state: Some(states.current.into()),
                     new_state: Some(new_state.into()),
                     rating,
                     milliseconds_taken: 0,
                     answered_at_millis: TimestampMillis::now().into(),
-                    from_queue: false,
-                };
+                }
+                .into();
+                answer.from_queue = false;
 
                 // Add to the set of processed cards
                 processed_card_ids.insert(card_id);
 
                 // Process the card without updating queues yet
-                col.answer_card_inner(&mut answer.into())?;
+                col.answer_card_inner(&mut answer)?;
             }
 
             // Now update the queues once for all processed cards

@@ -377,10 +377,8 @@ impl Collection {
                     }))
                 ),
             )?;
-        } else {
-            if card.queue == CardQueue::Suspended {
-                invalid_input!("Can't answer suspended cards");
-            }
+        } else if card.queue == CardQueue::Suspended {
+            invalid_input!("Can't answer suspended cards");
         }
 
         Ok(())
