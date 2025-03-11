@@ -17,6 +17,7 @@ use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::collection::status::online_sync_status_check;
 use crate::sync::http_client::HttpSyncClient;
 use crate::sync::login::SyncAuth;
+use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
 
 pub struct NormalSyncer<'a> {
     pub(in crate::sync) col: &'a mut Collection,
@@ -68,6 +69,14 @@ impl NormalSyncer<'_> {
     pub async fn sync(&mut self) -> error::Result<SyncOutput> {
         debug!("fetching meta...");
         let local = self.col.sync_meta()?;
+        let local_bytes = local.collection_bytes;
+        let limit = *MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
+        if local.collection_bytes > limit {
+            return Err(AnkiError::sync_error(
+                format!("{local_bytes} > {limit}"),
+                SyncErrorKind::UploadTooLarge,
+            ));
+        }
         let state = online_sync_status_check(local, &mut self.server).await?;
         debug!(?state, "fetched");
         match state.required {

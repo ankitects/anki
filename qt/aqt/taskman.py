@@ -144,4 +144,11 @@ class TaskManager(QObject):
             self._closures = []
 
         for closure in closures:
-            closure()
+            try:
+                closure()
+            except Exception as e:
+
+                def raise_exception(exception=e) -> None:
+                    raise exception
+
+                QTimer.singleShot(0, raise_exception)
