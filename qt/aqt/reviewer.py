@@ -753,9 +753,18 @@ class Reviewer:
         origSize = len(buf)
         buf = buf.replace("<hr id=answer>", "")
         hadHR = len(buf) != origSize
-        expected = self.typeCorrect
-        provided = self.typedAnswer
+        initial_expected = self.typeCorrect
+        initial_provided = self.typedAnswer
+        expected, provided = gui_hooks.reviewer_will_compare_answer(
+            (initial_expected, initial_provided)
+        )
+
         output = self.mw.col.compare_answer(expected, provided, self._combining)
+        output = gui_hooks.reviewer_will_render_compared_answer(
+            output,
+            initial_expected,
+            initial_provided,
+        )
 
         # and update the type answer area
         def repl(match: Match) -> str:

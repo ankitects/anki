@@ -101,6 +101,38 @@ hooks = [
         legacy_no_args=True,
     ),
     Hook(
+        name="reviewer_will_compare_answer",
+        args=["expected_provided_tuple: tuple[str, str]"],
+        return_type="tuple[str, str]",
+        doc="""Modify expected answer and provided answer before comparing
+
+        expected_provided_tuple is a tuple composed of:
+        - expected answer
+        - provided answer
+
+        Return a tuple composed of:
+        - modified expected answer
+        - modified provided answer
+        """,
+    ),
+    Hook(
+        name="reviewer_will_render_compared_answer",
+        args=[
+            "output: str",
+            "initial_expected: str",
+            "initial_provided: str",
+        ],
+        return_type="str",
+        doc="""Modify the output of default compare answer feature
+
+        output is the result of default compare answer function
+        initial_expected is the expected answer from the card
+        initial_provided is the answer provided during review
+
+        Return a string comparing expected and provided answers
+        """,
+    ),
+    Hook(
         name="reviewer_did_show_answer",
         args=["card: Card"],
         legacy_hook="showAnswer",
@@ -846,7 +878,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         'content' is a list of HTML strings added by add-ons which you can append your
         own components or elements to. To equip your components with logic and styling
         please see `webview_will_set_content` and `webview_did_receive_js_message`.
-        
+
         Please note that Anki's main screen is due to undergo a significant refactor
         in the future and, as a result, add-ons subscribing to this hook will likely
         require changes to continue working.
@@ -861,7 +893,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         'content' is a list of HTML strings added by add-ons which you can append your
         own components or elements to. To equip your components with logic and styling
         please see `webview_will_set_content` and `webview_did_receive_js_message`.
-        
+
         Please note that Anki's main screen is due to undergo a significant refactor
         in the future and, as a result, add-ons subscribing to this hook will likely
         require changes to continue working.
@@ -1161,7 +1193,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=["editor: aqt.editor.Editor", "path_or_nid: str | anki.notes.NoteId"],
         doc="""Called when the image occlusion mask editor has completed
         loading an image.
-        
+
         When adding new notes `path_or_nid` will be the path to the image file.
         When editing existing notes `path_or_nid` will be the note id.""",
     ),
@@ -1250,7 +1282,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="addon_manager_will_install_addon",
         args=["manager: aqt.addons.AddonManager", "module: str"],
         doc="""Called before installing or updating an addon.
-        
+
         Can be used to release DB connections or open files that
         would prevent an update from succeeding.""",
     ),
@@ -1258,7 +1290,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="addon_manager_did_install_addon",
         args=["manager: aqt.addons.AddonManager", "module: str"],
         doc="""Called after installing or updating an addon.
-        
+
         Can be used to restore DB connections or open files after
         an add-on has been updated.""",
     ),
