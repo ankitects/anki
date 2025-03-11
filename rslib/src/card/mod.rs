@@ -496,9 +496,7 @@ impl From<MemoryState> for FsrsMemoryState {
 
 #[cfg(test)]
 mod test {
-    use crate::prelude::AnkiError;
-    use crate::prelude::Collection;
-    use crate::prelude::DeckId;
+    use crate::prelude::*;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
     use crate::tests::DeckAdder;
