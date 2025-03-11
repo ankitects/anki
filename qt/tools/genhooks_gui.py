@@ -102,13 +102,17 @@ hooks = [
     ),
     Hook(
         name="reviewer_will_compare_answer",
-        args=["expected_provided_tuple: tuple[str, str]"],
+        args=[
+            "expected_provided_tuple: tuple[str, str]",
+            "type_pattern: str",
+        ],
         return_type="tuple[str, str]",
         doc="""Modify expected answer and provided answer before comparing
 
         expected_provided_tuple is a tuple composed of:
         - expected answer
         - provided answer
+        type_pattern is the detail of the type tag on the card
 
         Return a tuple composed of:
         - modified expected answer
@@ -121,6 +125,7 @@ hooks = [
             "output: str",
             "initial_expected: str",
             "initial_provided: str",
+            "type_pattern: str",
         ],
         return_type="str",
         doc="""Modify the output of default compare answer feature
@@ -128,6 +133,7 @@ hooks = [
         output is the result of default compare answer function
         initial_expected is the expected answer from the card
         initial_provided is the answer provided during review
+        type_pattern is the detail of the type tag on the card
 
         Return a string comparing expected and provided answers
         """,

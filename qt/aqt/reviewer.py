@@ -749,6 +749,8 @@ class Reviewer:
     def typeAnsAnswerFilter(self, buf: str) -> str:
         if not self.typeCorrect:
             return re.sub(self.typeAnsPat, "", buf)
+        m = re.search(self.typeAnsPat, buf)
+        type_pattern = m.group(1) if m else ""
         orig = buf
         origSize = len(buf)
         buf = buf.replace("<hr id=answer>", "")
@@ -756,7 +758,7 @@ class Reviewer:
         initial_expected = self.typeCorrect
         initial_provided = self.typedAnswer
         expected, provided = gui_hooks.reviewer_will_compare_answer(
-            (initial_expected, initial_provided)
+            (initial_expected, initial_provided), type_pattern
         )
 
         output = self.mw.col.compare_answer(expected, provided, self._combining)
@@ -764,6 +766,7 @@ class Reviewer:
             output,
             initial_expected,
             initial_provided,
+            type_pattern,
         )
 
         # and update the type answer area
