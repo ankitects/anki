@@ -376,13 +376,14 @@ impl Collection {
                         ..
                     }))
                 ),
-            )
+            )?;
         } else {
             if card.queue == CardQueue::Suspended {
                 invalid_input!("Can't answer suspended cards");
             }
-            self.update_queues_after_grading_card(&card, timing)
         }
+
+        Ok(())
     }
 
     fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConfig) -> Result<()> {

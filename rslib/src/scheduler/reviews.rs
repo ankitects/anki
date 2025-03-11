@@ -146,6 +146,9 @@ impl Collection {
 
     pub fn grade_now(&mut self, cids: &[CardId], rating: i32) -> Result<OpOutput<()>> {
         self.transact(Op::GradeNow, |col| {
+            // Process all cards first, collecting their IDs in a HashSet
+            let mut processed_card_ids = std::collections::HashSet::with_capacity(cids.len());
+
             for &card_id in cids {
                 let states = col.get_scheduling_states(card_id)?;
                 let new_state = match rating {
@@ -164,8 +167,17 @@ impl Collection {
                     answered_at_millis: TimestampMillis::now().into(),
                     from_queue: false,
                 };
+
+                // Add to the set of processed cards
+                processed_card_ids.insert(card_id);
+
+                // Process the card without updating queues yet
                 col.answer_card_inner(&mut answer.into())?;
             }
+
+            // Now update the queues once for all processed cards
+            col.update_queues_for_processed_cards(&processed_card_ids)?;
+
             Ok(())
         })
     }
