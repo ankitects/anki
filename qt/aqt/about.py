@@ -215,6 +215,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Danika_Dakika",
             "Marcelo Vasconcelos",
             "Mumtaz Hajjo Alrifai",
+            "Luc Mcgrady",
+            "Brayan Oliveira",
         )
     )
 
