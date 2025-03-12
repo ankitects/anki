@@ -153,9 +153,9 @@ impl LintContext {
                 .args(["rev-parse", "--show-toplevel"])
                 .output()?
                 .stdout,
-        )?;
-
-        let root_dir = root_dir.trim_end();
+        )?
+        .trim_end()
+        .to_string();
 
         let file = File::open(format!("{}/CONTRIBUTORS", root_dir))?;
         let mut contributors: Vec<String> = Vec::new();
@@ -170,7 +170,7 @@ impl LintContext {
                     continue;
                 }
                 if inside_name_section {
-                    contributors.push(line.clone());
+                    contributors.push(line);
                 }
             }
         }
