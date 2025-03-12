@@ -59,7 +59,7 @@ from anki._backend import RustBackend
 from anki.buildinfo import version as _version
 from anki.collection import Collection
 from anki.consts import HELP_SITE
-from anki.utils import checksum, is_lin, is_mac
+from anki.utils import checksum, is_gnome, is_lin, is_mac
 from aqt import gui_hooks
 from aqt.log import setup_logging
 from aqt.qt import *
@@ -614,7 +614,7 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
     )
     wayland_forced = os.getenv("ANKI_WAYLAND")
 
-    if packaged and wayland_configured:
+    if (packaged or is_gnome) and wayland_configured:
         if wayland_forced or not x11_available:
             # Work around broken fractional scaling in Wayland
             # https://bugreports.qt.io/browse/QTBUG-113574
