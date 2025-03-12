@@ -6,6 +6,8 @@ use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::fs::File;
+use std::io::BufRead;
+use std::io::BufReader;
 use std::io::Read;
 use std::io::Write;
 use std::path::Path;
@@ -146,19 +148,51 @@ impl LintContext {
                 .stdout,
         )?;
 
-        let all_contributors = String::from_utf8(
+        let root_dir = String::from_utf8(
             Command::new("git")
-                .args(["log", "--pretty=format:%ae", "CONTRIBUTORS"])
+                .args(["rev-parse", "--show-toplevel"])
                 .output()?
                 .stdout,
         )?;
-        let all_contributors = all_contributors.lines().collect::<HashSet<&str>>();
 
-        if last_author == "49699333+dependabot[bot]@users.noreply.github.com" {
-            println!("Dependabot whitelisted.");
-            return Ok(());
-        } else if all_contributors.contains(last_author.as_str()) {
-            return Ok(());
+        let root_dir = root_dir.trim_end();
+
+        let file = File::open(format!("{}/CONTRIBUTORS", root_dir))?;
+        let mut contributors: Vec<String> = Vec::new();
+
+        {
+            let mut inside_name_section = false;
+            let reader = BufReader::new(file);
+            for line in reader.lines() {
+                let line = line?;
+                if line.trim_start().starts_with(&"*".repeat(10)) {
+                    inside_name_section = !inside_name_section;
+                    continue;
+                }
+                if inside_name_section {
+                    contributors.push(line.clone());
+                }
+            }
+        }
+
+        let all_contributors = contributors.into_iter().collect::<HashSet<String>>();
+
+        match last_author.as_str() {
+            "49699333+dependabot[bot]@users.noreply.github.com" => {
+                println!("Dependabot whitelisted.");
+                return Ok(());
+            }
+            "gpg@ankiweb.net" => {
+                return Ok(());
+            }
+            _ => {
+                if all_contributors
+                    .iter()
+                    .any(|s| s.contains(last_author.as_str()))
+                {
+                    return Ok(());
+                }
+            }
         }
 
         println!("All contributors:");
