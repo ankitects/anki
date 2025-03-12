@@ -38,7 +38,7 @@ pub(crate) struct CardQueues {
     /// counts are zero. Ensures we don't show a newly-due learning card after a
     /// user returns from editing a review card.
     current_learning_cutoff: TimestampSecs,
-    pub(crate) load_balancer: LoadBalancer,
+    pub(crate) load_balancer: Option<LoadBalancer>,
 }
 
 #[derive(Debug, Copy, Clone)]
