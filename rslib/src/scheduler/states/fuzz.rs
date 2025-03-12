@@ -34,9 +34,11 @@ static FUZZ_RANGES: [FuzzRange; 3] = [
 impl StateContext<'_> {
     /// Apply fuzz, respecting the passed bounds.
     pub(crate) fn with_review_fuzz(&self, interval: f32, minimum: u32, maximum: u32) -> u32 {
-        self.load_balancer
+        self.load_balancer_ctx
             .as_ref()
-            .and_then(|load_balancer| load_balancer.find_interval(interval, minimum, maximum))
+            .and_then(|load_balancer_ctx| {
+                load_balancer_ctx.find_interval(interval, minimum, maximum)
+            })
             .unwrap_or_else(|| with_review_fuzz(self.fuzz_factor, interval, minimum, maximum))
     }
 }
