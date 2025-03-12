@@ -4,6 +4,7 @@
 use anki_proto::stats::graphs_response::Retrievability;
 use fsrs::FSRS;
 
+use crate::prelude::TimestampSecs;
 use crate::scheduler::timing::SchedTimingToday;
 use crate::stats::graphs::eases::percent_to_bin;
 use crate::stats::graphs::GraphsContext;
@@ -15,8 +16,8 @@ impl GraphsContext {
         let mut card_with_retrievability_count: usize = 0;
         let timing = SchedTimingToday {
             days_elapsed: self.days_elapsed,
-            now: Default::default(),
-            next_day_at: Default::default(),
+            now: TimestampSecs::now(),
+            next_day_at: self.next_day_start,
         };
         let fsrs = FSRS::new(None).unwrap();
         // note id -> (sum, count)
