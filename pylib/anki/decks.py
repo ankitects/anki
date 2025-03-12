@@ -197,6 +197,13 @@ class DeckManager(DeprecatedNamesMixin):
                 return match
         return None
 
+    @staticmethod
+    def has_child_deck(node: DeckTreeNode, deck_id: DeckId) -> bool:
+        for child in node.children:
+            if child.deck_id == deck_id:
+                return True
+        return False
+
     def all(self) -> list[DeckDict]:
         "All decks. Expensive; prefer all_names_and_ids()"
         return self.get_all_legacy()

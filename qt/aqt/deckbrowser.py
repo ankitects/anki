@@ -358,9 +358,13 @@ class DeckBrowser:
             self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: DeckId, target: DeckId) -> None:
-        reparent_decks(
-            parent=self.mw, deck_ids=[source], new_parent=target
-        ).run_in_background()
+        decks = self.mw.col.decks
+        deck = decks.find_deck_in_tree(self._render_data.tree, target)
+        assert deck is not None
+        if not decks.has_child_deck(deck, source):
+            reparent_decks(
+                parent=self.mw, deck_ids=[source], new_parent=target
+            ).run_in_background()
 
     def _delete(self, did: DeckId) -> None:
         deck = self.mw.col.decks.find_deck_in_tree(self._render_data.tree, did)
