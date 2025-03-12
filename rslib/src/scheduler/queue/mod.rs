@@ -253,23 +253,27 @@ impl Collection {
         if let Some(queues) = &mut self.state.card_queues {
             // Remove all processed cards from the queues at once
             if !processed_card_ids.is_empty() {
+                let mut removed_intraday_learning = 0;
+
                 // Remove from intraday learning queue
-                let original_learning_count = queues.counts.learning;
-                queues
-                    .intraday_learning
-                    .retain(|entry| !processed_card_ids.contains(&entry.id));
-                let removed_learning = original_learning_count
-                    - queues.counts.learning
-                    - (original_learning_count - queues.intraday_learning.len());
-                if removed_learning > 0 {
-                    queues.counts.learning =
-                        queues.counts.learning.saturating_sub(removed_learning);
-                }
+                queues.intraday_learning.retain(|entry| {
+                    if processed_card_ids.contains(&entry.id) {
+                        removed_intraday_learning += 1;
+                        false
+                    } else {
+                        true
+                    }
+                });
+                queues.counts.learning = queues
+                    .counts
+                    .learning
+                    .saturating_sub(removed_intraday_learning);
 
                 let mut removed_new = 0;
                 let mut removed_review = 0;
                 let mut removed_interday_learning = 0;
 
+                // Remove from main queue
                 queues.main.retain(|entry| {
                     if processed_card_ids.contains(&entry.id) {
                         match entry.kind {
