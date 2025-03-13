@@ -3,7 +3,7 @@
 
 use fsrs::FSRS;
 
-use crate::card::CardType;
+use crate::card::{CardType, FsrsMemoryState};
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;
@@ -140,26 +140,33 @@ impl Collection {
         let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
 
         let mut result = Vec::new();
-        let mut accumulated_revlog = Vec::new();
+        let (item, filtered_revlog) = fsrs_item_for_memory_state(
+            &fsrs,
+            revlog.clone(),
+            next_day_at,
+            historical_retention,
+            ignore_before,
+        )?;
 
-        for entry in revlog {
-            accumulated_revlog.push(entry.clone());
-            let item = fsrs_item_for_memory_state(
-                &fsrs,
-                accumulated_revlog.clone(),
-                next_day_at,
-                historical_retention,
-                ignore_before,
-            )?;
-            let mut card_clone = card.clone();
-            card_clone.set_memory_state(&fsrs, item, historical_retention)?;
-
-            let mut stats_entry = stats_revlog_entry(&entry);
-            stats_entry.memory_state = card_clone.memory_state.map(Into::into);
-            result.push(stats_entry);
+        if let (Some(item), Some(filtered_revlog)) = (item, filtered_revlog) {
+            let memory_states = fsrs.historical_memory_states(item.item, item.starting_state)?;
+            let mut revlog_index = 0;
+            for entry in revlog {
+                let mut stats_entry = stats_revlog_entry(&entry);
+                let memory_state: FsrsMemoryState = if entry.id == filtered_revlog[revlog_index].id
+                {
+                    revlog_index += 1;
+                    memory_states[revlog_index - 1].into()
+                } else {
+                    memory_states[revlog_index].into()
+                };
+                stats_entry.memory_state = Some(memory_state.into());
+                result.push(stats_entry);
+            }
+            Ok(result.into_iter().rev().collect())
+        } else {
+            Ok(revlog.iter().map(stats_revlog_entry).collect())
         }
-
-        Ok(result.into_iter().rev().collect())
     }
 }
 

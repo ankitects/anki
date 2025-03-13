@@ -439,7 +439,7 @@ impl Collection {
                 // and will need its initial memory state to be calculated based on review
                 // history.
                 let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
-                let item = fsrs_item_for_memory_state(
+                let (item, _) = fsrs_item_for_memory_state(
                     &fsrs,
                     revlog,
                     timing.next_day_at,
