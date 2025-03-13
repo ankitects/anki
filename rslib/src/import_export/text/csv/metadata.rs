@@ -606,8 +606,6 @@ impl NameOrId {
 
 #[cfg(test)]
 pub(in crate::import_export) mod test {
-    use std::io::Cursor;
-
     use super::*;
 
     macro_rules! metadata {
@@ -615,7 +613,7 @@ pub(in crate::import_export) mod test {
             metadata!($col, $csv, None)
         };
         ($col:expr,$csv:expr, $delim:expr) => {
-            $col.get_reader_metadata(Cursor::new($csv.as_bytes()), $delim, None, None, None)
+            $col.get_reader_metadata($csv, $delim, None, None, None)
                 .unwrap()
         };
     }
