@@ -142,6 +142,7 @@ impl Collection {
             .min(req.new_limit as usize);
         if req.new_limit > 0 {
             let new_cards = (0..new_cards).map(|i| fsrs::Card {
+                id: -(i as i32),
                 difficulty: f32::NEG_INFINITY,
                 stability: 1e-8,              // Not filtered by fsrs-rs
                 last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
@@ -160,9 +161,9 @@ impl Collection {
         let post_scheduling_fn: Option<PostSchedulingFn> =
             if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
                 Some(PostSchedulingFn(Arc::new(
-                    move |interval, max_interval, today, due_cnt_per_day, rng| {
+                    move |card, max_interval, today, due_cnt_per_day, rng| {
                         apply_load_balance_and_easy_days(
-                            interval,
+                            card.interval,
                             max_interval,
                             today,
                             due_cnt_per_day,
@@ -236,6 +237,7 @@ impl Card {
                     let relative_due = due - days_elapsed;
                     let last_date = (relative_due - card.interval as i32).min(0) as f32;
                     Some(fsrs::Card {
+                        id: card.id.0 as i32,
                         difficulty: state.difficulty,
                         stability: state.stability,
                         last_date,
@@ -247,6 +249,7 @@ impl Card {
                 CardQueue::New => None,
                 CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => {
                     Some(fsrs::Card {
+                        id: card.id.0 as i32,
                         difficulty: state.difficulty,
                         stability: state.stability,
                         last_date: 0.0,
