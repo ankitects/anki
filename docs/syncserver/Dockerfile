@@ -7,6 +7,7 @@ RUN apk update && apk add --no-cache build-base protobuf && rm -rf /var/cache/ap
 RUN cargo install --git https://github.com/ankitects/anki.git \
 --tag ${ANKI_VERSION} \
 --root /anki-server  \
+--locked \
 anki-sync-server
 
 FROM alpine:3.21.0
