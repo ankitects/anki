@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y build-essential protobuf-compiler && ap
 RUN cargo install --git https://github.com/ankitects/anki.git \
 --tag ${ANKI_VERSION} \
 --root /anki-server  \
+--locked \
 anki-sync-server
 
 FROM gcr.io/distroless/cc-debian12
