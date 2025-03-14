@@ -368,8 +368,8 @@ pub fn select_weighted_interval(
             let weight = match interval.review_count {
                 0 => 1.0, // if theres no cards due on this day, give it the full 1.0 weight
                 card_count => {
-                    let card_count_weight = (1.0 / card_count as f32).powi(2);
-                    let card_interval_weight = 1.0 / interval.target_interval as f32;
+                    let card_count_weight = (1.0 / card_count as f32).powf(2.15);
+                    let card_interval_weight = (1.0 / interval.target_interval as f32).powi(3);
 
                     card_count_weight
                         * card_interval_weight
