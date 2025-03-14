@@ -401,15 +401,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         </InputBox>
                     </div>
 
-                    <svg
-                        bind:this={svg}
-                        viewBox={`0 0 ${bounds.width} ${bounds.height}`}
-                    >
-                        <CumulativeOverlay />
-                        <HoverColumns />
-                        <AxisTicks {bounds} />
-                        <NoDataOverlay {bounds} />
-                    </svg>
+                    <div class="svg-container">
+                        <svg
+                            bind:this={svg}
+                            viewBox={`0 0 ${bounds.width} ${bounds.height}`}
+                        >
+                            <CumulativeOverlay />
+                            <HoverColumns />
+                            <AxisTicks {bounds} />
+                            <NoDataOverlay {bounds} />
+                        </svg>
+                    </div>
 
                     <TableData {tableData} />
                 </Graph>
@@ -421,6 +423,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     .modal {
         background-color: rgba(0, 0, 0, 0.5);
+        --bs-modal-margin: 0;
+    }
+
+    .svg-container {
+        width: 100%;
+        max-height: calc(100vh - 400px); /* Account for modal header, controls, etc */
+        aspect-ratio: 600 / 250;
+        display: flex;
+        align-items: center;
+    }
+
+    svg {
+        width: 100%;
+        height: 100%;
     }
 
     .modal-header {
