@@ -142,7 +142,7 @@ impl Collection {
             .min(req.new_limit as usize);
         if req.new_limit > 0 {
             let new_cards = (0..new_cards).map(|i| fsrs::Card {
-                id: -(i as i32),
+                id: -(i as i64),
                 difficulty: f32::NEG_INFINITY,
                 stability: 1e-8,              // Not filtered by fsrs-rs
                 last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
@@ -237,7 +237,7 @@ impl Card {
                     let relative_due = due - days_elapsed;
                     let last_date = (relative_due - card.interval as i32).min(0) as f32;
                     Some(fsrs::Card {
-                        id: card.id.0 as i32,
+                        id: card.id.0,
                         difficulty: state.difficulty,
                         stability: state.stability,
                         last_date,
@@ -249,7 +249,7 @@ impl Card {
                 CardQueue::New => None,
                 CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => {
                     Some(fsrs::Card {
-                        id: card.id.0 as i32,
+                        id: card.id.0,
                         difficulty: state.difficulty,
                         stability: state.stability,
                         last_date: 0.0,
