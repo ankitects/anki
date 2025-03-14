@@ -246,6 +246,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </SpinBoxRow>
 
                 <details>
+                    <summary>{tr.deckConfigEasyDaysTitle()}</summary>
+                    {#key easyDayPercentages}
+                        <EasyDaysInput bind:values={easyDayPercentages} />
+                    {/key}
+                </details>
+
+                <details>
                     <summary>{"Advanced settings"}</summary>
                     <SpinBoxRow
                         bind:value={simulateFsrsRequest.maxInterval}
@@ -319,13 +326,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             </SettingTitle>
                         </SpinBoxRow>
                     {/if}
-                </details>
-
-                <details>
-                    <summary>{tr.deckConfigEasyDaysTitle()}</summary>
-                    {#key easyDayPercentages}
-                        <EasyDaysInput bind:values={easyDayPercentages} />
-                    {/key}
                 </details>
 
                 <button
