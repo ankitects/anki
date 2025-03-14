@@ -7,7 +7,6 @@ mod learning;
 mod main;
 pub(crate) mod undo;
 
-use std::collections::HashSet;
 use std::collections::VecDeque;
 
 use anki_proto::scheduler::SchedulingContext;
