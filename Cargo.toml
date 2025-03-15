@@ -111,6 +111,7 @@ prost-reflect = "0.14"
 prost-types = "0.13"
 pulldown-cmark = "0.9.6"
 pyo3 = { version = "0.23.4", features = ["extension-module", "abi3", "abi3-py39"] }
+qsv-sniffer = "0.10.3"
 rand = "0.8.5"
 regex = "1.11.0"
 reqwest = { version = "0.12.8", default-features = false, features = ["json", "socks", "stream", "multipart"] }
