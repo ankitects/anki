@@ -241,21 +241,14 @@ impl Collection {
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
 
-        let load_balancer_ctx = self
-            .get_config_bool(BoolKey::LoadBalancerEnabled)
-            .then(|| {
-                let deckconfig_id = deck.config_id();
-
-                self.state.card_queues.as_ref().and_then(|card_queues| {
-                    match card_queues.load_balancer.as_ref() {
-                        None => None,
-                        Some(load_balancer) => {
-                            Some(load_balancer.review_context(note_id, deckconfig_id?))
-                        }
-                    }
-                })
-            })
-            .flatten();
+        let load_balancer_ctx = self.state.card_queues.as_ref().and_then(|card_queues| {
+            match card_queues.load_balancer.as_ref() {
+                None => None,
+                Some(load_balancer) => {
+                    Some(load_balancer.review_context(note_id, deck.config_id()?))
+                }
+            }
+        });
 
         let state_ctx = ctx.state_context(load_balancer_ctx);
         Ok(current.next_states(&state_ctx))
