@@ -247,7 +247,7 @@ impl Collection {
                 let deckconfig_id = deck.config_id();
 
                 self.state.card_queues.as_ref().and_then(|card_queues| {
-                    match &card_queues.load_balancer {
+                    match card_queues.load_balancer.as_ref() {
                         None => None,
                         Some(load_balancer) => {
                             Some(load_balancer.review_context(note_id, deckconfig_id?))
@@ -351,11 +351,11 @@ impl Collection {
             self.add_leech_tag(card.note_id)?;
         }
 
-        if self.get_config_bool(BoolKey::LoadBalancerEnabled) && card.queue == CardQueue::Review {
+        if card.queue == CardQueue::Review {
             let deck = self.get_deck(card.deck_id)?;
             if let Some(card_queues) = self.state.card_queues.as_mut() {
                 if let Some(deckconfig_id) = deck.and_then(|deck| deck.config_id()) {
-                    if let Some(load_balancer) = &mut card_queues.load_balancer {
+                    if let Some(load_balancer) = card_queues.load_balancer.as_mut() {
                         load_balancer.add_card(card.id, card.note_id, deckconfig_id, card.interval)
                     }
                 }
