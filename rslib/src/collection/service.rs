@@ -49,4 +49,9 @@ impl crate::services::CollectionService for Collection {
         self.state.progress.lock().unwrap().want_abort = true;
         Ok(())
     }
+
+    fn clear_study_queues(&mut self) -> error::Result<()> {
+        self.clear_study_queues();
+        Ok(())
+    }
 }
