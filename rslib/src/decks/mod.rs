@@ -142,6 +142,14 @@ impl Deck {
             String::new()
         }
     }
+
+    pub fn maybe_inherit_parent_config(&mut self, parent_deck: &Deck) {
+        if let DeckKind::Normal(parent_deck) = &parent_deck.kind {
+            if let DeckKind::Normal(deck) = &mut self.kind {
+                deck.config_id = parent_deck.config_id;
+            }
+        }
+    }
 }
 
 impl Collection {
