@@ -2,7 +2,7 @@
     "editor.formatOnSave": true,
     "[python]": {
         "editor.codeActionsOnSave": {
-            "source.organizeImports": true
+            "source.organizeImports": "explicit"
         }
     },
     "files.watcherExclude": {
