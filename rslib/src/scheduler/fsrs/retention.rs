@@ -44,9 +44,9 @@ impl Collection {
         let post_scheduling_fn: Option<PostSchedulingFn> =
             if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
                 Some(PostSchedulingFn(Arc::new(
-                    move |interval, max_interval, today, due_cnt_per_day, rng| {
+                    move |card, max_interval, today, due_cnt_per_day, rng| {
                         apply_load_balance_and_easy_days(
-                            interval,
+                            card.interval,
                             max_interval,
                             today,
                             due_cnt_per_day,
@@ -78,6 +78,7 @@ impl Collection {
                     learn_limit,
                     review_limit: usize::MAX,
                     new_cards_ignore_review_limit: true,
+                    suspend_after_lapses: None,
                     post_scheduling_fn,
                     review_priority_fn: None,
                 },
