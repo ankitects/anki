@@ -157,8 +157,14 @@ class Previewer(QDialog):
         if cmd.startswith("play:"):
             card = self.card()
             assert card is not None
-
             play_clicked_audio(cmd, card)
+
+        elif cmd.startswith("autoplay:"):
+            card = self.card()
+            assert card is not None
+            if card.autoplay():
+                self._web.setPlaybackRequiresGesture(False)
+                play_clicked_audio(cmd, card)
 
     def _update_flag_and_mark_icons(self, card: Card | None) -> None:
         if card:

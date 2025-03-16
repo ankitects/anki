@@ -435,6 +435,10 @@ class CardLayout(QDialog):
     def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.rendered_card)
+        if cmd.startswith("autoplay:"):
+            if self.rendered_card.autoplay():
+                self.preview_web.setPlaybackRequiresGesture(False)
+                play_clicked_audio(cmd, self.rendered_card)
 
     def note_has_empty_field(self) -> bool:
         for field in self.note.fields:
