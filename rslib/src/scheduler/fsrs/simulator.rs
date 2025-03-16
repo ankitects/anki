@@ -203,7 +203,6 @@ impl Collection {
             suspend_after_lapses: req.suspend_after_lapse_count,
             post_scheduling_fn,
             review_priority_fn,
-            suspend_after_lapses: None,
         };
         let result = simulate(
             &config,

@@ -3,7 +3,8 @@
 
 use fsrs::FSRS;
 
-use crate::card::{CardType, FsrsMemoryState};
+use crate::card::CardType;
+use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;

@@ -81,7 +81,6 @@ impl Collection {
                     suspend_after_lapses: None,
                     post_scheduling_fn,
                     review_priority_fn: None,
-                    suspend_after_lapses: None,
                 },
                 &req.params,
                 |ip| {
