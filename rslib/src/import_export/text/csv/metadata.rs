@@ -121,19 +121,34 @@ impl Collection {
     }
 
     fn parse_meta_value(&mut self, key: &str, value: &str, metadata: &mut CsvMetadata) {
+        // trim potential delimiters past the first char* if
+        // metadata line was mistakenly exported as a record
+        // *to allow cases like #separator:,
+        // ASSUMPTION: delimiters are not ascii-alphanumeric
+        let trimmed_value = value
+            .char_indices()
+            .nth(1)
+            .and_then(|(i, _)| {
+                value[i..] // SAFETY: char_indices are on char boundaries
+                    .find(|c| !char::is_ascii_alphanumeric(&c))
+                    .map(|j| value.split_at(i + j).0)
+            })
+            .unwrap_or(value);
+
         match key.trim().to_ascii_lowercase().as_str() {
             "separator" => {
-                if let Some(delimiter) = delimiter_from_value(value) {
+                if let Some(delimiter) = delimiter_from_value(trimmed_value) {
                     metadata.delimiter = delimiter as i32;
                     metadata.force_delimiter = true;
                 }
             }
             "html" => {
-                if let Ok(is_html) = value.to_lowercase().parse() {
+                if let Ok(is_html) = trimmed_value.to_lowercase().parse() {
                     metadata.is_html = is_html;
                     metadata.force_is_html = true;
                 }
             }
+            // freeform values cannot be trimmed thus without knowing the exact delimiter
             "tags" => metadata.global_tags = collect_tags(value),
             "columns" => {
                 if let Ok(columns) = parse_columns(value, metadata.delimiter()) {
@@ -151,22 +166,22 @@ impl Collection {
                 }
             }
             "notetype column" => {
-                if let Ok(n) = value.trim().parse() {
+                if let Ok(n) = trimmed_value.trim().parse() {
                     metadata.notetype = Some(CsvNotetype::NotetypeColumn(n));
                 }
             }
             "deck column" => {
-                if let Ok(n) = value.trim().parse() {
+                if let Ok(n) = trimmed_value.trim().parse() {
                     metadata.deck = Some(CsvDeck::DeckColumn(n));
                 }
             }
             "tags column" => {
-                if let Ok(n) = value.trim().parse() {
+                if let Ok(n) = trimmed_value.trim().parse() {
                     metadata.tags_column = n;
                 }
             }
             "guid column" => {
-                if let Ok(n) = value.trim().parse() {
+                if let Ok(n) = trimmed_value.trim().parse() {
                     metadata.guid_column = n;
                 }
             }
