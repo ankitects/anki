@@ -906,4 +906,32 @@ pub(in crate::import_export) mod test {
         maybe_set_tags_column(&mut metadata, &meta_columns);
         assert_eq!(metadata.tags_column, 4);
     }
+
+    #[test]
+    fn should_allow_non_freeform_metadata_lines_to_be_suffixed_by_delimiters() {
+        let mut col = Collection::new();
+        let metadata = metadata!(
+            col,
+            r#"
+#separator:Pipe,,,,,,,
+#html:true|||||
+#tags:foo bar::世界,,,
+#guid column:8   
+#tags column:123abc 
+        "#
+            .trim()
+        );
+        assert_eq!(metadata.delimiter(), Delimiter::Pipe);
+        assert!(metadata.is_html);
+        assert_eq!(metadata.guid_column, 8);
+        // tags is freeform, potential delimiters aren't trimmed
+        assert_eq!(metadata.global_tags, ["foo", "bar::世界,,,"]);
+        // ascii alphanumerics aren't trimmed away
+        assert_eq!(metadata.tags_column, 0);
+
+        assert_eq!(
+            metadata!(col, "#separator:\t|,:\n").delimiter(),
+            Delimiter::Tab
+        );
+    }
 }
