@@ -948,7 +948,7 @@ class AddonsDialog(QDialog):
             openLink(page)
 
     def onViewFiles(self) -> None:
-        # if nothing selected, open top level folder
+        # if nothing selected, open top-level folder
         selected = self.selectedAddons()
         if not selected:
             openFolder(self.mgr.addonsFolder())
