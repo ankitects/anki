@@ -52,6 +52,7 @@ pub struct CardAnswer {
     pub answered_at: TimestampMillis,
     pub milliseconds_taken: u32,
     pub custom_data: Option<String>,
+    pub from_queue: bool,
 }
 
 impl CardAnswer {
@@ -312,7 +313,7 @@ impl Collection {
         self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer))
     }
 
-    fn answer_card_inner(&mut self, answer: &mut CardAnswer) -> Result<()> {
+    pub(crate) fn answer_card_inner(&mut self, answer: &mut CardAnswer) -> Result<()> {
         let card = self
             .storage
             .get_card(answer.card_id)?
@@ -363,14 +364,24 @@ impl Collection {
             }
         }
 
-        self.update_queues_after_answering_card(
-            &card,
-            timing,
-            matches!(
-                answer.new_state,
-                CardState::Filtered(FilteredState::Preview(PreviewState { finished: true, .. }))
-            ),
-        )
+        // Handle queue updates based on from_queue flag
+        if answer.from_queue {
+            self.update_queues_after_answering_card(
+                &card,
+                timing,
+                matches!(
+                    answer.new_state,
+                    CardState::Filtered(FilteredState::Preview(PreviewState {
+                        finished: true,
+                        ..
+                    }))
+                ),
+            )?;
+        } else if card.queue == CardQueue::Suspended {
+            invalid_input!("Can't answer suspended cards");
+        }
+
+        Ok(())
     }
 
     fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConfig) -> Result<()> {
@@ -588,6 +599,7 @@ pub mod test_helpers {
                 answered_at: TimestampMillis::now(),
                 milliseconds_taken: 0,
                 custom_data: None,
+                from_queue: true,
             })?;
             Ok(PostAnswerState {
                 card_id: queued.card.id,

@@ -78,6 +78,7 @@ impl Collection {
                     learn_limit,
                     review_limit: usize::MAX,
                     new_cards_ignore_review_limit: true,
+                    suspend_after_lapses: None,
                     post_scheduling_fn,
                     review_priority_fn: None,
                     suspend_after_lapses: None,

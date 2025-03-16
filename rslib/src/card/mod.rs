@@ -237,19 +237,25 @@ impl Card {
     /// greater delay, but output will be at least 1.
     fn new_remaining_steps(&self, new_steps: &[f32], old_steps: &[f32]) -> Option<u32> {
         let remaining = self.remaining_steps();
-        let new_remaining = old_steps
-            .len()
-            .checked_sub(remaining as usize + 1)
-            .and_then(|last_index| {
-                new_steps
-                    .iter()
-                    .rev()
-                    .position(|&step| step <= old_steps[last_index])
-            })
-            // no last delay or last delay is less than all new steps → all steps remain
-            .unwrap_or(new_steps.len())
-            // (re)learning card must have at least 1 step remaining
-            .max(1) as u32;
+
+        let new_remaining = if old_steps.is_empty() {
+            remaining
+        } else {
+            old_steps
+                .len()
+                .checked_sub(remaining as usize + 1)
+                .and_then(|last_index| {
+                    new_steps
+                        .iter()
+                        .rev()
+                        .position(|&step| step <= old_steps[last_index])
+                })
+                // no last delay or last delay is less than all new steps → all steps remain
+                .unwrap_or(new_steps.len())
+                // (re)learning card must have at least 1 step remaining
+                .max(1) as u32
+        };
+
         (remaining != new_remaining).then_some(new_remaining)
     }
 
@@ -490,6 +496,7 @@ impl From<MemoryState> for FsrsMemoryState {
 
 #[cfg(test)]
 mod test {
+    use crate::prelude::*;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
     use crate::tests::DeckAdder;
@@ -514,5 +521,28 @@ mod test {
         let card_id = col.get_first_card().id;
         col.set_deck(&[card_id], deck.id).unwrap();
         assert_eq!(col.get_first_card().remaining_steps, 2);
+    }
+
+    #[test]
+    fn should_not_recalculate_remaining_steps_if_there_are_no_old_steps() -> Result<(), AnkiError> {
+        let mut col = Collection::new();
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+
+        let card_id = col.get_first_card().id;
+        col.set_deck(&[card_id], DeckId(1))?;
+
+        col.set_default_learn_steps(vec![1., 10.]);
+
+        let _post_answer = col.answer_good();
+
+        col.set_default_learn_steps(vec![]);
+        col.set_default_learn_steps(vec![1., 10.]);
+
+        assert_eq!(col.get_first_card().remaining_steps, 1);
+
+        Ok(())
     }
 }

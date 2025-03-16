@@ -172,6 +172,11 @@ scheduling-set-due-date-done =
         [one] Set due date of { $cards } card.
        *[other] Set due date of { $cards } cards.
     }
+scheduling-graded-cards-done =
+    { $cards ->
+        [one] Graded { $cards } card.
+       *[other] Graded { $cards } cards.
+    }
 scheduling-forgot-cards =
     { $cards ->
         [one] Reset { $cards } card.

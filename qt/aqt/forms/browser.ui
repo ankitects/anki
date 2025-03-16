@@ -267,6 +267,7 @@
     <addaction name="actionChange_Deck"/>
     <addaction name="separator"/>
     <addaction name="action_set_due_date"/>
+    <addaction name="action_grade_now"/>
     <addaction name="action_forget"/>
     <addaction name="actionReposition"/>
     <addaction name="separator"/>
@@ -621,6 +622,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="action_grade_now">
+   <property name="text">
+    <string>actions_grade_now</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+G</string>
    </property>
   </action>
   <action name="action_forget">
