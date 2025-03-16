@@ -79,7 +79,6 @@ phf.workspace = true
 pin-project.workspace = true
 prost.workspace = true
 pulldown-cmark.workspace = true
-qsv-sniffer.workspace = true
 rand.workspace = true
 regex.workspace = true
 reqwest.workspace = true

@@ -8,6 +8,7 @@ use std::io::BufReader;
 use std::io::Cursor;
 use std::io::Read;
 use std::io::Seek;
+use std::io::SeekFrom;
 
 use anki_io::read_to_string;
 pub use anki_proto::import_export::csv_metadata::Deck as CsvDeck;
@@ -18,7 +19,6 @@ pub use anki_proto::import_export::csv_metadata::MatchScope;
 pub use anki_proto::import_export::csv_metadata::Notetype as CsvNotetype;
 pub use anki_proto::import_export::CsvMetadata;
 use itertools::Itertools;
-use qsv_sniffer::Sniffer;
 use strum::IntoEnumIterator;
 
 use super::import::build_csv_reader;
@@ -47,7 +47,9 @@ impl Collection {
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
         let text = read_to_string(path)?;
-        let meta = self.get_reader_metadata(&text, delimiter, notetype_id, deck_id, is_html)?;
+        let mut reader = Cursor::new(text);
+        let meta =
+            self.get_reader_metadata(&mut reader, delimiter, notetype_id, deck_id, is_html)?;
         if meta.preview.is_empty() {
             return Err(ImportError::EmptyFile.into());
         }
@@ -56,21 +58,15 @@ impl Collection {
 
     fn get_reader_metadata(
         &mut self,
-        text: impl AsRef<str>,
+        mut reader: impl Read + Seek,
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
         deck_id: Option<DeckId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let text = text.as_ref();
         let mut metadata = CsvMetadata::from_config(self);
-        let mut reader = Cursor::new(text);
-        let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)?;
-
-        // strip metadata before it interferes with delimiter heuristic
-        let reader_without_meta = Cursor::new(&text[meta_len..]);
-        maybe_set_fallback_delimiter(delimiter, &mut metadata, reader_without_meta)?;
-
+        let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)? as u64;
+        maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader, meta_len)?;
         let records = collect_preview_records(&mut metadata, reader)?;
         maybe_set_fallback_is_html(&mut metadata, &records, is_html)?;
         set_preview(&mut metadata, &records)?;
@@ -485,11 +481,13 @@ fn maybe_set_fallback_is_html(
 fn maybe_set_fallback_delimiter(
     delimiter: Option<Delimiter>,
     metadata: &mut CsvMetadata,
-    reader: impl Read + Seek,
+    mut reader: impl Read + Seek,
+    meta_len: u64,
 ) -> Result<()> {
     if let Some(delim) = delimiter {
         metadata.set_delimiter(delim);
     } else if !metadata.force_delimiter {
+        reader.seek(SeekFrom::Start(meta_len))?;
         metadata.set_delimiter(delimiter_from_reader(reader)?);
     }
     Ok(())
@@ -516,20 +514,10 @@ fn delimiter_from_value(value: &str) -> Option<Delimiter> {
     })
 }
 
-fn delimiter_from_reader(mut reader: impl Read + Seek) -> Result<Delimiter> {
-    let mut sniffer = Sniffer::new();
-    if let Ok(m) = sniffer.sniff_reader(&mut reader) {
-        let guess = char::from(m.dialect.delimiter);
-        if let Some(d) = delimiter_from_value(&guess.to_string()) {
-            return Ok(d);
-        }
-    }
-
-    // sniffing failed, fallback to old heuristic
-    reader.rewind()?;
-
+fn delimiter_from_reader(mut reader: impl Read) -> Result<Delimiter> {
     let mut buf = [0; 8 * 1024];
     let _ = reader.read(&mut buf)?;
+    // TODO: use smarter heuristic
     for delimiter in Delimiter::iter() {
         if buf.contains(&delimiter.byte()) {
             return Ok(delimiter);
@@ -606,6 +594,8 @@ impl NameOrId {
 
 #[cfg(test)]
 pub(in crate::import_export) mod test {
+    use std::io::Cursor;
+
     use super::*;
 
     macro_rules! metadata {
@@ -613,7 +603,7 @@ pub(in crate::import_export) mod test {
             metadata!($col, $csv, None)
         };
         ($col:expr,$csv:expr, $delim:expr) => {
-            $col.get_reader_metadata($csv, $delim, None, None, None)
+            $col.get_reader_metadata(Cursor::new($csv.as_bytes()), $delim, None, None, None)
                 .unwrap()
         };
     }

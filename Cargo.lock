@@ -129,7 +129,6 @@ dependencies = [
  "prost",
  "prost-reflect",
  "pulldown-cmark 0.9.6",
- "qsv-sniffer",
  "rand",
  "regex",
  "reqwest 0.12.8",
@@ -917,12 +916,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bytecount"
-version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ce89b21cab1437276d2650d57e971f9d548a2d9037cc231abdc0562b97498ce"
-
-[[package]]
 name = "bytemuck"
 version = "1.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1160,7 +1153,7 @@ checksum = "3538270d33cc669650c4b093848450d380def10c331d38c768e34cac80576e6e"
 dependencies = [
  "serde",
  "termcolor",
- "unicode-width 0.1.14",
+ "unicode-width",
 ]
 
 [[package]]
@@ -2390,7 +2383,7 @@ version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14dbbfd5c71d70241ecf9e6f13737f7b5ce823821063188d7e46c41d371eebd5"
 dependencies = [
- "unicode-width 0.1.14",
+ "unicode-width",
 ]
 
 [[package]]
@@ -4836,35 +4829,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "qsv-dateparser"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1e4144f1853fec6688ef12489dfcaced63f7b09cd234fa41bbe9d8f4a2bd84c"
-dependencies = [
- "anyhow",
- "chrono",
- "regex",
-]
-
-[[package]]
-name = "qsv-sniffer"
-version = "0.10.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c66171fd11b237cc1398ee258e708b2498d9463199a1592caf69ff0a6e9a375"
-dependencies = [
- "bitflags 2.6.0",
- "bytecount",
- "csv",
- "csv-core",
- "hashbrown 0.14.5",
- "memchr",
- "qsv-dateparser",
- "regex",
- "simdutf8",
- "tabwriter",
-]
-
-[[package]]
 name = "quick-xml"
 version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5758,12 +5722,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "simdutf8"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
-
-[[package]]
 name = "simple-file-manifest"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6042,15 +6000,6 @@ dependencies = [
  "nom",
  "time",
  "winapi",
-]
-
-[[package]]
-name = "tabwriter"
-version = "1.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fce91f2f0ec87dff7e6bcbbeb267439aa1188703003c6055193c821487400432"
-dependencies = [
- "unicode-width 0.2.0",
 ]
 
 [[package]]
@@ -6728,12 +6677,6 @@ name = "unicode-width"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
-
-[[package]]
-name = "unicode-width"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fc81956842c57dac11422a97c3b8195a1ff727f06e85c84ed2e8aa277c9a0fd"
 
 [[package]]
 name = "unicode-xid"

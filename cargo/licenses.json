@@ -549,15 +549,6 @@
     "description": "WGPU backend for the Burn framework"
   },
   {
-    "name": "bytecount",
-    "version": "0.6.8",
-    "authors": "Andre Bogus <bogusandre@gmail.de>|Joshua Landau <joshua@landau.ws>",
-    "repository": "https://github.com/llogiq/bytecount",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "count occurrences of a given byte, or the number of UTF-8 code points, in a byte slice, fast"
-  },
-  {
     "name": "bytemuck",
     "version": "1.21.0",
     "authors": "Lokathor <zefria@gmail.com>",
@@ -3087,24 +3078,6 @@
     "description": "Safe generic simd"
   },
   {
-    "name": "qsv-dateparser",
-    "version": "0.12.1",
-    "authors": "Joel Natividad <joel@datHere.com>",
-    "repository": "https://github.com/jqnatividad/qsv-dateparser",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Parse dates in string formats that are commonly used. Optimized for qsv."
-  },
-  {
-    "name": "qsv-sniffer",
-    "version": "0.10.3",
-    "authors": "Jamie Blondin <jblondin@gmail.com>|Joel Natividad <joel@datHere.com>",
-    "repository": "https://github.com/jqnatividad/qsv-sniffer",
-    "license": "MIT",
-    "license_file": null,
-    "description": "A CSV file format sniffer for Rust, optimized for qsv"
-  },
-  {
     "name": "quinn",
     "version": "0.11.5",
     "authors": null,
@@ -3735,15 +3708,6 @@
     "description": "Backend crate for signal-hook"
   },
   {
-    "name": "simdutf8",
-    "version": "0.1.5",
-    "authors": "Hans Kratz <hans@appfour.com>",
-    "repository": "https://github.com/rusticstuff/simdutf8",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "SIMD-accelerated UTF-8 validation."
-  },
-  {
     "name": "siphasher",
     "version": "0.3.11",
     "authors": "Frank Denis <github@pureftpd.org>",
@@ -3976,15 +3940,6 @@
     "license": "Unlicense",
     "license_file": null,
     "description": "Get system information/statistics in a cross-platform way"
-  },
-  {
-    "name": "tabwriter",
-    "version": "1.4.1",
-    "authors": "Andrew Gallant <jamslam@gmail.com>",
-    "repository": "https://github.com/BurntSushi/tabwriter",
-    "license": "MIT OR Unlicense",
-    "license_file": null,
-    "description": "Elastic tabstops."
   },
   {
     "name": "tempfile",
@@ -4448,15 +4403,6 @@
   {
     "name": "unicode-width",
     "version": "0.1.14",
-    "authors": "kwantam <kwantam@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>",
-    "repository": "https://github.com/unicode-rs/unicode-width",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Determine displayed width of `char` and `str` types according to Unicode Standard Annex #11 rules."
-  },
-  {
-    "name": "unicode-width",
-    "version": "0.2.0",
     "authors": "kwantam <kwantam@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>",
     "repository": "https://github.com/unicode-rs/unicode-width",
     "license": "Apache-2.0 OR MIT",
