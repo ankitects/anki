@@ -162,6 +162,7 @@ class Previewer(QDialog):
         elif cmd.startswith("autoplay:"):
             card = self.card()
             assert card is not None
+            assert self._web is not None
             if card.autoplay():
                 self._web.setPlaybackRequiresGesture(False)
                 play_clicked_audio(cmd, card)
