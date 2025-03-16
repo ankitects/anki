@@ -43,7 +43,6 @@ from aqt.utils import (
     askUser,
     disable_help_button,
     getFile,
-    is_win,
     openFolder,
     openLink,
     restoreGeom,
