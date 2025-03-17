@@ -221,7 +221,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     )
 
     abouttext += "<p>" + tr.about_written_by_damien_elmes_with_patches(
-        cont=", ".join(allusers) + ", and others"
+        cont=", ".join(allusers) + f", {tr.about_and_others()}"
     )
     abouttext += f"<p>{tr.about_if_you_have_contributed_and_are()}"
     abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"
