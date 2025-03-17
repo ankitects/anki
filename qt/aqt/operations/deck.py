@@ -35,9 +35,8 @@ def reparent_decks(
     return CollectionOp(
         parent, lambda col: col.decks.reparent(deck_ids=deck_ids, new_parent=new_parent)
     ).success(
-        lambda out: tooltip(
-            tr.browsing_reparented_decks(count=out.count), parent=parent
-        )
+        lambda out: out.count > 0
+        and tooltip(tr.browsing_reparented_decks(count=out.count), parent=parent)
     )
 
 
