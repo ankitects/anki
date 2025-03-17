@@ -32,12 +32,13 @@ def remove_decks(
 def reparent_decks(
     *, parent: QWidget, deck_ids: Sequence[DeckId], new_parent: DeckId
 ) -> CollectionOp[OpChangesWithCount]:
+    def on_success(out):
+        if out.count > 0:
+            tooltip(tr.browsing_reparented_decks(count=out.count), parent=parent)
+
     return CollectionOp(
         parent, lambda col: col.decks.reparent(deck_ids=deck_ids, new_parent=new_parent)
-    ).success(
-        lambda out: out.count > 0
-        and tooltip(tr.browsing_reparented_decks(count=out.count), parent=parent)
-    )
+    ).success(on_success)
 
 
 def rename_deck(

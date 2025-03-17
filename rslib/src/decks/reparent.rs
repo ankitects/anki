@@ -36,14 +36,17 @@ impl Collection {
         for deck in deck_ids {
             if let Some(mut deck) = self.storage.get_deck(*deck)? {
                 if let Some(new_name) = deck.name.reparented_name(target_name.as_ref()) {
-
                     let parent_decks = self.storage.parent_decks(&deck).unwrap();
                     match target_deck {
-                        Some(ref target) => if parent_decks.contains(&target) {
-                            continue;
+                        Some(ref target) => {
+                            if parent_decks.contains(target) {
+                                continue;
+                            }
                         }
-                        None => if parent_decks.is_empty() {
-                            continue;
+                        None => {
+                            if parent_decks.is_empty() {
+                                continue;
+                            }
                         }
                     }
 
