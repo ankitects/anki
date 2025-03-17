@@ -8,6 +8,7 @@ use rand::distributions::Distribution;
 use rand::distributions::Uniform;
 use regex::Regex;
 
+use super::answering::CardAnswer;
 use crate::card::Card;
 use crate::card::CardId;
 use crate::card::CardQueue;
@@ -139,6 +140,34 @@ impl Collection {
             }
             if let Some(key) = context {
                 col.set_config_string_inner(key, days)?;
+            }
+            Ok(())
+        })
+    }
+
+    pub fn grade_now(&mut self, cids: &[CardId], rating: i32) -> Result<OpOutput<()>> {
+        self.transact(Op::GradeNow, |col| {
+            for &card_id in cids {
+                let states = col.get_scheduling_states(card_id)?;
+                let new_state = match rating {
+                    0 => states.again,
+                    1 => states.hard,
+                    2 => states.good,
+                    3 => states.easy,
+                    _ => invalid_input!("invalid rating"),
+                };
+                let mut answer: CardAnswer = anki_proto::scheduler::CardAnswer {
+                    card_id: card_id.into(),
+                    current_state: Some(states.current.into()),
+                    new_state: Some(new_state.into()),
+                    rating,
+                    milliseconds_taken: 0,
+                    answered_at_millis: TimestampMillis::now().into(),
+                }
+                .into();
+                // Process the card without updating queues yet
+                answer.from_queue = false;
+                col.answer_card_inner(&mut answer)?;
             }
             Ok(())
         })

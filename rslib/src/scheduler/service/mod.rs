@@ -165,6 +165,14 @@ impl crate::services::SchedulerService for Collection {
         self.set_due_date(&cids, &days, config).map(Into::into)
     }
 
+    fn grade_now(
+        &mut self,
+        input: scheduler::GradeNowRequest,
+    ) -> Result<anki_proto::collection::OpChanges> {
+        self.grade_now(&input.card_ids.into_newtype(CardId), input.rating)
+            .map(Into::into)
+    }
+
     fn sort_cards(
         &mut self,
         input: scheduler::SortCardsRequest,

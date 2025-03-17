@@ -34,9 +34,9 @@ impl Rescheduler {
         let mut due_cnt_per_day_by_preset: HashMap<DeckConfigId, HashMap<i32, usize>> =
             HashMap::new();
         for (did, due_date, count) in deck_stats {
-            let deck_config_id = did_to_dcid[&did];
+            let deck_config_id = did_to_dcid.get(&did).or_not_found(did)?;
             due_cnt_per_day_by_preset
-                .entry(deck_config_id)
+                .entry(*deck_config_id)
                 .or_default()
                 .entry(due_date)
                 .and_modify(|e| *e += count)
