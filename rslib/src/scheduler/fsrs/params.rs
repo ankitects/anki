@@ -106,14 +106,41 @@ impl Collection {
 
         let (progress, progress_thread) = create_progress_thread()?;
         let fsrs = FSRS::new(None)?;
-        let mut params = fsrs.compute_parameters(items.clone(), Some(progress.clone()), true, Some(num_of_relearning_steps))?;
+        let mut params = fsrs.compute_parameters(
+            items.clone(),
+            Some(progress.clone()),
+            true,
+            Some(num_of_relearning_steps),
+        )?;
         progress_thread.join().ok();
         if let Ok(fsrs) = FSRS::new(Some(current_params)) {
             let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
             let optimized_fsrs = FSRS::new(Some(&params))?;
             let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
-            if num_of_relearning_steps <= 1 && current_rmse <= optimized_rmse {
-                params = current_params.to_vec();
+            if current_rmse <= optimized_rmse {
+                if num_of_relearning_steps <= 1 {
+                    params = current_params.to_vec();
+                } else {
+                    let current_fsrs = FSRS::new(Some(&current_params))?;
+                    let memory_state = MemoryState {
+                        stability: 1.0,
+                        difficulty: 1.0,
+                    };
+
+                    let s_fail = current_fsrs.next_states(Some(memory_state), 0.9, 2)?.again;
+                    let mut s_short_term = s_fail.memory;
+
+                    for _ in 0..num_of_relearning_steps {
+                        s_short_term = current_fsrs
+                            .next_states(Some(s_short_term), 0.9, 0)?
+                            .good
+                            .memory;
+                    }
+
+                    if s_short_term.stability < memory_state.stability {
+                        params = current_params.to_vec();
+                    }
+                }
             }
         }
 
