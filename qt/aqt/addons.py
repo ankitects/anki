@@ -40,10 +40,10 @@ from aqt import gui_hooks
 from aqt.log import ADDON_LOGGER_PREFIX, find_addon_logger, get_addon_logs_folder
 from aqt.qt import *
 from aqt.utils import (
+    addCloseShortcut,
     askUser,
     disable_help_button,
     getFile,
-    is_win,
     openFolder,
     openLink,
     restoreGeom,
@@ -821,12 +821,17 @@ class AddonsDialog(QDialog):
         qconnect(f.config.clicked, self.onConfig)
         qconnect(self.form.addonList.itemDoubleClicked, self.onConfig)
         qconnect(self.form.addonList.currentRowChanged, self._onAddonItemSelected)
+        qconnect(
+            self.form.addonList.itemSelectionChanged, self._onAddonSelectionChanged
+        )
         self.setWindowTitle(tr.addons_window_title())
         disable_help_button(self)
         self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
+        addCloseShortcut(self)
         gui_hooks.addons_dialog_will_show(self)
+        self._onAddonSelectionChanged()
         self.show()
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
@@ -902,18 +907,33 @@ class AddonsDialog(QDialog):
 
         addonList.reset()
 
+    def _onAddonSelectionChanged(self) -> None:
+        self.form.viewFiles.setEnabled(False)
+        self.form.viewPage.setEnabled(False)
+        self.form.config.setEnabled(False)
+
+        selected_count = len(self.selectedAddons())
+        if selected_count == 0:
+            # View Files button shows top-level add-ons directory when nothing is selected
+            self.form.viewFiles.setEnabled(True)
+        elif selected_count == 1:
+            addon = self.addons[self.form.addonList.currentRow()]
+
+            self.form.viewFiles.setEnabled(True)
+            self.form.viewPage.setEnabled(addon.page() is not None)
+            self.form.config.setEnabled(
+                bool(
+                    self.mgr.getConfig(addon.dir_name)
+                    or self.mgr.configAction(addon.dir_name)
+                )
+            )
+        return
+
     def _onAddonItemSelected(self, row_int: int) -> None:
         try:
             addon = self.addons[row_int]
         except IndexError:
             return
-        self.form.viewPage.setEnabled(addon.page() is not None)
-        self.form.config.setEnabled(
-            bool(
-                self.mgr.getConfig(addon.dir_name)
-                or self.mgr.configAction(addon.dir_name)
-            )
-        )
         gui_hooks.addons_dialog_did_change_selected_addon(self, addon)
         return
 
@@ -949,7 +969,7 @@ class AddonsDialog(QDialog):
             openLink(page)
 
     def onViewFiles(self) -> None:
-        # if nothing selected, open top level folder
+        # if nothing selected, open top-level folder
         selected = self.selectedAddons()
         if not selected:
             openFolder(self.mgr.addonsFolder())
