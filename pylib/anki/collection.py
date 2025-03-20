@@ -986,8 +986,7 @@ class Collection(DeprecatedNamesMixin):
         return self.get_config_bool(Config.Bool.LOAD_BALANCER_ENABLED)
 
     def _set_enable_load_balancer(self, value: bool) -> None:
-        self._backend.clear_study_queues()
-        self.set_config_bool(Config.Bool.LOAD_BALANCER_ENABLED, value)
+        self._backend.set_load_balancer_enabled(value)
 
     load_balancer_enabled = property(
         fget=_get_enable_load_balancer, fset=_set_enable_load_balancer
