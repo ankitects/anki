@@ -40,12 +40,14 @@ impl Collection {
                 }
 
                 if let Some(card_queues) = self.state.card_queues.as_mut() {
-                    match &update.entry {
-                        QueueEntry::IntradayLearning(entry) => {
-                            card_queues.load_balancer.remove_card(entry.id);
-                        }
-                        QueueEntry::Main(entry) => {
-                            card_queues.load_balancer.remove_card(entry.id);
+                    if let Some(load_balancer) = card_queues.load_balancer.as_mut() {
+                        match &update.entry {
+                            QueueEntry::IntradayLearning(entry) => {
+                                load_balancer.remove_card(entry.id);
+                            }
+                            QueueEntry::Main(entry) => {
+                                load_balancer.remove_card(entry.id);
+                            }
                         }
                     }
                 }

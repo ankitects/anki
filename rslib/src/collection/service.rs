@@ -3,6 +3,7 @@
 use anki_proto::generic;
 
 use crate::collection::Collection;
+use crate::config::BoolKey;
 use crate::error;
 use crate::progress::progress_to_proto;
 
@@ -47,6 +48,12 @@ impl crate::services::CollectionService for Collection {
 
     fn set_wants_abort(&mut self) -> error::Result<()> {
         self.state.progress.lock().unwrap().want_abort = true;
+        Ok(())
+    }
+
+    fn set_load_balancer_enabled(&mut self, input: generic::Bool) -> error::Result<()> {
+        self.clear_study_queues();
+        self.set_config_bool(BoolKey::LoadBalancerEnabled, input.val, false)?;
         Ok(())
     }
 }
