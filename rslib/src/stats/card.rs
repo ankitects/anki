@@ -141,26 +141,24 @@ impl Collection {
         let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
 
         let mut result = Vec::new();
-        let (item, filtered_revlog) = fsrs_item_for_memory_state(
+        if let Some(item) = fsrs_item_for_memory_state(
             &fsrs,
             revlog.clone(),
             next_day_at,
             historical_retention,
             ignore_before,
-        )?;
-
-        if let (Some(item), Some(filtered_revlog)) = (item, filtered_revlog) {
+        )? {
             let memory_states = fsrs.historical_memory_states(item.item, item.starting_state)?;
             let mut revlog_index = 0;
             for entry in revlog {
                 let mut stats_entry = stats_revlog_entry(&entry);
-                let memory_state: FsrsMemoryState = if entry.id == filtered_revlog[revlog_index].id
-                {
-                    revlog_index += 1;
-                    memory_states[revlog_index - 1].into()
-                } else {
-                    memory_states[revlog_index].into()
-                };
+                let memory_state: FsrsMemoryState =
+                    if entry.id == item.filtered_revlogs[revlog_index].id {
+                        revlog_index += 1;
+                        memory_states[revlog_index - 1].into()
+                    } else {
+                        memory_states[revlog_index].into()
+                    };
                 stats_entry.memory_state = Some(memory_state.into());
                 result.push(stats_entry);
             }
