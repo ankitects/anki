@@ -14,8 +14,10 @@ use anki_proto::stats::DeckEntry;
 use chrono::NaiveDate;
 use chrono::NaiveTime;
 use fsrs::CombinedProgressState;
+use fsrs::ComputeParametersInput;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
+use fsrs::MemoryState;
 use fsrs::ModelEvaluation;
 use fsrs::FSRS;
 use itertools::Itertools;
@@ -106,12 +108,12 @@ impl Collection {
 
         let (progress, progress_thread) = create_progress_thread()?;
         let fsrs = FSRS::new(None)?;
-        let mut params = fsrs.compute_parameters(
-            items.clone(),
-            Some(progress.clone()),
-            true,
-            Some(num_of_relearning_steps),
-        )?;
+        let mut params = fsrs.compute_parameters(ComputeParametersInput {
+            train_set: items.clone(),
+            progress: Some(progress.clone()),
+            enable_short_term: true,
+            num_relearning_steps: Some(num_of_relearning_steps),
+        })?;
         progress_thread.join().ok();
         if let Ok(fsrs) = FSRS::new(Some(current_params)) {
             let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
@@ -121,7 +123,7 @@ impl Collection {
                 if num_of_relearning_steps <= 1 {
                     params = current_params.to_vec();
                 } else {
-                    let current_fsrs = FSRS::new(Some(&current_params))?;
+                    let current_fsrs = FSRS::new(Some(current_params))?;
                     let memory_state = MemoryState {
                         stability: 1.0,
                         difficulty: 1.0,

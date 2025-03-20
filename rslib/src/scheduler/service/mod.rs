@@ -17,6 +17,7 @@ use anki_proto::scheduler::FuzzDeltaResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
+use fsrs::ComputeParametersInput;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::FSRS;
@@ -352,12 +353,12 @@ impl crate::services::BackendSchedulerService for Backend {
     ) -> Result<scheduler::ComputeFsrsParamsResponse> {
         let fsrs = FSRS::new(None)?;
         let fsrs_items = req.items.len() as u32;
-        let params = fsrs.compute_parameters(
-            req.items.into_iter().map(fsrs_item_proto_to_fsrs).collect(),
-            None,
-            true,
-            None,
-        )?;
+        let params = fsrs.compute_parameters(ComputeParametersInput {
+            train_set: req.items.into_iter().map(fsrs_item_proto_to_fsrs).collect(),
+            progress: None,
+            enable_short_term: true,
+            num_relearning_steps: None,
+        })?;
         Ok(ComputeFsrsParamsResponse { params, fsrs_items })
     }
 
@@ -371,7 +372,12 @@ impl crate::services::BackendSchedulerService for Backend {
             .into_iter()
             .map(fsrs_item_proto_to_fsrs)
             .collect();
-        let params = fsrs.benchmark(train_set, true, None);
+        let params = fsrs.benchmark(ComputeParametersInput {
+            train_set,
+            progress: None,
+            enable_short_term: true,
+            num_relearning_steps: None,
+        });
         Ok(FsrsBenchmarkResponse { params })
     }
 
