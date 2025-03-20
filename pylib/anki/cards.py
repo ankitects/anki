@@ -172,10 +172,11 @@ class Card(DeprecatedNamesMixin):
 
     def template(self) -> TemplateDict:
         notetype = self.note_type()
+        templates = notetype["tmpls"]
         if notetype["type"] == MODEL_STD:
-            return self.note_type()["tmpls"][self.ord]
+            return templates[self.ord]
         else:
-            return self.note_type()["tmpls"][0]
+            return templates[0]
 
     def start_timer(self) -> None:
         self.timer_started = time.time()
