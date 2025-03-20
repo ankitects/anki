@@ -248,6 +248,10 @@ is_mac = sys.platform.startswith("darwin")
 is_win = sys.platform.startswith("win32")
 # also covers *BSD
 is_lin = not is_mac and not is_win
+is_gnome = (
+    "gnome" in os.getenv("XDG_CURRENT_DESKTOP", "").lower()
+    or "gnome" in os.getenv("DESKTOP_SESSION", "").lower()
+)
 dev_mode = os.getenv("ANKIDEV", "")
 hmr_mode = os.getenv("HMR", "")
 

@@ -217,11 +217,12 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Mumtaz Hajjo Alrifai",
             "Luc Mcgrady",
             "Brayan Oliveira",
+            "Market345",
         )
     )
 
     abouttext += "<p>" + tr.about_written_by_damien_elmes_with_patches(
-        cont=", ".join(allusers)
+        cont=", ".join(allusers) + f", {tr.about_and_others()}"
     )
     abouttext += f"<p>{tr.about_if_you_have_contributed_and_are()}"
     abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"
