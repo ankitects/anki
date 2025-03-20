@@ -85,7 +85,9 @@ def test_newLimits():
         note = col.newNote()
         note["Front"] = str(i)
         if i > 4:
-            note.note_type()["did"] = deck2
+            note_type = note.note_type()
+            note_type["did"] = deck2
+            col.models.update_dict(note_type)
         col.addNote(note)
     # give the child deck a different configuration
     c2 = col.decks.add_config_returning_id("new conf")
@@ -936,7 +938,9 @@ def test_deckDue():
     # and one that's a child
     note = col.newNote()
     note["Front"] = "two"
-    default1 = note.note_type()["did"] = col.decks.id("Default::1")
+    note_type = note.note_type()
+    default1 = note_type["did"] = col.decks.id("Default::1")
+    col.models.update_dict(note_type)
     col.addNote(note)
     # make it a review card
     c = note.cards()[0]
@@ -946,12 +950,16 @@ def test_deckDue():
     # add one more with a new deck
     note = col.newNote()
     note["Front"] = "two"
-    note.note_type()["did"] = col.decks.id("foo::bar")
+    note_type = note.note_type()
+    note_type["did"] = col.decks.id("foo::bar")
+    col.models.update_dict(note_type)
     col.addNote(note)
     # and one that's a sibling
     note = col.newNote()
     note["Front"] = "three"
-    note.note_type()["did"] = col.decks.id("foo::baz")
+    note_type = note.note_type()
+    note_type["did"] = col.decks.id("foo::baz")
+    col.models.update_dict(note_type)
     col.addNote(note)
     assert len(col.decks.all_names_and_ids()) == 5
     tree = col.sched.deck_due_tree().children
@@ -991,12 +999,16 @@ def test_deckFlow():
     # and one that's a child
     note = col.newNote()
     note["Front"] = "two"
-    note.note_type()["did"] = col.decks.id("Default::2")
+    note_type = note.note_type()
+    note_type["did"] = col.decks.id("Default::2")
+    col.models.update_dict(note_type)
     col.addNote(note)
     # and another that's higher up
     note = col.newNote()
     note["Front"] = "three"
-    default1 = note.note_type()["did"] = col.decks.id("Default::1")
+    note_type = note.note_type()
+    default1 = note_type["did"] = col.decks.id("Default::1")
+    col.models.update_dict(note_type)
     col.addNote(note)
     assert col.sched.counts() == (3, 0, 0)
     # should get top level one first, then ::1, then ::2
