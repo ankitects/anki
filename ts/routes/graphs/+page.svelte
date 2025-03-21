@@ -32,9 +32,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         DifficultyGraph,
         RetrievabilityGraph,
         HourGraph,
+        TrueRetention,
         ButtonsGraph,
         AddedGraph,
-        TrueRetention,
     ];
 </script>
 
