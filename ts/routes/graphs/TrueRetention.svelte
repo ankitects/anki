@@ -38,6 +38,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Graph {title} {subtitle}>
+    <div id="additional-info">
+        {tr.statisticsTrueRetentionAdditionalInfo()}
+    </div>
     <InputBox>
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Young} />
@@ -87,5 +90,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         display: flex;
         align-items: center;
+    }
+
+    #additional-info {
+        margin-bottom: 0.75rem;
     }
 </style>
