@@ -152,14 +152,23 @@ impl Collection {
             let mut revlog_index = 0;
             for entry in revlog {
                 let mut stats_entry = stats_revlog_entry(&entry);
-                let memory_state: FsrsMemoryState =
-                    if entry.id == item.filtered_revlogs[revlog_index].id {
-                        revlog_index += 1;
-                        memory_states[revlog_index - 1].into()
-                    } else {
-                        memory_states[revlog_index].into()
-                    };
-                stats_entry.memory_state = Some(memory_state.into());
+                let memory_state: Option<FsrsMemoryState> = if revlog_index >= memory_states.len() {
+                    // The removed revlog is in the end of the revlog, so we use the last memory
+                    // state
+                    Some(memory_states[memory_states.len() - 1].into())
+                } else if entry.id == item.filtered_revlogs[revlog_index].id {
+                    revlog_index += 1;
+                    Some(memory_states[revlog_index - 1].into())
+                } else if revlog_index == 0 {
+                    // The removed revlog is in the start of the revlog, so we don't have a memory
+                    // state for it
+                    None
+                } else {
+                    // The removed revlog is in the middle of the revlog, so we use the memory
+                    // state for the previous revlog entry
+                    Some(memory_states[revlog_index].into())
+                };
+                stats_entry.memory_state = memory_state.map(|s| s.into());
                 result.push(stats_entry);
             }
             Ok(result.into_iter().rev().collect())

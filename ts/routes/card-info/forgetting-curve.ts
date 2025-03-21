@@ -56,7 +56,10 @@ export function filterRevlogEntryByReviewKind(entry: RevlogEntry): boolean {
 export function filterRevlog(revlog: RevlogEntry[]): RevlogEntry[] {
     const result: RevlogEntry[] = [];
     for (const entry of revlog) {
-        if (entry.reviewKind === RevlogEntry_ReviewKind.MANUAL && entry.ease === 0) {
+        if (
+            (entry.reviewKind === RevlogEntry_ReviewKind.MANUAL && entry.ease === 0)
+            || entry.memoryState === undefined
+        ) {
             break;
         }
         result.push(entry);
