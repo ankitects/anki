@@ -414,7 +414,8 @@ fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, to
     } else {
         // if the collection was created today, the
         // "preserve last value" hack below won't work
-        day_limit.take_if(|limit| limit.today == 0);
+        // clear "future" limits as well (from imports)
+        day_limit.take_if(|limit| limit.today == 0 || limit.today > today);
         if let Some(limit) = day_limit {
             // instead of setting to None, only make sure today is in the past,
             // thus preserving last used value
