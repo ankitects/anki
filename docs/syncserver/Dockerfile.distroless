@@ -1,4 +1,4 @@
-FROM rust:1.85.0 AS builder
+FROM rust:latest AS builder
 
 ARG ANKI_VERSION
 
