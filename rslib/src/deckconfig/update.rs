@@ -418,7 +418,7 @@ fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, to
         if let Some(limit) = day_limit {
             // instead of setting to None, only make sure today is in the past,
             // thus preserving last used value
-            limit.today = limit.today.min(today - 1);
+            limit.today = limit.today.min(today.saturating_sub(1));
         }
     }
 }
