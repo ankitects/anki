@@ -20,36 +20,25 @@ impl Collection {
         new_parent: Option<DeckId>,
     ) -> Result<usize> {
         let usn = self.usn()?;
-        let mut target_deck = None;
+        let target_deck;
         let mut target_name = None;
         if let Some(target) = new_parent {
             if let Some(target) = self.storage.get_deck(target)? {
                 if target.is_filtered() {
                     return Err(FilteredDeckError::MustBeLeafNode.into());
                 }
-                target_deck = Some(target);
-                target_name = Some(target_deck.as_ref().unwrap().name.clone());
+                target_deck = target;
+                target_name = Some(&target_deck.name);
             }
         }
 
         let mut count = 0;
         for deck in deck_ids {
             if let Some(mut deck) = self.storage.get_deck(*deck)? {
-                if let Some(new_name) = deck.name.reparented_name(target_name.as_ref()) {
-                    let parent_decks = self.storage.parent_decks(&deck).unwrap();
-                    match target_deck {
-                        Some(ref target) => {
-                            if parent_decks.contains(target) {
-                                continue;
-                            }
-                        }
-                        None => {
-                            if parent_decks.is_empty() {
-                                continue;
-                            }
-                        }
+                if let Some(new_name) = deck.name.reparented_name(target_name) {
+                    if new_name == deck.name {
+                        continue;
                     }
-
                     count += 1;
                     let orig = deck.clone();
 
