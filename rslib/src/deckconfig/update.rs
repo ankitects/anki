@@ -411,10 +411,15 @@ fn update_deck_limits(deck: &mut NormalDeck, limits: &Limits, today: u32) {
 fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, today: u32) {
     if let Some(limit) = new_limit {
         day_limit.replace(DayLimit { limit, today });
-    } else if let Some(limit) = day_limit {
-        // instead of setting to None, only make sure today is in the past,
-        // thus preserving last used value
-        limit.today = limit.today.min(today - 1);
+    } else {
+        // if the collection was created today, the
+        // "preserve last value" hack below won't work
+        day_limit.take_if(|limit| limit.today == 0);
+        if let Some(limit) = day_limit {
+            // instead of setting to None, only make sure today is in the past,
+            // thus preserving last used value
+            limit.today = limit.today.min(today - 1);
+        }
     }
 }
 
