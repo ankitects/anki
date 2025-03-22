@@ -8,3 +8,5 @@ about-if-you-have-contributed-and-are = If you have contributed and are not on t
 about-version = Version { $val }
 about-visit-website = <a href='{ $val }'>Visit website</a>
 about-written-by-damien-elmes-with-patches = Written by Damien Elmes, with patches, translation,    testing and design from:<p>{ $cont }
+# appended to the end of the contributor list in the about screen
+about-and-others = and others
