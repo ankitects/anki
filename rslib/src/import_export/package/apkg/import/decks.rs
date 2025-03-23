@@ -90,16 +90,15 @@ impl DeckContext<'_> {
     fn maybe_correct_day_limits(&mut self, deck: &mut Deck) -> Result<()> {
         if let DeckKind::Normal(ref mut normal) = deck.kind {
             let target_col_today = self.target_col.timing_today()?.days_elapsed;
-            let source_col_today = self.source_col_today;
 
             let op = |mut limit: NormalDeckDayLimit| {
-                if limit.today == source_col_today {
-                    // imported deck has a valid today limit, map it to target col
+                if limit.today == self.source_col_today {
+                    // imported deck has an active today limit, map it to target col
                     limit.today = target_col_today;
                     Some(limit)
                 } else if target_col_today > 0 {
-                    // imported deck's today limit was in the past
-                    limit.today = target_col_today.saturating_sub(1);
+                    // imported deck's today limit was not active
+                    limit.today = limit.today.min(target_col_today - 1);
                     Some(limit)
                 } else {
                     // edge case where target collection is new (day 0), clear saved limit
