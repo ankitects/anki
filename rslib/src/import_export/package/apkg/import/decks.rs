@@ -211,7 +211,7 @@ mod test {
         DeckAdder::new("filtered").filtered(true).add(&mut col);
         DeckAdder::new("PARENT").add(&mut col);
 
-        let mut ctx = DeckContext::new(&mut col, Usn(1));
+        let mut ctx = DeckContext::new(&mut col, Usn(1), 0);
         ctx.unique_suffix = "★".to_string();
 
         let imports = vec![
