@@ -6,6 +6,7 @@ use std::mem;
 
 use super::Context;
 use crate::decks::NormalDeck;
+use crate::decks::NormalDeckDayLimit;
 use crate::prelude::*;
 
 struct DeckContext<'d> {
@@ -14,23 +15,25 @@ struct DeckContext<'d> {
     renamed_parents: Vec<(String, String)>,
     imported_decks: HashMap<DeckId, DeckId>,
     unique_suffix: String,
+    source_col_today: u32,
 }
 
 impl<'d> DeckContext<'d> {
-    fn new<'a: 'd>(target_col: &'a mut Collection, usn: Usn) -> Self {
+    fn new<'a: 'd>(target_col: &'a mut Collection, usn: Usn, source_col_today: u32) -> Self {
         Self {
             target_col,
             usn,
             renamed_parents: Vec::new(),
             imported_decks: HashMap::new(),
             unique_suffix: TimestampSecs::now().to_string(),
+            source_col_today,
         }
     }
 }
 
 impl Context<'_> {
     pub(super) fn import_decks_and_configs(&mut self) -> Result<HashMap<DeckId, DeckId>> {
-        let mut ctx = DeckContext::new(self.target_col, self.usn);
+        let mut ctx = DeckContext::new(self.target_col, self.usn, self.data.days_elapsed);
         ctx.import_deck_configs(mem::take(&mut self.data.deck_configs))?;
         ctx.import_decks(mem::take(&mut self.data.decks))?;
         Ok(ctx.imported_decks)
@@ -51,6 +54,7 @@ impl DeckContext<'_> {
         decks.sort_unstable_by_key(|deck| deck.level());
         for deck in &mut decks {
             self.maybe_reparent(deck);
+            self.maybe_correct_day_limits(deck)?;
             self.import_deck(deck)?;
         }
         Ok(())
@@ -81,6 +85,32 @@ impl DeckContext<'_> {
                 name.starts_with(old_parent)
                     .then(|| name.replacen(old_parent, new_parent, 1))
             })
+    }
+
+    fn maybe_correct_day_limits(&mut self, deck: &mut Deck) -> Result<()> {
+        if let DeckKind::Normal(ref mut normal) = deck.kind {
+            let target_col_today = self.target_col.timing_today()?.days_elapsed;
+            let source_col_today = self.source_col_today;
+
+            let op = |mut limit: NormalDeckDayLimit| {
+                if limit.today == source_col_today {
+                    // imported deck has a valid today limit, map it to target col
+                    limit.today = target_col_today;
+                    Some(limit)
+                } else if target_col_today > 0 {
+                    // imported deck's today limit was in the past
+                    limit.today = target_col_today.saturating_sub(1);
+                    Some(limit)
+                } else {
+                    // edge case where target collection is new (day 0), clear saved limit
+                    None
+                }
+            };
+
+            normal.new_limit_today = normal.new_limit_today.and_then(op);
+            normal.review_limit_today = normal.review_limit_today.and_then(op);
+        }
+        Ok(())
     }
 
     fn get_deck_by_name(&mut self, deck: &Deck) -> Result<Option<Deck>> {
