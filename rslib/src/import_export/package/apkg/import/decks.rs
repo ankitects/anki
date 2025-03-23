@@ -240,4 +240,43 @@ mod test {
         // the case of imported parents is matched, regardless of pass order
         assert!(existing_decks.contains("new parent::child"));
     }
+
+    #[test]
+    fn day_limits_should_carry_over_correctly() {
+        let mut col = Collection::new();
+
+        let importing_col_today = col.timing_today().unwrap().days_elapsed;
+        let exporting_col_today = importing_col_today + 100;
+        let deck_name = "blah";
+
+        let mut exported_deck = DeckAdder::new(deck_name).filtered(false).deck();
+        match &mut exported_deck.kind {
+            DeckKind::Normal(normal) => {
+                normal.new_limit_today = Some(NormalDeckDayLimit {
+                    limit: 123,
+                    today: exporting_col_today,
+                });
+                normal.review_limit_today = Some(NormalDeckDayLimit {
+                    limit: 456,
+                    today: exporting_col_today - 100,
+                });
+            }
+            _ => unreachable!(),
+        }
+
+        let mut ctx = DeckContext::new(&mut col, Usn(1), exporting_col_today);
+        ctx.import_decks(vec![exported_deck]).unwrap();
+
+        let imported_deck_id = ctx.target_col.get_deck_id(deck_name).unwrap().unwrap();
+        let imported_deck = ctx.target_col.get_deck(imported_deck_id).unwrap().unwrap();
+        match &imported_deck.kind {
+            DeckKind::Normal(normal) => {
+                assert!(
+                    matches!(normal.new_limit_today, Some(NormalDeckDayLimit { limit: 123, today }) if today == importing_col_today)
+                );
+                assert!(normal.review_limit_today.is_none())
+            }
+            _ => unreachable!(),
+        }
+    }
 }
