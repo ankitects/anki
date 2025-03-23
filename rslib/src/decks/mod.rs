@@ -20,6 +20,7 @@ use std::sync::Arc;
 pub use anki_proto::decks::deck::filtered::search_term::Order as FilteredSearchOrder;
 pub use anki_proto::decks::deck::filtered::SearchTerm as FilteredSearchTerm;
 pub use anki_proto::decks::deck::kind_container::Kind as DeckKind;
+pub use anki_proto::decks::deck::normal::DayLimit as NormalDeckDayLimit;
 pub use anki_proto::decks::deck::Common as DeckCommon;
 pub use anki_proto::decks::deck::Filtered as FilteredDeck;
 pub use anki_proto::decks::deck::KindContainer as DeckKindContainer;
