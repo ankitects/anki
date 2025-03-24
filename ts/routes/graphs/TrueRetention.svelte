@@ -48,11 +48,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let modal: Modal;
     let carousel: Carousel;
 
-    function openHelpModal(index: number): void {
-        modal.show();
-        carousel.to(index);
-    }
-
     let mode: DisplayMode = $state(DisplayMode.Summary);
 
     const title = tr.statisticsTrueRetentionTitle();
