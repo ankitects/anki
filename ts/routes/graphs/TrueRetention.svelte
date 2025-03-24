@@ -6,8 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { GraphsResponse } from "@generated/anki/stats_pb";
     import * as tr from "@generated/ftl";
     import { HelpPage } from "@tslib/help-page";
-    import type Carousel from "bootstrap/js/dist/carousel";
-    import type Modal from "bootstrap/js/dist/modal";
     import HelpModal from "$lib/components/HelpModal.svelte";
     import type { HelpItem } from "$lib/components/types";
 
@@ -44,9 +42,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     const helpSections: HelpItem[] = Object.values(retentionHelp);
-
-    let modal: Modal;
-    let carousel: Carousel;
 
     let mode: DisplayMode = $state(DisplayMode.Summary);
 
