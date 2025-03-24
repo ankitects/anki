@@ -982,14 +982,14 @@ class Collection(DeprecatedNamesMixin):
         )
         return self.set_config(key, value, undoable=undoable)
 
-    def _get_enable_load_balancer(self) -> bool:
+    def _get_load_balancer_enabled(self) -> bool:
         return self.get_config_bool(Config.Bool.LOAD_BALANCER_ENABLED)
 
-    def _set_enable_load_balancer(self, value: bool) -> None:
+    def _set_load_balancer_enabled(self, value: bool) -> None:
         self._backend.set_load_balancer_enabled(value)
 
     load_balancer_enabled = property(
-        fget=_get_enable_load_balancer, fset=_set_enable_load_balancer
+        fget=_get_load_balancer_enabled, fset=_set_load_balancer_enabled
     )
 
     def _get_enable_fsrs_short_term_with_steps(self) -> bool:

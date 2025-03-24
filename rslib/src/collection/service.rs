@@ -3,8 +3,9 @@
 use anki_proto::generic;
 
 use crate::collection::Collection;
-use crate::config::BoolKey;
 use crate::error;
+use crate::prelude::BoolKey;
+use crate::prelude::Op;
 use crate::progress::progress_to_proto;
 
 impl crate::services::CollectionService for Collection {
@@ -51,9 +52,14 @@ impl crate::services::CollectionService for Collection {
         Ok(())
     }
 
-    fn set_load_balancer_enabled(&mut self, input: generic::Bool) -> error::Result<()> {
-        self.clear_study_queues();
-        self.set_config_bool(BoolKey::LoadBalancerEnabled, input.val, false)?;
-        Ok(())
+    fn set_load_balancer_enabled(
+        &mut self,
+        input: generic::Bool,
+    ) -> error::Result<anki_proto::collection::OpChanges> {
+        self.transact(Op::ToggleLoadBalancer, |col| {
+            col.set_config(BoolKey::LoadBalancerEnabled, &input.val)?;
+            Ok(())
+        })
+        .map(Into::into)
     }
 }
