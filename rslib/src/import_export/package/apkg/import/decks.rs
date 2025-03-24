@@ -88,9 +88,8 @@ impl DeckContext<'_> {
     }
 
     fn maybe_correct_day_limits(&mut self, deck: &mut Deck) -> Result<()> {
-        if let DeckKind::Normal(ref mut normal) = deck.kind {
+        if let Ok(normal) = deck.normal_mut() {
             let target_col_today = self.target_col.timing_today()?.days_elapsed;
-
             let op = |mut limit: NormalDeckDayLimit| {
                 if limit.today == self.source_col_today {
                     // imported deck has an active today limit, map it to target col
@@ -105,7 +104,6 @@ impl DeckContext<'_> {
                     None
                 }
             };
-
             normal.new_limit_today = normal.new_limit_today.and_then(op);
             normal.review_limit_today = normal.review_limit_today.and_then(op);
         }
