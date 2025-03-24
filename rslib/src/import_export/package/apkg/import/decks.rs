@@ -247,33 +247,30 @@ mod test {
         let deck_name = "blah";
 
         let mut exported_deck = DeckAdder::new(deck_name).filtered(false).deck();
-        match &mut exported_deck.kind {
-            DeckKind::Normal(normal) => {
-                normal.new_limit_today = Some(NormalDeckDayLimit {
-                    limit: 123,
-                    today: exporting_col_today,
-                });
-                normal.review_limit_today = Some(NormalDeckDayLimit {
-                    limit: 456,
-                    today: exporting_col_today - 100,
-                });
-            }
-            _ => unreachable!(),
-        }
+        let normal = exported_deck.normal_mut().unwrap();
+
+        normal.new_limit_today = Some(NormalDeckDayLimit {
+            limit: 123,
+            today: exporting_col_today,
+        });
+        normal.review_limit_today = Some(NormalDeckDayLimit {
+            limit: 456,
+            today: exporting_col_today - 100,
+        });
 
         let mut ctx = DeckContext::new(&mut col, Usn(1), exporting_col_today);
         ctx.import_decks(vec![exported_deck]).unwrap();
 
         let imported_deck_id = ctx.target_col.get_deck_id(deck_name).unwrap().unwrap();
         let imported_deck = ctx.target_col.get_deck(imported_deck_id).unwrap().unwrap();
-        match &imported_deck.kind {
-            DeckKind::Normal(normal) => {
-                assert!(
-                    matches!(normal.new_limit_today, Some(NormalDeckDayLimit { limit: 123, today }) if today == importing_col_today)
-                );
-                assert!(normal.review_limit_today.is_none())
-            }
-            _ => unreachable!(),
-        }
+
+        let imported_deck = imported_deck.normal().unwrap();
+
+        // active day limit should carry over regardless of collection age
+        assert!(
+            matches!(imported_deck.new_limit_today, Some(NormalDeckDayLimit { limit: 123, today }) if today == importing_col_today)
+        );
+        // target_col's today is 0, expect the day limit to be cleared
+        assert!(imported_deck.review_limit_today.is_none())
     }
 }
