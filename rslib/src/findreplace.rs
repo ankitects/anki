@@ -74,7 +74,7 @@ impl Collection {
                     None => FieldForNotetype::Any,
                     Some(name) => match nt.get_field_ord(name) {
                         None => FieldForNotetype::None,
-                        Some(ord) => FieldForNotetype::Index(ord),
+                        Some(ord) => FieldForNotetype::Index(ord as usize),
                     },
                 };
                 last_ntid = Some(nt.id);
