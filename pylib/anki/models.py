@@ -165,7 +165,7 @@ class ModelManager(DeprecatedNamesMixin):
                 self._update_cache(notetype)
             except NotFoundError:
                 return None
-        return copy.deepcopy(notetype)
+        return notetype
 
     def all(self) -> list[NotetypeDict]:
         "Get all models."
