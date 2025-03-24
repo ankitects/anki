@@ -143,6 +143,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldsCollapsed =
             sessionOptions[notetypeMeta?.id]?.fieldsCollapsed ?? defaultCollapsed;
     }
+    let clozeFields: boolean[] = [];
+    export function setClozeFields(defaultClozeFields: boolean[]): void {
+        clozeFields = defaultClozeFields;
+    }
 
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
@@ -275,6 +279,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         direction: fonts[index][2] ? "rtl" : "ltr",
         collapsed: fieldsCollapsed[index],
         hidden: hideFieldInOcclusionType(index, ioFields),
+        isClozeField: clozeFields[index],
     })) as FieldData[];
 
     let lastSavedTags: string[] | null = null;
@@ -562,6 +567,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             saveSession,
             setFields,
             setCollapsed,
+            setClozeFields,
             setPlainTexts,
             setDescriptions,
             setFonts,
@@ -750,6 +756,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                     $focusedInput = null;
                                 }}
                                 bind:this={richTextInputs[index]}
+                                isClozeField={field.isClozeField}
                             />
                         </Collapsible>
                     </svelte:fragment>

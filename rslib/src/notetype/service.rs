@@ -212,6 +212,21 @@ impl crate::services::NotetypesService for Collection {
         )
         .map(Into::into)
     }
+
+    fn get_cloze_field_ords(
+        &mut self,
+        input: anki_proto::notetypes::NotetypeId,
+    ) -> error::Result<anki_proto::notetypes::GetClozeFieldOrdsResponse> {
+        Ok(anki_proto::notetypes::GetClozeFieldOrdsResponse {
+            ords: self
+                .get_notetype(input.into())?
+                .unwrap()
+                .cloze_fields()
+                .iter()
+                .map(|ord| (*ord) as u32)
+                .collect(),
+        })
+    }
 }
 
 impl From<anki_proto::notetypes::Notetype> for Notetype {
