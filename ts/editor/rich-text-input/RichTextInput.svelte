@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /** The API exposed by the editable component */
         editable: ContentEditableAPI;
         customStyles: Promise<Record<string, any>>;
+        isClozeField: boolean;
     }
 
     function editingInputIsRichText(
@@ -84,6 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let hidden = false;
     export const focusFlag = new Flag();
+    export let isClozeField: boolean;
 
     const { focusedInput } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
@@ -156,6 +158,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inputHandler,
         editable: {} as ContentEditableAPI,
         customStyles,
+        isClozeField,
     };
 
     const allContexts = getAllContexts();
@@ -202,6 +205,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (focusFlag.checkAndReset()) {
             tick().then(refocus);
         }
+    }
+
+    $: {
+        api.isClozeField = isClozeField;
     }
 
     onMount(() => {
