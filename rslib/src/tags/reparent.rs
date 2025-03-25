@@ -40,14 +40,23 @@ impl Collection {
     ) -> Result<usize> {
         let usn = self.usn()?;
         let mut matcher = TagMatcher::new(&join_tags(tags_to_reparent))?;
+
         let old_to_new_names = old_to_new_names(tags_to_reparent, new_parent);
         if old_to_new_names.is_empty() {
             return Ok(0);
         }
+
         let matched_notes = self
             .storage
             .get_note_tags_by_predicate(|tags| matcher.is_match(tags))?;
-        let match_count = matched_notes.len();
+
+        let mut match_count = 0;
+        for name in old_to_new_names.keys() {
+            if &UniCase::new(old_to_new_names.get(name).unwrap()) != name {
+                match_count += 1;
+            }
+        }
+
         if match_count == 0 {
             // no matches; exit early so we don't clobber the empty tag entries
             return Ok(0);
