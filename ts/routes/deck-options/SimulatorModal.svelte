@@ -292,14 +292,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         </SettingTitle>
                     </SwitchRow>
 
-                    <SwitchRow bind:value={smooth} defaultValue={true}>
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
-                            {"Smooth Graph"}
-                        </SettingTitle>
-                    </SwitchRow>
-
                     <SwitchRow
                         bind:value={suspendLeeches}
                         defaultValue={$config.leechAction ==
@@ -371,6 +363,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {tr.actionsProcessing()}
                 {/if}
 
+                <div class="short">
+                    <SwitchRow bind:value={smooth} defaultValue={true}>
+                        <SettingTitle
+                            on:click={() => openHelpModal("simulateFsrsReview")}
+                        >
+                            {"Smooth Graph"}
+                        </SettingTitle>
+                    </SwitchRow>
+                </div>
+
                 <Graph>
                     <div class="radio-group">
                         <InputBox>
@@ -421,6 +423,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style>
+    .short :global(.col) {
+        flex: inherit;
+    }
+
     .modal {
         background-color: rgba(0, 0, 0, 0.5);
         --bs-modal-margin: 0;
