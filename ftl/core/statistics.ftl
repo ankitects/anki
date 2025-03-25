@@ -255,8 +255,8 @@ statistics-elapsed-time-years = { $amount }y
 
 statistics-average-for-days-studied = Average for days studied
 # This does NOT refer to the total number of all existing cards. Instead, it
-# indicates the number of cards scheduled within the time frame currently
-# selected by the user using the radio buttons above the diagram.
+# specifies the number of cards within the time frame currently selected by
+# the user via the radio buttons positioned above the diagram.
 statistics-total = Total
 statistics-days-studied = Days studied
 statistics-average-answer-time-label = Average answer time
