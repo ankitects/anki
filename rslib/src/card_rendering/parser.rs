@@ -11,10 +11,11 @@ use nom::character::complete::multispace0;
 use nom::combinator::map;
 use nom::combinator::not;
 use nom::combinator::recognize;
+use nom::combinator::rest;
 use nom::combinator::success;
 use nom::combinator::value;
+use nom::multi::fold_many0;
 use nom::multi::many0;
-use nom::multi::many1;
 use nom::sequence::delimited;
 use nom::sequence::pair;
 use nom::sequence::preceded;
@@ -98,7 +99,7 @@ fn is_not0<'parser, 'arr: 'parser, 's: 'parser>(
 }
 
 fn node(s: &str) -> IResult<Node> {
-    alt((text_node, sound_node, tag_node))(s)
+    alt((sound_node, tag_node, text_node))(s)
 }
 
 /// A sound tag `[sound:resource]`, where `resource` is pointing to a sound or
@@ -108,6 +109,16 @@ fn sound_node(s: &str) -> IResult<Node> {
         delimited(tag("[sound:"), is_not("]"), tag("]")),
         Node::SoundOrVideo,
     )(s)
+}
+
+fn take_till_potential_tag_start(s: &str) -> IResult<&str> {
+    use nom::InputTake;
+    // first char could be '[', but wasn't part of a node, so skip (eof ends parse)
+    let (after, offset) = anychar(s).map(|(s, c)| (s, c.len_utf8()))?;
+    Ok(match after.find('[') {
+        Some(pos) => s.take_split(offset + pos),
+        _ => rest(s)?,
+    })
 }
 
 /// An Anki tag `[anki:tag...]...[/anki:tag]`.
@@ -157,7 +168,12 @@ fn tag_node(s: &str) -> IResult<Node> {
     fn content_parser<'parser, 'name: 'parser, 's: 'parser>(
         name: &'name str,
     ) -> impl FnMut(&'s str) -> IResult<'s, &'s str> + 'parser {
-        recognize(many0(pair(not(closing_parser(name)), anychar)))
+        recognize(fold_many0(
+            pair(not(closing_parser(name)), take_till_potential_tag_start),
+            // we don't need to accumulate anything
+            || (),
+            |_, _| (),
+        ))
     }
 
     let (_, tag_name) = name(s)?;
@@ -171,10 +187,7 @@ fn tag_node(s: &str) -> IResult<Node> {
 }
 
 fn text_node(s: &str) -> IResult<Node> {
-    map(
-        recognize(many1(pair(not(alt((sound_node, tag_node))), anychar))),
-        Node::Text,
-    )(s)
+    map(take_till_potential_tag_start, Node::Text)(s)
 }
 
 #[cfg(test)]
