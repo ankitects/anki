@@ -16,6 +16,8 @@ from collections.abc import Callable, Sequence
 from concurrent.futures import Future
 from typing import Any, Literal, TypeVar, cast
 
+import PyQt6.QtWidgets as QtWidgets
+
 import anki
 import anki.cards
 import anki.sound
@@ -92,7 +94,7 @@ from aqt.utils import (
     showWarning,
     tooltip,
     tr,
-)
+    )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 install_pylib_legacy()
@@ -983,6 +985,26 @@ title="{}" {}>{}</button>""".format(
                 webview.force_load_hack()
 
         gui_hooks.card_review_webview_did_init(self.web, AnkiWebViewKind.MAIN)
+
+        if is_mac:
+            designed_menubar = self.menuBar()
+            self.shared_menubar = QtWidgets.QMenuBar(None)
+
+            # Copy all menus and actions
+            for action in designed_menubar.actions():
+                if action.menu():  # If it's a menu
+                    new_menu = self.shared_menubar.addMenu(action.text())
+                    # Copy all actions in this menu
+                    for sub_action in action.menu().actions():
+                        new_menu.addAction(sub_action)
+                else:  # If it's a direct action
+                    self.shared_menubar.addAction(action)
+
+            self.setMenuBar(self.shared_menubar)
+
+        
+
+        self.setMenuBar(self.shared_menubar)
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
