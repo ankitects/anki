@@ -94,7 +94,7 @@ from aqt.utils import (
     showWarning,
     tooltip,
     tr,
-    )
+)
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 install_pylib_legacy()
