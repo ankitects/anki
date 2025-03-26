@@ -990,19 +990,15 @@ title="{}" {}>{}</button>""".format(
             designed_menubar = self.menuBar()
             self.shared_menubar = QtWidgets.QMenuBar(None)
 
-            # Copy all menus and actions
             for action in designed_menubar.actions():
-                if action.menu():  # If it's a menu
+                if action.menu():
                     new_menu = self.shared_menubar.addMenu(action.text())
-                    # Copy all actions in this menu
                     for sub_action in action.menu().actions():
                         new_menu.addAction(sub_action)
-                else:  # If it's a direct action
+                else:  # It's a direct action
                     self.shared_menubar.addAction(action)
 
             self.setMenuBar(self.shared_menubar)
-
-        
 
         self.setMenuBar(self.shared_menubar)
 

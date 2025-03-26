@@ -61,7 +61,7 @@ class AddCards(QMainWindow):
             self.setMenuBar(mw.shared_menubar)
         else:
             self.setMenuBar(None)
-        self.show()                
+        self.show()
 
     def set_note_type(self, note_type_id: NotetypeId) -> None:
         self.notetype_chooser.selected_notetype_id = note_type_id
