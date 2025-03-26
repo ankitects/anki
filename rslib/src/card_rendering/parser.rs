@@ -196,7 +196,7 @@ mod test {
 
     macro_rules! assert_parsed_nodes {
         ($txt:expr $(, $node:expr)*) => {
-            assert_eq!(CardNodes::parse($txt), CardNodes(vec![$($node),*]));
+            assert_eq!(CardNodes::parse($txt).nodes, vec![$($node),*]);
         }
     }
 
@@ -211,8 +211,12 @@ mod test {
         assert_parsed_nodes!("foo", Text("foo"));
         // broken sound/tags are just text as well
         assert_parsed_nodes!("[sound:]", Text("[sound:]"));
-        assert_parsed_nodes!("[anki:][/anki:]", Text("[anki:][/anki:]"));
-        assert_parsed_nodes!("[anki:foo][/anki:bar]", Text("[anki:foo][/anki:bar]"));
+        assert_parsed_nodes!("[anki:][/anki:]", Text("[anki:]"), Text("[/anki:]"));
+        assert_parsed_nodes!(
+            "[anki:foo][/anki:bar]",
+            Text("[anki:foo]"),
+            Text("[/anki:bar]")
+        );
 
         // sound
         assert_parsed_nodes!("[sound:foo]", SoundOrVideo("foo"));
