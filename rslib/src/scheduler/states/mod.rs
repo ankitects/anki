@@ -102,7 +102,7 @@ pub(crate) struct StateContext<'a> {
     pub interval_multiplier: f32,
     pub maximum_review_interval: u32,
     pub leech_threshold: u32,
-    pub load_balancer: Option<LoadBalancerContext<'a>>,
+    pub load_balancer_ctx: Option<LoadBalancerContext<'a>>,
 
     // relearning
     pub relearn_steps: LearningSteps<'a>,
@@ -137,7 +137,7 @@ impl StateContext<'_> {
             interval_multiplier: 1.0,
             maximum_review_interval: 36500,
             leech_threshold: 8,
-            load_balancer: None,
+            load_balancer_ctx: None,
             relearn_steps: LearningSteps::new(&[10.0]),
             lapse_multiplier: 0.0,
             minimum_lapse_interval: 1,
