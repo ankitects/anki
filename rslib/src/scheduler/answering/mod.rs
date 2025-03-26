@@ -84,7 +84,7 @@ impl CardStateUpdater {
     /// state handling code from the rest of the Anki codebase.
     pub(crate) fn state_context<'a>(
         &'a self,
-        load_balancer: Option<LoadBalancerContext<'a>>,
+        load_balancer_ctx: Option<LoadBalancerContext<'a>>,
     ) -> StateContext<'a> {
         StateContext {
             fuzz_factor: get_fuzz_factor(self.fuzz_seed),
@@ -97,8 +97,8 @@ impl CardStateUpdater {
             interval_multiplier: self.config.inner.interval_multiplier,
             maximum_review_interval: self.config.inner.maximum_review_interval,
             leech_threshold: self.config.inner.leech_threshold,
-            load_balancer: load_balancer
-                .map(|load_balancer| load_balancer.set_fuzz_seed(self.fuzz_seed)),
+            load_balancer_ctx: load_balancer_ctx
+                .map(|load_balancer_ctx| load_balancer_ctx.set_fuzz_seed(self.fuzz_seed)),
             relearn_steps: self.relearn_steps(),
             lapse_multiplier: self.config.inner.lapse_multiplier,
             minimum_lapse_interval: self.config.inner.minimum_lapse_interval,
@@ -241,22 +241,16 @@ impl Collection {
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
 
-        let load_balancer = self
-            .get_config_bool(BoolKey::LoadBalancerEnabled)
-            .then(|| {
-                let deckconfig_id = deck.config_id();
+        let load_balancer_ctx = self.state.card_queues.as_ref().and_then(|card_queues| {
+            match card_queues.load_balancer.as_ref() {
+                None => None,
+                Some(load_balancer) => {
+                    Some(load_balancer.review_context(note_id, deck.config_id()?))
+                }
+            }
+        });
 
-                self.state.card_queues.as_ref().and_then(|card_queues| {
-                    Some(
-                        card_queues
-                            .load_balancer
-                            .review_context(note_id, deckconfig_id?),
-                    )
-                })
-            })
-            .flatten();
-
-        let state_ctx = ctx.state_context(load_balancer);
+        let state_ctx = ctx.state_context(load_balancer_ctx);
         Ok(current.next_states(&state_ctx))
     }
 
@@ -354,12 +348,9 @@ impl Collection {
             let deck = self.get_deck(card.deck_id)?;
             if let Some(card_queues) = self.state.card_queues.as_mut() {
                 if let Some(deckconfig_id) = deck.and_then(|deck| deck.config_id()) {
-                    card_queues.load_balancer.add_card(
-                        card.id,
-                        card.note_id,
-                        deckconfig_id,
-                        card.interval,
-                    )
+                    if let Some(load_balancer) = card_queues.load_balancer.as_mut() {
+                        load_balancer.add_card(card.id, card.note_id, deckconfig_id, card.interval)
+                    }
                 }
             }
         }
