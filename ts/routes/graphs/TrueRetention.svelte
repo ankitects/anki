@@ -5,6 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { GraphsResponse } from "@generated/anki/stats_pb";
     import * as tr from "@generated/ftl";
+    import { HelpPage } from "@tslib/help-page";
+    import HelpModal from "$lib/components/HelpModal.svelte";
+    import type { HelpItem } from "$lib/components/types";
 
     import { type RevlogRange } from "./graph-helpers";
     import { DisplayMode, type PeriodTrueRetentionData, Scope } from "./true-retention";
@@ -31,6 +34,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     });
 
+    const retentionHelp = {
+        trueRetention: {
+            title: tr.statisticsTrueRetentionTitle(),
+            help: tr.statisticsTrueRetentionTooltip(),
+        },
+    };
+
+    const helpSections: HelpItem[] = Object.values(retentionHelp);
+
     let mode: DisplayMode = $state(DisplayMode.Summary);
 
     const title = tr.statisticsTrueRetentionTitle();
@@ -38,6 +50,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Graph {title} {subtitle}>
+    <HelpModal
+        title={tr.statisticsTrueRetentionTitle()}
+        url={HelpPage.DeckOptions.fsrs}
+        slot="tooltip"
+        {helpSections}
+    />
     <InputBox>
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Young} />
