@@ -217,6 +217,15 @@ mod test {
             Text("[anki:foo]"),
             Text("[/anki:bar]")
         );
+        assert_parsed_nodes!(
+            "abc[anki:foo]def[/anki:bar]ghi][[anki:bar][",
+            Text("abc"),
+            Text("[anki:foo]def"),
+            Text("[/anki:bar]ghi]"),
+            Text("["),
+            Text("[anki:bar]"),
+            Text("[")
+        );
 
         // sound
         assert_parsed_nodes!("[sound:foo]", SoundOrVideo("foo"));
@@ -238,6 +247,14 @@ mod test {
             Directive(super::Directive::Other(OtherDirective {
                 name: "foo",
                 content: "bar",
+                options: HashMap::new()
+            }))
+        );
+        assert_parsed_nodes!(
+            "[anki:foo]]bar[[/anki:foo]",
+            Directive(super::Directive::Other(OtherDirective {
+                name: "foo",
+                content: "]bar[",
                 options: HashMap::new()
             }))
         );
