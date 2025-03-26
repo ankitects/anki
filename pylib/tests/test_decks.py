@@ -48,7 +48,9 @@ def test_remove():
     deck1 = col.decks.id("deck1")
     note = col.newNote()
     note["Front"] = "1"
-    note.note_type()["did"] = deck1
+    note_type = note.note_type()
+    note_type["did"] = deck1
+    col.models.update_dict(note_type)
     col.addNote(note)
     c = note.cards()[0]
     assert c.did == deck1
