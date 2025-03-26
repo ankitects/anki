@@ -34,12 +34,14 @@ type IResult<'a, O> = nom::IResult<&'a str, O>;
 impl<'a> CardNodes<'a> {
     pub(super) fn parse(mut txt: &'a str) -> Self {
         let mut nodes = Vec::new();
+        let mut text_only = true;
         while let Ok((remaining, node)) = node(txt) {
+            text_only &= matches!(node, Node::Text(_));
             txt = remaining;
             nodes.push(node);
         }
 
-        Self(nodes)
+        Self { nodes, text_only }
     }
 }
 
