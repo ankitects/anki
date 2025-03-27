@@ -245,6 +245,7 @@ impl SimpleServer {
         let addr = listener.local_addr().unwrap();
         let server = with_logging_layer(
             Router::new()
+                .route("/", get(|| async { StatusCode::OK }))
                 .nest("/sync", collection_sync_router())
                 .nest("/msync", media_sync_router())
                 .route("/health", get(health_check_handler))
