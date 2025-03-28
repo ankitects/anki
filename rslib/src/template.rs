@@ -592,6 +592,7 @@ pub struct RenderCardRequest<'a> {
     pub partial_render: bool,
 }
 
+/// Returns `(qnodes, anodes, is_empty)`
 pub fn render_card(
     RenderCardRequest {
         qfmt,
@@ -603,7 +604,7 @@ pub fn render_card(
         tr,
         partial_render: partial_for_python,
     }: RenderCardRequest<'_>,
-) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
+) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>, bool)> {
     // prepare context
     let mut context = RenderContext {
         fields: field_map,
@@ -638,7 +639,7 @@ pub fn render_card(
     };
     if let Some(text) = empty_message {
         qnodes.push(RenderedNode::Text { text: text.clone() });
-        return Ok((qnodes, vec![RenderedNode::Text { text }]));
+        return Ok((qnodes, vec![RenderedNode::Text { text }], true));
     }
 
     // answer side
@@ -654,7 +655,7 @@ pub fn render_card(
         .and_then(|tmpl| tmpl.render(&context, tr))
         .map_err(|e| template_error_to_anki_error(e, false, browser, tr))?;
 
-    Ok((qnodes, anodes))
+    Ok((qnodes, anodes, false))
 }
 
 fn cloze_is_empty(field_map: &HashMap<&str, Cow<str>>, card_ord: u16) -> bool {
