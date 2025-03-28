@@ -1339,13 +1339,14 @@ mod test {
             tr: &tr,
             partial_render: true,
         };
-        let qnodes = super::render_card(req.clone()).unwrap().0;
+        let (qnodes, _, is_empty) = super::render_card(req.clone()).unwrap();
         assert_eq!(
             qnodes[0],
             FN::Text {
                 text: "test".into()
             }
         );
+        assert!(is_empty);
         if let FN::Text { ref text } = qnodes[1] {
             assert!(text.contains("card is blank"));
         } else {
@@ -1355,7 +1356,7 @@ mod test {
         // a popular card template expects {{FrontSide}} to resolve to an empty
         // string on the front side :-(
         req.qfmt = "{{FrontSide}}{{N}}";
-        let qnodes = super::render_card(req.clone()).unwrap().0;
+        let (qnodes, _, is_empty) = super::render_card(req.clone()).unwrap();
         assert_eq!(
             &qnodes,
             &[
@@ -1367,8 +1368,10 @@ mod test {
                 FN::Text { text: "N".into() }
             ]
         );
+        assert!(!is_empty);
         req.partial_render = false;
-        let qnodes = super::render_card(req.clone()).unwrap().0;
+        let (qnodes, _, is_empty) = super::render_card(req.clone()).unwrap();
         assert_eq!(&qnodes, &[FN::Text { text: "N".into() }]);
+        assert!(!is_empty);
     }
 }
