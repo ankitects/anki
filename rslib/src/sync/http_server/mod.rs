@@ -51,6 +51,8 @@ use crate::sync::request::SyncRequest;
 use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES;
 use crate::sync::response::SyncResponse;
 
+use reqwest::StatusCode;
+
 pub struct SimpleServer {
     state: Mutex<SimpleServerInner>,
 }
