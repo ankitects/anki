@@ -151,7 +151,10 @@ class ModelManager(DeprecatedNamesMixin):
             return None
 
     def get(self, id: NotetypeId) -> NotetypeDict | None:
-        "Get model with ID, or None."
+        """Get model with ID, or None.
+
+        This returns a reference to a cached dict. Copy the returned model before modifying it if you're not calling .update_dict() afterward.
+        """
         # deal with various legacy input types
         if id is None:
             return None

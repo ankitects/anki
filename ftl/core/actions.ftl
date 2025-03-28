@@ -50,6 +50,7 @@ actions-select = Select
 actions-shortcut-key = Shortcut key: { $val }
 actions-suspend-card = Suspend Card
 actions-set-due-date = Set Due Date
+actions-toggle-load-balancer = Toggle Load Balancer
 actions-grade-now = Grade Now
 actions-answer-card = Answer Card
 actions-unbury-unsuspend = Unbury/Unsuspend
