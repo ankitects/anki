@@ -109,11 +109,21 @@ fn reparented_name(existing_name: &str, new_parent: Option<&str>) -> Option<Stri
             None
         } else {
             // foo::bar onto baz -> baz::bar
-            Some(format!("{}::{}", new_parent, existing_base))
+            let new_name = format!("{}::{}", new_parent, existing_base);
+            if new_name != existing_name {
+                Some(new_name)
+            } else {
+                None
+            }
         }
     } else {
         // foo::bar onto top level -> bar
-        Some(existing_base.into())
+        let new_name = existing_base.into();
+        if new_name != existing_name {
+            Some(new_name)
+        } else {
+            None
+        }
     }
 }
 
