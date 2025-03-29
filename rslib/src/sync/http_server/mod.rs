@@ -20,6 +20,7 @@ use std::sync::Mutex;
 
 use anki_io::create_dir_all;
 use axum::extract::DefaultBodyLimit;
+use axum::response::Html;
 use axum::routing::get;
 use axum::Router;
 use axum_client_ip::SecureClientIpSource;
@@ -247,7 +248,7 @@ impl SimpleServer {
         let addr = listener.local_addr().unwrap();
         let server = with_logging_layer(
             Router::new()
-                .route("/", get(|| async { StatusCode::OK }))
+                .route("/", get(root_handler))
                 .nest("/sync", collection_sync_router())
                 .nest("/msync", media_sync_router())
                 .route("/health", get(health_check_handler))
@@ -280,3 +281,34 @@ impl SimpleServer {
 }
 
 pub type ServerFuture = Pin<Box<dyn Future<Output = error::Result<(), std::io::Error>> + Send>>;
+
+async fn root_handler() -> Html<&'static str> {
+    Html(r#"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anki 同步服务器</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #2c3e50; }
+        .content { line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <h1>Anki 同步服务器</h1>
+    <div class="content">
+        <p>这是一个独立的Anki同步服务器，用于间隔重复记忆卡片程序。</p>
+        <p>它允许您在不使用AnkiWeb的情况下在不同设备间同步Anki集合。</p>
+        <h2>功能特点</h2>
+        <ul>
+            <li>集合同步</li>
+            <li>媒体文件同步</li>
+            <li>多用户支持</li>
+        </ul>
+        <h2>使用方法</h2>
+        <p>在Anki客户端的同步设置中配置使用此服务器地址。</p>
+    </div>
+</body>
+</html>
+"#)
+}
