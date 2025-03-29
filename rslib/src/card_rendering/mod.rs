@@ -33,24 +33,24 @@ pub fn prettify_av_tags<S: Into<String> + AsRef<str>>(txt: S) -> String {
 }
 
 /// Parse `txt` into [CardNodes] and return the result,
-/// or [None] if it is only a text node.
+/// or [None] if it only contains text nodes.
 fn nodes_or_text_only(txt: &str) -> Option<CardNodes> {
     let nodes = CardNodes::parse(txt);
-    match nodes.0[..] {
-        [Node::Text(_)] => None,
-        _ => Some(nodes),
-    }
+    (!nodes.text_only).then_some(nodes)
 }
 
 #[derive(Debug, PartialEq)]
-struct CardNodes<'a>(Vec<Node<'a>>);
+struct CardNodes<'a> {
+    nodes: Vec<Node<'a>>,
+    text_only: bool,
+}
 
 impl<'iter, 'nodes> IntoIterator for &'iter CardNodes<'nodes> {
     type Item = &'iter Node<'nodes>;
     type IntoIter = std::slice::Iter<'iter, Node<'nodes>>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.0.iter()
+        self.nodes.iter()
     }
 }
 
