@@ -60,6 +60,7 @@ class PartiallyRenderedCard:
     anodes: TemplateReplacementList
     css: str
     latex_svg: bool
+    is_empty: bool
 
     @classmethod
     def from_proto(
@@ -68,7 +69,9 @@ class PartiallyRenderedCard:
         qnodes = cls.nodes_from_proto(out.question_nodes)
         anodes = cls.nodes_from_proto(out.answer_nodes)
 
-        return PartiallyRenderedCard(qnodes, anodes, out.css, out.latex_svg)
+        return PartiallyRenderedCard(
+            qnodes, anodes, out.css, out.latex_svg, out.is_empty
+        )
 
     @staticmethod
     def nodes_from_proto(

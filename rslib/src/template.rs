@@ -592,6 +592,7 @@ pub struct RenderCardRequest<'a> {
     pub partial_render: bool,
 }
 
+/// Returns `(qnodes, anodes, is_empty)`
 pub fn render_card(
     RenderCardRequest {
         qfmt,
@@ -603,7 +604,7 @@ pub fn render_card(
         tr,
         partial_render: partial_for_python,
     }: RenderCardRequest<'_>,
-) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
+) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>, bool)> {
     // prepare context
     let mut context = RenderContext {
         fields: field_map,
@@ -638,7 +639,7 @@ pub fn render_card(
     };
     if let Some(text) = empty_message {
         qnodes.push(RenderedNode::Text { text: text.clone() });
-        return Ok((qnodes, vec![RenderedNode::Text { text }]));
+        return Ok((qnodes, vec![RenderedNode::Text { text }], true));
     }
 
     // answer side
@@ -654,7 +655,7 @@ pub fn render_card(
         .and_then(|tmpl| tmpl.render(&context, tr))
         .map_err(|e| template_error_to_anki_error(e, false, browser, tr))?;
 
-    Ok((qnodes, anodes))
+    Ok((qnodes, anodes, false))
 }
 
 fn cloze_is_empty(field_map: &HashMap<&str, Cow<str>>, card_ord: u16) -> bool {
@@ -1338,13 +1339,14 @@ mod test {
             tr: &tr,
             partial_render: true,
         };
-        let qnodes = super::render_card(req.clone()).unwrap().0;
+        let (qnodes, _, is_empty) = super::render_card(req.clone()).unwrap();
         assert_eq!(
             qnodes[0],
             FN::Text {
                 text: "test".into()
             }
         );
+        assert!(is_empty);
         if let FN::Text { ref text } = qnodes[1] {
             assert!(text.contains("card is blank"));
         } else {
@@ -1354,7 +1356,7 @@ mod test {
         // a popular card template expects {{FrontSide}} to resolve to an empty
         // string on the front side :-(
         req.qfmt = "{{FrontSide}}{{N}}";
-        let qnodes = super::render_card(req.clone()).unwrap().0;
+        let (qnodes, _, is_empty) = super::render_card(req.clone()).unwrap();
         assert_eq!(
             &qnodes,
             &[
@@ -1366,8 +1368,10 @@ mod test {
                 FN::Text { text: "N".into() }
             ]
         );
+        assert!(!is_empty);
         req.partial_render = false;
-        let qnodes = super::render_card(req.clone()).unwrap().0;
+        let (qnodes, _, is_empty) = super::render_card(req.clone()).unwrap();
         assert_eq!(&qnodes, &[FN::Text { text: "N".into() }]);
+        assert!(!is_empty);
     }
 }
