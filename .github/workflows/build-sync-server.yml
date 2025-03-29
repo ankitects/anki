@@ -1,0 +1,57 @@
+name: Build Anki Sync Server Binary
+
+on:
+  workflow_dispatch:
+    inputs:
+      anki_version:
+        description: 'Anki version tag (e.g. 2.1.65)'
+        required: true
+        type: string
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: rustlang/rust:nightly-alpine3.20  # 使用 nightly 版本
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        apk update
+        apk add --no-cache build-base protobuf
+        rm -rf /var/cache/apk/*
+    
+    - name: Build Anki Sync Server
+      run: |
+        cargo install --git https://github.com/tonfigu/anki.git \
+          --tag ${{ github.event.inputs.anki_version }} \
+          --root ./anki-server \
+          --locked \
+          anki-sync-server
+    
+    - name: Create release and upload binary
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: anki-sync-server-${{ github.event.inputs.anki_version }}
+        name: Anki Sync Server ${{ github.event.inputs.anki_version }}
+        body: "Built Anki Sync Server binary for version ${{ github.event.inputs.anki_version }}"
+        files: |
+          anki-server/bin/anki-sync-server
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@v2
+      with:
+        token: ${{ github.token }}
+        repository: ${{ github.repository }}
+        retain_days: 1
+        keep_minimum_runs: 8
