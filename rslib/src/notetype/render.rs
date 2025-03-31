@@ -137,7 +137,7 @@ impl Collection {
             )
         };
 
-        let (qnodes, anodes, is_empty) = render_card(RenderCardRequest {
+        let response = render_card(RenderCardRequest {
             qfmt,
             afmt,
             field_map: &field_map,
@@ -148,11 +148,11 @@ impl Collection {
             partial_render,
         })?;
         Ok(RenderCardOutput {
-            qnodes,
-            anodes,
+            qnodes: response.qnodes,
+            anodes: response.anodes,
             css: nt.config.css.clone(),
             latex_svg: nt.config.latex_svg,
-            is_empty,
+            is_empty: response.is_empty,
         })
     }
 
