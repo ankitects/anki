@@ -20,6 +20,7 @@ pub struct RenderCardOutput {
     pub anodes: Vec<RenderedNode>,
     pub css: String,
     pub latex_svg: bool,
+    pub is_empty: bool,
 }
 
 impl RenderCardOutput {
@@ -136,7 +137,7 @@ impl Collection {
             )
         };
 
-        let (qnodes, anodes) = render_card(RenderCardRequest {
+        let response = render_card(RenderCardRequest {
             qfmt,
             afmt,
             field_map: &field_map,
@@ -147,10 +148,11 @@ impl Collection {
             partial_render,
         })?;
         Ok(RenderCardOutput {
-            qnodes,
-            anodes,
+            qnodes: response.qnodes,
+            anodes: response.anodes,
             css: nt.config.css.clone(),
             latex_svg: nt.config.latex_svg,
+            is_empty: response.is_empty,
         })
     }
 
