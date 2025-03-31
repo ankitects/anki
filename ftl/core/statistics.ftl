@@ -254,6 +254,9 @@ statistics-elapsed-time-years = { $amount }y
 ##
 
 statistics-average-for-days-studied = Average for days studied
+# This term is used in a variety of contexts to refers to the total amount of
+# items (e.g., cards, mature cards, etc) for a given period, rather than the
+# total of all existing items.
 statistics-total = Total
 statistics-days-studied = Days studied
 statistics-average-answer-time-label = Average answer time
