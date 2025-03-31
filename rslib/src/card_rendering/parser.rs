@@ -11,10 +11,11 @@ use nom::character::complete::multispace0;
 use nom::combinator::map;
 use nom::combinator::not;
 use nom::combinator::recognize;
+use nom::combinator::rest;
 use nom::combinator::success;
 use nom::combinator::value;
+use nom::multi::fold_many0;
 use nom::multi::many0;
-use nom::multi::many1;
 use nom::sequence::delimited;
 use nom::sequence::pair;
 use nom::sequence::preceded;
@@ -33,12 +34,14 @@ type IResult<'a, O> = nom::IResult<&'a str, O>;
 impl<'a> CardNodes<'a> {
     pub(super) fn parse(mut txt: &'a str) -> Self {
         let mut nodes = Vec::new();
+        let mut text_only = true;
         while let Ok((remaining, node)) = node(txt) {
+            text_only &= matches!(node, Node::Text(_));
             txt = remaining;
             nodes.push(node);
         }
 
-        Self(nodes)
+        Self { nodes, text_only }
     }
 }
 
@@ -98,7 +101,7 @@ fn is_not0<'parser, 'arr: 'parser, 's: 'parser>(
 }
 
 fn node(s: &str) -> IResult<Node> {
-    alt((text_node, sound_node, tag_node))(s)
+    alt((sound_node, tag_node, text_node))(s)
 }
 
 /// A sound tag `[sound:resource]`, where `resource` is pointing to a sound or
@@ -108,6 +111,16 @@ fn sound_node(s: &str) -> IResult<Node> {
         delimited(tag("[sound:"), is_not("]"), tag("]")),
         Node::SoundOrVideo,
     )(s)
+}
+
+fn take_till_potential_tag_start(s: &str) -> IResult<&str> {
+    use nom::InputTake;
+    // first char could be '[', but wasn't part of a node, so skip (eof ends parse)
+    let (after, offset) = anychar(s).map(|(s, c)| (s, c.len_utf8()))?;
+    Ok(match after.find('[') {
+        Some(pos) => s.take_split(offset + pos),
+        _ => rest(s)?,
+    })
 }
 
 /// An Anki tag `[anki:tag...]...[/anki:tag]`.
@@ -157,7 +170,12 @@ fn tag_node(s: &str) -> IResult<Node> {
     fn content_parser<'parser, 'name: 'parser, 's: 'parser>(
         name: &'name str,
     ) -> impl FnMut(&'s str) -> IResult<'s, &'s str> + 'parser {
-        recognize(many0(pair(not(closing_parser(name)), anychar)))
+        recognize(fold_many0(
+            pair(not(closing_parser(name)), take_till_potential_tag_start),
+            // we don't need to accumulate anything
+            || (),
+            |_, _| (),
+        ))
     }
 
     let (_, tag_name) = name(s)?;
@@ -171,10 +189,7 @@ fn tag_node(s: &str) -> IResult<Node> {
 }
 
 fn text_node(s: &str) -> IResult<Node> {
-    map(
-        recognize(many1(pair(not(alt((sound_node, tag_node))), anychar))),
-        Node::Text,
-    )(s)
+    map(take_till_potential_tag_start, Node::Text)(s)
 }
 
 #[cfg(test)]
@@ -183,7 +198,7 @@ mod test {
 
     macro_rules! assert_parsed_nodes {
         ($txt:expr $(, $node:expr)*) => {
-            assert_eq!(CardNodes::parse($txt), CardNodes(vec![$($node),*]));
+            assert_eq!(CardNodes::parse($txt).nodes, vec![$($node),*]);
         }
     }
 
@@ -198,8 +213,21 @@ mod test {
         assert_parsed_nodes!("foo", Text("foo"));
         // broken sound/tags are just text as well
         assert_parsed_nodes!("[sound:]", Text("[sound:]"));
-        assert_parsed_nodes!("[anki:][/anki:]", Text("[anki:][/anki:]"));
-        assert_parsed_nodes!("[anki:foo][/anki:bar]", Text("[anki:foo][/anki:bar]"));
+        assert_parsed_nodes!("[anki:][/anki:]", Text("[anki:]"), Text("[/anki:]"));
+        assert_parsed_nodes!(
+            "[anki:foo][/anki:bar]",
+            Text("[anki:foo]"),
+            Text("[/anki:bar]")
+        );
+        assert_parsed_nodes!(
+            "abc[anki:foo]def[/anki:bar]ghi][[anki:bar][",
+            Text("abc"),
+            Text("[anki:foo]def"),
+            Text("[/anki:bar]ghi]"),
+            Text("["),
+            Text("[anki:bar]"),
+            Text("[")
+        );
 
         // sound
         assert_parsed_nodes!("[sound:foo]", SoundOrVideo("foo"));
@@ -221,6 +249,14 @@ mod test {
             Directive(super::Directive::Other(OtherDirective {
                 name: "foo",
                 content: "bar",
+                options: HashMap::new()
+            }))
+        );
+        assert_parsed_nodes!(
+            "[anki:foo]]bar[[/anki:foo]",
+            Directive(super::Directive::Other(OtherDirective {
+                name: "foo",
+                content: "]bar[",
                 options: HashMap::new()
             }))
         );
