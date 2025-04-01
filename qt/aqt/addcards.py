@@ -57,10 +57,6 @@ class AddCards(QMainWindow):
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
-        if is_mac:
-            self.setMenuBar(mw.shared_menubar)
-        else:
-            self.setMenuBar(None)
         self.show()
 
     def set_deck(self, deck_id: DeckId) -> None:

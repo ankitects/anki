@@ -987,7 +987,12 @@ title="{}" {}>{}</button>""".format(
         gui_hooks.card_review_webview_did_init(self.web, AnkiWebViewKind.MAIN)
 
         if is_mac:
+            # Mac apps have one menubar shared by all windows
+            # in the application.
+            # In Qt it is implemented as one parentless menubar
+            # Doc: https://doc.qt.io/qt-6/qmenubar.html#qmenubar-as-a-global-menu-bar
             designed_menubar = self.menuBar()
+            designed_menubar.hide()
             self.shared_menubar = QtWidgets.QMenuBar(None)
 
             # Copy all menus and actions
@@ -999,10 +1004,6 @@ title="{}" {}>{}</button>""".format(
                         new_menu.addAction(sub_action)
                 else:  # If it's a direct action
                     self.shared_menubar.addAction(action)
-
-            self.setMenuBar(self.shared_menubar)
-
-        self.setMenuBar(self.shared_menubar)
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)

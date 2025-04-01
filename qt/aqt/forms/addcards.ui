@@ -82,22 +82,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>750</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menu_Edit">
-    <property name="title">
-     <string>qt_accel_edit</string>
-    </property>
-   </widget>
-   <addaction name="menu_Edit"/>
-  </widget>
  </widget>
  <resources>
   <include location="icons.qrc"/>
