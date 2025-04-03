@@ -108,7 +108,7 @@ impl DeckConfig {
         self.usn = usn;
     }
 
-    /// Retrieve the FSRS 6.0 params, falling back on 5.0 or 4.0 ones.
+    /// Retrieve the FSRS 6.0 params, falling back on 5.0 or 4.x ones.
     pub fn fsrs_params(&self) -> &Vec<f32> {
         if self.inner.fsrs_params_6.len() == 20 {
             &self.inner.fsrs_params_6
