@@ -50,7 +50,7 @@ impl Collection {
         deck: DeckId,
     ) -> Result<anki_proto::deck_config::DeckConfigsForUpdate> {
         let mut defaults = DeckConfig::default();
-        defaults.inner.fsrs_params_5 = DEFAULT_PARAMETERS.into();
+        defaults.inner.fsrs_params_6 = DEFAULT_PARAMETERS.into();
         let last_optimize = self.get_config_i32(I32ConfigKey::LastFsrsOptimize) as u32;
         let days_since_last_fsrs_optimize = if last_optimize > 0 {
             self.timing_today()?
@@ -90,8 +90,12 @@ impl Collection {
         config.sort_unstable_by(|a, b| a.name.cmp(&b.name));
         // pre-fill empty fsrs 5 params with 4 params
         config.iter_mut().for_each(|c| {
-            if c.inner.fsrs_params_5.is_empty() {
-                c.inner.fsrs_params_5 = c.inner.fsrs_params_4.clone();
+            if c.inner.fsrs_params_6.is_empty() {
+                c.inner.fsrs_params_6 = if c.inner.fsrs_params_5.is_empty() {
+                    c.inner.fsrs_params_4.clone()
+                } else {
+                    c.inner.fsrs_params_5.clone()
+                };
             }
         });
 
@@ -168,7 +172,8 @@ impl Collection {
             // If the user has provided empty FSRS5 params, zero out any
             // old params as well, so we don't fall back on them, which would
             // be surprising as they're not shown in the GUI.
-            if conf.inner.fsrs_params_5.is_empty() {
+            if conf.inner.fsrs_params_6.is_empty() {
+                conf.inner.fsrs_params_5.clear();
                 conf.inner.fsrs_params_4.clear();
             }
             // check the provided parameters are valid before we save them
@@ -370,7 +375,7 @@ impl Collection {
             ) {
                 Ok(params) => {
                     println!("{}: {:?}", config.name, params.params);
-                    config.inner.fsrs_params_5 = params.params;
+                    config.inner.fsrs_params_6 = params.params;
                 }
                 Err(AnkiError::Interrupted) => return Err(AnkiError::Interrupted),
                 Err(err) => {

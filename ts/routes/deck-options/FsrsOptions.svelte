@@ -167,7 +167,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             : tr.deckConfigFsrsParamsNoReviews();
                         setTimeout(() => alert(msg), 200);
                     } else {
-                        $config.fsrsParams5 = resp.params;
+                        $config.fsrsParams6 = resp.params;
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
@@ -322,9 +322,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="ms-1 me-1">
     <ParamsInputRow
-        bind:value={$config.fsrsParams5}
+        bind:value={$config.fsrsParams6}
         defaultValue={[]}
-        defaults={defaults.fsrsParams5}
+        defaults={defaults.fsrsParams6}
     >
         <SettingTitle on:click={() => openHelpModal("modelParams")}>
             {tr.deckConfigWeights()}
