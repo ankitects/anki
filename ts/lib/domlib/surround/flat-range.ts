@@ -66,13 +66,19 @@ export class FlatRange {
         range.setStart(this.parent, this.startIndex);
         range.setEnd(this.parent, this.endIndex);
 
-        if (range.collapsed) {
-            // If the range is collapsed to a single element, move the range inside the element.
-            // This prevents putting the surround above the base element.
-            const selected = range.commonAncestorContainer.childNodes[range.startOffset];
+        // If the range encompasses exactly one child node
+        if (this.endIndex - this.startIndex === 1) {
+            const selected = this.parent.childNodes[this.startIndex];
 
             if (nodeIsElement(selected)) {
-                range.selectNode(selected);
+                if (selected.textContent && selected.textContent.trim().length > 0) {
+                    range.selectNodeContents(selected);
+                    return range;
+                }
+
+                if (range.collapsed) {
+                    range.selectNode(selected);
+                }
             }
         }
 
