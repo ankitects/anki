@@ -103,9 +103,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function getRetentionWarningClass(retention: number): string {
-        if (retention < 0.7 || retention > 0.97) {
+        if (retention < 0.75 || retention > 0.97) {
             return "alert-danger";
-        } else if (retention < 0.8 || retention > 0.95) {
+        } else if (retention < 0.85 || retention > 0.95) {
             return "alert-warning";
         } else {
             return "alert-info";
@@ -309,7 +309,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <SpinBoxFloatRow
     bind:value={$config.desiredRetention}
     defaultValue={defaults.desiredRetention}
-    min={0.7}
+    min={0.75}
     max={0.99}
     percentage={true}
 >
