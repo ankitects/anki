@@ -14,11 +14,13 @@ impl BackendAnkidroidService for Backend {
         &self,
         input: anki_proto::ankidroid::SchedTimingTodayLegacyRequest,
     ) -> Result<anki_proto::scheduler::SchedTimingTodayResponse> {
+        
+        
         // Convert timestamps properly
         let created_secs = TimestampSecs(input.created_secs);
         let now_secs = TimestampSecs(input.now_secs);
         
-        // Handle timezone offsets
+        
         let created_offset = input.created_mins_west.map(fixed_offset_from_minutes);
         let now_offset = fixed_offset_from_minutes(input.now_mins_west);
         
@@ -43,8 +45,7 @@ impl BackendAnkidroidService for Backend {
     }
 
     fn set_page_size(&self, input: generic::Int64) -> Result<()> {
-        // we don't require an open collection, but should avoid modifying this
-        // concurrently
+        
         let _guard = self.col.lock();
         db::set_max_page_size(input.val as usize);
         Ok(())
