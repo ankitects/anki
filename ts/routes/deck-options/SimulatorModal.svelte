@@ -214,7 +214,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <SpinBoxFloatRow
                     bind:value={simulateFsrsRequest.desiredRetention}
                     defaultValue={$config.desiredRetention}
-                    min={0.7}
+                    min={0.75}
                     max={0.99}
                     percentage={true}
                 >
