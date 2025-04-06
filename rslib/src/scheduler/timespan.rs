@@ -189,7 +189,7 @@ mod test {
         assert_eq!(time_span(90.0, &tr, false), "1.5 minutes");
         assert_eq!(time_span(45.0 * 86_400.0, &tr, false), "1.5 months");
         assert_eq!(time_span(360.0 * 86_400.0, &tr, false), "1 year");
-        assert_eq!(time_span(365.0 * 86_400.0, &tr, false), "1 year");
+        assert_eq!(time_span(365.0 * 86_400.0, &tr, true), "1 year");
         assert_eq!(time_span(365.0 * 86_400.0 * 1.5, &tr, false), "1.5 years");
     }
 }
