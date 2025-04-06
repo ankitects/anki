@@ -168,12 +168,12 @@ export function prepareIntervalData(
         dispatch("search", { query });
     }
 
-    const meanInterval = Math.round(mean(allIntervals) ?? 0);
-    const meanIntervalString = timeSpan(meanInterval * 86400, false);
+    const medianInterval = Math.round(quantile(allIntervals, 0.5) ?? 0);
+    const medianIntervalString = timeSpan(medianInterval * 86400, false);
     const tableData = [
         {
-            label: fsrs ? tr.statisticsAverageStability() : tr.statisticsAverageInterval(),
-            value: meanIntervalString,
+            label: fsrs ? tr.statisticsMedianStability() : tr.statisticsMedianInterval(),
+            value: medianIntervalString,
         },
     ];
 
