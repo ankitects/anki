@@ -172,7 +172,7 @@ export function prepareIntervalData(
     const medianIntervalString = timeSpan(medianInterval * 86400, false);
     const tableData = [
         {
-            label: fsrs ? tr.statisticsMedianStability() : tr.statisticsMedianInterval(),
+            label: fsrs ? tr.statisticsAverageStability() : tr.statisticsAverageInterval(),
             value: medianIntervalString,
         },
     ];
