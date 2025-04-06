@@ -151,7 +151,7 @@ impl Timespan {
             TimespanUnit::Hours
         } else if secs < MONTH {
             TimespanUnit::Days
-        } else if secs < YEAR {
+        } else if secs < 12.0 * MONTH {
             TimespanUnit::Months
         } else {
             TimespanUnit::Years
@@ -188,6 +188,8 @@ mod test {
         assert_eq!(time_span(30.3, &tr, true), "30.3 seconds");
         assert_eq!(time_span(90.0, &tr, false), "1.5 minutes");
         assert_eq!(time_span(45.0 * 86_400.0, &tr, false), "1.5 months");
+        assert_eq!(time_span(360.0 * 86_400.0, &tr, false), "1 year");
+        assert_eq!(time_span(365.0 * 86_400.0, &tr, false), "1 year");
         assert_eq!(time_span(365.0 * 86_400.0 * 1.5, &tr, false), "1.5 years");
     }
 }
