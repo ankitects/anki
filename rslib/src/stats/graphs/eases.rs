@@ -28,7 +28,7 @@ impl GraphsContext {
                 ease_values.push(card.ease_factor as f32);
             }
         }
-        
+
         eases.average = median(&mut ease_values) / 10.0;
         difficulty.average = median(&mut difficulty_values) * 100.0;
 
@@ -37,7 +37,7 @@ impl GraphsContext {
 }
 
 /// Helper function to calculate the median of a vector
-fn median(data: &mut Vec<f32>) -> f32 {
+fn median(data: &mut [f32]) -> f32 {
     if data.is_empty() {
         return 0.0;
     }
