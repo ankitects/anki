@@ -148,7 +148,7 @@ statistics-card-ease-title = Card Ease
 statistics-card-difficulty-title = Card Difficulty
 statistics-card-stability-title = Card Stability
 statistics-card-stability-subtitle = The delay at which retrievability falls to 90%.
-statistics-average-stability = Average stability
+statistics-median-stability = Median stability
 statistics-card-retrievability-title = Card Retrievability
 statistics-card-ease-subtitle = The lower the ease, the more frequently a card will appear.
 statistics-card-difficulty-subtitle2 = The higher the difficulty, the slower stability will increase.
@@ -258,7 +258,7 @@ statistics-total = Total
 statistics-days-studied = Days studied
 statistics-average-answer-time-label = Average answer time
 statistics-average = Average
-statistics-average-interval = Average interval
+statistics-median-interval = Median interval
 statistics-due-tomorrow = Due tomorrow
 # This string, ‘Daily load,’ appears in the ‘Future due’ table and represents a
 # forecasted estimate of the number of cards expected to be reviewed daily in 
@@ -284,8 +284,8 @@ statistics-cards-per-day =
         [one] { $count } card/day
        *[other] { $count } cards/day
     }
-statistics-average-ease = Average ease
-statistics-average-difficulty = Average difficulty
+statistics-median-ease = Median ease
+statistics-median-difficulty = Median difficulty
 statistics-average-retrievability = Average retrievability
 statistics-estimated-total-knowledge = Estimated total knowledge
 statistics-save-pdf = Save PDF
