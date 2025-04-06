@@ -10,7 +10,7 @@ import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { timeSpan } from "@tslib/time";
 import type { Bin } from "d3";
-import { bin, extent, interpolateBlues, mean, quantile, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, extent, interpolateBlues, quantile, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { numericMap } from "./graph-helpers";
