@@ -347,7 +347,7 @@ class CardLayout(QDialog):
 
     def setup_preview(self) -> None:
         pform = self.pform
-        self.preview_web = AnkiWebView(kind=AnkiWebViewKind.CARD_LAYOUT)
+        self.preview_web = AnkiWebView(kind=AnkiWebViewKind.CARD_LAYOUT, mw=self.mw)
         pform.verticalLayout.addWidget(self.preview_web)
         pform.verticalLayout.setStretch(1, 99)
         pform.preview_front.isChecked()

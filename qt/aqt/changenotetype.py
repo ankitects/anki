@@ -51,7 +51,7 @@ class ChangeNotetypeDialog(QDialog):
         restoreGeom(self, self.TITLE, default_size=(800, 800))
         addCloseShortcut(self)
 
-        self.web = AnkiWebView(kind=AnkiWebViewKind.CHANGE_NOTETYPE)
+        self.web = AnkiWebView(kind=AnkiWebViewKind.CHANGE_NOTETYPE, mw=self.mw)
         self.web.setVisible(False)
         self.web.load_sveltekit_page(f"change-notetype/{notetype_id}")
         layout = QVBoxLayout()

@@ -287,7 +287,7 @@ class AnkiWebView(QWebEngineView):
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
         mw: AnkiQt | None = None,
     ) -> None:
-        assert(mw is not None)
+        assert(mw is not None) #TESTING
         QWebEngineView.__init__(self, parent=parent)
         self.mw = mw
         self.set_kind(kind)

@@ -44,7 +44,7 @@ class DeckOptionsDialog(QDialog):
         restoreGeom(self, self.TITLE, default_size=(800, 800))
         addCloseShortcut(self)
 
-        self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS)
+        self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS, mw=self.mw)
         self.web.load_sveltekit_page(f"deck-options/{self._deck['id']}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
