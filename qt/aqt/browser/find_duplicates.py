@@ -55,7 +55,6 @@ class FindDuplicatesDialog(QDialog):
         form.webView.set_kind(AnkiWebViewKind.FIND_DUPLICATES)
         form.webView.set_bridge_command(self._on_duplicate_clicked, context=self)
         form.webView.stdHtml("", context=self)
-        form.webView.set_mw(mw)
 
         def on_finished(code: Any) -> None:
             saveGeom(self, "findDupes")

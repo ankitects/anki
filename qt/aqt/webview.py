@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Any, cast
 
 import anki
 import anki.lang
-import aqt
 from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import hmr_mode, is_lin, is_mac, is_win
@@ -285,13 +284,9 @@ class AnkiWebView(QWebEngineView):
         parent: QWidget | None = None,
         title: str = "",  # used by add-ons; in Anki code use kind instead to set title
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
-        mw: aqt.main.AnkiQt | None = None,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        self.set_mw(mw)
         self.set_kind(kind)
-        if title:
-            self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
         self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
@@ -335,9 +330,6 @@ class AnkiWebView(QWebEngineView):
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
 
-    def set_mw(self, mw: aqt.main.AnkiQt) -> None:
-        self.mw = mw
-
     def disable_zoom(self) -> None:
         self._disable_zoom = True
 
@@ -352,12 +344,14 @@ class AnkiWebView(QWebEngineView):
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
 
+        from aqt import mw
+
         if (
             isinstance(evt, QMouseEvent)
             and evt.type() == QEvent.Type.MouseButtonRelease
         ):
             if evt.button() == Qt.MouseButton.MiddleButton and is_lin:
-                if self.mw is None or self.mw.pm.middle_click_paste():
+                if mw.pm.middle_click_paste():
                     self.onMiddleClickPaste()
                 return True
 

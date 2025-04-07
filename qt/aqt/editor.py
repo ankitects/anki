@@ -1461,7 +1461,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
 class EditorWebView(AnkiWebView):
     def __init__(self, parent: QWidget, editor: Editor, mw: AnkiQt) -> None:
-        AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR, mw=mw)
+        AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR)
         self.editor = editor
         self.setAcceptDrops(True)
         self._store_field_content_on_next_clipboard_change = False

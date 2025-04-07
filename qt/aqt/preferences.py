@@ -12,7 +12,7 @@ import aqt
 import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
-from anki.utils import is_mac, is_lin
+from anki.utils import is_lin, is_mac
 from aqt import AnkiQt
 from aqt.ankihub import ankihub_login, ankihub_logout
 from aqt.operations.collection import set_preferences
@@ -197,6 +197,7 @@ class Preferences(QDialog):
         self.setup_network()
 
     def update_profile(self) -> None:
+        assert self.prof is not None
         self.prof["middleClickPaste"] = self.form.middle_click_paste.isChecked()
         self.update_network()
 
