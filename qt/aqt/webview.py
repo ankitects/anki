@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 import anki
 import anki.lang
+import aqt
 from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import hmr_mode, is_lin, is_mac, is_win
