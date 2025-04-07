@@ -13,6 +13,7 @@ preferences-media-is-not-backed-up = Media is not backed up. Please create a per
 preferences-on-next-sync-force-changes-in = On next sync, force changes in one direction
 preferences-paste-clipboard-images-as-png = Paste clipboard images as PNG
 preferences-paste-without-shift-key-strips-formatting = Paste without shift key strips formatting
+preferences-middle-click-paste = Middle click to paste
 preferences-generate-latex-images-automatically = Generate LaTeX images (security risk)
 preferences-latex-generation-disabled = LaTeX image generation is disabled in the preferences.
 preferences-periodically-sync-media = Periodically sync media

@@ -28,6 +28,7 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::InterruptAudioWhenAnswering => BoolKey::InterruptAudioWhenAnswering,
             BoolKeyProto::PasteImagesAsPng => BoolKey::PasteImagesAsPng,
             BoolKeyProto::PasteStripsFormatting => BoolKey::PasteStripsFormatting,
+            BoolKeyProto::MiddleClickPaste => BoolKey::MiddleClickPaste,
             BoolKeyProto::NormalizeNoteText => BoolKey::NormalizeNoteText,
             BoolKeyProto::IgnoreAccentsInSearch => BoolKey::IgnoreAccentsInSearch,
             BoolKeyProto::RestorePositionBrowser => BoolKey::RestorePositionBrowser,

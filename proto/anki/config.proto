@@ -56,6 +56,7 @@ message ConfigKey {
     RENDER_LATEX = 25;
     LOAD_BALANCER_ENABLED = 26;
     FSRS_SHORT_TERM_WITH_STEPS_ENABLED = 27;
+    MIDDLE_CLICK_PASTE = 28;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -127,6 +128,7 @@ message Preferences {
     string default_search_text = 4;
     bool ignore_accents_in_search = 5;
     bool render_latex = 6;
+    bool middle_click_paste = 7;
   }
   message BackupLimits {
     uint32 daily = 1;
