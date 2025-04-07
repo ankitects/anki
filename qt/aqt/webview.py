@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 import anki
 import anki.lang
+from anki.config import Config
 from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import hmr_mode, is_lin, is_mac, is_win
@@ -284,8 +285,10 @@ class AnkiWebView(QWebEngineView):
         parent: QWidget | None = None,
         title: str = "",  # used by add-ons; in Anki code use kind instead to set title
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
+        mw: AnkiQt | None = None,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
+        self.mw = mw
         self.set_kind(kind)
         if title:
             self.set_title(title)
@@ -351,7 +354,10 @@ class AnkiWebView(QWebEngineView):
             and evt.type() == QEvent.Type.MouseButtonRelease
         ):
             if evt.button() == Qt.MouseButton.MiddleButton and is_lin:
-                self.onMiddleClickPaste()
+                if self.mw is None or self.mw.col.get_config_bool(
+                    Config.Bool.MIDDLE_CLICK_PASTE
+                ):
+                    self.onMiddleClickPaste()
                 return True
 
         return False
