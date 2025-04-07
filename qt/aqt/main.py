@@ -107,7 +107,7 @@ T = TypeVar("T")
 
 class MainWebView(AnkiWebView):
     def __init__(self, mw: AnkiQt) -> None:
-        AnkiWebView.__init__(self, kind=AnkiWebViewKind.MAIN)
+        AnkiWebView.__init__(self, kind=AnkiWebViewKind.MAIN, mw=mw)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)

@@ -40,7 +40,7 @@ class ToolbarWebView(AnkiWebView):
     def __init__(
         self, mw: aqt.AnkiQt, kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT
     ) -> None:
-        AnkiWebView.__init__(self, mw, kind=kind)
+        AnkiWebView.__init__(self, mw, kind=kind, mw=mw)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.disable_zoom()
