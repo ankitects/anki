@@ -45,6 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "@tslib/bridgecommand";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
+    import { nodeIsCommonElement } from "@tslib/dom";
 
     import Absolute from "$lib/components/Absolute.svelte";
     import Badge from "$lib/components/Badge.svelte";
@@ -322,15 +323,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function focusIfField(x: number, y: number): boolean {
         const elements = document.elementsFromPoint(x, y);
-        const first = elements[0];
+        const first = elements[0].closest(".field-container");
 
-        if (first.shadowRoot) {
-            const richTextInput = first.shadowRoot.lastElementChild! as HTMLElement;
-            richTextInput.focus();
-            return true;
+        if (!first || !nodeIsCommonElement(first)) {
+            return false;
         }
 
-        return false;
+        const index = parseInt(first.dataset?.index ?? "");
+
+        if (Number.isNaN(index) || !fields[index] || fieldsCollapsed[index]) {
+            return false;
+        }
+
+        if (richTextsHidden[index]) {
+            toggleRichTextInput(index);
+        } else {
+            richTextInputs[index].api.refocus();
+        }
+
+        return true;
     }
 
     let richTextInputs: RichTextInput[] = [];
