@@ -137,7 +137,6 @@ class Preferences(QDialog):
             0 if editing.adding_defaults_to_current_deck else 1
         )
         form.paste_strips_formatting.setChecked(editing.paste_strips_formatting)
-        form.middle_click_paste.setChecked(editing.middle_click_paste)
         form.ignore_accents_in_search.setChecked(editing.ignore_accents_in_search)
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.render_latex.setChecked(editing.render_latex)
@@ -169,7 +168,6 @@ class Preferences(QDialog):
         editing.adding_defaults_to_current_deck = not form.useCurrent.currentIndex()
         editing.paste_images_as_png = self.form.pastePNG.isChecked()
         editing.paste_strips_formatting = self.form.paste_strips_formatting.isChecked()
-        editing.middle_click_paste = self.form.middle_click_paste.isChecked()
         editing.render_latex = self.form.render_latex.isChecked()
         editing.default_search_text = self.form.default_search_text.text()
         editing.ignore_accents_in_search = (
@@ -194,9 +192,12 @@ class Preferences(QDialog):
 
     def setup_profile(self) -> None:
         "Setup options stored in the user profile."
+        self.form.middle_click_paste.setVisible(is_lin)
+        self.form.middle_click_paste.setChecked(self.mw.pm.middle_click_paste())
         self.setup_network()
 
     def update_profile(self) -> None:
+        self.prof["middleClickPaste"] = self.form.middle_click_paste.isChecked()
         self.update_network()
 
     # Profile: network
@@ -362,8 +363,6 @@ class Preferences(QDialog):
         self.form.styleLabel.setVisible(not is_win)
         self.form.styleComboBox.setVisible(not is_win)
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
-
-        self.form.middle_click_paste.setVisible(is_lin)
 
         self.setup_language()
         self.setup_video_driver()

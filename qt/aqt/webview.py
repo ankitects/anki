@@ -357,9 +357,7 @@ class AnkiWebView(QWebEngineView):
             and evt.type() == QEvent.Type.MouseButtonRelease
         ):
             if evt.button() == Qt.MouseButton.MiddleButton and is_lin:
-                if self.mw is None or self.mw.col.get_config_bool(
-                    Config.Bool.MIDDLE_CLICK_PASTE
-                ):
+                if self.mw is None or self.mw.pm.middle_click_paste():
                     self.onMiddleClickPaste()
                 return True
 
