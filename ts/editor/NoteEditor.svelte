@@ -668,6 +668,7 @@ the AddCards dialog) should be implemented in the user of this component.
                 <EditorField
                     {field}
                     {content}
+                    {index}
                     flipInputs={plainTextDefaults[index]}
                     api={fields[index]}
                     on:focusin={() => {
