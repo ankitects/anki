@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Any, cast
 
 import anki
 import anki.lang
-from anki.config import Config
 from anki._legacy import deprecated
 from anki.lang import is_rtl
 from anki.utils import hmr_mode, is_lin, is_mac, is_win
@@ -285,7 +284,7 @@ class AnkiWebView(QWebEngineView):
         parent: QWidget | None = None,
         title: str = "",  # used by add-ons; in Anki code use kind instead to set title
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
-        mw: AnkiQt | None = None,
+        mw: aqt.main.AnkiQt | None = None,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
         self.set_mw(mw)
@@ -335,7 +334,7 @@ class AnkiWebView(QWebEngineView):
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
 
-    def set_mw(self, mw: AnkiQt) -> None:
+    def set_mw(self, mw: aqt.main.AnkiQt) -> None:
         self.mw = mw
 
     def disable_zoom(self) -> None:

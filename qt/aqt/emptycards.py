@@ -49,7 +49,7 @@ class EmptyCardsDialog(QDialog):
         self.form.keep_notes.setText(tr.empty_cards_preserve_notes_checkbox())
         self.form.webview.set_kind(AnkiWebViewKind.EMPTY_CARDS)
         self.form.webview.set_bridge_command(self._on_note_link_clicked, self)
-        self.form.webiew.set_mw(mw)
+        self.form.webview.set_mw(mw)
 
         gui_hooks.empty_cards_will_show(self)
 
