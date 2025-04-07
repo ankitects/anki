@@ -229,6 +229,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"
     abt.label.setMinimumWidth(800)
     abt.label.setMinimumHeight(600)
+    abt.label.set_mw(mw)
     dialog.show()
     abt.label.stdHtml(abouttext, js=[])
     return dialog

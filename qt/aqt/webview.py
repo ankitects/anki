@@ -287,9 +287,8 @@ class AnkiWebView(QWebEngineView):
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
         mw: AnkiQt | None = None,
     ) -> None:
-        assert(mw is not None) #TESTING
         QWebEngineView.__init__(self, parent=parent)
-        self.mw = mw
+        self.set_mw(mw)
         self.set_kind(kind)
         if title:
             self.set_title(title)
@@ -335,6 +334,9 @@ class AnkiWebView(QWebEngineView):
 
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
+
+    def set_mw(self, mw: AnkiQt) -> None:
+        self.mw = mw
 
     def disable_zoom(self) -> None:
         self._disable_zoom = True
