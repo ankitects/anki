@@ -82,16 +82,15 @@ impl crate::services::DeckConfigService for Collection {
         &mut self,
         input: anki_proto::deck_config::IgnoredBeforeSearch,
     ) -> Result<anki_proto::deck_config::IgnoredBeforeCount> {
+        let guard =
+            self.search_cards_into_table(&input.search, crate::search::SortMode::NoOrder)?;
+
         Ok(anki_proto::deck_config::IgnoredBeforeCount {
-            included: self
+            included: guard
+                .col
                 .storage
                 .get_card_count_with_ignore_before(TimestampMillis(input.ms))?,
-            total: self
-                .search_cards(&input.search, crate::search::SortMode::NoOrder)
-                .iter()
-                .len()
-                .try_into()
-                .unwrap_or(0),
+            total: guard.cards.try_into().unwrap_or(0),
         })
     }
 }
