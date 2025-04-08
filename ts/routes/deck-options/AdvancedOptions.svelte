@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DateInput from "./DateInput.svelte";
     import Warning from "./Warning.svelte";
     import { getIgnoredBeforeCount } from "@generated/backend";
+    import type { GetIgnoredBeforeCountResponse } from "@generated/anki/deck_config_pb";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -92,8 +93,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? tr.deckConfigTooShortMaximumInterval()
             : "";
 
-    let ignoreRevlogsBeforeWarning = "";
-    $: ignoreRevlogsBeforeWarningClass = "alert-warning";
     $: if ($config.ignoreRevlogsBeforeDate != "1970-01-01") {
         getIgnoredBeforeCount({
             search:
@@ -101,9 +100,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
             ignoreRevlogsBeforeDate: $config.ignoreRevlogsBeforeDate,
         }).then((resp) => {
-            ignoreRevlogsBeforeWarning = `${resp.included}/${resp.total} Cards included while training`;
+            ignoreRevlogsBeforeCount = resp;
         });
     }
+    let ignoreRevlogsBeforeCount: GetIgnoredBeforeCountResponse | null = null;
+    let ignoreRevlogsBeforeWarningClass = "alert-warning";
+    $: if (ignoreRevlogsBeforeCount) {
+        // If there is less than a tenth of reviews included
+        console.log(ignoreRevlogsBeforeCount.included, ignoreRevlogsBeforeCount.total )
+        if (Number(ignoreRevlogsBeforeCount.included) / Number(ignoreRevlogsBeforeCount.total) < 0.1) {
+            ignoreRevlogsBeforeWarningClass = "alert-danger";
+        } else if (
+            ignoreRevlogsBeforeCount.included != ignoreRevlogsBeforeCount.total
+        ) {
+            ignoreRevlogsBeforeWarningClass = "alert-warning";
+        } else {
+            ignoreRevlogsBeforeWarningClass = "alert-info";
+        }
+    }
+    $: ignoreRevlogsBeforeWarning = ignoreRevlogsBeforeCount
+        ? `${ignoreRevlogsBeforeCount.included}/${ignoreRevlogsBeforeCount.total} Cards will be considered while training`
+        : "";
 
     let modal: Modal;
     let carousel: Carousel;
