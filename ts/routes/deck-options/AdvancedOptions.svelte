@@ -91,6 +91,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? tr.deckConfigTooShortMaximumInterval()
             : "";
 
+    $: ignoreCardsWarningClass = "alert-warning";
+    $: ignoreCardsWarning = "";
+
     let modal: Modal;
     let carousel: Carousel;
 
@@ -131,6 +134,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <Item>
             <Warning warning={maxIntervalWarning} className={maxIntervalWarningClass}
+            ></Warning>
+        </Item>
+
+        <Item>
+            <Warning warning={ignoreCardsWarning} className={ignoreCardsWarningClass}
             ></Warning>
         </Item>
 
