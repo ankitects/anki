@@ -732,7 +732,7 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn get_card_with_ignore_before_count(
+    pub(crate) fn get_card_count_with_ignore_before(
         &self,
         ignore_before: TimestampMillis,
     ) -> Result<i64> {

@@ -85,7 +85,7 @@ impl crate::services::DeckConfigService for Collection {
         Ok(anki_proto::deck_config::CardCount {
             count: self
                 .storage
-                .get_card_with_ignore_before_count(TimestampMillis(input.ms))?,
+                .get_card_count_with_ignore_before(TimestampMillis(input.ms))?,
         })
     }
 }
