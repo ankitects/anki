@@ -1,4 +1,4 @@
-SELECT DISTINCT COUNT(cid)
+SELECT COUNT(DISTINCT cid)
 FROM revlog
 WHERE id > ?
   AND type == 0

@@ -85,8 +85,10 @@ impl crate::services::DeckConfigService for Collection {
         input: anki_proto::deck_config::IgnoredBeforeSearch,
     ) -> Result<anki_proto::deck_config::IgnoredBeforeCount> {
         let timestamp = ignore_revlogs_before_date_to_ms(&input.ignore_revlogs_before_date)?;
-        let guard =
-            self.search_cards_into_table(&input.search, crate::search::SortMode::NoOrder)?;
+        let guard = self.search_cards_into_table(
+            &format!("{} -is:new", input.search),
+            crate::search::SortMode::NoOrder,
+        )?;
 
         Ok(anki_proto::deck_config::IgnoredBeforeCount {
             included: guard

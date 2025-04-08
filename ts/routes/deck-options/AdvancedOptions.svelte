@@ -92,14 +92,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? tr.deckConfigTooShortMaximumInterval()
             : "";
 
-    let ignoreRevlogsBeforeWarning = "" 
-    $: ignoreRevlogsBeforeWarningClass = "alert-warning"
+    let ignoreRevlogsBeforeWarning = "";
+    $: ignoreRevlogsBeforeWarningClass = "alert-warning";
     $: if ($config.ignoreRevlogsBeforeDate != "1970-01-01") {
         getIgnoredBeforeCount({
-            search: $config.paramSearch,
+            search:
+                $config.paramSearch ||
+                `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
             ignoreRevlogsBeforeDate: $config.ignoreRevlogsBeforeDate,
-        }).then(resp=>{
-            ignoreRevlogsBeforeWarning = `${resp.included}/${resp.total} Cards included while training`
+        }).then((resp) => {
+            ignoreRevlogsBeforeWarning = `${resp.included}/${resp.total} Cards included while training`;
         });
     }
 
