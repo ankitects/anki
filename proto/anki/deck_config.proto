@@ -23,7 +23,8 @@ service DeckConfigService {
   rpc GetDeckConfigsForUpdate(decks.DeckId) returns (DeckConfigsForUpdate);
   rpc UpdateDeckConfigs(UpdateDeckConfigsRequest)
       returns (collection.OpChanges);
-  rpc GetIgnoredBeforeCount(IgnoredBeforeSearch) returns (IgnoredBeforeCount);
+  rpc GetIgnoredBeforeCount(GetIgnoredBeforeCountRequest)
+      returns (GetIgnoredBeforeCountResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -34,12 +35,12 @@ message DeckConfigId {
   int64 dcid = 1;
 }
 
-message IgnoredBeforeSearch {
+message GetIgnoredBeforeCountRequest {
   string ignore_revlogs_before_date = 1;
   string search = 2;
 }
 
-message IgnoredBeforeCount {
+message GetIgnoredBeforeCountResponse {
   uint64 included = 1;
   uint64 total = 2;
 }
