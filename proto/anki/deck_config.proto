@@ -23,6 +23,7 @@ service DeckConfigService {
   rpc GetDeckConfigsForUpdate(decks.DeckId) returns (DeckConfigsForUpdate);
   rpc UpdateDeckConfigs(UpdateDeckConfigsRequest)
       returns (collection.OpChanges);
+  rpc GetIgnoredBeforeCount(TimestampMilliseconds) returns (CardCount);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -31,6 +32,14 @@ service BackendDeckConfigService {}
 
 message DeckConfigId {
   int64 dcid = 1;
+}
+
+message TimestampMilliseconds {
+  int64 ms = 1;
+}
+
+message CardCount {
+  int64 count = 1;
 }
 
 message DeckConfig {

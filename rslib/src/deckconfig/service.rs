@@ -8,6 +8,7 @@ use crate::deckconfig::DeckConfig;
 use crate::deckconfig::DeckConfigId;
 use crate::deckconfig::UpdateDeckConfigsRequest;
 use crate::error::Result;
+use crate::prelude::TimestampMillis;
 
 impl crate::services::DeckConfigService for Collection {
     fn add_or_update_deck_config_legacy(
@@ -75,6 +76,17 @@ impl crate::services::DeckConfigService for Collection {
         input: anki_proto::deck_config::UpdateDeckConfigsRequest,
     ) -> Result<anki_proto::collection::OpChanges> {
         self.update_deck_configs(input.into()).map(Into::into)
+    }
+
+    fn get_ignored_before_count(
+        &mut self,
+        input: anki_proto::deck_config::TimestampMilliseconds,
+    ) -> Result<anki_proto::deck_config::CardCount> {
+        Ok(anki_proto::deck_config::CardCount {
+            count: self
+                .storage
+                .get_card_with_ignore_before_count(TimestampMillis(input.ms))?,
+        })
     }
 }
 
