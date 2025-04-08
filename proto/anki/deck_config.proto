@@ -35,7 +35,7 @@ message DeckConfigId {
 }
 
 message IgnoredBeforeSearch {
-  int64 ms = 1;
+  string ignore_revlogs_before_date = 1;
   string search = 2;
 }
 

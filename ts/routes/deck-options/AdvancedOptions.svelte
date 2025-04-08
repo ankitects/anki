@@ -21,6 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import DateInput from "./DateInput.svelte";
     import Warning from "./Warning.svelte";
+    import { getIgnoredBeforeCount } from "@generated/backend";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -90,6 +91,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $config.maximumReviewInterval < 180
             ? tr.deckConfigTooShortMaximumInterval()
             : "";
+
+    let ignoreRevlogsBeforeWarning = "" 
+    $: ignoreRevlogsBeforeWarningClass = "alert-warning"
+    $: if ($config.ignoreRevlogsBeforeDate != "1970-01-01") {
+        getIgnoredBeforeCount({
+            search: $config.paramSearch,
+            ignoreRevlogsBeforeDate: $config.ignoreRevlogsBeforeDate,
+        }).then(resp=>{
+            ignoreRevlogsBeforeWarning = `${resp.included}/${resp.total} Cards included while training`
+        });
+    }
 
     let modal: Modal;
     let carousel: Carousel;
@@ -248,6 +260,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {tr.deckConfigIgnoreBefore()}
                     </SettingTitle>
                 </DateInput>
+            </Item>
+
+            <Item>
+                <Warning
+                    warning={ignoreRevlogsBeforeWarning}
+                    className={ignoreRevlogsBeforeWarningClass}
+                ></Warning>
             </Item>
         {/if}
 
