@@ -12,7 +12,7 @@ import aqt
 import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
-from anki.utils import is_mac, is_lin
+from anki.utils import is_lin, is_mac
 from aqt import AnkiQt
 from aqt.ankihub import ankihub_login, ankihub_logout
 from aqt.operations.collection import set_preferences
@@ -137,6 +137,7 @@ class Preferences(QDialog):
             0 if editing.adding_defaults_to_current_deck else 1
         )
         form.paste_strips_formatting.setChecked(editing.paste_strips_formatting)
+        self.form.middle_click_paste.setVisible(is_lin)
         form.middle_click_paste.setChecked(editing.middle_click_paste)
         form.ignore_accents_in_search.setChecked(editing.ignore_accents_in_search)
         form.pastePNG.setChecked(editing.paste_images_as_png)
@@ -362,8 +363,6 @@ class Preferences(QDialog):
         self.form.styleLabel.setVisible(not is_win)
         self.form.styleComboBox.setVisible(not is_win)
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
-
-        self.form.middle_click_paste.setVisible(is_lin)
 
         self.setup_language()
         self.setup_video_driver()

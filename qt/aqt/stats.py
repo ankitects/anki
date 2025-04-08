@@ -73,7 +73,6 @@ class NewDeckStats(QDialog):
         gui_hooks.stats_dialog_will_show(self)
         self.form.web.set_kind(AnkiWebViewKind.DECK_STATS)
         self.form.web.hide_while_preserving_layout()
-        self.form.web.set_mw(mw)
         self.show()
         self.refresh()
         self.form.web.set_bridge_command(self._on_bridge_cmd, self)

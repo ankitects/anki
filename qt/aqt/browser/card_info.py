@@ -57,7 +57,7 @@ class CardInfoDialog(QDialog):
         setWindowIcon(self)
 
         self.web: AnkiWebView | None = AnkiWebView(
-            kind=AnkiWebViewKind.BROWSER_CARD_INFO, mw=self.mw
+            kind=AnkiWebViewKind.BROWSER_CARD_INFO
         )
         self.web.setVisible(False)
         self.web.load_sveltekit_page(f"card-info/{card_id}")

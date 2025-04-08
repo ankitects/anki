@@ -164,7 +164,7 @@ class Editor:
         self.outerLayout = l
 
     def add_webview(self) -> None:
-        self.web = EditorWebView(self.widget, self, self.mw)
+        self.web = EditorWebView(self.widget, self)
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
@@ -1460,8 +1460,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
 
 class EditorWebView(AnkiWebView):
-    def __init__(self, parent: QWidget, editor: Editor, mw: AnkiQt) -> None:
-        AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR, mw=mw)
+    def __init__(self, parent: QWidget, editor: Editor) -> None:
+        AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR)
         self.editor = editor
         self.setAcceptDrops(True)
         self._store_field_content_on_next_clipboard_change = False

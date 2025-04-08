@@ -82,7 +82,7 @@ class Previewer(QDialog):
         self.silentlyClose = True
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, 0, 0, 0)
-        self._web: AnkiWebView | None = AnkiWebView(kind=AnkiWebViewKind.PREVIEWER, mw=self.mw)
+        self._web: AnkiWebView | None = AnkiWebView(kind=AnkiWebViewKind.PREVIEWER)
         self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)

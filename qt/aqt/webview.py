@@ -285,10 +285,8 @@ class AnkiWebView(QWebEngineView):
         parent: QWidget | None = None,
         title: str = "",  # used by add-ons; in Anki code use kind instead to set title
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
-        mw: AnkiQt | None = None,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        self.set_mw(mw)
         self.set_kind(kind)
         if title:
             self.set_title(title)
@@ -335,9 +333,6 @@ class AnkiWebView(QWebEngineView):
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
 
-    def set_mw(self, mw: AnkiQt) -> None:
-        self.mw = mw
-
     def disable_zoom(self) -> None:
         self._disable_zoom = True
 
@@ -352,14 +347,14 @@ class AnkiWebView(QWebEngineView):
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
 
+        from aqt import mw
+
         if (
             isinstance(evt, QMouseEvent)
             and evt.type() == QEvent.Type.MouseButtonRelease
         ):
             if evt.button() == Qt.MouseButton.MiddleButton and is_lin:
-                if self.mw is None or self.mw.col.get_config_bool(
-                    Config.Bool.MIDDLE_CLICK_PASTE
-                ):
+                if mw.col.get_config_bool(Config.Bool.MIDDLE_CLICK_PASTE):
                     self.onMiddleClickPaste()
                 return True
 

@@ -77,7 +77,8 @@ impl Collection {
             | BoolKey::RestorePositionBrowser
             | BoolKey::RestorePositionReviewer
             | BoolKey::LoadBalancerEnabled
-            | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
+            | BoolKey::NormalizeNoteText
+            | BoolKey::MiddleClickPaste => self.get_config_optional(key).unwrap_or(true),
 
             // other options default to false
             other => self.get_config_default(other),
