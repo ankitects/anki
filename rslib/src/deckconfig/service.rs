@@ -80,12 +80,18 @@ impl crate::services::DeckConfigService for Collection {
 
     fn get_ignored_before_count(
         &mut self,
-        input: anki_proto::deck_config::TimestampMilliseconds,
-    ) -> Result<anki_proto::deck_config::CardCount> {
-        Ok(anki_proto::deck_config::CardCount {
-            count: self
+        input: anki_proto::deck_config::IgnoredBeforeSearch,
+    ) -> Result<anki_proto::deck_config::IgnoredBeforeCount> {
+        Ok(anki_proto::deck_config::IgnoredBeforeCount {
+            included: self
                 .storage
                 .get_card_count_with_ignore_before(TimestampMillis(input.ms))?,
+            total: self
+                .search_cards(&input.search, crate::search::SortMode::NoOrder)
+                .iter()
+                .len()
+                .try_into()
+                .unwrap_or(0),
         })
     }
 }

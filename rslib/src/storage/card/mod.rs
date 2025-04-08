@@ -735,7 +735,7 @@ impl super::SqliteStorage {
     pub(crate) fn get_card_count_with_ignore_before(
         &self,
         ignore_before: TimestampMillis,
-    ) -> Result<i64> {
+    ) -> Result<u64> {
         Ok(self
             .db
             .prepare(include_str!("get_ignored_before_count.sql"))?
