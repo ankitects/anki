@@ -8,9 +8,7 @@ use crate::deckconfig::DeckConfig;
 use crate::deckconfig::DeckConfigId;
 use crate::deckconfig::UpdateDeckConfigsRequest;
 use crate::error::Result;
-use crate::prelude::TimestampMillis;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_date_to_ms;
-use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
 
 impl crate::services::DeckConfigService for Collection {
     fn add_or_update_deck_config_legacy(

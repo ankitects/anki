@@ -653,7 +653,7 @@ exposed_backend_list = [
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
     # DeckConfigService
-    "get_ignored_before_count"
+    "get_ignored_before_count",
 ]
 
 

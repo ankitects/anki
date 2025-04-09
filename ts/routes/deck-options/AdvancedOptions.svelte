@@ -107,8 +107,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let ignoreRevlogsBeforeWarningClass = "alert-warning";
     $: if (ignoreRevlogsBeforeCount) {
         // If there is less than a tenth of reviews included
-        console.log(ignoreRevlogsBeforeCount.included, ignoreRevlogsBeforeCount.total )
-        if (Number(ignoreRevlogsBeforeCount.included) / Number(ignoreRevlogsBeforeCount.total) < 0.1) {
+        console.log(ignoreRevlogsBeforeCount.included, ignoreRevlogsBeforeCount.total);
+        if (
+            Number(ignoreRevlogsBeforeCount.included) /
+                Number(ignoreRevlogsBeforeCount.total) <
+            0.1
+        ) {
             ignoreRevlogsBeforeWarningClass = "alert-danger";
         } else if (
             ignoreRevlogsBeforeCount.included != ignoreRevlogsBeforeCount.total
@@ -119,7 +123,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
     $: ignoreRevlogsBeforeWarning = ignoreRevlogsBeforeCount
-        ? tr.deckConfigIgnoreBeforeInfo({included: ignoreRevlogsBeforeCount.included.toString(), totalCards: ignoreRevlogsBeforeCount.total.toString()})
+        ? tr.deckConfigIgnoreBeforeInfo({
+              included: ignoreRevlogsBeforeCount.included.toString(),
+              totalCards: ignoreRevlogsBeforeCount.total.toString(),
+          })
         : "";
 
     let modal: Modal;
