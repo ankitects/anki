@@ -93,7 +93,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? tr.deckConfigTooShortMaximumInterval()
             : "";
 
-    $: if ($config.ignoreRevlogsBeforeDate != "1970-01-01") {
+    $: if (
+        $config.ignoreRevlogsBeforeDate &&
+        $config.ignoreRevlogsBeforeDate != "1970-01-01"
+    ) {
         getIgnoredBeforeCount({
             search:
                 $config.paramSearch ||
@@ -102,6 +105,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }).then((resp) => {
             ignoreRevlogsBeforeCount = resp;
         });
+    } else {
+        ignoreRevlogsBeforeCount = null;
     }
     let ignoreRevlogsBeforeCount: GetIgnoredBeforeCountResponse | null = null;
     let ignoreRevlogsBeforeWarningClass = "alert-warning";
