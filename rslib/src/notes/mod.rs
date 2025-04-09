@@ -594,27 +594,27 @@ impl Collection {
     /// notetypes, check if there is a cloze in a non-cloze field or if there's
     /// no cloze at all. For other notetypes, just check if there's a cloze.
     pub fn note_fields_check(&mut self, note: &Note) -> Result<NoteFieldsState> {
-        Ok(if let Some(text) = note.fields.first() {
-            let field1 = if self.get_config_bool(BoolKey::NormalizeNoteText) {
-                normalize_to_nfc(text)
-            } else {
-                text.into()
-            };
-            let stripped = strip_html_preserving_media_filenames(&field1);
-            if stripped.trim().is_empty() {
-                NoteFieldsState::Empty
-            } else {
-                let cloze_state = self.field_cloze_check(note)?;
-                if cloze_state != NoteFieldsState::Normal {
-                    cloze_state
+        Ok({
+            let cloze_state = self.field_cloze_check(note)?;
+            if cloze_state != NoteFieldsState::Normal {
+                cloze_state
+            } else if let Some(text) = note.fields.first() {
+                let field1 = if self.get_config_bool(BoolKey::NormalizeNoteText) {
+                    normalize_to_nfc(text)
+                } else {
+                    text.into()
+                };
+                let stripped = strip_html_preserving_media_filenames(&field1);
+                if stripped.trim().is_empty() {
+                    NoteFieldsState::Empty
                 } else if self.is_duplicate(&stripped, note)? {
                     NoteFieldsState::Duplicate
                 } else {
                     NoteFieldsState::Normal
                 }
+            } else {
+                NoteFieldsState::Empty
             }
-        } else {
-            NoteFieldsState::Empty
         })
     }
 
