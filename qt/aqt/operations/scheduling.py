@@ -104,6 +104,7 @@ def forget_cards(
 
     dialog = QDialog(parent)
     disable_help_button(dialog)
+    addCloseShortcut(dialog)
     form = aqt.forms.forget.Ui_Dialog()
     form.setupUi(dialog)
 
