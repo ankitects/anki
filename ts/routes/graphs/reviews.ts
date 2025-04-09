@@ -397,15 +397,17 @@ export function renderReviews(
         { label: tr.statisticsTotal(), value: totalString },
 
         {
-            label: tr.statisticsAverageForDaysStudied(),
-            value: averageForDaysStudied,
-        },
-
-        {
             label: tr.statisticsAverageOverPeriod(),
             value: averageForPeriod,
         },
     ];
+
+    if (studiedPercent < 100) {
+        tableData.push({
+            label: tr.statisticsAverageForDaysStudied(),
+            value: averageForDaysStudied,
+        });
+    }
 
     if (averageAnswerTime) {
         tableData.push({ label: averageAnswerTimeLabel, value: averageAnswerTime });
