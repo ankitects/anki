@@ -107,7 +107,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let ignoreRevlogsBeforeWarningClass = "alert-warning";
     $: if (ignoreRevlogsBeforeCount) {
         // If there is less than a tenth of reviews included
-        console.log(ignoreRevlogsBeforeCount.included, ignoreRevlogsBeforeCount.total);
         if (
             Number(ignoreRevlogsBeforeCount.included) /
                 Number(ignoreRevlogsBeforeCount.total) <
