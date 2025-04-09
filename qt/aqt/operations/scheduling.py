@@ -24,7 +24,7 @@ from anki.scheduler.v3 import CardAnswer
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from aqt.operations import CollectionOp
 from aqt.qt import *
-from aqt.utils import disable_help_button, getText, tooltip, tr
+from aqt.utils import addCloseShortcut, disable_help_button, getText, tooltip, tr
 
 
 def set_due_date_dialog(
@@ -153,6 +153,7 @@ def reposition_new_cards_dialog(
 
     dialog = QDialog(parent)
     disable_help_button(dialog)
+    addCloseShortcut(dialog)
     dialog.setWindowModality(Qt.WindowModality.WindowModal)
     form = aqt.forms.reposition.Ui_Dialog()
     form.setupUi(dialog)
