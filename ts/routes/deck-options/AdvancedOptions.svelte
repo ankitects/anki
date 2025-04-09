@@ -119,7 +119,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
     $: ignoreRevlogsBeforeWarning = ignoreRevlogsBeforeCount
-        ? `${ignoreRevlogsBeforeCount.included}/${ignoreRevlogsBeforeCount.total} Cards will be considered while training`
+        ? tr.deckConfigIgnoreBeforeInfo({included: ignoreRevlogsBeforeCount.included.toString(), totalCards: ignoreRevlogsBeforeCount.total.toString()})
         : "";
 
     let modal: Modal;

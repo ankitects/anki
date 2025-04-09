@@ -372,6 +372,7 @@ deck-config-good-above-easy = The easy interval should be at least as long as th
 deck-config-relearning-steps-above-minimum-interval = The minimum lapse interval should be at least as long as your final relearning step.
 deck-config-maximum-answer-secs-above-recommended = Anki can schedule your reviews more efficiently when you keep each question short.
 deck-config-too-short-maximum-interval = A maximum interval less than 6 months is not recommended.
+deck-config-ignore-before-info = { $included }/{ $totalCards } Cards will be considered while calculating parameters.
 
 ## Selecting a deck
 
