@@ -757,7 +757,7 @@
   },
   {
     "name": "crossbeam-channel",
-    "version": "0.5.13",
+    "version": "0.5.15",
     "authors": null,
     "repository": "https://github.com/crossbeam-rs/crossbeam",
     "license": "Apache-2.0 OR MIT",
@@ -2665,7 +2665,7 @@
   },
   {
     "name": "openssl",
-    "version": "0.10.70",
+    "version": "0.10.72",
     "authors": "Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "Apache-2.0",
@@ -2692,7 +2692,7 @@
   },
   {
     "name": "openssl-sys",
-    "version": "0.9.105",
+    "version": "0.9.107",
     "authors": "Alex Crichton <alex@alexcrichton.com>|Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "MIT",
@@ -4087,7 +4087,7 @@
   },
   {
     "name": "tokio",
-    "version": "1.40.0",
+    "version": "1.44.2",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
@@ -4096,7 +4096,7 @@
   },
   {
     "name": "tokio-macros",
-    "version": "2.4.0",
+    "version": "2.5.0",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
