@@ -29,6 +29,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: 100%;
         -webkit-appearance: none;
         appearance: none;
-        height: 1.5em;
+        background: var(--canvas-inset);
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius);
+        padding: 1px 0.5em;
+        outline: none !important;
     }
 </style>
