@@ -7,6 +7,9 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 ignore = [
   # pyoxidizer is stuck on an old ring version
   "RUSTSEC-2025-0009",
+  "RUSTSEC-2025-0010",
+  # burn depends on an unmaintained package 'paste'
+  "RUSTSEC-2024-0436",
 ]
 
 [licenses]
