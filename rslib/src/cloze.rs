@@ -442,6 +442,15 @@ pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
     add_cloze_numbers_in_text_with_clozes(&parse_text_with_clozes(field), set)
 }
 
+/// The set of cloze numbers as they appear in any of the field from `fields`.
+pub fn cloze_number_in_fields(fields: impl IntoIterator<Item: AsRef<str>>) -> HashSet<u16> {
+    let mut set = HashSet::with_capacity(4);
+    for field in fields {
+        add_cloze_numbers_in_string(field.as_ref(), &mut set);
+    }
+    set
+}
+
 fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
     MATHJAX.replace_all(text, |caps: &Captures| -> String {
         format!(
