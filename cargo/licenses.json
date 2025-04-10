@@ -757,7 +757,7 @@
   },
   {
     "name": "crossbeam-channel",
-    "version": "0.5.13",
+    "version": "0.5.15",
     "authors": null,
     "repository": "https://github.com/crossbeam-rs/crossbeam",
     "license": "Apache-2.0 OR MIT",
@@ -4087,7 +4087,7 @@
   },
   {
     "name": "tokio",
-    "version": "1.40.0",
+    "version": "1.44.2",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
@@ -4096,7 +4096,7 @@
   },
   {
     "name": "tokio-macros",
-    "version": "2.4.0",
+    "version": "2.5.0",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
