@@ -255,12 +255,20 @@ statistics-elapsed-time-years = { $amount }y
 ##
 
 statistics-average-for-days-studied = Average for days studied
+# This term is used in a variety of contexts to refers to the total amount of
+# items (e.g., cards, mature cards, etc) for a given period, rather than the
+# total of all existing items.
 statistics-total = Total
 statistics-days-studied = Days studied
 statistics-average-answer-time-label = Average answer time
 statistics-average = Average
 statistics-average-interval = Average interval
 statistics-due-tomorrow = Due tomorrow
+# This string, ‘Daily load,’ appears in the ‘Future due’ table and represents a
+# forecasted estimate of the number of cards expected to be reviewed daily in 
+# the future. Unlike the other strings in the table that display actual data 
+# derived from the current scheduling (e.g., ‘Average’, ‘Due tomorrow’),
+# ‘Daily load’ is a projection based on the given data.
 statistics-daily-load = Daily load
 # eg 5 of 15 (33.3%)
 statistics-amount-of-total-with-percentage = { $amount } of { $total } ({ $percent }%)
