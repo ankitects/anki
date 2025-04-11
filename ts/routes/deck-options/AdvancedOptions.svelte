@@ -96,11 +96,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let ignoreRevlogsBeforeCount: GetIgnoredBeforeCountResponse | null = null;
     let lastIgnoreRevlogsBeforeDate = "";
     function updateIgnoreRevlogsBeforeCount(ignoreRevlogsBeforeDate: string) {
-        if (
-            ignoreRevlogsBeforeDate &&
-            lastIgnoreRevlogsBeforeDate != ignoreRevlogsBeforeDate &&
-            ignoreRevlogsBeforeDate != "1970-01-01"
-        ) {
+        if (lastIgnoreRevlogsBeforeDate == ignoreRevlogsBeforeDate) {
+            return;
+        }
+        if (ignoreRevlogsBeforeDate && ignoreRevlogsBeforeDate != "1970-01-01") {
             lastIgnoreRevlogsBeforeDate = ignoreRevlogsBeforeDate;
             getIgnoredBeforeCount({
                 search:
