@@ -10,7 +10,7 @@ import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { timeSpan } from "@tslib/time";
 import type { Bin } from "d3";
-import { bin, extent, interpolateBlues, mean, quantile, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, extent, interpolateBlues, quantile, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { numericMap } from "./graph-helpers";
@@ -168,12 +168,12 @@ export function prepareIntervalData(
         dispatch("search", { query });
     }
 
-    const meanInterval = Math.round(mean(allIntervals) ?? 0);
-    const meanIntervalString = timeSpan(meanInterval * 86400, false);
+    const medianInterval = Math.round(quantile(allIntervals, 0.5) ?? 0);
+    const medianIntervalString = timeSpan(medianInterval * 86400, false);
     const tableData = [
         {
-            label: fsrs ? tr.statisticsAverageStability() : tr.statisticsAverageInterval(),
-            value: meanIntervalString,
+            label: fsrs ? tr.statisticsMedianStability() : tr.statisticsMedianInterval(),
+            value: medianIntervalString,
         },
     ];
 

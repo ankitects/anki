@@ -10,34 +10,43 @@ impl GraphsContext {
     /// (SM-2, FSRS)
     pub(super) fn eases(&self) -> (Eases, Eases) {
         let mut eases = Eases::default();
-        let mut card_with_ease_count: usize = 0;
+        let mut ease_values = Vec::new();
         let mut difficulty = Eases::default();
-        let mut card_with_difficulty_count: usize = 0;
+        let mut difficulty_values = Vec::new();
         for card in &self.cards {
             if let Some(state) = card.memory_state {
                 *difficulty
                     .eases
                     .entry(percent_to_bin(state.difficulty() * 100.0))
                     .or_insert_with(Default::default) += 1;
-                difficulty.average += state.difficulty();
-                card_with_difficulty_count += 1;
+                difficulty_values.push(state.difficulty());
             } else if matches!(card.ctype, CardType::Review | CardType::Relearn) {
                 *eases
                     .eases
                     .entry((card.ease_factor / 10) as u32)
                     .or_insert_with(Default::default) += 1;
-                eases.average += card.ease_factor as f32;
-                card_with_ease_count += 1;
+                ease_values.push(card.ease_factor as f32);
             }
         }
-        if card_with_ease_count != 0 {
-            eases.average = eases.average / 10.0 / card_with_ease_count as f32;
-        }
-        if card_with_difficulty_count != 0 {
-            difficulty.average = difficulty.average * 100.0 / card_with_difficulty_count as f32;
-        }
+
+        eases.average = median(&mut ease_values) / 10.0;
+        difficulty.average = median(&mut difficulty_values) * 100.0;
 
         (eases, difficulty)
+    }
+}
+
+/// Helper function to calculate the median of a vector
+fn median(data: &mut [f32]) -> f32 {
+    if data.is_empty() {
+        return 0.0;
+    }
+    data.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    let mid = data.len() / 2;
+    if data.len() % 2 == 0 {
+        (data[mid - 1] + data[mid]) / 2.0
+    } else {
+        data[mid]
     }
 }
 
