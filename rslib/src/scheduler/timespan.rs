@@ -57,7 +57,7 @@ const SECOND: f32 = 1.0;
 const MINUTE: f32 = 60.0 * SECOND;
 const HOUR: f32 = 60.0 * MINUTE;
 const DAY: f32 = 24.0 * HOUR;
-const MONTH: f32 = 30.0 * DAY;
+const MONTH: f32 = 30.417 * DAY; // 365/12 ≈ 30.417
 const YEAR: f32 = 365.0 * DAY;
 
 #[derive(Clone, Copy)]
@@ -151,7 +151,7 @@ impl Timespan {
             TimespanUnit::Hours
         } else if secs < MONTH {
             TimespanUnit::Days
-        } else if secs < 12.0 * MONTH {
+        } else if secs < YEAR {
             TimespanUnit::Months
         } else {
             TimespanUnit::Years
@@ -188,8 +188,9 @@ mod test {
         assert_eq!(time_span(30.3, &tr, true), "30.3 seconds");
         assert_eq!(time_span(90.0, &tr, false), "1.5 minutes");
         assert_eq!(time_span(45.0 * 86_400.0, &tr, false), "1.5 months");
-        assert_eq!(time_span(360.0 * 86_400.0, &tr, false), "1 year");
-        assert_eq!(time_span(363.0 * 86_400.0, &tr, false), "1 year");
+        assert_eq!(time_span(364.0 * 86_400.0, &tr, false), "12 months");
+        assert_eq!(time_span(364.0 * 86_400.0, &tr, true), "11.97 months");
+        assert_eq!(time_span(365.0 * 86_400.0, &tr, false), "1 year");
         assert_eq!(time_span(365.0 * 86_400.0, &tr, true), "1 year");
         assert_eq!(time_span(365.0 * 86_400.0 * 1.5, &tr, false), "1.5 years");
     }
