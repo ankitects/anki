@@ -596,8 +596,8 @@ impl Collection {
     pub fn note_fields_check(&mut self, note: &Note) -> Result<NoteFieldsState> {
         Ok({
             let cloze_state = self.field_cloze_check(note)?;
-            if cloze_state != NoteFieldsState::Normal {
-                cloze_state
+            if cloze_state == NoteFieldsState::FieldNotCloze {
+                NoteFieldsState::FieldNotCloze
             } else if let Some(text) = note.fields.first() {
                 let field1 = if self.get_config_bool(BoolKey::NormalizeNoteText) {
                     normalize_to_nfc(text)
@@ -607,10 +607,14 @@ impl Collection {
                 let stripped = strip_html_preserving_media_filenames(&field1);
                 if stripped.trim().is_empty() {
                     NoteFieldsState::Empty
-                } else if self.is_duplicate(&stripped, note)? {
-                    NoteFieldsState::Duplicate
                 } else {
-                    NoteFieldsState::Normal
+                    if cloze_state != NoteFieldsState::Normal {
+                        cloze_state
+                    } else if self.is_duplicate(&stripped, note)? {
+                        NoteFieldsState::Duplicate
+                    } else {
+                        NoteFieldsState::Normal
+                    }
                 }
             } else {
                 NoteFieldsState::Empty
