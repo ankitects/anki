@@ -607,14 +607,12 @@ impl Collection {
                 let stripped = strip_html_preserving_media_filenames(&field1);
                 if stripped.trim().is_empty() {
                     NoteFieldsState::Empty
+                } else if cloze_state != NoteFieldsState::Normal {
+                    cloze_state
+                } else if self.is_duplicate(&stripped, note)? {
+                    NoteFieldsState::Duplicate
                 } else {
-                    if cloze_state != NoteFieldsState::Normal {
-                        cloze_state
-                    } else if self.is_duplicate(&stripped, note)? {
-                        NoteFieldsState::Duplicate
-                    } else {
-                        NoteFieldsState::Normal
-                    }
+                    NoteFieldsState::Normal
                 }
             } else {
                 NoteFieldsState::Empty
