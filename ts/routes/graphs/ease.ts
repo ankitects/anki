@@ -106,7 +106,7 @@ export function prepareData(
     const xTickFormat = (num: number): string => localizedNumber(num, 0) + "%";
     const tableData = [
         {
-            label: tr.statisticsAverageEase(),
+            label: tr.statisticsMedianEase(),
             value: xTickFormat(data.average),
         },
     ];
