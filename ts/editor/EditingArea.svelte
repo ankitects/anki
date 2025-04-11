@@ -103,8 +103,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .editing-area {
         display: grid;
-        /* TODO allow configuration of grid #1503 */
-        /* grid-template-columns: repeat(2, 1fr); */
 
         /* This defines the border between inputs */
         grid-gap: 1px;
