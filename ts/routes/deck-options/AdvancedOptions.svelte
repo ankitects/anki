@@ -93,22 +93,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? tr.deckConfigTooShortMaximumInterval()
             : "";
 
-    $: if (
-        $config.ignoreRevlogsBeforeDate &&
-        $config.ignoreRevlogsBeforeDate != "1970-01-01"
-    ) {
-        getIgnoredBeforeCount({
-            search:
-                $config.paramSearch ||
-                `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
-            ignoreRevlogsBeforeDate: $config.ignoreRevlogsBeforeDate,
-        }).then((resp) => {
-            ignoreRevlogsBeforeCount = resp;
-        });
-    } else {
-        ignoreRevlogsBeforeCount = null;
-    }
     let ignoreRevlogsBeforeCount: GetIgnoredBeforeCountResponse | null = null;
+    let lastIgnoreRevlogsBeforeDate = "";
+    function updateIgnoreRevlogsBeforeCount(ignoreRevlogsBeforeDate: string) {
+        if (
+            ignoreRevlogsBeforeDate &&
+            lastIgnoreRevlogsBeforeDate != ignoreRevlogsBeforeDate &&
+            ignoreRevlogsBeforeDate != "1970-01-01"
+        ) {
+            lastIgnoreRevlogsBeforeDate = ignoreRevlogsBeforeDate;
+            getIgnoredBeforeCount({
+                search:
+                    $config.paramSearch ||
+                    `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
+                ignoreRevlogsBeforeDate,
+            }).then((resp) => {
+                ignoreRevlogsBeforeCount = resp;
+            });
+        } else {
+            ignoreRevlogsBeforeCount = null;
+        }
+    }
+
+    $: updateIgnoreRevlogsBeforeCount($config.ignoreRevlogsBeforeDate);
     let ignoreRevlogsBeforeWarningClass = "alert-warning";
     $: if (ignoreRevlogsBeforeCount) {
         // If there is less than a tenth of reviews included
