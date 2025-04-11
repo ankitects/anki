@@ -7,7 +7,7 @@ export const SECOND = 1.0;
 export const MINUTE = 60.0 * SECOND;
 export const HOUR = 60.0 * MINUTE;
 export const DAY = 24.0 * HOUR;
-export const MONTH = 30.0 * DAY;
+export const MONTH = 30.417 * DAY; // 365/12 ≈ 30.417
 export const YEAR = 365.0 * DAY;
 
 export enum TimespanUnit {
@@ -46,7 +46,7 @@ export function naturalUnit(secs: number): TimespanUnit {
         return TimespanUnit.Hours;
     } else if (secs < MONTH) {
         return TimespanUnit.Days;
-    } else if (secs < 12.0 * MONTH) {
+    } else if (secs < YEAR) {
         return TimespanUnit.Months;
     } else {
         return TimespanUnit.Years;
