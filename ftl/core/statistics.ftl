@@ -295,3 +295,11 @@ statistics-save-pdf = Save PDF
 statistics-saved = Saved.
 statistics-stats = stats
 statistics-title = Statistics
+
+## These strings are no longer used - you do not need to translate them if they
+## are not already translated.
+
+statistics-average-stability = Average stability
+statistics-average-interval = Average interval
+statistics-average-ease = Average ease
+statistics-average-difficulty = Average difficulty
