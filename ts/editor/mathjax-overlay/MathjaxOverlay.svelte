@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { isComposing } from "$lib/sveltelib/composition";
 
     import { escapeSomeEntities, unescapeSomeEntities } from "../../editable/mathjax";
-    import { Mathjax } from "../../editable/mathjax-element";
+    import { Mathjax } from "../../editable/mathjax-element.svelte";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import { context } from "../NoteEditor.svelte";
