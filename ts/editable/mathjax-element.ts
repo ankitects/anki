@@ -5,7 +5,7 @@ import { on } from "@tslib/events";
 
 import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
 
-import { createClassComponent } from "svelte/legacy";
+import { mount } from "svelte";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
 import { FrameElement, frameElement } from "./frame-element";
 import Mathjax_svelte from "./Mathjax.svelte";
@@ -25,6 +25,12 @@ function trimBreaks(text: string): string {
 export const mathjaxConfig = {
     enabled: true,
 };
+
+interface MathjaxProps {
+    mathjax: string;
+    block: boolean;
+    fontSize: number;
+}
 
 export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLElement implements DecoratedElement {
     static tagName = "anki-mathjax";
@@ -60,7 +66,8 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLEl
 
     block = false;
     frame?: FrameElement;
-    component?: Mathjax_svelte;
+    component?: Record<string, any> | null;
+    props?: MathjaxProps;
 
     static get observedAttributes(): string[] {
         return ["block", "data-mathjax"];
@@ -83,7 +90,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLEl
         switch (name) {
             case "block":
                 this.block = newValue !== "false";
-                this.component?.$set({ block: this.block });
+                if (this.props) { this.props.block = this.block; }
                 this.frame?.setAttribute("block", String(this.block));
                 break;
 
@@ -91,7 +98,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLEl
                 if (typeof newValue !== "string") {
                     return;
                 }
-                this.component?.$set({ mathjax: newValue });
+                if (this.props) { this.props.mathjax = newValue; }
                 break;
         }
     }
@@ -114,15 +121,20 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLEl
         this.dataset.mathjax = this.innerHTML;
         this.innerHTML = "";
         this.style.whiteSpace = "normal";
-        this.component = createClassComponent({
-            component: Mathjax_svelte,
-            target: this,
-            props: {
-                mathjax: this.dataset.mathjax,
-                block: this.block,
-                fontSize: 20,
-            },
+
+        const props = $state<MathjaxProps>({
+            mathjax: this.dataset.mathjax,
+            block: this.block,
+            fontSize: 20,
         });
+
+        const component = mount(Mathjax_svelte, {
+            target: this,
+            props,
+        });
+
+        this.component = component;
+        this.props = props;
 
         if (this.hasAttribute("focusonmount")) {
             let position: [number, number] | undefined = undefined;
