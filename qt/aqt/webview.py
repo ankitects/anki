@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, cast
 import anki
 import anki.lang
 from anki._legacy import deprecated
+from anki.config import Config
 from anki.lang import is_rtl
 from anki.utils import hmr_mode, is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
@@ -343,6 +344,8 @@ class AnkiWebView(QWebEngineView):
             return False
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
+
+        from aqt import mw
 
         if (
             isinstance(evt, QMouseEvent)
