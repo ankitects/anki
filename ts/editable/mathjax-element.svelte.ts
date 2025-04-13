@@ -5,7 +5,7 @@ import { on } from "@tslib/events";
 
 import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
 
-import { mount } from "svelte";
+import { mount, tick } from "svelte";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
 import { FrameElement, frameElement } from "./frame-element";
 import Mathjax_svelte from "./Mathjax.svelte";
@@ -145,7 +145,9 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLEl
                     .map(Number) as [number, number];
             }
 
-            this.component.moveCaretAfter(position);
+            tick().then(() => {
+                this.component?.moveCaretAfter(position);
+            });
         }
 
         this.setAttribute("contentEditable", "false");
