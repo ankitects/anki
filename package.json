@@ -39,7 +39,7 @@
         "dprint": "^0.47.2",
         "esbuild": "^0.25.0",
         "esbuild-sass-plugin": "^2",
-        "esbuild-svelte": "^0.8.1",
+        "esbuild-svelte": "^0.9.2",
         "eslint": "^8.44.0",
         "eslint-plugin-compat": "^4.1.4",
         "eslint-plugin-import": "^2.25.4",
@@ -56,7 +56,7 @@
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
         "typescript": "^5.0.4",
-        "vite": "^5.4.10",
+        "vite": "^5.4.17",
         "vitest": "^2"
     },
     "dependencies": {

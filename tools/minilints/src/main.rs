@@ -209,7 +209,7 @@ fn sveltekit_temp_file(path: &str) -> bool {
 }
 
 fn check_cargo_deny() -> Result<()> {
-    Command::run("cargo install cargo-deny@0.14.24")?;
+    Command::run("cargo install cargo-deny@0.18.2")?;
     Command::run("cargo deny check")?;
     Ok(())
 }
