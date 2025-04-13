@@ -412,7 +412,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Shortcut from "$lib/components/Shortcut.svelte";
 
-    import { mathjaxConfig } from "../editable/mathjax-element";
+    import { mathjaxConfig } from "../editable/mathjax-element.svelte";
     import ImageOcclusionPage from "../routes/image-occlusion/ImageOcclusionPage.svelte";
     import ImageOcclusionPicker from "../routes/image-occlusion/ImageOcclusionPicker.svelte";
     import type { IOMode } from "../routes/image-occlusion/lib";
