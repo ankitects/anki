@@ -142,7 +142,7 @@ class AVPlayer:
     interrupt_current_audio = True
     # caller key for the current playback (optional)
     current_caller = None
-    # whether the last call to play_file_if_caller interrupted another
+    # whether the last call to play_file_with_caller interrupted another
     current_caller_interrupted = False
 
     def __init__(self) -> None:
