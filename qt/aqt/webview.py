@@ -287,6 +287,8 @@ class AnkiWebView(QWebEngineView):
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
         self.set_kind(kind)
+        if title:
+            self.set_title(title)
         self._page = AnkiWebPage(self._onBridgeCmd)
         # reduce flicker
         self._page.setBackgroundColor(theme_manager.qcolor(colors.CANVAS))

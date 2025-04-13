@@ -195,7 +195,6 @@ class Preferences(QDialog):
         self.setup_network()
 
     def update_profile(self) -> None:
-        assert self.prof is not None
         self.update_network()
 
     # Profile: network
