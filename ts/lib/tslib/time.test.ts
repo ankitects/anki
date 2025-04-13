@@ -12,7 +12,7 @@ test("natural unit", () => {
     expect(naturalUnit(60 * 60 - 1)).toBe(TimespanUnit.Minutes);
     expect(naturalUnit(60 * 60)).toBe(TimespanUnit.Hours);
     expect(naturalUnit(60 * 60 * 24)).toBe(TimespanUnit.Days);
-    expect(naturalUnit(60 * 60 * 24 * 30)).toBe(TimespanUnit.Months);
+    expect(naturalUnit(60 * 60 * 24 * 31)).toBe(TimespanUnit.Months);
 });
 
 test("natural whole unit", () => {

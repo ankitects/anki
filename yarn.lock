@@ -2021,7 +2021,7 @@ __metadata:
     dprint: "npm:^0.47.2"
     esbuild: "npm:^0.25.0"
     esbuild-sass-plugin: "npm:^2"
-    esbuild-svelte: "npm:^0.8.1"
+    esbuild-svelte: "npm:^0.9.2"
     eslint: "npm:^8.44.0"
     eslint-plugin-compat: "npm:^4.1.4"
     eslint-plugin-import: "npm:^2.25.4"
@@ -3409,15 +3409,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild-svelte@npm:^0.8.1":
-  version: 0.8.2
-  resolution: "esbuild-svelte@npm:0.8.2"
+"esbuild-svelte@npm:^0.9.2":
+  version: 0.9.2
+  resolution: "esbuild-svelte@npm:0.9.2"
   dependencies:
     "@jridgewell/trace-mapping": "npm:^0.3.19"
   peerDependencies:
-    esbuild: ">=0.9.6"
-    svelte: ">=3.43.0 <6 || ^5.0.0-next.0"
-  checksum: 10c0/4b4f11a2d851fb819826404a4971ea874472bfeda5a11387e62bdb4e3d114b4fd82b23b8ab83c82cab71a2afa8767a4075c121f4709240a9f373b19c03bd97e6
+    esbuild: ">=0.17.0"
+    svelte: ">=4.2.1 <6"
+  checksum: 10c0/391141420f7806b45c774e0448a35706e242d71651bc4362f9aed300d6238ad0fa22bfeabdc3ca45c8e62b89eba641c0edee905980f2760aa6d281c01ee112a8
   languageName: node
   linkType: hard
 

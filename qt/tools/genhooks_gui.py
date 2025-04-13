@@ -778,24 +778,24 @@ hooks = [
         name="webview_did_inject_style_into_page",
         args=["webview: aqt.webview.AnkiWebView"],
         doc='''Called after standard styling is injected into an external
-html file, such as when loading the new graphs. You can use this hook to
-mutate the DOM before the page is revealed.
-
-For example:
-
-def mytest(webview: AnkiWebView):
-    if webview.kind != AnkiWebViewKind.DECK_STATS:
-        return
-    web.eval(
-        """
-    div = document.createElement("div");
-    div.innerHTML = 'hello';
-    document.body.appendChild(div);
-"""
-    )
-
-gui_hooks.webview_did_inject_style_into_page.append(mytest)
-''',
+        html file, such as when loading the new graphs. You can use this hook to
+        mutate the DOM before the page is revealed.
+        
+        For example:
+        
+        def mytest(webview: AnkiWebView):
+            if webview.kind != AnkiWebViewKind.DECK_STATS:
+                return
+            webview.eval(
+                """
+                div = document.createElement("div");
+                div.innerHTML = 'hello';
+                document.body.appendChild(div);
+                """
+            )
+        
+        gui_hooks.webview_did_inject_style_into_page.append(mytest)
+        ''',
     ),
     # Main
     ###################

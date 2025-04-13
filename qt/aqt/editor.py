@@ -1053,9 +1053,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             if ret:
                 self.doPaste(html, internal, extended)
 
-        self.web.evalWithCallback(
-            f"focusIfField({cursor_pos.x()}, {cursor_pos.y()});", pasteIfField
-        )
+        zoom = self.web.zoomFactor()
+        x, y = int(cursor_pos.x() / zoom), int(cursor_pos.y() / zoom)
+
+        self.web.evalWithCallback(f"focusIfField({x}, {y});", pasteIfField)
 
     def onPaste(self) -> None:
         self.web.onPaste()
