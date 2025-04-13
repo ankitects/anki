@@ -344,14 +344,14 @@ class AnkiWebView(QWebEngineView):
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
 
-        from aqt import mw
-
         if (
             isinstance(evt, QMouseEvent)
             and evt.type() == QEvent.Type.MouseButtonRelease
         ):
+            from aqt import mw
+
             if evt.button() == Qt.MouseButton.MiddleButton and is_lin:
-                if mw.pm.middle_click_paste():
+                if mw.pm.middle_click_paste_enabled():
                     self.onMiddleClickPaste()
                 return True
 
