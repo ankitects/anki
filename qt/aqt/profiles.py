@@ -102,6 +102,7 @@ profileConf: dict[str, Any] = dict(
     lastOptimize=int_time(),
     # editing
     searchHistory=[],
+    middleClickPasteEnabled=True,  # TODO: ask if this is needed
     # syncing
     syncKey=None,
     syncMedia=True,
@@ -697,6 +698,12 @@ create table if not exists profiles
 
     def set_current_sync_url(self, url: str | None) -> None:
         self.profile["currentSyncUrl"] = url
+
+    def middle_click_paste_enabled(self) -> bool:
+        return self.profile.get("middleClickPasteEnabled", True)
+
+    def set_middle_click_paste_enabled(self, val: bool) -> None:
+        self.profile["middleClickPasteEnabled"] = val
 
     def custom_sync_url(self) -> str | None:
         """A custom server provided by the user."""

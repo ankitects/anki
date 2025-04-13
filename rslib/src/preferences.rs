@@ -134,7 +134,6 @@ impl Collection {
                 .get_config_bool(BoolKey::AddingDefaultsToCurrentDeck),
             paste_images_as_png: self.get_config_bool(BoolKey::PasteImagesAsPng),
             paste_strips_formatting: self.get_config_bool(BoolKey::PasteStripsFormatting),
-            middle_click_paste: self.get_config_bool(BoolKey::MiddleClickPaste),
             default_search_text: self.get_config_string(StringKey::DefaultSearchText),
             ignore_accents_in_search: self.get_config_bool(BoolKey::IgnoreAccentsInSearch),
             render_latex: self.get_config_bool(BoolKey::RenderLatex),
@@ -149,7 +148,6 @@ impl Collection {
         )?;
         self.set_config_bool_inner(BoolKey::PasteImagesAsPng, s.paste_images_as_png)?;
         self.set_config_bool_inner(BoolKey::PasteStripsFormatting, s.paste_strips_formatting)?;
-        self.set_config_bool_inner(BoolKey::MiddleClickPaste, s.middle_click_paste)?;
         self.set_config_string_inner(StringKey::DefaultSearchText, &s.default_search_text)?;
         self.set_config_bool_inner(BoolKey::IgnoreAccentsInSearch, s.ignore_accents_in_search)?;
         self.set_config_bool_inner(BoolKey::RenderLatex, s.render_latex)?;

@@ -12,7 +12,7 @@ import aqt
 import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
-from anki.utils import is_lin, is_mac
+from anki.utils import is_mac
 from aqt import AnkiQt
 from aqt.ankihub import ankihub_login, ankihub_logout
 from aqt.operations.collection import set_preferences
@@ -137,8 +137,6 @@ class Preferences(QDialog):
             0 if editing.adding_defaults_to_current_deck else 1
         )
         form.paste_strips_formatting.setChecked(editing.paste_strips_formatting)
-        self.form.middle_click_paste.setVisible(is_lin)
-        form.middle_click_paste.setChecked(editing.middle_click_paste)
         form.ignore_accents_in_search.setChecked(editing.ignore_accents_in_search)
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.render_latex.setChecked(editing.render_latex)
@@ -170,7 +168,6 @@ class Preferences(QDialog):
         editing.adding_defaults_to_current_deck = not form.useCurrent.currentIndex()
         editing.paste_images_as_png = self.form.pastePNG.isChecked()
         editing.paste_strips_formatting = self.form.paste_strips_formatting.isChecked()
-        editing.middle_click_paste = self.form.middle_click_paste.isChecked()
         editing.render_latex = self.form.render_latex.isChecked()
         editing.default_search_text = self.form.default_search_text.text()
         editing.ignore_accents_in_search = (
@@ -198,6 +195,7 @@ class Preferences(QDialog):
         self.setup_network()
 
     def update_profile(self) -> None:
+        assert self.prof is not None
         self.update_network()
 
     # Profile: network
