@@ -6,7 +6,7 @@ import { BLOCK_ELEMENTS } from "@tslib/dom";
 import { CustomElementArray } from "../editable/decorated";
 import { FrameElement } from "../editable/frame-element";
 import { FrameEnd, FrameStart } from "../editable/frame-handle";
-import { Mathjax } from "../editable/mathjax-element";
+import { Mathjax } from "../editable/mathjax-element.svelte";
 import { parsingInstructions } from "./plain-text-input";
 
 const decoratedElements = new CustomElementArray();
