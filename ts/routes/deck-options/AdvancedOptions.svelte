@@ -114,7 +114,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    $: updateIgnoreRevlogsBeforeCount($config.ignoreRevlogsBeforeDate);
+    // "timeout_id: NodeJS.Timeout | undefined" fails eslint
+    let timeout_id: any = undefined;
+    const IGNORE_REVLOG_COUNT_DELAY_MS = 1000;
+
+    $: {
+        clearTimeout(timeout_id);
+        timeout_id = setTimeout(() => {
+            updateIgnoreRevlogsBeforeCount($config.ignoreRevlogsBeforeDate);
+        }, IGNORE_REVLOG_COUNT_DELAY_MS);
+    }
     let ignoreRevlogsBeforeWarningClass = "alert-warning";
     $: if (ignoreRevlogsBeforeCount) {
         // If there is less than a tenth of reviews included
