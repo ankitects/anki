@@ -99,7 +99,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (lastIgnoreRevlogsBeforeDate == ignoreRevlogsBeforeDate) {
             return;
         }
-        if (ignore_before_updated && ignoreRevlogsBeforeDate && ignoreRevlogsBeforeDate != "1970-01-01") {
+        if (
+            ignore_before_updated &&
+            ignoreRevlogsBeforeDate &&
+            ignoreRevlogsBeforeDate != "1970-01-01"
+        ) {
             lastIgnoreRevlogsBeforeDate = ignoreRevlogsBeforeDate;
             getIgnoredBeforeCount({
                 search:
