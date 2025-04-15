@@ -94,6 +94,8 @@ metaConf = dict(
     defaultLang=None,
 )
 
+# Old Anki versions expected these keys to exist. Don't add new ones here - it's better practice
+# to always use profile.get(..., defaultValue) instead, as keys may be missing.
 profileConf: dict[str, Any] = dict(
     # profile
     mainWindowGeom=None,
@@ -697,6 +699,12 @@ create table if not exists profiles
 
     def set_current_sync_url(self, url: str | None) -> None:
         self.profile["currentSyncUrl"] = url
+
+    def middle_click_paste_enabled(self) -> bool:
+        return self.profile.get("middleClickPasteEnabled", True)
+
+    def set_middle_click_paste_enabled(self, val: bool) -> None:
+        self.profile["middleClickPasteEnabled"] = val
 
     def custom_sync_url(self) -> str | None:
         """A custom server provided by the user."""
