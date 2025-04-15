@@ -19,7 +19,7 @@
         "@poppanator/sveltekit-svg": "^5.0.0",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
-        "@sveltejs/kit": "^2.8.3",
+        "@sveltejs/kit": "^2.20.7",
         "@sveltejs/vite-plugin-svelte": "4.0.0",
         "@types/bootstrap": "^5.0.12",
         "@types/codemirror": "^5.60.0",
@@ -56,7 +56,7 @@
         "tslib": "^2.0.3",
         "tsx": "^3.12.0",
         "typescript": "^5.0.4",
-        "vite": "^5.4.17",
+        "vite": "5.4.18",
         "vitest": "^2"
     },
     "dependencies": {
