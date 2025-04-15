@@ -57,6 +57,12 @@
         "path": "node_modules/@tootallnate/once",
         "licenseFile": "node_modules/@tootallnate/once/LICENSE"
     },
+    "@types/trusted-types@2.0.7": {
+        "licenses": "MIT",
+        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+        "path": "node_modules/@types/trusted-types",
+        "licenseFile": "node_modules/@types/trusted-types/LICENSE"
+    },
     "abab@2.0.6": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/jsdom/abab",
@@ -95,8 +101,8 @@
         "repository": "https://github.com/TooTallNate/node-agent-base",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "path": "node_modules/agent-base",
-        "licenseFile": "node_modules/agent-base/README.md"
+        "path": "node_modules/http-proxy-agent/node_modules/agent-base",
+        "licenseFile": "node_modules/http-proxy-agent/node_modules/agent-base/README.md"
     },
     "asynckit@0.4.0": {
         "licenses": "MIT",
@@ -436,6 +442,14 @@
         "path": "node_modules/domexception",
         "licenseFile": "node_modules/domexception/LICENSE.txt"
     },
+    "dompurify@3.2.5": {
+        "licenses": "(MPL-2.0 OR Apache-2.0)",
+        "repository": "https://github.com/cure53/DOMPurify",
+        "publisher": "Dr.-Ing. Mario Heiderich, Cure53",
+        "email": "mario@cure53.de",
+        "path": "node_modules/dompurify",
+        "licenseFile": "node_modules/dompurify/LICENSE"
+    },
     "empty-npm-package@1.0.0": {
         "licenses": "ISC",
         "path": "node_modules/canvas"
@@ -571,6 +585,14 @@
         "email": "john.david.dalton@gmail.com",
         "path": "node_modules/lodash-es",
         "licenseFile": "node_modules/lodash-es/LICENSE"
+    },
+    "lru-cache@10.4.3": {
+        "licenses": "ISC",
+        "repository": "https://github.com/isaacs/node-lru-cache",
+        "publisher": "Isaac Z. Schlueter",
+        "email": "i@izs.me",
+        "path": "node_modules/lru-cache",
+        "licenseFile": "node_modules/lru-cache/LICENSE"
     },
     "marked@5.1.2": {
         "licenses": "MIT",
@@ -768,16 +790,16 @@
         "repository": "https://github.com/jsdom/whatwg-url",
         "publisher": "Sebastian Mayr",
         "email": "github@smayr.name",
-        "path": "node_modules/whatwg-url",
-        "licenseFile": "node_modules/whatwg-url/LICENSE.txt"
+        "path": "node_modules/jsdom/node_modules/whatwg-url",
+        "licenseFile": "node_modules/jsdom/node_modules/whatwg-url/LICENSE.txt"
     },
     "whatwg-url@11.0.0": {
         "licenses": "MIT",
         "repository": "https://github.com/jsdom/whatwg-url",
         "publisher": "Sebastian Mayr",
         "email": "github@smayr.name",
-        "path": "node_modules/data-urls/node_modules/whatwg-url",
-        "licenseFile": "node_modules/data-urls/node_modules/whatwg-url/LICENSE.txt"
+        "path": "node_modules/whatwg-url",
+        "licenseFile": "node_modules/whatwg-url/LICENSE.txt"
     },
     "ws@8.18.0": {
         "licenses": "MIT",
