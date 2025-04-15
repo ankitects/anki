@@ -120,7 +120,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
-    let cutoffUpdatedSinceLoad = false;
+    // Running the card count check on startup is inefficient. After users have had a few months
+    // to notice + update (e.g. from ~Oct 2025), we should change this to false.
+    let cutoffUpdatedSinceLoad = true;
     const IGNORE_REVLOG_COUNT_DELAY_MS = 1000;
 
     $: {
