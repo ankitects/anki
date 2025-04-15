@@ -100,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
         if (
-            ignore_before_updated &&
+            cutoffUpdatedSinceLoad &&
             ignoreRevlogsBeforeDate &&
             ignoreRevlogsBeforeDate != "1970-01-01"
         ) {
@@ -116,17 +116,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else {
             ignoreRevlogsBeforeCount = null;
         }
-        ignore_before_updated = true;
+        cutoffUpdatedSinceLoad = true;
     }
 
-    // "timeout_id: NodeJS.Timeout | undefined" fails eslint
-    let timeout_id: any = undefined;
-    let ignore_before_updated = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+    let cutoffUpdatedSinceLoad = false;
     const IGNORE_REVLOG_COUNT_DELAY_MS = 1000;
 
     $: {
-        clearTimeout(timeout_id);
-        timeout_id = setTimeout(() => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
             updateIgnoreRevlogsBeforeCount($config.ignoreRevlogsBeforeDate);
         }, IGNORE_REVLOG_COUNT_DELAY_MS);
     }
