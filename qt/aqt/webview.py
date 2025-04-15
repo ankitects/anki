@@ -73,6 +73,44 @@ class AuthInterceptor(QWebEngineUrlRequestInterceptor):
             info.setHttpHeader(b"Authorization", f"Bearer {_APIKEY}".encode("utf-8"))
 
 
+def _create_bridge_script() -> QWebEngineScript:
+    qwebchannel = ":/qtwebchannel/qwebchannel.js"
+    jsfile = QFile(qwebchannel)
+    if not jsfile.open(QIODevice.OpenModeFlag.ReadOnly):
+        print(f"Error opening '{qwebchannel}': {jsfile.error()}", file=sys.stderr)
+    jstext = bytes(cast(bytes, jsfile.readAll())).decode("utf-8")
+    jsfile.close()
+
+    script = QWebEngineScript()
+    script.setSourceCode(
+        jstext
+        + """
+        var pycmd, bridgeCommand;
+        new QWebChannel(qt.webChannelTransport, function(channel) {
+            bridgeCommand = pycmd = function (arg, cb) {
+                var resultCB = function (res) {
+                    // pass result back to user-provided callback
+                    if (cb) {
+                        cb(JSON.parse(res));
+                    }
+                }
+            
+                channel.objects.py.cmd(arg, resultCB);
+                return false;                   
+            }
+            pycmd("domDone");
+        });
+    """
+    )
+    script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
+    script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentReady)
+    script.setRunsOnSubFrames(False)
+
+    return script
+
+
+_bridge_script = _create_bridge_script()
+
 _profile_with_api_access: QWebEngineProfile | None = None
 _profile_without_api_access: QWebEngineProfile | None = None
 
@@ -85,6 +123,7 @@ class AnkiWebPage(QWebEnginePage):
         parent: QObject | None = None,
     ) -> None:
         profile = self._profileForPage(kind)
+        self._inject_user_script(profile, _bridge_script)
         QWebEnginePage.__init__(self, profile, parent)
         self._onBridgeCmd = onBridgeCmd
         self._kind = kind
@@ -111,42 +150,6 @@ class AnkiWebPage(QWebEnginePage):
         # Create a new profile if not cached
         profile = QWebEngineProfile()
 
-        qwebchannel = ":/qtwebchannel/qwebchannel.js"
-        jsfile = QFile(qwebchannel)
-        if not jsfile.open(QIODevice.OpenModeFlag.ReadOnly):
-            print(f"Error opening '{qwebchannel}': {jsfile.error()}", file=sys.stderr)
-        jstext = bytes(cast(bytes, jsfile.readAll())).decode("utf-8")
-        jsfile.close()
-
-        script = QWebEngineScript()
-        script.setSourceCode(
-            jstext
-            + """
-            var pycmd, bridgeCommand;
-            new QWebChannel(qt.webChannelTransport, function(channel) {
-                bridgeCommand = pycmd = function (arg, cb) {
-                    var resultCB = function (res) {
-                        // pass result back to user-provided callback
-                        if (cb) {
-                            cb(JSON.parse(res));
-                        }
-                    }
-                
-                    channel.objects.py.cmd(arg, resultCB);
-                    return false;                   
-                }
-                pycmd("domDone");
-            });
-        """
-        )
-        script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
-        script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentReady)
-        script.setRunsOnSubFrames(False)
-
-        scripts = profile.scripts()
-        assert scripts is not None
-        scripts.insert(script)
-
         interceptor = AuthInterceptor(profile, api_enabled=have_api_access)
         profile.setUrlRequestInterceptor(interceptor)
         if have_api_access:
@@ -157,6 +160,19 @@ class AnkiWebPage(QWebEnginePage):
         return profile
 
     def _setupBridge(self) -> None:
+        # Add-on compatibility: For existing add-on callers that override the init
+        # and invoke _setupBridge directly (e.g. in order to use a custom web profile),
+        # we need to ensure that the bridge script is injected into the profile scripts,
+        # if it has yet to be injected.
+        profile = self.profile()
+        assert profile is not None
+        scripts = profile.scripts()
+        assert scripts is not None
+
+        if not scripts.contains(_bridge_script):
+            print("add-on callers should not call _setupBridge directly")
+            self._inject_user_script(profile, _bridge_script)
+
         class Bridge(QObject):
             def __init__(self, bridge_handler: Callable[[str], Any]) -> None:
                 super().__init__()
@@ -171,6 +187,13 @@ class AnkiWebPage(QWebEnginePage):
         self._channel = QWebChannel(self)
         self._channel.registerObject("py", self._bridge)
         self.setWebChannel(self._channel)
+
+    def _inject_user_script(
+        self, profile: QWebEngineProfile, script: QWebEngineScript
+    ) -> None:
+        scripts = profile.scripts()
+        assert scripts is not None
+        scripts.insert(script)
 
     def javaScriptConsoleMessage(
         self,
