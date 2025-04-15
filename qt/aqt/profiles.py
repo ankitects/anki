@@ -102,7 +102,6 @@ profileConf: dict[str, Any] = dict(
     lastOptimize=int_time(),
     # editing
     searchHistory=[],
-    middleClickPasteEnabled=True,  # TODO: ask if this is needed
     # syncing
     syncKey=None,
     syncMedia=True,
