@@ -81,8 +81,8 @@ class AnkiWebPage(QWebEnginePage):
     def __init__(
         self,
         onBridgeCmd: BridgeCommandHandler,
-        kind: AnkiWebViewKind,
-        parent: QObject | None,
+        kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
+        parent: QObject | None = None,
     ) -> None:
         profile = self._profileForPage(kind)
         QWebEnginePage.__init__(self, profile, parent)
