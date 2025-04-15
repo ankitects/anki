@@ -133,7 +133,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         for (const [index, [, fieldContent]] of fs.entries()) {
-            fieldStores[index].set(fieldContent);
+            fieldStores[index].set(sanitize(fieldContent));
         }
 
         fieldNames = newFieldNames;
@@ -424,6 +424,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "../routes/image-occlusion/store";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
+    import { sanitize } from "$lib/domlib";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
