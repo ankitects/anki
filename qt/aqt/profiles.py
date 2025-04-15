@@ -94,6 +94,8 @@ metaConf = dict(
     defaultLang=None,
 )
 
+# Old Anki versions expected these keys to exist. Don't add new ones here - it's better practice
+# to always use profile.get(..., defaultValue) instead, as keys may be missing.
 profileConf: dict[str, Any] = dict(
     # profile
     mainWindowGeom=None,
