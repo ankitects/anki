@@ -16,6 +16,7 @@ from aqt.qt import *
 from aqt.utils import (
     HelpPage,
     HelpPageArgument,
+    addCloseShortcut,
     disable_help_button,
     openHelp,
     restoreGeom,
@@ -52,6 +53,7 @@ class StudyDeck(QDialog):
         gui_hooks.state_did_reset.append(self.onReset)
         self.geomKey = f"studyDeck-{geomKey}"
         restoreGeom(self, self.geomKey)
+        addCloseShortcut(self)
         disable_help_button(self)
         if not cancel:
             self.form.buttonBox.removeButton(

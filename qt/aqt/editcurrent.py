@@ -9,7 +9,7 @@ from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import restoreGeom, saveGeom, tr
+from aqt.utils import add_close_shortcut, restoreGeom, saveGeom, tr
 
 
 class EditCurrent(QMainWindow):
@@ -36,6 +36,7 @@ class EditCurrent(QMainWindow):
         close_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close)
         assert close_button is not None
         close_button.setShortcut(QKeySequence("Ctrl+Return"))
+        add_close_shortcut(self)
         # qt5.14+ doesn't handle numpad enter on Windows
         self.compat_add_shorcut = QShortcut(QKeySequence("Ctrl+Enter"), self)
         qconnect(self.compat_add_shorcut.activated, close_button.click)

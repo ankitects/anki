@@ -28,6 +28,7 @@ from aqt.qt import (
     qconnect,
 )
 from aqt.utils import (
+    addCloseShortcut,
     ask_user_dialog,
     disable_help_button,
     show_warning,
@@ -380,6 +381,7 @@ def get_id_and_pass_from_user(
     qconnect(bb.accepted, diag.accept)
     qconnect(bb.rejected, diag.reject)
     vbox.addWidget(bb)
+    addCloseShortcut(diag)
     diag.setLayout(vbox)
     diag.adjustSize()
     diag.show()
