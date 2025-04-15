@@ -7,7 +7,9 @@ import enum
 import logging
 import mimetypes
 import os
+import random
 import re
+import string
 import sys
 import threading
 import traceback
@@ -698,7 +700,6 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
 def _check_dynamic_request_permissions():
     if request.method == "GET":
         return
-    context = _extract_page_context()
 
     def warn() -> None:
         show_warning(
@@ -710,24 +711,16 @@ def _check_dynamic_request_permissions():
         aqt.mw.taskman.run_on_main(warn)
         abort(403)
 
-    if context in [
-        PageContext.NON_LEGACY_PAGE,
-        PageContext.EDITOR,
-        PageContext.ADDON_PAGE,
-        PageContext.DECK_OPTIONS,
-    ]:
-        pass
-    elif context == PageContext.REVIEWER and request.path in (
+    # does page have access to entire API?
+    if _have_api_access():
+        return
+
+    # whitelisted API endpoints for reviewer/previewer
+    if request.path in (
         "/_anki/getSchedulingStatesWithContext",
         "/_anki/setSchedulingStates",
         "/_anki/i18nResources",
     ):
-        # reviewer is only allowed to access custom study methods
-        pass
-    elif (
-        context == PageContext.PREVIEWER or context == PageContext.CARD_LAYOUT
-    ) and request.path == "/_anki/i18nResources":
-        # previewers are only allowed to access i18n resources
         pass
     else:
         # other legacy pages may contain third-party JS, so we do not
@@ -752,23 +745,11 @@ def legacy_page_data() -> Response:
         return _text_response(HTTPStatus.NOT_FOUND, "page not found")
 
 
-def _extract_page_context() -> PageContext:
-    "Get context based on referer header."
-    from urllib.parse import parse_qs, urlparse
+_APIKEY = "".join(random.choices(string.ascii_letters + string.digits, k=32))
 
-    referer = urlparse(request.headers.get("Referer", ""))
-    if referer.path.startswith("/_anki/pages/") or is_sveltekit_page(referer.path[1:]):
-        return PageContext.NON_LEGACY_PAGE
-    elif referer.path == "/_anki/legacyPageData":
-        query_params = parse_qs(referer.query)
-        query_id = query_params.get("id")
-        if not query_id:
-            return PageContext.UNKNOWN
-        id = int(query_id[0])
-        page_context = aqt.mw.mediaServer.get_page_context(id)
-        return page_context if page_context else PageContext.UNKNOWN
-    else:
-        return PageContext.UNKNOWN
+
+def _have_api_access() -> bool:
+    return request.headers.get("Authorization") == f"Bearer {_APIKEY}"
 
 
 # this currently only handles a single method; in the future, idempotent
