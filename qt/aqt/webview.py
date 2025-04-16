@@ -69,7 +69,7 @@ class AuthInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, info):
         from aqt.mediasrv import _APIKEY
 
-        if self._api_enabled:
+        if self._api_enabled and info.requestUrl().host() == "127.0.0.1":
             info.setHttpHeader(b"Authorization", f"Bearer {_APIKEY}".encode("utf-8"))
 
 
