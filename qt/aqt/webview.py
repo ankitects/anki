@@ -137,6 +137,9 @@ class AnkiWebPage(QWebEnginePage):
             AnkiWebViewKind.DECK_STATS,
             AnkiWebViewKind.CHANGE_NOTETYPE,
             AnkiWebViewKind.BROWSER_CARD_INFO,
+            AnkiWebViewKind.IMPORT_ANKI_PACKAGE,
+            AnkiWebViewKind.IMPORT_CSV,
+            AnkiWebViewKind.IMPORT_LOG,
         )
 
         global _profile_with_api_access, _profile_without_api_access

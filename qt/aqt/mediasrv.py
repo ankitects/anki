@@ -720,6 +720,7 @@ def _check_dynamic_request_permissions():
         "/_anki/getSchedulingStatesWithContext",
         "/_anki/setSchedulingStates",
         "/_anki/i18nResources",
+        "/_anki/congratsInfo",
     ):
         pass
     else:
