@@ -141,7 +141,7 @@ class AVPlayer:
     # audio be stopped?
     interrupt_current_audio = True
     # caller key for the current playback (optional)
-    current_caller = None
+    current_caller: Any = None
     # whether the last call to play_file_with_caller interrupted another
     current_caller_interrupted = False
 
@@ -167,7 +167,7 @@ class AVPlayer:
         self._enqueued = []
         self._stop_if_playing()
 
-    def stop_and_clear_queue_if_caller(self, caller) -> None:
+    def stop_and_clear_queue_if_caller(self, caller: Any) -> None:
         if caller == self.current_caller:
             self.stop_and_clear_queue()
 
@@ -179,7 +179,7 @@ class AVPlayer:
     def play_file(self, filename: str) -> None:
         self.play_tags([SoundOrVideoTag(filename=filename)])
 
-    def play_file_with_caller(self, filename: str, caller) -> None:
+    def play_file_with_caller(self, filename: str, caller: Any) -> None:
         if self.current_caller:
             self.current_caller_interrupted = True
         self.current_caller = caller
