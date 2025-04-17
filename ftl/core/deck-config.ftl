@@ -501,6 +501,10 @@ deck-config-additional-new-cards-to-simulate = Additional new cards to simulate
 deck-config-simulate = Simulate
 deck-config-clear-last-simulate = Clear last simulation
 deck-config-fsrs-simulator-radio-count = Reviews
+deck-config-advanced-settings = Advanced Settings
+deck-config-smooth-graph = Smooth graph
+deck-config-suspend-leeches = Suspend leeches
+deck-config-save-options-to-preset = Save options to preset
 # Radio button in the FSRS simulation diagram (Deck options -> FSRS) selecting
 # to show the total number of cards that can be recalled or retrieved on a
 # specific date.
