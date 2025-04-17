@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { filterRevlogEntryByReviewKind } from "./forgetting-curve";
 
     export let revlog: RevlogEntry[];
-    export let fsrsEnabled: boolean = false;
+    export const fsrsEnabled: boolean = false;
 
     function reviewKindClass(entry: RevlogEntry): string {
         switch (entry.reviewKind) {

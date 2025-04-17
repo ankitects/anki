@@ -536,6 +536,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "interdayLearningMix",
     "newGatherPriority",
     "fsrsWeights",
+    "fsrsParams5",
     "fsrsParams6",
     "desiredRetention",
     "stopTimerOnAnswer",
