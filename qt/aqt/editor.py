@@ -1053,9 +1053,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             if ret:
                 self.doPaste(html, internal, extended)
 
-        self.web.evalWithCallback(
-            f"focusIfField({cursor_pos.x()}, {cursor_pos.y()});", pasteIfField
-        )
+        zoom = self.web.zoomFactor()
+        x, y = int(cursor_pos.x() / zoom), int(cursor_pos.y() / zoom)
+
+        self.web.evalWithCallback(f"focusIfField({x}, {y});", pasteIfField)
 
     def onPaste(self) -> None:
         self.web.onPaste()
@@ -1496,8 +1497,8 @@ class EditorWebView(AnkiWebView):
 
     def _get_clipboard_html_for_field(self, mode: QClipboard.Mode) -> str | None:
         clip = self._clipboard()
-        mime = clip.mimeData(mode)
-        assert mime is not None
+        if not (mime := clip.mimeData(mode)):
+            return None
         if not mime.hasHtml():
             return None
         return mime.html()
@@ -1539,9 +1540,9 @@ class EditorWebView(AnkiWebView):
             print("reuse internal")
             self.editor.doPaste(html, True, extended)
         else:
+            if not (mime := clipboard.mimeData(mode=mode)):
+                return
             print("use clipboard")
-            mime = clipboard.mimeData(mode=mode)
-            assert mime is not None
             html, internal = self._processMime(mime, extended)
             if html:
                 self.editor.doPaste(html, internal, extended)

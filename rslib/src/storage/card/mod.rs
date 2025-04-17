@@ -733,6 +733,20 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn get_card_count_with_ignore_before(
+        &self,
+        ignore_before: TimestampMillis,
+    ) -> Result<u64> {
+        Ok(self
+            .db
+            .prepare(include_str!("get_ignored_before_count.sql"))?
+            .query(params![ignore_before.0])?
+            .next()
+            .unwrap()
+            .unwrap()
+            .get(0)?)
+    }
+
     #[cfg(test)]
     pub(crate) fn get_all_cards(&self) -> Vec<Card> {
         self.db

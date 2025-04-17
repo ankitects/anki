@@ -8,6 +8,7 @@ use crate::deckconfig::DeckConfig;
 use crate::deckconfig::DeckConfigId;
 use crate::deckconfig::UpdateDeckConfigsRequest;
 use crate::error::Result;
+use crate::scheduler::fsrs::params::ignore_revlogs_before_date_to_ms;
 
 impl crate::services::DeckConfigService for Collection {
     fn add_or_update_deck_config_legacy(
@@ -75,6 +76,25 @@ impl crate::services::DeckConfigService for Collection {
         input: anki_proto::deck_config::UpdateDeckConfigsRequest,
     ) -> Result<anki_proto::collection::OpChanges> {
         self.update_deck_configs(input.into()).map(Into::into)
+    }
+
+    fn get_ignored_before_count(
+        &mut self,
+        input: anki_proto::deck_config::GetIgnoredBeforeCountRequest,
+    ) -> Result<anki_proto::deck_config::GetIgnoredBeforeCountResponse> {
+        let timestamp = ignore_revlogs_before_date_to_ms(&input.ignore_revlogs_before_date)?;
+        let guard = self.search_cards_into_table(
+            &format!("{} -is:new", input.search),
+            crate::search::SortMode::NoOrder,
+        )?;
+
+        Ok(anki_proto::deck_config::GetIgnoredBeforeCountResponse {
+            included: guard
+                .col
+                .storage
+                .get_card_count_with_ignore_before(timestamp)?,
+            total: guard.cards.try_into().unwrap_or(0),
+        })
     }
 }
 

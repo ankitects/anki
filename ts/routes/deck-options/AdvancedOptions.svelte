@@ -21,6 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import DateInput from "./DateInput.svelte";
     import Warning from "./Warning.svelte";
+    import { getIgnoredBeforeCount } from "@generated/backend";
+    import type { GetIgnoredBeforeCountResponse } from "@generated/anki/deck_config_pb";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
@@ -90,6 +92,68 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $config.maximumReviewInterval < 180
             ? tr.deckConfigTooShortMaximumInterval()
             : "";
+
+    let ignoreRevlogsBeforeCount: GetIgnoredBeforeCountResponse | null = null;
+    let lastIgnoreRevlogsBeforeDate = "";
+    function updateIgnoreRevlogsBeforeCount(ignoreRevlogsBeforeDate: string) {
+        if (lastIgnoreRevlogsBeforeDate == ignoreRevlogsBeforeDate) {
+            return;
+        }
+        if (
+            cutoffUpdatedSinceLoad &&
+            ignoreRevlogsBeforeDate &&
+            ignoreRevlogsBeforeDate != "1970-01-01"
+        ) {
+            lastIgnoreRevlogsBeforeDate = ignoreRevlogsBeforeDate;
+            getIgnoredBeforeCount({
+                search:
+                    $config.paramSearch ||
+                    `preset:"${state.getCurrentNameForSearch()}" -is:suspended`,
+                ignoreRevlogsBeforeDate,
+            }).then((resp) => {
+                ignoreRevlogsBeforeCount = resp;
+            });
+        } else {
+            ignoreRevlogsBeforeCount = null;
+        }
+        cutoffUpdatedSinceLoad = true;
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+    // Running the card count check on startup is inefficient. After users have had a few months
+    // to notice + update (e.g. from ~Oct 2025), we should change this to false.
+    let cutoffUpdatedSinceLoad = true;
+    const IGNORE_REVLOG_COUNT_DELAY_MS = 1000;
+
+    $: {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            updateIgnoreRevlogsBeforeCount($config.ignoreRevlogsBeforeDate);
+        }, IGNORE_REVLOG_COUNT_DELAY_MS);
+    }
+    let ignoreRevlogsBeforeWarningClass = "alert-warning";
+    $: if (ignoreRevlogsBeforeCount) {
+        // If there is less than a tenth of reviews included
+        if (
+            Number(ignoreRevlogsBeforeCount.included) /
+                Number(ignoreRevlogsBeforeCount.total) <
+            0.1
+        ) {
+            ignoreRevlogsBeforeWarningClass = "alert-danger";
+        } else if (
+            ignoreRevlogsBeforeCount.included != ignoreRevlogsBeforeCount.total
+        ) {
+            ignoreRevlogsBeforeWarningClass = "alert-warning";
+        } else {
+            ignoreRevlogsBeforeWarningClass = "alert-info";
+        }
+    }
+    $: ignoreRevlogsBeforeWarning = ignoreRevlogsBeforeCount
+        ? tr.deckConfigIgnoreBeforeInfo({
+              included: ignoreRevlogsBeforeCount.included.toString(),
+              totalCards: ignoreRevlogsBeforeCount.total.toString(),
+          })
+        : "";
 
     let modal: Modal;
     let carousel: Carousel;
@@ -248,6 +312,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {tr.deckConfigIgnoreBefore()}
                     </SettingTitle>
                 </DateInput>
+            </Item>
+
+            <Item>
+                <Warning
+                    warning={ignoreRevlogsBeforeWarning}
+                    className={ignoreRevlogsBeforeWarningClass}
+                ></Warning>
             </Item>
         {/if}
 

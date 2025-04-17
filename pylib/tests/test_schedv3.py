@@ -537,7 +537,7 @@ def test_nextIvl():
     assert ni(c, 3) == 21600000
     # (* 100 2.5 1.3 86400)28080000.0
     assert ni(c, 4) == 28080000
-    assert without_unicode_isolation(col.sched.nextIvlStr(c, 4)) == "10.8mo"
+    assert without_unicode_isolation(col.sched.nextIvlStr(c, 4)) == "10.7mo"
 
 
 def test_bury():
