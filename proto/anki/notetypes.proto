@@ -33,6 +33,8 @@ service NotetypesService {
   rpc GetFieldNames(NotetypeId) returns (generic.StringList);
   rpc RestoreNotetypeToStock(RestoreNotetypeToStockRequest)
       returns (collection.OpChanges);
+  rpc GetNonEmptyCardIndexes(GetNonEmptyCardIndexesRequest)
+      returns (GetNonEmptyCardIndexesResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -241,4 +243,32 @@ enum ImageOcclusionField {
 enum ClozeField {
   CLOZE_FIELD_TEXT = 0;
   CLOZE_FIELD_BACK_EXTRA = 1;
+}
+
+message GetNonEmptyCardIndexesRequest {
+  int64 notetype_id = 1;
+  repeated string field_values = 2;
+}
+
+message GetNonEmptyCardIndexesResponse {
+  message GetNonEmptyCardIndexesNormalResponse {
+    enum IsEmpty {
+      EMPTY = 0;
+      NON_EMPTY = 1;
+      // The template could not be parsed.
+      ERROR = 2;
+    }
+
+    // There should be as many types as there are templates.
+    repeated IsEmpty is_empty = 1;
+  }
+
+  message GetNonEmptyCardIndexesClozeResponse {
+    repeated uint32 indexes = 1;
+  }
+
+  oneof response {
+    GetNonEmptyCardIndexesNormalResponse normal = 1;
+    GetNonEmptyCardIndexesClozeResponse cloze = 2;
+  }
 }

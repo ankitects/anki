@@ -212,6 +212,13 @@ impl crate::services::NotetypesService for Collection {
         )
         .map(Into::into)
     }
+
+    fn get_non_empty_card_indexes(
+        &mut self,
+        input: anki_proto::notetypes::GetNonEmptyCardIndexesRequest,
+    ) -> error::Result<anki_proto::notetypes::GetNonEmptyCardIndexesResponse> {
+        self.get_non_empty_card_indexes(NotetypeId(input.notetype_id), input.field_values)
+    }
 }
 
 impl From<anki_proto::notetypes::Notetype> for Notetype {
