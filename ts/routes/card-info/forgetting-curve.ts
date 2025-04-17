@@ -186,7 +186,6 @@ export function renderForgettingCurve(
     desiredRetention: number,
     decay: number,
 ) {
-    console.log("decay", decay);
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
     if (filteredRevlog.length === 0) {
