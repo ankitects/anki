@@ -59,7 +59,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: computing = computingParams || checkingParams || computingRetention;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
-    $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
+    $: desiredRetentionWarning = getRetentionWarning(
+        roundedRetention,
+        fsrsParams($config),
+    );
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     let computeRetentionProgress:
@@ -89,8 +92,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewOrder: $config.reviewOrder,
     });
 
-    function getRetentionWarning(retention: number): string {
-        const decay = -0.5;
+    function getRetentionWarning(retention: number, params: number[]): string {
+        const decay = params.length > 20 ? -params[20] : -0.5;
         const factor = 0.9 ** (1 / decay) - 1;
         const stability = 100;
         const days = Math.round(

@@ -323,7 +323,7 @@ impl crate::services::SchedulerService for Collection {
             max_ivl: simulator_config.max_ivl,
             first_rating_prob: simulator_config.first_rating_prob.to_vec(),
             review_rating_prob: simulator_config.review_rating_prob.to_vec(),
-            loss_aversion: simulator_config.loss_aversion,
+            loss_aversion: 1.0,
             learn_limit: simulator_config.learn_limit as u32,
             review_limit: simulator_config.review_limit as u32,
             learning_step_transitions: simulator_config

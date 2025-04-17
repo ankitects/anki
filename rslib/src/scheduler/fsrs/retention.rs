@@ -68,7 +68,6 @@ impl Collection {
                     max_ivl: req.max_interval as f32,
                     first_rating_prob: p.first_rating_prob,
                     review_rating_prob: p.review_rating_prob,
-                    loss_aversion: req.loss_aversion as f32,
                     learn_limit,
                     review_limit: usize::MAX,
                     new_cards_ignore_review_limit: true,

@@ -75,6 +75,7 @@ pub(crate) fn apply_load_balance_and_easy_days(
 fn create_review_priority_fn(
     review_order: ReviewCardOrder,
     deck_size: usize,
+    params: Vec<f32>,
 ) -> Option<ReviewPriorityFn> {
     // Helper macro to wrap closure in ReviewPriorityFn
     macro_rules! wrap {
@@ -91,11 +92,12 @@ fn create_review_priority_fn(
         // Interval-based ordering
         IntervalsAscending => wrap!(|c| c.interval as i32),
         IntervalsDescending => wrap!(|c| -(c.interval as i32)),
-
         // Retrievability-based ordering
-        RetrievabilityAscending => wrap!(|c| (c.retrievability() * 1000.0) as i32),
+        RetrievabilityAscending => {
+            wrap!(move |c| (c.retrievability(&params) * 1000.0) as i32)
+        }
         RetrievabilityDescending => {
-            wrap!(|c| -(c.retrievability() * 1000.0) as i32)
+            wrap!(move |c| -(c.retrievability(&params) * 1000.0) as i32)
         }
 
         // Due date ordering
@@ -181,7 +183,7 @@ impl Collection {
             .review_order
             .try_into()
             .ok()
-            .and_then(|order| create_review_priority_fn(order, deck_size));
+            .and_then(|order| create_review_priority_fn(order, deck_size, req.params.clone()));
 
         let config = SimulatorConfig {
             deck_size,
@@ -190,7 +192,6 @@ impl Collection {
             max_ivl: req.max_interval as f32,
             first_rating_prob: p.first_rating_prob,
             review_rating_prob: p.review_rating_prob,
-            loss_aversion: 1.0,
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
             new_cards_ignore_review_limit: req.new_cards_ignore_review_limit,

@@ -541,10 +541,13 @@ impl RowContext {
             .memory_state
             .as_ref()
             .zip(self.cards[0].days_since_last_review(&self.timing))
-            .map(|(state, days_elapsed)| {
-                let r = FSRS::new(None)
-                    .unwrap()
-                    .current_retrievability((*state).into(), days_elapsed);
+            .zip(Some(self.cards[0].decay.unwrap_or(0.5)))
+            .map(|((state, days_elapsed), decay)| {
+                let r = FSRS::new(None).unwrap().current_retrievability(
+                    (*state).into(),
+                    days_elapsed,
+                    decay,
+                );
                 format!("{:.0}%", r * 100.)
             })
             .unwrap_or_default()

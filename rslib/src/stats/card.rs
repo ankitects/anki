@@ -37,10 +37,11 @@ impl Collection {
         let fsrs_retrievability = card
             .memory_state
             .zip(Some(days_elapsed))
-            .map(|(state, days)| {
+            .zip(card.decay)
+            .map(|((state, days), decay)| {
                 FSRS::new(None)
                     .unwrap()
-                    .current_retrievability(state.into(), days)
+                    .current_retrievability(state.into(), days, decay)
             });
 
         let original_deck = if card.original_deck_id == DeckId(0) {
@@ -75,13 +76,14 @@ impl Collection {
             memory_state: card.memory_state.map(Into::into),
             fsrs_retrievability,
             custom_data: card.custom_data,
-            preset: preset.name,
+            preset: preset.name.clone(),
             original_deck: if original_deck != deck {
                 Some(original_deck.human_name())
             } else {
                 None
             },
             desired_retention: card.desired_retention,
+            fsrs_params: preset.fsrs_params().to_vec(),
         })
     }
 

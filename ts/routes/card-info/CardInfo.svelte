@@ -18,6 +18,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: fsrsEnabled = stats?.memoryState != null;
     $: desiredRetention = stats?.desiredRetention ?? 0.9;
+    $: decay =
+        (stats?.fsrsParams?.length ?? 0) === 0
+            ? 0.2
+            : (stats?.fsrsParams?.length ?? 0) < 21
+              ? 0.5
+              : (stats?.fsrsParams?.[20] ?? 0.2);
 </script>
 
 <Container breakpoint="md" --gutter-inline="1rem" --gutter-block="0.5rem">
@@ -33,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
         {#if fsrsEnabled}
             <Row>
-                <ForgettingCurve revlog={stats.revlog} {desiredRetention} />
+                <ForgettingCurve revlog={stats.revlog} {desiredRetention} {decay} />
             </Row>
         {/if}
     {:else}
