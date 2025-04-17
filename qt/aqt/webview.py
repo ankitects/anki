@@ -968,3 +968,21 @@ html {{ {font} }}
     @deprecated(info="use theme_manager.qcolor() instead")
     def get_window_bg_color(self, night_mode: bool | None = None) -> QColor:
         return theme_manager.qcolor(colors.CANVAS)
+
+
+def create_ankiwebview_subclass(kind: AnkiWebViewKind):
+    class Subclass(AnkiWebView):
+        def __init__(
+            self,
+            parent: QWidget | None = None,
+        ) -> None:
+            super().__init__(parent, kind=kind)
+
+    return Subclass
+
+
+# These convenience subclasses are used in qt designer ui files to
+# avoid calling AnkiWebView.set_kind after init (causes flashing)
+StatsWebView = create_ankiwebview_subclass(AnkiWebViewKind.DECK_STATS)
+EmptyCardsWebView = create_ankiwebview_subclass(AnkiWebViewKind.EMPTY_CARDS)
+FindDupesWebView = create_ankiwebview_subclass(AnkiWebViewKind.FIND_DUPLICATES)
