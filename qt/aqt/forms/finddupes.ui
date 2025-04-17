@@ -73,7 +73,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="FindDupesWebView" name="webView" native="true">
+       <widget class="AnkiWebView" name="webView" native="true">
         <property name="url" stdset="0">
          <url>
           <string notr="true">about:blank</string>
@@ -98,7 +98,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FindDupesWebView</class>
+   <class>AnkiWebView</class>
    <extends>QWidget</extends>
    <header location="global">aqt/webview</header>
    <container>1</container>

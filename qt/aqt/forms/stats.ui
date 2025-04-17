@@ -30,7 +30,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="StatsWebView" name="web" native="true">
+    <widget class="AnkiWebView" name="web" native="true">
      <property name="url" stdset="0">
       <url>
        <string notr="true">about:blank</string>
@@ -146,7 +146,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>StatsWebView</class>
+   <class>AnkiWebView</class>
    <extends>QWidget</extends>
    <header location="global">aqt/webview</header>
    <container>1</container>

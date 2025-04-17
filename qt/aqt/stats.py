@@ -71,6 +71,7 @@ class NewDeckStats(QDialog):
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
         gui_hooks.stats_dialog_will_show(self)
+        self.form.web.set_kind(AnkiWebViewKind.DECK_STATS)
         self.form.web.hide_while_preserving_layout()
         self.show()
         self.refresh()
