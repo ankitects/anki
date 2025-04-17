@@ -399,6 +399,7 @@ class AnkiWebView(QWebEngineView):
         # signal from the first one is received
         if kind != AnkiWebViewKind.DEFAULT:
             self.setPage(AnkiWebPage(self._onBridgeCmd, kind, self))
+            self.page().setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
     def page(self) -> AnkiWebPage:
         return cast(AnkiWebPage, super().page())
