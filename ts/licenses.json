@@ -57,6 +57,12 @@
         "path": "node_modules/@tootallnate/once",
         "licenseFile": "node_modules/@tootallnate/once/LICENSE"
     },
+    "@types/trusted-types@2.0.7": {
+        "licenses": "MIT",
+        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+        "path": "node_modules/@types/trusted-types",
+        "licenseFile": "node_modules/@types/trusted-types/LICENSE"
+    },
     "abab@2.0.6": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/jsdom/abab",
@@ -435,6 +441,14 @@
         "email": "d@domenic.me",
         "path": "node_modules/domexception",
         "licenseFile": "node_modules/domexception/LICENSE.txt"
+    },
+    "dompurify@3.2.5": {
+        "licenses": "(MPL-2.0 OR Apache-2.0)",
+        "repository": "https://github.com/cure53/DOMPurify",
+        "publisher": "Dr.-Ing. Mario Heiderich, Cure53",
+        "email": "mario@cure53.de",
+        "path": "node_modules/dompurify",
+        "licenseFile": "node_modules/dompurify/LICENSE"
     },
     "empty-npm-package@1.0.0": {
         "licenses": "ISC",
