@@ -461,7 +461,9 @@ export async function commitEditing(): Promise<void> {
 }
 
 export function fsrsParams(config: DeckConfig_Config): number[] {
-    if (config.fsrsParams5) {
+    if (config.fsrsParams6) {
+        return config.fsrsParams6;
+    } else if (config.fsrsParams5) {
         return config.fsrsParams5;
     } else {
         return config.fsrsParams4;

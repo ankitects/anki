@@ -106,6 +106,7 @@ impl TryFrom<anki_proto::cards::Card> for Card {
             original_position: c.original_position,
             memory_state: c.memory_state.map(Into::into),
             desired_retention: c.desired_retention,
+            decay: c.decay,
             custom_data: c.custom_data,
         })
     }
@@ -134,6 +135,7 @@ impl From<Card> for anki_proto::cards::Card {
             original_position: c.original_position,
             memory_state: c.memory_state.map(Into::into),
             desired_retention: c.desired_retention,
+            decay: c.decay,
             custom_data: c.custom_data,
         }
     }

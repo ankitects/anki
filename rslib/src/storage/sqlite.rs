@@ -325,10 +325,11 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                 let review_day = due.saturating_sub(ivl);
                 days_elapsed.saturating_sub(review_day) as u32
             };
+            let decay = card_data.decay.unwrap_or(0.5);
             Ok(card_data.memory_state().map(|state| {
                 FSRS::new(None)
                     .unwrap()
-                    .current_retrievability(state.into(), days_elapsed)
+                    .current_retrievability(state.into(), days_elapsed, decay)
             }))
         },
     )
@@ -374,10 +375,11 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                     {
                         // avoid div by zero
                         desired_retrievability = desired_retrievability.max(0.0001);
+                        let decay = card_data.decay.unwrap_or(0.5);
 
                         let current_retrievability = FSRS::new(None)
                             .unwrap()
-                            .current_retrievability(state.into(), days_elapsed)
+                            .current_retrievability(state.into(), days_elapsed, decay)
                             .max(0.0001);
 
                         return Ok(Some(

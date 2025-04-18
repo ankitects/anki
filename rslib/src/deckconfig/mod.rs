@@ -76,6 +76,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     bury_interday_learning: false,
     fsrs_params_4: vec![],
     fsrs_params_5: vec![],
+    fsrs_params_6: vec![],
     desired_retention: 0.9,
     other: Vec::new(),
     historical_retention: 0.9,
@@ -107,9 +108,11 @@ impl DeckConfig {
         self.usn = usn;
     }
 
-    /// Retrieve the FSRS 5.0 params, falling back on 4.x ones.
+    /// Retrieve the FSRS 6.0 params, falling back on 5.0 or 4.x ones.
     pub fn fsrs_params(&self) -> &Vec<f32> {
-        if self.inner.fsrs_params_5.len() == 19 {
+        if self.inner.fsrs_params_6.len() == 21 {
+            &self.inner.fsrs_params_6
+        } else if self.inner.fsrs_params_5.len() == 19 {
             &self.inner.fsrs_params_5
         } else {
             &self.inner.fsrs_params_4

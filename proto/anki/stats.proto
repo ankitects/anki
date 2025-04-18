@@ -65,6 +65,7 @@ message CardStatsResponse {
   string preset = 21;
   optional string original_deck = 22;
   optional float desired_retention = 23;
+  repeated float fsrs_params = 24;
 }
 
 message GraphsRequest {

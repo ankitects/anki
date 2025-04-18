@@ -432,17 +432,16 @@ message GetOptimalRetentionParametersResponse {
   uint32 learn_span = 2;
   float max_cost_perday = 3;
   float max_ivl = 4;
-  repeated float learn_costs = 5;
-  repeated float review_costs = 6;
-  repeated float first_rating_prob = 7;
-  repeated float review_rating_prob = 8;
-  repeated float first_rating_offsets = 9;
-  repeated float first_session_lens = 10;
-  float forget_rating_offset = 11;
-  float forget_session_len = 12;
-  float loss_aversion = 13;
-  uint32 learn_limit = 14;
-  uint32 review_limit = 15;
+  repeated float first_rating_prob = 5;
+  repeated float review_rating_prob = 6;
+  float loss_aversion = 7;
+  uint32 learn_limit = 8;
+  uint32 review_limit = 9;
+  repeated float learning_step_transitions = 10;
+  repeated float relearning_step_transitions = 11;
+  repeated float state_rating_costs = 12;
+  uint32 learning_step_count = 13;
+  uint32 relearning_step_count = 14;
 }
 
 message EvaluateParamsRequest {
