@@ -37,7 +37,7 @@ impl Collection {
         let fsrs_retrievability = card
             .memory_state
             .zip(Some(days_elapsed))
-            .zip(card.decay)
+            .zip(Some(card.decay.unwrap_or(0.5)))
             .map(|((state, days), decay)| {
                 FSRS::new(None)
                     .unwrap()
