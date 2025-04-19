@@ -10,7 +10,9 @@ import re
 import sys
 from collections.abc import Callable, Sequence
 from enum import Enum
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Type, cast
+
+from typing_extensions import TypedDict, Unpack
 
 import anki
 import anki.lang
@@ -970,20 +972,51 @@ html {{ {font} }}
         return theme_manager.qcolor(colors.CANVAS)
 
 
-def create_ankiwebview_subclass(kind: AnkiWebViewKind):
-    class Subclass(AnkiWebView):
-        def __init__(
-            self,
-            parent: QWidget | None = None,
-        ) -> None:
-            super().__init__(parent, kind=kind)
-
-    return Subclass
+# Pre-configured classes for use in Qt Designer
+##########################################################################
 
 
-# These convenience subclasses are used in qt designer ui files to
-# avoid calling AnkiWebView.set_kind after init (causes flashing)
-StatsWebView = create_ankiwebview_subclass(AnkiWebViewKind.DECK_STATS)
-LegacyStatsWebView = create_ankiwebview_subclass(AnkiWebViewKind.LEGACY_DECK_STATS)
-EmptyCardsWebView = create_ankiwebview_subclass(AnkiWebViewKind.EMPTY_CARDS)
-FindDupesWebView = create_ankiwebview_subclass(AnkiWebViewKind.FIND_DUPLICATES)
+class _AnkiWebViewKwargs(TypedDict, total=False):
+    parent: QWidget | None
+    title: str
+    kind: AnkiWebViewKind
+
+
+def _create_ankiwebview_subclass(
+    name: str,
+    /,
+    **fixed_kwargs: Unpack[_AnkiWebViewKwargs],
+) -> Type[AnkiWebView]:
+
+    def __init__(self, *args: Any, **kwargs: _AnkiWebViewKwargs) -> None:
+        # user‑supplied kwargs override fixed kwargs
+        merged = cast(_AnkiWebViewKwargs, {**fixed_kwargs, **kwargs})
+        AnkiWebView.__init__(self, *args, **merged)
+
+    __init__.__qualname__ = f"{name}.__init__"
+    if fixed_kwargs:
+        __init__.__doc__ = (
+            f"Auto‑generated wrapper that pre‑sets "
+            f"{', '.join(f'{k}={v!r}' for k, v in fixed_kwargs.items())}."
+        )
+
+    cls: Type[AnkiWebView] = type(name, (AnkiWebView,), {"__init__": __init__})
+
+    return cls
+
+
+# These subclasses are used in Qt Designer UI files to allow for configuring
+# web views at initialization time (custom widgets can otherwise only be
+# initialized with the default constructor)
+StatsWebView = _create_ankiwebview_subclass(
+    "StatsWebView", kind=AnkiWebViewKind.DECK_STATS
+)
+LegacyStatsWebView = _create_ankiwebview_subclass(
+    "LegacyStatsWebView", kind=AnkiWebViewKind.LEGACY_DECK_STATS
+)
+EmptyCardsWebView = _create_ankiwebview_subclass(
+    "EmptyCardsWebView", kind=AnkiWebViewKind.EMPTY_CARDS
+)
+FindDupesWebView = _create_ankiwebview_subclass(
+    "FindDupesWebView", kind=AnkiWebViewKind.FIND_DUPLICATES
+)
