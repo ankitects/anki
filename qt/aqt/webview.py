@@ -362,7 +362,9 @@ class AnkiWebView(QWebEngineView):
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
-        self.set_kind(kind)
+        self._kind = kind
+        self.set_title(kind.value)
+        self.setPage(AnkiWebPage(self._onBridgeCmd, kind, self))
         # reduce flicker
         self.page().setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
@@ -391,17 +393,6 @@ class AnkiWebView(QWebEngineView):
         });
         """
         )
-
-    def set_kind(self, kind: AnkiWebViewKind) -> None:
-        self._kind = kind
-        self.set_title(kind.value)
-        # this is an ugly hack to avoid breakages caused by
-        # creating a default webview then immediately calling set_kind, which results
-        # in the creation of two pages, and the second fails as the domDone
-        # signal from the first one is received
-        if kind != AnkiWebViewKind.DEFAULT:
-            self.setPage(AnkiWebPage(self._onBridgeCmd, kind, self))
-            self.page().setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
     def page(self) -> AnkiWebPage:
         return cast(AnkiWebPage, super().page())
