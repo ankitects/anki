@@ -984,5 +984,6 @@ def create_ankiwebview_subclass(kind: AnkiWebViewKind):
 # These convenience subclasses are used in qt designer ui files to
 # avoid calling AnkiWebView.set_kind after init (causes flashing)
 StatsWebView = create_ankiwebview_subclass(AnkiWebViewKind.DECK_STATS)
+LegacyStatsWebView = create_ankiwebview_subclass(AnkiWebViewKind.LEGACY_DECK_STATS)
 EmptyCardsWebView = create_ankiwebview_subclass(AnkiWebViewKind.EMPTY_CARDS)
 FindDupesWebView = create_ankiwebview_subclass(AnkiWebViewKind.FIND_DUPLICATES)

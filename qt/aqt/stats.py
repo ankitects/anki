@@ -25,7 +25,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebViewKind
+from aqt.webview import LegacyStatsWebView
 
 
 class NewDeckStats(QDialog):
@@ -153,6 +153,9 @@ class DeckStats(QDialog):
         self.name = "deckStats"
         self.period = 0
         self.form = aqt.forms.stats.Ui_Dialog()
+        # Hack: Switch out web views dynamically to avoid maintaining multiple
+        # Qt forms for different versions of the stats dialog.
+        self.form.web = LegacyStatsWebView(self.mw)
         self.oldPos = None
         self.wholeCollection = False
         self.setMinimumWidth(700)
@@ -231,7 +234,6 @@ class DeckStats(QDialog):
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.set_kind(AnkiWebViewKind.LEGACY_DECK_STATS)
         self.form.web.stdHtml(
             f"<html><body>{self.report}</body></html>",
             js=["js/vendor/jquery.min.js", "js/vendor/plot.js"],
