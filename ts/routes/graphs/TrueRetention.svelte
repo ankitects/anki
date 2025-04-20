@@ -57,9 +57,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const title = tr.statisticsTrueRetentionTitle();
     const subtitle = tr.statisticsTrueRetentionSubtitle();
-    const onTitleClick = openHelpModal(
-                            Object.keys(retentionHelp).indexOf("trueRetention"),
-                        );
+    const onTitleClick = () => {
+        openHelpModal(Object.keys(retentionHelp).indexOf("trueRetention"));
+    };
 </script>
 
 <Graph {title} {subtitle} {onTitleClick}>
