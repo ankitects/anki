@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // When title is null (default), the graph is inlined, not having TitledContainer wrapper.
     export let title: string | null = null;
     export let subtitle: string | null = null;
-    export let onTitleClick: () => void | null = null;
+    export let onTitleClick: ((_e: MouseEvent | KeyboardEvent) => void) | null = null;
 </script>
 
 {#if title == null}
