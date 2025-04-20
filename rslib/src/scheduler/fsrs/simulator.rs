@@ -114,10 +114,10 @@ fn create_review_priority_fn(
 }
 
 impl Collection {
-    pub fn simulate_review(
+    pub fn simulate_request_to_config(
         &mut self,
-        req: SimulateFsrsReviewRequest,
-    ) -> Result<SimulateFsrsReviewResponse> {
+        req: &SimulateFsrsReviewRequest,
+    ) -> Result<(SimulatorConfig, Vec<fsrs::Card>)> {
         let guard = self.search_cards_into_table(&req.search, SortMode::NoOrder)?;
         let revlogs = guard
             .col
@@ -155,7 +155,7 @@ impl Collection {
         let deck_size = converted_cards.len();
         let p = self.get_optimal_retention_parameters(revlogs)?;
 
-        let easy_days_percentages = parse_easy_days_percentages(req.easy_days_percentages)?;
+        let easy_days_percentages = parse_easy_days_percentages(&req.easy_days_percentages)?;
         let next_day_at = self.timing_today()?.next_day_at;
 
         let post_scheduling_fn: Option<PostSchedulingFn> =
@@ -204,12 +204,21 @@ impl Collection {
             post_scheduling_fn,
             review_priority_fn,
         };
+
+        Ok((config, converted_cards))
+    }
+
+    pub fn simulate_review(
+        &mut self,
+        req: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsReviewResponse> {
+        let (config, cards) = self.simulate_request_to_config(&req)?;
         let result = simulate(
             &config,
             &req.params,
             req.desired_retention,
             None,
-            Some(converted_cards),
+            Some(cards),
         )?;
         Ok(SimulateFsrsReviewResponse {
             accumulated_knowledge_acquisition: result.memorized_cnt_per_day,

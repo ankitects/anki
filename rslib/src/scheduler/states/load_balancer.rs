@@ -277,7 +277,7 @@ impl LoadBalancer {
     }
 }
 
-pub(crate) fn parse_easy_days_percentages(percentages: Vec<f32>) -> Result<[EasyDay; 7]> {
+pub(crate) fn parse_easy_days_percentages(percentages: &[f32]) -> Result<[EasyDay; 7]> {
     if percentages.is_empty() {
         return Ok([EasyDay::Normal; 7]);
     }
@@ -300,7 +300,7 @@ pub(crate) fn build_easy_days_percentages(
         .into_iter()
         .map(|(dcid, conf)| {
             let easy_days_percentages =
-                parse_easy_days_percentages(conf.inner.easy_days_percentages)?;
+                parse_easy_days_percentages(&conf.inner.easy_days_percentages)?;
             Ok((dcid, easy_days_percentages))
         })
         .collect()
