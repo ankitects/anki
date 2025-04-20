@@ -10,7 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { SimulateFsrsReviewRequest } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsParams,
-        computeOptimalRetention,
         evaluateParams,
         setWantsAbort,
     } from "@generated/backend";
@@ -23,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import GlobalLabel from "./GlobalLabel.svelte";
     import { commitEditing, fsrsParams, type DeckOptionsState } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
-    import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
     import ParamsInputRow from "./ParamsInputRow.svelte";
     import ParamsSearchRow from "./ParamsSearchRow.svelte";
@@ -33,8 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
     export let onPresetChange: () => void;
-
-    const presetName = state.currentPresetName;
 
     const config = state.currentConfig;
     const defaults = state.defaults;
@@ -47,22 +43,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let computeParamsProgress: ComputeParamsProgress | undefined;
     let computingParams = false;
     let checkingParams = false;
-    let computingRetention = false;
 
-    let optimalRetention = 0;
-    $: if ($presetName) {
-        optimalRetention = 0;
-    }
-    $: computing = computingParams || checkingParams || computingRetention;
+    $: computing = computingParams || checkingParams;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
-
-    let computeRetentionProgress:
-        | ComputeParamsProgress
-        | ComputeRetentionProgress
-        | undefined;
 
     $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
 

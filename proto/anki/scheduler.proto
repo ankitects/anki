@@ -409,16 +409,6 @@ message SimulateFsrsReviewResponse {
   repeated float daily_time_cost = 4;
 }
 
-message ComputeOptimalRetentionRequest {
-  repeated float params = 1;
-  uint32 days_to_simulate = 2;
-  uint32 max_interval = 3;
-  string search = 4;
-  double loss_aversion = 5;
-  repeated float easy_days_percentages = 6;
-  optional uint32 suspend_after_lapse_count = 7;
-}
-
 message ComputeOptimalRetentionResponse {
   float optimal_retention = 1;
 }

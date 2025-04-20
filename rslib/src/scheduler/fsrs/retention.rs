@@ -1,19 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-use std::sync::Arc;
-
-use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use fsrs::extract_simulator_config;
-use fsrs::PostSchedulingFn;
 use fsrs::SimulatorConfig;
 use fsrs::FSRS;
 
-use super::simulator::apply_load_balance_and_easy_days;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
-use crate::scheduler::states::load_balancer::parse_easy_days_percentages;
-use crate::search::SortMode;
 
 #[derive(Default, Clone, Copy, Debug)]
 pub struct ComputeRetentionProgress {

@@ -18,11 +18,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { renderSimulationChart } from "../graphs/simulator";
     import { computeOptimalRetention, simulateFsrsReview } from "@generated/backend";
     import { runWithBackendProgress } from "@tslib/progress";
-    import {
-        ComputeOptimalRetentionRequest,
+    import type {
         ComputeOptimalRetentionResponse,
-        type SimulateFsrsReviewRequest,
-        type SimulateFsrsReviewResponse,
+        SimulateFsrsReviewRequest,
+        SimulateFsrsReviewResponse,
     } from "@generated/anki/scheduler_pb";
     import type { DeckOptionsState } from "./lib";
     import SwitchRow from "$lib/components/SwitchRow.svelte";
@@ -32,7 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
     import { DeckConfig_Config_LeechAction } from "@generated/anki/deck_config_pb";
     import EasyDaysInput from "./EasyDaysInput.svelte";
-    import { ReparentTagsRequest } from "@generated/anki/tags_pb";
     import Warning from "./Warning.svelte";
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
 
@@ -65,6 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: daysToSimulate = 365;
     $: deckSize = 0;
     $: windowSize = Math.ceil(daysToSimulate / 365);
+    $: processing = simulating || computingRetention;
 
     function movingAverage(y: number[], windowSize: number): number[] {
         const result: number[] = [];
@@ -115,11 +114,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function computeRetention() {
         let resp: ComputeOptimalRetentionResponse | undefined;
-        updateRequest()
+        updateRequest();
         try {
             await runWithBackendProgress(
                 async () => {
-                    simulating = true;
+                    computingRetention = true;
                     resp = await computeOptimalRetention(simulateFsrsRequest);
                 },
                 (progress) => {
@@ -456,7 +455,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {"Save to Preset Options"}
                 </button>
 
-                {#if simulating}
+                {#if processing}
                     {tr.actionsProcessing()}
                 {/if}
 
