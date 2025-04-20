@@ -7,10 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ComputeRetentionProgress,
         type ComputeParamsProgress,
     } from "@generated/anki/collection_pb";
-    import {
-        ComputeOptimalRetentionRequest,
-        SimulateFsrsReviewRequest,
-    } from "@generated/anki/scheduler_pb";
+    import { SimulateFsrsReviewRequest } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsParams,
         computeOptimalRetention,
@@ -66,14 +63,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         | ComputeParamsProgress
         | ComputeRetentionProgress
         | undefined;
-
-    const optimalRetentionRequest = new ComputeOptimalRetentionRequest({
-        daysToSimulate: 365,
-        lossAversion: 2.5,
-    });
-    $: if (optimalRetentionRequest.daysToSimulate > 3650) {
-        optimalRetentionRequest.daysToSimulate = 3650;
-    }
 
     $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
 
@@ -230,44 +219,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    async function computeRetention(): Promise<void> {
-        if (computingRetention) {
-            await setWantsAbort({});
-            return;
-        }
-        if (state.presetAssignmentsChanged()) {
-            alert(tr.deckConfigPleaseSaveYourChangesFirst());
-            return;
-        }
-        computingRetention = true;
-        computeRetentionProgress = undefined;
-        try {
-            await runWithBackendProgress(
-                async () => {
-                    optimalRetentionRequest.maxInterval = $config.maximumReviewInterval;
-                    optimalRetentionRequest.params = fsrsParams($config);
-                    optimalRetentionRequest.search = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
-                    optimalRetentionRequest.easyDaysPercentages =
-                        $config.easyDaysPercentages;
-                    const resp = await computeOptimalRetention(optimalRetentionRequest);
-                    optimalRetention = resp.optimalRetention;
-                    computeRetentionProgress = undefined;
-                },
-                (progress) => {
-                    if (progress.value.case === "computeRetention") {
-                        computeRetentionProgress = progress.value.value;
-                    }
-                },
-            );
-        } finally {
-            computingRetention = false;
-        }
-    }
-
     $: computeParamsProgressString = renderWeightProgress(computeParamsProgress);
-    $: computeRetentionProgressString = renderRetentionProgress(
-        computeRetentionProgress,
-    );
     $: totalReviews = computeParamsProgress?.reviews ?? undefined;
 
     function renderWeightProgress(val: ComputeParamsProgress | undefined): String {
@@ -280,22 +232,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else {
             return tr.deckConfigPercentOfReviews({ pct, reviews: val.reviews });
         }
-    }
-
-    function renderRetentionProgress(
-        val: ComputeRetentionProgress | undefined,
-    ): String {
-        if (!val) {
-            return "";
-        }
-        return tr.deckConfigIterations({ count: val.current });
-    }
-
-    function estimatedRetention(retention: number): String {
-        if (!retention) {
-            return "";
-        }
-        return tr.deckConfigPredictedOptimalRetention({ num: retention.toFixed(2) });
     }
 
     async function computeAllParams(): Promise<void> {
@@ -385,49 +321,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if $fsrsReschedule}
         <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
     {/if}
-</div>
-
-<div class="m-2">
-    <details>
-        <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
-
-        <SpinBoxRow
-            bind:value={optimalRetentionRequest.daysToSimulate}
-            defaultValue={365}
-            min={1}
-            max={3650}
-        >
-            <SettingTitle on:click={() => openHelpModal("computeOptimalRetention")}>
-                {tr.deckConfigDaysToSimulate()}
-            </SettingTitle>
-        </SpinBoxRow>
-
-        <button
-            class="btn {computingRetention ? 'btn-warning' : 'btn-primary'}"
-            disabled={!computingRetention && computing}
-            on:click={() => computeRetention()}
-        >
-            {#if computingRetention}
-                {tr.actionsCancel()}
-            {:else}
-                {tr.deckConfigComputeButton()}
-            {/if}
-        </button>
-
-        {#if optimalRetention}
-            {estimatedRetention(optimalRetention)}
-            {#if optimalRetention - $config.desiredRetention >= 0.01}
-                <Warning
-                    warning={tr.deckConfigDesiredRetentionBelowOptimal()}
-                    className="alert-warning"
-                />
-            {/if}
-        {/if}
-
-        {#if computingRetention}
-            <div>{computeRetentionProgressString}</div>
-        {/if}
-    </details>
 </div>
 
 <div class="m-2">

@@ -284,7 +284,7 @@ impl crate::services::SchedulerService for Collection {
 
     fn compute_optimal_retention(
         &mut self,
-        input: ComputeOptimalRetentionRequest,
+        input: SimulateFsrsReviewRequest,
     ) -> Result<ComputeOptimalRetentionResponse> {
         Ok(ComputeOptimalRetentionResponse {
             optimal_retention: self.compute_optimal_retention(input)?,

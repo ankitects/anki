@@ -51,7 +51,7 @@ service SchedulerService {
       returns (ComputeFsrsParamsResponse);
   rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest)
       returns (GetOptimalRetentionParametersResponse);
-  rpc ComputeOptimalRetention(ComputeOptimalRetentionRequest)
+  rpc ComputeOptimalRetention(SimulateFsrsReviewRequest)
       returns (ComputeOptimalRetentionResponse);
   rpc SimulateFsrsReview(SimulateFsrsReviewRequest)
       returns (SimulateFsrsReviewResponse);

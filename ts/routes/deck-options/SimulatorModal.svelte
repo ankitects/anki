@@ -16,11 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { SimulateSubgraph, type Point } from "../graphs/simulator";
     import * as tr from "@generated/ftl";
     import { renderSimulationChart } from "../graphs/simulator";
-    import { simulateFsrsReview } from "@generated/backend";
+    import { computeOptimalRetention, simulateFsrsReview } from "@generated/backend";
     import { runWithBackendProgress } from "@tslib/progress";
-    import type {
-        SimulateFsrsReviewRequest,
-        SimulateFsrsReviewResponse,
+    import {
+        ComputeOptimalRetentionRequest,
+        ComputeOptimalRetentionResponse,
+        type SimulateFsrsReviewRequest,
+        type SimulateFsrsReviewResponse,
     } from "@generated/anki/scheduler_pb";
     import type { DeckOptionsState } from "./lib";
     import SwitchRow from "$lib/components/SwitchRow.svelte";
@@ -30,6 +32,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
     import { DeckConfig_Config_LeechAction } from "@generated/anki/deck_config_pb";
     import EasyDaysInput from "./EasyDaysInput.svelte";
+    import { ReparentTagsRequest } from "@generated/anki/tags_pb";
+    import Warning from "./Warning.svelte";
+    import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
 
     export let shown = false;
     export let state: DeckOptionsState;
@@ -53,6 +58,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let suspendLeeches = $config.leechAction == DeckConfig_Config_LeechAction.SUSPEND;
     let leechThreshold = $config.leechThreshold;
 
+    let optimalRetention: null | number = null;
+    let computingRetention = false;
+    let computeRetentionProgress: ComputeRetentionProgress | undefined = undefined;
+
     $: daysToSimulate = 365;
     $: deckSize = 0;
     $: windowSize = Math.ceil(daysToSimulate / 365);
@@ -75,14 +84,61 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return arr1.map((value, index) => value + arr2[index]);
     }
 
-    async function simulateFsrs(): Promise<void> {
-        let resp: SimulateFsrsReviewResponse | undefined;
+    function estimatedRetention(retention: number): String {
+        if (!retention) {
+            return "";
+        }
+        return tr.deckConfigPredictedOptimalRetention({ num: retention.toFixed(2) });
+    }
+
+    function updateRequest() {
         simulateFsrsRequest.daysToSimulate = daysToSimulate;
         simulateFsrsRequest.deckSize = deckSize;
         simulateFsrsRequest.suspendAfterLapseCount = suspendLeeches
             ? leechThreshold
             : undefined;
         simulateFsrsRequest.easyDaysPercentages = easyDayPercentages;
+    }
+
+    function renderRetentionProgress(
+        val: ComputeRetentionProgress | undefined,
+    ): String {
+        if (!val) {
+            return "";
+        }
+        return tr.deckConfigIterations({ count: val.current });
+    }
+
+    $: computeRetentionProgressString = renderRetentionProgress(
+        computeRetentionProgress,
+    );
+
+    async function computeRetention() {
+        let resp: ComputeOptimalRetentionResponse | undefined;
+        updateRequest()
+        try {
+            await runWithBackendProgress(
+                async () => {
+                    simulating = true;
+                    resp = await computeOptimalRetention(simulateFsrsRequest);
+                },
+                (progress) => {
+                    if (progress.value.case === "computeRetention") {
+                        computeRetentionProgress = progress.value.value;
+                    }
+                },
+            );
+        } finally {
+            simulating = false;
+            if (resp) {
+                optimalRetention = resp.optimalRetention;
+            }
+        }
+    }
+
+    async function simulateFsrs(): Promise<void> {
+        let resp: SimulateFsrsReviewResponse | undefined;
+        updateRequest();
         try {
             await runWithBackendProgress(
                 async () => {
@@ -327,6 +383,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         </SpinBoxRow>
                     {/if}
                 </details>
+
+                <div class="m-2">
+                    <details>
+                        <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
+                        <button
+                            class="btn {computingRetention
+                                ? 'btn-warning'
+                                : 'btn-primary'}"
+                            disabled={!computingRetention && computing}
+                            on:click={() => computeRetention()}
+                        >
+                            {#if computingRetention}
+                                {tr.actionsCancel()}
+                            {:else}
+                                {tr.deckConfigComputeButton()}
+                            {/if}
+                        </button>
+
+                        {#if optimalRetention}
+                            {estimatedRetention(optimalRetention)}
+                            {#if optimalRetention - $config.desiredRetention >= 0.01}
+                                <Warning
+                                    warning={tr.deckConfigDesiredRetentionBelowOptimal()}
+                                    className="alert-warning"
+                                />
+                            {/if}
+                        {/if}
+
+                        {#if computingRetention}
+                            <div>{computeRetentionProgressString}</div>
+                        {/if}
+                    </details>
+                </div>
 
                 <button
                     class="btn {computing ? 'btn-warning' : 'btn-primary'}"
