@@ -1173,14 +1173,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/kit@npm:^2.8.3":
-  version: 2.8.3
-  resolution: "@sveltejs/kit@npm:2.8.3"
+"@sveltejs/kit@npm:^2.20.7":
+  version: 2.20.7
+  resolution: "@sveltejs/kit@npm:2.20.7"
   dependencies:
     "@types/cookie": "npm:^0.6.0"
     cookie: "npm:^0.6.0"
     devalue: "npm:^5.1.0"
-    esm-env: "npm:^1.0.0"
+    esm-env: "npm:^1.2.2"
     import-meta-resolve: "npm:^4.1.0"
     kleur: "npm:^4.1.5"
     magic-string: "npm:^0.30.5"
@@ -1188,14 +1188,13 @@ __metadata:
     sade: "npm:^1.8.1"
     set-cookie-parser: "npm:^2.6.0"
     sirv: "npm:^3.0.0"
-    tiny-glob: "npm:^0.2.9"
   peerDependencies:
-    "@sveltejs/vite-plugin-svelte": ^3.0.0 || ^4.0.0-next.1
+    "@sveltejs/vite-plugin-svelte": ^3.0.0 || ^4.0.0-next.1 || ^5.0.0
     svelte: ^4.0.0 || ^5.0.0-next.0
-    vite: ^5.0.3
+    vite: ^5.0.3 || ^6.0.0
   bin:
     svelte-kit: svelte-kit.js
-  checksum: 10c0/ffd15835c807f5d9401ef26b2bd9ac6603f46647c2b51ea9b8f9a43d64f8e549c44fb2274e10ca527362d8fda011c1fb814ea5a0287a024a8051349e5e2873d4
+  checksum: 10c0/f1c0e477e981b5dc3fd04bd636e68f77c1947bd4b7200914b1b3553095f34ed9ca249765be7e04e89b21ebeb58227546fd807238f558c0d6e7d6559e4ee61b26
   languageName: node
   linkType: hard
 
@@ -1662,6 +1661,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/trusted-types@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "@types/trusted-types@npm:2.0.7"
+  checksum: 10c0/4c4855f10de7c6c135e0d32ce462419d8abbbc33713b31d294596c0cc34ae1fa6112a2f9da729c8f7a20707782b0d69da3b1f8df6645b0366d08825ca1522e0c
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/eslint-plugin@npm:^5.60.1":
   version: 5.62.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.62.0"
@@ -1997,7 +2003,7 @@ __metadata:
     "@popperjs/core": "npm:^2.11.8"
     "@sqltools/formatter": "npm:^1.2.2"
     "@sveltejs/adapter-static": "npm:^3.0.0"
-    "@sveltejs/kit": "npm:^2.8.3"
+    "@sveltejs/kit": "npm:^2.20.7"
     "@sveltejs/vite-plugin-svelte": "npm:4.0.0"
     "@types/bootstrap": "npm:^5.0.12"
     "@types/codemirror": "npm:^5.60.0"
@@ -2018,10 +2024,11 @@ __metadata:
     cross-env: "npm:^7.0.2"
     d3: "npm:^7.0.0"
     diff: "npm:^5.0.0"
+    dompurify: "npm:^3.2.5"
     dprint: "npm:^0.47.2"
     esbuild: "npm:^0.25.0"
     esbuild-sass-plugin: "npm:^2"
-    esbuild-svelte: "npm:^0.8.1"
+    esbuild-svelte: "npm:^0.9.2"
     eslint: "npm:^8.44.0"
     eslint-plugin-compat: "npm:^4.1.4"
     eslint-plugin-import: "npm:^2.25.4"
@@ -2047,7 +2054,7 @@ __metadata:
     tslib: "npm:^2.0.3"
     tsx: "npm:^3.12.0"
     typescript: "npm:^5.0.4"
-    vite: "npm:^5.4.17"
+    vite: "npm:5.4.18"
     vitest: "npm:^2"
   languageName: unknown
   linkType: soft
@@ -3169,6 +3176,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dompurify@npm:^3.2.5":
+  version: 3.2.5
+  resolution: "dompurify@npm:3.2.5"
+  dependencies:
+    "@types/trusted-types": "npm:^2.0.7"
+  dependenciesMeta:
+    "@types/trusted-types":
+      optional: true
+  checksum: 10c0/b564167cc588933ad2d25c185296716bdd7124e9d2a75dac76efea831bb22d1230ce5205a1ab6ce4c1010bb32ac35f7a5cb2dd16c78cbf382111f1228362aa59
+  languageName: node
+  linkType: hard
+
 "domutils@npm:^3.0.1":
   version: 3.1.0
   resolution: "domutils@npm:3.1.0"
@@ -3409,15 +3428,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild-svelte@npm:^0.8.1":
-  version: 0.8.2
-  resolution: "esbuild-svelte@npm:0.8.2"
+"esbuild-svelte@npm:^0.9.2":
+  version: 0.9.2
+  resolution: "esbuild-svelte@npm:0.9.2"
   dependencies:
     "@jridgewell/trace-mapping": "npm:^0.3.19"
   peerDependencies:
-    esbuild: ">=0.9.6"
-    svelte: ">=3.43.0 <6 || ^5.0.0-next.0"
-  checksum: 10c0/4b4f11a2d851fb819826404a4971ea874472bfeda5a11387e62bdb4e3d114b4fd82b23b8ab83c82cab71a2afa8767a4075c121f4709240a9f373b19c03bd97e6
+    esbuild: ">=0.17.0"
+    svelte: ">=4.2.1 <6"
+  checksum: 10c0/391141420f7806b45c774e0448a35706e242d71651bc4362f9aed300d6238ad0fa22bfeabdc3ca45c8e62b89eba641c0edee905980f2760aa6d281c01ee112a8
   languageName: node
   linkType: hard
 
@@ -3876,14 +3895,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esm-env@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "esm-env@npm:1.0.0"
-  checksum: 10c0/6ea0001410224ebc18de4a83ce97dbdca6abc83ea4bbe91625aa3aead70793bb98dfa089f38e2cc5c13b7b025668d0649d5e25f2f9e8cca0f4aa3ad3406870d0
-  languageName: node
-  linkType: hard
-
-"esm-env@npm:^1.2.1":
+"esm-env@npm:^1.2.1, esm-env@npm:^1.2.2":
   version: 1.2.2
   resolution: "esm-env@npm:1.2.2"
   checksum: 10c0/3d25c973f2fd69c25ffff29c964399cea573fe10795ecc1d26f6f957ce0483d3254e1cceddb34bf3296a0d7b0f1d53a28992f064ba509dfe6366751e752c4166
@@ -4284,13 +4296,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globalyzer@npm:0.1.0":
-  version: 0.1.0
-  resolution: "globalyzer@npm:0.1.0"
-  checksum: 10c0/e16e47a5835cbe8a021423d4c7fcd9f5f85815b4190a7f50c1fdb95fc559d72e4fb30be96f106c66a99413f36d72da0f8323d19d27f60a8feec9d936139ec5a8
-  languageName: node
-  linkType: hard
-
 "globby@npm:^11.1.0":
   version: 11.1.0
   resolution: "globby@npm:11.1.0"
@@ -4302,13 +4307,6 @@ __metadata:
     merge2: "npm:^1.4.1"
     slash: "npm:^3.0.0"
   checksum: 10c0/b39511b4afe4bd8a7aead3a27c4ade2b9968649abab0a6c28b1a90141b96ca68ca5db1302f7c7bd29eab66bf51e13916b8e0a3d0ac08f75e1e84a39b35691189
-  languageName: node
-  linkType: hard
-
-"globrex@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "globrex@npm:0.1.2"
-  checksum: 10c0/a54c029520cf58bda1d8884f72bd49b4cd74e977883268d931fd83bcbd1a9eb96d57c7dbd4ad80148fb9247467ebfb9b215630b2ed7563b2a8de02e1ff7f89d1
   languageName: node
   linkType: hard
 
@@ -6702,16 +6700,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tiny-glob@npm:^0.2.9":
-  version: 0.2.9
-  resolution: "tiny-glob@npm:0.2.9"
-  dependencies:
-    globalyzer: "npm:0.1.0"
-    globrex: "npm:^0.1.2"
-  checksum: 10c0/cbe072f0d213a1395d30aa94845a051d4af18fe8ffb79c8e99ac1787cd25df69083f17791a53997cb65f469f48950cb61426ccc0683cc9df170ac2430e883702
-  languageName: node
-  linkType: hard
-
 "tinybench@npm:^2.9.0":
   version: 2.9.0
   resolution: "tinybench@npm:2.9.0"
@@ -7062,6 +7050,49 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vite@npm:5.4.18":
+  version: 5.4.18
+  resolution: "vite@npm:5.4.18"
+  dependencies:
+    esbuild: "npm:^0.21.3"
+    fsevents: "npm:~2.3.3"
+    postcss: "npm:^8.4.43"
+    rollup: "npm:^4.20.0"
+  peerDependencies:
+    "@types/node": ^18.0.0 || >=20.0.0
+    less: "*"
+    lightningcss: ^1.21.0
+    sass: "*"
+    sass-embedded: "*"
+    stylus: "*"
+    sugarss: "*"
+    terser: ^5.4.0
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  peerDependenciesMeta:
+    "@types/node":
+      optional: true
+    less:
+      optional: true
+    lightningcss:
+      optional: true
+    sass:
+      optional: true
+    sass-embedded:
+      optional: true
+    stylus:
+      optional: true
+    sugarss:
+      optional: true
+    terser:
+      optional: true
+  bin:
+    vite: bin/vite.js
+  checksum: 10c0/a8cbbec6bdf399e62c386d70b8485e4f2f1b427beb19bc7c5d52b402a0c3750b7ff469fc20a8333755ea13bc1b0af5df3f22c8fd37d1739ee51d709b7a4740b6
+  languageName: node
+  linkType: hard
+
 "vite@npm:^5.0.0":
   version: 5.4.14
   resolution: "vite@npm:5.4.14"
@@ -7102,49 +7133,6 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/8842933bd70ca6a98489a0bb9c8464bec373de00f9a97c8c7a4e64b24d15c88bfaa8c1acb38a68c3e5eb49072ffbccb146842c2d4edcdd036a9802964cffe3d1
-  languageName: node
-  linkType: hard
-
-"vite@npm:^5.4.17":
-  version: 5.4.17
-  resolution: "vite@npm:5.4.17"
-  dependencies:
-    esbuild: "npm:^0.21.3"
-    fsevents: "npm:~2.3.3"
-    postcss: "npm:^8.4.43"
-    rollup: "npm:^4.20.0"
-  peerDependencies:
-    "@types/node": ^18.0.0 || >=20.0.0
-    less: "*"
-    lightningcss: ^1.21.0
-    sass: "*"
-    sass-embedded: "*"
-    stylus: "*"
-    sugarss: "*"
-    terser: ^5.4.0
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  peerDependenciesMeta:
-    "@types/node":
-      optional: true
-    less:
-      optional: true
-    lightningcss:
-      optional: true
-    sass:
-      optional: true
-    sass-embedded:
-      optional: true
-    stylus:
-      optional: true
-    sugarss:
-      optional: true
-    terser:
-      optional: true
-  bin:
-    vite: bin/vite.js
-  checksum: 10c0/3322bd6d8da30cbc87b1b24cd14fdbca75abb36de81217d1062c8b4c574a1a0d28d11dfe23a3eed08b3d179d2bdc1510e0d7b9f3e1b722a45bd7631c7cec72eb
   languageName: node
   linkType: hard
 

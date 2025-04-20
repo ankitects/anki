@@ -33,7 +33,7 @@ use crate::search::SortMode;
 
 pub(crate) type Params = Vec<f32>;
 
-fn ignore_revlogs_before_date_to_ms(
+pub(crate) fn ignore_revlogs_before_date_to_ms(
     ignore_revlogs_before_date: &String,
 ) -> Result<TimestampMillis> {
     Ok(match ignore_revlogs_before_date {
