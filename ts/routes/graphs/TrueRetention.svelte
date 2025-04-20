@@ -55,6 +55,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         url={HelpPage.DeckOptions.fsrs}
         slot="tooltip"
         {helpSections}
+        on:mount={(e) => {
+            modal = e.detail.modal;
+            carousel = e.detail.carousel;
+        }}
     />
     <InputBox>
         <label>
