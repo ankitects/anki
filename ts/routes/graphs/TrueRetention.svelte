@@ -7,6 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { HelpPage } from "@tslib/help-page";
     import HelpModal from "$lib/components/HelpModal.svelte";
+    import type Carousel from "bootstrap/js/dist/carousel";
+    import type Modal from "bootstrap/js/dist/modal";
     import type { HelpItem } from "$lib/components/types";
 
     import { type RevlogRange } from "./graph-helpers";
@@ -42,6 +44,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     const helpSections: HelpItem[] = Object.values(retentionHelp);
+
+    let modal: Modal;
+    let carousel: Carousel;
+
+    function openHelpModal(index: number): void {
+        modal.show();
+        carousel.to(index);
+    }
 
     let mode: DisplayMode = $state(DisplayMode.Summary);
 
