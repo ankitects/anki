@@ -15,7 +15,6 @@ from anki.collection import EmptyCardsReport
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, qconnect
 from aqt.utils import disable_help_button, restoreGeom, saveGeom, tooltip, tr
-from aqt.webview import AnkiWebViewKind
 
 
 def show_empty_cards(mw: aqt.main.AnkiQt) -> None:
@@ -47,7 +46,6 @@ class EmptyCardsDialog(QDialog):
         self.setWindowTitle(tr.empty_cards_window_title())
         disable_help_button(self)
         self.form.keep_notes.setText(tr.empty_cards_preserve_notes_checkbox())
-        self.form.webview.set_kind(AnkiWebViewKind.EMPTY_CARDS)
         self.form.webview.set_bridge_command(self._on_note_link_clicked, self)
 
         gui_hooks.empty_cards_will_show(self)
