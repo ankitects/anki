@@ -126,8 +126,10 @@ impl Collection {
         let mut cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
         fn is_included_card(c: &Card) -> bool {
-            c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat && c.queue != CardQueue::New
-        } 
+            c.queue != CardQueue::Suspended
+                && c.queue != CardQueue::PreviewRepeat
+                && c.queue != CardQueue::New
+        }
         for c in &mut cards {
             if is_included_card(c) && c.memory_state.is_none() {
                 let original = c.clone();
