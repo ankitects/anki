@@ -597,6 +597,7 @@ typing-extensions==4.12.2 \
     --hash=sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d \
     --hash=sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8
     # via
+    #   -r requirements.anki.in
     #   astroid
     #   black
     #   fluent-syntax

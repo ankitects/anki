@@ -382,6 +382,10 @@ tomli==2.0.1 \
     # via
     #   build
     #   pip-tools
+typing-extensions==4.13.2 \
+    --hash=sha256:a439e7c04b49fec3e5d3e2beaa21755cadbbdc391694e28ccdd36ca4a1408f8c \
+    --hash=sha256:e6c81219bd689f51865d9e372991c540bda33a0379d5573cddb9a3a23f7caaef
+    # via -r requirements.anki.in
 urllib3==2.2.2 \
     --hash=sha256:a448b2f64d686155468037e1ace9f2d2199776e17f0a46610480d311f73e3472 \
     --hash=sha256:dd505485549a7a552833da5e6063639d0d177c04f23bc3864e41e5dc5f612168
