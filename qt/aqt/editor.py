@@ -320,7 +320,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             label_element = cmd
 
         title_attribute = shortcut(title_attribute)
-        cmd_to_toggle_button = "toggleEditorButton(this);" if toggleable else ""
         id_attribute_assignment = f"id={id}" if id else ""
         class_attribute = "linkb" if rightside else "rounded"
         if not disables:
@@ -328,11 +327,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         return f"""<button tabindex=-1
                         {id_attribute_assignment}
-                        class="{class_attribute}"
+                        class="anki-addon-button {class_attribute}"
                         type="button"
                         title="{title_attribute}"
-                        onclick="pycmd('{cmd}');{cmd_to_toggle_button}return false;"
-                        onmousedown="window.event.preventDefault();"
+                        data-cantoggle="{int(toggleable)}"
+                        data-command="{cmd}"
                 >
                     {image_element}
                     {label_element}
