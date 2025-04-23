@@ -5,5 +5,4 @@ export * from "./content-editable";
 export * from "./location";
 export * from "./move-nodes";
 export * from "./place-caret";
-export * from "./sanitize";
 export * from "./surround";
