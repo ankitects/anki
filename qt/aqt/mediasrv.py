@@ -141,14 +141,17 @@ class MediaServer(threading.Thread):
     ) -> None:
         self._legacy_pages[id] = LegacyPage(html, context)
 
+    def get_page(self, id: int) -> LegacyPage | None:
+        return self._legacy_pages.get(id)
+
     def get_page_html(self, id: int) -> str | None:
-        if page := self._legacy_pages.get(id):
+        if page := self.get_page(id):
             return page.html
         else:
             return None
 
     def get_page_context(self, id: int) -> PageContext | None:
-        if page := self._legacy_pages.get(id):
+        if page := self.get_page(id):
             return page.context
         else:
             return None
@@ -742,8 +745,17 @@ def _handle_dynamic_request(req: DynamicRequest) -> Response:
 
 def legacy_page_data() -> Response:
     id = int(request.args["id"])
-    if html := aqt.mw.mediaServer.get_page_html(id):
-        return Response(html, mimetype="text/html")
+    page = aqt.mw.mediaServer.get_page(id)
+    if page:
+        response = Response(page.html, mimetype="text/html")
+        # Prevent JS in field content from being executed in the editor, as it would
+        # have access to our internal API, and is a security risk.
+        if page.context == PageContext.EDITOR:
+            port = aqt.mw.mediaServer.getPort()
+            response.headers["Content-Security-Policy"] = (
+                f"script-src http://127.0.0.1:{port}/_anki/"
+            )
+        return response
     else:
         return _text_response(HTTPStatus.NOT_FOUND, "page not found")
 

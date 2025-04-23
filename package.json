@@ -69,7 +69,6 @@
         "bootstrap-icons": "^1.10.5",
         "codemirror": "^5.63.1",
         "d3": "^7.0.0",
-        "dompurify": "^3.2.5",
         "fabric": "^5.3.0",
         "hammerjs": "^2.0.8",
         "intl-pluralrules": "^2.0.0",
