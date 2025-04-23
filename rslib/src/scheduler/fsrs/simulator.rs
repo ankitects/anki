@@ -123,8 +123,14 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        let cards = guard.col.storage.all_searched_cards()?;
+        let mut cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
+        for card in &mut cards {
+            if card.memory_state.is_none() {
+                let new_state = self.compute_memory_state(card.id)?.state;
+                card.memory_state = new_state.map(Into::into);
+            }
+        }
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let new_cards = cards
             .iter()
