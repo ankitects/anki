@@ -71,7 +71,7 @@ impl NormalSyncer<'_> {
         let local = self.col.sync_meta()?;
         let local_bytes = local.collection_bytes;
         let limit = *MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
-        if local.collection_bytes > limit {
+        if self.server.endpoint.as_str().contains("ankiweb") && local.collection_bytes > limit {
             return Err(AnkiError::sync_error(
                 format!("{local_bytes} > {limit}"),
                 SyncErrorKind::UploadTooLarge,
