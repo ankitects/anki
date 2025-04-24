@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // When title is null (default), the graph is inlined, not having TitledContainer wrapper.
     export let title: string | null = null;
     export let subtitle: string | null = null;
+    export let onTitleClick: ((_e: MouseEvent | KeyboardEvent) => void) | null = null;
 </script>
 
 {#if title == null}
@@ -18,7 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <slot />
     </div>
 {:else}
-    <TitledContainer class="d-flex flex-column" {title}>
+    <TitledContainer class="d-flex flex-column" {title} {onTitleClick}>
+        <slot slot="tooltip" name="tooltip"></slot>
         <div class="graph d-flex flex-grow-1 flex-column justify-content-center">
             {#if subtitle}
                 <div class="subtitle">{subtitle}</div>

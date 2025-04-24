@@ -114,6 +114,7 @@ statistics-counts-separate-suspended-buried-cards = Separate suspended/buried ca
 
 statistics-true-retention-title = True Retention
 statistics-true-retention-subtitle = Pass rate of cards with an interval ≥ 1 day.
+statistics-true-retention-tooltip = If you are using FSRS, your true retention is expected to be close to your desired retention. Please keep in mind that data for a single day is noisy, so it's better to look at monthly data.
 statistics-true-retention-range = Range
 statistics-true-retention-pass = Pass
 statistics-true-retention-fail = Fail
