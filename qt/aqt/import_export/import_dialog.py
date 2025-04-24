@@ -12,7 +12,7 @@ import aqt.deckconf
 import aqt.main
 import aqt.operations
 from aqt.qt import *
-from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
+from aqt.utils import add_close_shortcut, disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
@@ -62,7 +62,7 @@ class ImportDialog(QDialog):
         self.setMinimumSize(*self.MIN_SIZE)
         disable_help_button(self)
         restoreGeom(self, self.args.title, default_size=self.DEFAULT_SIZE)
-        addCloseShortcut(self)
+        add_close_shortcut(self)
 
         self.web: AnkiWebView | None = AnkiWebView(kind=self.args.kind)
         self.web.setVisible(False)
