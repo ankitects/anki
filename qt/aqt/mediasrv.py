@@ -752,8 +752,12 @@ def legacy_page_data() -> Response:
         # have access to our internal API, and is a security risk.
         if page.context == PageContext.EDITOR:
             port = aqt.mw.mediaServer.getPort()
+            csp_paths = (
+                f"http://127.0.0.1:{port}/_anki/",
+                f"http://127.0.0.1:{port}/_addons/",
+            )
             response.headers["Content-Security-Policy"] = (
-                f"script-src http://127.0.0.1:{port}/_anki/"
+                f"script-src {' '.join(csp_paths)}"
             )
         return response
     else:
