@@ -10,7 +10,7 @@ from anki.decks import DeckDict
 from aqt.operations import QueryOp
 from aqt.operations.deck import update_deck_dict
 from aqt.qt import *
-from aqt.utils import addCloseShortcut, disable_help_button, restoreGeom, saveGeom, tr
+from aqt.utils import add_close_shortcut, disable_help_button, restoreGeom, saveGeom, tr
 
 
 class DeckDescriptionDialog(QDialog):
@@ -45,7 +45,7 @@ class DeckDescriptionDialog(QDialog):
         self.setMinimumWidth(400)
         disable_help_button(self)
         restoreGeom(self, self.TITLE)
-        addCloseShortcut(self)
+        add_close_shortcut(self)
 
         box = QVBoxLayout()
 
