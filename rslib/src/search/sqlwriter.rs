@@ -555,7 +555,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_all_fields(&mut self, val: &str) {
-        self.args.push(format!("(?i)^{}$", to_re(val)));
+        self.args.push(format!("(?is)^{}$", to_re(val)));
         write!(self.sql, "regexp_fields(?{}, n.flds)", self.args.len()).unwrap();
     }
 
