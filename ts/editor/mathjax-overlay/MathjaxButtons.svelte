@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ClozeButtons from "../ClozeButtons.svelte";
 
     export let isBlock: boolean;
+    export let isClozeField: boolean;
 
     const dispatch = createEventDispatcher();
 </script>
@@ -40,7 +41,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </IconButton>
     </ButtonGroup>
 
-    <ClozeButtons on:surround alwaysEnabled={true} />
+    {#if isClozeField}
+        <ClozeButtons on:surround alwaysEnabled={true} />
+    {/if}
 
     <ButtonGroup>
         <IconButton
