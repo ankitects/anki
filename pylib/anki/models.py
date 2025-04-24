@@ -281,6 +281,10 @@ class ModelManager(DeprecatedNamesMixin):
     def sort_idx(self, notetype: NotetypeDict) -> int:
         return notetype["sortf"]
 
+    def cloze_fields(self, mid: NotetypeId) -> Sequence[int]:
+        """The list of index of fields that are used by cloze deletion in the note type with id `mid`."""
+        return self.col._backend.get_cloze_field_ords(mid)
+
     # Adding & changing fields
     ##################################################
 
