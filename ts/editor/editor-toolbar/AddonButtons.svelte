@@ -4,8 +4,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import { bridgeCommand } from "@tslib/bridgecommand";
+    import { toggleEditorButton } from "../old-editor-adapter";
+    import { singleCallback } from "@tslib/typing";
+    import { on } from "@tslib/events";
 
-    export let buttons: string[];
+    const { buttons } = $props<{ buttons: string[] }>();
+
+    $effect(() => {
+        // Each time the buttons are changed...
+        buttons;
+
+        // Add event handlers to each button
+        const addonButtons = document.querySelectorAll(".anki-addon-button");
+        const cbs = [...addonButtons].map((button) =>
+            singleCallback(
+                on(button, "click", () => {
+                    const command = button.getAttribute("data-command");
+                    if (command) {
+                        bridgeCommand(command);
+                    }
+                    const toggleable = button.getAttribute("data-cantoggle");
+                    if (toggleable === "1") {
+                        toggleEditorButton(button as HTMLButtonElement);
+                    }
+
+                    return false;
+                }),
+                on(button as HTMLButtonElement, "mousedown", (evt) => {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                }),
+            ),
+        );
+
+        return singleCallback(...cbs);
+    });
 
     const radius = "5px";
     function getBorderRadius(index: number, length: number): string {
