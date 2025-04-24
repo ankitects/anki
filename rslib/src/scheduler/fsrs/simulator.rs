@@ -123,8 +123,22 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        let cards = guard.col.storage.all_searched_cards()?;
+        let mut cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
+        fn is_included_card(c: &Card) -> bool {
+            c.queue != CardQueue::Suspended
+                && c.queue != CardQueue::PreviewRepeat
+                && c.queue != CardQueue::New
+        }
+        // calculate any missing memory state
+        for c in &mut cards {
+            if is_included_card(c) && c.memory_state.is_none() {
+                let original = c.clone();
+                let new_state = self.compute_memory_state(c.id)?.state;
+                c.memory_state = new_state.map(Into::into);
+                self.update_card_inner(c, original, self.usn()?)?;
+            }
+        }
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let new_cards = cards
             .iter()
@@ -133,7 +147,7 @@ impl Collection {
             + req.deck_size as usize;
         let mut converted_cards = cards
             .into_iter()
-            .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
+            .filter(is_included_card)
             .filter_map(|c| Card::convert(c, days_elapsed))
             .collect_vec();
         let introduced_today_count = self
