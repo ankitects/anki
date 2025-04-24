@@ -5,6 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { GraphsResponse } from "@generated/anki/stats_pb";
     import * as tr from "@generated/ftl";
+    import { HelpPage } from "@tslib/help-page";
+    import HelpModal from "$lib/components/HelpModal.svelte";
+    import type Carousel from "bootstrap/js/dist/carousel";
+    import type Modal from "bootstrap/js/dist/modal";
+    import type { HelpItem } from "$lib/components/types";
 
     import { type RevlogRange } from "./graph-helpers";
     import { DisplayMode, type PeriodTrueRetentionData, Scope } from "./true-retention";
@@ -31,13 +36,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     });
 
+    const retentionHelp = {
+        trueRetention: {
+            title: tr.statisticsTrueRetentionTitle(),
+            help: tr.statisticsTrueRetentionTooltip(),
+        },
+    };
+
+    const helpSections: HelpItem[] = Object.values(retentionHelp);
+
+    let modal: Modal;
+    let carousel: Carousel;
+
+    function openHelpModal(index: number): void {
+        modal.show();
+        carousel.to(index);
+    }
+
     let mode: DisplayMode = $state(DisplayMode.Summary);
 
     const title = tr.statisticsTrueRetentionTitle();
     const subtitle = tr.statisticsTrueRetentionSubtitle();
+    const onTitleClick = () => {
+        openHelpModal(Object.keys(retentionHelp).indexOf("trueRetention"));
+    };
 </script>
 
-<Graph {title} {subtitle}>
+<Graph {title} {subtitle} {onTitleClick}>
+    <HelpModal
+        title={tr.statisticsTrueRetentionTitle()}
+        url={HelpPage.DeckOptions.fsrs}
+        slot="tooltip"
+        {helpSections}
+        on:mount={(e) => {
+            modal = e.detail.modal;
+            carousel = e.detail.carousel;
+        }}
+    />
     <InputBox>
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Young} />
