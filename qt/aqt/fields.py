@@ -15,7 +15,7 @@ from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.utils import (
     HelpPage,
-    addCloseShortcut,
+    add_close_shortcut,
     askUser,
     disable_help_button,
     getOnlyText,
@@ -51,7 +51,7 @@ class FieldDialog(QDialog):
             without_unicode_isolation(tr.fields_fields_for(val=self.model["name"]))
         )
 
-        addCloseShortcut(self)
+        add_close_shortcut(self)
         disable_help_button(self)
         help_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help)
         assert help_button is not None

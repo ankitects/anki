@@ -19,7 +19,7 @@ from aqt import gui_hooks
 from aqt.errors import show_exception
 from aqt.qt import *
 from aqt.utils import (
-    addCloseShortcut,
+    add_close_shortcut,
     checkInvalidFilename,
     disable_help_button,
     getSaveFile,
@@ -47,7 +47,7 @@ class ExportDialog(QDialog):
         self.cids = cids
         disable_help_button(self)
         self.setup(did)
-        addCloseShortcut(self)
+        add_close_shortcut(self)
         self.exec()
 
     def setup(self, did: DeckId | None) -> None:

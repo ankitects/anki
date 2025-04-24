@@ -560,7 +560,7 @@ def getText(
     d = GetTextDialog(
         parent, prompt, help=help, edit=edit, default=default, title=title, **kwargs
     )
-    addCloseShortcut(d)
+    add_close_shortcut(d)
     d.setWindowModality(Qt.WindowModality.WindowModal)
     if geomKey:
         restoreGeom(d, geomKey)
@@ -987,14 +987,6 @@ def maybeHideClose(bbox: QDialogButtonBox) -> None:
         b = bbox.button(QDialogButtonBox.StandardButton.Close)
         if b:
             bbox.removeButton(b)
-
-
-def addCloseShortcut(widg: QDialog) -> None:
-    if not is_mac:
-        return
-    shortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
-    qconnect(shortcut.activated, widg.reject)
-    setattr(widg, "_closeShortcut", shortcut)
 
 
 def add_close_shortcut(widg: QWidget) -> None:

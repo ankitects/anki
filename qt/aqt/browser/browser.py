@@ -57,8 +57,8 @@ from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
+    add_close_shortcut,
     add_ellipsis_to_action_label,
-    addCloseShortcut,
     current_window,
     ensure_editor_saved,
     getTag,
@@ -1093,7 +1093,7 @@ class Browser(QMainWindow):
         dialog.setWindowTitle(tr.actions_grade_now())
         layout = QHBoxLayout()
         dialog.setLayout(layout)
-        addCloseShortcut(dialog)
+        add_close_shortcut(dialog)
 
         # Add grade buttons
         for ease, label in [

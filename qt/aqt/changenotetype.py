@@ -15,7 +15,7 @@ from anki.notes import NoteId
 from aqt.operations.notetype import change_notetype_of_notes
 from aqt.qt import *
 from aqt.utils import (
-    addCloseShortcut,
+    add_close_shortcut,
     disable_help_button,
     restoreGeom,
     saveGeom,
@@ -49,7 +49,7 @@ class ChangeNotetypeDialog(QDialog):
         self.setMinimumSize(400, 300)
         disable_help_button(self)
         restoreGeom(self, self.TITLE, default_size=(800, 800))
-        addCloseShortcut(self)
+        add_close_shortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.CHANGE_NOTETYPE)
         self.web.setVisible(False)

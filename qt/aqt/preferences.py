@@ -22,7 +22,7 @@ from aqt.sync import sync_login
 from aqt.theme import Theme
 from aqt.utils import (
     HelpPage,
-    addCloseShortcut,
+    add_close_shortcut,
     askUser,
     disable_help_button,
     is_win,
@@ -65,7 +65,7 @@ class Preferences(QDialog):
         self.setup_profile()
         self.setup_global()
         self.setup_configurable_answer_keys()
-        addCloseShortcut(self)
+        add_close_shortcut(self)
         self.show()
 
     def setup_configurable_answer_keys(self):

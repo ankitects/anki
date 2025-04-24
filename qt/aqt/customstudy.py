@@ -15,7 +15,7 @@ from aqt.operations import QueryOp
 from aqt.operations.scheduling import custom_study
 from aqt.qt import *
 from aqt.taglimit import TagLimit
-from aqt.utils import addCloseShortcut, disable_help_button, tr
+from aqt.utils import add_close_shortcut, disable_help_button, tr
 
 RADIO_NEW = 1
 RADIO_REV = 2
@@ -63,7 +63,7 @@ class CustomStudy(QDialog):
         self.form.setupUi(self)
         disable_help_button(self)
         self.setupSignals()
-        addCloseShortcut(self)
+        add_close_shortcut(self)
         self.form.radioNew.click()
         self.open()
 

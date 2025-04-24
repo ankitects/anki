@@ -40,7 +40,7 @@ from aqt import gui_hooks
 from aqt.log import ADDON_LOGGER_PREFIX, find_addon_logger, get_addon_logs_folder
 from aqt.qt import *
 from aqt.utils import (
-    addCloseShortcut,
+    add_close_shortcut,
     askUser,
     disable_help_button,
     getFile,
@@ -829,7 +829,7 @@ class AddonsDialog(QDialog):
         self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
-        addCloseShortcut(self)
+        add_close_shortcut(self)
         gui_hooks.addons_dialog_will_show(self)
         self._onAddonSelectionChanged()
         self.show()

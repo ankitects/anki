@@ -27,7 +27,7 @@ from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
     HelpPage,
-    addCloseShortcut,
+    add_close_shortcut,
     ask_user_dialog,
     askUser,
     disable_help_button,
@@ -91,7 +91,7 @@ class CardLayout(QDialog):
         gui_hooks.card_layout_will_show(self)
         self.redraw_everything()
         restoreGeom(self, "CardLayout")
-        addCloseShortcut(self)
+        add_close_shortcut(self)
         restoreSplitter(self.mainArea, "CardLayoutMainArea")
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.show()
