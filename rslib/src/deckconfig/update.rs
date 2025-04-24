@@ -88,7 +88,7 @@ impl Collection {
         // grab the config and sort it
         let mut config = self.storage.all_deck_config()?;
         config.sort_unstable_by(|a, b| a.name.cmp(&b.name));
-        // pre-fill empty fsrs 5 params with 4 params
+        // pre-fill empty fsrs params with older params
         config.iter_mut().for_each(|c| {
             if c.inner.fsrs_params_6.is_empty() {
                 c.inner.fsrs_params_6 = if c.inner.fsrs_params_5.is_empty() {
@@ -169,7 +169,7 @@ impl Collection {
 
         // add/update provided configs
         for conf in &mut req.configs {
-            // If the user has provided empty FSRS5 params, zero out any
+            // If the user has provided empty FSRS6 params, zero out any
             // old params as well, so we don't fall back on them, which would
             // be surprising as they're not shown in the GUI.
             if conf.inner.fsrs_params_6.is_empty() {
