@@ -99,6 +99,7 @@ export class ImportCsvState {
 
         const shouldRefetchMetadata = this.shouldRefetchMetadata(changed);
         if (shouldRefetchMetadata) {
+            const { globalTags, updatedTags } = changed;
             changed = await getCsvMetadata({
                 path: this.path,
                 delimiter: changed.delimiter,
@@ -106,6 +107,9 @@ export class ImportCsvState {
                 deckId: getDeckId(changed) ?? undefined,
                 isHtml: changed.isHtml,
             });
+            // carry over tags
+            changed.globalTags = globalTags;
+            changed.updatedTags = updatedTags;
         }
 
         const globalNotetype = getGlobalNotetype(changed);
