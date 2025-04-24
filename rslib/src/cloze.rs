@@ -43,6 +43,7 @@ mod mathjax_caps {
 
 #[derive(Debug)]
 enum Token<'a> {
+    // The parameter is the cloze number as is appears in the field content.
     OpenCloze(u16),
     Text(&'a str),
     CloseCloze,
@@ -114,6 +115,7 @@ enum TextOrCloze<'a> {
 
 #[derive(Debug)]
 struct ExtractedCloze<'a> {
+    // `ordinal` is the cloze number as is appears in the field content.
     ordinal: u16,
     nodes: Vec<TextOrCloze<'a>>,
     hint: Option<&'a str>,
@@ -409,12 +411,14 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
     buf
 }
 
+// Whether `text` contains any cloze number above 0
 pub(crate) fn contains_cloze(text: &str) -> bool {
     parse_text_with_clozes(text)
         .iter()
         .any(|node| matches!(node, TextOrCloze::Cloze(e) if e.ordinal != 0))
 }
 
+/// Returns the set of cloze number as they appear in the fields's content.
 pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
     let mut set = HashSet::with_capacity(4);
     add_cloze_numbers_in_string(html, &mut set);
@@ -432,9 +436,19 @@ fn add_cloze_numbers_in_text_with_clozes(nodes: &[TextOrCloze], set: &mut HashSe
     }
 }
 
+/// Add to `set` the cloze numbers as they appear in `field`.
 #[allow(clippy::implicit_hasher)]
 pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
     add_cloze_numbers_in_text_with_clozes(&parse_text_with_clozes(field), set)
+}
+
+/// The set of cloze numbers as they appear in any of the fields from `fields`.
+pub fn cloze_number_in_fields(fields: impl IntoIterator<Item: AsRef<str>>) -> HashSet<u16> {
+    let mut set = HashSet::with_capacity(4);
+    for field in fields {
+        add_cloze_numbers_in_string(field.as_ref(), &mut set);
+    }
+    set
 }
 
 fn strip_html_inside_mathjax(text: &str) -> Cow<str> {

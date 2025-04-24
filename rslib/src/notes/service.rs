@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-use std::collections::HashSet;
-
-use crate::cloze::add_cloze_numbers_in_string;
+use crate::cloze::cloze_number_in_fields;
 use crate::collection::Collection;
 use crate::decks::DeckId;
 use crate::error;
@@ -128,10 +126,7 @@ impl crate::services::NotesService for Collection {
         &mut self,
         note: anki_proto::notes::Note,
     ) -> error::Result<anki_proto::notes::ClozeNumbersInNoteResponse> {
-        let mut set = HashSet::with_capacity(4);
-        for field in &note.fields {
-            add_cloze_numbers_in_string(field, &mut set);
-        }
+        let set = cloze_number_in_fields(note.fields);
         Ok(anki_proto::notes::ClozeNumbersInNoteResponse {
             numbers: set.into_iter().map(|n| n as u32).collect(),
         })
