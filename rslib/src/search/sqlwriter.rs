@@ -1081,7 +1081,7 @@ mod test {
             s(ctx, "*:te*st"),
             (
                 "(regexp_fields(?1, n.flds))".into(),
-                vec!["(?i)^te.*st$".into()]
+                vec!["(?is)^te.*st$".into()]
             )
         );
         // all field search with regex
