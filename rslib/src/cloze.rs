@@ -411,14 +411,14 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
     buf
 }
 
-// Whether `text` contains any cloze with strictly positive number.
+// Whether `text` contains any cloze number above 0
 pub(crate) fn contains_cloze(text: &str) -> bool {
     parse_text_with_clozes(text)
         .iter()
         .any(|node| matches!(node, TextOrCloze::Cloze(e) if e.ordinal != 0))
 }
 
-/// Returns the set of cloze number as the appear in the fields's content.
+/// Returns the set of cloze number as they appear in the fields's content.
 pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
     let mut set = HashSet::with_capacity(4);
     add_cloze_numbers_in_string(html, &mut set);
@@ -442,7 +442,7 @@ pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
     add_cloze_numbers_in_text_with_clozes(&parse_text_with_clozes(field), set)
 }
 
-/// The set of cloze numbers as they appear in any of the field from `fields`.
+/// The set of cloze numbers as they appear in any of the fields from `fields`.
 pub fn cloze_number_in_fields(fields: impl IntoIterator<Item: AsRef<str>>) -> HashSet<u16> {
     let mut set = HashSet::with_capacity(4);
     for field in fields {
