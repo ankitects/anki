@@ -130,6 +130,7 @@ impl Collection {
                 && c.queue != CardQueue::PreviewRepeat
                 && c.queue != CardQueue::New
         }
+        // calculate any missing memory state
         for c in &mut cards {
             if is_included_card(c) && c.memory_state.is_none() {
                 let original = c.clone();
