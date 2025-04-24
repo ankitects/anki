@@ -29,7 +29,7 @@ class SearchContext:
     browser: aqt.browser.Browser
     order: bool | str | Column = True
     reverse: bool = False
-    properties: dict = None
+    properties: dict | None = None
     # if set, provided ids will be used instead of the regular search
     ids: Sequence[ItemId] | None = None
 
