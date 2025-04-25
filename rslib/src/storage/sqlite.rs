@@ -384,8 +384,8 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                             .max(0.0001);
 
                         return Ok(Some(
-                            -(current_retrievability.powi(-1 / decay) - 1.)
-                                / (desired_retrievability.powi(-1 / decay) - 1.),
+                            -(current_retrievability.powf(-1.0 / decay) - 1.)
+                                / (desired_retrievability.powf(-1.0 / decay) - 1.),
                         ));
                     }
                 }
