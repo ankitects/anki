@@ -549,6 +549,10 @@ hooks = [
          You can modify context.search to change the text that is sent to the
          searching backend.
 
+         If you need to pass metadata to the browser_did_search hook, you can
+         do it with context.addon_metadata. For example, to trigger filtering
+         based on a new custom filter.
+
          If you set context.ids to a list of ids, the regular search will
          not be performed, and the provided ids will be used instead.
 
@@ -577,6 +581,9 @@ hooks = [
         You can mutate the row object to change what is displayed. Any columns the
         backend did not recognize will be returned as an empty string, and can be
         replaced with custom content.
+
+        You can retrieve metadata passed from browser_will_search with
+        context.addon_metadata (for example to trigger post-processing filtering).
 
         Columns is a list of string values identifying what each column in the row
         represents.
