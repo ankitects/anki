@@ -43,7 +43,6 @@ pub(crate) struct CardData {
     )]
     pub(crate) fsrs_desired_retention: Option<f32>,
     #[serde(
-        rename = "decay",
         skip_serializing_if = "Option::is_none",
         deserialize_with = "default_on_invalid"
     )]
