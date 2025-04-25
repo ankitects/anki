@@ -2100,7 +2100,8 @@ dependencies = [
 [[package]]
 name = "fsrs"
 version = "3.0.0"
-source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=c7717682997a8a6d53d97c7196281e745c5b3c8e#c7717682997a8a6d53d97c7196281e745c5b3c8e"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7e39017be91629761c3a2802032eb38d226227e1a21433381da4310612199ee"
 dependencies = [
  "burn",
  "itertools 0.14.0",
@@ -3377,7 +3378,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4979f22fdb869068da03c9f7528f8297c6fd2606bc3a4affe42e6a823fdb8da4"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.6",
 ]
 
 [[package]]
