@@ -334,7 +334,7 @@
   },
   {
     "name": "bincode",
-    "version": "2.0.0-rc.3",
+    "version": "2.0.1",
     "authors": "Ty Overby <ty@pre-alpha.com>|Zoey Riordan <zoey@dos.cafe>|Victor Koenders <bincode@trangar.com>",
     "repository": "https://github.com/bincode-org/bincode",
     "license": "MIT",
@@ -415,7 +415,7 @@
   },
   {
     "name": "burn",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn",
     "license": "Apache-2.0 OR MIT",
@@ -424,7 +424,7 @@
   },
   {
     "name": "burn-autodiff",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-autodiff",
     "license": "Apache-2.0 OR MIT",
@@ -433,7 +433,7 @@
   },
   {
     "name": "burn-candle",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "louisfd <louisfd94@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-candle",
     "license": "Apache-2.0 OR MIT",
@@ -442,7 +442,7 @@
   },
   {
     "name": "burn-common",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "Dilshod Tadjibaev (@antimora)",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-common",
     "license": "Apache-2.0 OR MIT",
@@ -451,7 +451,7 @@
   },
   {
     "name": "burn-core",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-core",
     "license": "Apache-2.0 OR MIT",
@@ -460,7 +460,7 @@
   },
   {
     "name": "burn-cuda",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-cuda",
     "license": "Apache-2.0 OR MIT",
@@ -469,7 +469,7 @@
   },
   {
     "name": "burn-dataset",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-dataset",
     "license": "Apache-2.0 OR MIT",
@@ -478,7 +478,7 @@
   },
   {
     "name": "burn-derive",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-derive",
     "license": "Apache-2.0 OR MIT",
@@ -487,7 +487,7 @@
   },
   {
     "name": "burn-hip",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-hip",
     "license": "Apache-2.0 OR MIT",
@@ -496,7 +496,7 @@
   },
   {
     "name": "burn-jit",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-jit",
     "license": "Apache-2.0 OR MIT",
@@ -505,7 +505,7 @@
   },
   {
     "name": "burn-ndarray",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-ndarray",
     "license": "Apache-2.0 OR MIT",
@@ -514,7 +514,7 @@
   },
   {
     "name": "burn-router",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "guillaumelagrange <lagrange.guillaume.1@gmail.com>|nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-router",
     "license": "Apache-2.0 OR MIT",
@@ -523,7 +523,7 @@
   },
   {
     "name": "burn-tensor",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-tensor",
     "license": "Apache-2.0 OR MIT",
@@ -532,7 +532,7 @@
   },
   {
     "name": "burn-train",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-train",
     "license": "Apache-2.0 OR MIT",
@@ -541,7 +541,7 @@
   },
   {
     "name": "burn-wgpu",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-wgpu",
     "license": "Apache-2.0 OR MIT",
@@ -2071,7 +2071,7 @@
   },
   {
     "name": "itertools",
-    "version": "0.12.1",
+    "version": "0.13.0",
     "authors": "bluss",
     "repository": "https://github.com/rust-itertools/itertools",
     "license": "Apache-2.0 OR MIT",
@@ -2080,7 +2080,7 @@
   },
   {
     "name": "itertools",
-    "version": "0.13.0",
+    "version": "0.14.0",
     "authors": "bluss",
     "repository": "https://github.com/rust-itertools/itertools",
     "license": "Apache-2.0 OR MIT",
@@ -2431,15 +2431,6 @@
   },
   {
     "name": "ndarray",
-    "version": "0.15.6",
-    "authors": "Ulrik Sverdrup \"bluss\"|Jim Turner",
-    "repository": "https://github.com/rust-ndarray/ndarray",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "An n-dimensional array for general elements and for numerics. Lightweight array views and slicing; views support chunking and splitting."
-  },
-  {
-    "name": "ndarray",
     "version": "0.16.1",
     "authors": "Ulrik Sverdrup \"bluss\"|Jim Turner",
     "repository": "https://github.com/rust-ndarray/ndarray",
@@ -2449,7 +2440,7 @@
   },
   {
     "name": "ndarray-rand",
-    "version": "0.14.0",
+    "version": "0.15.0",
     "authors": "bluss",
     "repository": "https://github.com/rust-ndarray/ndarray",
     "license": "Apache-2.0 OR MIT",
@@ -2971,7 +2962,7 @@
   },
   {
     "name": "priority-queue",
-    "version": "2.1.1",
+    "version": "2.3.1",
     "authors": "Gianmarco Garrisi <gianmarcogarrisi@tutanota.com>",
     "repository": "https://github.com/garro95/priority-queue",
     "license": "LGPL-3.0-or-later OR MPL-2.0",
@@ -3574,7 +3565,7 @@
   },
   {
     "name": "serde",
-    "version": "1.0.217",
+    "version": "1.0.219",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -3601,7 +3592,7 @@
   },
   {
     "name": "serde_derive",
-    "version": "1.0.217",
+    "version": "1.0.219",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -3852,8 +3843,26 @@
     "description": "Helpful macros for working with enums and strings"
   },
   {
+    "name": "strum",
+    "version": "0.27.1",
+    "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
+    "repository": "https://github.com/Peternator7/strum",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Helpful macros for working with enums and strings"
+  },
+  {
     "name": "strum_macros",
     "version": "0.26.4",
+    "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
+    "repository": "https://github.com/Peternator7/strum",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Helpful macros for working with enums and strings"
+  },
+  {
+    "name": "strum_macros",
+    "version": "0.27.1",
     "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
     "repository": "https://github.com/Peternator7/strum",
     "license": "MIT",
@@ -4426,6 +4435,15 @@
     "license": "ISC",
     "license_file": null,
     "description": "Safe, fast, zero-panic, zero-crashing, zero-allocation parsing of untrusted inputs in Rust."
+  },
+  {
+    "name": "unty",
+    "version": "0.0.4",
+    "authors": "Victor Koenders <bincode@trang.ar>",
+    "repository": "https://github.com/bincode-org/unty",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Explicitly types your generics"
   },
   {
     "name": "url",
