@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { filterRevlogEntryByReviewKind } from "./forgetting-curve";
 
     export let revlog: RevlogEntry[];
-    export let fsrsEnabled: boolean = false;
+    export const fsrsEnabled: boolean = false;
 
     function reviewKindClass(entry: RevlogEntry): string {
         switch (entry.reviewKind) {
@@ -174,7 +174,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {/each}
             </div>
         </div>
-        {#if fsrsEnabled}{/if}
+        <!-- {#if fsrsEnabled}
+            <div class="column">
+                <div class="column-head">{tr2.cardStatsFsrsStability()}</div>
+                <div class="column-content right">
+                    {#each revlogRows as row, _index}
+                        <div>{row.stability}</div>
+                    {/each}
+                </div>
+            </div>
+        {/if} -->
     </div>
 {/if}
 

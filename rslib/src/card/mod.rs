@@ -95,6 +95,7 @@ pub struct Card {
     pub(crate) original_position: Option<u32>,
     pub(crate) memory_state: Option<FsrsMemoryState>,
     pub(crate) desired_retention: Option<f32>,
+    pub(crate) decay: Option<f32>,
     /// JSON object or empty; exposed through the reviewer for persisting custom
     /// state
     pub(crate) custom_data: String,
@@ -145,6 +146,7 @@ impl Default for Card {
             original_position: None,
             memory_state: None,
             desired_retention: None,
+            decay: None,
             custom_data: String::new(),
         }
     }

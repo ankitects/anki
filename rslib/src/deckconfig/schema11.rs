@@ -74,6 +74,8 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     fsrs_params_5: Vec<f32>,
     #[serde(default)]
+    fsrs_params_6: Vec<f32>,
+    #[serde(default)]
     desired_retention: f32,
     #[serde(default)]
     ignore_revlogs_before_date: String,
@@ -310,6 +312,7 @@ impl Default for DeckConfSchema11 {
             bury_interday_learning: false,
             fsrs_params_4: vec![],
             fsrs_params_5: vec![],
+            fsrs_params_6: vec![],
             desired_retention: 0.9,
             sm2_retention: 0.9,
             param_search: "".to_string(),
@@ -391,6 +394,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 bury_interday_learning: c.bury_interday_learning,
                 fsrs_params_4: c.fsrs_params_4,
                 fsrs_params_5: c.fsrs_params_5,
+                fsrs_params_6: c.fsrs_params_6,
                 ignore_revlogs_before_date: c.ignore_revlogs_before_date,
                 easy_days_percentages: c.easy_days_percentages,
                 desired_retention: c.desired_retention,
@@ -504,6 +508,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             bury_interday_learning: i.bury_interday_learning,
             fsrs_params_4: i.fsrs_params_4,
             fsrs_params_5: i.fsrs_params_5,
+            fsrs_params_6: i.fsrs_params_6,
             desired_retention: i.desired_retention,
             sm2_retention: i.historical_retention,
             param_search: i.param_search,
@@ -532,6 +537,7 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "newGatherPriority",
     "fsrsWeights",
     "fsrsParams5",
+    "fsrsParams6",
     "desiredRetention",
     "stopTimerOnAnswer",
     "secondsToShowQuestion",
