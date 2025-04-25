@@ -269,7 +269,7 @@ class DataModel(QAbstractTableModel):
                 # invalid sort column in config
                 context.order = self.columns["noteCrt"]
             context.reverse = self._state.sort_backwards
-        context.properties = {}
+        context.addon_metadata = {}
         gui_hooks.browser_will_search(context)
         if context.ids is None:
             context.ids = self._state.find_items(
