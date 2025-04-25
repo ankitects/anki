@@ -220,6 +220,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Market345",
             "Yuki",
             "🦙 (siid)",
+            "Mukunda Madhav Dey",
         )
     )
 
