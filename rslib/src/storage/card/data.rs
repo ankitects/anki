@@ -42,6 +42,11 @@ pub(crate) struct CardData {
         deserialize_with = "default_on_invalid"
     )]
     pub(crate) fsrs_desired_retention: Option<f32>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) decay: Option<f32>,
 
     /// A string representation of a JSON object storing optional data
     /// associated with the card, so v3 custom scheduling code can persist
@@ -57,6 +62,7 @@ impl CardData {
             fsrs_stability: card.memory_state.as_ref().map(|m| m.stability),
             fsrs_difficulty: card.memory_state.as_ref().map(|m| m.difficulty),
             fsrs_desired_retention: card.desired_retention,
+            decay: card.decay,
             custom_data: card.custom_data.clone(),
         }
     }
@@ -86,6 +92,9 @@ impl CardData {
         }
         if let Some(v) = &mut self.fsrs_desired_retention {
             round_to_places(v, 2)
+        }
+        if let Some(v) = &mut self.decay {
+            round_to_places(v, 3)
         }
         serde_json::to_string(&self).map_err(Into::into)
     }
@@ -159,11 +168,12 @@ mod test {
             fsrs_stability: Some(123.45678),
             fsrs_difficulty: Some(1.234567),
             fsrs_desired_retention: Some(0.987654),
+            decay: Some(0.123456),
             custom_data: "".to_string(),
         };
         assert_eq!(
             data.convert_to_json().unwrap(),
-            r#"{"s":123.457,"d":1.235,"dr":0.99}"#
+            r#"{"s":123.457,"d":1.235,"dr":0.99,"decay":0.123}"#
         );
     }
 }

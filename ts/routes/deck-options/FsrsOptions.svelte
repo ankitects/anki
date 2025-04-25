@@ -59,7 +59,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: computing = computingParams || checkingParams || computingRetention;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
-    $: desiredRetentionWarning = getRetentionWarning(roundedRetention);
+    $: desiredRetentionWarning = getRetentionWarning(
+        roundedRetention,
+        fsrsParams($config),
+    );
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     let computeRetentionProgress:
@@ -89,8 +92,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewOrder: $config.reviewOrder,
     });
 
-    function getRetentionWarning(retention: number): string {
-        const decay = -0.5;
+    function getRetentionWarning(retention: number, params: number[]): string {
+        const decay = params.length > 20 ? -params[20] : -0.5; // default decay for FSRS-4.5 and FSRS-5
         const factor = 0.9 ** (1 / decay) - 1;
         const stability = 100;
         const days = Math.round(
@@ -167,7 +170,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             : tr.deckConfigFsrsParamsNoReviews();
                         setTimeout(() => alert(msg), 200);
                     } else {
-                        $config.fsrsParams5 = resp.params;
+                        $config.fsrsParams6 = resp.params;
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
@@ -322,9 +325,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="ms-1 me-1">
     <ParamsInputRow
-        bind:value={$config.fsrsParams5}
+        bind:value={$config.fsrsParams6}
         defaultValue={[]}
-        defaults={defaults.fsrsParams5}
+        defaults={defaults.fsrsParams6}
     >
         <SettingTitle on:click={() => openHelpModal("modelParams")}>
             {tr.deckConfigWeights()}
