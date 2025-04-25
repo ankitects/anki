@@ -7,6 +7,8 @@ use anki_proto::scheduler::ComputeMemoryStateResponse;
 use fsrs::FSRSItem;
 use fsrs::MemoryState;
 use fsrs::FSRS;
+use fsrs::FSRS5_DEFAULT_DECAY;
+use fsrs::FSRS6_DEFAULT_DECAY;
 use itertools::Itertools;
 
 use super::params::ignore_revlogs_before_ms_from_config;
@@ -78,9 +80,9 @@ impl Collection {
             let fsrs = FSRS::new(req.as_ref().map(|w| &w.params[..]).or(Some([].as_slice())))?;
             let decay = req.as_ref().map(|w| {
                 if w.params.is_empty() {
-                    0.2 // default decay for FSRS-6
+                    FSRS6_DEFAULT_DECAY // default decay for FSRS-6
                 } else if w.params.len() < 21 {
-                    0.5 // default decay for FSRS-4.5 and FSRS-5
+                    FSRS5_DEFAULT_DECAY // default decay for FSRS-4.5 and FSRS-5
                 } else {
                     w.params[20]
                 }

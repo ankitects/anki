@@ -4,6 +4,7 @@
 use std::sync::Arc;
 
 use fsrs::FSRS;
+use fsrs::FSRS5_DEFAULT_DECAY;
 use itertools::Itertools;
 use strum::Display;
 use strum::EnumIter;
@@ -541,7 +542,7 @@ impl RowContext {
             .memory_state
             .as_ref()
             .zip(self.cards[0].days_since_last_review(&self.timing))
-            .zip(Some(self.cards[0].decay.unwrap_or(0.5)))
+            .zip(Some(self.cards[0].decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
             .map(|((state, days_elapsed), decay)| {
                 let r = FSRS::new(None).unwrap().current_retrievability(
                     (*state).into(),

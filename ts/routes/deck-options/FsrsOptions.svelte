@@ -93,7 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     function getRetentionWarning(retention: number, params: number[]): string {
-        const decay = params.length > 20 ? -params[20] : -0.5;
+        const decay = params.length > 20 ? -params[20] : -0.5; // default decay for FSRS-4.5 and FSRS-5
         const factor = 0.9 ** (1 / decay) - 1;
         const stability = 100;
         const days = Math.round(

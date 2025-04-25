@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use fsrs::FSRS;
+use fsrs::FSRS5_DEFAULT_DECAY;
 
 use crate::card::CardType;
 use crate::card::FsrsMemoryState;
@@ -37,7 +38,7 @@ impl Collection {
         let fsrs_retrievability = card
             .memory_state
             .zip(Some(days_elapsed))
-            .zip(Some(card.decay.unwrap_or(0.5)))
+            .zip(Some(card.decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
             .map(|((state, days), decay)| {
                 FSRS::new(None)
                     .unwrap()
@@ -76,14 +77,14 @@ impl Collection {
             memory_state: card.memory_state.map(Into::into),
             fsrs_retrievability,
             custom_data: card.custom_data,
-            preset: preset.name.clone(),
+            fsrs_params: preset.fsrs_params().to_vec(),
+            preset: preset.name,
             original_deck: if original_deck != deck {
                 Some(original_deck.human_name())
             } else {
                 None
             },
             desired_retention: card.desired_retention,
-            fsrs_params: preset.fsrs_params().to_vec(),
         })
     }
 
