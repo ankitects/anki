@@ -133,7 +133,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         for (const [index, [, fieldContent]] of fs.entries()) {
-            fieldStores[index].set(sanitize(fieldContent));
+            fieldStores[index].set(fieldContent);
         }
 
         fieldNames = newFieldNames;
@@ -143,6 +143,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function setCollapsed(defaultCollapsed: boolean[]): void {
         fieldsCollapsed =
             sessionOptions[notetypeMeta?.id]?.fieldsCollapsed ?? defaultCollapsed;
+    }
+    let clozeFields: boolean[] = [];
+    export function setClozeFields(defaultClozeFields: boolean[]): void {
+        clozeFields = defaultClozeFields;
     }
 
     let richTextsHidden: boolean[] = [];
@@ -276,6 +280,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         direction: fonts[index][2] ? "rtl" : "ltr",
         collapsed: fieldsCollapsed[index],
         hidden: hideFieldInOcclusionType(index, ioFields),
+        isClozeField: clozeFields[index],
     })) as FieldData[];
 
     let lastSavedTags: string[] | null = null;
@@ -424,7 +429,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "../routes/image-occlusion/store";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
-    import { sanitize } from "$lib/domlib";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -574,6 +578,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             saveSession,
             setFields,
             setCollapsed,
+            setClozeFields,
             setPlainTexts,
             setDescriptions,
             setFonts,
@@ -763,6 +768,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                     $focusedInput = null;
                                 }}
                                 bind:this={richTextInputs[index]}
+                                isClozeField={field.isClozeField}
                             />
                         </Collapsible>
                     </svelte:fragment>

@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let title: string;
+    export let onTitleClick: ((_e: MouseEvent | KeyboardEvent) => void) | null = null;
 </script>
 
 <div
@@ -24,7 +25,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     style:--container-margin="0"
 >
     <div class="position-relative">
-        <h1>{title}</h1>
+        {#if onTitleClick}
+            <span
+                on:click={onTitleClick}
+                on:keydown={onTitleClick}
+                role="button"
+                tabindex="0"
+            >
+                <h1>
+                    {title}
+                </h1>
+            </span>
+        {:else}
+            <h1>
+                {title}
+            </h1>
+        {/if}
         <div class="help-badge position-absolute" class:rtl>
             <slot name="tooltip" />
         </div>

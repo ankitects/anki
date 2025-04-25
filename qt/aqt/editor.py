@@ -320,7 +320,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             label_element = cmd
 
         title_attribute = shortcut(title_attribute)
-        cmd_to_toggle_button = "toggleEditorButton(this);" if toggleable else ""
         id_attribute_assignment = f"id={id}" if id else ""
         class_attribute = "linkb" if rightside else "rounded"
         if not disables:
@@ -328,11 +327,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         return f"""<button tabindex=-1
                         {id_attribute_assignment}
-                        class="{class_attribute}"
+                        class="anki-addon-button {class_attribute}"
                         type="button"
                         title="{title_attribute}"
-                        onclick="pycmd('{cmd}');{cmd_to_toggle_button}return false;"
-                        onmousedown="window.event.preventDefault();"
+                        data-cantoggle="{int(toggleable)}"
+                        data-command="{cmd}"
                 >
                     {image_element}
                     {label_element}
@@ -556,6 +555,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         note_type = self.note_type()
         flds = note_type["flds"]
         collapsed = [fld["collapsed"] for fld in flds]
+        cloze_fields_ords = self.mw.col.models.cloze_fields(self.note.mid)
+        cloze_fields = [ord in cloze_fields_ords for ord in range(len(flds))]
         plain_texts = [fld.get("plainText", False) for fld in flds]
         descriptions = [fld.get("description", "") for fld in flds]
         notetype_meta = {"id": self.note.mid, "modTime": note_type["mod"]}
@@ -585,6 +586,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
             setNotetypeMeta({json.dumps(notetype_meta)});
             setCollapsed({json.dumps(collapsed)});
+            setClozeFields({json.dumps(cloze_fields)});
             setPlainTexts({json.dumps(plain_texts)});
             setDescriptions({json.dumps(descriptions)});
             setFonts({json.dumps(self.fonts())});

@@ -15,7 +15,7 @@ use nom::combinator::map;
 use nom::sequence::delimited;
 use regex::Regex;
 
-use crate::cloze::add_cloze_numbers_in_string;
+use crate::cloze::cloze_number_in_fields;
 use crate::error::AnkiError;
 use crate::error::Result;
 use crate::error::TemplateError;
@@ -673,11 +673,7 @@ pub fn render_card(
 }
 
 fn cloze_is_empty(field_map: &HashMap<&str, Cow<str>>, card_ord: u16) -> bool {
-    let mut set = HashSet::with_capacity(4);
-    for field in field_map.values() {
-        add_cloze_numbers_in_string(field.as_ref(), &mut set);
-    }
-    !set.contains(&(card_ord + 1))
+    !cloze_number_in_fields(field_map.values()).contains(&(card_ord + 1))
 }
 
 // Field requirements

@@ -75,6 +75,7 @@ pub(crate) fn apply_load_balance_and_easy_days(
 fn create_review_priority_fn(
     review_order: ReviewCardOrder,
     deck_size: usize,
+    params: Vec<f32>,
 ) -> Option<ReviewPriorityFn> {
     // Helper macro to wrap closure in ReviewPriorityFn
     macro_rules! wrap {
@@ -91,11 +92,12 @@ fn create_review_priority_fn(
         // Interval-based ordering
         IntervalsAscending => wrap!(|c| c.interval as i32),
         IntervalsDescending => wrap!(|c| -(c.interval as i32)),
-
         // Retrievability-based ordering
-        RetrievabilityAscending => wrap!(|c| (c.retrievability() * 1000.0) as i32),
+        RetrievabilityAscending => {
+            wrap!(move |c| (c.retrievability(&params) * 1000.0) as i32)
+        }
         RetrievabilityDescending => {
-            wrap!(|c| -(c.retrievability() * 1000.0) as i32)
+            wrap!(move |c| -(c.retrievability(&params) * 1000.0) as i32)
         }
 
         // Due date ordering
@@ -123,8 +125,22 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        let cards = guard.col.storage.all_searched_cards()?;
+        let mut cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
+        fn is_included_card(c: &Card) -> bool {
+            c.queue != CardQueue::Suspended
+                && c.queue != CardQueue::PreviewRepeat
+                && c.queue != CardQueue::New
+        }
+        // calculate any missing memory state
+        for c in &mut cards {
+            if is_included_card(c) && c.memory_state.is_none() {
+                let original = c.clone();
+                let new_state = self.compute_memory_state(c.id)?.state;
+                c.memory_state = new_state.map(Into::into);
+                self.update_card_inner(c, original, self.usn()?)?;
+            }
+        }
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let new_cards = cards
             .iter()
@@ -133,7 +149,7 @@ impl Collection {
             + req.deck_size as usize;
         let mut converted_cards = cards
             .into_iter()
-            .filter(|c| c.queue != CardQueue::Suspended && c.queue != CardQueue::PreviewRepeat)
+            .filter(is_included_card)
             .filter_map(|c| Card::convert(c, days_elapsed))
             .collect_vec();
         let introduced_today_count = self
@@ -181,28 +197,26 @@ impl Collection {
             .review_order
             .try_into()
             .ok()
-            .and_then(|order| create_review_priority_fn(order, deck_size));
+            .and_then(|order| create_review_priority_fn(order, deck_size, req.params.clone()));
 
         let config = SimulatorConfig {
             deck_size,
             learn_span: req.days_to_simulate as usize,
             max_cost_perday: f32::MAX,
             max_ivl: req.max_interval as f32,
-            learn_costs: p.learn_costs,
-            review_costs: p.review_costs,
             first_rating_prob: p.first_rating_prob,
             review_rating_prob: p.review_rating_prob,
-            first_rating_offsets: p.first_rating_offsets,
-            first_session_lens: p.first_session_lens,
-            forget_rating_offset: p.forget_rating_offset,
-            forget_session_len: p.forget_session_len,
-            loss_aversion: 1.0,
             learn_limit: req.new_limit as usize,
             review_limit: req.review_limit as usize,
             new_cards_ignore_review_limit: req.new_cards_ignore_review_limit,
             suspend_after_lapses: req.suspend_after_lapse_count,
             post_scheduling_fn,
             review_priority_fn,
+            learning_step_transitions: p.learning_step_transitions,
+            relearning_step_transitions: p.relearning_step_transitions,
+            state_rating_costs: p.state_rating_costs,
+            learning_step_count: p.learning_step_count,
+            relearning_step_count: p.relearning_step_count,
         };
 
         Ok((config, converted_cards))

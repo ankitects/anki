@@ -3,6 +3,7 @@
 
 use anki_proto::stats::graphs_response::Retrievability;
 use fsrs::FSRS;
+use fsrs::FSRS5_DEFAULT_DECAY;
 
 use crate::prelude::TimestampSecs;
 use crate::scheduler::timing::SchedTimingToday;
@@ -30,7 +31,11 @@ impl GraphsContext {
             entry.1 += 1;
             if let Some(state) = card.memory_state {
                 let elapsed_days = card.days_since_last_review(&timing).unwrap_or_default();
-                let r = fsrs.current_retrievability(state.into(), elapsed_days);
+                let r = fsrs.current_retrievability(
+                    state.into(),
+                    elapsed_days,
+                    card.decay.unwrap_or(FSRS5_DEFAULT_DECAY),
+                );
 
                 *retrievability
                     .retrievability

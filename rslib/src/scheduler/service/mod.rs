@@ -320,17 +320,31 @@ impl crate::services::SchedulerService for Collection {
             learn_span: simulator_config.learn_span as u32,
             max_cost_perday: simulator_config.max_cost_perday,
             max_ivl: simulator_config.max_ivl,
-            learn_costs: simulator_config.learn_costs.to_vec(),
-            review_costs: simulator_config.review_costs.to_vec(),
             first_rating_prob: simulator_config.first_rating_prob.to_vec(),
             review_rating_prob: simulator_config.review_rating_prob.to_vec(),
-            first_rating_offsets: simulator_config.first_rating_offsets.to_vec(),
-            first_session_lens: simulator_config.first_session_lens.to_vec(),
-            forget_rating_offset: simulator_config.forget_rating_offset,
-            forget_session_len: simulator_config.forget_session_len,
-            loss_aversion: simulator_config.loss_aversion,
+            loss_aversion: 1.0,
             learn_limit: simulator_config.learn_limit as u32,
             review_limit: simulator_config.review_limit as u32,
+            learning_step_transitions: simulator_config
+                .learning_step_transitions
+                .iter()
+                .flatten()
+                .cloned()
+                .collect(),
+            relearning_step_transitions: simulator_config
+                .relearning_step_transitions
+                .iter()
+                .flatten()
+                .cloned()
+                .collect(),
+            state_rating_costs: simulator_config
+                .state_rating_costs
+                .iter()
+                .flatten()
+                .cloned()
+                .collect(),
+            learning_step_count: simulator_config.learning_step_count as u32,
+            relearning_step_count: simulator_config.relearning_step_count as u32,
         })
     }
 

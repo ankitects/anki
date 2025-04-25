@@ -71,8 +71,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    $: disabled =
-        !alwaysEnabled && (!$focusedInput || !editingInputIsRichText($focusedInput));
+    $: enabled =
+        alwaysEnabled ||
+        ($focusedInput &&
+            editingInputIsRichText($focusedInput) &&
+            $focusedInput.isClozeField);
+    $: disabled = !enabled;
 
     const incrementKeyCombination = "Control+Shift+C";
     const sameKeyCombination = "Control+Alt+Shift+C";

@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         description: string;
         collapsed: boolean;
         hidden: boolean;
+        isClozeField: boolean;
     }
 
     export interface EditorFieldAPI {
@@ -82,6 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         element,
         direction: directionStore,
         editingArea: editingArea as EditingAreaAPI,
+        isClozeField: field.isClozeField,
     });
 
     setContextProperty(api);

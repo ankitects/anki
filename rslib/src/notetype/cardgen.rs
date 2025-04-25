@@ -11,7 +11,7 @@ use rand::Rng;
 use rand::SeedableRng;
 
 use super::Notetype;
-use crate::cloze::add_cloze_numbers_in_string;
+use crate::cloze::cloze_number_in_fields;
 use crate::notetype::NotetypeKind;
 use crate::prelude::*;
 use crate::template::ParsedTemplate;
@@ -148,10 +148,7 @@ impl<N: Deref<Target = Notetype>> CardGenContext<N> {
         extracted: &ExtractedCardInfo,
     ) -> Vec<CardToGenerate> {
         // gather all cloze numbers
-        let mut set = HashSet::with_capacity(4);
-        for field in note.fields() {
-            add_cloze_numbers_in_string(field, &mut set);
-        }
+        let set = cloze_number_in_fields(note.fields());
         set.into_iter()
             .filter_map(|cloze_ord| {
                 let card_ord = cloze_ord.saturating_sub(1).min(499);
