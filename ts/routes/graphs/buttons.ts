@@ -183,8 +183,6 @@ export function renderButtons(
             });
     }, 0);
 
-    // \u200e(${totalCorrect(d).percent}%)
-
     const xButton = scaleBand()
         .domain(["1", "2", "3", "4"])
         .range([0, xGroup.bandwidth()])
