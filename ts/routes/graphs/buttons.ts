@@ -148,13 +148,41 @@ export function renderButtons(
                                     kind = tr.statisticsCountsMatureCards();
                                     break;
                             }
-                            return `${kind} \u200e(${totalCorrect(d).percent}%)`;
+                            console.log("Tick format for", d, "returns", kind);
+                            return `${kind}`;
                         }) as any,
                     )
                     .tickSizeOuter(0),
             )
         )
         .attr("direction", "ltr");
+        
+        // Add a timeout to ensure that the text elements are populated
+        setTimeout(() => {
+            svg.selectAll("text")
+                .each(function(d) {
+                    const current_text_element = this; 
+                    const current_text_element_content = current_text_element.textContent;
+                    console.log("Current text content:", current_text_element_content);
+
+                    current_text_element.textContent = "";
+
+                    // Create a tspan for the text content (the "kind" part)
+                    const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+                    tspan.textContent = current_text_element_content;
+                    tspan.setAttribute("dy", "0");
+                    
+                    // Create a tspan for the percentage
+                    const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+                    tspan2.textContent = `\u200e(${totalCorrect(d).percent}%)`;
+                    tspan2.setAttribute("dy", "1em");
+
+                    current_text_element.appendChild(tspan);
+                    current_text_element.appendChild(tspan2);
+                });
+        }, 0);
+
+// \u200e(${totalCorrect(d).percent}%)
 
     const xButton = scaleBand()
         .domain(["1", "2", "3", "4"])
