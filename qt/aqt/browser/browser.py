@@ -366,6 +366,7 @@ class Browser(QMainWindow):
         qconnect(f.actionFind.triggered, self.onFind)
         qconnect(f.actionNote.triggered, self.onNote)
         qconnect(f.actionSidebar.triggered, self.focusSidebar)
+        qconnect(f.actionToggleSidebar.triggered, self.toggle_sidebar)
         qconnect(f.actionCardList.triggered, self.onCardList)
 
         # help
@@ -695,7 +696,7 @@ class Browser(QMainWindow):
 
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(tr.browsing_sidebar(), self)
-        dw.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+        dw.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dock_area = (
             Qt.DockWidgetArea.RightDockWidgetArea
@@ -729,8 +730,11 @@ class Browser(QMainWindow):
         # UI is more responsive
         self.mw.progress.timer(10, self.sidebar.refresh, False, parent=self.sidebar)
 
-    def showSidebar(self) -> None:
-        self.sidebarDockWidget.setVisible(True)
+    def showSidebar(self, show: bool = True) -> None:
+        want_visible = not self.sidebarDockWidget.isVisible()
+        self.sidebarDockWidget.setVisible(show)
+        if want_visible and show:
+            self.sidebar.refresh()
 
     def focusSidebar(self) -> None:
         self.showSidebar()
@@ -741,10 +745,7 @@ class Browser(QMainWindow):
         self.sidebar.searchBar.setFocus()
 
     def toggle_sidebar(self) -> None:
-        want_visible = not self.sidebarDockWidget.isVisible()
-        self.sidebarDockWidget.setVisible(want_visible)
-        if want_visible:
-            self.sidebar.refresh()
+        self.showSidebar(not self.sidebarDockWidget.isVisible())
 
     # legacy
 
