@@ -468,7 +468,7 @@ impl Collection {
             self.get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled);
         let fsrs_allow_short_term = if fsrs_enabled {
             let params = config.fsrs_params();
-            if params.len() == 19 {
+            if params.len() >= 19 {
                 params[17] > 0.0 && params[18] > 0.0
             } else {
                 false
