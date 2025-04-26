@@ -159,7 +159,7 @@ export function renderButtons(
         
         // Add a timeout to ensure that the text elements are populated
         setTimeout(() => {
-            svg.selectAll("text")
+            svg.select<SVGGElement>(".x-ticks").selectAll("text")
                 .each(function(d) {
                     const current_text_element = this; 
                     const current_text_element_content = current_text_element.textContent;
