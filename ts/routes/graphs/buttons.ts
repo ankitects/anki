@@ -148,7 +148,6 @@ export function renderButtons(
                                     kind = tr.statisticsCountsMatureCards();
                                     break;
                             }
-                            console.log("Tick format for", d, "returns", kind);
                             return `${kind}`;
                         }) as any,
                     )
@@ -163,7 +162,6 @@ export function renderButtons(
                 .each(function(d) {
                     const current_text_element = this; 
                     const current_text_element_content = current_text_element.textContent;
-                    console.log("Current text content:", current_text_element_content);
 
                     current_text_element.textContent = "";
 
