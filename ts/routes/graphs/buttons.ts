@@ -170,12 +170,13 @@ export function renderButtons(
                     // Create a tspan for the text content (the "kind" part)
                     const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
                     tspan.textContent = current_text_element_content;
-                    tspan.setAttribute("dy", "0");
+                    tspan.setAttribute("dy", "0.5em");
                     
                     // Create a tspan for the percentage
                     const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
                     tspan2.textContent = `\u200e(${totalCorrect(d).percent}%)`;
                     tspan2.setAttribute("dy", "1em");
+                    tspan2.setAttribute("dx", "-4em"); // i realized it works. It's probably a coincidence and a hack
 
                     current_text_element.appendChild(tspan);
                     current_text_element.appendChild(tspan2);
