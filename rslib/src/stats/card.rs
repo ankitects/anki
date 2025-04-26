@@ -176,7 +176,7 @@ impl Collection {
             }
             Ok(result.into_iter().rev().collect())
         } else {
-            Ok(revlog.iter().map(stats_revlog_entry).collect())
+            Ok(revlog.iter().rev().map(stats_revlog_entry).collect())
         }
     }
 }
