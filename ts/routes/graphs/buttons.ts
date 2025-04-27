@@ -164,18 +164,18 @@ export function renderButtons(
             this.textContent = "";
 
             // Create a tspan for the text content (the "kind" part)
-            const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-            tspan.textContent = current_text_element_content;
-            tspan.setAttribute("dy", "0.5em");
+            const tspan_kind = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+            tspan_kind.textContent = current_text_element_content;
+            tspan_kind.setAttribute("dy", "0.5em");
 
             // Create a tspan for the percentage
-            const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-            tspan2.textContent = `\u200e(${totalCorrect(d).percent}%)`;
-            tspan2.setAttribute("dy", "1em");
-            tspan2.setAttribute("x", "0");
+            const tspan_percentage = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+            tspan_percentage.textContent = `\u200e(${totalCorrect(d).percent}%)`;
+            tspan_percentage.setAttribute("dy", "1em");
+            tspan_percentage.setAttribute("x", "0");
 
-            this.appendChild(tspan);
-            this.appendChild(tspan2);
+            this.appendChild(tspan_kind);
+            this.appendChild(tspan_percentage);
         });
 
     const xButton = scaleBand()
