@@ -172,7 +172,7 @@ export function renderButtons(
             const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
             tspan2.textContent = `\u200e(${totalCorrect(d).percent}%)`;
             tspan2.setAttribute("dy", "1em");
-            tspan2.setAttribute("dx", "-4em"); // i realized it works. It's probably a coincidence and a hack
+            tspan2.setAttribute("x", "0");
 
             this.appendChild(tspan);
             this.appendChild(tspan2);
