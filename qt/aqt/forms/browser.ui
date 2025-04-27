@@ -317,6 +317,8 @@
     <addaction name="separator"/>
     <addaction name="actionFullScreen"/>
     <addaction name="separator"/>
+    <addaction name="actionToggleSidebar"/>
+    <addaction name="separator"/>
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
     <addaction name="actionResetZoom"/>
@@ -701,6 +703,11 @@
    <property name="text">
     <string>qt_accel_full_screen</string>
    </property>
+  </action>
+  <action name="actionToggleSidebar">
+    <property name="text">
+      <string>qt_accel_toggle_sidebar</string>
+    </property>
   </action>
   <action name="actionZoomIn">
    <property name="text">
