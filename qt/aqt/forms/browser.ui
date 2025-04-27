@@ -792,7 +792,7 @@
    <sender>actionClose</sender>
    <signal>triggered()</signal>
    <receiver>Dialog</receiver>
-   <slot>close()</slot>
+   <slot>_handle_close()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
