@@ -23,13 +23,18 @@ impl Collection {
         }
         let (config, _) = self.simulate_request_to_config(&req)?;
         Ok(fsrs
-            .optimal_retention(&config, &req.params, |ip| {
-                anki_progress
-                    .update(false, |p| {
-                        p.current = ip.current as u32;
-                    })
-                    .is_ok()
-            })?
+            .optimal_retention(
+                &config,
+                &req.params,
+                |ip| {
+                    anki_progress
+                        .update(false, |p| {
+                            p.current = ip.current as u32;
+                        })
+                        .is_ok()
+                },
+                None,
+            )?
             .clamp(0.7, 0.95))
     }
 

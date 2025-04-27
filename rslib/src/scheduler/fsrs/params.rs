@@ -116,10 +116,10 @@ impl Collection {
         })?;
         progress_thread.join().ok();
         if let Ok(fsrs) = FSRS::new(Some(current_params)) {
-            let current_rmse = fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
+            let current_log_loss = fsrs.evaluate(items.clone(), |_| true)?.log_loss;
             let optimized_fsrs = FSRS::new(Some(&params))?;
-            let optimized_rmse = optimized_fsrs.evaluate(items.clone(), |_| true)?.rmse_bins;
-            if current_rmse <= optimized_rmse {
+            let optimized_log_loss = optimized_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
+            if current_log_loss <= optimized_log_loss {
                 if num_of_relearning_steps <= 1 {
                     params = current_params.to_vec();
                 } else {
