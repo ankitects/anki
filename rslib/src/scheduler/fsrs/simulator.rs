@@ -75,7 +75,6 @@ pub(crate) fn apply_load_balance_and_easy_days(
 fn create_review_priority_fn(
     review_order: ReviewCardOrder,
     deck_size: usize,
-    params: Vec<f32>,
 ) -> Option<ReviewPriorityFn> {
     // Helper macro to wrap closure in ReviewPriorityFn
     macro_rules! wrap {
@@ -86,28 +85,28 @@ fn create_review_priority_fn(
 
     match review_order {
         // Ease-based ordering
-        EaseAscending => wrap!(|c| -(c.difficulty * 100.0) as i32),
-        EaseDescending => wrap!(|c| (c.difficulty * 100.0) as i32),
+        EaseAscending => wrap!(|c, _w| -(c.difficulty * 100.0) as i32),
+        EaseDescending => wrap!(|c, _w| (c.difficulty * 100.0) as i32),
 
         // Interval-based ordering
-        IntervalsAscending => wrap!(|c| c.interval as i32),
-        IntervalsDescending => wrap!(|c| -(c.interval as i32)),
+        IntervalsAscending => wrap!(|c, _w| c.interval as i32),
+        IntervalsDescending => wrap!(|c, _w| -(c.interval as i32)),
         // Retrievability-based ordering
         RetrievabilityAscending => {
-            wrap!(move |c| (c.retrievability(&params) * 1000.0) as i32)
+            wrap!(move |c, w| (c.retrievability(w) * 1000.0) as i32)
         }
         RetrievabilityDescending => {
-            wrap!(move |c| -(c.retrievability(&params) * 1000.0) as i32)
+            wrap!(move |c, w| -(c.retrievability(w) * 1000.0) as i32)
         }
 
         // Due date ordering
         Day | DayThenDeck | DeckThenDay => {
-            wrap!(|c| c.scheduled_due() as i32)
+            wrap!(|c, _w| c.scheduled_due() as i32)
         }
 
         // Random ordering
         Random => {
-            wrap!(move |_| rand::thread_rng().gen_range(0..deck_size) as i32)
+            wrap!(move |_c, _w| rand::thread_rng().gen_range(0..deck_size) as i32)
         }
 
         // Not implemented yet
@@ -116,10 +115,10 @@ fn create_review_priority_fn(
 }
 
 impl Collection {
-    pub fn simulate_review(
+    pub fn simulate_request_to_config(
         &mut self,
-        req: SimulateFsrsReviewRequest,
-    ) -> Result<SimulateFsrsReviewResponse> {
+        req: &SimulateFsrsReviewRequest,
+    ) -> Result<(SimulatorConfig, Vec<fsrs::Card>)> {
         let guard = self.search_cards_into_table(&req.search, SortMode::NoOrder)?;
         let revlogs = guard
             .col
@@ -171,7 +170,7 @@ impl Collection {
         let deck_size = converted_cards.len();
         let p = self.get_optimal_retention_parameters(revlogs)?;
 
-        let easy_days_percentages = parse_easy_days_percentages(req.easy_days_percentages)?;
+        let easy_days_percentages = parse_easy_days_percentages(&req.easy_days_percentages)?;
         let next_day_at = self.timing_today()?.next_day_at;
 
         let post_scheduling_fn: Option<PostSchedulingFn> =
@@ -197,7 +196,7 @@ impl Collection {
             .review_order
             .try_into()
             .ok()
-            .and_then(|order| create_review_priority_fn(order, deck_size, req.params.clone()));
+            .and_then(|order| create_review_priority_fn(order, deck_size));
 
         let config = SimulatorConfig {
             deck_size,
@@ -218,12 +217,21 @@ impl Collection {
             learning_step_count: p.learning_step_count,
             relearning_step_count: p.relearning_step_count,
         };
+
+        Ok((config, converted_cards))
+    }
+
+    pub fn simulate_review(
+        &mut self,
+        req: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsReviewResponse> {
+        let (config, cards) = self.simulate_request_to_config(&req)?;
         let result = simulate(
             &config,
             &req.params,
             req.desired_retention,
             None,
-            Some(converted_cards),
+            Some(cards),
         )?;
         Ok(SimulateFsrsReviewResponse {
             accumulated_knowledge_acquisition: result.memorized_cnt_per_day,

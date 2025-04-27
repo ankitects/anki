@@ -1,18 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-use std::sync::Arc;
-
-use anki_proto::scheduler::ComputeOptimalRetentionRequest;
+use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use fsrs::extract_simulator_config;
-use fsrs::PostSchedulingFn;
 use fsrs::SimulatorConfig;
 use fsrs::FSRS;
 
-use super::simulator::apply_load_balance_and_easy_days;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
-use crate::scheduler::states::load_balancer::parse_easy_days_percentages;
-use crate::search::SortMode;
 
 #[derive(Default, Clone, Copy, Debug)]
 pub struct ComputeRetentionProgress {
@@ -21,65 +15,16 @@ pub struct ComputeRetentionProgress {
 }
 
 impl Collection {
-    pub fn compute_optimal_retention(
-        &mut self,
-        req: ComputeOptimalRetentionRequest,
-    ) -> Result<f32> {
+    pub fn compute_optimal_retention(&mut self, req: SimulateFsrsReviewRequest) -> Result<f32> {
         let mut anki_progress = self.new_progress_handler::<ComputeRetentionProgress>();
         let fsrs = FSRS::new(None)?;
         if req.days_to_simulate == 0 {
             invalid_input!("no days to simulate")
         }
-        let revlogs = self
-            .search_cards_into_table(&req.search, SortMode::NoOrder)?
-            .col
-            .storage
-            .get_revlog_entries_for_searched_cards_in_card_order()?;
-        let p = self.get_optimal_retention_parameters(revlogs)?;
-        let learn_span = req.days_to_simulate as usize;
-        let learn_limit = 10;
-        let deck_size = learn_span * learn_limit;
-        let easy_days_percentages = parse_easy_days_percentages(req.easy_days_percentages)?;
-        let next_day_at = self.timing_today()?.next_day_at;
-        let post_scheduling_fn: Option<PostSchedulingFn> =
-            if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
-                Some(PostSchedulingFn(Arc::new(
-                    move |card, max_interval, today, due_cnt_per_day, rng| {
-                        apply_load_balance_and_easy_days(
-                            card.interval,
-                            max_interval,
-                            today,
-                            due_cnt_per_day,
-                            rng,
-                            next_day_at,
-                            &easy_days_percentages,
-                        )
-                    },
-                )))
-            } else {
-                None
-            };
+        let (config, cards) = self.simulate_request_to_config(&req)?;
         Ok(fsrs
             .optimal_retention(
-                &SimulatorConfig {
-                    deck_size,
-                    learn_span: req.days_to_simulate as usize,
-                    max_cost_perday: f32::MAX,
-                    max_ivl: req.max_interval as f32,
-                    first_rating_prob: p.first_rating_prob,
-                    review_rating_prob: p.review_rating_prob,
-                    learn_limit,
-                    review_limit: usize::MAX,
-                    new_cards_ignore_review_limit: true,
-                    suspend_after_lapses: None,
-                    post_scheduling_fn,
-                    review_priority_fn: None,
-                    learning_step_transitions: p.learning_step_transitions,
-                    relearning_step_transitions: p.relearning_step_transitions,
-                    state_rating_costs: p.state_rating_costs,
-                    learning_step_count: p.learning_step_count,
-                    relearning_step_count: p.relearning_step_count,
-                },
+                &config,
                 &req.params,
                 |ip| {
                     anki_progress
@@ -88,6 +33,7 @@ impl Collection {
                         })
                         .is_ok()
                 },
+                Some(cards),
             )?
             .clamp(0.7, 0.95))
     }
