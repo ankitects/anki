@@ -130,58 +130,53 @@ export function renderButtons(
         .domain(["learning", "young", "mature"])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
-        .call((selection) =>
-            selection.transition(trans).call(
-                axisBottom(xGroup)
-                    .tickFormat(
-                        ((d: GroupKind) => {
-                            let kind: string;
-                            switch (d) {
-                                case "learning":
-                                    kind = tr.statisticsCountsLearningCards();
-                                    break;
-                                case "young":
-                                    kind = tr.statisticsCountsYoungCards();
-                                    break;
-                                case "mature":
-                                default:
-                                    kind = tr.statisticsCountsMatureCards();
-                                    break;
-                            }
-                            return `${kind}`;
-                        }) as any,
-                    )
-                    .tickSizeOuter(0),
-            )
+        .call(
+            axisBottom(xGroup)
+                .tickFormat(
+                    ((d: GroupKind) => {
+                        let kind: string;
+                        switch (d) {
+                            case "learning":
+                                kind = tr.statisticsCountsLearningCards();
+                                break;
+                            case "young":
+                                kind = tr.statisticsCountsYoungCards();
+                                break;
+                            case "mature":
+                            default:
+                                kind = tr.statisticsCountsMatureCards();
+                                break;
+                        }
+                        return `${kind}`;
+                    }) as any,
+                )
+                .tickSizeOuter(0),
         )
         .attr("direction", "ltr");
 
-    // Add a timeout to ensure that the text elements are populated
-    setTimeout(() => {
-        svg.select<SVGGElement>(".x-ticks").selectAll<SVGTextElement, GroupKind>("text")
-            .each(function(this: SVGTextElement, d: GroupKind) {
-                if (!(this instanceof SVGElement)) {
-                    return;
-                }
-                const current_text_element_content = this.textContent;
+    svg.select<SVGGElement>(".x-ticks").selectAll<SVGTextElement, GroupKind>("text")
+        .each(function(this: SVGTextElement, d: GroupKind) {
+            if (!(this instanceof SVGElement)) {
+                return;
+            }
+            const current_text_element_content = this.textContent;
 
-                this.textContent = "";
+            this.textContent = "";
 
-                // Create a tspan for the text content (the "kind" part)
-                const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-                tspan.textContent = current_text_element_content;
-                tspan.setAttribute("dy", "0.5em");
+            // Create a tspan for the text content (the "kind" part)
+            const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+            tspan.textContent = current_text_element_content;
+            tspan.setAttribute("dy", "0.5em");
 
-                // Create a tspan for the percentage
-                const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-                tspan2.textContent = `\u200e(${totalCorrect(d).percent}%)`;
-                tspan2.setAttribute("dy", "1em");
-                tspan2.setAttribute("dx", "-4em"); // i realized it works. It's probably a coincidence and a hack
+            // Create a tspan for the percentage
+            const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+            tspan2.textContent = `\u200e(${totalCorrect(d).percent}%)`;
+            tspan2.setAttribute("dy", "1em");
+            tspan2.setAttribute("dx", "-4em"); // i realized it works. It's probably a coincidence and a hack
 
-                this.appendChild(tspan);
-                this.appendChild(tspan2);
-            });
-    }, 0);
+            this.appendChild(tspan);
+            this.appendChild(tspan2);
+        });
 
     const xButton = scaleBand()
         .domain(["1", "2", "3", "4"])
