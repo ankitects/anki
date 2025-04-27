@@ -75,7 +75,6 @@ pub(crate) fn apply_load_balance_and_easy_days(
 fn create_review_priority_fn(
     review_order: ReviewCardOrder,
     deck_size: usize,
-    params: Vec<f32>,
 ) -> Option<ReviewPriorityFn> {
     // Helper macro to wrap closure in ReviewPriorityFn
     macro_rules! wrap {
@@ -86,28 +85,28 @@ fn create_review_priority_fn(
 
     match review_order {
         // Ease-based ordering
-        EaseAscending => wrap!(|c| -(c.difficulty * 100.0) as i32),
-        EaseDescending => wrap!(|c| (c.difficulty * 100.0) as i32),
+        EaseAscending => wrap!(|c, _w| -(c.difficulty * 100.0) as i32),
+        EaseDescending => wrap!(|c, _w| (c.difficulty * 100.0) as i32),
 
         // Interval-based ordering
-        IntervalsAscending => wrap!(|c| c.interval as i32),
-        IntervalsDescending => wrap!(|c| -(c.interval as i32)),
+        IntervalsAscending => wrap!(|c, _w| c.interval as i32),
+        IntervalsDescending => wrap!(|c, _w| -(c.interval as i32)),
         // Retrievability-based ordering
         RetrievabilityAscending => {
-            wrap!(move |c| (c.retrievability(&params) * 1000.0) as i32)
+            wrap!(move |c, w| (c.retrievability(w) * 1000.0) as i32)
         }
         RetrievabilityDescending => {
-            wrap!(move |c| -(c.retrievability(&params) * 1000.0) as i32)
+            wrap!(move |c, w| -(c.retrievability(w) * 1000.0) as i32)
         }
 
         // Due date ordering
         Day | DayThenDeck | DeckThenDay => {
-            wrap!(|c| c.scheduled_due() as i32)
+            wrap!(|c, _w| c.scheduled_due() as i32)
         }
 
         // Random ordering
         Random => {
-            wrap!(move |_| rand::thread_rng().gen_range(0..deck_size) as i32)
+            wrap!(move |_c, _w| rand::thread_rng().gen_range(0..deck_size) as i32)
         }
 
         // Not implemented yet
@@ -197,7 +196,7 @@ impl Collection {
             .review_order
             .try_into()
             .ok()
-            .and_then(|order| create_review_priority_fn(order, deck_size, req.params.clone()));
+            .and_then(|order| create_review_priority_fn(order, deck_size));
 
         let config = SimulatorConfig {
             deck_size,
