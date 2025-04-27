@@ -88,6 +88,7 @@ impl Collection {
                         })
                         .is_ok()
                 },
+                None,
             )?
             .clamp(0.7, 0.95))
     }
