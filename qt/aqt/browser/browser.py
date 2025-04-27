@@ -280,6 +280,19 @@ class Browser(QMainWindow):
         if note_type_id := self.get_active_note_type_id():
             add_cards.set_note_type(note_type_id)
 
+    # If in the Browser we open Preview and press Ctrl+W there,
+    # both Preview and Browser windows get closed by Qt out of the box.
+    # We circumvent that behavior by only closing the currently active window
+    def _handle_close(self):
+        active_window = QApplication.activeWindow()
+        if active_window and active_window != self:
+            if isinstance(active_window, QDialog):
+                active_window.reject()
+            else:
+                active_window.close()
+        else:
+            self.close()
+
     def setupMenus(self) -> None:
         # actions
         f = self.form
