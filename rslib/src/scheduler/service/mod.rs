@@ -9,7 +9,6 @@ use anki_proto::generic;
 use anki_proto::scheduler;
 use anki_proto::scheduler::ComputeFsrsParamsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
-use anki_proto::scheduler::ComputeOptimalRetentionRequest;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
 use anki_proto::scheduler::FsrsBenchmarkResponse;
 use anki_proto::scheduler::FuzzDeltaRequest;
@@ -284,7 +283,7 @@ impl crate::services::SchedulerService for Collection {
 
     fn compute_optimal_retention(
         &mut self,
-        input: ComputeOptimalRetentionRequest,
+        input: SimulateFsrsReviewRequest,
     ) -> Result<ComputeOptimalRetentionResponse> {
         Ok(ComputeOptimalRetentionResponse {
             optimal_retention: self.compute_optimal_retention(input)?,
