@@ -71,7 +71,10 @@ impl CardStateUpdater {
                     // Decrease reps by 1 to get correct seed for fuzz.
                     // If the fuzz calculation changes, this will break.
                     let last_ivl_with_fuzz = self.learning_ivl_with_fuzz(
-                        get_fuzz_seed_for_id_and_reps(self.card.id, self.card.reps - 1),
+                        get_fuzz_seed_for_id_and_reps(
+                            self.card.id,
+                            if self.card.reps > 0 { self.card.reps - 1 } else { 0 }
+                        ),
                         last_ivl,
                     );
                     let last_answered_time = due as i64 - last_ivl_with_fuzz as i64;
