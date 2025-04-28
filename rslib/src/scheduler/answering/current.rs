@@ -73,7 +73,11 @@ impl CardStateUpdater {
                     let last_ivl_with_fuzz = self.learning_ivl_with_fuzz(
                         get_fuzz_seed_for_id_and_reps(
                             self.card.id,
-                            if self.card.reps > 0 { self.card.reps - 1 } else { 0 }
+                            if self.card.reps > 0 {
+                                self.card.reps - 1
+                            } else {
+                                0
+                            },
                         ),
                         last_ivl,
                     );
