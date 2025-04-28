@@ -180,9 +180,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? $config.paramSearch
                         : defaultparamSearch;
                     const resp = await evaluateParams({
-                        params: fsrsParams($config),
                         search,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
+                        numOfRelearningSteps: $config.relearnSteps.length,
                     });
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
