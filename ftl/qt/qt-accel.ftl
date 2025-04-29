@@ -30,7 +30,6 @@ qt-accel-tools = &Tools
 qt-accel-undo = &Undo
 qt-accel-redo = &Redo
 qt-accel-set-due-date = Set &Due Date...
-qt-accel-grade-now = &Grade Now...
 qt-accel-forget = &Reset
 qt-accel-view = &View
 qt-accel-full-screen = Toggle &Full Screen
