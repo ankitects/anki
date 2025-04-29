@@ -397,6 +397,7 @@ class Browser(QMainWindow):
 
         add_ellipsis_to_action_label(f.actionCopy)
         add_ellipsis_to_action_label(f.action_forget)
+        add_ellipsis_to_action_label(f.action_grade_now)
 
     def _editor_web_view(self) -> EditorWebView:
         assert self.editor is not None
