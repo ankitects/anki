@@ -628,7 +628,7 @@
   </action>
   <action name="action_grade_now">
    <property name="text">
-    <string>actions_grade_now</string>
+    <string>qt_accel_grade_now</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+G</string>
