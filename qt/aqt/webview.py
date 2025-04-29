@@ -122,9 +122,10 @@ class AnkiWebPage(QWebEnginePage):
         self,
         onBridgeCmd: BridgeCommandHandler,
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
+        enable_api_access: bool = False,
         parent: QObject | None = None,
     ) -> None:
-        profile = self._profileForPage(kind)
+        profile = self._profileForPage(kind, enable_api_access)
         self._inject_user_script(profile, _bridge_script)
         QWebEnginePage.__init__(self, profile, parent)
         self._onBridgeCmd = onBridgeCmd
@@ -132,8 +133,10 @@ class AnkiWebPage(QWebEnginePage):
         self._setupBridge()
         self.open_links_externally = True
 
-    def _profileForPage(self, kind: AnkiWebViewKind) -> QWebEngineProfile:
-        have_api_access = kind in (
+    def _profileForPage(
+        self, kind: AnkiWebViewKind, enable_api_access: bool
+    ) -> QWebEngineProfile:
+        have_api_access = enable_api_access or kind in (
             AnkiWebViewKind.DECK_OPTIONS,
             AnkiWebViewKind.EDITOR,
             AnkiWebViewKind.DECK_STATS,
@@ -360,11 +363,12 @@ class AnkiWebView(QWebEngineView):
         parent: QWidget | None = None,
         title: str = "",  # used by add-ons; in Anki code use kind instead to set title
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
+        enable_api_access: bool = False,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
         self._kind = kind
         self.set_title(kind.value)
-        self.setPage(AnkiWebPage(self._onBridgeCmd, kind, self))
+        self.setPage(AnkiWebPage(self._onBridgeCmd, kind, enable_api_access, self))
         # reduce flicker
         self.page().setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
