@@ -322,8 +322,6 @@ pub(crate) fn reviews_for_fsrs(
         if user_graded && entry.review_kind == RevlogReviewKind::Learning {
             first_of_last_learn_entries = Some(index);
             revlogs_complete = true;
-        } else if first_of_last_learn_entries.is_some() {
-            break;
         } else if matches!(
             (entry.review_kind, entry.ease_factor),
             (RevlogReviewKind::Manual, 0)
@@ -343,6 +341,10 @@ pub(crate) fn reviews_for_fsrs(
             } else {
                 return None;
             }
+        // Previous versions of Anki didn't add a revlog entry when the card was
+        // reset.
+        } else if first_of_last_learn_entries.is_some() {
+            break;
         }
     }
     if training {
