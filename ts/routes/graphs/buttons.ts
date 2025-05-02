@@ -156,30 +156,6 @@ export function renderButtons(
         )
         .attr("direction", "ltr");
 
-    svg.select<SVGGElement>(".x-ticks").selectAll<SVGTextElement, GroupKind>("text")
-        .each(function(this: SVGTextElement, d: GroupKind) {
-            if (!(this instanceof SVGElement)) {
-                return;
-            }
-            const current_text_element_content = this.textContent;
-
-            this.textContent = "";
-
-            // Create a tspan for the text content (the "kind" part)
-            const tspan_kind = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-            tspan_kind.textContent = current_text_element_content;
-            tspan_kind.setAttribute("dy", "0.5em");
-
-            // Create a tspan for the percentage
-            const tspan_percentage = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-            tspan_percentage.textContent = `\u200e(${totalCorrect(d).percent}%)`;
-            tspan_percentage.setAttribute("dy", "1em");
-            tspan_percentage.setAttribute("x", "0");
-
-            this.appendChild(tspan_kind);
-            this.appendChild(tspan_percentage);
-        });
-
     const xButton = scaleBand()
         .domain(["1", "2", "3", "4"])
         .range([0, xGroup.bandwidth()])
