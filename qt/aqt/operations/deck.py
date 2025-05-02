@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import html
 from collections.abc import Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
@@ -22,7 +23,7 @@ def remove_decks(
         lambda out: tooltip(
             tr.browsing_cards_deleted_with_deckname(
                 count=out.count,
-                deck_name=deck_name,
+                deck_name=html.escape(deck_name),
             ),
             parent=parent,
         )

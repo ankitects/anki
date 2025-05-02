@@ -69,6 +69,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus {
             outline: none;
         }
+
+        min-height: 1.5em;
     }
 
     /* editable-base.scss contains styling targeting user HTML */
