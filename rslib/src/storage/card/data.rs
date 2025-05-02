@@ -85,7 +85,7 @@ impl CardData {
 
     pub(crate) fn convert_to_json(&mut self) -> Result<String> {
         if let Some(v) = &mut self.fsrs_stability {
-            round_to_places(v, 3)
+            round_to_places(v, 4)
         }
         if let Some(v) = &mut self.fsrs_difficulty {
             round_to_places(v, 3)
@@ -173,7 +173,7 @@ mod test {
         };
         assert_eq!(
             data.convert_to_json().unwrap(),
-            r#"{"s":123.457,"d":1.235,"dr":0.99,"decay":0.123}"#
+            r#"{"s":123.4568,"d":1.235,"dr":0.99,"decay":0.123}"#
         );
     }
 }
