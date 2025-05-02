@@ -223,7 +223,19 @@ export function renderButtons(
         const timesPressed = tr.statisticsAnswerButtonsButtonPressed();
         const correctStr = tr.statisticsHoursCorrect(totalCorrect(d.group));
         const pressedStr = `${timesPressed}: ${totalPressedStr(d)}`;
-        return `${button}: ${d.buttonNum}<br>${pressedStr}<br>${correctStr}`;
+        
+        let buttonText: string;
+        if (d.buttonNum === 1) {
+            buttonText = tr.studyingAgain();
+        } else if (d.buttonNum === 2) {
+            buttonText = tr.studyingHard();
+        } else if (d.buttonNum === 3) {
+            buttonText = tr.studyingGood();
+        } else if (d.buttonNum === 4) {
+            buttonText = tr.studyingEasy();
+        }
+        
+        return `${button}: ${d.buttonNum} (${buttonText})<br>${pressedStr}<br>${correctStr}`;
     }
 
     svg.select("g.hover-columns")
