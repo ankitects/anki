@@ -222,6 +222,7 @@ export function renderButtons(
         const button = tr.statisticsAnswerButtonsButtonNumber();
         const timesPressed = tr.statisticsAnswerButtonsButtonPressed();
         const correctStr = tr.statisticsHoursCorrect(totalCorrect(d.group));
+        const correctStrInfo = tr.statisticsHoursCorrectInfo();
         const pressedStr = `${timesPressed}: ${totalPressedStr(d)}`;
         
         let buttonText: string;
@@ -235,7 +236,7 @@ export function renderButtons(
             buttonText = tr.studyingEasy();
         }
         
-        return `${button}: ${d.buttonNum} (${buttonText})<br>${pressedStr}<br>${correctStr}`;
+        return `${button}: ${d.buttonNum} (${buttonText})<br>${pressedStr}<br>${correctStr} ${correctStrInfo}`;
     }
 
     svg.select("g.hover-columns")
