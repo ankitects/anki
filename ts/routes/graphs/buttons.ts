@@ -130,27 +130,29 @@ export function renderButtons(
         .domain(["learning", "young", "mature"])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
-        .call(
-            axisBottom(xGroup)
-                .tickFormat(
-                    ((d: GroupKind) => {
-                        let kind: string;
-                        switch (d) {
-                            case "learning":
-                                kind = tr.statisticsCountsLearningCards();
-                                break;
-                            case "young":
-                                kind = tr.statisticsCountsYoungCards();
-                                break;
-                            case "mature":
-                            default:
-                                kind = tr.statisticsCountsMatureCards();
-                                break;
-                        }
-                        return `${kind}`;
-                    }) as any,
-                )
-                .tickSizeOuter(0),
+        .call((selection) =>
+            selection.transition(trans).call(
+                axisBottom(xGroup)
+                    .tickFormat(
+                        ((d: GroupKind) => {
+                            let kind: string;
+                            switch (d) {
+                                case "learning":
+                                    kind = tr.statisticsCountsLearningCards();
+                                    break;
+                                case "young":
+                                    kind = tr.statisticsCountsYoungCards();
+                                    break;
+                                case "mature":
+                                default:
+                                    kind = tr.statisticsCountsMatureCards();
+                                    break;
+                            }
+                            return `${kind}`;
+                        }) as any,
+                    )
+                    .tickSizeOuter(0),
+            )
         )
         .attr("direction", "ltr");
 
