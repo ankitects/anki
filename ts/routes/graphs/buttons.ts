@@ -224,7 +224,7 @@ export function renderButtons(
         const correctStr = tr.statisticsHoursCorrect(totalCorrect(d.group));
         const correctStrInfo = tr.statisticsHoursCorrectInfo();
         const pressedStr = `${timesPressed}: ${totalPressedStr(d)}`;
-        
+
         let buttonText: string;
         if (d.buttonNum === 1) {
             buttonText = tr.studyingAgain();
@@ -234,8 +234,10 @@ export function renderButtons(
             buttonText = tr.studyingGood();
         } else if (d.buttonNum === 4) {
             buttonText = tr.studyingEasy();
+        } else {
+            buttonText = "";
         }
-        
+
         return `${button}: ${d.buttonNum} (${buttonText})<br>${pressedStr}<br>${correctStr} ${correctStrInfo}`;
     }
 
