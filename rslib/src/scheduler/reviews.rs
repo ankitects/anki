@@ -163,10 +163,10 @@ impl Collection {
                     rating,
                     milliseconds_taken: 0,
                     answered_at_millis: TimestampMillis::now().into(),
+                    // Process the card without updating queues yet
+                    from_queue: Some(false),
                 }
                 .into();
-                // Process the card without updating queues yet
-                answer.from_queue = false;
                 col.answer_card_inner(&mut answer)?;
             }
             Ok(())
