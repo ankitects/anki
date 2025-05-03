@@ -359,14 +359,14 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
             };
             let days_elapsed = if due > 365_000 {
                 // (re)learning
-                next_day_at.saturating_sub(due) as u32 / 86_400
+                (next_day_at as u32).saturating_sub(due as u32) / 86_400
             } else {
                 let Ok(days_elapsed) = ctx.get_raw(2).as_i64() else {
                     return Ok(None);
                 };
                 let review_day = due.saturating_sub(interval);
 
-                days_elapsed.saturating_sub(review_day) as u32
+                (days_elapsed as u32).saturating_sub(review_day as u32)
             };
             if let Ok(card_data) = ctx.get_raw(0).as_str() {
                 if !card_data.is_empty() {
