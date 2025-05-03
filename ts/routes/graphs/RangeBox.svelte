@@ -118,7 +118,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     input[type="radio"] {
-        margin-right: 0.3em;
+        margin-inline-end: 0.3em;
     }
 
     .range-box {
