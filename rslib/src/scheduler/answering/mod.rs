@@ -355,7 +355,7 @@ impl Collection {
             }
         }
 
-        // Handle queue updates based on from_queue flag
+        // Handle queue updates based on from_queue flag.
         if answer.from_queue {
             self.update_queues_after_answering_card(
                 &card,
@@ -368,6 +368,9 @@ impl Collection {
                     }))
                 ),
             )?;
+        } else {
+            // Clear in-memory study queues as the card might be hidden inside the queue.
+            self.clear_study_queues();
         }
 
         Ok(())
