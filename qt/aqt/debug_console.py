@@ -15,7 +15,6 @@ import anki.cards
 import aqt
 import aqt.forms
 from aqt import gui_hooks
-from aqt.profiles import ProfileManager
 from aqt.qt import *
 from aqt.utils import (
     disable_help_button,
