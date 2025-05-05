@@ -80,7 +80,7 @@ class DebugConsole(QDialog):
         self._log.setFont(font)
 
     def _setup_scripts(self) -> None:
-        self._dir = ProfileManager.get_created_base_folder(None).joinpath(SCRIPT_FOLDER)
+        self._dir = Path(aqt.mw.pm.base).joinpath(SCRIPT_FOLDER)
         self._dir.mkdir(exist_ok=True)
         self._script.addItem(UNSAVED_SCRIPT)
         self._script.addItems(os.listdir(self._dir))
