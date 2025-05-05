@@ -127,11 +127,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .search-link {
-        border: none;
+        border: 1px transparent solid;
         background: transparent;
         cursor: pointer;
         box-shadow: none;
-        padding: 1px 3px;
+        padding: 0 2px;
         margin-bottom: 0px;
     }
 
