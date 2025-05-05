@@ -8,7 +8,7 @@ mentioned there no longer apply:
 https://forums.ankiweb.net/t/guide-how-to-build-and-run-anki-from-source-with-xubuntu-20-04/12865
 
 You can see a full list of buildtime and runtime requirements by looking at the
-[Dockerfiles](../.buildkite/linux/docker/Dockerfile.amd64) used to build the
+[Dockerfile](../.buildkite/linux/docker/Dockerfile) used to build the
 official releases.
 
 **Ensure some basic tools are installed**:
