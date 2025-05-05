@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let data: PageData;
 
     const showRevlog = $page.url.searchParams.get("revlog") !== "0";
+    const showCurve = $page.url.searchParams.get("curve") !== "0";
 
     globalThis.anki ||= {};
     globalThis.anki.updateCardInfos = async (card_id: string): Promise<void> => {
@@ -25,11 +26,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <center>
     {#if data.currentInfo}
         <h3>Current</h3>
-        <CardInfo stats={data.currentInfo} {showRevlog} />
+        <CardInfo stats={data.currentInfo} {showRevlog} {showCurve} />
     {/if}
     {#if data.previousInfo}
         <h3>Previous</h3>
-        <CardInfo stats={data.previousInfo} {showRevlog} />
+        <CardInfo stats={data.previousInfo} {showRevlog} {showCurve} />
     {/if}
 </center>
 
