@@ -315,7 +315,7 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                 let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
                     return Ok(None);
                 };
-                (next_day_at).saturating_sub(due) as u32 / 86_400
+                (next_day_at as u32).saturating_sub(due as u32) / 86_400
             } else {
                 let Ok(ivl) = ctx.get_raw(2).as_i64() else {
                     return Ok(None);
@@ -324,7 +324,7 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                     return Ok(None);
                 };
                 let review_day = due.saturating_sub(ivl);
-                days_elapsed.saturating_sub(review_day) as u32
+                (days_elapsed as u32).saturating_sub(review_day as u32)
             };
             let decay = card_data.decay.unwrap_or(FSRS5_DEFAULT_DECAY);
             Ok(card_data.memory_state().map(|state| {
@@ -359,14 +359,14 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
             };
             let days_elapsed = if due > 365_000 {
                 // (re)learning
-                next_day_at.saturating_sub(due) as u32 / 86_400
+                (next_day_at as u32).saturating_sub(due as u32) / 86_400
             } else {
                 let Ok(days_elapsed) = ctx.get_raw(2).as_i64() else {
                     return Ok(None);
                 };
                 let review_day = due.saturating_sub(interval);
 
-                days_elapsed.saturating_sub(review_day) as u32
+                (days_elapsed as u32).saturating_sub(review_day as u32)
             };
             if let Ok(card_data) = ctx.get_raw(0).as_str() {
                 if !card_data.is_empty() {

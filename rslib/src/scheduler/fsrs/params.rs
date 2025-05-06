@@ -313,17 +313,18 @@ pub(crate) fn reviews_for_fsrs(
         if entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0 {
             continue;
         }
+        // For incomplete review histories, initial memory state is based on the first
+        // user-graded review after the cutoff date with interval >= 1d.
         let within_cutoff = entry.id.0 > ignore_revlogs_before.0;
         let user_graded = matches!(entry.button_chosen, 1..=4);
-        if user_graded && within_cutoff {
+        let interday = entry.interval >= 1 || entry.interval <= -86400;
+        if user_graded && within_cutoff && interday {
             first_user_grade_idx = Some(index);
         }
 
         if user_graded && entry.review_kind == RevlogReviewKind::Learning {
             first_of_last_learn_entries = Some(index);
             revlogs_complete = true;
-        } else if first_of_last_learn_entries.is_some() {
-            break;
         } else if matches!(
             (entry.review_kind, entry.ease_factor),
             (RevlogReviewKind::Manual, 0)
@@ -343,6 +344,10 @@ pub(crate) fn reviews_for_fsrs(
             } else {
                 return None;
             }
+        // Previous versions of Anki didn't add a revlog entry when the card was
+        // reset.
+        } else if first_of_last_learn_entries.is_some() {
+            break;
         }
     }
     if training {
@@ -475,6 +480,7 @@ pub(crate) mod tests {
             review_kind,
             id: days_ago_ms(days_ago).into(),
             button_chosen: 3,
+            interval: 1,
             ..Default::default()
         }
     }
@@ -707,6 +713,28 @@ pub(crate) mod tests {
         // L = learning step
         // L | L R
         assert_eq!(convert_ignore_before(revlogs, true, days_ago_ms(9)), None);
+    }
+
+    #[test]
+    fn skip_initial_relearning_steps() {
+        let revlogs = &[
+            revlog(RevlogReviewKind::Review, 10),
+            RevlogEntry {
+                button_chosen: 1, // Again
+                interval: -600,
+                ..revlog(RevlogReviewKind::Review, 8)
+            },
+            revlog(RevlogReviewKind::Relearning, 8),
+            revlog(RevlogReviewKind::Review, 6),
+        ];
+        // | = Ignore before
+        // A = Again
+        // X = Relearning
+        // R | A X R
+        assert_eq!(
+            convert_ignore_before(revlogs, false, days_ago_ms(9)),
+            fsrs_items!([review(0)], [review(0), review(2)])
+        );
     }
 
     #[test]
