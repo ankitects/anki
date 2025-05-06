@@ -522,7 +522,6 @@ def import_done() -> bytes:
                 window.setWindowModality(Qt.WindowModality.NonModal)
                 window.show()
 
-    aqt.mw.col.models._clear_cache()
     aqt.mw.taskman.run_on_main(update_window_modality)
     return b""
 
