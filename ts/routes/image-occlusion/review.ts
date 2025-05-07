@@ -263,15 +263,29 @@ function drawShape({
     ctx.fillStyle = fill;
     ctx.strokeStyle = stroke;
     ctx.lineWidth = strokeWidth;
+    const angle = ((shape.angle ?? 0) * Math.PI) / 180;
     if (shape instanceof Rectangle) {
+        if (angle) {
+            ctx.save();
+            ctx.translate(shape.left, shape.top);
+            ctx.rotate(angle);
+            ctx.translate(-shape.left, -shape.top);
+        }
         ctx.fillRect(shape.left, shape.top, shape.width, shape.height);
         // ctx stroke methods will draw a visible stroke, even if the width is 0
         if (strokeWidth) {
             ctx.strokeRect(shape.left, shape.top, shape.width, shape.height);
         }
+        if (angle) { ctx.restore(); }
     } else if (shape instanceof Ellipse) {
         const adjustedLeft = shape.left + shape.rx;
         const adjustedTop = shape.top + shape.ry;
+        if (angle) {
+            ctx.save();
+            ctx.translate(shape.left, shape.top);
+            ctx.rotate(angle);
+            ctx.translate(-shape.left, -shape.top);
+        }
         ctx.beginPath();
         ctx.ellipse(
             adjustedLeft,
@@ -288,6 +302,7 @@ function drawShape({
         if (strokeWidth) {
             ctx.stroke();
         }
+        if (angle) { ctx.restore(); }
     } else if (shape instanceof Polygon) {
         const offset = getPolygonOffset(shape);
         ctx.save();
@@ -329,10 +344,17 @@ function drawShape({
             }
             totalHeight += lineHeight;
         }
+        const left = shape.left / shape.scaleX;
+        const top = shape.top / shape.scaleY;
+        if (angle) {
+            ctx.translate(left, top);
+            ctx.rotate(angle);
+            ctx.translate(-left, -top);
+        }
         ctx.fillStyle = TEXT_BACKGROUND_COLOR;
         ctx.fillRect(
-            shape.left / shape.scaleX,
-            shape.top / shape.scaleY,
+            left,
+            top,
             maxWidth + TEXT_PADDING,
             totalHeight + TEXT_PADDING,
         );
