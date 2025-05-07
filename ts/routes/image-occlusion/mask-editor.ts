@@ -99,8 +99,6 @@ function initCanvas(): fabric.Canvas {
     // Disable uniform scaling
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
-    // disable rotation globally
-    delete fabric.Object.prototype.controls.mtr;
     // disable object caching
     fabric.Object.prototype.objectCaching = false;
     // add a border to corner to handle blend of control
