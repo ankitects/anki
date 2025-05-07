@@ -75,6 +75,7 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
         text: cloze.dataset.text,
         scale: cloze.dataset.scale,
         fs: cloze.dataset.fontSize,
+        angle: cloze.dataset.angle,
     };
     return buildShape(type, props);
 }
@@ -91,6 +92,9 @@ function buildShape(type: ShapeType, props: Record<string, any>): Shape {
     );
     props.top = parseFloat(
         Number.isNaN(Number(props.top)) ? ".0000" : props.top,
+    );
+    props.angle = parseFloat(
+        Number.isNaN(Number(props.angle)) ? "0" : props.angle,
     );
     switch (type) {
         case "rect": {

@@ -18,6 +18,7 @@ export type ShapeOrShapes = Shape | Shape[];
 export class Shape {
     left: number;
     top: number;
+    angle?: number; // polygons don't use it
     fill: string;
     /** Whether occlusions from other cloze numbers should be shown on the
      * question side. Used only in reviewer code.
@@ -27,11 +28,12 @@ export class Shape {
     ordinal: number | undefined;
 
     constructor(
-        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = undefined }: ConstructorParams<Shape> =
-            {},
+        { left = 0, top = 0, angle = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = undefined }:
+            ConstructorParams<Shape> = {},
     ) {
         this.left = left;
         this.top = top;
+        this.angle = angle;
         this.fill = fill;
         this.occludeInactive = occludeInactive;
         this.ordinal = ordinal;
@@ -44,6 +46,7 @@ export class Shape {
         return {
             left: floatToDisplay(this.left),
             top: floatToDisplay(this.top),
+            ...(!this.angle ? {} : { angle: floatToDisplay(this.angle) }),
             ...(this.fill === SHAPE_MASK_COLOR ? {} : { fill: this.fill }),
         };
     }
@@ -85,6 +88,7 @@ export class Shape {
 export interface ShapeDataForCloze {
     left: string;
     top: string;
+    angle?: string;
     fill?: string;
     oi?: string;
 }
