@@ -76,7 +76,7 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
 
     activeObject.toGroup().set({
         opacity: get(opacityStateStore) ? 0.4 : 1,
-    });
+    }).setControlsVisibility({ mtr: false });
 
     redraw(canvas);
 };
