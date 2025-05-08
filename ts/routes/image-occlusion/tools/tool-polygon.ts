@@ -87,11 +87,11 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
 
     const point = new fabric.Circle({
         radius: 5,
-        fill: "#ffffff",
+        fill: "transparent",
         stroke: "#333333",
-        strokeWidth: 0.5,
-        originX: "left",
-        originY: "top",
+        strokeWidth: 1.5,
+        originX: "center",
+        originY: "center",
         left: origX,
         top: origY,
         selectable: false,
@@ -102,7 +102,7 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
 
     if (pointsList.length === 0) {
         point.set({
-            fill: "red",
+            stroke: "red",
         });
     }
 
