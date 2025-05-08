@@ -98,6 +98,7 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
         hasBorders: false,
         hasControls: false,
         objectCaching: false,
+        perPixelTargetFind: false,
     });
 
     if (pointsList.length === 0) {
