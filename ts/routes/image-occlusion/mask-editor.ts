@@ -95,7 +95,7 @@ function initCanvas(): fabric.Canvas {
     undoStack.setCanvas(canvas);
     // find object per-pixel basis rather than according to bounding box,
     // allow click through transparent area
-    canvas.perPixelTargetFind = true;
+    fabric.Object.prototype.perPixelTargetFind = true;
     // Disable uniform scaling
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
