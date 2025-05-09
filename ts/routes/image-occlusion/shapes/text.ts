@@ -7,7 +7,7 @@ import { TEXT_BACKGROUND_COLOR, TEXT_COLOR, TEXT_FONT_FAMILY, TEXT_FONT_SIZE, TE
 import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
-import { floatToDisplay } from "./floats";
+import { floatToDisplay } from "./lib";
 
 export class Text extends Shape {
     text: string;

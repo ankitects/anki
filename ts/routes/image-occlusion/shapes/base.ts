@@ -5,7 +5,7 @@ import { fabric } from "fabric";
 
 import { SHAPE_MASK_COLOR } from "../tools/lib";
 import type { ConstructorParams, Size } from "../types";
-import { floatToDisplay } from "./floats";
+import { floatToDisplay } from "./lib";
 import { xFromNormalized, xToNormalized, yFromNormalized, yToNormalized } from "./position";
 
 export type ShapeOrShapes = Shape | Shape[];
