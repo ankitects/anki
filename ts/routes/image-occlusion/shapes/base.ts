@@ -5,7 +5,7 @@ import { fabric } from "fabric";
 
 import { SHAPE_MASK_COLOR } from "../tools/lib";
 import type { ConstructorParams, Size } from "../types";
-import { floatToDisplay } from "./lib";
+import { angleToStored, floatToDisplay } from "./lib";
 import { xFromNormalized, xToNormalized, yFromNormalized, yToNormalized } from "./position";
 
 export type ShapeOrShapes = Shape | Shape[];
@@ -43,10 +43,11 @@ export class Shape {
      * text.
      */
     toDataForCloze(): ShapeDataForCloze {
+        const angle = angleToStored(this.angle);
         return {
             left: floatToDisplay(this.left),
             top: floatToDisplay(this.top),
-            ...(!this.angle ? {} : { angle: floatToDisplay(this.angle) }),
+            ...(!angle ? {} : { angle: angle.toString() }),
             ...(this.fill === SHAPE_MASK_COLOR ? {} : { fill: this.fill }),
         };
     }
