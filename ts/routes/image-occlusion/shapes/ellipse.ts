@@ -17,6 +17,7 @@ export class Ellipse extends Shape {
         super(rest);
         this.rx = rx;
         this.ry = ry;
+        this.id = "ellipse-" + new Date().getTime();
     }
 
     toDataForCloze(): EllipseDataForCloze {
