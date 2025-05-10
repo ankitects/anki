@@ -15,6 +15,7 @@ export class Polygon extends Shape {
     constructor({ points = [], ...rest }: ConstructorParams<Polygon> = {}) {
         super(rest);
         this.points = points;
+        this.id = "polygon-" + new Date().getTime();
     }
 
     toDataForCloze(): PolygonDataForCloze {

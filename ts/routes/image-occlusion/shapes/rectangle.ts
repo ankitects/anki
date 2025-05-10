@@ -17,6 +17,7 @@ export class Rectangle extends Shape {
         super(rest);
         this.width = width;
         this.height = height;
+        this.id = "rect-" + new Date().getTime();
     }
 
     toDataForCloze(): RectangleDataForCloze {
