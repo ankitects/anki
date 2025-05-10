@@ -148,7 +148,7 @@ export function renderButtons(
                                     kind = tr.statisticsCountsMatureCards();
                                     break;
                             }
-                            return `${kind} \u200e(${totalCorrect(d).percent}%)`;
+                            return `${kind}`;
                         }) as any,
                     )
                     .tickSizeOuter(0),

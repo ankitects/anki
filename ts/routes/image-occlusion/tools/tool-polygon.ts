@@ -87,22 +87,23 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
 
     const point = new fabric.Circle({
         radius: 5,
-        fill: "#ffffff",
+        fill: "transparent",
         stroke: "#333333",
-        strokeWidth: 0.5,
-        originX: "left",
-        originY: "top",
+        strokeWidth: 1.5,
+        originX: "center",
+        originY: "center",
         left: origX,
         top: origY,
         selectable: false,
         hasBorders: false,
         hasControls: false,
         objectCaching: false,
+        perPixelTargetFind: false,
     });
 
     if (pointsList.length === 0) {
         point.set({
-            fill: "red",
+            stroke: "red",
         });
     }
 
@@ -112,8 +113,8 @@ const addPoint = (canvas: fabric.Canvas, options): void => {
         strokeWidth: 2,
         fill: "#999999",
         stroke: "#999999",
-        originX: "left",
-        originY: "top",
+        originX: "center",
+        originY: "center",
         selectable: false,
         hasBorders: false,
         hasControls: false,
@@ -196,6 +197,7 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         strokeWidth: 1,
         strokeUniform: true,
         noScaleCache: false,
+        selectable: false,
         opacity: get(opacityStateStore) ? 0.4 : 1,
     });
     polygon["id"] = "polygon-" + new Date().getTime();
