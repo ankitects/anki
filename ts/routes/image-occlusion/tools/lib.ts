@@ -263,6 +263,8 @@ export function enableUniformScaling(canvas: fabric.Canvas, obj: fabric.Object):
 
 export function addBorder(obj: fabric.Object): void {
     obj.stroke = BORDER_COLOR;
+    obj.strokeWidth = 1;
+    obj.strokeUniform = true;
 }
 
 export const redraw = (canvas: fabric.Canvas): void => {
