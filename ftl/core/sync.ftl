@@ -53,7 +53,7 @@ sync-clock-off = Unable to sync - your clock is not set to the correct time.
 sync-upload-too-large =
     Your collection file is too large to send to AnkiWeb. You can reduce its size by removing any unwanted decks (optionally exporting them first), and then using Check Database to shrink the file size down.
     
-    ({ $details })
+    { $details } (uncompressed)
 sync-sign-in = Sign in
 sync-ankihub-dialog-heading = AnkiHub Login
 sync-ankihub-username-label = Username or Email:
