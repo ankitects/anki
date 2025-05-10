@@ -123,8 +123,7 @@ pub fn check_upload_limit(size: usize, limit: usize) -> Result<()> {
     let collection_size_in_mb: f64 = size as f64 / size_of_one_mb;
     let limit_size_in_mb: f64 = limit as f64 / size_of_one_mb;
 
-    //if size >= limit {
-    if true {
+    if size >= limit {
         Err(AnkiError::sync_error(
             format!(
                 "{collection_size_in_mb:.2} MB > {limit_size_in_mb:.2} MB"
