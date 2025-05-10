@@ -127,7 +127,7 @@ pub fn check_upload_limit(size: usize, limit: usize) -> Result<()> {
     if true {
         Err(AnkiError::sync_error(
             format!(
-                "{collection_size_in_mb:.2} MB > {limit_size_in_mb:.2} MB (uncompressed)"
+                "{collection_size_in_mb:.2} MB > {limit_size_in_mb:.2} MB"
             ),
             SyncErrorKind::UploadTooLarge,
         ))
