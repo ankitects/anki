@@ -28,6 +28,7 @@ export class Text extends Shape {
         this.scaleX = scaleX;
         this.scaleY = scaleY;
         this.fontSize = fontSize;
+        this.id = "text-" + new Date().getTime();
     }
 
     toDataForCloze(): TextDataForCloze {

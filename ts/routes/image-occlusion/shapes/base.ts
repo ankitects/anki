@@ -26,6 +26,7 @@ export class Shape {
     occludeInactive?: boolean;
     /* Cloze ordinal */
     ordinal: number | undefined;
+    id: string | undefined;
 
     constructor(
         { left = 0, top = 0, angle = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = undefined }:

@@ -197,6 +197,7 @@ const generatePolygon = (canvas: fabric.Canvas, pointsList): void => {
         strokeWidth: 1,
         strokeUniform: true,
         noScaleCache: false,
+        selectable: false,
         opacity: get(opacityStateStore) ? 0.4 : 1,
     });
     polygon["id"] = "polygon-" + new Date().getTime();
