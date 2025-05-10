@@ -88,6 +88,7 @@ class MPVBase:
         "--keep-open=no",
         "--autoload-files=no",
         "--gapless-audio=no",
+        "--no-ytdl",
     ]
 
     if is_win:
