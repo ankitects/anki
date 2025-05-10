@@ -6,7 +6,7 @@ import { fabric } from "fabric";
 import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
-import { floatToDisplay } from "./floats";
+import { floatToDisplay } from "./lib";
 import { xFromNormalized, xToNormalized, yFromNormalized, yToNormalized } from "./position";
 
 export class Polygon extends Shape {

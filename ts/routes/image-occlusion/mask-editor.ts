@@ -99,8 +99,6 @@ function initCanvas(): fabric.Canvas {
     // Disable uniform scaling
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
-    // disable rotation globally
-    delete fabric.Object.prototype.controls.mtr;
     // disable object caching
     fabric.Object.prototype.objectCaching = false;
     // add a border to corner to handle blend of control
@@ -108,6 +106,11 @@ function initCanvas(): fabric.Canvas {
     fabric.Object.prototype.cornerStyle = "circle";
     fabric.Object.prototype.cornerStrokeColor = "#000000";
     fabric.Object.prototype.padding = 8;
+    // disable rotation when selecting
+    canvas.on("selection:created", () => {
+        const g = canvas.getActiveObject();
+        if (g && g instanceof fabric.Group) { g.setControlsVisibility({ mtr: false }); }
+    });
     canvas.on("object:modified", (evt) => {
         if (evt.target instanceof fabric.Polygon) {
             modifiedPolygon(canvas, evt.target);

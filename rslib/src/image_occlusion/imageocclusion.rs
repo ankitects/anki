@@ -74,6 +74,11 @@ pub fn get_image_cloze_data(text: &str) -> String {
                         result.push_str(&format!("data-top=\"{}\" ", property.value));
                     }
                 }
+                "angle" => {
+                    if !property.value.is_empty() {
+                        result.push_str(&format!("data-angle=\"{}\" ", property.value));
+                    }
+                }
                 "width" => {
                     if !is_empty_or_zero(&property.value) {
                         result.push_str(&format!("data-width=\"{}\" ", property.value));

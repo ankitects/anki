@@ -76,7 +76,7 @@ export const groupShapes = (canvas: fabric.Canvas): void => {
 
     activeObject.toGroup().set({
         opacity: get(opacityStateStore) ? 0.4 : 1,
-    });
+    }).setControlsVisibility({ mtr: false });
 
     redraw(canvas);
 };
@@ -228,18 +228,21 @@ const setShapePosition = (
     boundingBox: fabric.Rect,
     object: fabric.Object,
 ): void => {
-    if (object.left! < 0) {
-        object.set({ left: 0 });
+    const { left, top, width, height } = object.getBoundingRect(true);
+
+    if (left < 0) {
+        object.set({ left: Math.max(object.left! - left, 0) });
     }
-    if (object.top! < 0) {
-        object.set({ top: 0 });
+    if (top < 0) {
+        object.set({ top: Math.max(object.top! - top, 0) });
     }
-    if (object.left! + object.width! * object.scaleX! + object.strokeWidth! > boundingBox.width!) {
-        object.set({ left: boundingBox.width! - object.width! * object.scaleX! });
+    if (left > boundingBox.width!) {
+        object.set({ left: object.left! - left - width + boundingBox.width! });
     }
-    if (object.top! + object.height! * object.scaleY! + object.strokeWidth! > boundingBox.height!) {
-        object.set({ top: boundingBox.height! - object.height! * object.scaleY! });
+    if (top > boundingBox.height!) {
+        object.set({ top: object.top! - top - height + boundingBox.height! });
     }
+
     object.setCoords();
 };
 
@@ -277,23 +280,25 @@ export const makeShapesRemainInCanvas = (canvas: fabric.Canvas, boundingBox: fab
     canvas.on("object:moving", function(e) {
         const obj = e.target!;
 
-        const objWidth = obj.getScaledWidth();
-        const objHeight = obj.getScaledHeight();
+        const { left: objBbLeft, top: objBbTop, width: objBbWidth, height: objBbHeight } = obj.getBoundingRect(
+            true,
+            true,
+        );
 
-        if (objWidth > boundingBox.width! || objHeight > boundingBox.height!) {
+        if (objBbWidth > boundingBox.width! || objBbHeight > boundingBox.height!) {
             return;
         }
-
-        const top = obj.top!;
-        const left = obj.left!;
 
         const topBound = boundingBox.top!;
         const bottomBound = topBound + boundingBox.height! + 5;
         const leftBound = boundingBox.left!;
         const rightBound = leftBound + boundingBox.width! + 5;
 
-        obj.left = Math.min(Math.max(left, leftBound), rightBound - objWidth);
-        obj.top = Math.min(Math.max(top, topBound), bottomBound - objHeight);
+        const newBbLeft = Math.min(Math.max(objBbLeft, leftBound), rightBound - objBbWidth);
+        const newBbTop = Math.min(Math.max(objBbTop, topBound), bottomBound - objBbHeight);
+
+        obj.left = obj.left! + newBbLeft - objBbLeft;
+        obj.top = obj.top! + newBbTop - objBbTop;
     });
 };
 
