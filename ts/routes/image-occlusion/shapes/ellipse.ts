@@ -6,7 +6,7 @@ import { fabric } from "fabric";
 import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
-import { floatToDisplay } from "./floats";
+import { floatToDisplay } from "./lib";
 import { xFromNormalized, xToNormalized, yFromNormalized, yToNormalized } from "./position";
 
 export class Ellipse extends Shape {
@@ -17,6 +17,7 @@ export class Ellipse extends Shape {
         super(rest);
         this.rx = rx;
         this.ry = ry;
+        this.id = "ellipse-" + new Date().getTime();
     }
 
     toDataForCloze(): EllipseDataForCloze {

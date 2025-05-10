@@ -95,12 +95,10 @@ function initCanvas(): fabric.Canvas {
     undoStack.setCanvas(canvas);
     // find object per-pixel basis rather than according to bounding box,
     // allow click through transparent area
-    canvas.perPixelTargetFind = true;
+    fabric.Object.prototype.perPixelTargetFind = true;
     // Disable uniform scaling
     canvas.uniformScaling = false;
     canvas.uniScaleKey = "none";
-    // disable rotation globally
-    delete fabric.Object.prototype.controls.mtr;
     // disable object caching
     fabric.Object.prototype.objectCaching = false;
     // add a border to corner to handle blend of control
@@ -108,6 +106,11 @@ function initCanvas(): fabric.Canvas {
     fabric.Object.prototype.cornerStyle = "circle";
     fabric.Object.prototype.cornerStrokeColor = "#000000";
     fabric.Object.prototype.padding = 8;
+    // disable rotation when selecting
+    canvas.on("selection:created", () => {
+        const g = canvas.getActiveObject();
+        if (g && g instanceof fabric.Group) { g.setControlsVisibility({ mtr: false }); }
+    });
     canvas.on("object:modified", (evt) => {
         if (evt.target instanceof fabric.Polygon) {
             modifiedPolygon(canvas, evt.target);

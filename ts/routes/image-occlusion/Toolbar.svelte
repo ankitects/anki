@@ -299,7 +299,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? 'left-border-radius'
                         : 'right-border-radius'}"
                     {iconSize}
-                    on:click={tool.action}
+                    on:click={() => {
+                        tool.action();
+                        handleToolChanges(activeTool);
+                    }}
                     tooltip="{tool.tooltip()} ({getPlatformString(tool.shortcut)})"
                     disabled={tool.name === "undo"
                         ? !$undoStack.undoable
