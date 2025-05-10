@@ -388,6 +388,7 @@ class SimpleMpvPlayer(SimpleProcessPlayer, VideoPlayer):
             "--keep-open=no",
             "--input-media-keys=no",
             "--autoload-files=no",
+            "--no-ytdl",
         ]
     )
 
