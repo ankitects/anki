@@ -551,9 +551,10 @@ class Reviewer:
         def after_answer(changes: OpChanges) -> None:
             if gui_hooks.reviewer_did_answer_card.count() > 0:
                 self.card.load()
+            suspended = self.card.queue < 0
             self._after_answering(ease)
             if sched.state_is_leech(answer.new_state):
-                self.onLeech()
+                self.onLeech(suspended)
 
         self.state = "transition"
         answer_card(parent=self.mw, answer=answer).success(
@@ -949,11 +950,11 @@ timerStopped = false;
     # Leeches
     ##########################################################################
 
-    def onLeech(self, card: Card | None = None) -> None:
+    def onLeech(self, suspended: bool = False) -> None:
         # for now
         s = tr.studying_card_was_a_leech()
         # v3 scheduler doesn't report this
-        if card and card.queue < 0:
+        if suspended:
             s += f" {tr.studying_it_has_been_suspended()}"
         tooltip(s)
 
