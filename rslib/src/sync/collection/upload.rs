@@ -119,9 +119,13 @@ pub enum UploadResponse {
 }
 
 pub fn check_upload_limit(size: usize, limit: usize) -> Result<()> {
+    let size_of_one_mb: f64 = 1024.0 * 1024.0;
+    let collection_size_in_mb: f64 = size as f64 / size_of_one_mb;
+    let limit_size_in_mb: f64 = limit as f64 / size_of_one_mb;
+
     if size >= limit {
         Err(AnkiError::sync_error(
-            format!("{size} > {limit}"),
+            format!("{collection_size_in_mb:.2} MB > {limit_size_in_mb:.2} MB"),
             SyncErrorKind::UploadTooLarge,
         ))
     } else {
