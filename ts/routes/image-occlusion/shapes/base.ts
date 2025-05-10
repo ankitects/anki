@@ -5,7 +5,7 @@ import { fabric } from "fabric";
 
 import { SHAPE_MASK_COLOR } from "../tools/lib";
 import type { ConstructorParams, Size } from "../types";
-import { floatToDisplay } from "./floats";
+import { angleToStored, floatToDisplay } from "./lib";
 import { xFromNormalized, xToNormalized, yFromNormalized, yToNormalized } from "./position";
 
 export type ShapeOrShapes = Shape | Shape[];
@@ -18,6 +18,7 @@ export type ShapeOrShapes = Shape | Shape[];
 export class Shape {
     left: number;
     top: number;
+    angle?: number; // polygons don't use it
     fill: string;
     /** Whether occlusions from other cloze numbers should be shown on the
      * question side. Used only in reviewer code.
@@ -27,11 +28,12 @@ export class Shape {
     ordinal: number | undefined;
 
     constructor(
-        { left = 0, top = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = undefined }: ConstructorParams<Shape> =
-            {},
+        { left = 0, top = 0, angle = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = undefined }:
+            ConstructorParams<Shape> = {},
     ) {
         this.left = left;
         this.top = top;
+        this.angle = angle;
         this.fill = fill;
         this.occludeInactive = occludeInactive;
         this.ordinal = ordinal;
@@ -41,9 +43,11 @@ export class Shape {
      * text.
      */
     toDataForCloze(): ShapeDataForCloze {
+        const angle = angleToStored(this.angle);
         return {
             left: floatToDisplay(this.left),
             top: floatToDisplay(this.top),
+            ...(!angle ? {} : { angle: angle.toString() }),
             ...(this.fill === SHAPE_MASK_COLOR ? {} : { fill: this.fill }),
         };
     }
@@ -85,6 +89,7 @@ export class Shape {
 export interface ShapeDataForCloze {
     left: string;
     top: string;
+    angle?: string;
     fill?: string;
     oi?: string;
 }

@@ -9,6 +9,7 @@ import type { GetImageOcclusionNoteResponse_ImageOcclusion } from "@generated/an
 
 import type { Shape, ShapeOrShapes } from "./base";
 import { Ellipse } from "./ellipse";
+import { storedToAngle } from "./lib";
 import { Point, Polygon } from "./polygon";
 import { Rectangle } from "./rectangle";
 import { Text } from "./text";
@@ -75,6 +76,7 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
         text: cloze.dataset.text,
         scale: cloze.dataset.scale,
         fs: cloze.dataset.fontSize,
+        angle: cloze.dataset.angle,
     };
     return buildShape(type, props);
 }
@@ -92,6 +94,7 @@ function buildShape(type: ShapeType, props: Record<string, any>): Shape {
     props.top = parseFloat(
         Number.isNaN(Number(props.top)) ? ".0000" : props.top,
     );
+    props.angle = storedToAngle(props.angle) ?? 0;
     switch (type) {
         case "rect": {
             return new Rectangle({
