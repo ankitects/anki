@@ -65,7 +65,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <SettingTitle
             on:click={() => openHelpModal(Object.keys(settings).indexOf("delimiter"))}
         >
-            {settings.delimiter.title}
+            {$metadata.forceDelimiter
+                ? settings.delimiter.title
+                : tr.importingFieldSeparatorGuessed()}
         </SettingTitle>
     </EnumSelectorRow>
 

@@ -15,6 +15,7 @@ importing-colon = Colon
 importing-comma = Comma
 importing-empty-first-field = Empty first field: { $val }
 importing-field-separator = Field separator
+importing-field-separator-guessed =  Field separator (guessed)
 importing-field-mapping = Field mapping
 importing-field-of-file-is = Field <b>{ $val }</b> of file is:
 importing-fields-separated-by = Fields separated by: { $val }
