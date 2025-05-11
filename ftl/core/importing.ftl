@@ -218,6 +218,9 @@ importing-field-separator-help =
     Please note that if this character appears in any field itself, the field has to be
     quoted accordingly to the CSV standard. Spreadsheet programs like LibreOffice will
     do this automatically.
+
+    It cannot be changed if the text file forces use of a specific separator via a file header.
+    If a file header is not present, Anki will try to guess what the separator is.
 importing-allow-html-in-fields-help =
     Enable this if the file contains HTML formatting. E.g. if the file contains the string
     '&lt;br&gt;', it will appear as a line break on your card. On the other hand, with this
