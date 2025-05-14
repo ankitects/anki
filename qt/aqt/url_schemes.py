@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from markdown import markdown
 
-from aqt.qt import Qt, QUrl
+from aqt.qt import QMessageBox, Qt, QUrl
 from aqt.utils import ask_user_dialog, getText, openLink, tr
 
 
@@ -32,6 +32,13 @@ def is_supported_scheme(url: QUrl) -> bool:
     return scheme in allowed_schemes or scheme in ["http", "https"]
 
 
+def always_allow_scheme(url: QUrl) -> None:
+    from aqt import mw
+
+    scheme = url.scheme().lower()
+    mw.pm.always_allow_scheme(scheme)
+
+
 def open_url_if_supported_scheme(url: QUrl) -> None:
     from aqt import mw
 
@@ -41,7 +48,10 @@ def open_url_if_supported_scheme(url: QUrl) -> None:
 
         def on_button(idx: int) -> None:
             if idx == 0:
-                show_url_schemes_dialog()
+                openLink(url)
+            elif idx == 1:
+                always_allow_scheme(url)
+                openLink(url)
 
         msg = markdown(
             tr.preferences_url_scheme_warning(link=url.toString(), scheme=url.scheme())
@@ -49,10 +59,12 @@ def open_url_if_supported_scheme(url: QUrl) -> None:
         ask_user_dialog(
             msg,
             buttons=[
-                tr.actions_with_ellipsis(action=tr.preferences_url_schemes()),
-                tr.actions_close(),
+                tr.preferences_url_scheme_allow_once(),
+                tr.preferences_url_scheme_always_allow(),
+                (tr.actions_cancel(), QMessageBox.ButtonRole.RejectRole),
             ],
             parent=mw,
             callback=on_button,
             textFormat=Qt.TextFormat.RichText,
+            default_button=0,
         )
