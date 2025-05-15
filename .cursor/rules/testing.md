@@ -1,2 +1,0 @@
-- To build and check the project, use ./check(.bat)
-- This will format files, then run lints and unit tests.

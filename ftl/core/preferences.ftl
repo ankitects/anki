@@ -89,6 +89,8 @@ preferences-url-scheme-prompt = Allowed { preferences-url-schemes } (space-separ
 preferences-url-scheme-warning = Blocked attempt to open `{ $link }`, which may be a security issue.
 
     If you trust the deck author and wish to proceed, you can add `{ $scheme }` to your allowed { preferences-url-schemes }.
+preferences-url-scheme-allow-once = Allow Once
+preferences-url-scheme-always-allow = Always Allow
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
