@@ -75,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             (stability / factor) * (Math.pow(retention, 1 / decay) - 1),
         );
         if (days === 100) {
-            return "";
+            return tr.deckConfig90PercentDesiredRetentionWarning();
         }
         return tr.deckConfigA100DayInterval({ days });
     }
