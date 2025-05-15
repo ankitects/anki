@@ -66,6 +66,6 @@ def open_url_if_supported_scheme(url: QUrl) -> None:
             parent=mw,
             callback=on_button,
             textFormat=Qt.TextFormat.RichText,
-            default_button=0,
+            default_button=2,
             icon=QMessageBox.Icon.Warning,
         )
