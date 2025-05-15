@@ -475,7 +475,7 @@ deck-config-a-100-day-interval =
         [one] A 100 day interval will become { $days } day.
        *[other] A 100 day interval will become { $days } days.
     }
-deck-config-90-percent-desired-retention-warning = The higher the desired retention, the shorter the intervals between reviews.
+deck-config-90-percent-desired-retention-warning = The higher this value, the more frequently cards will be shown to you.
 deck-config-percent-of-reviews =  
     { $reviews ->
         [one] { $pct }% of { $reviews } review
