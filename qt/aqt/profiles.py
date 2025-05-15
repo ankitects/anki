@@ -744,3 +744,9 @@ create table if not exists profiles
 
     def ankihub_username(self) -> str | None:
         return self.profile.get("thirdPartyAnkiHubUsername")
+
+    def allowed_url_schemes(self) -> list[str]:
+        return self.profile.get("allowedUrlSchemes", [])
+
+    def set_allowed_url_schemes(self, schemes: list[str]) -> None:
+        self.profile["allowedUrlSchemes"] = schemes
