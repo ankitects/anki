@@ -266,7 +266,9 @@ class AnkiWebPage(QWebEnginePage):
             print("onclick handler needs to return false")
             return False
         # load all other links in browser
-        openLink(url)
+        from aqt.url_schemes import open_url_if_supported_scheme
+
+        open_url_if_supported_scheme(url)
         return False
 
     def _onCmd(self, str: str) -> Any:
