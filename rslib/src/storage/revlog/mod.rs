@@ -158,7 +158,7 @@ impl SqliteStorage {
         self.db
             .prepare_cached(concat!(
                 include_str!("get.sql"),
-                " where ease between 1 and 4",
+                " where (ease between 1 and 4) or (ease = 0 and factor = 0)",
                 " order by cid, id"
             ))?
             .query_and_then([], row_to_revlog_entry)?
