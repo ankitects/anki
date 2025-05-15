@@ -1188,7 +1188,7 @@ def disallow_full_screen() -> bool:
     )
 
 
-def add_ellipsis_to_action_label(*actions: QAction) -> None:
+def add_ellipsis_to_action_label(*actions: QAction | QPushButton) -> None:
     """Pass actions to add '...' to their labels, indicating that more input is
     required before they can be performed.
 
