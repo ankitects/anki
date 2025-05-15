@@ -85,10 +85,10 @@ preferences-third-party-description = Third-party services are unaffiliated with
 
 ## URL scheme related
 preferences-url-schemes = URL Schemes
-preferences-url-scheme-prompt = Allowed { preferences-url-schemes } (space-separated):
+preferences-url-scheme-prompt = Allowed URL Schemes (space-separated):
 preferences-url-scheme-warning = Blocked attempt to open `{ $link }`, which may be a security issue.
 
-    If you trust the deck author and wish to proceed, you can add `{ $scheme }` to your allowed { preferences-url-schemes }.
+    If you trust the deck author and wish to proceed, you can add `{ $scheme }` to your allowed URL Schemes.
 preferences-url-scheme-allow-once = Allow Once
 preferences-url-scheme-always-allow = Always Allow
 
