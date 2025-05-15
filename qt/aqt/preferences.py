@@ -20,9 +20,11 @@ from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.sync import sync_login
 from aqt.theme import Theme
+from aqt.url_schemes import show_url_schemes_dialog
 from aqt.utils import (
     HelpPage,
     add_close_shortcut,
+    add_ellipsis_to_action_label,
     askUser,
     disable_help_button,
     is_win,
@@ -151,6 +153,9 @@ class Preferences(QDialog):
         form.weekly_backups.setValue(self.prefs.backups.weekly)
         form.monthly_backups.setValue(self.prefs.backups.monthly)
         form.minutes_between_backups.setValue(self.prefs.backups.minimum_interval_mins)
+
+        add_ellipsis_to_action_label(self.form.url_schemes)
+        qconnect(self.form.url_schemes.clicked, show_url_schemes_dialog)
 
     def update_collection(self, on_done: Callable[[], None]) -> None:
         form = self.form
