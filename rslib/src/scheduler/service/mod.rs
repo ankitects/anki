@@ -295,9 +295,9 @@ impl crate::services::SchedulerService for Collection {
         input: scheduler::EvaluateParamsRequest,
     ) -> Result<scheduler::EvaluateParamsResponse> {
         let ret = self.evaluate_params(
-            &input.params,
             &input.search,
             input.ignore_revlogs_before_ms.into(),
+            input.num_of_relearning_steps as usize,
         )?;
         Ok(scheduler::EvaluateParamsResponse {
             log_loss: ret.log_loss,
