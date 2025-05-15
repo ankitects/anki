@@ -1244,11 +1244,13 @@ class Browser(QMainWindow):
         self._line_edit().selectAll()
 
     def onNote(self) -> None:
-        assert self.editor is not None
-        assert self.editor.web is not None
+        def cb():
+            assert self.editor is not None and self.editor.web is not None
+            self.editor.web.setFocus()
+            self.editor.loadNote(focusTo=0)
 
-        self.editor.web.setFocus()
-        self.editor.loadNote(focusTo=0)
+        assert self.editor is not None
+        self.editor.call_after_note_saved(cb)
 
     def onCardList(self) -> None:
         self.form.tableView.setFocus()
