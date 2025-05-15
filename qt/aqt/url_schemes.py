@@ -6,7 +6,7 @@ from __future__ import annotations
 from markdown import markdown
 
 from aqt.qt import QMessageBox, Qt, QUrl
-from aqt.utils import ask_user_dialog, getText, openLink, tr
+from aqt.utils import MessageBox, getText, openLink, tr
 
 
 def show_url_schemes_dialog() -> None:
@@ -56,7 +56,7 @@ def open_url_if_supported_scheme(url: QUrl) -> None:
         msg = markdown(
             tr.preferences_url_scheme_warning(link=url.toString(), scheme=url.scheme())
         )
-        ask_user_dialog(
+        MessageBox(
             msg,
             buttons=[
                 tr.preferences_url_scheme_allow_once(),
@@ -67,4 +67,5 @@ def open_url_if_supported_scheme(url: QUrl) -> None:
             callback=on_button,
             textFormat=Qt.TextFormat.RichText,
             default_button=0,
+            icon=QMessageBox.Icon.Warning,
         )
