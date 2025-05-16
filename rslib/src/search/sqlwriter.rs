@@ -899,7 +899,7 @@ impl RequiredTable {
 /// contiguous numbers.
 trait CollectRanges {
     type Item;
-    fn collect_ranges(self) -> Vec<Range<Self::Item>>;
+    fn collect_ranges(self, join: bool) -> Vec<Range<Self::Item>>;
 }
 
 impl<
@@ -909,7 +909,7 @@ impl<
 {
     type Item = Idx;
 
-    fn collect_ranges(self) -> Vec<Range<Self::Item>> {
+    fn collect_ranges(self, join: bool) -> Vec<Range<Self::Item>> {
         let mut result = Vec::new();
         let mut iter = self.into_iter();
         let next = iter.next();
@@ -920,7 +920,7 @@ impl<
         let mut end = next.unwrap();
 
         for i in iter {
-            if i == end + 1.into() {
+            if join && i == end + 1.into() {
                 end = end + 1.into();
             } else {
                 result.push(start..end + 1.into());
