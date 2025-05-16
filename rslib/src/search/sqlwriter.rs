@@ -697,7 +697,7 @@ impl SqlWriter<'_> {
                     }
                     (!field.config.exclude_from_search).then_some(ord)
                 })
-                .collect_ranges();
+                .collect_ranges(true);
             if !matched_fields.is_empty() {
                 field_map.push(UnqualifiedSearchContext {
                     ntid: nt.id,
