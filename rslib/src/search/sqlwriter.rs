@@ -1334,7 +1334,8 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
     #[allow(clippy::single_range_in_vec_init)]
     #[test]
     fn ranges() {
-        assert_eq!([1, 2, 3].collect_ranges(), [1..4]);
-        assert_eq!([1, 3, 4].collect_ranges(), [1..2, 3..5]);
+        assert_eq!([1, 2, 3].collect_ranges(true), [1..4]);
+        assert_eq!([1, 3, 4].collect_ranges(true), [1..2, 3..5]);
+        assert_eq!([1, 2, 5, 6].collect_ranges(false), [1..2, 2..3, 5..6, 6..7]);
     }
 }
