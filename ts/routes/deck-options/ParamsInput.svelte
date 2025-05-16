@@ -14,7 +14,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function updateHeight() {
         if (taRef) {
             taRef.style.height = "auto";
-            taRef.style.height = `${taRef.scrollHeight}px`;
+            // +2 for "overflow-y: auto" in case js breaks
+            taRef.style.height = `${taRef.scrollHeight + 2}px`;
         }
     }
 
@@ -45,3 +46,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="w-100"
     placeholder={render(defaults)}
 ></textarea>
+
+<style>
+    textarea {
+        resize: none;
+        overflow-y: auto;
+    }
+</style>
