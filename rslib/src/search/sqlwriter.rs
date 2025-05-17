@@ -583,8 +583,10 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
-        let field_indicies_by_notetype =
-            self.num_fields_and_fields_indices_by_notetype(field_name)?;
+        let field_indicies_by_notetype = self.num_fields_and_fields_indices_by_notetype(
+            field_name,
+            matches!(val, "*" | "_*" | "*_"),
+        )?;
         if field_indicies_by_notetype.is_empty() {
             write!(self.sql, "false").unwrap();
             return Ok(());
@@ -630,6 +632,7 @@ impl SqlWriter<'_> {
     fn num_fields_and_fields_indices_by_notetype(
         &mut self,
         field_name: &str,
+        test_for_nonempty: bool,
     ) -> Result<Vec<FieldQualifiedSearchContext>> {
         let matches_glob = glob_matcher(field_name);
 
@@ -640,7 +643,7 @@ impl SqlWriter<'_> {
                 .iter()
                 .filter(|&field| matches_glob(&field.name))
                 .map(|field| field.ord.unwrap_or_default())
-                .collect_ranges();
+                .collect_ranges(!test_for_nonempty);
             if !matched_fields.is_empty() {
                 field_map.push(FieldQualifiedSearchContext {
                     ntid: nt.id,
