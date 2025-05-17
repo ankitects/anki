@@ -38,7 +38,7 @@ with open(input_path, "r") as f:
             if "fill" in data:
                 data = re.sub(r"fill=\"#.+?\"", f'fill="{color[mode]}"', data)
             else:
-                data = re.sub(r"<svg", f'<svg fill="{color[mode]}"', data, 1)
+                data = re.sub(r"<svg", f'<svg fill="{color[mode]}"', data, count=1)
             with open(filename, "w") as f:
                 f.write(data)
 
