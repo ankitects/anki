@@ -2046,7 +2046,7 @@ __metadata:
     tslib: "npm:^2.0.3"
     tsx: "npm:^3.12.0"
     typescript: "npm:^5.0.4"
-    vite: "npm:5.4.18"
+    vite: "npm:5.4.19"
     vitest: "npm:^2"
   languageName: unknown
   linkType: soft
@@ -7039,9 +7039,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:5.4.18":
-  version: 5.4.18
-  resolution: "vite@npm:5.4.18"
+"vite@npm:5.4.19":
+  version: 5.4.19
+  resolution: "vite@npm:5.4.19"
   dependencies:
     esbuild: "npm:^0.21.3"
     fsevents: "npm:~2.3.3"
@@ -7078,7 +7078,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10c0/a8cbbec6bdf399e62c386d70b8485e4f2f1b427beb19bc7c5d52b402a0c3750b7ff469fc20a8333755ea13bc1b0af5df3f22c8fd37d1739ee51d709b7a4740b6
+  checksum: 10c0/c97601234dba482cea5290f2a2ea0fcd65e1fab3df06718ea48adc8ceb14bc3129508216c4989329c618f6a0470b42f439677a207aef62b0c76f445091c2d89e
   languageName: node
   linkType: hard
 
