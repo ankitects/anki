@@ -25,6 +25,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let onPresetChange: () => void;
 
     const fsrs = state.fsrs;
+    let newlyEnabled = false;
+    $: if (!$fsrs) newlyEnabled = true
 
     const settings = {
         fsrs: {
@@ -94,6 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {#if $fsrs}
             <FsrsOptions
                 {state}
+                {newlyEnabled}
                 openHelpModal={(key) =>
                     openHelpModal(Object.keys(settings).indexOf(key))}
                 {onPresetChange}

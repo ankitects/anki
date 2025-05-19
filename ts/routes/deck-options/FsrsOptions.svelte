@@ -31,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
     export let onPresetChange: () => void;
+    export let newlyEnabled = false;
 
     const config = state.currentConfig;
     const defaults = state.defaults;
@@ -39,6 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
+    let showDesiredRetentionTooltip = newlyEnabled;
 
     let computeParamsProgress: ComputeParamsProgress | undefined;
     let computingParams = false;
@@ -68,6 +70,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     function getRetentionWarning(retention: number, params: number[]): string {
+        if (!showDesiredRetentionTooltip && getRetentionWarningClass(retention) === "alert-info") {
+            return "";
+        }
         const decay = params.length > 20 ? -params[20] : -0.5; // default decay for FSRS-4.5 and FSRS-5
         const factor = 0.9 ** (1 / decay) - 1;
         const stability = 100;
@@ -146,6 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         setTimeout(() => alert(msg), 200);
                     } else {
                         $config.fsrsParams6 = resp.params;
+                        showDesiredRetentionTooltip = true;
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
@@ -237,6 +243,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={0.7}
     max={0.99}
     percentage={true}
+    on:focus={() => (showDesiredRetentionTooltip = true)}
 >
     <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
         {tr.deckConfigDesiredRetention()}
