@@ -183,9 +183,9 @@ flask==3.0.3 \
     #   -r requirements.aqt.in
     #   flask-cors
     #   types-flask-cors
-flask-cors==5.0.0 \
-    --hash=sha256:5aadb4b950c4e93745034594d9f3ea6591f734bb3662e16e255ffbf5e89c88ef \
-    --hash=sha256:b9e307d082a9261c100d8fb0ba909eec6a228ed1b60a8315fd85f783d61910bc
+flask-cors==6.0.0 \
+    --hash=sha256:4592c1570246bf7beee96b74bc0adbbfcb1b0318f6ba05c412e8909eceec3393 \
+    --hash=sha256:6332073356452343a8ccddbfec7befdc3fdd040141fe776ec9b94c262f058657
     # via -r requirements.aqt.in
 fluent-syntax==0.19.0 \
     --hash=sha256:920326d7f46864b9758f0044e9968e3112198bc826acee16ddd8f11d359004fd \
@@ -620,7 +620,9 @@ websocket-client==1.8.0 \
 werkzeug==3.0.6 \
     --hash=sha256:1bc0c2310d2fbb07b1dd1105eba2f7af72f322e1e455f2f93c993bee8c8a5f17 \
     --hash=sha256:a8dd59d4de28ca70471a34cba79bed5f7ef2e036a76b3ab0835474246eb41f8d
-    # via flask
+    # via
+    #   flask
+    #   flask-cors
 wheel==0.44.0 \
     --hash=sha256:2376a90c98cc337d18623527a97c31797bd02bad0033d41547043a1cbfbe448f \
     --hash=sha256:a29c3f2817e95ab89aa4660681ad547c0e9547f20e75b0562fe7723c9a2a9d49
