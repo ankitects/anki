@@ -340,7 +340,7 @@ export function renderForgettingCurve(
             );
             let text = tooltipText(d);
             if (y2 >= lineY - 10 && y2 <= lineY + 10) {
-                text += `<br>${tr.cardStatsFsrsForgettingCurveDesiredRetention()}: ${desiredRetention.toFixed(2)}`;
+                text += `<br>${tr.cardStatsFsrsForgettingCurveDesiredRetention()}: ${desiredRetention.toFixed(2) * 100}%`;
             }
             showTooltip(text, x1, y1);
         })
