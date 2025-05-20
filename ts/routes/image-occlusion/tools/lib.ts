@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 
-import { opacityStateStore } from "../store";
+import { opacityStateStore, saveNeededStore } from "../store";
 import type { Size } from "../types";
 
 export const SHAPE_MASK_COLOR = "#ffeba2";
@@ -244,6 +244,7 @@ const setShapePosition = (
     }
 
     object.setCoords();
+    saveNeededStore.set(true);
 };
 
 export function enableUniformScaling(canvas: fabric.Canvas, obj: fabric.Object): void {
