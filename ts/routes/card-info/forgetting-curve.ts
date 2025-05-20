@@ -342,7 +342,7 @@ export function renderForgettingCurve(
             const desiredRetentionPercent = desiredRetention * 100;
             if (y2 >= lineY - 10 && y2 <= lineY + 10) {
                 text += `<br>${tr.cardStatsFsrsForgettingCurveDesiredRetention()}: ${
-                    desiredRetentionPercent.toFixed(2)
+                    desiredRetentionPercent.toFixed(0)
                 }%`;
             }
             showTooltip(text, x1, y1);
