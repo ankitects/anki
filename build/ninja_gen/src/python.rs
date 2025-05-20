@@ -22,32 +22,32 @@ pub fn python_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64_v2-unknown-linux-gnu-install_only.tar.gz",
-                sha256: "9426bca501ae0a257392b10719e2e20ff5fa5e22a3ce4599d6ad0b3139f86417",
+                url: "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.13.3+20250517-x86_64_v2-unknown-linux-gnu-install_only_stripped.tar.gz",
+                sha256: "68f65b2e8098ea332ae06f2afe984f6532a42eaa9a6fc5393c4421840d8dfd70",
             }
         }
         Platform::LinuxArm => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz",
-                sha256: "7d19e1ecd6e582423f7c74a0c67491eaa982ce9d5c5f35f0e4289f83127abcb8",
+                url: "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.13.3+20250517-aarch64-unknown-linux-gnu-install_only_stripped.tar.gz",
+                sha256: "8e0402f50fa9cb074900fc2dd2223b8fca8e23b89ed8ffe5f1a7e3978436e1e7",
             }
         }
         Platform::MacX64 => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-apple-darwin-install_only.tar.gz",
-                sha256: "5a0bf895a5cb08d6d008140abb41bb2c8cd638a665273f7d8eb258bc89de439b",
+                url: "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.13.3+20250517-x86_64-apple-darwin-install_only_stripped.tar.gz",
+                sha256: "9235654170de8e707186ca6412446011033138f260fb528fb4a36ae9bd2bc160",
             }
         }
         Platform::MacArm => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-aarch64-apple-darwin-install_only.tar.gz",
-                sha256: "bf0cd90204a2cc6da48cae1e4b32f48c9f7031fbe1238c5972104ccb0155d368",
+                url: "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.13.3+20250517-aarch64-apple-darwin-install_only_stripped.tar.gz",
+                sha256: "4f193061d652943c62e7f1f51da54cf023ddeb252952d0317309512dbf1b05e2",
             }
         }
         Platform::WindowsX64 => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-pc-windows-msvc-shared-install_only.tar.gz",
-                sha256: "8f0544cd593984f7ecb90c685931249c579302124b9821064873f3a14ed07005",
+                url: "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.13.3+20250517-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+                sha256: "893f7a2f5210f0187f93069e073a96f77110d104386ea5c611de08d355aea149",
             }
         }
     }

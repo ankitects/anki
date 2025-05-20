@@ -103,23 +103,23 @@ def handle_resource(policy, resource):
 def make_exe():
     if BUILD_TARGET_TRIPLE == "x86_64-unknown-linux-gnu":
         dist = PythonDistribution(
-            url = "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64_v2-unknown-linux-gnu-pgo-full.tar.zst",
-            sha256 = "7ccdc1b19599a6660040ec2f0ade755b32bb45c897ea75d0b7826236146b78cf",
+            url = "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.13.3+20250517-x86_64_v2-unknown-linux-gnu-pgo+lto-full.tar.zst",
+            sha256 = "e2eb47d5567ba9e4064e9f928f49061fd23201661c4d9c31785201b9ad4a9ea5",
         )
     elif BUILD_TARGET_TRIPLE == "x86_64-apple-darwin":
         dist = PythonDistribution(
-            url = "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-apple-darwin-pgo-full.tar.zst",
-            sha256 = "b2f06f0f0ebbbed0eae87a6e8eede2e0d838735386a8b84257d4f02d16b9baec",
+            url = "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.13.3+20250517-x86_64-apple-darwin-pgo+lto-full.tar.zst",
+            sha256 = "68510c70a309d0e102ddb9eb43de841e9b5ffbf71d240060f54989f187f9cbe4",
         )
     elif BUILD_TARGET_TRIPLE == "aarch64-apple-darwin":
         dist = PythonDistribution(
-            url = "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-aarch64-apple-darwin-pgo-full.tar.zst",
-            sha256 = "154dfa7cd6f9a6047a58811f84bef69b019ea459e5b42991c8af63e1285b445f",
+            url = "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.13.3+20250517-aarch64-apple-darwin-pgo+lto-full.tar.zst",
+            sha256 = "583a36ffaa207b86833f25bcb0905de8974b4af7a4ae0b94b0aff6308e598b64",
         )
     elif BUILD_TARGET_TRIPLE == "x86_64-pc-windows-msvc":
         dist = PythonDistribution(
-            url = "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-pc-windows-msvc-shared-pgo-full.tar.zst",
-            sha256 = "3b9c7d6ed94260b83ed8f44ee9a7b8fce392259ce6591e538601f7353061a884",
+            url = "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.13.3+20250517-x86_64-pc-windows-msvc-pgo-full.tar.zst",
+            sha256 = "dcee362ae904a6fd982c1499ae581aa2e2aa02770f09921914524bf9809bce8d",
         )
     else:
         fail("unexpected arch")
