@@ -27,6 +27,8 @@ service FrontendService {
   rpc deckOptionsRequireClose(generic.Empty) returns (generic.Empty);
   // Warns python that the deck option web view is ready to receive requests.
   rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
+
+  rpc editorReady(generic.Empty) returns (generic.Empty);
 }
 
 service BackendFrontendService {}

@@ -19,8 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { placeCaretAfter } from "$lib/domlib/place-caret";
     import { isComposing } from "$lib/sveltelib/composition";
 
-    import { escapeSomeEntities, unescapeSomeEntities } from "../../editable/mathjax";
-    import { Mathjax } from "../../editable/mathjax-element.svelte";
+    import { escapeSomeEntities, unescapeSomeEntities } from "$lib/editable/mathjax";
+    import { Mathjax } from "$lib/editable/mathjax-element.svelte";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import { context } from "../NoteEditor.svelte";

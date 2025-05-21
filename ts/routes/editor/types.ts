@@ -27,3 +27,5 @@ export enum EditorState {
     ImageOcclusionMasks = 2,
     ImageOcclusionFields = 3,
 }
+
+export type EditorMode = "add" | "browse" | "review";

@@ -20,8 +20,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         ioImageLoadedStore,
         ioMaskEditorVisible,
-    } from "../../routes/image-occlusion/store";
-    import { toggleMaskEditorKeyCombination } from "../../routes/image-occlusion/tools/shortcuts";
+    } from "../../image-occlusion/store";
+    import { toggleMaskEditorKeyCombination } from "../../image-occlusion/tools/shortcuts";
 
     export let api = {};
 </script>

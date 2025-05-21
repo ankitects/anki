@@ -107,6 +107,17 @@ class EditorState(Enum):
     IO_FIELDS = 3
 
 
+def on_editor_ready(func: Callable) -> Callable:
+    @functools.wraps(func)
+    def decorated(self: Editor, *args: Any, **kwargs: Any) -> None:
+        if self._ready:
+            func(self, *args, **kwargs)
+        else:
+            self._ready_callbacks.append(lambda: func(self, *args, **kwargs))
+
+    return decorated
+
+
 class Editor:
     """The screen that embeds an editing widget should listen for changes via
     the `operation_did_execute` hook, and call set_note() when the editor needs
@@ -146,12 +157,14 @@ class Editor:
         self.state: EditorState = EditorState.INITIAL
         # used for the io mask editor's context menu
         self.last_io_image_path: str | None = None
+        self._ready = False
+        self._ready_callbacks: list[Callable[[], None]] = []
         self._init_links()
         self.setupOuter()
         self.add_webview()
         self.setupWeb()
         self.setupShortcuts()
-        gui_hooks.editor_did_init(self)
+        # gui_hooks.editor_did_init(self)
 
     # Initial setup
     ############################################################
@@ -175,21 +188,9 @@ class Editor:
             mode = "browse"
         else:
             mode = "review"
+        self.web.load_sveltekit_page(f"editor/?mode={mode}")
 
-        # then load page
-        self.web.stdHtml(
-            "",
-            css=["css/editor.css"],
-            js=[
-                "js/mathjax.js",
-                "js/editor.js",
-            ],
-            context=self,
-            default_css=False,
-        )
-        self.web.eval(f"setupEditor('{mode}')")
-        self.web.show()
-
+    def _set_ready(self) -> None:
         lefttopbtns: list[str] = []
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
@@ -218,6 +219,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
 
         self.web.eval(f"{lefttopbtns_js} {righttopbtns_js}")
+        gui_hooks.editor_did_init(self)
+        self._ready = True
+        for cb in self._ready_callbacks:
+            cb()
 
     # Top buttons
     ######################################################################
@@ -543,6 +548,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def loadNoteKeepingFocus(self) -> None:
         self.loadNote(self.currentField)
 
+    @on_editor_ready
     def loadNote(self, focusTo: int | None = None) -> None:
         if not self.note:
             return

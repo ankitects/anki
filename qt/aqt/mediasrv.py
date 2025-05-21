@@ -337,6 +337,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-csv",
         "import-page",
         "image-occlusion",
+        "editor",
     ]
 
 
@@ -602,6 +603,18 @@ def deck_options_ready() -> bytes:
     return b""
 
 
+def editor_ready() -> bytes:
+    from aqt.editor import Editor
+
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        if isinstance(getattr(window, "editor"), Editor):
+            window.editor._set_ready()  # type: ignore
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -617,6 +630,7 @@ post_handler_list = [
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
+    editor_ready,
 ]
 
 

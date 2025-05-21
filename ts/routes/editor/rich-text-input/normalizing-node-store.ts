@@ -4,7 +4,7 @@
 import type { NodeStore } from "$lib/sveltelib/node-store";
 import { nodeStore } from "$lib/sveltelib/node-store";
 
-import type { DecoratedElement } from "../../editable/decorated";
+import type { DecoratedElement } from "$lib/editable/decorated";
 import { decoratedElements } from "../decorated-elements";
 
 function normalizeFragment(fragment: DocumentFragment): void {
