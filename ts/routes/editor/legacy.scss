@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 @use "sass:color";
-@use "../lib/sass/button-mixins" as button;
+@use "../../lib/sass/button-mixins" as button;
 
 .linkb {
     $size: var(--buttons-size);
