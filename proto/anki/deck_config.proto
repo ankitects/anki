@@ -25,6 +25,8 @@ service DeckConfigService {
       returns (collection.OpChanges);
   rpc GetIgnoredBeforeCount(GetIgnoredBeforeCountRequest)
       returns (GetIgnoredBeforeCountResponse);
+  rpc GetRetentionWorkload(GetRetentionWorkloadRequest)
+      returns (GetRetentionWorkloadResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -33,6 +35,16 @@ service BackendDeckConfigService {}
 
 message DeckConfigId {
   int64 dcid = 1;
+}
+
+message GetRetentionWorkloadRequest {
+  repeated float w = 1;
+  float before = 2;
+  float after = 3;
+}
+
+message GetRetentionWorkloadResponse {
+  float factor = 1;
 }
 
 message GetIgnoredBeforeCountRequest {

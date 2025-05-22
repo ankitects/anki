@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         computeFsrsParams,
         evaluateParams,
+        getRetentionWorkload,
         setWantsAbort,
     } from "@generated/backend";
     import * as tr from "@generated/ftl";
@@ -26,7 +27,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ParamsInputRow from "./ParamsInputRow.svelte";
     import ParamsSearchRow from "./ParamsSearchRow.svelte";
     import SimulatorModal from "./SimulatorModal.svelte";
-    import { UpdateDeckConfigsMode } from "@generated/anki/deck_config_pb";
+    import {
+        GetRetentionWorkloadRequest,
+        UpdateDeckConfigsMode,
+    } from "@generated/anki/deck_config_pb";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -58,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
     $: desiredRetentionChangeInfo = showDesiredRetentionTooltip
         ? getRetentionChangeInfo(roundedRetention, fsrsParams($config))
-        : "";
+        : Promise.resolve("");
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
@@ -75,16 +79,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewOrder: $config.reviewOrder,
     });
 
-    function getInterval(retention: number, params: number[]) {
-        const decay = params.length > 20 ? -params[20] : -0.5; // default decay for FSRS-4.5 and FSRS-5
-        const factor = 0.9 ** (1 / decay) - 1;
-        const stability = 100;
-        const days = Math.round(
-            (stability / factor) * (Math.pow(retention, 1 / decay) - 1),
-        );
-        return days;
-    }
-
     const desiredRetentionLowThreshold = 0.8;
     const desiredRetentionHighThreshold = 0.95;
 
@@ -98,14 +92,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function getRetentionChangeInfo(retention: number, params: number[]): string {
+    async function getRetentionChangeInfo(
+        retention: number,
+        params: number[],
+    ): Promise<string> {
         if (+startingDesiredRetention == roundedRetention) {
             return tr.deckConfigWorkloadPercentageUnchanged();
         }
-        const before = getInterval(+startingDesiredRetention, params);
-        const after = getInterval(retention, params);
-        // (1 / after) / (1 / before)
-        const percent = 100 * (before / after) - 100;
+        const request = new GetRetentionWorkloadRequest({
+            w: params.length > 0 ? params : defaults.fsrsParams6,
+            before: +startingDesiredRetention,
+            after: retention,
+        });
+        const resp = await getRetentionWorkload(request);
+        const percent = (resp.factor - 1) * 100;
+        console.log({resp, percent})
         if (percent > 0) {
             return tr.deckConfigWorkloadPercentageIncrease({
                 percent,
@@ -285,7 +286,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </SettingTitle>
 </SpinBoxFloatRow>
 
-<Warning warning={desiredRetentionChangeInfo} className={"alert-info"} />
+{#await desiredRetentionChangeInfo}
+    <Warning warning={tr.qtMiscProcessing()} className={"alert-info"} />
+{:then desiredRetentionChangeInfo}
+    <Warning warning={desiredRetentionChangeInfo} className={"alert-info"} />
+{/await}
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
