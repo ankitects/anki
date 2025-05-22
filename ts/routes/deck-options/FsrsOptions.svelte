@@ -299,11 +299,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </SettingTitle>
 </SpinBoxFloatRow>
 
-{#await desiredRetentionChangeInfo}
-    <Warning warning={tr.qtMiscProcessing()} className={"alert-info"} />
-{:then desiredRetentionChangeInfo}
-    <Warning warning={desiredRetentionChangeInfo} className={"alert-info"} />
-{/await}
+<Warning warning={desiredRetentionChangeInfo} className={"alert-info"} />
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
