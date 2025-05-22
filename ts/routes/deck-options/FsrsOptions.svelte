@@ -93,13 +93,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewOrder: $config.reviewOrder,
     });
 
-    const desiredRetentionLowThreshold = 0.8;
-    const desiredRetentionHighThreshold = 0.95;
+    const DESIRED_RETENTION_LOW_THRESHOLD = 0.8;
+    const DESIRED_RETENTION_HIGH_THRESHOLD = 0.95;
 
     function getRetentionLongShortWarning(retention: number) {
-        if (retention < desiredRetentionLowThreshold) {
+        if (retention < DESIRED_RETENTION_LOW_THRESHOLD) {
             return tr.deckConfigDesiredRetentionTooLow();
-        } else if (retention > desiredRetentionHighThreshold) {
+        } else if (retention > DESIRED_RETENTION_HIGH_THRESHOLD) {
             return tr.deckConfigDesiredRetentionTooHigh();
         } else {
             return "";
@@ -134,8 +134,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (retention < 0.7 || retention > 0.97) {
             return "alert-danger";
         } else if (
-            retention < desiredRetentionLowThreshold ||
-            retention > desiredRetentionHighThreshold
+            retention < DESIRED_RETENTION_LOW_THRESHOLD ||
+            retention > DESIRED_RETENTION_HIGH_THRESHOLD
         ) {
             return "alert-warning";
         } else {
