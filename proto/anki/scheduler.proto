@@ -279,7 +279,6 @@ message CardAnswer {
   Rating rating = 4;
   int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
-  optional bool from_queue = 7;
 }
 
 message CustomStudyRequest {
