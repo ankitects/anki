@@ -55,11 +55,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: computing = computingParams || checkingParams;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
-    $: desiredRetentionWarning = getRetentionWarning(
-        roundedRetention,
-        fsrsParams($config),
-        showDesiredRetentionTooltip,
-    );
+    $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
+    $: desiredRetentionChangeInfo = showDesiredRetentionTooltip
+        ? getRetentionChangeInfo(roundedRetention, fsrsParams($config))
+        : "";
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
@@ -86,17 +85,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return days;
     }
 
-    function getRetentionWarning(
-        retention: number,
-        params: number[],
-        showDesiredRetentionTooltip: boolean,
-    ): string {
-        if (
-            !showDesiredRetentionTooltip &&
-            getRetentionWarningClass(retention) === "alert-info"
-        ) {
+    const desiredRetentionLowThreshold = 0.8;
+    const desiredRetentionHighThreshold = 0.95;
+
+    function getRetentionLongShortWarning(retention: number) {
+        if (retention < desiredRetentionLowThreshold) {
+            return tr.deckConfigDesiredRetentionTooLow();
+        } else if (retention > desiredRetentionHighThreshold) {
+            return tr.deckConfigDesiredRetentionTooHigh();
+        } else {
             return "";
         }
+    }
+
+    function getRetentionChangeInfo(retention: number, params: number[]): string {
         if (+startingDesiredRetention == roundedRetention) {
             return tr.deckConfigIntervalsPercentageUnchanged();
         }
@@ -104,16 +106,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const after = getInterval(retention, params);
         const percent = 100 * (after / before) - 100;
         if (percent > 0) {
-            return tr.deckConfigIntervalsPercentageIncrease({ percent });
+            return tr.deckConfigIntervalsPercentageIncrease({
+                percent,
+            });
         } else {
-            return tr.deckConfigIntervalsPercentageDecrease({ percent: -percent });
+            return tr.deckConfigIntervalsPercentageDecrease({
+                percent: -percent,
+            });
         }
     }
 
     function getRetentionWarningClass(retention: number): string {
         if (retention < 0.7 || retention > 0.97) {
             return "alert-danger";
-        } else if (retention < 0.8 || retention > 0.95) {
+        } else if (
+            retention < desiredRetentionLowThreshold ||
+            retention > desiredRetentionHighThreshold
+        ) {
             return "alert-warning";
         } else {
             return "alert-info";
@@ -275,6 +284,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </SettingTitle>
 </SpinBoxFloatRow>
 
+<Warning warning={desiredRetentionChangeInfo} className={"alert-info"} />
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
