@@ -60,9 +60,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
-    $: desiredRetentionChangeInfo = showDesiredRetentionTooltip
-        ? getRetentionChangeInfo(roundedRetention, fsrsParams($config))
-        : Promise.resolve("");
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+    const WORKLOAD_UPDATE_DELAY_MS = 100;
+
+    let desiredRetentionChangeInfo = "";
+    $: {
+        clearTimeout(timeoutId);
+        desiredRetentionChangeInfo = tr.qtMiscProcessing();
+        if (showDesiredRetentionTooltip) {
+            timeoutId = setTimeout(() => {
+                getRetentionChangeInfo(roundedRetention, fsrsParams($config));
+            }, WORKLOAD_UPDATE_DELAY_MS);
+        } else {
+            desiredRetentionChangeInfo = "";
+        }
+    }
+
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
@@ -92,12 +106,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    async function getRetentionChangeInfo(
-        retention: number,
-        params: number[],
-    ): Promise<string> {
+    async function getRetentionChangeInfo(retention: number, params: number[]) {
         if (+startingDesiredRetention == roundedRetention) {
-            return tr.deckConfigWorkloadPercentageUnchanged();
+            desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageUnchanged();
+            return;
         }
         const request = new GetRetentionWorkloadRequest({
             w: params.length > 0 ? params : defaults.fsrsParams6,
@@ -106,13 +118,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
         const resp = await getRetentionWorkload(request);
         const percent = (resp.factor - 1) * 100;
-        console.log({resp, percent})
+        console.log({ resp, percent });
         if (percent > 0) {
-            return tr.deckConfigWorkloadPercentageIncrease({
+            desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageIncrease({
                 percent,
             });
         } else {
-            return tr.deckConfigWorkloadPercentageDecrease({
+            desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageDecrease({
                 percent: -percent,
             });
         }
