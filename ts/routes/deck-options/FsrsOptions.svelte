@@ -46,11 +46,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
     let desiredRetentionFocused = false;
     let desiredRetentionEverFocused = false;
+    let optimized = false;
     const startingDesiredRetention = $config.desiredRetention.toFixed(2);
     $: if (desiredRetentionFocused) {
         desiredRetentionEverFocused = true;
     }
-    $: showDesiredRetentionTooltip = newlyEnabled || desiredRetentionEverFocused;
+    $: showDesiredRetentionTooltip =
+        newlyEnabled || desiredRetentionEverFocused || optimized;
 
     let computeParamsProgress: ComputeParamsProgress | undefined;
     let computingParams = false;
@@ -199,7 +201,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         setTimeout(() => alert(msg), 200);
                     } else {
                         $config.fsrsParams6 = resp.params;
-                        showDesiredRetentionTooltip = true;
+                        optimized = true;
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
