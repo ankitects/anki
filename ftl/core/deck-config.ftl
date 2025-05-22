@@ -470,9 +470,9 @@ deck-config-compute-optimal-retention-tooltip4 =
     willing to invest more study time to achieve it. Setting your desired retention lower than the minimum
     is not recommended, as it will lead to a higher workload, because of the high forgetting rate.
 deck-config-please-save-your-changes-first = Please save your changes first.
-deck-config-intervals-percentage-increase = Your intervals will increase by { $percent }%.
-deck-config-intervals-percentage-decrease = Your intervals will decrease by { $percent }%.
-deck-config-intervals-percentage-unchanged = The higher this value, the more frequently cards will be shown to you.
+deck-config-workload-percentage-increase = Your workload will increase by approximately { $percent }%.
+deck-config-workload-percentage-decrease = Your workload will decrease by approximately { $percent }%.
+deck-config-workload-percentage-unchanged = The higher this value, the more frequently cards will be shown to you.
 deck-config-desired-retention-too-low = Your desired retention is very low which can lead to very long intervals
 deck-config-desired-retention-too-high = Your desired retention is very high which can lead very short intervals
 

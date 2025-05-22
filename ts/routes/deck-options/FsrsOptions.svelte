@@ -100,17 +100,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function getRetentionChangeInfo(retention: number, params: number[]): string {
         if (+startingDesiredRetention == roundedRetention) {
-            return tr.deckConfigIntervalsPercentageUnchanged();
+            return tr.deckConfigWorkloadPercentageUnchanged();
         }
         const before = getInterval(+startingDesiredRetention, params);
         const after = getInterval(retention, params);
-        const percent = 100 * (after / before) - 100;
+        // (1 / after) / (1 / before)
+        const percent = 100 * (before / after) - 100;
         if (percent > 0) {
-            return tr.deckConfigIntervalsPercentageIncrease({
+            return tr.deckConfigWorkloadPercentageIncrease({
                 percent,
             });
         } else {
-            return tr.deckConfigIntervalsPercentageDecrease({
+            return tr.deckConfigWorkloadPercentageDecrease({
                 percent: -percent,
             });
         }
