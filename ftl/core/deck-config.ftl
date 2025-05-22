@@ -472,7 +472,7 @@ deck-config-compute-optimal-retention-tooltip4 =
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-intervals-percentage-increase = Your intervals will increase by { $percent }%.
 deck-config-intervals-percentage-decrease = Your intervals will decrease by { $percent }%.
-deck-config-intervals-percentage-unchanged = Your intervals will remain unchanged
+deck-config-intervals-percentage-unchanged = The higher this value, the more frequently cards will be shown to you.
 deck-config-desired-retention-too-low = Your desired retention is very low which can lead to very long intervals
 deck-config-desired-retention-too-high = Your desired retention is very high which can lead very short intervals
 
