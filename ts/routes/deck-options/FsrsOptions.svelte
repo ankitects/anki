@@ -42,7 +42,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
     let desiredRetentionFocused = false;
     let desiredRetentionEverFocused = false;
-    $: if (desiredRetentionFocused) desiredRetentionEverFocused = true
+    const startingDesiredRetention = $config.desiredRetention.toFixed(2);
+    $: if (desiredRetentionFocused) {
+        desiredRetentionEverFocused = true;
+    }
     $: showDesiredRetentionTooltip = newlyEnabled || desiredRetentionEverFocused;
 
     let computeParamsProgress: ComputeParamsProgress | undefined;
@@ -55,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: desiredRetentionWarning = getRetentionWarning(
         roundedRetention,
         fsrsParams($config),
-        showDesiredRetentionTooltip
+        showDesiredRetentionTooltip,
     );
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
@@ -73,20 +76,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewOrder: $config.reviewOrder,
     });
 
-    function getRetentionWarning(retention: number, params: number[], showDesiredRetentionTooltip: boolean): string {
-        if (!showDesiredRetentionTooltip && getRetentionWarningClass(retention) === "alert-info") {
-            return "";
-        }
+    function getInterval(retention: number, params: number[]) {
         const decay = params.length > 20 ? -params[20] : -0.5; // default decay for FSRS-4.5 and FSRS-5
         const factor = 0.9 ** (1 / decay) - 1;
         const stability = 100;
         const days = Math.round(
             (stability / factor) * (Math.pow(retention, 1 / decay) - 1),
         );
-        if (days === 100) {
-            return tr.deckConfig90PercentDesiredRetentionWarning();
+        return days;
+    }
+
+    function getRetentionWarning(
+        retention: number,
+        params: number[],
+        showDesiredRetentionTooltip: boolean,
+    ): string {
+        if (
+            !showDesiredRetentionTooltip &&
+            getRetentionWarningClass(retention) === "alert-info"
+        ) {
+            return "";
         }
-        return tr.deckConfigA100DayInterval({ days });
+        if (+startingDesiredRetention == roundedRetention) {
+            return tr.deckConfigIntervalsPercentageUnchanged();
+        }
+        const before = getInterval(+startingDesiredRetention, params);
+        const after = getInterval(retention, params);
+        const percent = 100 * (after / before) - 100;
+        if (percent > 0) {
+            return tr.deckConfigIntervalsPercentageIncrease({ percent });
+        } else {
+            return tr.deckConfigIntervalsPercentageDecrease({ percent: -percent });
+        }
     }
 
     function getRetentionWarningClass(retention: number): string {
