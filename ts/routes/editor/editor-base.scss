@@ -1,12 +1,12 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@import "../lib/sass/base";
+@import "../../lib/sass/base";
 
 $btn-disabled-opacity: 0.4;
 @import "bootstrap/scss/buttons";
 @import "bootstrap/scss/button-group";
-@import "../lib/sass/bootstrap-tooltip";
+@import "../../lib/sass/bootstrap-tooltip";
 
 html,
 body {

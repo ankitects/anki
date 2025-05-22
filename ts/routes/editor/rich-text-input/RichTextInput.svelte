@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { InputHandlerAPI } from "$lib/sveltelib/input-handler";
 
-    import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
+    import type { ContentEditableAPI } from "$lib/editable/ContentEditable.svelte";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
     import type { SurroundedAPI } from "../surround";
 
@@ -74,7 +74,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import useInputHandler from "$lib/sveltelib/input-handler";
     import { pageTheme } from "$lib/sveltelib/theme";
 
-    import ContentEditable from "../../editable/ContentEditable.svelte";
+    import ContentEditable from "$lib/editable/ContentEditable.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { Flag } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";

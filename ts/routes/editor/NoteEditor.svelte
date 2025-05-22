@@ -57,8 +57,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         type ImageLoadedEvent,
         resetIOImage,
-    } from "../routes/image-occlusion/mask-editor";
-    import { ChangeTimer } from "../editable/change-timer";
+    } from "../image-occlusion/mask-editor";
+    import { ChangeTimer } from "$lib/editable/change-timer";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
     import EditorToolbar from "./editor-toolbar";
@@ -417,16 +417,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Shortcut from "$lib/components/Shortcut.svelte";
 
-    import { mathjaxConfig } from "../editable/mathjax-element.svelte";
-    import ImageOcclusionPage from "../routes/image-occlusion/ImageOcclusionPage.svelte";
-    import ImageOcclusionPicker from "../routes/image-occlusion/ImageOcclusionPicker.svelte";
-    import type { IOMode } from "../routes/image-occlusion/lib";
-    import { exportShapesToClozeDeletions } from "../routes/image-occlusion/shapes/to-cloze";
+    import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
+    import ImageOcclusionPage from "../image-occlusion/ImageOcclusionPage.svelte";
+    import ImageOcclusionPicker from "../image-occlusion/ImageOcclusionPicker.svelte";
+    import type { IOMode } from "../image-occlusion/lib";
+    import { exportShapesToClozeDeletions } from "../image-occlusion/shapes/to-cloze";
     import {
         hideAllGuessOne,
         ioImageLoadedStore,
         ioMaskEditorVisible,
-    } from "../routes/image-occlusion/store";
+    } from "../image-occlusion/store";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 

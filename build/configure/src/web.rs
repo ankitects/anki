@@ -29,7 +29,6 @@ pub fn build_and_check_web(build: &mut Build) -> Result<()> {
     build_sveltekit(build)?;
     declare_and_check_other_libraries(build)?;
     build_and_check_pages(build)?;
-    build_and_check_editor(build)?;
     build_and_check_reviewer(build)?;
     build_and_check_mathjax(build)?;
     check_web(build)?;
@@ -170,7 +169,7 @@ fn declare_and_check_other_libraries(build: &mut Build) -> Result<()> {
             "components",
             inputs![":ts:lib", ":ts:sveltelib", glob!("ts/components/**")],
         ),
-        ("html-filter", inputs![glob!("ts/html-filter/**")]),
+        ("html-filter", inputs![glob!("ts/lib/html-filter/**")]),
     ] {
         let library_with_ts = format!("ts:{library}");
         build.add_dependency(&library_with_ts, inputs.clone());
@@ -187,7 +186,7 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
         let entrypoint = if html {
             format!("ts/routes/{name}/index.ts")
         } else {
-            format!("ts/{name}/index.ts")
+            format!("ts/lib/{name}/index.ts")
         };
         build.add_action(
             &group,
@@ -208,7 +207,6 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
         "editable",
         false,
         inputs![
-            //
             ":ts:lib",
             ":ts:components",
             ":ts:domlib",
@@ -227,33 +225,6 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":sass",
             ":sveltekit"
         ],
-    )?;
-
-    Ok(())
-}
-
-fn build_and_check_editor(build: &mut Build) -> Result<()> {
-    let editor_deps = inputs![
-        //
-        ":ts:lib",
-        ":ts:components",
-        ":ts:domlib",
-        ":ts:sveltelib",
-        ":ts:html-filter",
-        ":sass",
-        ":sveltekit",
-        glob!("ts/{editable,editor,routes/image-occlusion}/**")
-    ];
-
-    build.add_action(
-        "ts:editor",
-        EsbuildScript {
-            script: "ts/bundle_svelte.mjs".into(),
-            entrypoint: "ts/editor/index.ts".into(),
-            output_stem: "ts/editor/editor",
-            deps: editor_deps.clone(),
-            extra_exts: &["css"],
-        },
     )?;
 
     Ok(())

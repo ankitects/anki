@@ -3,10 +3,10 @@
 
 import { BLOCK_ELEMENTS } from "@tslib/dom";
 
-import { CustomElementArray } from "../editable/decorated";
-import { FrameElement } from "../editable/frame-element";
-import { FrameEnd, FrameStart } from "../editable/frame-handle";
-import { Mathjax } from "../editable/mathjax-element.svelte";
+import { CustomElementArray } from "$lib/editable/decorated";
+import { FrameElement } from "$lib/editable/frame-element";
+import { FrameEnd, FrameStart } from "$lib/editable/frame-handle";
+import { Mathjax } from "$lib/editable/mathjax-element.svelte";
 import { parsingInstructions } from "./plain-text-input";
 
 const decoratedElements = new CustomElementArray();

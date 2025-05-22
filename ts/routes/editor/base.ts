@@ -34,6 +34,7 @@ declare global {
 
 import { ModuleName } from "@tslib/i18n";
 import { mount } from "svelte";
+import type { EditorMode } from "./types";
 
 export const editorModules = [
     ModuleName.EDITING,
@@ -70,16 +71,16 @@ async function setupReviewerEditor(): Promise<void> {
     mount(ReviewerEditor, { target: document.body, props: { uiResolve } });
 }
 
-export function setupEditor(mode: "add" | "browse" | "review") {
+export async function setupEditor(mode: EditorMode) {
     switch (mode) {
         case "add":
-            setupNoteCreator();
+            await setupNoteCreator();
             break;
         case "browse":
-            setupBrowserEditor();
+            await setupBrowserEditor();
             break;
         case "review":
-            setupReviewerEditor();
+            await setupReviewerEditor();
             break;
         default:
             alert("unexpected editor type");
