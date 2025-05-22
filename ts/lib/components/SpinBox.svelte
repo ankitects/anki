@@ -133,7 +133,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
         style:padding-left={percentage_padding}
-        {...$$restProps}
     />
     {#if percentage}
         <span class="suffix">
