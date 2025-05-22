@@ -222,6 +222,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "🦙 (siid)",
             "Mukunda Madhav Dey",
             "Adnane Taghi",
+            "Anon_0000",
         )
     )
 
