@@ -41,8 +41,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
     let desiredRetentionFocused = false;
-    $: console.log(desiredRetentionFocused)
-    $: showDesiredRetentionTooltip = newlyEnabled || desiredRetentionFocused;
+    let desiredRetentionEverFocused = false;
+    $: if (desiredRetentionFocused) desiredRetentionEverFocused = true
+    $: showDesiredRetentionTooltip = newlyEnabled || desiredRetentionEverFocused;
 
     let computeParamsProgress: ComputeParamsProgress | undefined;
     let computingParams = false;
