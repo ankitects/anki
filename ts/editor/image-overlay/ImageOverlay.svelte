@@ -303,7 +303,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 />
 
                 <HandleLabel>
-                    {#if isSizeConstrained}
+                    {#if isSizeConstrained && !shrinkingDisabled}
                         <span>{`(${tr.editingDoubleClickToExpand()})`}</span>
                     {:else}
                         <span>{actualWidth}&times;{actualHeight}</span>
