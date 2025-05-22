@@ -119,14 +119,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
         const resp = await getRetentionWorkload(request);
         const percent = (resp.factor - 1) * 100;
-        console.log({ resp, percent });
         if (percent > 0) {
             desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageIncrease({
-                percent,
+                percent: parseFloat(percent.toPrecision(1)),
             });
         } else {
             desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageDecrease({
-                percent: -percent,
+                percent: parseFloat((-percent).toPrecision(1)),
             });
         }
     }
