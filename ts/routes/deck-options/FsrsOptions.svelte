@@ -40,7 +40,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
-    let showDesiredRetentionTooltip = newlyEnabled;
+    let desiredRetentionFocused = false;
+    $: console.log(desiredRetentionFocused)
+    $: showDesiredRetentionTooltip = newlyEnabled || desiredRetentionFocused;
 
     let computeParamsProgress: ComputeParamsProgress | undefined;
     let computingParams = false;
@@ -52,6 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: desiredRetentionWarning = getRetentionWarning(
         roundedRetention,
         fsrsParams($config),
+        showDesiredRetentionTooltip
     );
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
@@ -69,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewOrder: $config.reviewOrder,
     });
 
-    function getRetentionWarning(retention: number, params: number[]): string {
+    function getRetentionWarning(retention: number, params: number[], showDesiredRetentionTooltip: boolean): string {
         if (!showDesiredRetentionTooltip && getRetentionWarningClass(retention) === "alert-info") {
             return "";
         }
@@ -243,7 +246,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={0.7}
     max={0.99}
     percentage={true}
-    on:focus={() => (showDesiredRetentionTooltip = true)}
+    bind:focused={desiredRetentionFocused}
 >
     <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
         {tr.deckConfigDesiredRetention()}
