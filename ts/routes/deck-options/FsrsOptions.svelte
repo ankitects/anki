@@ -69,7 +69,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let desiredRetentionChangeInfo = "";
     $: {
         clearTimeout(timeoutId);
-        desiredRetentionChangeInfo = tr.qtMiscProcessing();
         if (showDesiredRetentionTooltip) {
             timeoutId = setTimeout(() => {
                 getRetentionChangeInfo(roundedRetention, fsrsParams($config));
