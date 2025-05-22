@@ -116,7 +116,6 @@ function initCanvas(): fabric.Canvas {
             modifiedPolygon(canvas, evt.target);
             undoStack.onObjectModified();
         }
-        saveNeededStore.set(true);
     });
     canvas.on("text:editing:entered", function() {
         textEditingState.set(true);
