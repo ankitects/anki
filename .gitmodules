@@ -8,7 +8,7 @@
 	shallow = true
 [submodule "qt/bundle/PyOxidizer"]
 	path = qt/bundle/PyOxidizer
-	url = https://github.com/ankitects/PyOxidizer.git
+	url = https://github.com/indygreg/PyOxidizer.git
 	shallow = true
 	update = none
 

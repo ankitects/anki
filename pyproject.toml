@@ -5,4 +5,4 @@ extend-exclude = "qt/bundle"
 [tool.pyright]
 include = ["pylib/anki", "qt/aqt"]
 stubPath = ""
-pythonVersion = "3.9"
+pythonVersion = "3.13.3"
