@@ -474,7 +474,7 @@ deck-config-workload-percentage-increase = Your workload will increase by approx
 deck-config-workload-percentage-decrease = Your workload will decrease by approximately { $percent }%.
 deck-config-workload-percentage-unchanged = The higher this value, the more frequently cards will be shown to you.
 deck-config-desired-retention-too-low = Your desired retention is very low which can lead to very long intervals
-deck-config-desired-retention-too-high = Your desired retention is very high which can lead very short intervals
+deck-config-desired-retention-too-high = Your desired retention is very high which can lead to very short intervals
 
 deck-config-percent-of-reviews =  
     { $reviews ->
