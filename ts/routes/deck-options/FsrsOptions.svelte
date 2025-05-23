@@ -108,7 +108,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     /**
-     * @param percent passed as a whole number, e.g 100% = 100
+     * @param percent passed * 100, e.g 100% = 100
      */
     function roundPercentage(percent: number) {
         const absPercent = Math.abs(percent);
