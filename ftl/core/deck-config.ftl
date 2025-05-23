@@ -470,11 +470,12 @@ deck-config-compute-optimal-retention-tooltip4 =
     willing to invest more study time to achieve it. Setting your desired retention lower than the minimum
     is not recommended, as it will lead to a higher workload, because of the high forgetting rate.
 deck-config-please-save-your-changes-first = Please save your changes first.
-deck-config-a-100-day-interval = 
-    { $days ->
-        [one] A 100 day interval will become { $days } day.
-       *[other] A 100 day interval will become { $days } days.
-    }
+deck-config-workload-percentage-increase = Your workload will increase by approximately { $percent }%.
+deck-config-workload-percentage-decrease = Your workload will decrease by approximately { $percent }%.
+deck-config-workload-percentage-unchanged = The higher this value, the more frequently cards will be shown to you.
+deck-config-desired-retention-too-low = Your desired retention is very low, which can lead to very long intervals.
+deck-config-desired-retention-too-high = Your desired retention is very high, which can lead to very short intervals.
+
 deck-config-percent-of-reviews =  
     { $reviews ->
         [one] { $pct }% of { $reviews } review
@@ -511,6 +512,12 @@ deck-config-save-options-to-preset = Save Changes to Preset
 deck-config-fsrs-simulator-radio-memorized = Memorized
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+
+deck-config-a-100-day-interval = 
+    { $days ->
+        [one] A 100 day interval will become { $days } day.
+       *[other] A 100 day interval will become { $days } days.
+    }
 
 deck-config-fsrs-simulator-y-axis-title-time = Review Time/Day
 deck-config-fsrs-simulator-y-axis-title-count = Review Count/Day

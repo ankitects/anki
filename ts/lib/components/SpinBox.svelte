@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let percentage = false;
 
     let input: HTMLInputElement;
-    let focused = false;
+    export let focused = false;
     let multiplier: number;
     $: multiplier = percentage ? 100 : 1;
 

@@ -96,6 +96,40 @@ impl crate::services::DeckConfigService for Collection {
             total: guard.cards.try_into().unwrap_or(0),
         })
     }
+
+    fn get_retention_workload(
+        &mut self,
+        input: anki_proto::deck_config::GetRetentionWorkloadRequest,
+    ) -> Result<anki_proto::deck_config::GetRetentionWorkloadResponse> {
+        const LEARN_SPAN: usize = 1000;
+
+        let guard =
+            self.search_cards_into_table(&input.search, crate::search::SortMode::NoOrder)?;
+        let (pass_cost, fail_cost, learn_cost) = guard.col.storage.get_costs_for_retention()?;
+
+        let before = fsrs::expected_workload(
+            &input.w,
+            input.before,
+            LEARN_SPAN,
+            pass_cost,
+            fail_cost,
+            0.,
+            input.before,
+        )? + learn_cost;
+        let after = fsrs::expected_workload(
+            &input.w,
+            input.after,
+            LEARN_SPAN,
+            pass_cost,
+            fail_cost,
+            0.,
+            input.after,
+        )? + learn_cost;
+
+        Ok(anki_proto::deck_config::GetRetentionWorkloadResponse {
+            factor: after / before,
+        })
+    }
 }
 
 impl From<DeckConfig> for anki_proto::deck_config::DeckConfig {
