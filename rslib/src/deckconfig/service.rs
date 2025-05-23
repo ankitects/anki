@@ -103,8 +103,13 @@ impl crate::services::DeckConfigService for Collection {
     ) -> Result<anki_proto::deck_config::GetRetentionWorkloadResponse> {
         const LEARN_SPAN: usize = 1000;
 
-        let before = fsrs::expected_workload(&input.w, input.before, LEARN_SPAN)?;
-        let after = fsrs::expected_workload(&input.w, input.after, LEARN_SPAN)?;
+        const PASS_COST: f32 = 7.;
+        const FAIL_COST: f32 = 23.;
+
+        let before =
+            fsrs::expected_workload(&input.w, input.before, LEARN_SPAN, PASS_COST, FAIL_COST)?;
+        let after =
+            fsrs::expected_workload(&input.w, input.after, LEARN_SPAN, PASS_COST, FAIL_COST)?;
 
         Ok(anki_proto::deck_config::GetRetentionWorkloadResponse {
             factor: after / before,

@@ -36,8 +36,8 @@ rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
 # version = "3.0.0"
-git = "https://github.com/Luc-Mcgrady/fsrs-optimizer-burn.git"
-rev = "fe6af1d33a2edb33dd8a50d87742e60e6a51de01"
+git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
+rev = "0aa238a7e0daa26ffc66596e508a818d504bb5df"
 # path = "../open-spaced-repetition/fsrs-rs"
 
 [workspace.dependencies]
