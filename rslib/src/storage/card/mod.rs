@@ -747,12 +747,18 @@ impl super::SqliteStorage {
             .get(0)?)
     }
 
-    pub(crate) fn get_costs_for_retention(&self) -> Result<(f32, f32, f32)>{
-        let mut statement = self.db.prepare(include_str!("get_costs_for_retention.sql"))?;
+    pub(crate) fn get_costs_for_retention(&self) -> Result<(f32, f32, f32)> {
+        let mut statement = self
+            .db
+            .prepare(include_str!("get_costs_for_retention.sql"))?;
         let mut query = statement.query(params![])?;
         let row = query.next()?.unwrap();
 
-        Ok((row.get(0).unwrap_or(7000.), row.get(1).unwrap_or(23_000.), row.get(2).unwrap_or(30_000.)))
+        Ok((
+            row.get(0).unwrap_or(7000.),
+            row.get(1).unwrap_or(23_000.),
+            row.get(2).unwrap_or(30_000.),
+        ))
     }
 
     #[cfg(test)]

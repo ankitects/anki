@@ -103,7 +103,8 @@ impl crate::services::DeckConfigService for Collection {
     ) -> Result<anki_proto::deck_config::GetRetentionWorkloadResponse> {
         const LEARN_SPAN: usize = 1000;
 
-        let guard = self.search_cards_into_table(&input.search, crate::search::SortMode::NoOrder)?;
+        let guard =
+            self.search_cards_into_table(&input.search, crate::search::SortMode::NoOrder)?;
         let (pass_cost, fail_cost, learn_cost) = guard.col.storage.get_costs_for_retention()?;
 
         let before = fsrs::expected_workload(
