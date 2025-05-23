@@ -105,11 +105,27 @@ impl crate::services::DeckConfigService for Collection {
 
         const PASS_COST: f32 = 7.;
         const FAIL_COST: f32 = 23.;
+        const COST_LEARN: f32 = 30.0;
+        const INITIAL_PASS_RATE: f32 = 0.8;
 
-        let before =
-            fsrs::expected_workload(&input.w, input.before, LEARN_SPAN, PASS_COST, FAIL_COST)?;
-        let after =
-            fsrs::expected_workload(&input.w, input.after, LEARN_SPAN, PASS_COST, FAIL_COST)?;
+        let before = fsrs::expected_workload(
+            &input.w,
+            input.before,
+            LEARN_SPAN,
+            PASS_COST,
+            FAIL_COST,
+            COST_LEARN,
+            INITIAL_PASS_RATE,
+        )?;
+        let after = fsrs::expected_workload(
+            &input.w,
+            input.after,
+            LEARN_SPAN,
+            PASS_COST,
+            FAIL_COST,
+            COST_LEARN,
+            INITIAL_PASS_RATE,
+        )?;
 
         Ok(anki_proto::deck_config::GetRetentionWorkloadResponse {
             factor: after / before,
