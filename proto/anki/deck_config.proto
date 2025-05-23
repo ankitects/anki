@@ -39,8 +39,9 @@ message DeckConfigId {
 
 message GetRetentionWorkloadRequest {
   repeated float w = 1;
-  float before = 2;
-  float after = 3;
+  string search = 2;
+  float before = 3;
+  float after = 4;
 }
 
 message GetRetentionWorkloadResponse {

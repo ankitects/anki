@@ -127,7 +127,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
         const request = new GetRetentionWorkloadRequest({
-            w: params.length > 0 ? params : defaults.fsrsParams6,
+            w: params,
+            search: defaultparamSearch,
             before: +startingDesiredRetention,
             after: retention,
         });
