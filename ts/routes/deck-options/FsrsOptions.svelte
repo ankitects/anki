@@ -116,8 +116,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return Math.round(percent / 50) * 50;
         } else if (absPercent > 10) {
             return Math.round(percent / 5) * 5;
-        } else {
+        } else if (absPercent >= 1) {
             return parseFloat(percent.toPrecision(1));
+        } else {
+            return "<1";
         }
     }
 
