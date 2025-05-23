@@ -107,6 +107,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    /**
+     * @param percent passed as a whole number, e.g 100% = 100
+     */
+    function roundPercentage(percent: number) {
+        const absPercent = Math.abs(percent);
+        if (absPercent > 100) {
+            return Math.round(percent / 50) * 50;
+        } else if (absPercent > 10) {
+            return Math.round(percent / 5) * 5;
+        } else {
+            return parseFloat(percent.toPrecision(1));
+        }
+    }
+
     async function getRetentionChangeInfo(retention: number, params: number[]) {
         if (+startingDesiredRetention == roundedRetention) {
             desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageUnchanged();
@@ -121,11 +135,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const percent = (resp.factor - 1) * 100;
         if (percent > 0) {
             desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageIncrease({
-                percent: parseFloat(percent.toPrecision(1)),
+                percent: roundPercentage(percent),
             });
         } else {
             desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageDecrease({
-                percent: parseFloat((-percent).toPrecision(1)),
+                percent: roundPercentage(-percent),
             });
         }
     }
