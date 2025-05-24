@@ -66,7 +66,7 @@ define_newtype!(NotetypeId, i64);
 pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_CLOZE_CSS: &str = include_str!("cloze_styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
-pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
+pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{preview}\end{document}";
 /// New entries must be handled in render.rs/add_special_fields().
 static SPECIAL_FIELDS: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
     HashSet::from_iter(vec![
