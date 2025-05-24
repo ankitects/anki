@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import html
 import os
+import re
 from dataclasses import dataclass
 
 import anki
@@ -25,6 +26,7 @@ pngCommands = [
         "200",
         "-T",
         "tight",
+        "--depth",
         "tmp.dvi",
         "-o",
         "tmp.png",
@@ -84,6 +86,25 @@ def render_latex(
     return html
 
 
+def _add_depth_to_html(
+    html: str,
+    latex: ExtractedLatex,
+    col: anki.collection.Collection,
+) -> str:
+    """Add depth information, as provided by preview.sty, to the HTML."""
+    try:
+        with open(
+            os.path.join(col.media.dir(), f"{latex.filename}.depth"), encoding="utf8"
+        ) as depth:
+            html = html.replace(
+                f' src="{latex.filename}"',
+                f' style="vertical-align: -{depth.read()}" src="{latex.filename}"',
+            )
+    except Exception:  # Depth information is non-critical.
+        pass
+    return html
+
+
 def render_latex_returning_errors(
     html: str,
     model: NotetypeDict,
@@ -105,7 +126,8 @@ def render_latex_returning_errors(
 
     for latex in out.latex:
         # don't need to render?
-        if col.media.have(latex.filename):
+        if col.media.have(latex.filename) and col.media.have(f"{latex.filename}.depth"):
+            html = _add_depth_to_html(html, latex, col)
             continue
         if not render_latex:
             errors.append(col.tr.preferences_latex_generation_disabled())
@@ -114,6 +136,7 @@ def render_latex_returning_errors(
         err = _save_latex_image(col, latex, header, footer, svg)
         if err is not None:
             errors.append(err)
+        html = _add_depth_to_html(html, latex, col)
 
     return html, errors
 
@@ -137,7 +160,7 @@ def _save_latex_image(
         ext = "png"
 
     # write into a temp file
-    log = open(namedtmp("latex_log.txt"), "w", encoding="utf8")
+    log = open(namedtmp("latex_log.txt"), "w+", encoding="utf8")
     texpath = namedtmp("tmp.tex")
     texfile = open(texpath, "w", encoding="utf8")
     texfile.write(latex)
@@ -155,6 +178,11 @@ def _save_latex_image(
             data = file.read()
         col.media.write_data(extracted.filename, data)
         os.unlink(png_or_svg)
+        # add depth data
+        log.seek(0)
+        match = re.search(r"depth=(.*)", log.read())
+        if match:
+            col.media.write_data(f"{extracted.filename}.depth", match.group(1).encode())
         return None
     finally:
         os.chdir(oldcwd)
