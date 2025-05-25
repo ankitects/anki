@@ -10,6 +10,7 @@ package anki.frontend;
 import "anki/scheduler.proto";
 import "anki/generic.proto";
 import "anki/search.proto";
+import "anki/notes.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -28,7 +29,9 @@ service FrontendService {
   // Warns python that the deck option web view is ready to receive requests.
   rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
 
+  // Editor
   rpc editorReady(generic.Empty) returns (generic.Empty);
+  rpc editorUpdateNote(notes.UpdateNotesRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}

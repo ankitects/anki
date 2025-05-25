@@ -608,11 +608,28 @@ def editor_ready() -> bytes:
 
     def handle_on_main() -> None:
         window = aqt.mw.app.activeWindow()
-        if isinstance(getattr(window, "editor"), Editor):
+        if window and isinstance(getattr(window, "editor"), Editor):
             window.editor._set_ready()  # type: ignore
 
     aqt.mw.taskman.run_on_main(handle_on_main)
     return b""
+
+
+def editor_update_note() -> bytes:
+    from aqt.editor import Editor
+
+    output = raw_backend_request("update_notes")()
+    response = OpChanges()
+    response.ParseFromString(output)
+
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        if window and isinstance(getattr(window, "editor"), Editor):
+            on_op_finished(aqt.mw, response, window.editor)  # type: ignore
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return output
 
 
 post_handler_list = [
@@ -631,6 +648,7 @@ post_handler_list = [
     deck_options_require_close,
     deck_options_ready,
     editor_ready,
+    editor_update_note,
 ]
 
 
@@ -647,6 +665,7 @@ exposed_backend_list = [
     # NotesService
     "get_field_names",
     "get_note",
+    "new_note",
     # NotetypesService
     "get_notetype",
     "get_notetype_names",

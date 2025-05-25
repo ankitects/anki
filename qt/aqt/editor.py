@@ -402,24 +402,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         # focus lost or key/button pressed?
         if cmd.startswith("blur") or cmd.startswith("key"):
-            (type, ord_str, nid_str, txt) = cmd.split(":", 3)
+            (type, ord_str) = cmd.split(":", 1)
             ord = int(ord_str)
-            try:
-                nid = int(nid_str)
-            except ValueError:
-                nid = 0
-            if nid != self.note.id:
-                print("ignored late blur")
-                return
-
-            try:
-                self.note.fields[ord] = self.mungeHTML(txt)
-            except IndexError:
-                print("ignored late blur after notetype change")
-                return
-
-            if not self.addMode:
-                self._save_current_note()
             if type == "blur":
                 self.currentField = None
                 # run any filters

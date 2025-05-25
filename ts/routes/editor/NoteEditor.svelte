@@ -224,14 +224,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand(`setTagsCollapsed:${$tagsCollapsed}`);
     }
 
-    let noteId: bigint | null = null;
-    export function setNoteId(ntid: bigint | null): void {
+    let note: Note | null = null;
+    export function setNote(n: Note): void {
+        note = n;
         // TODO this is a hack, because it requires the NoteEditor to know implementation details of the PlainTextInput.
         // It should be refactored once we work on our own Undo stack
         for (const pi of plainTextInputs) {
             pi.api.codeMirror.editor.then((editor) => editor.clearHistory());
         }
-        noteId = ntid;
     }
 
     let notetypeMeta: NotetypeIdAndModTime;
@@ -249,10 +249,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 notetypeId: BigInt(notetype.id),
             }).then((r) => (ioFields = r.fields!));
         }
-    }
-
-    function getNoteId(): string | null {
-        return noteId?.toString() ?? null;
     }
 
     let isImageOcclusion = false;
@@ -294,18 +290,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function transformContentBeforeSave(content: string): string {
         return content.replace(/ data-editor-shrink="(true|false)"/g, "");
+        // TODO: mungeHTML()
+    }
+
+    async function updateCurrentNote() {
+        if (mode !== "add") {
+            await editorUpdateNote({
+                notes: [note!],
+                skipUndoEntry: false,
+            });
+        }
     }
 
     function updateField(index: number, content: string): void {
-        fieldSave.schedule(
-            () =>
-                bridgeCommand(
-                    `key:${index}:${getNoteId()}:${transformContentBeforeSave(
-                        content,
-                    )}`,
-                ),
-            600,
-        );
+        fieldSave.schedule(() => {
+            bridgeCommand(`key:${index}`);
+            note!.fields[index] = transformContentBeforeSave(content);
+            updateCurrentNote();
+        }, 600);
     }
 
     function saveFieldNow(): void {
@@ -422,6 +424,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getNote,
         getNotetype,
         encodeIriPaths,
+        newNote,
+        editorUpdateNote,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
 
@@ -442,6 +446,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyBadge from "./StickyBadge.svelte";
     import ButtonGroupItem from "$lib/components/ButtonGroupItem.svelte";
     import PreviewButton from "./PreviewButton.svelte";
+    import type { Note } from "@generated/anki/notes_pb";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -562,11 +567,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    async function loadNote(nid: bigint | null, notetypeId: bigint, focusTo: number) {
+    async function loadNote(nid: bigint, notetypeId: bigint, focusTo: number) {
         const notetype = await getNotetype({
             ntid: notetypeId,
         });
-        let fieldValues: string[] = notetype.fields.map(() => "");
         const fieldNames = (
             await getFieldNames({
                 ntid: notetype.id,
@@ -576,18 +580,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const clozeFields = fieldNames.map((name, index) =>
             clozeFieldOrds.includes(index),
         );
-        let tags: string[] = [];
-        if (nid) {
-            const note = await getNote({
-                nid,
-            });
-            fieldValues = (
-                await Promise.all(
-                    note.fields.map((field) => encodeIriPaths({ val: field })),
-                )
-            ).map((field) => field.val);
-            tags = note.tags;
+        if (mode === "add") {
+            setNote(await newNote({ ntid: notetype.id }));
+        } else {
+            setNote(
+                await getNote({
+                    nid,
+                }),
+            );
         }
+        const fieldValues = (
+            await Promise.all(
+                note!.fields.map((field) => encodeIriPaths({ val: field })),
+            )
+        ).map((field) => field.val);
+        const tags = note!.tags;
+
         saveSession();
         setFields(fieldNames, fieldValues);
         setIsImageOcclusion(
@@ -610,7 +618,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ]),
         );
         focusField(focusTo);
-        setNoteId(nid);
         // TODO: lastTextColor/lastHighlightColor profile config
         // setColorButtons(["#0000ff", "#0000ff"]);
         setTags(tags);
@@ -666,8 +673,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setClozeHint,
             saveNow,
             focusIfField,
-            getNoteId,
-            setNoteId,
             setNotetypeMeta,
             wrap,
             setMathjaxEnabled,
@@ -786,11 +791,9 @@ components and functionality for general note editing.
                     on:focusout={() => {
                         $focusedField = null;
                         setAddonButtonsDisabled(true);
-                        bridgeCommand(
-                            `blur:${index}:${getNoteId()}:${transformContentBeforeSave(
-                                get(content),
-                            )}`,
-                        );
+                        bridgeCommand(`blur:${index}`);
+                        note!.fields[index] = transformContentBeforeSave(get(content));
+                        updateCurrentNote();
                     }}
                     on:mouseenter={() => {
                         $hoveredField = fields[index];
