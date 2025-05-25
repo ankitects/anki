@@ -37,13 +37,12 @@ from anki.httpclient import HttpClient
 from anki.models import NotetypeDict, NotetypeId, StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from anki.utils import checksum, is_lin, is_mac, is_win, namedtmp
-from aqt import AnkiQt, colors, gui_hooks
+from aqt import AnkiQt, gui_hooks
 from aqt.operations import QueryOp
 from aqt.operations.note import update_note
 from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.sound import av_player
-from aqt.theme import theme_manager
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
@@ -681,61 +680,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     setNote = set_note
 
-    # Tag handling
-    ######################################################################
-
-    def setupTags(self) -> None:
-        import aqt.tagedit
-
-        g = QGroupBox(self.widget)
-        g.setStyleSheet("border: 0")
-        tb = QGridLayout()
-        tb.setSpacing(12)
-        tb.setContentsMargins(2, 6, 2, 6)
-        # tags
-        l = QLabel(tr.editing_tags())
-        tb.addWidget(l, 1, 0)
-        self.tags = aqt.tagedit.TagEdit(self.widget)
-        qconnect(self.tags.lostFocus, self.on_tag_focus_lost)
-        self.tags.setToolTip(shortcut(tr.editing_jump_to_tags_with_ctrlandshiftandt()))
-        border = theme_manager.var(colors.BORDER)
-        self.tags.setStyleSheet(f"border: 1px solid {border}")
-        tb.addWidget(self.tags, 1, 1)
-        g.setLayout(tb)
-        self.outerLayout.addWidget(g)
-
-    def updateTags(self) -> None:
-        if self.tags.col != self.mw.col:
-            self.tags.setCol(self.mw.col)
-        if not self.tags.text() or not self.addMode:
-            assert self.note is not None
-            self.tags.setText(self.note.string_tags().strip())
-
-    def on_tag_focus_lost(self) -> None:
-        assert self.note is not None
-        self.note.tags = self.mw.col.tags.split(self.tags.text())
-        gui_hooks.editor_did_update_tags(self.note)
-        if not self.addMode:
-            self._save_current_note()
-
-    def blur_tags_if_focused(self) -> None:
-        if not self.note:
-            return
-        if self.tags.hasFocus():
-            self.widget.setFocus()
-
-    def hideCompleters(self) -> None:
-        self.tags.hideCompleter()
-
-    def onFocusTags(self) -> None:
-        self.tags.setFocus()
-
     # legacy
 
     def saveAddModeVars(self) -> None:
         pass
-
-    saveTags = blur_tags_if_focused
 
     # Audio/video/images
     ######################################################################
