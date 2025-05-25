@@ -623,9 +623,10 @@ def editor_update_note() -> bytes:
     response.ParseFromString(output)
 
     def handle_on_main() -> None:
-        window = aqt.mw.app.activeWindow()
-        if window and isinstance(getattr(window, "editor"), Editor):
-            on_op_finished(aqt.mw, response, window.editor)  # type: ignore
+        handler = aqt.mw.app.activeWindow()
+        if handler and isinstance(getattr(handler, "editor", None), Editor):
+            handler = handler.editor  # type: ignore
+        on_op_finished(aqt.mw, response, handler)
 
     aqt.mw.taskman.run_on_main(handle_on_main)
 
