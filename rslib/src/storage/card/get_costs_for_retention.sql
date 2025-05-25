@@ -1,7 +1,6 @@
 WITH searched_revlogs AS (
   SELECT *
   FROM revlog
-  WHERE cid IN search_cids
   ORDER BY id DESC -- Use the last 10_000 reviews
   LIMIT 10000
 ), average_pass AS (
@@ -9,10 +8,27 @@ WITH searched_revlogs AS (
   FROM searched_revlogs
   WHERE ease > 1
 ),
-average_fail AS (
-  SELECT AVG(time)
+lapses AS (
+  SELECT *
   FROM searched_revlogs
   WHERE ease = 1
+    AND type = 1
+),
+fail_sum AS (
+  SELECT SUM(time) AS total_fail_time
+  FROM searched_revlogs
+  WHERE ease = 1
+    OR type = 2
+),
+lapse_count AS (
+  SELECT COUNT(*) AS lapse_count
+  FROM lapses
+),
+-- (sum(Relearning) + sum(Lapses)) / count(Lapses)
+average_fail AS (
+  SELECT total_fail_time * 1.0 / NULLIF(lapse_count, 0) AS avg_fail_time
+  FROM fail_sum,
+    lapse_count
 ),
 -- Can lead to cards with partial learn histories skewing the time 
 summed_learns AS (
