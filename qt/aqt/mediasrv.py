@@ -675,6 +675,8 @@ exposed_backend_list = [
     "simulate_fsrs_review",
     # DeckConfigService
     "get_ignored_before_count",
+    # CardRenderingService
+    "encode_iri_paths",
 ]
 
 
