@@ -601,6 +601,7 @@ class Browser(QMainWindow):
 
         def add_preview_button(editor: Editor) -> None:
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
+            gui_hooks.editor_did_init.remove(add_preview_button)
 
         gui_hooks.editor_did_init.append(add_preview_button)
         self.editor = aqt.editor.Editor(
@@ -609,7 +610,6 @@ class Browser(QMainWindow):
             self,
             editor_mode=aqt.editor.EditorMode.BROWSER,
         )
-        gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved
     def on_all_or_selected_rows_changed(self) -> None:

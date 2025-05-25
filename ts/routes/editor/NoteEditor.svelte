@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import FieldState from "./FieldState.svelte";
     import LabelContainer from "./LabelContainer.svelte";
     import LabelName from "./LabelName.svelte";
+    import type { EditorMode } from "./types";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -186,6 +187,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
+    }
+
+    let stickies: boolean[] = [];
+
+    function setSticky(stckies: boolean[]): void {
+        stickies = stckies;
     }
 
     export function focusField(index: number | null): void {
@@ -432,6 +439,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "../image-occlusion/store";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
+    import StickyBadge from "./StickyBadge.svelte";
+    import ButtonGroupItem from "$lib/components/ButtonGroupItem.svelte";
+    import PreviewButton from "./PreviewButton.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -667,6 +677,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setIsImageOcclusion,
             setupMaskEditor,
             saveOcclusions,
+            setSticky,
             ...oldEditorAdapter,
         });
 
@@ -701,19 +712,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 
     $: tagAmount = $tags.length;
+
+    let noteEditor: HTMLDivElement;
+
+    export let uiResolve: (api: NoteEditorAPI) => void;
+    export let mode: EditorMode;
+
+    $: if (noteEditor) {
+        uiResolve(api as NoteEditorAPI);
+        console.log("svelte editor mode", mode);
+    }
 </script>
 
 <!--
 @component
 Serves as a pre-slotted convenience component which combines all the common
 components and functionality for general note editing.
-
-Functionality exclusive to specific note-editing views (e.g. in the browser or
-the AddCards dialog) should be implemented in the user of this component.
 -->
-<div class="note-editor">
+<div class="note-editor" bind:this={noteEditor}>
     <EditorToolbar {size} {wrap} api={toolbar}>
-        <slot slot="notetypeButtons" name="notetypeButtons" />
+        <svelte:fragment slot="notetypeButtons">
+            {#if mode === "browse"}
+                <ButtonGroupItem>
+                    <PreviewButton />
+                </ButtonGroupItem>
+            {/if}
+        </svelte:fragment>
     </EditorToolbar>
 
     {#if hint}
@@ -795,13 +819,14 @@ the AddCards dialog) should be implemented in the user of this component.
                                 {#if cols[index] === "dupe"}
                                     <DuplicateLink />
                                 {/if}
-                                <slot
-                                    name="field-state"
-                                    {field}
-                                    {index}
-                                    show={fields[index] === $hoveredField ||
-                                        fields[index] === $focusedField}
-                                />
+                                {#if mode === "add"}
+                                    <StickyBadge
+                                        bind:active={stickies[index]}
+                                        {index}
+                                        show={fields[index] === $hoveredField ||
+                                            fields[index] === $focusedField}
+                                    />
+                                {/if}
                                 {#if plainTextDefaults[index]}
                                     <RichTextBadge
                                         show={!fieldsCollapsed[index] &&

@@ -19,10 +19,7 @@ import LabelButton from "$lib/components/LabelButton.svelte";
 import WithContext from "$lib/components/WithContext.svelte";
 import WithState from "$lib/components/WithState.svelte";
 
-import BrowserEditor from "./BrowserEditor.svelte";
-import NoteCreator from "./NoteCreator.svelte";
-import * as editorContextKeys from "./NoteEditor.svelte";
-import ReviewerEditor from "./ReviewerEditor.svelte";
+import NoteEditor, * as editorContextKeys from "./NoteEditor.svelte";
 
 declare global {
     interface Selection {
@@ -56,33 +53,11 @@ export const components = {
 
 export { editorToolbar } from "./editor-toolbar";
 
-async function setupBrowserEditor(): Promise<void> {
-    await setupI18n({ modules: editorModules });
-    mount(BrowserEditor, { target: document.body, props: { uiResolve } });
-}
-
-async function setupNoteCreator(): Promise<void> {
-    await setupI18n({ modules: editorModules });
-    mount(NoteCreator, { target: document.body, props: { uiResolve } });
-}
-
-async function setupReviewerEditor(): Promise<void> {
-    await setupI18n({ modules: editorModules });
-    mount(ReviewerEditor, { target: document.body, props: { uiResolve } });
-}
-
 export async function setupEditor(mode: EditorMode) {
-    switch (mode) {
-        case "add":
-            await setupNoteCreator();
-            break;
-        case "browse":
-            await setupBrowserEditor();
-            break;
-        case "review":
-            await setupReviewerEditor();
-            break;
-        default:
-            alert("unexpected editor type");
+    if (!["add", "browse", "review"].includes(mode)) {
+        alert("unexpected editor type");
+        return;
     }
+    await setupI18n({ modules: editorModules });
+    mount(NoteEditor, { target: document.body, props: { uiResolve, mode } });
 }
