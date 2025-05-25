@@ -547,10 +547,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         assert self.mw.pm.profile is not None
         js = f"loadNote({self.note.id}, {self.note.mid});"
 
-        if self.addMode:
-            sticky = [field["sticky"] for field in self.note_type()["flds"]]
-            js += " setSticky(%s);" % json.dumps(sticky)
-
         if self.current_notetype_is_image_occlusion():
             io_field_indices = self.mw.backend.get_image_occlusion_fields(self.note.mid)
             image_field = self.note.fields[io_field_indices.image]

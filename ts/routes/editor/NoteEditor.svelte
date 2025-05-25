@@ -640,6 +640,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setShrinkImages(true);
         // TODO: closeHTMLTags col config
         setCloseHTMLTags(true);
+        if (mode === "add") {
+            setSticky(notetype.fields.map((field) => field.config?.sticky ?? false));
+        }
         triggerChanges();
     }
 
