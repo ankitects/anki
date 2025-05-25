@@ -720,7 +720,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: if (noteEditor) {
         uiResolve(api as NoteEditorAPI);
-        console.log("svelte editor mode", mode);
     }
 </script>
 
