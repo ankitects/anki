@@ -9,7 +9,7 @@ WITH searched_revlogs AS (
   WHERE ease > 1
 ),
 lapse_count AS (
-  SELECT COUNT(time) as lapse_count
+  SELECT COUNT(time) AS lapse_count
   FROM searched_revlogs
   WHERE ease = 1
     AND type = 1
