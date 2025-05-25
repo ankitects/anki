@@ -8,8 +8,8 @@ WITH searched_revlogs AS (
   FROM searched_revlogs
   WHERE ease > 1
 ),
-lapses AS (
-  SELECT *
+lapse_count AS (
+  SELECT COUNT(time) as lapse_count
   FROM searched_revlogs
   WHERE ease = 1
     AND type = 1
@@ -19,10 +19,6 @@ fail_sum AS (
   FROM searched_revlogs
   WHERE ease = 1
     OR type = 2
-),
-lapse_count AS (
-  SELECT COUNT(*) AS lapse_count
-  FROM lapses
 ),
 -- (sum(Relearning) + sum(Lapses)) / count(Lapses)
 average_fail AS (
