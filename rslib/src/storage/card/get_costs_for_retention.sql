@@ -1,6 +1,7 @@
 WITH searched_revlogs AS (
   SELECT *
   FROM revlog
+  WHERE ease > 0
   ORDER BY id DESC -- Use the last 10_000 reviews
   LIMIT 10000
 ), average_pass AS (
@@ -17,7 +18,7 @@ lapse_count AS (
 fail_sum AS (
   SELECT SUM(time) AS total_fail_time
   FROM searched_revlogs
-  WHERE ease = 1
+  WHERE (ease = 1 AND type = 1)
     OR type = 2
 ),
 -- (sum(Relearning) + sum(Lapses)) / count(Lapses)
