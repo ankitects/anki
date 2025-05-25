@@ -30,7 +30,6 @@ service FrontendService {
   rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
 
   // Editor
-  rpc editorReady(generic.Empty) returns (generic.Empty);
   rpc editorUpdateNote(notes.UpdateNotesRequest) returns (generic.Empty);
 }
 

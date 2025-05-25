@@ -496,6 +496,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 gui_hooks.editor_mask_editor_did_load_image(
                     self, NoteId(int(path_or_nid))
                 )
+        elif cmd == "editorReady":
+            self._set_ready()
 
         elif cmd in self._links:
             return self._links[cmd](self)

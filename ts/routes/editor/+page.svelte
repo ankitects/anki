@@ -8,8 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as base from "./base";
     import { page } from "$app/state";
     import type { EditorMode } from "./types";
-    import { editorReady } from "@generated/backend";
     import { globalExport } from "@tslib/globals";
+    import { bridgeCommand } from "@tslib/bridgecommand";
 
     const mode = (page.url.searchParams.get("mode") ?? "add") as EditorMode;
 
@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(() => {
         setupEditor(mode).then(() => {
-            editorReady({});
+            bridgeCommand("editorReady");
         });
     });
 </script>
