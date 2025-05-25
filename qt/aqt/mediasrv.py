@@ -684,6 +684,7 @@ exposed_backend_list = [
     "get_ignored_before_count",
     # CardRenderingService
     "encode_iri_paths",
+    "decode_iri_paths",
 ]
 
 

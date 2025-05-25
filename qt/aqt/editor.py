@@ -499,9 +499,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         else:
             print("uncaught cmd", cmd)
 
-    def mungeHTML(self, txt: str) -> str:
-        return gui_hooks.editor_will_munge_html(txt, self)
-
     def signal_state_change(
         self, new_state: EditorState, old_state: EditorState
     ) -> None:
@@ -1648,24 +1645,7 @@ def fontMungeHack(font: str) -> str:
     return re.sub(" L$", " Light", font)
 
 
-def munge_html(txt: str, editor: Editor) -> str:
-    return "" if txt in ("<br>", "<div><br></div>") else txt
-
-
-def remove_null_bytes(txt: str, editor: Editor) -> str:
-    # misbehaving apps may include a null byte in the text
-    return txt.replace("\x00", "")
-
-
-def reverse_url_quoting(txt: str, editor: Editor) -> str:
-    # reverse the url quoting we added to get images to display
-    return editor.mw.col.media.escape_media_filenames(txt, unescape=True)
-
-
 gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
-gui_hooks.editor_will_munge_html.append(munge_html)
-gui_hooks.editor_will_munge_html.append(remove_null_bytes)
-gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 
 def set_cloze_button(editor: Editor) -> None:

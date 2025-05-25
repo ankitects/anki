@@ -290,9 +290,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const fieldSave = new ChangeTimer();
 
-    function transformContentBeforeSave(content: string): string {
-        return content.replace(/ data-editor-shrink="(true|false)"/g, "");
-        // TODO: mungeHTML()
+    async function transformContentBeforeSave(content: string): Promise<string> {
+        content = content.replace(/ data-editor-shrink="(true|false)"/g, "");
+        // misbehaving apps may include a null byte in the text
+        content = content.replaceAll("\0", "");
+        // reverse the url quoting we added to get images to display
+        content = (await decodeIriPaths({ val: content })).val;
+
+        if (["<br>", "<div><br></div>"].includes(content)) {
+            return "";
+        }
+        return content;
     }
 
     async function updateCurrentNote() {
@@ -304,10 +312,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function updateField(index: number, content: string): void {
-        fieldSave.schedule(() => {
+    async function updateField(index: number, content: string): Promise<void> {
+        fieldSave.schedule(async () => {
             bridgeCommand(`key:${index}`);
-            note!.fields[index] = transformContentBeforeSave(content);
+            note!.fields[index] = await transformContentBeforeSave(content);
             updateCurrentNote();
         }, 600);
     }
@@ -428,6 +436,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         encodeIriPaths,
         newNote,
         editorUpdateNote,
+        decodeIriPaths,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
 
@@ -790,11 +799,13 @@ components and functionality for general note editing.
                         setAddonButtonsDisabled(false);
                         bridgeCommand(`focus:${index}`);
                     }}
-                    on:focusout={() => {
+                    on:focusout={async () => {
                         $focusedField = null;
                         setAddonButtonsDisabled(true);
                         bridgeCommand(`blur:${index}`);
-                        note!.fields[index] = transformContentBeforeSave(get(content));
+                        note!.fields[index] = await transformContentBeforeSave(
+                            get(content),
+                        );
                         updateCurrentNote();
                     }}
                     on:mouseenter={() => {
