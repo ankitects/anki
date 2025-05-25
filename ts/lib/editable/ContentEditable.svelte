@@ -57,21 +57,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 ></anki-editable>
 
 <style lang="scss">
-    anki-editable {
-        display: block;
-        position: relative;
-
-        overflow: auto;
-        overflow-wrap: anywhere;
-        /* fallback for iOS */
-        word-break: break-word;
-
-        &:focus {
-            outline: none;
-        }
-
-        min-height: 1.5em;
-    }
-
-    /* editable-base.scss contains styling targeting user HTML */
+    @import "./content-editable.scss";
 </style>

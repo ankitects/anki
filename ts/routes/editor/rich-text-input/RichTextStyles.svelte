@@ -7,6 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
+    import editableBaseCSS from "$lib/editable/editable-base.scss?url";
+    import contentEditableCSS from "$lib/editable/content-editable.scss?url";
+    import mathjaxCSS from "$lib/editable/mathjax.scss?url";
+
     import { mount } from "svelte";
 
     export let callback: (styles: Record<string, any>) => void;
@@ -45,9 +49,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const styles: StyleLinkType[] = [
         {
-            id: "rootStyle",
+            id: "editableBaseStyle",
             type: "link",
-            href: "./_anki/css/editable.css",
+            href: editableBaseCSS,
+        },
+        {
+            id: "contentEditableStyle",
+            type: "link",
+            href: contentEditableCSS,
+        },
+        {
+            id: "mathjaxStyle",
+            type: "link",
+            href: mathjaxCSS,
         },
     ];
 

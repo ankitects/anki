@@ -127,24 +127,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
-    :global(anki-mathjax) {
-        white-space: pre;
-    }
-
-    img {
-        vertical-align: var(--vertical-center);
-    }
-
-    .block {
-        display: block;
-        margin: 1rem auto;
-        transform: scale(1.1);
-    }
-
-    .empty {
-        vertical-align: text-bottom;
-
-        width: var(--font-size);
-        height: var(--font-size);
-    }
+    @import "./mathjax.scss";
 </style>

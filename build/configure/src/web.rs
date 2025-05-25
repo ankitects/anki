@@ -202,19 +202,6 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
 
         Ok(())
     };
-    // we use the generated .css file separately
-    build_page(
-        "editable",
-        false,
-        inputs![
-            ":ts:lib",
-            ":ts:components",
-            ":ts:domlib",
-            ":ts:sveltelib",
-            ":sass",
-            ":sveltekit",
-        ],
-    )?;
     build_page(
         "congrats",
         true,
