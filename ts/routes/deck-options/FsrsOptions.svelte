@@ -107,23 +107,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    /**
-     * @param percent passed * 100, e.g 100% = 100
-     */
-    function roundPercentage(percent: number) {
-        const absPercent = Math.abs(percent);
-        if (absPercent > 100) {
-            return Math.round(percent / 50) * 50;
-        } else if (absPercent >= 1) {
-            return parseFloat(percent.toPrecision(1));
-        } else {
-            return "<1";
-        }
-    }
-
     async function getRetentionChangeInfo(retention: number, params: number[]) {
         if (+startingDesiredRetention == roundedRetention) {
-            desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageUnchanged();
+            desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorUnchanged();
             return;
         }
         const request = new GetRetentionWorkloadRequest({
@@ -133,16 +119,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             after: retention,
         });
         const resp = await getRetentionWorkload(request);
-        const percent = (resp.factor - 1) * 100;
-        if (percent > 0) {
-            desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageIncrease({
-                percent: roundPercentage(percent),
-            });
-        } else {
-            desiredRetentionChangeInfo = tr.deckConfigWorkloadPercentageDecrease({
-                percent: roundPercentage(-percent),
-            });
-        }
+        desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorChange({
+            factor: resp.factor.toFixed(2),
+            previousDr: (+startingDesiredRetention * 100).toString(),
+        });
     }
 
     function getRetentionWarningClass(retention: number): string {
