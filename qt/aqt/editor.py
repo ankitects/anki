@@ -468,12 +468,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             self.mw.pm.profile["lastHighlightColor"] = highlightColor
 
         elif cmd.startswith("saveTags"):
-            (type, tagsJson) = cmd.split(":", 1)
-            self.note.tags = json.loads(tagsJson)
-
             gui_hooks.editor_did_update_tags(self.note)
-            if not self.addMode:
-                self._save_current_note()
 
         elif cmd.startswith("setTagsCollapsed"):
             (type, collapsed_string) = cmd.split(":", 1)

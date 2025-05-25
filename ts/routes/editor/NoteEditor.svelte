@@ -283,7 +283,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function saveTags({ detail }: CustomEvent): void {
         tagAmount = detail.tags.filter((tag: string) => tag != "").length;
         lastSavedTags = detail.tags;
-        bridgeCommand(`saveTags:${JSON.stringify(detail.tags)}`);
+        note!.tags = detail.tags;
+        bridgeCommand("saveTags");
+        updateCurrentNote();
     }
 
     const fieldSave = new ChangeTimer();
