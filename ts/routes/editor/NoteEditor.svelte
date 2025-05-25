@@ -92,7 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const sessionOptions: SessionOptions = {};
     export function saveSession(): void {
         if (notetypeMeta) {
-            sessionOptions[notetypeMeta.id] = {
+            sessionOptions[notetypeMeta.id.toString()] = {
                 fieldsCollapsed,
                 fieldStates: {
                     richTextsHidden,
@@ -106,19 +106,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const fieldStores: Writable<string>[] = [];
     let fieldNames: string[] = [];
-    export function setFields(fs: [string, string][]): void {
-        // this is a bit of a mess -- when moving to Rust calls, we should make
-        // sure to have two backend endpoints for:
-        // * the note, which can be set through this view
-        // * the fieldname, font, etc., which cannot be set
+    export function setFields(newFieldNames: string[], fieldValues: string[]): void {
+        fieldNames = newFieldNames;
 
-        const newFieldNames: string[] = [];
-
-        for (const [index, [fieldName]] of fs.entries()) {
-            newFieldNames[index] = fieldName;
-        }
-
-        for (let i = fieldStores.length; i < newFieldNames.length; i++) {
+        for (let i = fieldStores.length; i < fieldValues.length; i++) {
             const newStore = writable("");
             fieldStores[i] = newStore;
             newStore.subscribe((value) => updateField(i, value));
@@ -126,23 +117,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         for (
             let i = fieldStores.length;
-            i > newFieldNames.length;
+            i > fieldValues.length;
             i = fieldStores.length
         ) {
             fieldStores.pop();
         }
 
-        for (const [index, [, fieldContent]] of fs.entries()) {
-            fieldStores[index].set(fieldContent);
+        for (const [index, value] of fieldValues.entries()) {
+            fieldStores[index].set(value);
         }
-
-        fieldNames = newFieldNames;
     }
 
     let fieldsCollapsed: boolean[] = [];
     export function setCollapsed(defaultCollapsed: boolean[]): void {
         fieldsCollapsed =
-            sessionOptions[notetypeMeta?.id]?.fieldsCollapsed ?? defaultCollapsed;
+            sessionOptions[notetypeMeta?.id?.toString()]?.fieldsCollapsed ??
+            defaultCollapsed;
     }
     let clozeFields: boolean[] = [];
     export function setClozeFields(defaultClozeFields: boolean[]): void {
@@ -154,7 +144,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextDefaults: boolean[] = [];
 
     export function setPlainTexts(defaultPlainTexts: boolean[]): void {
-        const states = sessionOptions[notetypeMeta?.id]?.fieldStates;
+        const states = sessionOptions[notetypeMeta?.id?.toString()]?.fieldStates;
         if (states) {
             richTextsHidden = states.richTextsHidden;
             plainTextsHidden = states.plainTextsHidden;
@@ -227,8 +217,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand(`setTagsCollapsed:${$tagsCollapsed}`);
     }
 
-    let noteId: number | null = null;
-    export function setNoteId(ntid: number): void {
+    let noteId: bigint | null = null;
+    export function setNoteId(ntid: bigint | null): void {
         // TODO this is a hack, because it requires the NoteEditor to know implementation details of the PlainTextInput.
         // It should be refactored once we work on our own Undo stack
         for (const pi of plainTextInputs) {
@@ -238,21 +228,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let notetypeMeta: NotetypeIdAndModTime;
-    function setNotetypeMeta({ id, modTime }: NotetypeIdAndModTime): void {
-        notetypeMeta = { id, modTime };
+    function setNotetypeMeta(notetype: Notetype): void {
+        notetypeMeta = { id: notetype.id, modTime: notetype.mtimeSecs };
         // Discard the saved state of the fields if the notetype has been modified.
-        if (sessionOptions[id]?.modTimeOfNotetype !== modTime) {
-            delete sessionOptions[id];
+        if (
+            sessionOptions[notetype.id.toString()]?.modTimeOfNotetype !==
+            notetype.mtimeSecs
+        ) {
+            delete sessionOptions[notetype.id.toString()];
         }
         if (isImageOcclusion) {
             getImageOcclusionFields({
-                notetypeId: BigInt(notetypeMeta.id),
+                notetypeId: BigInt(notetype.id),
             }).then((r) => (ioFields = r.fields!));
         }
     }
 
-    function getNoteId(): number | null {
-        return noteId;
+    function getNoteId(): string | null {
+        return noteId?.toString() ?? null;
     }
 
     let isImageOcclusion = false;
@@ -412,7 +405,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import { ImageOcclusionFieldIndexes } from "@generated/anki/image_occlusion_pb";
-    import { getImageOcclusionFields } from "@generated/backend";
+
+    import { StockNotetype_OriginalStockKind } from "@generated/anki/notetypes_pb";
+    import type { Notetype } from "@generated/anki/notetypes_pb";
+    import {
+        getFieldNames,
+        getClozeFieldOrds,
+        getImageOcclusionFields,
+        getNote,
+        getNotetype,
+        encodeIriPaths,
+    } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
 
     import Shortcut from "$lib/components/Shortcut.svelte";
@@ -549,6 +552,69 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
+    async function loadNote(nid: bigint | null, notetypeId: bigint, focusTo: number) {
+        const notetype = await getNotetype({
+            ntid: notetypeId,
+        });
+        let fieldValues: string[] = notetype.fields.map(() => "");
+        const fieldNames = (
+            await getFieldNames({
+                ntid: notetype.id,
+            })
+        ).vals;
+        const clozeFieldOrds = (await getClozeFieldOrds({ ntid: notetype.id })).ords;
+        const clozeFields = fieldNames.map((name, index) =>
+            clozeFieldOrds.includes(index),
+        );
+        let tags: string[] = [];
+        if (nid) {
+            const note = await getNote({
+                nid,
+            });
+            fieldValues = (
+                await Promise.all(
+                    note.fields.map((field) => encodeIriPaths({ val: field })),
+                )
+            ).map((field) => field.val);
+            tags = note.tags;
+        }
+        saveSession();
+        setFields(fieldNames, fieldValues);
+        setIsImageOcclusion(
+            notetype.config?.originalStockKind ===
+                StockNotetype_OriginalStockKind.IMAGE_OCCLUSION,
+        );
+        setNotetypeMeta(notetype);
+        setCollapsed(notetype.fields.map((field) => field.config?.collapsed ?? false));
+        setClozeFields(clozeFields);
+        setPlainTexts(notetype.fields.map((field) => field.config?.plainText ?? false));
+        setDescriptions(
+            notetype.fields.map((field) => field.config?.description ?? ""),
+        );
+        // TODO: gui_hooks.editor_will_use_font_for_field
+        setFonts(
+            notetype.fields.map((field) => [
+                field.config?.fontName ?? "",
+                field.config?.fontSize ?? 16,
+                field.config?.rtl ?? false,
+            ]),
+        );
+        focusField(focusTo);
+        setNoteId(nid);
+        // TODO: lastTextColor/lastHighlightColor profile config
+        // setColorButtons(["#0000ff", "#0000ff"]);
+        setTags(tags);
+        // TODO: mw.pm.tags_collapsed()
+        setTagsCollapsed(false);
+        // TODO: renderMathjax col config
+        setMathjaxEnabled(true);
+        // TODO: shrinkEditorImages col config
+        setShrinkImages(true);
+        // TODO: closeHTMLTags col config
+        setCloseHTMLTags(true);
+        triggerChanges();
+    }
+
     $: signalEditorState(editorState);
 
     $: editorState = getEditorState(
@@ -575,6 +641,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         Object.assign(globalThis, {
+            loadNote,
             saveSession,
             setFields,
             setCollapsed,

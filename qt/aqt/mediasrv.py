@@ -648,8 +648,10 @@ exposed_backend_list = [
     "get_field_names",
     "get_note",
     # NotetypesService
+    "get_notetype",
     "get_notetype_names",
     "get_change_notetype_info",
+    "get_cloze_field_ords",
     # StatsService
     "card_stats",
     "get_review_logs",

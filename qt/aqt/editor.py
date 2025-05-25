@@ -553,22 +553,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         if not self.note:
             return
 
-        data = [
-            (fld, self.mw.col.media.escape_media_filenames(val))
-            for fld, val in self.note.items()
-        ]
-
-        note_type = self.note_type()
-        flds = note_type["flds"]
-        collapsed = [fld["collapsed"] for fld in flds]
-        cloze_fields_ords = self.mw.col.models.cloze_fields(self.note.mid)
-        cloze_fields = [ord in cloze_fields_ords for ord in range(len(flds))]
-        plain_texts = [fld.get("plainText", False) for fld in flds]
-        descriptions = [fld.get("description", "") for fld in flds]
-        notetype_meta = {"id": self.note.mid, "modTime": note_type["mod"]}
-
         self.widget.show()
-
         note_fields_status = self.note.fields_check()
 
         def oncallback(arg: Any) -> None:
@@ -583,29 +568,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             gui_hooks.editor_did_load_note(self)
 
         assert self.mw.pm.profile is not None
-        text_color = self.mw.pm.profile.get("lastTextColor", "#0000ff")
-        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#0000ff")
-
-        js = f"""
-            saveSession();
-            setFields({json.dumps(data)});
-            setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
-            setNotetypeMeta({json.dumps(notetype_meta)});
-            setCollapsed({json.dumps(collapsed)});
-            setClozeFields({json.dumps(cloze_fields)});
-            setPlainTexts({json.dumps(plain_texts)});
-            setDescriptions({json.dumps(descriptions)});
-            setFonts({json.dumps(self.fonts())});
-            focusField({json.dumps(focusTo)});
-            setNoteId({json.dumps(self.note.id)});
-            setColorButtons({json.dumps([text_color, highlight_color])});
-            setTags({json.dumps(self.note.tags)});
-            setTagsCollapsed({json.dumps(self.mw.pm.tags_collapsed(self.editorMode))});
-            setMathjaxEnabled({json.dumps(self.mw.col.get_config("renderMathjax", True))});
-            setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
-            setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
-            triggerChanges();
-            """
+        js = f"loadNote({self.note.id}, {self.note.mid});"
 
         if self.addMode:
             sticky = [field["sticky"] for field in self.note_type()["flds"]]

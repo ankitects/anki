@@ -8,16 +8,16 @@ export type EditorOptions = {
         plainTextsHidden: boolean[];
         plainTextDefaults: boolean[];
     };
-    modTimeOfNotetype: number;
+    modTimeOfNotetype: bigint;
 };
 
 export type SessionOptions = {
-    [key: number]: EditorOptions;
+    [key: string]: EditorOptions;
 };
 
 export type NotetypeIdAndModTime = {
-    id: number;
-    modTime: number;
+    id: bigint;
+    modTime: bigint;
 };
 
 export enum EditorState {
