@@ -2,7 +2,7 @@ WITH searched_revlogs AS (
   SELECT *
   FROM revlog
   WHERE cid IN search_cids
-  ORDER BY id DESC -- Use the last 10000 cards
+  ORDER BY id DESC -- Use the last 10_000 reviews
   LIMIT 10000
 ), average_pass AS (
   SELECT AVG(time)
