@@ -30,19 +30,21 @@ impl Collection {
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let timing = self.timing_today()?;
-        let days_elapsed = self
+        let seconds_elapsed = self
             .storage
             .time_of_last_review(card.id)?
-            .map(|ts| timing.next_day_at.elapsed_days_since(ts))
+            .map(|ts| timing.now.elapsed_secs_since(ts))
             .unwrap_or_default() as u32;
         let fsrs_retrievability = card
             .memory_state
-            .zip(Some(days_elapsed))
+            .zip(Some(seconds_elapsed))
             .zip(Some(card.decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
-            .map(|((state, days), decay)| {
-                FSRS::new(None)
-                    .unwrap()
-                    .current_retrievability(state.into(), days, decay)
+            .map(|((state, seconds), decay)| {
+                FSRS::new(None).unwrap().current_retrievability_seconds(
+                    state.into(),
+                    seconds,
+                    decay,
+                )
             });
 
         let original_deck = if card.original_deck_id == DeckId(0) {
