@@ -109,7 +109,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function getRetentionChangeInfo(retention: number, params: number[]) {
         if (+startingDesiredRetention == roundedRetention) {
-            desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorUnchanged() + "\n ";
+            desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorUnchanged();
             return;
         }
         const request = new GetRetentionWorkloadRequest({
@@ -293,7 +293,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </SettingTitle>
 </SpinBoxFloatRow>
 
-<Warning warning={desiredRetentionChangeInfo} className={"alert-info pre-wrap"} />
+<Warning warning={desiredRetentionChangeInfo} className={"alert-info two-line"} />
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
@@ -383,5 +383,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin-bottom: 0.375rem;
     }
 
-    :global(.pre-wrap) { white-space: pre-wrap; }
+    :global(.two-line) {
+        white-space: pre-wrap;
+        min-height: calc(2ch + 30px);
+        box-sizing: content-box;
+    }
 </style>
