@@ -339,8 +339,11 @@ export function renderForgettingCurve(
                 1,
             );
             let text = tooltipText(d);
+            const desiredRetentionPercent = desiredRetention * 100;
             if (y2 >= lineY - 10 && y2 <= lineY + 10) {
-                text += `<br>${tr.cardStatsFsrsForgettingCurveDesiredRetention()}: ${desiredRetention.toFixed(2)}`;
+                text += `<br>${tr.cardStatsFsrsForgettingCurveDesiredRetention()}: ${
+                    desiredRetentionPercent.toFixed(0)
+                }%`;
             }
             showTooltip(text, x1, y1);
         })
