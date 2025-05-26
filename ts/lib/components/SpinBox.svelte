@@ -129,6 +129,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         value={stringValue}
         bind:this={input}
         on:blur={update}
+        on:change={update}
         on:input={onInput}
         on:focusin={() => (focused = true)}
         on:focusout={() => (focused = false)}
