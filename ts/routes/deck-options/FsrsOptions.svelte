@@ -387,5 +387,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         white-space: pre-wrap;
         min-height: calc(2ch + 30px);
         box-sizing: content-box;
+        display: flex;
+        align-content: center;
+        flex-wrap: wrap;
     }
 </style>
