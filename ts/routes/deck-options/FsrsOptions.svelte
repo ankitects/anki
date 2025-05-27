@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         computeFsrsParams,
         evaluateParams,
+        getRetentionWorkload,
         setWantsAbort,
     } from "@generated/backend";
     import * as tr from "@generated/ftl";
@@ -26,11 +27,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ParamsInputRow from "./ParamsInputRow.svelte";
     import ParamsSearchRow from "./ParamsSearchRow.svelte";
     import SimulatorModal from "./SimulatorModal.svelte";
-    import { UpdateDeckConfigsMode } from "@generated/anki/deck_config_pb";
+    import {
+        GetRetentionWorkloadRequest,
+        UpdateDeckConfigsMode,
+    } from "@generated/anki/deck_config_pb";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
     export let onPresetChange: () => void;
+    export let newlyEnabled = false;
 
     const config = state.currentConfig;
     const defaults = state.defaults;
@@ -39,6 +44,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
+    let desiredRetentionFocused = false;
+    let desiredRetentionEverFocused = false;
+    let optimized = false;
+    const startingDesiredRetention = $config.desiredRetention.toFixed(2);
+    $: if (desiredRetentionFocused) {
+        desiredRetentionEverFocused = true;
+    }
+    $: showDesiredRetentionTooltip =
+        newlyEnabled || desiredRetentionEverFocused || optimized;
 
     let computeParamsProgress: ComputeParamsProgress | undefined;
     let computingParams = false;
@@ -47,10 +61,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: computing = computingParams || checkingParams;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
-    $: desiredRetentionWarning = getRetentionWarning(
-        roundedRetention,
-        fsrsParams($config),
-    );
+    $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+    const WORKLOAD_UPDATE_DELAY_MS = 100;
+
+    let desiredRetentionChangeInfo = "";
+    $: {
+        clearTimeout(timeoutId);
+        if (showDesiredRetentionTooltip) {
+            timeoutId = setTimeout(() => {
+                getRetentionChangeInfo(roundedRetention, fsrsParams($config));
+            }, WORKLOAD_UPDATE_DELAY_MS);
+        } else {
+            desiredRetentionChangeInfo = "";
+        }
+    }
+
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
@@ -67,23 +94,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewOrder: $config.reviewOrder,
     });
 
-    function getRetentionWarning(retention: number, params: number[]): string {
-        const decay = params.length > 20 ? -params[20] : -0.5; // default decay for FSRS-4.5 and FSRS-5
-        const factor = 0.9 ** (1 / decay) - 1;
-        const stability = 100;
-        const days = Math.round(
-            (stability / factor) * (Math.pow(retention, 1 / decay) - 1),
-        );
-        if (days === 100) {
+    const DESIRED_RETENTION_LOW_THRESHOLD = 0.8;
+    const DESIRED_RETENTION_HIGH_THRESHOLD = 0.95;
+
+    function getRetentionLongShortWarning(retention: number) {
+        if (retention < DESIRED_RETENTION_LOW_THRESHOLD) {
+            return tr.deckConfigDesiredRetentionTooLow();
+        } else if (retention > DESIRED_RETENTION_HIGH_THRESHOLD) {
+            return tr.deckConfigDesiredRetentionTooHigh();
+        } else {
             return "";
         }
-        return tr.deckConfigA100DayInterval({ days });
+    }
+
+    async function getRetentionChangeInfo(retention: number, params: number[]) {
+        if (+startingDesiredRetention == roundedRetention) {
+            desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorUnchanged();
+            return;
+        }
+        const request = new GetRetentionWorkloadRequest({
+            w: params,
+            search: defaultparamSearch,
+            before: +startingDesiredRetention,
+            after: retention,
+        });
+        const resp = await getRetentionWorkload(request);
+        desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorChange({
+            factor: resp.factor.toFixed(2),
+            previousDr: (+startingDesiredRetention * 100).toString(),
+        });
     }
 
     function getRetentionWarningClass(retention: number): string {
         if (retention < 0.7 || retention > 0.97) {
             return "alert-danger";
-        } else if (retention < 0.8 || retention > 0.95) {
+        } else if (
+            retention < DESIRED_RETENTION_LOW_THRESHOLD ||
+            retention > DESIRED_RETENTION_HIGH_THRESHOLD
+        ) {
             return "alert-warning";
         } else {
             return "alert-info";
@@ -146,6 +194,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         setTimeout(() => alert(msg), 200);
                     } else {
                         $config.fsrsParams6 = resp.params;
+                        optimized = true;
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
@@ -237,12 +286,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     min={0.7}
     max={0.99}
     percentage={true}
+    bind:focused={desiredRetentionFocused}
 >
     <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
         {tr.deckConfigDesiredRetention()}
     </SettingTitle>
 </SpinBoxFloatRow>
 
+<Warning warning={desiredRetentionChangeInfo} className={"alert-info two-line"} />
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
@@ -330,5 +381,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     .btn {
         margin-bottom: 0.375rem;
+    }
+
+    :global(.two-line) {
+        white-space: pre-wrap;
+        min-height: calc(2ch + 30px);
+        box-sizing: content-box;
+        display: flex;
+        align-content: center;
+        flex-wrap: wrap;
     }
 </style>
