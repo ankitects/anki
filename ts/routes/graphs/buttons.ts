@@ -148,7 +148,7 @@ export function renderButtons(
                                     kind = tr.statisticsCountsMatureCards();
                                     break;
                             }
-                            return `${kind} \u200e(${totalCorrect(d).percent}%)`;
+                            return `${kind}`;
                         }) as any,
                     )
                     .tickSizeOuter(0),
@@ -222,8 +222,23 @@ export function renderButtons(
         const button = tr.statisticsAnswerButtonsButtonNumber();
         const timesPressed = tr.statisticsAnswerButtonsButtonPressed();
         const correctStr = tr.statisticsHoursCorrect(totalCorrect(d.group));
+        const correctStrInfo = tr.statisticsHoursCorrectInfo();
         const pressedStr = `${timesPressed}: ${totalPressedStr(d)}`;
-        return `${button}: ${d.buttonNum}<br>${pressedStr}<br>${correctStr}`;
+
+        let buttonText: string;
+        if (d.buttonNum === 1) {
+            buttonText = tr.studyingAgain();
+        } else if (d.buttonNum === 2) {
+            buttonText = tr.studyingHard();
+        } else if (d.buttonNum === 3) {
+            buttonText = tr.studyingGood();
+        } else if (d.buttonNum === 4) {
+            buttonText = tr.studyingEasy();
+        } else {
+            buttonText = "";
+        }
+
+        return `${button}: ${d.buttonNum} (${buttonText})<br>${pressedStr}<br>${correctStr} ${correctStrInfo}`;
     }
 
     svg.select("g.hover-columns")

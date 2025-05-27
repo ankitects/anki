@@ -872,6 +872,9 @@ class AnkiQt(QMainWindow):
         if changes.mtime:
             self.toolbar.update_sync_status()
 
+        if changes.notetype:
+            self.col.models._clear_cache()
+
     def on_focus_did_change(
         self, new_focus: QWidget | None, _old: QWidget | None
     ) -> None:

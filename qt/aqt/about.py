@@ -221,9 +221,12 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Yuki",
             "🦙 (siid)",
             "Mukunda Madhav Dey",
+            "Adnane Taghi",
+            "Anon_0000",
         )
     )
 
+    allusers = [user.replace(" ", "&nbsp;") for user in allusers]
     abouttext += "<p>" + tr.about_written_by_damien_elmes_with_patches(
         cont=", ".join(allusers) + f", {tr.about_and_others()}"
     )

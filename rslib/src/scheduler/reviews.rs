@@ -32,12 +32,14 @@ impl Card {
         force_reset: bool,
     ) {
         let new_due = (today + days_from_today) as i32;
-        let new_interval =
-            if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
-                days_from_today
-            } else {
-                self.interval
-            };
+        let fsrs_enabled = self.memory_state.is_some();
+        let new_interval = if fsrs_enabled {
+            self.interval.saturating_add_signed(new_due - self.due)
+        } else if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
+            days_from_today
+        } else {
+            self.interval
+        };
         let ease_factor = (ease_factor * 1000.0).round() as u16;
 
         self.schedule_as_review(new_interval, new_due, ease_factor);

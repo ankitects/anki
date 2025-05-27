@@ -232,7 +232,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             placeHandle(true);
                             resetHandle();
                         }}
-                        on:close={resetHandle}
+                        on:close={() => {
+                            placeHandle(true);
+                            resetHandle();
+                        }}
                         let:editor={mathjaxEditor}
                     >
                         <Shortcut

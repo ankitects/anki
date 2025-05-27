@@ -83,6 +83,15 @@ preferences-ankiweb-intro = AnkiWeb is a free service that lets you keep your fl
 preferences-ankihub-intro = AnkiHub provides collaborative deck editing and additional study tools. A paid subscription is required to access certain features.
 preferences-third-party-description = Third-party services are unaffiliated with and not endorsed by Anki. Use of these services may require payment.
 
+## URL scheme related
+preferences-url-schemes = URL Schemes
+preferences-url-scheme-prompt = Allowed URL Schemes (space-separated):
+preferences-url-scheme-warning = Blocked attempt to open `{ $link }`, which may be a security issue.
+
+    If you trust the deck author and wish to proceed, you can add `{ $scheme }` to your allowed URL Schemes.
+preferences-url-scheme-allow-once = Allow Once
+preferences-url-scheme-always-allow = Always Allow
+
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 preferences-basic = Basic

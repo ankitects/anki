@@ -112,6 +112,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="range-box-pad"></div>
 
 <style lang="scss">
+    label {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    input[type="radio"] {
+        margin-inline-end: 0.3em;
+    }
+
     .range-box {
         position: sticky;
         z-index: 1;

@@ -583,8 +583,10 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
-        let field_indicies_by_notetype =
-            self.num_fields_and_fields_indices_by_notetype(field_name)?;
+        let field_indicies_by_notetype = self.num_fields_and_fields_indices_by_notetype(
+            field_name,
+            matches!(val, "*" | "_*" | "*_"),
+        )?;
         if field_indicies_by_notetype.is_empty() {
             write!(self.sql, "false").unwrap();
             return Ok(());
@@ -630,6 +632,7 @@ impl SqlWriter<'_> {
     fn num_fields_and_fields_indices_by_notetype(
         &mut self,
         field_name: &str,
+        test_for_nonempty: bool,
     ) -> Result<Vec<FieldQualifiedSearchContext>> {
         let matches_glob = glob_matcher(field_name);
 
@@ -640,7 +643,7 @@ impl SqlWriter<'_> {
                 .iter()
                 .filter(|&field| matches_glob(&field.name))
                 .map(|field| field.ord.unwrap_or_default())
-                .collect_ranges();
+                .collect_ranges(!test_for_nonempty);
             if !matched_fields.is_empty() {
                 field_map.push(FieldQualifiedSearchContext {
                     ntid: nt.id,
@@ -697,7 +700,7 @@ impl SqlWriter<'_> {
                     }
                     (!field.config.exclude_from_search).then_some(ord)
                 })
-                .collect_ranges();
+                .collect_ranges(true);
             if !matched_fields.is_empty() {
                 field_map.push(UnqualifiedSearchContext {
                     ntid: nt.id,
@@ -899,7 +902,7 @@ impl RequiredTable {
 /// contiguous numbers.
 trait CollectRanges {
     type Item;
-    fn collect_ranges(self) -> Vec<Range<Self::Item>>;
+    fn collect_ranges(self, join: bool) -> Vec<Range<Self::Item>>;
 }
 
 impl<
@@ -909,7 +912,7 @@ impl<
 {
     type Item = Idx;
 
-    fn collect_ranges(self) -> Vec<Range<Self::Item>> {
+    fn collect_ranges(self, join: bool) -> Vec<Range<Self::Item>> {
         let mut result = Vec::new();
         let mut iter = self.into_iter();
         let next = iter.next();
@@ -920,7 +923,7 @@ impl<
         let mut end = next.unwrap();
 
         for i in iter {
-            if i == end + 1.into() {
+            if join && i == end + 1.into() {
                 end = end + 1.into();
             } else {
                 result.push(start..end + 1.into());
@@ -1334,7 +1337,8 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
     #[allow(clippy::single_range_in_vec_init)]
     #[test]
     fn ranges() {
-        assert_eq!([1, 2, 3].collect_ranges(), [1..4]);
-        assert_eq!([1, 3, 4].collect_ranges(), [1..2, 3..5]);
+        assert_eq!([1, 2, 3].collect_ranges(true), [1..4]);
+        assert_eq!([1, 3, 4].collect_ranges(true), [1..2, 3..5]);
+        assert_eq!([1, 2, 5, 6].collect_ranges(false), [1..2, 2..3, 5..6, 6..7]);
     }
 }

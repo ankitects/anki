@@ -930,7 +930,7 @@ def openFolder(path: str) -> None:
         subprocess.run(["explorer", f"file://{path}"], check=False)
     else:
         with no_bundled_libs():
-            QDesktopServices.openUrl(QUrl(f"file://{path}"))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
 def show_in_folder(path: str) -> None:
@@ -947,7 +947,7 @@ def show_in_folder(path: str) -> None:
     else:
         # Just open the file in any other platform
         with no_bundled_libs():
-            QDesktopServices.openUrl(QUrl(f"file://{path}"))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
 def _show_in_folder_win32(path: str) -> None:
@@ -1188,7 +1188,7 @@ def disallow_full_screen() -> bool:
     )
 
 
-def add_ellipsis_to_action_label(*actions: QAction) -> None:
+def add_ellipsis_to_action_label(*actions: QAction | QPushButton) -> None:
     """Pass actions to add '...' to their labels, indicating that more input is
     required before they can be performed.
 

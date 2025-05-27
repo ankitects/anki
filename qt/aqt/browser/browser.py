@@ -397,6 +397,7 @@ class Browser(QMainWindow):
 
         add_ellipsis_to_action_label(f.actionCopy)
         add_ellipsis_to_action_label(f.action_forget)
+        add_ellipsis_to_action_label(f.action_grade_now)
 
     def _editor_web_view(self) -> EditorWebView:
         assert self.editor is not None
@@ -1243,11 +1244,13 @@ class Browser(QMainWindow):
         self._line_edit().selectAll()
 
     def onNote(self) -> None:
-        assert self.editor is not None
-        assert self.editor.web is not None
+        def cb():
+            assert self.editor is not None and self.editor.web is not None
+            self.editor.web.setFocus()
+            self.editor.loadNote(focusTo=0)
 
-        self.editor.web.setFocus()
-        self.editor.loadNote(focusTo=0)
+        assert self.editor is not None
+        self.editor.call_after_note_saved(cb)
 
     def onCardList(self) -> None:
         self.form.tableView.setFocus()

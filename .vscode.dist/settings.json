@@ -23,7 +23,7 @@
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
     },
-    "rust-analyzer.checkOnSave.allTargets": false,
+    "rust-analyzer.check.allTargets": false,
     "rust-analyzer.files.excludeDirs": [".bazel", "node_modules"],
     "rust-analyzer.procMacro.enable": true,
     // this formats 'use' blocks in a nicer way, but requires you to run
