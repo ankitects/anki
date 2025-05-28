@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function toggleShrinkImages(_evt: MouseEvent): void {
         $shrinkImagesByDefault = !$shrinkImagesByDefault;
-        bridgeCommand("toggleShrinkImages");
+        setColConfig("shrinkEditorImages", $shrinkImagesByDefault);
         showFloating = false;
     }
 

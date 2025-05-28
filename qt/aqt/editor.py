@@ -1260,12 +1260,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def insertMathjaxChemistry(self) -> None:
         self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
 
-    def toggleShrinkImages(self) -> None:
-        self.mw.col.set_config(
-            "shrinkEditorImages",
-            not self.mw.col.get_config("shrinkEditorImages", True),
-        )
-
     def toggleCloseHTMLTags(self) -> None:
         self.mw.col.set_config(
             "closeHTMLTags",
@@ -1301,7 +1295,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             mathjaxInline=Editor.insertMathjaxInline,
             mathjaxBlock=Editor.insertMathjaxBlock,
             mathjaxChemistry=Editor.insertMathjaxChemistry,
-            toggleShrinkImages=Editor.toggleShrinkImages,
             toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
             addImageForOcclusion=Editor.select_image_and_occlude,
             addImageForOcclusionFromClipboard=Editor.select_image_from_clipboard_and_occlude,

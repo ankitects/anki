@@ -644,8 +644,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setTags(tags);
         setTagsCollapsed(await getMeta(tagsCollapsedMetaKey));
         setMathjaxEnabled((await getColConfig("renderMathjax")) ?? true);
-        // TODO: shrinkEditorImages col config
-        setShrinkImages(true);
+        setShrinkImages((await getColConfig("shrinkEditorImages")) ?? true);
         // TODO: closeHTMLTags col config
         setCloseHTMLTags(true);
         if (mode === "add") {
