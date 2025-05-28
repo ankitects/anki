@@ -33,7 +33,6 @@ import aqt.operations
 from anki import frontend_pb2, generic_pb2, hooks
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
-from anki.errors import NotFoundError
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
@@ -640,10 +639,12 @@ def set_setting_json(setter: Callable[[str, Any], Any]) -> bytes:
 
 
 def get_profile_config_json() -> bytes:
+    assert aqt.mw.pm.profile is not None
     return get_setting_json(aqt.mw.pm.profile.get)
 
 
 def set_profile_config_json() -> bytes:
+    assert aqt.mw.pm.profile is not None
     return set_setting_json(aqt.mw.pm.profile.__setitem__)
 
 

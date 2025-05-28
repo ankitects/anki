@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script context="module" lang="ts">
     import type { DefaultSlotInterface } from "$lib/sveltelib/dynamic-slotting";
+
     export interface InlineButtonsAPI extends DefaultSlotInterface {
         setColorButtons: (colors: [string, string]) => void;
     }

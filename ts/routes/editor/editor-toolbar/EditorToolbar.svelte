@@ -63,6 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
     import type { InlineButtonsAPI } from "./InlineButtons.svelte";
+
     export let size: number;
     export let wrap: boolean;
 
