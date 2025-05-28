@@ -39,7 +39,6 @@ service FrontendService {
   // Metadata
   rpc GetMetaJson(generic.String) returns (generic.Json);
   rpc SetMetaJson(SetSettingJsonRequest) returns (generic.Empty);
-
 }
 
 service BackendFrontendService {}
