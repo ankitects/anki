@@ -457,16 +457,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
             return new_state
 
-        elif cmd.startswith("lastTextColor"):
-            (_, textColor) = cmd.split(":", 1)
-            assert self.mw.pm.profile is not None
-            self.mw.pm.profile["lastTextColor"] = textColor
-
-        elif cmd.startswith("lastHighlightColor"):
-            (_, highlightColor) = cmd.split(":", 1)
-            assert self.mw.pm.profile is not None
-            self.mw.pm.profile["lastHighlightColor"] = highlightColor
-
         elif cmd.startswith("saveTags"):
             gui_hooks.editor_did_update_tags(self.note)
 

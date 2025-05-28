@@ -4,7 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
-    import { bridgeCommand } from "@tslib/bridgecommand";
     import { getPlatformString } from "@tslib/shortcuts";
     import { removeStyleProperties } from "@tslib/styling";
     import { singleCallback } from "@tslib/typing";
@@ -22,6 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ColorPicker from "./ColorPicker.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import WithColorHelper from "./WithColorHelper.svelte";
+    import { setProfileConfig } from "@tslib/profile";
 
     export let color: string;
 
@@ -151,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             value={color}
             on:input={(event) => {
                 color = setColor(event);
-                bridgeCommand(`lastTextColor:${color}`);
+                setProfileConfig("lastTextColor", color);
             }}
             on:change={() => {
                 // Delay added to work around intermittent failures on macOS/Qt6.5

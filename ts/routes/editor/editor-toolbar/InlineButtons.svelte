@@ -2,6 +2,14 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+
+<script context="module" lang="ts">
+    import type { DefaultSlotInterface } from "$lib/sveltelib/dynamic-slotting";
+    export interface InlineButtonsAPI extends DefaultSlotInterface {
+        setColorButtons: (colors: [string, string]) => void;
+    }
+</script>
+
 <script lang="ts">
     import ButtonGroup from "$lib/components/ButtonGroup.svelte";
     import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
@@ -16,16 +24,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TextColorButton from "./TextColorButton.svelte";
     import UnderlineButton from "./UnderlineButton.svelte";
 
-    export let api = {};
-
     let textColor: string = "black";
     let highlightColor: string = "black";
-    export function setColorButtons([textClr, highlightClr]: [string, string]): void {
+
+    function setColorButtons([textClr, highlightClr]: [string, string]): void {
         textColor = textClr;
         highlightColor = highlightClr;
     }
 
-    Object.assign(globalThis, { setColorButtons });
+    export let api = {} as InlineButtonsAPI;
+    Object.assign(api, {
+        setColorButtons,
+    });
 </script>
 
 <DynamicallySlottable slotHost={Item} {api}>

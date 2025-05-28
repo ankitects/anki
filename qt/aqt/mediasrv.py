@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import enum
+import json
 import logging
 import mimetypes
 import os
@@ -28,7 +29,7 @@ from waitress.server import create_server
 import aqt
 import aqt.main
 import aqt.operations
-from anki import hooks
+from anki import frontend_pb2, generic_pb2, hooks
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
@@ -621,6 +622,23 @@ def editor_update_note() -> bytes:
     return output
 
 
+def get_profile_config_json() -> bytes:
+    key = generic_pb2.String()
+    key.ParseFromString(request.data)
+    value = aqt.mw.pm.profile.get(key.val, None)
+    output = generic_pb2.Json(json=json.dumps(value).encode()).SerializeToString()
+
+    return output
+
+
+def set_profile_config_json() -> bytes:
+    req = frontend_pb2.SetProfileConfigJsonRequest()
+    req.ParseFromString(request.data)
+    aqt.mw.pm.profile[req.key] = json.loads(req.value_json)
+
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -637,6 +655,8 @@ post_handler_list = [
     deck_options_require_close,
     deck_options_ready,
     editor_update_note,
+    get_profile_config_json,
+    set_profile_config_json,
 ]
 
 

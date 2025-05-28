@@ -31,6 +31,10 @@ service FrontendService {
 
   // Editor
   rpc editorUpdateNote(notes.UpdateNotesRequest) returns (generic.Empty);
+
+  // Profile config
+  rpc GetProfileConfigJson(generic.String) returns (generic.Json);
+  rpc SetProfileConfigJson(SetProfileConfigJsonRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -43,4 +47,9 @@ message SchedulingStatesWithContext {
 message SetSchedulingStatesRequest {
   string key = 1;
   scheduler.SchedulingStates states = 2;
+}
+
+message SetProfileConfigJsonRequest {
+  string key = 1;
+  bytes value_json = 2;
 }

@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export interface EditorToolbarAPI {
         toolbar: DefaultSlotInterface;
         notetypeButtons: DefaultSlotInterface;
-        inlineButtons: DefaultSlotInterface;
+        inlineButtons: InlineButtonsAPI;
         blockButtons: DefaultSlotInterface;
         templateButtons: DefaultSlotInterface;
         removeFormats: Writable<RemoveFormat[]>;
@@ -62,14 +62,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import OptionsButtons from "./OptionsButtons.svelte";
     import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
-
+    import type { InlineButtonsAPI } from "./InlineButtons.svelte";
     export let size: number;
     export let wrap: boolean;
 
     const toolbar = {} as DefaultSlotInterface;
     const notetypeButtons = {} as DefaultSlotInterface;
     const optionsButtons = {} as DefaultSlotInterface;
-    const inlineButtons = {} as DefaultSlotInterface;
+    const inlineButtons = {} as InlineButtonsAPI;
     const blockButtons = {} as DefaultSlotInterface;
     const templateButtons = {} as DefaultSlotInterface;
     const removeFormats = writable<RemoveFormat[]>([]);

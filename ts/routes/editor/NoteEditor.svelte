@@ -446,7 +446,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         decodeIriPaths,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
-
+    import { getProfileConfig } from "@tslib/profile";
     import Shortcut from "$lib/components/Shortcut.svelte";
 
     import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
@@ -465,6 +465,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "$lib/components/ButtonGroupItem.svelte";
     import PreviewButton from "./PreviewButton.svelte";
     import type { Note } from "@generated/anki/notes_pb";
+    import InlineButtons from "./editor-toolbar/InlineButtons.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -613,6 +614,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             )
         ).map((field) => field.val);
         const tags = note!.tags;
+        const lastTextColor = (await getProfileConfig("lastTextColor")) ?? "#0000ff";
+        const lastHighlightColor =
+            (await getProfileConfig("lastHighlightColor")) ?? "#0000ff";
 
         saveSession();
         setFields(fieldNames, fieldValues);
@@ -635,8 +639,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ]),
         );
         focusField(focusTo);
-        // TODO: lastTextColor/lastHighlightColor profile config
-        // setColorButtons(["#0000ff", "#0000ff"]);
+        toolbar.inlineButtons?.setColorButtons([lastTextColor, lastHighlightColor]);
         setTags(tags);
         // TODO: mw.pm.tags_collapsed()
         setTagsCollapsed(false);
