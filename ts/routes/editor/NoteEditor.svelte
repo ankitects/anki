@@ -185,6 +185,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const fields = clearableArray<EditorFieldAPI>();
 
+    //  QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
+    // - there may be other cases like a trailing 'Bold' that need fixing, but will
+    // wait for further reports first.
+    function mungeFontName(fontName: string): string {
+        return fontName.replace(/ L$/g, " Light");
+    }
+
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
     }
@@ -620,10 +627,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setDescriptions(
             notetype.fields.map((field) => field.config?.description ?? ""),
         );
-        // TODO: gui_hooks.editor_will_use_font_for_field
         setFonts(
             notetype.fields.map((field) => [
-                field.config?.fontName ?? "",
+                mungeFontName(field.config?.fontName ?? ""),
                 field.config?.fontSize ?? 16,
                 field.config?.rtl ?? false,
             ]),

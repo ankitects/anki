@@ -574,12 +574,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             initiator=self
         )
 
-    def fonts(self) -> list[tuple[str, int, bool]]:
-        return [
-            (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
-            for f in self.note_type()["flds"]
-        ]
-
     def call_after_note_saved(
         self, callback: Callable, keepFocus: bool = False
     ) -> None:
@@ -1632,16 +1626,6 @@ class EditorWebView(AnkiWebView):
         clipboard = self.editor.mw.app.clipboard()
         assert clipboard is not None
         return clipboard
-
-
-# QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
-# - there may be other cases like a trailing 'Bold' that need fixing, but will
-# wait for further reports first.
-def fontMungeHack(font: str) -> str:
-    return re.sub(" L$", " Light", font)
-
-
-gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
 
 
 def set_cloze_button(editor: Editor) -> None:
