@@ -222,13 +222,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const tagsCollapsed = writable<boolean>();
+    $: tagsCollapsedMetaKey = `${mode}TagsCollapsed`;
+
     export function setTagsCollapsed(collapsed: boolean): void {
         $tagsCollapsed = collapsed;
     }
 
-    function updateTagsCollapsed(collapsed: boolean) {
+    async function updateTagsCollapsed(collapsed: boolean) {
         $tagsCollapsed = collapsed;
-        bridgeCommand(`setTagsCollapsed:${$tagsCollapsed}`);
+        await setMeta(tagsCollapsedMetaKey, collapsed);
     }
 
     let note: Note | null = null;
@@ -446,7 +448,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         decodeIriPaths,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
-    import { getProfileConfig } from "@tslib/profile";
+    import { getProfileConfig, getMeta, setMeta } from "@tslib/profile";
     import Shortcut from "$lib/components/Shortcut.svelte";
 
     import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
@@ -465,7 +467,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "$lib/components/ButtonGroupItem.svelte";
     import PreviewButton from "./PreviewButton.svelte";
     import type { Note } from "@generated/anki/notes_pb";
-    import InlineButtons from "./editor-toolbar/InlineButtons.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -641,8 +642,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focusField(focusTo);
         toolbar.inlineButtons?.setColorButtons([lastTextColor, lastHighlightColor]);
         setTags(tags);
-        // TODO: mw.pm.tags_collapsed()
-        setTagsCollapsed(false);
+        setTagsCollapsed(await getMeta(tagsCollapsedMetaKey));
         // TODO: renderMathjax col config
         setMathjaxEnabled(true);
         // TODO: shrinkEditorImages col config
@@ -759,7 +759,7 @@ components and functionality for general note editing.
 <div class="note-editor" bind:this={noteEditor}>
     <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
-            {#if mode === "browse"}
+            {#if mode === "browser"}
                 <ButtonGroupItem>
                     <PreviewButton />
                 </ButtonGroupItem>

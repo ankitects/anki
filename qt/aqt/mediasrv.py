@@ -18,6 +18,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
+from typing import Any
 
 import flask
 import flask_cors
@@ -622,21 +623,35 @@ def editor_update_note() -> bytes:
     return output
 
 
-def get_profile_config_json() -> bytes:
-    key = generic_pb2.String()
-    key.ParseFromString(request.data)
-    value = aqt.mw.pm.profile.get(key.val, None)
+def get_setting_json(getter: Callable[[str], Any]) -> bytes:
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    value = getter(req.val)
     output = generic_pb2.Json(json=json.dumps(value).encode()).SerializeToString()
-
     return output
 
 
-def set_profile_config_json() -> bytes:
-    req = frontend_pb2.SetProfileConfigJsonRequest()
+def set_setting_json(setter: Callable[[str, Any], Any]) -> bytes:
+    req = frontend_pb2.SetSettingJsonRequest()
     req.ParseFromString(request.data)
-    aqt.mw.pm.profile[req.key] = json.loads(req.value_json)
-
+    setter(req.key, json.loads(req.value_json))
     return b""
+
+
+def get_profile_config_json() -> bytes:
+    return get_setting_json(aqt.mw.pm.profile.get)
+
+
+def set_profile_config_json() -> bytes:
+    return set_setting_json(aqt.mw.pm.profile.__setitem__)
+
+
+def get_meta_json() -> bytes:
+    return get_setting_json(aqt.mw.pm.meta.get)
+
+
+def set_meta_json() -> bytes:
+    return set_setting_json(aqt.mw.pm.meta.__setitem__)
 
 
 post_handler_list = [
@@ -657,6 +672,8 @@ post_handler_list = [
     editor_update_note,
     get_profile_config_json,
     set_profile_config_json,
+    get_meta_json,
+    set_meta_json,
 ]
 
 

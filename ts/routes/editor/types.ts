@@ -28,4 +28,4 @@ export enum EditorState {
     ImageOcclusionFields = 3,
 }
 
-export type EditorMode = "add" | "browse" | "review";
+export type EditorMode = "add" | "browser" | "current";

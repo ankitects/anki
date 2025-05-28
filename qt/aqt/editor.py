@@ -181,13 +181,8 @@ class Editor:
         self.outerLayout.addWidget(self.web, 1)
 
     def setupWeb(self) -> None:
-        if self.editorMode == EditorMode.ADD_CARDS:
-            mode = "add"
-        elif self.editorMode == EditorMode.BROWSER:
-            mode = "browse"
-        else:
-            mode = "review"
-        self.web.load_sveltekit_page(f"editor/?mode={mode}")
+        editor_key = self.mw.pm.editor_key(self.editorMode)
+        self.web.load_sveltekit_page(f"editor/?mode={editor_key}")
 
     def _set_ready(self) -> None:
         lefttopbtns: list[str] = []
@@ -459,11 +454,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         elif cmd.startswith("saveTags"):
             gui_hooks.editor_did_update_tags(self.note)
-
-        elif cmd.startswith("setTagsCollapsed"):
-            (type, collapsed_string) = cmd.split(":", 1)
-            collapsed = collapsed_string == "true"
-            self.setTagsCollapsed(collapsed)
 
         elif cmd.startswith("editorState"):
             (_, new_state_id, old_state_id) = cmd.split(":", 2)

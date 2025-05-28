@@ -54,7 +54,7 @@ export const components = {
 export { editorToolbar } from "./editor-toolbar";
 
 export async function setupEditor(mode: EditorMode) {
-    if (!["add", "browse", "review"].includes(mode)) {
+    if (!["add", "browser", "current"].includes(mode)) {
         alert("unexpected editor type");
         return;
     }

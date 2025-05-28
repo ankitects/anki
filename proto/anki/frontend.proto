@@ -34,7 +34,12 @@ service FrontendService {
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);
-  rpc SetProfileConfigJson(SetProfileConfigJsonRequest) returns (generic.Empty);
+  rpc SetProfileConfigJson(SetSettingJsonRequest) returns (generic.Empty);
+
+  // Metadata
+  rpc GetMetaJson(generic.String) returns (generic.Json);
+  rpc SetMetaJson(SetSettingJsonRequest) returns (generic.Empty);
+
 }
 
 service BackendFrontendService {}
@@ -49,7 +54,7 @@ message SetSchedulingStatesRequest {
   scheduler.SchedulingStates states = 2;
 }
 
-message SetProfileConfigJsonRequest {
+message SetSettingJsonRequest {
   string key = 1;
   bytes value_json = 2;
 }
