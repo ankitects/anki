@@ -658,7 +658,7 @@ def set_meta_json() -> bytes:
 def get_config_json() -> bytes:
     try:
         return get_setting_json(aqt.mw.col.conf.get_immutable)
-    except NotFoundError:
+    except KeyError:
         return generic_pb2.Json(json=b"null").SerializeToString()
 
 
