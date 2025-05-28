@@ -4,7 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
-    import { bridgeCommand } from "@tslib/bridgecommand";
 
     import CheckBox from "$lib/components/CheckBox.svelte";
     import DropdownItem from "$lib/components/DropdownItem.svelte";
@@ -35,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function toggleCloseHTMLTags(_evt: MouseEvent): void {
         $closeHTMLTags = !$closeHTMLTags;
-        bridgeCommand("toggleCloseHTMLTags");
+        setColConfig("closeHTMLTags", $closeHTMLTags);
         showFloating = false;
     }
 </script>

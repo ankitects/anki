@@ -645,8 +645,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setTagsCollapsed(await getMeta(tagsCollapsedMetaKey));
         setMathjaxEnabled((await getColConfig("renderMathjax")) ?? true);
         setShrinkImages((await getColConfig("shrinkEditorImages")) ?? true);
-        // TODO: closeHTMLTags col config
-        setCloseHTMLTags(true);
+        setCloseHTMLTags((await getColConfig("closeHTMLTags")) ?? true);
         if (mode === "add") {
             setSticky(notetype.fields.map((field) => field.config?.sticky ?? false));
         }
