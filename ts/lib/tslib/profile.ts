@@ -1,7 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getMetaJson, getProfileConfigJson, setMetaJson, setProfileConfigJson } from "@generated/backend";
+import {
+    getConfigJson,
+    getMetaJson,
+    getProfileConfigJson,
+    setConfigJson,
+    setMetaJson,
+    setProfileConfigJson,
+} from "@generated/backend";
 
 async function getSettingJson(key: string, backendGetter: (key: string) => Promise<any>): Promise<any> {
     const decoder = new TextDecoder();
@@ -33,4 +40,16 @@ export async function getMeta(key: string): Promise<any> {
 
 export async function setMeta(key: string, value: any): Promise<void> {
     return await setSettingJson(key, value, async (k, v) => await setMetaJson({ key: k, valueJson: v }));
+}
+
+export async function getColConfig(key: string): Promise<any> {
+    return await getSettingJson(key, async (k) => await getConfigJson({ val: k }));
+}
+
+export async function setColConfig(key: string, value: any): Promise<void> {
+    return await setSettingJson(
+        key,
+        value,
+        async (k, v) => await setConfigJson({ key: k, valueJson: v, undoable: true }),
+    );
 }

@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
     import { shrinkImagesByDefault } from "../image-overlay/ImageOverlay.svelte";
     import { closeHTMLTags } from "../plain-text-input/PlainTextInput.svelte";
+    import { setColConfig } from "@tslib/profile";
 
     let showFloating = false;
 
@@ -28,7 +29,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function toggleShowMathjax(_evt: MouseEvent): void {
         mathjaxConfig.enabled = !mathjaxConfig.enabled;
-        bridgeCommand("toggleMathjax");
+        setColConfig("renderMathjax", mathjaxConfig.enabled);
+        // FIXME: refresh
     }
 
     function toggleCloseHTMLTags(_evt: MouseEvent): void {

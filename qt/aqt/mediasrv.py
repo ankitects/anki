@@ -33,6 +33,7 @@ import aqt.operations
 from anki import frontend_pb2, generic_pb2, hooks
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
+from anki.errors import NotFoundError
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
@@ -654,6 +655,17 @@ def set_meta_json() -> bytes:
     return set_setting_json(aqt.mw.pm.meta.__setitem__)
 
 
+def get_config_json() -> bytes:
+    try:
+        return get_setting_json(aqt.mw.col.conf.get_immutable)
+    except NotFoundError:
+        return generic_pb2.Json(json=b"null").SerializeToString()
+
+
+def set_config_json() -> bytes:
+    return set_setting_json(aqt.mw.col.set_config)
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -674,6 +686,7 @@ post_handler_list = [
     set_profile_config_json,
     get_meta_json,
     set_meta_json,
+    get_config_json,
 ]
 
 
@@ -723,6 +736,8 @@ exposed_backend_list = [
     # CardRenderingService
     "encode_iri_paths",
     "decode_iri_paths",
+    # ConfigService
+    "set_config_json",
 ]
 
 

@@ -448,7 +448,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         decodeIriPaths,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
-    import { getProfileConfig, getMeta, setMeta } from "@tslib/profile";
+    import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
     import Shortcut from "$lib/components/Shortcut.svelte";
 
     import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
@@ -643,8 +643,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toolbar.inlineButtons?.setColorButtons([lastTextColor, lastHighlightColor]);
         setTags(tags);
         setTagsCollapsed(await getMeta(tagsCollapsedMetaKey));
-        // TODO: renderMathjax col config
-        setMathjaxEnabled(true);
+        setMathjaxEnabled((await getColConfig("renderMathjax")) ?? true);
         // TODO: shrinkEditorImages col config
         setShrinkImages(true);
         // TODO: closeHTMLTags col config

@@ -1260,14 +1260,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def insertMathjaxChemistry(self) -> None:
         self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
 
-    def toggleMathjax(self) -> None:
-        self.mw.col.set_config(
-            "renderMathjax", not self.mw.col.get_config("renderMathjax", False)
-        )
-        # hackily redraw the page
-        self.setupWeb()
-        self.loadNoteKeepingFocus()
-
     def toggleShrinkImages(self) -> None:
         self.mw.col.set_config(
             "shrinkEditorImages",
@@ -1309,7 +1301,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             mathjaxInline=Editor.insertMathjaxInline,
             mathjaxBlock=Editor.insertMathjaxBlock,
             mathjaxChemistry=Editor.insertMathjaxChemistry,
-            toggleMathjax=Editor.toggleMathjax,
             toggleShrinkImages=Editor.toggleShrinkImages,
             toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
             addImageForOcclusion=Editor.select_image_and_occlude,
