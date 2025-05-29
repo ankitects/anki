@@ -170,6 +170,7 @@ class Browser(QMainWindow):
         if self.height() != 0:
             self.aspect_ratio = self.width() / self.height()
         self.set_layout(self.mw.pm.browser_layout(), True)
+        self.showSidebar(not self.sidebarDockWidget.isHidden())
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
@@ -745,9 +746,14 @@ class Browser(QMainWindow):
         self.mw.progress.timer(10, self.sidebar.refresh, False, parent=self.sidebar)
 
     def showSidebar(self, show: bool = True) -> None:
-        want_visible = not self.sidebarDockWidget.isVisible()
+        was_hidden = self.sidebarDockWidget.isHidden()
         self.sidebarDockWidget.setVisible(show)
-        if want_visible and show:
+
+        margins = self.form.verticalLayout_3.contentsMargins()
+        margins.setLeft(0 if show else margins.right())
+        self.form.verticalLayout_3.setContentsMargins(margins)
+
+        if was_hidden and show:
             self.sidebar.refresh()
 
     def focusSidebar(self) -> None:
