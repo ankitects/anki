@@ -170,7 +170,7 @@ class Browser(QMainWindow):
         if self.height() != 0:
             self.aspect_ratio = self.width() / self.height()
         self.set_layout(self.mw.pm.browser_layout(), True)
-        self.showSidebar(not self.sidebarDockWidget.isHidden())
+        self.handleSidebarMargin(not self.sidebarDockWidget.isHidden())
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
@@ -727,6 +727,7 @@ class Browser(QMainWindow):
             self.form.actionSidebarFilter.triggered,
             self.focusSidebarSearchBar,
         )
+        qconnect(dw.visibilityChanged, self.handleSidebarMargin)
         grid = QGridLayout()
         grid.addWidget(self.sidebar.searchBar, 0, 0)
         grid.addWidget(self.sidebar.toolbar, 0, 1)
@@ -749,12 +750,13 @@ class Browser(QMainWindow):
         was_hidden = self.sidebarDockWidget.isHidden()
         self.sidebarDockWidget.setVisible(show)
 
-        margins = self.form.verticalLayout_3.contentsMargins()
-        margins.setLeft(0 if show else margins.right())
-        self.form.verticalLayout_3.setContentsMargins(margins)
-
         if was_hidden and show:
             self.sidebar.refresh()
+
+    def handleSidebarMargin(self, visible):
+        margins = self.form.verticalLayout_3.contentsMargins()
+        margins.setLeft(0 if visible else margins.right())
+        self.form.verticalLayout_3.setContentsMargins(margins)
 
     def focusSidebar(self) -> None:
         self.showSidebar()
