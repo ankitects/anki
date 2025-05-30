@@ -752,7 +752,7 @@ class Browser(QMainWindow):
 
     def onSidebarVisibilityChange(self, visible):
         margins = self.form.verticalLayout_3.contentsMargins()
-        skip_left_margin = not visible and not (
+        skip_left_margin = visible and not (
             is_mac and aqt.mw.pm.get_widget_style() == WidgetStyle.NATIVE
         )
         margins.setLeft(0 if skip_left_margin else margins.right())
