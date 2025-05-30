@@ -53,6 +53,7 @@ from aqt.operations.tag import (
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.switch import Switch
+from aqt.theme import WidgetStyle
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -751,7 +752,10 @@ class Browser(QMainWindow):
 
     def onSidebarVisibilityChange(self, visible):
         margins = self.form.verticalLayout_3.contentsMargins()
-        margins.setLeft(0 if visible else margins.right())
+        skip_left_margin = not visible and not (
+            is_mac and aqt.mw.pm.get_widget_style() == WidgetStyle.NATIVE
+        )
+        margins.setLeft(0 if skip_left_margin else margins.right())
         self.form.verticalLayout_3.setContentsMargins(margins)
 
         if visible:
