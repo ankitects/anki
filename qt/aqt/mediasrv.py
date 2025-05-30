@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import enum
-import json
 import logging
 import mimetypes
 import os
@@ -34,7 +33,7 @@ from anki import frontend_pb2, generic_pb2, hooks
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
-from anki.utils import dev_mode
+from anki.utils import dev_mode, from_json_bytes, to_json_bytes
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations import on_op_finished
@@ -627,14 +626,14 @@ def get_setting_json(getter: Callable[[str], Any]) -> bytes:
     req = generic_pb2.String()
     req.ParseFromString(request.data)
     value = getter(req.val)
-    output = generic_pb2.Json(json=json.dumps(value).encode()).SerializeToString()
+    output = generic_pb2.Json(json=to_json_bytes(value)).SerializeToString()
     return output
 
 
 def set_setting_json(setter: Callable[[str, Any], Any]) -> bytes:
     req = frontend_pb2.SetSettingJsonRequest()
     req.ParseFromString(request.data)
-    setter(req.key, json.loads(req.value_json))
+    setter(req.key, from_json_bytes(req.value_json))
     return b""
 
 
