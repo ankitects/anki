@@ -41,6 +41,7 @@ import time
 from queue import Empty, Full, Queue
 from shutil import which
 
+import aqt
 from anki.utils import is_mac, is_win
 
 
@@ -444,7 +445,7 @@ class MPV(MPVBase):
 
         super().__init__(*args, **kwargs)
 
-        self._register_callbacks()
+        aqt.mw.taskman.run_in_background(self._register_callbacks, None)
 
     def _register_callbacks(self):
         self._callbacks = {}
