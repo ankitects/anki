@@ -115,15 +115,14 @@ impl Collection {
             num_relearning_steps: Some(num_of_relearning_steps),
         })?;
         progress_thread.join().ok();
-        if let Ok(fsrs) = FSRS::new(Some(current_params)) {
-            let current_log_loss = fsrs.evaluate(items.clone(), |_| true)?.log_loss;
+        if let Ok(current_fsrs) = FSRS::new(Some(current_params)) {
+            let current_log_loss = current_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
             let optimized_fsrs = FSRS::new(Some(&params))?;
             let optimized_log_loss = optimized_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
             if current_log_loss <= optimized_log_loss {
                 if num_of_relearning_steps <= 1 {
                     params = current_params.to_vec();
                 } else {
-                    let current_fsrs = FSRS::new(Some(current_params))?;
                     let memory_state = MemoryState {
                         stability: 1.0,
                         difficulty: 1.0,
@@ -218,22 +217,24 @@ impl Collection {
 
     pub fn evaluate_params(
         &mut self,
-        params: &Params,
         search: &str,
         ignore_revlogs_before: TimestampMillis,
+        num_of_relearning_steps: usize,
     ) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
-        let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
-        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
-        let revlogs: Vec<RevlogEntry> = guard
-            .col
-            .storage
-            .get_revlog_entries_for_searched_cards_in_card_order()?;
+        let revlogs = self.revlog_for_srs(search)?;
         let (items, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
+        let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
         anki_progress.state.reviews = review_count as u32;
-        let fsrs = FSRS::new(Some(params))?;
-        Ok(fsrs.evaluate(items, |ip| {
+        let fsrs = FSRS::new(None)?;
+        let input = ComputeParametersInput {
+            train_set: items.clone(),
+            progress: None,
+            enable_short_term: true,
+            num_relearning_steps: Some(num_of_relearning_steps),
+        };
+        Ok(fsrs.evaluate_with_time_series_splits(input, |ip| {
             anki_progress
                 .update(false, |p| {
                     p.total_iterations = ip.total as u32;
