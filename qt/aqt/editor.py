@@ -37,13 +37,12 @@ from anki.httpclient import HttpClient
 from anki.models import NotetypeDict, NotetypeId, StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from anki.utils import checksum, is_lin, is_mac, is_win, namedtmp
-from aqt import AnkiQt, colors, gui_hooks
+from aqt import AnkiQt, gui_hooks
 from aqt.operations import QueryOp
 from aqt.operations.note import update_note
 from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.sound import av_player
-from aqt.theme import theme_manager
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
@@ -107,6 +106,17 @@ class EditorState(Enum):
     IO_FIELDS = 3
 
 
+def on_editor_ready(func: Callable) -> Callable:
+    @functools.wraps(func)
+    def decorated(self: Editor, *args: Any, **kwargs: Any) -> None:
+        if self._ready:
+            func(self, *args, **kwargs)
+        else:
+            self._ready_callbacks.append(lambda: func(self, *args, **kwargs))
+
+    return decorated
+
+
 class Editor:
     """The screen that embeds an editing widget should listen for changes via
     the `operation_did_execute` hook, and call set_note() when the editor needs
@@ -146,12 +156,14 @@ class Editor:
         self.state: EditorState = EditorState.INITIAL
         # used for the io mask editor's context menu
         self.last_io_image_path: str | None = None
+        self._ready = False
+        self._ready_callbacks: list[Callable[[], None]] = []
         self._init_links()
         self.setupOuter()
         self.add_webview()
         self.setupWeb()
         self.setupShortcuts()
-        gui_hooks.editor_did_init(self)
+        # gui_hooks.editor_did_init(self)
 
     # Initial setup
     ############################################################
@@ -169,27 +181,10 @@ class Editor:
         self.outerLayout.addWidget(self.web, 1)
 
     def setupWeb(self) -> None:
-        if self.editorMode == EditorMode.ADD_CARDS:
-            mode = "add"
-        elif self.editorMode == EditorMode.BROWSER:
-            mode = "browse"
-        else:
-            mode = "review"
+        editor_key = self.mw.pm.editor_key(self.editorMode)
+        self.web.load_sveltekit_page(f"editor/?mode={editor_key}")
 
-        # then load page
-        self.web.stdHtml(
-            "",
-            css=["css/editor.css"],
-            js=[
-                "js/mathjax.js",
-                "js/editor.js",
-            ],
-            context=self,
-            default_css=False,
-        )
-        self.web.eval(f"setupEditor('{mode}')")
-        self.web.show()
-
+    def _set_ready(self) -> None:
         lefttopbtns: list[str] = []
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
@@ -218,6 +213,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
 
         self.web.eval(f"{lefttopbtns_js} {righttopbtns_js}")
+        gui_hooks.editor_did_init(self)
+        self._ready = True
+        for cb in self._ready_callbacks:
+            cb()
 
     # Top buttons
     ######################################################################
@@ -397,24 +396,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         # focus lost or key/button pressed?
         if cmd.startswith("blur") or cmd.startswith("key"):
-            (type, ord_str, nid_str, txt) = cmd.split(":", 3)
+            (type, ord_str) = cmd.split(":", 1)
             ord = int(ord_str)
-            try:
-                nid = int(nid_str)
-            except ValueError:
-                nid = 0
-            if nid != self.note.id:
-                print("ignored late blur")
-                return
-
-            try:
-                self.note.fields[ord] = self.mungeHTML(txt)
-            except IndexError:
-                print("ignored late blur after notetype change")
-                return
-
-            if not self.addMode:
-                self._save_current_note()
             if type == "blur":
                 self.currentField = None
                 # run any filters
@@ -469,28 +452,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
             return new_state
 
-        elif cmd.startswith("lastTextColor"):
-            (_, textColor) = cmd.split(":", 1)
-            assert self.mw.pm.profile is not None
-            self.mw.pm.profile["lastTextColor"] = textColor
-
-        elif cmd.startswith("lastHighlightColor"):
-            (_, highlightColor) = cmd.split(":", 1)
-            assert self.mw.pm.profile is not None
-            self.mw.pm.profile["lastHighlightColor"] = highlightColor
-
         elif cmd.startswith("saveTags"):
-            (type, tagsJson) = cmd.split(":", 1)
-            self.note.tags = json.loads(tagsJson)
-
             gui_hooks.editor_did_update_tags(self.note)
-            if not self.addMode:
-                self._save_current_note()
-
-        elif cmd.startswith("setTagsCollapsed"):
-            (type, collapsed_string) = cmd.split(":", 1)
-            collapsed = collapsed_string == "true"
-            self.setTagsCollapsed(collapsed)
 
         elif cmd.startswith("editorState"):
             (_, new_state_id, old_state_id) = cmd.split(":", 2)
@@ -507,15 +470,14 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 gui_hooks.editor_mask_editor_did_load_image(
                     self, NoteId(int(path_or_nid))
                 )
+        elif cmd == "editorReady":
+            self._set_ready()
 
         elif cmd in self._links:
             return self._links[cmd](self)
 
         else:
             print("uncaught cmd", cmd)
-
-    def mungeHTML(self, txt: str) -> str:
-        return gui_hooks.editor_will_munge_html(txt, self)
 
     def signal_state_change(
         self, new_state: EditorState, old_state: EditorState
@@ -543,26 +505,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def loadNoteKeepingFocus(self) -> None:
         self.loadNote(self.currentField)
 
+    @on_editor_ready
     def loadNote(self, focusTo: int | None = None) -> None:
         if not self.note:
             return
 
-        data = [
-            (fld, self.mw.col.media.escape_media_filenames(val))
-            for fld, val in self.note.items()
-        ]
-
-        note_type = self.note_type()
-        flds = note_type["flds"]
-        collapsed = [fld["collapsed"] for fld in flds]
-        cloze_fields_ords = self.mw.col.models.cloze_fields(self.note.mid)
-        cloze_fields = [ord in cloze_fields_ords for ord in range(len(flds))]
-        plain_texts = [fld.get("plainText", False) for fld in flds]
-        descriptions = [fld.get("description", "") for fld in flds]
-        notetype_meta = {"id": self.note.mid, "modTime": note_type["mod"]}
-
         self.widget.show()
-
         note_fields_status = self.note.fields_check()
 
         def oncallback(arg: Any) -> None:
@@ -577,33 +525,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             gui_hooks.editor_did_load_note(self)
 
         assert self.mw.pm.profile is not None
-        text_color = self.mw.pm.profile.get("lastTextColor", "#0000ff")
-        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#0000ff")
-
-        js = f"""
-            saveSession();
-            setFields({json.dumps(data)});
-            setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
-            setNotetypeMeta({json.dumps(notetype_meta)});
-            setCollapsed({json.dumps(collapsed)});
-            setClozeFields({json.dumps(cloze_fields)});
-            setPlainTexts({json.dumps(plain_texts)});
-            setDescriptions({json.dumps(descriptions)});
-            setFonts({json.dumps(self.fonts())});
-            focusField({json.dumps(focusTo)});
-            setNoteId({json.dumps(self.note.id)});
-            setColorButtons({json.dumps([text_color, highlight_color])});
-            setTags({json.dumps(self.note.tags)});
-            setTagsCollapsed({json.dumps(self.mw.pm.tags_collapsed(self.editorMode))});
-            setMathjaxEnabled({json.dumps(self.mw.col.get_config("renderMathjax", True))});
-            setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
-            setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
-            triggerChanges();
-            """
-
-        if self.addMode:
-            sticky = [field["sticky"] for field in self.note_type()["flds"]]
-            js += " setSticky(%s);" % json.dumps(sticky)
+        js = f"loadNote({self.note.id}, {self.note.mid});"
 
         if self.current_notetype_is_image_occlusion():
             io_field_indices = self.mw.backend.get_image_occlusion_fields(self.note.mid)
@@ -631,12 +553,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         update_note(parent=self.widget, note=self.note).run_in_background(
             initiator=self
         )
-
-    def fonts(self) -> list[tuple[str, int, bool]]:
-        return [
-            (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
-            for f in self.note_type()["flds"]
-        ]
 
     def call_after_note_saved(
         self, callback: Callable, keepFocus: bool = False
@@ -726,61 +642,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     setNote = set_note
 
-    # Tag handling
-    ######################################################################
-
-    def setupTags(self) -> None:
-        import aqt.tagedit
-
-        g = QGroupBox(self.widget)
-        g.setStyleSheet("border: 0")
-        tb = QGridLayout()
-        tb.setSpacing(12)
-        tb.setContentsMargins(2, 6, 2, 6)
-        # tags
-        l = QLabel(tr.editing_tags())
-        tb.addWidget(l, 1, 0)
-        self.tags = aqt.tagedit.TagEdit(self.widget)
-        qconnect(self.tags.lostFocus, self.on_tag_focus_lost)
-        self.tags.setToolTip(shortcut(tr.editing_jump_to_tags_with_ctrlandshiftandt()))
-        border = theme_manager.var(colors.BORDER)
-        self.tags.setStyleSheet(f"border: 1px solid {border}")
-        tb.addWidget(self.tags, 1, 1)
-        g.setLayout(tb)
-        self.outerLayout.addWidget(g)
-
-    def updateTags(self) -> None:
-        if self.tags.col != self.mw.col:
-            self.tags.setCol(self.mw.col)
-        if not self.tags.text() or not self.addMode:
-            assert self.note is not None
-            self.tags.setText(self.note.string_tags().strip())
-
-    def on_tag_focus_lost(self) -> None:
-        assert self.note is not None
-        self.note.tags = self.mw.col.tags.split(self.tags.text())
-        gui_hooks.editor_did_update_tags(self.note)
-        if not self.addMode:
-            self._save_current_note()
-
-    def blur_tags_if_focused(self) -> None:
-        if not self.note:
-            return
-        if self.tags.hasFocus():
-            self.widget.setFocus()
-
-    def hideCompleters(self) -> None:
-        self.tags.hideCompleter()
-
-    def onFocusTags(self) -> None:
-        self.tags.setFocus()
-
     # legacy
 
     def saveAddModeVars(self) -> None:
         pass
-
-    saveTags = blur_tags_if_focused
 
     # Audio/video/images
     ######################################################################
@@ -1395,26 +1260,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def insertMathjaxChemistry(self) -> None:
         self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
 
-    def toggleMathjax(self) -> None:
-        self.mw.col.set_config(
-            "renderMathjax", not self.mw.col.get_config("renderMathjax", False)
-        )
-        # hackily redraw the page
-        self.setupWeb()
-        self.loadNoteKeepingFocus()
-
-    def toggleShrinkImages(self) -> None:
-        self.mw.col.set_config(
-            "shrinkEditorImages",
-            not self.mw.col.get_config("shrinkEditorImages", True),
-        )
-
-    def toggleCloseHTMLTags(self) -> None:
-        self.mw.col.set_config(
-            "closeHTMLTags",
-            not self.mw.col.get_config("closeHTMLTags", True),
-        )
-
     def setTagsCollapsed(self, collapsed: bool) -> None:
         aqt.mw.pm.set_tags_collapsed(self.editorMode, collapsed)
 
@@ -1444,9 +1289,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             mathjaxInline=Editor.insertMathjaxInline,
             mathjaxBlock=Editor.insertMathjaxBlock,
             mathjaxChemistry=Editor.insertMathjaxChemistry,
-            toggleMathjax=Editor.toggleMathjax,
-            toggleShrinkImages=Editor.toggleShrinkImages,
-            toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
             addImageForOcclusion=Editor.select_image_and_occlude,
             addImageForOcclusionFromClipboard=Editor.select_image_from_clipboard_and_occlude,
         )
@@ -1741,33 +1583,6 @@ class EditorWebView(AnkiWebView):
         clipboard = self.editor.mw.app.clipboard()
         assert clipboard is not None
         return clipboard
-
-
-# QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
-# - there may be other cases like a trailing 'Bold' that need fixing, but will
-# wait for further reports first.
-def fontMungeHack(font: str) -> str:
-    return re.sub(" L$", " Light", font)
-
-
-def munge_html(txt: str, editor: Editor) -> str:
-    return "" if txt in ("<br>", "<div><br></div>") else txt
-
-
-def remove_null_bytes(txt: str, editor: Editor) -> str:
-    # misbehaving apps may include a null byte in the text
-    return txt.replace("\x00", "")
-
-
-def reverse_url_quoting(txt: str, editor: Editor) -> str:
-    # reverse the url quoting we added to get images to display
-    return editor.mw.col.media.escape_media_filenames(txt, unescape=True)
-
-
-gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
-gui_hooks.editor_will_munge_html.append(munge_html)
-gui_hooks.editor_will_munge_html.append(remove_null_bytes)
-gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 
 def set_cloze_button(editor: Editor) -> None:
