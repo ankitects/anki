@@ -23,7 +23,6 @@ from markdown import markdown
 import aqt
 import aqt.mpv
 import aqt.qt
-from anki import hooks
 from anki.cards import Card
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
 from anki.utils import is_lin, is_mac, is_win, namedtmp
@@ -321,7 +320,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._process = subprocess.Popen(
-            self.args + ["--", tag.filename],
+            self.args + ["--", tag.path(self._media_folder)],
             env=self.env,
             cwd=self._media_folder,
             stdout=subprocess.DEVNULL,
@@ -447,8 +446,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._on_done = on_done
-        filename = hooks.media_file_filter(tag.filename)
-        path = os.path.join(self.media_folder, filename)
+        path = tag.path(self.media_folder)
 
         if self.mpv_version is None or self.mpv_version >= (0, 38, 0):
             self.command("loadfile", path, "replace", -1, "pause=no")
@@ -500,10 +498,8 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
 
-        filename = hooks.media_file_filter(tag.filename)
-
         self._process = subprocess.Popen(
-            self.args + ["--", filename],
+            self.args + ["--", tag.path(self.media_folder)],
             env=self.env,
             cwd=self.media_folder,
             stdin=subprocess.PIPE,

@@ -9,9 +9,12 @@ These can be accessed via eg card.question_av_tags()
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
 from typing import Union
+
+from anki import hooks
 
 
 @dataclass
@@ -37,6 +40,13 @@ class SoundOrVideoTag:
     """
 
     filename: str
+
+    def path(self, media_folder: str) -> str:
+        "Prepend the media folder to the filename."
+        # Ensure filename doesn't reference parent folder
+        filename = os.path.basename(self.filename)
+        filename = hooks.media_file_filter(filename)
+        return os.path.join(media_folder, filename)
 
 
 # note this does not include image tags, which are handled with HTML.
