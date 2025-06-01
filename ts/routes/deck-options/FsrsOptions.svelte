@@ -196,7 +196,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     } else {
                         $config.fsrsParams6 = resp.params;
                         optimized = true;
-                        console.log(resp.logLoss)
+                        console.log(`FSRS-test-train-split-log-loss = ${resp.logLoss}`)
                         if (resp.logLoss && resp.logLoss > logLossBadThreshold) {
                             setTimeout(() => alert(tr.deckConfigFsrsBadFitWarning()));
                         }
