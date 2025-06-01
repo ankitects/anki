@@ -485,6 +485,14 @@ deck-config-percent-input = { $pct }%
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
+deck-config-fsrs-bad-fit-warning = Your memory is difficult for FSRS to predict. Recommendations:
+
+    - Suspend or reformulate leeches.
+    - Use the answer buttons consistently. Keep in mind that "Hard" is a passing grade, not a failing grade.
+    - Understand before you memorize.
+
+    It may take weeks or months before parameters become optimal.
+
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
 
 deck-config-wait-for-audio = Wait for audio

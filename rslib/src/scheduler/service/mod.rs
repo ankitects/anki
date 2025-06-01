@@ -372,7 +372,7 @@ impl crate::services::BackendSchedulerService for Backend {
             enable_short_term: true,
             num_relearning_steps: None,
         })?;
-        Ok(ComputeFsrsParamsResponse { params, fsrs_items })
+        Ok(ComputeFsrsParamsResponse { params, fsrs_items, log_loss: None })
     }
 
     fn fsrs_benchmark(

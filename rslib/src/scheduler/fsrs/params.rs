@@ -75,6 +75,7 @@ impl Collection {
             return Ok(ComputeFsrsParamsResponse {
                 params: current_params.to_vec(),
                 fsrs_items,
+                log_loss: None
             });
         }
         // adapt the progress handler to our built-in progress handling
@@ -108,12 +109,13 @@ impl Collection {
 
         let (progress, progress_thread) = create_progress_thread()?;
         let fsrs = FSRS::new(None)?;
-        let mut params = fsrs.compute_parameters(ComputeParametersInput {
+        let input = ComputeParametersInput {
             train_set: items.clone(),
             progress: Some(progress.clone()),
             enable_short_term: true,
             num_relearning_steps: Some(num_of_relearning_steps),
-        })?;
+        };
+        let mut params = fsrs.compute_parameters(input.clone())?;
         progress_thread.join().ok();
         if let Ok(fsrs) = FSRS::new(Some(current_params)) {
             let current_log_loss = fsrs.evaluate(items.clone(), |_| true)?.log_loss;
@@ -146,7 +148,15 @@ impl Collection {
             }
         }
 
-        Ok(ComputeFsrsParamsResponse { params, fsrs_items })
+        let fsrs = FSRS::new(None)?;
+        let log_loss = fsrs
+            .evaluate_with_time_series_splits(input, |_| true).ok().map(|eval| eval.log_loss);
+
+        Ok(ComputeFsrsParamsResponse {
+            params,
+            fsrs_items,
+            log_loss,
+        })
     }
 
     pub(crate) fn revlog_for_srs(

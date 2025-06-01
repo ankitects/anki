@@ -41,6 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
     const fsrsReschedule = state.fsrsReschedule;
     const daysSinceLastOptimization = state.daysSinceLastOptimization;
+    const logLossBadThreshold = 0.5;
 
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
@@ -195,6 +196,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     } else {
                         $config.fsrsParams6 = resp.params;
                         optimized = true;
+                        console.log(resp.logLoss)
+                        if (resp.logLoss && resp.logLoss > logLossBadThreshold) {
+                            setTimeout(() => alert(tr.deckConfigFsrsBadFitWarning()));
+                        }
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;

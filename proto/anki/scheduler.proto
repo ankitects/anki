@@ -359,6 +359,7 @@ message ComputeFsrsParamsRequest {
 message ComputeFsrsParamsResponse {
   repeated float params = 1;
   uint32 fsrs_items = 2;
+  optional float logLoss = 3;
 }
 
 message ComputeFsrsParamsFromItemsRequest {
