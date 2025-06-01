@@ -76,7 +76,7 @@ class MediaManager(DeprecatedNamesMixin):
         return self.col._backend.strip_av_tags(text)
 
     def _extract_filenames(self, text: str) -> list[str]:
-        "This only exists do support a legacy function; do not use."
+        "This only exists to support a legacy function; do not use."
         out = self.col._backend.extract_av_tags(text=text, question_side=True)
         return [
             x.filename
