@@ -525,21 +525,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             gui_hooks.editor_did_load_note(self)
 
         assert self.mw.pm.profile is not None
-        js = f"loadNote({self.note.id}, {self.note.mid});"
-
-        if self.current_notetype_is_image_occlusion():
-            io_field_indices = self.mw.backend.get_image_occlusion_fields(self.note.mid)
-            image_field = self.note.fields[io_field_indices.image]
-            self.last_io_image_path = self.extract_img_path_from_html(image_field)
-
-            if self.editorMode is not EditorMode.ADD_CARDS:
-                io_options = self._create_edit_io_options(note_id=self.note.id)
-                js += " setupMaskEditor(%s);" % json.dumps(io_options)
-            elif orig_note_id := self.orig_note_id:
-                self.orig_note_id = None
-                io_options = self._create_clone_io_options(orig_note_id)
-                js += " setupMaskEditor(%s);" % json.dumps(io_options)
-
+        js = f"loadNote({self.note.id}, {self.note.mid}, {json.dumps(focusTo)}, {json.dumps(self.orig_note_id)});"
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback

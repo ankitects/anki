@@ -511,7 +511,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function setImageField(html) {
         fieldStores[ioFields.image].set(html);
     }
-    globalThis.setImageField = setImageField;
 
     function saveOcclusions(): void {
         if (isImageOcclusion && globalThis.canvas) {
@@ -535,7 +534,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             page.remove();
         }
     }
-    globalThis.resetIOImageLoaded = resetIOImageLoaded;
 
     /** hide occlusions and image */
     function hideFieldInOcclusionType(
@@ -587,7 +585,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    async function loadNote(nid: bigint, notetypeId: bigint, focusTo: number) {
+    async function loadNote(nid: bigint, notetypeId: bigint, focusTo: number, originalNoteId: bigint | null) {
         const notetype = await getNotetype({
             ntid: notetypeId,
         });
@@ -649,6 +647,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (mode === "add") {
             setSticky(notetype.fields.map((field) => field.config?.sticky ?? false));
         }
+        if(isImageOcclusion) {
+            const imageField = note!.fields[ioFields.image];
+            // TODO: last_io_image_path
+            if(mode !== "add") {
+                setupMaskEditor({
+                    html: imageField,
+                    mode: {
+                        kind: "edit",
+                        noteId: nid,
+                    },
+                });
+            }
+            else if(originalNoteId) {
+                setupMaskEditor({
+                    html: imageField,
+                    mode: {
+                        kind: "add",
+                        clonedNoteId: originalNoteId,
+                    },
+                });
+            }
+        }
         triggerChanges();
     }
 
@@ -701,6 +721,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             triggerChanges,
             setIsImageOcclusion,
             setupMaskEditor,
+            setImageField,
+            resetIOImageLoaded,
             saveOcclusions,
             setSticky,
             ...oldEditorAdapter,
