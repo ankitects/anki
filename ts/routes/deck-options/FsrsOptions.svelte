@@ -334,7 +334,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigOptimizeButton()}
         {/if}
     </button>
-    <label>
+    <label style="margin-left: 0.5em;">
         <input
             type="checkbox"
             bind:checked={$config.healthCheck}
