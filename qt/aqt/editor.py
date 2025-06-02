@@ -35,10 +35,9 @@ from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.models import NotetypeDict, NotetypeId, StockNotetype
-from anki.notes import Note, NoteFieldsCheckResult, NoteId
+from anki.notes import Note, NoteId
 from anki.utils import checksum, is_lin, is_mac, is_win, namedtmp
 from aqt import AnkiQt, gui_hooks
-from aqt.operations import QueryOp
 from aqt.operations.note import update_note
 from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
@@ -407,11 +406,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                     self.mw.progress.timer(
                         100, self.loadNoteKeepingFocus, False, parent=self.widget
                     )
-                else:
-                    self._check_and_update_duplicate_display_async()
             else:
                 gui_hooks.editor_did_fire_typing_timer(self.note)
-                self._check_and_update_duplicate_display_async()
 
         # focused into field?
         elif cmd.startswith("focus"):
@@ -511,7 +507,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             return
 
         self.widget.show()
-        note_fields_status = self.note.fields_check()
+        # note_fields_status = self.note.fields_check()
 
         def oncallback(arg: Any) -> None:
             if not self.note:
@@ -519,7 +515,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             self.setupForegroundButton()
             # we currently do this synchronously to ensure we load before the
             # sidebar on browser startup
-            self._update_duplicate_display(note_fields_status)
             if focusTo is not None:
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
@@ -551,42 +546,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     saveNow = call_after_note_saved
-
-    def _check_and_update_duplicate_display_async(self) -> None:
-        note = self.note
-        if not note:
-            return
-
-        def on_done(result: NoteFieldsCheckResult.V) -> None:
-            if self.note != note:
-                return
-            self._update_duplicate_display(result)
-
-        QueryOp(
-            parent=self.parentWindow,
-            op=lambda _: note.fields_check(),
-            success=on_done,
-        ).run_in_background()
-
-    checkValid = _check_and_update_duplicate_display_async
-
-    def _update_duplicate_display(self, result: NoteFieldsCheckResult.V) -> None:
-        assert self.note is not None
-        cols = [""] * len(self.note.fields)
-        cloze_hint = ""
-        if result == NoteFieldsCheckResult.DUPLICATE:
-            cols[0] = "dupe"
-        elif result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
-            cloze_hint = tr.adding_cloze_outside_cloze_notetype()
-        elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
-            cloze_hint = tr.adding_cloze_outside_cloze_field()
-
-        self.web.eval(
-            'require("anki/ui").loaded.then(() => {'
-            f"setBackgrounds({json.dumps(cols)});\n"
-            f"setClozeHint({json.dumps(cloze_hint)});\n"
-            "}); "
-        )
 
     def fieldsAreBlank(self, previousNote: Note | None = None) -> bool:
         if not self.note:

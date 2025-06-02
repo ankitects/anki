@@ -325,7 +325,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldSave.schedule(async () => {
             bridgeCommand(`key:${index}`);
             note!.fields[index] = await transformContentBeforeSave(content);
-            updateCurrentNote();
+            await updateCurrentNote();
+            await updateDuplicateDisplay();
         }, 600);
     }
 
@@ -345,6 +346,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             // will fire on session close and minimize
             saveFieldNow();
         }
+    }
+
+    async function updateDuplicateDisplay(): Promise<void> {
+        if (!note) {
+            return;
+        }
+        const result = await noteFieldsCheck(note);
+        const cols = new Array(note.fields.length).fill("");
+        if (result.state === NoteFieldsCheckResponse_State.DUPLICATE) {
+            cols[0] = "dupe";
+        } else if (result.state === NoteFieldsCheckResponse_State.NOTETYPE_NOT_CLOZE) {
+            hint = tr.addingClozeOutsideClozeNotetype();
+        } else if (result.state === NoteFieldsCheckResponse_State.FIELD_NOT_CLOZE) {
+            hint = tr.addingClozeOutsideClozeField();
+        }
+        setBackgrounds(cols);
+        setClozeHint(hint);
     }
 
     export function focusIfField(x: number, y: number): boolean {
@@ -446,6 +464,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         newNote,
         editorUpdateNote,
         decodeIriPaths,
+        noteFieldsCheck,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
@@ -466,7 +485,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyBadge from "./StickyBadge.svelte";
     import ButtonGroupItem from "$lib/components/ButtonGroupItem.svelte";
     import PreviewButton from "./PreviewButton.svelte";
-    import type { Note } from "@generated/anki/notes_pb";
+    import { NoteFieldsCheckResponse_State, type Note } from "@generated/anki/notes_pb";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -673,6 +692,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 });
             }
         }
+        await updateDuplicateDisplay();
         triggerChanges();
     }
 
@@ -841,7 +861,8 @@ components and functionality for general note editing.
                         note!.fields[index] = await transformContentBeforeSave(
                             get(content),
                         );
-                        updateCurrentNote();
+                        await updateCurrentNote();
+                        await updateDuplicateDisplay();
                     }}
                     on:mouseenter={() => {
                         $hoveredField = fields[index];
