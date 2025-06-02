@@ -150,7 +150,7 @@ impl Collection {
             }
         }
 
-        let log_loss = if health_check && *current_params != params {
+        let log_loss = if health_check {
             let fsrs = FSRS::new(None)?;
             fsrs.evaluate_with_time_series_splits(input, |_| true)
                 .ok()

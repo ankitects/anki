@@ -189,18 +189,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             )) ||
                         resp.params.length === 0;
 
-                    if (already_optimal) {
+                    const highLogLoss =
+                        resp.logLoss && resp.logLoss > logLossBadThreshold;
+                        
+                    if (resp.logLoss) {
+                        console.log(`FSRS-test-train-split-log-loss = ${resp.logLoss}`);
+                    }
+                    if (highLogLoss) {
+                        setTimeout(() => alert(tr.deckConfigFsrsBadFitWarning()));
+                    } else if (already_optimal) {
                         const msg = resp.fsrsItems
                             ? tr.deckConfigFsrsParamsOptimal()
                             : tr.deckConfigFsrsParamsNoReviews();
                         setTimeout(() => alert(msg), 200);
-                    } else {
+                    }
+                    if (!already_optimal) {
                         $config.fsrsParams6 = resp.params;
                         optimized = true;
-                        console.log(`FSRS-test-train-split-log-loss = ${resp.logLoss}`);
-                        if (resp.logLoss && resp.logLoss > logLossBadThreshold) {
-                            setTimeout(() => alert(tr.deckConfigFsrsBadFitWarning()));
-                        }
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
@@ -330,7 +335,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
     </button>
     <label>
-        <input type="checkbox" bind:checked={$config.healthCheck} disabled={computingParams} />
+        <input
+            type="checkbox"
+            bind:checked={$config.healthCheck}
+            disabled={computingParams}
+        />
         Health check (Slow)
     </label>
     {#if false}
