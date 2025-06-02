@@ -172,63 +172,13 @@ class AddCards(QMainWindow):
             if deck_id := self.col.default_deck_for_notetype(notetype_id):
                 self.deck_chooser.selected_deck_id = deck_id
 
-        # only used for detecting changed sticky fields on close
-        self._last_added_note = None
-
-        # copy fields into new note with the new notetype
-        old_note = self.editor.note
-        new_note = self._new_note()
-        if old_note:
-            old_field_names = list(old_note.keys())
-            new_field_names = list(new_note.keys())
-            copied_field_names = set()
-            for f in new_note.note_type()["flds"]:
-                field_name = f["name"]
-                # copy identical non-empty fields
-                if field_name in old_field_names and old_note[field_name]:
-                    new_note[field_name] = old_note[field_name]
-                    copied_field_names.add(field_name)
-            new_idx = 0
-            for old_idx, old_field_value in enumerate(old_field_names):
-                # skip previously copied identical fields in new note
-                while (
-                    new_idx < len(new_field_names)
-                    and new_field_names[new_idx] in copied_field_names
-                ):
-                    new_idx += 1
-                if new_idx >= len(new_field_names):
-                    break
-                # copy non-empty old fields
-                if (
-                    old_field_value not in copied_field_names
-                    and old_note.fields[old_idx]
-                ):
-                    new_note.fields[new_idx] = old_note.fields[old_idx]
-                    new_idx += 1
-
-            new_note.tags = old_note.tags
-
-        # and update editor state
-        self.editor.note = new_note
-        self.editor.loadNote(
-            focusTo=min(self.editor.last_field_index or 0, len(new_note.fields) - 1)
-        )
-        gui_hooks.addcards_did_change_note_type(
-            self, old_note.note_type(), new_note.note_type()
-        )
+        if notetype_id:
+            self.editor.set_nid(None, mid=notetype_id, focus_to=0)
 
     def _load_new_note(self, sticky_fields_from: Note | None = None) -> None:
-        note = self._new_note()
-        if old_note := sticky_fields_from:
-            flds = note.note_type()["flds"]
-            # copy fields from old note
-            if old_note:
-                for n in range(min(len(note.fields), len(old_note.fields))):
-                    if flds[n]["sticky"]:
-                        note.fields[n] = old_note.fields[n]
-            # and tags
-            note.tags = old_note.tags
-        self.setAndFocusNote(note)
+        self.editor.set_nid(
+            None, mid=self.notetype_chooser.selected_notetype_id, focus_to=0
+        )
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: object | None
@@ -279,12 +229,7 @@ class AddCards(QMainWindow):
         aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
 
     def add_current_note(self) -> None:
-        if self.editor.current_notetype_is_image_occlusion():
-            self.editor.update_occlusions_field()
-            self.editor.call_after_note_saved(self._add_current_note)
-            self.editor.reset_image_occlusion()
-        else:
-            self.editor.call_after_note_saved(self._add_current_note)
+        self.editor.web.eval(f"addCurrentNote({self.deck_chooser.selected_deck_id})")
 
     def _add_current_note(self) -> None:
         note = self.editor.note

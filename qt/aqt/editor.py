@@ -28,6 +28,7 @@ import aqt
 import aqt.forms
 import aqt.operations
 import aqt.sound
+from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import Config
 from anki.consts import MODEL_CLOZE
@@ -37,7 +38,6 @@ from anki.models import NotetypeDict, NotetypeId, StockNotetype
 from anki.notes import Note, NoteId
 from anki.utils import checksum, is_mac, is_win, namedtmp
 from aqt import AnkiQt, gui_hooks
-from aqt.operations.note import update_note
 from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.sound import av_player
@@ -129,7 +129,7 @@ class Editor:
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
-        self.note: Note | None = None
+        self.nid: NoteId | None = None
         # legacy argument provided?
         if addMode is not None:
             editor_mode = EditorMode.ADD_CARDS if addMode else EditorMode.EDIT_CURRENT
@@ -380,10 +380,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ######################################################################
 
     def onBridgeCmd(self, cmd: str) -> Any:
-        if not self.note:
-            # shutdown
-            return
-
         # focus lost or key/button pressed?
         if cmd.startswith("blur") or cmd.startswith("key"):
             (type, ord_str) = cmd.split(":", 1)
@@ -475,6 +471,18 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Setting/unsetting the current note
     ######################################################################
 
+    def set_nid(
+        self,
+        nid: NoteId | None,
+        mid: int,
+        focus_to: int | None = None,
+    ) -> None:
+        "Make note with ID `nid` the current note."
+        self.nid = nid
+        self.currentField = None
+        self.load_note(mid, focus_to=focus_to)
+
+    @deprecated(replaced_by=set_nid)
     def set_note(
         self,
         note: Note | None,
@@ -482,10 +490,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         focusTo: int | None = None,
     ) -> None:
         "Make NOTE the current note."
-        self.note = note
         self.currentField = None
-        if self.note:
-            self.loadNote(focusTo=focusTo)
+        if note:
+            self.nid = note.id
+            self.load_note(mid=note.mid, focus_to=focusTo)
         elif hide:
             self.widget.hide()
 
@@ -493,43 +501,35 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.loadNote(self.currentField)
 
     @on_editor_ready
-    def loadNote(self, focusTo: int | None = None) -> None:
-        if not self.note:
-            return
+    def load_note(self, mid: int, focus_to: int | None = None) -> None:
 
         self.widget.show()
-        # note_fields_status = self.note.fields_check()
 
         def oncallback(arg: Any) -> None:
-            if not self.note:
+            if not self.nid:
                 return
             # we currently do this synchronously to ensure we load before the
             # sidebar on browser startup
-            if focusTo is not None:
+            if focus_to is not None:
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
         assert self.mw.pm.profile is not None
-        js = f"loadNote({self.note.id}, {self.note.mid}, {json.dumps(focusTo)}, {json.dumps(self.orig_note_id)});"
+        js = f"loadNote({json.dumps(self.nid)}, {mid}, {json.dumps(focus_to)}, {json.dumps(self.orig_note_id)});"
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback
         )
 
-    def _save_current_note(self) -> None:
-        "Call after note is updated with data from webview."
-        if not self.note:
-            return
-
-        update_note(parent=self.widget, note=self.note).run_in_background(
-            initiator=self
-        )
+    @deprecated(replaced_by=load_note)
+    def loadNote(self, focusTo: int | None = None) -> None:
+        self.load_note(self.note.mid, focus_to=focusTo)
 
     def call_after_note_saved(
         self, callback: Callable, keepFocus: bool = False
     ) -> None:
         "Save unsaved edits then call callback()."
-        if not self.note:
+        if not self.nid:
             # calling code may not expect the callback to fire immediately
             self.mw.progress.single_shot(10, callback)
             return
@@ -1006,6 +1006,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             addImageForOcclusion=Editor.select_image_and_occlude,
             addImageForOcclusionFromClipboard=Editor.select_image_from_clipboard_and_occlude,
         )
+
+    @property
+    def note(self) -> Note | None:
+        if self.nid is None:
+            return None
+        return self.mw.col.get_note(self.nid)
 
     def note_type(self) -> NotetypeDict:
         assert self.note is not None
