@@ -184,7 +184,7 @@ impl Collection {
         map.entry("Card")
             .or_insert_with(|| template.name.clone().into());
         map.entry("CardID")
-            .or_insert_with(|| card.id.clone().to_string().into());
+            .or_insert_with(|| card.id.to_string().into());
 
         Ok(())
     }
