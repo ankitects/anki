@@ -223,7 +223,7 @@ export const modifiedPolygon = (canvas: fabric.Canvas, polygon: fabric.Polygon):
         });
 
     const polygon1 = new fabric.Polygon(transformedPoints, {
-        fill: SHAPE_MASK_COLOR,
+        fill: polygon.fill ?? SHAPE_MASK_COLOR,
         objectCaching: false,
         stroke: BORDER_COLOR,
         strokeWidth: 1,
