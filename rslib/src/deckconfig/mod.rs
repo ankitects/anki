@@ -110,9 +110,9 @@ impl DeckConfig {
 
     /// Retrieve the FSRS 6.0 params, falling back on 5.0 or 4.x ones.
     pub fn fsrs_params(&self) -> &Vec<f32> {
-        if self.inner.fsrs_params_6.len() == 21 {
+        if self.inner.fsrs_params_6.len() > 0 {
             &self.inner.fsrs_params_6
-        } else if self.inner.fsrs_params_5.len() == 19 {
+        } else if self.inner.fsrs_params_5.len() > 0 {
             &self.inner.fsrs_params_5
         } else {
             &self.inner.fsrs_params_4
