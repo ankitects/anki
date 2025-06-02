@@ -119,8 +119,8 @@ impl Collection {
         };
         let mut params = fsrs.compute_parameters(input.clone())?;
         progress_thread.join().ok();
-        if let Ok(fsrs) = FSRS::new(Some(current_params)) {
-            let current_log_loss = fsrs.evaluate(items.clone(), |_| true)?.log_loss;
+        if let Ok(current_fsrs) = FSRS::new(Some(current_params)) {
+            let current_log_loss = current_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
             let optimized_fsrs = FSRS::new(Some(&params))?;
             let optimized_log_loss = optimized_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
             if current_log_loss <= optimized_log_loss {
