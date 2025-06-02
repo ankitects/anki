@@ -340,7 +340,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:checked={$config.healthCheck}
             disabled={computingParams}
         />
-        Health check (Slow)
+        {tr.deckConfigHealthCheck()}
     </label>
     {#if false}
         <!-- Can be re-enabled by some method in the future -->

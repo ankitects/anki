@@ -395,6 +395,7 @@ deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize Current Preset
+deck-config-health-check = Health check (Slow)
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore cards reviewed before
 deck-config-time-to-optimize = It's been a while - using the Optimize All button is recommended.
