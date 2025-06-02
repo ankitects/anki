@@ -235,6 +235,8 @@ class ErrorHandler(QObject):
         if "unable to get local issuer certificate" in error and is_win:
             showWarning(tr.errors_windows_ssl_updates())
             return
+        if is_chromium_cert_error(error):
+            return
 
         debug_text = supportText() + "\n" + error
 
