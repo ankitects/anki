@@ -215,3 +215,24 @@ def import_progress_update(progress: Progress, update: ProgressUpdate) -> None:
     update.label = progress.importing
     if update.user_wants_abort:
         update.abort = True
+
+from aqt.openbackup import (
+            restore_backup,
+            restore_backup_with_confirm,
+            choose_and_restore_backup,
+    )
+
+def _restore(path, success, error):
+    from aqt import mw
+
+    if mw.col:
+        mw.unloadCollection(lambda: import_collection_package_op(
+            mw, path, success=success
+        ).failure(error).run_in_background())
+    else:
+        import_collection_package_op(
+            mw, path, success=success
+        ).failure(error).run_in_background()
+
+
+restore_backup.set_restore_func(_restore)

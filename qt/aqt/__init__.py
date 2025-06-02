@@ -778,6 +778,10 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
             )
             sys.exit(1)
 
+    from aqt.utils import cleanup_and_exit
+
+    cleanup_and_exit.app = app
+
     # load the main window
     import aqt.main
 
