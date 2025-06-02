@@ -330,7 +330,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
     </button>
     <label>
-        <input type="checkbox" bind:checked={$config.healthCheck} />
+        <input type="checkbox" bind:checked={$config.healthCheck} disabled={computingParams} />
         Health check (Slow)
     </label>
     {#if false}
