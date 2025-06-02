@@ -28,7 +28,6 @@ import aqt
 import aqt.forms
 import aqt.operations
 import aqt.sound
-from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import Config
 from anki.consts import MODEL_CLOZE
@@ -36,27 +35,19 @@ from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.models import NotetypeDict, NotetypeId, StockNotetype
 from anki.notes import Note, NoteId
-from anki.utils import checksum, is_lin, is_mac, is_win, namedtmp
+from anki.utils import checksum, is_mac, is_win, namedtmp
 from aqt import AnkiQt, gui_hooks
 from aqt.operations.note import update_note
 from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
-    HelpPage,
     KeyboardModifiersPressed,
-    disable_help_button,
     getFile,
     openFolder,
-    openHelp,
-    qtMenuShortcutWorkaround,
-    restoreGeom,
-    saveGeom,
     shortcut,
     show_in_folder,
-    showInfo,
     showWarning,
-    tooltip,
     tr,
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
@@ -512,7 +503,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         def oncallback(arg: Any) -> None:
             if not self.note:
                 return
-            self.setupForegroundButton()
             # we currently do this synchronously to ensure we load before the
             # sidebar on browser startup
             if focusTo is not None:
@@ -1002,197 +992,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def _create_edit_io_options(note_id: NoteId) -> dict:
         return {"mode": {"kind": "edit", "noteId": note_id}}
 
-    # Legacy editing routines
-    ######################################################################
-
-    _js_legacy = "this routine has been moved into JS, and will be removed soon"
-
-    @deprecated(info=_js_legacy)
-    def onHtmlEdit(self) -> None:
-        field = self.currentField
-        self.call_after_note_saved(lambda: self._onHtmlEdit(field))
-
-    @deprecated(info=_js_legacy)
-    def _onHtmlEdit(self, field: int) -> None:
-        assert self.note is not None
-        d = QDialog(self.widget, Qt.WindowType.Window)
-        form = aqt.forms.edithtml.Ui_Dialog()
-        form.setupUi(d)
-        restoreGeom(d, "htmlEditor")
-        disable_help_button(d)
-        qconnect(
-            form.buttonBox.helpRequested, lambda: openHelp(HelpPage.EDITING_FEATURES)
-        )
-        font = QFont("Courier")
-        font.setStyleHint(QFont.StyleHint.TypeWriter)
-        form.textEdit.setFont(font)
-        form.textEdit.setPlainText(self.note.fields[field])
-        d.show()
-        form.textEdit.moveCursor(QTextCursor.MoveOperation.End)
-        d.exec()
-        html = form.textEdit.toPlainText()
-        if html.find(">") > -1:
-            # filter html through beautifulsoup so we can strip out things like a
-            # leading </div>
-            html_escaped = self.mw.col.media.escape_media_filenames(html)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", UserWarning)
-                html_escaped = str(BeautifulSoup(html_escaped, "html.parser"))
-                html = self.mw.col.media.escape_media_filenames(
-                    html_escaped, unescape=True
-                )
-        self.note.fields[field] = html
-        if not self.addMode:
-            self._save_current_note()
-        self.loadNote(focusTo=field)
-        saveGeom(d, "htmlEditor")
-
-    @deprecated(info=_js_legacy)
-    def toggleBold(self) -> None:
-        self.web.eval("setFormat('bold');")
-
-    @deprecated(info=_js_legacy)
-    def toggleItalic(self) -> None:
-        self.web.eval("setFormat('italic');")
-
-    @deprecated(info=_js_legacy)
-    def toggleUnderline(self) -> None:
-        self.web.eval("setFormat('underline');")
-
-    @deprecated(info=_js_legacy)
-    def toggleSuper(self) -> None:
-        self.web.eval("setFormat('superscript');")
-
-    @deprecated(info=_js_legacy)
-    def toggleSub(self) -> None:
-        self.web.eval("setFormat('subscript');")
-
-    @deprecated(info=_js_legacy)
-    def removeFormat(self) -> None:
-        self.web.eval("setFormat('removeFormat');")
-
-    @deprecated(info=_js_legacy)
-    def onCloze(self) -> None:
-        self.call_after_note_saved(self._onCloze, keepFocus=True)
-
-    @deprecated(info=_js_legacy)
-    def _onCloze(self) -> None:
-        # check that the model is set up for cloze deletion
-        if self.note_type()["type"] != MODEL_CLOZE:
-            if self.addMode:
-                tooltip(tr.editing_warning_cloze_deletions_will_not_work())
-            else:
-                showInfo(tr.editing_to_make_a_cloze_deletion_on())
-                return
-        # find the highest existing cloze
-        highest = 0
-        assert self.note is not None
-        for _, val in list(self.note.items()):
-            m = re.findall(r"\{\{c(\d+)::", val)
-            if m:
-                highest = max(highest, sorted(int(x) for x in m)[-1])
-        # reuse last?
-        if not KeyboardModifiersPressed().alt:
-            highest += 1
-        # must start at 1
-        highest = max(1, highest)
-        self.web.eval("wrap('{{c%d::', '}}');" % highest)
-
-    def setupForegroundButton(self) -> None:
-        assert self.mw.pm.profile is not None
-        self.fcolour = self.mw.pm.profile.get("lastColour", "#00f")
-
-    # use last colour
-    @deprecated(info=_js_legacy)
-    def onForeground(self) -> None:
-        self._wrapWithColour(self.fcolour)
-
-    # choose new colour
-    @deprecated(info=_js_legacy)
-    def onChangeCol(self) -> None:
-        if is_lin:
-            new = QColorDialog.getColor(
-                QColor(self.fcolour),
-                None,
-                None,
-                QColorDialog.ColorDialogOption.DontUseNativeDialog,
-            )
-        else:
-            new = QColorDialog.getColor(QColor(self.fcolour), None)
-        # native dialog doesn't refocus us for some reason
-        self.parentWindow.activateWindow()
-        if new.isValid():
-            self.fcolour = new.name()
-            self.onColourChanged()
-            self._wrapWithColour(self.fcolour)
-
-    @deprecated(info=_js_legacy)
-    def _updateForegroundButton(self) -> None:
-        pass
-
-    @deprecated(info=_js_legacy)
-    def onColourChanged(self) -> None:
-        self._updateForegroundButton()
-        assert self.mw.pm.profile is not None
-        self.mw.pm.profile["lastColour"] = self.fcolour
-
-    @deprecated(info=_js_legacy)
-    def _wrapWithColour(self, colour: str) -> None:
-        self.web.eval(f"setFormat('forecolor', '{colour}')")
-
-    @deprecated(info=_js_legacy)
-    def onAdvanced(self) -> None:
-        m = QMenu(self.mw)
-
-        for text, handler, shortcut in (
-            (tr.editing_mathjax_inline(), self.insertMathjaxInline, "Ctrl+M, M"),
-            (tr.editing_mathjax_block(), self.insertMathjaxBlock, "Ctrl+M, E"),
-            (
-                tr.editing_mathjax_chemistry(),
-                self.insertMathjaxChemistry,
-                "Ctrl+M, C",
-            ),
-            (tr.editing_latex(), self.insertLatex, "Ctrl+T, T"),
-            (tr.editing_latex_equation(), self.insertLatexEqn, "Ctrl+T, E"),
-            (tr.editing_latex_math_env(), self.insertLatexMathEnv, "Ctrl+T, M"),
-            (tr.editing_edit_html(), self.onHtmlEdit, "Ctrl+Shift+X"),
-        ):
-            a = m.addAction(text)
-            assert a is not None
-            qconnect(a.triggered, handler)
-            a.setShortcut(QKeySequence(shortcut))
-
-        qtMenuShortcutWorkaround(m)
-
-        m.exec(QCursor.pos())
-
-    @deprecated(info=_js_legacy)
-    def insertLatex(self) -> None:
-        self.web.eval("wrap('[latex]', '[/latex]');")
-
-    @deprecated(info=_js_legacy)
-    def insertLatexEqn(self) -> None:
-        self.web.eval("wrap('[$]', '[/$]');")
-
-    @deprecated(info=_js_legacy)
-    def insertLatexMathEnv(self) -> None:
-        self.web.eval("wrap('[$$]', '[/$$]');")
-
-    @deprecated(info=_js_legacy)
-    def insertMathjaxInline(self) -> None:
-        self.web.eval("wrap('\\\\(', '\\\\)');")
-
-    @deprecated(info=_js_legacy)
-    def insertMathjaxBlock(self) -> None:
-        self.web.eval("wrap('\\\\[', '\\\\]');")
-
-    @deprecated(info=_js_legacy)
-    def insertMathjaxChemistry(self) -> None:
-        self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
-
-    def setTagsCollapsed(self, collapsed: bool) -> None:
-        aqt.mw.pm.set_tags_collapsed(self.editorMode, collapsed)
-
     # Links from HTML
     ######################################################################
 
@@ -1200,24 +999,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self._links: dict[str, Callable] = dict(
             fields=Editor.onFields,
             cards=Editor.onCardLayout,
-            bold=Editor.toggleBold,
-            italic=Editor.toggleItalic,
-            underline=Editor.toggleUnderline,
-            super=Editor.toggleSuper,
-            sub=Editor.toggleSub,
-            clear=Editor.removeFormat,
-            colour=Editor.onForeground,
-            changeCol=Editor.onChangeCol,
-            cloze=Editor.onCloze,
             attach=Editor.onAddMedia,
             record=Editor.onRecSound,
-            more=Editor.onAdvanced,
             paste=Editor.onPaste,
             cutOrCopy=Editor.onCutOrCopy,
-            htmlEdit=Editor.onHtmlEdit,
-            mathjaxInline=Editor.insertMathjaxInline,
-            mathjaxBlock=Editor.insertMathjaxBlock,
-            mathjaxChemistry=Editor.insertMathjaxChemistry,
             addImageForOcclusion=Editor.select_image_and_occlude,
             addImageForOcclusionFromClipboard=Editor.select_image_from_clipboard_and_occlude,
         )
