@@ -387,20 +387,24 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             if type == "blur":
                 self.currentField = None
                 # run any filters
-                if gui_hooks.editor_did_unfocus_field(False, self.note, ord):
+                if self.note and gui_hooks.editor_did_unfocus_field(
+                    False, self.note, ord
+                ):
                     # something updated the note; update it after a subsequent focus
                     # event has had time to fire
                     self.mw.progress.timer(
                         100, self.loadNoteKeepingFocus, False, parent=self.widget
                     )
             else:
-                gui_hooks.editor_did_fire_typing_timer(self.note)
+                if self.note:
+                    gui_hooks.editor_did_fire_typing_timer(self.note)
 
         # focused into field?
         elif cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
             self.last_field_index = self.currentField = int(num)
-            gui_hooks.editor_did_focus_field(self.note, self.currentField)
+            if self.note:
+                gui_hooks.editor_did_focus_field(self.note, self.currentField)
 
         elif cmd.startswith("toggleStickyAll"):
             model = self.note_type()
@@ -436,7 +440,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             return new_state
 
         elif cmd.startswith("saveTags"):
-            gui_hooks.editor_did_update_tags(self.note)
+            if self.note:
+                gui_hooks.editor_did_update_tags(self.note)
 
         elif cmd.startswith("editorState"):
             (_, new_state_id, old_state_id) = cmd.split(":", 2)
@@ -516,13 +521,15 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         assert self.mw.pm.profile is not None
         js = f"loadNote({json.dumps(self.nid)}, {mid}, {json.dumps(focus_to)}, {json.dumps(self.orig_note_id)});"
-        js = gui_hooks.editor_will_load_note(js, self.note, self)
+        if self.note:
+            js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback
         )
 
     @deprecated(replaced_by=load_note)
     def loadNote(self, focusTo: int | None = None) -> None:
+        assert self.note is not None
         self.load_note(self.note.mid, focus_to=focusTo)
 
     def call_after_note_saved(

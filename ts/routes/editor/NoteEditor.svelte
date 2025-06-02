@@ -372,28 +372,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function noteCanBeAdded(): Promise<boolean> {
         let problem: string | null = null;
         const result = await noteFieldsCheck(note!);
-        if(result.state === NoteFieldsCheckResponse_State.EMPTY) {
-            if(isImageOcclusion) {
+        if (result.state === NoteFieldsCheckResponse_State.EMPTY) {
+            if (isImageOcclusion) {
                 problem = tr.notetypesNoOcclusionCreated2();
             } else {
                 problem = tr.addingTheFirstFieldIsEmpty();
             }
         }
-        if(result.state === NoteFieldsCheckResponse_State.MISSING_CLOZE) {
+        if (result.state === NoteFieldsCheckResponse_State.MISSING_CLOZE) {
             // TODO: askUser(tr.addingYouHaveAClozeDeletionNote())
             return false;
         }
-        if(result.state === NoteFieldsCheckResponse_State.NOTETYPE_NOT_CLOZE) {
+        if (result.state === NoteFieldsCheckResponse_State.NOTETYPE_NOT_CLOZE) {
             problem = tr.addingClozeOutsideClozeNotetype();
         }
-        if(result.state === NoteFieldsCheckResponse_State.FIELD_NOT_CLOZE) {
+        if (result.state === NoteFieldsCheckResponse_State.FIELD_NOT_CLOZE) {
             problem = tr.addingClozeOutsideClozeField();
         }
         return problem ? false : true;
     }
 
     async function addCurrentNoteInner(deckId: bigint) {
-        if(!await noteCanBeAdded()) {
+        if (!(await noteCanBeAdded())) {
             return;
         }
         await addNote({
@@ -404,10 +404,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export async function addCurrentNote(deckId: bigint) {
-        if(mode !== "add") {
+        if (mode !== "add") {
             return;
         }
-        if(isImageOcclusion) {
+        if (isImageOcclusion) {
             saveOcclusions();
             await addCurrentNoteInner(deckId);
             resetIOImageLoaded();
@@ -679,7 +679,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else {
             setNote(
                 await getNote({
-                    nid!,
+                    nid: nid!,
                 }),
             );
         }
