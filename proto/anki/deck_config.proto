@@ -193,6 +193,7 @@ message DeckConfig {
     reserved 39;
     float historical_retention = 40;
     string param_search = 45;
+    bool health_check = 47;
 
     bytes other = 255;
   }

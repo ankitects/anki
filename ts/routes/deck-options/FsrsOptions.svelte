@@ -179,6 +179,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                         currentParams: params,
                         numOfRelearningSteps: numOfRelearningStepsInDay,
+                        healthCheck: $config.healthCheck,
                     });
 
                     const already_optimal =
@@ -196,7 +197,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     } else {
                         $config.fsrsParams6 = resp.params;
                         optimized = true;
-                        console.log(`FSRS-test-train-split-log-loss = ${resp.logLoss}`)
+                        console.log(`FSRS-test-train-split-log-loss = ${resp.logLoss}`);
                         if (resp.logLoss && resp.logLoss > logLossBadThreshold) {
                             setTimeout(() => alert(tr.deckConfigFsrsBadFitWarning()));
                         }
@@ -328,17 +329,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigOptimizeButton()}
         {/if}
     </button>
-    <button
-        class="btn {checkingParams ? 'btn-warning' : 'btn-primary'}"
-        disabled={!checkingParams && computing}
-        on:click={() => checkParams()}
-    >
-        {#if checkingParams}
-            {tr.actionsCancel()}
-        {:else}
-            {tr.deckConfigEvaluateButton()}
-        {/if}
-    </button>
+    <label>
+        <input type="checkbox" bind:checked={$config.healthCheck} />
+        Health check (Slow)
+    </label>
+    {#if false}
+        <!-- Can be re-enabled by some method in the future -->
+        <button
+            class="btn {checkingParams ? 'btn-warning' : 'btn-primary'}"
+            disabled={!checkingParams && computing}
+            on:click={() => checkParams()}
+        >
+            {#if checkingParams}
+                {tr.actionsCancel()}
+            {:else}
+                {tr.deckConfigEvaluateButton()}
+            {/if}
+        </button>
+    {/if}
     <div>
         {#if computingParams || checkingParams}
             {computeParamsProgressString}

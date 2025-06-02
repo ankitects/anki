@@ -400,6 +400,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 desired_retention: c.desired_retention,
                 historical_retention: c.sm2_retention,
                 param_search: c.param_search,
+                health_check: false,
                 other: other_bytes,
             },
         }

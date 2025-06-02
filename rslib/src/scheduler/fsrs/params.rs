@@ -55,6 +55,7 @@ impl Collection {
     /// Note this does not return an error if there are less than 400 items -
     /// the caller should instead check the fsrs_items count in the return
     /// value.
+    #[allow(clippy::too_many_arguments)]
     pub fn compute_params(
         &mut self,
         search: &str,
@@ -63,6 +64,7 @@ impl Collection {
         total_presets: u32,
         current_params: &Params,
         num_of_relearning_steps: usize,
+        health_check: bool,
     ) -> Result<ComputeFsrsParamsResponse> {
         self.clear_progress();
         let timing = self.timing_today()?;
@@ -75,7 +77,7 @@ impl Collection {
             return Ok(ComputeFsrsParamsResponse {
                 params: current_params.to_vec(),
                 fsrs_items,
-                log_loss: None
+                log_loss: None,
             });
         }
         // adapt the progress handler to our built-in progress handling
@@ -148,9 +150,14 @@ impl Collection {
             }
         }
 
-        let fsrs = FSRS::new(None)?;
-        let log_loss = fsrs
-            .evaluate_with_time_series_splits(input, |_| true).ok().map(|eval| eval.log_loss);
+        let log_loss = if health_check && *current_params != params {
+            let fsrs = FSRS::new(None)?;
+            fsrs.evaluate_with_time_series_splits(input, |_| true)
+                .ok()
+                .map(|eval| eval.log_loss)
+        } else {
+            None
+        };
 
         Ok(ComputeFsrsParamsResponse {
             params,

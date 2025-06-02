@@ -372,6 +372,7 @@ impl Collection {
                 config_len,
                 config.fsrs_params(),
                 num_of_relearning_steps,
+                false,
             ) {
                 Ok(params) => {
                     println!("{}: {:?}", config.name, params.params);

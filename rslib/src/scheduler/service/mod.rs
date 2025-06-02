@@ -271,6 +271,7 @@ impl crate::services::SchedulerService for Collection {
             1,
             &input.current_params,
             input.num_of_relearning_steps as usize,
+            input.health_check,
         )
     }
 
@@ -372,7 +373,11 @@ impl crate::services::BackendSchedulerService for Backend {
             enable_short_term: true,
             num_relearning_steps: None,
         })?;
-        Ok(ComputeFsrsParamsResponse { params, fsrs_items, log_loss: None })
+        Ok(ComputeFsrsParamsResponse {
+            params,
+            fsrs_items,
+            log_loss: None,
+        })
     }
 
     fn fsrs_benchmark(

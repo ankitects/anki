@@ -78,6 +78,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     fsrs_params_5: vec![],
     fsrs_params_6: vec![],
     desired_retention: 0.9,
+    health_check: false,
     other: Vec::new(),
     historical_retention: 0.9,
     param_search: String::new(),
