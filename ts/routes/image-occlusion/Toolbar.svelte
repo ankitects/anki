@@ -241,8 +241,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <datalist id="colour-palette">
-    <option value="#abcdef"></option>
-    <option>{SHAPE_MASK_COLOR}</option>
+    <option value={SHAPE_MASK_COLOR}></option>
 </datalist>
 
 <input
