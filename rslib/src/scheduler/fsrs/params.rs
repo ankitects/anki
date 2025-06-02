@@ -127,7 +127,6 @@ impl Collection {
                 if num_of_relearning_steps <= 1 {
                     params = current_params.to_vec();
                 } else {
-                    let current_fsrs = FSRS::new(Some(current_params))?;
                     let memory_state = MemoryState {
                         stability: 1.0,
                         difficulty: 1.0,
