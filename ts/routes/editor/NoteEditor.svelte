@@ -585,7 +585,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    async function loadNote(nid: bigint, notetypeId: bigint, focusTo: number, originalNoteId: bigint | null) {
+    async function loadNote(
+        nid: bigint,
+        notetypeId: bigint,
+        focusTo: number,
+        originalNoteId: bigint | null,
+    ) {
         const notetype = await getNotetype({
             ntid: notetypeId,
         });
@@ -647,10 +652,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (mode === "add") {
             setSticky(notetype.fields.map((field) => field.config?.sticky ?? false));
         }
-        if(isImageOcclusion) {
+        if (isImageOcclusion) {
             const imageField = note!.fields[ioFields.image];
             // TODO: last_io_image_path
-            if(mode !== "add") {
+            if (mode !== "add") {
                 setupMaskEditor({
                     html: imageField,
                     mode: {
@@ -658,8 +663,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         noteId: nid,
                     },
                 });
-            }
-            else if(originalNoteId) {
+            } else if (originalNoteId) {
                 setupMaskEditor({
                     html: imageField,
                     mode: {
@@ -863,7 +867,7 @@ components and functionality for general note editing.
                             </svelte:fragment>
                             <FieldState>
                                 {#if cols[index] === "dupe"}
-                                    <DuplicateLink />
+                                    <DuplicateLink {note} />
                                 {/if}
                                 {#if mode === "add"}
                                     <StickyBadge

@@ -30,7 +30,7 @@ import aqt.operations
 import aqt.sound
 from anki._legacy import deprecated
 from anki.cards import Card
-from anki.collection import Config, SearchNode
+from anki.collection import Config
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
@@ -586,21 +586,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             f"setBackgrounds({json.dumps(cols)});\n"
             f"setClozeHint({json.dumps(cloze_hint)});\n"
             "}); "
-        )
-
-    def showDupes(self) -> None:
-        assert self.note is not None
-        aqt.dialogs.open(
-            "Browser",
-            self.mw,
-            search=(
-                SearchNode(
-                    dupe=SearchNode.Dupe(
-                        notetype_id=self.note_type()["id"],
-                        first_field=self.note.fields[0],
-                    )
-                ),
-            ),
         )
 
     def fieldsAreBlank(self, previousNote: Note | None = None) -> bool:
@@ -1268,7 +1253,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             attach=Editor.onAddMedia,
             record=Editor.onRecSound,
             more=Editor.onAdvanced,
-            dupes=Editor.showDupes,
             paste=Editor.onPaste,
             cutOrCopy=Editor.onCutOrCopy,
             htmlEdit=Editor.onHtmlEdit,
