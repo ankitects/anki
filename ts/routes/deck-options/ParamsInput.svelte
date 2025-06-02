@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function update(e: Event): void {
         const input = e.target as HTMLInputElement;
-        let newValue = input.value
+        const newValue = input.value
             .replace(/ /g, "")
             .split(",")
             .filter((e) => e)
