@@ -191,7 +191,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                     const highLogLoss =
                         resp.logLoss && resp.logLoss > logLossBadThreshold;
-                        
+
                     if (resp.logLoss) {
                         console.log(`FSRS-test-train-split-log-loss = ${resp.logLoss}`);
                     }
