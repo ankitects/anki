@@ -323,6 +323,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         placeholder={defaultparamSearch}
     />
 
+    <SwitchRow bind:value={$fsrsReschedule} defaultValue={false}>
+        <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
+            <GlobalLabel title={tr.deckConfigRescheduleCardsOnChange()} />
+        </SettingTitle>
+    </SwitchRow>
+
+    {#if $fsrsReschedule}
+        <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
+    {/if}
+
+    <SwitchRow bind:value={$config.healthCheck} defaultValue={false}>
+        <SettingTitle on:click={() => openHelpModal("deckConfigHealthCheck")}>
+            {tr.deckConfigHealthCheck()}
+        </SettingTitle>
+    </SwitchRow>
+
     <button
         class="btn {computingParams ? 'btn-warning' : 'btn-primary'}"
         disabled={!computingParams && computing}
@@ -334,14 +350,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigOptimizeButton()}
         {/if}
     </button>
-    <label style="margin-left: 0.5em;">
-        <input
-            type="checkbox"
-            bind:checked={$config.healthCheck}
-            disabled={computingParams}
-        />
-        {tr.deckConfigHealthCheck()}
-    </label>
     {#if false}
         <!-- Can be re-enabled by some method in the future -->
         <button
@@ -371,18 +379,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <button class="btn btn-primary" on:click={() => computeAllParams()}>
         {tr.deckConfigSaveAndOptimize()}
     </button>
-</div>
-
-<div class="m-2">
-    <SwitchRow bind:value={$fsrsReschedule} defaultValue={false}>
-        <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
-            <GlobalLabel title={tr.deckConfigRescheduleCardsOnChange()} />
-        </SettingTitle>
-    </SwitchRow>
-
-    {#if $fsrsReschedule}
-        <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
-    {/if}
 </div>
 
 <div class="m-2">
