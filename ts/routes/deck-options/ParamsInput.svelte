@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const validParamCounts = [0, 17, 19, 21];
 
     function update(e: Event): void {
-        const input = e.target as HTMLInputElement;
+        const input = e.target as HTMLTextAreaElement;
         const newValue = input.value
             .replace(/ /g, "")
             .split(",")
