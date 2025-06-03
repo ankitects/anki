@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { tick } from "svelte";
+    import * as tr from "@generated/ftl";
 
     export let value: number[];
     export let defaults: number[];
@@ -28,12 +29,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return params.map((v) => v.toFixed(4)).join(", ");
     }
 
-    function update(this: HTMLInputElement): void {
-        value = this.value
+    const validParamCounts = [0, 17, 19, 21];
+
+    function update(e: Event): void {
+        const input = e.target as HTMLTextAreaElement;
+        const newValue = input.value
             .replace(/ /g, "")
             .split(",")
             .filter((e) => e)
             .map((v) => Number(v));
+
+        if (validParamCounts.includes(newValue.length)) {
+            value = newValue;
+        } else {
+            alert(tr.deckConfigInvalidParameters());
+            input.value = stringValue;
+        }
     }
 </script>
 
