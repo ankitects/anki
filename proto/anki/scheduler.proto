@@ -435,9 +435,9 @@ message GetOptimalRetentionParametersResponse {
 }
 
 message EvaluateParamsRequest {
-  repeated float params = 1;
-  string search = 2;
-  int64 ignore_revlogs_before_ms = 3;
+  string search = 1;
+  int64 ignore_revlogs_before_ms = 2;
+  uint32 num_of_relearning_steps = 3;
 }
 
 message EvaluateParamsResponse {
