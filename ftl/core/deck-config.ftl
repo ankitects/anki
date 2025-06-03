@@ -492,7 +492,7 @@ deck-config-fsrs-bad-fit-warning = Your memory is difficult for FSRS to predict.
     - Use the answer buttons consistently. Keep in mind that "Hard" is a passing grade, not a failing grade.
     - Understand before you memorize.
 
-    It may take weeks or months before parameters become optimal.
+    After you follow these suggestions, it may take weeks or months before parameters become optimal.
 
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
 
