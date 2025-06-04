@@ -25,6 +25,7 @@ from anki.scheduler.v3 import (
     SchedulingStates,
     SetSchedulingStatesRequest,
 )
+from anki.sound import SoundOrVideoTag
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
 from anki.utils import is_mac
@@ -1193,7 +1194,7 @@ timerStopped = false;
         if not self._recordedAudio:
             tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return
-        av_player.play_file(self._recordedAudio)
+        av_player.play_tags([SoundOrVideoTag(filename=self._recordedAudio)])
 
     def _clear_auto_advance_timers(self) -> None:
         if self._show_answer_timer:
