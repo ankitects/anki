@@ -14,8 +14,6 @@ import re
 from dataclasses import dataclass
 from typing import Union
 
-from anki import hooks
-
 
 @dataclass
 class TTSTag:
@@ -45,7 +43,6 @@ class SoundOrVideoTag:
         "Prepend the media folder to the filename."
         # Ensure filename doesn't reference parent folder
         filename = os.path.basename(self.filename)
-        filename = hooks.media_file_filter(filename)
         return os.path.join(media_folder, filename)
 
 
