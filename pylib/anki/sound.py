@@ -10,6 +10,7 @@ These can be accessed via eg card.question_av_tags()
 from __future__ import annotations
 
 import os
+import os.path
 import re
 from dataclasses import dataclass
 from typing import Union
