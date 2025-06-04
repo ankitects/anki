@@ -176,7 +176,7 @@ class AVPlayer:
             self._stop_if_playing()
 
     def play_file(self, filename: str) -> None:
-        self.play_tags([SoundOrVideoTag(filename=filename)])
+        self.play_tags([SoundOrVideoTag(filename=os.path.basename(filename))])
 
     def play_file_with_caller(self, filename: str, caller: Any) -> None:
         if self.current_caller:
@@ -185,7 +185,7 @@ class AVPlayer:
         self.play_file(filename)
 
     def insert_file(self, filename: str) -> None:
-        self._enqueued.insert(0, SoundOrVideoTag(filename=filename))
+        self._enqueued.insert(0, SoundOrVideoTag(filename=os.path.basename(filename)))
         self._play_next_if_idle()
 
     def toggle_pause(self) -> None:
