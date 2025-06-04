@@ -41,7 +41,7 @@ import anki.template
 import aqt
 from anki import hooks
 from anki.collection import TtsVoice as BackendVoice
-from anki.sound import AVTag, TTSTag
+from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.utils import checksum, is_win, tmpdir
 from aqt import gui_hooks
 from aqt.sound import OnDoneCallback, SimpleProcessPlayer
@@ -260,7 +260,7 @@ class MacTTSFilePlayer(MacTTSPlayer):
         from aqt.sound import av_player
 
         av_player.current_player = None
-        av_player.insert_file(self.tmppath)
+        av_player.insert_tag(SoundOrVideoTag(filename=self.tmppath))
 
 
 # Windows support
@@ -617,4 +617,4 @@ if is_win:
             from aqt.sound import av_player
 
             av_player.current_player = None
-            av_player.insert_file(self.tmppath)
+            av_player.insert_tag(SoundOrVideoTag(filename=self.tmppath))

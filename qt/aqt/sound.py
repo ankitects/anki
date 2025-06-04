@@ -189,6 +189,10 @@ class AVPlayer:
         self._enqueued.insert(0, SoundOrVideoTag(filename=os.path.basename(filename)))
         self._play_next_if_idle()
 
+    def insert_tag(self, tag: AVTag) -> None:
+        self._enqueued.insert(0, tag)
+        self._play_next_if_idle()
+
     def toggle_pause(self) -> None:
         if self.current_player:
             self.current_player.toggle_pause()
