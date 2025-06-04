@@ -13,6 +13,7 @@ WITH searched_revlogs AS (
   SELECT AVG(time)
   FROM searched_revlogs
   WHERE ease > 1
+    AND type = 1
 ),
 lapse_count AS (
   SELECT COUNT(time) AS lapse_count
@@ -56,9 +57,29 @@ initial_pass_rate AS (
     ) AS initial_pass_rate
   FROM searched_revlogs
   WHERE rank_num = 1
+),
+pass_cnt AS (
+  SELECT COUNT(*) AS cnt
+  FROM searched_revlogs
+  WHERE ease > 1
+    AND type = 1
+),
+fail_cnt AS (
+  SELECT COUNT(*) AS cnt
+  FROM searched_revlogs
+  WHERE ease = 1
+    AND type = 1
+),
+learn_cnt AS (
+  SELECT COUNT(*) AS cnt
+  FROM searched_revlogs
+  WHERE type = 0
 )
 SELECT *
 FROM average_pass,
   average_fail,
   average_learn,
-  initial_pass_rate;
+  initial_pass_rate,
+  pass_cnt,
+  fail_cnt,
+  learn_cnt;
