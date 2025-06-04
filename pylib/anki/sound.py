@@ -45,6 +45,7 @@ class SoundOrVideoTag:
         "Prepend the media folder to the filename."
         if os.path.isfile(absolute_path := os.path.abspath(self.filename)):
             # Add-ons can use absolute paths to play arbitrary files on disk.
+            # Example: sound.av_player.play_tags([SoundOrVideoTag("/path/to/file")])
             head, tail = os.path.split(absolute_path)
             tail = hooks.media_file_filter(tail)
             return os.path.join(head, tail)
