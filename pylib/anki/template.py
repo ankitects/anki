@@ -28,6 +28,7 @@ template_legacy.py file, using the legacy addHook() system.
 
 from __future__ import annotations
 
+import os.path
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any, Union

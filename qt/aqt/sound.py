@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import os.path
 import platform
 import re
 import subprocess
