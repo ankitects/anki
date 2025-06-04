@@ -37,22 +37,25 @@ class SoundOrVideoTag:
     """Contains the filename inside a [sound:...] tag.
 
     Video files also use [sound:...].
+
+    Anki add-ons can supply an absolute file path to play any file on disk
+    using the built-in media player.
     """
 
     filename: str
 
     def path(self, media_folder: str) -> str:
         "Prepend the media folder to the filename."
-        if os.path.isfile(absolute_path := os.path.abspath(self.filename)):
+        if os.path.basename(self.filename) == self.filename:
+            # Path in the current collection's media folder.
+            # Ensure filename doesn't reference parent folder.
+            head, tail = media_folder, self.filename
+        else:
             # Add-ons can use absolute paths to play arbitrary files on disk.
             # Example: sound.av_player.play_tags([SoundOrVideoTag("/path/to/file")])
-            head, tail = os.path.split(absolute_path)
-            tail = hooks.media_file_filter(tail)
-            return os.path.join(head, tail)
-        # Ensure filename doesn't reference parent folder
-        filename = os.path.basename(self.filename)
-        filename = hooks.media_file_filter(filename)
-        return os.path.join(media_folder, filename)
+            head, tail = os.path.split(os.path.abspath(self.filename))
+        tail = hooks.media_file_filter(tail)
+        return os.path.join(head, tail)
 
 
 # note this does not include image tags, which are handled with HTML.
