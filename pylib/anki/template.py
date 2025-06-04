@@ -28,6 +28,7 @@ template_legacy.py file, using the legacy addHook() system.
 
 from __future__ import annotations
 
+import os.path
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any, Union
@@ -92,7 +93,7 @@ class PartiallyRenderedCard:
 def av_tag_to_native(tag: card_rendering_pb2.AVTag) -> AVTag:
     val = tag.WhichOneof("value")
     if val == "sound_or_video":
-        return SoundOrVideoTag(filename=tag.sound_or_video)
+        return SoundOrVideoTag(filename=os.path.basename(tag.sound_or_video))
     else:
         return TTSTag(
             field_text=tag.tts.field_text,
