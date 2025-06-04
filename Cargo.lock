@@ -2295,7 +2295,7 @@ dependencies = [
 [[package]]
 name = "fsrs"
 version = "4.0.0"
-source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=33ec3ee4d5d73e704633469cf5bf1a42e620a524#33ec3ee4d5d73e704633469cf5bf1a42e620a524"
+source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=a7f7efc10f0a26b14ee348cc7402155685f2a24f#a7f7efc10f0a26b14ee348cc7402155685f2a24f"
 dependencies = [
  "burn",
  "itertools 0.14.0",
@@ -5010,9 +5010,9 @@ dependencies = [
 
 [[package]]
 name = "priority-queue"
-version = "2.3.1"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef08705fa1589a1a59aa924ad77d14722cb0cd97b67dd5004ed5f4a4873fce8d"
+checksum = "5676d703dda103cbb035b653a9f11448c0a7216c7926bd35fcb5865475d0c970"
 dependencies = [
  "autocfg",
  "equivalent",
@@ -6290,18 +6290,18 @@ checksum = "8917285742e9f3e1683f0a9c4e6b57960b7314d0b08d30d1ecd426713ee2eee9"
 
 [[package]]
 name = "snafu"
-version = "0.8.5"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "223891c85e2a29c3fe8fb900c1fae5e69c2e42415e3177752e8718475efa5019"
+checksum = "320b01e011bf8d5d7a4a4a4be966d9160968935849c83b918827f6a435e7f627"
 dependencies = [
  "snafu-derive",
 ]
 
 [[package]]
 name = "snafu-derive"
-version = "0.8.5"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03c3c6b7927ffe7ecaa769ee0e3994da3b8cafc8f444578982c83ecb161af917"
+checksum = "1961e2ef424c1424204d3a5d6975f934f56b6d50ff5732382d84ebf460e147f7"
 dependencies = [
  "heck",
  "proc-macro2",

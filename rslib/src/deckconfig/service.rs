@@ -101,30 +101,64 @@ impl crate::services::DeckConfigService for Collection {
         &mut self,
         input: anki_proto::deck_config::GetRetentionWorkloadRequest,
     ) -> Result<anki_proto::deck_config::GetRetentionWorkloadResponse> {
-        const LEARN_SPAN: usize = 1000;
+        const LEARN_SPAN: usize = 100_000_000;
+        const TERMINATION_PROB: f32 = 0.001;
+        // the default values are from https://github.com/open-spaced-repetition/Anki-button-usage/blob/881009015c2a85ac911021d76d0aacb124849937/analysis.ipynb
+        const DEFAULT_LEARN_COST: f32 = 19.4698;
+        const DEFAULT_PASS_COST: f32 = 7.8454;
+        const DEFAULT_FAIL_COST: f32 = 23.185;
+        const DEFAULT_INITIAL_PASS_RATE: f32 = 0.7645;
 
         let guard =
             self.search_cards_into_table(&input.search, crate::search::SortMode::NoOrder)?;
-        let (pass_cost, fail_cost, learn_cost) = guard.col.storage.get_costs_for_retention()?;
+        let costs = guard.col.storage.get_costs_for_retention()?;
+
+        fn smoothing(obs: f32, default: f32, count: u32) -> f32 {
+            let alpha = count as f32 / (50.0 + count as f32);
+            obs * alpha + default * (1.0 - alpha)
+        }
+
+        let cost_success = smoothing(
+            costs.average_pass_time_ms / 1000.0,
+            DEFAULT_PASS_COST,
+            costs.pass_count,
+        );
+        let cost_failure = smoothing(
+            costs.average_fail_time_ms / 1000.0,
+            DEFAULT_FAIL_COST,
+            costs.fail_count,
+        );
+        let cost_learn = smoothing(
+            costs.average_learn_time_ms / 1000.0,
+            DEFAULT_LEARN_COST,
+            costs.learn_count,
+        );
+        let initial_pass_rate = smoothing(
+            costs.initial_pass_rate,
+            DEFAULT_INITIAL_PASS_RATE,
+            costs.pass_count,
+        );
 
         let before = fsrs::expected_workload(
             &input.w,
             input.before,
             LEARN_SPAN,
-            pass_cost,
-            fail_cost,
-            0.,
-            input.before,
-        )? + learn_cost;
+            cost_success,
+            cost_failure,
+            cost_learn,
+            initial_pass_rate,
+            TERMINATION_PROB,
+        )?;
         let after = fsrs::expected_workload(
             &input.w,
             input.after,
             LEARN_SPAN,
-            pass_cost,
-            fail_cost,
-            0.,
-            input.after,
-        )? + learn_cost;
+            cost_success,
+            cost_failure,
+            cost_learn,
+            initial_pass_rate,
+            TERMINATION_PROB,
+        )?;
 
         Ok(anki_proto::deck_config::GetRetentionWorkloadResponse {
             factor: after / before,

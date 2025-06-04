@@ -1,5 +1,9 @@
 WITH searched_revlogs AS (
-  SELECT *
+  SELECT *,
+    RANK() OVER (
+      PARTITION BY cid
+      ORDER BY id ASC
+    ) AS rank_num
   FROM revlog
   WHERE ease > 0
     AND cid IN search_cids
@@ -9,6 +13,7 @@ WITH searched_revlogs AS (
   SELECT AVG(time)
   FROM searched_revlogs
   WHERE ease > 1
+    AND type = 1
 ),
 lapse_count AS (
   SELECT COUNT(time) AS lapse_count
@@ -42,8 +47,39 @@ summed_learns AS (
 average_learn AS (
   SELECT AVG(total_time) AS avg_learn_time
   FROM summed_learns
+),
+initial_pass_rate AS (
+  SELECT AVG(
+      CASE
+        WHEN ease > 1 THEN 1.0
+        ELSE 0.0
+      END
+    ) AS initial_pass_rate
+  FROM searched_revlogs
+  WHERE rank_num = 1
+),
+pass_cnt AS (
+  SELECT COUNT(*) AS cnt
+  FROM searched_revlogs
+  WHERE ease > 1
+    AND type = 1
+),
+fail_cnt AS (
+  SELECT COUNT(*) AS cnt
+  FROM searched_revlogs
+  WHERE ease = 1
+    AND type = 1
+),
+learn_cnt AS (
+  SELECT COUNT(*) AS cnt
+  FROM searched_revlogs
+  WHERE type = 0
 )
 SELECT *
 FROM average_pass,
   average_fail,
-  average_learn;
+  average_learn,
+  initial_pass_rate,
+  pass_cnt,
+  fail_cnt,
+  learn_cnt;
