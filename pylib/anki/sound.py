@@ -51,7 +51,8 @@ class SoundOrVideoTag:
         "Prepend the media folder to the filename."
         if os.path.basename(self.filename) == self.filename:
             # Path in the current collection's media folder.
-            # Ensure filename doesn't reference parent folder.
+            # Turn it into a fully-qualified path so mpv can find it, and to
+            # ensure the filename doesn't get treated like a non-file scheme.
             head, tail = media_folder, self.filename
         else:
             # Add-ons can use absolute paths to play arbitrary files on disk.
