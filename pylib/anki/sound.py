@@ -38,6 +38,9 @@ class SoundOrVideoTag:
 
     Video files also use [sound:...].
 
+    SECURITY: We should only ever construct this with basename(filename),
+    as passing arbitrary paths to mpv from a shared deck is a security issue.
+
     Anki add-ons can supply an absolute file path to play any file on disk
     using the built-in media player.
     """
