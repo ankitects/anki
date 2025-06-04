@@ -6,6 +6,7 @@ export const rectangleKeyCombination = "R";
 export const ellipseKeyCombination = "E";
 export const polygonKeyCombination = "P";
 export const textKeyCombination = "T";
+export const fillKeyCombination = "C";
 export const magnifyKeyCombination = "M";
 export const undoKeyCombination = "Control+Z";
 export const redoKeyCombination = "Control+Y";

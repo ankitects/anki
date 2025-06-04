@@ -59,6 +59,8 @@ import FormatAlignCenter_ from "@mdi/svg/svg/format-align-center.svg?component";
 import formatAlignCenter_ from "@mdi/svg/svg/format-align-center.svg?url";
 import FormatBold_ from "@mdi/svg/svg/format-bold.svg?component";
 import formatBold_ from "@mdi/svg/svg/format-bold.svg?url";
+import FormatColorFill_ from "@mdi/svg/svg/format-color-fill.svg?component";
+import formatColorFill_ from "@mdi/svg/svg/format-color-fill.svg?url";
 import HighlightColor_ from "@mdi/svg/svg/format-color-highlight.svg?component";
 import highlightColor_ from "@mdi/svg/svg/format-color-highlight.svg?url";
 import TextColor_ from "@mdi/svg/svg/format-color-text.svg?component";
@@ -264,6 +266,7 @@ export const mdiEllipseOutline = { url: ellipseOutline_, component: EllipseOutli
 export const mdiEye = { url: eye_, component: Eye_ };
 export const mdiFormatAlignCenter = { url: formatAlignCenter_, component: FormatAlignCenter_ };
 export const mdiFormatBold = { url: formatBold_, component: FormatBold_ };
+export const mdiFormatColorFill = { url: formatColorFill_, component: FormatColorFill_ };
 export const mdiFormatItalic = { url: formatItalic_, component: FormatItalic_ };
 export const mdiFormatUnderline = { url: formatUnderline_, component: FormatUnderline_ };
 export const mdiGroup = { url: group_, component: Group_ };
