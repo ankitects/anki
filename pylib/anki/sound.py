@@ -14,6 +14,8 @@ import re
 from dataclasses import dataclass
 from typing import Union
 
+from anki import hooks
+
 
 @dataclass
 class TTSTag:
@@ -41,8 +43,14 @@ class SoundOrVideoTag:
 
     def path(self, media_folder: str) -> str:
         "Prepend the media folder to the filename."
+        if os.path.isfile(absolute_path := os.path.abspath(self.filename)):
+            # Add-ons can use absolute paths to play arbitrary files on disk.
+            head, tail = os.path.split(absolute_path)
+            tail = hooks.media_file_filter(tail)
+            return os.path.join(head, tail)
         # Ensure filename doesn't reference parent folder
         filename = os.path.basename(self.filename)
+        filename = hooks.media_file_filter(filename)
         return os.path.join(media_folder, filename)
 
 

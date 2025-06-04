@@ -23,7 +23,6 @@ from markdown import markdown
 import aqt
 import aqt.mpv
 import aqt.qt
-from anki import hooks
 from anki.cards import Card
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
 from anki.utils import is_lin, is_mac, is_win, namedtmp
@@ -41,15 +40,6 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-
-# Utils
-##########################################################################
-
-
-def resolve_tag_path(tag: SoundOrVideoTag, media_folder: str) -> str:
-    file_path = tag.filename if os.path.isfile(tag.filename) else tag.path(media_folder)
-    return hooks.media_file_filter(file_path)
-
 
 # AV player protocol
 ##########################################################################
@@ -336,7 +326,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._process = subprocess.Popen(
-            self.args + ["--", resolve_tag_path(tag, self._media_folder)],
+            self.args + ["--", tag.path(self._media_folder)],
             env=self.env,
             cwd=self._media_folder,
             stdout=subprocess.DEVNULL,
@@ -462,7 +452,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._on_done = on_done
-        path = resolve_tag_path(tag, self.media_folder)
+        path = tag.path(self.media_folder)
 
         if self.mpv_version is None or self.mpv_version >= (0, 38, 0):
             self.command("loadfile", path, "replace", -1, "pause=no")
@@ -513,8 +503,9 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
 
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
+
         self._process = subprocess.Popen(
-            self.args + ["--", resolve_tag_path(tag, self.media_folder)],
+            self.args + ["--", tag.path(self.media_folder)],
             env=self.env,
             cwd=self.media_folder,
             stdin=subprocess.PIPE,
