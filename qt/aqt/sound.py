@@ -46,22 +46,8 @@ from aqt.utils import (
 ##########################################################################
 
 
-def is_in_any_collection(file_path: str) -> bool:
-    from aqt import mw
-
-    file_dir = os.path.dirname(file_path)  # should be "/path/to/collection.media"
-    profile_dir = os.path.dirname(file_dir)  # e.g. "/path/to/User 1"
-    return (
-        os.path.basename(file_dir) == "collection.media"
-        and os.path.basename(profile_dir) in mw.pm.profiles()
-        and os.path.dirname(profile_dir) == mw.pm.base
-    )
-
-
 def resolve_tag_path(tag: SoundOrVideoTag, media_folder: str) -> str:
-    file_path = (
-        tag.filename if is_in_any_collection(tag.filename) else tag.path(media_folder)
-    )
+    file_path = tag.filename if os.path.isfile(tag.filename) else tag.path(media_folder)
     return hooks.media_file_filter(file_path)
 
 
