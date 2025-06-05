@@ -191,7 +191,7 @@ impl Collection {
                     let adjusted_log_loss = eval.log_loss / log_loss_adjustment(r);
                     let adjusted_rmse = eval.rmse_bins / rmse_adjustment(r, fsrs_items);
 
-                    adjusted_log_loss < 1.11 && adjusted_rmse < 1.53
+                    adjusted_log_loss <= 1.11 || adjusted_rmse <= 1.53
                 })
         } else {
             None
