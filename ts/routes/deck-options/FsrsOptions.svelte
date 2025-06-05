@@ -190,12 +190,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             )) ||
                         resp.params.length === 0;
 
-                    const health_check_passed =
-                        resp.healthCheckPassed && !resp.healthCheckPassed;
-
-                    if (health_check_passed) {
-                        setTimeout(() => alert(tr.deckConfigFsrsBadFitWarning()));
-                    } else if (already_optimal) {
+                    if (resp.healthCheckPassed !== undefined) {
+                        if (resp.healthCheckPassed) {
+                            setTimeout(
+                                () => alert(tr.deckConfigFsrsGoodFit()),
+                                200,
+                            );
+                        } else {
+                            setTimeout(
+                                () => alert(tr.deckConfigFsrsBadFitWarning()),
+                                200,
+                            );
+                        }
+                    }
+                    else if (already_optimal) {
                         const msg = resp.fsrsItems
                             ? tr.deckConfigFsrsParamsOptimal()
                             : tr.deckConfigFsrsParamsNoReviews();
