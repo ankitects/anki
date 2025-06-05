@@ -192,18 +192,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                     if (resp.healthCheckPassed !== undefined) {
                         if (resp.healthCheckPassed) {
-                            setTimeout(
-                                () => alert(tr.deckConfigFsrsGoodFit()),
-                                200,
-                            );
+                            setTimeout(() => alert(tr.deckConfigFsrsGoodFit()), 200);
                         } else {
                             setTimeout(
                                 () => alert(tr.deckConfigFsrsBadFitWarning()),
                                 200,
                             );
                         }
-                    }
-                    else if (already_optimal) {
+                    } else if (already_optimal) {
                         const msg = resp.fsrsItems
                             ? tr.deckConfigFsrsParamsOptimal()
                             : tr.deckConfigFsrsParamsNoReviews();
