@@ -376,7 +376,7 @@ impl crate::services::BackendSchedulerService for Backend {
         Ok(ComputeFsrsParamsResponse {
             params,
             fsrs_items,
-            log_loss: None,
+            health_check_passed: None,
         })
     }
 

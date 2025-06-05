@@ -51,6 +51,18 @@ pub(crate) fn ignore_revlogs_before_ms_from_config(config: &DeckConfig) -> Resul
     ignore_revlogs_before_date_to_ms(&config.inner.ignore_revlogs_before_date)
 }
 
+/// r: retention
+fn log_loss_adjustment(r: f32) -> f32 {
+    0.621 * (4. * r * (1. - r)).powf(0.739)
+}
+
+/// r: retention
+///
+/// c: review count
+fn rmse_adjustment(r: f32, c: u32) -> f32 {
+    0.0417 / (r.powf(1.63) - 1.41) + 0.125 / ((c as f32 / 1000.).powf(0.655) + 1.22) + 0.102
+}
+
 impl Collection {
     /// Note this does not return an error if there are less than 400 items -
     /// the caller should instead check the fsrs_items count in the return
@@ -77,7 +89,7 @@ impl Collection {
             return Ok(ComputeFsrsParamsResponse {
                 params: current_params.to_vec(),
                 fsrs_items,
-                log_loss: None,
+                health_check_passed: None,
             });
         }
         // adapt the progress handler to our built-in progress handling
@@ -149,11 +161,25 @@ impl Collection {
             }
         }
 
-        let log_loss = if health_check {
+        let health_check_passed = if health_check {
             let fsrs = FSRS::new(None)?;
             fsrs.evaluate_with_time_series_splits(input, |_| true)
                 .ok()
-                .map(|eval| eval.log_loss)
+                .map(|eval| {
+                    let r = items.iter().fold(0, |p, item| {
+                        p + (item
+                            .reviews
+                            .last()
+                            .map(|reviews| reviews.rating)
+                            .unwrap_or(0)
+                            > 1) as u32
+                    }) as f32
+                        / fsrs_items as f32;
+                    let adjusted_log_loss = eval.log_loss / log_loss_adjustment(r);
+                    let adjusted_rmse = eval.rmse_bins / rmse_adjustment(r, fsrs_items);
+
+                    adjusted_log_loss < 1.10 && adjusted_rmse < 1.58
+                })
         } else {
             None
         };
@@ -161,7 +187,7 @@ impl Collection {
         Ok(ComputeFsrsParamsResponse {
             params,
             fsrs_items,
-            log_loss,
+            health_check_passed,
         })
     }
 

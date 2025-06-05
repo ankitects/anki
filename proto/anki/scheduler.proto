@@ -360,7 +360,7 @@ message ComputeFsrsParamsRequest {
 message ComputeFsrsParamsResponse {
   repeated float params = 1;
   uint32 fsrs_items = 2;
-  optional float log_loss = 3;
+  optional bool health_check_passed = 3;
 }
 
 message ComputeFsrsParamsFromItemsRequest {

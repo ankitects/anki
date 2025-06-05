@@ -41,7 +41,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
     const fsrsReschedule = state.fsrsReschedule;
     const daysSinceLastOptimization = state.daysSinceLastOptimization;
-    const logLossBadThreshold = 0.5;
 
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
@@ -191,13 +190,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             )) ||
                         resp.params.length === 0;
 
-                    const highLogLoss =
-                        resp.logLoss && resp.logLoss > logLossBadThreshold;
+                    const health_check_passed =
+                        resp.healthCheckPassed && !resp.healthCheckPassed;
 
-                    if (resp.logLoss) {
-                        console.log(`FSRS-test-train-split-log-loss = ${resp.logLoss}`);
-                    }
-                    if (highLogLoss) {
+                    if (health_check_passed) {
                         setTimeout(() => alert(tr.deckConfigFsrsBadFitWarning()));
                     } else if (already_optimal) {
                         const msg = resp.fsrsItems
