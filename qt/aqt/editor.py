@@ -1310,25 +1310,3 @@ class EditorWebView(AnkiWebView):
         clipboard = self.editor.mw.app.clipboard()
         assert clipboard is not None
         return clipboard
-
-
-def set_cloze_button(editor: Editor) -> None:
-    action = "show" if editor.note_type()["type"] == MODEL_CLOZE else "hide"
-    editor.web.eval(
-        'require("anki/ui").loaded.then(() =>'
-        f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("cloze")'
-        "); "
-    )
-
-
-def set_image_occlusion_button(editor: Editor) -> None:
-    action = "show" if editor.current_notetype_is_image_occlusion() else "hide"
-    editor.web.eval(
-        'require("anki/ui").loaded.then(() =>'
-        f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("image-occlusion-button")'
-        "); "
-    )
-
-
-gui_hooks.editor_did_load_note.append(set_cloze_button)
-gui_hooks.editor_did_load_note.append(set_image_occlusion_button)

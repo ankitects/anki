@@ -503,7 +503,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { ImageOcclusionFieldIndexes } from "@generated/anki/image_occlusion_pb";
 
-    import { StockNotetype_OriginalStockKind } from "@generated/anki/notetypes_pb";
+    import {
+        Notetype_Config_Kind,
+        StockNotetype_OriginalStockKind,
+    } from "@generated/anki/notetypes_pb";
     import type { Notetype } from "@generated/anki/notetypes_pb";
     import {
         getFieldNames,
@@ -715,6 +718,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
         focusField(focusTo);
         toolbar.inlineButtons?.setColorButtons([lastTextColor, lastHighlightColor]);
+        await toolbar.toolbar?.setShown(
+            "image-occlusion-button",
+            notetype.config?.originalStockKind ===
+                StockNotetype_OriginalStockKind.IMAGE_OCCLUSION,
+        );
+        await toolbar.toolbar?.setShown(
+            "cloze",
+            notetype.config?.kind === Notetype_Config_Kind.CLOZE,
+        );
         setTags(tags);
         setTagsCollapsed(await getMeta(tagsCollapsedMetaKey));
         setMathjaxEnabled((await getColConfig("renderMathjax")) ?? true);
