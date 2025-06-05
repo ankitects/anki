@@ -40,6 +40,7 @@ pub enum BoolKey {
     WithScheduling,
     WithDeckConfigs,
     Fsrs,
+    FsrsHealthCheck,
     LoadBalancerEnabled,
     FsrsShortTermWithStepsEnabled,
     #[strum(to_string = "normalize_note_text")]

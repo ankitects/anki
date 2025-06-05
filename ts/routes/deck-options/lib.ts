@@ -62,6 +62,7 @@ export class DeckOptionsState {
     readonly applyAllParentLimits: Writable<boolean>;
     readonly fsrs: Writable<boolean>;
     readonly fsrsReschedule: Writable<boolean> = writable(false);
+    readonly fsrsHealthCheck: Writable<boolean>;
     readonly daysSinceLastOptimization: Writable<number>;
     readonly currentPresetName: Writable<string>;
     /** Used to detect if there are any pending changes */
@@ -103,6 +104,7 @@ export class DeckOptionsState {
         this.newCardsIgnoreReviewLimit = writable(data.newCardsIgnoreReviewLimit);
         this.applyAllParentLimits = writable(data.applyAllParentLimits);
         this.fsrs = writable(data.fsrs);
+        this.fsrsHealthCheck = writable(data.fsrsHealthCheck);
         this.daysSinceLastOptimization = writable(data.daysSinceLastFsrsOptimize);
 
         // decrement the use count of the starting item, as we'll apply +1 to currently
@@ -267,6 +269,7 @@ export class DeckOptionsState {
             applyAllParentLimits: get(this.applyAllParentLimits),
             fsrs: get(this.fsrs),
             fsrsReschedule: get(this.fsrsReschedule),
+            fsrsHealthCheck: get(this.fsrsHealthCheck),
         };
     }
 

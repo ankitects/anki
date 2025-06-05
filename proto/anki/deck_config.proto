@@ -193,7 +193,6 @@ message DeckConfig {
     reserved 39;
     float historical_retention = 40;
     string param_search = 45;
-    bool health_check = 47;
 
     bytes other = 255;
   }
@@ -236,6 +235,7 @@ message DeckConfigsForUpdate {
   // only applies to v3 scheduler
   bool new_cards_ignore_review_limit = 7;
   bool fsrs = 8;
+  bool fsrs_health_check = 11;
   bool apply_all_parent_limits = 9;
   uint32 days_since_last_fsrs_optimize = 10;
 }
@@ -259,4 +259,5 @@ message UpdateDeckConfigsRequest {
   bool fsrs = 8;
   bool apply_all_parent_limits = 9;
   bool fsrs_reschedule = 10;
+  bool fsrs_health_check = 11;
 }

@@ -59,6 +59,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let computingParams = false;
     let checkingParams = false;
 
+    const healthCheck = state.fsrsHealthCheck;
+
     $: computing = computingParams || checkingParams;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
@@ -179,7 +181,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                         currentParams: params,
                         numOfRelearningSteps: numOfRelearningStepsInDay,
-                        healthCheck: $config.healthCheck,
+                        healthCheck: $healthCheck,
                     });
 
                     const already_optimal =
@@ -333,9 +335,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
     {/if}
 
-    <SwitchRow bind:value={$config.healthCheck} defaultValue={false}>
+    <SwitchRow bind:value={$healthCheck} defaultValue={false}>
         <SettingTitle on:click={() => openHelpModal("deckConfigHealthCheck")}>
-            {tr.deckConfigHealthCheck()}
+            <GlobalLabel title={tr.deckConfigHealthCheck()} />
         </SettingTitle>
     </SwitchRow>
 

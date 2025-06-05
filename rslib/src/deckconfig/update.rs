@@ -41,6 +41,7 @@ pub struct UpdateDeckConfigsRequest {
     pub apply_all_parent_limits: bool,
     pub fsrs: bool,
     pub fsrs_reschedule: bool,
+    pub fsrs_health_check: bool,
 }
 
 impl Collection {
@@ -71,6 +72,7 @@ impl Collection {
             new_cards_ignore_review_limit: self.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit),
             apply_all_parent_limits: self.get_config_bool(BoolKey::ApplyAllParentLimits),
             fsrs: self.get_config_bool(BoolKey::Fsrs),
+            fsrs_health_check: self.get_config_bool(BoolKey::FsrsHealthCheck),
             days_since_last_fsrs_optimize,
         })
     }
@@ -300,6 +302,7 @@ impl Collection {
             req.new_cards_ignore_review_limit,
         )?;
         self.set_config_bool_inner(BoolKey::ApplyAllParentLimits, req.apply_all_parent_limits)?;
+        self.set_config_bool_inner(BoolKey::FsrsHealthCheck, req.fsrs_health_check)?;
 
         Ok(())
     }
@@ -453,6 +456,7 @@ mod test {
         col.set_config_string_inner(StringKey::CardStateCustomizer, "")?;
         col.set_config_bool_inner(BoolKey::NewCardsIgnoreReviewLimit, false)?;
         col.set_config_bool_inner(BoolKey::ApplyAllParentLimits, false)?;
+        col.set_config_bool_inner(BoolKey::FsrsHealthCheck, true)?;
 
         // pretend we're in sync
         let stamps = col.storage.get_collection_timestamps()?;
@@ -489,6 +493,7 @@ mod test {
             apply_all_parent_limits: false,
             fsrs: false,
             fsrs_reschedule: false,
+            fsrs_health_check: true,
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 
