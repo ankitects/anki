@@ -63,14 +63,14 @@ pub struct ComputeParamsRequest<'t> {
 
 /// r: retention
 fn log_loss_adjustment(r: f32) -> f32 {
-    0.621 * (4. * r * (1. - r)).powf(0.739)
+    0.623 * (4. * r * (1. - r)).powf(0.738)
 }
 
 /// r: retention
 ///
 /// c: review count
 fn rmse_adjustment(r: f32, c: u32) -> f32 {
-    0.0417 / (r.powf(1.63) - 1.41) + 0.125 / ((c as f32 / 1000.).powf(0.655) + 1.22) + 0.102
+    0.0135 / (r.powf(0.504) - 1.14) + 0.176 / ((c as f32 / 1000.).powf(0.825) + 2.22) + 0.101
 }
 
 impl Collection {
