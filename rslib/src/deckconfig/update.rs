@@ -22,6 +22,7 @@ use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
+use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::search::JoinSearches;
 use crate::search::Negated;
 use crate::search::SearchNode;
@@ -368,15 +369,15 @@ impl Collection {
             };
             let ignore_revlogs_before_ms = ignore_revlogs_before_ms_from_config(config)?;
             let num_of_relearning_steps = config.inner.relearn_steps.len();
-            match self.compute_params(
-                &search,
+            match self.compute_params(ComputeParamsRequest {
+                search: &search,
                 ignore_revlogs_before_ms,
-                idx as u32 + 1,
-                config_len,
-                config.fsrs_params(),
+                current_preset: idx as u32 + 1,
+                total_presets: config_len,
+                current_params: config.fsrs_params(),
                 num_of_relearning_steps,
-                false,
-            ) {
+                health_check: false,
+            }) {
                 Ok(params) => {
                     println!("{}: {:?}", config.name, params.params);
                     config.inner.fsrs_params_6 = params.params;

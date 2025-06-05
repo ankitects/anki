@@ -51,6 +51,16 @@ pub(crate) fn ignore_revlogs_before_ms_from_config(config: &DeckConfig) -> Resul
     ignore_revlogs_before_date_to_ms(&config.inner.ignore_revlogs_before_date)
 }
 
+pub struct ComputeParamsRequest<'t> {
+    pub search: &'t str,
+    pub ignore_revlogs_before_ms: TimestampMillis,
+    pub current_preset: u32,
+    pub total_presets: u32,
+    pub current_params: &'t Params,
+    pub num_of_relearning_steps: usize,
+    pub health_check: bool,
+}
+
 /// r: retention
 fn log_loss_adjustment(r: f32) -> f32 {
     0.621 * (4. * r * (1. - r)).powf(0.739)
@@ -67,17 +77,20 @@ impl Collection {
     /// Note this does not return an error if there are less than 400 items -
     /// the caller should instead check the fsrs_items count in the return
     /// value.
-    #[allow(clippy::too_many_arguments)]
     pub fn compute_params(
         &mut self,
-        search: &str,
-        ignore_revlogs_before: TimestampMillis,
-        current_preset: u32,
-        total_presets: u32,
-        current_params: &Params,
-        num_of_relearning_steps: usize,
-        health_check: bool,
+        request: ComputeParamsRequest,
     ) -> Result<ComputeFsrsParamsResponse> {
+        let ComputeParamsRequest {
+            search,
+            ignore_revlogs_before_ms: ignore_revlogs_before,
+            current_preset,
+            total_presets,
+            current_params,
+            num_of_relearning_steps,
+            health_check,
+        } = request;
+
         self.clear_progress();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
