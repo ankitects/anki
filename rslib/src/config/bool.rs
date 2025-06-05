@@ -77,6 +77,7 @@ impl Collection {
             | BoolKey::RestorePositionBrowser
             | BoolKey::RestorePositionReviewer
             | BoolKey::LoadBalancerEnabled
+            | BoolKey::FsrsHealthCheck
             | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
 
             // other options default to false
