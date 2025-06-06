@@ -13,7 +13,6 @@ import traceback
 import weakref
 from argparse import Namespace
 from collections.abc import Callable, Sequence
-from concurrent.futures import Future
 from typing import Any, Literal, TypeVar, cast
 
 import anki
@@ -78,6 +77,7 @@ from aqt.utils import (
     KeyboardModifiersPressed,
     askUser,
     checkInvalidFilename,
+    cleanup_and_exit,
     current_window,
     disallow_full_screen,
     getFile,
@@ -220,18 +220,39 @@ class AnkiQt(QMainWindow):
         # were we given a file to import?
         if args and args[0] and not self._isAddon(args[0]):
             self.onAppMsg(args[0])
+
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
-        if is_win:
-            fn = self.setupProfileAfterWebviewsLoaded
-        else:
-            fn = self.setupProfile
-
         def on_window_init() -> None:
-            fn()
-            gui_hooks.main_window_did_init()
+            def run_later():
+                try:
+                    if is_win:
+                        self.setupProfileAfterWebviewsLoaded()
+                    else:
+                        self.setupProfile()
 
-        self.progress.single_shot(10, on_window_init, False)
+                    gui_hooks.main_window_did_init()
+
+                except Exception:
+                    import traceback
+
+                    traceback.print_exc()
+
+            # Schedule actual work
+            self.progress.single_shot(10, run_later, False)
+
+        on_window_init()
+
+        from aqt.utils import cleanup_and_exit
+
+        def _exit():
+            self.errorHandler.unload()
+            self.mediaServer.shutdown()
+            # Rust background jobs are not awaited implicitly
+            self.backend.await_backup_completion()
+            self.deleteLater()
+
+        cleanup_and_exit.subscribe(_exit)
 
     def setupUI(self) -> None:
         self.col = None
@@ -256,6 +277,17 @@ class AnkiQt(QMainWindow):
         self.setupDeckBrowser()
         self.setupOverview()
         self.setupReviewer()
+        self.setupProfileDialog()
+
+        from aqt.openbackup import choose_and_restore_backup
+        choose_and_restore_backup.set_choose_path_func(lambda callback:
+                                                       getFile(
+                                                           self,
+                                                           tr.qt_misc_revert_to_backup(),
+                                                           cb=callback,
+                                                           filter="*.colpkg",
+                                                           dir=self.pm.backupFolder(),
+                                                       ))
 
     def finish_ui_setup(self) -> None:
         "Actions that are deferred until after add-on loading."
@@ -268,7 +300,7 @@ class AnkiQt(QMainWindow):
             if not w._domDone:
                 self.progress.single_shot(
                     10,
-                    self.setupProfileAfterWebviewsLoaded,
+                    lambda: self.setupProfileAfterWebviewsLoaded(),
                     False,
                 )
                 return
@@ -289,20 +321,6 @@ class AnkiQt(QMainWindow):
 
     # Profiles
     ##########################################################################
-
-    class ProfileManager(QMainWindow):
-        onClose = pyqtSignal()
-        closeFires = True
-
-        def closeEvent(self, evt: QCloseEvent) -> None:
-            if self.closeFires:
-                self.onClose.emit()  # type: ignore
-            evt.accept()
-
-        def closeWithoutQuitting(self) -> None:
-            self.closeFires = False
-            self.close()
-            self.closeFires = True
 
     def setupProfile(self) -> None:
         if self.pm.meta["firstRun"]:
@@ -325,195 +343,41 @@ class AnkiQt(QMainWindow):
                 self.pm.load(name)
 
         if not self.pm.name:
-            self.showProfileManager()
+            pass
         else:
             self.loadProfile()
+
+    def setupProfileDialog(self):
+        from aqt.profiledialog import ProfileDialog
+
+        self.profileDialog = ProfileDialog(self.pm)
 
     def showProfileManager(self) -> None:
         self.pm.profile = None
         self.moveToState("profileManager")
-        d = self.profileDiag = self.ProfileManager()
-        f = self.profileForm = aqt.forms.profiles.Ui_MainWindow()
-        f.setupUi(d)
-        qconnect(f.login.clicked, self.onOpenProfile)
-        qconnect(f.profiles.itemDoubleClicked, self.onOpenProfile)
-        qconnect(f.openBackup.clicked, self.onOpenBackup)
-        qconnect(f.quit.clicked, d.close)
-        qconnect(d.onClose, self.cleanupAndExit)
-        qconnect(f.add.clicked, self.onAddProfile)
-        qconnect(f.rename.clicked, self.onRenameProfile)
-        qconnect(f.delete_2.clicked, self.onRemProfile)
-        qconnect(f.profiles.currentRowChanged, self.onProfileRowChange)
-        f.statusbar.setVisible(False)
-        qconnect(f.downgrade_button.clicked, self._on_downgrade)
-        f.downgrade_button.setText(tr.profiles_downgrade_and_quit())
-        # enter key opens profile
-        QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)  # type: ignore
-        self.refreshProfilesList()
-        # raise first, for osx testing
-        d.show()
-        d.activateWindow()
-        d.raise_()
-
-    def refreshProfilesList(self) -> None:
-        f = self.profileForm
-        f.profiles.clear()
-        profs = self.pm.profiles()
-        f.profiles.addItems(profs)
-        try:
-            idx = profs.index(self.pm.name)
-        except Exception:
-            idx = 0
-        f.profiles.setCurrentRow(idx)
-
-    def onProfileRowChange(self, n: int) -> None:
-        if n < 0:
-            # called on .clear()
-            return
-        name = self.pm.profiles()[n]
-        self.pm.load(name)
-
-    def openProfile(self) -> None:
-        name = self.pm.profiles()[self.profileForm.profiles.currentRow()]
-        self.pm.load(name)
-        return
-
-    def onOpenProfile(self, *, callback: Callable[[], None] | None = None) -> None:
-        def on_done() -> None:
-            self.profileDiag.closeWithoutQuitting()
-            if callback:
-                callback()
-
-        self.profileDiag.hide()
-        # code flow is confusing here - if load fails, profile dialog
-        # will be shown again
-        self.loadProfile(on_done)
-
-    def profileNameOk(self, name: str) -> bool:
-        return not checkInvalidFilename(name) and name != "addons21"
-
-    def onAddProfile(self) -> None:
-        name = getOnlyText(tr.actions_name()).strip()
-        if name:
-            if name in self.pm.profiles():
-                showWarning(tr.qt_misc_name_exists())
-                return
-            if not self.profileNameOk(name):
-                return
-            self.pm.create(name)
-            self.pm.name = name
-            self.refreshProfilesList()
-
-    def onRenameProfile(self) -> None:
-        name = getOnlyText(tr.actions_new_name(), default=self.pm.name).strip()
-        if not name:
-            return
-        if name == self.pm.name:
-            return
-        if name in self.pm.profiles():
-            showWarning(tr.qt_misc_name_exists())
-            return
-        if not self.profileNameOk(name):
-            return
-        self.pm.rename(name)
-        self.refreshProfilesList()
-
-    def onRemProfile(self) -> None:
-        profs = self.pm.profiles()
-        if len(profs) < 2:
-            showWarning(tr.qt_misc_there_must_be_at_least_one())
-            return
-        # sure?
-        if not askUser(
-            tr.qt_misc_all_cards_notes_and_media_for2(name=self.pm.name),
-            msgfunc=QMessageBox.warning,
-            defaultno=True,
-        ):
-            return
-        self.pm.remove(self.pm.name)
-        self.refreshProfilesList()
+        self.profileDialog.show()
 
     def _handle_load_backup_success(self) -> None:
         """
         Actions that occur when profile backup has been loaded successfully
         """
-        if self.state == "profileManager":
-            self.profileDiag.closeWithoutQuitting()
-
-        self.loadProfile()
+        self.loadCollection()
 
     def _handle_load_backup_failure(self, error: Exception) -> None:
         """
         Actions that occur when a profile has loaded unsuccessfully
         """
         showWarning(str(error))
-        if self.state != "profileManager":
-            self.loadProfile()
+        self.loadCollection()
 
     def onOpenBackup(self) -> None:
+        from aqt.openbackup import choose_and_restore_backup
+        choose_and_restore_backup(self._handle_load_backup_success, self._handle_load_backup_failure)
 
-        def do_open(path: str) -> None:
-            if not askUser(
-                tr.qt_misc_replace_your_collection_with_an_earlier2(
-                    os.path.basename(path)
-                ),
-                msgfunc=QMessageBox.warning,
-                defaultno=True,
-            ):
-                return
+    def loadProfile(self) -> None:
+        self.loadCollection()
 
-            showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
-
-            # Collection is still loaded if called from main window, so we unload. This is already
-            # unloaded if called from the ProfileManager window.
-            if self.col:
-                self.unloadProfile(lambda: self._start_restore_backup(path))
-                return
-
-            self._start_restore_backup(path)
-
-        getFile(
-            self.profileDiag if self.state == "profileManager" else self,
-            tr.qt_misc_revert_to_backup(),
-            cb=do_open,  # type: ignore
-            filter="*.colpkg",
-            dir=self.pm.backupFolder(),
-        )
-
-    def _start_restore_backup(self, path: str):
-        self.restoring_backup = True
-
-        import_collection_package_op(
-            self, path, success=self._handle_load_backup_success
-        ).failure(self._handle_load_backup_failure).run_in_background()
-
-    def _on_downgrade(self) -> None:
-        self.progress.start()
-        profiles = self.pm.profiles()
-
-        def downgrade() -> list[str]:
-            return self.pm.downgrade(profiles)
-
-        def on_done(future: Future) -> None:
-            self.progress.finish()
-            problems = future.result()
-            if not problems:
-                showInfo("Profiles can now be opened with an older version of Anki.")
-            else:
-                showWarning(
-                    "The following profiles could not be downgraded: {}".format(
-                        ", ".join(problems)
-                    )
-                )
-                return
-            self.profileDiag.close()
-
-        self.taskman.run_in_background(downgrade, on_done)
-
-    def loadProfile(self, onsuccess: Callable | None = None) -> None:
-        if not self.loadCollection():
-            return
-
+    def _restoreUI(self):
         self.setup_sound()
         self.flags = FlagManager(self)
         # show main window
@@ -537,8 +401,6 @@ class AnkiQt(QMainWindow):
         def _onsuccess(synced: bool) -> None:
             if synced:
                 self._refresh_after_sync()
-            if onsuccess:
-                onsuccess()
             if not self.safeMode:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
 
@@ -568,6 +430,7 @@ class AnkiQt(QMainWindow):
 
         refresh_reviewer_on_day_rollover_change()
         gui_hooks.profile_did_open()
+        self.moveToState("deckBrowser")
         self.maybe_auto_sync_on_open_close(_onsuccess)
 
     def unloadProfile(self, onsuccess: Callable) -> None:
@@ -601,27 +464,10 @@ class AnkiQt(QMainWindow):
                     print(f"Window should have been closed: {w}")
 
     def unloadProfileAndExit(self) -> None:
-        self.unloadProfile(self.cleanupAndExit)
+        self.unloadProfile(cleanup_and_exit)
 
     def unloadProfileAndShowProfileManager(self) -> None:
         self.unloadProfile(self.showProfileManager)
-
-    def cleanupAndExit(self) -> None:
-        self.errorHandler.unload()
-        self.mediaServer.shutdown()
-        # Rust background jobs are not awaited implicitly
-        self.backend.await_backup_completion()
-        self.deleteLater()
-        app = self.app
-        app._unset_windows_shutdown_block_reason()
-
-        def exit():
-            # try to ensure Qt objects are deleted in a logical order,
-            # to prevent crashes on shutdown
-            gc.collect()
-            app.exit(0)
-
-        self.progress.single_shot(100, exit, False)
 
     # Sound/video
     ##########################################################################
@@ -633,7 +479,6 @@ class AnkiQt(QMainWindow):
         aqt.sound.cleanup_audio()
 
     def _add_play_buttons(self, text: str) -> str:
-        "Return card text with play buttons added, or stripped."
         if self.col.get_config_bool(Config.Bool.HIDE_AUDIO_PLAY_BUTTONS):
             return anki.sound.strip_av_refs(text)
         else:
@@ -647,27 +492,33 @@ class AnkiQt(QMainWindow):
     # Collection load/unload
     ##########################################################################
 
+    def onCollectionLoad(self, col) -> None:
+        self._restoreUI()
+
+    def onCollectionLoadError(self, e: Exception) -> None:
+        self.hide()
+        if "FileTooNew" in str(e):
+            showWarning(
+                "This profile requires a newer version of Anki to open. Did you forget to use the Downgrade button prior to switching Anki versions?"
+            )
+        else:
+            showWarning(
+                f"{tr.errors_unable_open_collection()}\n{traceback.format_exc()}"
+            )
+
+        self.showProfileManager()
+
     def loadCollection(self) -> bool:
         try:
             self._loadCollection()
         except Exception as e:
-            if "FileTooNew" in str(e):
-                showWarning(
-                    "This profile requires a newer version of Anki to open. Did you forget to use the Downgrade button prior to switching Anki versions?"
-                )
-            else:
-                showWarning(
-                    f"{tr.errors_unable_open_collection()}\n{traceback.format_exc()}"
-                )
             # clean up open collection if possible
             try:
                 self.backend.close_collection(downgrade_to_schema11=False)
-            except Exception as e:
-                print("unable to close collection:", e)
+            except Exception as e_:
+                print("unable to close collection:", e_)
             self.col = None
-            # return to profile manager
-            self.hide()
-            self.showProfileManager()
+            gui_hooks.collection_load_did_fail(e)
             return False
 
         # make sure we don't get into an inconsistent state if an add-on
@@ -676,7 +527,7 @@ class AnkiQt(QMainWindow):
             self.update_undo_actions()
             gui_hooks.collection_did_load(self.col)
             self.apply_collection_options()
-            self.moveToState("deckBrowser")
+
         except Exception as e:
             # dump error to stderr so it gets picked up by errors.py
             traceback.print_exc()
@@ -986,6 +837,8 @@ title="{}" {}>{}</button>""".format(
                 webview.force_load_hack()
 
         gui_hooks.card_review_webview_did_init(self.web, AnkiWebViewKind.MAIN)
+        gui_hooks.collection_did_load.append(self.onCollectionLoad)
+        gui_hooks.collection_load_did_fail.append(self.onCollectionLoadError)
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
@@ -1230,15 +1083,9 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        if self.state == "profileManager":
-            # if profile manager active, this event may fire via OS X menu bar's
-            # quit option
-            self.profileDiag.close()
-            event.accept()
-        else:
-            # ignore the event for now, as we need time to clean up
-            event.ignore()
-            self.unloadProfileAndExit()
+        # ignore the event for now, as we need time to clean up
+        event.ignore()
+        self.unloadProfileAndExit()
 
     # Undo & autosave
     ##########################################################################

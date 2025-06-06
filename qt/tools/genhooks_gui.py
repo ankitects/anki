@@ -41,6 +41,11 @@ hooks = [
     # Reviewing
     ###################
     Hook(
+        name="collection_load_did_fail",
+        args=["e: Exception"],
+        doc="""Called when the collection could not be loaded.""",
+    ),
+    Hook(
         name="overview_did_refresh",
         args=["overview: aqt.overview.Overview"],
         doc="""Allow to update the overview window. E.g. add the deck name in the

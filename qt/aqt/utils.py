@@ -28,6 +28,7 @@ from anki.utils import (
     no_bundled_libs,
     version_with_build,
 )
+from aqt.cleanupandexitusecase import CleanupAndExitUseCase
 from aqt.qt import *
 from aqt.qt import (
     PYQT_VERSION_STR,
@@ -84,6 +85,8 @@ from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
     TextFormat = Literal["plain", "rich", "markdown"]
+
+cleanup_and_exit = CleanupAndExitUseCase()
 
 
 def aqt_data_path() -> Path:
