@@ -10,6 +10,7 @@ package anki.frontend;
 import "anki/scheduler.proto";
 import "anki/generic.proto";
 import "anki/search.proto";
+import "anki/notes.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -27,6 +28,17 @@ service FrontendService {
   rpc deckOptionsRequireClose(generic.Empty) returns (generic.Empty);
   // Warns python that the deck option web view is ready to receive requests.
   rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
+
+  // Editor
+  rpc editorUpdateNote(notes.UpdateNotesRequest) returns (generic.Empty);
+
+  // Profile config
+  rpc GetProfileConfigJson(generic.String) returns (generic.Json);
+  rpc SetProfileConfigJson(SetSettingJsonRequest) returns (generic.Empty);
+
+  // Metadata
+  rpc GetMetaJson(generic.String) returns (generic.Json);
+  rpc SetMetaJson(SetSettingJsonRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -39,4 +51,9 @@ message SchedulingStatesWithContext {
 message SetSchedulingStatesRequest {
   string key = 1;
   scheduler.SchedulingStates states = 2;
+}
+
+message SetSettingJsonRequest {
+  string key = 1;
+  bytes value_json = 2;
 }

@@ -16,6 +16,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
+from typing import Any
 
 import flask
 import flask_cors
@@ -27,11 +28,11 @@ from waitress.server import create_server
 import aqt
 import aqt.main
 import aqt.operations
-from anki import hooks
+from anki import frontend_pb2, generic_pb2, hooks
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
-from anki.utils import dev_mode
+from anki.utils import dev_mode, from_json_bytes, to_json_bytes
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations import on_op_finished
@@ -336,6 +337,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-csv",
         "import-page",
         "image-occlusion",
+        "editor",
     ]
 
 
@@ -601,6 +603,68 @@ def deck_options_ready() -> bytes:
     return b""
 
 
+def editor_update_note() -> bytes:
+    from aqt.editor import Editor
+
+    output = raw_backend_request("update_notes")()
+    response = OpChanges()
+    response.ParseFromString(output)
+
+    def handle_on_main() -> None:
+        handler = aqt.mw.app.activeWindow()
+        if handler and isinstance(getattr(handler, "editor", None), Editor):
+            handler = handler.editor  # type: ignore
+        on_op_finished(aqt.mw, response, handler)
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return output
+
+
+def get_setting_json(getter: Callable[[str], Any]) -> bytes:
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    value = getter(req.val)
+    output = generic_pb2.Json(json=to_json_bytes(value)).SerializeToString()
+    return output
+
+
+def set_setting_json(setter: Callable[[str, Any], Any]) -> bytes:
+    req = frontend_pb2.SetSettingJsonRequest()
+    req.ParseFromString(request.data)
+    setter(req.key, from_json_bytes(req.value_json))
+    return b""
+
+
+def get_profile_config_json() -> bytes:
+    assert aqt.mw.pm.profile is not None
+    return get_setting_json(aqt.mw.pm.profile.get)
+
+
+def set_profile_config_json() -> bytes:
+    assert aqt.mw.pm.profile is not None
+    return set_setting_json(aqt.mw.pm.profile.__setitem__)
+
+
+def get_meta_json() -> bytes:
+    return get_setting_json(aqt.mw.pm.meta.get)
+
+
+def set_meta_json() -> bytes:
+    return set_setting_json(aqt.mw.pm.meta.__setitem__)
+
+
+def get_config_json() -> bytes:
+    try:
+        return get_setting_json(aqt.mw.col.conf.get_immutable)
+    except KeyError:
+        return generic_pb2.Json(json=b"null").SerializeToString()
+
+
+def set_config_json() -> bytes:
+    return set_setting_json(aqt.mw.col.set_config)
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -616,6 +680,12 @@ post_handler_list = [
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
+    editor_update_note,
+    get_profile_config_json,
+    set_profile_config_json,
+    get_meta_json,
+    set_meta_json,
+    get_config_json,
 ]
 
 
@@ -632,9 +702,14 @@ exposed_backend_list = [
     # NotesService
     "get_field_names",
     "get_note",
+    "new_note",
+    "note_fields_check",
+    "add_note",
     # NotetypesService
+    "get_notetype",
     "get_notetype_names",
     "get_change_notetype_info",
+    "get_cloze_field_ords",
     # StatsService
     "card_stats",
     "get_review_logs",
@@ -659,6 +734,11 @@ exposed_backend_list = [
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
+    # CardRenderingService
+    "encode_iri_paths",
+    "decode_iri_paths",
+    # ConfigService
+    "set_config_json",
 ]
 
 
