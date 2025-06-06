@@ -42,6 +42,17 @@ use crate::timestamp::TimestampMillis;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
+#[derive(Debug, Clone, Default)]
+pub struct RetentionCosts {
+    pub average_pass_time_ms: f32,
+    pub average_fail_time_ms: f32,
+    pub average_learn_time_ms: f32,
+    pub initial_pass_rate: f32,
+    pub pass_count: u32,
+    pub fail_count: u32,
+    pub learn_count: u32,
+}
+
 impl FromSql for CardType {
     fn column_result(value: ValueRef<'_>) -> result::Result<Self, FromSqlError> {
         if let ValueRef::Integer(i) = value {
@@ -745,6 +756,24 @@ impl super::SqliteStorage {
             .unwrap()
             .unwrap()
             .get(0)?)
+    }
+
+    pub(crate) fn get_costs_for_retention(&self) -> Result<RetentionCosts> {
+        let mut statement = self
+            .db
+            .prepare(include_str!("get_costs_for_retention.sql"))?;
+        let mut query = statement.query(params![])?;
+        let row = query.next()?.unwrap();
+
+        Ok(RetentionCosts {
+            average_pass_time_ms: row.get(0).unwrap_or(7000.),
+            average_fail_time_ms: row.get(1).unwrap_or(23_000.),
+            average_learn_time_ms: row.get(2).unwrap_or(30_000.),
+            initial_pass_rate: row.get(3).unwrap_or(0.5),
+            pass_count: row.get(4).unwrap_or(0),
+            fail_count: row.get(5).unwrap_or(0),
+            learn_count: row.get(6).unwrap_or(0),
+        })
     }
 
     #[cfg(test)]

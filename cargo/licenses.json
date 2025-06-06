@@ -3151,7 +3151,7 @@
   },
   {
     "name": "priority-queue",
-    "version": "2.3.1",
+    "version": "2.5.0",
     "authors": "Gianmarco Garrisi <gianmarcogarrisi@tutanota.com>",
     "repository": "https://github.com/garro95/priority-queue",
     "license": "LGPL-3.0-or-later OR MPL-2.0",
@@ -4015,7 +4015,7 @@
   },
   {
     "name": "snafu",
-    "version": "0.8.5",
+    "version": "0.8.6",
     "authors": "Jake Goulding <jake.goulding@gmail.com>",
     "repository": "https://github.com/shepmaster/snafu",
     "license": "Apache-2.0 OR MIT",
@@ -4024,7 +4024,7 @@
   },
   {
     "name": "snafu-derive",
-    "version": "0.8.5",
+    "version": "0.8.6",
     "authors": "Jake Goulding <jake.goulding@gmail.com>",
     "repository": "https://github.com/shepmaster/snafu",
     "license": "Apache-2.0 OR MIT",

@@ -51,19 +51,46 @@ pub(crate) fn ignore_revlogs_before_ms_from_config(config: &DeckConfig) -> Resul
     ignore_revlogs_before_date_to_ms(&config.inner.ignore_revlogs_before_date)
 }
 
+pub struct ComputeParamsRequest<'t> {
+    pub search: &'t str,
+    pub ignore_revlogs_before_ms: TimestampMillis,
+    pub current_preset: u32,
+    pub total_presets: u32,
+    pub current_params: &'t Params,
+    pub num_of_relearning_steps: usize,
+    pub health_check: bool,
+}
+
+/// r: retention
+fn log_loss_adjustment(r: f32) -> f32 {
+    0.623 * (4. * r * (1. - r)).powf(0.738)
+}
+
+/// r: retention
+///
+/// c: review count
+fn rmse_adjustment(r: f32, c: u32) -> f32 {
+    0.0135 / (r.powf(0.504) - 1.14) + 0.176 / ((c as f32 / 1000.).powf(0.825) + 2.22) + 0.101
+}
+
 impl Collection {
     /// Note this does not return an error if there are less than 400 items -
     /// the caller should instead check the fsrs_items count in the return
     /// value.
     pub fn compute_params(
         &mut self,
-        search: &str,
-        ignore_revlogs_before: TimestampMillis,
-        current_preset: u32,
-        total_presets: u32,
-        current_params: &Params,
-        num_of_relearning_steps: usize,
+        request: ComputeParamsRequest,
     ) -> Result<ComputeFsrsParamsResponse> {
+        let ComputeParamsRequest {
+            search,
+            ignore_revlogs_before_ms: ignore_revlogs_before,
+            current_preset,
+            total_presets,
+            current_params,
+            num_of_relearning_steps,
+            health_check,
+        } = request;
+
         self.clear_progress();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
@@ -75,6 +102,7 @@ impl Collection {
             return Ok(ComputeFsrsParamsResponse {
                 params: current_params.to_vec(),
                 fsrs_items,
+                health_check_passed: None,
             });
         }
         // adapt the progress handler to our built-in progress handling
@@ -108,22 +136,22 @@ impl Collection {
 
         let (progress, progress_thread) = create_progress_thread()?;
         let fsrs = FSRS::new(None)?;
-        let mut params = fsrs.compute_parameters(ComputeParametersInput {
+        let input = ComputeParametersInput {
             train_set: items.clone(),
             progress: Some(progress.clone()),
             enable_short_term: true,
             num_relearning_steps: Some(num_of_relearning_steps),
-        })?;
+        };
+        let mut params = fsrs.compute_parameters(input.clone())?;
         progress_thread.join().ok();
-        if let Ok(fsrs) = FSRS::new(Some(current_params)) {
-            let current_log_loss = fsrs.evaluate(items.clone(), |_| true)?.log_loss;
+        if let Ok(current_fsrs) = FSRS::new(Some(current_params)) {
+            let current_log_loss = current_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
             let optimized_fsrs = FSRS::new(Some(&params))?;
             let optimized_log_loss = optimized_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
             if current_log_loss <= optimized_log_loss {
                 if num_of_relearning_steps <= 1 {
                     params = current_params.to_vec();
                 } else {
-                    let current_fsrs = FSRS::new(Some(current_params))?;
                     let memory_state = MemoryState {
                         stability: 1.0,
                         difficulty: 1.0,
@@ -146,7 +174,34 @@ impl Collection {
             }
         }
 
-        Ok(ComputeFsrsParamsResponse { params, fsrs_items })
+        let health_check_passed = if health_check {
+            let fsrs = FSRS::new(None)?;
+            fsrs.evaluate_with_time_series_splits(input, |_| true)
+                .ok()
+                .map(|eval| {
+                    let r = items.iter().fold(0, |p, item| {
+                        p + (item
+                            .reviews
+                            .last()
+                            .map(|reviews| reviews.rating)
+                            .unwrap_or(0)
+                            > 1) as u32
+                    }) as f32
+                        / fsrs_items as f32;
+                    let adjusted_log_loss = eval.log_loss / log_loss_adjustment(r);
+                    let adjusted_rmse = eval.rmse_bins / rmse_adjustment(r, fsrs_items);
+
+                    adjusted_log_loss <= 1.11 || adjusted_rmse <= 1.53
+                })
+        } else {
+            None
+        };
+
+        Ok(ComputeFsrsParamsResponse {
+            params,
+            fsrs_items,
+            health_check_passed,
+        })
     }
 
     pub(crate) fn revlog_for_srs(
@@ -218,22 +273,24 @@ impl Collection {
 
     pub fn evaluate_params(
         &mut self,
-        params: &Params,
         search: &str,
         ignore_revlogs_before: TimestampMillis,
+        num_of_relearning_steps: usize,
     ) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
-        let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
-        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
-        let revlogs: Vec<RevlogEntry> = guard
-            .col
-            .storage
-            .get_revlog_entries_for_searched_cards_in_card_order()?;
+        let revlogs = self.revlog_for_srs(search)?;
         let (items, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
+        let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
         anki_progress.state.reviews = review_count as u32;
-        let fsrs = FSRS::new(Some(params))?;
-        Ok(fsrs.evaluate(items, |ip| {
+        let fsrs = FSRS::new(None)?;
+        let input = ComputeParametersInput {
+            train_set: items.clone(),
+            progress: None,
+            enable_short_term: true,
+            num_relearning_steps: Some(num_of_relearning_steps),
+        };
+        Ok(fsrs.evaluate_with_time_series_splits(input, |ip| {
             anki_progress
                 .update(false, |p| {
                     p.total_iterations = ip.total as u32;

@@ -7,9 +7,8 @@ import enum
 import logging
 import mimetypes
 import os
-import random
 import re
-import string
+import secrets
 import sys
 import threading
 import traceback
@@ -659,6 +658,7 @@ exposed_backend_list = [
     "simulate_fsrs_review",
     # DeckConfigService
     "get_ignored_before_count",
+    "get_retention_workload",
 ]
 
 
@@ -764,7 +764,7 @@ def legacy_page_data() -> Response:
         return _text_response(HTTPStatus.NOT_FOUND, "page not found")
 
 
-_APIKEY = "".join(random.choices(string.ascii_letters + string.digits, k=32))
+_APIKEY = secrets.token_urlsafe(32)
 
 
 def _have_api_access() -> bool:

@@ -16,7 +16,6 @@ use super::rescheduler::Rescheduler;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
-use crate::revlog::RevlogReviewKind;
 use crate::scheduler::answering::get_fuzz_seed;
 use crate::scheduler::fsrs::params::reviews_for_fsrs;
 use crate::scheduler::fsrs::params::Params;
@@ -163,15 +162,8 @@ impl Collection {
                                             );
                                         }
                                         *due = new_due;
-                                        // Add a rescheduled revlog entry if the last entry wasn't
-                                        // rescheduled
-                                        if !last_info.last_revlog_is_rescheduled {
-                                            self.log_rescheduled_review(
-                                                &card,
-                                                original_interval,
-                                                usn,
-                                            )?;
-                                        }
+                                        // Add a rescheduled revlog entry
+                                        self.log_rescheduled_review(&card, original_interval, usn)?;
                                     }
                                 }
                             }
@@ -289,9 +281,6 @@ struct LastRevlogInfo {
     /// reviewed the card and now, so that we can determine an accurate period
     /// when the card has subsequently been rescheduled to a different day.
     last_reviewed_at: Option<TimestampSecs>,
-    /// If true, the last action on this card was a reschedule, so we
-    /// can avoid writing an extra revlog entry on another reschedule.
-    last_revlog_is_rescheduled: bool,
 }
 
 /// Return a map of cards to info about last review/reschedule.
@@ -303,20 +292,12 @@ fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogIn
         .into_iter()
         .for_each(|(card_id, group)| {
             let mut last_reviewed_at = None;
-            let mut last_revlog_is_rescheduled = false;
             for e in group.into_iter() {
                 if e.button_chosen >= 1 {
                     last_reviewed_at = Some(e.id.as_secs());
                 }
-                last_revlog_is_rescheduled = e.review_kind == RevlogReviewKind::Rescheduled;
             }
-            out.insert(
-                card_id,
-                LastRevlogInfo {
-                    last_reviewed_at,
-                    last_revlog_is_rescheduled,
-                },
-            );
+            out.insert(card_id, LastRevlogInfo { last_reviewed_at });
         });
     out
 }

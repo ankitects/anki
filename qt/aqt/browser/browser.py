@@ -53,6 +53,7 @@ from aqt.operations.tag import (
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.switch import Switch
+from aqt.theme import WidgetStyle
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -170,6 +171,7 @@ class Browser(QMainWindow):
         if self.height() != 0:
             self.aspect_ratio = self.width() / self.height()
         self.set_layout(self.mw.pm.browser_layout(), True)
+        self.onSidebarVisibilityChange(not self.sidebarDockWidget.isHidden())
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
@@ -726,6 +728,7 @@ class Browser(QMainWindow):
             self.form.actionSidebarFilter.triggered,
             self.focusSidebarSearchBar,
         )
+        qconnect(dw.visibilityChanged, self.onSidebarVisibilityChange)
         grid = QGridLayout()
         grid.addWidget(self.sidebar.searchBar, 0, 0)
         grid.addWidget(self.sidebar.toolbar, 0, 1)
@@ -745,9 +748,17 @@ class Browser(QMainWindow):
         self.mw.progress.timer(10, self.sidebar.refresh, False, parent=self.sidebar)
 
     def showSidebar(self, show: bool = True) -> None:
-        want_visible = not self.sidebarDockWidget.isVisible()
         self.sidebarDockWidget.setVisible(show)
-        if want_visible and show:
+
+    def onSidebarVisibilityChange(self, visible):
+        margins = self.form.verticalLayout_3.contentsMargins()
+        skip_left_margin = visible and not (
+            is_mac and aqt.mw.pm.get_widget_style() == WidgetStyle.NATIVE
+        )
+        margins.setLeft(0 if skip_left_margin else margins.right())
+        self.form.verticalLayout_3.setContentsMargins(margins)
+
+        if visible:
             self.sidebar.refresh()
 
     def focusSidebar(self) -> None:
@@ -1128,6 +1139,9 @@ class Browser(QMainWindow):
                     dialog=dialog,
                 ),
             )
+            if key := aqt.mw.pm.get_answer_key(ease):
+                QShortcut(key, dialog, activated=btn.click)  # type: ignore
+                btn.setToolTip(tr.actions_shortcut_key(key))
             layout.addWidget(btn)
 
         # Add cancel button

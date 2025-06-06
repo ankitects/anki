@@ -395,9 +395,10 @@ deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize Current Preset
+deck-config-health-check = Check health when optimizing (slow)
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore cards reviewed before
-deck-config-time-to-optimize = It's been a while - using the Optimize All button is recommended.
+deck-config-time-to-optimize = It's been a while - using the Optimize All Presets button is recommended.
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
 deck-config-historical-retention = Historical retention
@@ -470,11 +471,12 @@ deck-config-compute-optimal-retention-tooltip4 =
     willing to invest more study time to achieve it. Setting your desired retention lower than the minimum
     is not recommended, as it will lead to a higher workload, because of the high forgetting rate.
 deck-config-please-save-your-changes-first = Please save your changes first.
-deck-config-a-100-day-interval = 
-    { $days ->
-        [one] A 100 day interval will become { $days } day.
-       *[other] A 100 day interval will become { $days } days.
-    }
+deck-config-workload-factor-change = Approximate workload: {$factor}x
+    (compared to {$previousDR}% desired retention)
+deck-config-workload-factor-unchanged = The higher this value, the more frequently cards will be shown to you.
+deck-config-desired-retention-too-low = Your desired retention is very low, which can lead to very long intervals.
+deck-config-desired-retention-too-high = Your desired retention is very high, which can lead to very short intervals.
+
 deck-config-percent-of-reviews =  
     { $reviews ->
         [one] { $pct }% of { $reviews } review
@@ -484,6 +486,15 @@ deck-config-percent-input = { $pct }%
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
+deck-config-fsrs-bad-fit-warning = Your memory is difficult for FSRS to predict. Recommendations:
+
+    - Suspend or reformulate leeches.
+    - Use the answer buttons consistently. Keep in mind that "Hard" is a passing grade, not a failing grade.
+    - Understand before you memorize.
+
+    If you follow these suggestions, performance will usually improve over the next few months.
+deck-config-fsrs-good-fit = FSRS is well adjusted to your memory.
+
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
 
 deck-config-wait-for-audio = Wait for audio
@@ -511,6 +522,12 @@ deck-config-save-options-to-preset = Save Changes to Preset
 deck-config-fsrs-simulator-radio-memorized = Memorized
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+
+deck-config-a-100-day-interval = 
+    { $days ->
+        [one] A 100 day interval will become { $days } day.
+       *[other] A 100 day interval will become { $days } days.
+    }
 
 deck-config-fsrs-simulator-y-axis-title-time = Review Time/Day
 deck-config-fsrs-simulator-y-axis-title-count = Review Count/Day

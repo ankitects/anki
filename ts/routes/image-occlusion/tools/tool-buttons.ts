@@ -6,6 +6,7 @@ import * as tr from "@generated/ftl";
 import {
     mdiCursorDefaultOutline,
     mdiEllipseOutline,
+    mdiFormatColorFill,
     mdiRectangleOutline,
     mdiTextBox,
     mdiVectorPolygonVariant,
@@ -14,6 +15,7 @@ import {
 import {
     cursorKeyCombination,
     ellipseKeyCombination,
+    fillKeyCombination,
     polygonKeyCombination,
     rectangleKeyCombination,
     textKeyCombination,
@@ -50,4 +52,13 @@ export const tools = [
         tooltip: tr.editingImageOcclusionTextTool,
         shortcut: textKeyCombination,
     },
-];
+    {
+        id: "fill-mask",
+        icon: mdiFormatColorFill,
+        iconSizeMult: 1.4,
+        tooltip: tr.editingImageOcclusionFillTool,
+        shortcut: fillKeyCombination,
+    },
+] as const;
+
+export type ActiveTool = typeof tools[number]["id"];
