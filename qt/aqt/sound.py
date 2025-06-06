@@ -179,15 +179,15 @@ class AVPlayer:
     def play_file(self, filename: str) -> None:
         """Play the provided path.
 
-        SECURITY: Filename may be an arbitrary path. For content coming from a collection,
-        use play_tag() instead."""
+        SECURITY: Filename may be an arbitrary path. For filenames coming from a collection,
+        you should only ever use the os.path.basename(filename) as the filename."""
         self.play_tags([SoundOrVideoTag(filename=filename)])
 
     def play_file_with_caller(self, filename: str, caller: Any) -> None:
         """Play the provided path, noting down the caller.
 
-        SECURITY: Filename may be an arbitrary path. For content coming from a collection,
-        use play_tag() instead."""
+        SECURITY: Filename may be an arbitrary path. For filenames coming from a collection,
+        you should only ever use the os.path.basename(filename) as the filename."""
         if self.current_caller:
             self.current_caller_interrupted = True
         self.current_caller = caller
@@ -196,8 +196,8 @@ class AVPlayer:
     def insert_file(self, filename: str) -> None:
         """Place the provided path at the top of the playlist.
 
-        SECURITY: Filename may be an arbitrary path. For content coming from a collection,
-        use play_tag() instead."""
+        SECURITY: Filename may be an arbitrary path. For filenames coming from a collection,
+        you should only ever use the os.path.basename(filename) as the filename."""
         self._enqueued.insert(0, SoundOrVideoTag(filename=filename))
         self._play_next_if_idle()
 
