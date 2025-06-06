@@ -297,12 +297,7 @@ fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogIn
                     last_reviewed_at = Some(e.id.as_secs());
                 }
             }
-            out.insert(
-                card_id,
-                LastRevlogInfo {
-                    last_reviewed_at,
-                },
-            );
+            out.insert(card_id, LastRevlogInfo { last_reviewed_at });
         });
     out
 }
