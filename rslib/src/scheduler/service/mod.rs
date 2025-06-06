@@ -23,6 +23,7 @@ use fsrs::FSRS;
 
 use crate::backend::Backend;
 use crate::prelude::*;
+use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::scheduler::new::NewCardDueOrder;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::SchedulingStates;
@@ -264,14 +265,15 @@ impl crate::services::SchedulerService for Collection {
         &mut self,
         input: scheduler::ComputeFsrsParamsRequest,
     ) -> Result<scheduler::ComputeFsrsParamsResponse> {
-        self.compute_params(
-            &input.search,
-            input.ignore_revlogs_before_ms.into(),
-            1,
-            1,
-            &input.current_params,
-            input.num_of_relearning_steps as usize,
-        )
+        self.compute_params(ComputeParamsRequest {
+            search: &input.search,
+            ignore_revlogs_before_ms: input.ignore_revlogs_before_ms.into(),
+            current_preset: 1,
+            total_presets: 1,
+            current_params: &input.current_params,
+            num_of_relearning_steps: input.num_of_relearning_steps as usize,
+            health_check: input.health_check,
+        })
     }
 
     fn simulate_fsrs_review(
@@ -372,7 +374,11 @@ impl crate::services::BackendSchedulerService for Backend {
             enable_short_term: true,
             num_relearning_steps: None,
         })?;
-        Ok(ComputeFsrsParamsResponse { params, fsrs_items })
+        Ok(ComputeFsrsParamsResponse {
+            params,
+            fsrs_items,
+            health_check_passed: None,
+        })
     }
 
     fn fsrs_benchmark(
