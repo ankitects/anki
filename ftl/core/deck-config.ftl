@@ -395,7 +395,7 @@ deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize Current Preset
-deck-config-health-check = Perform a health check after optimization (slow)
+deck-config-health-check = Check health when optimizing (slow)
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore cards reviewed before
 deck-config-time-to-optimize = It's been a while - using the Optimize All button is recommended.
@@ -492,7 +492,7 @@ deck-config-fsrs-bad-fit-warning = Your memory is difficult for FSRS to predict.
     - Use the answer buttons consistently. Keep in mind that "Hard" is a passing grade, not a failing grade.
     - Understand before you memorize.
 
-    After you follow these suggestions, it may take weeks or months before parameters become optimal.
+    If you follow these suggestions, performance will usually improve over the next few months.
 deck-config-fsrs-good-fit = FSRS is well adjusted to your memory.
 
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
