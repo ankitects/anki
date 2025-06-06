@@ -22,6 +22,7 @@ use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
+use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::search::JoinSearches;
 use crate::search::Negated;
 use crate::search::SearchNode;
@@ -41,6 +42,7 @@ pub struct UpdateDeckConfigsRequest {
     pub apply_all_parent_limits: bool,
     pub fsrs: bool,
     pub fsrs_reschedule: bool,
+    pub fsrs_health_check: bool,
 }
 
 impl Collection {
@@ -71,6 +73,7 @@ impl Collection {
             new_cards_ignore_review_limit: self.get_config_bool(BoolKey::NewCardsIgnoreReviewLimit),
             apply_all_parent_limits: self.get_config_bool(BoolKey::ApplyAllParentLimits),
             fsrs: self.get_config_bool(BoolKey::Fsrs),
+            fsrs_health_check: self.get_config_bool(BoolKey::FsrsHealthCheck),
             days_since_last_fsrs_optimize,
         })
     }
@@ -300,6 +303,7 @@ impl Collection {
             req.new_cards_ignore_review_limit,
         )?;
         self.set_config_bool_inner(BoolKey::ApplyAllParentLimits, req.apply_all_parent_limits)?;
+        self.set_config_bool_inner(BoolKey::FsrsHealthCheck, req.fsrs_health_check)?;
 
         Ok(())
     }
@@ -365,14 +369,15 @@ impl Collection {
             };
             let ignore_revlogs_before_ms = ignore_revlogs_before_ms_from_config(config)?;
             let num_of_relearning_steps = config.inner.relearn_steps.len();
-            match self.compute_params(
-                &search,
+            match self.compute_params(ComputeParamsRequest {
+                search: &search,
                 ignore_revlogs_before_ms,
-                idx as u32 + 1,
-                config_len,
-                config.fsrs_params(),
+                current_preset: idx as u32 + 1,
+                total_presets: config_len,
+                current_params: config.fsrs_params(),
                 num_of_relearning_steps,
-            ) {
+                health_check: false,
+            }) {
                 Ok(params) => {
                     println!("{}: {:?}", config.name, params.params);
                     config.inner.fsrs_params_6 = params.params;
@@ -452,6 +457,7 @@ mod test {
         col.set_config_string_inner(StringKey::CardStateCustomizer, "")?;
         col.set_config_bool_inner(BoolKey::NewCardsIgnoreReviewLimit, false)?;
         col.set_config_bool_inner(BoolKey::ApplyAllParentLimits, false)?;
+        col.set_config_bool_inner(BoolKey::FsrsHealthCheck, true)?;
 
         // pretend we're in sync
         let stamps = col.storage.get_collection_timestamps()?;
@@ -488,6 +494,7 @@ mod test {
             apply_all_parent_limits: false,
             fsrs: false,
             fsrs_reschedule: false,
+            fsrs_health_check: true,
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 

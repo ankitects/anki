@@ -395,6 +395,7 @@ deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize Current Preset
+deck-config-health-check = Check health when optimizing (slow)
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore cards reviewed before
 deck-config-time-to-optimize = It's been a while - using the Optimize All Presets button is recommended.
@@ -485,6 +486,15 @@ deck-config-percent-input = { $pct }%
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
+deck-config-fsrs-bad-fit-warning = Your memory is difficult for FSRS to predict. Recommendations:
+
+    - Suspend or reformulate leeches.
+    - Use the answer buttons consistently. Keep in mind that "Hard" is a passing grade, not a failing grade.
+    - Understand before you memorize.
+
+    If you follow these suggestions, performance will usually improve over the next few months.
+deck-config-fsrs-good-fit = FSRS is well adjusted to your memory.
+
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
 
 deck-config-wait-for-audio = Wait for audio

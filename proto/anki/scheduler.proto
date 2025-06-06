@@ -354,11 +354,13 @@ message ComputeFsrsParamsRequest {
   repeated float current_params = 2;
   int64 ignore_revlogs_before_ms = 3;
   uint32 num_of_relearning_steps = 4;
+  bool health_check = 5;
 }
 
 message ComputeFsrsParamsResponse {
   repeated float params = 1;
   uint32 fsrs_items = 2;
+  optional bool health_check_passed = 3;
 }
 
 message ComputeFsrsParamsFromItemsRequest {

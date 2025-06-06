@@ -192,6 +192,7 @@ impl From<anki_proto::deck_config::UpdateDeckConfigsRequest> for UpdateDeckConfi
             apply_all_parent_limits: c.apply_all_parent_limits,
             fsrs: c.fsrs,
             fsrs_reschedule: c.fsrs_reschedule,
+            fsrs_health_check: c.fsrs_health_check,
         }
     }
 }
