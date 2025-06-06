@@ -48,7 +48,7 @@ impl Card {
     fn schedule_as_review(&mut self, interval: u32, due: i32, ease_factor: u16) {
         self.original_position = self.last_position();
         self.remove_from_filtered_deck_before_reschedule();
-        self.interval = interval.max(1);
+        self.interval = interval;
         self.due = due;
         self.ctype = CardType::Review;
         self.queue = CardQueue::Review;
