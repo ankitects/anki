@@ -405,7 +405,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     :global(.two-line) {
         white-space: pre-wrap;
-        min-height: calc(2ch + 30px);
+        height: calc(2 * 1.5em + 10px);
+        line-height: 1.5em;
         box-sizing: content-box;
         display: flex;
         align-content: center;
