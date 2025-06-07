@@ -36,9 +36,9 @@ impl Card {
         let new_interval = if fsrs_enabled {
             self.interval.saturating_add_signed(new_due - self.due)
         } else if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
-            days_from_today
+            days_from_today.max(1)
         } else {
-            self.interval
+            self.interval.max(1)
         };
         let ease_factor = (ease_factor * 1000.0).round() as u16;
 
