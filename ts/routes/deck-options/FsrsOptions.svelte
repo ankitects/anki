@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
 
     let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
-    const WORKLOAD_UPDATE_DELAY_MS = 100;
+    const WORKLOAD_UPDATE_DELAY_MS = 250;
 
     let desiredRetentionChangeInfo = "";
     $: {
