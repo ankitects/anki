@@ -59,6 +59,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             help: tr.deckConfigComputeOptimalRetentionTooltip4(),
             sched: HelpItemScheduler.FSRS,
         },
+        healthCheck: {
+            title: tr.deckConfigHealthCheck(),
+            help: tr.deckConfigHealthCheckTooltip(),
+            sched: HelpItemScheduler.FSRS,
+        },
     };
     const helpSections: HelpItem[] = Object.values(settings);
 
