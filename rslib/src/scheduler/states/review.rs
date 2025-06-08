@@ -83,7 +83,7 @@ impl ReviewState {
         } else {
             let (minimum, maximum) = ctx.min_and_max_review_intervals(ctx.minimum_lapse_interval);
             let interval = ctx.with_review_fuzz(
-                (self.scheduled_days.max(1.0) as f32) * ctx.lapse_multiplier,
+                (self.scheduled_days as f32).max(1.0) * ctx.lapse_multiplier,
                 minimum,
                 maximum,
             );
@@ -211,7 +211,7 @@ impl ReviewState {
     }
 
     fn passing_nonearly_review_intervals(self, ctx: &StateContext) -> (u32, u32, u32) {
-        let current_interval = self.scheduled_days.max(1.0) as f32;
+        let current_interval = (self.scheduled_days as f32).max(1.0);
         let days_late = self.days_late().max(0) as f32;
 
         // hard
@@ -251,7 +251,7 @@ impl ReviewState {
     /// FIXME: this needs reworking in the future; it overly penalizes reviews
     /// done shortly before the due date.
     fn passing_early_review_intervals(self, ctx: &StateContext) -> (u32, u32, u32) {
-        let scheduled = self.scheduled_days.max(1.0) as f32;
+        let scheduled = (self.scheduled_days as f32).max(1.0);
         let elapsed = (self.scheduled_days as f32) + (self.days_late() as f32);
 
         let hard_interval = {
