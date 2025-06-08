@@ -252,7 +252,7 @@ impl ReviewState {
     /// done shortly before the due date.
     fn passing_early_review_intervals(self, ctx: &StateContext) -> (u32, u32, u32) {
         let scheduled = (self.scheduled_days as f32).max(1.0);
-        let elapsed = (self.scheduled_days as f32) + (self.days_late() as f32);
+        let elapsed = self.elapsed_days as f32;
 
         let hard_interval = {
             let factor = ctx.hard_multiplier;

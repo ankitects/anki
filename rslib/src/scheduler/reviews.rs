@@ -34,7 +34,8 @@ impl Card {
         let new_due = (today + days_from_today) as i32;
         let fsrs_enabled = self.memory_state.is_some();
         let new_interval = if fsrs_enabled {
-            self.interval.saturating_add_signed(new_due - self.due)
+            self.interval
+                .saturating_add_signed(new_due - self.original_or_current_due())
         } else if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
             days_from_today.max(1)
         } else {
