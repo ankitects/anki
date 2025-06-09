@@ -561,7 +561,9 @@ deck-config-compute-optimal-retention-tooltip =
     or too high for the amount of cards you're trying to learn. This number can be useful as a reference, but it
     is not recommended to copy it into the desired retention field.
 deck-config-health-check-tooltip =
-    This will show a warning if FSRS struggles to predict your pattern of rating.
+    This will show a warning if FSRS struggles to adapt to your memory.
+
+    Health check is performed only when using Optimize Current Preset.
 
 deck-config-compute-optimal-retention = Compute minimum recommended retention
 deck-config-predicted-optimal-retention = Minimum recommended retention: { $num }
