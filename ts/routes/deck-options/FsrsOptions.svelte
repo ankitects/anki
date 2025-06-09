@@ -412,6 +412,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         align-content: center;
         flex-wrap: wrap;
-        width: 100%;
     }
 </style>
