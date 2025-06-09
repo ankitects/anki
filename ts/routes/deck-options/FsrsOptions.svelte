@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
 
     let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
-    const WORKLOAD_UPDATE_DELAY_MS = 250;
+    const WORKLOAD_UPDATE_DELAY_MS = 100;
 
     let desiredRetentionChangeInfo = "";
     $: {
@@ -207,7 +207,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }
                     if (!already_optimal) {
                         $config.fsrsParams6 = resp.params;
-                        optimized = true;
+                        setTimeout(() => {
+                            optimized = true;
+                        }, 201);
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
