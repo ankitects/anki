@@ -31,7 +31,6 @@ import aqt.sound
 from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import Config
-from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.models import NotetypeDict, NotetypeId, StockNotetype
@@ -173,6 +172,7 @@ class Editor:
     def setupWeb(self) -> None:
         editor_key = self.mw.pm.editor_key(self.editorMode)
         self.web.load_sveltekit_page(f"editor/?mode={editor_key}")
+        self.web.allow_drops = True
 
     def _set_ready(self) -> None:
         lefttopbtns: list[str] = []
@@ -1124,37 +1124,37 @@ class EditorWebView(AnkiWebView):
     def onMiddleClickPaste(self) -> None:
         self._onPaste(QClipboard.Mode.Selection)
 
-    def dragEnterEvent(self, evt: QDragEnterEvent | None) -> None:
-        assert evt is not None
-        evt.accept()
+    # def dragEnterEvent(self, evt: QDragEnterEvent | None) -> None:
+    #     assert evt is not None
+    #     evt.accept()
 
-    def dropEvent(self, evt: QDropEvent | None) -> None:
-        assert evt is not None
-        extended = self._wantsExtendedPaste()
-        mime = evt.mimeData()
-        assert mime is not None
+    # def dropEvent(self, evt: QDropEvent | None) -> None:
+    #     assert evt is not None
+    #     extended = self._wantsExtendedPaste()
+    #     mime = evt.mimeData()
+    #     assert mime is not None
 
-        if (
-            self.editor.state is EditorState.IO_PICKER
-            and (html := self._processUrls(mime, allowed_suffixes=pics))
-            and (path := self.editor.extract_img_path_from_html(html))
-        ):
-            self.editor.setup_mask_editor(path)
-            return
+    #     if (
+    #         self.editor.state is EditorState.IO_PICKER
+    #         and (html := self._processUrls(mime, allowed_suffixes=pics))
+    #         and (path := self.editor.extract_img_path_from_html(html))
+    #     ):
+    #         self.editor.setup_mask_editor(path)
+    #         return
 
-        evt_pos = evt.position()
-        cursor_pos = QPoint(int(evt_pos.x()), int(evt_pos.y()))
+    #     evt_pos = evt.position()
+    #     cursor_pos = QPoint(int(evt_pos.x()), int(evt_pos.y()))
 
-        if evt.source() and mime.hasHtml():
-            # don't filter html from other fields
-            html, internal = mime.html(), True
-        else:
-            html, internal = self._processMime(mime, extended, drop_event=True)
+    #     if evt.source() and mime.hasHtml():
+    #         # don't filter html from other fields
+    #         html, internal = mime.html(), True
+    #     else:
+    #         html, internal = self._processMime(mime, extended, drop_event=True)
 
-        if not html:
-            return
+    #     if not html:
+    #         return
 
-        self.editor.doDrop(html, internal, extended, cursor_pos)
+    #     self.editor.doDrop(html, internal, extended, cursor_pos)
 
     # returns (html, isInternal)
     def _processMime(

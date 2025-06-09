@@ -31,6 +31,9 @@ service FrontendService {
 
   // Editor
   rpc editorUpdateNote(notes.UpdateNotesRequest) returns (generic.Empty);
+  rpc convertPastedImage(ConvertPastedImageRequest)
+      returns (ConvertPastedImageResponse);
+  rpc retrieveUrl(generic.String) returns (RetrieveUrlResponse);
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);
@@ -51,6 +54,20 @@ message SchedulingStatesWithContext {
 message SetSchedulingStatesRequest {
   string key = 1;
   scheduler.SchedulingStates states = 2;
+}
+
+message ConvertPastedImageRequest {
+  bytes data = 1;
+  string ext = 2;
+}
+
+message ConvertPastedImageResponse {
+  bytes data = 1;
+}
+
+message RetrieveUrlResponse {
+  string filename = 1;
+  string error = 2;
 }
 
 message SetSettingJsonRequest {

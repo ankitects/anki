@@ -34,6 +34,12 @@ const allow = (attrs: string[]): FilterMethod => (element: Element): void =>
         element,
     );
 
+function convertToDiv(element: Element): void {
+    const div = document.createElement("div");
+    div.innerHTML = element.innerHTML;
+    element.replaceWith(div);
+}
+
 function unwrapElement(element: Element): void {
     element.replaceWith(...element.childNodes);
 }
@@ -50,7 +56,7 @@ const tagsAllowedBasic: TagsAllowed = {
     BR: allowNone,
     IMG: allow(["SRC", "ALT"]),
     DIV: allowNone,
-    P: allowNone,
+    P: convertToDiv,
     SUB: allowNone,
     SUP: allowNone,
     TITLE: removeElement,

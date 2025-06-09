@@ -1,29 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { bridgeCommand } from "@tslib/bridgecommand";
 import { on } from "@tslib/events";
 import { promiseWithResolver } from "@tslib/promise";
+import { handleCutOrCopy, handleDragover, handleDrop, handlePaste } from "./data-transfer";
 
 function bridgeCopyPasteCommands(input: HTMLElement): { destroy(): void } {
-    function onPaste(event: Event): void {
-        event.preventDefault();
-        bridgeCommand("paste");
-    }
-
-    function onCutOrCopy(): void {
-        bridgeCommand("cutOrCopy");
-    }
-
-    const removePaste = on(input, "paste", onPaste);
-    const removeCopy = on(input, "copy", onCutOrCopy);
-    const removeCut = on(input, "cut", onCutOrCopy);
-
+    const removePaste = on(input, "paste", handlePaste);
+    const removeCopy = on(input, "copy", handleCutOrCopy);
+    const removeCut = on(input, "cut", handleCutOrCopy);
+    const removeDragover = on(input, "dragover", handleDragover);
+    const removeDrop = on(input, "drop", handleDrop);
     return {
         destroy() {
             removePaste();
             removeCopy();
             removeCut();
+            removeDragover();
+            removeDrop();
         },
     };
 }

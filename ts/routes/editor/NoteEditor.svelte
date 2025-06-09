@@ -861,6 +861,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
+<!-- Block Qt's default drag & drop behavior -->
+<svelte:body
+    on:dragenter|preventDefault
+    on:dragover|preventDefault
+    on:drop|preventDefault
+/>
+
 <!--
 @component
 Serves as a pre-slotted convenience component which combines all the common

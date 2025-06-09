@@ -16,7 +16,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
-from typing import Any
+from typing import Any, cast
 
 import flask
 import flask_cors
@@ -665,6 +665,34 @@ def set_config_json() -> bytes:
     return set_setting_json(aqt.mw.col.set_config)
 
 
+def convert_pasted_image() -> bytes:
+    req = frontend_pb2.ConvertPastedImageRequest()
+    req.ParseFromString(request.data)
+    image = QImage.fromData(req.data)
+    buffer = QBuffer()
+    buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+    if req.ext == "png":
+        quality = 50
+    else:
+        quality = 80
+    image.save(buffer, req.ext, quality)
+    buffer.reset()
+    data = bytes(cast(bytes, buffer.readAll()))
+    return frontend_pb2.ConvertPastedImageResponse(data=data).SerializeToString()
+
+
+def retrieve_url() -> bytes:
+    from aqt.utils import retrieve_url
+
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    url = req.val
+    filename, error = retrieve_url(url)
+    return frontend_pb2.RetrieveUrlResponse(
+        filename=filename, error=error
+    ).SerializeToString()
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -686,6 +714,8 @@ post_handler_list = [
     get_meta_json,
     set_meta_json,
     get_config_json,
+    convert_pasted_image,
+    retrieve_url,
 ]
 
 
@@ -739,6 +769,9 @@ exposed_backend_list = [
     "decode_iri_paths",
     # ConfigService
     "set_config_json",
+    "get_config_bool",
+    # MediaService
+    "add_media_file",
 ]
 
 
