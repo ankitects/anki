@@ -3,7 +3,6 @@
 
 import { ConfigKey_Bool } from "@generated/anki/config_pb";
 import { addMediaFile, convertPastedImage, getConfigBool, retrieveUrl as retrieveUrlBackend } from "@generated/backend";
-import { bridgeCommand } from "@tslib/bridgecommand";
 import { shiftPressed } from "@tslib/keys";
 import { pasteHTML } from "../old-editor-adapter";
 
@@ -34,11 +33,8 @@ const audioSuffixes = [
 ];
 const mediaSuffixes = [...imageSuffixes, ...audioSuffixes];
 
-function imageDataToUint8Array(data: ImageData): Uint8Array {
-    return typeof data === "string" ? new TextEncoder().encode(data) : data;
-}
-
 let isShiftPressed = false;
+let lastInternalFieldText = "";
 
 async function wantsExtendedPaste(event: MouseEvent | KeyboardEvent | null = null): Promise<boolean> {
     let stripHtml = (await getConfigBool({
@@ -68,6 +64,10 @@ function getUrls(data: DataTransfer): string[] {
 
 function getText(data: DataTransfer): string {
     return data.getData("text/plain") ?? "";
+}
+
+function getHtml(data: DataTransfer): string {
+    return data.getData("text/html") ?? "";
 }
 
 const QIMAGE_FORMATS = [
@@ -137,6 +137,10 @@ async function urlToLink(url: string): Promise<string> {
         return `<a href="${url}">${escapedTitle}</a>`;
     }
     return filenameToLink(filename);
+}
+
+function imageDataToUint8Array(data: ImageData): Uint8Array {
+    return typeof data === "string" ? new TextEncoder().encode(data) : data;
 }
 
 async function checksum(data: string | Uint8Array): Promise<string> {
@@ -267,11 +271,11 @@ async function processText(data: DataTransfer, extended: Promise<boolean>): Prom
 async function processDataTransferEvent(
     event: ClipboardEvent | DragEvent,
     extended: Promise<boolean>,
-): Promise<string | null> {
+): Promise<{ html: string | null; internal: boolean }> {
     const data = event instanceof ClipboardEvent ? event.clipboardData! : event.dataTransfer!;
-    const html = data.getData("text/html");
+    const html = getHtml(data);
     if (html) {
-        return html;
+        return { html, internal: false };
     }
     const urls = getUrls(data);
     let handlers: ((data: DataTransfer, extended: Promise<boolean>) => Promise<string | null>)[];
@@ -284,11 +288,11 @@ async function processDataTransferEvent(
     for (const handler of handlers) {
         const html = await handler(data, extended);
         if (html) {
-            return html;
+            return { html, internal: true };
         }
     }
 
-    return null;
+    return { html: null, internal: false };
 }
 
 async function runPreFilter(html: string, internal = false): Promise<string> {
@@ -321,24 +325,27 @@ async function runPreFilter(html: string, internal = false): Promise<string> {
     return template.innerHTML;
 }
 
-export async function handlePaste(event: ClipboardEvent) {
-    // bridgeCommand("paste");
+async function handlePasteOrDrop(event: ClipboardEvent | DragEvent) {
     event.preventDefault();
-    let html = await processDataTransferEvent(event, wantsExtendedPaste());
+    let html: string | null = lastInternalFieldText;
+    let internal = !!lastInternalFieldText;
+    const extended = wantsExtendedPaste(event instanceof ClipboardEvent ? null : event);
+    if (!html) {
+        // `extended` is passed as a promise because the event's data is apparently cleared if we wait here before calling getData()
+        ({ html, internal } = await processDataTransferEvent(event, extended));
+    }
     if (html) {
-        html = await runPreFilter(html);
-        pasteHTML(html, false, false);
+        html = await runPreFilter(html, internal);
+        pasteHTML(html, internal, await extended);
     }
 }
 
+export async function handlePaste(event: ClipboardEvent) {
+    await handlePasteOrDrop(event);
+}
+
 export async function handleDrop(event: DragEvent) {
-    event.preventDefault();
-    // `extended` is passed as a promise because the event's data is apparently cleared if we wait here before calling getData()
-    let html = await processDataTransferEvent(event, wantsExtendedPaste(event));
-    if (html) {
-        html = await runPreFilter(html);
-        pasteHTML(html, false, false);
-    }
+    await handlePasteOrDrop(event);
 }
 
 export async function handleDragover(event: DragEvent) {
@@ -349,6 +356,6 @@ export async function handleKeydown(event: KeyboardEvent) {
     isShiftPressed = shiftPressed(event);
 }
 
-export function handleCutOrCopy() {
-    bridgeCommand("cutOrCopy");
+export function handleCutOrCopy(event: ClipboardEvent) {
+    lastInternalFieldText = getHtml(event.clipboardData!);
 }
