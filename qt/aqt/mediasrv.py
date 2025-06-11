@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import enum
 import logging
 import mimetypes
@@ -693,6 +694,34 @@ def retrieve_url() -> bytes:
     ).SerializeToString()
 
 
+async def open_file_picker() -> bytes:
+    req = frontend_pb2.openFilePickerRequest()
+    req.ParseFromString(request.data)
+
+    loop = asyncio.get_event_loop()
+    future = loop.create_future()
+
+    def on_main() -> None:
+        from aqt.utils import getFile
+
+        def cb(filename: str | None) -> None:
+            loop.call_soon_threadsafe(future.set_result, filename)
+
+        getFile(
+            parent=aqt.mw.app.activeWindow(),
+            title=req.title,
+            cb=cb,
+            filter=f"{req.filter_description} ({' '.join(f'*.{ext}' for ext in req.extensions)})",
+            key=req.key,
+        )
+
+    aqt.mw.taskman.run_on_main(on_main)
+
+    filename = await future
+
+    return generic_pb2.String(val=filename if filename else "").SerializeToString()
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -716,6 +745,7 @@ post_handler_list = [
     get_config_json,
     convert_pasted_image,
     retrieve_url,
+    open_file_picker,
 ]
 
 
@@ -772,6 +802,8 @@ exposed_backend_list = [
     "get_config_bool",
     # MediaService
     "add_media_file",
+    "add_media_from_path",
+    "get_absolute_media_path",
 ]
 
 
@@ -800,7 +832,25 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
         # convert bytes/None into response
         def wrapped() -> Response:
             try:
-                if data := handler():
+                import inspect
+
+                if inspect.iscoroutinefunction(handler):
+                    try:
+                        loop = asyncio.get_event_loop()
+                        if loop.is_running():
+                            import concurrent.futures
+
+                            with concurrent.futures.ThreadPoolExecutor() as executor:
+                                future = executor.submit(asyncio.run, handler())
+                                data = future.result()
+                        else:
+                            data = loop.run_until_complete(handler())
+                    except RuntimeError:
+                        data = asyncio.run(handler())
+                else:
+                    result = handler()
+                    data = result
+                if data:
                     response = flask.make_response(data)
                     response.headers["Content-Type"] = "application/binary"
                 else:

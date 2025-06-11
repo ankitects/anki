@@ -873,131 +873,37 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def setup_mask_editor(self, image_path: str) -> None:
         try:
             if self.editorMode == EditorMode.ADD_CARDS:
-                self.setup_mask_editor_for_new_note(
-                    image_path=image_path, notetype_id=0
-                )
+                self.setup_mask_editor_for_new_note(image_path=image_path)
             else:
                 assert self.note is not None
-                self.setup_mask_editor_for_existing_note(
-                    note_id=self.note.id, image_path=image_path
-                )
+                self.setup_mask_editor_for_existing_note(image_path=image_path)
         except Exception as e:
             showWarning(str(e))
 
-    def select_image_and_occlude(self) -> None:
-        """Show a file selection screen, then get selected image path."""
-        extension_filter = " ".join(
-            f"*.{extension}" for extension in sorted(itertools.chain(pics))
-        )
-        filter = f"{tr.editing_media()} ({extension_filter})"
-
-        file = getFile(
-            parent=self.widget,
-            title=tr.editing_add_media(),
-            cb=cast(Callable[[Any], None], self.setup_mask_editor),
-            filter=filter,
-            key="media",
-        )
-
-        self.parentWindow.activateWindow()
-
-    def extract_img_path_from_html(self, html: str) -> str | None:
-        assert self.note is not None
-        # with allowed_suffixes=pics, all non-pics will be rendered as <a>s and won't be included here
-        if not (images := self.mw.col.media.files_in_str(self.note.mid, html)):
-            return None
-        image_path = urllib.parse.unquote(images[0])
-        return os.path.join(self.mw.col.media.dir(), image_path)
-
-    def select_image_from_clipboard_and_occlude(self) -> None:
-        """Set up the mask editor for the image in the clipboard."""
-
-        clipboard = self.mw.app.clipboard()
-        assert clipboard is not None
-        mime = clipboard.mimeData()
-        assert mime is not None
-        # try checking for urls first, fallback to image data
-        if (
-            (html := self.web._processUrls(mime, allowed_suffixes=pics))
-            and (path := self.extract_img_path_from_html(html))
-        ) or (mime.hasImage() and (path := self._read_pasted_image(mime))):
-            self.setup_mask_editor(path)
-            self.parentWindow.activateWindow()
-        else:
-            showWarning(tr.editing_no_image_found_on_clipboard())
-            return
-
-    def setup_mask_editor_for_new_note(
-        self,
-        image_path: str,
-        notetype_id: NotetypeId | int = 0,
-    ):
+    def setup_mask_editor_for_new_note(self, image_path: str):
         """Set-up IO mask editor for adding new notes
         Presupposes that active editor notetype is an image occlusion notetype
         Args:
             image_path: Absolute path to image.
-            notetype_id: ID of note type to use. Provided ID must belong to an
-              image occlusion notetype. Set this to 0 to auto-select the first
-              found image occlusion notetype in the user's collection.
         """
-        image_field_html = self._addMedia(image_path)
-        self.last_io_image_path = self.extract_img_path_from_html(image_field_html)
-        io_options = self._create_add_io_options(
-            image_path=image_path,
-            image_field_html=image_field_html,
-            notetype_id=notetype_id,
-        )
-        self._setup_mask_editor(io_options)
-
-    def setup_mask_editor_for_existing_note(
-        self, note_id: NoteId, image_path: str | None = None
-    ):
-        """Set-up IO mask editor for editing existing notes
-        Presupposes that active editor notetype is an image occlusion notetype
-        Args:
-            note_id: ID of note to edit.
-            image_path: (Optional) Absolute path to image that should replace current
-              image
-        """
-        io_options = self._create_edit_io_options(note_id)
-        if image_path:
-            image_field_html = self._addMedia(image_path)
-            self.last_io_image_path = self.extract_img_path_from_html(image_field_html)
-            self.web.eval(f"resetIOImage({json.dumps(image_path)})")
-            self.web.eval(f"setImageField({json.dumps(image_field_html)})")
-        self._setup_mask_editor(io_options)
-
-    def reset_image_occlusion(self) -> None:
-        self.web.eval("resetIOImageLoaded()")
-
-    def update_occlusions_field(self) -> None:
-        self.web.eval("saveOcclusions()")
-
-    def _setup_mask_editor(self, io_options: dict):
         self.web.eval(
             'require("anki/ui").loaded.then(() =>'
-            f"setupMaskEditor({json.dumps(io_options)})"
+            f"setupMaskEditorForNewNote({json.dumps(image_path)})"
             "); "
         )
 
-    @staticmethod
-    def _create_add_io_options(
-        image_path: str, image_field_html: str, notetype_id: NotetypeId | int = 0
-    ) -> dict:
-        return {
-            "mode": {"kind": "add", "imagePath": image_path, "notetypeId": notetype_id},
-            "html": image_field_html,
-        }
-
-    @staticmethod
-    def _create_clone_io_options(orig_note_id: NoteId) -> dict:
-        return {
-            "mode": {"kind": "add", "clonedNoteId": orig_note_id},
-        }
-
-    @staticmethod
-    def _create_edit_io_options(note_id: NoteId) -> dict:
-        return {"mode": {"kind": "edit", "noteId": note_id}}
+    def setup_mask_editor_for_existing_note(self, image_path: str | None = None):
+        """Set-up IO mask editor for editing existing notes
+        Presupposes that active editor notetype is an image occlusion notetype
+        Args:
+            image_path: (Optional) Absolute path to image that should replace current
+              image
+        """
+        self.web.eval(
+            'require("anki/ui").loaded.then(() =>'
+            f"setupMaskEditorForExistingNote({json.dumps(image_path)})"
+            "); "
+        )
 
     # Links from HTML
     ######################################################################
@@ -1010,8 +916,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             record=Editor.onRecSound,
             paste=Editor.onPaste,
             cutOrCopy=Editor.onCutOrCopy,
-            addImageForOcclusion=Editor.select_image_and_occlude,
-            addImageForOcclusionFromClipboard=Editor.select_image_from_clipboard_and_occlude,
         )
 
     @property
@@ -1044,6 +948,12 @@ class EditorWebView(AnkiWebView):
         clip = self.editor.mw.app.clipboard()
         assert clip is not None
         clip.dataChanged.connect(self._on_clipboard_change)
+        self.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.JavascriptCanPaste, True
+        )
+        self.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.JavascriptCanAccessClipboard, True
+        )
         gui_hooks.editor_web_view_did_init(self)
 
     def user_cut_or_copied(self) -> None:

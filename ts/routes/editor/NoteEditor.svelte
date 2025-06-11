@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import { registerPackage } from "@tslib/runtime-require";
-
+    import { filenameToLink, openFilePickerForImageOcclusion, readImageFromClipboard } from "./rich-text-input/data-transfer";
     import contextProperty from "$lib/sveltelib/context-property";
     import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
 
@@ -520,6 +520,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         decodeIriPaths,
         noteFieldsCheck,
         addNote,
+        addMediaFromPath,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
@@ -542,22 +543,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PreviewButton from "./PreviewButton.svelte";
     import { NoteFieldsCheckResponse_State, type Note } from "@generated/anki/notes_pb";
 
+
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
     let imageOcclusionMode: IOMode | undefined;
     let ioFields = new ImageOcclusionFieldIndexes({});
 
-    function pickIOImage() {
+    async function pickIOImage() {
         imageOcclusionMode = undefined;
-        bridgeCommand("addImageForOcclusion");
+        const filename = await openFilePickerForImageOcclusion();
+        if(!filename) {
+            return;
+        }
+        setupMaskEditor(filename);
     }
 
-    function pickIOImageFromClipboard() {
+    async function pickIOImageFromClipboard() {
         imageOcclusionMode = undefined;
-        bridgeCommand("addImageForOcclusionFromClipboard");
+        await setupMaskEditorFromClipboard();
     }
 
-    async function setupMaskEditor(options: { html: string; mode: IOMode }) {
+    async function setupMaskEditor(filename: string) {
+        if(mode == "add") {
+            setupMaskEditorForNewNote(filename);
+        } else {
+            setupMaskEditorForExistingNote(filename);
+        }
+    }
+    async function setupMaskEditorInner(options: { html: string; mode: IOMode }) {
         imageOcclusionMode = undefined;
         await tick();
         imageOcclusionMode = options.mode;
@@ -580,6 +593,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         isIOImageLoaded = true;
+    }
+
+    async function setupMaskEditorForNewNote(imagePath: string) {
+        const imageFieldHtml = filenameToLink((await addMediaFromPath({
+            path: imagePath,
+        })).val);
+        setupMaskEditorInner({
+            html: imageFieldHtml,
+            mode: {
+                kind: "add",
+                imagePath: imagePath,
+                notetypeId: notetypeMeta.id,
+            },
+        });
+    }
+
+    async function setupMaskEditorForExistingNote(imagePath: string | null = null) {
+        if (imagePath) {
+            const imageFieldHtml = filenameToLink((await addMediaFromPath({
+                path: imagePath,
+            })).val);
+            resetIOImage(imagePath, () => {});
+            setImageField(imageFieldHtml);
+        }
+        setupMaskEditorInner({
+                html: note!.fields[ioFields.image],
+                mode: {
+                    kind: "edit",
+                    noteId: note!.id,
+                },
+            });
+    }
+
+    async function setupMaskEditorFromClipboard() {
+        const path = await readImageFromClipboard();
+        console.log("setupMaskEditorFromClipboard path", path);
+        if(path) {
+            setupMaskEditor(path);
+        } else {
+            alert(tr.editingNoImageFoundOnClipboard());
+        }
     }
 
     function setImageField(html) {
@@ -739,7 +793,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             const imageField = note!.fields[ioFields.image];
             // TODO: last_io_image_path
             if (mode !== "add") {
-                setupMaskEditor({
+                setupMaskEditorInner({
                     html: imageField,
                     mode: {
                         kind: "edit",
@@ -747,7 +801,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     },
                 });
             } else if (originalNoteId) {
-                setupMaskEditor({
+                setupMaskEditorInner({
                     html: imageField,
                     mode: {
                         kind: "add",
@@ -811,6 +865,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             triggerChanges,
             setIsImageOcclusion,
             setupMaskEditor,
+            setupMaskEditorForNewNote,
+            setupMaskEditorForExistingNote,
             setImageField,
             resetIOImageLoaded,
             saveOcclusions,

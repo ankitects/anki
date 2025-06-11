@@ -2,7 +2,16 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { ConfigKey_Bool } from "@generated/anki/config_pb";
-import { addMediaFile, convertPastedImage, getConfigBool, retrieveUrl as retrieveUrlBackend } from "@generated/backend";
+import {
+    addMediaFile,
+    convertPastedImage,
+    extractMediaFiles,
+    getAbsoluteMediaPath,
+    getConfigBool,
+    openFilePicker,
+    retrieveUrl as retrieveUrlBackend,
+} from "@generated/backend";
+import * as tr from "@generated/ftl";
 import { shiftPressed } from "@tslib/keys";
 import { pasteHTML } from "../old-editor-adapter";
 
@@ -57,8 +66,20 @@ function escapeHtml(text: string, quote = true): string {
     }
     return text;
 }
-function getUrls(data: DataTransfer): string[] {
-    const urls = data.getData("text/uri-list").split("\n");
+
+async function getUrls(data: DataTransfer | ClipboardItem): Promise<string[]> {
+    const mime = "text/uri-list";
+    let dataString: string;
+    if (data instanceof DataTransfer) {
+        dataString = data.getData(mime);
+    } else {
+        try {
+            dataString = await (await data.getType(mime)).text();
+        } catch (e) {
+            return [];
+        }
+    }
+    const urls = dataString.split("\n");
     return urls[0] ? urls : [];
 }
 
@@ -83,17 +104,23 @@ const QIMAGE_FORMATS = [
     "image/x-xpixmap",
 ];
 
-async function getImageData(data: DataTransfer): Promise<ImageData | null> {
+async function getImageData(data: DataTransfer | ClipboardItem): Promise<ImageData | null> {
     for (const type of QIMAGE_FORMATS) {
-        const image = data.getData(type);
-        if (image) {
-            return image;
-        } else {
-            for (const file of data.files ?? []) {
-                if (file.type === type) {
-                    return new Uint8Array(await file.arrayBuffer());
+        try {
+            const image = data instanceof DataTransfer
+                ? data.getData(type)
+                : new Uint8Array(await (await data.getType(type)).arrayBuffer());
+            if (image) {
+                return image;
+            } else if (data instanceof DataTransfer) {
+                for (const file of data.files ?? []) {
+                    if (file.type === type) {
+                        return new Uint8Array(await file.arrayBuffer());
+                    }
                 }
             }
+        } catch (e) {
+            continue;
         }
     }
     return null;
@@ -120,7 +147,7 @@ async function urlToFile(url: string): Promise<string | null> {
     return null;
 }
 
-function filenameToLink(filename: string): string {
+export function filenameToLink(filename: string): string {
     const filenameParts = filename.split(".");
     const ext = filenameParts[filenameParts.length - 1].toLowerCase();
     if (imageSuffixes.includes(ext)) {
@@ -157,7 +184,7 @@ async function addMediaFromData(filename: string, data: ImageData): Promise<stri
         desiredName: filename,
         data: imageDataToUint8Array(data),
     })).val;
-    return filenameToLink(filename);
+    return filename;
 }
 
 async function pastedImageFilename(data: ImageData, ext: string): Promise<string> {
@@ -184,7 +211,7 @@ async function inlinedImageToFilename(src: string): Promise<string> {
             if (ext === "jpeg") {
                 ext = "jpg";
             }
-            return await addPastedImage(data, ext);
+            return filenameToLink(await addPastedImage(data, ext));
         }
     }
     return "";
@@ -205,8 +232,8 @@ function isURL(s: string): boolean {
     return prefixes.some(prefix => s.startsWith(prefix));
 }
 
-async function processUrls(data: DataTransfer, _extended: Promise<boolean>): Promise<string | null> {
-    const urls = getUrls(data);
+async function processUrls(data: DataTransfer | ClipboardItem, _extended: Promise<boolean>): Promise<string | null> {
+    const urls = await getUrls(data);
     if (urls.length === 0) {
         return null;
     }
@@ -221,18 +248,20 @@ async function processUrls(data: DataTransfer, _extended: Promise<boolean>): Pro
     return text;
 }
 
+async function getPreferredImageExtension(): Promise<string> {
+    if (await getConfigBool({ key: ConfigKey_Bool.PASTE_IMAGES_AS_PNG })) {
+        return "png";
+    }
+    return "jpg";
+}
+
 async function processImages(data: DataTransfer, _extended: Promise<boolean>): Promise<string | null> {
     const image = await getImageData(data);
     if (!image) {
         return null;
     }
-    let ext: string;
-    if (await getConfigBool({ key: ConfigKey_Bool.PASTE_IMAGES_AS_PNG })) {
-        ext = "png";
-    } else {
-        ext = "jpg";
-    }
-    return await addPastedImage(image, ext, true);
+    const ext = await getPreferredImageExtension();
+    return filenameToLink(await addPastedImage(image, ext, true));
 }
 
 async function processText(data: DataTransfer, extended: Promise<boolean>): Promise<string | null> {
@@ -277,7 +306,7 @@ async function processDataTransferEvent(
     if (html) {
         return { html, internal: false };
     }
-    const urls = getUrls(data);
+    const urls = await getUrls(data);
     let handlers: ((data: DataTransfer, extended: Promise<boolean>) => Promise<string | null>)[];
     if (urls.length > 0 && urls[0].startsWith("file://")) {
         handlers = [processUrls, processImages, processText];
@@ -358,4 +387,45 @@ export async function handleKeydown(event: KeyboardEvent) {
 
 export function handleCutOrCopy(event: ClipboardEvent) {
     lastInternalFieldText = getHtml(event.clipboardData!);
+}
+
+const FILE_PICKER_MEDIA_KEY = "media";
+
+export async function openFilePickerForImageOcclusion(): Promise<string> {
+    const filename = (await openFilePicker({
+        title: tr.editingAddMedia(),
+        filterDescription: tr.editingMedia(),
+        extensions: imageSuffixes,
+        key: FILE_PICKER_MEDIA_KEY,
+    })).val;
+    return filename;
+}
+
+export async function extractImagePathFromHtml(html: string): Promise<string | null> {
+    const images = (await extractMediaFiles({ val: html })).vals;
+    if (images.length === 0) {
+        return null;
+    }
+    return images[0];
+}
+
+export async function readImageFromClipboard(): Promise<string | null> {
+    // TODO: check browser support and available formats
+    for (const item of await navigator.clipboard.read()) {
+        let path: string | null = null;
+        const html = await processUrls(item, Promise.resolve(false));
+        if (html) {
+            path = await extractImagePathFromHtml(html);
+        }
+        if (!path) {
+            const image = await getImageData(item);
+            if (!image) {
+                continue;
+            }
+            const ext = await getPreferredImageExtension();
+            path = await addPastedImage(image, ext, true);
+        }
+        return (await getAbsoluteMediaPath({ val: path })).val;
+    }
+    return null;
 }

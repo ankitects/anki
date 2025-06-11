@@ -34,6 +34,7 @@ service FrontendService {
   rpc convertPastedImage(ConvertPastedImageRequest)
       returns (ConvertPastedImageResponse);
   rpc retrieveUrl(generic.String) returns (RetrieveUrlResponse);
+  rpc openFilePicker(openFilePickerRequest) returns (generic.String);
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);
@@ -73,4 +74,11 @@ message RetrieveUrlResponse {
 message SetSettingJsonRequest {
   string key = 1;
   bytes value_json = 2;
+}
+
+message openFilePickerRequest {
+  string title = 1;
+  string key = 2;
+  string filter_description = 3;
+  repeated string extensions = 4;
 }
