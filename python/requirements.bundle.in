@@ -1,6 +1,6 @@
 # currently broken in pyoxidizer
 jsonschema<4.2
-setuptools<70
+setuptools<79
 
 -r requirements.base.in
 -r requirements.anki.in
