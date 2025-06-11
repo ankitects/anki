@@ -207,7 +207,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }
                     if (!already_optimal) {
                         $config.fsrsParams6 = resp.params;
-                        optimized = true;
+                        setTimeout(() => {
+                            optimized = true;
+                        }, 201);
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
