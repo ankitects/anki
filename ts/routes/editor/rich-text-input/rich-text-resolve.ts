@@ -3,7 +3,7 @@
 
 import { on } from "@tslib/events";
 import { promiseWithResolver } from "@tslib/promise";
-import { handleCutOrCopy, handleDragover, handleDrop, handlePaste } from "./data-transfer";
+import { handleCutOrCopy, handleDragover, handleDrop, handleKeydown, handlePaste } from "./data-transfer";
 
 function bridgeCopyPasteCommands(input: HTMLElement): { destroy(): void } {
     const removePaste = on(input, "paste", handlePaste);
@@ -11,6 +11,7 @@ function bridgeCopyPasteCommands(input: HTMLElement): { destroy(): void } {
     const removeCut = on(input, "cut", handleCutOrCopy);
     const removeDragover = on(input, "dragover", handleDragover);
     const removeDrop = on(input, "drop", handleDrop);
+    const removeKeydown = on(input, "keydown", handleKeydown);
     return {
         destroy() {
             removePaste();
@@ -18,6 +19,7 @@ function bridgeCopyPasteCommands(input: HTMLElement): { destroy(): void } {
             removeCut();
             removeDragover();
             removeDrop();
+            removeKeydown();
         },
     };
 }

@@ -38,11 +38,13 @@ function imageDataToUint8Array(data: ImageData): Uint8Array {
     return typeof data === "string" ? new TextEncoder().encode(data) : data;
 }
 
-async function wantsExtendedPaste(event: MouseEvent | KeyboardEvent): Promise<boolean> {
+let isShiftPressed = false;
+
+async function wantsExtendedPaste(event: MouseEvent | KeyboardEvent | null = null): Promise<boolean> {
     let stripHtml = (await getConfigBool({
         key: ConfigKey_Bool.PASTE_STRIPS_FORMATTING,
     })).val;
-    if (shiftPressed(event)) {
+    if ((event && shiftPressed(event)) || isShiftPressed) {
         stripHtml = !stripHtml;
     }
     return !stripHtml;
@@ -322,7 +324,7 @@ async function runPreFilter(html: string, internal = false): Promise<string> {
 export async function handlePaste(event: ClipboardEvent) {
     // bridgeCommand("paste");
     event.preventDefault();
-    let html = await processDataTransferEvent(event, Promise.resolve(true));
+    let html = await processDataTransferEvent(event, wantsExtendedPaste());
     if (html) {
         html = await runPreFilter(html);
         pasteHTML(html, false, false);
@@ -341,6 +343,10 @@ export async function handleDrop(event: DragEvent) {
 
 export async function handleDragover(event: DragEvent) {
     event.preventDefault();
+}
+
+export async function handleKeydown(event: KeyboardEvent) {
+    isShiftPressed = shiftPressed(event);
 }
 
 export function handleCutOrCopy() {
