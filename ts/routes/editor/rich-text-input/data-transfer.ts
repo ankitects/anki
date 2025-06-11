@@ -38,8 +38,7 @@ function imageDataToUint8Array(data: ImageData): Uint8Array {
     return typeof data === "string" ? new TextEncoder().encode(data) : data;
 }
 
-// TODO
-async function _wantsExtendedPaste(event: MouseEvent | KeyboardEvent): Promise<boolean> {
+async function wantsExtendedPaste(event: MouseEvent | KeyboardEvent): Promise<boolean> {
     let stripHtml = (await getConfigBool({
         key: ConfigKey_Bool.PASTE_STRIPS_FORMATTING,
     })).val;
@@ -200,7 +199,7 @@ function isURL(s: string): boolean {
     return prefixes.some(prefix => s.startsWith(prefix));
 }
 
-async function processUrls(data: DataTransfer, _extended: boolean): Promise<string | null> {
+async function processUrls(data: DataTransfer, _extended: Promise<boolean>): Promise<string | null> {
     const urls = getUrls(data);
     if (urls.length === 0) {
         return null;
@@ -216,7 +215,7 @@ async function processUrls(data: DataTransfer, _extended: boolean): Promise<stri
     return text;
 }
 
-async function processImages(data: DataTransfer, _extended: boolean): Promise<string | null> {
+async function processImages(data: DataTransfer, _extended: Promise<boolean>): Promise<string | null> {
     const image = await getImageData(data);
     if (!image) {
         return null;
@@ -230,7 +229,7 @@ async function processImages(data: DataTransfer, _extended: boolean): Promise<st
     return await addPastedImage(image, ext, true);
 }
 
-async function processText(data: DataTransfer, extended: boolean): Promise<string | null> {
+async function processText(data: DataTransfer, extended: Promise<boolean>): Promise<string | null> {
     function replaceSpaces(match: string, p1: string): string {
         return `${p1.replaceAll(" ", "&nbsp;")} `;
     }
@@ -243,9 +242,9 @@ async function processText(data: DataTransfer, extended: boolean): Promise<strin
     for (const line of text.split("\n")) {
         for (let token of line.split(/(\S+)/g)) {
             // Inlined data in base64?
-            if (extended && token.startsWith("data:image/")) {
+            if ((await extended) && token.startsWith("data:image/")) {
                 processed.push(await inlinedImageToLink(token));
-            } else if (extended && isURL(token)) {
+            } else if ((await extended) && isURL(token)) {
                 // If the user is pasting an image or sound link, convert it to local, otherwise paste as a hyperlink
                 processed.push(await urlToLink(token));
             } else {
@@ -263,13 +262,17 @@ async function processText(data: DataTransfer, extended: boolean): Promise<strin
     return processed.join("");
 }
 
-async function processClipboardData(data: DataTransfer, extended = false): Promise<string | null> {
+async function processDataTransferEvent(
+    event: ClipboardEvent | DragEvent,
+    extended: Promise<boolean>,
+): Promise<string | null> {
+    const data = event instanceof ClipboardEvent ? event.clipboardData! : event.dataTransfer!;
     const html = data.getData("text/html");
     if (html) {
         return html;
     }
     const urls = getUrls(data);
-    let handlers: ((data: DataTransfer, extended: boolean) => Promise<string | null>)[];
+    let handlers: ((data: DataTransfer, extended: Promise<boolean>) => Promise<string | null>)[];
     if (urls.length > 0 && urls[0].startsWith("file://")) {
         handlers = [processUrls, processImages, processText];
     } else {
@@ -319,8 +322,7 @@ async function runPreFilter(html: string, internal = false): Promise<string> {
 export async function handlePaste(event: ClipboardEvent) {
     // bridgeCommand("paste");
     event.preventDefault();
-    const data = event.clipboardData!;
-    let html = await processClipboardData(data, true);
+    let html = await processDataTransferEvent(event, Promise.resolve(true));
     if (html) {
         html = await runPreFilter(html);
         pasteHTML(html, false, false);
@@ -329,8 +331,8 @@ export async function handlePaste(event: ClipboardEvent) {
 
 export async function handleDrop(event: DragEvent) {
     event.preventDefault();
-    const data = event.dataTransfer!;
-    let html = await processClipboardData(data, true);
+    // `extended` is passed as a promise because the event's data is apparently cleared if we wait here before calling getData()
+    let html = await processDataTransferEvent(event, wantsExtendedPaste(event));
     if (html) {
         html = await runPreFilter(html);
         pasteHTML(html, false, false);
