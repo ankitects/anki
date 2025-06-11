@@ -483,6 +483,7 @@ deck-config-percent-of-reviews =
        *[other] { $pct }% of { $reviews } reviews
     }
 deck-config-percent-input = { $pct }%
+deck-config-checking-for-improvement = Checking for improvement...
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
