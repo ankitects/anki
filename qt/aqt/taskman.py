@@ -86,7 +86,7 @@ class TaskManager(QObject):
         if on_done is not None:
 
             def wrapped_done(future: Future) -> None:
-                if uses_collection and not self.mw.col:
+                if uses_collection and not (self.mw.col and self.mw.col.db):
                     print(f"Ignored on_done as collection unloaded: {repr(on_done)}")
                     return
                 on_done(future)
