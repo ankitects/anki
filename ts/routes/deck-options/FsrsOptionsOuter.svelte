@@ -61,7 +61,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         healthCheck: {
             title: tr.deckConfigHealthCheck(),
-            help: tr.deckConfigHealthCheckTooltip(),
+            help:
+                tr.deckConfigHealthCheckTooltip1() +
+                "\n\n" +
+                tr.deckConfigHealthCheckTooltip2(),
             sched: HelpItemScheduler.FSRS,
         },
     };
