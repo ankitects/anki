@@ -24,7 +24,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import { registerPackage } from "@tslib/runtime-require";
-    import { filenameToLink, openFilePickerForImageOcclusion, readImageFromClipboard } from "./rich-text-input/data-transfer";
+    import {
+        filenameToLink,
+        openFilePickerForImageOcclusion,
+        readImageFromClipboard,
+    } from "./rich-text-input/data-transfer";
     import contextProperty from "$lib/sveltelib/context-property";
     import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
 
@@ -543,7 +547,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PreviewButton from "./PreviewButton.svelte";
     import { NoteFieldsCheckResponse_State, type Note } from "@generated/anki/notes_pb";
 
-
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
     let imageOcclusionMode: IOMode | undefined;
@@ -552,7 +555,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function pickIOImage() {
         imageOcclusionMode = undefined;
         const filename = await openFilePickerForImageOcclusion();
-        if(!filename) {
+        if (!filename) {
             return;
         }
         setupMaskEditor(filename);
@@ -564,7 +567,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function setupMaskEditor(filename: string) {
-        if(mode == "add") {
+        if (mode == "add") {
             setupMaskEditorForNewNote(filename);
         } else {
             setupMaskEditorForExistingNote(filename);
@@ -596,9 +599,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function setupMaskEditorForNewNote(imagePath: string) {
-        const imageFieldHtml = filenameToLink((await addMediaFromPath({
-            path: imagePath,
-        })).val);
+        const imageFieldHtml = filenameToLink(
+            (
+                await addMediaFromPath({
+                    path: imagePath,
+                })
+            ).val,
+        );
         setupMaskEditorInner({
             html: imageFieldHtml,
             mode: {
@@ -611,25 +618,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function setupMaskEditorForExistingNote(imagePath: string | null = null) {
         if (imagePath) {
-            const imageFieldHtml = filenameToLink((await addMediaFromPath({
-                path: imagePath,
-            })).val);
+            const imageFieldHtml = filenameToLink(
+                (
+                    await addMediaFromPath({
+                        path: imagePath,
+                    })
+                ).val,
+            );
             resetIOImage(imagePath, () => {});
             setImageField(imageFieldHtml);
         }
         setupMaskEditorInner({
-                html: note!.fields[ioFields.image],
-                mode: {
-                    kind: "edit",
-                    noteId: note!.id,
-                },
-            });
+            html: note!.fields[ioFields.image],
+            mode: {
+                kind: "edit",
+                noteId: note!.id,
+            },
+        });
     }
 
     async function setupMaskEditorFromClipboard() {
         const path = await readImageFromClipboard();
         console.log("setupMaskEditorFromClipboard path", path);
-        if(path) {
+        if (path) {
             setupMaskEditor(path);
         } else {
             alert(tr.editingNoImageFoundOnClipboard());

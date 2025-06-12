@@ -33,7 +33,7 @@ from anki.cards import Card
 from anki.collection import Config
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.models import NotetypeDict, NotetypeId, StockNotetype
+from anki.models import NotetypeDict, StockNotetype
 from anki.notes import Note, NoteId
 from anki.utils import checksum, is_mac, is_win, namedtmp
 from aqt import AnkiQt, gui_hooks
@@ -948,10 +948,10 @@ class EditorWebView(AnkiWebView):
         clip = self.editor.mw.app.clipboard()
         assert clip is not None
         clip.dataChanged.connect(self._on_clipboard_change)
-        self.settings().setAttribute(
+        self.settings().setAttribute(  # type: ignore
             QWebEngineSettings.WebAttribute.JavascriptCanPaste, True
         )
-        self.settings().setAttribute(
+        self.settings().setAttribute(  # type: ignore
             QWebEngineSettings.WebAttribute.JavascriptCanAccessClipboard, True
         )
         gui_hooks.editor_web_view_did_init(self)

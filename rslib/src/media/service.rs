@@ -43,14 +43,17 @@ impl crate::services::MediaService for Collection {
             .into())
     }
 
-    fn add_media_from_path(&mut self, input: AddMediaFromPathRequest) -> error::Result<generic::String> {
-        let base_name = Path::new(&input.path).file_name().unwrap_or_default().to_str().unwrap_or_default();
+    fn add_media_from_path(
+        &mut self,
+        input: AddMediaFromPathRequest,
+    ) -> error::Result<generic::String> {
+        let base_name = Path::new(&input.path)
+            .file_name()
+            .unwrap_or_default()
+            .to_str()
+            .unwrap_or_default();
         let data = std::fs::read(&input.path)?;
-        Ok(self
-            .media()?
-            .add_file(&base_name, &data)?
-            .to_string()
-            .into())
+        Ok(self.media()?.add_file(base_name, &data)?.to_string().into())
     }
 
     fn trash_media_files(&mut self, input: TrashMediaFilesRequest) -> error::Result<()> {
@@ -80,13 +83,27 @@ impl crate::services::MediaService for Collection {
         Ok(files.into_iter().collect::<Vec<_>>().into())
     }
 
-
-    fn extract_media_files(&mut self, html: anki_proto::generic::String) -> error::Result<generic::StringList> {
-        let files = extract_media_refs(&html.val).iter().map(|r| r.fname_decoded.to_string()).collect::<Vec<_>>();
+    fn extract_media_files(
+        &mut self,
+        html: anki_proto::generic::String,
+    ) -> error::Result<generic::StringList> {
+        let files = extract_media_refs(&html.val)
+            .iter()
+            .map(|r| r.fname_decoded.to_string())
+            .collect::<Vec<_>>();
         Ok(files.into())
     }
 
-    fn get_absolute_media_path(&mut self, path: anki_proto::generic::String) -> error::Result<generic::String> {
-        Ok(self.media()?.media_folder.join(path.val).to_string_lossy().to_string().into())
+    fn get_absolute_media_path(
+        &mut self,
+        path: anki_proto::generic::String,
+    ) -> error::Result<generic::String> {
+        Ok(self
+            .media()?
+            .media_folder
+            .join(path.val)
+            .to_string_lossy()
+            .to_string()
+            .into())
     }
 }

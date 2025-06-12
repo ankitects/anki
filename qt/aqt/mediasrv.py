@@ -707,10 +707,12 @@ async def open_file_picker() -> bytes:
         def cb(filename: str | None) -> None:
             loop.call_soon_threadsafe(future.set_result, filename)
 
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
         getFile(
-            parent=aqt.mw.app.activeWindow(),
+            parent=window,
             title=req.title,
-            cb=cb,
+            cb=cast(Callable[[Any], None], cb),
             filter=f"{req.filter_description} ({' '.join(f'*.{ext}' for ext in req.extensions)})",
             key=req.key,
         )
