@@ -214,6 +214,7 @@ fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &Notetype, tr: &I18n) {
 mod test {
     use super::*;
     use crate::collection::CollectionBuilder;
+    use crate::notetype::SPECIAL_FIELDS;
 
     #[test]
     fn can_render_fully() -> Result<()> {
@@ -233,6 +234,22 @@ mod test {
         let out = col.render_uncommitted_card(&mut note, &nt.templates[0], 0, false, false)?;
         assert_eq!(&out.question(), "front");
 
+        Ok(())
+    }
+
+    #[test]
+    fn special_fields_complete() -> Result<()> {
+        let mut col = CollectionBuilder::default().build()?;
+        let mut map = HashMap::new();
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let note = Note::new(&nt);
+        let card = Card::new(0.into(), 0.try_into().unwrap(), 0.into(), 0);
+        let tmpl = nt.templates[0].clone();
+
+        col.add_special_fields(&mut map, &note, &card, &nt, &tmpl)?;
+
+        assert!(map.iter().all(|val| SPECIAL_FIELDS.contains(val.0)));
         Ok(())
     }
 }
