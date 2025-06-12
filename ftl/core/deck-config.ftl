@@ -307,7 +307,8 @@ deck-config-new-interval-tooltip = The multiplier applied to a review interval w
 deck-config-minimum-interval-tooltip = The minimum interval given to a review card after answering `Again`.
 deck-config-custom-scheduling = Custom scheduling
 deck-config-custom-scheduling-tooltip = Affects the entire collection. Use at your own risk!
-# Easy Days section
+
+## Easy Days section.
 
 deck-config-easy-days-title = Easy Days
 deck-config-easy-days-monday = Mon
@@ -396,7 +397,6 @@ deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize Current Preset
 deck-config-slow-suffix = { $text } (slow)
-deck-config-health-check = Check health when optimizing
 deck-config-compute-button = Compute
 deck-config-ignore-before = Ignore cards reviewed before
 deck-config-time-to-optimize = It's been a while - using the Optimize All Presets button is recommended.
@@ -484,20 +484,11 @@ deck-config-percent-of-reviews =
        *[other] { $pct }% of { $reviews } reviews
     }
 deck-config-percent-input = { $pct }%
+# This message appears during FSRS parameter optimization.
 deck-config-checking-for-improvement = Checking for improvement...
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
-deck-config-fsrs-bad-fit-warning = Health Check: 
-    Your memory is difficult for FSRS to predict. Recommendations:
-
-    - Suspend or reformulate leeches.
-    - Use the answer buttons consistently. Keep in mind that "Hard" is a passing grade, not a failing grade.
-    - Understand before you memorize.
-
-    If you follow these suggestions, performance will usually improve over the next few months.
-deck-config-fsrs-good-fit = Health Check: 
-    FSRS can adapt to your memory well.
 
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
 
@@ -524,6 +515,23 @@ deck-config-save-options-to-preset = Save Changes to Preset
 # to show the total number of cards that can be recalled or retrieved on a
 # specific date.
 deck-config-fsrs-simulator-radio-memorized = Memorized
+
+## Messages related to the FSRS scheduler.  The health check determines whether the correlation between FSRS predictions and your memory is good or bad.
+
+# Checkbox
+deck-config-health-check = Check health when optimizing
+# Message box showing the result of the health check
+deck-config-fsrs-bad-fit-warning = Health Check:
+    Your memory is difficult for FSRS to predict. Recommendations:
+
+    - Suspend or reformulate leeches.
+    - Use the answer buttons consistently. Keep in mind that "Hard" is a passing grade, not a failing grade.
+    - Understand before you memorize.
+
+    If you follow these suggestions, performance will usually improve over the next few months.
+# Message box showing the result of the health check
+deck-config-fsrs-good-fit = Health Check:
+    FSRS can adapt to your memory well.
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
