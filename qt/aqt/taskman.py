@@ -84,8 +84,15 @@ class TaskManager(QObject):
         fut = executor.submit(task, **args)
 
         if on_done is not None:
+
+            def wrapped_done(future: Future) -> None:
+                if uses_collection and not self.mw.col:
+                    print(f"Ignored on_done as collection unloaded: {repr(on_done)}")
+                    return
+                on_done(future)
+
             fut.add_done_callback(
-                lambda future: self.run_on_main(lambda: on_done(future))
+                lambda future: self.run_on_main(lambda: wrapped_done(future))
             )
 
         return fut
