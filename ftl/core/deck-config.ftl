@@ -516,7 +516,7 @@ deck-config-save-options-to-preset = Save Changes to Preset
 # specific date.
 deck-config-fsrs-simulator-radio-memorized = Memorized
 
-## Messages related to the FSRS scheduler.  The health check determines whether the correlation between FSRS predictions and your memory is good or bad.
+## Messages related to the FSRS scheduler’s health check. The health check determines whether the correlation between FSRS predictions and your memory is good or bad.
 
 # Checkbox
 deck-config-health-check = Check health when optimizing
