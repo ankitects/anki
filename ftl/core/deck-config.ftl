@@ -493,7 +493,7 @@ deck-config-fsrs-bad-fit-warning = Your memory is difficult for FSRS to predict.
     - Understand before you memorize.
 
     If you follow these suggestions, performance will usually improve over the next few months.
-deck-config-fsrs-good-fit = FSRS is well adjusted to your memory.
+deck-config-fsrs-good-fit = FSRS can adapt to your memory well.
 
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
 
