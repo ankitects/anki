@@ -27,6 +27,13 @@ pub fn setup_pyenv(args: PyenvArgs) {
     let pyenv_python = pyenv_bin_folder.join("python");
     let pip_sync = pyenv_bin_folder.join("pip-sync");
 
+    // Ensure the venv gets recreated properly if it was created by our uv branch
+    let cache_tag = pyenv_folder.join("CACHEDIR.TAG");
+    if cache_tag.exists() {
+        println!("Cleaning up uv pyenv...");
+        std::fs::remove_dir_all(pyenv_folder).expect("Failed to remove pyenv folder");
+    }
+
     if !pyenv_python.exists() {
         run_command(
             Command::new(&args.python_bin)
