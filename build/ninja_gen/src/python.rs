@@ -12,6 +12,7 @@ use crate::archives::download_and_extract;
 use crate::archives::with_exe;
 use crate::archives::OnlineArchive;
 use crate::archives::Platform;
+use crate::command::RunCommand;
 use crate::hash::simple_hash;
 use crate::input::BuildInput;
 use crate::inputs;
@@ -79,6 +80,16 @@ pub fn setup_uv(build: &mut Build, platform: Platform) -> Result<()> {
         }
     };
     build.add_dependency("uv_binary", uv_binary);
+
+    // Our macOS packaging needs access to the x86 binary on ARM.
+    download_and_extract(
+        build,
+        "uv_mac_x86",
+        uv_archive(Platform::MacX64),
+        hashmap! { "bin" => [
+            with_exe("uv")
+        ] },
+    )?;
 
     Ok(())
 }
@@ -268,4 +279,21 @@ impl BuildAction for PythonTest {
     fn hide_progress(&self) -> bool {
         true
     }
+}
+
+pub fn setup_uv_universal(build: &mut Build) -> Result<()> {
+    build.add_action(
+        "bundle:uv_universal",
+        RunCommand {
+            command: "/usr/bin/lipo",
+            args: "-create -output $out $arm_bin $x86_bin",
+            inputs: hashmap! {
+                "arm_bin" => inputs![":extract:uv:bin"],
+                "x86_bin" => inputs![":extract:uv_mac_x86:bin"],
+            },
+            outputs: hashmap! {
+                "out" => vec!["bundle/uv"],
+            },
+        },
+    )
 }
