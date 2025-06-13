@@ -6,7 +6,6 @@
 # Uses hard-coded paths to Python and build folders.
 #
 
-export PYTHON_BINARY=/usr/local/bin/python3.9-intel64
 export BUILD_ROOT=~/Local/build/anki-x86
 export NORMAL_BUILD_ROOT=~/Local/build/anki
 export MAC_X86=1

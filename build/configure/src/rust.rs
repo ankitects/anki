@@ -154,7 +154,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
                 "$builddir/buildhash",
                 // building on Windows requires python3.lib
                 if cfg!(windows) {
-                    inputs![":extract:python"]
+                    inputs![":pyenv:bin"]
                 } else {
                     inputs![]
                 }

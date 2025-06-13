@@ -244,8 +244,8 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
 # OS helpers
 ##############################################################################
 
-is_mac = sys.platform.startswith("darwin")
-is_win = sys.platform.startswith("win32")
+is_mac = sys.platform == "darwin"
+is_win = sys.platform == "win32"
 # also covers *BSD
 is_lin = not is_mac and not is_win
 is_gnome = (
