@@ -31,6 +31,7 @@ fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
         ("MacX64", "x86_64-apple-darwin"),
         ("MacArm", "aarch64-apple-darwin"),
         ("WindowsX64", "x86_64-pc-windows-msvc"),
+        ("WindowsArm", "aarch64-pc-windows-msvc"),
     ];
 
     let mut match_blocks = Vec::new();
@@ -126,7 +127,7 @@ mod tests {
         let content = fs::read_to_string("src/python.rs").unwrap();
         let original_lines = content.lines().count();
 
-        const EXPECTED_LINES_REMOVED: usize = 32;
+        const EXPECTED_LINES_REMOVED: usize = 38;
 
         let updated = update_uv_text(&content, "").unwrap();
         let updated_lines = updated.lines().count();

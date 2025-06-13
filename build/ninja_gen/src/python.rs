@@ -54,6 +54,12 @@ pub fn uv_archive(platform: Platform) -> OnlineArchive {
                 url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-pc-windows-msvc.zip",
                 sha256: "e199b10bef1a7cc540014483e7f60f825a174988f41020e9d2a6b01bd60f0669",
             }
+        },
+        Platform::WindowsArm => {
+            OnlineArchive {
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-aarch64-pc-windows-msvc.zip",
+                sha256: "bb40708ad549ad6a12209cb139dd751bf0ede41deb679ce7513ce197bd9ef234",
+            }
         }
     }
 }

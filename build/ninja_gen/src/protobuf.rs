@@ -37,7 +37,7 @@ pub fn protoc_archive(platform: Platform) -> OnlineArchive {
                 sha256: "e3324d3bc2e9bc967a0bec2472e0ec73b26f952c7c87f2403197414f780c3c6c",
             }
         }
-        Platform::WindowsX64 => {
+        Platform::WindowsX64 | Platform::WindowsArm => {
             OnlineArchive {
                 url: "https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-win64.zip",
                 sha256: "3657053024faa439ff5f8c1dd2ee06bac0f9b9a3d660e99944f015a7451e87ec",
@@ -67,7 +67,7 @@ fn clang_format_archive(platform: Platform) -> OnlineArchive {
                 sha256: "238be68d9478163a945754f06a213483473044f5a004c4125d3d9d8d3556466e",
             }
         }
-        Platform::WindowsX64 => {
+        Platform::WindowsX64 | Platform::WindowsArm=> {
             OnlineArchive {
                 url: "https://github.com/ankitects/clang-format-binaries/releases/download/anki-2021-01-09/clang-format_windows_x86_64.zip",
                 sha256: "7d9f6915e3f0fb72407830f0fc37141308d2e6915daba72987a52f309fbeaccc",
