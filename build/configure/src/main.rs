@@ -19,6 +19,7 @@ use ninja_gen::inputs;
 use ninja_gen::protobuf::check_proto;
 use ninja_gen::protobuf::setup_protoc;
 use ninja_gen::python::setup_uv;
+use ninja_gen::python::setup_uv_universal;
 use ninja_gen::Build;
 use platform::overriden_python_target_platform;
 use pylib::build_pylib;
@@ -61,6 +62,7 @@ fn main() -> Result<()> {
     build_and_check_aqt(build)?;
 
     if env::var("OFFLINE_BUILD").is_err() {
+        setup_uv_universal(build)?;
         build_bundle(build)?;
     }
 
