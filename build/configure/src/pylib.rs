@@ -64,13 +64,11 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
         BuildWheel {
             name: "anki",
             version: anki_version(),
-            src_folder: "pylib/anki",
-            gen_folder: "$builddir/pylib/anki",
             platform: overriden_python_target_platform().or(Some(build.host_platform)),
             deps: inputs![
                 ":pylib:anki",
                 glob!("pylib/anki/**"),
-                "python/requirements.anki.in",
+                "pylib/pyproject.toml"
             ],
         },
     )?;

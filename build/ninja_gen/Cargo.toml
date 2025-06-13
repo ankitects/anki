@@ -16,5 +16,12 @@ globset.workspace = true
 itertools.workspace = true
 maplit.workspace = true
 num_cpus.workspace = true
+regex.workspace = true
+reqwest = { workspace = true, features = ["blocking", "json", "rustls-tls"] }
+serde_json.workspace = true
 walkdir.workspace = true
 which.workspace = true
+
+[[bin]]
+name = "update_uv"
+path = "src/bin/update_uv.rs"
