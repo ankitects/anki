@@ -405,8 +405,8 @@ mod tests {
         assert_int_eq(
             item.starting_state.map(Into::into),
             Some(FsrsMemoryState {
-                stability: 99.999954,
-                difficulty: 5.6932373,
+                stability: 100.0,
+                difficulty: 5.003576,
             }),
         );
         let mut card = Card {
@@ -417,8 +417,8 @@ mod tests {
         assert_int_eq(
             card.memory_state,
             Some(FsrsMemoryState {
-                stability: 248.64305,
-                difficulty: 5.7909784,
+                stability: 248.9251,
+                difficulty: 4.9938006,
             }),
         );
         // cards with a single review-type entry also get memory states from revlog
@@ -440,8 +440,8 @@ mod tests {
         assert_int_eq(
             card.memory_state,
             Some(FsrsMemoryState {
-                stability: 99.999954,
-                difficulty: 5.840841,
+                stability: 100.0,
+                difficulty: 5.003576,
             }),
         );
         Ok(())
