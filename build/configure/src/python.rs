@@ -20,74 +20,27 @@ use ninja_gen::python::PythonTypecheck;
 use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Build;
 
-// When updating Qt, make sure to update the .txt file in bundle.rs as well.
 pub fn setup_venv(build: &mut Build) -> Result<()> {
-    let platform_deps = if cfg!(windows) {
-        inputs![
-            "python/requirements.qt6_6.txt",
-            "python/requirements.win.txt",
-        ]
-    } else if cfg!(target_os = "macos") {
-        inputs!["python/requirements.qt6_6.txt",]
-    } else if std::env::var("PYTHONPATH").is_ok() {
-        // assume we have a system-provided Qt
-        inputs![]
-    } else if cfg!(target_arch = "aarch64") {
-        inputs!["python/requirements.qt6_8.txt"]
-    } else {
-        inputs!["python/requirements.qt6_6.txt"]
-    };
-    let requirements_txt = inputs!["python/requirements.dev.txt", platform_deps];
+    let extra_binary_exports = &[
+        "mypy",
+        "black",
+        "isort",
+        "pylint",
+        "pytest",
+        "protoc-gen-mypy",
+    ];
     build.add_action(
         "pyenv",
         PythonEnvironment {
-            folder: "pyenv",
-            base_requirements_txt: inputs!["python/requirements.base.txt"],
-            requirements_txt,
-            extra_binary_exports: &[
-                "pip-compile",
-                "pip-sync",
-                "mypy",
-                "black", // Required for offline build
-                "isort",
-                "pylint",
-                "pytest",
-                "protoc-gen-mypy", // ditto
+            venv_folder: "pyenv",
+            deps: inputs![
+                "pyproject.toml",
+                "pylib/pyproject.toml",
+                "qt/pyproject.toml",
+                "uv.lock"
             ],
-        },
-    )?;
-
-    // optional venvs for testing other Qt versions
-    let mut venv_reqs = inputs!["python/requirements.bundle.txt"];
-    if cfg!(windows) {
-        venv_reqs = inputs![venv_reqs, "python/requirements.win.txt"];
-    }
-
-    build.add_action(
-        "pyenv-qt6.8",
-        PythonEnvironment {
-            folder: "pyenv-qt6.8",
-            base_requirements_txt: inputs!["python/requirements.base.txt"],
-            requirements_txt: inputs![&venv_reqs, "python/requirements.qt6_8.txt"],
-            extra_binary_exports: &[],
-        },
-    )?;
-    build.add_action(
-        "pyenv-qt5.15",
-        PythonEnvironment {
-            folder: "pyenv-qt5.15",
-            base_requirements_txt: inputs!["python/requirements.base.txt"],
-            requirements_txt: inputs![&venv_reqs, "python/requirements.qt5_15.txt"],
-            extra_binary_exports: &[],
-        },
-    )?;
-    build.add_action(
-        "pyenv-qt5.14",
-        PythonEnvironment {
-            folder: "pyenv-qt5.14",
-            base_requirements_txt: inputs!["python/requirements.base.txt"],
-            requirements_txt: inputs![venv_reqs, "python/requirements.qt5_14.txt"],
-            extra_binary_exports: &[],
+            extra_args: "--all-packages --extra qt",
+            extra_binary_exports,
         },
     )?;
 
@@ -133,45 +86,65 @@ impl BuildAction for GenPythonProto {
 pub struct BuildWheel {
     pub name: &'static str,
     pub version: String,
-    pub src_folder: &'static str,
-    pub gen_folder: &'static str,
     pub platform: Option<Platform>,
     pub deps: BuildInput,
 }
 
 impl BuildAction for BuildWheel {
     fn command(&self) -> &str {
-        "$pyenv_bin $script $src $gen $out"
+        "$uv build --wheel --out-dir=$out_dir --project=$project_dir"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
-        build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
-        build.add_inputs("script", inputs!["python/write_wheel.py"]);
+        build.add_inputs("uv", inputs![":uv_binary"]);
         build.add_inputs("", &self.deps);
-        build.add_variable("src", self.src_folder);
-        build.add_variable("gen", self.gen_folder);
 
+        // Set the project directory based on which package we're building
+        let project_dir = if self.name == "anki" { "pylib" } else { "qt" };
+        build.add_variable("project_dir", project_dir);
+
+        // Set environment variable for uv to use our pyenv
+        build.add_variable("pyenv_path", "$builddir/pyenv");
+        build.add_env_var("UV_PROJECT_ENVIRONMENT", "$pyenv_path");
+
+        // Set output directory
+        build.add_variable("out_dir", "$builddir/wheels/");
+
+        // Calculate the wheel filename that uv will generate
         let tag = if let Some(platform) = self.platform {
-            let platform = match platform {
+            let platform_tag = match platform {
                 Platform::LinuxX64 => "manylinux_2_35_x86_64",
                 Platform::LinuxArm => "manylinux_2_35_aarch64",
                 Platform::MacX64 => "macosx_12_0_x86_64",
                 Platform::MacArm => "macosx_12_0_arm64",
                 Platform::WindowsX64 => "win_amd64",
             };
-            format!("cp39-abi3-{platform}")
+            format!("cp39-abi3-{platform_tag}")
         } else {
             "py3-none-any".into()
         };
+
+        // Set environment variable for hatch_build.py to use the correct platform tag
+        build.add_variable("wheel_tag", &tag);
+        build.add_env_var("ANKI_WHEEL_TAG", "$wheel_tag");
+
         let name = self.name;
-        let version = &self.version;
-        let wheel_path = format!("wheels/{name}-{version}-{tag}.whl");
+
+        // Normalize version like hatchling does: remove leading zeros from version
+        // parts
+        let normalized_version = self
+            .version
+            .split('.')
+            .map(|part| part.parse::<u32>().unwrap_or(0).to_string())
+            .collect::<Vec<_>>()
+            .join(".");
+
+        let wheel_path = format!("wheels/{name}-{normalized_version}-{tag}.whl");
         build.add_outputs("out", vec![wheel_path]);
     }
 }
 
 pub fn check_python(build: &mut Build) -> Result<()> {
-    python_format(build, "ftl", inputs![glob!("ftl/**/*.py")])?;
     python_format(build, "tools", inputs![glob!("tools/**/*.py")])?;
 
     build.add_action(
@@ -183,7 +156,6 @@ pub fn check_python(build: &mut Build) -> Result<()> {
                 "qt/tools",
                 "out/pylib/anki",
                 "out/qt/_aqt",
-                "ftl",
                 "python",
                 "tools",
             ],
@@ -262,8 +234,7 @@ struct Sphinx {
 impl BuildAction for Sphinx {
     fn command(&self) -> &str {
         if env::var("OFFLINE_BUILD").is_err() {
-            "$pip install sphinx sphinx_rtd_theme sphinx-autoapi \
-             && $python python/sphinx/build.py"
+            "$uv sync --extra sphinx && $python python/sphinx/build.py"
         } else {
             "$python python/sphinx/build.py"
         }
@@ -271,7 +242,10 @@ impl BuildAction for Sphinx {
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         if env::var("OFFLINE_BUILD").is_err() {
-            build.add_inputs("pip", inputs![":pyenv:pip"]);
+            build.add_inputs("uv", inputs![":uv_binary"]);
+            // Set environment variable to use the existing pyenv
+            build.add_variable("pyenv_path", "$builddir/pyenv");
+            build.add_env_var("UV_PROJECT_ENVIRONMENT", "$pyenv_path");
         }
         build.add_inputs("python", inputs![":pyenv:bin"]);
         build.add_inputs("", &self.deps);
@@ -294,7 +268,12 @@ pub(crate) fn setup_sphinx(build: &mut Build) -> Result<()> {
     build.add_action(
         "python:sphinx",
         Sphinx {
-            deps: inputs![":pylib", ":qt", ":python:sphinx:copy_conf"],
+            deps: inputs![
+                ":pylib",
+                ":qt",
+                ":python:sphinx:copy_conf",
+                "pyproject.toml"
+            ],
         },
     )?;
     Ok(())

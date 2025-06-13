@@ -1,8 +1,27 @@
-[tool.black]
-target-version = ["py39", "py310", "py311", "py312"]
-extend-exclude = "qt/bundle"
+[project]
+name = "anki-dev"
+version = "0.0.0"
+description = "Local-only environment"
+requires-python = ">=3.9"
+dependencies = [
+  "black==24.8.0", # temporary pin during uv migration
+  "isort",
+  "mypy==1.11.2", # temporary pin during uv migration
+  "mypy-protobuf",
+  "pylint",
+  "pytest",
+  "PyChromeDevTools",
+  "colorama", # for isort --color
+  "wheel",
+  "hatchling", # for type checking hatch_build.py files
+]
 
-[tool.pyright]
-include = ["pylib/anki", "qt/aqt"]
-stubPath = ""
-pythonVersion = "3.9"
+[project.optional-dependencies]
+sphinx = [
+  "sphinx",
+  "sphinx_rtd_theme",
+  "sphinx-autoapi",
+]
+
+[tool.uv.workspace]
+members = ["pylib", "qt"]

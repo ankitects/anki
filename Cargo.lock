@@ -4257,6 +4257,9 @@ dependencies = [
  "itertools 0.13.0",
  "maplit",
  "num_cpus",
+ "regex",
+ "reqwest 0.12.15",
+ "serde_json",
  "walkdir",
  "which",
 ]
@@ -5622,6 +5625,7 @@ checksum = "d19c46a6fdd48bc4dab94b6103fccc55d34c67cc0ad04653aad4ea2a07cd7bbb"
 dependencies = [
  "base64 0.22.1",
  "bytes",
+ "futures-channel",
  "futures-core",
  "futures-util",
  "http 1.3.1",

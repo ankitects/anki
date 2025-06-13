@@ -9,6 +9,7 @@ use maplit::hashmap;
 
 use crate::action::BuildAction;
 use crate::archives::download_and_extract;
+use crate::archives::with_exe;
 use crate::archives::OnlineArchive;
 use crate::archives::Platform;
 use crate::hash::simple_hash;
@@ -16,82 +17,84 @@ use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
 
-/// When updating this, pyoxidizer.bzl needs updating too, but it uses different
-/// files.
-pub fn python_archive(platform: Platform) -> OnlineArchive {
+// To update, run 'cargo run --bin update_uv'.
+// You'll need to do this when bumping Python versions, as uv bakes in
+// the latest known version.
+// When updating Python version, make sure to update version tag in BuildWheel
+// too.
+pub fn uv_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64_v2-unknown-linux-gnu-install_only.tar.gz",
-                sha256: "9426bca501ae0a257392b10719e2e20ff5fa5e22a3ce4599d6ad0b3139f86417",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-unknown-linux-gnu.tar.gz",
+                sha256: "909278eb197c5ed0e9b5f16317d1255270d1f9ea4196e7179ce934d48c4c2545",
             }
-        }
+        },
         Platform::LinuxArm => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-aarch64-unknown-linux-gnu-install_only.tar.gz",
-                sha256: "7d19e1ecd6e582423f7c74a0c67491eaa982ce9d5c5f35f0e4289f83127abcb8",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-aarch64-unknown-linux-gnu.tar.gz",
+                sha256: "0b2ad9fe4295881615295add8cc5daa02549d29cc9a61f0578e397efcf12f08f",
             }
-        }
+        },
         Platform::MacX64 => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-apple-darwin-install_only.tar.gz",
-                sha256: "5a0bf895a5cb08d6d008140abb41bb2c8cd638a665273f7d8eb258bc89de439b",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-apple-darwin.tar.gz",
+                sha256: "d785753ac092e25316180626aa691c5dfe1fb075290457ba4fdb72c7c5661321",
             }
-        }
+        },
         Platform::MacArm => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-aarch64-apple-darwin-install_only.tar.gz",
-                sha256: "bf0cd90204a2cc6da48cae1e4b32f48c9f7031fbe1238c5972104ccb0155d368",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-aarch64-apple-darwin.tar.gz",
+                sha256: "721f532b73171586574298d4311a91d5ea2c802ef4db3ebafc434239330090c6",
             }
-        }
+        },
         Platform::WindowsX64 => {
             OnlineArchive {
-                url: "https://github.com/indygreg/python-build-standalone/releases/download/20240107/cpython-3.9.18+20240107-x86_64-pc-windows-msvc-shared-install_only.tar.gz",
-                sha256: "8f0544cd593984f7ecb90c685931249c579302124b9821064873f3a14ed07005",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-pc-windows-msvc.zip",
+                sha256: "e199b10bef1a7cc540014483e7f60f825a174988f41020e9d2a6b01bd60f0669",
             }
         }
     }
 }
 
-/// Returns the Python binary, which can be used to create venvs.
-/// Downloads if missing.
-pub fn setup_python(build: &mut Build) -> Result<()> {
-    // if changing this, make sure you remove out/pyenv
-    let python_binary = match env::var("PYTHON_BINARY") {
+pub fn setup_uv(build: &mut Build, platform: Platform) -> Result<()> {
+    let uv_binary = match env::var("UV_BINARY") {
         Ok(path) => {
             assert!(
                 Utf8Path::new(&path).is_absolute(),
-                "PYTHON_BINARY must be absolute"
+                "UV_BINARY must be absolute"
             );
             path.into()
         }
         Err(_) => {
             download_and_extract(
                 build,
-                "python",
-                python_archive(build.host_platform),
+                "uv",
+                uv_archive(platform),
                 hashmap! { "bin" => [
-                    if cfg!(windows) { "python.exe" } else { "bin/python3"}
-                ] },
+                with_exe("uv")
+                                ] },
             )?;
-            inputs![":extract:python:bin"]
+            inputs![":extract:uv:bin"]
         }
     };
-    build.add_dependency("python_binary", python_binary);
+    build.add_dependency("uv_binary", uv_binary);
+
     Ok(())
 }
 
 pub struct PythonEnvironment {
-    pub folder: &'static str,
-    pub base_requirements_txt: BuildInput,
-    pub requirements_txt: BuildInput,
+    pub deps: BuildInput,
+    // todo: rename
+    pub venv_folder: &'static str,
+    pub extra_args: &'static str,
     pub extra_binary_exports: &'static [&'static str],
 }
 
 impl BuildAction for PythonEnvironment {
     fn command(&self) -> &str {
         if env::var("OFFLINE_BUILD").is_err() {
-            "$runner pyenv $python_binary $builddir/$pyenv_folder $system_pkgs $base_requirements $requirements"
+            "$runner pyenv $uv_binary $builddir/$pyenv_folder -- $extra_args"
         } else {
             "echo 'OFFLINE_BUILD is set. Using the existing PythonEnvironment.'"
         }
@@ -99,7 +102,7 @@ impl BuildAction for PythonEnvironment {
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         let bin_path = |binary: &str| -> Vec<String> {
-            let folder = self.folder;
+            let folder = self.venv_folder;
             let path = if cfg!(windows) {
                 format!("{folder}/scripts/{binary}.exe")
             } else {
@@ -108,21 +111,24 @@ impl BuildAction for PythonEnvironment {
             vec![path]
         };
 
+        build.add_inputs("", &self.deps);
+        build.add_variable("pyenv_folder", self.venv_folder);
         if env::var("OFFLINE_BUILD").is_err() {
-            build.add_inputs("python_binary", inputs![":python_binary"]);
-            build.add_variable("pyenv_folder", self.folder);
-            build.add_inputs("base_requirements", &self.base_requirements_txt);
-            build.add_inputs("requirements", &self.requirements_txt);
-            build.add_outputs_ext("pip", bin_path("pip"), true);
+            build.add_inputs("uv_binary", inputs![":uv_binary"]);
+
+            // Add --python flag to extra_args if PYTHON_BINARY is set
+            let mut args = self.extra_args.to_string();
+            if let Ok(python_binary) = env::var("PYTHON_BINARY") {
+                args = format!("--python {} {}", python_binary, args);
+            }
+            build.add_variable("extra_args", args);
         }
+
         build.add_outputs_ext("bin", bin_path("python"), true);
         for binary in self.extra_binary_exports {
             build.add_outputs_ext(*binary, bin_path(binary), true);
         }
-    }
-
-    fn check_output_timestamps(&self) -> bool {
-        true
+        build.add_output_stamp(format!("{}/.stamp", self.venv_folder));
     }
 }
 
