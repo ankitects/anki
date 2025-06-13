@@ -15,7 +15,6 @@ camino.workspace = true
 clap.workspace = true
 flate2.workspace = true
 junction.workspace = true
-reqwest = { workspace = true, features = ["rustls-tls", "rustls-tls-native-roots"] }
 sha2.workspace = true
 tar.workspace = true
 termcolor.workspace = true
@@ -24,3 +23,9 @@ which.workspace = true
 xz2.workspace = true
 zip.workspace = true
 zstd.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+reqwest = { workspace = true, features = ["native-tls"] }
+
+[target.'cfg(not(windows))'.dependencies]
+reqwest = { workspace = true, features = ["rustls-tls", "rustls-tls-native-roots"] }

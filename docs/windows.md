@@ -9,7 +9,12 @@ You must be running 64 bit Windows 10, version 1703 or newer.
 **Rustup**:
 
 As mentioned in development.md, rustup must be installed. If you're on
-ARM Windows, you must set the default target to x86_64-pc-windows-msvc.
+ARM Windows and install the ARM64 version of rust-up, from this project folder,
+run
+
+```
+rustup target add x86_64-pc-windows-msvc
+```
 
 **Visual Studio**:
 
