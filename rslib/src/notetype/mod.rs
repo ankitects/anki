@@ -77,6 +77,7 @@ static SPECIAL_FIELDS: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
         "Subdeck",
         "Tags",
         "Type",
+        "CardID",
     ])
 });
 
