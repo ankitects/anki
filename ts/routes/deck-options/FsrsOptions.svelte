@@ -342,8 +342,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 
     <SwitchRow bind:value={$healthCheck} defaultValue={false}>
-        <SettingTitle on:click={() => openHelpModal("deckConfigHealthCheck")}>
-            <GlobalLabel title={tr.deckConfigHealthCheck()} />
+        <SettingTitle on:click={() => openHelpModal("healthCheck")}>
+            <GlobalLabel
+                title={tr.deckConfigSlowSuffix({ text: tr.deckConfigHealthCheck() })}
+            />
         </SettingTitle>
     </SwitchRow>
 
