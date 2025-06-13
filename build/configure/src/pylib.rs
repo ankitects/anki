@@ -50,7 +50,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
             output: &format!(
                 "pylib/anki/_rsbridge.{}",
                 match build.host_platform {
-                    Platform::WindowsX64 => "pyd",
+                    Platform::WindowsX64 | Platform::WindowsArm => "pyd",
                     _ => "so",
                 }
             ),
