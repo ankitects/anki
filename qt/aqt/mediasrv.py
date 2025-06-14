@@ -252,14 +252,8 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
 def _builtin_data(path: str) -> bytes:
     """Return data from file in aqt/data folder.
     Path must use forward slash separators."""
-    # packaged build?
-    if getattr(sys, "frozen", False):
-        reader = aqt.__loader__.get_resource_reader("_aqt")  # type: ignore
-        with reader.open_resource(path) as f:
-            return f.read()
-    else:
-        full_path = aqt_data_path() / ".." / path
-        return full_path.read_bytes()
+    full_path = aqt_data_path() / ".." / path
+    return full_path.read_bytes()
 
 
 def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
