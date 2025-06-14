@@ -11,6 +11,7 @@ import {
     isPointerInBoundingBox,
     stopDraw,
     TEXT_BACKGROUND_COLOR,
+    TEXT_COLOR,
     TEXT_FONT_FAMILY,
     TEXT_PADDING,
 } from "./lib";
@@ -41,6 +42,7 @@ export const drawText = (canvas: fabric.Canvas, onActivated: Callback): void => 
             selectable: true,
             strokeWidth: 1,
             noScaleCache: false,
+            fill: TEXT_COLOR,
             fontFamily: TEXT_FONT_FAMILY,
             backgroundColor: TEXT_BACKGROUND_COLOR,
             padding: TEXT_PADDING,

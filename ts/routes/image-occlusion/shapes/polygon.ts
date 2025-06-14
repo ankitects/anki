@@ -3,6 +3,7 @@
 
 import { fabric } from "fabric";
 
+import { SHAPE_MASK_COLOR } from "../tools/lib";
 import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
@@ -22,6 +23,7 @@ export class Polygon extends Shape {
         return {
             ...super.toDataForCloze(),
             points: this.points.map(({ x, y }) => `${floatToDisplay(x)},${floatToDisplay(y)}`).join(" "),
+            ...(this.fill === SHAPE_MASK_COLOR ? {} : { fill: this.fill }),
         };
     }
 

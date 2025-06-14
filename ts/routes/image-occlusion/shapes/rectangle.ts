@@ -3,6 +3,7 @@
 
 import { fabric } from "fabric";
 
+import { SHAPE_MASK_COLOR } from "../tools/lib";
 import type { ConstructorParams, Size } from "../types";
 import type { ShapeDataForCloze } from "./base";
 import { Shape } from "./base";
@@ -25,6 +26,7 @@ export class Rectangle extends Shape {
             ...super.toDataForCloze(),
             width: floatToDisplay(this.width),
             height: floatToDisplay(this.height),
+            ...(this.fill === SHAPE_MASK_COLOR ? {} : { fill: this.fill }),
         };
     }
 
