@@ -12,6 +12,7 @@ members = [
   "build/runner",
   "ftl",
   "pylib/rsbridge",
+  "qt/bundle/launcher",
   "qt/bundle/mac",
   "qt/bundle/win",
   "rslib",
@@ -23,7 +24,6 @@ members = [
   "rslib/sync",
   "tools/minilints",
 ]
-exclude = ["qt/bundle"]
 resolver = "2"
 
 [workspace.dependencies.percent-encoding-iri]
