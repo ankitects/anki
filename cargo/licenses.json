@@ -406,7 +406,7 @@
   },
   {
     "name": "burn",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn",
     "license": "Apache-2.0 OR MIT",
@@ -415,7 +415,7 @@
   },
   {
     "name": "burn-autodiff",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-autodiff",
     "license": "Apache-2.0 OR MIT",
@@ -424,7 +424,7 @@
   },
   {
     "name": "burn-candle",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "louisfd <louisfd94@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-candle",
     "license": "Apache-2.0 OR MIT",
@@ -433,7 +433,7 @@
   },
   {
     "name": "burn-common",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "Dilshod Tadjibaev (@antimora)",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-common",
     "license": "Apache-2.0 OR MIT",
@@ -442,7 +442,7 @@
   },
   {
     "name": "burn-core",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-core",
     "license": "Apache-2.0 OR MIT",
@@ -451,7 +451,7 @@
   },
   {
     "name": "burn-cubecl",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-cubecl",
     "license": "Apache-2.0 OR MIT",
@@ -460,7 +460,7 @@
   },
   {
     "name": "burn-cuda",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-cuda",
     "license": "Apache-2.0 OR MIT",
@@ -469,7 +469,7 @@
   },
   {
     "name": "burn-dataset",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-dataset",
     "license": "Apache-2.0 OR MIT",
@@ -478,7 +478,7 @@
   },
   {
     "name": "burn-derive",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-derive",
     "license": "Apache-2.0 OR MIT",
@@ -487,7 +487,7 @@
   },
   {
     "name": "burn-ir",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "laggui <lagrange.guillaume.1@gmail.com>|nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-ir",
     "license": "Apache-2.0 OR MIT",
@@ -496,7 +496,7 @@
   },
   {
     "name": "burn-ndarray",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-ndarray",
     "license": "Apache-2.0 OR MIT",
@@ -505,7 +505,7 @@
   },
   {
     "name": "burn-rocm",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-rocm",
     "license": "Apache-2.0 OR MIT",
@@ -514,7 +514,7 @@
   },
   {
     "name": "burn-router",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "laggui <lagrange.guillaume.1@gmail.com>|nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-router",
     "license": "Apache-2.0 OR MIT",
@@ -523,7 +523,7 @@
   },
   {
     "name": "burn-tensor",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-tensor",
     "license": "Apache-2.0 OR MIT",
@@ -532,7 +532,7 @@
   },
   {
     "name": "burn-train",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-train",
     "license": "Apache-2.0 OR MIT",
@@ -541,7 +541,7 @@
   },
   {
     "name": "burn-wgpu",
-    "version": "0.17.0",
+    "version": "0.17.1",
     "authors": "nathanielsimard <nathaniel.simard.42@gmail.com>",
     "repository": "https://github.com/tracel-ai/burn/tree/main/crates/burn-wgpu",
     "license": "Apache-2.0 OR MIT",

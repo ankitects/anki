@@ -34,6 +34,7 @@ impl Collection {
                         .is_ok()
                 },
                 Some(cards),
+                None,
             )?
             .clamp(0.7, 0.95))
     }
