@@ -4,9 +4,9 @@
 set -e
 
 # base folder with Anki.app in it
-dist=$1
-dmg_path=$2
-script_folder=$(dirname $0)
+output="$1"
+dist="$1/tmp"
+dmg_path="$output/Anki.dmg"
 
 if [ -d "/Volumes/Anki" ]
 then
@@ -14,9 +14,14 @@ then
     exit 1
 fi
 
+rm -rf $dist $dmg_path
+mkdir -p $dist
+rsync -av $output/Anki.app $dist/
+script_folder=$(dirname $0)
+
 echo "bundling..."
 ln -s /Applications $dist/Applications
-mkdir $dist/.background
+mkdir -p $dist/.background
 cp ${script_folder}/anki-logo-bg.png $dist/.background
 cp ${script_folder}/dmg_ds_store $dist/.DS_Store
 

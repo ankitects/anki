@@ -5,9 +5,11 @@ set -e
 # Define output path
 OUTPUT_DIR="../../../out/launcher"
 APP_LAUNCHER="$OUTPUT_DIR/Anki.app"
+rm -rf "$APP_LAUNCHER"
 
-# Build rust binary in debug mode
-cargo build -p launcher
+# Build binaries for both architectures
+cargo build -p launcher --release --target aarch64-apple-darwin
+cargo build -p launcher --release --target x86_64-apple-darwin
 (cd ../../.. && ./ninja launcher:uv_universal)
 
 # Ensure output directory exists
@@ -19,9 +21,12 @@ rm -rf "$APP_LAUNCHER"
 # Create app launcher structure
 mkdir -p "$APP_LAUNCHER/Contents/MacOS" "$APP_LAUNCHER/Contents/Resources"
 
-# Copy binaries
+# Copy binaries in
 TARGET_DIR=${CARGO_TARGET_DIR:-target}
-cp $TARGET_DIR/debug/launcher "$APP_LAUNCHER/Contents/MacOS/"
+lipo -create \
+    "$TARGET_DIR/aarch64-apple-darwin/release/launcher" \
+    "$TARGET_DIR/x86_64-apple-darwin/release/launcher" \
+    -output "$APP_LAUNCHER/Contents/MacOS/launcher"
 cp "$OUTPUT_DIR/uv" "$APP_LAUNCHER/Contents/MacOS/"
 
 # Copy support files
@@ -39,3 +44,9 @@ done
 # Check
 codesign -vvv "$APP_LAUNCHER"
 spctl -a "$APP_LAUNCHER"
+
+# Notarize
+./notarize.sh "$OUTPUT_DIR"
+
+# Bundle
+./dmg/build.sh "$OUTPUT_DIR"
