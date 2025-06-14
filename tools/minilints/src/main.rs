@@ -29,8 +29,6 @@ const NONSTANDARD_HEADER: &[&str] = &[
     "./python/write_wheel.py",
     "./qt/aqt/mpv.py",
     "./qt/aqt/winpaths.py",
-    "./qt/bundle/build.rs",
-    "./qt/bundle/src/main.rs",
 ];
 
 const IGNORED_FOLDERS: &[&str] = &[
@@ -38,7 +36,6 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./node_modules",
     "./qt/aqt/forms",
     "./tools/workspace-hack",
-    "./qt/bundle/PyOxidizer",
     "./target",
     ".mypy_cache",
     "./extra",

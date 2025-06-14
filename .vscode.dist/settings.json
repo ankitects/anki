@@ -31,8 +31,7 @@
     "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
     "search.exclude": {
         "**/node_modules": true,
-        ".bazel/**": true,
-        "qt/bundle/PyOxidizer": true
+        ".bazel/**": true
     },
     "rust-analyzer.cargo.buildScripts.enable": true,
     "python.analysis.typeCheckingMode": "off",
