@@ -49,7 +49,6 @@ export class Shape {
             left: floatToDisplay(this.left),
             top: floatToDisplay(this.top),
             ...(!angle ? {} : { angle: angle.toString() }),
-            ...(this.fill === SHAPE_MASK_COLOR ? {} : { fill: this.fill }),
         };
     }
 
