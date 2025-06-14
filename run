@@ -8,6 +8,7 @@ export PYTHONPYCACHEPREFIX=out/pycache
 export ANKIDEV=${ANKIDEV-1}
 export QTWEBENGINE_REMOTE_DEBUGGING=${QTWEBENGINE_REMOTE_DEBUGGING-8080}
 export QTWEBENGINE_CHROMIUM_FLAGS=${QTWEBENGINE_CHROMIUM_FLAGS---remote-allow-origins=http://localhost:$QTWEBENGINE_REMOTE_DEBUGGING}
+export PYENV=${PYENV-out/pyenv}
 
 # The pages can be accessed by, e.g. surfing to
 # http://localhost:40000/_anki/pages/deckconfig.html
@@ -16,4 +17,4 @@ export ANKI_API_PORT=${ANKI_API_PORT-40000}
 export ANKI_API_HOST=${ANKI_API_HOST-127.0.0.1}
 
 ./ninja pylib qt
-./out/pyenv/bin/python tools/run.py $*
+${PYENV}/bin/python tools/run.py $*

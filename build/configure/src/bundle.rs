@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
 use std::env;
 
 use anyhow::Result;
@@ -44,21 +47,21 @@ impl DistKind {
     }
 }
 
-pub fn build_bundle(build: &mut Build) -> Result<()> {
+pub fn build_bundle(_build: &mut Build) -> Result<()> {
     // install into venv
-    setup_primary_venv(build)?;
-    install_anki_wheels(build)?;
+    // setup_primary_venv(build)?;
+    // install_anki_wheels(build)?;
 
-    // bundle venv into output binary + extra_files
-    build_pyoxidizer(build)?;
-    build_artifacts(build)?;
-    build_binary(build)?;
+    // // bundle venv into output binary + extra_files
+    // build_pyoxidizer(build)?;
+    // build_artifacts(build)?;
+    // build_binary(build)?;
 
-    // package up outputs with Qt/other deps
-    download_dist_folder_deps(build)?;
-    build_dist_folder(build, DistKind::Standard)?;
+    // // package up outputs with Qt/other deps
+    // download_dist_folder_deps(build)?;
+    // build_dist_folder(build, DistKind::Standard)?;
 
-    build_packages(build)?;
+    // build_packages(build)?;
 
     Ok(())
 }
@@ -154,25 +157,25 @@ const PRIMARY_VENV: Venv = Venv {
     path_without_builddir: "bundle/pyenv",
 };
 
-fn setup_primary_venv(build: &mut Build) -> Result<()> {
-    let mut qt6_reqs = inputs![
-        "python/requirements.bundle.txt",
-        "python/requirements.qt6_6.txt",
-    ];
-    if cfg!(windows) {
-        qt6_reqs = inputs![qt6_reqs, "python/requirements.win.txt"];
-    }
-    build.add_action(
-        PRIMARY_VENV.label,
-        PythonEnvironment {
-            folder: PRIMARY_VENV.path_without_builddir,
-            base_requirements_txt: "python/requirements.base.txt".into(),
-            requirements_txt: qt6_reqs,
-            extra_binary_exports: &[],
-        },
-    )?;
-    Ok(())
-}
+// fn setup_primary_venv(build: &mut Build) -> Result<()> {
+//     let mut qt6_reqs = inputs![
+//         "python/requirements.bundle.txt",
+//         "python/requirements.qt6_6.txt",
+//     ];
+//     if cfg!(windows) {
+//         qt6_reqs = inputs![qt6_reqs, "python/requirements.win.txt"];
+//     }
+//     build.add_action(
+//         PRIMARY_VENV.label,
+//         PythonEnvironment {
+//             venv_folder: PRIMARY_VENV.path_without_builddir,
+//             base_requirements_txt: "python/requirements.base.txt".into(),
+//             requirements_txt: qt6_reqs,
+//             extra_binary_exports: &[],
+//         },
+//     )?;
+//     Ok(())
+// }
 
 struct InstallAnkiWheels {
     venv: Venv,

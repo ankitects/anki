@@ -1,9 +1,0 @@
-beautifulsoup4
-decorator
-markdown
-orjson
-protobuf>=4.21
-requests[socks]
-distro; sys_platform != "darwin" and sys_platform != "win32"
-psutil; sys_platform == "win32"
-typing_extensions
