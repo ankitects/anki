@@ -659,9 +659,9 @@ checksum = "1628fb46dfa0b37568d12e5edd512553eccf6a22a78e8bde00bb4aed84d5bdbf"
 
 [[package]]
 name = "burn"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57dc51cb3c3dda2a055a2c41a56b337232c2c85cceef7bf1d0ef0cd9ada30b0b"
+checksum = "ec639306f45bd663957465e840cfb07bcd2ae18f7c045dd9aba8cb7a69c0654a"
 dependencies = [
  "burn-autodiff",
  "burn-candle",
@@ -676,9 +676,9 @@ dependencies = [
 
 [[package]]
 name = "burn-autodiff"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66382a92cd12f1c3c9b9f2d9afa3ee78e04347ada628340500622d7640d56ae9"
+checksum = "a178966322ab7ce71405f1324cdc14f79256d85a47138bbd2c8c4f0056148601"
 dependencies = [
  "burn-common",
  "burn-tensor",
@@ -692,9 +692,9 @@ dependencies = [
 
 [[package]]
 name = "burn-candle"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80408838316581095207a424d9bf4c7e8cbffc3cbc24da679c9b70be155d78ad"
+checksum = "9ed0981b3c1d07e9df0f5bef1042921b6db6e88b5d91916fa5dbdd7f0ca921c3"
 dependencies = [
  "burn-tensor",
  "candle-core",
@@ -704,9 +704,9 @@ dependencies = [
 
 [[package]]
 name = "burn-common"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9bcc4cfe21815abde8fb228687536a8a6fc5a3bcb6d3ef715e962a9d57cbcca"
+checksum = "1c3fae76798ea4dd14e6290b6753eb6235ac28c6ceaf6da35ff8396775d5494d"
 dependencies = [
  "cubecl-common",
  "rayon",
@@ -715,9 +715,9 @@ dependencies = [
 
 [[package]]
 name = "burn-core"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b101aaf9ac402ae1a2a1cb4dc375161a3e3e995e588bea567f34d7a0d4bb783a"
+checksum = "2afa81c868c1a9b3fad25c31176945d0cc5181ba7b77c0456bc05cf57fca975c"
 dependencies = [
  "ahash",
  "bincode",
@@ -743,9 +743,9 @@ dependencies = [
 
 [[package]]
 name = "burn-cubecl"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec1aaa4c832ccd15fe0372a8100a23a0987d6ed84a9879a3dc42b0a69d88c2a5"
+checksum = "c547cbe414274ab4022abcc85993e1e41aa7cdccc92395ba5658acfdac285e07"
 dependencies = [
  "burn-common",
  "burn-ir",
@@ -767,9 +767,9 @@ dependencies = [
 
 [[package]]
 name = "burn-cuda"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "982b12c42fde50aa57bb700cdac8a926846e4e3bda450539b862c256ebbec782"
+checksum = "995bd0b3f52a4cfe0cfe47c16b40b3fd33285d17a086dd583e5b432074857e02"
 dependencies = [
  "burn-cubecl",
  "burn-tensor",
@@ -782,9 +782,9 @@ dependencies = [
 
 [[package]]
 name = "burn-dataset"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9d5c3da8b6d6903aed74321599843f5aca008c72977201676abbd1dca4e5e4c"
+checksum = "136c784dfc474c822f34d69e865f88a5675e9de9803ef38cee4ce14cdba34d54"
 dependencies = [
  "csv",
  "derive-new 0.7.0",
@@ -801,9 +801,9 @@ dependencies = [
 
 [[package]]
 name = "burn-derive"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03cb5fe6b202e86dcb00ee2a415f34d0bfdd7658cde80ac19ff8c4e6baba7031"
+checksum = "12e9f07ccc658ef072bce2e996f0c38c80ee4c241598b6557afe1877dd87ae98"
 dependencies = [
  "derive-new 0.7.0",
  "proc-macro2",
@@ -813,9 +813,9 @@ dependencies = [
 
 [[package]]
 name = "burn-ir"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f23a288203334c9c40f8606263cdb79d84ebbe408b96d9aea0e36d0b237a8e4"
+checksum = "d63629f2c8b82ee52dbb9c18becded5117c2faf57365dc271a55c16d139cd91a"
 dependencies = [
  "burn-tensor",
  "hashbrown 0.15.2",
@@ -825,9 +825,9 @@ dependencies = [
 
 [[package]]
 name = "burn-ndarray"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd950877f789f294214f9deda18f5e900a1372d3e75ba129afbec634e8d0a113"
+checksum = "7e883846578e6915e1dbaeeb5bce32cc04cff03e7cb79c5836e1e888bbce974f"
 dependencies = [
  "atomic_float",
  "burn-autodiff",
@@ -851,9 +851,9 @@ dependencies = [
 
 [[package]]
 name = "burn-rocm"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1852e36e662dbfaf05adb69404b5967e8435e20f00a07660329c8f2e4c5e49ea"
+checksum = "bd39d58202558b65b575921b57bff933845e6171296e2b8faf6a9d3610a344c5"
 dependencies = [
  "burn-cubecl",
  "burn-tensor",
@@ -866,9 +866,9 @@ dependencies = [
 
 [[package]]
 name = "burn-router"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12a4e9f7100722312bdb772018e711aed8482eafa291be34a658775ca747713b"
+checksum = "22ed8614e180f7a58f77e658bd52e206d2f4a1ee37fcb4665c635ea9da90ea8b"
 dependencies = [
  "burn-common",
  "burn-ir",
@@ -880,9 +880,9 @@ dependencies = [
 
 [[package]]
 name = "burn-tensor"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c597b733f75cef016a0aa4ecc72879fd12efb3f75e9ec0843d6989c2b854cc8e"
+checksum = "2a70d1562c0d00083939e34daad61dabebb0f8bc8c250d1ef2f5efc31eb93aaf"
 dependencies = [
  "burn-common",
  "bytemuck",
@@ -900,9 +900,9 @@ dependencies = [
 
 [[package]]
 name = "burn-train"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fde5d0de24bb8e46f674a723591649f63cd721e1ba9d8f43de805396711209f1"
+checksum = "140182cf5f1255d60e1d8c677fa45c6f71018c3c3c66aad093a9e4c3c222cf1c"
 dependencies = [
  "async-channel",
  "burn-core",
@@ -921,9 +921,9 @@ dependencies = [
 
 [[package]]
 name = "burn-wgpu"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "781f379aee5cf5b13d40f5bb0efbcb99aca9d1882bd0e4e65e3f9659af0cd7e3"
+checksum = "215bf0e641a27e17bcd3941a11867dcda411c9cb009488c6b6650c8206437c30"
 dependencies = [
  "burn-cubecl",
  "burn-tensor",
@@ -2295,7 +2295,8 @@ dependencies = [
 [[package]]
 name = "fsrs"
 version = "4.0.0"
-source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=a7f7efc10f0a26b14ee348cc7402155685f2a24f#a7f7efc10f0a26b14ee348cc7402155685f2a24f"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba2a3f0432b200326eed062fdcf5b1cef82ab9ba6635021a45f355ccca187ca3"
 dependencies = [
  "burn",
  "itertools 0.14.0",
