@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import html
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -191,7 +192,7 @@ class Overview:
             self._show_finished_screen()
             return
         content = OverviewContent(
-            deck=deck["name"],
+            deck=html.escape(deck["name"]),
             shareLink=shareLink,
             desc=self._desc(deck),
             table=self._table(),
