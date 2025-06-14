@@ -26,6 +26,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+audio = [
+  "anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'",
+]
 qt66 = [
   "pyqt6==6.6.1",
   "pyqt6-qt6==6.6.2",

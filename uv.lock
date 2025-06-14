@@ -81,6 +81,16 @@ requires-dist = [
 ]
 
 [[package]]
+name = "anki-audio"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/66/c7/b4c86d89c51d5bdcfc21bffc58be96b84075cff24b6d6fa0276a699084ff/anki_audio-0.1.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:249e3f7837366f8da3414139282f85df6fe65def2e1f76c2360ea88e03868f6b", size = 29453537, upload-time = "2025-06-13T10:48:32.337Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/38/af4dd671296cf68fb7b793d7f16845b074f5662f8e8653146ae950a149a0/anki_audio-0.1.0-cp39-abi3-macosx_11_0_x86_64.whl", hash = "sha256:a0b383880eaa8e27a028aa6ae50c4b95f6079044af5ec8a89ee870def21df9a5", size = 22586305, upload-time = "2025-06-13T10:48:45.557Z" },
+    { url = "https://files.pythonhosted.org/packages/74/2b/5dd9b82faa27e04c9052232171de78ea4434dc384df859aa84e6dae8d468/anki_audio-0.1.0-py3-none-win_amd64.whl", hash = "sha256:b48b2537879769e03e9f4b87d7c37ef9d9fa2e5470e2116471d709666b615773", size = 31996219, upload-time = "2025-06-13T10:48:57.562Z" },
+]
+
+[[package]]
 name = "anki-dev"
 version = "0.0.0"
 source = { virtual = "." }
@@ -154,6 +164,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+audio = [
+    { name = "anki-audio", marker = "sys_platform == 'darwin' or sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68')" },
+]
 qt = [
     { name = "pyqt6", version = "6.7.1", source = { registry = "https://pypi.org/simple" } },
     { name = "pyqt6-qt6", version = "6.7.3", source = { registry = "https://pypi.org/simple" } },
@@ -178,6 +191,7 @@ qt68 = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.1.0" },
     { name = "beautifulsoup4", specifier = "==4.12.3" },
     { name = "flask" },
     { name = "flask-cors" },
@@ -213,7 +227,7 @@ requires-dist = [
     { name = "types-waitress" },
     { name = "waitress", specifier = ">=2.0.0" },
 ]
-provides-extras = ["qt", "qt66", "qt68"]
+provides-extras = ["audio", "qt", "qt66", "qt68"]
 
 [[package]]
 name = "astroid"
@@ -544,7 +558,7 @@ name = "importlib-metadata"
 version = "8.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp" },
+    { name = "zipp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/76/66/650a33bd90f786193e4de4b3ad86ea60b53c89b669a5c7be931fac31cdb0/importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000", size = 56641, upload-time = "2025-04-27T15:29:01.736Z" }
 wheels = [
