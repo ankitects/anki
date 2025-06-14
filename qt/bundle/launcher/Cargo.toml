@@ -1,0 +1,7 @@
+[package]
+name = "launcher"
+version = "1.0.0"
+edition = "2024"
+
+[dependencies]
+dirs = "5.0"
