@@ -87,7 +87,10 @@ fn main() {
         // Pre-validate by running --version to trigger any Gatekeeper checks
         let anki_bin = uv_install_root.join(".venv/bin/anki");
         println!("\n\x1B[1mThis may take a few minutes. Please wait...\x1B[0m");
-        let _ = Command::new(&anki_bin).arg("--version").output();
+        let _ = Command::new(&anki_bin)
+            .env("ANKI_FIRST_RUN", "1")
+            .arg("--version")
+            .status();
 
         // Then launch the binary as detached subprocess so the terminal can close
         let child = Command::new(&anki_bin)
@@ -98,7 +101,6 @@ fn main() {
             .spawn()
             .unwrap();
         std::mem::forget(child);
-        println!("Anki launched successfully");
     } else {
         // If venv already existed, exec as normal
         println!(
