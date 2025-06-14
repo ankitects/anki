@@ -1587,6 +1587,47 @@ class EditorWebView(AnkiWebView):
 
         self.editor.doDrop(html, internal, extended, cursor_pos)
 
+    def _processSingleImageHtml(self, mime: QMimeData, extended):
+        if not mime.hasHtml():
+            return None
+
+        html_content = mime.html()
+
+        # Unwraps fragment data.
+        try:
+            html_content = html_content[
+                html_content.index("<!--StartFragment-->")
+                + 20 : html_content.rindex("<!--EndFragment-->")
+            ]
+            if not html_content:
+                # maybe malformed html?
+                return None
+        except ValueError:
+            return None
+
+        bs = BeautifulSoup(html_content, "html.parser")
+        tags = bs.find_all()
+        if len(tags) == 1 and tags[0].name.lower() == "img":
+            img_tag = tags[0]
+
+            try:
+                src = img_tag["src"]
+            except KeyError:
+                return None
+
+            if self.editor.isURL(src):
+                fname = self.editor._retrieveURL(src)
+                if fname:
+                    img_tag["src"] = fname
+                    return str(img_tag)
+
+                else:
+                    image_html = self._processImage(mime, extended)
+                    if image_html:
+                        return image_html
+
+        return None
+
     # returns (html, isInternal)
     def _processMime(
         self, mime: QMimeData, extended: bool = False, drop_event: bool = False
@@ -1602,6 +1643,10 @@ class EditorWebView(AnkiWebView):
         mime = gui_hooks.editor_will_process_mime(
             mime, self, internal, extended, drop_event
         )
+
+        image_html = self._processSingleImageHtml(mime, extended)
+        if image_html:
+            return image_html, True
 
         # try various content types in turn
         if mime.hasHtml():
