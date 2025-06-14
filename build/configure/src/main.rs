@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod aqt;
-mod bundle;
+mod launcher;
 mod platform;
 mod pylib;
 mod python;
@@ -13,13 +13,12 @@ use std::env;
 
 use anyhow::Result;
 use aqt::build_and_check_aqt;
-use bundle::build_bundle;
+use launcher::build_launcher;
 use ninja_gen::glob;
 use ninja_gen::inputs;
 use ninja_gen::protobuf::check_proto;
 use ninja_gen::protobuf::setup_protoc;
 use ninja_gen::python::setup_uv;
-use ninja_gen::python::setup_uv_universal;
 use ninja_gen::Build;
 use platform::overriden_python_target_platform;
 use pylib::build_pylib;
@@ -62,8 +61,7 @@ fn main() -> Result<()> {
     build_and_check_aqt(build)?;
 
     if env::var("OFFLINE_BUILD").is_err() {
-        setup_uv_universal(build)?;
-        build_bundle(build)?;
+        build_launcher(build)?;
     }
 
     setup_sphinx(build)?;
