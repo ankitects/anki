@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-import os
 import atexit
 import logging
+import os
 import sys
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Union, cast
@@ -46,7 +46,6 @@ import builtins
 import cProfile
 import getpass
 import locale
-import os
 import tempfile
 import traceback
 from pathlib import Path

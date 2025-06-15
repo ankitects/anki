@@ -19,7 +19,7 @@ for arch in architectures:
     target = f"{arch}-apple-macos11"
     temp_out = out_dir / f"temp_{arch}.dylib"
     temp_files.append(temp_out)
-    
+
     args = [
         "swiftc",
         "-target",
