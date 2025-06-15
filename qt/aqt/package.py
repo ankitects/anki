@@ -52,3 +52,5 @@ def first_run_setup() -> None:
         _dot()
         cmd[0] = audio_pkg_path / cmd_name
         subprocess.run(cmd, check=True, capture_output=True)
+
+    print()
