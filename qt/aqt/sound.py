@@ -283,19 +283,20 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     if is_win or is_mac:
         try:
             import anki_audio
+
             audio_pkg_path = Path(anki_audio.__file__).parent
             if is_win:
                 packaged_path = audio_pkg_path / (cmd[0] + ".exe")
             else:  # is_mac
                 packaged_path = audio_pkg_path / cmd[0]
-            
+
             if packaged_path.exists():
                 cmd[0] = str(packaged_path)
                 return cmd, env
         except ImportError:
             # anki-audio not available, fall back to old behavior
             pass
-    
+
     packaged_path = Path(sys.prefix) / cmd[0]
     if packaged_path.exists():
         cmd[0] = str(packaged_path)
