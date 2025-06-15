@@ -1,36 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-#![allow(dead_code)]
-#![allow(unused_imports)]
-
-use std::env;
-
 use anyhow::Result;
-use ninja_gen::action::BuildAction;
 use ninja_gen::archives::download_and_extract;
 use ninja_gen::archives::empty_manifest;
-use ninja_gen::archives::with_exe;
 use ninja_gen::archives::OnlineArchive;
-use ninja_gen::archives::Platform;
-use ninja_gen::build::BuildProfile;
-use ninja_gen::cargo::CargoBuild;
-use ninja_gen::cargo::RustOutput;
 use ninja_gen::command::RunCommand;
-use ninja_gen::git::SyncSubmodule;
-use ninja_gen::glob;
 use ninja_gen::hashmap;
-use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
-use ninja_gen::python::PythonEnvironment;
 use ninja_gen::Build;
-use ninja_gen::Utf8Path;
-
-use crate::anki_version;
-use crate::platform::overriden_python_target_platform;
-use crate::platform::overriden_rust_target_triple;
 
 pub fn setup_uv_universal(build: &mut Build) -> Result<()> {
+    if !cfg!(target_arch = "aarch64") {
+        return Ok(());
+    }
+
     build.add_action(
         "launcher:uv_universal",
         RunCommand {

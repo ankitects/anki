@@ -35,6 +35,9 @@
     },
     "rust-analyzer.cargo.buildScripts.enable": true,
     "python.analysis.typeCheckingMode": "off",
+    "python.analysis.exclude": [
+        "out/launcher/**"
+    ],
     "terminal.integrated.env.windows": {
         "PATH": "c:\\msys64\\usr\\bin;${env:Path}"
     }

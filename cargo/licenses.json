@@ -3906,6 +3906,15 @@
     "description": "Derive Serialize and Deserialize that delegates to the underlying repr of a C-like enum."
   },
   {
+    "name": "serde_spanned",
+    "version": "0.6.9",
+    "authors": null,
+    "repository": "https://github.com/toml-rs/toml",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Serde-compatible spanned Value"
+  },
+  {
     "name": "serde_tuple",
     "version": "0.5.0",
     "authors": "Jacob Brown <kardeiz@gmail.com>",
@@ -4453,6 +4462,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Yet another format-preserving TOML parser."
+  },
+  {
+    "name": "toml_write",
+    "version": "0.1.2",
+    "authors": null,
+    "repository": "https://github.com/toml-rs/toml",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A low-level interface for writing out TOML"
   },
   {
     "name": "tower",
