@@ -8,7 +8,7 @@
 import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import { dayLabel, timeSpan } from "@tslib/time";
+import { dayLabel, timeSpan, TimespanUnit } from "@tslib/time";
 import type { Bin, ScaleSequential } from "d3";
 import {
     area,
@@ -141,7 +141,7 @@ export function renderReviews(
 
     const yTickFormat = (n: number): string => {
         if (showTime) {
-            return timeSpan(n / 1000, true);
+            return timeSpan(n / 1000, true, false, TimespanUnit.Hours);
         } else {
             if (Math.round(n) != n) {
                 return "";
@@ -205,7 +205,7 @@ export function renderReviews(
 
     function valueLabel(n: number): string {
         if (showTime) {
-            return timeSpan(n / 1000);
+            return timeSpan(n / 1000, false, true, TimespanUnit.Hours);
         } else {
             return tr.statisticsReviews({ reviews: n });
         }
@@ -340,7 +340,7 @@ export function renderReviews(
         averageAnswerTime: string,
         averageAnswerTimeLabel: string;
     if (showTime) {
-        totalString = timeSpan(total / 1000, false);
+        totalString = timeSpan(total / 1000, false, true, TimespanUnit.Hours);
         averageForDaysStudied = tr.statisticsMinutesPerDay({
             count: Math.round(studiedAvg / 1000 / 60),
         });
