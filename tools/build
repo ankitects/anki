@@ -1,5 +1,6 @@
 #!/bin/bash
 
 set -e
-RELEASE=1 ./ninja wheels
+rm -rf out/wheels/*
+RELEASE=2 ./ninja wheels
 echo "wheels are in out/wheels"
