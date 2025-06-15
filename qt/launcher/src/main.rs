@@ -19,6 +19,8 @@ fn main() {
     let resources_dir = exe_dir.parent().unwrap().join("Resources");
     let dist_pyproject_path = resources_dir.join("pyproject.toml");
     let user_pyproject_path = uv_install_root.join("pyproject.toml");
+    let dist_python_version_path = resources_dir.join(".python-version");
+    let user_python_version_path = uv_install_root.join(".python-version");
 
     let pyproject_has_changed =
         !user_pyproject_path.exists() || !sync_complete_marker.exists() || {
@@ -58,6 +60,7 @@ fn main() {
         std::fs::create_dir_all(&uv_install_root).unwrap();
         if !user_pyproject_path.exists() {
             std::fs::copy(&dist_pyproject_path, &user_pyproject_path).unwrap();
+            std::fs::copy(&dist_python_version_path, &user_python_version_path).unwrap();
         }
 
         // Remove sync marker before attempting sync
