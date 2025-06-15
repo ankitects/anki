@@ -1,7 +1,26 @@
 [package]
 name = "launcher"
 version = "1.0.0"
-edition = "2024"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
 
 [dependencies]
-dirs = "5.0"
+anki_io.workspace = true
+anki_process.workspace = true
+anyhow.workspace = true
+dirs.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+winapi.workspace = true
+libc.workspace = true
+libc-stdhandle.workspace = true
+
+[[bin]]
+name = "build_win"
+path = "src/bin/build_win.rs"
+
+[target.'cfg(windows)'.build-dependencies]
+embed-resource.workspace = true

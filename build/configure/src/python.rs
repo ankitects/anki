@@ -113,8 +113,8 @@ impl BuildAction for BuildWheel {
         // Calculate the wheel filename that uv will generate
         let tag = if let Some(platform) = self.platform {
             let platform_tag = match platform {
-                Platform::LinuxX64 => "manylinux_2_35_x86_64",
-                Platform::LinuxArm => "manylinux_2_35_aarch64",
+                Platform::LinuxX64 => "manylinux_2_36_x86_64",
+                Platform::LinuxArm => "manylinux_2_36_aarch64",
                 Platform::MacX64 => "macosx_12_0_x86_64",
                 Platform::MacArm => "macosx_12_0_arm64",
                 Platform::WindowsX64 => "win_amd64",

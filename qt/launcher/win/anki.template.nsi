@@ -23,8 +23,8 @@ Name "Anki"
 
 Unicode true
 
-; The file to write (make relative to repo root instead of out/bundle)
-OutFile "..\..\@@INSTALLER@@"
+; The file to write (relative to nsis directory)
+OutFile "..\launcher_exe\anki-install.exe"
 
 ; Non elevated
 RequestExecutionLevel user
@@ -62,7 +62,7 @@ Function .onInit
 FunctionEnd
 
 !ifdef WRITE_UNINSTALLER
-!uninstfinalize 'copy "%1" "std\uninstall.exe"'
+!uninstfinalize 'copy "%1" "uninstall.exe"'
 !endif
 
 ;--------------------------------
@@ -191,7 +191,7 @@ Section ""
 
   ; Add files to installer
   !ifndef WRITE_UNINSTALLER
-  File /r ..\..\@@SRC@@\*.*
+  File /r ..\launcher\*.*
   !endif
 
   !insertmacro APP_ASSOCIATE_HKCU "apkg" "anki.apkg" \
@@ -213,8 +213,8 @@ Section ""
   WriteRegStr HKCU Software\Anki "Install_Dir64" "$INSTDIR"
 
   ; Write the uninstall keys for Windows
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayName" "Anki"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayVersion" "@@VERSION@@"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayName" "Anki Launcher"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayVersion" "1.0.0"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "NoModify" 1
@@ -252,8 +252,14 @@ Section "Uninstall"
   !insertmacro APP_UNASSOCIATE_HKCU "ankiaddon" "anki.ankiaddon"
   !insertmacro UPDATEFILEASSOC
 
+  ; Schedule uninstaller for deletion on reboot
+  Delete /REBOOTOK "$INSTDIR\uninstall.exe"
+  
   ; try to remove top level folder if empty
   RMDir "$INSTDIR"
+
+  ; Remove AnkiProgramData folder created during runtime
+  RMDir /r "$LOCALAPPDATA\AnkiProgramFiles"
 
   ; Remove registry keys
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki"

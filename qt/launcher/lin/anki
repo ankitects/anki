@@ -1,0 +1,30 @@
+#!/bin/bash
+# Universal Anki launcher script
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Determine architecture
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64|amd64)
+        LAUNCHER="$SCRIPT_DIR/launcher.amd64"
+        ;;
+    aarch64|arm64)
+        LAUNCHER="$SCRIPT_DIR/launcher.arm64"
+        ;;
+    *)
+        echo "Error: Unsupported architecture: $ARCH"
+        echo "Supported architectures: x86_64, aarch64"
+        exit 1
+        ;;
+esac
+
+# Check if launcher exists
+if [ ! -f "$LAUNCHER" ]; then
+    echo "Error: Launcher not found: $LAUNCHER"
+    exit 1
+fi
+
+# Execute the appropriate launcher with all arguments
+exec "$LAUNCHER" "$@"

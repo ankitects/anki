@@ -1,7 +1,13 @@
 #!/bin/bash
+
 set -e
 
-# Get the project root (two levels up from qt/bundle)
+test -f update-release.sh || {
+  echo "run from release folder"
+  exit 1
+}
+
+# Get the project root (two levels up from qt/release)
 PROJ_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
 # Use extracted uv binary
@@ -10,15 +16,13 @@ UV="$PROJ_ROOT/out/extracted/uv/uv"
 # Prompt for wheel version
 read -p "Wheel version: " VERSION
 
-# Create release directory if it doesn't exist
-mkdir -p release
-
 # Export dependencies using uv
 echo "Exporting dependencies..."
+rm -f pyproject.toml
 DEPS=$("$UV" export --no-hashes --no-annotate --no-header --extra audio --extra qt --all-packages --no-dev --no-emit-workspace)
 
 # Generate the pyproject.toml file
-cat > release/pyproject.toml << EOF
+cat > pyproject.toml << EOF
 [project]
 name = "anki-release"
 version = "$VERSION"
@@ -32,12 +36,12 @@ EOF
 # Add the exported dependencies to the file
 echo "$DEPS" | while IFS= read -r line; do
     if [[ -n "$line" ]]; then
-        echo "  \"$line\"," >> release/pyproject.toml
+        echo "  \"$line\"," >> pyproject.toml
     fi
 done
 
 # Complete the pyproject.toml file
-cat >> release/pyproject.toml << 'EOF'
+cat >> pyproject.toml << 'EOF'
 ]
 
 [[tool.uv.index]]
@@ -55,4 +59,4 @@ build-backend = "hatchling.build"
 include = ["no-such-file"]
 EOF
 
-echo "Generated release/pyproject.toml with version $VERSION"
+echo "Generated pyproject.toml with version $VERSION"

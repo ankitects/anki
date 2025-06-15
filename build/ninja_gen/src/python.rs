@@ -87,14 +87,27 @@ pub fn setup_uv(build: &mut Build, platform: Platform) -> Result<()> {
     build.add_dependency("uv_binary", uv_binary);
 
     // Our macOS packaging needs access to the x86 binary on ARM.
-    download_and_extract(
-        build,
-        "uv_mac_x86",
-        uv_archive(Platform::MacX64),
-        hashmap! { "bin" => [
-            with_exe("uv")
-        ] },
-    )?;
+    if cfg!(target_arch = "aarch64") {
+        download_and_extract(
+            build,
+            "uv_mac_x86",
+            uv_archive(Platform::MacX64),
+            hashmap! { "bin" => [
+                with_exe("uv")
+            ] },
+        )?;
+    }
+    // Our Linux packaging needs access to the ARM binary on x86
+    if cfg!(target_arch = "x86_64") {
+        download_and_extract(
+            build,
+            "uv_lin_arm",
+            uv_archive(Platform::LinuxArm),
+            hashmap! { "bin" => [
+                with_exe("uv")
+            ] },
+        )?;
+    }
 
     Ok(())
 }

@@ -13,7 +13,7 @@ fi
 
 rm -rf "$PREFIX"/share/anki "$PREFIX"/bin/anki
 mkdir -p "$PREFIX"/share/anki
-cp -av --no-preserve=owner,context -- * "$PREFIX"/share/anki/
+cp -av --no-preserve=owner,context -- * .python-version "$PREFIX"/share/anki/
 mkdir -p "$PREFIX"/bin
 ln -sf "$PREFIX"/share/anki/anki "$PREFIX"/bin/anki
 # fix a previous packaging issue where we created this as a file
