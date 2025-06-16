@@ -1,7 +1,9 @@
 from collections import defaultdict
-from typing import Dict
+from typing import Dict, Union
 from anki.collection import Collection
-def analyze_activity(col: Collection, days: int = 30) -> dict[str, int | float]:
+
+def analyze_activity(col: Collection, days: int = 30) -> dict[str, Union[int, float]]:
+
     day_cutoff = col.sched.day_cutoff
     start_time = day_cutoff - days * 86400
     start_ts = start_time * 1000  # ms

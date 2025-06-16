@@ -70,7 +70,7 @@ class Overview:
         layout = self.web.layout()
         if layout is not None:
             layout = self.web.layout()
-            if hasattr(layout, "insertWidget"):
+            if layout is not None and hasattr(layout, "insertWidget"):
                 layout.insertWidget(0, streak_widget)
 
     def show(self) -> None:
