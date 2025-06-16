@@ -5,6 +5,17 @@
 
 from __future__ import annotations
 
+import sys, os
+
+# Dynamisch den Pfad zu 'anki_helpers' ergänzen
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+anki_helpers_path = os.path.join(project_root, "anki")
+sys.path.insert(0, anki_helpers_path)
+
+from anki_helpers.activity import analyze_activity
+
+
+
 import json
 import random
 import time
@@ -140,7 +151,11 @@ body { direction: ltr !important; }
     ######################################################################
 
     def todayStats(self) -> str:
+
+        print("todayStats wurde aufgerufen")
         b = self._title("Today")
+
+
         # studied today
         lim = self._revlogLimit()
         if lim:
@@ -156,7 +171,7 @@ sum(case when type = {REVLOG_CRAM} then 1 else 0 end) /* filter */
 from revlog where type != {REVLOG_RESCHED} and id > ? """
             + lim,
             (self.col.sched.day_cutoff - 86400) * 1000,
-        )
+            )
         cards = cards or 0
         thetime = thetime or 0
         failed = failed or 0
@@ -191,7 +206,7 @@ from revlog where type != {REVLOG_RESCHED} and id > ? """
     where lastIvl >= 21 and id > ?"""
                 + lim,
                 (self.col.sched.day_cutoff - 86400) * 1000,
-            )
+                )
             b += "<br>"
             if mcnt:
                 b += "Correct answers on mature cards: %(a)d/%(b)d (%(c).1f%%)" % dict(
@@ -201,7 +216,22 @@ from revlog where type != {REVLOG_RESCHED} and id > ? """
                 b += "No mature cards were studied today."
         else:
             b += "No cards have been studied today."
+
+        activity = analyze_activity(self.col)
+        b += "<hr><b>Activity (last 30 days):</b><br>"
+        b += f"Active days: {activity['active_days']}<br>"
+        b += f"Average/day: {activity['average_per_day']}<br>"
+        b += f"Low activity days: {activity['low_days']}<br>"
+        b += "<br><b>TEST123 - wird dieser Text angezeigt?</b><br>"
+        b += "<hr><h3 style='color:red'>TEST123 sichtbar?</h3><br>"
+        b += "<hr><b>Activity (last 30 days):</b><br>"
+        b += "Active days: 10<br>"
+        b += "Average/day: 5.5<br>"
+        b += "Low activity days: 3<br>"
+
+
         return b
+
 
     # Due and cumulative due
     ######################################################################
@@ -281,13 +311,13 @@ select count() from cards where did in %s and queue in ({QUEUE_TYPE_REV},{QUEUE_
 and due = ?"""
             % self._limit(),
             self.col.sched.today + 1,
-        )
+            )
         tomorrow = "%d cards" % tomorrow
         self._line(i, "Due tomorrow", tomorrow)
         return self._lineTbl(i)
 
     def _due(
-        self, start: int | None = None, end: int | None = None, chunk: int = 1
+            self, start: int | None = None, end: int | None = None, chunk: int = 1
     ) -> Any:
         lim = ""
         if start is not None:
@@ -306,7 +336,7 @@ group by day order by day"""
             % (self._limit(), lim),
             self.col.sched.today,
             chunk,
-        )
+            )
 
     # Added, reps and time spent
     ######################################################################
@@ -406,13 +436,13 @@ group by day order by day"""
         return self._section(txt1) + self._section(txt2)
 
     def _ansInfo(
-        self,
-        totd: list[tuple[int, float]],
-        studied: int,
-        first: int,
-        unit: str,
-        convHours: bool = False,
-        total: int | None = None,
+            self,
+            totd: list[tuple[int, float]],
+            studied: int,
+            first: int,
+            unit: str,
+            convHours: bool = False,
+            total: int | None = None,
     ) -> tuple[str, int]:
         assert totd
         tot = totd[-1][1]
@@ -427,7 +457,7 @@ group by day order by day"""
             "<b>%(pct)d%%</b> (%(x)s of %(y)s)"
             % dict(x=studied, y=period, pct=studied / float(period) * 100),
             bold=False,
-        )
+            )
         if convHours:
             tunit = "hours"
         else:
@@ -454,9 +484,9 @@ group by day order by day"""
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(
-        self,
-        data: list[tuple[Any, ...]],
-        spec: Sequence[tuple[int, str, str]],
+            self,
+            data: list[tuple[Any, ...]],
+            spec: Sequence[tuple[int, str, str]],
     ) -> tuple[list[dict[str, Any]], list[tuple[Any, Any]]]:
         sep: dict[int, Any] = {}
         totcnt = {}
@@ -519,7 +549,7 @@ group by day order by day"""
             % lim,
             self.col.sched.day_cutoff,
             chunk,
-        )
+            )
 
     def _done(self, num: int | None = 7, chunk: int = 1) -> Any:
         lims = []
@@ -563,7 +593,7 @@ group by day order by day"""
             tf,
             tf,
             tf,
-        )
+            )
 
     def _daysStudied(self) -> Any:
         lims = []
@@ -587,7 +617,7 @@ from revlog %s
 group by day order by day)"""
             % lim,
             self.col.sched.day_cutoff,
-        )
+            )
         assert ret
         return ret
 
@@ -647,7 +677,7 @@ group by grp
 order by grp"""
                 % (self._limit(), lim),
                 chunk,
-            )
+                )
         ]
         return (
             data
@@ -729,11 +759,11 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
                 % dict(pct=pct, good=good, tot=tot)
             )
         return (
-            """
-<center><table width=%dpx><tr><td width=50></td><td align=center>"""
-            % self.width
-            + "</td><td align=center>".join(i)
-            + "</td></tr></table></center>"
+                """
+    <center><table width=%dpx><tr><td width=50></td><td align=center>"""
+                % self.width
+                + "</td><td align=center>".join(i)
+                + "</td></tr></table></center>"
         )
 
     def _eases(self) -> Any:
@@ -852,7 +882,7 @@ from revlog where type in ({REVLOG_LRN},{REVLOG_REV},{REVLOG_RELRN}) %s
 group by hour having count() > 30 order by hour"""
             % lim,
             self.col.sched.day_cutoff - (rolloverHour * 3600),
-        )
+            )
 
     # Cards
     ######################################################################
@@ -862,12 +892,12 @@ group by hour having count() > 30 order by hour"""
         div = self._cards()
         d = []
         for c, (t, col) in enumerate(
-            (
-                ("Mature", colMature),
-                ("Young+Learn", colYoung),
-                ("Unseen", colUnseen),
-                ("Suspended+Buried", colSusp),
-            )
+                (
+                        ("Mature", colMature),
+                        ("Young+Learn", colYoung),
+                        ("Unseen", colUnseen),
+                        ("Suspended+Buried", colSusp),
+                )
         ):
             d.append(dict(data=div[c], label=f"{t}: {div[c]}", color=col))
         # text data
@@ -957,14 +987,14 @@ from cards where did in %s"""
     ######################################################################
 
     def _graph(
-        self,
-        id: str,
-        data: Any,
-        conf: Any | None = None,
-        type: str = "bars",
-        xunit: int = 1,
-        ylabel: str = "Cards",
-        ylabel2: str = "",
+            self,
+            id: str,
+            data: Any,
+            conf: Any | None = None,
+            type: str = "bars",
+            xunit: int = 1,
+            ylabel: str = "Cards",
+            ylabel2: str = "",
     ) -> str:
         if conf is None:
             conf = {}

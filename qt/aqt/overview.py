@@ -22,6 +22,7 @@ from aqt.operations.scheduling import (
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip, tr
+from aqt.qt import QLabel,QHBoxLayout, QWidget
 
 
 class OverviewBottomBar:
@@ -56,6 +57,30 @@ class Overview:
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self._refresh_needed = False
 
+        # 🔥 Streak-Label erstellen
+        self.streak_label = QLabel()
+        self.streak_label.setText("")  # wird später gesetzt
+        self.streak_label.setStyleSheet("""
+            font-size: 16px;
+            padding: 10px;
+            color: "b";
+            font-weight: bold;
+            qproperty-alignment: AlignCenter;
+        """)
+
+        # 📐 Horizontales Layout zur Zentrierung
+        streak_layout = QHBoxLayout()
+        streak_layout.addStretch()
+        streak_layout.addWidget(self.streak_label)
+        streak_layout.addStretch()
+
+        # 🧱 Wrapper-Widget mit Layout
+        streak_widget = QWidget()
+        streak_widget.setLayout(streak_layout)
+
+        # ⬆️ In das Hauptlayout einfügen – ganz oben
+        self.web.layout().insertWidget(0, streak_widget)
+
     def show(self) -> None:
         av_player.stop_and_clear_queue()
         self.web.set_bridge_command(self._linkHandler, self)
@@ -68,11 +93,26 @@ class Overview:
             self._renderPage()
             self._renderBottom()
             self.mw.web.setFocus()
+            streak_days = self.mw.col.db.scalar(
+               """ 
+                SELECT COUNT(*) FROM (
+                    SELECT id FROM revlog
+                    WHERE id > strftime('%s', 'now', '-30 days')*1000
+                    GROUP BY strftime('%Y-%m-%d', id/1000, 'unixepoch')
+                )
+                """
+            )
+            self.streak_label.setText(f" Streak: {streak_days} Tage")
+            tooltip = f" Streak: {streak_days} Tage"
+            self.streak_label.setText(f" Streak: {streak_days} Tage")
+
             gui_hooks.overview_did_refresh(self)
 
         QueryOp(
             parent=self.mw, op=lambda col: col.sched.counts(), success=success
         ).run_in_background()
+
+
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed:
