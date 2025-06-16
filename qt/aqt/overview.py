@@ -49,13 +49,15 @@ class Overview:
 
         self.streak_label = QLabel()
         self.streak_label.setText("")
-        self.streak_label.setStyleSheet("""
+        self.streak_label.setStyleSheet(
+            """
             font-size: 16px;
             padding: 10px;
             color: orange;
             font-weight: bold;
             qproperty-alignment: AlignCenter;
-        """)
+        """
+        )
 
         streak_layout = QHBoxLayout()
         streak_layout.addStretch()
@@ -315,7 +317,9 @@ class Overview:
                 b[0] = tr.actions_shortcut_key(val=shortcut(b[0]))
             buf += f"""
 <button title="{b[0]}" onclick='pycmd("{b[1]}")'>{b[2]}</button>"""
-        self.bottom.draw(buf=buf, link_handler=link_handler, web_context=OverviewBottomBar(self))
+        self.bottom.draw(
+            buf=buf, link_handler=link_handler, web_context=OverviewBottomBar(self)
+        )
 
     def onStudyMore(self) -> None:
         import aqt.customstudy
