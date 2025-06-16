@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Dict, Union
 from anki.collection import Collection
 
+
 def analyze_activity(col: Collection, days: int = 30) -> dict[str, Union[int, float]]:
 
     day_cutoff = col.sched.day_cutoff
@@ -30,4 +31,3 @@ def analyze_activity(col: Collection, days: int = 30) -> dict[str, Union[int, fl
         "average_per_day": round(average_per_day, 2),
         "low_days": low_days,
     }
-
