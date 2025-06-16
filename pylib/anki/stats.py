@@ -311,13 +311,13 @@ select count() from cards where did in %s and queue in ({QUEUE_TYPE_REV},{QUEUE_
 and due = ?"""
             % self._limit(),
             self.col.sched.today + 1,
-            )
+        )
         tomorrow = "%d cards" % tomorrow
         self._line(i, "Due tomorrow", tomorrow)
         return self._lineTbl(i)
 
     def _due(
-            self, start: int | None = None, end: int | None = None, chunk: int = 1
+        self, start: int | None = None, end: int | None = None, chunk: int = 1
     ) -> Any:
         lim = ""
         if start is not None:
@@ -436,13 +436,13 @@ group by day order by day"""
         return self._section(txt1) + self._section(txt2)
 
     def _ansInfo(
-            self,
-            totd: list[tuple[int, float]],
-            studied: int,
-            first: int,
-            unit: str,
-            convHours: bool = False,
-            total: int | None = None,
+        self,
+        totd: list[tuple[int, float]],
+        studied: int,
+        first: int,
+        unit: str,
+        convHours: bool = False,
+        total: int | None = None,
     ) -> tuple[str, int]:
         assert totd
         tot = totd[-1][1]
@@ -457,7 +457,7 @@ group by day order by day"""
             "<b>%(pct)d%%</b> (%(x)s of %(y)s)"
             % dict(x=studied, y=period, pct=studied / float(period) * 100),
             bold=False,
-            )
+        )
         if convHours:
             tunit = "hours"
         else:
@@ -484,9 +484,9 @@ group by day order by day"""
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(
-            self,
-            data: list[tuple[Any, ...]],
-            spec: Sequence[tuple[int, str, str]],
+        self,
+        data: list[tuple[Any, ...]],
+        spec: Sequence[tuple[int, str, str]],
     ) -> tuple[list[dict[str, Any]], list[tuple[Any, Any]]]:
         sep: dict[int, Any] = {}
         totcnt = {}
@@ -593,7 +593,7 @@ group by day order by day"""
             tf,
             tf,
             tf,
-            )
+        )
 
     def _daysStudied(self) -> Any:
         lims = []
@@ -617,7 +617,7 @@ from revlog %s
 group by day order by day)"""
             % lim,
             self.col.sched.day_cutoff,
-            )
+        )
         assert ret
         return ret
 
@@ -677,7 +677,7 @@ group by grp
 order by grp"""
                 % (self._limit(), lim),
                 chunk,
-                )
+            )
         ]
         return (
             data
@@ -759,11 +759,11 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
                 % dict(pct=pct, good=good, tot=tot)
             )
         return (
-                """
+            """
     <center><table width=%dpx><tr><td width=50></td><td align=center>"""
-                % self.width
-                + "</td><td align=center>".join(i)
-                + "</td></tr></table></center>"
+            % self.width
+            + "</td><td align=center>".join(i)
+            + "</td></tr></table></center>"
         )
 
     def _eases(self) -> Any:
@@ -892,12 +892,12 @@ group by hour having count() > 30 order by hour"""
         div = self._cards()
         d = []
         for c, (t, col) in enumerate(
-                (
-                        ("Mature", colMature),
-                        ("Young+Learn", colYoung),
-                        ("Unseen", colUnseen),
-                        ("Suspended+Buried", colSusp),
-                )
+            (
+                ("Mature", colMature),
+                ("Young+Learn", colYoung),
+                ("Unseen", colUnseen),
+                ("Suspended+Buried", colSusp),
+            )
         ):
             d.append(dict(data=div[c], label=f"{t}: {div[c]}", color=col))
         # text data
@@ -987,14 +987,14 @@ from cards where did in %s"""
     ######################################################################
 
     def _graph(
-            self,
-            id: str,
-            data: Any,
-            conf: Any | None = None,
-            type: str = "bars",
-            xunit: int = 1,
-            ylabel: str = "Cards",
-            ylabel2: str = "",
+        self,
+        id: str,
+        data: Any,
+        conf: Any | None = None,
+        type: str = "bars",
+        xunit: int = 1,
+        ylabel: str = "Cards",
+        ylabel2: str = "",
     ) -> str:
         if conf is None:
             conf = {}
