@@ -1797,13 +1797,17 @@ def add_flip_button(buttons, editor: Editor):
         editor.saveNow(lambda: flip_fields(editor))
 
     def flip_fields(editor: Editor):
-        front_text = editor.note["Front"]
-        back_text = editor.note["Back"]
-        editor.note["Front"] = back_text
-        editor.note["Back"] = front_text
+        note = editor.note
+        if note is None:
+            return
+
+        front_text = note["Front"]
+        back_text = note["Back"]
+        note["Front"] = back_text
+        note["Back"] = front_text
         editor.loadNote()
         if not editor.addMode:
-            editor.note.flush()
+            note.flush()
         tooltip("Fields flipped successfully.")
 
     btn = editor.addButton(
