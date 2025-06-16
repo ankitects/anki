@@ -5,17 +5,13 @@
 
 from __future__ import annotations
 
-import sys, os
+import os
+import sys
 
 # Dynamisch den Pfad zu 'anki_helpers' ergänzen
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 anki_helpers_path = os.path.join(project_root, "anki")
 sys.path.insert(0, anki_helpers_path)
-
-from anki.anki_helpers.activity import analyze_activity
-
-
-
 
 import json
 import random
@@ -25,6 +21,7 @@ from typing import Any
 
 import anki.cards
 import anki.collection
+from anki.anki_helpers.activity import analyze_activity
 from anki.consts import *
 from anki.lang import FormatTimeSpan
 from anki.utils import base62, ids2str
