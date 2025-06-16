@@ -1,6 +1,6 @@
 import time
 from collections import defaultdict
-
+from typing import DefaultDict
 def analyze_activity(col, days=30):
     day_cutoff = col.sched.day_cutoff
     start_time = day_cutoff - days * 86400
