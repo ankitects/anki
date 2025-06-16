@@ -192,12 +192,13 @@ class Overview:
             self._show_finished_screen()
             return
         content = OverviewContent(
-            deck=html.escape(deck["name"]),
+            deck=deck["name"],
             shareLink=shareLink,
             desc=self._desc(deck),
             table=self._table(),
         )
         gui_hooks.overview_will_render_content(self, content)
+        content.deck = html.escape(content.deck)
         self.web.stdHtml(
             self._body % content.__dict__,
             css=["css/overview.css"],
