@@ -1790,3 +1790,31 @@ def set_image_occlusion_button(editor: Editor) -> None:
 
 gui_hooks.editor_did_load_note.append(set_cloze_button)
 gui_hooks.editor_did_load_note.append(set_image_occlusion_button)
+
+def add_flip_button(buttons, editor: Editor):
+    # Callback-Funktion beim Klick: zuerst Änderungen speichern, dann Flip ausführen
+    def on_flip(editor: Editor):
+        editor.saveNow(lambda: flip_fields(editor))
+    # Felder tauschen und Editor aktualisieren
+    def flip_fields(editor: Editor):
+        front_text = editor.note["Front"]   # aktuellen Front-Text auslesen
+        back_text = editor.note["Back"]     # aktuellen Back-Text auslesen
+        editor.note["Front"] = back_text    # Front-Feld setzen
+        editor.note["Back"] = front_text    # Back-Feld setzen
+        editor.loadNote()                   # Editor-Ansicht mit neuen Werten aktualisieren
+        if not editor.addMode:              # Änderungen in DB schreiben (falls bestehende Notiz)
+            editor.note.flush()
+        tooltip("Fields flipped successfully.")  # Erfolgsmeldung anzeigen
+    # Neuen Button dem Editor hinzufügen (↔ Symbol, Tooltip-Text)
+    btn = editor.addButton(
+        icon=None,
+        cmd="flipFields",
+        func=on_flip,
+        tip="Front/Back Felder vertauschen",
+        label="↔",
+        id="flip_fields_button"
+    )
+    buttons.append(btn)
+    return buttons
+
+gui_hooks.editor_did_init_buttons.append(add_flip_button)

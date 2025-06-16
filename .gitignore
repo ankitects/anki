@@ -18,3 +18,4 @@ node_modules
 yarn-error.log
 ts/.svelte-kit
 .yarn
+venv/
