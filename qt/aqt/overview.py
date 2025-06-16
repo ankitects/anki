@@ -19,10 +19,10 @@ from aqt.operations.scheduling import (
     rebuild_filtered_deck,
     unbury_deck,
 )
+from aqt.qt import QLabel, QHBoxLayout, QWidget
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip, tr
-from aqt.qt import QLabel, QHBoxLayout, QWidget
 
 
 class OverviewBottomBar:
