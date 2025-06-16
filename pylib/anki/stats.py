@@ -9,7 +9,9 @@ import os
 import sys
 
 # Dynamisch den Pfad zu 'anki_helpers' ergänzen
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+project_root = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..")
+)
 anki_helpers_path = os.path.join(project_root, "anki")
 sys.path.insert(0, anki_helpers_path)
 
@@ -153,7 +155,6 @@ body { direction: ltr !important; }
         print("todayStats wurde aufgerufen")
         b = self._title("Today")
 
-
         # studied today
         lim = self._revlogLimit()
         if lim:
@@ -169,7 +170,7 @@ sum(case when type = {REVLOG_CRAM} then 1 else 0 end) /* filter */
 from revlog where type != {REVLOG_RESCHED} and id > ? """
             + lim,
             (self.col.sched.day_cutoff - 86400) * 1000,
-            )
+        )
         cards = cards or 0
         thetime = thetime or 0
         failed = failed or 0
@@ -204,7 +205,7 @@ from revlog where type != {REVLOG_RESCHED} and id > ? """
     where lastIvl >= 21 and id > ?"""
                 + lim,
                 (self.col.sched.day_cutoff - 86400) * 1000,
-                )
+            )
             b += "<br>"
             if mcnt:
                 b += "Correct answers on mature cards: %(a)d/%(b)d (%(c).1f%%)" % dict(
@@ -227,9 +228,7 @@ from revlog where type != {REVLOG_RESCHED} and id > ? """
         b += "Average/day: 5.5<br>"
         b += "Low activity days: 3<br>"
 
-
         return b
-
 
     # Due and cumulative due
     ######################################################################
@@ -334,7 +333,7 @@ group by day order by day"""
             % (self._limit(), lim),
             self.col.sched.today,
             chunk,
-            )
+        )
 
     # Added, reps and time spent
     ######################################################################
@@ -547,7 +546,7 @@ group by day order by day"""
             % lim,
             self.col.sched.day_cutoff,
             chunk,
-            )
+        )
 
     def _done(self, num: int | None = 7, chunk: int = 1) -> Any:
         lims = []
@@ -880,7 +879,7 @@ from revlog where type in ({REVLOG_LRN},{REVLOG_REV},{REVLOG_RELRN}) %s
 group by hour having count() > 30 order by hour"""
             % lim,
             self.col.sched.day_cutoff - (rolloverHour * 3600),
-            )
+        )
 
     # Cards
     ######################################################################
