@@ -69,7 +69,9 @@ class Overview:
 
         layout = self.web.layout()
         if layout is not None:
-            layout.insertWidget(0, streak_widget)
+            layout = self.web.layout()
+            if hasattr(layout, "insertWidget"):
+                layout.insertWidget(0, streak_widget)
 
     def show(self) -> None:
         av_player.stop_and_clear_queue()

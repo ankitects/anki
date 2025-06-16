@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Dict
-
-def analyze_activity(col, days=30) -> Dict[str, int]:
+from anki.collection import Collection
+def analyze_activity(col: Collection, days: int = 30) -> dict[str, int | float]:
     day_cutoff = col.sched.day_cutoff
     start_time = day_cutoff - days * 86400
     start_ts = start_time * 1000  # ms
@@ -28,3 +28,4 @@ def analyze_activity(col, days=30) -> Dict[str, int]:
         "average_per_day": round(average_per_day, 2),
         "low_days": low_days,
     }
+
