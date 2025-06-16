@@ -12,7 +12,8 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 anki_helpers_path = os.path.join(project_root, "anki")
 sys.path.insert(0, anki_helpers_path)
 
-from anki_helpers.activity import analyze_activity
+from anki.anki_helpers.activity import analyze_activity
+
 
 
 
