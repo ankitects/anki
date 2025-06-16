@@ -1791,6 +1791,7 @@ def set_image_occlusion_button(editor: Editor) -> None:
 gui_hooks.editor_did_load_note.append(set_cloze_button)
 gui_hooks.editor_did_load_note.append(set_image_occlusion_button)
 
+
 def add_flip_button(buttons, editor: Editor):
 
     def on_flip(editor: Editor):
@@ -1816,9 +1817,10 @@ def add_flip_button(buttons, editor: Editor):
         func=on_flip,
         tip="Front/Back Felder vertauschen",
         label="↔",
-        id="flip_fields_button"
+        id="flip_fields_button",
     )
     buttons.append(btn)
     return buttons
+
 
 gui_hooks.editor_did_init_buttons.append(add_flip_button)
