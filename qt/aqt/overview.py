@@ -22,7 +22,7 @@ from aqt.operations.scheduling import (
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip, tr
-from aqt.qt import QLabel,QHBoxLayout, QWidget
+from aqt.qt import QLabel, QHBoxLayout, QWidget
 
 
 class OverviewBottomBar:
@@ -32,16 +32,6 @@ class OverviewBottomBar:
 
 @dataclass
 class OverviewContent:
-    """Stores sections of HTML content that the overview will be
-    populated with.
-
-    Attributes:
-        deck {str} -- Plain text deck name
-        shareLink {str} -- HTML of the share link section
-        desc {str} -- HTML of the deck description section
-        table {str} -- HTML of the deck stats table section
-    """
-
     deck: str
     shareLink: str
     desc: str
@@ -57,29 +47,27 @@ class Overview:
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self._refresh_needed = False
 
-        # 🔥 Streak-Label erstellen
         self.streak_label = QLabel()
-        self.streak_label.setText("")  # wird später gesetzt
+        self.streak_label.setText("")
         self.streak_label.setStyleSheet("""
             font-size: 16px;
             padding: 10px;
-            color: "b";
+            color: orange;
             font-weight: bold;
             qproperty-alignment: AlignCenter;
         """)
 
-        # 📐 Horizontales Layout zur Zentrierung
         streak_layout = QHBoxLayout()
         streak_layout.addStretch()
         streak_layout.addWidget(self.streak_label)
         streak_layout.addStretch()
 
-        # 🧱 Wrapper-Widget mit Layout
         streak_widget = QWidget()
         streak_widget.setLayout(streak_layout)
 
-        # ⬆️ In das Hauptlayout einfügen – ganz oben
-        self.web.layout().insertWidget(0, streak_widget)
+        layout = self.web.layout()
+        if layout is not None:
+            layout.insertWidget(0, streak_widget)
 
     def show(self) -> None:
         av_player.stop_and_clear_queue()
@@ -93,26 +81,25 @@ class Overview:
             self._renderPage()
             self._renderBottom()
             self.mw.web.setFocus()
-            streak_days = self.mw.col.db.scalar(
-               """ 
-                SELECT COUNT(*) FROM (
-                    SELECT id FROM revlog
-                    WHERE id > strftime('%s', 'now', '-30 days')*1000
-                    GROUP BY strftime('%Y-%m-%d', id/1000, 'unixepoch')
-                )
-                """
-            )
-            self.streak_label.setText(f" Streak: {streak_days} Tage")
-            tooltip = f" Streak: {streak_days} Tage"
-            self.streak_label.setText(f" Streak: {streak_days} Tage")
 
+            streak_days = 0
+            if self.mw.col and self.mw.col.db:
+                streak_days = self.mw.col.db.scalar(
+                    """ 
+                    SELECT COUNT(*) FROM (
+                        SELECT id FROM revlog
+                        WHERE id > strftime('%s', 'now', '-30 days')*1000
+                        GROUP BY strftime('%Y-%m-%d', id/1000, 'unixepoch')
+                    )
+                    """
+                )
+
+            self.streak_label.setText(f" Streak: {streak_days} Tage")
             gui_hooks.overview_did_refresh(self)
 
         QueryOp(
             parent=self.mw, op=lambda col: col.sched.counts(), success=success
         ).run_in_background()
-
-
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed:
@@ -128,9 +115,6 @@ class Overview:
             self.refresh_if_needed()
 
         return self._refresh_needed
-
-    # Handlers
-    ############################################################
 
     def _linkHandler(self, url: str) -> bool:
         if url == "study":
@@ -215,9 +199,6 @@ class Overview:
 
     onUnbury = on_unbury
 
-    # HTML
-    ############################################################
-
     def _renderPage(self) -> None:
         but = self.mw.button
         deck = self.mw.col.decks.current()
@@ -258,10 +239,7 @@ class Overview:
                 desc = self.mw.col.render_markdown(desc)
         if not desc:
             return "<p>"
-        if deck["dyn"]:
-            dyn = "dyn"
-        else:
-            dyn = ""
+        dyn = "dyn" if deck["dyn"] else ""
         return f'<div class="descfont descmid description {dyn}">{desc}</div>'
 
     def _table(self) -> str:
@@ -316,46 +294,28 @@ class Overview:
     def edit_description(self) -> None:
         DeckDescriptionDialog(self.mw)
 
-    # Bottom area
-    ######################################################################
-
     def _renderBottom(self) -> None:
-        links = [
-            ["O", "opts", tr.actions_options()],
-        ]
+        links = [["O", "opts", tr.actions_options()]]
         is_dyn = self.mw.col.decks.current()["dyn"]
         if is_dyn:
             links.append(["R", "refresh", tr.actions_rebuild()])
             links.append(["E", "empty", tr.studying_empty()])
         else:
             links.append(["C", "studymore", tr.actions_custom_study()])
-            # links.append(["F", "cram", _("Filter/Cram")])
         if self.mw.col.sched.have_buried():
             links.append(["U", "unbury", tr.studying_unbury()])
         if not is_dyn:
             links.append(["", "description", tr.scheduling_description()])
-        link_handler = gui_hooks.overview_will_render_bottom(
-            self._linkHandler,
-            links,
-        )
+        link_handler = gui_hooks.overview_will_render_bottom(self._linkHandler, links)
         if not callable(link_handler):
             link_handler = self._linkHandler
         buf = ""
         for b in links:
             if b[0]:
                 b[0] = tr.actions_shortcut_key(val=shortcut(b[0]))
-            buf += """
-<button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(
-                b
-            )
-        self.bottom.draw(
-            buf=buf,
-            link_handler=link_handler,
-            web_context=OverviewBottomBar(self),
-        )
-
-    # Studying more
-    ######################################################################
+            buf += f"""
+<button title="{b[0]}" onclick='pycmd("{b[1]}")'>{b[2]}</button>"""
+        self.bottom.draw(buf=buf, link_handler=link_handler, web_context=OverviewBottomBar(self))
 
     def onStudyMore(self) -> None:
         import aqt.customstudy
