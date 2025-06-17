@@ -21,6 +21,10 @@ textarea {
     background: var(--canvas-inset);
 }
 
+textarea {
+    user-select: none;
+}
+
 input {
     color: var(--fg);
 }
