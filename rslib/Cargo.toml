@@ -106,6 +106,5 @@ unicode-normalization.workspace = true
 zip.workspace = true
 zstd.workspace = true
 
-[target.'cfg(windows)'.dependencies.windows]
-version = "0.56.0"
-features = ["Media_SpeechSynthesis", "Foundation_Collections", "Storage_Streams"]
+[target.'cfg(windows)'.dependencies]
+windows.workspace = true

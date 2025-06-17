@@ -352,7 +352,7 @@ impl Collection {
 
 fn random_position(highest_position: u32) -> u32 {
     let mut rng = StdRng::seed_from_u64(highest_position as u64);
-    rng.gen_range(1..highest_position.max(1000))
+    rng.random_range(1..highest_position.max(1000))
 }
 
 #[cfg(test)]

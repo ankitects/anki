@@ -5,8 +5,8 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 
 use chrono::Datelike;
-use rand::distributions::Distribution;
-use rand::distributions::WeightedIndex;
+use rand::distr::weighted::WeightedIndex;
+use rand::distr::Distribution;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 

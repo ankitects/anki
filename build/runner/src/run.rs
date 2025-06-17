@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::io::ErrorKind;
 use std::process::Command;
 
 use anki_io::create_dir_all;
@@ -44,7 +43,7 @@ fn split_env(s: &str) -> Result<(String, String), std::io::Error> {
     if let Some((k, v)) = s.split_once('=') {
         Ok((k.into(), v.into()))
     } else {
-        Err(std::io::Error::new(ErrorKind::Other, "invalid env var"))
+        Err(std::io::Error::other("invalid env var"))
     }
 }
 

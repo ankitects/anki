@@ -68,7 +68,7 @@ pub(crate) fn apply_load_balance_and_easy_days(
                 sibling_modifier: 1.0,
                 easy_days_modifier: easy_days_modifier[interval_index],
             });
-    let fuzz_seed = rng.gen();
+    let fuzz_seed = rng.random();
     select_weighted_interval(intervals, Some(fuzz_seed)).unwrap() as f32
 }
 
@@ -106,7 +106,7 @@ fn create_review_priority_fn(
 
         // Random ordering
         Random => {
-            wrap!(move |_c, _w| rand::thread_rng().gen_range(0..deck_size) as i32)
+            wrap!(move |_c, _w| rand::rng().random_range(0..deck_size) as i32)
         }
 
         // Not implemented yet

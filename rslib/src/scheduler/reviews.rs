@@ -4,8 +4,8 @@
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
-use rand::distributions::Distribution;
-use rand::distributions::Uniform;
+use rand::distr::Distribution;
+use rand::distr::Uniform;
 use regex::Regex;
 
 use super::answering::CardAnswer;
@@ -114,8 +114,8 @@ impl Collection {
         let spec = parse_due_date_str(days)?;
         let usn = self.usn()?;
         let today = self.timing_today()?.days_elapsed;
-        let mut rng = rand::thread_rng();
-        let distribution = Uniform::from(spec.min..=spec.max);
+        let mut rng = rand::rng();
+        let distribution = Uniform::new_inclusive(spec.min, spec.max).unwrap();
         let mut decks_initial_ease: HashMap<DeckId, f32> = HashMap::new();
         self.transact(Op::SetDueDate, |col| {
             for mut card in col.all_cards_for_ids(cids, false)? {
