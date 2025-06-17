@@ -29,12 +29,12 @@ impl Collection {
         let revlog = self.storage.get_revlog_entries_for_card(card.id)?;
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
-        let timing = self.timing_today()?;
         let seconds_elapsed = self
             .storage
             .time_of_last_review(card.id)?
-            .map(|ts| timing.now.elapsed_secs_since(ts))
-            .unwrap_or_default() as u32;
+            .map(|ts| TimestampSecs::now().elapsed_secs_since(ts))
+            .unwrap_or_default()
+            .max(0) as u32;
         let fsrs_retrievability = card
             .memory_state
             .zip(Some(seconds_elapsed))
