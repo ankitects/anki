@@ -2,7 +2,7 @@
 
 set -e
 
-test -f update-release.sh || {
+test -f update.sh || {
   echo "run from release folder"
   exit 1
 }
