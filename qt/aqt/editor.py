@@ -1003,17 +1003,20 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             warnings.simplefilter("ignore", UserWarning)
             doc = BeautifulSoup(html, "html.parser")
 
-        tag: bs4.element.Tag
         if not internal:
-            for tag in self.removeTags:
-                for node in doc(tag):
+            for tag_name in self.removeTags:
+                for node in doc(tag_name):
                     node.decompose()
 
             # convert p tags to divs
             for node in doc("p"):
-                node.name = "div"
+                if hasattr(node, "name"):
+                    node.name = "div"
 
-        for tag in doc("img"):
+        for element in doc("img"):
+            if not isinstance(element, bs4.Tag):
+                continue
+            tag = element
             try:
                 src = tag["src"]
             except KeyError:
@@ -1023,18 +1026,18 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
             # in internal pastes, rewrite mediasrv references to relative
             if internal:
-                m = re.match(r"http://127.0.0.1:\d+/(.*)$", src)
+                m = re.match(r"http://127.0.0.1:\d+/(.*)$", str(src))
                 if m:
                     tag["src"] = m.group(1)
             else:
                 # in external pastes, download remote media
-                if self.isURL(src):
+                if isinstance(src, str) and self.isURL(src):
                     fname = self._retrieveURL(src)
                     if fname:
                         tag["src"] = fname
-                elif src.startswith("data:image/"):
+                elif isinstance(src, str) and src.startswith("data:image/"):
                     # and convert inlined data
-                    tag["src"] = self.inlinedImageToFilename(src)
+                    tag["src"] = self.inlinedImageToFilename(str(src))
 
         html = str(doc)
         return html

@@ -21,26 +21,26 @@ pub fn protoc_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => {
             OnlineArchive {
-                url: "https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-linux-x86_64.zip",
-                sha256: "f90d0dd59065fef94374745627336d622702b67f0319f96cee894d41a974d47a",
+                url: "https://github.com/protocolbuffers/protobuf/releases/download/v31.1/protoc-31.1-linux-x86_64.zip",
+                sha256: "96553041f1a91ea0efee963cb16f462f5985b4d65365f3907414c360044d8065",
             }
-        }
+        },
         Platform::LinuxArm => {
             OnlineArchive {
-                url: "https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-linux-aarch_64.zip",
-                sha256: "f3d8eb5839d6186392d8c7b54fbeabbb6fcdd90618a500b77cb2e24faa245cad",
+                url: "https://github.com/protocolbuffers/protobuf/releases/download/v31.1/protoc-31.1-linux-aarch_64.zip",
+                sha256: "6c554de11cea04c56ebf8e45b54434019b1cd85223d4bbd25c282425e306ecc2",
             }
-        }
+        },
         Platform::MacX64 | Platform::MacArm => {
             OnlineArchive {
-                url: "https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-osx-universal_binary.zip",
-                sha256: "e3324d3bc2e9bc967a0bec2472e0ec73b26f952c7c87f2403197414f780c3c6c",
+                url: "https://github.com/protocolbuffers/protobuf/releases/download/v31.1/protoc-31.1-osx-universal_binary.zip",
+                sha256: "99ea004549c139f46da5638187a85bbe422d78939be0fa01af1aa8ab672e395f",
             }
-        }
+        },
         Platform::WindowsX64 | Platform::WindowsArm => {
             OnlineArchive {
-                url: "https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-win64.zip",
-                sha256: "3657053024faa439ff5f8c1dd2ee06bac0f9b9a3d660e99944f015a7451e87ec",
+                url: "https://github.com/protocolbuffers/protobuf/releases/download/v31.1/protoc-31.1-win64.zip",
+                sha256: "70381b116ab0d71cb6a5177d9b17c7c13415866603a0fd40d513dafe32d56c35",
             }
         }
     }

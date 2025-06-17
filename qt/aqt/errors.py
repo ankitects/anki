@@ -165,6 +165,7 @@ _mbox: QMessageBox | None = None
 
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
+
     ivl = 100
     fatal_error_encountered = False
 

@@ -5,7 +5,7 @@ version = "0.1.2"
 requires-python = ">=3.9"
 license = "AGPL-3.0-or-later"
 dependencies = [
-  "beautifulsoup4==4.12.3", # temporary pin during uv migration
+  "beautifulsoup4",
   "flask",
   "flask_cors",
   "jsonschema",
@@ -14,7 +14,7 @@ dependencies = [
   "waitress>=2.0.0",
   "psutil; sys.platform == 'win32'",
   "pywin32; sys.platform == 'win32'",
-  "pip-system-certs",
+  "pip-system-certs<5.1", # 5.1's AI-generated print statements break protoc
   "mock",
   "types-decorator",
   "types-flask",

@@ -7,9 +7,9 @@ classifiers = ["Private :: Do Not Upload"]
 
 [dependency-groups]
 dev = [
-  "black==24.8.0", # temporary pin during uv migration
+  "black",
   "isort",
-  "mypy==1.11.2", # temporary pin during uv migration
+  "mypy",
   "mypy-protobuf",
   "pylint",
   "pytest",

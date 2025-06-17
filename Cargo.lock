@@ -4102,6 +4102,7 @@ dependencies = [
  "regex",
  "reqwest 0.12.20",
  "serde_json",
+ "sha2",
  "walkdir",
  "which",
 ]
