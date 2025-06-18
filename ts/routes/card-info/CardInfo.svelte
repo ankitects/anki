@@ -22,12 +22,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: decay = (() => {
         const paramsLength = stats?.fsrsParams?.length ?? 0;
         if (paramsLength === 0) {
-            return 0.2; // default decay for FSRS-6
+            return 0.1542; // default decay for FSRS-6
         }
         if (paramsLength < 21) {
             return 0.5; // default decay for FSRS-4.5 and FSRS-5
         }
-        return stats?.fsrsParams?.[20] ?? 0.2;
+        return stats?.fsrsParams?.[20] ?? 0.1542;
     })();
 </script>
 
