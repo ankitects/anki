@@ -35,6 +35,8 @@ service FrontendService {
       returns (ConvertPastedImageResponse);
   rpc retrieveUrl(generic.String) returns (RetrieveUrlResponse);
   rpc openFilePicker(openFilePickerRequest) returns (generic.String);
+  rpc openMedia(generic.String) returns (generic.Empty);
+  rpc showInMediaFolder(generic.String) returns (generic.Empty);
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);

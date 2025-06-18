@@ -406,7 +406,7 @@ export async function extractImagePathFromHtml(html: string): Promise<string | n
     if (images.length === 0) {
         return null;
     }
-    return images[0];
+    return decodeURI(images[0]);
 }
 
 export async function readImageFromClipboard(): Promise<string | null> {
@@ -428,4 +428,12 @@ export async function readImageFromClipboard(): Promise<string | null> {
         return (await getAbsoluteMediaPath({ val: path })).val;
     }
     return null;
+}
+
+export async function writeBlobToClipboard(blob: Blob) {
+    await navigator.clipboard.write([
+        new ClipboardItem({
+            [blob.type]: blob,
+        }),
+    ]);
 }

@@ -13,7 +13,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import FieldState from "./FieldState.svelte";
     import LabelContainer from "./LabelContainer.svelte";
     import LabelName from "./LabelName.svelte";
-    import type { EditorMode } from "./types";
+    import { EditorState, type EditorMode } from "./types";
+    import ContextMenu, { Item } from "svelte-contextmenu";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -21,6 +22,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focusedField: Writable<EditorFieldAPI | null>;
         focusedInput: Writable<EditingInputAPI | null>;
         toolbar: EditorToolbarAPI;
+        state: Writable<EditorState>;
+        lastIOImagePath: Writable<string | null>;
     }
 
     import { registerPackage } from "@tslib/runtime-require";
@@ -28,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         filenameToLink,
         openFilePickerForImageOcclusion,
         readImageFromClipboard,
+        extractImagePathFromHtml,
     } from "./rich-text-input/data-transfer";
     import contextProperty from "$lib/sveltelib/context-property";
     import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
@@ -81,7 +85,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import type { NotetypeIdAndModTime, SessionOptions } from "./types";
-    import { EditorState } from "./types";
+
+    let contextMenu: ContextMenu;
+    const [onContextMenu, contextMenuItems] = setupContextMenu();
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -546,11 +552,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "$lib/components/ButtonGroupItem.svelte";
     import PreviewButton from "./PreviewButton.svelte";
     import { NoteFieldsCheckResponse_State, type Note } from "@generated/anki/notes_pb";
+    import { setupContextMenu } from "./context-menu.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
     let imageOcclusionMode: IOMode | undefined;
     let ioFields = new ImageOcclusionFieldIndexes({});
+    const lastIOImagePath: Writable<string | null> = writable(null);
 
     async function pickIOImage() {
         imageOcclusionMode = undefined;
@@ -606,6 +614,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 })
             ).val,
         );
+        $lastIOImagePath = await extractImagePathFromHtml(imageFieldHtml);
         setupMaskEditorInner({
             html: imageFieldHtml,
             mode: {
@@ -625,6 +634,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     })
                 ).val,
             );
+            $lastIOImagePath = await extractImagePathFromHtml(imageFieldHtml);
             resetIOImage(imagePath, () => {});
             setImageField(imageFieldHtml);
         }
@@ -639,7 +649,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function setupMaskEditorFromClipboard() {
         const path = await readImageFromClipboard();
-        console.log("setupMaskEditorFromClipboard path", path);
         if (path) {
             setupMaskEditor(path);
         } else {
@@ -697,8 +706,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // Signal editor UI state changes to add-ons
 
-    let editorState: EditorState = EditorState.Initial;
-    let lastEditorState: EditorState = editorState;
+    const editorState: Writable<EditorState> = writable(EditorState.Initial);
+    let lastEditorState: EditorState = $editorState;
 
     function getEditorState(
         ioMaskEditorVisible: boolean,
@@ -802,7 +811,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         if (isImageOcclusion) {
             const imageField = note!.fields[ioFields.image];
-            // TODO: last_io_image_path
+            $lastIOImagePath = await extractImagePathFromHtml(imageField);
             if (mode !== "add") {
                 setupMaskEditorInner({
                     html: imageField,
@@ -827,9 +836,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return note!.id;
     }
 
-    $: signalEditorState(editorState);
+    $: signalEditorState($editorState);
 
-    $: editorState = getEditorState(
+    $: $editorState = getEditorState(
         $ioMaskEditorVisible,
         isImageOcclusion,
         isIOImageLoaded,
@@ -886,7 +895,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ...oldEditorAdapter,
         });
 
-        editorState = getEditorState(
+        $editorState = getEditorState(
             $ioMaskEditorVisible,
             isImageOcclusion,
             isIOImageLoaded,
@@ -911,6 +920,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focusedInput,
         toolbar: toolbar as EditorToolbarAPI,
         fields,
+        state: editorState,
+        lastIOImagePath,
     };
 
     setContextProperty(api);
@@ -940,7 +951,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 Serves as a pre-slotted convenience component which combines all the common
 components and functionality for general note editing.
 -->
-<div class="note-editor" bind:this={noteEditor}>
+<div
+    class="note-editor"
+    role="presentation"
+    bind:this={noteEditor}
+    on:contextmenu={(event) => {
+        onContextMenu(event, api, $focusedInput, contextMenu);
+    }}
+>
     <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
             {#if mode === "browser"}
@@ -1117,6 +1135,19 @@ components and functionality for general note editing.
             <TagEditor {tags} on:tagsupdate={saveTags} />
         </Collapsible>
     {/if}
+
+    <ContextMenu bind:this={contextMenu}>
+        {#each contextMenuItems as item}
+            <Item
+                on:click={() => {
+                    item.action();
+                    $focusedInput?.focus();
+                }}
+            >
+                {item.label}
+            </Item>
+        {/each}
+    </ContextMenu>
 </div>
 
 <style lang="scss">

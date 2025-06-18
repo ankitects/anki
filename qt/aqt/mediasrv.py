@@ -724,6 +724,28 @@ async def open_file_picker() -> bytes:
     return generic_pb2.String(val=filename if filename else "").SerializeToString()
 
 
+def open_media() -> bytes:
+    from aqt.utils import openFolder
+
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    path = os.path.join(aqt.mw.col.media.dir(), req.val)
+    aqt.mw.taskman.run_on_main(lambda: openFolder(path))
+
+    return b""
+
+
+def show_in_media_folder() -> bytes:
+    from aqt.utils import show_in_folder
+
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    path = os.path.join(aqt.mw.col.media.dir(), req.val)
+    aqt.mw.taskman.run_on_main(lambda: show_in_folder(path))
+
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -748,6 +770,8 @@ post_handler_list = [
     convert_pasted_image,
     retrieve_url,
     open_file_picker,
+    open_media,
+    show_in_media_folder,
 ]
 
 
@@ -806,6 +830,7 @@ exposed_backend_list = [
     "add_media_file",
     "add_media_from_path",
     "get_absolute_media_path",
+    "extract_media_files",
 ]
 
 

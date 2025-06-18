@@ -17,6 +17,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         codeMirror: CodeMirrorAPI;
     }
 
+    export function editingInputIsPlainText(
+        editingInput: EditingInputAPI,
+    ): editingInput is PlainTextInputAPI {
+        return editingInput.name === "plain-text";
+    }
+
     export const parsingInstructions: string[] = [];
     export const closeHTMLTags = writable(true);
 

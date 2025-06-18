@@ -25,8 +25,6 @@ import requests
 from bs4 import BeautifulSoup
 
 import aqt
-import aqt.forms
-import aqt.operations
 import aqt.sound
 from anki._legacy import deprecated
 from anki.cards import Card
@@ -35,20 +33,12 @@ from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.models import NotetypeDict, StockNotetype
 from anki.notes import Note, NoteId
-from anki.utils import checksum, is_mac, is_win, namedtmp
+from anki.utils import checksum, is_win, namedtmp
 from aqt import AnkiQt, gui_hooks
 from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.sound import av_player
-from aqt.utils import (
-    KeyboardModifiersPressed,
-    getFile,
-    openFolder,
-    shortcut,
-    show_in_folder,
-    showWarning,
-    tr,
-)
+from aqt.utils import KeyboardModifiersPressed, getFile, shortcut, showWarning, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 pics = ("jpg", "jpeg", "png", "gif", "svg", "webp", "ico", "avif")
@@ -855,8 +845,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def onPaste(self) -> None:
         self.web.onPaste()
 
-    def onCutOrCopy(self) -> None:
-        self.web.user_cut_or_copied()
+    def onCut(self) -> None:
+        self.web.onCut()
+
+    def onCopy(self) -> None:
+        self.web.onCopy()
 
     # Image occlusion
     ######################################################################
@@ -915,7 +908,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             attach=Editor.onAddMedia,
             record=Editor.onRecSound,
             paste=Editor.onPaste,
-            cutOrCopy=Editor.onCutOrCopy,
+            cut=Editor.onCut,
+            copy=Editor.onCopy,
         )
 
     @property
@@ -956,10 +950,6 @@ class EditorWebView(AnkiWebView):
         )
         gui_hooks.editor_web_view_did_init(self)
 
-    def user_cut_or_copied(self) -> None:
-        self._store_field_content_on_next_clipboard_change = True
-        self._internal_field_text_for_paste = None
-
     def _on_clipboard_change(
         self, mode: QClipboard.Mode = QClipboard.Mode.Clipboard
     ) -> None:
@@ -990,19 +980,6 @@ class EditorWebView(AnkiWebView):
     def onCopy(self) -> None:
         self.triggerPageAction(QWebEnginePage.WebAction.Copy)
 
-    def on_copy_image(self) -> None:
-        self.triggerPageAction(QWebEnginePage.WebAction.CopyImageToClipboard)
-
-    def _opened_context_menu_on_image(self) -> bool:
-        if not hasattr(self, "lastContextMenuRequest"):
-            return False
-        context_menu_request = self.lastContextMenuRequest()
-        assert context_menu_request is not None
-        return (
-            context_menu_request.mediaType()
-            == context_menu_request.MediaType.MediaTypeImage
-        )
-
     def _wantsExtendedPaste(self) -> bool:
         strip_html = self.editor.mw.col.get_config_bool(
             Config.Bool.PASTE_STRIPS_FORMATTING
@@ -1029,7 +1006,7 @@ class EditorWebView(AnkiWebView):
                 self.editor.doPaste(html, internal, extended)
 
     def onPaste(self) -> None:
-        self._onPaste(QClipboard.Mode.Clipboard)
+        self.triggerPageAction(QWebEnginePage.WebAction.Paste)
 
     def onMiddleClickPaste(self) -> None:
         self._onPaste(QClipboard.Mode.Selection)
@@ -1169,52 +1146,8 @@ class EditorWebView(AnkiWebView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent | None) -> None:
         m = QMenu(self)
-        if self.hasSelection():
-            self._add_cut_action(m)
-            self._add_copy_action(m)
-        a = m.addAction(tr.editing_paste())
-        assert a is not None
-        qconnect(a.triggered, self.onPaste)
-        if self.editor.state is EditorState.IO_MASKS and (
-            path := self.editor.last_io_image_path
-        ):
-            self._add_image_menu_with_path(m, path)
-        elif self._opened_context_menu_on_image():
-            self._add_image_menu(m)
         gui_hooks.editor_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
-
-    def _add_cut_action(self, menu: QMenu) -> None:
-        a = menu.addAction(tr.editing_cut())
-        assert a is not None
-        qconnect(a.triggered, self.onCut)
-
-    def _add_copy_action(self, menu: QMenu) -> None:
-        a = menu.addAction(tr.actions_copy())
-        assert a is not None
-        qconnect(a.triggered, self.onCopy)
-
-    def _add_image_menu(self, menu: QMenu) -> None:
-        a = menu.addAction(tr.editing_copy_image())
-        assert a is not None
-        qconnect(a.triggered, self.on_copy_image)
-
-        context_menu_request = self.lastContextMenuRequest()
-        assert context_menu_request is not None
-        url = context_menu_request.mediaUrl()
-        file_name = url.fileName()
-        path = os.path.join(self.editor.mw.col.media.dir(), file_name)
-        self._add_image_menu_with_path(menu, path)
-
-    def _add_image_menu_with_path(self, menu: QMenu, path: str) -> None:
-        a = menu.addAction(tr.editing_open_image())
-        assert a is not None
-        qconnect(a.triggered, lambda: openFolder(path))
-
-        if is_win or is_mac:
-            a = menu.addAction(tr.editing_show_in_folder())
-            assert a is not None
-            qconnect(a.triggered, lambda: show_in_folder(path))
 
     def _clipboard(self) -> QClipboard:
         clipboard = self.editor.mw.app.clipboard()
