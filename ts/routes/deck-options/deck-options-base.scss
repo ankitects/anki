@@ -19,6 +19,7 @@ input[type="date"],
 textarea {
     padding-inline: 0.5rem;
     background: var(--canvas-inset);
+    -webkit-user-select: text;
     user-select: text;
 }
 
@@ -29,6 +30,7 @@ input {
 // Setting 100% height causes the sticky element to hide as you scroll down on Safari.
 html {
     height: initial;
+    -webkit-user-select: none;
     user-select: none;
 }
 
