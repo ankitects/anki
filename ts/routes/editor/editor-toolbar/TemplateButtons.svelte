@@ -22,7 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setFormat } from "../old-editor-adapter";
     import { editingInputIsRichText } from "../rich-text-input";
     import LatexButton from "./LatexButton.svelte";
-    import { filenameToLink, openFilePickerForMedia } from "../rich-text-input/data-transfer";
+    import {
+        filenameToLink,
+        openFilePickerForMedia,
+    } from "../rich-text-input/data-transfer";
     import { addMediaFromPath, recordAudio } from "@generated/backend";
 
     const { focusedInput } = context.get();
@@ -41,7 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const path = await openFilePickerForMedia();
         await attachPath(path);
     }
-
 
     const recordCombination = "F5";
 

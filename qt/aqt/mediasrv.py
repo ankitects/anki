@@ -745,6 +745,7 @@ def show_in_media_folder() -> bytes:
 
     return b""
 
+
 async def record_audio() -> bytes:
     loop = asyncio.get_event_loop()
     future = loop.create_future()
@@ -764,6 +765,7 @@ async def record_audio() -> bytes:
     path = await future
 
     return generic_pb2.String(val=path if path else "").SerializeToString()
+
 
 post_handler_list = [
     congrats_info,
