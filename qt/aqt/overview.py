@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import html
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -197,6 +198,7 @@ class Overview:
             table=self._table(),
         )
         gui_hooks.overview_will_render_content(self, content)
+        content.deck = html.escape(content.deck)
         self.web.stdHtml(
             self._body % content.__dict__,
             css=["css/overview.css"],
