@@ -36,25 +36,21 @@ export function unitName(unit: TimespanUnit): string {
     }
 }
 
-export function naturalUnit(secs: number, maxUnit: TimespanUnit = TimespanUnit.Years): TimespanUnit {
+export function naturalUnit(secs: number): TimespanUnit {
     secs = Math.abs(secs);
-    const thresholds = [
-        { unit: TimespanUnit.Years, min: YEAR },
-        { unit: TimespanUnit.Months, min: MONTH },
-        { unit: TimespanUnit.Days, min: DAY },
-        { unit: TimespanUnit.Hours, min: HOUR },
-        { unit: TimespanUnit.Minutes, min: MINUTE },
-        { unit: TimespanUnit.Seconds, min: 0 },
-    ];
-    for (const { unit, min } of thresholds) {
-        if (unit > maxUnit) {
-            continue;
-        }
-        if (secs >= min) {
-            return unit;
-        }
+    if (secs < MINUTE) {
+        return TimespanUnit.Seconds;
+    } else if (secs < HOUR) {
+        return TimespanUnit.Minutes;
+    } else if (secs < DAY) {
+        return TimespanUnit.Hours;
+    } else if (secs < MONTH) {
+        return TimespanUnit.Days;
+    } else if (secs < YEAR) {
+        return TimespanUnit.Months;
+    } else {
+        return TimespanUnit.Years;
     }
-    return TimespanUnit.Seconds;
 }
 
 /** Number of seconds in a given unit. */
@@ -156,7 +152,7 @@ export function timeSpan(
     precise = true,
     maxUnit: TimespanUnit = TimespanUnit.Years,
 ): string {
-    const unit = naturalUnit(seconds, maxUnit);
+    const unit = Math.min(naturalUnit(seconds), maxUnit);
     let amount = unitAmount(unit, seconds);
     if (!precise && unit < TimespanUnit.Months) {
         amount = Math.round(amount);
