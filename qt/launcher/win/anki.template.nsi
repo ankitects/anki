@@ -224,11 +224,26 @@ Section ""
   WriteUninstaller "uninstall.exe"
   !endif
 
+  ; Ensure uv gets re-run
+  Push "$INSTDIR\pyproject.toml"
+  Call TouchFile
+
   ; Launch Anki after installation
   Exec "$INSTDIR\anki.exe"
   Quit
 
 SectionEnd ; end the section
+
+;--------------------------------
+
+; Touch file function to update mtime using copy trick
+Function TouchFile
+  Exch $R0 ; file path
+  
+  nsExec::Exec 'cmd /c "copy /B "$R0" +,,"'
+  
+  Pop $R0
+FunctionEnd
 
 ;--------------------------------
 
