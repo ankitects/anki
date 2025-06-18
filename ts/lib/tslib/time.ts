@@ -7,8 +7,8 @@ export const SECOND = 1.0;
 export const MINUTE = 60.0 * SECOND;
 export const HOUR = 60.0 * MINUTE;
 export const DAY = 24.0 * HOUR;
-export const MONTH = 30.417 * DAY; // 365/12 ≈ 30.417
 export const YEAR = 365.0 * DAY;
+export const MONTH = YEAR / 12;
 
 export enum TimespanUnit {
     Seconds,
@@ -146,8 +146,13 @@ function i18nFuncForUnit(
 If precise is true, show to two decimal places, eg
 eg 70 seconds -> "1.17 minutes"
 If false, seconds and days are shown without decimals. */
-export function timeSpan(seconds: number, short = false, precise = true): string {
-    const unit = naturalUnit(seconds);
+export function timeSpan(
+    seconds: number,
+    short = false,
+    precise = true,
+    maxUnit: TimespanUnit = TimespanUnit.Years,
+): string {
+    const unit = Math.min(naturalUnit(seconds), maxUnit);
     let amount = unitAmount(unit, seconds);
     if (!precise && unit < TimespanUnit.Months) {
         amount = Math.round(amount);

@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { CardStatsResponse } from "@generated/anki/stats_pb";
     import * as tr2 from "@generated/ftl";
-    import { DAY, timeSpan, Timestamp } from "@tslib/time";
+    import { DAY, timeSpan, TimespanUnit, Timestamp } from "@tslib/time";
 
     export let stats: CardStatsResponse;
 
@@ -58,7 +58,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (stats.memoryState) {
             let stability = timeSpan(stats.memoryState.stability * 86400, false, false);
             if (stats.memoryState.stability > 31) {
-                const nativeStability = stats.memoryState.stability.toFixed(0);
+                const nativeStability = timeSpan(
+                    stats.memoryState.stability * 86400,
+                    false,
+                    false,
+                    TimespanUnit.Days,
+                );
                 stability += ` (${nativeStability})`;
             }
             statsRows.push({
