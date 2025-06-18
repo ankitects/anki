@@ -391,14 +391,22 @@ export function handleCutOrCopy(event: ClipboardEvent) {
 
 const FILE_PICKER_MEDIA_KEY = "media";
 
-export async function openFilePickerForImageOcclusion(): Promise<string> {
+export async function openFilePickerForSuffixes(suffixes: string[]): Promise<string> {
     const filename = (await openFilePicker({
-        title: tr.editingAddMedia(),
+        title: tr.editingMedia(),
         filterDescription: tr.editingMedia(),
-        extensions: imageSuffixes,
+        extensions: suffixes,
         key: FILE_PICKER_MEDIA_KEY,
     })).val;
     return filename;
+}
+
+export async function openFilePickerForImageOcclusion(): Promise<string> {
+    return await openFilePickerForSuffixes(imageSuffixes);
+}
+
+export async function openFilePickerForMedia(): Promise<string> {
+    return await openFilePickerForSuffixes(mediaSuffixes);
 }
 
 export async function extractImagePathFromHtml(html: string): Promise<string | null> {

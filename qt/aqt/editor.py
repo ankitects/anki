@@ -6,7 +6,6 @@ from __future__ import annotations
 import base64
 import functools
 import html
-import itertools
 import json
 import mimetypes
 import os
@@ -18,7 +17,7 @@ import warnings
 from collections.abc import Callable
 from enum import Enum
 from random import randrange
-from typing import Any, Iterable, Match, cast
+from typing import Any, Iterable, Match
 
 import bs4
 import requests
@@ -38,7 +37,7 @@ from aqt import AnkiQt, gui_hooks
 from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.sound import av_player
-from aqt.utils import KeyboardModifiersPressed, getFile, shortcut, showWarning, tr
+from aqt.utils import KeyboardModifiersPressed, shortcut, showWarning, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 pics = ("jpg", "jpeg", "png", "gif", "svg", "webp", "ico", "avif")
@@ -567,27 +566,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Audio/video/images
     ######################################################################
 
-    def onAddMedia(self) -> None:
-        """Show a file selection screen, then add the selected media.
-        This expects initial setup to have been done by TemplateButtons.svelte."""
-        extension_filter = " ".join(
-            f"*.{extension}" for extension in sorted(itertools.chain(pics, audio))
-        )
-        filter = f"{tr.editing_media()} ({extension_filter})"
-
-        def accept(file: str) -> None:
-            self.resolve_media(file)
-
-        file = getFile(
-            parent=self.widget,
-            title=tr.editing_add_media(),
-            cb=cast(Callable[[Any], None], accept),
-            filter=filter,
-            key="media",
-        )
-
-        self.parentWindow.activateWindow()
-
     def addMedia(self, path: str, canDelete: bool = False) -> None:
         """Legacy routine used by add-ons to add a media file and update the current field.
         canDelete is ignored."""
@@ -905,7 +883,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self._links: dict[str, Callable] = dict(
             fields=Editor.onFields,
             cards=Editor.onCardLayout,
-            attach=Editor.onAddMedia,
             record=Editor.onRecSound,
             paste=Editor.onPaste,
             cut=Editor.onCut,

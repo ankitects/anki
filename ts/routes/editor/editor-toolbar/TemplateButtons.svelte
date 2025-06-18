@@ -26,6 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
     import LatexButton from "./LatexButton.svelte";
+    import { filenameToLink, openFilePickerForMedia } from "../rich-text-input/data-transfer";
+    import { addMediaFromPath } from "@generated/backend";
 
     const { focusedInput } = context.get();
 
@@ -38,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resolve?.(media);
     }
 
-    function attachMediaOnFocus(): void {
+    async function attachMediaOnFocus(): Promise<void> {
         if (disabled) {
             return;
         }
@@ -48,8 +50,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             async () => setFormat("inserthtml", await mediaPromise),
             { once: true },
         );
-
-        bridgeCommand("attach");
+        let file = await openFilePickerForMedia();
+        file = (await addMediaFromPath({ path: file })).val;
+        resolveMedia(filenameToLink(file));
     }
 
     registerPackage("anki/TemplateButtons", {
