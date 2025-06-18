@@ -4,7 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
-    import { bridgeCommand } from "@tslib/bridgecommand";
     import { promiseWithResolver } from "@tslib/promise";
     import { registerPackage } from "@tslib/runtime-require";
     import { getPlatformString } from "@tslib/shortcuts";
@@ -27,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { editingInputIsRichText } from "../rich-text-input";
     import LatexButton from "./LatexButton.svelte";
     import { filenameToLink, openFilePickerForMedia } from "../rich-text-input/data-transfer";
-    import { addMediaFromPath } from "@generated/backend";
+    import { addMediaFromPath, recordAudio } from "@generated/backend";
 
     const { focusedInput } = context.get();
 
@@ -40,6 +39,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resolve?.(media);
     }
 
+    async function attachPath(path: string): Promise<void> {
+        const filename = (await addMediaFromPath({ path })).val;
+        resolveMedia(filenameToLink(filename));
+    }
+
     async function attachMediaOnFocus(): Promise<void> {
         if (disabled) {
             return;
@@ -50,9 +54,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             async () => setFormat("inserthtml", await mediaPromise),
             { once: true },
         );
-        let file = await openFilePickerForMedia();
-        file = (await addMediaFromPath({ path: file })).val;
-        resolveMedia(filenameToLink(file));
+        const path = await openFilePickerForMedia();
+        await attachPath(path);
     }
 
     registerPackage("anki/TemplateButtons", {
@@ -61,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const recordCombination = "F5";
 
-    function attachRecordingOnFocus(): void {
+    async function attachRecordingOnFocus(): Promise<void> {
         if (disabled) {
             return;
         }
@@ -71,8 +74,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             async () => setFormat("inserthtml", await mediaPromise),
             { once: true },
         );
-
-        bridgeCommand("record");
+        const path = (await recordAudio({})).val;
+        await attachPath(path);
     }
 
     $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);

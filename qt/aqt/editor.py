@@ -23,8 +23,6 @@ import bs4
 import requests
 from bs4 import BeautifulSoup
 
-import aqt
-import aqt.sound
 from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import Config
@@ -578,19 +576,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
 
-    def resolve_media(self, path: str) -> None:
-        """Finish inserting media into a field.
-        This expects initial setup to have been done by TemplateButtons.svelte."""
-        try:
-            html = self._addMedia(path)
-        except Exception as e:
-            showWarning(str(e))
-            return
-
-        self.web.eval(
-            f'require("anki/TemplateButtons").resolveMedia({json.dumps(html)})'
-        )
-
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
         """Add to media folder and return local img or sound tag."""
         # copy to media folder
@@ -600,14 +585,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     def _addMediaFromData(self, fname: str, data: bytes) -> str:
         return self.mw.col.media._legacy_write_data(fname, data)
-
-    def onRecSound(self) -> None:
-        aqt.sound.record_audio(
-            self.parentWindow,
-            self.mw,
-            True,
-            self.resolve_media,
-        )
 
     # Media downloads
     ######################################################################
@@ -883,7 +860,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self._links: dict[str, Callable] = dict(
             fields=Editor.onFields,
             cards=Editor.onCardLayout,
-            record=Editor.onRecSound,
             paste=Editor.onPaste,
             cut=Editor.onCut,
             copy=Editor.onCopy,

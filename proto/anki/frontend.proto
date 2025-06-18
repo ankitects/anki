@@ -37,6 +37,7 @@ service FrontendService {
   rpc openFilePicker(openFilePickerRequest) returns (generic.String);
   rpc openMedia(generic.String) returns (generic.Empty);
   rpc showInMediaFolder(generic.String) returns (generic.Empty);
+  rpc recordAudio(generic.Empty) returns (generic.String);
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);

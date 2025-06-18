@@ -745,6 +745,25 @@ def show_in_media_folder() -> bytes:
 
     return b""
 
+async def record_audio() -> bytes:
+    loop = asyncio.get_event_loop()
+    future = loop.create_future()
+
+    def on_main() -> None:
+        from aqt.sound import record_audio
+
+        def cb(path: str | None) -> None:
+            loop.call_soon_threadsafe(future.set_result, path)
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        record_audio(window, aqt.mw, True, cb)
+
+    aqt.mw.taskman.run_on_main(on_main)
+
+    path = await future
+
+    return generic_pb2.String(val=path if path else "").SerializeToString()
 
 post_handler_list = [
     congrats_info,
@@ -772,6 +791,7 @@ post_handler_list = [
     open_file_picker,
     open_media,
     show_in_media_folder,
+    record_audio,
 ]
 
 
