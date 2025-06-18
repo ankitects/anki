@@ -224,6 +224,10 @@ Section ""
   WriteUninstaller "uninstall.exe"
   !endif
 
+  ; Launch Anki after installation
+  Exec "$INSTDIR\anki.exe"
+  Quit
+
 SectionEnd ; end the section
 
 ;--------------------------------
