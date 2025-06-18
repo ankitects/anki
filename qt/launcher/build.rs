@@ -3,6 +3,8 @@
 fn main() {
     #[cfg(windows)]
     {
-        embed_resource::compile("win/anki-manifest.rc", embed_resource::NONE);
+        embed_resource::compile("win/anki-manifest.rc", embed_resource::NONE)
+            .manifest_required()
+            .unwrap();
     }
 }

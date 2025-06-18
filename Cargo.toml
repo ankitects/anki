@@ -139,7 +139,7 @@ unicode-normalization = "0.1.24"
 walkdir = "2.5.0"
 which = "8.0.0"
 winapi = { version = "0.3", features = ["wincon"] }
-windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Foundation_Collections", "Storage_Streams"] }
+windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Media_Core", "Foundation_Collections", "Storage_Streams"] }
 wiremock = "0.6.3"
 xz2 = "0.1.7"
 zip = { version = "4.1.0", default-features = false, features = ["deflate", "time"] }
