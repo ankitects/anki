@@ -8,6 +8,7 @@ APP_LAUNCHER="$OUTPUT_DIR/Anki.app"
 rm -rf "$APP_LAUNCHER"
 
 # Build binaries for both architectures
+rustup target add aarch64-apple-darwin x86_64-apple-darwin
 cargo build -p launcher --release --target aarch64-apple-darwin
 cargo build -p launcher --release --target x86_64-apple-darwin
 (cd ../../.. && ./ninja launcher:uv_universal)

@@ -36,10 +36,10 @@ class CustomBuildHook(BuildHookInterface):
     def _set_anki_dependency(self, version: str, build_data: Dict[str, Any]) -> None:
         # Get current dependencies and replace 'anki' with exact version
         dependencies = build_data.setdefault("dependencies", [])
-        
+
         # Remove any existing anki dependency
         dependencies[:] = [dep for dep in dependencies if not dep.startswith("anki")]
-        
+
         # Handle version detection
         actual_version = version
         if version == "standard":
@@ -48,7 +48,7 @@ class CustomBuildHook(BuildHookInterface):
             version_file = project_root / ".version"
             if version_file.exists():
                 actual_version = version_file.read_text().strip()
-        
+
         # Only add exact version for real releases, not editable installs
         if actual_version != "editable":
             dependencies.append(f"anki=={actual_version}")
