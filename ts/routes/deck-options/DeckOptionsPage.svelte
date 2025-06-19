@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import "./deck-options-base.scss";
+
     import type { Writable } from "svelte/store";
 
     import "$lib/sveltelib/export-runtime";
