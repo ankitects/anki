@@ -14,7 +14,6 @@ use nom::combinator::recognize;
 use nom::combinator::rest;
 use nom::combinator::success;
 use nom::combinator::value;
-use nom::multi::fold_many0;
 use nom::multi::many0;
 use nom::sequence::delimited;
 use nom::sequence::pair;
@@ -179,12 +178,10 @@ fn tag_node(s: &str) -> IResult<Node> {
         name: &'name str,
     ) -> impl FnMut(&'s str) -> IResult<'s, &'s str> + 'parser {
         move |s| {
-            recognize(fold_many0(
-                pair(not(closing_parser(name)), take_till_potential_tag_start),
-                // we don't need to accumulate anything
-                || (),
-                |_, _| (),
-            ))
+            recognize(many0(pair(
+                not(closing_parser(name)),
+                take_till_potential_tag_start,
+            )))
             .parse(s)
         }
     }
