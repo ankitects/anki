@@ -122,6 +122,7 @@ class ComputedMemoryState:
     desired_retention: float
     stability: float | None = None
     difficulty: float | None = None
+    decay: float | None = None
 
 
 @dataclass
@@ -1189,9 +1190,13 @@ class Collection(DeprecatedNamesMixin):
                 desired_retention=resp.desired_retention,
                 stability=resp.state.stability,
                 difficulty=resp.state.difficulty,
+                decay=resp.decay,
             )
         else:
-            return ComputedMemoryState(desired_retention=resp.desired_retention)
+            return ComputedMemoryState(
+                desired_retention=resp.desired_retention,
+                decay=resp.decay,
+            )
 
     def fuzz_delta(self, card_id: CardId, interval: int) -> int:
         "The delta days of fuzz applied if reviewing the card in v3."
