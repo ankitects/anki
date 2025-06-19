@@ -34,7 +34,7 @@ impl Collection {
         let days_to_simulate = req.days_to_simulate as f32;
 
         let target = match target {
-            Some(CmrrTarget::Memorised) => None,
+            Some(CmrrTarget::Memorized) => None,
             Some(CmrrTarget::Stability) => {
                 wrap!(move |SimulationResult {
                                 cards,

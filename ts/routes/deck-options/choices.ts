@@ -204,7 +204,7 @@ export function CMRRTargetChoices(): Choice<CMRRTarget>[] {
     return [
         {
             label: "Memorized (Default)",
-            value: CMRRTarget.memorised,
+            value: CMRRTarget.memorized,
         },
         {
             label: "Stability (Experimental)",

@@ -415,13 +415,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                     <Item>
                         <EnumSelectorRow
-                        choices={CMRRTargetChoices()}
-                        bind:value={simulateFsrsRequest.target}
-                        defaultValue={CMRRTarget.memorised}
+                            choices={CMRRTargetChoices()}
+                            bind:value={simulateFsrsRequest.target}
+                            defaultValue={CMRRTarget.memorized}
                         >
-                        <SettingTitle>
-                            {"Target: "}
-                        </SettingTitle>
+                            <SettingTitle>
+                                {"Target: "}
+                            </SettingTitle>
                         </EnumSelectorRow>
                     </Item>
                 </details>

@@ -390,7 +390,7 @@ message FsrsReview {
 }
 
 enum CMRRTarget {
-  memorised = 0;
+  memorized = 0;
   stability = 1;
 };
 

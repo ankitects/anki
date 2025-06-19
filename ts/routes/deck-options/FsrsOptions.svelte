@@ -97,7 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         newCardsIgnoreReviewLimit: $newCardsIgnoreReviewLimit,
         easyDaysPercentages: $config.easyDaysPercentages,
         reviewOrder: $config.reviewOrder,
-        target: CMRRTarget.memorised,
+        target: CMRRTarget.memorized,
     });
 
     const DESIRED_RETENTION_LOW_THRESHOLD = 0.8;
