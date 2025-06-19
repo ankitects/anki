@@ -30,7 +30,8 @@ pub struct ComputeMemoryProgress {
     pub total_cards: u32,
 }
 
-/// Helper function to determine the appropriate decay value based on FSRS parameters
+/// Helper function to determine the appropriate decay value based on FSRS
+/// parameters
 fn get_decay_from_params(params: &[f32]) -> f32 {
     if params.is_empty() {
         FSRS6_DEFAULT_DECAY // default decay for FSRS-6
@@ -194,7 +195,7 @@ impl Collection {
         let desired_retention = config.inner.desired_retention;
         let historical_retention = config.inner.historical_retention;
         let params = config.fsrs_params();
-        let decay = get_decay_from_params(&params);
+        let decay = get_decay_from_params(params);
         let fsrs = FSRS::new(Some(params))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
         let item = fsrs_item_for_memory_state(
