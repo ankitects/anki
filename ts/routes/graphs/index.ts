@@ -5,8 +5,6 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "./graphs-base.scss";
-
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 import type { SvelteComponent } from "svelte";
