@@ -190,7 +190,15 @@ impl Collection {
             .or_not_found(conf_id)?;
         let desired_retention = config.inner.desired_retention;
         let historical_retention = config.inner.historical_retention;
-        let fsrs = FSRS::new(Some(config.fsrs_params()))?;
+        let params = config.fsrs_params();
+        let decay = if params.is_empty() {
+            FSRS6_DEFAULT_DECAY // default decay for FSRS-6
+        } else if params.len() < 21 {
+            FSRS5_DEFAULT_DECAY // default decay for FSRS-4.5 and FSRS-5
+        } else {
+            params[20]
+        };
+        let fsrs = FSRS::new(Some(params))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
         let item = fsrs_item_for_memory_state(
             &fsrs,
@@ -204,6 +212,7 @@ impl Collection {
             Ok(ComputeMemoryStateResponse {
                 state: card.memory_state.map(Into::into),
                 desired_retention,
+                decay,
             })
         } else {
             card.memory_state = None;
@@ -211,6 +220,7 @@ impl Collection {
             Ok(ComputeMemoryStateResponse {
                 state: None,
                 desired_retention,
+                decay,
             })
         }
     }
