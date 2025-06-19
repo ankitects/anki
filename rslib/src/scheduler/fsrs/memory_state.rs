@@ -105,10 +105,11 @@ impl Collection {
                 progress.update(true, |state| state.current_cards = idx as u32 + 1)?;
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
+                // store decay and desired retention in the card so that add-ons, card info and Stats don't need to access the deck config
+                card.desired_retention = desired_retention;
+                card.decay = decay;
                 if let (Some(req), Some(item)) = (&req, item) {
                     card.set_memory_state(&fsrs, Some(item), historical_retention.unwrap())?;
-                    card.desired_retention = desired_retention;
-                    card.decay = decay;
                     // if rescheduling
                     if let Some(reviews) = &last_revlog_info {
                         // and we have a last review time for the card
@@ -128,7 +129,7 @@ impl Collection {
                                         let original_interval = card.interval;
                                         let interval = fsrs.next_interval(
                                             Some(state.stability),
-                                            card.desired_retention.unwrap(),
+                                            desired_retention,
                                             0,
                                         );
                                         card.interval = rescheduler
@@ -175,7 +176,6 @@ impl Collection {
                     }
                 } else {
                     card.memory_state = None;
-                    card.desired_retention = None;
                 }
                 self.update_card_inner(&mut card, original, usn)?;
             }
@@ -214,7 +214,7 @@ impl Collection {
             })
         } else {
             card.memory_state = None;
-            card.desired_retention = None;
+            card.desired_retention = desired_retention;
             Ok(ComputeMemoryStateResponse {
                 state: None,
                 desired_retention,
