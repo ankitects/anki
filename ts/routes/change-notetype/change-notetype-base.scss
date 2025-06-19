@@ -1,13 +1,13 @@
-@use "../lib/sass/bootstrap-dark";
+@use "../../lib/sass/bootstrap-dark";
 
-@import "../lib/sass/base";
+@import "../../lib/sass/base";
 
 @import "bootstrap/scss/alert";
 @import "bootstrap/scss/buttons";
 @import "bootstrap/scss/button-group";
 @import "bootstrap/scss/close";
 @import "bootstrap/scss/grid";
-@import "../lib/sass/bootstrap-forms";
+@import "../../lib/sass/bootstrap-forms";
 
 .night-mode {
     @include bootstrap-dark.night-mode;

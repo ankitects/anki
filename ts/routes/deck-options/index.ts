@@ -6,7 +6,6 @@
  */
 
 import "$lib/sveltelib/export-runtime";
-import "./deck-options-base.scss";
 
 import { getDeckConfigsForUpdate } from "@generated/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
