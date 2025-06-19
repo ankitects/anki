@@ -189,6 +189,8 @@ impl Card {
     fn set_deck(&mut self, deck: DeckId) {
         self.remove_from_filtered_deck_restoring_queue();
         self.memory_state = None;
+        self.desired_retention = None;
+        self.decay = None;
         self.deck_id = deck;
     }
 
