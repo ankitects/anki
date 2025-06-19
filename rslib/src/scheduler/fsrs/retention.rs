@@ -25,7 +25,7 @@ impl Collection {
             };
         }
 
-        let target = req
+        let target_type = req
             .target
             .map(TryInto::try_into)
             .transpose()
@@ -33,8 +33,9 @@ impl Collection {
 
         let days_to_simulate = req.days_to_simulate as f32;
 
-        let target = match target {
+        let target = match target_type {
             Some(CmrrTarget::Memorized) => None,
+            Some(CmrrTarget::LossAversion) => None,
             Some(CmrrTarget::Stability) => {
                 wrap!(move |SimulationResult {
                                 cards,
@@ -57,7 +58,14 @@ impl Collection {
         if req.days_to_simulate == 0 {
             invalid_input!("no days to simulate")
         }
-        let (config, cards) = self.simulate_request_to_config(&req)?;
+        let (mut config, cards) = self.simulate_request_to_config(&req)?;
+
+        if target_type == Some(CmrrTarget::LossAversion) {
+            config.relearning_step_transitions[0][0] *= 2.;
+            config.relearning_step_transitions[1][0] *= 2.;
+            config.relearning_step_transitions[2][0] *= 2.;
+        }
+
         Ok(fsrs
             .optimal_retention(
                 &config,

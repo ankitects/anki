@@ -391,7 +391,8 @@ message FsrsReview {
 
 enum CMRRTarget {
   memorized = 0;
-  stability = 1;
+  loss_aversion = 1;
+  stability = 2;
 };
 
 message SimulateFsrsReviewRequest {

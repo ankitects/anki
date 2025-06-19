@@ -207,6 +207,10 @@ export function CMRRTargetChoices(): Choice<CMRRTarget>[] {
             value: CMRRTarget.memorized,
         },
         {
+            label: "Memorized (Double cost)",
+            values: CMRRTarget.loss_aversion,
+        },
+        {
             label: "Stability (Experimental)",
             value: CMRRTarget.stability,
         },
