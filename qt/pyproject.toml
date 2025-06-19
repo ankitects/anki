@@ -1,7 +1,6 @@
 [project]
 name = "aqt"
-# dynamic = ["version"]
-version = "0.1.2"
+dynamic = ["version"]
 requires-python = ">=3.9"
 license = "AGPL-3.0-or-later"
 dependencies = [
@@ -25,6 +24,7 @@ dependencies = [
   "types-pywin32",
   "pyqt6>=6.2",
   "pyqt6-webengine>=6.2",
+  # anki dependency is added dynamically in hatch_build.py with exact version
 ]
 
 [project.optional-dependencies]
