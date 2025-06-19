@@ -18,21 +18,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { renderSimulationChart } from "../graphs/simulator";
     import { computeOptimalRetention, simulateFsrsReview } from "@generated/backend";
     import { runWithBackendProgress } from "@tslib/progress";
-    import type {
-        ComputeOptimalRetentionResponse,
-        SimulateFsrsReviewRequest,
-        SimulateFsrsReviewResponse,
+    import {
+        CMRRTarget,
+        type ComputeOptimalRetentionResponse,
+        type SimulateFsrsReviewRequest,
+        type SimulateFsrsReviewResponse,
     } from "@generated/anki/scheduler_pb";
     import type { DeckOptionsState } from "./lib";
     import SwitchRow from "$lib/components/SwitchRow.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
-    import { reviewOrderChoices } from "./choices";
+    import { CMRRTargetChoices, reviewOrderChoices } from "./choices";
     import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
     import { DeckConfig_Config_LeechAction } from "@generated/anki/deck_config_pb";
     import EasyDaysInput from "./EasyDaysInput.svelte";
     import Warning from "./Warning.svelte";
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
+    import Item from "$lib/components/Item.svelte";
 
     export let shown = false;
     export let state: DeckOptionsState;
@@ -410,6 +412,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {#if computingRetention}
                         <div>{computeRetentionProgressString}</div>
                     {/if}
+
+                    <Item>
+                        <EnumSelectorRow
+                        choices={CMRRTargetChoices()}
+                        bind:value={simulateFsrsRequest.target}
+                        defaultValue={CMRRTarget.memorised}
+                        >
+                        <SettingTitle>
+                            {"Target: "}
+                        </SettingTitle>
+                        </EnumSelectorRow>
+                    </Item>
                 </details>
 
                 <button

@@ -11,6 +11,7 @@ import {
     DeckConfig_Config_ReviewCardOrder,
     DeckConfig_Config_ReviewMix,
 } from "@generated/anki/deck_config_pb";
+import { CMRRTarget } from "@generated/anki/scheduler_pb";
 import * as tr from "@generated/ftl";
 
 import type { Choice } from "$lib/components/EnumSelector.svelte";
@@ -195,6 +196,19 @@ export function questionActionChoices(): Choice<DeckConfig_Config_QuestionAction
         {
             label: tr.deckConfigQuestionActionShowReminder(),
             value: DeckConfig_Config_QuestionAction.SHOW_REMINDER,
+        },
+    ];
+}
+
+export function CMRRTargetChoices(): Choice<CMRRTarget>[] {
+    return [
+        {
+            label: "Memorized (Default)",
+            value: CMRRTarget.memorised,
+        },
+        {
+            label: "Stability (Experimental)",
+            value: CMRRTarget.stability,
         },
     ];
 }
