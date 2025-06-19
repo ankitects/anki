@@ -1,7 +1,9 @@
+use anki_proto::scheduler::CmrrTarget;
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use fsrs::extract_simulator_config;
+use fsrs::SimulationResult;
 use fsrs::SimulatorConfig;
 use fsrs::FSRS;
 
@@ -16,6 +18,40 @@ pub struct ComputeRetentionProgress {
 
 impl Collection {
     pub fn compute_optimal_retention(&mut self, req: SimulateFsrsReviewRequest) -> Result<f32> {
+        // Helper macro to wrap the closure for "CMRRTargetFn"s
+        macro_rules! wrap {
+            ($f:expr) => {
+                Some(fsrs::CMRRTargetFn(std::sync::Arc::new($f)))
+            };
+        }
+
+        let target = req
+            .target
+            .map(TryInto::try_into)
+            .transpose()
+            .unwrap_or(None);
+
+        let days_to_simulate = req.days_to_simulate as f32;
+
+        let target = match target {
+            Some(CmrrTarget::Memorised) => None,
+            Some(CmrrTarget::Stability) => {
+                wrap!(move |SimulationResult {
+                                cards,
+                                cost_per_day,
+                                ..
+                            },
+                            params| {
+                    let total_cost = cost_per_day.iter().sum::<f32>();
+                    total_cost
+                        / cards.iter().fold(0., |p, c| {
+                            p + (c.retention_on(params, days_to_simulate) * c.stability)
+                        })
+                })
+            }
+            None => None,
+        };
+
         let mut anki_progress = self.new_progress_handler::<ComputeRetentionProgress>();
         let fsrs = FSRS::new(None)?;
         if req.days_to_simulate == 0 {
@@ -34,7 +70,7 @@ impl Collection {
                         .is_ok()
                 },
                 Some(cards),
-                None,
+                target,
             )?
             .clamp(0.7, 0.95))
     }

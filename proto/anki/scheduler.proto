@@ -389,6 +389,11 @@ message FsrsReview {
   uint32 delta_t = 2;
 }
 
+enum CMRRTarget {
+  memorised = 0;
+  stability = 1;
+};
+
 message SimulateFsrsReviewRequest {
   repeated float params = 1;
   float desired_retention = 2;
@@ -402,6 +407,8 @@ message SimulateFsrsReviewRequest {
   repeated float easy_days_percentages = 10;
   deck_config.DeckConfig.Config.ReviewCardOrder review_order = 11;
   optional uint32 suspend_after_lapse_count = 12;
+  // For CMRR
+  optional CMRRTarget target = 13;
 }
 
 message SimulateFsrsReviewResponse {
