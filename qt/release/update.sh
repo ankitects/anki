@@ -16,6 +16,11 @@ UV="$PROJ_ROOT/out/extracted/uv/uv"
 # Prompt for wheel version
 read -p "Wheel version: " VERSION
 
+# Copy existing pyproject.toml to .old if it exists
+if [ -f pyproject.toml ]; then
+    cp pyproject.toml pyproject.toml.old
+fi
+
 # Export dependencies using uv
 echo "Exporting dependencies..."
 rm -f pyproject.toml
@@ -60,3 +65,10 @@ include = ["no-such-file"]
 EOF
 
 echo "Generated pyproject.toml with version $VERSION"
+
+# Show diff if .old file exists
+if [ -f pyproject.toml.old ]; then
+    echo
+    echo "Differences from previous version:"
+    diff -u --color=always pyproject.toml.old pyproject.toml || true
+fi
