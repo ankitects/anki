@@ -105,7 +105,8 @@ impl Collection {
                 progress.update(true, |state| state.current_cards = idx as u32 + 1)?;
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
-                // store decay and desired retention in the card so that add-ons, card info and Stats don't need to access the deck config
+                // store decay and desired retention in the card so that add-ons, card info and
+                // Stats don't need to access the deck config
                 card.desired_retention = desired_retention;
                 card.decay = decay;
                 if let (Some(req), Some(item)) = (&req, item) {
