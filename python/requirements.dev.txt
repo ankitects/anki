@@ -502,7 +502,7 @@ pytest==8.3.2 \
     --hash=sha256:4ba08f9ae7dcf84ded419494d229b48d0903ea6407b030eaec46df5e6a73bba5 \
     --hash=sha256:c132345d12ce551242c87269de812483f5bcc87cdbb4722e48487ba194f9fdce
     # via -r requirements.dev.in
-requests==2.32.4 \
+requests[socks]==2.32.4 \
     --hash=sha256:27babd3cda2a6d50b30443204ee89830707d396671944c998b5975b031ac2b2c \
     --hash=sha256:27d0316682c8a29834d3264820024b62a36942083d52caf2f14c0591336d3422
     # via
@@ -577,10 +577,6 @@ types-protobuf==5.27.0.20240626 \
     # via
     #   -r requirements.dev.in
     #   mypy-protobuf
-types-pywin32==306.0.0.20240822 \
-    --hash=sha256:31a16f7eaf711166e8aec50ee1ddf0f16b4512e19ecc92a019ae7a0860b64bad \
-    --hash=sha256:34d22b58aaa2cc86fe585b6e2e1eda88a60b010badea0e0e4a410ebe28744645
-    # via -r requirements.dev.in
 types-requests==2.32.0.20240712 \
     --hash=sha256:90c079ff05e549f6bf50e02e910210b98b8ff1ebdd18e19c873cd237737c1358 \
     --hash=sha256:f754283e152c752e46e70942fa2a146b5bc70393522257bb85bd1ef7e019dcc3
@@ -603,9 +599,9 @@ typing-extensions==4.12.2 \
     #   fluent-syntax
     #   mypy
     #   pylint
-urllib3==2.2.2 \
-    --hash=sha256:a448b2f64d686155468037e1ace9f2d2199776e17f0a46610480d311f73e3472 \
-    --hash=sha256:dd505485549a7a552833da5e6063639d0d177c04f23bc3864e41e5dc5f612168
+urllib3==2.5.0 \
+    --hash=sha256:3fc47733c7e419d4bc3f6b3dc2b4f890bb743906a30d56ba4a5bfa4bbff92760 \
+    --hash=sha256:e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc
     # via
     #   requests
     #   types-requests
