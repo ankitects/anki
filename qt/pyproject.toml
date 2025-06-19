@@ -14,7 +14,7 @@ dependencies = [
   "waitress>=2.0.0",
   "psutil; sys.platform == 'win32'",
   "pywin32; sys.platform == 'win32'",
-  "pip-system-certs<5.1", # 5.1's AI-generated print statements break protoc
+  "pip-system-certs!=5.1",
   "mock",
   "types-decorator",
   "types-flask",
