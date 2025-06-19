@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import "./import-page-base.scss";
-    
+
     import type { ImportResponse } from "@generated/anki/import_export_pb";
     import { importDone } from "@generated/backend";
 
