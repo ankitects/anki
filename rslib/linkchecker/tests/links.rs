@@ -52,7 +52,7 @@ impl CheckableUrl {
     fn anchor(&self) -> Cow<str> {
         match *self {
             Self::HelpPage(page) => help_page_link_suffix(page).into(),
-            Self::String(s) => s.split('#').last().unwrap_or_default().into(),
+            Self::String(s) => s.split('#').next_back().unwrap_or_default().into(),
         }
     }
 }

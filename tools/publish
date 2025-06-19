@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+export UV_PUBLISH_TOKEN=$(pass show w/pypi-api-test)
+out/extracted/uv/uv publish --index testpypi out/wheels/*
+

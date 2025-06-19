@@ -279,12 +279,25 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     if "LD_LIBRARY_PATH" in env and "SNAP" not in env:
         del env["LD_LIBRARY_PATH"]
 
-    if is_win:
-        packaged_path = Path(sys.prefix) / (cmd[0] + ".exe")
-    elif is_mac:
-        packaged_path = Path(sys.prefix) / ".." / "Resources" / cmd[0]
-    else:
-        packaged_path = Path(sys.prefix) / cmd[0]
+    # Try to find binary in anki-audio package for Windows/Mac
+    if is_win or is_mac:
+        try:
+            import anki_audio
+
+            audio_pkg_path = Path(anki_audio.__file__).parent
+            if is_win:
+                packaged_path = audio_pkg_path / (cmd[0] + ".exe")
+            else:  # is_mac
+                packaged_path = audio_pkg_path / cmd[0]
+
+            if packaged_path.exists():
+                cmd[0] = str(packaged_path)
+                return cmd, env
+        except ImportError:
+            # anki-audio not available, fall back to old behavior
+            pass
+
+    packaged_path = Path(sys.prefix) / cmd[0]
     if packaged_path.exists():
         cmd[0] = str(packaged_path)
 

@@ -177,7 +177,8 @@ class MPVBase:
         startup.
         """
         start = time.time()
-        while self.is_running() and time.time() < start + 10:
+        timeout = 60 if is_mac else 10
+        while self.is_running() and time.time() < start + timeout:
             time.sleep(0.1)
             if is_win:
                 # named pipe

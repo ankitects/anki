@@ -87,24 +87,15 @@ if TYPE_CHECKING:
 
 
 def aqt_data_path() -> Path:
-    # packaged?
-    if getattr(sys, "frozen", False):
-        prefix = Path(sys.prefix)
-        path = prefix / "lib/_aqt/data"
-        if path.exists():
-            return path
-        else:
-            return prefix / "../Resources/_aqt/data"
-    else:
-        import _aqt.colors
+    import _aqt.colors
 
-        data_folder = Path(inspect.getfile(_aqt.colors)).with_name("data")
-        if data_folder.exists():
-            return data_folder.absolute()
-        else:
-            # should only happen when running unit tests
-            print("warning, data folder not found")
-            return Path(".")
+    data_folder = Path(inspect.getfile(_aqt.colors)).with_name("data")
+    if data_folder.exists():
+        return data_folder.absolute()
+    else:
+        # should only happen when running unit tests
+        print("warning, data folder not found")
+        return Path(".")
 
 
 def aqt_data_folder() -> str:
@@ -1207,12 +1198,11 @@ def supportText() -> str:
     platname = platform.platform()
 
     return """\
-Anki {} {} {}
+Anki {} {}
 Python {} Qt {} PyQt {}
 Platform: {}
 """.format(
         version_with_build(),
-        "(src)" if not getattr(sys, "frozen", False) else "",
         "(ao)" if mw.addonManager.dirty else "",
         platform.python_version(),
         qVersion(),

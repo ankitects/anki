@@ -14,12 +14,7 @@ import aqt.utils
 
 class _MacOSHelper:
     def __init__(self) -> None:
-        if getattr(sys, "frozen", False):
-            path = os.path.join(sys.prefix, "libankihelper.dylib")
-        else:
-            path = os.path.join(
-                aqt.utils.aqt_data_folder(), "lib", "libankihelper.dylib"
-            )
+        path = os.path.join(aqt.utils.aqt_data_folder(), "lib", "libankihelper.dylib")
 
         self._dll = CDLL(path)
         self._dll.system_is_dark.restype = c_bool

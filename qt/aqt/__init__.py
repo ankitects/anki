@@ -5,9 +5,15 @@ from __future__ import annotations
 
 import atexit
 import logging
+import os
 import sys
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Union, cast
+
+if "ANKI_FIRST_RUN" in os.environ:
+    from .package import first_run_setup
+
+    first_run_setup()
 
 try:
     import pip_system_certs.wrapt_requests
@@ -32,24 +38,14 @@ if "--syncserver" in sys.argv:
     from anki.syncserver import run_sync_server
     from anki.utils import is_mac
 
-    from .package import _fix_protobuf_path
-
-    if is_mac and getattr(sys, "frozen", False):
-        _fix_protobuf_path()
-
     # does not return
     run_sync_server()
-
-from .package import packaged_build_setup
-
-packaged_build_setup()
 
 import argparse
 import builtins
 import cProfile
 import getpass
 import locale
-import os
 import tempfile
 import traceback
 from pathlib import Path
@@ -270,13 +266,7 @@ def setupLangAndBackend(
     # load qt translations
     _qtrans = QTranslator()
 
-    if is_mac and getattr(sys, "frozen", False):
-        qt_dir = os.path.join(sys.prefix, "../Resources/qt_translations")
-    else:
-        if qtmajor == 5:
-            qt_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)  # type: ignore
-        else:
-            qt_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+    qt_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
     qt_lang = lang.replace("-", "_")
     if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
@@ -607,14 +597,13 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         profiler = cProfile.Profile()
         profiler.enable()
 
-    packaged = getattr(sys, "frozen", False)
     x11_available = os.getenv("DISPLAY")
     wayland_configured = qtmajor > 5 and (
         os.getenv("QT_QPA_PLATFORM") == "wayland" or os.getenv("WAYLAND_DISPLAY")
     )
     wayland_forced = os.getenv("ANKI_WAYLAND")
 
-    if (packaged or is_gnome) and wayland_configured:
+    if is_gnome and wayland_configured:
         if wayland_forced or not x11_available:
             # Work around broken fractional scaling in Wayland
             # https://bugreports.qt.io/browse/QTBUG-113574

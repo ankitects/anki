@@ -53,7 +53,7 @@ async fn sync_handler<P: SyncProtocol>(
 }
 
 pub fn collection_sync_router<P: SyncProtocol + Clone>() -> Router<P> {
-    Router::new().route("/:method", post(sync_handler::<P>))
+    Router::new().route("/{method}", post(sync_handler::<P>))
 }
 
 /// The Rust code used to send a GET with query params, which was inconsistent
@@ -112,5 +112,5 @@ pub fn media_sync_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
             "/begin",
             get(media_begin_get::<P>).post(media_begin_post::<P>),
         )
-        .route("/:method", post(media_sync_handler::<P>))
+        .route("/{method}", post(media_sync_handler::<P>))
 }

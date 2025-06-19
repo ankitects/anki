@@ -10,14 +10,13 @@ use std::marker::PhantomData;
 use std::net::IpAddr;
 use std::sync::LazyLock;
 
-use async_trait::async_trait;
 use axum::body::Body;
 use axum::extract::FromRequest;
 use axum::extract::Multipart;
 use axum::http::Request;
 use axum::http::StatusCode;
 use axum::RequestPartsExt;
-use axum_client_ip::SecureClientIp;
+use axum_client_ip::ClientIp;
 use axum_extra::TypedHeader;
 use header_and_stream::SyncHeader;
 use serde::de::DeserializeOwned;
@@ -101,19 +100,18 @@ where
     }
 }
 
-#[async_trait]
-impl<S, T> FromRequest<S, Body> for SyncRequest<T>
+impl<S, T> FromRequest<S> for SyncRequest<T>
 where
     S: Send + Sync,
     T: DeserializeOwned,
 {
     type Rejection = HttpError;
 
-    async fn from_request(req: Request<Body>, state: &S) -> HttpResult<Self, Self::Rejection> {
+    async fn from_request(req: Request<Body>, state: &S) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
 
         let ip = parts
-            .extract::<SecureClientIp>()
+            .extract::<ClientIp>()
             .await
             .map_err(|_| {
                 HttpError::new_without_source(StatusCode::INTERNAL_SERVER_ERROR, "missing ip")

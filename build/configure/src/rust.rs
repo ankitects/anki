@@ -154,7 +154,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
                 "$builddir/buildhash",
                 // building on Windows requires python3.lib
                 if cfg!(windows) {
-                    inputs![":extract:python"]
+                    inputs![":pyenv:bin"]
                 } else {
                     inputs![]
                 }
@@ -247,7 +247,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
     let files = inputs![
         glob![
             "**/*.{py,rs,ts,svelte,mjs,md}",
-            "{node_modules,qt/bundle/PyOxidizer,ts/.svelte-kit}/**"
+            "{node_modules,ts/.svelte-kit}/**"
         ],
         "Cargo.lock"
     ];

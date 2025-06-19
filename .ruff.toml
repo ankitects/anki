@@ -1,2 +1,2 @@
 target-version = "py39"
-extend-exclude = ["qt/bundle"]
+extend-exclude = []

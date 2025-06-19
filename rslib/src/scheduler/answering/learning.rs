@@ -87,7 +87,7 @@ impl CardStateUpdater {
             if secs >= upper_exclusive {
                 secs
             } else {
-                rng.gen_range(secs..upper_exclusive)
+                rng.random_range(secs..upper_exclusive)
             }
         } else {
             secs

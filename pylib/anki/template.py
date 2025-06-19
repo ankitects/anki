@@ -279,6 +279,7 @@ class TemplateRenderContext:
 @dataclass
 class TemplateRenderOutput:
     "Stores the rendered templates and extracted AV tags."
+
     question_text: str
     answer_text: str
     question_av_tags: list[AVTag]

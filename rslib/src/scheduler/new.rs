@@ -127,7 +127,7 @@ fn nids_in_desired_order(cards: &[Card], order: NewCardDueOrder) -> Vec<NoteId> 
                 nids.sort_unstable();
             }
             NewCardDueOrder::Random => {
-                nids.shuffle(&mut rand::thread_rng());
+                nids.shuffle(&mut rand::rng());
             }
             NewCardDueOrder::Preserve => unreachable!(),
         }

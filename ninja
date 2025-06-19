@@ -8,7 +8,7 @@ else
     out="$BUILD_ROOT"
 fi
 export CARGO_TARGET_DIR=$out/rust
-export RECONFIGURE_KEY="${MAC_X86};${SOURCEMAP};${HMR}"
+export RECONFIGURE_KEY="${MAC_X86};${LIN_ARM64};${SOURCEMAP};${HMR}"
 
 if [ "$SKIP_RUNNER_BUILD" = "1" ]; then
     echo "Runner not rebuilt."

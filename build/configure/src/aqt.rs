@@ -364,20 +364,14 @@ fn build_wheel(build: &mut Build) -> Result<()> {
         BuildWheel {
             name: "aqt",
             version: anki_version(),
-            src_folder: "qt/aqt",
-            gen_folder: "$builddir/qt/_aqt",
             platform: None,
-            deps: inputs![":qt:aqt", glob!("qt/aqt/**"), "python/requirements.aqt.in"],
+            deps: inputs![":qt:aqt", glob!("qt/aqt/**"), "qt/pyproject.toml"],
         },
     )
 }
 
 fn check_python(build: &mut Build) -> Result<()> {
-    python_format(
-        build,
-        "qt",
-        inputs![glob!("qt/**/*.py", "qt/bundle/PyOxidizer/**")],
-    )?;
+    python_format(build, "qt", inputs![glob!("qt/**/*.py")])?;
 
     build.add_action(
         "check:pytest:aqt",

@@ -174,7 +174,7 @@ from revlog where type != {REVLOG_RESCHED} and id > ? """
                 cards=cards, seconds=float(thetime)
             )
             # again/pass count
-            b += "<br>" + "Again count: %s" % bold(failed)
+            b += "<br>" + "Again count: %s" % bold(str(failed))
             if cards:
                 b += " " + "(%s correct)" % bold(
                     "%0.1f%%" % ((1 - failed / float(cards)) * 100)
@@ -182,7 +182,10 @@ from revlog where type != {REVLOG_RESCHED} and id > ? """
             # type breakdown
             b += "<br>"
             b += "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s" % dict(
-                a=bold(lrn), b=bold(rev), c=bold(relrn), d=bold(filt)
+                a=bold(str(lrn)),
+                b=bold(str(rev)),
+                c=bold(str(relrn)),
+                d=bold(str(filt)),
             )
             # mature today
             mcnt, msum = self.col.db.first(
