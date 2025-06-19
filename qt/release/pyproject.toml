@@ -4,7 +4,7 @@ version = "0.1.3"
 description = "A package to lock Anki's dependencies"
 requires-python = ">=3.9"
 dependencies = [
-  "anki==0.1.2",
+  "anki==24.6",
   "aqt==0.1.2",
   "anki-audio==0.1.0 ; sys_platform == 'darwin' or sys_platform == 'win32'",
   "attrs==25.3.0",
