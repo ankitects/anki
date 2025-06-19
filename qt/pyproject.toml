@@ -62,6 +62,9 @@ conflicts = [
   ],
 ]
 
+[tool.uv.sources]
+anki = { workspace = true }
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

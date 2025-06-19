@@ -48,7 +48,6 @@ wheels = [
 
 [[package]]
 name = "anki"
-version = "0.1.2"
 source = { editable = "pylib" }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -151,7 +150,6 @@ wheels = [
 
 [[package]]
 name = "aqt"
-version = "0.1.2"
 source = { editable = "qt" }
 dependencies = [
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
@@ -246,7 +244,7 @@ requires-dist = [
     { name = "types-waitress" },
     { name = "waitress", specifier = ">=2.0.0" },
 ]
-provides-extras = ["audio", "qt66", "qt67", "qt"]
+provides-extras = ["audio", "qt", "qt66", "qt67"]
 
 [[package]]
 name = "astroid"
