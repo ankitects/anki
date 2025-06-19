@@ -6,3 +6,7 @@
     color: black;
     background-color: white;
 }
+
+.night-mode .card {
+    color: white;
+}
