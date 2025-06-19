@@ -30,6 +30,17 @@ pub struct ComputeMemoryProgress {
     pub total_cards: u32,
 }
 
+/// Helper function to determine the appropriate decay value based on FSRS parameters
+fn get_decay_from_params(params: &[f32]) -> f32 {
+    if params.is_empty() {
+        FSRS6_DEFAULT_DECAY // default decay for FSRS-6
+    } else if params.len() < 21 {
+        FSRS5_DEFAULT_DECAY // default decay for FSRS-4.5 and FSRS-5
+    } else {
+        params[20]
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct UpdateMemoryStateRequest {
     pub params: Params,
@@ -77,15 +88,7 @@ impl Collection {
                 .then(|| Rescheduler::new(self))
                 .transpose()?;
             let fsrs = FSRS::new(req.as_ref().map(|w| &w.params[..]).or(Some([].as_slice())))?;
-            let decay = req.as_ref().map(|w| {
-                if w.params.is_empty() {
-                    FSRS6_DEFAULT_DECAY // default decay for FSRS-6
-                } else if w.params.len() < 21 {
-                    FSRS5_DEFAULT_DECAY // default decay for FSRS-4.5 and FSRS-5
-                } else {
-                    w.params[20]
-                }
-            });
+            let decay = req.as_ref().map(|w| get_decay_from_params(&w.params));
             let historical_retention = req.as_ref().map(|w| w.historical_retention);
             let items = fsrs_items_for_memory_states(
                 &fsrs,
@@ -191,13 +194,7 @@ impl Collection {
         let desired_retention = config.inner.desired_retention;
         let historical_retention = config.inner.historical_retention;
         let params = config.fsrs_params();
-        let decay = if params.is_empty() {
-            FSRS6_DEFAULT_DECAY // default decay for FSRS-6
-        } else if params.len() < 21 {
-            FSRS5_DEFAULT_DECAY // default decay for FSRS-4.5 and FSRS-5
-        } else {
-            params[20]
-        };
+        let decay = get_decay_from_params(&params);
         let fsrs = FSRS::new(Some(params))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
         let item = fsrs_item_for_memory_state(
