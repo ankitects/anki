@@ -130,7 +130,7 @@ impl Collection {
                                         let original_interval = card.interval;
                                         let interval = fsrs.next_interval(
                                             Some(state.stability),
-                                            desired_retention,
+                                            desired_retention.unwrap(),
                                             0,
                                         );
                                         card.interval = rescheduler
@@ -215,7 +215,7 @@ impl Collection {
             })
         } else {
             card.memory_state = None;
-            card.desired_retention = desired_retention;
+            card.desired_retention = Some(desired_retention);
             Ok(ComputeMemoryStateResponse {
                 state: None,
                 desired_retention,
