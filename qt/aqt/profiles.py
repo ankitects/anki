@@ -189,11 +189,8 @@ class ProfileManager:
                                 # return the bytes directly
                                 return args[0]
                         elif name == "_unpickle_enum":
-                            if qtmajor == 5:
-                                return sip._unpickle_enum(module, klass, args)  # type: ignore
-                            else:
-                                # old style enums can't be unpickled
-                                return None
+                            # old style enums can't be unpickled
+                            return None
                         else:
                             return sip._unpickle_type(module, klass, args)  # type: ignore
 

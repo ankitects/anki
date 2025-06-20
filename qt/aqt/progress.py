@@ -300,8 +300,7 @@ class ProgressManager:
     def _closeWin(self) -> None:
         # if the parent window has been deleted, the progress dialog may have
         # already been dropped; delete it if it hasn't been
-        if not sip.isdeleted(self._win):
-            assert self._win is not None
+        if self._win and not sip.isdeleted(self._win):
             self._win.cancel()
         self._win = None
         self._shown = 0

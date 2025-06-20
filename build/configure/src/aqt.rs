@@ -38,7 +38,6 @@ fn build_forms(build: &mut Build) -> Result<()> {
     let mut py_files = vec![];
     for path in ui_files.resolve() {
         let outpath = outdir.join(path.file_name().unwrap()).into_string();
-        py_files.push(outpath.replace(".ui", "_qt5.py"));
         py_files.push(outpath.replace(".ui", "_qt6.py"));
     }
     build.add_action(
