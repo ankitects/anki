@@ -16,7 +16,6 @@ use super::rescheduler::Rescheduler;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
-use crate::revlog::RevlogReviewKind;
 use crate::scheduler::answering::get_fuzz_seed;
 use crate::scheduler::fsrs::params::reviews_for_fsrs;
 use crate::scheduler::fsrs::params::Params;
@@ -29,6 +28,18 @@ use crate::search::StateKind;
 pub struct ComputeMemoryProgress {
     pub current_cards: u32,
     pub total_cards: u32,
+}
+
+/// Helper function to determine the appropriate decay value based on FSRS
+/// parameters
+fn get_decay_from_params(params: &[f32]) -> f32 {
+    if params.is_empty() {
+        FSRS6_DEFAULT_DECAY // default decay for FSRS-6
+    } else if params.len() < 21 {
+        FSRS5_DEFAULT_DECAY // default decay for FSRS-4.5 and FSRS-5
+    } else {
+        params[20]
+    }
 }
 
 #[derive(Debug)]
@@ -78,15 +89,7 @@ impl Collection {
                 .then(|| Rescheduler::new(self))
                 .transpose()?;
             let fsrs = FSRS::new(req.as_ref().map(|w| &w.params[..]).or(Some([].as_slice())))?;
-            let decay = req.as_ref().map(|w| {
-                if w.params.is_empty() {
-                    FSRS6_DEFAULT_DECAY // default decay for FSRS-6
-                } else if w.params.len() < 21 {
-                    FSRS5_DEFAULT_DECAY // default decay for FSRS-4.5 and FSRS-5
-                } else {
-                    w.params[20]
-                }
-            });
+            let decay = req.as_ref().map(|w| get_decay_from_params(&w.params));
             let historical_retention = req.as_ref().map(|w| w.historical_retention);
             let items = fsrs_items_for_memory_states(
                 &fsrs,
@@ -163,15 +166,8 @@ impl Collection {
                                             );
                                         }
                                         *due = new_due;
-                                        // Add a rescheduled revlog entry if the last entry wasn't
-                                        // rescheduled
-                                        if !last_info.last_revlog_is_rescheduled {
-                                            self.log_rescheduled_review(
-                                                &card,
-                                                original_interval,
-                                                usn,
-                                            )?;
-                                        }
+                                        // Add a rescheduled revlog entry
+                                        self.log_rescheduled_review(&card, original_interval, usn)?;
                                     }
                                 }
                             }
@@ -198,7 +194,9 @@ impl Collection {
             .or_not_found(conf_id)?;
         let desired_retention = config.inner.desired_retention;
         let historical_retention = config.inner.historical_retention;
-        let fsrs = FSRS::new(Some(config.fsrs_params()))?;
+        let params = config.fsrs_params();
+        let decay = get_decay_from_params(params);
+        let fsrs = FSRS::new(Some(params))?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
         let item = fsrs_item_for_memory_state(
             &fsrs,
@@ -212,6 +210,7 @@ impl Collection {
             Ok(ComputeMemoryStateResponse {
                 state: card.memory_state.map(Into::into),
                 desired_retention,
+                decay,
             })
         } else {
             card.memory_state = None;
@@ -219,6 +218,7 @@ impl Collection {
             Ok(ComputeMemoryStateResponse {
                 state: None,
                 desired_retention,
+                decay,
             })
         }
     }
@@ -289,9 +289,6 @@ struct LastRevlogInfo {
     /// reviewed the card and now, so that we can determine an accurate period
     /// when the card has subsequently been rescheduled to a different day.
     last_reviewed_at: Option<TimestampSecs>,
-    /// If true, the last action on this card was a reschedule, so we
-    /// can avoid writing an extra revlog entry on another reschedule.
-    last_revlog_is_rescheduled: bool,
 }
 
 /// Return a map of cards to info about last review/reschedule.
@@ -303,20 +300,12 @@ fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogIn
         .into_iter()
         .for_each(|(card_id, group)| {
             let mut last_reviewed_at = None;
-            let mut last_revlog_is_rescheduled = false;
             for e in group.into_iter() {
                 if e.button_chosen >= 1 {
                     last_reviewed_at = Some(e.id.as_secs());
                 }
-                last_revlog_is_rescheduled = e.review_kind == RevlogReviewKind::Rescheduled;
             }
-            out.insert(
-                card_id,
-                LastRevlogInfo {
-                    last_reviewed_at,
-                    last_revlog_is_rescheduled,
-                },
-            );
+            out.insert(card_id, LastRevlogInfo { last_reviewed_at });
         });
     out
 }
@@ -424,8 +413,8 @@ mod tests {
         assert_int_eq(
             item.starting_state.map(Into::into),
             Some(FsrsMemoryState {
-                stability: 99.999954,
-                difficulty: 5.6932373,
+                stability: 100.0,
+                difficulty: 5.003576,
             }),
         );
         let mut card = Card {
@@ -436,8 +425,8 @@ mod tests {
         assert_int_eq(
             card.memory_state,
             Some(FsrsMemoryState {
-                stability: 248.64305,
-                difficulty: 5.7909784,
+                stability: 248.9251,
+                difficulty: 4.9938006,
             }),
         );
         // cards with a single review-type entry also get memory states from revlog
@@ -459,8 +448,8 @@ mod tests {
         assert_int_eq(
             card.memory_state,
             Some(FsrsMemoryState {
-                stability: 99.999954,
-                difficulty: 5.840841,
+                stability: 100.0,
+                difficulty: 5.003576,
             }),
         );
         Ok(())

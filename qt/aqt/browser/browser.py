@@ -1139,6 +1139,9 @@ class Browser(QMainWindow):
                     dialog=dialog,
                 ),
             )
+            if key := aqt.mw.pm.get_answer_key(ease):
+                QShortcut(key, dialog, activated=btn.click)  # type: ignore
+                btn.setToolTip(tr.actions_shortcut_key(key))
             layout.addWidget(btn)
 
         # Add cancel button

@@ -1,0 +1,8 @@
+[project]
+name = "anki-launcher"
+version = "0.1.0"
+description = "UV-based launcher for Anki."
+requires-python = ">=3.9"
+dependencies = [
+  "anki-release",
+]

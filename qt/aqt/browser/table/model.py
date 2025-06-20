@@ -325,15 +325,13 @@ class DataModel(QAbstractTableModel):
             return 0
         return self.len_columns()
 
-    _QFont = without_qt5_compat_wrapper(QFont)
-
     def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
         if not index.isValid():
             return QVariant()
         if role == Qt.ItemDataRole.FontRole:
             if not self.column_at(index).uses_cell_font:
                 return QVariant()
-            qfont = self._QFont()
+            qfont = QFont()
             row = self.get_row(index)
             qfont.setFamily(row.font_name)
             qfont.setPixelSize(row.font_size)

@@ -167,9 +167,9 @@ class NoteImporter(Importer):
             firsts[fld0] = True
             # already exists?
             found = False
-            if csum in csums:
+            if csum in csums:  # type: ignore[comparison-overlap]
                 # csum is not a guarantee; have to check
-                for id in csums[csum]:
+                for id in csums[csum]:  # type: ignore[index]
                     flds = self.col.db.scalar("select flds from notes where id = ?", id)
                     sflds = split_fields(flds)
                     if fld0 == sflds[0]:

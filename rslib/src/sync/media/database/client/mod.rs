@@ -283,15 +283,20 @@ fn row_to_name_and_checksum(row: &Row) -> error::Result<(String, Sha1Hash)> {
     Ok((file_name, sha1))
 }
 
-fn trace(s: &str) {
-    println!("sql: {}", s)
+fn trace(event: rusqlite::trace::TraceEvent) {
+    if let rusqlite::trace::TraceEvent::Stmt(_, sql) = event {
+        println!("sql: {}", sql);
+    }
 }
 
 pub(crate) fn open_or_create<P: AsRef<Path>>(path: P) -> error::Result<Connection> {
     let mut db = Connection::open(path)?;
 
     if std::env::var("TRACESQL").is_ok() {
-        db.trace(Some(trace));
+        db.trace_v2(
+            rusqlite::trace::TraceEventCodes::SQLITE_TRACE_STMT,
+            Some(trace),
+        );
     }
 
     db.pragma_update(None, "page_size", 4096)?;

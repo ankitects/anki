@@ -69,6 +69,7 @@ if is_win:
     # pylint: disable=import-error
     import pywintypes
     import win32file  # pytype: disable=import-error
+    import win32job
     import win32pipe
     import winerror
 
@@ -131,6 +132,22 @@ class MPVBase:
     def _start_process(self):
         """Start the mpv process."""
         self._proc = subprocess.Popen(self.argv, env=self.popenEnv)
+        if is_win:
+            # Ensure mpv gets terminated if Anki closes abruptly.
+            self._job = win32job.CreateJobObject(None, "")
+            extended_info = win32job.QueryInformationJobObject(
+                self._job, win32job.JobObjectExtendedLimitInformation
+            )
+            extended_info["BasicLimitInformation"][
+                "LimitFlags"
+            ] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            win32job.SetInformationJobObject(
+                self._job,
+                win32job.JobObjectExtendedLimitInformation,
+                extended_info,
+            )
+            handle = self._proc._handle  # pylint: disable=no-member
+            win32job.AssignProcessToJobObject(self._job, handle)
 
     def _stop_process(self):
         """Stop the mpv process."""
@@ -160,7 +177,8 @@ class MPVBase:
         startup.
         """
         start = time.time()
-        while self.is_running() and time.time() < start + 10:
+        timeout = 60 if is_mac else 10
+        while self.is_running() and time.time() < start + timeout:
             time.sleep(0.1)
             if is_win:
                 # named pipe

@@ -354,11 +354,13 @@ message ComputeFsrsParamsRequest {
   repeated float current_params = 2;
   int64 ignore_revlogs_before_ms = 3;
   uint32 num_of_relearning_steps = 4;
+  bool health_check = 5;
 }
 
 message ComputeFsrsParamsResponse {
   repeated float params = 1;
   uint32 fsrs_items = 2;
+  optional bool health_check_passed = 3;
 }
 
 message ComputeFsrsParamsFromItemsRequest {
@@ -435,9 +437,9 @@ message GetOptimalRetentionParametersResponse {
 }
 
 message EvaluateParamsRequest {
-  repeated float params = 1;
-  string search = 2;
-  int64 ignore_revlogs_before_ms = 3;
+  string search = 1;
+  int64 ignore_revlogs_before_ms = 2;
+  uint32 num_of_relearning_steps = 3;
 }
 
 message EvaluateParamsResponse {
@@ -448,6 +450,7 @@ message EvaluateParamsResponse {
 message ComputeMemoryStateResponse {
   optional cards.FsrsMemoryState state = 1;
   float desired_retention = 2;
+  float decay = 3;
 }
 
 message FuzzDeltaRequest {

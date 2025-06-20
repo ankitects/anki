@@ -217,7 +217,7 @@ function drawShapes(
             context,
             size,
             shape,
-            fill: properties.inActiveShapeColor,
+            fill: shape.fill ?? properties.inActiveShapeColor,
             stroke: properties.inActiveBorder.color,
             strokeWidth: properties.inActiveBorder.width,
         });
@@ -358,7 +358,7 @@ function drawShape({
             maxWidth + TEXT_PADDING,
             totalHeight + TEXT_PADDING,
         );
-        ctx.fillStyle = "#000";
+        ctx.fillStyle = shape.fill ?? "#000";
         for (const line of linePositions) {
             ctx.fillText(line.text, line.x, line.y);
         }

@@ -18,7 +18,10 @@ import aqt.operations
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
-from anki.scheduler.v3 import CardAnswer, QueuedCards
+from anki.scheduler.v3 import (
+    CardAnswer,
+    QueuedCards,
+)
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.scheduler.v3 import (
     SchedulingContext,

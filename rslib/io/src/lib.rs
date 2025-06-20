@@ -152,6 +152,34 @@ pub fn copy_file(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> Result<u64> {
     })
 }
 
+/// Copy a file from src to dst if dst doesn't exist or if src is newer than
+/// dst. Preserves the modification time from the source file.
+pub fn copy_if_newer(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> Result<bool> {
+    let src = src.as_ref();
+    let dst = dst.as_ref();
+
+    let should_copy = if !dst.exists() {
+        true
+    } else {
+        let src_time = modified_time(src)?;
+        let dst_time = modified_time(dst)?;
+        src_time > dst_time
+    };
+
+    if should_copy {
+        copy_file(src, dst)?;
+
+        // Preserve the modification time from the source file
+        let src_mtime = modified_time(src)?;
+        let times = FileTimes::new().set_modified(src_mtime);
+        set_file_times(dst, times)?;
+
+        Ok(true)
+    } else {
+        Ok(false)
+    }
+}
+
 /// Like [read_file], but skips the section that is potentially locked by
 /// SQLite.
 pub fn read_locked_db_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
@@ -183,6 +211,14 @@ fn read_locked_db_file_inner(path: impl AsRef<Path>) -> std::io::Result<Vec<u8>>
 /// See [std::fs::metadata].
 pub fn metadata(path: impl AsRef<Path>) -> Result<std::fs::Metadata> {
     std::fs::metadata(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Metadata,
+    })
+}
+
+/// Get the modification time of a file.
+pub fn modified_time(path: impl AsRef<Path>) -> Result<std::time::SystemTime> {
+    metadata(&path)?.modified().context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Metadata,
     })

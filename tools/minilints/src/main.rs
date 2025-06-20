@@ -29,8 +29,6 @@ const NONSTANDARD_HEADER: &[&str] = &[
     "./python/write_wheel.py",
     "./qt/aqt/mpv.py",
     "./qt/aqt/winpaths.py",
-    "./qt/bundle/build.rs",
-    "./qt/bundle/src/main.rs",
 ];
 
 const IGNORED_FOLDERS: &[&str] = &[
@@ -38,7 +36,6 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./node_modules",
     "./qt/aqt/forms",
     "./tools/workspace-hack",
-    "./qt/bundle/PyOxidizer",
     "./target",
     ".mypy_cache",
     "./extra",
@@ -209,7 +206,7 @@ fn sveltekit_temp_file(path: &str) -> bool {
 }
 
 fn check_cargo_deny() -> Result<()> {
-    Command::run("cargo install cargo-deny@0.18.2")?;
+    Command::run("cargo install cargo-deny@0.18.3")?;
     Command::run("cargo deny check")?;
     Ok(())
 }

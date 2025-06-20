@@ -58,6 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let computingParams = false;
     let checkingParams = false;
 
+    const healthCheck = state.fsrsHealthCheck;
+
     $: computing = computingParams || checkingParams;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
@@ -178,6 +180,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
                         currentParams: params,
                         numOfRelearningSteps: numOfRelearningStepsInDay,
+                        healthCheck: $healthCheck,
                     });
 
                     const already_optimal =
@@ -187,14 +190,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             )) ||
                         resp.params.length === 0;
 
-                    if (already_optimal) {
+                    if (resp.healthCheckPassed !== undefined) {
+                        if (resp.healthCheckPassed) {
+                            setTimeout(() => alert(tr.deckConfigFsrsGoodFit()), 200);
+                        } else {
+                            setTimeout(
+                                () => alert(tr.deckConfigFsrsBadFitWarning()),
+                                200,
+                            );
+                        }
+                    } else if (already_optimal) {
                         const msg = resp.fsrsItems
                             ? tr.deckConfigFsrsParamsOptimal()
                             : tr.deckConfigFsrsParamsNoReviews();
                         setTimeout(() => alert(msg), 200);
-                    } else {
+                    }
+                    if (!already_optimal) {
                         $config.fsrsParams6 = resp.params;
-                        optimized = true;
+                        setTimeout(() => {
+                            optimized = true;
+                        }, 201);
                     }
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
@@ -229,9 +244,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? $config.paramSearch
                         : defaultparamSearch;
                     const resp = await evaluateParams({
-                        params: fsrsParams($config),
                         search,
                         ignoreRevlogsBeforeMs: getIgnoreRevlogsBeforeMs(),
+                        numOfRelearningSteps: $config.relearnSteps.length,
                     });
                     if (computeParamsProgress) {
                         computeParamsProgress.current = computeParamsProgress.total;
@@ -268,7 +283,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (val instanceof ComputeRetentionProgress) {
             return `${pct}%`;
         } else {
-            return tr.deckConfigPercentOfReviews({ pct, reviews: val.reviews });
+            if (val.current === val.total) {
+                return tr.deckConfigCheckingForImprovement();
+            } else {
+                return tr.deckConfigPercentOfReviews({ pct, reviews: val.reviews });
+            }
         }
     }
 
@@ -312,6 +331,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         placeholder={defaultparamSearch}
     />
 
+    <SwitchRow bind:value={$fsrsReschedule} defaultValue={false}>
+        <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
+            <GlobalLabel title={tr.deckConfigRescheduleCardsOnChange()} />
+        </SettingTitle>
+    </SwitchRow>
+
+    {#if $fsrsReschedule}
+        <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
+    {/if}
+
+    <SwitchRow bind:value={$healthCheck} defaultValue={false}>
+        <SettingTitle on:click={() => openHelpModal("healthCheck")}>
+            <GlobalLabel
+                title={tr.deckConfigSlowSuffix({ text: tr.deckConfigHealthCheck() })}
+            />
+        </SettingTitle>
+    </SwitchRow>
+
     <button
         class="btn {computingParams ? 'btn-warning' : 'btn-primary'}"
         disabled={!computingParams && computing}
@@ -323,17 +360,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.deckConfigOptimizeButton()}
         {/if}
     </button>
-    <button
-        class="btn {checkingParams ? 'btn-warning' : 'btn-primary'}"
-        disabled={!checkingParams && computing}
-        on:click={() => checkParams()}
-    >
-        {#if checkingParams}
-            {tr.actionsCancel()}
-        {:else}
-            {tr.deckConfigEvaluateButton()}
-        {/if}
-    </button>
+    {#if false}
+        <!-- Can be re-enabled by some method in the future -->
+        <button
+            class="btn {checkingParams ? 'btn-warning' : 'btn-primary'}"
+            disabled={!checkingParams && computing}
+            on:click={() => checkParams()}
+        >
+            {#if checkingParams}
+                {tr.actionsCancel()}
+            {:else}
+                {tr.deckConfigEvaluateButton()}
+            {/if}
+        </button>
+    {/if}
     <div>
         {#if computingParams || checkingParams}
             {computeParamsProgressString}
@@ -349,18 +389,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <button class="btn btn-primary" on:click={() => computeAllParams()}>
         {tr.deckConfigSaveAndOptimize()}
     </button>
-</div>
-
-<div class="m-2">
-    <SwitchRow bind:value={$fsrsReschedule} defaultValue={false}>
-        <SettingTitle on:click={() => openHelpModal("rescheduleCardsOnChange")}>
-            <GlobalLabel title={tr.deckConfigRescheduleCardsOnChange()} />
-        </SettingTitle>
-    </SwitchRow>
-
-    {#if $fsrsReschedule}
-        <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
-    {/if}
 </div>
 
 <div class="m-2">

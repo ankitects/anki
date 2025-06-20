@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import os.path
 import platform
 import re
 import subprocess
@@ -23,7 +24,6 @@ from markdown import markdown
 import aqt
 import aqt.mpv
 import aqt.qt
-from anki import hooks
 from anki.cards import Card
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
 from anki.utils import is_lin, is_mac, is_win, namedtmp
@@ -177,15 +177,27 @@ class AVPlayer:
             self._stop_if_playing()
 
     def play_file(self, filename: str) -> None:
+        """Play the provided path.
+
+        SECURITY: Filename may be an arbitrary path. For filenames coming from a collection,
+        you should only ever use the os.path.basename(filename) as the filename."""
         self.play_tags([SoundOrVideoTag(filename=filename)])
 
     def play_file_with_caller(self, filename: str, caller: Any) -> None:
+        """Play the provided path, noting down the caller.
+
+        SECURITY: Filename may be an arbitrary path. For filenames coming from a collection,
+        you should only ever use the os.path.basename(filename) as the filename."""
         if self.current_caller:
             self.current_caller_interrupted = True
         self.current_caller = caller
         self.play_file(filename)
 
     def insert_file(self, filename: str) -> None:
+        """Place the provided path at the top of the playlist.
+
+        SECURITY: Filename may be an arbitrary path. For filenames coming from a collection,
+        you should only ever use the os.path.basename(filename) as the filename."""
         self._enqueued.insert(0, SoundOrVideoTag(filename=filename))
         self._play_next_if_idle()
 
@@ -267,12 +279,25 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     if "LD_LIBRARY_PATH" in env and "SNAP" not in env:
         del env["LD_LIBRARY_PATH"]
 
-    if is_win:
-        packaged_path = Path(sys.prefix) / (cmd[0] + ".exe")
-    elif is_mac:
-        packaged_path = Path(sys.prefix) / ".." / "Resources" / cmd[0]
-    else:
-        packaged_path = Path(sys.prefix) / cmd[0]
+    # Try to find binary in anki-audio package for Windows/Mac
+    if is_win or is_mac:
+        try:
+            import anki_audio
+
+            audio_pkg_path = Path(anki_audio.__file__).parent
+            if is_win:
+                packaged_path = audio_pkg_path / (cmd[0] + ".exe")
+            else:  # is_mac
+                packaged_path = audio_pkg_path / cmd[0]
+
+            if packaged_path.exists():
+                cmd[0] = str(packaged_path)
+                return cmd, env
+        except ImportError:
+            # anki-audio not available, fall back to old behavior
+            pass
+
+    packaged_path = Path(sys.prefix) / cmd[0]
     if packaged_path.exists():
         cmd[0] = str(packaged_path)
 
@@ -327,7 +352,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._process = subprocess.Popen(
-            self.args + ["--", tag.filename],
+            self.args + ["--", tag.path(self._media_folder)],
             env=self.env,
             cwd=self._media_folder,
             stdout=subprocess.DEVNULL,
@@ -453,8 +478,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._on_done = on_done
-        filename = hooks.media_file_filter(tag.filename)
-        path = os.path.join(self.media_folder, filename)
+        path = tag.path(self.media_folder)
 
         if self.mpv_version is None or self.mpv_version >= (0, 38, 0):
             self.command("loadfile", path, "replace", -1, "pause=no")
@@ -506,10 +530,8 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
 
-        filename = hooks.media_file_filter(tag.filename)
-
         self._process = subprocess.Popen(
-            self.args + ["--", filename],
+            self.args + ["--", tag.path(self.media_folder)],
             env=self.env,
             cwd=self.media_folder,
             stdin=subprocess.PIPE,
@@ -750,19 +772,14 @@ class RecordDialog(QDialog):
         saveGeom(self, "audioRecorder2")
 
     def _start_recording(self) -> None:
-        if qtmajor > 5:
-            if macos_helper and platform.machine() == "arm64":
-                self._recorder = NativeMacRecorder(
-                    namedtmp("rec.wav"),
-                )
-            else:
-                self._recorder = QtAudioInputRecorder(
-                    namedtmp("rec.wav"), self.mw, self._parent
-                )
+        if macos_helper and platform.machine() == "arm64":
+            self._recorder = NativeMacRecorder(
+                namedtmp("rec.wav"),
+            )
         else:
-            from aqt.qt.qt5_audio import QtAudioInputRecorder as Qt5Recorder
-
-            self._recorder = Qt5Recorder(namedtmp("rec.wav"), self.mw, self._parent)
+            self._recorder = QtAudioInputRecorder(
+                namedtmp("rec.wav"), self.mw, self._parent
+            )
         self._recorder.start(self._start_timer)
 
     def _start_timer(self) -> None:

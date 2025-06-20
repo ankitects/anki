@@ -165,6 +165,7 @@ _mbox: QMessageBox | None = None
 
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
+
     ivl = 100
     fatal_error_encountered = False
 
@@ -234,6 +235,8 @@ class ErrorHandler(QObject):
             return
         if "unable to get local issuer certificate" in error and is_win:
             showWarning(tr.errors_windows_ssl_updates())
+            return
+        if is_chromium_cert_error(error):
             return
 
         debug_text = supportText() + "\n" + error

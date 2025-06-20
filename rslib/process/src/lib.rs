@@ -57,6 +57,9 @@ pub trait CommandExt {
 
     fn ensure_success(&mut self) -> Result<&mut Self>;
     fn utf8_output(&mut self) -> Result<Utf8Output>;
+    fn ensure_spawn(&mut self) -> Result<std::process::Child>;
+    #[cfg(unix)]
+    fn ensure_exec(&mut self) -> Result<()>;
 }
 
 impl CommandExt for Command {
@@ -92,6 +95,23 @@ impl CommandExt for Command {
             stderr: String::from_utf8(output.stderr).with_context(|_| InvalidUtf8Snafu {
                 cmdline: get_cmdline(self),
             })?,
+        })
+    }
+
+    fn ensure_spawn(&mut self) -> Result<std::process::Child> {
+        self.spawn().with_context(|_| DidNotExecuteSnafu {
+            cmdline: get_cmdline(self),
+        })
+    }
+
+    #[cfg(unix)]
+    fn ensure_exec(&mut self) -> Result<()> {
+        use std::os::unix::process::CommandExt as UnixCommandExt;
+        let cmdline = get_cmdline(self);
+        let error = self.exec();
+        Err(Error::DidNotExecute {
+            cmdline,
+            source: error,
         })
     }
 }

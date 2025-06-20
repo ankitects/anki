@@ -1,8 +1,36 @@
-[tool.black]
-target-version = ["py39", "py310", "py311", "py312"]
-extend-exclude = "qt/bundle"
+[project]
+name = "anki-dev"
+version = "0.0.0"
+description = "Local-only environment"
+requires-python = ">=3.9"
+classifiers = ["Private :: Do Not Upload"]
 
-[tool.pyright]
-include = ["pylib/anki", "qt/aqt"]
-stubPath = ""
-pythonVersion = "3.9"
+[dependency-groups]
+dev = [
+  "black",
+  "isort",
+  "mypy",
+  "mypy-protobuf",
+  "pylint",
+  "pytest",
+  "PyChromeDevTools",
+  "colorama", # for isort --color
+  "wheel",
+  "hatchling", # for type checking hatch_build.py files
+]
+
+[project.optional-dependencies]
+sphinx = [
+  "sphinx",
+  "sphinx_rtd_theme",
+  "sphinx-autoapi",
+]
+
+[tool.uv.workspace]
+members = ["pylib", "qt"]
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true

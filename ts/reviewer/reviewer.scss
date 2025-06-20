@@ -6,6 +6,9 @@
 
 hr {
     background-color: vars.palette(darkgray, 0);
+    margin: 1em 0;
+    border: none;
+    height: 1px;
 }
 
 body {
@@ -71,6 +74,7 @@ pre {
     width: 100%;
     // https://anki.tenderapp.com/discussions/beta-testing/1854-using-margin-auto-causes-horizontal-scrollbar-on-typesomething
     box-sizing: border-box;
+    line-height: 1.75;
 }
 
 code#typeans {

@@ -64,19 +64,9 @@ pub fn get_image_cloze_data(text: &str) -> String {
         }
         for property in occlusion.properties {
             match property.name.as_str() {
-                "left" => {
+                "left" | "top" | "angle" | "fill" => {
                     if !property.value.is_empty() {
-                        result.push_str(&format!("data-left=\"{}\" ", property.value));
-                    }
-                }
-                "top" => {
-                    if !property.value.is_empty() {
-                        result.push_str(&format!("data-top=\"{}\" ", property.value));
-                    }
-                }
-                "angle" => {
-                    if !property.value.is_empty() {
-                        result.push_str(&format!("data-angle=\"{}\" ", property.value));
+                        result.push_str(&format!("data-{}=\"{}\" ", property.name, property.value));
                     }
                 }
                 "width" => {

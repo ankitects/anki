@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>CFBundleDisplayName</key>
+		<string>Anki</string>
+		<key>CFBundleShortVersionString</key>
+		<string>1.0</string>
+		<key>LSMinimumSystemVersion</key>
+		<string>11</string>
+		<key>CFBundleDocumentTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeExtensions</key>
+				<array>
+					<string>colpkg</string>
+					<string>apkg</string>
+					<string>ankiaddon</string>
+				</array>
+				<key>CFBundleTypeIconName</key>
+				<string>AppIcon</string>
+				<key>CFBundleTypeName</key>
+				<string>Anki File</string>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+			</dict>
+		</array>
+		<key>CFBundleExecutable</key>
+		<string>launcher</string>
+		<key>CFBundleIconName</key>
+		<string>AppIcon</string>
+		<key>CFBundleIdentifier</key>
+		<string>net.ankiweb.launcher</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>Anki</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>NSHighResolutionCapable</key>
+		<true/>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>The microphone will only be used when you tap the record button.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Add-ons may access your camera.</string>		
+		<key>NSRequiresAquaSystemAppearance</key>
+		<true/>
+		<key>NSSupportsAutomaticGraphicsSwitching</key>
+		<true/>
+	</dict>
+</plist>

@@ -77,6 +77,7 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
         scale: cloze.dataset.scale,
         fs: cloze.dataset.fontSize,
         angle: cloze.dataset.angle,
+        ...(cloze.dataset.fill == null ? {} : { fill: cloze.dataset.fill }),
     };
     return buildShape(type, props);
 }

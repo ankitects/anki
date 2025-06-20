@@ -190,13 +190,10 @@ in the collection2.log file will also be printed on stdout.
 
 If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 
-# Binary Bundles
+# Installer/launcher
 
-Anki's official binary packages are created with `./ninja bundle`. The bundling
-process was created specifically for the official builds, and is provided as-is;
-we are unfortunately not able to provide assistance with any issues you may run
-into when using it. You'll need to run
-`git submodule update --checkout qt/bundle/PyOxidizer` first.
+- The anki-release package is created/published with the scripts in qt/release.
+- The installer/launcher is created with the build scripts in qt/launcher/{platform}.
 
 ## Mixing development and study
 

@@ -244,8 +244,8 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
 # OS helpers
 ##############################################################################
 
-is_mac = sys.platform.startswith("darwin")
-is_win = sys.platform.startswith("win32")
+is_mac = sys.platform == "darwin"
+is_win = sys.platform == "win32"
 # also covers *BSD
 is_lin = not is_mac and not is_win
 is_gnome = (
@@ -309,12 +309,17 @@ def int_version() -> int:
     """Anki's version as an integer in the form YYMMPP, e.g. 230900.
     (year, month, patch).
     In 2.1.x releases, this was just the last number."""
+    import re
+
     from anki.buildinfo import version
 
+    # Strip non-numeric characters (handles beta/rc suffixes like '25.02b1' or 'rc3')
+    numeric_version = re.sub(r"[^0-9.]", "", version)
+
     try:
-        [year, month, patch] = version.split(".")
+        [year, month, patch] = numeric_version.split(".")
     except ValueError:
-        [year, month] = version.split(".")
+        [year, month] = numeric_version.split(".")
         patch = "0"
 
     year_num = int(year)

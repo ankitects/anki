@@ -4,8 +4,8 @@
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
-use rand::distributions::Distribution;
-use rand::distributions::Uniform;
+use rand::distr::Distribution;
+use rand::distr::Uniform;
 use regex::Regex;
 
 use super::answering::CardAnswer;
@@ -34,11 +34,12 @@ impl Card {
         let new_due = (today + days_from_today) as i32;
         let fsrs_enabled = self.memory_state.is_some();
         let new_interval = if fsrs_enabled {
-            self.interval.saturating_add_signed(new_due - self.due)
-        } else if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
-            days_from_today
-        } else {
             self.interval
+                .saturating_add_signed(new_due - self.original_or_current_due())
+        } else if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
+            days_from_today.max(1)
+        } else {
+            self.interval.max(1)
         };
         let ease_factor = (ease_factor * 1000.0).round() as u16;
 
@@ -48,7 +49,7 @@ impl Card {
     fn schedule_as_review(&mut self, interval: u32, due: i32, ease_factor: u16) {
         self.original_position = self.last_position();
         self.remove_from_filtered_deck_before_reschedule();
-        self.interval = interval.max(1);
+        self.interval = interval;
         self.due = due;
         self.ctype = CardType::Review;
         self.queue = CardQueue::Review;
@@ -113,8 +114,8 @@ impl Collection {
         let spec = parse_due_date_str(days)?;
         let usn = self.usn()?;
         let today = self.timing_today()?.days_elapsed;
-        let mut rng = rand::thread_rng();
-        let distribution = Uniform::from(spec.min..=spec.max);
+        let mut rng = rand::rng();
+        let distribution = Uniform::new_inclusive(spec.min, spec.max).unwrap();
         let mut decks_initial_ease: HashMap<DeckId, f32> = HashMap::new();
         self.transact(Op::SetDueDate, |col| {
             for mut card in col.all_cards_for_ids(cids, false)? {

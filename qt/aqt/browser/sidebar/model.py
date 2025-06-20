@@ -2,8 +2,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from typing import cast
-
 import aqt
 import aqt.browser
 from aqt.browser.sidebar.item import SidebarItem
@@ -107,11 +105,11 @@ class SidebarModel(QAbstractItemModel):
         return self.sidebar._on_rename(index.internalPointer(), text)
 
     def supportedDropActions(self) -> Qt.DropAction:
-        return cast(Qt.DropAction, Qt.DropAction.MoveAction)
+        return Qt.DropAction.MoveAction
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         if not index.isValid():
-            return cast(Qt.ItemFlag, Qt.ItemFlag.ItemIsEnabled)
+            return Qt.ItemFlag.ItemIsEnabled
         flags = (
             Qt.ItemFlag.ItemIsEnabled
             | Qt.ItemFlag.ItemIsSelectable

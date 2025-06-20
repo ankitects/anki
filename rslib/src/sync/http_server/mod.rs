@@ -22,7 +22,7 @@ use anki_io::create_dir_all;
 use axum::extract::DefaultBodyLimit;
 use axum::routing::get;
 use axum::Router;
-use axum_client_ip::SecureClientIpSource;
+use axum_client_ip::ClientIpSource;
 use pbkdf2::password_hash::PasswordHash;
 use pbkdf2::password_hash::PasswordHasher;
 use pbkdf2::password_hash::PasswordVerifier;
@@ -69,7 +69,7 @@ pub struct SyncServerConfig {
     #[serde(default = "default_base", rename = "base")]
     pub base_folder: PathBuf,
     #[serde(default = "default_ip_header")]
-    pub ip_header: SecureClientIpSource,
+    pub ip_header: ClientIpSource,
 }
 
 fn default_host() -> IpAddr {
@@ -86,8 +86,8 @@ fn default_base() -> PathBuf {
         .join(".syncserver")
 }
 
-pub fn default_ip_header() -> SecureClientIpSource {
-    SecureClientIpSource::ConnectInfo
+pub fn default_ip_header() -> ClientIpSource {
+    ClientIpSource::ConnectInfo
 }
 
 impl SimpleServerInner {

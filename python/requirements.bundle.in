@@ -1,8 +1,0 @@
-# currently broken in pyoxidizer
-jsonschema<4.2
-setuptools<70
-
--r requirements.base.in
--r requirements.anki.in
--r requirements.aqt.in
-

@@ -120,7 +120,7 @@ class CustomStyles:
     QLabel:disabled {{
         color: {tm.var(colors.FG_DISABLED)};
     }}
-    QToolTip {{ color: {tm.var(colors.FG)}; background-color: {tm.var(colors.CANVAS)}; }} 
+    QToolTip {{ color: {tm.var(colors.FG)}; background-color: {tm.var(colors.CANVAS)}; }}
         """
 
     def menu(self, tm: ThemeManager) -> str:
@@ -404,18 +404,18 @@ class CustomStyles:
         };
     }}
     QHeaderView::section:first {{
-        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
     }}
     QHeaderView::section:!first {{
         border-left: none;
     }}
     QHeaderView::section:last {{
-        border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+        border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
     }}
     QHeaderView::section:only-one {{
-        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
         border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
@@ -579,19 +579,19 @@ class CustomStyles:
     }}
     QScrollBar::handle:pressed {{
         background-color: {tm.var(colors.SCROLLBAR_BG_ACTIVE)};
-    }} 
+    }}
     QScrollBar:horizontal {{
         height: 12px;
     }}
     QScrollBar::handle:horizontal {{
         min-width: 60px;
-    }} 
+    }}
     QScrollBar:vertical {{
         width: 12px;
     }}
     QScrollBar::handle:vertical {{
         min-height: 60px;
-    }} 
+    }}
     QScrollBar::add-line {{
         border: none;
         background: none;

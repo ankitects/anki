@@ -1,0 +1,92 @@
+[project]
+name = "aqt"
+dynamic = ["version"]
+requires-python = ">=3.9"
+license = "AGPL-3.0-or-later"
+dependencies = [
+  "beautifulsoup4",
+  "flask[async]",
+  "flask_cors",
+  "jsonschema",
+  "requests",
+  "send2trash",
+  "waitress>=2.0.0",
+  "psutil; sys.platform == 'win32'",
+  "pywin32; sys.platform == 'win32'",
+  "anki-mac-helper; sys.platform == 'darwin'",
+  "pip-system-certs!=5.1",
+  "mock",
+  "types-decorator",
+  "types-flask",
+  "types-flask-cors",
+  "types-markdown",
+  "types-waitress",
+  "types-pywin32",
+  "pyqt6>=6.2",
+  "pyqt6-webengine>=6.2",
+  # anki dependency is added dynamically in hatch_build.py with exact version
+]
+
+[project.optional-dependencies]
+audio = [
+  "anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'",
+]
+qt66 = [
+  "pyqt6==6.6.1",
+  "pyqt6-qt6==6.6.2",
+  "pyqt6-webengine==6.6.0",
+  "pyqt6-webengine-qt6==6.6.2",
+  "pyqt6_sip==13.6.0",
+]
+qt67 = [
+  "pyqt6==6.7.1",
+  "pyqt6-qt6==6.7.3",
+  "pyqt6-webengine==6.7.0",
+  "pyqt6-webengine-qt6==6.7.3",
+  "pyqt6_sip==13.10.2",
+]
+qt69 = [
+  "pyqt6==6.9.1",
+  "pyqt6-qt6==6.9.1",
+  "pyqt6-webengine==6.9.0",
+  "pyqt6-webengine-qt6==6.9.1",
+  "pyqt6_sip==13.10.2",
+]
+qt = [
+  "pyqt6==6.8.0",
+  "pyqt6-qt6==6.8.1",
+  "pyqt6-webengine==6.8.0",
+  "pyqt6-webengine-qt6==6.8.1",
+  "pyqt6_sip==13.10.2",
+]
+
+[tool.uv]
+conflicts = [
+  [
+    { extra = "qt" },
+    { extra = "qt66" },
+    { extra = "qt67" },
+    { extra = "qt69" },
+  ],
+]
+
+[tool.uv.sources]
+anki = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+anki = "aqt:run"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aqt"]
+exclude = ["**/*.scss", "**/*.ui"]
+
+[tool.hatch.version]
+source = "code"
+path = "../python/version.py"
+
+[tool.hatch.build.hooks.custom]
+path = "hatch_build.py"
