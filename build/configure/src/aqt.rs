@@ -27,7 +27,6 @@ pub fn build_and_check_aqt(build: &mut Build) -> Result<()> {
     build_forms(build)?;
     build_generated_sources(build)?;
     build_data_folder(build)?;
-    build_macos_helper(build)?;
     build_wheel(build)?;
     check_python(build)?;
     Ok(())
@@ -335,27 +334,6 @@ impl BuildAction for BuildThemedIcon<'_> {
         build.add_variable("colors", self.colors.join(":"));
         build.add_outputs("out", outputs);
     }
-}
-
-fn build_macos_helper(build: &mut Build) -> Result<()> {
-    if cfg!(target_os = "macos") {
-        build.add_action(
-            "qt:aqt:data:lib:libankihelper",
-            RunCommand {
-                command: ":pyenv:bin",
-                args: "$script $out $in",
-                inputs: hashmap! {
-                    "script" => inputs!["qt/mac/helper_build.py"],
-                    "in" => inputs![glob!["qt/mac/*.swift"]],
-                    "" => inputs!["out/env"],
-                },
-                outputs: hashmap! {
-                    "out" => vec!["qt/_aqt/data/lib/libankihelper.dylib"],
-                },
-            },
-        )?;
-    }
-    Ok(())
 }
 
 fn build_wheel(build: &mut Build) -> Result<()> {
