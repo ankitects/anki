@@ -450,6 +450,7 @@ message EvaluateParamsResponse {
 message ComputeMemoryStateResponse {
   optional cards.FsrsMemoryState state = 1;
   float desired_retention = 2;
+  float decay = 3;
 }
 
 message FuzzDeltaRequest {
