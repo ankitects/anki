@@ -45,6 +45,13 @@ qt67 = [
   "pyqt6-webengine-qt6==6.7.3",
   "pyqt6_sip==13.10.2",
 ]
+qt69 = [
+  "pyqt6==6.9.1",
+  "pyqt6-qt6==6.9.1",
+  "pyqt6-webengine==6.9.0",
+  "pyqt6-webengine-qt6==6.9.1",
+  "pyqt6_sip==13.10.2",
+]
 qt = [
   "pyqt6==6.8.0",
   "pyqt6-qt6==6.8.1",
@@ -59,6 +66,7 @@ conflicts = [
     { extra = "qt" },
     { extra = "qt66" },
     { extra = "qt67" },
+    { extra = "qt69" },
   ],
 ]
 

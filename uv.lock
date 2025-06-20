@@ -11,6 +11,7 @@ conflicts = [[
     { package = "aqt", extra = "qt" },
     { package = "aqt", extra = "qt66" },
     { package = "aqt", extra = "qt67" },
+    { package = "aqt", extra = "qt69" },
 ]]
 
 [manifest]
@@ -52,11 +53,11 @@ source = { editable = "pylib" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "decorator" },
-    { name = "distro", marker = "(sys_platform != 'darwin' and sys_platform != 'win32') or (sys_platform == 'darwin' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform == 'darwin' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform == 'darwin' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform == 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform == 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform == 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "distro", marker = "(sys_platform != 'darwin' and sys_platform != 'win32') or (sys_platform == 'darwin' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform == 'darwin' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform == 'darwin' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (sys_platform == 'darwin' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform == 'darwin' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (sys_platform == 'darwin' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69') or (sys_platform == 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform == 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform == 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (sys_platform == 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform == 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (sys_platform == 'win32' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "markdown" },
     { name = "orjson" },
     { name = "protobuf" },
-    { name = "psutil", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "psutil", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "requests", extra = ["socks"] },
     { name = "types-orjson" },
     { name = "types-protobuf" },
@@ -97,9 +98,9 @@ source = { virtual = "." }
 
 [package.optional-dependencies]
 sphinx = [
-    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "sphinx-autoapi" },
     { name = "sphinx-rtd-theme" },
 ]
@@ -152,22 +153,24 @@ wheels = [
 name = "aqt"
 source = { editable = "qt" }
 dependencies = [
-    { name = "anki-mac-helper", marker = "sys_platform == 'darwin' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "anki-mac-helper", marker = "sys_platform == 'darwin' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "beautifulsoup4" },
     { name = "flask" },
     { name = "flask-cors" },
     { name = "jsonschema" },
     { name = "mock" },
-    { name = "pip-system-certs", version = "4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pip-system-certs", version = "5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "psutil", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6", version = "6.6.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6", version = "6.7.1", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra != 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6", version = "6.8.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt' or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt66' and extra != 'extra-3-aqt-qt67')" },
-    { name = "pyqt6-webengine", version = "6.6.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6-webengine", version = "6.7.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra != 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6-webengine", version = "6.8.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt' or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt66' and extra != 'extra-3-aqt-qt67')" },
-    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "pip-system-certs", version = "4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pip-system-certs", version = "5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "psutil", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6", version = "6.6.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6", version = "6.7.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt67' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6", version = "6.8.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt' or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6", version = "6.9.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt69' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt66' and extra != 'extra-3-aqt-qt67')" },
+    { name = "pyqt6-webengine", version = "6.6.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-webengine", version = "6.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt67' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-webengine", version = "6.8.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt' or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-webengine", version = "6.9.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt69' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt66' and extra != 'extra-3-aqt-qt67')" },
+    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "requests" },
     { name = "send2trash" },
     { name = "types-decorator" },
@@ -181,7 +184,7 @@ dependencies = [
 
 [package.optional-dependencies]
 audio = [
-    { name = "anki-audio", marker = "sys_platform == 'darwin' or sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "anki-audio", marker = "sys_platform == 'darwin' or sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 qt = [
     { name = "pyqt6", version = "6.8.0", source = { registry = "https://pypi.org/simple" } },
@@ -204,6 +207,13 @@ qt67 = [
     { name = "pyqt6-webengine", version = "6.7.0", source = { registry = "https://pypi.org/simple" } },
     { name = "pyqt6-webengine-qt6", version = "6.7.3", source = { registry = "https://pypi.org/simple" } },
 ]
+qt69 = [
+    { name = "pyqt6", version = "6.9.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyqt6-qt6", version = "6.9.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyqt6-webengine", version = "6.9.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyqt6-webengine-qt6", version = "6.9.1", source = { registry = "https://pypi.org/simple" } },
+]
 
 [package.metadata]
 requires-dist = [
@@ -220,19 +230,24 @@ requires-dist = [
     { name = "pyqt6", marker = "extra == 'qt'", specifier = "==6.8.0" },
     { name = "pyqt6", marker = "extra == 'qt66'", specifier = "==6.6.1" },
     { name = "pyqt6", marker = "extra == 'qt67'", specifier = "==6.7.1" },
+    { name = "pyqt6", marker = "extra == 'qt69'", specifier = "==6.9.1" },
     { name = "pyqt6-qt6", marker = "extra == 'qt'", specifier = "==6.8.1" },
     { name = "pyqt6-qt6", marker = "extra == 'qt66'", specifier = "==6.6.2" },
     { name = "pyqt6-qt6", marker = "extra == 'qt67'", specifier = "==6.7.3" },
+    { name = "pyqt6-qt6", marker = "extra == 'qt69'", specifier = "==6.9.1" },
     { name = "pyqt6-sip", marker = "extra == 'qt'", specifier = "==13.10.2" },
     { name = "pyqt6-sip", marker = "extra == 'qt66'", specifier = "==13.6.0" },
     { name = "pyqt6-sip", marker = "extra == 'qt67'", specifier = "==13.10.2" },
+    { name = "pyqt6-sip", marker = "extra == 'qt69'", specifier = "==13.10.2" },
     { name = "pyqt6-webengine", specifier = ">=6.2" },
     { name = "pyqt6-webengine", marker = "extra == 'qt'", specifier = "==6.8.0" },
     { name = "pyqt6-webengine", marker = "extra == 'qt66'", specifier = "==6.6.0" },
     { name = "pyqt6-webengine", marker = "extra == 'qt67'", specifier = "==6.7.0" },
+    { name = "pyqt6-webengine", marker = "extra == 'qt69'", specifier = "==6.9.0" },
     { name = "pyqt6-webengine-qt6", marker = "extra == 'qt'", specifier = "==6.8.1" },
     { name = "pyqt6-webengine-qt6", marker = "extra == 'qt66'", specifier = "==6.6.2" },
     { name = "pyqt6-webengine-qt6", marker = "extra == 'qt67'", specifier = "==6.7.3" },
+    { name = "pyqt6-webengine-qt6", marker = "extra == 'qt69'", specifier = "==6.9.1" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "requests" },
     { name = "send2trash" },
@@ -244,14 +259,14 @@ requires-dist = [
     { name = "types-waitress" },
     { name = "waitress", specifier = ">=2.0.0" },
 ]
-provides-extras = ["audio", "qt", "qt66", "qt67"]
+provides-extras = ["audio", "qt", "qt66", "qt67", "qt69"]
 
 [[package]]
 name = "astroid"
 version = "3.3.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/00/c2/9b2de9ed027f9fe5734a6c0c0a601289d796b3caaf1e372e23fa88a73047/astroid-3.3.10.tar.gz", hash = "sha256:c332157953060c6deb9caa57303ae0d20b0fbdb2e59b4a4f2a6ba49d0a7961ce", size = 398941, upload-time = "2025-05-10T13:33:10.405Z" }
 wheels = [
@@ -294,14 +309,14 @@ name = "black"
 version = "25.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "mypy-extensions" },
     { name = "packaging" },
     { name = "pathspec" },
     { name = "platformdirs" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/94/49/26a7b0f3f35da4b5a65f081943b7bcd22d7002f5f0fb8098ec1ff21cb6ef/black-25.1.0.tar.gz", hash = "sha256:33496d5cd1222ad73391352b4ae8da15253c5de89b93a80b3e2c8d9a19ec2666", size = 649449, upload-time = "2025-01-29T04:15:40.373Z" }
 wheels = [
@@ -428,7 +443,7 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "colorama", marker = "(python_full_version < '3.10' and sys_platform == 'win32') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "colorama", marker = "(python_full_version < '3.10' and sys_platform == 'win32') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/2e/0090cbf739cee7d23781ad4b89a9894a41538e4fcf4c31dcdd705b78eb8b/click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a", size = 226593, upload-time = "2024-12-21T18:38:44.339Z" }
 wheels = [
@@ -445,7 +460,7 @@ resolution-markers = [
     "python_full_version == '3.10.*'",
 ]
 dependencies = [
-    { name = "colorama", marker = "(python_full_version >= '3.10' and sys_platform == 'win32') or (python_full_version < '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version < '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version < '3.10' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "colorama", marker = "(python_full_version >= '3.10' and sys_platform == 'win32') or (python_full_version < '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version < '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version < '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (python_full_version < '3.10' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (python_full_version < '3.10' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (python_full_version < '3.10' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/60/6c/8ca2efa64cf75a977a0d7fac081354553ebe483345c734fb6b6515d96bbc/click-8.2.1.tar.gz", hash = "sha256:27c491cc05d968d271d5a1db13e3b5a184636d9d930f148c50b038f0d0646202", size = 286342, upload-time = "2025-05-20T23:19:49.832Z" }
 wheels = [
@@ -502,7 +517,7 @@ name = "exceptiongroup"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0b/9f/a65090624ecf468cdca03533906e7c69ed7588582240cfe7cc9e770b50eb/exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88", size = 29749, upload-time = "2025-05-10T17:42:51.123Z" }
 wheels = [
@@ -515,9 +530,9 @@ version = "3.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "blinker" },
-    { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "importlib-metadata", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "importlib-metadata", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "itsdangerous" },
     { name = "jinja2" },
     { name = "markupsafe" },
@@ -549,7 +564,7 @@ dependencies = [
     { name = "packaging" },
     { name = "pathspec" },
     { name = "pluggy" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "trove-classifiers" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8f/8a/cc1debe3514da292094f1c3a700e4ca25442489731ef7c0814358816bb03/hatchling-1.27.0.tar.gz", hash = "sha256:971c296d9819abb3811112fc52c7a9751c8d381898f36533bb16f9791e941fd6", size = 54983, upload-time = "2024-12-15T17:08:11.894Z" }
@@ -580,7 +595,7 @@ name = "importlib-metadata"
 version = "8.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "zipp" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/76/66/650a33bd90f786193e4de4b3ad86ea60b53c89b669a5c7be931fac31cdb0/importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000", size = 56641, upload-time = "2025-04-27T15:29:01.736Z" }
 wheels = [
@@ -658,7 +673,7 @@ name = "markdown"
 version = "3.8.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "importlib-metadata", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "importlib-metadata", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/db/7c/0738e5ff0adccd0b4e02c66d0446c03a3c557e02bb49b7c263d7ab56c57d/markdown-3.8.1.tar.gz", hash = "sha256:a2e2f01cead4828ee74ecca9623045f62216aef2212a7685d6eb9163f590b8c1", size = 361280, upload-time = "2025-06-18T14:50:49.618Z" }
 wheels = [
@@ -758,7 +773,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mypy-extensions" },
     { name = "pathspec" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/81/69/92c7fa98112e4d9eb075a239caa4ef4649ad7d441545ccffbd5e34607cbb/mypy-1.16.1.tar.gz", hash = "sha256:6bd00a0a2094841c5e47e7374bb42b83d64c527a502e3334e1173a0c24437bab", size = 3324747, upload-time = "2025-06-16T16:51:35.145Z" }
@@ -932,7 +947,7 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "wrapt", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "wrapt", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/27/9a/4e949d0a281c5dd45c8d5b02b03fe32044936234675e967de49317a1daee/pip_system_certs-4.0.tar.gz", hash = "sha256:db8e6a31388d9795ec9139957df1a89fa5274fb66164456fd091a5d3e94c350c", size = 5622, upload-time = "2022-11-04T11:01:12.537Z" }
 wheels = [
@@ -949,7 +964,7 @@ resolution-markers = [
     "python_full_version == '3.10.*'",
 ]
 dependencies = [
-    { name = "pip", marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "pip", marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3d/0c/a338ae5d49192861cf54da4d5c2af0efe47edbaa0827995b284005366ca5/pip_system_certs-5.2.tar.gz", hash = "sha256:80b776b5cf17191bf99d313699b7fce2fdb84eb7bbb225fd134109a82706406f", size = 5408, upload-time = "2025-06-17T23:33:15.322Z" }
 wheels = [
@@ -1030,14 +1045,14 @@ version = "3.3.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "astroid" },
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "dill" },
     { name = "isort" },
     { name = "mccabe" },
     { name = "platformdirs" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "tomlkit" },
-    { name = "typing-extensions", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/1c/e4/83e487d3ddd64ab27749b66137b26dc0c5b5c161be680e6beffdc99070b3/pylint-3.3.7.tar.gz", hash = "sha256:2b11de8bde49f9c5059452e0c310c079c746a0a8eeaa789e5aa966ecc23e4559", size = 1520709, upload-time = "2025-05-04T17:07:51.089Z" }
 wheels = [
@@ -1055,8 +1070,8 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "pyqt6-qt6", version = "6.6.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6-sip", version = "13.6.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
+    { name = "pyqt6-qt6", version = "6.6.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-sip", version = "13.6.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8c/2b/6fe0409501798abc780a70cab48c39599742ab5a8168e682107eaab78fca/PyQt6-6.6.1.tar.gz", hash = "sha256:9f158aa29d205142c56f0f35d07784b8df0be28378d20a97bcda8bd64ffd0379", size = 1043203, upload-time = "2023-12-04T10:37:27.406Z" }
 wheels = [
@@ -1076,8 +1091,8 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "pyqt6-qt6", version = "6.7.3", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra != 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra != 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
+    { name = "pyqt6-qt6", version = "6.7.3", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt67' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt67' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d1/f9/b0c2ba758b14a7219e076138ea1e738c068bf388e64eee68f3df4fc96f5a/PyQt6-6.7.1.tar.gz", hash = "sha256:3672a82ccd3a62e99ab200a13903421e2928e399fda25ced98d140313ad59cb9", size = 1051212, upload-time = "2024-07-19T08:49:58.247Z" }
 wheels = [
@@ -1100,8 +1115,8 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "pyqt6-qt6", version = "6.8.1", source = { registry = "https://pypi.org/simple" } },
-    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyqt6-qt6", version = "6.8.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt' or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt' or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e9/0a/accbebed526158ab2aedd5c84d238159754bd99f481082b3fe7f374c6a3b/PyQt6-6.8.0.tar.gz", hash = "sha256:6d8628de4c2a050f0b74462e4c9cb97f839bf6ffabbca91711722ffb281570d9", size = 1061357, upload-time = "2024-12-12T15:30:42.021Z" }
 wheels = [
@@ -1111,6 +1126,29 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/52/1e60e38d216c232af83ac16bedf1ece419812368220485fc25af80c7a5d7/PyQt6-6.8.0-cp39-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:cf7123caea14e7ecf10bd12cae48e8d9970ef7caf627bc7d7988b0baa209adb3", size = 8101586, upload-time = "2024-12-12T15:30:27.089Z" },
     { url = "https://files.pythonhosted.org/packages/eb/73/9bae1b8daedf2acff5a3668eae84783720ff513e402b0448a906ab3d5479/PyQt6-6.8.0-cp39-abi3-win_amd64.whl", hash = "sha256:a9913d479f1ffee804bf7f232079baea4fb4b221a8f4890117588917a54ea30d", size = 6661265, upload-time = "2024-12-12T15:30:32.996Z" },
     { url = "https://files.pythonhosted.org/packages/23/a0/f564279285ed92b4fe38ed7b2a8fcddab414512391088b6a0f67a1107f24/PyQt6-6.8.0-cp39-abi3-win_arm64.whl", hash = "sha256:48bace7b87676bba5e6114482f3a20ca20be90c7f261b5d340464313f5f2bf5e", size = 5409032, upload-time = "2024-12-12T15:30:38.859Z" },
+]
+
+[[package]]
+name = "pyqt6"
+version = "6.9.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+    "python_full_version < '3.10'",
+]
+dependencies = [
+    { name = "pyqt6-qt6", version = "6.9.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" } },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/32/1b/567f46eb43ca961efd38d7a0b73efb70d7342854f075fd919179fdb2a571/pyqt6-6.9.1.tar.gz", hash = "sha256:50642be03fb40f1c2111a09a1f5a0f79813e039c15e78267e6faaf8a96c1c3a6", size = 1067230, upload-time = "2025-06-06T08:49:30.307Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/18/c4/fc2a69cf3df09b213185ef5a677c3940cd20e7855d29e40061a685b9c6ee/pyqt6-6.9.1-cp39-abi3-macosx_10_14_universal2.whl", hash = "sha256:33c23d28f6608747ecc8bfd04c8795f61631af9db4fb1e6c2a7523ec4cc916d9", size = 59770566, upload-time = "2025-06-06T08:48:20.331Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/78/92f3c46440a83ebe22ae614bd6792e7b052bcb58ff128f677f5662015184/pyqt6-6.9.1-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:37884df27f774e2e1c0c96fa41e817a222329b80ffc6241725b0dc8c110acb35", size = 37804959, upload-time = "2025-06-06T08:48:39.587Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/5e/e77fa2761d809cd08d724f44af01a4b6ceb0ff9648e43173187b0e4fac4e/pyqt6-6.9.1-cp39-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:055870b703c1a49ca621f8a89e2ec4d848e6c739d39367eb9687af3b056d9aa3", size = 40414608, upload-time = "2025-06-06T08:49:00.26Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/09/69cf80456b6a985e06dd24ed0c2d3451e43567bf2807a5f3a86ef7a74a2e/pyqt6-6.9.1-cp39-abi3-win_amd64.whl", hash = "sha256:15b95bd273bb6288b070ed7a9503d5ff377aa4882dd6d175f07cad28cdb21da0", size = 25717996, upload-time = "2025-06-06T08:49:13.208Z" },
+    { url = "https://files.pythonhosted.org/packages/52/b3/0839d8fd18b86362a4de384740f2f6b6885b5d06fda7720f8a335425e316/pyqt6-6.9.1-cp39-abi3-win_arm64.whl", hash = "sha256:08792c72d130a02e3248a120f0b9bbb4bf4319095f92865bc5b365b00518f53d", size = 25212132, upload-time = "2025-06-06T08:49:27.41Z" },
 ]
 
 [[package]]
@@ -1168,6 +1206,25 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/2b/a8/d942bb9f83ad4abd4c296cd4bbf752d1147eaa14523cc132a2b8511a3960/PyQt6_Qt6-6.8.1-py3-none-manylinux_2_39_aarch64.whl", hash = "sha256:20843cb86bd94942d1cd99e39bf1aeabb875b241a35a8ab273e4bbbfa63776db", size = 71077917, upload-time = "2024-12-06T13:52:16.588Z" },
     { url = "https://files.pythonhosted.org/packages/ab/2c/0d45a74ea8eedf5a2a5a2628396fb2e26107ae07f6c73d6d22c7fa3d4403/PyQt6_Qt6-6.8.1-py3-none-win_amd64.whl", hash = "sha256:006d786693d0511fbcf184a862edbd339c6ed1bb3bd9de363d73a19ed4b23dff", size = 71647964, upload-time = "2024-12-06T13:52:23.512Z" },
     { url = "https://files.pythonhosted.org/packages/c9/0d/b86b64f0ac5e08b1bd18edac9e949897a4626196725e9a86af4e9f628c80/PyQt6_Qt6-6.8.1-py3-none-win_arm64.whl", hash = "sha256:a8bc2ed4ee5e7c6ff4dd1c7db0b27705d151fee5dc232bbd1bf17618f937f515", size = 47836492, upload-time = "2024-12-06T13:52:29.511Z" },
+]
+
+[[package]]
+name = "pyqt6-qt6"
+version = "6.9.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+    "python_full_version < '3.10'",
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/40/04f652e714f85ba6b0c24f4ead860f2c5769f9e64737f415524d792d5914/pyqt6_qt6-6.9.1-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:3854c7f83ee4e8c2d91e23ab88b77f90e2ca7ace34fe72f634a446959f2b4d4a", size = 66236777, upload-time = "2025-06-03T14:53:17.684Z" },
+    { url = "https://files.pythonhosted.org/packages/57/31/e4fa40568a59953ce5cf9a5adfbd1be4a806dafd94e39072d3cc0bed5468/pyqt6_qt6-6.9.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:123e4aeb037c099bb4696a3ea8edcb1d9d62cedd0b2b950556b26024c97f3293", size = 60551574, upload-time = "2025-06-03T14:53:48.42Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/8d/7c8073cbbefe9c103ec8add70f29ffee1db95a3755b429b9f47cd6afa41b/pyqt6_qt6-6.9.1-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:cc5bd193ebd2d1a3ec66e1eee65bf532d762c239459bce1ecebf56177243e89b", size = 82000130, upload-time = "2025-06-03T14:54:26.585Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/60/a4ab932028b0c15c0501cb52eb1e7f24f4ce2e4c78d46c7cce58a375a88c/pyqt6_qt6-6.9.1-py3-none-manylinux_2_39_aarch64.whl", hash = "sha256:b065af7243d1d450a49470a8185301196a18b1d41085d3ef476eb55bbb225083", size = 80463127, upload-time = "2025-06-03T14:55:03.272Z" },
+    { url = "https://files.pythonhosted.org/packages/e7/85/552710819019a96d39d924071324a474aec54b31c410d7de8ebb398adcc1/pyqt6_qt6-6.9.1-py3-none-win_amd64.whl", hash = "sha256:f9e54c424bc921ecb76792a75d123e4ecfc26b00b0c57dae526f41f1d57951d3", size = 73778423, upload-time = "2025-06-03T14:55:39.756Z" },
+    { url = "https://files.pythonhosted.org/packages/16/b4/70f6b18a4913f2326dcf7acb15c12cc0b91cb3932c2ba3b5728811f22acd/pyqt6_qt6-6.9.1-py3-none-win_arm64.whl", hash = "sha256:432caaedf5570bc8a9b7c75bc6af6a26bf88589536472eca73417ac019f59d41", size = 49617924, upload-time = "2025-06-03T14:57:13.038Z" },
 ]
 
 [[package]]
@@ -1248,9 +1305,9 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "pyqt6", version = "6.6.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6-sip", version = "13.6.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6-webengine-qt6", version = "6.6.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
+    { name = "pyqt6", version = "6.6.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-sip", version = "13.6.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-webengine-qt6", version = "6.6.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/49/9a/69db3a2ab1ba43f762144a66f0375540e195e107a1049d7263ab48ebc9cc/PyQt6_WebEngine-6.6.0.tar.gz", hash = "sha256:d50b984c3f85e409e692b156132721522d4e8cf9b6c25e0cf927eea2dfb39487", size = 31817, upload-time = "2023-10-30T10:57:13.211Z" }
 wheels = [
@@ -1270,9 +1327,9 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "pyqt6", version = "6.7.1", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra != 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra != 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pyqt6-webengine-qt6", version = "6.7.3", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra != 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
+    { name = "pyqt6", version = "6.7.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt67' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt67' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-webengine-qt6", version = "6.7.3", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt67' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/87/88/230ec599944edf941f4cca8d1439e3a9c8c546715434eee05dce7ff032ed/PyQt6_WebEngine-6.7.0.tar.gz", hash = "sha256:68edc7adb6d9e275f5de956881e79cca0d71fad439abeaa10d823bff5ac55001", size = 32593, upload-time = "2024-04-26T08:37:08.355Z" }
 wheels = [
@@ -1293,9 +1350,9 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "pyqt6", version = "6.8.0", source = { registry = "https://pypi.org/simple" } },
-    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" } },
-    { name = "pyqt6-webengine-qt6", version = "6.8.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyqt6", version = "6.8.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt' or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt' or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pyqt6-webengine-qt6", version = "6.8.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt' or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cd/c8/cadaa950eaf97f29e48c435e274ea5a81c051e745a3e2f5d9d994b7a6cda/PyQt6_WebEngine-6.8.0.tar.gz", hash = "sha256:64045ea622b6a41882c2b18f55ae9714b8660acff06a54e910eb72822c2f3ff2", size = 34203, upload-time = "2024-12-12T15:34:35.573Z" }
 wheels = [
@@ -1304,6 +1361,29 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/34/89/6afb90e085c9a6ad593d7c820f9e3ec5923e7bfa3a9ccc658ab7d7634eaf/PyQt6_WebEngine-6.8.0-cp39-abi3-manylinux_2_35_x86_64.whl", hash = "sha256:5b9231b58014965b72504e49f39a6dbc3ecd05d4d725af011d75e6c8a7e2d5f7", size = 297339, upload-time = "2024-12-12T15:34:30.213Z" },
     { url = "https://files.pythonhosted.org/packages/87/51/43830c9ba425f499f3c0279b0febd48f1b647419256b101923b96009587b/PyQt6_WebEngine-6.8.0-cp39-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:c549f0f72c285eeea94000f6764dfaebf6bb3b13224580c7169a409bf1bf1bb7", size = 293678, upload-time = "2024-12-12T15:34:32.315Z" },
     { url = "https://files.pythonhosted.org/packages/1e/74/9b20e505737ceefe2ffb47355633c84b7d5d7d592f32165425b3e0ce7dd9/PyQt6_WebEngine-6.8.0-cp39-abi3-win_amd64.whl", hash = "sha256:d7366809d681bcc096fa565f2a81d0ab040f7da5bb4f12f78e834a2b173c87d1", size = 234566, upload-time = "2024-12-12T15:34:33.59Z" },
+]
+
+[[package]]
+name = "pyqt6-webengine"
+version = "6.9.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+    "python_full_version < '3.10'",
+]
+dependencies = [
+    { name = "pyqt6", version = "6.9.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyqt6-sip", version = "13.10.2", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyqt6-webengine-qt6", version = "6.9.1", source = { registry = "https://pypi.org/simple" } },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8f/1a/9971af004a7e859347702f816fb71ecd67c3e32b2f0ae8daf1c1ded99f62/pyqt6_webengine-6.9.0.tar.gz", hash = "sha256:6ae537e3bbda06b8e06535e4852297e0bc3b00543c47929541fcc9b11981aa25", size = 34616, upload-time = "2025-04-08T08:57:35.402Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c8/e1/964ee1c464a0e1f07f8be54ce9316dc76e431d1bc99c9e5c1437bf548d92/PyQt6_WebEngine-6.9.0-cp39-abi3-macosx_10_14_universal2.whl", hash = "sha256:3ea5bdd48d109f35bf726f59d85b250e430ddd50175fe79a386b7f14d3e34d2d", size = 438004, upload-time = "2025-04-08T08:57:29.475Z" },
+    { url = "https://files.pythonhosted.org/packages/cc/9d/8674bb27e2497fdad7ae5bc000831b42dbfb546aacd11ae7a8cca4493190/PyQt6_WebEngine-6.9.0-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:c15012245036604c82abcd865e0b808e75bcfd0b477454298b7a70d9e6c4958b", size = 299003, upload-time = "2025-04-08T08:57:31.334Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/9c/b6a1ce7026260d518a103c467a4795c719dd1e4d7f8dc00416d3ec292d3a/PyQt6_WebEngine-6.9.0-cp39-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:e4404899290f86d4652a07471262a2f41397c64ecb091229b5bbbd8b82af35ce", size = 297424, upload-time = "2025-04-08T08:57:32.664Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/e8/444487c86472c522d6ab28686b9f3c4d6fe2febde81b40561d42c11b5cd7/PyQt6_WebEngine-6.9.0-cp39-abi3-win_amd64.whl", hash = "sha256:541cf838facadfc38243baaecfeeaf07c8eff030cf27341c85c245d00e571489", size = 237847, upload-time = "2025-04-08T08:57:34.174Z" },
 ]
 
 [[package]]
@@ -1334,7 +1414,7 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "pyqt6-webenginesubwheel-qt6", marker = "(extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra != 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67')" },
+    { name = "pyqt6-webenginesubwheel-qt6", marker = "extra == 'extra-3-aqt-qt67' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/06/35/570d072bec7c114b5d155d990e2b8339223e230e9276bdf806a20f71e50d/PyQt6_WebEngine_Qt6-6.7.3-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:68812b2a5d0d417ce32dc4d11a304e7838e02c51013712e7533faf03448672d9", size = 26214456, upload-time = "2024-09-29T16:27:20.257Z" },
@@ -1364,6 +1444,24 @@ wheels = [
 ]
 
 [[package]]
+name = "pyqt6-webengine-qt6"
+version = "6.9.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+    "python_full_version < '3.10'",
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/23/68/8eccda2a78d100a95db2131fac82b4ad842bdf0255019dcf86d5db0db3fa/pyqt6_webengine_qt6-6.9.1-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:38a461e21df3e09829ce18cd0ecd052ecff0f9a4001ae000ea6ddac10fae6b0f", size = 120033076, upload-time = "2025-06-03T14:59:49.52Z" },
+    { url = "https://files.pythonhosted.org/packages/d4/8a/a2cf83dd9cb8e944507e7b4070ac537a30d6caef7e498c87f1612507431d/pyqt6_webengine_qt6-6.9.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:9351ac6cccfdbf414a2514b58d49765d3f48fb3b690ceeaa8ca804340eb460b4", size = 108530410, upload-time = "2025-06-03T15:00:40.813Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/82/99b189e30641469dda6eb09a5f3cf0c5e12e2b39967e1df5d156f8499c4f/pyqt6_webengine_qt6-6.9.1-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:37f9d33e3f68681687a7d28b80058c6473813c6c2f9706a44dc7bc07486b9e9a", size = 110750602, upload-time = "2025-06-03T15:01:32.055Z" },
+    { url = "https://files.pythonhosted.org/packages/68/fc/958c7f5e0f9cfe7903a90ed41b435b17de6ca7cf5d1f73e97ad07fe8107c/pyqt6_webengine_qt6-6.9.1-py3-none-manylinux_2_39_aarch64.whl", hash = "sha256:e8440e65b79df167b49bd3c26b8bf7179306df010e8c319a7ad6b8bc2a8ae8d4", size = 106652228, upload-time = "2025-06-03T15:02:18.985Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/82/4a3e2233ca3aa9c3ec77390e570fbcffcc511bc8513461daa1d38cda652a/pyqt6_webengine_qt6-6.9.1-py3-none-win_amd64.whl", hash = "sha256:c7f460226c054a52b7868d3befeed4fe2af03f4f80d2e53ab49fcb238bac2bc7", size = 110244976, upload-time = "2025-06-03T15:03:09.743Z" },
+]
+
+[[package]]
 name = "pyqt6-webenginesubwheel-qt6"
 version = "6.7.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1389,13 +1487,13 @@ name = "pytest"
 version = "8.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
     { name = "pygments" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/08/ba/45911d754e8eba3d5a841a5ce61a65a685ff1798421ac054f85aa8747dfb/pytest-8.4.1.tar.gz", hash = "sha256:7c67fd69174877359ed9371ec3af8a3d2b04741818c51e5e99cc1742251fa93c", size = 1517714, upload-time = "2025-06-18T05:48:06.109Z" }
 wheels = [
@@ -1483,7 +1581,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "rpds-py" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2f/db/98b5c277be99dd18bfd91dd04e1b759cad18d1a338188c936e92f921c7e2/referencing-0.36.2.tar.gz", hash = "sha256:df2e89862cd09deabbdba16944cc3f10feb6b3e6f18e902f7cc25609a34775aa", size = 74744, upload-time = "2025-01-25T08:48:16.138Z" }
 wheels = [
@@ -1678,24 +1776,24 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "alabaster", version = "0.7.16", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "babel", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "colorama", marker = "(python_full_version < '3.10' and sys_platform == 'win32') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "docutils", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "imagesize", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "importlib-metadata", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "jinja2", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "packaging", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pygments", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "requests", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "snowballstemmer", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-applehelp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-devhelp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-htmlhelp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-jsmath", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-qthelp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-serializinghtml", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "tomli", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "alabaster", version = "0.7.16", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "babel", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "colorama", marker = "(python_full_version < '3.10' and sys_platform == 'win32') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (python_full_version >= '3.10' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "docutils", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "imagesize", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "importlib-metadata", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "jinja2", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "packaging", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pygments", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "requests", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "snowballstemmer", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-applehelp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-devhelp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-htmlhelp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-jsmath", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-qthelp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-serializinghtml", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "tomli", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/5b/be/50e50cb4f2eff47df05673d361095cafd95521d2a22521b920c67a372dcb/sphinx-7.4.7.tar.gz", hash = "sha256:242f92a7ea7e6c5b406fdc2615413890ba9f699114a9c09192d7dfead2ee9cfe", size = 8067911, upload-time = "2024-07-20T14:46:56.059Z" }
 wheels = [
@@ -1710,23 +1808,23 @@ resolution-markers = [
     "python_full_version == '3.10.*'",
 ]
 dependencies = [
-    { name = "alabaster", version = "1.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "babel", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "colorama", marker = "(python_full_version == '3.10.*' and sys_platform == 'win32') or (python_full_version != '3.10.*' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version != '3.10.*' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version != '3.10.*' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "docutils", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "imagesize", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "jinja2", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "packaging", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pygments", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "requests", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "snowballstemmer", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-applehelp", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-devhelp", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-htmlhelp", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-jsmath", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-qthelp", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-serializinghtml", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "tomli", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "alabaster", version = "1.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "babel", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "colorama", marker = "(python_full_version == '3.10.*' and sys_platform == 'win32') or (python_full_version != '3.10.*' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version != '3.10.*' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version != '3.10.*' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (python_full_version != '3.10.*' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (python_full_version != '3.10.*' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (python_full_version != '3.10.*' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "docutils", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "imagesize", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "jinja2", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "packaging", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pygments", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "requests", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "snowballstemmer", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-applehelp", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-devhelp", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-htmlhelp", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-jsmath", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-qthelp", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-serializinghtml", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "tomli", marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6f/6d/be0b61178fe2cdcb67e2a92fc9ebb488e3c51c4f74a36a7824c0adf23425/sphinx-8.1.3.tar.gz", hash = "sha256:43c1911eecb0d3e161ad78611bc905d1ad0e523e4ddc202a58a821773dc4c927", size = 8184611, upload-time = "2024-10-13T20:27:13.93Z" }
 wheels = [
@@ -1742,23 +1840,23 @@ resolution-markers = [
     "python_full_version == '3.11.*'",
 ]
 dependencies = [
-    { name = "alabaster", version = "1.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "babel", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "colorama", marker = "(python_full_version >= '3.11' and sys_platform == 'win32') or (python_full_version < '3.11' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version < '3.11' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version < '3.11' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "docutils", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "imagesize", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "jinja2", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "packaging", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "pygments", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "requests", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "roman-numerals-py", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "snowballstemmer", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-applehelp", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-devhelp", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-htmlhelp", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-jsmath", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-qthelp", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinxcontrib-serializinghtml", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "alabaster", version = "1.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "babel", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "colorama", marker = "(python_full_version >= '3.11' and sys_platform == 'win32') or (python_full_version < '3.11' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (python_full_version < '3.11' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (python_full_version < '3.11' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (python_full_version < '3.11' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (python_full_version < '3.11' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (python_full_version < '3.11' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "docutils", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "imagesize", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "jinja2", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "packaging", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "pygments", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "requests", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "roman-numerals-py", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "snowballstemmer", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-applehelp", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-devhelp", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-htmlhelp", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-jsmath", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-qthelp", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinxcontrib-serializinghtml", marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/38/ad/4360e50ed56cb483667b8e6dadf2d3fda62359593faabbe749a27c4eaca6/sphinx-8.2.3.tar.gz", hash = "sha256:398ad29dee7f63a75888314e9424d40f52ce5a6a87ae88e7071e80af296ec348", size = 8321876, upload-time = "2025-03-02T22:31:59.658Z" }
 wheels = [
@@ -1773,10 +1871,10 @@ dependencies = [
     { name = "astroid" },
     { name = "jinja2" },
     { name = "pyyaml" },
-    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "stdlib-list", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "stdlib-list", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7f/a8/22b379a2a75ccb881217d3d4ae56d7d35f2d1bb4c8c0c51d0253676746a1/sphinx_autoapi-3.6.0.tar.gz", hash = "sha256:c685f274e41d0842ae7e199460c322c4bd7fec816ccc2da8d806094b4f64af06", size = 55417, upload-time = "2025-02-18T01:50:55.241Z" }
 wheels = [
@@ -1789,9 +1887,9 @@ version = "3.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "docutils" },
-    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "sphinxcontrib-jquery" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/91/44/c97faec644d29a5ceddd3020ae2edffa69e7d00054a8c7a6021e82f20335/sphinx_rtd_theme-3.0.2.tar.gz", hash = "sha256:b7457bc25dda723b20b086a670b9953c859eab60a2a03ee8eb2bb23e176e5f85", size = 7620463, upload-time = "2024-11-13T11:06:04.545Z" }
@@ -1831,9 +1929,9 @@ name = "sphinxcontrib-jquery"
 version = "4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
-    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67')" },
+    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/de/f3/aa67467e051df70a6330fe7770894b3e4f09436dea6881ae0b4f3d87cad8/sphinxcontrib-jquery-4.1.tar.gz", hash = "sha256:1620739f04e36a2c779f1a131a2dfd49b2fd07351bf1968ced074365933abc7a", size = 122331, upload-time = "2023-03-14T15:01:01.944Z" }
 wheels = [
