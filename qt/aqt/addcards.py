@@ -110,9 +110,6 @@ class AddCards(QMainWindow):
         )
 
     def reopen(self, mw: AnkiQt) -> None:
-        if not self.editor.fieldsAreBlank():
-            return
-
         defaults = self.col.defaults_for_adding(
             current_review_card=self.mw.reviewer.card
         )
@@ -315,9 +312,6 @@ class AddCards(QMainWindow):
                 onOk()
 
         def afterSave() -> None:
-            if self.editor.fieldsAreBlank(self._last_added_note):
-                return onOk()
-
             ask_user_dialog(
                 tr.adding_discard_current_input(),
                 callback=callback,

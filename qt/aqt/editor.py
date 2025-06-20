@@ -9,6 +9,7 @@ import json
 import mimetypes
 import os
 from collections.abc import Callable
+from dataclasses import dataclass
 from enum import Enum
 from random import randrange
 from typing import Any
@@ -16,7 +17,7 @@ from typing import Any
 from anki._legacy import deprecated
 from anki.cards import Card
 from anki.hooks import runFilter
-from anki.models import NotetypeDict, StockNotetype
+from anki.models import NotetypeDict, NotetypeId, StockNotetype
 from anki.notes import Note, NoteId
 from anki.utils import is_win
 from aqt import AnkiQt, gui_hooks
@@ -81,6 +82,21 @@ def on_editor_ready(func: Callable) -> Callable:
     return decorated
 
 
+@dataclass
+class NoteInfo:
+    "Used to hold partial note info fetched from the webview"
+
+    id: NoteId | None
+    mid: NotetypeId
+    fields: list[str]
+
+    def __post_init__(self) -> None:
+        if self.id is not None:
+            self.id = NoteId(int(self.id))
+        if self.mid is not None:
+            self.mid = NotetypeId(int(self.mid))
+
+
 class Editor:
     """The screen that embeds an editing widget should listen for changes via
     the `operation_did_execute` hook, and call set_note() when the editor needs
@@ -103,7 +119,7 @@ class Editor:
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
-        self.nid: NoteId | None = None
+        self.mid: NotetypeId | None = None
         # legacy argument provided?
         if addMode is not None:
             editor_mode = EditorMode.ADD_CARDS if addMode else EditorMode.EDIT_CURRENT
@@ -118,8 +134,6 @@ class Editor:
         # current card, for card layout
         self.card: Card | None = None
         self.state: EditorState = EditorState.INITIAL
-        # used for the io mask editor's context menu
-        self.last_io_image_path: str | None = None
         self._ready = False
         self._ready_callbacks: list[Callable[[], None]] = []
         self._init_links()
@@ -127,7 +141,6 @@ class Editor:
         self.add_webview()
         self.setupWeb()
         self.setupShortcuts()
-        # gui_hooks.editor_did_init(self)
 
     # Initial setup
     ############################################################
@@ -327,7 +340,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def _onFields(self) -> None:
         from aqt.fields import FieldDialog
 
-        FieldDialog(self.mw, self.note_type(), parent=self.parentWindow)
+        def on_note_info(note_info: NoteInfo) -> None:
+            FieldDialog(
+                self.mw, self.mw.col.models.get(note_info.mid), parent=self.parentWindow
+            )
+
+        self.get_note_info(on_note_info)
 
     def onCardLayout(self) -> None:
         self.call_after_note_saved(self._onCardLayout)
@@ -340,16 +358,23 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         else:
             ord = 0
 
-        assert self.note is not None
-        CardLayout(
-            self.mw,
-            self.note,
-            ord=ord,
-            parent=self.parentWindow,
-            fill_empty=False,
-        )
-        if is_win:
-            self.parentWindow.activateWindow()
+        def on_note_info(note_info: NoteInfo) -> None:
+            if note_info.id:
+                note = self.mw.col.get_note(note_info.id)
+            else:
+                note = Note(self.mw.col, note_info.mid)
+                note.fields = note_info.fields
+            CardLayout(
+                self.mw,
+                note,
+                ord=ord,
+                parent=self.parentWindow,
+                fill_empty=False,
+            )
+            if is_win:
+                self.parentWindow.activateWindow()
+
+        self.get_note_info(on_note_info)
 
     # JS->Python bridge
     ######################################################################
@@ -361,62 +386,16 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             ord = int(ord_str)
             if type == "blur":
                 self.currentField = None
-                # run any filters
-                if self.note and gui_hooks.editor_did_unfocus_field(
-                    False, self.note, ord
-                ):
-                    # something updated the note; update it after a subsequent focus
-                    # event has had time to fire
-                    self.mw.progress.timer(
-                        100, self.loadNoteKeepingFocus, False, parent=self.widget
-                    )
             else:
-                if self.note:
-                    gui_hooks.editor_did_fire_typing_timer(self.note)
+                pass
 
         # focused into field?
         elif cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
             self.last_field_index = self.currentField = int(num)
-            if self.note:
-                gui_hooks.editor_did_focus_field(self.note, self.currentField)
-
-        elif cmd.startswith("toggleStickyAll"):
-            model = self.note_type()
-            flds = model["flds"]
-
-            any_sticky = any([fld["sticky"] for fld in flds])
-            result = []
-            for fld in flds:
-                if not any_sticky or fld["sticky"]:
-                    fld["sticky"] = not fld["sticky"]
-
-                result.append(fld["sticky"])
-
-            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background(
-                initiator=self
-            )
-
-            return result
-
-        elif cmd.startswith("toggleSticky"):
-            (type, num) = cmd.split(":", 1)
-            ord = int(num)
-
-            model = self.note_type()
-            fld = model["flds"][ord]
-            new_state = not fld["sticky"]
-            fld["sticky"] = new_state
-
-            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background(
-                initiator=self
-            )
-
-            return new_state
 
         elif cmd.startswith("saveTags"):
-            if self.note:
-                gui_hooks.editor_did_update_tags(self.note)
+            pass
 
         elif cmd.startswith("editorState"):
             (_, new_state_id, old_state_id) = cmd.split(":", 2)
@@ -496,16 +475,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         assert self.mw.pm.profile is not None
         js = f"loadNote({json.dumps(self.nid)}, {mid}, {json.dumps(focus_to)}, {json.dumps(self.orig_note_id)});"
-        if self.note:
-            js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback
         )
-
-    @deprecated(replaced_by=load_note)
-    def loadNote(self, focusTo: int | None = None) -> None:
-        assert self.note is not None
-        self.load_note(self.note.mid, focus_to=focusTo)
 
     def call_after_note_saved(
         self, callback: Callable, keepFocus: bool = False
@@ -518,19 +490,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     saveNow = call_after_note_saved
-
-    def fieldsAreBlank(self, previousNote: Note | None = None) -> bool:
-        if not self.note:
-            return True
-        m = self.note_type()
-        for c, f in enumerate(self.note.fields):
-            f = f.replace("<br>", "").strip()
-            notChangedvalues = {"", "<br>"}
-            if previousNote and m["flds"][c]["sticky"]:
-                notChangedvalues.add(previousNote.fields[c].replace("<br>", "").strip())
-            if f not in notChangedvalues:
-                return False
-        return True
 
     def cleanup(self) -> None:
         av_player.stop_and_clear_queue_if_caller(self.editorMode)
@@ -557,21 +516,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Image occlusion
     ######################################################################
 
-    def current_notetype_is_image_occlusion(self) -> bool:
-        if not self.note:
-            return False
-
-        return (
-            self.note_type().get("originalStockKind", None)
-            == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
-        )
-
     def setup_mask_editor(self, image_path: str) -> None:
         try:
             if self.editorMode == EditorMode.ADD_CARDS:
                 self.setup_mask_editor_for_new_note(image_path=image_path)
             else:
-                assert self.note is not None
                 self.setup_mask_editor_for_existing_note(image_path=image_path)
         except Exception as e:
             showWarning(str(e))
@@ -613,17 +562,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             copy=Editor.onCopy,
         )
 
-    @property
-    def note(self) -> Note | None:
-        if self.nid is None:
-            return None
-        return self.mw.col.get_note(self.nid)
+    def get_note_info(self, on_done: Callable[[NoteInfo], None]) -> None:
+        def wrapped_on_done(note_info: dict[str, Any]) -> None:
+            on_done(NoteInfo(**note_info))
 
-    def note_type(self) -> NotetypeDict:
-        assert self.note is not None
-        note_type = self.note.note_type()
-        assert note_type is not None
-        return note_type
+        self.web.evalWithCallback("getNoteInfo()", wrapped_on_done)
 
 
 # Pasting, drag & drop, and keyboard layouts
@@ -650,4 +593,5 @@ class EditorWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.WebAction.Copy)
 
     def onPaste(self) -> None:
+        self.triggerPageAction(QWebEnginePage.WebAction.Paste)
         self.triggerPageAction(QWebEnginePage.WebAction.Paste)

@@ -449,6 +449,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return true;
     }
 
+    export function getNoteInfo() {
+        return {
+            id: note?.id.toString() ?? null,
+            mid: notetypeMeta.id.toString(),
+            fields: note?.fields ?? [],
+        };
+    }
+
+
     let richTextInputs: RichTextInput[] = [];
     $: richTextInputs = richTextInputs.filter(Boolean);
 
@@ -870,6 +879,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setPlainTexts,
             setDescriptions,
             setFonts,
+            getNoteInfo,
             focusField,
             setTags,
             setTagsCollapsed,
