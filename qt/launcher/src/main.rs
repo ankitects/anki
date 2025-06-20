@@ -97,6 +97,9 @@ fn run() -> Result<()> {
         command.env("UV_PRERELEASE", "allow");
     }
 
+    // temporarily force it on during initial beta testing
+    command.env("UV_PRERELEASE", "allow");
+
     if let Err(e) = command.ensure_success() {
         // If sync fails due to things like a missing wheel on pypi,
         // we need to remove the lockfile or uv will cache the bad result.
