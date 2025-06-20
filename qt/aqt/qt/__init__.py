@@ -11,20 +11,12 @@ import traceback
 from collections.abc import Callable
 from typing import TypeVar, Union
 
-try:
-    import PyQt6
-except Exception:
-    from .qt5 import *  # type: ignore
-else:
-    if os.getenv("ENABLE_QT5_COMPAT"):
-        print("Running with temporary Qt5 compatibility shims.")
-        from . import qt5_compat  # needs to be imported first
-    from .qt6 import *
+from anki._legacy import deprecated
 
+# legacy code depends on these re-exports
 from anki.utils import is_mac, is_win
 
-# fix buggy ubuntu12.04 display of language selector
-os.environ["LIBOVERLAY_SCROLLBAR"] = "0"
+from .qt6 import *
 
 
 def debug() -> None:
@@ -52,7 +44,7 @@ qtminor = _version.minorVersion()
 qtpoint = _version.microVersion()
 qtfullversion = _version.segments()
 
-if qtmajor < 5 or (qtmajor == 5 and qtminor < 14):
+if qtmajor == 6 and qtminor < 2:
     raise Exception("Anki does not support your Qt version.")
 
 
@@ -64,11 +56,6 @@ def qconnect(signal: Callable | pyqtSignal | pyqtBoundSignal, func: Callable) ->
 _T = TypeVar("_T")
 
 
+@deprecated(info="no longer required, and now a no-op")
 def without_qt5_compat_wrapper(cls: _T) -> _T:
-    """Remove Qt5 compat wrapper from Qt class, if active.
-
-    Only needed for a few Qt APIs that deal with QVariants."""
-    if fn := getattr(cls, "_without_compat_wrapper", None):
-        return fn()
-    else:
-        return cls
+    return cls

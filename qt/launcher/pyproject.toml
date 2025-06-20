@@ -5,18 +5,4 @@ description = "UV-based launcher for Anki."
 requires-python = ">=3.9"
 dependencies = [
   "anki-release",
-  # so we can use testpypi
-  "anki",
-  "aqt",
 ]
-
-[tool.uv.sources]
-anki-release = { index = "testpypi" }
-anki = { index = "testpypi" }
-aqt = { index = "testpypi" }
-
-[[tool.uv.index]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-publish-url = "https://test.pypi.org/legacy/"
-explicit = true

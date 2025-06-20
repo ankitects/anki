@@ -20,6 +20,45 @@ use ninja_gen::python::PythonTypecheck;
 use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Build;
 
+/// Normalize version string by removing leading zeros from numeric parts
+/// while preserving pre-release markers (b1, rc2, a3, etc.)
+fn normalize_version(version: &str) -> String {
+    version
+        .split('.')
+        .map(|part| {
+            // Check if the part contains only digits
+            if part.chars().all(|c| c.is_ascii_digit()) {
+                // Numeric part: remove leading zeros
+                part.parse::<u32>().unwrap_or(0).to_string()
+            } else {
+                // Mixed part (contains both numbers and pre-release markers)
+                // Split on first non-digit character and normalize the numeric prefix
+                let chars = part.chars();
+                let mut numeric_prefix = String::new();
+                let mut rest = String::new();
+                let mut found_non_digit = false;
+
+                for ch in chars {
+                    if ch.is_ascii_digit() && !found_non_digit {
+                        numeric_prefix.push(ch);
+                    } else {
+                        found_non_digit = true;
+                        rest.push(ch);
+                    }
+                }
+
+                if numeric_prefix.is_empty() {
+                    part.to_string()
+                } else {
+                    let normalized_prefix = numeric_prefix.parse::<u32>().unwrap_or(0).to_string();
+                    format!("{}{}", normalized_prefix, rest)
+                }
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(".")
+}
+
 pub fn setup_venv(build: &mut Build) -> Result<()> {
     let extra_binary_exports = &[
         "mypy",
@@ -131,14 +170,7 @@ impl BuildAction for BuildWheel {
 
         let name = self.name;
 
-        // Normalize version like hatchling does: remove leading zeros from version
-        // parts
-        let normalized_version = self
-            .version
-            .split('.')
-            .map(|part| part.parse::<u32>().unwrap_or(0).to_string())
-            .collect::<Vec<_>>()
-            .join(".");
+        let normalized_version = normalize_version(&self.version);
 
         let wheel_path = format!("wheels/{name}-{normalized_version}-{tag}.whl");
         build.add_outputs("out", vec![wheel_path]);
@@ -278,4 +310,26 @@ pub(crate) fn setup_sphinx(build: &mut Build) -> Result<()> {
         },
     )?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_version_basic() {
+        assert_eq!(normalize_version("1.2.3"), "1.2.3");
+        assert_eq!(normalize_version("01.02.03"), "1.2.3");
+        assert_eq!(normalize_version("1.0.0"), "1.0.0");
+    }
+
+    #[test]
+    fn test_normalize_version_with_prerelease() {
+        assert_eq!(normalize_version("1.2.3b1"), "1.2.3b1");
+        assert_eq!(normalize_version("01.02.03b1"), "1.2.3b1");
+        assert_eq!(normalize_version("1.0.0rc2"), "1.0.0rc2");
+        assert_eq!(normalize_version("2.1.0a3"), "2.1.0a3");
+        assert_eq!(normalize_version("1.2.3beta1"), "1.2.3beta1");
+        assert_eq!(normalize_version("1.2.3alpha1"), "1.2.3alpha1");
+    }
 }

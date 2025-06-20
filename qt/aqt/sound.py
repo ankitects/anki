@@ -772,19 +772,14 @@ class RecordDialog(QDialog):
         saveGeom(self, "audioRecorder2")
 
     def _start_recording(self) -> None:
-        if qtmajor > 5:
-            if macos_helper and platform.machine() == "arm64":
-                self._recorder = NativeMacRecorder(
-                    namedtmp("rec.wav"),
-                )
-            else:
-                self._recorder = QtAudioInputRecorder(
-                    namedtmp("rec.wav"), self.mw, self._parent
-                )
+        if macos_helper and platform.machine() == "arm64":
+            self._recorder = NativeMacRecorder(
+                namedtmp("rec.wav"),
+            )
         else:
-            from aqt.qt.qt5_audio import QtAudioInputRecorder as Qt5Recorder
-
-            self._recorder = Qt5Recorder(namedtmp("rec.wav"), self.mw, self._parent)
+            self._recorder = QtAudioInputRecorder(
+                namedtmp("rec.wav"), self.mw, self._parent
+            )
         self._recorder.start(self._start_timer)
 
     def _start_timer(self) -> None:

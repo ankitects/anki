@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "anki-mac-helper"
+version = "0.1.0"
+description = "Small support library for Anki on Macs"
+requires-python = ">=3.9"
+license = { text = "AGPL-3.0-or-later" }
+authors = [
+  { name = "Anki Team" },
+]
+urls = { Homepage = "https://github.com/ankitects/anki" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["anki_mac_helper"]
