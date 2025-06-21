@@ -49,7 +49,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let onPresetChange: () => void;
 
     let cmrrTargetType = DEFAULT_CMRR_TARGET;
-    $: if (simulateFsrsRequest?.target) {
+    let lastCmrrTargetType = cmrrTargetType;
+    $: if (simulateFsrsRequest?.target && cmrrTargetType !== lastCmrrTargetType) {
         switch (cmrrTargetType) {
             case "memorized":
                 simulateFsrsRequest.target.kind = {
@@ -66,6 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 };
                 break;
         }
+        lastCmrrTargetType = cmrrTargetType;
     }
 
     const config = state.currentConfig;
@@ -449,6 +451,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             </SettingTitle>
                         </EnumSelectorRow>
                     </Item>
+
+                    {#if simulateFsrsRequest.target?.kind.case === "memorized"}
+                        <SpinBoxFloatRow
+                            bind:value={simulateFsrsRequest.target.kind.value.lossAversion} defaultValue={1}>
+                            <SettingTitle>
+                                {"Fail Cost Multiplier: "}
+                            </SettingTitle>
+                        </SpinBoxFloatRow>
+                    {/if}
                 </details>
 
                 <button

@@ -55,12 +55,23 @@ impl Collection {
         }
         let (mut config, cards) = self.simulate_request_to_config(&req)?;
 
+        dbg!(&target_type);
         if let Some(Kind::Memorized(settings)) = target_type {
             let loss_aversion = settings.loss_aversion;
+
+            dbg!(&loss_aversion);
 
             config.relearning_step_transitions[0][0] *= loss_aversion;
             config.relearning_step_transitions[1][0] *= loss_aversion;
             config.relearning_step_transitions[2][0] *= loss_aversion;
+
+            config.learning_step_transitions[0][0] *= loss_aversion;
+            config.learning_step_transitions[1][0] *= loss_aversion;
+            config.learning_step_transitions[2][0] *= loss_aversion;
+
+            config.state_rating_costs[0][0] *= loss_aversion;
+            config.state_rating_costs[1][0] *= loss_aversion;
+            config.state_rating_costs[2][0] *= loss_aversion;
         }
 
         Ok(fsrs
