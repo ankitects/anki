@@ -844,6 +844,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return note!.id;
     }
 
+    async function reloadNote() {
+        await loadNote(note!.id, notetypeMeta.id, 0, null);
+    }
+
     $: signalEditorState($editorState);
 
     $: $editorState = getEditorState(
@@ -871,6 +875,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         Object.assign(globalThis, {
             loadNote,
+            reloadNote,
             saveSession,
             setFields,
             setCollapsed,

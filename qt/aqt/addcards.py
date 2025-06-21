@@ -11,26 +11,21 @@ from anki._legacy import deprecated
 from anki.collection import OpChanges, SearchNode
 from anki.decks import DeckId
 from anki.models import NotetypeId
-from anki.notes import Note, NoteFieldsCheckResult, NoteId
+from anki.notes import Note, NoteId
 from anki.utils import html_to_text_line, is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.deckchooser import DeckChooser
 from aqt.notetypechooser import NotetypeChooser
-from aqt.operations.note import add_note
 from aqt.qt import *
-from aqt.sound import av_player
 from aqt.utils import (
     HelpPage,
     add_close_shortcut,
     ask_user_dialog,
-    askUser,
     downArrow,
     openHelp,
     restoreGeom,
     saveGeom,
     shortcut,
-    showWarning,
-    tooltip,
     tr,
 )
 
@@ -228,59 +223,6 @@ class AddCards(QMainWindow):
     def add_current_note(self) -> None:
         self.editor.web.eval(f"addCurrentNote({self.deck_chooser.selected_deck_id})")
 
-    def _add_current_note(self) -> None:
-        note = self.editor.note
-
-        if not self._note_can_be_added(note):
-            return
-
-        target_deck_id = self.deck_chooser.selected_deck_id
-
-        def on_success(changes: OpChanges) -> None:
-            # only used for detecting changed sticky fields on close
-            self._last_added_note = note
-
-            self.addHistory(note)
-
-            tooltip(tr.adding_added(), period=500)
-            av_player.stop_and_clear_queue()
-            self._load_new_note(sticky_fields_from=note)
-            gui_hooks.add_cards_did_add_note(note)
-
-        add_note(parent=self, note=note, target_deck_id=target_deck_id).success(
-            on_success
-        ).run_in_background()
-
-    def _note_can_be_added(self, note: Note) -> bool:
-        result = note.fields_check()
-        # no problem, duplicate, and confirmed cloze cases
-        problem = None
-        if result == NoteFieldsCheckResult.EMPTY:
-            if self.editor.current_notetype_is_image_occlusion():
-                problem = tr.notetypes_no_occlusion_created2()
-            else:
-                problem = tr.adding_the_first_field_is_empty()
-        elif result == NoteFieldsCheckResult.MISSING_CLOZE:
-            if not askUser(tr.adding_you_have_a_cloze_deletion_note()):
-                return False
-        elif result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
-            problem = tr.adding_cloze_outside_cloze_notetype()
-        elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
-            problem = tr.adding_cloze_outside_cloze_field()
-
-        # filter problem through add-ons
-        problem = gui_hooks.add_cards_will_add_note(problem, note)
-        if problem is not None:
-            showWarning(problem, help=HelpPage.ADDING_CARD_AND_NOTE)
-            return False
-
-        optional_problems: list[str] = []
-        gui_hooks.add_cards_might_add_note(optional_problems, note)
-        if not all(askUser(op) for op in optional_problems):
-            return False
-
-        return True
-
     def keyPressEvent(self, evt: QKeyEvent) -> None:
         if evt.key() == Qt.Key.Key_Escape:
             self.close()
@@ -339,10 +281,6 @@ class AddCards(QMainWindow):
             # or PyQt's introspection triggers it
             print("deckChooser is deprecated; use deck_chooser instead")
         return self.deck_chooser
-
-    addCards = add_current_note
-    _addCards = _add_current_note
-    onModelChange = on_notetype_change
 
     @deprecated(info="obsolete")
     def addNote(self, note: Note) -> None:

@@ -17,11 +17,10 @@ from typing import Any
 from anki._legacy import deprecated
 from anki.cards import Card
 from anki.hooks import runFilter
-from anki.models import NotetypeDict, NotetypeId, StockNotetype
+from anki.models import NotetypeId
 from anki.notes import Note, NoteId
 from anki.utils import is_win
 from aqt import AnkiQt, gui_hooks
-from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import shortcut, showWarning
@@ -119,7 +118,6 @@ class Editor:
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
-        self.mid: NotetypeId | None = None
         # legacy argument provided?
         if addMode is not None:
             editor_mode = EditorMode.ADD_CARDS if addMode else EditorMode.EDIT_CURRENT
@@ -341,9 +339,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         from aqt.fields import FieldDialog
 
         def on_note_info(note_info: NoteInfo) -> None:
-            FieldDialog(
-                self.mw, self.mw.col.models.get(note_info.mid), parent=self.parentWindow
-            )
+            note_type = self.mw.col.models.get(note_info.mid)
+            assert note_type is not None
+            FieldDialog(self.mw, note_type, parent=self.parentWindow)
 
         self.get_note_info(on_note_info)
 
@@ -456,9 +454,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         elif hide:
             self.widget.hide()
 
-    def loadNoteKeepingFocus(self) -> None:
-        self.loadNote(self.currentField)
-
     @on_editor_ready
     def load_note(self, mid: int, focus_to: int | None = None) -> None:
 
@@ -478,6 +473,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback
         )
+
+    def reload_note(self) -> None:
+        self.web.eval("reloadNote();")
 
     def call_after_note_saved(
         self, callback: Callable, keepFocus: bool = False
