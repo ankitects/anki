@@ -19,6 +19,7 @@ use nom::error::ErrorKind as NomErrorKind;
 use nom::multi::many0;
 use nom::sequence::preceded;
 use nom::sequence::separated_pair;
+use nom::Parser;
 use regex::Captures;
 use regex::Regex;
 
@@ -202,18 +203,19 @@ fn group_inner(input: &str) -> IResult<Vec<Node>> {
 }
 
 fn whitespace0(s: &str) -> IResult<Vec<char>> {
-    many0(one_of(" \u{3000}"))(s)
+    many0(one_of(" \u{3000}")).parse(s)
 }
 
 /// Optional leading space, then a (negated) group or text
 fn node(s: &str) -> IResult<Node> {
-    preceded(whitespace0, alt((negated_node, group, text)))(s)
+    preceded(whitespace0, alt((negated_node, group, text))).parse(s)
 }
 
 fn negated_node(s: &str) -> IResult<Node> {
     map(preceded(char('-'), alt((group, text))), |node| {
         Node::Not(Box::new(node))
-    })(s)
+    })
+    .parse(s)
 }
 
 /// One or more nodes surrounded by brackets, eg (one OR two)
@@ -233,7 +235,7 @@ fn group(s: &str) -> IResult<Node> {
 
 /// Either quoted or unquoted text
 fn text(s: &str) -> IResult<Node> {
-    alt((quoted_term, partially_quoted_term, unquoted_term))(s)
+    alt((quoted_term, partially_quoted_term, unquoted_term)).parse(s)
 }
 
 /// Quoted text, including the outer double quotes.
@@ -248,7 +250,8 @@ fn partially_quoted_term(s: &str) -> IResult<Node> {
         escaped(is_not("\"(): \u{3000}\\"), '\\', none_of(" \u{3000}")),
         char(':'),
         quoted_term_str,
-    )(s)?;
+    )
+    .parse(s)?;
     Ok((
         remaining,
         Node::Search(search_node_for_text_with_argument(key, val)?),
@@ -296,7 +299,7 @@ fn unquoted_term(s: &str) -> IResult<Node> {
 fn quoted_term_str(s: &str) -> IResult<&str> {
     let (opened, _) = char('"')(s)?;
     if let Ok((tail, inner)) =
-        escaped::<_, ParseError, _, _, _, _>(is_not(r#""\"#), '\\', anychar)(opened)
+        escaped::<_, ParseError, _, _>(is_not(r#""\"#), '\\', anychar).parse(opened)
     {
         if let Ok((remaining, _)) = char::<_, ParseError>('"')(tail) {
             Ok((remaining, inner))
@@ -321,7 +324,8 @@ fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
     // leading : is only possible error for well-formed input
     let (tail, head) = verify(escaped(is_not(r":\"), '\\', anychar), |t: &str| {
         !t.is_empty()
-    })(s)
+    })
+    .parse(s)
     .map_err(|_: nom::Err<ParseError>| parse_failure(s, FailKind::MissingKey))?;
     if tail.is_empty() {
         Ok(SearchNode::UnqualifiedText(unescape(head)?))
@@ -407,7 +411,7 @@ fn parse_resched(s: &str) -> ParseResult<SearchNode> {
 
 /// eg prop:ivl>3, prop:ease!=2.5
 fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
-    let (tail, prop) = alt::<_, _, ParseError, _>((
+    let (tail, prop) = alt((
         tag("ivl"),
         tag("due"),
         tag("reps"),
@@ -421,8 +425,9 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         tag("r"),
         recognize(preceded(tag("cdn:"), alphanumeric1)),
         recognize(preceded(tag("cds:"), alphanumeric1)),
-    ))(prop_clause)
-    .map_err(|_| {
+    ))
+    .parse(prop_clause)
+    .map_err(|_: nom::Err<ParseError>| {
         parse_failure(
             prop_clause,
             FailKind::InvalidPropProperty {
@@ -431,15 +436,16 @@ fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
         )
     })?;
 
-    let (num, operator) = alt::<_, _, ParseError, _>((
+    let (num, operator) = alt((
         tag("<="),
         tag(">="),
         tag("!="),
         tag("="),
         tag("<"),
         tag(">"),
-    ))(tail)
-    .map_err(|_| {
+    ))
+    .parse(tail)
+    .map_err(|_: nom::Err<ParseError>| {
         parse_failure(
             prop_clause,
             FailKind::InvalidPropOperator {
