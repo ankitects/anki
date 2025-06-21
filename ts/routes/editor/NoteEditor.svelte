@@ -457,7 +457,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-
     let richTextInputs: RichTextInput[] = [];
     $: richTextInputs = richTextInputs.filter(Boolean);
 
