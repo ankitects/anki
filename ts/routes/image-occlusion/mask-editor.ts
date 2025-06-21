@@ -44,7 +44,7 @@ export const setupMaskEditor = async (
 };
 
 export const setupMaskEditorForEdit = async (
-    noteId: number,
+    noteId: bigint,
     onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
     const clozeNoteResponse = await getImageOcclusionNote({ noteId: BigInt(noteId) });

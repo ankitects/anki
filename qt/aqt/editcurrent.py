@@ -6,7 +6,6 @@ from collections.abc import Callable
 
 import aqt.editor
 from anki.collection import OpChanges
-from anki.errors import NotFoundError
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import add_close_shortcut, restoreGeom, saveGeom, tr
@@ -47,18 +46,7 @@ class EditCurrent(QMainWindow):
         self, changes: OpChanges, handler: object | None
     ) -> None:
         if changes.note_text and handler is not self.editor:
-            # reload note
-            note = self.editor.note
-            try:
-                assert note is not None
-                note.load()
-            except NotFoundError:
-                # note's been deleted
-                self.cleanup()
-                self.close()
-                return
-
-            self.editor.set_note(note)
+            self.editor.reload_note()
 
     def cleanup(self) -> None:
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
