@@ -111,8 +111,8 @@ impl Collection {
                     // Unlike memory states, scheduler doesn't use decay and dr stored in the card.
                     card.desired_retention = desired_retention;
                     card.decay = decay;
-                    if let Some(item) = &item {
-                        card.set_memory_state(&fsrs, Some(item.clone()), historical_retention.unwrap())?;
+                    if let Some(item) = item {
+                        card.set_memory_state(&fsrs, Some(item), historical_retention.unwrap())?;
                         // if rescheduling
                         if let Some(reviews) = &last_revlog_info {
                             // and we have a last review time for the card
