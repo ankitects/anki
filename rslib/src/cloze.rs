@@ -15,6 +15,7 @@ use nom::bytes::complete::tag;
 use nom::bytes::complete::take_while;
 use nom::combinator::map;
 use nom::IResult;
+use nom::Parser;
 use regex::Captures;
 use regex::Regex;
 
@@ -72,7 +73,7 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token> {
     }
 
     fn close_cloze(text: &str) -> IResult<&str, Token> {
-        map(tag("}}"), |_| Token::CloseCloze)(text)
+        map(tag("}}"), |_| Token::CloseCloze).parse(text)
     }
 
     /// Match a run of text until an open/close marker is encountered.
@@ -87,7 +88,7 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token> {
         // start with the no-match case
         let mut index = text.len();
         for (idx, _) in text.char_indices() {
-            if other_token(&text[idx..]).is_ok() {
+            if other_token.parse(&text[idx..]).is_ok() {
                 index = idx;
                 break;
             }
@@ -99,8 +100,9 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token> {
         if text.is_empty() {
             None
         } else {
-            let (remaining_text, token) =
-                alt((open_cloze, close_cloze, normal_text))(text).unwrap();
+            let (remaining_text, token) = alt((open_cloze, close_cloze, normal_text))
+                .parse(text)
+                .unwrap();
             text = remaining_text;
             Some(token)
         }
