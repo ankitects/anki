@@ -11,7 +11,6 @@ import {
     DeckConfig_Config_ReviewCardOrder,
     DeckConfig_Config_ReviewMix,
 } from "@generated/anki/deck_config_pb";
-import { CMRRTarget } from "@generated/anki/scheduler_pb";
 import * as tr from "@generated/ftl";
 
 import type { Choice } from "$lib/components/EnumSelector.svelte";
@@ -200,21 +199,19 @@ export function questionActionChoices(): Choice<DeckConfig_Config_QuestionAction
     ];
 }
 
-export function CMRRTargetChoices(): Choice<CMRRTarget>[] {
+export const DEFAULT_CMRR_TARGET = "memorized";
+
+export function CMRRTargetChoices(): Choice<string>[] {
     return [
         {
             label: "Memorized (Default)",
-            value: CMRRTarget.memorized,
-        },
-        {
-            label: "Memorized (Double cost)",
-            values: CMRRTarget.loss_aversion,
+            value: "memorized",
         },
         {
             label: "Stability (Experimental)",
-            value: CMRRTarget.stability,
+            value: "stability",
         },
-    ];
+    ] as const;
 }
 
 function difficultyOrders(fsrs: boolean): Choice<DeckConfig_Config_ReviewCardOrder>[] {

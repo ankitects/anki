@@ -1,4 +1,4 @@
-use anki_proto::scheduler::CmrrTarget;
+use anki_proto::scheduler::simulate_fsrs_review_request::cmrr_target::Kind;
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
@@ -25,18 +25,13 @@ impl Collection {
             };
         }
 
-        let target_type = req
-            .target
-            .map(TryInto::try_into)
-            .transpose()
-            .unwrap_or(None);
+        let target_type = req.target.unwrap().kind;
 
         let days_to_simulate = req.days_to_simulate as f32;
 
         let target = match target_type {
-            Some(CmrrTarget::Memorized) => None,
-            Some(CmrrTarget::LossAversion) => None,
-            Some(CmrrTarget::Stability) => {
+            Some(Kind::Memorized(_)) => None,
+            Some(Kind::Stability(_)) => {
                 wrap!(move |SimulationResult {
                                 cards,
                                 cost_per_day,
@@ -60,10 +55,12 @@ impl Collection {
         }
         let (mut config, cards) = self.simulate_request_to_config(&req)?;
 
-        if target_type == Some(CmrrTarget::LossAversion) {
-            config.relearning_step_transitions[0][0] *= 2.;
-            config.relearning_step_transitions[1][0] *= 2.;
-            config.relearning_step_transitions[2][0] *= 2.;
+        if let Some(Kind::Memorized(settings)) = target_type {
+            let loss_aversion = settings.loss_aversion;
+
+            config.relearning_step_transitions[0][0] *= loss_aversion;
+            config.relearning_step_transitions[1][0] *= loss_aversion;
+            config.relearning_step_transitions[2][0] *= loss_aversion;
         }
 
         Ok(fsrs

@@ -19,7 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { computeOptimalRetention, simulateFsrsReview } from "@generated/backend";
     import { runWithBackendProgress } from "@tslib/progress";
     import {
-        CMRRTarget,
+        SimulateFsrsReviewRequest_CMRRTarget_Memorized,
+        SimulateFsrsReviewRequest_CMRRTarget_Stability,
         type ComputeOptimalRetentionResponse,
         type SimulateFsrsReviewRequest,
         type SimulateFsrsReviewResponse,
@@ -28,7 +29,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SwitchRow from "$lib/components/SwitchRow.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
-    import { CMRRTargetChoices, reviewOrderChoices } from "./choices";
+    import {
+        DEFAULT_CMRR_TARGET,
+        CMRRTargetChoices,
+        reviewOrderChoices,
+    } from "./choices";
     import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
     import { DeckConfig_Config_LeechAction } from "@generated/anki/deck_config_pb";
     import EasyDaysInput from "./EasyDaysInput.svelte";
@@ -42,6 +47,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let computing: boolean;
     export let openHelpModal: (key: string) => void;
     export let onPresetChange: () => void;
+
+    let cmrrTargetType = DEFAULT_CMRR_TARGET;
+    $: if (simulateFsrsRequest?.target) {
+        switch (cmrrTargetType) {
+            case "memorized":
+                simulateFsrsRequest.target.kind = {
+                    case: "memorized",
+                    value: new SimulateFsrsReviewRequest_CMRRTarget_Memorized({
+                        lossAversion: 1,
+                    }),
+                };
+                break;
+            case "stability":
+                simulateFsrsRequest.target.kind = {
+                    case: "stability",
+                    value: new SimulateFsrsReviewRequest_CMRRTarget_Stability({}),
+                };
+                break;
+        }
+    }
 
     const config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
@@ -416,8 +441,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <Item>
                         <EnumSelectorRow
                             choices={CMRRTargetChoices()}
-                            bind:value={simulateFsrsRequest.target}
-                            defaultValue={CMRRTarget.memorized}
+                            bind:value={cmrrTargetType}
+                            defaultValue={DEFAULT_CMRR_TARGET}
                         >
                             <SettingTitle>
                                 {"Target: "}

@@ -389,12 +389,6 @@ message FsrsReview {
   uint32 delta_t = 2;
 }
 
-enum CMRRTarget {
-  memorized = 0;
-  loss_aversion = 1;
-  stability = 2;
-};
-
 message SimulateFsrsReviewRequest {
   repeated float params = 1;
   float desired_retention = 2;
@@ -409,6 +403,19 @@ message SimulateFsrsReviewRequest {
   deck_config.DeckConfig.Config.ReviewCardOrder review_order = 11;
   optional uint32 suspend_after_lapse_count = 12;
   // For CMRR
+  message CMRRTarget {
+    message Memorized {
+      float loss_aversion = 1;
+    };
+
+    message Stability {};
+
+    oneof kind {
+      Memorized memorized = 1;
+      Stability stability = 2;
+    };
+  };
+
   optional CMRRTarget target = 13;
 }
 
