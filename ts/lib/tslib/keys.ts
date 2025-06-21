@@ -90,7 +90,7 @@ export function keyToPlatformString(key: string): string {
 }
 
 export function isArrowLeft(event: KeyboardEvent): boolean {
-    if (event.code === "ArrowLeft") {
+    if (event.key === "ArrowLeft") {
         return true;
     }
 
@@ -98,7 +98,7 @@ export function isArrowLeft(event: KeyboardEvent): boolean {
 }
 
 export function isArrowRight(event: KeyboardEvent): boolean {
-    if (event.code === "ArrowRight") {
+    if (event.key === "ArrowRight") {
         return true;
     }
 
@@ -106,7 +106,7 @@ export function isArrowRight(event: KeyboardEvent): boolean {
 }
 
 export function isArrowUp(event: KeyboardEvent): boolean {
-    if (event.code === "ArrowUp") {
+    if (event.key === "ArrowUp") {
         return true;
     }
 
@@ -114,7 +114,7 @@ export function isArrowUp(event: KeyboardEvent): boolean {
 }
 
 export function isArrowDown(event: KeyboardEvent): boolean {
-    if (event.code === "ArrowDown") {
+    if (event.key === "ArrowDown") {
         return true;
     }
 

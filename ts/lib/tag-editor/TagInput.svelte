@@ -166,7 +166,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onKeydown(event: KeyboardEvent): void {
-        switch (event.code) {
+        switch (event.key) {
             case "Enter":
                 onEnter(event);
                 break;
