@@ -3,6 +3,7 @@
 
 #![allow(dead_code)]
 
+use std::io::IsTerminal;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -17,8 +18,58 @@ pub fn initial_terminal_setup(_config: &mut Config) {
 }
 
 pub fn ensure_terminal_shown() -> Result<()> {
-    // Skip terminal relaunch on non-macOS Unix systems as we don't know which
-    // terminal is installed
+    let stdout_is_terminal = IsTerminal::is_terminal(&std::io::stdout());
+    if !stdout_is_terminal {
+        // If launched from GUI, try to relaunch in a terminal
+        crate::platform::relaunch_in_terminal()?;
+    }
+
+    // Set terminal title to "Anki Launcher"
+    print!("\x1b]2;Anki Launcher\x07");
+
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+pub fn relaunch_in_terminal() -> Result<()> {
+    let current_exe = std::env::current_exe().context("Failed to get current executable path")?;
+
+    // Try terminals in order of preference
+    let terminals = [
+        ("x-terminal-emulator", vec!["-e"]),
+        ("gnome-terminal", vec!["--"]),
+        ("konsole", vec!["-e"]),
+        ("xfce4-terminal", vec!["-e"]),
+        ("alacritty", vec!["-e"]),
+        ("kitty", vec![]),
+        ("foot", vec![]),
+        ("urxvt", vec!["-e"]),
+        ("xterm", vec!["-e"]),
+    ];
+
+    for (terminal_cmd, args) in &terminals {
+        // Check if terminal exists
+        if Command::new("which")
+            .arg(terminal_cmd)
+            .output()
+            .map(|o| o.status.success())
+            .unwrap_or(false)
+        {
+            // Try to launch the terminal
+            let mut cmd = Command::new(terminal_cmd);
+            if args.is_empty() {
+                cmd.arg(&current_exe);
+            } else {
+                cmd.args(args).arg(&current_exe);
+            }
+
+            if cmd.spawn().is_ok() {
+                std::process::exit(0);
+            }
+        }
+    }
+
+    // If no terminal worked, continue without relaunching
     Ok(())
 }
 

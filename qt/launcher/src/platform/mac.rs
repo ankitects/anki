@@ -15,6 +15,7 @@ use anyhow::Result;
 
 // Re-export Unix functions that macOS uses
 pub use super::unix::{
+    ensure_terminal_shown,
     exec_anki,
     get_anki_binary_path,
     initial_terminal_setup,
@@ -36,20 +37,7 @@ pub fn launch_anki_detached(anki_bin: &std::path::Path, _config: &crate::Config)
     Ok(())
 }
 
-pub fn ensure_terminal_shown() -> Result<()> {
-    let stdout_is_terminal = std::io::IsTerminal::is_terminal(&std::io::stdout());
-    if !stdout_is_terminal {
-        // If launched from GUI, relaunch in Terminal.app
-        relaunch_in_terminal()?;
-    }
-
-    // Set terminal title to "Anki Launcher"
-    print!("\x1b]0;Anki Launcher\x07");
-
-    Ok(())
-}
-
-fn relaunch_in_terminal() -> Result<()> {
+pub fn relaunch_in_terminal() -> Result<()> {
     let current_exe = std::env::current_exe().context("Failed to get current executable path")?;
     Command::new("open")
         .args(["-a", "Terminal"])
