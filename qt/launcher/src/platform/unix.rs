@@ -16,9 +16,7 @@ pub fn initial_terminal_setup(_config: &mut Config) {
     // No special terminal setup needed on Unix
 }
 
-pub fn handle_terminal_launch() -> Result<()> {
-    print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
-    println!("\x1B[1mPreparing to start Anki...\x1B[0m\n");
+pub fn ensure_terminal_shown() -> Result<()> {
     // Skip terminal relaunch on non-macOS Unix systems as we don't know which
     // terminal is installed
     Ok(())

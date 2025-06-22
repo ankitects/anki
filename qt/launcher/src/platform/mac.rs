@@ -28,12 +28,9 @@ pub fn launch_anki_detached(anki_bin: &std::path::Path, _config: &crate::Config)
     Ok(())
 }
 
-pub fn handle_terminal_launch() -> Result<()> {
+pub fn ensure_terminal_shown() -> Result<()> {
     let stdout_is_terminal = std::io::IsTerminal::is_terminal(&std::io::stdout());
-    if stdout_is_terminal {
-        print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
-        println!("\x1B[1mPreparing to start Anki...\x1B[0m\n");
-    } else {
+    if !stdout_is_terminal {
         // If launched from GUI, relaunch in Terminal.app
         relaunch_in_terminal()?;
     }
