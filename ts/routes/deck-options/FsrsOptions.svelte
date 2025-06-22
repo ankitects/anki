@@ -102,7 +102,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             kind: {
                 case: "memorized",
                 value: new SimulateFsrsReviewRequest_CMRRTarget_Memorized({
-                    lossAversion: 1,
+                    lossAversion: 1.6,
                 }),
             },
         }),
