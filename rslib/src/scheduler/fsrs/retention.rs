@@ -16,6 +16,29 @@ pub struct ComputeRetentionProgress {
     pub total: u32,
 }
 
+pub fn average_r_power_forgetting_curve(
+    learn_span: usize,
+    cards: &[fsrs::Card],
+    offset: f32,
+    decay: f32,
+) -> f32 {
+    let factor = 0.9_f32.powf(1.0 / decay) - 1.0;
+    let exp = decay + 1.0;
+    let den_factor = factor * exp;
+
+    // Closure equivalent to the inner integral function
+    let integral_calc = |card: &fsrs::Card| -> f32 {
+        // Performs element-wise: (s / den_factor) * (1.0 + factor * t / s).powf(exp)
+        let t1 = learn_span as f32 - card.last_date;
+        let t2 = t1 + offset;
+        (card.stability / den_factor) * (1.0 + factor * t2 / card.stability).powf(exp)
+            - (card.stability / den_factor) * (1.0 + factor * t1 / card.stability).powf(exp)
+    };
+
+    // Calculate integral difference and divide by time difference element-wise
+    cards.iter().map(integral_calc).sum::<f32>() / offset
+}
+
 impl Collection {
     pub fn compute_optimal_retention(&mut self, req: SimulateFsrsReviewRequest) -> Result<f32> {
         // Helper macro to wrap the closure for "CMRRTargetFn"s
@@ -31,17 +54,48 @@ impl Collection {
 
         let target = match target_type {
             Some(Kind::Memorized(_)) => None,
+            Some(Kind::FutureMemorized(settings)) => {
+                wrap!(move |SimulationResult {
+                                cards,
+                                cost_per_day,
+                                ..
+                            },
+                            w| {
+                    let total_cost = cost_per_day.iter().sum::<f32>();
+                    total_cost
+                        / cards.iter().fold(0., |p, c| {
+                            c.retention_on(w, days_to_simulate + settings.days as f32) + p
+                        })
+                })
+            }
+            Some(Kind::AverageFutureMemorized(settings)) => {
+                wrap!(move |SimulationResult {
+                                cards,
+                                cost_per_day,
+                                ..
+                            },
+                            w| {
+                    let total_cost = cost_per_day.iter().sum::<f32>();
+                    total_cost
+                        / average_r_power_forgetting_curve(
+                            days_to_simulate as usize,
+                            cards,
+                            settings.days as f32,
+                            -w[20],
+                        )
+                })
+            }
             Some(Kind::Stability(_)) => {
                 wrap!(move |SimulationResult {
                                 cards,
                                 cost_per_day,
                                 ..
                             },
-                            params| {
+                            w| {
                     let total_cost = cost_per_day.iter().sum::<f32>();
                     total_cost
                         / cards.iter().fold(0., |p, c| {
-                            p + (c.retention_on(params, days_to_simulate) * c.stability)
+                            p + (c.retention_on(w, days_to_simulate) * c.stability)
                         })
                 })
             }
@@ -55,11 +109,8 @@ impl Collection {
         }
         let (mut config, cards) = self.simulate_request_to_config(&req)?;
 
-        dbg!(&target_type);
         if let Some(Kind::Memorized(settings)) = target_type {
             let loss_aversion = settings.loss_aversion;
-
-            dbg!(&loss_aversion);
 
             config.relearning_step_transitions[0][0] *= loss_aversion;
             config.relearning_step_transitions[1][0] *= loss_aversion;

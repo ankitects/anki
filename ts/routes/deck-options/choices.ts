@@ -211,6 +211,14 @@ export function CMRRTargetChoices(): Choice<string>[] {
             label: "Stability (Experimental)",
             value: "stability",
         },
+        {
+            label: "Future Retention (Experimental)",
+            value: "futureMemorized",
+        },
+        {
+            label: "Average Future Retention (Experimental)",
+            value: "averageFutureMemorized",
+        },
     ] as const;
 }
 

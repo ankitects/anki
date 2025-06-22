@@ -410,9 +410,19 @@ message SimulateFsrsReviewRequest {
 
     message Stability {};
 
+    message FutureMemorized {
+      int32 days = 1;
+    };
+
+    message AverageFutureMemorized {
+      int32 days = 1;
+    };
+
     oneof kind {
       Memorized memorized = 1;
       Stability stability = 2;
+      FutureMemorized future_memorized = 3;
+      AverageFutureMemorized average_future_memorized = 4;
     };
   };
 

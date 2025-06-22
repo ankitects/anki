@@ -19,6 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { computeOptimalRetention, simulateFsrsReview } from "@generated/backend";
     import { runWithBackendProgress } from "@tslib/progress";
     import {
+        SimulateFsrsReviewRequest_CMRRTarget_AverageFutureMemorized,
+        SimulateFsrsReviewRequest_CMRRTarget_FutureMemorized,
         SimulateFsrsReviewRequest_CMRRTarget_Memorized,
         SimulateFsrsReviewRequest_CMRRTarget_Stability,
         type ComputeOptimalRetentionResponse,
@@ -49,6 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let onPresetChange: () => void;
 
     let cmrrTargetType = DEFAULT_CMRR_TARGET;
+    // All added types must be updated in the proceeding switch statement.
     let lastCmrrTargetType = cmrrTargetType;
     $: if (simulateFsrsRequest?.target && cmrrTargetType !== lastCmrrTargetType) {
         switch (cmrrTargetType) {
@@ -64,6 +67,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 simulateFsrsRequest.target.kind = {
                     case: "stability",
                     value: new SimulateFsrsReviewRequest_CMRRTarget_Stability({}),
+                };
+                break;
+            case "futureMemorized":
+                simulateFsrsRequest.target.kind = {
+                    case: "futureMemorized",
+                    value: new SimulateFsrsReviewRequest_CMRRTarget_FutureMemorized({
+                        days: 365,
+                    }),
+                };
+                break;
+            case "averageFutureMemorized":
+                simulateFsrsRequest.target.kind = {
+                    case: "averageFutureMemorized",
+                    value: new SimulateFsrsReviewRequest_CMRRTarget_AverageFutureMemorized(
+                        { days: 365 },
+                    ),
                 };
                 break;
         }
@@ -454,9 +473,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                     {#if simulateFsrsRequest.target?.kind.case === "memorized"}
                         <SpinBoxFloatRow
-                            bind:value={simulateFsrsRequest.target.kind.value.lossAversion} defaultValue={1}>
+                            bind:value={simulateFsrsRequest.target.kind.value
+                                .lossAversion}
+                            defaultValue={1}
+                        >
                             <SettingTitle>
                                 {"Fail Cost Multiplier: "}
+                            </SettingTitle>
+                        </SpinBoxFloatRow>
+                    {/if}
+
+                    {#if simulateFsrsRequest.target?.kind.case === "futureMemorized" || simulateFsrsRequest.target?.kind.case === "averageFutureMemorized"}
+                        <SpinBoxFloatRow
+                            bind:value={simulateFsrsRequest.target.kind.value.days}
+                            defaultValue={365}
+                            step={1}
+                        >
+                            <SettingTitle>
+                                {"Days after simulation end: "}
                             </SettingTitle>
                         </SpinBoxFloatRow>
                     {/if}
