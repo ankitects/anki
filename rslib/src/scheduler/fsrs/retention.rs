@@ -1,6 +1,6 @@
-use anki_proto::scheduler::simulate_fsrs_review_request::cmrr_target::Kind;
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+use anki_proto::scheduler::simulate_fsrs_review_request::cmrr_target::Kind;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use fsrs::extract_simulator_config;
 use fsrs::SimulationResult;
