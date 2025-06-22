@@ -261,10 +261,9 @@ impl BuildStatement<'_> {
             panic!("{} must generate at least one output", action.name());
         }
         stmt.variables.push(("description".into(), group.into()));
-        stmt.rule_variables.push((
-            "restat".into(),
-            (action.check_output_timestamps() as u32).to_string(),
-        ));
+        if action.check_output_timestamps() {
+            stmt.rule_variables.push(("restat".into(), "1".into()));
+        }
         if action.generator() {
             stmt.rule_variables.push(("generator".into(), "1".into()));
         }
