@@ -172,6 +172,8 @@ fn run() -> Result<()> {
                     command.env("UV_PRERELEASE", "allow");
                 }
 
+                println!("\x1B[1mUpdating Anki...\x1B[0m\n");
+
                 match command.ensure_success() {
                     Ok(_) => {
                         // Sync succeeded, break out of loop

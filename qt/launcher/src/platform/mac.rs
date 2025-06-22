@@ -3,6 +3,11 @@
 
 use std::os::unix::process::CommandExt;
 use std::process::Command;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
+use std::sync::Arc;
+use std::thread;
+use std::time::Duration;
 
 use anki_process::CommandExt as AnkiCommandExt;
 use anyhow::Context;
@@ -25,6 +30,9 @@ pub fn launch_anki_detached(anki_bin: &std::path::Path, _config: &crate::Config)
         .process_group(0)
         .ensure_spawn()?;
     std::mem::forget(child);
+
+    println!("Anki will start shortly.");
+    println!("\x1B[1mYou can close this window.\x1B[0m\n");
     Ok(())
 }
 
@@ -34,6 +42,10 @@ pub fn ensure_terminal_shown() -> Result<()> {
         // If launched from GUI, relaunch in Terminal.app
         relaunch_in_terminal()?;
     }
+
+    // Set terminal title to "Anki Launcher"
+    print!("\x1b]0;Anki Launcher\x07");
+
     Ok(())
 }
 
@@ -47,12 +59,37 @@ fn relaunch_in_terminal() -> Result<()> {
 }
 
 pub fn handle_first_launch(anki_bin: &std::path::Path) -> Result<()> {
+    use std::io::Write;
+    use std::io::{
+        self,
+    };
+
     // Pre-validate by running --version to trigger any Gatekeeper checks
-    println!("\n\x1B[1mThis may take a few minutes. Please wait...\x1B[0m");
+    print!("\n\x1B[1mThis may take a few minutes. Please wait\x1B[0m");
+    io::stdout().flush().unwrap();
+
+    // Start progress indicator
+    let running = Arc::new(AtomicBool::new(true));
+    let running_clone = running.clone();
+    let progress_thread = thread::spawn(move || {
+        while running_clone.load(Ordering::Relaxed) {
+            print!(".");
+            io::stdout().flush().unwrap();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
     let _ = Command::new(anki_bin)
         .env("ANKI_FIRST_RUN", "1")
         .arg("--version")
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
         .ensure_success();
+
+    // Stop progress indicator
+    running.store(false, Ordering::Relaxed);
+    progress_thread.join().unwrap();
+    println!(); // New line after dots
     Ok(())
 }
 
