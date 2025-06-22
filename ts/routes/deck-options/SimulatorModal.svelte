@@ -59,7 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 simulateFsrsRequest.target.kind = {
                     case: "memorized",
                     value: new SimulateFsrsReviewRequest_CMRRTarget_Memorized({
-                        lossAversion: 1,
+                        lossAversion: 1.6,
                     }),
                 };
                 break;
@@ -475,7 +475,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <SpinBoxFloatRow
                             bind:value={simulateFsrsRequest.target.kind.value
                                 .lossAversion}
-                            defaultValue={1}
+                            defaultValue={1.6}
                         >
                             <SettingTitle>
                                 {"Fail Cost Multiplier: "}
