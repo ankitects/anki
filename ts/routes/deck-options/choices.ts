@@ -219,7 +219,7 @@ export function CMRRTargetChoices(): Choice<string>[] {
             label: "Average Post Abandon Memorized (Experimental)",
             value: "averageFutureMemorized",
         },
-    ] as const;
+    ];
 }
 
 function difficultyOrders(fsrs: boolean): Choice<DeckConfig_Config_ReviewCardOrder>[] {
