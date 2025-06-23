@@ -7,17 +7,14 @@ use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::archives::Platform;
 use ninja_gen::build::FilesHandle;
-use ninja_gen::command::RunCommand;
 use ninja_gen::copy::CopyFiles;
 use ninja_gen::glob;
-use ninja_gen::hashmap;
 use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonEnvironment;
-use ninja_gen::python::PythonLint;
+use ninja_gen::python::RuffCheck;
 use ninja_gen::python::PythonTypecheck;
-use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Build;
 
 /// Normalize version string by removing leading zeros from numeric parts
@@ -64,7 +61,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
         "mypy",
         "black",
         "isort",
-        "pylint",
+        "ruff",
         "pytest",
         "protoc-gen-mypy",
     ];
@@ -200,62 +197,21 @@ pub fn check_python(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    add_pylint(build)?;
+    build.add_action("check:ruff", RuffCheck {
+        folders: &[
+            "qt/aqt",
+            "ftl",
+            "pylib/tools",
+            "tools",
+            "python",
+        ],
+        deps: inputs![
+            glob!["{pylib,ftl,qt,python,tools}/**/*.py"],
+            ":pylib:anki",
+            ":qt:aqt"
+        ],
+    })?;
 
-    Ok(())
-}
-
-fn add_pylint(build: &mut Build) -> Result<()> {
-    // pylint does not support PEP420 implicit namespaces split across import paths,
-    // so we need to merge our pylib sources and generated files before invoking it,
-    // and add a top-level __init__.py
-    build.add_action(
-        "check:pylint:copy_pylib",
-        RsyncFiles {
-            inputs: inputs![":pylib:anki"],
-            target_folder: "pylint/anki",
-            strip_prefix: "$builddir/pylib/anki",
-            // avoid copying our large rsbridge binary
-            extra_args: "--links",
-        },
-    )?;
-    build.add_action(
-        "check:pylint:copy_pylib",
-        RsyncFiles {
-            inputs: inputs![glob!["pylib/anki/**"]],
-            target_folder: "pylint/anki",
-            strip_prefix: "pylib/anki",
-            extra_args: "",
-        },
-    )?;
-    build.add_action(
-        "check:pylint:copy_pylib",
-        RunCommand {
-            command: ":pyenv:bin",
-            args: "$script $out",
-            inputs: hashmap! { "script" => inputs!["python/mkempty.py"] },
-            outputs: hashmap! { "out" => vec!["pylint/anki/__init__.py"] },
-        },
-    )?;
-    build.add_action(
-        "check:pylint",
-        PythonLint {
-            folders: &[
-                "$builddir/pylint/anki",
-                "qt/aqt",
-                "ftl",
-                "pylib/tools",
-                "tools",
-                "python",
-            ],
-            pylint_ini: inputs![".pylintrc"],
-            deps: inputs![
-                ":check:pylint:copy_pylib",
-                ":qt:aqt",
-                glob!("{pylib/tools,ftl,qt,python,tools}/**/*.py")
-            ],
-        },
-    )?;
 
     Ok(())
 }

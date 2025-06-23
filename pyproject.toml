@@ -11,7 +11,7 @@ dev = [
   "isort",
   "mypy",
   "mypy-protobuf",
-  "pylint",
+  "ruff",
   "pytest",
   "PyChromeDevTools",
   "colorama", # for isort --color

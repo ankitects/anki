@@ -244,28 +244,23 @@ pub fn python_format(build: &mut Build, group: &str, inputs: BuildInput) -> Resu
     Ok(())
 }
 
-pub struct PythonLint {
+pub struct RuffCheck {
     pub folders: &'static [&'static str],
-    pub pylint_ini: BuildInput,
     pub deps: BuildInput,
 }
 
-impl BuildAction for PythonLint {
+impl BuildAction for RuffCheck {
     fn command(&self) -> &str {
-        "$pylint --rcfile $pylint_ini -sn -j $cpus $folders"
+        "$ruff check $folders"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         build.add_inputs("", &self.deps);
-        build.add_inputs("pylint", inputs![":pyenv:pylint"]);
-        build.add_inputs("pylint_ini", &self.pylint_ini);
+        build.add_inputs("ruff", inputs![":pyenv:ruff"]);
         build.add_variable("folders", self.folders.join(" "));
-        // On a 16 core system, values above 10 do not improve wall clock time,
-        // but waste extra cores that could be working on other tests.
-        build.add_variable("cpus", num_cpus::get().min(10).to_string());
 
         let hash = simple_hash(&self.deps);
-        build.add_output_stamp(format!("tests/python_lint.{hash}"));
+        build.add_output_stamp(format!("tests/python_ruff_check.{hash}"));
     }
 }
 
