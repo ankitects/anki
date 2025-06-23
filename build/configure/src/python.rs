@@ -59,8 +59,6 @@ fn normalize_version(version: &str) -> String {
 pub fn setup_venv(build: &mut Build) -> Result<()> {
     let extra_binary_exports = &[
         "mypy",
-        "black",
-        "isort",
         "ruff",
         "pytest",
         "protoc-gen-mypy",

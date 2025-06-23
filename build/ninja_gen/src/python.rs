@@ -189,27 +189,22 @@ impl BuildAction for PythonTypecheck {
 struct PythonFormat<'a> {
     pub inputs: &'a BuildInput,
     pub check_only: bool,
-    pub isort_ini: &'a BuildInput,
 }
 
 impl BuildAction for PythonFormat<'_> {
     fn command(&self) -> &str {
-        "$black -t py39 -q $check --color $in && $
-         $isort --color --settings-path $isort_ini $check $in"
+        "$ruff format $mode $in"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         build.add_inputs("in", self.inputs);
-        build.add_inputs("black", inputs![":pyenv:black"]);
-        build.add_inputs("isort", inputs![":pyenv:isort"]);
+        build.add_inputs("ruff", inputs![":pyenv:ruff"]);
 
         let hash = simple_hash(self.inputs);
-        build.add_env_var("BLACK_CACHE_DIR", "out/python/black.cache.{hash}");
-        build.add_inputs("isort_ini", self.isort_ini);
         build.add_variable(
             "check",
             if self.check_only {
-                "--diff --check"
+                "--check"
             } else {
                 ""
             },
@@ -223,13 +218,11 @@ impl BuildAction for PythonFormat<'_> {
 }
 
 pub fn python_format(build: &mut Build, group: &str, inputs: BuildInput) -> Result<()> {
-    let isort_ini = &inputs![".isort.cfg"];
     build.add_action(
         format!("check:format:python:{group}"),
         PythonFormat {
             inputs: &inputs,
             check_only: true,
-            isort_ini,
         },
     )?;
 
@@ -238,7 +231,6 @@ pub fn python_format(build: &mut Build, group: &str, inputs: BuildInput) -> Resu
         PythonFormat {
             inputs: &inputs,
             check_only: false,
-            isort_ini,
         },
     )?;
     Ok(())

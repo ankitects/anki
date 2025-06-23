@@ -4,6 +4,7 @@ lint.select = [
   "E9", # Runtime errors
   "F", # Pyflakes errors
   "PL", # Pylint rules
+  "I", # Isort rules
 ]
 
 extend-exclude = ["*_pb2.py", "*_pb2.pyi"]
@@ -86,3 +87,6 @@ max-args = 12
 max-returns = 10
 max-branches = 35
 max-statements = 125
+
+[lint.isort]
+known-first-party = ["anki", "aqt", "tests"]
