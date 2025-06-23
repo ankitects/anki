@@ -56,13 +56,13 @@ body {
     padding: 0;
     -webkit-user-select: none;
     overflow: hidden;
+    margin-bottom: 5px;
 
     &:not(.fancy).hidden {
         opacity: 0;
     }
 
     &.fancy {
-        margin-bottom: 5px;
 
         &.hidden {
             transform: translateY(-100vh);
