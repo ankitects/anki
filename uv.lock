@@ -59,9 +59,6 @@ dependencies = [
     { name = "protobuf" },
     { name = "psutil", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "requests", extra = ["socks"] },
-    { name = "types-orjson" },
-    { name = "types-protobuf" },
-    { name = "types-requests" },
     { name = "typing-extensions" },
 ]
 
@@ -75,9 +72,6 @@ requires-dist = [
     { name = "protobuf", specifier = ">=4.21" },
     { name = "psutil", marker = "sys_platform == 'win32'" },
     { name = "requests", extras = ["socks"] },
-    { name = "types-orjson" },
-    { name = "types-protobuf" },
-    { name = "types-requests" },
     { name = "typing-extensions" },
 ]
 
@@ -111,11 +105,21 @@ dev = [
     { name = "colorama" },
     { name = "hatchling" },
     { name = "isort" },
+    { name = "mock" },
     { name = "mypy" },
     { name = "mypy-protobuf" },
     { name = "pychromedevtools" },
     { name = "pylint" },
     { name = "pytest" },
+    { name = "types-decorator" },
+    { name = "types-flask" },
+    { name = "types-flask-cors" },
+    { name = "types-markdown" },
+    { name = "types-orjson" },
+    { name = "types-protobuf" },
+    { name = "types-pywin32" },
+    { name = "types-requests" },
+    { name = "types-waitress" },
     { name = "wheel" },
 ]
 
@@ -133,11 +137,21 @@ dev = [
     { name = "colorama" },
     { name = "hatchling" },
     { name = "isort" },
+    { name = "mock" },
     { name = "mypy" },
     { name = "mypy-protobuf" },
     { name = "pychromedevtools" },
     { name = "pylint" },
     { name = "pytest" },
+    { name = "types-decorator" },
+    { name = "types-flask" },
+    { name = "types-flask-cors" },
+    { name = "types-markdown" },
+    { name = "types-orjson" },
+    { name = "types-protobuf" },
+    { name = "types-pywin32" },
+    { name = "types-requests" },
+    { name = "types-waitress" },
     { name = "wheel" },
 ]
 
@@ -158,7 +172,6 @@ dependencies = [
     { name = "flask" },
     { name = "flask-cors" },
     { name = "jsonschema" },
-    { name = "mock" },
     { name = "pip-system-certs", version = "4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "pip-system-certs", version = "5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "psutil", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
@@ -173,12 +186,6 @@ dependencies = [
     { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
     { name = "requests" },
     { name = "send2trash" },
-    { name = "types-decorator" },
-    { name = "types-flask" },
-    { name = "types-flask-cors" },
-    { name = "types-markdown" },
-    { name = "types-pywin32" },
-    { name = "types-waitress" },
     { name = "waitress" },
 ]
 
@@ -223,7 +230,6 @@ requires-dist = [
     { name = "flask" },
     { name = "flask-cors" },
     { name = "jsonschema" },
-    { name = "mock" },
     { name = "pip-system-certs", specifier = "!=5.1" },
     { name = "psutil", marker = "sys_platform == 'win32'" },
     { name = "pyqt6", specifier = ">=6.2" },
@@ -251,12 +257,6 @@ requires-dist = [
     { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "requests" },
     { name = "send2trash" },
-    { name = "types-decorator" },
-    { name = "types-flask" },
-    { name = "types-flask-cors" },
-    { name = "types-markdown" },
-    { name = "types-pywin32" },
-    { name = "types-waitress" },
     { name = "waitress", specifier = ">=2.0.0" },
 ]
 provides-extras = ["audio", "qt", "qt66", "qt67", "qt69"]
@@ -595,7 +595,7 @@ name = "importlib-metadata"
 version = "8.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp" },
+    { name = "zipp", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt69')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/76/66/650a33bd90f786193e4de4b3ad86ea60b53c89b669a5c7be931fac31cdb0/importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000", size = 56641, upload-time = "2025-04-27T15:29:01.736Z" }
 wheels = [
