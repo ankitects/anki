@@ -13,8 +13,8 @@ use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonEnvironment;
-use ninja_gen::python::RuffCheck;
 use ninja_gen::python::PythonTypecheck;
+use ninja_gen::python::RuffCheck;
 use ninja_gen::Build;
 
 /// Normalize version string by removing leading zeros from numeric parts
@@ -197,28 +197,28 @@ pub fn check_python(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    let ruff_folders = &[
-        "qt/aqt",
-        "ftl",
-        "pylib/tools",
-        "tools",
-        "python",
-    ];
+    let ruff_folders = &["qt/aqt", "ftl", "pylib/tools", "tools", "python"];
     let ruff_deps = inputs![
         glob!["{pylib,ftl,qt,python,tools}/**/*.py"],
         ":pylib:anki",
         ":qt:aqt"
     ];
-    build.add_action("check:ruff", RuffCheck {
-        folders: ruff_folders,
-        deps: ruff_deps.clone(),
-        check_only: true,
-    })?;
-    build.add_action("fix:ruff", RuffCheck {
-        folders: ruff_folders,
-        deps: ruff_deps,
-        check_only: false,
-    })?;
+    build.add_action(
+        "check:ruff",
+        RuffCheck {
+            folders: ruff_folders,
+            deps: ruff_deps.clone(),
+            check_only: true,
+        },
+    )?;
+    build.add_action(
+        "fix:ruff",
+        RuffCheck {
+            folders: ruff_folders,
+            deps: ruff_deps,
+            check_only: false,
+        },
+    )?;
 
     Ok(())
 }
