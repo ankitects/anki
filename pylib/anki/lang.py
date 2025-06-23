@@ -198,9 +198,7 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
         # getdefaultlocale() is deprecated since Python 3.11, but we need to keep using it as getlocale() behaves differently: https://bugs.python.org/issue38805
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
-            (sys_lang, enc) = (
-                locale.getdefaultlocale()  # pylint: disable=deprecated-method
-            )
+            (sys_lang, enc) = locale.getdefaultlocale()  # pylint: disable=deprecated-method
     except AttributeError:
         # this will return a different format on Windows (e.g. Italian_Italy), resulting in us falling back to en_US
         # further below

@@ -27,7 +27,7 @@ def _legacy_card_stats(
     col: anki.collection.Collection, card_id: anki.cards.CardId, include_revlog: bool
 ) -> str:
     "A quick hack to preserve compatibility with the old HTML string API."
-    random_id = f"cardinfo-{base62(random.randint(0, 2 ** 64 - 1))}"
+    random_id = f"cardinfo-{base62(random.randint(0, 2**64 - 1))}"
     varName = random_id.replace("-", "")
     return f"""
 <div id="{random_id}"></div>

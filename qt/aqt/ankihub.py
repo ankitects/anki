@@ -36,7 +36,6 @@ def ankihub_login(
     username: str = "",
     password: str = "",
 ) -> None:
-
     def on_future_done(fut: Future[str], username: str, password: str) -> None:
         try:
             token = fut.result()
@@ -73,7 +72,6 @@ def ankihub_logout(
     on_success: Callable[[], None],
     token: str,
 ) -> None:
-
     def logout() -> None:
         mw.pm.set_ankihub_username(None)
         mw.pm.set_ankihub_token(None)

@@ -138,9 +138,9 @@ class MPVBase:
             extended_info = win32job.QueryInformationJobObject(
                 self._job, win32job.JobObjectExtendedLimitInformation
             )
-            extended_info["BasicLimitInformation"][
-                "LimitFlags"
-            ] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            extended_info["BasicLimitInformation"]["LimitFlags"] = (
+                win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            )
             win32job.SetInformationJobObject(
                 self._job,
                 win32job.JobObjectExtendedLimitInformation,
@@ -193,7 +193,10 @@ class MPVBase:
                         None,
                     )
                     win32pipe.SetNamedPipeHandleState(
-                        self._sock, 1, None, None  # PIPE_NOWAIT
+                        self._sock,
+                        1,
+                        None,
+                        None,  # PIPE_NOWAIT
                     )
                 except pywintypes.error as err:
                     if err.args[0] == winerror.ERROR_FILE_NOT_FOUND:

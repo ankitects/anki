@@ -169,8 +169,7 @@ def test_find_cards():
     # properties
     id = col.db.scalar("select id from cards limit 1")
     col.db.execute(
-        "update cards set queue=2, ivl=10, reps=20, due=30, factor=2200 "
-        "where id = ?",
+        "update cards set queue=2, ivl=10, reps=20, due=30, factor=2200 where id = ?",
         id,
     )
     assert len(col.find_cards("prop:ivl>5")) == 1

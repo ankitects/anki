@@ -597,10 +597,9 @@ class Reviewer:
     def _shortcutKeys(
         self,
     ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
-
-        def generate_default_answer_keys() -> (
-            Generator[tuple[str, partial], None, None]
-        ):
+        def generate_default_answer_keys() -> Generator[
+            tuple[str, partial], None, None
+        ]:
             for ease in aqt.mw.pm.default_answer_keys:
                 key = aqt.mw.pm.get_answer_key(ease)
                 if not key:

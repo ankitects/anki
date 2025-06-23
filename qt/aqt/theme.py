@@ -187,7 +187,7 @@ class ThemeManager:
         self, card_ord: int, night_mode: bool | None = None
     ) -> str:
         "Returns body classes used when showing a card."
-        return f"card card{card_ord+1} {self.body_class(night_mode, reviewer=True)}"
+        return f"card card{card_ord + 1} {self.body_class(night_mode, reviewer=True)}"
 
     def var(self, vars: dict[str, str]) -> str:
         """Given day/night colors/props, return the correct one for the current theme."""

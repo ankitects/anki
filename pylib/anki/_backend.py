@@ -164,7 +164,7 @@ class RustBackend(RustBackendGenerated):
         finally:
             elapsed = time.time() - start
             if current_thread() is main_thread() and elapsed > 0.2:
-                print(f"blocked main thread for {int(elapsed*1000)}ms:")
+                print(f"blocked main thread for {int(elapsed * 1000)}ms:")
                 print("".join(traceback.format_stack()))
 
         err = backend_pb2.BackendError()

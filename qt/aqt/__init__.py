@@ -286,7 +286,6 @@ class NativeEventFilter(QAbstractNativeEventFilter):
     def nativeEventFilter(
         self, eventType: Any, message: Any
     ) -> tuple[bool, Any | None]:
-
         if eventType == "windows_generic_MSG":
             import ctypes.wintypes
 

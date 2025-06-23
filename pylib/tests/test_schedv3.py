@@ -554,9 +554,7 @@ def test_bury():
     col.sched.bury_cards([c.id], manual=True)  # pylint: disable=unexpected-keyword-arg
     c.load()
     assert c.queue == QUEUE_TYPE_MANUALLY_BURIED
-    col.sched.bury_cards(
-        [c2.id], manual=False
-    )  # pylint: disable=unexpected-keyword-arg
+    col.sched.bury_cards([c2.id], manual=False)  # pylint: disable=unexpected-keyword-arg
     c2.load()
     assert c2.queue == QUEUE_TYPE_SIBLING_BURIED
 

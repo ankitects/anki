@@ -867,7 +867,9 @@ class Collection(DeprecatedNamesMixin):
                 return column
         return None
 
-    def browser_row_for_id(self, id_: int) -> tuple[
+    def browser_row_for_id(
+        self, id_: int
+    ) -> tuple[
         Generator[tuple[str, bool, BrowserRow.Cell.TextElideMode.V], None, None],
         BrowserRow.Color.V,
         str,

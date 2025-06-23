@@ -450,7 +450,6 @@ class AnkiQt(QMainWindow):
             self.loadProfile()
 
     def onOpenBackup(self) -> None:
-
         def do_open(path: str) -> None:
             if not askUser(
                 tr.qt_misc_replace_your_collection_with_an_earlier2(
