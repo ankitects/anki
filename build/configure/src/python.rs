@@ -197,21 +197,28 @@ pub fn check_python(build: &mut Build) -> Result<()> {
         },
     )?;
 
+    let ruff_folders = &[
+        "qt/aqt",
+        "ftl",
+        "pylib/tools",
+        "tools",
+        "python",
+    ];
+    let ruff_deps = inputs![
+        glob!["{pylib,ftl,qt,python,tools}/**/*.py"],
+        ":pylib:anki",
+        ":qt:aqt"
+    ];
     build.add_action("check:ruff", RuffCheck {
-        folders: &[
-            "qt/aqt",
-            "ftl",
-            "pylib/tools",
-            "tools",
-            "python",
-        ],
-        deps: inputs![
-            glob!["{pylib,ftl,qt,python,tools}/**/*.py"],
-            ":pylib:anki",
-            ":qt:aqt"
-        ],
+        folders: ruff_folders,
+        deps: ruff_deps.clone(),
+        check_only: true,
     })?;
-
+    build.add_action("fix:ruff", RuffCheck {
+        folders: ruff_folders,
+        deps: ruff_deps,
+        check_only: false,
+    })?;
 
     Ok(())
 }

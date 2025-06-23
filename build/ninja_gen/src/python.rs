@@ -247,20 +247,23 @@ pub fn python_format(build: &mut Build, group: &str, inputs: BuildInput) -> Resu
 pub struct RuffCheck {
     pub folders: &'static [&'static str],
     pub deps: BuildInput,
+    pub check_only: bool,
 }
 
 impl BuildAction for RuffCheck {
     fn command(&self) -> &str {
-        "$ruff check $folders"
+        "$ruff check $folders $mode"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         build.add_inputs("", &self.deps);
         build.add_inputs("ruff", inputs![":pyenv:ruff"]);
         build.add_variable("folders", self.folders.join(" "));
+        build.add_variable("mode", if self.check_only { "" } else { "--fix" });
 
         let hash = simple_hash(&self.deps);
-        build.add_output_stamp(format!("tests/python_ruff_check.{hash}"));
+        let kind = if self.check_only { "check" } else { "fix" };
+        build.add_output_stamp(format!("tests/python_ruff.{kind}.{hash}"));
     }
 }
 
