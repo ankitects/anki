@@ -7,7 +7,7 @@ import pprint
 import time
 from typing import NewType
 
-import anki  # pylint: disable=unused-import
+import anki
 import anki.collection
 import anki.decks
 import anki.notes

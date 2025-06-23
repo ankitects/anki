@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 # make sure not to optimize imports on this file
-# pylint: disable=unused-import
+# ruff: noqa: F401
 from __future__ import annotations
 
 import os

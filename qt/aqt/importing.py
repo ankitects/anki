@@ -11,10 +11,10 @@ from collections.abc import Callable
 from concurrent.futures import Future
 from typing import Any
 
-import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
+from anki import importing
 from anki.importing.anki2 import MediaMapInvalid, V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
 from aqt.import_export.importing import ColpkgImporter
@@ -442,4 +442,5 @@ def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
         # adding
         return True
     ColpkgImporter.do_import(mw, importer.file)
+    return False
     return False

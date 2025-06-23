@@ -19,7 +19,7 @@ from send2trash import send2trash
 import aqt
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.collection import Collection, HelpPage
-from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
+from anki.lang import TR, tr_legacyglobal  # noqa: F401
 from anki.utils import (
     call,
     invalid_filename,
@@ -29,9 +29,9 @@ from anki.utils import (
     version_with_build,
 )
 from aqt.qt import *
+from aqt.qt import QT_VERSION_STR  # noqa: F401
 from aqt.qt import (
     PYQT_VERSION_STR,
-    QT_VERSION_STR,
     QAction,
     QApplication,
     QCheckBox,
@@ -294,7 +294,7 @@ def showInfo(
         icon = QMessageBox.Icon.Critical
     else:
         icon = QMessageBox.Icon.Information
-    mb = QMessageBox(parent_widget)  #
+    mb = QMessageBox(parent_widget)
     if textFormat == "plain":
         mb.setTextFormat(Qt.TextFormat.PlainText)
     elif textFormat == "rich":

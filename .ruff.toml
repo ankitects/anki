@@ -25,6 +25,7 @@ lint.ignore = [
   "FIX002", # Line contains TODO
 
   # Pyflakes rules
+  "F402", # import-shadowed-by-loop-var
   "F403", # undefined-local-with-import-star
   "F405", # undefined-local-with-import-star-usage
   "F841", # unused-variable
@@ -45,6 +46,7 @@ lint.ignore = [
 
   # Pylint rules
   "PLW0603", # global-statement
+  "PLW2901", # redefined-loop-name
   "PLC0415", # import-outside-top-level
   "PLR2004", # magic-value-comparison
 

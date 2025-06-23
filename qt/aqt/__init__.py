@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+# ruff: noqa: F401
 import atexit
 import logging
 import os

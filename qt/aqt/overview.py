@@ -113,7 +113,7 @@ class Overview:
             self.mw.moveToState("deckBrowser")
         elif url == "review":
             openLink(f"{aqt.appShared}info/{self.sid}?v={self.sidVer}")
-        elif url == "studymore" or url == "customStudy":
+        elif url in {"studymore", "customStudy"}:
             self.onStudyMore()
         elif url == "unbury":
             self.on_unbury()

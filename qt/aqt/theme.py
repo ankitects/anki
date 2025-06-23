@@ -213,13 +213,12 @@ class ThemeManager:
             return False
         elif theme == Theme.DARK:
             return True
+        elif is_win:
+            return get_windows_dark_mode()
+        elif is_mac:
+            return get_macos_dark_mode()
         else:
-            if is_win:
-                return get_windows_dark_mode()
-            elif is_mac:
-                return get_macos_dark_mode()
-            else:
-                return get_linux_dark_mode()
+            return get_linux_dark_mode()
 
     def apply_style(self) -> None:
         "Apply currently configured style."

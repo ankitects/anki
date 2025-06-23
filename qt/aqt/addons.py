@@ -927,7 +927,6 @@ class AddonsDialog(QDialog):
                     or self.mgr.configAction(addon.dir_name)
                 )
             )
-        return
 
     def _onAddonItemSelected(self, row_int: int) -> None:
         try:

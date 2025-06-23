@@ -361,8 +361,7 @@ class Table:
         for m in self.col.models.all():
             for t in m["tmpls"]:
                 bsize = t.get("bsize", 0)
-                if bsize > curmax:
-                    curmax = bsize
+                curmax = max(curmax, bsize)
 
         assert self._view is not None
         vh = self._view.verticalHeader()

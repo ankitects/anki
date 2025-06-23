@@ -11,7 +11,7 @@ from pathlib import Path
 from anki.utils import is_mac
 
 
-# pylint: disable=unused-import,import-error
+# ruff: noqa: F401
 def first_run_setup() -> None:
     """Code run the first time after install/upgrade.
 

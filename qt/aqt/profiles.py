@@ -128,7 +128,7 @@ class ProfileManager:
     default_answer_keys = {ease_num: str(ease_num) for ease_num in range(1, 5)}
     last_run_version: int = 0
 
-    def __init__(self, base: Path) -> None:  #
+    def __init__(self, base: Path) -> None:
         "base should be retrieved via ProfileMangager.get_created_base_folder"
         ## Settings which should be forgotten each Anki restart
         self.session: dict[str, Any] = {}

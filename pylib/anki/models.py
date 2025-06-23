@@ -10,7 +10,7 @@ import time
 from collections.abc import Sequence
 from typing import Any, NewType, Union
 
-import anki  # pylint: disable=unused-import
+import anki
 import anki.collection
 import anki.notes
 from anki import notetypes_pb2

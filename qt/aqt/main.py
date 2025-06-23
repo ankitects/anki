@@ -376,7 +376,6 @@ class AnkiQt(QMainWindow):
     def openProfile(self) -> None:
         name = self.pm.profiles()[self.profileForm.profiles.currentRow()]
         self.pm.load(name)
-        return
 
     def onOpenProfile(self, *, callback: Callable[[], None] | None = None) -> None:
         def on_done() -> None:
@@ -821,7 +820,7 @@ class AnkiQt(QMainWindow):
             self.bottomWeb.hide_timer.start()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
-        if newState != "resetRequired" and newState != "review":
+        if newState not in {"resetRequired", "review"}:
             self.reviewer.auto_advance_enabled = False
             self.reviewer.cleanup()
             self.toolbarWeb.elevate()
