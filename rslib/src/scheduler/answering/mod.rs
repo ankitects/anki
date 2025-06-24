@@ -334,6 +334,7 @@ impl Collection {
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;
         let mut card = updater.into_card();
+        card.last_review_time = Some(answer.answered_at.as_secs());
         if let Some(data) = answer.custom_data.take() {
             card.custom_data = data;
             card.validate_custom_data()?;
@@ -448,11 +449,14 @@ impl Collection {
                 )?;
                 card.set_memory_state(&fsrs, item, config.inner.historical_retention)?;
             }
-            let days_elapsed = self
-                .storage
-                .time_of_last_review(card.id)?
-                .map(|ts| timing.next_day_at.elapsed_days_since(ts))
-                .unwrap_or_default() as u32;
+            let days_elapsed = if let Some(last_review_time) = card.last_review_time {
+                timing.next_day_at.elapsed_days_since(last_review_time) as u32
+            } else {
+                self.storage
+                    .time_of_last_review(card.id)?
+                    .map(|ts| timing.next_day_at.elapsed_days_since(ts))
+                    .unwrap_or_default() as u32
+            };
             Some(fsrs.next_states(
                 card.memory_state.map(Into::into),
                 config.inner.desired_retention,

@@ -51,6 +51,7 @@ message Card {
   optional FsrsMemoryState memory_state = 20;
   optional float desired_retention = 21;
   optional float decay = 22;
+  optional int64 last_review_time_secs = 23;
   string custom_data = 19;
 }
 

@@ -36,15 +36,21 @@ impl Card {
         let new_due = (today + days_from_today) as i32;
         let fsrs_enabled = self.memory_state.is_some();
         let new_interval = if fsrs_enabled {
-            let due = self.original_or_current_due();
-            let due_diff = if is_unix_epoch_timestamp(due) {
-                let offset = (due as i64 - next_day_start) / 86_400;
-                let due = (today as i64 + offset) as i32;
-                new_due - due
+            if let Some(last_review_time) = self.last_review_time {
+                let elapsed_days =
+                    TimestampSecs(next_day_start).elapsed_days_since(last_review_time);
+                elapsed_days as u32 + days_from_today
             } else {
-                new_due - due
-            };
-            self.interval.saturating_add_signed(due_diff)
+                let due = self.original_or_current_due();
+                let due_diff = if is_unix_epoch_timestamp(due) {
+                    let offset = (due as i64 - next_day_start) / 86_400;
+                    let due = (today as i64 + offset) as i32;
+                    new_due - due
+                } else {
+                    new_due - due
+                };
+                self.interval.saturating_add_signed(due_diff)
+            }
         } else if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
             days_from_today.max(1)
         } else {
