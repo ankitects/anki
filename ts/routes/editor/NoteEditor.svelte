@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import { onMount, tick } from "svelte";
+    import { onDestroy, onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
     import { nodeIsCommonElement } from "@tslib/dom";
 
@@ -211,6 +211,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function setSticky(stckies: boolean[]): void {
         stickies = stckies;
     }
+
+    async function toggleStickyAll() {
+        const values: boolean[] = [];
+        const notetype = await getNotetype({ ntid: notetypeMeta.id });
+        const anySticky = notetype.fields.some((f) => f.config!.sticky);
+        for (const field of notetype.fields) {
+            const sticky = field.config!.sticky;
+            if (!anySticky || sticky) {
+                field.config!.sticky = !sticky;
+            }
+            values.push(field.config!.sticky);
+        }
+        await updateNotetype(notetype);
+        setSticky(values);
+    }
+
+    let deregisterSticky: () => void;
 
     export function focusField(index: number | null): void {
         tick().then(() => {
@@ -539,6 +556,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         noteFieldsCheck,
         addNote,
         addMediaFromPath,
+        updateNotetype,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
@@ -561,6 +579,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PreviewButton from "./PreviewButton.svelte";
     import { NoteFieldsCheckResponse_State, type Note } from "@generated/anki/notes_pb";
     import { setupContextMenu } from "./context-menu.svelte";
+    import { registerShortcut } from "@tslib/shortcuts";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -863,6 +882,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => {
+        if (mode === "add") {
+            deregisterSticky = registerShortcut(toggleStickyAll, "Shift+F9");
+        }
+
         function wrap(before: string, after: string): void {
             if (!$focusedInput || !editingInputIsRichText($focusedInput)) {
                 return;
@@ -918,6 +941,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         document.addEventListener("visibilitychange", saveOnPageHide);
         return () => document.removeEventListener("visibilitychange", saveOnPageHide);
+    });
+
+    onDestroy(() => {
+        deregisterSticky();
     });
 
     let apiPartial: Partial<NoteEditorAPI> = {};
@@ -1067,6 +1094,7 @@ components and functionality for general note editing.
                                     <StickyBadge
                                         bind:active={stickies[index]}
                                         {index}
+                                        {note}
                                         show={fields[index] === $hoveredField ||
                                             fields[index] === $focusedField}
                                     />

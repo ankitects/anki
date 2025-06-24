@@ -4,7 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
-    import { bridgeCommand } from "@tslib/bridgecommand";
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
     import { onEnterOrSpace } from "@tslib/keys";
     import { onMount } from "svelte";
@@ -15,6 +14,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { stickyIconSolid } from "$lib/components/icons";
 
     import { context as editorFieldContext } from "./EditorField.svelte";
+    import type { Note } from "@generated/anki/notes_pb";
+    import { getNotetype, updateNotetype } from "@generated/backend";
 
     const animated = !document.body.classList.contains("reduce-motion");
 
@@ -25,11 +26,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const keyCombination = "F9";
 
     export let index: number;
+    export let note: Note;
 
-    function toggle() {
-        bridgeCommand(`toggleSticky:${index}`, (value: boolean) => {
-            active = value;
-        });
+    async function toggle() {
+        active = !active;
+        const notetype = await getNotetype({ ntid: note.notetypeId });
+        notetype.fields[index].config!.sticky = active;
+        await updateNotetype(notetype);
     }
 
     function shortcut(target: HTMLElement): () => void {

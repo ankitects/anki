@@ -812,6 +812,7 @@ exposed_backend_list = [
     "get_notetype_names",
     "get_change_notetype_info",
     "get_cloze_field_ords",
+    "update_notetype",
     # StatsService
     "card_stats",
     "get_review_logs",
