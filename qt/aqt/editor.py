@@ -118,6 +118,7 @@ class Editor:
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
+        self.nid: NoteId | None = None
         # legacy argument provided?
         if addMode is not None:
             editor_mode = EditorMode.ADD_CARDS if addMode else EditorMode.EDIT_CURRENT
