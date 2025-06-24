@@ -388,6 +388,14 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                         desired_retrievability = desired_retrievability.max(0.0001);
                         let decay = card_data.decay.unwrap_or(FSRS5_DEFAULT_DECAY);
 
+                        let days_elapsed = if let Some(last_review_time) =
+                            card_data.last_review_time
+                        {
+                            TimestampSecs(next_day_at).elapsed_days_since(last_review_time) as u32
+                        } else {
+                            days_elapsed
+                        };
+
                         let current_retrievability = FSRS::new(None)
                             .unwrap()
                             .current_retrievability(state.into(), days_elapsed, decay)
