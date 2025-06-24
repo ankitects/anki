@@ -21,12 +21,7 @@ use walkdir::WalkDir;
 
 const NONSTANDARD_HEADER: &[&str] = &[
     "./pylib/anki/_vendor/stringcase.py",
-    "./pylib/anki/importing/pauker.py",
-    "./pylib/anki/importing/supermemo_xml.py",
     "./pylib/anki/statsbg.py",
-    "./pylib/tools/protoc-gen-mypy.py",
-    "./python/pyqt/install.py",
-    "./python/write_wheel.py",
     "./qt/aqt/mpv.py",
     "./qt/aqt/winpaths.py",
 ];

@@ -4,7 +4,6 @@ dynamic = ["version"]
 requires-python = ">=3.9"
 license = "AGPL-3.0-or-later"
 dependencies = [
-  "beautifulsoup4",
   "decorator",
   "markdown",
   "orjson",
