@@ -374,6 +374,7 @@ export async function handlePaste(event: ClipboardEvent) {
 }
 
 export async function handleDrop(event: DragEvent) {
+    (event.target as HTMLElement).focus();
     await handlePasteOrDrop(event);
 }
 
