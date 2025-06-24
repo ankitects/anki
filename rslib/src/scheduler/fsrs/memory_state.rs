@@ -188,9 +188,7 @@ impl Collection {
                     }
                 } else {
                     // clear FSRS data if FSRS is disabled
-                    card.memory_state = None;
-                    card.desired_retention = None;
-                    card.decay = None;
+                    card.clear_fsrs_data();
                 }
                 self.update_card_inner(&mut card, original, usn)?;
             }
