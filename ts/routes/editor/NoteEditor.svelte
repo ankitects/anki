@@ -260,7 +260,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await setMeta(tagsCollapsedMetaKey, collapsed);
     }
 
-    let note: Note | null = null;
+    let note: Note;
     export function setNote(n: Note): void {
         note = n;
         // TODO this is a hack, because it requires the NoteEditor to know implementation details of the PlainTextInput.
@@ -468,9 +468,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function getNoteInfo() {
         return {
-            id: note?.id.toString() ?? null,
+            id: note.id.toString() ?? null,
             mid: notetypeMeta.id.toString(),
-            fields: note?.fields ?? [],
+            fields: note.fields ?? [],
         };
     }
 
