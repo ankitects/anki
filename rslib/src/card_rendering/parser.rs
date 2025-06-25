@@ -14,14 +14,14 @@ use nom::combinator::recognize;
 use nom::combinator::rest;
 use nom::combinator::success;
 use nom::combinator::value;
-use nom::multi::fold_many0;
 use nom::multi::many0;
 use nom::sequence::delimited;
 use nom::sequence::pair;
 use nom::sequence::preceded;
 use nom::sequence::separated_pair;
 use nom::sequence::terminated;
-use nom::sequence::tuple;
+use nom::Input;
+use nom::Parser;
 
 use super::CardNodes;
 use super::Directive;
@@ -86,9 +86,12 @@ impl<'a> Directive<'a> {
 }
 
 /// Consume 0 or more of anything in " \t\r\n" after `parser`.
-fn trailing_whitespace0<'parser, 's, P, O>(parser: P) -> impl FnMut(&'s str) -> IResult<'s, O>
+fn trailing_whitespace0<I, O, E, P>(parser: P) -> impl Parser<I, Output = O, Error = E>
 where
-    P: FnMut(&'s str) -> IResult<'s, O> + 'parser,
+    I: Input,
+    <I as Input>::Item: nom::AsChar,
+    E: nom::error::ParseError<I>,
+    P: Parser<I, Output = O, Error = E>,
 {
     terminated(parser, multispace0)
 }
@@ -97,11 +100,11 @@ where
 fn is_not0<'parser, 'arr: 'parser, 's: 'parser>(
     arr: &'arr str,
 ) -> impl FnMut(&'s str) -> IResult<'s, &'s str> + 'parser {
-    alt((is_not(arr), success("")))
+    move |s| alt((is_not(arr), success(""))).parse(s)
 }
 
 fn node(s: &str) -> IResult<Node> {
-    alt((sound_node, tag_node, text_node))(s)
+    alt((sound_node, tag_node, text_node)).parse(s)
 }
 
 /// A sound tag `[sound:resource]`, where `resource` is pointing to a sound or
@@ -110,11 +113,11 @@ fn sound_node(s: &str) -> IResult<Node> {
     map(
         delimited(tag("[sound:"), is_not("]"), tag("]")),
         Node::SoundOrVideo,
-    )(s)
+    )
+    .parse(s)
 }
 
 fn take_till_potential_tag_start(s: &str) -> IResult<&str> {
-    use nom::InputTake;
     // first char could be '[', but wasn't part of a node, so skip (eof ends parse)
     let (after, offset) = anychar(s).map(|(s, c)| (s, c.len_utf8()))?;
     Ok(match after.find('[') {
@@ -127,7 +130,7 @@ fn take_till_potential_tag_start(s: &str) -> IResult<&str> {
 fn tag_node(s: &str) -> IResult<Node> {
     /// Match the start of an opening tag and return its name.
     fn name(s: &str) -> IResult<&str> {
-        preceded(tag("[anki:"), is_not("] \t\r\n"))(s)
+        preceded(tag("[anki:"), is_not("] \t\r\n")).parse(s)
     }
 
     /// Return a parser to match an opening `name` tag and return its options.
@@ -138,31 +141,35 @@ fn tag_node(s: &str) -> IResult<Node> {
         /// empty.
         fn options(s: &str) -> IResult<Vec<(&str, &str)>> {
             fn key(s: &str) -> IResult<&str> {
-                is_not("] \t\r\n=")(s)
+                is_not("] \t\r\n=").parse(s)
             }
 
             fn val(s: &str) -> IResult<&str> {
                 alt((
                     delimited(tag("\""), is_not0("\""), tag("\"")),
                     is_not0("] \t\r\n\""),
-                ))(s)
+                ))
+                .parse(s)
             }
 
-            many0(trailing_whitespace0(separated_pair(key, tag("="), val)))(s)
+            many0(trailing_whitespace0(separated_pair(key, tag("="), val))).parse(s)
         }
 
-        delimited(
-            pair(tag("[anki:"), trailing_whitespace0(tag(name))),
-            options,
-            tag("]"),
-        )
+        move |s| {
+            delimited(
+                pair(tag("[anki:"), trailing_whitespace0(tag(name))),
+                options,
+                tag("]"),
+            )
+            .parse(s)
+        }
     }
 
     /// Return a parser to match a closing `name` tag.
     fn closing_parser<'parser, 'name: 'parser, 's: 'parser>(
         name: &'name str,
     ) -> impl FnMut(&'s str) -> IResult<'s, ()> + 'parser {
-        value((), tuple((tag("[/anki:"), tag(name), tag("]"))))
+        move |s| value((), (tag("[/anki:"), tag(name), tag("]"))).parse(s)
     }
 
     /// Return a parser to match and return anything until a closing `name` tag
@@ -170,12 +177,13 @@ fn tag_node(s: &str) -> IResult<Node> {
     fn content_parser<'parser, 'name: 'parser, 's: 'parser>(
         name: &'name str,
     ) -> impl FnMut(&'s str) -> IResult<'s, &'s str> + 'parser {
-        recognize(fold_many0(
-            pair(not(closing_parser(name)), take_till_potential_tag_start),
-            // we don't need to accumulate anything
-            || (),
-            |_, _| (),
-        ))
+        move |s| {
+            recognize(many0(pair(
+                not(closing_parser(name)),
+                take_till_potential_tag_start,
+            )))
+            .parse(s)
+        }
     }
 
     let (_, tag_name) = name(s)?;
@@ -185,11 +193,12 @@ fn tag_node(s: &str) -> IResult<Node> {
             closing_parser(tag_name),
         ),
         |(options, content)| Node::Directive(Directive::new(tag_name, options, content)),
-    )(s)
+    )
+    .parse(s)
 }
 
 fn text_node(s: &str) -> IResult<Node> {
-    map(take_till_potential_tag_start, Node::Text)(s)
+    map(take_till_potential_tag_start, Node::Text).parse(s)
 }
 
 #[cfg(test)]

@@ -13,6 +13,7 @@ use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
 use nom::combinator::map;
 use nom::sequence::delimited;
+use nom::Parser;
 use regex::Regex;
 
 use crate::cloze::cloze_number_in_fields;
@@ -67,7 +68,8 @@ impl TemplateMode {
                 tag(self.end_tag()),
             ),
             |out| classify_handle(out),
-        )(s)
+        )
+        .parse(s)
     }
 
     /// Return the next handlebar, comment or text token.
@@ -127,7 +129,8 @@ fn comment_token(s: &str) -> nom::IResult<&str, Token> {
             tag(COMMENT_END),
         ),
         Token::Comment,
-    )(s)
+    )
+    .parse(s)
 }
 
 fn tokens(mut template: &str) -> impl Iterator<Item = TemplateResult<Token<'_>>> {

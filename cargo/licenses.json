@@ -2646,6 +2646,15 @@
     "description": "A byte-oriented, zero-copy, parser combinators library"
   },
   {
+    "name": "nom",
+    "version": "8.0.0",
+    "authors": "contact@geoffroycouprie.com",
+    "repository": "https://github.com/rust-bakery/nom",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A byte-oriented, zero-copy, parser combinators library"
+  },
+  {
     "name": "ntapi",
     "version": "0.4.1",
     "authors": "MSxDOS <melcodos@gmail.com>",

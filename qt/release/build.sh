@@ -2,7 +2,7 @@
 
 set -e
 
-test -f update.sh || {
+test -f build.sh || {
   echo "run from release folder"
   exit 1
 }
@@ -63,6 +63,9 @@ echo "Generated pyproject.toml with version $VERSION"
 # Show diff if .old file exists
 if [ -f pyproject.toml.old ]; then
     echo
-    echo "Differences from previous version:"
+    echo "Differences from previous release version:"
     diff -u --color=always pyproject.toml.old pyproject.toml || true
 fi
+
+echo "Building wheel..."
+"$UV" build --wheel --out-dir "$PROJ_ROOT/out/wheels"

@@ -13,4 +13,4 @@ path = "main.rs"
 name = "anki-sync-server"
 
 [dependencies]
-anki.workspace = true
+anki = { workspace = true, features = ["rustls"] }
