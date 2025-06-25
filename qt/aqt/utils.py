@@ -939,7 +939,7 @@ def show_in_folder(path: str) -> None:
         # Open the file using the default file handler. This might still open
         # the file in an image viewer or the browser (instead of in a file
         # manager) if the user has configured the system that way.
-        subprocess.run(["xdg-open", path])
+        subprocess.run(["xdg-open", path], check=False)
 
 
 def _show_in_folder_win32(path: str) -> None:
