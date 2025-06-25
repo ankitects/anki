@@ -87,6 +87,7 @@ class TopWebView(ToolbarWebView):
             else:
                 self.flatten()
 
+        self.adjustHeightToFit()
         self.show()
 
     def _onHeight(self, qvar: int | None) -> None:
