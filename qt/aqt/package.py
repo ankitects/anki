@@ -23,47 +23,45 @@ def first_run_setup() -> None:
     if not is_mac:
         return
 
-    def _dot():
-        print(".", flush=True, end="")
-
-    _dot()
-    import anki.collection
-
-    _dot()
-    import PyQt6.sip
-
-    _dot()
-    import PyQt6.QtCore
-
-    _dot()
-    import PyQt6.QtGui
-
-    _dot()
-    import PyQt6.QtNetwork
-
-    _dot()
-    import PyQt6.QtQuick
-
-    _dot()
-    import PyQt6.QtWebChannel
-
-    _dot()
-    import PyQt6.QtWebEngineCore
-
-    _dot()
-    import PyQt6.QtWebEngineWidgets
-
-    _dot()
+    # Import anki_audio first and spawn commands
     import anki_audio
-    import PyQt6.QtWidgets
 
     audio_pkg_path = Path(anki_audio.__file__).parent
 
-    # Invoke mpv and lame
-    cmd = [Path(""), "--version"]
+    # Start mpv and lame commands concurrently
+    processes = []
     for cmd_name in ["mpv", "lame"]:
-        _dot()
-        cmd[0] = audio_pkg_path / cmd_name
-        subprocess.run([str(cmd[0]), str(cmd[1])], check=True, capture_output=True)
+        cmd_path = audio_pkg_path / cmd_name
+        proc = subprocess.Popen(
+            [str(cmd_path), "--version"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        processes.append(proc)
 
-    print()
+    # Continue with other imports while commands run
+    import concurrent.futures
+
+    import bs4
+    import flask
+    import flask_cors
+    import markdown
+    import PyQt6.QtCore
+    import PyQt6.QtGui
+    import PyQt6.QtNetwork
+    import PyQt6.QtQuick
+    import PyQt6.QtWebChannel
+    import PyQt6.QtWebEngineCore
+    import PyQt6.QtWebEngineWidgets
+    import PyQt6.QtWidgets
+    import PyQt6.sip
+    import requests
+    import waitress
+
+    import anki.collection
+
+    from . import _macos_helper
+
+    # Wait for both commands to complete
+    for proc in processes:
+        proc.wait()

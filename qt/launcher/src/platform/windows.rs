@@ -7,12 +7,63 @@ use std::process::Command;
 use anki_process::CommandExt;
 use anyhow::Context;
 use anyhow::Result;
+use winapi::um::consoleapi;
+use winapi::um::errhandlingapi;
+use winapi::um::wincon;
 
 use crate::Config;
 
-pub fn handle_terminal_launch() -> Result<()> {
-    // uv will do this itself
+pub fn ensure_terminal_shown() -> Result<()> {
+    ensure_console();
+    // // Check if we're already relaunched to prevent infinite recursion
+    // if std::env::var("ANKI_LAUNCHER_IN_TERMINAL").is_ok() {
+    //     println!("Recurse: Preparing to start Anki...\n");
+    //     return Ok(());
+    // }
+
+    // if have_console {
+    // } else {
+    //     relaunch_in_cmd()?;
+    // }
     Ok(())
+}
+
+fn ensure_console() {
+    unsafe {
+        if !wincon::GetConsoleWindow().is_null() {
+            return;
+        }
+
+        if consoleapi::AllocConsole() == 0 {
+            let error_code = errhandlingapi::GetLastError();
+            eprintln!("unexpected AllocConsole error: {}", error_code);
+            return;
+        }
+
+        // This black magic triggers Windows to switch to the new
+        // ANSI-supporting console host, which is usually only available
+        // when the app is built with the console subsystem.
+        let _ = Command::new("cmd").args(&["/C", ""]).status();
+    }
+}
+
+fn attach_to_parent_console() -> bool {
+    unsafe {
+        if !wincon::GetConsoleWindow().is_null() {
+            // we have a console already
+            println!("attach: already had console, false");
+            return false;
+        }
+
+        if wincon::AttachConsole(wincon::ATTACH_PARENT_PROCESS) != 0 {
+            // successfully attached to parent
+            println!("attach: true");
+            true
+        } else {
+            println!("attach: false");
+            false
+        }
+    }
 }
 
 /// If parent process has a console (eg cmd.exe), redirect our output there.
@@ -21,13 +72,12 @@ pub fn initial_terminal_setup(config: &mut Config) {
     use std::ffi::CString;
 
     use libc_stdhandle::*;
-    use winapi::um::wincon;
 
-    let console_attached = unsafe { wincon::AttachConsole(wincon::ATTACH_PARENT_PROCESS) };
-    if console_attached == 0 {
+    if !attach_to_parent_console() {
         return;
     }
 
+    // we launched without a console, so we'll need to open stdin/out/err
     let conin = CString::new("CONIN$").unwrap();
     let conout = CString::new("CONOUT$").unwrap();
     let r = CString::new("r").unwrap();
@@ -113,6 +163,5 @@ pub fn get_exe_and_resources_dirs() -> Result<(PathBuf, PathBuf)> {
 }
 
 pub fn get_uv_binary_name() -> &'static str {
-    // Windows uses standard uv binary name
     "uv.exe"
 }
