@@ -1735,10 +1735,9 @@ class EditorWebView(AnkiWebView):
         assert a is not None
         qconnect(a.triggered, lambda: openFolder(path))
 
-        if is_win or is_mac:
-            a = menu.addAction(tr.editing_show_in_folder())
-            assert a is not None
-            qconnect(a.triggered, lambda: show_in_folder(path))
+        a = menu.addAction(tr.editing_show_in_folder())
+        assert a is not None
+        qconnect(a.triggered, lambda: show_in_folder(path))
 
     def _clipboard(self) -> QClipboard:
         clipboard = self.editor.mw.app.clipboard()

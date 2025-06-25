@@ -936,9 +936,10 @@ def show_in_folder(path: str) -> None:
         """
         call(osascript_to_args(script))
     else:
-        # Just open the file in any other platform
-        with no_bundled_libs():
-            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+        # Open the file using the default file handler. This might still open
+        # the file in an image viewer or the browser (instead of in a file
+        # manager) if the user has configured the system that way.
+        subprocess.run(["xdg-open", path])
 
 
 def _show_in_folder_win32(path: str) -> None:
