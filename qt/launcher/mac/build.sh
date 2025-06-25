@@ -47,8 +47,8 @@ done
 codesign -vvv "$APP_LAUNCHER"
 spctl -a "$APP_LAUNCHER"
 
-# Notarize
-./notarize.sh "$OUTPUT_DIR"
-
-# Bundle
-./dmg/build.sh "$OUTPUT_DIR"
+# Notarize and bundle (skip if NODMG is set)
+if [ -z "$NODMG" ]; then
+    ./notarize.sh "$OUTPUT_DIR"
+    ./dmg/build.sh "$OUTPUT_DIR"
+fi

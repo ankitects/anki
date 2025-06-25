@@ -114,9 +114,12 @@ fn copy_files(output_dir: &Path) -> Result<()> {
     let launcher_dst = output_dir.join("anki.exe");
     copy_file(&launcher_src, &launcher_dst)?;
 
-    // Copy uv.exe
+    // Copy uv.exe and uvw.exe
     let uv_src = PathBuf::from("../../../out/extracted/uv/uv.exe");
     let uv_dst = output_dir.join("uv.exe");
+    copy_file(&uv_src, &uv_dst)?;
+    let uv_src = PathBuf::from("../../../out/extracted/uv/uvw.exe");
+    let uv_dst = output_dir.join("uvw.exe");
     copy_file(&uv_src, &uv_dst)?;
 
     println!("Copying support files...");
