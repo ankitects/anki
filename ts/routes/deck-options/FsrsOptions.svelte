@@ -391,7 +391,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </button>
 </div>
 
-<div class="m-2">
+<hr />
+
+<div class="m-1">
     <button class="btn btn-primary" on:click={() => (showSimulator = true)}>
         {tr.deckConfigFsrsSimulatorExperimental()}
     </button>
@@ -418,5 +420,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         align-content: center;
         flex-wrap: wrap;
+    }
+
+    hr {
+        border-top: 1px solid var(--border);
+        opacity: 1;
     }
 </style>
