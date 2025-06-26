@@ -46,3 +46,4 @@ qt-accel-zoom-editor-in = Zoom Editor &In
 qt-accel-zoom-editor-out = Zoom Editor &Out
 qt-accel-create-backup = Create &Backup
 qt-accel-load-backup = &Revert to Backup
+qt-accel-upgrade-downgrade = Upgrade/Downgrade

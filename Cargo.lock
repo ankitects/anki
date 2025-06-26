@@ -3543,6 +3543,7 @@ dependencies = [
  "anki_io",
  "anki_process",
  "anyhow",
+ "camino",
  "dirs 6.0.0",
  "embed-resource",
  "libc",
