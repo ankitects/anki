@@ -105,7 +105,9 @@ class Card(DeprecatedNamesMixin):
         )
         self.decay = card.decay if card.HasField("decay") else None
         self.last_review_time = (
-            card.last_review_time_secs if card.HasField("last_review_time_secs") else None
+            card.last_review_time_secs
+            if card.HasField("last_review_time_secs")
+            else None
         )
 
     def _to_backend_card(self) -> cards_pb2.Card:
