@@ -33,6 +33,7 @@ use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
 use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;
+use crate::scheduler::fsrs::memory_state::get_decay_from_params;
 use crate::scheduler::states::PreviewState;
 use crate::search::SearchNode;
 
@@ -433,7 +434,9 @@ impl Collection {
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let fsrs_next_states = if fsrs_enabled {
-            let fsrs = FSRS::new(Some(config.fsrs_params()))?;
+            let params = config.fsrs_params();
+            let fsrs = FSRS::new(Some(params))?;
+            card.decay = Some(get_decay_from_params(params));
             if card.memory_state.is_none() && card.ctype != CardType::New {
                 // Card has been moved or imported into an FSRS deck after params were set,
                 // and will need its initial memory state to be calculated based on review

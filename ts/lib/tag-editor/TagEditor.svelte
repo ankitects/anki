@@ -510,7 +510,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border: 1px solid var(--border);
         border-radius: var(--border-radius);
         padding: 6px;
-        margin: 1px;
+        margin: 1px 3px 3px 1px;
 
         &:focus-within {
             outline-offset: -1px;

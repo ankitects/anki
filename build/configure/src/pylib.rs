@@ -68,7 +68,8 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
             deps: inputs![
                 ":pylib:anki",
                 glob!("pylib/anki/**"),
-                "pylib/pyproject.toml"
+                "pylib/pyproject.toml",
+                "pylib/hatch_build.py"
             ],
         },
     )?;

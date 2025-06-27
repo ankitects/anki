@@ -159,6 +159,10 @@ impl BuildAction for PythonEnvironment {
         }
         build.add_output_stamp(format!("{}/.stamp", self.venv_folder));
     }
+
+    fn check_output_timestamps(&self) -> bool {
+        true
+    }
 }
 
 pub struct PythonTypecheck {

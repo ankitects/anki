@@ -1305,6 +1305,14 @@ title="{}" {}>{}</button>""".format(
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)
 
+    def on_upgrade_downgrade(self) -> None:
+        if not askUser(tr.qt_misc_open_anki_launcher()):
+            return
+
+        from aqt.update import update_and_restart
+
+        update_and_restart()
+
     def onNoteTypes(self) -> None:
         import aqt.models
 
@@ -1386,6 +1394,8 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupMenus(self) -> None:
+        from aqt.update import have_launcher
+
         m = self.form
 
         # File
@@ -1402,6 +1412,7 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionDocumentation.triggered, self.onDocumentation)
         qconnect(m.actionDonate.triggered, self.onDonate)
         qconnect(m.actionAbout.triggered, self.onAbout)
+        m.actionAbout.setText(tr.qt_accel_about_mac())
 
         # Edit
         qconnect(m.actionUndo.triggered, self.undo)
@@ -1414,6 +1425,9 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
+        qconnect(m.action_upgrade_downgrade.triggered, self.on_upgrade_downgrade)
+        if not have_launcher():
+            m.action_upgrade_downgrade.setVisible(False)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
         # View

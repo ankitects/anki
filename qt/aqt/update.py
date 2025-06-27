@@ -1,7 +1,11 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
+import contextlib
 import os
+import subprocess
 from pathlib import Path
 
 import aqt
@@ -10,7 +14,7 @@ from anki.collection import CheckForUpdateResponse, Collection
 from anki.utils import dev_mode, int_time, int_version, is_mac, is_win, plat_desc
 from aqt.operations import QueryOp
 from aqt.qt import *
-from aqt.utils import show_info, show_warning, showText, tr
+from aqt.utils import openLink, show_warning, showText, tr
 
 
 def check_for_update() -> None:
@@ -80,22 +84,56 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
     elif ret == QMessageBox.StandardButton.Yes:
-        update_and_restart()
+        if have_launcher():
+            update_and_restart()
+        else:
+            openLink(aqt.appWebsiteDownloadSection)
+
+
+def _anki_launcher_path() -> str | None:
+    return os.getenv("ANKI_LAUNCHER")
+
+
+def have_launcher() -> bool:
+    return _anki_launcher_path() is not None
 
 
 def update_and_restart() -> None:
-    """Download and install the update, then restart Anki."""
-    update_on_next_run()
-    # todo: do this automatically in the future
-    show_info(tr.qt_misc_please_restart_to_update_anki())
+    from aqt import mw
+
+    launcher = _anki_launcher_path()
+    assert launcher
+
+    _trigger_launcher_run()
+
+    with contextlib.suppress(ResourceWarning):
+        env = os.environ.copy()
+        creationflags = 0
+        if sys.platform == "win32":
+            creationflags = (
+                subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+            )
+        subprocess.Popen(
+            [launcher],
+            start_new_session=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            env=env,
+            creationflags=creationflags,
+        )
+
+    mw.app.quit()
 
 
-def update_on_next_run() -> None:
+def _trigger_launcher_run() -> None:
     """Bump the mtime on pyproject.toml in the local data directory to trigger an update on next run."""
     try:
         # Get the local data directory equivalent to Rust's dirs::data_local_dir()
         if is_win:
-            data_dir = Path(os.environ.get("LOCALAPPDATA", ""))
+            from .winpaths import get_local_appdata
+
+            data_dir = Path(get_local_appdata())
         elif is_mac:
             data_dir = Path.home() / "Library" / "Application Support"
         else:  # Linux

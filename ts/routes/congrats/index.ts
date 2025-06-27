@@ -6,8 +6,6 @@
 // page, and mounts into a div with 'id=congrats'. Unlike the desktop, it does not
 // auto-refresh (to reduce the load on AnkiWeb).
 
-import "./congrats-base.scss";
-
 import { congratsInfo } from "@generated/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
