@@ -936,10 +936,33 @@ def show_in_folder(path: str) -> None:
         """
         call(osascript_to_args(script))
     else:
-        # Open the file using the default file handler. This might still open
-        # the file in an image viewer or the browser (instead of in a file
-        # manager) if the user has configured the system that way.
-        subprocess.run(["xdg-open", path], check=False)
+        # For linux, there are multiple file managers. Let's test if one of the
+        # most common file managers is found and use it in case it is installed.
+        # If none of this list are installed, fallback to xdg-open. xdg-open
+        # might open the image in a web browser, image viewer or others,
+        # depending on the users defaults.
+        file_managers = [
+            "nautilus", # GNOME
+            "dolphin",  # KDE
+            "pcmanfm",  # LXDE
+            "thunar",   # XFCE
+            "nemo",     # Cinnamon
+            "caja",     # MATE
+        ]
+
+        available_file_manager = None
+
+        # Test if a file manager is installed. Fallback to xdg-open if none are
+        # found.
+        for file_manager in file_managers:
+            if shutil.which(file_manager):
+                available_file_manager = file_manager
+                break
+
+        if available_file_manager:
+            subprocess.run([available_file_manager, path], check=False)
+        else:
+            subprocess.run(["xdg-open", path], check=False)
 
 
 def _show_in_folder_win32(path: str) -> None:
