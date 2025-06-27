@@ -1405,6 +1405,7 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionDocumentation.triggered, self.onDocumentation)
         qconnect(m.actionDonate.triggered, self.onDonate)
         qconnect(m.actionAbout.triggered, self.onAbout)
+        m.actionAbout.setText(tr.qt_accel_about_mac())
 
         # Edit
         qconnect(m.actionUndo.triggered, self.undo)
