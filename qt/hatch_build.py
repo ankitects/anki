@@ -67,11 +67,16 @@ class CustomBuildHook(BuildHookInterface):
 
     def _should_exclude(self, path: Path) -> bool:
         """Check if a file should be excluded from the wheel."""
-        # Match the exclusions from write_wheel.py exclude_aqt function
+        path_str = str(path)
+
+        # Exclude __pycache__
+        if "/__pycache__/" in path_str:
+            return True
+
         if path.suffix in [".ui", ".scss", ".map", ".ts"]:
             return True
         if path.name.startswith("tsconfig"):
             return True
-        if "/aqt/data" in str(path):
+        if "/aqt/data" in path_str:
             return True
         return False

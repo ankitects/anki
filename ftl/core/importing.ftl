@@ -65,7 +65,6 @@ importing-with-deck-configs-help =
     If enabled, any deck options that the deck sharer included will also be imported.
     Otherwise, all decks will be assigned the default preset.
 importing-packaged-anki-deckcollection-apkg-colpkg-zip = Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)
-importing-pauker-18-lesson-paugz = Pauker 1.8 Lesson (*.pau.gz)
 # the '|' character
 importing-pipe = Pipe
 # Warning displayed when the csv import preview table is clipped (some columns were hidden)
@@ -78,7 +77,6 @@ importing-rows-had-num1d-fields-expected-num2d = '{ $row }' had { $found } field
 importing-selected-file-was-not-in-utf8 = Selected file was not in UTF-8 format. Please see the importing section of the manual.
 importing-semicolon = Semicolon
 importing-skipped = Skipped
-importing-supermemo-xml-export-xml = Supermemo XML export (*.xml)
 importing-tab = Tab
 importing-tag-modified-notes = Tag modified notes:
 importing-text-separated-by-tabs-or-semicolons = Text separated by tabs or semicolons (*)
@@ -252,3 +250,5 @@ importing-importing-collection = Importing collection...
 importing-unable-to-import-filename = Unable to import { $filename }: file type not supported
 importing-notes-that-could-not-be-imported = Notes that could not be imported as note type has changed: { $val }
 importing-added = Added
+importing-pauker-18-lesson-paugz = Pauker 1.8 Lesson (*.pau.gz)
+importing-supermemo-xml-export-xml = Supermemo XML export (*.xml)

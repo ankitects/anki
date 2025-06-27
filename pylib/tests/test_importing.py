@@ -13,7 +13,6 @@ from anki.importing import (
     Anki2Importer,
     AnkiPackageImporter,
     MnemosyneImporter,
-    SupermemoXmlImporter,
     TextImporter,
 )
 from tests.shared import getEmptyCol, getUpgradeDeckPath
@@ -303,22 +302,6 @@ def test_csv_tag_only_if_modified():
     assert n.tags == []
     assert i.updateCount == 0
 
-    col.close()
-
-
-@pytest.mark.filterwarnings("ignore:Using or importing the ABCs")
-def test_supermemo_xml_01_unicode():
-    col = getEmptyCol()
-    file = str(os.path.join(testDir, "support", "supermemo1.xml"))
-    i = SupermemoXmlImporter(col, file)
-    # i.META.logToStdOutput = True
-    i.run()
-    assert i.total == 1
-    cid = col.db.scalar("select id from cards")
-    c = col.get_card(cid)
-    # Applies A Factor-to-E Factor conversion
-    assert c.factor == 2879
-    assert c.reps == 7
     col.close()
 
 
