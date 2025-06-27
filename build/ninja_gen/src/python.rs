@@ -205,7 +205,7 @@ impl BuildAction for PythonFormat<'_> {
         build.add_inputs("ruff", inputs![":pyenv:ruff"]);
 
         let hash = simple_hash(self.inputs);
-        build.add_variable("check", if self.check_only { "--check" } else { "" });
+        build.add_variable("mode", if self.check_only { "--check" } else { "" });
 
         build.add_output_stamp(format!(
             "tests/python_format.{}.{hash}",
