@@ -67,7 +67,10 @@ pub fn run_build(args: BuildArgs) {
             "MYPY_CACHE_DIR",
             build_root.join("tests").join("mypy").into_string(),
         )
-        .env("PYTHONPYCACHEPREFIX", build_root.join("pycache"))
+        .env(
+            "PYTHONPYCACHEPREFIX",
+            std::path::absolute(build_root.join("pycache")).unwrap(),
+        )
         // commands will not show colors by default, as we do not provide a tty
         .env("FORCE_COLOR", "1")
         .env("MYPY_FORCE_COLOR", "1")
