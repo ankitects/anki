@@ -942,12 +942,12 @@ def show_in_folder(path: str) -> None:
         # might open the image in a web browser, image viewer or others,
         # depending on the users defaults.
         file_managers = [
-            "nautilus", # GNOME
+            "nautilus",  # GNOME
             "dolphin",  # KDE
             "pcmanfm",  # LXDE
-            "thunar",   # XFCE
-            "nemo",     # Cinnamon
-            "caja",     # MATE
+            "thunar",  # XFCE
+            "nemo",  # Cinnamon
+            "caja",  # MATE
         ]
 
         available_file_manager = None
