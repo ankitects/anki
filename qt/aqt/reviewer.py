@@ -21,13 +21,11 @@ from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import (
     CardAnswer,
     QueuedCards,
-)
-from anki.scheduler.v3 import Scheduler as V3Scheduler
-from anki.scheduler.v3 import (
     SchedulingContext,
     SchedulingStates,
     SetSchedulingStatesRequest,
 )
+from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
 from anki.utils import is_mac

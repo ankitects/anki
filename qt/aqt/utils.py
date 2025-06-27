@@ -29,9 +29,9 @@ from anki.utils import (
     version_with_build,
 )
 from aqt.qt import *
-from aqt.qt import QT_VERSION_STR  # noqa: F401
 from aqt.qt import (
     PYQT_VERSION_STR,
+    QT_VERSION_STR,  # noqa: F401
     QAction,
     QApplication,
     QCheckBox,
