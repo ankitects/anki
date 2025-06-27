@@ -938,7 +938,7 @@ def show_in_folder(path: str) -> None:
     else:
         # For linux, there are multiple file managers. Let's test if one of the
         # most common file managers is found and use it in case it is installed.
-        # If none of this list are installed, fallback to xdg-open. xdg-open
+        # If none of this list are installed, use a fallback. The fallback
         # might open the image in a web browser, image viewer or others,
         # depending on the users defaults.
         file_managers = [
@@ -952,8 +952,7 @@ def show_in_folder(path: str) -> None:
 
         available_file_manager = None
 
-        # Test if a file manager is installed. Fallback to xdg-open if none are
-        # found.
+        # Test if a file manager is installed and use it, fallback otherwise
         for file_manager in file_managers:
             if shutil.which(file_manager):
                 available_file_manager = file_manager
@@ -962,7 +961,9 @@ def show_in_folder(path: str) -> None:
         if available_file_manager:
             subprocess.run([available_file_manager, path], check=False)
         else:
-            subprocess.run(["xdg-open", path], check=False)
+            # Just open the file in any other platform
+            with no_bundled_libs():
+                QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
 def _show_in_folder_win32(path: str) -> None:
