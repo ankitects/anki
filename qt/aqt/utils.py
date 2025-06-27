@@ -942,8 +942,8 @@ def show_in_folder(path: str) -> None:
 
 
 def _show_in_folder_win32(path: str) -> None:
-    import win32con  # pylint: disable=import-error
-    import win32gui  # pylint: disable=import-error
+    import win32con
+    import win32gui
 
     from aqt import mw
 
@@ -1238,7 +1238,7 @@ def opengl_vendor() -> str | None:
             # Can't use versionFunctions there
             return None
 
-        vp = QOpenGLVersionProfile()  # type: ignore  # pylint: disable=undefined-variable
+        vp = QOpenGLVersionProfile()  # type: ignore
         vp.setVersion(2, 0)
 
         try:

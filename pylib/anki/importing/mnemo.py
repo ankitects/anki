@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# pylint: disable=invalid-name
 
 import re
 import time
@@ -35,7 +34,6 @@ f._id=d._fact_id"""
         ):
             if id != curid:
                 if note:
-                    # pylint: disable=unsubscriptable-object
                     notes[note["_id"]] = note
                 note = {"_id": _id}
                 curid = id
@@ -185,7 +183,6 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
             state = dict(n=1)
 
             def repl(match):
-                # pylint: disable=cell-var-from-loop
                 # replace [...] with cloze refs
                 res = "{{c%d::%s}}" % (state["n"], match.group(1))
                 state["n"] += 1

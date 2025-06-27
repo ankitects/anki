@@ -213,7 +213,6 @@ fn write_header(out: &mut impl Write) -> Result<()> {
     out.write_all(
         br#"# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; https://www.gnu.org/licenses/agpl.html
-# pylint: skip-file
 
 from __future__ import annotations
 

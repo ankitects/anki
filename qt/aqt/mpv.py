@@ -24,7 +24,7 @@
 #
 # ------------------------------------------------------------------------------
 
-# pylint: disable=raise-missing-from
+
 from __future__ import annotations
 
 import inspect
@@ -66,7 +66,6 @@ class MPVTimeoutError(MPVError):
 
 
 if is_win:
-    # pylint: disable=import-error
     import pywintypes
     import win32file  # pytype: disable=import-error
     import win32job
@@ -146,7 +145,7 @@ class MPVBase:
                 win32job.JobObjectExtendedLimitInformation,
                 extended_info,
             )
-            handle = self._proc._handle  # pylint: disable=no-member
+            handle = self._proc._handle
             win32job.AssignProcessToJobObject(self._job, handle)
 
     def _stop_process(self):
@@ -504,7 +503,6 @@ class MPV(MPVBase):
         # Simulate an init event when the process and all callbacks have been
         # completely set up.
         if hasattr(self, "on_init"):
-            # pylint: disable=no-member
             self.on_init()
 
     #

@@ -772,7 +772,6 @@ class AnkiQt(QMainWindow):
         oldState = self.state
         cleanup = getattr(self, f"_{oldState}Cleanup", None)
         if cleanup:
-            # pylint: disable=not-callable
             cleanup(state)
         self.clearStateShortcuts()
         self.state = state

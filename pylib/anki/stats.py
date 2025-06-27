@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# pylint: disable=C
 
 from __future__ import annotations
 
@@ -324,7 +323,6 @@ group by day order by day"""
             yaxes=[dict(min=0), dict(position="right", min=0)],
         )
         if days is not None:
-            # pylint: disable=invalid-unary-operand-type
             conf["xaxis"]["min"] = -days + 0.5
 
         def plot(id: str, data: Any, ylabel: str, ylabel2: str) -> str:
@@ -359,7 +357,6 @@ group by day order by day"""
             yaxes=[dict(min=0), dict(position="right", min=0)],
         )
         if days is not None:
-            # pylint: disable=invalid-unary-operand-type
             conf["xaxis"]["min"] = -days + 0.5
 
         def plot(id: str, data: Any, ylabel: str, ylabel2: str) -> str:

@@ -262,7 +262,7 @@ class ImportDialog(QDialog):
         self.mapwidget.setLayout(self.grid)
         self.grid.setContentsMargins(3, 3, 3, 3)
         self.grid.setSpacing(6)
-        for num in range(len(self.mapping)):  # pylint: disable=consider-using-enumerate
+        for num in range(len(self.mapping)):
             text = tr.importing_field_of_file_is(val=num + 1)
             self.grid.addWidget(QLabel(text), num, 0)
             if self.mapping[num] == "_tags":

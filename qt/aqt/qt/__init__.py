@@ -23,7 +23,7 @@ def debug() -> None:
     from pdb import set_trace
 
     pyqtRemoveInputHook()
-    set_trace()  # pylint: disable=forgotten-debug-statement
+    set_trace()
 
 
 if os.environ.get("DEBUG"):

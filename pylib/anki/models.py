@@ -419,7 +419,7 @@ and notes.mid = ? and cards.ord = ?""",
 
     # legacy API - used by unit tests and add-ons
 
-    def change(  # pylint: disable=invalid-name
+    def change(
         self,
         notetype: NotetypeDict,
         nids: list[anki.notes.NoteId],
@@ -477,8 +477,6 @@ and notes.mid = ? and cards.ord = ?""",
 
     # Legacy
     ##########################################################################
-
-    # pylint: disable=invalid-name
 
     @deprecated(info="use note.cloze_numbers_in_fields()")
     def _availClozeOrds(

@@ -294,7 +294,6 @@ class DebugConsole(QDialog):
         }
         self._captureOutput(True)
         try:
-            # pylint: disable=exec-used
             exec(text, vars)
         except Exception:
             self._output += traceback.format_exc()
