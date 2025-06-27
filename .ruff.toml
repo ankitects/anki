@@ -17,7 +17,6 @@ lint.ignore = [
 
   # Import rules (wrong-import-* in pylint)
   "E402", # Module level import not at top of file
-  "I001", # Import block is un-sorted or un-formatted
 
   # pycodestyle rules
   "E741", # ambiguous-variable-name
