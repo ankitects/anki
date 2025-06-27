@@ -32,7 +32,7 @@ pub struct ComputeMemoryProgress {
 
 /// Helper function to determine the appropriate decay value based on FSRS
 /// parameters
-fn get_decay_from_params(params: &[f32]) -> f32 {
+pub(crate) fn get_decay_from_params(params: &[f32]) -> f32 {
     if params.is_empty() {
         FSRS6_DEFAULT_DECAY // default decay for FSRS-6
     } else if params.len() < 21 {
@@ -188,9 +188,7 @@ impl Collection {
                     }
                 } else {
                     // clear FSRS data if FSRS is disabled
-                    card.memory_state = None;
-                    card.desired_retention = None;
-                    card.decay = None;
+                    card.clear_fsrs_data();
                 }
                 self.update_card_inner(&mut card, original, usn)?;
             }

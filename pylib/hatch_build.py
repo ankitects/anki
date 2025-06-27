@@ -35,8 +35,16 @@ class CustomBuildHook(BuildHookInterface):
 
         assert generated_root.exists(), "you should build with --wheel"
         for path in generated_root.rglob("*"):
-            if path.is_file():
+            if path.is_file() and not self._should_exclude(path):
                 relative_path = path.relative_to(generated_root)
                 # Place files under anki/ in the distribution
                 dist_path = "anki" / relative_path
                 force_include[str(path)] = str(dist_path)
+
+    def _should_exclude(self, path: Path) -> bool:
+        """Check if a file should be excluded from the wheel."""
+        # Exclude __pycache__
+        path_str = str(path)
+        if "/__pycache__/" in path_str:
+            return True
+        return False

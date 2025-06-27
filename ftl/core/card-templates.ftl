@@ -60,7 +60,6 @@ card-templates-this-will-create-card-proceed =
     }
 card-templates-type-boxes-warning = Only one typing box per card template is supported.
 card-templates-restore-to-default = Restore to Default
-card-templates-restore-to-default-confirmation = This will reset all fields and templates in this note type to their default
-    values, removing any extra fields/templates and their content, and any custom styling. Do you wish to proceed?
+card-templates-restore-to-default-confirmation = This will reset all fields and templates in this note type to their default values, removing any extra fields/templates and their content, and any custom styling. Do you wish to proceed?
 card-templates-restored-to-default = Note type has been restored to its original state.
 

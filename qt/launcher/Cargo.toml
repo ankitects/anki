@@ -11,6 +11,7 @@ rust-version.workspace = true
 anki_io.workspace = true
 anki_process.workspace = true
 anyhow.workspace = true
+camino.workspace = true
 dirs.workspace = true
 
 [target.'cfg(windows)'.dependencies]
@@ -21,6 +22,10 @@ libc-stdhandle.workspace = true
 [[bin]]
 name = "build_win"
 path = "src/bin/build_win.rs"
+
+[[bin]]
+name = "anki-console"
+path = "src/bin/anki_console.rs"
 
 [target.'cfg(windows)'.build-dependencies]
 embed-resource.workspace = true
