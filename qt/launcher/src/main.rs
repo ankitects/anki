@@ -6,6 +6,7 @@
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
+use std::os::unix::process::CommandExt;
 use std::process::Command;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
@@ -17,7 +18,7 @@ use anki_io::read_file;
 use anki_io::remove_file;
 use anki_io::write_file;
 use anki_io::ToUtf8Path;
-use anki_process::CommandExt;
+use anki_process::CommandExt as AnkiCommandExt;
 use anyhow::Context;
 use anyhow::Result;
 
@@ -133,7 +134,7 @@ fn run() -> Result<()> {
     #[cfg(target_os = "macos")]
     {
         let cmd = build_python_command(&state.uv_install_root, &[])?;
-        platform::mac::prepare_for_launch_after_update(cmd)?;
+        platform::mac::prepare_for_launch_after_update(cmd, &uv_install_root)?;
     }
 
     if cfg!(unix) && !cfg!(target_os = "macos") {
@@ -179,7 +180,7 @@ fn main_menu_loop(state: &State) -> Result<()> {
             choice @ (MainMenuChoice::Latest | MainMenuChoice::Version(_)) => {
                 // For other choices, update project files and sync
                 update_pyproject_for_version(
-                    choice,
+                    choice.clone(),
                     state.dist_pyproject_path.clone(),
                     state.user_pyproject_path.clone(),
                     state.dist_python_version_path.clone(),
@@ -215,7 +216,10 @@ fn main_menu_loop(state: &State) -> Result<()> {
 
                 match command.ensure_success() {
                     Ok(_) => {
-                        // Sync succeeded, break out of loop
+                        // Sync succeeded
+                        if matches!(&choice, MainMenuChoice::Version(VersionKind::PyOxidizer(_))) {
+                            inject_helper_addon(&state.uv_install_root)?;
+                        }
                         break;
                     }
                     Err(e) => {
@@ -351,6 +355,7 @@ fn update_pyproject_for_version(
                         &format!(
                             concat!(
                                 "aqt[qt6]=={}\",\n",
+                                "  \"anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'\",\n",
                                 "  \"pyqt6==6.6.1\",\n",
                                 "  \"pyqt6-qt6==6.6.2\",\n",
                                 "  \"pyqt6-webengine==6.6.0\",\n",
@@ -425,6 +430,54 @@ fn parse_version_kind(version: &str) -> Option<VersionKind> {
     } else {
         Some(VersionKind::Uv(version.to_string()))
     }
+}
+
+fn inject_helper_addon(_uv_install_root: &std::path::Path) -> Result<()> {
+    let addons21_path = get_anki_addons21_path()?;
+
+    if !addons21_path.exists() {
+        return Ok(());
+    }
+
+    let addon_folder = addons21_path.join("anki-launcher");
+
+    // Remove existing anki-launcher folder if it exists
+    if addon_folder.exists() {
+        anki_io::remove_dir_all(&addon_folder)?;
+    }
+
+    // Create the anki-launcher folder
+    create_dir_all(&addon_folder)?;
+
+    // Write the embedded files
+    let init_py_content = include_str!("../addon/__init__.py");
+    let manifest_json_content = include_str!("../addon/manifest.json");
+
+    write_file(addon_folder.join("__init__.py"), init_py_content)?;
+    write_file(addon_folder.join("manifest.json"), manifest_json_content)?;
+
+    Ok(())
+}
+
+fn get_anki_addons21_path() -> Result<std::path::PathBuf> {
+    let anki_base_path = if cfg!(target_os = "windows") {
+        // Windows: %APPDATA%\Anki2
+        dirs::config_dir()
+            .context("Unable to determine config directory")?
+            .join("Anki2")
+    } else if cfg!(target_os = "macos") {
+        // macOS: ~/Library/Application Support/Anki2
+        dirs::data_dir()
+            .context("Unable to determine data directory")?
+            .join("Anki2")
+    } else {
+        // Linux: ~/.local/share/Anki2
+        dirs::data_dir()
+            .context("Unable to determine data directory")?
+            .join("Anki2")
+    };
+
+    Ok(anki_base_path.join("addons21"))
 }
 
 fn build_python_command(uv_install_root: &std::path::Path, args: &[String]) -> Result<Command> {
