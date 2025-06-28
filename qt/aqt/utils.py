@@ -982,9 +982,34 @@ def show_in_folder(path: str) -> None:
         """
         call(osascript_to_args(script))
     else:
-        # Just open the file in any other platform
-        with no_bundled_libs():
-            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+        # For linux, there are multiple file managers. Let's test if one of the
+        # most common file managers is found and use it in case it is installed.
+        # If none of this list are installed, use a fallback. The fallback
+        # might open the image in a web browser, image viewer or others,
+        # depending on the users defaults.
+        file_managers = [
+            "nautilus",  # GNOME
+            "dolphin",  # KDE
+            "pcmanfm",  # LXDE
+            "thunar",  # XFCE
+            "nemo",  # Cinnamon
+            "caja",  # MATE
+        ]
+
+        available_file_manager = None
+
+        # Test if a file manager is installed and use it, fallback otherwise
+        for file_manager in file_managers:
+            if shutil.which(file_manager):
+                available_file_manager = file_manager
+                break
+
+        if available_file_manager:
+            subprocess.run([available_file_manager, path], check=False)
+        else:
+            # Just open the file in any other platform
+            with no_bundled_libs():
+                QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
 def _show_in_folder_win32(path: str) -> None:
