@@ -6,7 +6,6 @@
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
-use std::os::unix::process::CommandExt;
 use std::process::Command;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
@@ -25,8 +24,8 @@ use anyhow::Result;
 use crate::platform::ensure_terminal_shown;
 use crate::platform::get_exe_and_resources_dirs;
 use crate::platform::get_uv_binary_name;
-use crate::platform::launch_anki_after_update;
 use crate::platform::launch_anki_normally;
+use crate::platform::respawn_launcher;
 
 mod platform;
 
@@ -148,8 +147,8 @@ fn run() -> Result<()> {
         println!("\x1B[1mYou can close this window.\x1B[0m\n");
     }
 
-    let cmd = build_python_command(&state.uv_install_root, &[])?;
-    launch_anki_after_update(cmd)?;
+    // respawn the launcher as a disconnected subprocess for normal startup
+    respawn_launcher()?;
 
     Ok(())
 }
@@ -493,7 +492,7 @@ fn build_python_command(uv_install_root: &std::path::Path, args: &[String]) -> R
     };
 
     let mut cmd = Command::new(python_exe);
-    cmd.args(["-c", "import aqt; aqt.run()"]);
+    cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
     cmd.args(args);
     // tell the Python code it was invoked by the launcher, and updating is
     // available
