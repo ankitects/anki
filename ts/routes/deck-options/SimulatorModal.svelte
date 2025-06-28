@@ -473,8 +473,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                     {#if simulateFsrsRequest.target?.kind.case === "memorized"}
                         <SpinBoxFloatRow
-                            bind:value={simulateFsrsRequest.target.kind.value
-                                .lossAversion}
+                            bind:value={
+                                simulateFsrsRequest.target.kind.value.lossAversion
+                            }
                             defaultValue={1.6}
                         >
                             <SettingTitle>
