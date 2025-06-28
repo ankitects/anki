@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { ConfigKey_Bool } from "@generated/anki/config_pb";
+import type { ReadClipboardResponse } from "@generated/anki/frontend_pb";
 import {
     addMediaFile,
     convertPastedImage,
@@ -9,7 +10,9 @@ import {
     getAbsoluteMediaPath,
     getConfigBool,
     openFilePicker,
+    readClipboard,
     retrieveUrl as retrieveUrlBackend,
+    writeClipboard,
 } from "@generated/backend";
 import * as tr from "@generated/ftl";
 import { shiftPressed } from "@tslib/keys";
@@ -41,6 +44,19 @@ const audioSuffixes = [
     "webm",
 ];
 const mediaSuffixes = [...imageSuffixes, ...audioSuffixes];
+const QIMAGE_FORMATS = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/svg+xml",
+    "image/bmp",
+    "image/x-portable-bitmap",
+    "image/x-portable-graymap",
+    "image/x-portable-pixmap",
+    "image/x-xbitmap",
+    "image/x-xpixmap",
+];
+const URI_LIST_MIME = "text/uri-list";
 
 let isShiftPressed = false;
 let lastInternalFieldText = "";
@@ -67,17 +83,12 @@ function escapeHtml(text: string, quote = true): string {
     return text;
 }
 
-async function getUrls(data: DataTransfer | ClipboardItem): Promise<string[]> {
-    const mime = "text/uri-list";
+async function getUrls(data: DataTransfer | ReadClipboardResponse): Promise<string[]> {
     let dataString: string;
     if (data instanceof DataTransfer) {
-        dataString = data.getData(mime);
+        dataString = data.getData(URI_LIST_MIME);
     } else {
-        try {
-            dataString = await (await data.getType(mime)).text();
-        } catch (e) {
-            return [];
-        }
+        dataString = new TextDecoder().decode(data.data[URI_LIST_MIME]);
     }
     const urls = dataString.split("\n");
     return urls[0] ? urls : [];
@@ -91,25 +102,12 @@ function getHtml(data: DataTransfer): string {
     return data.getData("text/html") ?? "";
 }
 
-const QIMAGE_FORMATS = [
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "image/svg+xml",
-    "image/bmp",
-    "image/x-portable-bitmap",
-    "image/x-portable-graymap",
-    "image/x-portable-pixmap",
-    "image/x-xbitmap",
-    "image/x-xpixmap",
-];
-
-async function getImageData(data: DataTransfer | ClipboardItem): Promise<ImageData | null> {
+async function getImageData(data: DataTransfer | ReadClipboardResponse): Promise<ImageData | null> {
     for (const type of QIMAGE_FORMATS) {
         try {
             const image = data instanceof DataTransfer
                 ? data.getData(type)
-                : new Uint8Array(await (await data.getType(type)).arrayBuffer());
+                : data.data[type];
             if (image) {
                 return image;
             } else if (data instanceof DataTransfer) {
@@ -233,7 +231,7 @@ function isURL(s: string): boolean {
 }
 
 async function processUrls(
-    data: DataTransfer | ClipboardItem,
+    data: DataTransfer | ReadClipboardResponse,
     _extended: Promise<boolean>,
     allowedSuffixes: string[] = mediaSuffixes,
 ): Promise<string | null> {
@@ -419,7 +417,7 @@ export async function extractImagePathFromHtml(html: string): Promise<string | n
     }
     return decodeURI(images[0]);
 }
-export async function extractImagePathFromData(data: DataTransfer | ClipboardItem): Promise<string | null> {
+export async function extractImagePathFromData(data: DataTransfer | ReadClipboardResponse): Promise<string | null> {
     const html = await processUrls(data, Promise.resolve(false), imageSuffixes);
     if (html) {
         return await extractImagePathFromHtml(html);
@@ -428,26 +426,19 @@ export async function extractImagePathFromData(data: DataTransfer | ClipboardIte
 }
 
 export async function readImageFromClipboard(): Promise<string | null> {
-    // TODO: check browser support and available formats
-    for (const item of await navigator.clipboard.read()) {
-        let path = await extractImagePathFromData(item);
-        if (!path) {
-            const image = await getImageData(item);
-            if (!image) {
-                continue;
-            }
-            const ext = await getPreferredImageExtension();
-            path = await addPastedImage(image, ext, true);
+    const data = await readClipboard({ types: QIMAGE_FORMATS.concat(URI_LIST_MIME) });
+    let path = await extractImagePathFromData(data);
+    if (!path) {
+        const image = await getImageData(data);
+        if (!image) {
+            return null;
         }
-        return (await getAbsoluteMediaPath({ val: path })).val;
+        const ext = await getPreferredImageExtension();
+        path = await addPastedImage(image, ext, true);
     }
-    return null;
+    return (await getAbsoluteMediaPath({ val: path })).val;
 }
 
 export async function writeBlobToClipboard(blob: Blob) {
-    await navigator.clipboard.write([
-        new ClipboardItem({
-            [blob.type]: blob,
-        }),
-    ]);
+    await writeClipboard({ data: { [blob.type]: new Uint8Array(await blob.arrayBuffer()) } });
 }

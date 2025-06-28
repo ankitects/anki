@@ -761,6 +761,28 @@ async def record_audio() -> bytes:
     return generic_pb2.String(val=path if path else "").SerializeToString()
 
 
+def read_clipboard() -> bytes:
+    req = frontend_pb2.ReadClipboardRequest()
+    req.ParseFromString(request.data)
+    data = {}
+    clipboard = aqt.mw.app.clipboard()
+    mime_data = clipboard.mimeData(QClipboard.Mode.Clipboard)
+    for type in req.types:
+        data[type] = bytes(mime_data.data(type))
+
+    return frontend_pb2.ReadClipboardResponse(data=data).SerializeToString()
+
+
+def write_clipboard() -> bytes:
+    req = frontend_pb2.WriteClipboardRequest()
+    req.ParseFromString(request.data)
+    clipboard = aqt.mw.app.clipboard()
+    mime_data = clipboard.mimeData(QClipboard.Mode.Clipboard)
+    for type, data in req.data.items():
+        mime_data.setData(type, data)
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -788,6 +810,8 @@ post_handler_list = [
     open_media,
     show_in_media_folder,
     record_audio,
+    read_clipboard,
+    write_clipboard,
 ]
 
 

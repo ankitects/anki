@@ -46,6 +46,10 @@ service FrontendService {
   // Metadata
   rpc GetMetaJson(generic.String) returns (generic.Json);
   rpc SetMetaJson(SetSettingJsonRequest) returns (generic.Empty);
+
+  // Clipboard
+  rpc ReadClipboard(ReadClipboardRequest) returns (ReadClipboardResponse);
+  rpc WriteClipboard(WriteClipboardRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -84,4 +88,16 @@ message openFilePickerRequest {
   string key = 2;
   string filter_description = 3;
   repeated string extensions = 4;
+}
+
+message ReadClipboardRequest {
+  repeated string types = 1;
+}
+
+message ReadClipboardResponse {
+  map<string, bytes> data = 1;
+}
+
+message WriteClipboardRequest {
+  map<string, bytes> data = 1;
 }
