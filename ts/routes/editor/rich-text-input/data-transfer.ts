@@ -136,9 +136,9 @@ async function retrieveUrl(url: string): Promise<string | null> {
     return response.filename;
 }
 
-async function urlToFile(url: string): Promise<string | null> {
+async function urlToFile(url: string, allowedSuffixes = mediaSuffixes): Promise<string | null> {
     const lowerUrl = url.toLowerCase();
-    for (const suffix of mediaSuffixes) {
+    for (const suffix of allowedSuffixes) {
         if (lowerUrl.endsWith(`.${suffix}`)) {
             return await retrieveUrl(url);
         }
@@ -157,8 +157,8 @@ export function filenameToLink(filename: string): string {
     }
 }
 
-async function urlToLink(url: string): Promise<string> {
-    const filename = await urlToFile(url);
+async function urlToLink(url: string, allowedSuffixes: string[] = mediaSuffixes): Promise<string> {
+    const filename = await urlToFile(url, allowedSuffixes);
     if (!filename) {
         const escapedTitle = escapeHtml(decodeURI(url));
         return `<a href="${url}">${escapedTitle}</a>`;
@@ -232,7 +232,11 @@ function isURL(s: string): boolean {
     return prefixes.some(prefix => s.startsWith(prefix));
 }
 
-async function processUrls(data: DataTransfer | ClipboardItem, _extended: Promise<boolean>): Promise<string | null> {
+async function processUrls(
+    data: DataTransfer | ClipboardItem,
+    _extended: Promise<boolean>,
+    allowedSuffixes: string[] = mediaSuffixes,
+): Promise<string | null> {
     const urls = await getUrls(data);
     if (urls.length === 0) {
         return null;
@@ -242,7 +246,7 @@ async function processUrls(data: DataTransfer | ClipboardItem, _extended: Promis
         // Chrome likes to give us the URL twice with a \n
         const lines = url.split("\n");
         url = lines[0];
-        text += await urlToLink(url);
+        text += await urlToLink(url, allowedSuffixes);
     }
 
     return text;
@@ -422,7 +426,7 @@ export async function readImageFromClipboard(): Promise<string | null> {
     // TODO: check browser support and available formats
     for (const item of await navigator.clipboard.read()) {
         let path: string | null = null;
-        const html = await processUrls(item, Promise.resolve(false));
+        const html = await processUrls(item, Promise.resolve(false), imageSuffixes);
         if (html) {
             path = await extractImagePathFromHtml(html);
         }
