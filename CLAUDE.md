@@ -21,7 +21,7 @@ Please do this as a final step before marking a task as completed.
 During development, you can build/check subsections of our code:
 
 - Rust: 'cargo check'
-- Python: './tools/dmypy'
+- Python: './tools/dmypy', and if wheel-related, './ninja wheels'
 - TypeScript/Svelte: './ninja check:svelte'
 
 Be mindful that some changes (such as modifications to .proto files) may

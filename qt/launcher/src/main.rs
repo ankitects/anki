@@ -16,20 +16,33 @@ use anki_io::modified_time;
 use anki_io::read_file;
 use anki_io::remove_file;
 use anki_io::write_file;
+use anki_io::ToUtf8Path;
 use anki_process::CommandExt;
 use anyhow::Context;
 use anyhow::Result;
 
 use crate::platform::ensure_terminal_shown;
-use crate::platform::exec_anki;
-use crate::platform::get_anki_binary_path;
 use crate::platform::get_exe_and_resources_dirs;
 use crate::platform::get_uv_binary_name;
-use crate::platform::handle_first_launch;
-use crate::platform::initial_terminal_setup;
-use crate::platform::launch_anki_detached;
+use crate::platform::launch_anki_after_update;
+use crate::platform::launch_anki_normally;
 
 mod platform;
+
+// todo: -c appearing as app name now
+
+struct State {
+    has_existing_install: bool,
+    prerelease_marker: std::path::PathBuf,
+    uv_install_root: std::path::PathBuf,
+    uv_path: std::path::PathBuf,
+    user_pyproject_path: std::path::PathBuf,
+    user_python_version_path: std::path::PathBuf,
+    dist_pyproject_path: std::path::PathBuf,
+    dist_python_version_path: std::path::PathBuf,
+    uv_lock_path: std::path::PathBuf,
+    sync_complete_marker: std::path::PathBuf,
+}
 
 #[derive(Debug, Clone)]
 pub enum VersionKind {
@@ -46,16 +59,8 @@ pub enum MainMenuChoice {
     Quit,
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct Config {
-    pub show_console: bool,
-}
-
 fn main() {
     if let Err(e) = run() {
-        let mut config: Config = Config::default();
-        initial_terminal_setup(&mut config);
-
         eprintln!("Error: {:#}", e);
         eprintln!("Press enter to close...");
         let mut input = String::new();
@@ -66,58 +71,92 @@ fn main() {
 }
 
 fn run() -> Result<()> {
-    let mut config: Config = Config::default();
-
     let uv_install_root = dirs::data_local_dir()
         .context("Unable to determine data_dir")?
         .join("AnkiProgramFiles");
 
-    let sync_complete_marker = uv_install_root.join(".sync_complete");
-    let prerelease_marker = uv_install_root.join("prerelease");
     let (exe_dir, resources_dir) = get_exe_and_resources_dirs()?;
-    let dist_pyproject_path = resources_dir.join("pyproject.toml");
-    let user_pyproject_path = uv_install_root.join("pyproject.toml");
-    let dist_python_version_path = resources_dir.join(".python-version");
-    let user_python_version_path = uv_install_root.join(".python-version");
-    let uv_lock_path = uv_install_root.join("uv.lock");
-    let uv_path: std::path::PathBuf = exe_dir.join(get_uv_binary_name());
+
+    let state = State {
+        has_existing_install: uv_install_root.join(".sync_complete").exists(),
+        prerelease_marker: uv_install_root.join("prerelease"),
+        uv_install_root: uv_install_root.clone(),
+        uv_path: exe_dir.join(get_uv_binary_name()),
+        user_pyproject_path: uv_install_root.join("pyproject.toml"),
+        user_python_version_path: uv_install_root.join(".python-version"),
+        dist_pyproject_path: resources_dir.join("pyproject.toml"),
+        dist_python_version_path: resources_dir.join(".python-version"),
+        uv_lock_path: uv_install_root.join("uv.lock"),
+        sync_complete_marker: uv_install_root.join(".sync_complete"),
+    };
 
     // Create install directory and copy project files in
-    create_dir_all(&uv_install_root)?;
-    let had_user_pyproj = user_pyproject_path.exists();
+    create_dir_all(&state.uv_install_root)?;
+    let had_user_pyproj = state.user_pyproject_path.exists();
     if !had_user_pyproj {
         // during initial launcher testing, enable betas by default
-        write_file(&prerelease_marker, "")?;
+        write_file(&state.prerelease_marker, "")?;
     }
 
-    copy_if_newer(&dist_pyproject_path, &user_pyproject_path)?;
-    copy_if_newer(&dist_python_version_path, &user_python_version_path)?;
+    copy_if_newer(&state.dist_pyproject_path, &state.user_pyproject_path)?;
+    copy_if_newer(
+        &state.dist_python_version_path,
+        &state.user_python_version_path,
+    )?;
 
-    let pyproject_has_changed = !sync_complete_marker.exists() || {
-        let pyproject_toml_time = modified_time(&user_pyproject_path)?;
-        let sync_complete_time = modified_time(&sync_complete_marker)?;
+    let pyproject_has_changed = !state.sync_complete_marker.exists() || {
+        let pyproject_toml_time = modified_time(&state.user_pyproject_path)?;
+        let sync_complete_time = modified_time(&state.sync_complete_marker)?;
         Ok::<bool, anyhow::Error>(pyproject_toml_time > sync_complete_time)
     }
     .unwrap_or(true);
 
     if !pyproject_has_changed {
-        // If venv is already up to date, exec as normal
-        initial_terminal_setup(&mut config);
-        let anki_bin = get_anki_binary_path(&uv_install_root);
-        exec_anki(&anki_bin, &config)?;
+        // If venv is already up to date, launch Anki normally
+        let args: Vec<String> = std::env::args().skip(1).collect();
+        let cmd = build_python_command(&state.uv_install_root, &args)?;
+        launch_anki_normally(cmd)?;
         return Ok(());
     }
 
-    // we'll need to launch uv; reinvoke ourselves in a terminal so the user can see
+    // If we weren't in a terminal, respawn ourselves in one
     ensure_terminal_shown()?;
+
     print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
     println!("\x1B[1mAnki Launcher\x1B[0m\n");
 
-    // Check if there's an existing installation before removing marker
-    let has_existing_install = sync_complete_marker.exists();
+    main_menu_loop(&state)?;
 
+    // Write marker file to indicate we've completed the sync process
+    write_sync_marker(&state.sync_complete_marker)?;
+
+    #[cfg(target_os = "macos")]
+    {
+        let cmd = build_python_command(&state.uv_install_root, &[])?;
+        platform::mac::prepare_for_launch_after_update(cmd)?;
+    }
+
+    if cfg!(unix) && !cfg!(target_os = "macos") {
+        println!("\nPress enter to start Anki.");
+        let mut input = String::new();
+        let _ = stdin().read_line(&mut input);
+    } else {
+        // on Windows/macOS, the user needs to close the terminal/console
+        // currently, but ideas on how we can avoid this would be good!
+        println!("Anki will start shortly.");
+        println!("\x1B[1mYou can close this window.\x1B[0m\n");
+    }
+
+    let cmd = build_python_command(&state.uv_install_root, &[])?;
+    launch_anki_after_update(cmd)?;
+
+    Ok(())
+}
+
+fn main_menu_loop(state: &State) -> Result<()> {
     loop {
-        let menu_choice = get_main_menu_choice(has_existing_install, &prerelease_marker);
+        let menu_choice =
+            get_main_menu_choice(state.has_existing_install, &state.prerelease_marker);
 
         match menu_choice {
             MainMenuChoice::Quit => std::process::exit(0),
@@ -127,40 +166,40 @@ fn run() -> Result<()> {
             }
             MainMenuChoice::ToggleBetas => {
                 // Toggle beta prerelease file
-                if prerelease_marker.exists() {
-                    let _ = remove_file(&prerelease_marker);
+                if state.prerelease_marker.exists() {
+                    let _ = remove_file(&state.prerelease_marker);
                     println!("Beta releases disabled.");
                 } else {
-                    write_file(&prerelease_marker, "")?;
+                    write_file(&state.prerelease_marker, "")?;
                     println!("Beta releases enabled.");
                 }
                 println!();
                 continue;
             }
-            _ => {
+            choice @ (MainMenuChoice::Latest | MainMenuChoice::Version(_)) => {
                 // For other choices, update project files and sync
                 update_pyproject_for_version(
-                    menu_choice.clone(),
-                    dist_pyproject_path.clone(),
-                    user_pyproject_path.clone(),
-                    dist_python_version_path.clone(),
-                    user_python_version_path.clone(),
+                    choice,
+                    state.dist_pyproject_path.clone(),
+                    state.user_pyproject_path.clone(),
+                    state.dist_python_version_path.clone(),
+                    state.user_python_version_path.clone(),
                 )?;
 
                 // Remove sync marker before attempting sync
-                let _ = remove_file(&sync_complete_marker);
+                let _ = remove_file(&state.sync_complete_marker);
 
                 // Sync the venv
-                let mut command = Command::new(&uv_path);
-                command.current_dir(&uv_install_root).args([
+                let mut command = Command::new(&state.uv_path);
+                command.current_dir(&state.uv_install_root).args([
                     "sync",
                     "--upgrade",
                     "--managed-python",
                 ]);
 
                 // Add python version if .python-version file exists
-                if user_python_version_path.exists() {
-                    let python_version = read_file(&user_python_version_path)?;
+                if state.user_python_version_path.exists() {
+                    let python_version = read_file(&state.user_python_version_path)?;
                     let python_version_str = String::from_utf8(python_version)
                         .context("Invalid UTF-8 in .python-version")?;
                     let python_version_trimmed = python_version_str.trim();
@@ -168,7 +207,7 @@ fn run() -> Result<()> {
                 }
 
                 // Set UV_PRERELEASE=allow if beta mode is enabled
-                if prerelease_marker.exists() {
+                if state.prerelease_marker.exists() {
                     command.env("UV_PRERELEASE", "allow");
                 }
 
@@ -182,7 +221,7 @@ fn run() -> Result<()> {
                     Err(e) => {
                         // If sync fails due to things like a missing wheel on pypi,
                         // we need to remove the lockfile or uv will cache the bad result.
-                        let _ = remove_file(&uv_lock_path);
+                        let _ = remove_file(&state.uv_lock_path);
                         println!("Install failed: {:#}", e);
                         println!();
                         continue;
@@ -191,22 +230,6 @@ fn run() -> Result<()> {
             }
         }
     }
-
-    // Write marker file to indicate we've completed the sync process
-    write_sync_marker(&sync_complete_marker)?;
-
-    // First launch
-    let anki_bin = get_anki_binary_path(&uv_install_root);
-    handle_first_launch(&anki_bin)?;
-
-    println!("\nPress enter to start Anki.");
-
-    let mut input = String::new();
-    let _ = stdin().read_line(&mut input);
-
-    // Then launch the binary as detached subprocess so the terminal can close
-    launch_anki_detached(&anki_bin, &config)?;
-
     Ok(())
 }
 
@@ -402,4 +425,26 @@ fn parse_version_kind(version: &str) -> Option<VersionKind> {
     } else {
         Some(VersionKind::Uv(version.to_string()))
     }
+}
+
+fn build_python_command(uv_install_root: &std::path::Path, args: &[String]) -> Result<Command> {
+    let python_exe = if cfg!(target_os = "windows") {
+        let show_console = std::env::var("ANKI_CONSOLE").is_ok();
+        if show_console {
+            uv_install_root.join(".venv/Scripts/python.exe")
+        } else {
+            uv_install_root.join(".venv/Scripts/pythonw.exe")
+        }
+    } else {
+        uv_install_root.join(".venv/bin/python")
+    };
+
+    let mut cmd = Command::new(python_exe);
+    cmd.args(["-c", "import aqt; aqt.run()"]);
+    cmd.args(args);
+    // tell the Python code it was invoked by the launcher, and updating is
+    // available
+    cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
+
+    Ok(cmd)
 }

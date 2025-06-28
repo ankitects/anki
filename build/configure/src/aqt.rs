@@ -337,7 +337,12 @@ fn build_wheel(build: &mut Build) -> Result<()> {
             name: "aqt",
             version: anki_version(),
             platform: None,
-            deps: inputs![":qt:aqt", glob!("qt/aqt/**"), "qt/pyproject.toml"],
+            deps: inputs![
+                ":qt:aqt",
+                glob!("qt/aqt/**"),
+                "qt/pyproject.toml",
+                "qt/hatch_build.py"
+            ],
         },
     )
 }
