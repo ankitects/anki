@@ -244,8 +244,7 @@ async function processUrls(
     let text = "";
     for (let url of urls) {
         // Chrome likes to give us the URL twice with a \n
-        const lines = url.split("\n");
-        url = lines[0];
+        url = url.split("\n")[0].trim();
         text += await urlToLink(url, allowedSuffixes);
     }
     return text;
