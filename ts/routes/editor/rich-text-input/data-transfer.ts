@@ -248,7 +248,6 @@ async function processUrls(
         url = lines[0];
         text += await urlToLink(url, allowedSuffixes);
     }
-
     return text;
 }
 
@@ -421,15 +420,18 @@ export async function extractImagePathFromHtml(html: string): Promise<string | n
     }
     return decodeURI(images[0]);
 }
+export async function extractImagePathFromData(data: DataTransfer | ClipboardItem): Promise<string | null> {
+    const html = await processUrls(data, Promise.resolve(false), imageSuffixes);
+    if (html) {
+        return await extractImagePathFromHtml(html);
+    }
+    return null;
+}
 
 export async function readImageFromClipboard(): Promise<string | null> {
     // TODO: check browser support and available formats
     for (const item of await navigator.clipboard.read()) {
-        let path: string | null = null;
-        const html = await processUrls(item, Promise.resolve(false), imageSuffixes);
-        if (html) {
-            path = await extractImagePathFromHtml(html);
-        }
+        let path = await extractImagePathFromData(item);
         if (!path) {
             const image = await getImageData(item);
             if (!image) {

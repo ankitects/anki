@@ -32,6 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         openFilePickerForImageOcclusion,
         readImageFromClipboard,
         extractImagePathFromHtml,
+        extractImagePathFromData,
     } from "./rich-text-input/data-transfer";
     import contextProperty from "$lib/sveltelib/context-property";
     import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
@@ -601,6 +602,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await setupMaskEditorFromClipboard();
     }
 
+    async function handlePickerDrop(event: DragEvent) {
+        if($editorState === EditorState.ImageOcclusionPicker) {
+            const path = await extractImagePathFromData(event.dataTransfer!);
+            if (path) {
+                setupMaskEditor(path);
+                event.preventDefault();
+            }
+        }
+    }
+
     async function setupMaskEditor(filename: string) {
         if (mode == "add") {
             setupMaskEditorForNewNote(filename);
@@ -999,6 +1010,8 @@ components and functionality for general note editing.
     on:contextmenu={(event) => {
         onContextMenu(event, api, $focusedInput, contextMenu);
     }}
+    on:dragover|preventDefault
+    on:drop={handlePickerDrop}
 >
     <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
