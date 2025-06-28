@@ -20,7 +20,7 @@
     border-bottom-right-radius: var(--border-right-radius);
 }
 
-@mixin background($primary: false, $hover: true) {
+@mixin background($primary: false, $dropdown: false, $hover: true) {
     @if $primary {
         background: var(--button-primary-bg);
         @if $hover {
@@ -32,8 +32,15 @@
                 );
             }
         }
-    } @else {
-        background: var(--button-bg);
+    }
+    @else {
+        @if $dropdown {
+            background: none;
+        }
+        @else {
+            background: var(--button-bg);
+        }
+        
         @if $hover {
             &:hover {
                 background: linear-gradient(
@@ -54,7 +61,8 @@
     $with-hover: true,
     $with-active: true,
     $active-class: "",
-    $with-disabled: true
+    $with-disabled: true,
+    $with-dropdown: false
 ) {
     -webkit-appearance: none;
     cursor: pointer;
@@ -68,7 +76,7 @@
     } @else {
         border: none;
     }
-    @include background($primary, $hover: $with-hover);
+    @include background($primary, $hover: $with-hover, $dropdown: $with-dropdown);
 
     @if ($primary) {
         color: white;
