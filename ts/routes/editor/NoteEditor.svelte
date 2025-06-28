@@ -603,7 +603,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function handlePickerDrop(event: DragEvent) {
-        if($editorState === EditorState.ImageOcclusionPicker) {
+        if ($editorState === EditorState.ImageOcclusionPicker) {
             const path = await extractImagePathFromData(event.dataTransfer!);
             if (path) {
                 setupMaskEditor(path);

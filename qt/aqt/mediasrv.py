@@ -766,9 +766,11 @@ def read_clipboard() -> bytes:
     req.ParseFromString(request.data)
     data = {}
     clipboard = aqt.mw.app.clipboard()
+    assert clipboard is not None
     mime_data = clipboard.mimeData(QClipboard.Mode.Clipboard)
+    assert mime_data is not None
     for type in req.types:
-        data[type] = bytes(mime_data.data(type))
+        data[type] = bytes(mime_data.data(type))  # type: ignore
 
     return frontend_pb2.ReadClipboardResponse(data=data).SerializeToString()
 
@@ -777,7 +779,9 @@ def write_clipboard() -> bytes:
     req = frontend_pb2.WriteClipboardRequest()
     req.ParseFromString(request.data)
     clipboard = aqt.mw.app.clipboard()
+    assert clipboard is not None
     mime_data = clipboard.mimeData(QClipboard.Mode.Clipboard)
+    assert mime_data is not None
     for type, data in req.data.items():
         mime_data.setData(type, data)
     return b""
