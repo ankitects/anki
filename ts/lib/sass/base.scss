@@ -60,7 +60,7 @@ button:not(.btn, .btn-close) {
         color var(--transition) ease-in-out,
         box-shadow var(--transition) ease-in-out !important;
     border-radius: prop(border-radius);
-    @include button.base;
+    @include button.base($border: false, $with-hover: false);
 }
 
 pre,
