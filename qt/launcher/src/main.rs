@@ -35,6 +35,8 @@ struct State {
     has_existing_install: bool,
     prerelease_marker: std::path::PathBuf,
     uv_install_root: std::path::PathBuf,
+    uv_cache_dir: std::path::PathBuf,
+    no_cache_marker: std::path::PathBuf,
     uv_path: std::path::PathBuf,
     user_pyproject_path: std::path::PathBuf,
     user_python_version_path: std::path::PathBuf,
@@ -56,6 +58,7 @@ pub enum MainMenuChoice {
     KeepExisting,
     Version(VersionKind),
     ToggleBetas,
+    ToggleCache,
     Quit,
 }
 
@@ -81,6 +84,8 @@ fn run() -> Result<()> {
         has_existing_install: uv_install_root.join(".sync_complete").exists(),
         prerelease_marker: uv_install_root.join("prerelease"),
         uv_install_root: uv_install_root.clone(),
+        uv_cache_dir: uv_install_root.join("cache"),
+        no_cache_marker: uv_install_root.join("nocache"),
         uv_path: exe_dir.join(get_uv_binary_name()),
         user_pyproject_path: uv_install_root.join("pyproject.toml"),
         user_python_version_path: uv_install_root.join(".python-version"),
@@ -155,8 +160,11 @@ fn run() -> Result<()> {
 
 fn main_menu_loop(state: &State) -> Result<()> {
     loop {
-        let menu_choice =
-            get_main_menu_choice(state.has_existing_install, &state.prerelease_marker);
+        let menu_choice = get_main_menu_choice(
+            state.has_existing_install,
+            &state.prerelease_marker,
+            &state.no_cache_marker,
+        );
 
         match menu_choice {
             MainMenuChoice::Quit => std::process::exit(0),
@@ -176,6 +184,22 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 println!();
                 continue;
             }
+            MainMenuChoice::ToggleCache => {
+                // Toggle cache disable file
+                if state.no_cache_marker.exists() {
+                    let _ = remove_file(&state.no_cache_marker);
+                    println!("Download caching enabled.");
+                } else {
+                    write_file(&state.no_cache_marker, "")?;
+                    // Delete the cache directory and everything in it
+                    if state.uv_cache_dir.exists() {
+                        let _ = anki_io::remove_dir_all(&state.uv_cache_dir);
+                    }
+                    println!("Download caching disabled and cache cleared.");
+                }
+                println!();
+                continue;
+            }
             choice @ (MainMenuChoice::Latest | MainMenuChoice::Version(_)) => {
                 // For other choices, update project files and sync
                 update_pyproject_for_version(
@@ -191,11 +215,10 @@ fn main_menu_loop(state: &State) -> Result<()> {
 
                 // Sync the venv
                 let mut command = Command::new(&state.uv_path);
-                command.current_dir(&state.uv_install_root).args([
-                    "sync",
-                    "--upgrade",
-                    "--managed-python",
-                ]);
+                command
+                    .current_dir(&state.uv_install_root)
+                    .env("UV_CACHE_DIR", &state.uv_cache_dir)
+                    .args(["sync", "--upgrade", "--managed-python"]);
 
                 // Add python version if .python-version file exists
                 if state.user_python_version_path.exists() {
@@ -209,6 +232,10 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 // Set UV_PRERELEASE=allow if beta mode is enabled
                 if state.prerelease_marker.exists() {
                     command.env("UV_PRERELEASE", "allow");
+                }
+
+                if state.no_cache_marker.exists() {
+                    command.env("UV_NO_CACHE", "1");
                 }
 
                 println!("\x1B[1mUpdating Anki...\x1B[0m\n");
@@ -248,6 +275,7 @@ fn write_sync_marker(sync_complete_marker: &std::path::Path) -> Result<()> {
 fn get_main_menu_choice(
     has_existing_install: bool,
     prerelease_marker: &std::path::Path,
+    no_cache_marker: &std::path::Path,
 ) -> MainMenuChoice {
     loop {
         println!("1) Latest Anki (just press enter)");
@@ -262,7 +290,12 @@ fn get_main_menu_choice(
             "4) Allow betas: {}",
             if betas_enabled { "on" } else { "off" }
         );
-        println!("5) Quit");
+        let cache_enabled = !no_cache_marker.exists();
+        println!(
+            "5) Cache downloads: {}",
+            if cache_enabled { "on" } else { "off" }
+        );
+        println!("6) Quit");
         print!("> ");
         let _ = stdout().flush();
 
@@ -284,7 +317,8 @@ fn get_main_menu_choice(
                 }
             }
             "4" => MainMenuChoice::ToggleBetas,
-            "5" => MainMenuChoice::Quit,
+            "5" => MainMenuChoice::ToggleCache,
+            "6" => MainMenuChoice::Quit,
             _ => {
                 println!("Invalid input. Please try again.");
                 continue;
@@ -339,8 +373,10 @@ fn update_pyproject_for_version(
             // Do nothing - keep existing pyproject.toml and .python-version
         }
         MainMenuChoice::ToggleBetas => {
-            // This should not be reached as ToggleBetas is handled in the loop
-            unreachable!("ToggleBetas should be handled in the main loop");
+            unreachable!();
+        }
+        MainMenuChoice::ToggleCache => {
+            unreachable!();
         }
         MainMenuChoice::Version(version_kind) => {
             let content = read_file(&dist_pyproject_path)?;
