@@ -42,8 +42,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
     import Item from "$lib/components/Item.svelte";
+    import Modal from "bootstrap/js/dist/modal";
 
-    export let shown = false;
     export let state: DeckOptionsState;
     export let simulateFsrsRequest: SimulateFsrsReviewRequest;
     export let computing: boolean;
@@ -282,9 +282,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: easyDayPercentages = [...$config.easyDaysPercentages];
+
+    export let modal: Modal | null = null;
+
+    function setupModal(node: Element) {
+        modal = new Modal(node);
+        return {
+            destroy() {
+                modal?.dispose();
+                modal = null;
+            },
+        };
+    }
 </script>
 
-<div class="modal" class:show={shown} class:d-block={shown} tabindex="-1">
+<div class="modal" tabindex="-1" use:setupModal>
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -293,7 +305,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    on:click={() => (shown = false)}
+                    on:click={() => modal?.hide()}
                 ></button>
             </div>
             <div class="modal-body">
