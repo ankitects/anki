@@ -138,7 +138,7 @@ fn setup_build_root() -> Utf8PathBuf {
             true
         };
         if create {
-            println!("Switching build root to {}", new_target);
+            println!("Switching build root to {new_target}");
             std::os::unix::fs::symlink(new_target, build_root).unwrap();
         }
     }

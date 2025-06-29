@@ -64,7 +64,7 @@ pub enum MainMenuChoice {
 
 fn main() {
     if let Err(e) = run() {
-        eprintln!("Error: {:#}", e);
+        eprintln!("Error: {e:#}");
         eprintln!("Press enter to close...");
         let mut input = String::new();
         let _ = stdin().read_line(&mut input);
@@ -252,7 +252,7 @@ fn main_menu_loop(state: &State) -> Result<()> {
                         // If sync fails due to things like a missing wheel on pypi,
                         // we need to remove the lockfile or uv will cache the bad result.
                         let _ = remove_file(&state.uv_lock_path);
-                        println!("Install failed: {:#}", e);
+                        println!("Install failed: {e:#}");
                         println!();
                         continue;
                     }
@@ -402,7 +402,7 @@ fn update_pyproject_for_version(
                     )
                 }
                 VersionKind::Uv(version) => {
-                    content_str.replace("anki-release", &format!("anki-release=={}", version))
+                    content_str.replace("anki-release", &format!("anki-release=={version}"))
                 }
             };
             write_file(&user_pyproject_path, &updated_content)?;

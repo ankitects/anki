@@ -35,7 +35,7 @@ impl Collection {
         };
 
         if !match_case {
-            search = format!("(?i){}", search).into();
+            search = format!("(?i){search}").into();
         }
 
         self.transact(Op::UpdateTag, |col| {

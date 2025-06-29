@@ -51,7 +51,7 @@ fn normalize_version(version: &str) -> String {
                     part.to_string()
                 } else {
                     let normalized_prefix = numeric_prefix.parse::<u32>().unwrap_or(0).to_string();
-                    format!("{}{}", normalized_prefix, rest)
+                    format!("{normalized_prefix}{rest}")
                 }
             }
         })

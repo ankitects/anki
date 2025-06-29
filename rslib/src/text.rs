@@ -484,7 +484,7 @@ pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
         match s {
             r"\\" | r"\*" => s.to_string(),
             r"\_" => "_".to_string(),
-            "*" => format!("{}*", wildcard),
+            "*" => format!("{wildcard}*"),
             "_" => wildcard.to_string(),
             s => regex::escape(s),
         }

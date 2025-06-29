@@ -221,7 +221,7 @@ fn generate_install_manifest(output_dir: &Path) -> Result<()> {
                     // Convert to Windows-style backslashes for NSIS
                     let windows_path = relative_path.display().to_string().replace('/', "\\");
                     // Use Windows line endings (\r\n) as expected by NSIS
-                    manifest_content.push_str(&format!("{}\r\n", windows_path));
+                    manifest_content.push_str(&format!("{windows_path}\r\n"));
                 }
             }
         }

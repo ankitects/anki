@@ -515,7 +515,7 @@ impl RowContext {
             return "".into();
         };
         if self.cards[0].is_undue_queue() {
-            format!("({})", due)
+            format!("({due})")
         } else {
             due.into()
         }
@@ -623,7 +623,7 @@ impl RowContext {
         if self.notes_mode {
             let decks = self.cards.iter().map(|c| c.deck_id).unique().count();
             if decks > 1 {
-                return format!("({})", decks);
+                return format!("({decks})");
             }
         }
         let deck_name = self.deck.human_name();
