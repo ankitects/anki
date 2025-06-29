@@ -39,6 +39,7 @@ struct State {
     no_cache_marker: std::path::PathBuf,
     anki_base_folder: std::path::PathBuf,
     uv_path: std::path::PathBuf,
+    uv_python_install_dir: std::path::PathBuf,
     user_pyproject_path: std::path::PathBuf,
     user_python_version_path: std::path::PathBuf,
     dist_pyproject_path: std::path::PathBuf,
@@ -90,6 +91,7 @@ fn run() -> Result<()> {
         no_cache_marker: uv_install_root.join("nocache"),
         anki_base_folder: get_anki_base_path()?,
         uv_path: exe_dir.join(get_uv_binary_name()),
+        uv_python_install_dir: uv_install_root.join("python"),
         user_pyproject_path: uv_install_root.join("pyproject.toml"),
         user_python_version_path: uv_install_root.join(".python-version"),
         dist_pyproject_path: resources_dir.join("pyproject.toml"),
@@ -234,6 +236,7 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 command
                     .current_dir(&state.uv_install_root)
                     .env("UV_CACHE_DIR", &state.uv_cache_dir)
+                    .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
                     .args(["sync", "--upgrade", "--managed-python"]);
 
                 // Add python version if .python-version file exists
