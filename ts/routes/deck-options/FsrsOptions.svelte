@@ -35,6 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         GetRetentionWorkloadRequest,
         UpdateDeckConfigsMode,
     } from "@generated/anki/deck_config_pb";
+    import type Modal from "bootstrap/js/dist/modal";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -308,7 +309,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state.save(UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS);
     }
 
-    let showSimulator = false;
+    let simulatorModal: Modal;
 </script>
 
 <SpinBoxFloatRow
@@ -406,13 +407,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <hr />
 
 <div class="m-1">
-    <button class="btn btn-primary" on:click={() => (showSimulator = true)}>
+    <button class="btn btn-primary" on:click={() => simulatorModal?.show()}>
         {tr.deckConfigFsrsSimulatorExperimental()}
     </button>
 </div>
 
 <SimulatorModal
-    bind:shown={showSimulator}
+    bind:modal={simulatorModal}
     {state}
     {simulateFsrsRequest}
     {computing}
