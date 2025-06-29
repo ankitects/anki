@@ -1,11 +1,12 @@
 lint.select = [
-  "E4", # Import errors
-  "E7", # Statement errors
-  "E9", # Runtime errors
+  "E", # pycodestyle errors
   "F", # Pyflakes errors
   "PL", # Pylint rules
   "I", # Isort rules
   "ARG",
+  # "UP", # pyupgrade
+  # "B", # flake8-bugbear
+  # "SIM", # flake8-simplify
 ]
 
 extend-exclude = ["*_pb2.py", "*_pb2.pyi"]
@@ -18,6 +19,7 @@ lint.ignore = [
 
   # Import rules (wrong-import-* in pylint)
   "E402", # Module level import not at top of file
+  "E501", # Line too long
 
   # pycodestyle rules
   "E741", # ambiguous-variable-name
