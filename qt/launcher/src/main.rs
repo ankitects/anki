@@ -160,6 +160,7 @@ fn run() -> Result<()> {
     } else {
         // on Windows/macOS, the user needs to close the terminal/console
         // currently, but ideas on how we can avoid this would be good!
+        println!();
         println!("Anki will start shortly.");
         println!("\x1B[1mYou can close this window.\x1B[0m\n");
     }

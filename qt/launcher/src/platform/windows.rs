@@ -100,7 +100,7 @@ pub fn finalize_uninstall() {
                     return;
                 }
                 Err(e) => {
-                    println!("Failed to launch uninstaller: {}", e);
+                    println!("Failed to launch uninstaller: {e}");
                     println!("You can manually run: {}", path.display());
                 }
             }
