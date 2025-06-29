@@ -101,8 +101,6 @@ fn run() -> Result<()> {
         previous_version: None,
     };
 
-    check_versions(&mut state);
-
     // Check for uninstall request from Windows uninstaller
     if std::env::var("ANKI_LAUNCHER_UNINSTALL").is_ok() {
         ensure_terminal_shown()?;
@@ -144,6 +142,8 @@ fn run() -> Result<()> {
 
     print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
     println!("\x1B[1mAnki Launcher\x1B[0m\n");
+
+    check_versions(&mut state);
 
     main_menu_loop(&state)?;
 
