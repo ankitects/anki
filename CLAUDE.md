@@ -80,3 +80,7 @@ when possible.
 
 in rslib, use error/mod.rs's AnkiError/Result and snafu. In our other Rust modules, prefer anyhow + additional context where appropriate. Unwrapping
 in build scripts/tests is fine.
+
+## Individual preferences
+
+See @.claude/user.md
