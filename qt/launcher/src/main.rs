@@ -10,6 +10,7 @@ use std::process::Command;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
+use anki_io::copy_file;
 use anki_io::copy_if_newer;
 use anki_io::create_dir_all;
 use anki_io::modified_time;
@@ -29,10 +30,8 @@ use crate::platform::respawn_launcher;
 
 mod platform;
 
-// todo: -c appearing as app name now
-
 struct State {
-    has_existing_install: bool,
+    current_version: Option<String>,
     prerelease_marker: std::path::PathBuf,
     uv_install_root: std::path::PathBuf,
     uv_cache_dir: std::path::PathBuf,
@@ -46,6 +45,7 @@ struct State {
     dist_python_version_path: std::path::PathBuf,
     uv_lock_path: std::path::PathBuf,
     sync_complete_marker: std::path::PathBuf,
+    previous_version: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -83,8 +83,8 @@ fn run() -> Result<()> {
 
     let (exe_dir, resources_dir) = get_exe_and_resources_dirs()?;
 
-    let state = State {
-        has_existing_install: uv_install_root.join(".sync_complete").exists(),
+    let mut state = State {
+        current_version: None,
         prerelease_marker: uv_install_root.join("prerelease"),
         uv_install_root: uv_install_root.clone(),
         uv_cache_dir: uv_install_root.join("cache"),
@@ -98,7 +98,10 @@ fn run() -> Result<()> {
         dist_python_version_path: resources_dir.join(".python-version"),
         uv_lock_path: uv_install_root.join("uv.lock"),
         sync_complete_marker: uv_install_root.join(".sync_complete"),
+        previous_version: None,
     };
+
+    check_versions(&mut state);
 
     // Check for uninstall request from Windows uninstaller
     if std::env::var("ANKI_LAUNCHER_UNINSTALL").is_ok() {
@@ -171,13 +174,60 @@ fn run() -> Result<()> {
     Ok(())
 }
 
+fn extract_aqt_version(
+    uv_path: &std::path::Path,
+    uv_install_root: &std::path::Path,
+) -> Option<String> {
+    let output = Command::new(uv_path)
+        .current_dir(uv_install_root)
+        .args(["pip", "show", "aqt"])
+        .output()
+        .ok()?;
+
+    if !output.status.success() {
+        return None;
+    }
+
+    let stdout = String::from_utf8(output.stdout).ok()?;
+    for line in stdout.lines() {
+        if let Some(version) = line.strip_prefix("Version: ") {
+            return Some(version.trim().to_string());
+        }
+    }
+    None
+}
+
+fn check_versions(state: &mut State) {
+    // If sync_complete_marker is missing, do nothing
+    if !state.sync_complete_marker.exists() {
+        return;
+    }
+
+    // Determine current version by invoking uv pip show aqt
+    match extract_aqt_version(&state.uv_path, &state.uv_install_root) {
+        Some(version) => {
+            state.current_version = Some(version);
+        }
+        None => {
+            println!("Warning: Could not determine current Anki version");
+        }
+    }
+
+    // Read previous version from "previous-version" file
+    let previous_version_path = state.uv_install_root.join("previous-version");
+    if let Ok(content) = read_file(&previous_version_path) {
+        if let Ok(version_str) = String::from_utf8(content) {
+            let version = version_str.trim().to_string();
+            if !version.is_empty() {
+                state.previous_version = Some(version);
+            }
+        }
+    }
+}
+
 fn main_menu_loop(state: &State) -> Result<()> {
     loop {
-        let menu_choice = get_main_menu_choice(
-            state.has_existing_install,
-            &state.prerelease_marker,
-            &state.no_cache_marker,
-        );
+        let menu_choice = get_main_menu_choice(state);
 
         match menu_choice {
             MainMenuChoice::Quit => std::process::exit(0),
@@ -229,6 +279,10 @@ fn main_menu_loop(state: &State) -> Result<()> {
                     state.user_python_version_path.clone(),
                 )?;
 
+                // Extract current version before syncing (but don't write to file yet)
+                let previous_version_to_save =
+                    extract_aqt_version(&state.uv_path, &state.uv_install_root);
+
                 // Remove sync marker before attempting sync
                 let _ = remove_file(&state.sync_complete_marker);
 
@@ -266,6 +320,16 @@ fn main_menu_loop(state: &State) -> Result<()> {
                         if matches!(&choice, MainMenuChoice::Version(VersionKind::PyOxidizer(_))) {
                             inject_helper_addon(&state.uv_install_root)?;
                         }
+
+                        // Now that sync succeeded, save the previous version
+                        if let Some(current_version) = previous_version_to_save {
+                            let previous_version_path =
+                                state.uv_install_root.join("previous-version");
+                            if let Err(e) = write_file(&previous_version_path, &current_version) {
+                                println!("Warning: Could not save previous version: {}", e);
+                            }
+                        }
+
                         break;
                     }
                     Err(e) => {
@@ -292,32 +356,33 @@ fn write_sync_marker(sync_complete_marker: &std::path::Path) -> Result<()> {
     Ok(())
 }
 
-fn get_main_menu_choice(
-    has_existing_install: bool,
-    prerelease_marker: &std::path::Path,
-    no_cache_marker: &std::path::Path,
-) -> MainMenuChoice {
+fn get_main_menu_choice(state: &State) -> MainMenuChoice {
     loop {
         println!("1) Latest Anki (just press enter)");
         println!("2) Choose a version");
-        if has_existing_install {
-            println!("3) Keep existing version");
+        if let Some(current_version) = &state.current_version {
+            println!("3) Keep existing version ({current_version})");
+        }
+        if let Some(prev_version) = &state.previous_version {
+            if state.current_version.as_ref() != Some(prev_version) {
+                println!("4) Revert to previous version ({prev_version})");
+            }
         }
         println!();
 
-        let betas_enabled = prerelease_marker.exists();
+        let betas_enabled = state.prerelease_marker.exists();
         println!(
-            "4) Allow betas: {}",
+            "5) Allow betas: {}",
             if betas_enabled { "on" } else { "off" }
         );
-        let cache_enabled = !no_cache_marker.exists();
+        let cache_enabled = !state.no_cache_marker.exists();
         println!(
-            "5) Cache downloads: {}",
+            "6) Cache downloads: {}",
             if cache_enabled { "on" } else { "off" }
         );
         println!();
-        println!("6) Uninstall");
-        println!("7) Quit");
+        println!("7) Uninstall");
+        println!("8) Quit");
         print!("> ");
         let _ = stdout().flush();
 
@@ -331,17 +396,28 @@ fn get_main_menu_choice(
             "" | "1" => MainMenuChoice::Latest,
             "2" => MainMenuChoice::Version(get_version_kind()),
             "3" => {
-                if has_existing_install {
+                if state.current_version.is_some() {
                     MainMenuChoice::KeepExisting
                 } else {
                     println!("Invalid input. Please try again.\n");
                     continue;
                 }
             }
-            "4" => MainMenuChoice::ToggleBetas,
-            "5" => MainMenuChoice::ToggleCache,
-            "6" => MainMenuChoice::Uninstall,
-            "7" => MainMenuChoice::Quit,
+            "4" => {
+                if let Some(prev_version) = &state.previous_version {
+                    if state.current_version.as_ref() != Some(prev_version) {
+                        if let Some(version_kind) = parse_version_kind(prev_version) {
+                            return MainMenuChoice::Version(version_kind);
+                        }
+                    }
+                }
+                println!("Invalid input. Please try again.\n");
+                continue;
+            }
+            "5" => MainMenuChoice::ToggleBetas,
+            "6" => MainMenuChoice::ToggleCache,
+            "7" => MainMenuChoice::Uninstall,
+            "8" => MainMenuChoice::Quit,
             _ => {
                 println!("Invalid input. Please try again.");
                 continue;
@@ -439,7 +515,7 @@ fn update_pyproject_for_version(
                     write_file(&user_python_version_path, "3.9")?;
                 }
                 VersionKind::Uv(_) => {
-                    copy_if_newer(&dist_python_version_path, &user_python_version_path)?;
+                    copy_file(&dist_python_version_path, &user_python_version_path)?;
                 }
             }
         }
