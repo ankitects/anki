@@ -3548,7 +3548,7 @@ dependencies = [
  "embed-resource",
  "libc",
  "libc-stdhandle",
- "winapi",
+ "windows 0.61.3",
 ]
 
 [[package]]

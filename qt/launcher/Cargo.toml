@@ -15,7 +15,7 @@ camino.workspace = true
 dirs.workspace = true
 
 [target.'cfg(windows)'.dependencies]
-winapi.workspace = true
+windows.workspace = true
 libc.workspace = true
 libc-stdhandle.workspace = true
 
