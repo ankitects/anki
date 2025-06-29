@@ -246,6 +246,7 @@ impl BuildAction for RuffCheck {
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         build.add_inputs("", &self.deps);
+        build.add_inputs("", inputs![".ruff.toml"]);
         build.add_inputs("ruff", inputs![":pyenv:ruff"]);
         build.add_variable("folders", self.folders.join(" "));
         build.add_variable(

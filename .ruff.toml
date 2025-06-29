@@ -5,6 +5,7 @@ lint.select = [
   "F", # Pyflakes errors
   "PL", # Pylint rules
   "I", # Isort rules
+  "ARG",
 ]
 
 extend-exclude = ["*_pb2.py", "*_pb2.pyi"]
@@ -55,8 +56,6 @@ lint.ignore = [
   # Argument rules (unused-argument in pylint)
   "ARG001", # Unused function argument
   "ARG002", # Unused method argument
-  "ARG003", # Unused class method argument
-  "ARG004", # Unused static method argument
   "ARG005", # Unused lambda argument
 
   # Access rules (protected-access in pylint)
