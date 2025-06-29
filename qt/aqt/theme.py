@@ -351,7 +351,7 @@ def get_windows_dark_mode() -> bool:
             r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
         )
         return not QueryValueEx(key, "AppsUseLightTheme")[0]
-    except Exception as err:
+    except Exception:
         # key reportedly missing or set to wrong type on some systems
         return False
 
@@ -415,12 +415,12 @@ def get_linux_dark_mode() -> bool:
                 capture_output=True,
                 encoding="utf8",
             )
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             # detection strategy failed, missing program
             # print(e)
             continue
 
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             # detection strategy failed, command returned error
             # print(e)
             continue

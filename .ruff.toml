@@ -28,7 +28,6 @@ lint.ignore = [
   "F402", # import-shadowed-by-loop-var
   "F403", # undefined-local-with-import-star
   "F405", # undefined-local-with-import-star-usage
-  "F841", # unused-variable
 
   # Naming rules (invalid-name in pylint)
   "N801", # Class name should use CapWords convention

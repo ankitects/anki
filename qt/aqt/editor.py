@@ -796,7 +796,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         def accept(file: str) -> None:
             self.resolve_media(file)
 
-        file = getFile(
+        getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
             cb=cast(Callable[[Any], None], accept),
@@ -999,7 +999,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         if html.find(">") < 0:
             return html
 
-        with warnings.catch_warnings() as w:
+        with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             doc = BeautifulSoup(html, "html.parser")
 
@@ -1101,7 +1101,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
         filter = f"{tr.editing_media()} ({extension_filter})"
 
-        file = getFile(
+        getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
             cb=cast(Callable[[Any], None], self.setup_mask_editor),

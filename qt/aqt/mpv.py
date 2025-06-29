@@ -396,7 +396,7 @@ class MPVBase:
             return self._get_response(timeout)
         except MPVCommandError as e:
             raise MPVCommandError(f"{message['command']!r}: {e}")
-        except Exception as e:
+        except Exception:
             if _retry:
                 print("mpv timed out, restarting")
                 self._stop_process()

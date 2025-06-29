@@ -248,7 +248,14 @@ impl BuildAction for RuffCheck {
         build.add_inputs("", &self.deps);
         build.add_inputs("ruff", inputs![":pyenv:ruff"]);
         build.add_variable("folders", self.folders.join(" "));
-        build.add_variable("mode", if self.check_only { "" } else { "--fix" });
+        build.add_variable(
+            "mode",
+            if self.check_only {
+                ""
+            } else {
+                "--fix --unsafe-fixes"
+            },
+        );
 
         let hash = simple_hash(&self.deps);
         let kind = if self.check_only { "check" } else { "fix" };

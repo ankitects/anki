@@ -675,7 +675,7 @@ class AnkiQt(QMainWindow):
             gui_hooks.collection_did_load(self.col)
             self.apply_collection_options()
             self.moveToState("deckBrowser")
-        except Exception as e:
+        except Exception:
             # dump error to stderr so it gets picked up by errors.py
             traceback.print_exc()
 

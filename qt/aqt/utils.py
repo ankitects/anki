@@ -1268,7 +1268,7 @@ def opengl_vendor() -> str | None:
 
         try:
             vf = ctx.versionFunctions(vp)  # type: ignore
-        except ImportError as e:
+        except ImportError:
             return None
 
         if vf is None:

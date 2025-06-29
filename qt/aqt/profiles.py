@@ -153,7 +153,7 @@ class ProfileManager:
         else:
             try:
                 self.load(profile)
-            except Exception as exc:
+            except Exception:
                 self.invalid_profile_provided_on_commandline = True
 
     # Profile load/save

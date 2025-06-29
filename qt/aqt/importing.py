@@ -357,7 +357,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
         try:
             importer.open()
             mw.progress.finish()
-            diag = ImportDialog(mw, importer)
+            ImportDialog(mw, importer)
         except UnicodeDecodeError:
             mw.progress.finish()
             showUnicodeWarning()

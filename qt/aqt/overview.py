@@ -180,7 +180,6 @@ class Overview:
     ############################################################
 
     def _renderPage(self) -> None:
-        but = self.mw.button
         deck = self.mw.col.decks.current()
         self.sid = deck.get("sharedFrom")
         if self.sid:

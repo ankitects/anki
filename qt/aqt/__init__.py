@@ -29,7 +29,7 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 9:
 # ensure unicode filenames are supported
 try:
     "テスト".encode(sys.getfilesystemencoding())
-except UnicodeEncodeError as exc:
+except UnicodeEncodeError:
     print("Anki requires a UTF-8 locale.")
     print("Please Google 'how to change locale on [your Linux distro]'")
     sys.exit(1)
@@ -558,7 +558,7 @@ def run() -> None:
     print(f"Starting Anki {_version}...")
     try:
         _run()
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         QMessageBox.critical(
             None,
