@@ -326,7 +326,7 @@ fn main_menu_loop(state: &State) -> Result<()> {
                             let previous_version_path =
                                 state.uv_install_root.join("previous-version");
                             if let Err(e) = write_file(&previous_version_path, &current_version) {
-                                println!("Warning: Could not save previous version: {}", e);
+                                println!("Warning: Could not save previous version: {e}");
                             }
                         }
 
