@@ -30,14 +30,14 @@ service FrontendService {
   rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
 
   // Editor
-  rpc editorUpdateNote(notes.UpdateNotesRequest) returns (generic.Empty);
-  rpc convertPastedImage(ConvertPastedImageRequest)
+  rpc EditorUpdateNote(notes.UpdateNotesRequest) returns (generic.Empty);
+  rpc ConvertPastedImage(ConvertPastedImageRequest)
       returns (ConvertPastedImageResponse);
-  rpc retrieveUrl(generic.String) returns (RetrieveUrlResponse);
-  rpc openFilePicker(openFilePickerRequest) returns (generic.String);
-  rpc openMedia(generic.String) returns (generic.Empty);
-  rpc showInMediaFolder(generic.String) returns (generic.Empty);
-  rpc recordAudio(generic.Empty) returns (generic.String);
+  rpc RetrieveUrl(generic.String) returns (RetrieveUrlResponse);
+  rpc OpenFilePicker(openFilePickerRequest) returns (generic.String);
+  rpc OpenMedia(generic.String) returns (generic.Empty);
+  rpc ShowInMediaFolder(generic.String) returns (generic.Empty);
+  rpc RecordAudio(generic.Empty) returns (generic.String);
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);
