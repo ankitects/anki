@@ -154,6 +154,7 @@ class Editor:
     def add_webview(self) -> None:
         self.web = EditorWebView(self.widget, self)
         self.web.set_bridge_command(self.onBridgeCmd, self)
+        self.web.hide_while_preserving_layout()
         self.outerLayout.addWidget(self.web, 1)
 
     def setupWeb(self) -> None:
