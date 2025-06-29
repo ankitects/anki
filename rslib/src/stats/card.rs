@@ -30,11 +30,14 @@ impl Collection {
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let timing = self.timing_today()?;
-        let seconds_elapsed = self
-            .storage
-            .time_of_last_review(card.id)?
-            .map(|ts| timing.now.elapsed_secs_since(ts))
-            .unwrap_or_default() as u32;
+        let seconds_elapsed = if let Some(last_review_time) = card.last_review_time {
+            timing.now.elapsed_secs_since(last_review_time) as u32
+        } else {
+            self.storage
+                .time_of_last_review(card.id)?
+                .map(|ts| timing.now.elapsed_secs_since(ts))
+                .unwrap_or_default() as u32
+        };
         let fsrs_retrievability = card
             .memory_state
             .zip(Some(seconds_elapsed))
