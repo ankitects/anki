@@ -158,7 +158,7 @@ class Collection(DeprecatedNamesMixin):
         self.tags = TagManager(self)
         self.conf = ConfigManager(self)
         self._load_scheduler()
-        self._startReps = 0  # pylint: disable=invalid-name
+        self._startReps = 0
 
     def name(self) -> Any:
         return os.path.splitext(os.path.basename(self.path))[0]
@@ -511,9 +511,7 @@ class Collection(DeprecatedNamesMixin):
     # Utils
     ##########################################################################
 
-    def nextID(  # pylint: disable=invalid-name
-        self, type: str, inc: bool = True
-    ) -> Any:
+    def nextID(self, type: str, inc: bool = True) -> Any:
         type = f"next{type.capitalize()}"
         id = self.conf.get(type, 1)
         if inc:
@@ -849,7 +847,6 @@ class Collection(DeprecatedNamesMixin):
         )
 
     def _pb_search_separator(self, operator: SearchJoiner) -> SearchNode.Group.Joiner.V:
-        # pylint: disable=no-member
         if operator == "AND":
             return SearchNode.Group.Joiner.AND
         else:
@@ -867,7 +864,9 @@ class Collection(DeprecatedNamesMixin):
                 return column
         return None
 
-    def browser_row_for_id(self, id_: int) -> tuple[
+    def browser_row_for_id(
+        self, id_: int
+    ) -> tuple[
         Generator[tuple[str, bool, BrowserRow.Cell.TextElideMode.V], None, None],
         BrowserRow.Color.V,
         str,
@@ -1211,8 +1210,6 @@ class Collection(DeprecatedNamesMixin):
     # other locations like overview.py. We just need to make sure not to reset
     # the count on things like edits, which we probably could do by checking
     # the previous state in moveToState.
-
-    # pylint: disable=invalid-name
 
     def startTimebox(self) -> None:
         self._startTime = time.time()

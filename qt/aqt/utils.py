@@ -19,7 +19,7 @@ from send2trash import send2trash
 import aqt
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.collection import Collection, HelpPage
-from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
+from anki.lang import TR, tr_legacyglobal  # noqa: F401
 from anki.utils import (
     call,
     invalid_filename,
@@ -31,7 +31,7 @@ from anki.utils import (
 from aqt.qt import *
 from aqt.qt import (
     PYQT_VERSION_STR,
-    QT_VERSION_STR,
+    QT_VERSION_STR,  # noqa: F401
     QAction,
     QApplication,
     QCheckBox,
@@ -294,7 +294,7 @@ def showInfo(
         icon = QMessageBox.Icon.Critical
     else:
         icon = QMessageBox.Icon.Information
-    mb = QMessageBox(parent_widget)  #
+    mb = QMessageBox(parent_widget)
     if textFormat == "plain":
         mb.setTextFormat(Qt.TextFormat.PlainText)
     elif textFormat == "rich":
@@ -967,8 +967,8 @@ def show_in_folder(path: str) -> None:
 
 
 def _show_in_folder_win32(path: str) -> None:
-    import win32con  # pylint: disable=import-error
-    import win32gui  # pylint: disable=import-error
+    import win32con
+    import win32gui
 
     from aqt import mw
 
@@ -1263,12 +1263,12 @@ def opengl_vendor() -> str | None:
             # Can't use versionFunctions there
             return None
 
-        vp = QOpenGLVersionProfile()  # type: ignore  # pylint: disable=undefined-variable
+        vp = QOpenGLVersionProfile()  # type: ignore
         vp.setVersion(2, 0)
 
         try:
             vf = ctx.versionFunctions(vp)  # type: ignore
-        except ImportError as e:
+        except ImportError:
             return None
 
         if vf is None:

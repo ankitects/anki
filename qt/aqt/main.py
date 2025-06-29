@@ -376,7 +376,6 @@ class AnkiQt(QMainWindow):
     def openProfile(self) -> None:
         name = self.pm.profiles()[self.profileForm.profiles.currentRow()]
         self.pm.load(name)
-        return
 
     def onOpenProfile(self, *, callback: Callable[[], None] | None = None) -> None:
         def on_done() -> None:
@@ -451,7 +450,6 @@ class AnkiQt(QMainWindow):
             self.loadProfile()
 
     def onOpenBackup(self) -> None:
-
         def do_open(path: str) -> None:
             if not askUser(
                 tr.qt_misc_replace_your_collection_with_an_earlier2(
@@ -677,7 +675,7 @@ class AnkiQt(QMainWindow):
             gui_hooks.collection_did_load(self.col)
             self.apply_collection_options()
             self.moveToState("deckBrowser")
-        except Exception as e:
+        except Exception:
             # dump error to stderr so it gets picked up by errors.py
             traceback.print_exc()
 
@@ -774,7 +772,6 @@ class AnkiQt(QMainWindow):
         oldState = self.state
         cleanup = getattr(self, f"_{oldState}Cleanup", None)
         if cleanup:
-            # pylint: disable=not-callable
             cleanup(state)
         self.clearStateShortcuts()
         self.state = state
@@ -821,7 +818,7 @@ class AnkiQt(QMainWindow):
             self.bottomWeb.hide_timer.start()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
-        if newState != "resetRequired" and newState != "review":
+        if newState not in {"resetRequired", "review"}:
             self.reviewer.auto_advance_enabled = False
             self.reviewer.cleanup()
             self.toolbarWeb.elevate()

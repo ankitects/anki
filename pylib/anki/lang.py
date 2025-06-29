@@ -157,13 +157,13 @@ def lang_to_disk_lang(lang: str) -> str:
 
 
 # the currently set interface language
-current_lang = "en"  # pylint: disable=invalid-name
+current_lang = "en"
 
 # the current Fluent translation instance. Code in pylib/ should
 # not reference this, and should use col.tr instead. The global
 # instance exists for legacy reasons, and as a convenience for the
 # Qt code.
-current_i18n: anki._backend.RustBackend | None = None  # pylint: disable=invalid-name
+current_i18n: anki._backend.RustBackend | None = None
 tr_legacyglobal = anki._backend.Translations(None)
 
 
@@ -178,7 +178,7 @@ def ngettext(single: str, plural: str, num: int) -> str:
 
 
 def set_lang(lang: str) -> None:
-    global current_lang, current_i18n  # pylint: disable=invalid-name
+    global current_lang, current_i18n
     current_lang = lang
     current_i18n = anki._backend.RustBackend(langs=[lang])
     tr_legacyglobal.backend = weakref.ref(current_i18n)
@@ -198,9 +198,7 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
         # getdefaultlocale() is deprecated since Python 3.11, but we need to keep using it as getlocale() behaves differently: https://bugs.python.org/issue38805
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
-            (sys_lang, enc) = (
-                locale.getdefaultlocale()  # pylint: disable=deprecated-method
-            )
+            (sys_lang, enc) = locale.getdefaultlocale()
     except AttributeError:
         # this will return a different format on Windows (e.g. Italian_Italy), resulting in us falling back to en_US
         # further below

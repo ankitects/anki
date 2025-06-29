@@ -208,7 +208,7 @@ class CustomStyles:
             button_pressed_gradient(
                 tm.var(colors.BUTTON_GRADIENT_START),
                 tm.var(colors.BUTTON_GRADIENT_END),
-                tm.var(colors.SHADOW)
+                tm.var(colors.SHADOW),
             )
         };
     }}
@@ -340,7 +340,7 @@ class CustomStyles:
     }}
     QTabBar::tab:selected:hover {{
         background: {
-                button_gradient(
+            button_gradient(
                 tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
                 tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
             )
@@ -391,7 +391,7 @@ class CustomStyles:
             button_pressed_gradient(
                 tm.var(colors.BUTTON_GRADIENT_START),
                 tm.var(colors.BUTTON_GRADIENT_END),
-                tm.var(colors.SHADOW)
+                tm.var(colors.SHADOW),
             )
         }
     }}
@@ -647,10 +647,12 @@ class CustomStyles:
         margin: -7px 0;
     }}
     QSlider::handle:hover {{
-        background: {button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-        )}
+        background: {
+            button_gradient(
+                tm.var(colors.BUTTON_GRADIENT_START),
+                tm.var(colors.BUTTON_GRADIENT_END),
+            )
+        }
     }}
     """
 

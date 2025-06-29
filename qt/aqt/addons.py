@@ -927,7 +927,6 @@ class AddonsDialog(QDialog):
                     or self.mgr.configAction(addon.dir_name)
                 )
             )
-        return
 
     def _onAddonItemSelected(self, row_int: int) -> None:
         try:
@@ -1457,7 +1456,9 @@ class ChooseAddonsToUpdateDialog(QDialog):
         layout.addWidget(addons_list_widget)
         self.addons_list_widget = addons_list_widget
 
-        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)  # type: ignore
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )  # type: ignore
         qconnect(
             button_box.button(QDialogButtonBox.StandardButton.Ok).clicked, self.accept
         )

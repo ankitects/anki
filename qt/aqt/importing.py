@@ -11,10 +11,10 @@ from collections.abc import Callable
 from concurrent.futures import Future
 from typing import Any
 
-import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
+from anki import importing
 from anki.importing.anki2 import MediaMapInvalid, V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
 from aqt.import_export.importing import ColpkgImporter
@@ -262,7 +262,7 @@ class ImportDialog(QDialog):
         self.mapwidget.setLayout(self.grid)
         self.grid.setContentsMargins(3, 3, 3, 3)
         self.grid.setSpacing(6)
-        for num in range(len(self.mapping)):  # pylint: disable=consider-using-enumerate
+        for num in range(len(self.mapping)):
             text = tr.importing_field_of_file_is(val=num + 1)
             self.grid.addWidget(QLabel(text), num, 0)
             if self.mapping[num] == "_tags":
@@ -357,7 +357,7 @@ def importFile(mw: AnkiQt, file: str) -> None:
         try:
             importer.open()
             mw.progress.finish()
-            diag = ImportDialog(mw, importer)
+            ImportDialog(mw, importer)
         except UnicodeDecodeError:
             mw.progress.finish()
             showUnicodeWarning()
@@ -442,4 +442,5 @@ def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
         # adding
         return True
     ColpkgImporter.do_import(mw, importer.file)
+    return False
     return False

@@ -134,9 +134,8 @@ IMPORTERS: list[type[Importer]] = [
 
 
 def legacy_file_endings(col: Collection) -> list[str]:
-    from anki.importing import AnkiPackageImporter
+    from anki.importing import AnkiPackageImporter, TextImporter, importers
     from anki.importing import MnemosyneImporter as LegacyMnemosyneImporter
-    from anki.importing import TextImporter, importers
 
     return [
         ext

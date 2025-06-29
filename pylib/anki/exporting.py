@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# pylint: disable=invalid-name
 
 from __future__ import annotations
 
@@ -351,7 +350,7 @@ class AnkiPackageExporter(AnkiExporter):
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
         # prevent older clients from accessing
-        # pylint: disable=unreachable
+
         self._addDummyCollection(z)
         z.write(colfile, "collection.anki21")
 

@@ -113,7 +113,7 @@ class Overview:
             self.mw.moveToState("deckBrowser")
         elif url == "review":
             openLink(f"{aqt.appShared}info/{self.sid}?v={self.sidVer}")
-        elif url == "studymore" or url == "customStudy":
+        elif url in {"studymore", "customStudy"}:
             self.onStudyMore()
         elif url == "unbury":
             self.on_unbury()
@@ -180,7 +180,6 @@ class Overview:
     ############################################################
 
     def _renderPage(self) -> None:
-        but = self.mw.button
         deck = self.mw.col.decks.current()
         self.sid = deck.get("sharedFrom")
         if self.sid:
@@ -307,9 +306,7 @@ class Overview:
             if b[0]:
                 b[0] = tr.actions_shortcut_key(val=shortcut(b[0]))
             buf += """
-<button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(
-                b
-            )
+<button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(b)
         self.bottom.draw(
             buf=buf,
             link_handler=link_handler,

@@ -105,11 +105,11 @@ class DataModel(QAbstractTableModel):
             row = CellRow(*self.col.browser_row_for_id(item))
         except BackendError as e:
             return CellRow.disabled(self.len_columns(), str(e))
-        except Exception as e:
+        except Exception:
             return CellRow.disabled(
                 self.len_columns(), tr.errors_please_check_database()
             )
-        except BaseException as e:
+        except BaseException:
             # fatal error like a panic in the backend - dump it to the
             # console so it gets picked up by the error handler
             import traceback

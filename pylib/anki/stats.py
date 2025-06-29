@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# pylint: disable=C
 
 from __future__ import annotations
 
@@ -27,7 +26,7 @@ def _legacy_card_stats(
     col: anki.collection.Collection, card_id: anki.cards.CardId, include_revlog: bool
 ) -> str:
     "A quick hack to preserve compatibility with the old HTML string API."
-    random_id = f"cardinfo-{base62(random.randint(0, 2 ** 64 - 1))}"
+    random_id = f"cardinfo-{base62(random.randint(0, 2**64 - 1))}"
     varName = random_id.replace("-", "")
     return f"""
 <div id="{random_id}"></div>
@@ -324,7 +323,6 @@ group by day order by day"""
             yaxes=[dict(min=0), dict(position="right", min=0)],
         )
         if days is not None:
-            # pylint: disable=invalid-unary-operand-type
             conf["xaxis"]["min"] = -days + 0.5
 
         def plot(id: str, data: Any, ylabel: str, ylabel2: str) -> str:
@@ -359,7 +357,6 @@ group by day order by day"""
             yaxes=[dict(min=0), dict(position="right", min=0)],
         )
         if days is not None:
-            # pylint: disable=invalid-unary-operand-type
             conf["xaxis"]["min"] = -days + 0.5
 
         def plot(id: str, data: Any, ylabel: str, ylabel2: str) -> str:
