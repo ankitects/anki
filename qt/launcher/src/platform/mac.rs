@@ -67,3 +67,32 @@ pub fn relaunch_in_terminal() -> Result<()> {
         .ensure_spawn()?;
     std::process::exit(0);
 }
+
+pub fn finalize_uninstall() {
+    if let Ok(exe_path) = std::env::current_exe() {
+        // Find the .app bundle by walking up the directory tree
+        let mut app_bundle_path = exe_path.as_path();
+        while let Some(parent) = app_bundle_path.parent() {
+            if let Some(name) = parent.file_name() {
+                if name.to_string_lossy().ends_with(".app") {
+                    let result = Command::new("trash").arg(parent).output();
+
+                    match result {
+                        Ok(output) if output.status.success() => {
+                            println!("Anki has been uninstalled.");
+                            return;
+                        }
+                        _ => {
+                            // Fall back to manual instructions
+                            println!(
+                                "Please manually drag Anki.app to the trash to complete uninstall."
+                            );
+                        }
+                    }
+                    return;
+                }
+            }
+            app_bundle_path = parent;
+        }
+    }
+}

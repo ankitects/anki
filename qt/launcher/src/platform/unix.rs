@@ -47,3 +47,21 @@ pub fn relaunch_in_terminal() -> Result<()> {
     // If no terminal worked, continue without relaunching
     Ok(())
 }
+
+pub fn finalize_uninstall() {
+    use std::io::stdin;
+    use std::io::stdout;
+    use std::io::Write;
+
+    let uninstall_script = std::path::Path::new("/usr/local/share/anki/uninstall.sh");
+
+    if uninstall_script.exists() {
+        println!("To finish uninstalling, run 'sudo /usr/local/share/anki/uninstall.sh'");
+    } else {
+        println!("Anki has been uninstalled.");
+    }
+    println!("Press enter to quit.");
+    let _ = stdout().flush();
+    let mut input = String::new();
+    let _ = stdin().read_line(&mut input);
+}

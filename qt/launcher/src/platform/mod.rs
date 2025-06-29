@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 #[cfg(all(unix, not(target_os = "macos")))]
-mod unix;
+pub mod unix;
 
 #[cfg(target_os = "macos")]
 pub mod mac;

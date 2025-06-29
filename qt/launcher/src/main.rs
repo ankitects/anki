@@ -37,6 +37,7 @@ struct State {
     uv_install_root: std::path::PathBuf,
     uv_cache_dir: std::path::PathBuf,
     no_cache_marker: std::path::PathBuf,
+    anki_base_folder: std::path::PathBuf,
     uv_path: std::path::PathBuf,
     user_pyproject_path: std::path::PathBuf,
     user_python_version_path: std::path::PathBuf,
@@ -59,6 +60,7 @@ pub enum MainMenuChoice {
     Version(VersionKind),
     ToggleBetas,
     ToggleCache,
+    Uninstall,
     Quit,
 }
 
@@ -86,6 +88,7 @@ fn run() -> Result<()> {
         uv_install_root: uv_install_root.clone(),
         uv_cache_dir: uv_install_root.join("cache"),
         no_cache_marker: uv_install_root.join("nocache"),
+        anki_base_folder: get_anki_base_path()?,
         uv_path: exe_dir.join(get_uv_binary_name()),
         user_pyproject_path: uv_install_root.join("pyproject.toml"),
         user_python_version_path: uv_install_root.join(".python-version"),
@@ -94,6 +97,13 @@ fn run() -> Result<()> {
         uv_lock_path: uv_install_root.join("uv.lock"),
         sync_complete_marker: uv_install_root.join(".sync_complete"),
     };
+
+    // Check for uninstall request from Windows uninstaller
+    if std::env::var("ANKI_LAUNCHER_UNINSTALL").is_ok() {
+        ensure_terminal_shown()?;
+        handle_uninstall(&state)?;
+        return Ok(());
+    }
 
     // Create install directory and copy project files in
     create_dir_all(&state.uv_install_root)?;
@@ -200,6 +210,12 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 println!();
                 continue;
             }
+            MainMenuChoice::Uninstall => {
+                if handle_uninstall(state)? {
+                    std::process::exit(0);
+                }
+                continue;
+            }
             choice @ (MainMenuChoice::Latest | MainMenuChoice::Version(_)) => {
                 // For other choices, update project files and sync
                 update_pyproject_for_version(
@@ -295,7 +311,9 @@ fn get_main_menu_choice(
             "5) Cache downloads: {}",
             if cache_enabled { "on" } else { "off" }
         );
-        println!("6) Quit");
+        println!();
+        println!("6) Uninstall");
+        println!("7) Quit");
         print!("> ");
         let _ = stdout().flush();
 
@@ -318,7 +336,8 @@ fn get_main_menu_choice(
             }
             "4" => MainMenuChoice::ToggleBetas,
             "5" => MainMenuChoice::ToggleCache,
-            "6" => MainMenuChoice::Quit,
+            "6" => MainMenuChoice::Uninstall,
+            "7" => MainMenuChoice::Quit,
             _ => {
                 println!("Invalid input. Please try again.");
                 continue;
@@ -376,6 +395,9 @@ fn update_pyproject_for_version(
             unreachable!();
         }
         MainMenuChoice::ToggleCache => {
+            unreachable!();
+        }
+        MainMenuChoice::Uninstall => {
             unreachable!();
         }
         MainMenuChoice::Version(version_kind) => {
@@ -494,7 +516,7 @@ fn inject_helper_addon(_uv_install_root: &std::path::Path) -> Result<()> {
     Ok(())
 }
 
-fn get_anki_addons21_path() -> Result<std::path::PathBuf> {
+fn get_anki_base_path() -> Result<std::path::PathBuf> {
     let anki_base_path = if cfg!(target_os = "windows") {
         // Windows: %APPDATA%\Anki2
         dirs::config_dir()
@@ -512,7 +534,61 @@ fn get_anki_addons21_path() -> Result<std::path::PathBuf> {
             .join("Anki2")
     };
 
-    Ok(anki_base_path.join("addons21"))
+    Ok(anki_base_path)
+}
+
+fn get_anki_addons21_path() -> Result<std::path::PathBuf> {
+    Ok(get_anki_base_path()?.join("addons21"))
+}
+
+fn handle_uninstall(state: &State) -> Result<bool> {
+    println!("Uninstall Anki's program files? (y/n)");
+    print!("> ");
+    let _ = stdout().flush();
+
+    let mut input = String::new();
+    let _ = stdin().read_line(&mut input);
+    let input = input.trim().to_lowercase();
+
+    if input != "y" {
+        println!("Uninstall cancelled.");
+        println!();
+        return Ok(false);
+    }
+
+    // Remove program files
+    if state.uv_install_root.exists() {
+        anki_io::remove_dir_all(&state.uv_install_root)?;
+        println!("Program files removed.");
+    }
+
+    println!();
+    println!("Remove all profiles/cards? (y/n)");
+    print!("> ");
+    let _ = stdout().flush();
+
+    let mut input = String::new();
+    let _ = stdin().read_line(&mut input);
+    let input = input.trim().to_lowercase();
+
+    if input == "y" && state.anki_base_folder.exists() {
+        anki_io::remove_dir_all(&state.anki_base_folder)?;
+        println!("User data removed.");
+    }
+
+    println!();
+
+    // Platform-specific messages
+    #[cfg(target_os = "macos")]
+    platform::mac::finalize_uninstall();
+
+    #[cfg(target_os = "windows")]
+    platform::windows::finalize_uninstall();
+
+    #[cfg(all(unix, not(target_os = "macos")))]
+    platform::unix::finalize_uninstall();
+
+    Ok(true)
 }
 
 fn build_python_command(uv_install_root: &std::path::Path, args: &[String]) -> Result<Command> {
