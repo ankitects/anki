@@ -89,6 +89,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let contextMenu: ContextMenu;
     const [onContextMenu, contextMenuItems] = setupContextMenu();
+    let contextMenuInput: EditingInputAPI | null = null;
+
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -1008,6 +1010,7 @@ components and functionality for general note editing.
     role="presentation"
     bind:this={noteEditor}
     on:contextmenu={(event) => {
+        contextMenuInput = $focusedInput;
         onContextMenu(event, api, $focusedInput, contextMenu);
     }}
     on:dragover|preventDefault
@@ -1196,7 +1199,7 @@ components and functionality for general note editing.
             <Item
                 on:click={() => {
                     item.action();
-                    $focusedInput?.focus();
+                    contextMenuInput?.focus();
                 }}
             >
                 {item.label}
