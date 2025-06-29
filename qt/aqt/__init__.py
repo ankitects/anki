@@ -42,6 +42,11 @@ if "--syncserver" in sys.argv:
     # does not return
     run_sync_server()
 
+if sys.platform == "win32":
+    from win32com.shell import shell
+
+    shell.SetCurrentProcessExplicitAppUserModelID("Ankitects.Anki")
+
 import argparse
 import builtins
 import cProfile

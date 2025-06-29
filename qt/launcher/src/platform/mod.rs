@@ -101,7 +101,7 @@ pub fn respawn_launcher() -> Result<()> {
 pub fn launch_anki_normally(mut cmd: std::process::Command) -> Result<()> {
     #[cfg(windows)]
     {
-        crate::platform::windows::attach_to_parent_console();
+        crate::platform::windows::prepare_to_launch_normally();
         cmd.ensure_success()?;
     }
     #[cfg(unix)]

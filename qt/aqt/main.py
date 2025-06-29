@@ -1719,11 +1719,37 @@ title="{}" {}>{}</button>""".format(
             self.maybeHideAccelerators()
             self.hideStatusTips()
         elif is_win:
-            # make sure ctypes is bundled
-            from ctypes import windll, wintypes  # type: ignore
+            self._setupWin32()
 
-            _dummy1 = windll
-            _dummy2 = wintypes
+    def _setupWin32(self):
+        """Fix taskbar display/pinning"""
+        if sys.platform != "win32":
+            return
+
+        launcher_path = os.environ.get("ANKI_LAUNCHER")
+        if not launcher_path:
+            return
+
+        from win32com.propsys import propsys, pscon
+        from win32com.propsys.propsys import PROPVARIANTType
+
+        hwnd = int(self.winId())
+        prop_store = propsys.SHGetPropertyStoreForWindow(hwnd)  # type: ignore[call-arg]
+        prop_store.SetValue(
+            pscon.PKEY_AppUserModel_ID, PROPVARIANTType("Ankitects.Anki")
+        )
+        prop_store.SetValue(
+            pscon.PKEY_AppUserModel_RelaunchCommand,
+            PROPVARIANTType(f'"{launcher_path}"'),
+        )
+        prop_store.SetValue(
+            pscon.PKEY_AppUserModel_RelaunchDisplayNameResource, PROPVARIANTType("Anki")
+        )
+        prop_store.SetValue(
+            pscon.PKEY_AppUserModel_RelaunchIconResource,
+            PROPVARIANTType(f"{launcher_path},0"),
+        )
+        prop_store.Commit()
 
     def maybeHideAccelerators(self, tgt: Any | None = None) -> None:
         if not self.hideMenuAccels:

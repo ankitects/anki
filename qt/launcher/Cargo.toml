@@ -16,6 +16,7 @@ dirs.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 windows.workspace = true
+widestring.workspace = true
 libc.workspace = true
 libc-stdhandle.workspace = true
 

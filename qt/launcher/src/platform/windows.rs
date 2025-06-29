@@ -1,15 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::ffi::OsStr;
 use std::io::stdin;
-use std::os::windows::ffi::OsStrExt;
 use std::process::Command;
 
 use anyhow::Context;
 use anyhow::Result;
+use widestring::u16cstr;
 use windows::core::PCWSTR;
-use windows::Win32::System::Registry::HKEY_CURRENT_USER;
 use windows::Win32::System::Console::AttachConsole;
 use windows::Win32::System::Console::GetConsoleWindow;
 use windows::Win32::System::Console::ATTACH_PARENT_PROCESS;
@@ -17,8 +15,10 @@ use windows::Win32::System::Registry::RegCloseKey;
 use windows::Win32::System::Registry::RegOpenKeyExW;
 use windows::Win32::System::Registry::RegQueryValueExW;
 use windows::Win32::System::Registry::HKEY;
+use windows::Win32::System::Registry::HKEY_CURRENT_USER;
 use windows::Win32::System::Registry::KEY_READ;
 use windows::Win32::System::Registry::REG_SZ;
+use windows::Win32::UI::Shell::SetCurrentProcessExplicitAppUserModelID;
 
 pub fn ensure_terminal_shown() -> Result<()> {
     unsafe {
@@ -146,10 +146,7 @@ fn read_registry_install_dir() -> Option<std::path::PathBuf> {
         let mut hkey = HKEY::default();
 
         // Convert the registry path to wide string
-        let subkey: Vec<u16> = OsStr::new("SOFTWARE\\Anki")
-            .encode_wide()
-            .chain(std::iter::once(0))
-            .collect();
+        let subkey = u16cstr!("SOFTWARE\\Anki");
 
         // Open the registry key
         let result = RegOpenKeyExW(
@@ -165,10 +162,7 @@ fn read_registry_install_dir() -> Option<std::path::PathBuf> {
         }
 
         // Query the Install_Dir64 value
-        let value_name: Vec<u16> = OsStr::new("Install_Dir64")
-            .encode_wide()
-            .chain(std::iter::once(0))
-            .collect();
+        let value_name = u16cstr!("Install_Dir64");
 
         let mut value_type = REG_SZ;
         let mut data_size = 0u32;
@@ -210,4 +204,14 @@ fn read_registry_install_dir() -> Option<std::path::PathBuf> {
             None
         }
     }
+}
+
+pub fn prepare_to_launch_normally() {
+    // Set the App User Model ID for Windows taskbar grouping
+    unsafe {
+        let _ =
+            SetCurrentProcessExplicitAppUserModelID(PCWSTR(u16cstr!("Ankitects.Anki").as_ptr()));
+    }
+
+    attach_to_parent_console();
 }
