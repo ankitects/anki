@@ -183,9 +183,9 @@ fn python_type(field: &FieldDescriptor, output: bool) -> String {
     };
     if field.is_list() {
         if output {
-            format!("Sequence[{}]", kind)
+            format!("Sequence[{kind}]")
         } else {
-            format!("Iterable[{}]", kind)
+            format!("Iterable[{kind}]")
         }
     } else if field.is_map() {
         let map_kind = field.kind();

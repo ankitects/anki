@@ -98,7 +98,7 @@ pub fn get_image_cloze_data(text: &str) -> String {
                             let Some((x, y)) = point_pair.split_once(',') else {
                                 continue;
                             };
-                            write!(&mut point_str, "{},{} ", x, y).unwrap();
+                            write!(&mut point_str, "{x},{y} ").unwrap();
                         }
                         // remove the trailing space
                         point_str.pop();

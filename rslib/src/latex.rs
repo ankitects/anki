@@ -100,7 +100,7 @@ fn fname_for_latex(latex: &str, svg: bool) -> String {
     let ext = if svg { "svg" } else { "png" };
     let csum = hex::encode(sha1_of_data(latex.as_bytes()));
 
-    format!("latex-{}.{}", csum, ext)
+    format!("latex-{csum}.{ext}")
 }
 
 fn image_link_for_fname(src: &str, fname: &str) -> String {
@@ -122,11 +122,7 @@ mod test {
         assert_eq!(
             extract_latex("a[latex]one<br>and<div>two[/latex]b", false),
             (
-                format!(
-                    "a<img class=latex alt=\"one&#x0A;and&#x0A;two\" src=\"{}\">b",
-                    fname
-                )
-                .into(),
+                format!("a<img class=latex alt=\"one&#x0A;and&#x0A;two\" src=\"{fname}\">b").into(),
                 vec![ExtractedLatex {
                     fname: fname.into(),
                     latex: "one\nand\ntwo".into()

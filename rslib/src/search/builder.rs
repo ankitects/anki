@@ -219,7 +219,7 @@ impl From<TemplateKind> for SearchNode {
 
 impl From<NoteId> for SearchNode {
     fn from(n: NoteId) -> Self {
-        SearchNode::NoteIds(format!("{}", n))
+        SearchNode::NoteIds(format!("{n}"))
     }
 }
 

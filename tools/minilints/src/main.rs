@@ -108,7 +108,7 @@ impl LintContext {
                 LazyCell::force(&self.unstaged_changes);
                 fix_copyright(path)?;
             } else {
-                println!("missing standard copyright header: {:?}", path);
+                println!("missing standard copyright header: {path:?}");
                 self.found_problems = true;
             }
         }
@@ -241,7 +241,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         .write(true)
         .open(path)
         .with_context(|| format!("opening {path}"))?;
-    write!(file, "{}{}", header, data).with_context(|| format!("writing {path}"))?;
+    write!(file, "{header}{data}").with_context(|| format!("writing {path}"))?;
     Ok(())
 }
 

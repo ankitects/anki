@@ -263,7 +263,7 @@ impl MethodHelpers for Method {
     fn get_input_arg_with_label(&self) -> String {
         self.input_type()
             .as_ref()
-            .map(|t| format!("input: {}", t))
+            .map(|t| format!("input: {t}"))
             .unwrap_or_default()
     }
 

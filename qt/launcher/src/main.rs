@@ -17,15 +17,15 @@ use anki_io::read_file;
 use anki_io::remove_file;
 use anki_io::write_file;
 use anki_io::ToUtf8Path;
-use anki_process::CommandExt;
+use anki_process::CommandExt as AnkiCommandExt;
 use anyhow::Context;
 use anyhow::Result;
 
 use crate::platform::ensure_terminal_shown;
 use crate::platform::get_exe_and_resources_dirs;
 use crate::platform::get_uv_binary_name;
-use crate::platform::launch_anki_after_update;
 use crate::platform::launch_anki_normally;
+use crate::platform::respawn_launcher;
 
 mod platform;
 
@@ -35,7 +35,11 @@ struct State {
     has_existing_install: bool,
     prerelease_marker: std::path::PathBuf,
     uv_install_root: std::path::PathBuf,
+    uv_cache_dir: std::path::PathBuf,
+    no_cache_marker: std::path::PathBuf,
+    anki_base_folder: std::path::PathBuf,
     uv_path: std::path::PathBuf,
+    uv_python_install_dir: std::path::PathBuf,
     user_pyproject_path: std::path::PathBuf,
     user_python_version_path: std::path::PathBuf,
     dist_pyproject_path: std::path::PathBuf,
@@ -56,12 +60,14 @@ pub enum MainMenuChoice {
     KeepExisting,
     Version(VersionKind),
     ToggleBetas,
+    ToggleCache,
+    Uninstall,
     Quit,
 }
 
 fn main() {
     if let Err(e) = run() {
-        eprintln!("Error: {:#}", e);
+        eprintln!("Error: {e:#}");
         eprintln!("Press enter to close...");
         let mut input = String::new();
         let _ = stdin().read_line(&mut input);
@@ -81,7 +87,11 @@ fn run() -> Result<()> {
         has_existing_install: uv_install_root.join(".sync_complete").exists(),
         prerelease_marker: uv_install_root.join("prerelease"),
         uv_install_root: uv_install_root.clone(),
+        uv_cache_dir: uv_install_root.join("cache"),
+        no_cache_marker: uv_install_root.join("nocache"),
+        anki_base_folder: get_anki_base_path()?,
         uv_path: exe_dir.join(get_uv_binary_name()),
+        uv_python_install_dir: uv_install_root.join("python"),
         user_pyproject_path: uv_install_root.join("pyproject.toml"),
         user_python_version_path: uv_install_root.join(".python-version"),
         dist_pyproject_path: resources_dir.join("pyproject.toml"),
@@ -89,6 +99,13 @@ fn run() -> Result<()> {
         uv_lock_path: uv_install_root.join("uv.lock"),
         sync_complete_marker: uv_install_root.join(".sync_complete"),
     };
+
+    // Check for uninstall request from Windows uninstaller
+    if std::env::var("ANKI_LAUNCHER_UNINSTALL").is_ok() {
+        ensure_terminal_shown()?;
+        handle_uninstall(&state)?;
+        return Ok(());
+    }
 
     // Create install directory and copy project files in
     create_dir_all(&state.uv_install_root)?;
@@ -133,7 +150,7 @@ fn run() -> Result<()> {
     #[cfg(target_os = "macos")]
     {
         let cmd = build_python_command(&state.uv_install_root, &[])?;
-        platform::mac::prepare_for_launch_after_update(cmd)?;
+        platform::mac::prepare_for_launch_after_update(cmd, &uv_install_root)?;
     }
 
     if cfg!(unix) && !cfg!(target_os = "macos") {
@@ -143,20 +160,24 @@ fn run() -> Result<()> {
     } else {
         // on Windows/macOS, the user needs to close the terminal/console
         // currently, but ideas on how we can avoid this would be good!
+        println!();
         println!("Anki will start shortly.");
         println!("\x1B[1mYou can close this window.\x1B[0m\n");
     }
 
-    let cmd = build_python_command(&state.uv_install_root, &[])?;
-    launch_anki_after_update(cmd)?;
+    // respawn the launcher as a disconnected subprocess for normal startup
+    respawn_launcher()?;
 
     Ok(())
 }
 
 fn main_menu_loop(state: &State) -> Result<()> {
     loop {
-        let menu_choice =
-            get_main_menu_choice(state.has_existing_install, &state.prerelease_marker);
+        let menu_choice = get_main_menu_choice(
+            state.has_existing_install,
+            &state.prerelease_marker,
+            &state.no_cache_marker,
+        );
 
         match menu_choice {
             MainMenuChoice::Quit => std::process::exit(0),
@@ -176,10 +197,32 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 println!();
                 continue;
             }
+            MainMenuChoice::ToggleCache => {
+                // Toggle cache disable file
+                if state.no_cache_marker.exists() {
+                    let _ = remove_file(&state.no_cache_marker);
+                    println!("Download caching enabled.");
+                } else {
+                    write_file(&state.no_cache_marker, "")?;
+                    // Delete the cache directory and everything in it
+                    if state.uv_cache_dir.exists() {
+                        let _ = anki_io::remove_dir_all(&state.uv_cache_dir);
+                    }
+                    println!("Download caching disabled and cache cleared.");
+                }
+                println!();
+                continue;
+            }
+            MainMenuChoice::Uninstall => {
+                if handle_uninstall(state)? {
+                    std::process::exit(0);
+                }
+                continue;
+            }
             choice @ (MainMenuChoice::Latest | MainMenuChoice::Version(_)) => {
                 // For other choices, update project files and sync
                 update_pyproject_for_version(
-                    choice,
+                    choice.clone(),
                     state.dist_pyproject_path.clone(),
                     state.user_pyproject_path.clone(),
                     state.dist_python_version_path.clone(),
@@ -191,11 +234,11 @@ fn main_menu_loop(state: &State) -> Result<()> {
 
                 // Sync the venv
                 let mut command = Command::new(&state.uv_path);
-                command.current_dir(&state.uv_install_root).args([
-                    "sync",
-                    "--upgrade",
-                    "--managed-python",
-                ]);
+                command
+                    .current_dir(&state.uv_install_root)
+                    .env("UV_CACHE_DIR", &state.uv_cache_dir)
+                    .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
+                    .args(["sync", "--upgrade", "--managed-python"]);
 
                 // Add python version if .python-version file exists
                 if state.user_python_version_path.exists() {
@@ -211,18 +254,25 @@ fn main_menu_loop(state: &State) -> Result<()> {
                     command.env("UV_PRERELEASE", "allow");
                 }
 
+                if state.no_cache_marker.exists() {
+                    command.env("UV_NO_CACHE", "1");
+                }
+
                 println!("\x1B[1mUpdating Anki...\x1B[0m\n");
 
                 match command.ensure_success() {
                     Ok(_) => {
-                        // Sync succeeded, break out of loop
+                        // Sync succeeded
+                        if matches!(&choice, MainMenuChoice::Version(VersionKind::PyOxidizer(_))) {
+                            inject_helper_addon(&state.uv_install_root)?;
+                        }
                         break;
                     }
                     Err(e) => {
                         // If sync fails due to things like a missing wheel on pypi,
                         // we need to remove the lockfile or uv will cache the bad result.
                         let _ = remove_file(&state.uv_lock_path);
-                        println!("Install failed: {:#}", e);
+                        println!("Install failed: {e:#}");
                         println!();
                         continue;
                     }
@@ -245,6 +295,7 @@ fn write_sync_marker(sync_complete_marker: &std::path::Path) -> Result<()> {
 fn get_main_menu_choice(
     has_existing_install: bool,
     prerelease_marker: &std::path::Path,
+    no_cache_marker: &std::path::Path,
 ) -> MainMenuChoice {
     loop {
         println!("1) Latest Anki (just press enter)");
@@ -259,7 +310,14 @@ fn get_main_menu_choice(
             "4) Allow betas: {}",
             if betas_enabled { "on" } else { "off" }
         );
-        println!("5) Quit");
+        let cache_enabled = !no_cache_marker.exists();
+        println!(
+            "5) Cache downloads: {}",
+            if cache_enabled { "on" } else { "off" }
+        );
+        println!();
+        println!("6) Uninstall");
+        println!("7) Quit");
         print!("> ");
         let _ = stdout().flush();
 
@@ -281,7 +339,9 @@ fn get_main_menu_choice(
                 }
             }
             "4" => MainMenuChoice::ToggleBetas,
-            "5" => MainMenuChoice::Quit,
+            "5" => MainMenuChoice::ToggleCache,
+            "6" => MainMenuChoice::Uninstall,
+            "7" => MainMenuChoice::Quit,
             _ => {
                 println!("Invalid input. Please try again.");
                 continue;
@@ -336,8 +396,13 @@ fn update_pyproject_for_version(
             // Do nothing - keep existing pyproject.toml and .python-version
         }
         MainMenuChoice::ToggleBetas => {
-            // This should not be reached as ToggleBetas is handled in the loop
-            unreachable!("ToggleBetas should be handled in the main loop");
+            unreachable!();
+        }
+        MainMenuChoice::ToggleCache => {
+            unreachable!();
+        }
+        MainMenuChoice::Uninstall => {
+            unreachable!();
         }
         MainMenuChoice::Version(version_kind) => {
             let content = read_file(&dist_pyproject_path)?;
@@ -351,6 +416,7 @@ fn update_pyproject_for_version(
                         &format!(
                             concat!(
                                 "aqt[qt6]=={}\",\n",
+                                "  \"anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'\",\n",
                                 "  \"pyqt6==6.6.1\",\n",
                                 "  \"pyqt6-qt6==6.6.2\",\n",
                                 "  \"pyqt6-webengine==6.6.0\",\n",
@@ -362,7 +428,7 @@ fn update_pyproject_for_version(
                     )
                 }
                 VersionKind::Uv(version) => {
-                    content_str.replace("anki-release", &format!("anki-release=={}", version))
+                    content_str.replace("anki-release", &format!("anki-release=={version}"))
                 }
             };
             write_file(&user_pyproject_path, &updated_content)?;
@@ -427,6 +493,108 @@ fn parse_version_kind(version: &str) -> Option<VersionKind> {
     }
 }
 
+fn inject_helper_addon(_uv_install_root: &std::path::Path) -> Result<()> {
+    let addons21_path = get_anki_addons21_path()?;
+
+    if !addons21_path.exists() {
+        return Ok(());
+    }
+
+    let addon_folder = addons21_path.join("anki-launcher");
+
+    // Remove existing anki-launcher folder if it exists
+    if addon_folder.exists() {
+        anki_io::remove_dir_all(&addon_folder)?;
+    }
+
+    // Create the anki-launcher folder
+    create_dir_all(&addon_folder)?;
+
+    // Write the embedded files
+    let init_py_content = include_str!("../addon/__init__.py");
+    let manifest_json_content = include_str!("../addon/manifest.json");
+
+    write_file(addon_folder.join("__init__.py"), init_py_content)?;
+    write_file(addon_folder.join("manifest.json"), manifest_json_content)?;
+
+    Ok(())
+}
+
+fn get_anki_base_path() -> Result<std::path::PathBuf> {
+    let anki_base_path = if cfg!(target_os = "windows") {
+        // Windows: %APPDATA%\Anki2
+        dirs::config_dir()
+            .context("Unable to determine config directory")?
+            .join("Anki2")
+    } else if cfg!(target_os = "macos") {
+        // macOS: ~/Library/Application Support/Anki2
+        dirs::data_dir()
+            .context("Unable to determine data directory")?
+            .join("Anki2")
+    } else {
+        // Linux: ~/.local/share/Anki2
+        dirs::data_dir()
+            .context("Unable to determine data directory")?
+            .join("Anki2")
+    };
+
+    Ok(anki_base_path)
+}
+
+fn get_anki_addons21_path() -> Result<std::path::PathBuf> {
+    Ok(get_anki_base_path()?.join("addons21"))
+}
+
+fn handle_uninstall(state: &State) -> Result<bool> {
+    println!("Uninstall Anki's program files? (y/n)");
+    print!("> ");
+    let _ = stdout().flush();
+
+    let mut input = String::new();
+    let _ = stdin().read_line(&mut input);
+    let input = input.trim().to_lowercase();
+
+    if input != "y" {
+        println!("Uninstall cancelled.");
+        println!();
+        return Ok(false);
+    }
+
+    // Remove program files
+    if state.uv_install_root.exists() {
+        anki_io::remove_dir_all(&state.uv_install_root)?;
+        println!("Program files removed.");
+    }
+
+    println!();
+    println!("Remove all profiles/cards? (y/n)");
+    print!("> ");
+    let _ = stdout().flush();
+
+    let mut input = String::new();
+    let _ = stdin().read_line(&mut input);
+    let input = input.trim().to_lowercase();
+
+    if input == "y" && state.anki_base_folder.exists() {
+        anki_io::remove_dir_all(&state.anki_base_folder)?;
+        println!("User data removed.");
+    }
+
+    println!();
+
+    // Platform-specific messages
+    #[cfg(target_os = "macos")]
+    platform::mac::finalize_uninstall();
+
+    #[cfg(target_os = "windows")]
+    platform::windows::finalize_uninstall();
+
+    #[cfg(all(unix, not(target_os = "macos")))]
+    platform::unix::finalize_uninstall();
+
+    Ok(true)
+}
+
 fn build_python_command(uv_install_root: &std::path::Path, args: &[String]) -> Result<Command> {
     let python_exe = if cfg!(target_os = "windows") {
         let show_console = std::env::var("ANKI_CONSOLE").is_ok();
@@ -440,7 +608,7 @@ fn build_python_command(uv_install_root: &std::path::Path, args: &[String]) -> R
     };
 
     let mut cmd = Command::new(python_exe);
-    cmd.args(["-c", "import aqt; aqt.run()"]);
+    cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
     cmd.args(args);
     // tell the Python code it was invoked by the launcher, and updating is
     // available

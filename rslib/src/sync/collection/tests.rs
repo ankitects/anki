@@ -100,7 +100,7 @@ where
         _lock = LOCK.lock().await;
         endpoint
     } else {
-        format!("http://{}/", addr)
+        format!("http://{addr}/")
     };
     let endpoint = Url::try_from(endpoint.as_str()).unwrap();
     let auth = SyncAuth {
@@ -734,7 +734,7 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
     for table in &["cards", "notes", "decks"] {
         assert_eq!(
             col1.storage
-                .db_scalar::<u8>(&format!("select count() from {}", table))?,
+                .db_scalar::<u8>(&format!("select count() from {table}"))?,
             2
         );
     }
@@ -754,7 +754,7 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
     for table in &["cards", "notes", "decks"] {
         assert_eq!(
             col2.storage
-                .db_scalar::<u8>(&format!("select count() from {}", table))?,
+                .db_scalar::<u8>(&format!("select count() from {table}"))?,
             1
         );
     }

@@ -587,7 +587,7 @@ impl SqliteStorage {
         }) {
             Ok(corrupt) => corrupt,
             Err(e) => {
-                println!("error: {:?}", e);
+                println!("error: {e:?}");
                 true
             }
         }

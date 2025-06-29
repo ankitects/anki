@@ -148,7 +148,7 @@ impl BuildAction for PythonEnvironment {
             // Add --python flag to extra_args if PYTHON_BINARY is set
             let mut args = self.extra_args.to_string();
             if let Ok(python_binary) = env::var("PYTHON_BINARY") {
-                args = format!("--python {} {}", python_binary, args);
+                args = format!("--python {python_binary} {args}");
             }
             build.add_variable("extra_args", args);
         }

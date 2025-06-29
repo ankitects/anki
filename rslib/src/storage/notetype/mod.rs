@@ -345,7 +345,7 @@ impl SqliteStorage {
         let nts = self
             .get_schema11_notetypes()
             .map_err(|e| AnkiError::JsonError {
-                info: format!("decoding models: {:?}", e),
+                info: format!("decoding models: {e:?}"),
             })?;
         let mut names = HashSet::new();
         for (mut ntid, nt) in nts {

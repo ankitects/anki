@@ -277,7 +277,7 @@ fn unquoted_term(s: &str) -> IResult<Node> {
                 Err(parse_failure(
                     s,
                     FailKind::UnknownEscape {
-                        provided: format!("\\{}", c),
+                        provided: format!("\\{c}"),
                     },
                 ))
             } else if "\"() \u{3000}".contains(s.chars().next().unwrap()) {
@@ -637,7 +637,7 @@ fn check_id_list<'a>(s: &'a str, context: &str) -> ParseResult<'a, &'a str> {
             s,
             // id lists are undocumented, so no translation
             FailKind::Other {
-                info: Some(format!("expected only digits and commas in {}:", context)),
+                info: Some(format!("expected only digits and commas in {context}:")),
             },
         ))
     }
@@ -1110,19 +1110,19 @@ mod test {
 
         for term in &["added", "edited", "rated", "resched"] {
             assert!(matches!(
-                failkind(&format!("{}:1.1", term)),
+                failkind(&format!("{term}:1.1")),
                 SearchErrorKind::InvalidPositiveWholeNumber { .. }
             ));
             assert!(matches!(
-                failkind(&format!("{}:-1", term)),
+                failkind(&format!("{term}:-1")),
                 SearchErrorKind::InvalidPositiveWholeNumber { .. }
             ));
             assert!(matches!(
-                failkind(&format!("{}:", term)),
+                failkind(&format!("{term}:")),
                 SearchErrorKind::InvalidPositiveWholeNumber { .. }
             ));
             assert!(matches!(
-                failkind(&format!("{}:foo", term)),
+                failkind(&format!("{term}:foo")),
                 SearchErrorKind::InvalidPositiveWholeNumber { .. }
             ));
         }
@@ -1223,19 +1223,19 @@ mod test {
 
         for term in &["ivl", "reps", "lapses", "pos"] {
             assert!(matches!(
-                failkind(&format!("prop:{}>", term)),
+                failkind(&format!("prop:{term}>")),
                 SearchErrorKind::InvalidPositiveWholeNumber { .. }
             ));
             assert!(matches!(
-                failkind(&format!("prop:{}=0.5", term)),
+                failkind(&format!("prop:{term}=0.5")),
                 SearchErrorKind::InvalidPositiveWholeNumber { .. }
             ));
             assert!(matches!(
-                failkind(&format!("prop:{}!=-1", term)),
+                failkind(&format!("prop:{term}!=-1")),
                 SearchErrorKind::InvalidPositiveWholeNumber { .. }
             ));
             assert!(matches!(
-                failkind(&format!("prop:{}<foo", term)),
+                failkind(&format!("prop:{term}<foo")),
                 SearchErrorKind::InvalidPositiveWholeNumber { .. }
             ));
         }

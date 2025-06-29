@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 #[cfg(all(unix, not(target_os = "macos")))]
-mod unix;
+pub mod unix;
 
 #[cfg(target_os = "macos")]
 pub mod mac;
@@ -49,10 +49,32 @@ pub fn get_uv_binary_name() -> &'static str {
     }
 }
 
-pub fn launch_anki_after_update(mut cmd: std::process::Command) -> Result<()> {
+pub fn respawn_launcher() -> Result<()> {
     use std::process::Stdio;
 
-    cmd.stdin(Stdio::null())
+    let mut launcher_cmd = if cfg!(target_os = "macos") {
+        // On macOS, we need to launch the .app bundle, not the executable directly
+        let current_exe =
+            std::env::current_exe().context("Failed to get current executable path")?;
+
+        // Navigate from Contents/MacOS/launcher to the .app bundle
+        let app_bundle = current_exe
+            .parent() // MacOS
+            .and_then(|p| p.parent()) // Contents
+            .and_then(|p| p.parent()) // .app
+            .context("Failed to find .app bundle")?;
+
+        let mut cmd = std::process::Command::new("open");
+        cmd.arg(app_bundle);
+        cmd
+    } else {
+        let current_exe =
+            std::env::current_exe().context("Failed to get current executable path")?;
+        std::process::Command::new(current_exe)
+    };
+
+    launcher_cmd
+        .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null());
 
@@ -61,16 +83,16 @@ pub fn launch_anki_after_update(mut cmd: std::process::Command) -> Result<()> {
         use std::os::windows::process::CommandExt;
         const CREATE_NEW_PROCESS_GROUP: u32 = 0x00000200;
         const DETACHED_PROCESS: u32 = 0x00000008;
-        cmd.creation_flags(CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS);
+        launcher_cmd.creation_flags(CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS);
     }
 
-    #[cfg(unix)]
+    #[cfg(all(unix, not(target_os = "macos")))]
     {
         use std::os::unix::process::CommandExt;
-        cmd.process_group(0);
+        launcher_cmd.process_group(0);
     }
 
-    let child = cmd.ensure_spawn()?;
+    let child = launcher_cmd.ensure_spawn()?;
     std::mem::forget(child);
 
     Ok(())

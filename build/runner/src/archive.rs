@@ -65,7 +65,7 @@ fn sha2_data(data: &[u8]) -> String {
     let mut digest = sha2::Sha256::new();
     digest.update(data);
     let result = digest.finalize();
-    format!("{:x}", result)
+    format!("{result:x}")
 }
 
 enum CompressionKind {

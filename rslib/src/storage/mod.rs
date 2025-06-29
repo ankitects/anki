@@ -52,7 +52,7 @@ where
 {
     let mut trailing_sep = false;
     for id in ids {
-        write!(buf, "{},", id).unwrap();
+        write!(buf, "{id},").unwrap();
         trailing_sep = true;
     }
     if trailing_sep {

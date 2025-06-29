@@ -36,7 +36,7 @@ from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.models import NotetypeDict, NotetypeId, StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
-from anki.utils import checksum, is_lin, is_mac, is_win, namedtmp
+from anki.utils import checksum, is_lin, is_win, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.operations import QueryOp
 from aqt.operations.note import update_note
@@ -1734,10 +1734,9 @@ class EditorWebView(AnkiWebView):
         assert a is not None
         qconnect(a.triggered, lambda: openFolder(path))
 
-        if is_win or is_mac:
-            a = menu.addAction(tr.editing_show_in_folder())
-            assert a is not None
-            qconnect(a.triggered, lambda: show_in_folder(path))
+        a = menu.addAction(tr.editing_show_in_folder())
+        assert a is not None
+        qconnect(a.triggered, lambda: show_in_folder(path))
 
     def _clipboard(self) -> QClipboard:
         clipboard = self.editor.mw.app.clipboard()
