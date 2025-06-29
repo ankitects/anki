@@ -594,4 +594,3 @@ class EditorWebView(AnkiWebView):
 
     def onPaste(self) -> None:
         self.triggerPageAction(QWebEnginePage.WebAction.Paste)
-        self.triggerPageAction(QWebEnginePage.WebAction.Paste)
