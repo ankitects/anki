@@ -91,7 +91,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [onContextMenu, contextMenuItems] = setupContextMenu();
     let contextMenuInput: EditingInputAPI | null = null;
 
-
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
         if (!/^[-a-z]+$/.test(fontFamily)) {

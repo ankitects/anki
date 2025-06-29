@@ -382,8 +382,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def onBridgeCmd(self, cmd: str) -> Any:
         # focus lost or key/button pressed?
         if cmd.startswith("blur") or cmd.startswith("key"):
-            (type, ord_str) = cmd.split(":", 1)
-            ord = int(ord_str)
+            (type, _) = cmd.split(":", 1)
             if type == "blur":
                 self.currentField = None
             else:
@@ -458,7 +457,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     @on_editor_ready
     def load_note(self, mid: int, focus_to: int | None = None) -> None:
-
         self.widget.show()
 
         def oncallback(arg: Any) -> None:
