@@ -11,6 +11,8 @@ from threading import current_thread, main_thread
 from typing import TYPE_CHECKING, Any
 from weakref import ref
 
+from markdown import markdown
+
 import anki.buildinfo
 from anki import _rsbridge, backend_pb2, i18n_pb2
 from anki._backend_generated import RustBackendGenerated
@@ -18,7 +20,6 @@ from anki._fluent import GeneratedTranslations
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.utils import from_json_bytes, to_json_bytes
-from markdown import markdown
 
 if TYPE_CHECKING:
     from anki.collection import FsrsItem

@@ -8,6 +8,7 @@ from collections.abc import Callable
 from typing import Dict
 
 import pytest
+
 from anki import hooks
 from anki.consts import *
 from anki.lang import without_unicode_isolation

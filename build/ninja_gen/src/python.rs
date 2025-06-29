@@ -197,7 +197,7 @@ struct PythonFormat<'a> {
 
 impl BuildAction for PythonFormat<'_> {
     fn command(&self) -> &str {
-        "$ruff format $mode $in"
+        "$ruff format $mode $in && $ruff check --select I --fix $in"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
