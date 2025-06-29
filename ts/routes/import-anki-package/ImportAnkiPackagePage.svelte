@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import "./import-anki-package-base.scss";
-
     import type { ImportAnkiPackageOptions } from "@generated/anki/import_export_pb";
     import { importAnkiPackage } from "@generated/backend";
     import * as tr from "@generated/ftl";

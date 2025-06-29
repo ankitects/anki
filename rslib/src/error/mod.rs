@@ -149,13 +149,13 @@ impl AnkiError {
                     }
                     CardTypeErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
                 };
-                format!("{}<br>{}", header, details)
+                format!("{header}<br>{details}")
             }
             AnkiError::DbError { source } => source.message(tr),
             AnkiError::SearchError { source } => source.message(tr),
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
             AnkiError::FilteredDeckError { source } => source.message(tr),
-            AnkiError::InvalidRegex { info: source } => format!("<pre>{}</pre>", source),
+            AnkiError::InvalidRegex { info: source } => format!("<pre>{source}</pre>"),
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
             AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
             AnkiError::MediaCheckRequired => tr.errors_please_check_media().into(),
@@ -172,7 +172,7 @@ impl AnkiError {
             | AnkiError::InvalidServiceIndex
             | AnkiError::InvalidMethodIndex
             | AnkiError::UndoEmpty
-            | AnkiError::InvalidCertificateFormat => format!("{:?}", self),
+            | AnkiError::InvalidCertificateFormat => format!("{self:?}"),
             AnkiError::FileIoError { source } => source.message(),
             AnkiError::InvalidInput { source } => source.message(),
             AnkiError::NotFound { source } => source.message(tr),

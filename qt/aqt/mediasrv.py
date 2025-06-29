@@ -232,7 +232,11 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
             else:
                 max_age = 60 * 60
             return flask.send_file(
-                fullpath, mimetype=mimetype, conditional=True, max_age=max_age, download_name="foo"  # type: ignore[call-arg]
+                fullpath,
+                mimetype=mimetype,
+                conditional=True,
+                max_age=max_age,
+                download_name="foo",  # type: ignore[call-arg]
             )
         else:
             print(f"Not found: {path}")

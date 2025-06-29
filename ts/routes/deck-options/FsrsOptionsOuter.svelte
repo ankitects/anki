@@ -38,7 +38,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         desiredRetention: {
             title: tr.deckConfigDesiredRetention(),
-            help: tr.deckConfigDesiredRetentionTooltip(),
+            help:
+                tr.deckConfigDesiredRetentionTooltip() +
+                "\n\n" +
+                tr.deckConfigDesiredRetentionTooltip2(),
             sched: HelpItemScheduler.FSRS,
         },
         modelParams: {

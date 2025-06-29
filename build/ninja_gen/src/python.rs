@@ -148,7 +148,7 @@ impl BuildAction for PythonEnvironment {
             // Add --python flag to extra_args if PYTHON_BINARY is set
             let mut args = self.extra_args.to_string();
             if let Ok(python_binary) = env::var("PYTHON_BINARY") {
-                args = format!("--python {} {}", python_binary, args);
+                args = format!("--python {python_binary} {args}");
             }
             build.add_variable("extra_args", args);
         }
@@ -193,31 +193,19 @@ impl BuildAction for PythonTypecheck {
 struct PythonFormat<'a> {
     pub inputs: &'a BuildInput,
     pub check_only: bool,
-    pub isort_ini: &'a BuildInput,
 }
 
 impl BuildAction for PythonFormat<'_> {
     fn command(&self) -> &str {
-        "$black -t py39 -q $check --color $in && $
-         $isort --color --settings-path $isort_ini $check $in"
+        "$ruff format $mode $in && $ruff check --select I --fix $in"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         build.add_inputs("in", self.inputs);
-        build.add_inputs("black", inputs![":pyenv:black"]);
-        build.add_inputs("isort", inputs![":pyenv:isort"]);
+        build.add_inputs("ruff", inputs![":pyenv:ruff"]);
 
         let hash = simple_hash(self.inputs);
-        build.add_env_var("BLACK_CACHE_DIR", "out/python/black.cache.{hash}");
-        build.add_inputs("isort_ini", self.isort_ini);
-        build.add_variable(
-            "check",
-            if self.check_only {
-                "--diff --check"
-            } else {
-                ""
-            },
-        );
+        build.add_variable("mode", if self.check_only { "--check" } else { "" });
 
         build.add_output_stamp(format!(
             "tests/python_format.{}.{hash}",
@@ -227,13 +215,11 @@ impl BuildAction for PythonFormat<'_> {
 }
 
 pub fn python_format(build: &mut Build, group: &str, inputs: BuildInput) -> Result<()> {
-    let isort_ini = &inputs![".isort.cfg"];
     build.add_action(
         format!("check:format:python:{group}"),
         PythonFormat {
             inputs: &inputs,
             check_only: true,
-            isort_ini,
         },
     )?;
 
@@ -242,34 +228,39 @@ pub fn python_format(build: &mut Build, group: &str, inputs: BuildInput) -> Resu
         PythonFormat {
             inputs: &inputs,
             check_only: false,
-            isort_ini,
         },
     )?;
     Ok(())
 }
 
-pub struct PythonLint {
+pub struct RuffCheck {
     pub folders: &'static [&'static str],
-    pub pylint_ini: BuildInput,
     pub deps: BuildInput,
+    pub check_only: bool,
 }
 
-impl BuildAction for PythonLint {
+impl BuildAction for RuffCheck {
     fn command(&self) -> &str {
-        "$pylint --rcfile $pylint_ini -sn -j $cpus $folders"
+        "$ruff check $folders $mode"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         build.add_inputs("", &self.deps);
-        build.add_inputs("pylint", inputs![":pyenv:pylint"]);
-        build.add_inputs("pylint_ini", &self.pylint_ini);
+        build.add_inputs("", inputs![".ruff.toml"]);
+        build.add_inputs("ruff", inputs![":pyenv:ruff"]);
         build.add_variable("folders", self.folders.join(" "));
-        // On a 16 core system, values above 10 do not improve wall clock time,
-        // but waste extra cores that could be working on other tests.
-        build.add_variable("cpus", num_cpus::get().min(10).to_string());
+        build.add_variable(
+            "mode",
+            if self.check_only {
+                ""
+            } else {
+                "--fix --unsafe-fixes"
+            },
+        );
 
         let hash = simple_hash(&self.deps);
-        build.add_output_stamp(format!("tests/python_lint.{hash}"));
+        let kind = if self.check_only { "check" } else { "fix" };
+        build.add_output_stamp(format!("tests/python_ruff.{kind}.{hash}"));
     }
 }
 

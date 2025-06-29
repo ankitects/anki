@@ -7,7 +7,6 @@ Code for generating hooks.
 
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -204,9 +203,6 @@ def write_file(path: str, hooks: list[Hook], prefix: str, suffix: str):
 
     code += f"\n{suffix}"
 
-    # work around issue with latest black
-    if sys.platform == "win32" and "HOME" in os.environ:
-        os.environ["USERPROFILE"] = os.environ["HOME"]
     with open(path, "wb") as file:
         file.write(code.encode("utf8"))
-    subprocess.run([sys.executable, "-m", "black", "-q", path], check=True)
+    subprocess.run([sys.executable, "-m", "ruff", "format", "-q", path], check=True)

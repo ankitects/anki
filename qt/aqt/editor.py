@@ -320,7 +320,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         gui_hooks.editor_did_init_shortcuts(cuts, self)
         for row in cuts:
             if len(row) == 2:
-                keys, fn = row  # pylint: disable=unbalanced-tuple-unpacking
+                keys, fn = row
                 fn = self._addFocusCheck(fn)
             else:
                 keys, fn, _ = row

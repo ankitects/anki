@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import "./image-occlusion-base.scss";
-
     import * as tr from "@generated/ftl";
 
     import Container from "$lib/components/Container.svelte";

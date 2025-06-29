@@ -81,7 +81,7 @@ fn get_args(variables: &[Variable]) -> String {
             .iter()
             .map(|v| format!("\"{}\": args.{}", v.name, typescript_arg_name(&v.name)))
             .join(", ");
-        format!("{{{}}}", out)
+        format!("{{{out}}}")
     }
 }
 

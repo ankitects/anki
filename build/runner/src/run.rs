@@ -83,7 +83,7 @@ fn split_args(args: Vec<String>) -> Vec<Vec<String>> {
 
 pub fn run_command(command: &mut Command) {
     if let Err(err) = command.ensure_success() {
-        println!("{}", err);
+        println!("{err}");
         std::process::exit(1);
     }
 }

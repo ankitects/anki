@@ -77,7 +77,7 @@ impl Collection {
     ) -> Result<GetImageOcclusionNoteResponse> {
         let value = match self.get_image_occlusion_note_inner(note_id) {
             Ok(note) => Value::Note(note),
-            Err(err) => Value::Error(format!("{:?}", err)),
+            Err(err) => Value::Error(format!("{err:?}")),
         };
         Ok(GetImageOcclusionNoteResponse { value: Some(value) })
     }

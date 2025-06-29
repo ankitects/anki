@@ -68,7 +68,7 @@ impl AnkiError {
 impl From<&reqwest::Error> for AnkiError {
     fn from(err: &reqwest::Error) -> Self {
         let url = err.url().map(|url| url.as_str()).unwrap_or("");
-        let str_err = format!("{}", err);
+        let str_err = format!("{err}");
         // strip url from error to avoid exposing keys
         let info = str_err.replace(url, "");
 
@@ -205,7 +205,7 @@ impl NetworkError {
             NetworkErrorKind::Other => tr.network_other(),
         };
         let details = tr.network_details(self.info.as_str());
-        format!("{}\n\n{}", summary, details)
+        format!("{summary}\n\n{details}")
     }
 }
 
@@ -226,7 +226,7 @@ impl From<HttpError> for AnkiError {
             }
             .into()
         } else {
-            AnkiError::sync_error(format!("{:?}", err), SyncErrorKind::Other)
+            AnkiError::sync_error(format!("{err:?}"), SyncErrorKind::Other)
         }
     }
 }

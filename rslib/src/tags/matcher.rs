@@ -33,7 +33,7 @@ impl TagMatcher {
             (?:^|\ )
             # 1: the tag prefix
             (
-                {}
+                {tags}
             )
             (?:
                 # 2: an optional child separator
@@ -41,8 +41,7 @@ impl TagMatcher {
                 # or a space/end of string the end of the string
                 |\ |$
             )
-        "#,
-            tags
+        "#
         ))?;
 
         Ok(Self {
@@ -61,7 +60,7 @@ impl TagMatcher {
                 let out = self.regex.replace(tag, |caps: &Captures| {
                     // if we captured the child separator, add it to the replacement
                     if caps.get(2).is_some() {
-                        Cow::Owned(format!("{}::", replacement))
+                        Cow::Owned(format!("{replacement}::"))
                     } else {
                         Cow::Borrowed(replacement)
                     }
@@ -92,7 +91,7 @@ impl TagMatcher {
                     let replacement = replacer(caps.get(1).unwrap().as_str());
                     // if we captured the child separator, add it to the replacement
                     if caps.get(2).is_some() {
-                        format!("{}::", replacement)
+                        format!("{replacement}::")
                     } else {
                         replacement
                     }

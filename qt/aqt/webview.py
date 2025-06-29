@@ -980,7 +980,6 @@ def _create_ankiwebview_subclass(
     /,
     **fixed_kwargs: Unpack[_AnkiWebViewKwargs],
 ) -> Type[AnkiWebView]:
-
     def __init__(self, *args: Any, **kwargs: _AnkiWebViewKwargs) -> None:
         # user‑supplied kwargs override fixed kwargs
         merged = cast(_AnkiWebViewKwargs, {**fixed_kwargs, **kwargs})

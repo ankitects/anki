@@ -85,7 +85,7 @@ When formatting issues are reported, they can be fixed with
 ./ninja format
 ```
 
-## Fixing eslint/copyright header issues
+## Fixing ruff/eslint/copyright header issues
 
 ```
 ./ninja fix

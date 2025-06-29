@@ -169,7 +169,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
 
 pub fn check_rust(build: &mut Build) -> Result<()> {
     let inputs = inputs![
-        glob!("{rslib/**,pylib/rsbridge/**,ftl/**,build/**,tools/workspace-hack/**}"),
+        glob!("{rslib/**,pylib/rsbridge/**,ftl/**,build/**,qt/launcher/**}"),
         "Cargo.lock",
         "Cargo.toml",
         "rust-toolchain.toml",

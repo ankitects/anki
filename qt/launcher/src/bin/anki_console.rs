@@ -12,7 +12,7 @@ use anyhow::Result;
 
 fn main() {
     if let Err(e) = run() {
-        eprintln!("Error: {:#}", e);
+        eprintln!("Error: {e:#}");
         std::process::exit(1);
     }
 }

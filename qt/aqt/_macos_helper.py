@@ -6,8 +6,6 @@ from __future__ import annotations
 import sys
 
 if sys.platform == "darwin":
-    from anki_mac_helper import (  # pylint:disable=unused-import,import-error
-        macos_helper,
-    )
+    from anki_mac_helper import macos_helper
 else:
     macos_helper = None

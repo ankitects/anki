@@ -158,13 +158,12 @@ impl SqlWriter<'_> {
             },
             SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
             SearchNode::NotetypeId(ntid) => {
-                write!(self.sql, "n.mid = {}", ntid).unwrap();
+                write!(self.sql, "n.mid = {ntid}").unwrap();
             }
             SearchNode::DeckIdsWithoutChildren(dids) => {
                 write!(
                     self.sql,
-                    "c.did in ({}) or (c.odid != 0 and c.odid in ({}))",
-                    dids, dids
+                    "c.did in ({dids}) or (c.odid != 0 and c.odid in ({dids}))"
                 )
                 .unwrap();
             }
@@ -175,13 +174,13 @@ impl SqlWriter<'_> {
             SearchNode::Tag { tag, is_re } => self.write_tag(&norm(tag), *is_re),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
-                write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
+                write!(self.sql, "(c.flags & 7) == {flag}").unwrap();
             }
             SearchNode::NoteIds(nids) => {
                 write!(self.sql, "{} in ({})", self.note_id_column(), nids).unwrap();
             }
             SearchNode::CardIds(cids) => {
-                write!(self.sql, "c.id in ({})", cids).unwrap();
+                write!(self.sql, "c.id in ({cids})").unwrap();
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
             SearchNode::CustomData(key) => self.write_custom_data(key)?,
@@ -199,7 +198,7 @@ impl SqlWriter<'_> {
             text
         };
         // implicitly wrap in %
-        let text = format!("%{}%", text);
+        let text = format!("%{text}%");
         self.args.push(text);
         let arg_idx = self.args.len();
 
@@ -279,7 +278,7 @@ impl SqlWriter<'_> {
                 text => {
                     write!(self.sql, "n.tags regexp ?").unwrap();
                     let re = &to_custom_re(text, r"\S");
-                    self.args.push(format!("(?i).* {}(::| ).*", re));
+                    self.args.push(format!("(?i).* {re}(::| ).*"));
                 }
             }
         }
@@ -293,10 +292,10 @@ impl SqlWriter<'_> {
         write!(self.sql, "c.id in (select cid from revlog where id").unwrap();
 
         match op {
-            ">" => write!(self.sql, " >= {}", target_cutoff_ms),
-            ">=" => write!(self.sql, " >= {}", day_before_cutoff_ms),
-            "<" => write!(self.sql, " < {}", day_before_cutoff_ms),
-            "<=" => write!(self.sql, " < {}", target_cutoff_ms),
+            ">" => write!(self.sql, " >= {target_cutoff_ms}"),
+            ">=" => write!(self.sql, " >= {day_before_cutoff_ms}"),
+            "<" => write!(self.sql, " < {day_before_cutoff_ms}"),
+            "<=" => write!(self.sql, " < {target_cutoff_ms}"),
             "=" => write!(
                 self.sql,
                 " between {} and {}",
@@ -314,7 +313,7 @@ impl SqlWriter<'_> {
         .unwrap();
 
         match ease {
-            RatingKind::AnswerButton(u) => write!(self.sql, " and ease = {})", u),
+            RatingKind::AnswerButton(u) => write!(self.sql, " and ease = {u})"),
             RatingKind::AnyAnswerButton => write!(self.sql, " and ease > 0)"),
             RatingKind::ManualReschedule => write!(self.sql, " and ease = 0)"),
         }
@@ -356,9 +355,9 @@ impl SqlWriter<'_> {
                 pos = pos
             )
             .unwrap(),
-            PropertyKind::Interval(ivl) => write!(self.sql, "ivl {} {}", op, ivl).unwrap(),
-            PropertyKind::Reps(reps) => write!(self.sql, "reps {} {}", op, reps).unwrap(),
-            PropertyKind::Lapses(days) => write!(self.sql, "lapses {} {}", op, days).unwrap(),
+            PropertyKind::Interval(ivl) => write!(self.sql, "ivl {op} {ivl}").unwrap(),
+            PropertyKind::Reps(reps) => write!(self.sql, "reps {op} {reps}").unwrap(),
+            PropertyKind::Lapses(days) => write!(self.sql, "lapses {op} {days}").unwrap(),
             PropertyKind::Ease(ease) => {
                 write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32).unwrap()
             }
@@ -474,7 +473,7 @@ impl SqlWriter<'_> {
                 };
 
                 // convert to a regex that includes child decks
-                self.args.push(format!("(?i)^{}($|\x1f)", native_deck));
+                self.args.push(format!("(?i)^{native_deck}($|\x1f)"));
                 let arg_idx = self.args.len();
                 self.sql.push_str(&format!(concat!(
                     "(c.did in (select id from decks where name regexp ?{n})",
@@ -491,7 +490,7 @@ impl SqlWriter<'_> {
             let ids = self.col.storage.deck_id_with_children(&parent)?;
             let mut buf = String::new();
             ids_to_string(&mut buf, &ids);
-            write!(self.sql, "c.did in {}", buf,).unwrap();
+            write!(self.sql, "c.did in {buf}",).unwrap();
         } else {
             self.sql.push_str("false")
         }
@@ -502,7 +501,7 @@ impl SqlWriter<'_> {
     fn write_template(&mut self, template: &TemplateKind) {
         match template {
             TemplateKind::Ordinal(n) => {
-                write!(self.sql, "c.ord = {}", n).unwrap();
+                write!(self.sql, "c.ord = {n}").unwrap();
             }
             TemplateKind::Name(name) => {
                 if is_glob(name) {
@@ -550,7 +549,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_all_fields_regexp(&mut self, val: &str) {
-        self.args.push(format!("(?i){}", val));
+        self.args.push(format!("(?i){val}"));
         write!(self.sql, "regexp_fields(?{}, n.flds)", self.args.len()).unwrap();
     }
 
@@ -566,7 +565,7 @@ impl SqlWriter<'_> {
             return Ok(());
         }
 
-        self.args.push(format!("(?i){}", val));
+        self.args.push(format!("(?i){val}"));
         let arg_idx = self.args.len();
 
         let all_notetype_clauses = field_indicies_by_notetype
@@ -775,13 +774,13 @@ impl SqlWriter<'_> {
 
     fn write_added(&mut self, days: u32) -> Result<()> {
         let cutoff = self.previous_day_cutoff(days)?.as_millis();
-        write!(self.sql, "c.id > {}", cutoff).unwrap();
+        write!(self.sql, "c.id > {cutoff}").unwrap();
         Ok(())
     }
 
     fn write_edited(&mut self, days: u32) -> Result<()> {
         let cutoff = self.previous_day_cutoff(days)?;
-        write!(self.sql, "n.mod > {}", cutoff).unwrap();
+        write!(self.sql, "n.mod > {cutoff}").unwrap();
         Ok(())
     }
 
@@ -813,7 +812,7 @@ impl SqlWriter<'_> {
         } else {
             std::borrow::Cow::Borrowed(word)
         };
-        self.args.push(format!(r"(?i){}", word));
+        self.args.push(format!(r"(?i){word}"));
         let arg_idx = self.args.len();
         if let Some(field_indices_by_notetype) = self.included_fields_for_unqualified_regex()? {
             let notetype_clause = |ctx: &UnqualifiedRegexSearchContext| -> String {

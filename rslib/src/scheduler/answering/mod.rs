@@ -889,22 +889,20 @@ pub(crate) mod test {
     ) -> Result<()> {
         // Change due time to fake card answer_time,
         // works since answer_time is calculated as due - last_ivl
-        let update_due_string = format!("update cards set due={}", shift_due_time);
+        let update_due_string = format!("update cards set due={shift_due_time}");
         col.storage.db.execute_batch(&update_due_string)?;
         col.clear_study_queues();
         let current_card_state = current_state(col, post_answer.card_id);
         let state = match current_card_state {
             CardState::Normal(NormalState::Learning(state)) => state,
-            _ => panic!("State is not Normal: {:?}", current_card_state),
+            _ => panic!("State is not Normal: {current_card_state:?}"),
         };
         let elapsed_secs = state.elapsed_secs as i32;
         // Give a 1 second leeway when the test runs on the off chance
         // that the test runs as a second rolls over.
         assert!(
             (elapsed_secs - expected_elapsed_secs).abs() <= 1,
-            "elapsed_secs: {} != expected_elapsed_secs: {}",
-            elapsed_secs,
-            expected_elapsed_secs
+            "elapsed_secs: {elapsed_secs} != expected_elapsed_secs: {expected_elapsed_secs}"
         );
 
         Ok(())

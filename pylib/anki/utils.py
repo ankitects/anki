@@ -24,7 +24,6 @@ from anki.dbproxy import DBProxy
 _tmpdir: str | None
 
 try:
-    # pylint: disable=c-extension-no-member
     import orjson
 
     to_json_bytes: Callable[[Any], bytes] = orjson.dumps
@@ -156,12 +155,12 @@ def field_checksum(data: str) -> int:
 # Temp files
 ##############################################################################
 
-_tmpdir = None  # pylint: disable=invalid-name
+_tmpdir = None
 
 
 def tmpdir() -> str:
     "A reusable temp folder which we clean out on each program invocation."
-    global _tmpdir  # pylint: disable=invalid-name
+    global _tmpdir
     if not _tmpdir:
 
         def cleanup() -> None:
@@ -216,7 +215,6 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
         try:
             info.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
         except Exception:
-            # pylint: disable=no-member
             info.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW  # type: ignore
     else:
         info = None
@@ -282,7 +280,7 @@ def plat_desc() -> str:
             elif is_win:
                 theos = f"win:{platform.win32_ver()[0]}"
             elif system == "Linux":
-                import distro  # pytype: disable=import-error # pylint: disable=import-error
+                import distro  # pytype: disable=import-error
 
                 dist_id = distro.id()
                 dist_version = distro.version()

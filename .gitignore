@@ -19,4 +19,4 @@ yarn-error.log
 ts/.svelte-kit
 .yarn
 .claude/settings.local.json
-CLAUDE.local.md
+.claude/user.md

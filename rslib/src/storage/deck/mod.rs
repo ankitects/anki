@@ -33,7 +33,7 @@ fn row_to_deck(row: &Row) -> Result<Deck> {
         common,
         kind: kind.kind.ok_or_else(|| {
             AnkiError::db_error(
-                format!("invalid deck kind: {}", id),
+                format!("invalid deck kind: {id}"),
                 DbErrorKind::MissingEntity,
             )
         })?,
@@ -347,8 +347,8 @@ impl SqliteStorage {
         ))?;
 
         let top = current.name.as_native_str();
-        let prefix_start = &format!("{}\x1f", top);
-        let prefix_end = &format!("{}\x20", top);
+        let prefix_start = &format!("{top}\x1f");
+        let prefix_end = &format!("{top}\x20");
 
         self.db
             .prepare_cached(include_str!("update_active.sql"))?
@@ -379,7 +379,7 @@ impl SqliteStorage {
         let decks = self
             .get_schema11_decks()
             .map_err(|e| AnkiError::JsonError {
-                info: format!("decoding decks: {}", e),
+                info: format!("decoding decks: {e}"),
             })?;
         let mut names = HashSet::new();
         for (_id, deck) in decks {
