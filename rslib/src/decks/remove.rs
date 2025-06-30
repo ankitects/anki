@@ -28,7 +28,7 @@ impl Collection {
         let card_count = match deck.kind {
             DeckKind::Normal(_) => self.delete_all_cards_in_normal_deck(deck.id)?,
             DeckKind::Filtered(_) => {
-                self.return_all_cards_in_filtered_deck(deck.id)?;
+                self.return_all_cards_in_filtered_deck(deck)?;
                 0
             }
         };
