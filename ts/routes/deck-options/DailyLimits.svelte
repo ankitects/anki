@@ -133,9 +133,9 @@
         },
         newCardsIgnoreReviewLimit: {
             title: tr.deckConfigNewCardsIgnoreReviewLimit(),
-
             help: newCardsIgnoreReviewLimitHelp,
             url: HelpPage.DeckOptions.newCardsday,
+            global: true,
         },
         applyAllParentLimits: {
             title: tr.deckConfigApplyAllParentLimits(),
