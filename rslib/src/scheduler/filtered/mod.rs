@@ -64,7 +64,8 @@ impl Collection {
 
     pub fn empty_filtered_deck(&mut self, did: DeckId) -> Result<OpOutput<()>> {
         self.transact(Op::EmptyFilteredDeck, |col| {
-            col.return_all_cards_in_filtered_deck(did)
+            let deck = col.get_deck(did)?.or_not_found(did)?;
+            col.return_all_cards_in_filtered_deck(&deck)
         })
     }
 
@@ -78,8 +79,11 @@ impl Collection {
 }
 
 impl Collection {
-    pub(crate) fn return_all_cards_in_filtered_deck(&mut self, did: DeckId) -> Result<()> {
-        let cids = self.storage.all_cards_in_single_deck(did)?;
+    pub(crate) fn return_all_cards_in_filtered_deck(&mut self, deck: &Deck) -> Result<()> {
+        if !deck.is_filtered() {
+            return Err(FilteredDeckError::FilteredDeckRequired.into());
+        }
+        let cids = self.storage.all_cards_in_single_deck(deck.id)?;
         self.return_cards_to_home_deck(&cids)
     }
 
@@ -195,7 +199,7 @@ impl Collection {
             timing,
         };
 
-        self.return_all_cards_in_filtered_deck(deck.id)?;
+        self.return_all_cards_in_filtered_deck(deck)?;
         self.build_filtered_deck(ctx)
     }
 
