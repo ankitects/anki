@@ -134,6 +134,7 @@ impl SqlWriter<'_> {
                 self.write_unqualified(
                     text,
                     self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+                    false,
                 )?
             }
             SearchNode::SingleField { field, text, is_re } => {
@@ -143,7 +144,9 @@ impl SqlWriter<'_> {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
             SearchNode::Regex(re) => self.write_regex(&self.norm_note(re), false)?,
-            SearchNode::NoCombining(text) => self.write_unqualified(&self.norm_note(text), true)?,
+            SearchNode::NoCombining(text) => {
+                self.write_unqualified(&self.norm_note(text), true, false)?
+            }
             SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text))?,
 
             // other
@@ -190,7 +193,12 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_unqualified(&mut self, text: &str, no_combining: bool) -> Result<()> {
+    fn write_unqualified(
+        &mut self,
+        text: &str,
+        no_combining: bool,
+        strip_clozes: bool,
+    ) -> Result<()> {
         let text = to_sql(text);
         let text = if no_combining {
             without_combining(&text)
@@ -202,16 +210,33 @@ impl SqlWriter<'_> {
         self.args.push(text);
         let arg_idx = self.args.len();
 
-        let sfld_expr = if no_combining {
-            "coalesce(without_combining(cast(n.sfld as text)), n.sfld)"
+        let process_text_opt = (no_combining as u8) | ((strip_clozes as u8) << 1);
+
+        let sfld_expr = if process_text_opt != 0 {
+            Cow::from(format!(
+                "coalesce(process_text(cast(n.sfld as text), {process_text_opt}), n.sfld)"
+            ))
         } else {
-            "n.sfld"
+            Cow::from("n.sfld")
         };
-        let flds_expr = if no_combining {
-            "coalesce(without_combining(n.flds), n.flds)"
+        let flds_expr = if process_text_opt != 0 {
+            Cow::from(format!(
+                "coalesce(process_text(n.flds, {process_text_opt}), n.flds)"
+            ))
         } else {
-            "n.flds"
+            Cow::from("n.flds")
         };
+
+        if strip_clozes {
+            let cloze_notetypes_only_clause = self
+                .col
+                .get_all_notetypes()?
+                .iter()
+                .filter(|nt| nt.is_cloze())
+                .map(|nt| format!("n.mid = {}", nt.id))
+                .join(" or ");
+            write!(self.sql, "({cloze_notetypes_only_clause}) and ").unwrap();
+        }
 
         if let Some(field_indicies_by_notetype) = self.included_fields_by_notetype()? {
             let field_idx_str = format!("' || ?{arg_idx} || '");
