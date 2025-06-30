@@ -24,6 +24,7 @@ use super::upgrades::SCHEMA_MAX_VERSION;
 use super::upgrades::SCHEMA_MIN_VERSION;
 use super::upgrades::SCHEMA_STARTING_VERSION;
 use super::SchemaVersion;
+use crate::cloze::strip_clozes;
 use crate::config::schema11::schema11_config_as_string;
 use crate::error::DbErrorKind;
 use crate::prelude::*;
@@ -31,6 +32,7 @@ use crate::scheduler::timing::local_minutes_west_for_stamp;
 use crate::scheduler::timing::v1_creation_date;
 use crate::storage::card::data::CardData;
 use crate::text::without_combining;
+use crate::text::CowMapping;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))
@@ -74,7 +76,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_function(&db)?;
     add_regexp_fields_function(&db)?;
     add_regexp_tags_function(&db)?;
-    add_without_combining_function(&db)?;
+    add_process_text_function(&db)?;
     add_fnvhash_function(&db)?;
     add_extract_original_position_function(&db)?;
     add_extract_custom_data_function(&db)?;
@@ -111,17 +113,21 @@ fn add_field_index_function(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
-fn add_without_combining_function(db: &Connection) -> rusqlite::Result<()> {
+fn add_process_text_function(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
-        "without_combining",
-        1,
+        "process_text",
+        2,
         FunctionFlags::SQLITE_DETERMINISTIC,
         |ctx| {
-            let text = ctx.get_raw(0).as_str()?;
-            Ok(match without_combining(text) {
-                Cow::Borrowed(_) => None,
-                Cow::Owned(o) => Some(o),
-            })
+            let mut text = Cow::from(ctx.get_raw(0).as_str()?);
+            let opt = ctx.get_raw(1).as_i64()? as u8;
+            if opt & 1 != 0 {
+                text = text.map_cow(without_combining);
+            }
+            if opt & 2 != 0 {
+                text = text.map_cow(strip_clozes);
+            }
+            Ok(text.get_owned())
         },
     )
 }
