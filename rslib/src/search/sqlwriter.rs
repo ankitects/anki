@@ -828,7 +828,7 @@ impl SqlWriter<'_> {
 
     fn write_regex(&mut self, word: &str, no_combining: bool) -> Result<()> {
         let flds_expr = if no_combining {
-            "coalesce(without_combining(n.flds), n.flds)"
+            "coalesce(process_text(n.flds, 1), n.flds)"
         } else {
             "n.flds"
         };
