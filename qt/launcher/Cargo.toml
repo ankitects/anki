@@ -14,6 +14,9 @@ anyhow.workspace = true
 camino.workspace = true
 dirs.workspace = true
 
+[target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
+libc.workspace = true
+
 [target.'cfg(windows)'.dependencies]
 windows.workspace = true
 widestring.workspace = true

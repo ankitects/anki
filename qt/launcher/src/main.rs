@@ -22,6 +22,7 @@ use anki_process::CommandExt as AnkiCommandExt;
 use anyhow::Context;
 use anyhow::Result;
 
+use crate::platform::ensure_os_supported;
 use crate::platform::ensure_terminal_shown;
 use crate::platform::get_exe_and_resources_dirs;
 use crate::platform::get_uv_binary_name;
@@ -142,6 +143,8 @@ fn run() -> Result<()> {
 
     print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
     println!("\x1B[1mAnki Launcher\x1B[0m\n");
+
+    ensure_os_supported()?;
 
     check_versions(&mut state);
 
