@@ -8,6 +8,8 @@
 		<string>1.0</string>
 		<key>LSMinimumSystemVersion</key>
 		<string>12</string>
+		<key>LSApplicationCategoryType</key>
+		<string>public.app-category.education</string>
 		<key>CFBundleDocumentTypes</key>
 		<array>
 			<dict>
