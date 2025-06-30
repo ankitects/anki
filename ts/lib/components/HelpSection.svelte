@@ -25,7 +25,7 @@
     {#if item.help}
         {#if item.global}
             <div class="icon">
-                <Icon icon={mdiEarth} />
+                <Icon icon={mdiEarth} />&MediumSpace;
             </div>
         {/if}
         {@html renderMarkdown(item.help)}
@@ -66,6 +66,5 @@
         display: inline-block;
         width: 1em;
         fill: currentColor;
-        margin-bottom: 1em;
     }
 </style>
