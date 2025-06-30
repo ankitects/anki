@@ -25,6 +25,9 @@ use crate::latex::contains_latex;
 use crate::template::RenderContext;
 use crate::text::strip_html_preserving_entities;
 
+static CLOZE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?s)\{\{c\d+::(.*?)(::.*?)?\}\}").unwrap());
+
 static MATHJAX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?xsi)
@@ -451,6 +454,10 @@ pub fn cloze_number_in_fields(fields: impl IntoIterator<Item: AsRef<str>>) -> Ha
         add_cloze_numbers_in_string(field.as_ref(), &mut set);
     }
     set
+}
+
+pub(crate) fn strip_clozes(text: &str) -> Cow<'_, str> {
+    CLOZE.replace_all(text, "$1")
 }
 
 fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
