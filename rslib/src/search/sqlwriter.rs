@@ -147,6 +147,11 @@ impl SqlWriter<'_> {
             SearchNode::NoCombining(text) => {
                 self.write_unqualified(&self.norm_note(text), true, false)?
             }
+            SearchNode::StripClozes(text) => self.write_unqualified(
+                &self.norm_note(text),
+                self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+                true,
+            )?,
             SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text))?,
 
             // other
@@ -1020,6 +1025,7 @@ impl SearchNode {
             SearchNode::Duplicates { .. } => RequiredTable::Notes,
             SearchNode::Regex(_) => RequiredTable::Notes,
             SearchNode::NoCombining(_) => RequiredTable::Notes,
+            SearchNode::StripClozes(_) => RequiredTable::Notes,
             SearchNode::WordBoundary(_) => RequiredTable::Notes,
             SearchNode::NotetypeId(_) => RequiredTable::Notes,
             SearchNode::Notetype(_) => RequiredTable::Notes,
