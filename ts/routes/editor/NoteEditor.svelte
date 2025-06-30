@@ -370,6 +370,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         saveFieldNow();
     }
 
+    // TODO this needs to accept a previousNote arg
+    async function fieldsAreBlank(): Promise<boolean> {
+        const result = await noteFieldsCheck(note!);
+        if (result.state === NoteFieldsCheckResponse_State.EMPTY) {
+            return true;
+        }
+        return false;
+    }
+
+    async function closeAddCards() {
+        saveNow();
+        await closeAddCardsBackend({ val: await fieldsAreBlank() });
+    }
+
     export function saveOnPageHide() {
         if (document.visibilityState === "hidden") {
             // will fire on session close and minimize
@@ -559,6 +573,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         addNote,
         addMediaFromPath,
         updateNotetype,
+        closeAddCards as closeAddCardsBackend,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
@@ -925,6 +940,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setBackgrounds,
             setClozeHint,
             saveNow,
+            closeAddCards,
             focusIfField,
             setNotetypeMeta,
             wrap,

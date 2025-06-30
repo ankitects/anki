@@ -34,6 +34,7 @@ class AddCards(QMainWindow):
     def __init__(self, mw: AnkiQt) -> None:
         super().__init__(None, Qt.WindowType.Window)
         self._close_event_has_cleaned_up = False
+        self._close_callback: Callable[[], None] | None = None
         self.mw = mw
         self.col = mw.col
         form = aqt.forms.addcards.Ui_Dialog()
@@ -249,21 +250,26 @@ class AddCards(QMainWindow):
         self.close()
 
     def ifCanClose(self, onOk: Callable) -> None:
+        self._close_callback = onOk
+        self.editor.web.eval("closeAddCards()")
+
+    def _close_if_user_wants_to_discard_changes(self, is_empty: bool) -> None:
+        if is_empty:
+            self._close_callback()
+            return
+
         def callback(choice: int) -> None:
             if choice == 0:
-                onOk()
+                self._close_callback()
 
-        def afterSave() -> None:
-            ask_user_dialog(
-                tr.adding_discard_current_input(),
-                callback=callback,
-                buttons=[
-                    QMessageBox.StandardButton.Discard,
-                    (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
-                ],
-            )
-
-        self.editor.call_after_note_saved(afterSave)
+        ask_user_dialog(
+            tr.adding_discard_current_input(),
+            callback=callback,
+            buttons=[
+                QMessageBox.StandardButton.Discard,
+                (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
+            ],
+        )
 
     def closeWithCallback(self, cb: Callable[[], None]) -> None:
         def doClose() -> None:

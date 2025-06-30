@@ -791,6 +791,21 @@ def write_clipboard() -> bytes:
     return b""
 
 
+def close_add_cards() -> bytes:
+    req = generic_pb2.Bool()
+    req.ParseFromString(request.data)
+
+    def handle_on_main() -> None:
+        from aqt.addcards import AddCards
+
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, AddCards):
+            window._close_if_user_wants_to_discard_changes(req.val)
+
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -820,6 +835,7 @@ post_handler_list = [
     record_audio,
     read_clipboard,
     write_clipboard,
+    close_add_cards,
 ]
 
 
