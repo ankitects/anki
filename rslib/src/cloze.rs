@@ -618,6 +618,16 @@ mod test {
     }
 
     #[test]
+    fn strip_clozes_regex() {
+        assert_eq!(
+            strip_clozes(
+                r#"The {{c1::moon::🌛}} {{c2::orbits::this hint has "::" in it}} the {{c3::🌏}}."#
+            ),
+            "The moon orbits the 🌏."
+        );
+    }
+
+    #[test]
     fn mathjax_html() {
         // escaped angle brackets should be preserved
         assert_eq!(
