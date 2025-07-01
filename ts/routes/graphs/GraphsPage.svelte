@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import type { SvelteComponent } from "svelte";
+    import type { Component } from "svelte";
     import { writable } from "svelte/store";
 
     import { pageTheme } from "$lib/sveltelib/theme";
@@ -18,9 +18,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const search = writable(initialSearch);
     const days = writable(initialDays);
 
-    export let graphs: (typeof SvelteComponent<any>)[];
+    export let graphs: Component<any>[];
     /** See RangeBox */
-    export let controller: typeof SvelteComponent<any> | null = RangeBox;
+    export let controller: Component<any> | null = RangeBox;
 
     function browserSearch(event: CustomEvent) {
         bridgeCommand(`browserSearch: ${$search} ${event.detail.query}`);
