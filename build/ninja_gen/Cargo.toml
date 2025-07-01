@@ -35,3 +35,7 @@ path = "src/bin/update_uv.rs"
 [[bin]]
 name = "update_protoc"
 path = "src/bin/update_protoc.rs"
+
+[[bin]]
+name = "update_node"
+path = "src/bin/update_node.rs"
