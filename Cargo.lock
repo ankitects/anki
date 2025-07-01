@@ -94,6 +94,7 @@ dependencies = [
  "axum",
  "axum-client-ip",
  "axum-extra",
+ "bitflags 2.9.1",
  "blake3",
  "bytes",
  "chrono",
