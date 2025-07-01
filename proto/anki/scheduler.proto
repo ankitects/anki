@@ -402,31 +402,6 @@ message SimulateFsrsReviewRequest {
   repeated float easy_days_percentages = 10;
   deck_config.DeckConfig.Config.ReviewCardOrder review_order = 11;
   optional uint32 suspend_after_lapse_count = 12;
-  // For CMRR
-  message CMRRTarget {
-    message Memorized {
-      float loss_aversion = 1;
-    };
-
-    message Stability {};
-
-    message FutureMemorized {
-      int32 days = 1;
-    };
-
-    message AverageFutureMemorized {
-      int32 days = 1;
-    };
-
-    oneof kind {
-      Memorized memorized = 1;
-      Stability stability = 2;
-      FutureMemorized future_memorized = 3;
-      AverageFutureMemorized average_future_memorized = 4;
-    };
-  };
-
-  optional CMRRTarget target = 13;
 }
 
 message SimulateFsrsReviewResponse {
