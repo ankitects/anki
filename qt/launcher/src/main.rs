@@ -111,11 +111,6 @@ fn run() -> Result<()> {
 
     // Create install directory and copy project files in
     create_dir_all(&state.uv_install_root)?;
-    let had_user_pyproj = state.user_pyproject_path.exists();
-    if !had_user_pyproj {
-        // during initial launcher testing, enable betas by default
-        write_file(&state.prerelease_marker, "")?;
-    }
 
     copy_if_newer(&state.dist_pyproject_path, &state.user_pyproject_path)?;
     copy_if_newer(
