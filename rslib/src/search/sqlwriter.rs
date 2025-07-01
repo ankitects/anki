@@ -22,6 +22,7 @@ use crate::notes::field_checksum;
 use crate::notetype::NotetypeId;
 use crate::prelude::*;
 use crate::storage::ids_to_string;
+use crate::storage::ProcessTextFlags;
 use crate::text::glob_matcher;
 use crate::text::is_glob;
 use crate::text::normalize_to_nfc;
@@ -215,21 +216,24 @@ impl SqlWriter<'_> {
         self.args.push(text);
         let arg_idx = self.args.len();
 
-        let process_text_opt = (no_combining as u8) | ((strip_clozes as u8) << 1);
+        let mut process_text_flags = ProcessTextFlags::empty();
+        if no_combining {
+            process_text_flags.insert(ProcessTextFlags::NoCombining);
+        }
+        if strip_clozes {
+            process_text_flags.insert(ProcessTextFlags::StripClozes);
+        }
 
-        let sfld_expr = if process_text_opt != 0 {
-            Cow::from(format!(
-                "coalesce(process_text(cast(n.sfld as text), {process_text_opt}), n.sfld)"
-            ))
+        let (sfld_expr, flds_expr) = if !process_text_flags.is_empty() {
+            let bits = process_text_flags.bits();
+            (
+                Cow::from(format!(
+                    "coalesce(process_text(cast(n.sfld as text), {bits}), n.sfld)"
+                )),
+                Cow::from(format!("coalesce(process_text(n.flds, {bits}), n.flds)")),
+            )
         } else {
-            Cow::from("n.sfld")
-        };
-        let flds_expr = if process_text_opt != 0 {
-            Cow::from(format!(
-                "coalesce(process_text(n.flds, {process_text_opt}), n.flds)"
-            ))
-        } else {
-            Cow::from("n.flds")
+            (Cow::from("n.sfld"), Cow::from("n.flds"))
         };
 
         if strip_clozes {
@@ -833,9 +837,12 @@ impl SqlWriter<'_> {
 
     fn write_regex(&mut self, word: &str, no_combining: bool) -> Result<()> {
         let flds_expr = if no_combining {
-            "coalesce(process_text(n.flds, 1), n.flds)"
+            Cow::from(format!(
+                "coalesce(process_text(n.flds, {}), n.flds)",
+                ProcessTextFlags::NoCombining.bits()
+            ))
         } else {
-            "n.flds"
+            Cow::from("n.flds")
         };
         let word = if no_combining {
             without_combining(word)
