@@ -7,11 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ComputeRetentionProgress,
         type ComputeParamsProgress,
     } from "@generated/anki/collection_pb";
-    import {
-        SimulateFsrsReviewRequest,
-        SimulateFsrsReviewRequest_CMRRTarget,
-        SimulateFsrsReviewRequest_CMRRTarget_Memorized,
-    } from "@generated/anki/scheduler_pb";
+    import { SimulateFsrsReviewRequest } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsParams,
         evaluateParams,
@@ -99,14 +95,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         newCardsIgnoreReviewLimit: $newCardsIgnoreReviewLimit,
         easyDaysPercentages: $config.easyDaysPercentages,
         reviewOrder: $config.reviewOrder,
-        target: new SimulateFsrsReviewRequest_CMRRTarget({
-            kind: {
-                case: "memorized",
-                value: new SimulateFsrsReviewRequest_CMRRTarget_Memorized({
-                    lossAversion: 1.6,
-                }),
-            },
-        }),
     });
 
     const DESIRED_RETENTION_LOW_THRESHOLD = 0.8;
