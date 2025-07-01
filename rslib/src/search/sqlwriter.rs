@@ -22,6 +22,7 @@ use crate::notes::field_checksum;
 use crate::notetype::NotetypeId;
 use crate::prelude::*;
 use crate::storage::ids_to_string;
+use crate::storage::ProcessTextFlags;
 use crate::text::glob_matcher;
 use crate::text::is_glob;
 use crate::text::normalize_to_nfc;
@@ -134,6 +135,7 @@ impl SqlWriter<'_> {
                 self.write_unqualified(
                     text,
                     self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+                    false,
                 )?
             }
             SearchNode::SingleField { field, text, is_re } => {
@@ -143,7 +145,14 @@ impl SqlWriter<'_> {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
             SearchNode::Regex(re) => self.write_regex(&self.norm_note(re), false)?,
-            SearchNode::NoCombining(text) => self.write_unqualified(&self.norm_note(text), true)?,
+            SearchNode::NoCombining(text) => {
+                self.write_unqualified(&self.norm_note(text), true, false)?
+            }
+            SearchNode::StripClozes(text) => self.write_unqualified(
+                &self.norm_note(text),
+                self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+                true,
+            )?,
             SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text))?,
 
             // other
@@ -190,7 +199,12 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_unqualified(&mut self, text: &str, no_combining: bool) -> Result<()> {
+    fn write_unqualified(
+        &mut self,
+        text: &str,
+        no_combining: bool,
+        strip_clozes: bool,
+    ) -> Result<()> {
         let text = to_sql(text);
         let text = if no_combining {
             without_combining(&text)
@@ -202,16 +216,36 @@ impl SqlWriter<'_> {
         self.args.push(text);
         let arg_idx = self.args.len();
 
-        let sfld_expr = if no_combining {
-            "coalesce(without_combining(cast(n.sfld as text)), n.sfld)"
+        let mut process_text_flags = ProcessTextFlags::empty();
+        if no_combining {
+            process_text_flags.insert(ProcessTextFlags::NoCombining);
+        }
+        if strip_clozes {
+            process_text_flags.insert(ProcessTextFlags::StripClozes);
+        }
+
+        let (sfld_expr, flds_expr) = if !process_text_flags.is_empty() {
+            let bits = process_text_flags.bits();
+            (
+                Cow::from(format!(
+                    "coalesce(process_text(cast(n.sfld as text), {bits}), n.sfld)"
+                )),
+                Cow::from(format!("coalesce(process_text(n.flds, {bits}), n.flds)")),
+            )
         } else {
-            "n.sfld"
+            (Cow::from("n.sfld"), Cow::from("n.flds"))
         };
-        let flds_expr = if no_combining {
-            "coalesce(without_combining(n.flds), n.flds)"
-        } else {
-            "n.flds"
-        };
+
+        if strip_clozes {
+            let cloze_notetypes_only_clause = self
+                .col
+                .get_all_notetypes()?
+                .iter()
+                .filter(|nt| nt.is_cloze())
+                .map(|nt| format!("n.mid = {}", nt.id))
+                .join(" or ");
+            write!(self.sql, "({cloze_notetypes_only_clause}) and ").unwrap();
+        }
 
         if let Some(field_indicies_by_notetype) = self.included_fields_by_notetype()? {
             let field_idx_str = format!("' || ?{arg_idx} || '");
@@ -803,9 +837,12 @@ impl SqlWriter<'_> {
 
     fn write_regex(&mut self, word: &str, no_combining: bool) -> Result<()> {
         let flds_expr = if no_combining {
-            "coalesce(without_combining(n.flds), n.flds)"
+            Cow::from(format!(
+                "coalesce(process_text(n.flds, {}), n.flds)",
+                ProcessTextFlags::NoCombining.bits()
+            ))
         } else {
-            "n.flds"
+            Cow::from("n.flds")
         };
         let word = if no_combining {
             without_combining(word)
@@ -995,6 +1032,7 @@ impl SearchNode {
             SearchNode::Duplicates { .. } => RequiredTable::Notes,
             SearchNode::Regex(_) => RequiredTable::Notes,
             SearchNode::NoCombining(_) => RequiredTable::Notes,
+            SearchNode::StripClozes(_) => RequiredTable::Notes,
             SearchNode::WordBoundary(_) => RequiredTable::Notes,
             SearchNode::NotetypeId(_) => RequiredTable::Notes,
             SearchNode::Notetype(_) => RequiredTable::Notes,
@@ -1299,6 +1337,9 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
             "((c.did in (1) or c.odid in (1)))"
         );
         assert_eq!(&s(ctx, "preset:typo").0, "(false)");
+
+        // strip clozes
+        assert_eq!(&s(ctx, "sc:abcdef").0, "((n.mid = 1581236385343) and (coalesce(process_text(cast(n.sfld as text), 2), n.sfld) like ?1 escape '\\' or coalesce(process_text(n.flds, 2), n.flds) like ?1 escape '\\'))");
     }
 
     #[test]
