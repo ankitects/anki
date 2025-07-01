@@ -9,6 +9,7 @@ use std::hash::Hasher;
 use std::path::Path;
 use std::sync::Arc;
 
+use bitflags::bitflags;
 use fnv::FnvHasher;
 use fsrs::FSRS;
 use fsrs::FSRS5_DEFAULT_DECAY;
@@ -113,6 +114,13 @@ fn add_field_index_function(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
+bitflags! {
+    pub(crate) struct ProcessTextFlags: u8 {
+        const NoCombining = 1;
+        const StripClozes = 1 << 1;
+    }
+}
+
 fn add_process_text_function(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
         "process_text",
@@ -120,11 +128,11 @@ fn add_process_text_function(db: &Connection) -> rusqlite::Result<()> {
         FunctionFlags::SQLITE_DETERMINISTIC,
         |ctx| {
             let mut text = Cow::from(ctx.get_raw(0).as_str()?);
-            let opt = ctx.get_raw(1).as_i64()? as u8;
-            if opt & 2 != 0 {
+            let opt = ProcessTextFlags::from_bits_truncate(ctx.get_raw(1).as_i64()? as u8);
+            if opt.contains(ProcessTextFlags::StripClozes) {
                 text = text.map_cow(strip_clozes);
             }
-            if opt & 1 != 0 {
+            if opt.contains(ProcessTextFlags::NoCombining) {
                 text = text.map_cow(without_combining);
             }
             Ok(text.get_owned())

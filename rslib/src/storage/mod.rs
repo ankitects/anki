@@ -19,6 +19,7 @@ mod upgrades;
 
 use std::fmt::Write;
 
+pub(crate) use sqlite::ProcessTextFlags;
 pub(crate) use sqlite::SqliteStorage;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
