@@ -121,11 +121,11 @@ fn add_process_text_function(db: &Connection) -> rusqlite::Result<()> {
         |ctx| {
             let mut text = Cow::from(ctx.get_raw(0).as_str()?);
             let opt = ctx.get_raw(1).as_i64()? as u8;
-            if opt & 1 != 0 {
-                text = text.map_cow(without_combining);
-            }
             if opt & 2 != 0 {
                 text = text.map_cow(strip_clozes);
+            }
+            if opt & 1 != 0 {
+                text = text.map_cow(without_combining);
             }
             Ok(text.get_owned())
         },
