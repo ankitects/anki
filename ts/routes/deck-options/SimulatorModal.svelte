@@ -395,35 +395,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {/if}
                 </details>
 
-                <details>
-                    <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
-                    <button
-                        class="btn {computingRetention ? 'btn-warning' : 'btn-primary'}"
-                        disabled={!computingRetention && computing}
-                        on:click={() => computeRetention()}
-                    >
+                <div style="display:none;">
+                    <details>
+                        <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
+                        <button
+                            class="btn {computingRetention
+                                ? 'btn-warning'
+                                : 'btn-primary'}"
+                            disabled={!computingRetention && computing}
+                            on:click={() => computeRetention()}
+                        >
+                            {#if computingRetention}
+                                {tr.actionsCancel()}
+                            {:else}
+                                {tr.deckConfigComputeButton()}
+                            {/if}
+                        </button>
+
+                        {#if optimalRetention}
+                            {estimatedRetention(optimalRetention)}
+                            {#if optimalRetention - $config.desiredRetention >= 0.01}
+                                <Warning
+                                    warning={tr.deckConfigDesiredRetentionBelowOptimal()}
+                                    className="alert-warning"
+                                />
+                            {/if}
+                        {/if}
+
                         {#if computingRetention}
-                            {tr.actionsCancel()}
-                        {:else}
-                            {tr.deckConfigComputeButton()}
+                            <div>{computeRetentionProgressString}</div>
                         {/if}
-                    </button>
-
-                    {#if optimalRetention}
-                        {estimatedRetention(optimalRetention)}
-                        {#if optimalRetention - $config.desiredRetention >= 0.01}
-                            <Warning
-                                warning={tr.deckConfigDesiredRetentionBelowOptimal()}
-                                className="alert-warning"
-                            />
-                        {/if}
-                    {/if}
-
-                    {#if computingRetention}
-                        <div>{computeRetentionProgressString}</div>
-                    {/if}
-                </details>
-
+                    </details>
+                </div>
                 <button
                     class="btn {computing ? 'btn-warning' : 'btn-primary'}"
                     disabled={computing}
