@@ -35,6 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             title: "FSRS",
             help: tr.deckConfigFsrsTooltip(),
             url: HelpPage.DeckOptions.fsrs,
+            global: true,
         },
         desiredRetention: {
             title: tr.deckConfigDesiredRetention(),
@@ -56,6 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             title: tr.deckConfigRescheduleCardsOnChange(),
             help: tr.deckConfigRescheduleCardsOnChangeTooltip(),
             sched: HelpItemScheduler.FSRS,
+            global: true,
         },
         computeOptimalRetention: {
             title: tr.deckConfigComputeOptimalRetention(),
@@ -65,10 +67,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         healthCheck: {
             title: tr.deckConfigHealthCheck(),
             help:
+                tr.deckConfigAffectsEntireCollection() +
+                "\n\n" +
                 tr.deckConfigHealthCheckTooltip1() +
                 "\n\n" +
                 tr.deckConfigHealthCheckTooltip2(),
             sched: HelpItemScheduler.FSRS,
+            global: true,
         },
     };
     const helpSections: HelpItem[] = Object.values(settings);

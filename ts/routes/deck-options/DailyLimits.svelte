@@ -141,6 +141,7 @@
             title: tr.deckConfigApplyAllParentLimits(),
             help: applyAllParentLimitsHelp,
             url: HelpPage.DeckOptions.newCardsday,
+            global: true,
         },
     };
     const helpSections: HelpItem[] = Object.values(settings);

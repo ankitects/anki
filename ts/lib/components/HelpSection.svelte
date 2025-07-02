@@ -25,7 +25,7 @@
     {#if item.help}
         {#if item.global}
             <div class="icon">
-                <Icon icon={mdiEarth} />&MediumSpace;
+                <Icon icon={mdiEarth} />&ThickSpace;
             </div>
         {/if}
         {@html renderMarkdown(item.help)}
