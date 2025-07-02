@@ -74,6 +74,7 @@ impl Collection {
             apply_all_parent_limits: self.get_config_bool(BoolKey::ApplyAllParentLimits),
             fsrs: self.get_config_bool(BoolKey::Fsrs),
             fsrs_health_check: self.get_config_bool(BoolKey::FsrsHealthCheck),
+            fsrs_legacy_evaluate: self.get_config_bool(BoolKey::FsrsLegacyEvaluate),
             days_since_last_fsrs_optimize,
         })
     }
