@@ -370,18 +370,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         saveFieldNow();
     }
 
-    // TODO this needs to accept a previousNote arg
-    async function fieldsAreBlank(): Promise<boolean> {
-        const result = await noteFieldsCheck(note!);
-        if (result.state === NoteFieldsCheckResponse_State.EMPTY) {
-            return true;
+    // Used for detecting changed sticky fields on close
+    let lastAddedNote: Note | null = null;
+
+    async function shouldPromptBeforeClosing(): Promise<boolean> {
+        const brPattern = /<br\s*\/?>/gi;
+        for (let c = 0; c < note.fields.length; c++) {
+            const field = note.fields[c].replace(brPattern, "").trim();
+            const notChangedValues = new Set(["", "<br>"]);
+            if (lastAddedNote && stickies[c]) {
+                const previousFieldValue = lastAddedNote.fields[c]
+                    .replace(brPattern, "")
+                    .trim();
+                notChangedValues.add(previousFieldValue);
+            }
+            if (!notChangedValues.has(field)) {
+                return true;
+            }
         }
+
         return false;
     }
 
     async function closeAddCards() {
         saveNow();
-        await closeAddCardsBackend({ val: await fieldsAreBlank() });
+        await closeAddCardsBackend({ val: await shouldPromptBeforeClosing() });
     }
 
     export function saveOnPageHide() {
@@ -443,6 +456,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             note: note!,
             deckId,
         });
+        lastAddedNote = note;
         await loadNewNote();
     }
 

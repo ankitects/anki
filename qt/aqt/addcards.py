@@ -253,8 +253,8 @@ class AddCards(QMainWindow):
         self._close_callback = onOk
         self.editor.web.eval("closeAddCards()")
 
-    def _close_if_user_wants_to_discard_changes(self, is_empty: bool) -> None:
-        if is_empty:
+    def _close_if_user_wants_to_discard_changes(self, prompt: bool) -> None:
+        if not prompt:
             self._close_callback()
             return
 
