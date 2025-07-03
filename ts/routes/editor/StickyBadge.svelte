@@ -55,12 +55,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
         widthMultiplier={0.7}
-    ></Badge>
-    {#if active}
-        <Icon icon={stickyIconSolid} />
-    {:else}
-        <Icon icon={stickyIconHollow} />
-    {/if}
+    >
+        {#if active}
+            <Icon icon={stickyIconSolid} />
+        {:else}
+            <Icon icon={stickyIconHollow} />
+        {/if}
+    </Badge>
 </span>
 
 <style lang="scss">
