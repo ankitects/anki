@@ -11,6 +11,7 @@ import "anki/scheduler.proto";
 import "anki/generic.proto";
 import "anki/search.proto";
 import "anki/notes.proto";
+import "anki/notetypes.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -31,6 +32,8 @@ service FrontendService {
 
   // Editor
   rpc EditorUpdateNote(notes.UpdateNotesRequest) returns (generic.Empty);
+  rpc EditorUpdateNotetype(notetypes.Notetype) returns (generic.Empty);
+  rpc EditorAddNote(notes.AddNoteRequest) returns (generic.Empty);
   rpc ConvertPastedImage(ConvertPastedImageRequest)
       returns (ConvertPastedImageResponse);
   rpc RetrieveUrl(generic.String) returns (RetrieveUrlResponse);

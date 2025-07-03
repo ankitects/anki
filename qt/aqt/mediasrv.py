@@ -602,14 +602,14 @@ def deck_options_ready() -> bytes:
     return b""
 
 
-def editor_update_note() -> bytes:
-    from aqt.editor import Editor
-
-    output = raw_backend_request("update_notes")()
+def editor_op_changes_request(endpoint: str) -> bytes:
+    output = raw_backend_request(endpoint)()
     response = OpChanges()
     response.ParseFromString(output)
 
     def handle_on_main() -> None:
+        from aqt.editor import Editor
+
         handler = aqt.mw.app.activeWindow()
         if handler and isinstance(getattr(handler, "editor", None), Editor):
             handler = handler.editor  # type: ignore
@@ -618,6 +618,18 @@ def editor_update_note() -> bytes:
     aqt.mw.taskman.run_on_main(handle_on_main)
 
     return output
+
+
+def editor_update_note() -> bytes:
+    return editor_op_changes_request("update_notes")
+
+
+def editor_update_notetype() -> bytes:
+    return editor_op_changes_request("update_notetype")
+
+
+def editor_add_note() -> bytes:
+    return editor_op_changes_request("add_note")
 
 
 def get_setting_json(getter: Callable[[str], Any]) -> bytes:
@@ -822,6 +834,8 @@ post_handler_list = [
     deck_options_require_close,
     deck_options_ready,
     editor_update_note,
+    editor_update_notetype,
+    editor_add_note,
     get_profile_config_json,
     set_profile_config_json,
     get_meta_json,
@@ -854,13 +868,11 @@ exposed_backend_list = [
     "get_note",
     "new_note",
     "note_fields_check",
-    "add_note",
     # NotetypesService
     "get_notetype",
     "get_notetype_names",
     "get_change_notetype_info",
     "get_cloze_field_ords",
-    "update_notetype",
     # StatsService
     "card_stats",
     "get_review_logs",

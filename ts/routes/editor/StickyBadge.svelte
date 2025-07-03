@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { context as editorFieldContext } from "./EditorField.svelte";
     import type { Note } from "@generated/anki/notes_pb";
-    import { getNotetype, updateNotetype } from "@generated/backend";
+    import { getNotetype, editorUpdateNotetype } from "@generated/backend";
 
     const animated = !document.body.classList.contains("reduce-motion");
 
@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         active = !active;
         const notetype = await getNotetype({ ntid: note.notetypeId });
         notetype.fields[index].config!.sticky = active;
-        await updateNotetype(notetype);
+        await editorUpdateNotetype(notetype);
     }
 
     function shortcut(target: HTMLElement): () => void {
