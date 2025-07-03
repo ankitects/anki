@@ -620,15 +620,15 @@ def editor_op_changes_request(endpoint: str) -> bytes:
     return output
 
 
-def editor_update_note() -> bytes:
+def update_editor_note() -> bytes:
     return editor_op_changes_request("update_notes")
 
 
-def editor_update_notetype() -> bytes:
+def update_editor_notetype() -> bytes:
     return editor_op_changes_request("update_notetype")
 
 
-def editor_add_note() -> bytes:
+def add_editor_note() -> bytes:
     return editor_op_changes_request("add_note")
 
 
@@ -833,9 +833,9 @@ post_handler_list = [
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
-    editor_update_note,
-    editor_update_notetype,
-    editor_add_note,
+    update_editor_note,
+    update_editor_notetype,
+    add_editor_note,
     get_profile_config_json,
     set_profile_config_json,
     get_meta_json,

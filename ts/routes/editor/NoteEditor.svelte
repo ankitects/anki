@@ -225,7 +225,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
             values.push(field.config!.sticky);
         }
-        await editorUpdateNotetype(notetype);
+        await updateEditorNotetype(notetype);
         setSticky(values);
     }
 
@@ -343,7 +343,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function updateCurrentNote() {
         if (mode !== "add") {
-            await editorUpdateNote({
+            await updateEditorNote({
                 notes: [note!],
                 skipUndoEntry: false,
             });
@@ -452,7 +452,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (!(await noteCanBeAdded())) {
             return;
         }
-        await editorAddNote({
+        await addEditorNote({
             note: note!,
             deckId,
         });
@@ -581,12 +581,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getNotetype,
         encodeIriPaths,
         newNote,
-        editorUpdateNote,
+        updateEditorNote,
         decodeIriPaths,
         noteFieldsCheck,
-        editorAddNote,
+        addEditorNote,
         addMediaFromPath,
-        editorUpdateNotetype,
+        updateEditorNotetype,
         closeAddCards as closeAddCardsBackend,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";

@@ -31,9 +31,9 @@ service FrontendService {
   rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
 
   // Editor
-  rpc EditorUpdateNote(notes.UpdateNotesRequest) returns (generic.Empty);
-  rpc EditorUpdateNotetype(notetypes.Notetype) returns (generic.Empty);
-  rpc EditorAddNote(notes.AddNoteRequest) returns (generic.Empty);
+  rpc UpdateEditorNote(notes.UpdateNotesRequest) returns (generic.Empty);
+  rpc UpdateEditorNotetype(notetypes.Notetype) returns (generic.Empty);
+  rpc AddEditorNote(notes.AddNoteRequest) returns (generic.Empty);
   rpc ConvertPastedImage(ConvertPastedImageRequest)
       returns (ConvertPastedImageResponse);
   rpc RetrieveUrl(generic.String) returns (RetrieveUrlResponse);
