@@ -284,6 +284,37 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 // Remove sync marker before attempting sync
                 let _ = remove_file(&state.sync_complete_marker);
 
+                println!("\x1B[1mUpdating Anki...\x1B[0m\n");
+
+                let python_version_trimmed = if state.user_python_version_path.exists() {
+                    let python_version = read_file(&state.user_python_version_path)?;
+                    let python_version_str = String::from_utf8(python_version)
+                        .context("Invalid UTF-8 in .python-version")?;
+                    Some(python_version_str.trim().to_string())
+                } else {
+                    None
+                };
+
+                // `uv sync` does not pull in Python automatically, unlike `uv run`.
+                // This might be system/platform specific and/or a uv bug.
+                let mut command = Command::new(&state.uv_path);
+                command
+                    .current_dir(&state.uv_install_root)
+                    .env("UV_CACHE_DIR", &state.uv_cache_dir)
+                    .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
+                    .args(["python", "install"]);
+
+                // Add python version if .python-version file exists
+                if let Some(version) = &python_version_trimmed {
+                    command.args([version]);
+                }
+
+                if let Err(e) = command.ensure_success() {
+                    println!("Python install failed: {e:#}");
+                    println!();
+                    continue;
+                }
+
                 // Sync the venv
                 let mut command = Command::new(&state.uv_path);
                 command
@@ -293,12 +324,8 @@ fn main_menu_loop(state: &State) -> Result<()> {
                     .args(["sync", "--upgrade", "--managed-python"]);
 
                 // Add python version if .python-version file exists
-                if state.user_python_version_path.exists() {
-                    let python_version = read_file(&state.user_python_version_path)?;
-                    let python_version_str = String::from_utf8(python_version)
-                        .context("Invalid UTF-8 in .python-version")?;
-                    let python_version_trimmed = python_version_str.trim();
-                    command.args(["--python", python_version_trimmed]);
+                if let Some(version) = &python_version_trimmed {
+                    command.args(["--python", version]);
                 }
 
                 // Set UV_PRERELEASE=allow if beta mode is enabled
@@ -309,8 +336,6 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 if state.no_cache_marker.exists() {
                     command.env("UV_NO_CACHE", "1");
                 }
-
-                println!("\x1B[1mUpdating Anki...\x1B[0m\n");
 
                 match command.ensure_success() {
                     Ok(_) => {
