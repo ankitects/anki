@@ -651,7 +651,6 @@ exposed_backend_list = [
     "compute_fsrs_params",
     "compute_optimal_retention",
     "set_wants_abort",
-    "evaluate_params",
     "evaluate_params_legacy",
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
