@@ -284,7 +284,7 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 // Remove sync marker before attempting sync
                 let _ = remove_file(&state.sync_complete_marker);
 
-                println!("\x1B[1mInstalling Managed Python...\x1B[0m\n");
+                println!("\x1B[1mUpdating Anki...\x1B[0m\n");
 
                 let python_version = read_file(&state.user_python_version_path)?;
                 let python_version_str = String::from_utf8(python_version)
@@ -306,7 +306,7 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 }
 
                 if let Err(e) = command.ensure_success() {
-                    println!("Managed Python Install failed: {e:#}");
+                    println!("Python install failed: {e:#}");
                     println!();
                     continue;
                 }
@@ -332,8 +332,6 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 if state.no_cache_marker.exists() {
                     command.env("UV_NO_CACHE", "1");
                 }
-
-                println!("\x1B[1mUpdating Anki...\x1B[0m\n");
 
                 match command.ensure_success() {
                     Ok(_) => {
