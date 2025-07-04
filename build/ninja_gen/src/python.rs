@@ -26,38 +26,38 @@ pub fn uv_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-unknown-linux-gnu.tar.gz",
-                sha256: "909278eb197c5ed0e9b5f16317d1255270d1f9ea4196e7179ce934d48c4c2545",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.19/uv-x86_64-unknown-linux-gnu.tar.gz",
+                sha256: "5ad6f11d5a04cb3af2418666031f20b63190f82032ec5a7f3a174385cc5567e4",
             }
         },
         Platform::LinuxArm => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-aarch64-unknown-linux-gnu.tar.gz",
-                sha256: "0b2ad9fe4295881615295add8cc5daa02549d29cc9a61f0578e397efcf12f08f",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.19/uv-aarch64-unknown-linux-gnu.tar.gz",
+                sha256: "31b81b4b4ecd51ee4202f1e710fc22b72666f716ffbb825aa397c8246624d60f",
             }
         },
         Platform::MacX64 => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-apple-darwin.tar.gz",
-                sha256: "d785753ac092e25316180626aa691c5dfe1fb075290457ba4fdb72c7c5661321",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.19/uv-x86_64-apple-darwin.tar.gz",
+                sha256: "40667bcb615b5af3e373ad611c4a9b95639b97e19b5924a436df8e69ca9331e2",
             }
         },
         Platform::MacArm => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-aarch64-apple-darwin.tar.gz",
-                sha256: "721f532b73171586574298d4311a91d5ea2c802ef4db3ebafc434239330090c6",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.19/uv-aarch64-apple-darwin.tar.gz",
+                sha256: "698d24883fd441960fb4bc153b7030b89517a295502017ff3fdbba2fb0a0aa67",
             }
         },
         Platform::WindowsX64 => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-pc-windows-msvc.zip",
-                sha256: "e199b10bef1a7cc540014483e7f60f825a174988f41020e9d2a6b01bd60f0669",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.19/uv-x86_64-pc-windows-msvc.zip",
+                sha256: "3098b38638b271d8b14b81247d6d69bb105807ec9fc5eb85f8cc8b6de5867c86",
             }
         },
         Platform::WindowsArm => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-aarch64-pc-windows-msvc.zip",
-                sha256: "bb40708ad549ad6a12209cb139dd751bf0ede41deb679ce7513ce197bd9ef234",
+                url: "https://github.com/astral-sh/uv/releases/download/0.7.19/uv-aarch64-pc-windows-msvc.zip",
+                sha256: "c843b95d9bad3e364ead2af00b793d42156cb4f8ac0c2e33bfd2b3e50a0efc86",
             }
         }
     }
