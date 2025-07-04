@@ -628,6 +628,7 @@ pub(in crate::import_export) mod test {
     pub trait CsvMetadataTestExt {
         fn defaults_for_testing() -> Self;
         fn unwrap_deck_id(&self) -> i64;
+        fn unwrap_deck_name(&self) -> &str;
         fn unwrap_notetype_id(&self) -> i64;
         fn unwrap_notetype_map(&self) -> &[u32];
     }
@@ -662,6 +663,13 @@ pub(in crate::import_export) mod test {
             }
         }
 
+        fn unwrap_deck_name(&self) -> &str {
+            match &self.deck {
+                Some(CsvDeck::DeckName(name)) => name,
+                _ => panic!("no deck name"),
+            }
+        }
+
         fn unwrap_notetype_id(&self) -> i64 {
             match self.notetype {
                 Some(CsvNotetype::GlobalNotetype(ref nt)) => nt.id,
@@ -685,8 +693,11 @@ pub(in crate::import_export) mod test {
             metadata!(col, format!("#deck:{deck_id}\n")).unwrap_deck_id(),
             deck_id
         );
+        // unknown deck
+        assert_eq!(metadata!(col, "#deck:foo\n").unwrap_deck_name(), "foo");
+        assert_eq!(metadata!(col, "#deck:1234\n").unwrap_deck_name(), "1234");
         // fallback
-        assert_eq!(metadata!(col, "#deck:foo\n").unwrap_deck_id(), 1);
+        assert_eq!(metadata!(col, "#deck:\n").unwrap_deck_id(), 1);
         assert_eq!(metadata!(col, "\n").unwrap_deck_id(), 1);
     }
 
@@ -728,8 +739,8 @@ pub(in crate::import_export) mod test {
             numeric_deck_2_id
         );
         assert_eq!(
-            metadata!(col, format!("#deck:1234\n")).unwrap_deck_id(),
-            1 // default deck
+            metadata!(col, format!("#deck:1234\n")).unwrap_deck_name(),
+            "1234"
         );
     }
 
