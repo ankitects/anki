@@ -163,6 +163,8 @@ impl Collection {
             "deck" => {
                 if let Ok(Some(did)) = self.deck_id_by_name_or_id(&NameOrId::parse(value)) {
                     metadata.deck = Some(CsvDeck::DeckId(did.0));
+                } else if !value.is_empty() {
+                    metadata.deck = Some(CsvDeck::DeckName(value.to_string()));
                 }
             }
             "notetype column" => {
