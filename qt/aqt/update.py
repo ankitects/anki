@@ -3,16 +3,17 @@
 
 from __future__ import annotations
 
-import contextlib
-import os
-import subprocess
-from pathlib import Path
-
 import aqt
 from anki.buildinfo import buildhash
 from anki.collection import CheckForUpdateResponse, Collection
-from anki.utils import dev_mode, int_time, int_version, is_mac, is_win, plat_desc
+from anki.utils import dev_mode, int_time, int_version, plat_desc
 from aqt.operations import QueryOp
+from aqt.package import (
+    launcher_executable as _launcher_executable,
+)
+from aqt.package import (
+    update_and_restart as _update_and_restart,
+)
 from aqt.qt import *
 from aqt.utils import openLink, show_warning, showText, tr
 
@@ -84,67 +85,7 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
     elif ret == QMessageBox.StandardButton.Yes:
-        if have_launcher():
-            update_and_restart()
+        if _launcher_executable():
+            _update_and_restart()
         else:
             openLink(aqt.appWebsiteDownloadSection)
-
-
-def _anki_launcher_path() -> str | None:
-    return os.getenv("ANKI_LAUNCHER")
-
-
-def have_launcher() -> bool:
-    return _anki_launcher_path() is not None
-
-
-def update_and_restart() -> None:
-    from aqt import mw
-
-    launcher = _anki_launcher_path()
-    assert launcher
-
-    _trigger_launcher_run()
-
-    with contextlib.suppress(ResourceWarning):
-        env = os.environ.copy()
-        creationflags = 0
-        if sys.platform == "win32":
-            creationflags = (
-                subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
-            )
-        subprocess.Popen(
-            [launcher],
-            start_new_session=True,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            env=env,
-            creationflags=creationflags,
-        )
-
-    mw.app.quit()
-
-
-def _trigger_launcher_run() -> None:
-    """Bump the mtime on pyproject.toml in the local data directory to trigger an update on next run."""
-    try:
-        # Get the local data directory equivalent to Rust's dirs::data_local_dir()
-        if is_win:
-            from .winpaths import get_local_appdata
-
-            data_dir = Path(get_local_appdata())
-        elif is_mac:
-            data_dir = Path.home() / "Library" / "Application Support"
-        else:  # Linux
-            data_dir = Path(
-                os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share")
-            )
-
-        pyproject_path = data_dir / "AnkiProgramFiles" / "pyproject.toml"
-
-        if pyproject_path.exists():
-            # Touch the file to update its mtime
-            pyproject_path.touch()
-    except Exception as e:
-        print(e)

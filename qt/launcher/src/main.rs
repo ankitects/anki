@@ -128,7 +128,7 @@ fn run() -> Result<()> {
     if !pyproject_has_changed {
         // If venv is already up to date, launch Anki normally
         let args: Vec<String> = std::env::args().skip(1).collect();
-        let cmd = build_python_command(&state.uv_install_root, &args)?;
+        let cmd = build_python_command(&state, &args)?;
         launch_anki_normally(cmd)?;
         return Ok(());
     }
@@ -150,7 +150,7 @@ fn run() -> Result<()> {
 
     #[cfg(target_os = "macos")]
     {
-        let cmd = build_python_command(&state.uv_install_root, &[])?;
+        let cmd = build_python_command(&state, &[])?;
         platform::mac::prepare_for_launch_after_update(cmd, &uv_install_root)?;
     }
 
@@ -669,24 +669,35 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     Ok(true)
 }
 
-fn build_python_command(uv_install_root: &std::path::Path, args: &[String]) -> Result<Command> {
+fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     let python_exe = if cfg!(target_os = "windows") {
         let show_console = std::env::var("ANKI_CONSOLE").is_ok();
         if show_console {
-            uv_install_root.join(".venv/Scripts/python.exe")
+            state.uv_install_root.join(".venv/Scripts/python.exe")
         } else {
-            uv_install_root.join(".venv/Scripts/pythonw.exe")
+            state.uv_install_root.join(".venv/Scripts/pythonw.exe")
         }
     } else {
-        uv_install_root.join(".venv/bin/python")
+        state.uv_install_root.join(".venv/bin/python")
     };
 
-    let mut cmd = Command::new(python_exe);
+    let mut cmd = Command::new(&python_exe);
     cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
     cmd.args(args);
     // tell the Python code it was invoked by the launcher, and updating is
     // available
     cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
+
+    // Set UV and Python paths for the Python code
+    let (exe_dir, _) = get_exe_and_resources_dirs()?;
+    let uv_path = exe_dir.join(get_uv_binary_name());
+    cmd.env("ANKI_LAUNCHER_UV", uv_path.utf8()?.as_str());
+    cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
+
+    // Set UV_PRERELEASE=allow if beta mode is enabled
+    if state.prerelease_marker.exists() {
+        cmd.env("UV_PRERELEASE", "allow");
+    }
 
     Ok(cmd)
 }

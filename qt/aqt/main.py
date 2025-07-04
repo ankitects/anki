@@ -1309,7 +1309,7 @@ title="{}" {}>{}</button>""".format(
         if not askUser(tr.qt_misc_open_anki_launcher()):
             return
 
-        from aqt.update import update_and_restart
+        from aqt.package import update_and_restart
 
         update_and_restart()
 
@@ -1394,7 +1394,7 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupMenus(self) -> None:
-        from aqt.update import have_launcher
+        from aqt.package import launcher_executable
 
         m = self.form
 
@@ -1426,7 +1426,7 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
         qconnect(m.action_upgrade_downgrade.triggered, self.on_upgrade_downgrade)
-        if not have_launcher():
+        if not launcher_executable():
             m.action_upgrade_downgrade.setVisible(False)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
