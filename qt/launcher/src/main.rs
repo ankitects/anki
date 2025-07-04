@@ -302,7 +302,7 @@ fn main_menu_loop(state: &State) -> Result<()> {
                     .current_dir(&state.uv_install_root)
                     .env("UV_CACHE_DIR", &state.uv_cache_dir)
                     .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
-                    .args(["python", "install"]);
+                    .args(["python", "install", "--managed-python"]);
 
                 // Add python version if .python-version file exists
                 if let Some(version) = &python_version_trimmed {
