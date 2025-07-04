@@ -176,29 +176,32 @@ message CsvMetadata {
   // to determine the number of columns.
   repeated string column_labels = 5;
   oneof deck {
+    // id of an existing deck
     int64 deck_id = 6;
     // One-based. 0 means n/a.
     uint32 deck_column = 7;
+    // name of new deck to be created
+    string deck_name = 8;
   }
   oneof notetype {
     // One notetype for all rows with given column mapping.
-    MappedNotetype global_notetype = 8;
+    MappedNotetype global_notetype = 9;
     // Row-specific notetypes with automatic mapping by index.
     // One-based. 0 means n/a.
-    uint32 notetype_column = 9;
+    uint32 notetype_column = 10;
   }
   enum MatchScope {
     NOTETYPE = 0;
     NOTETYPE_AND_DECK = 1;
   }
   // One-based. 0 means n/a.
-  uint32 tags_column = 10;
-  bool force_delimiter = 11;
-  bool force_is_html = 12;
-  repeated generic.StringList preview = 13;
-  uint32 guid_column = 14;
-  DupeResolution dupe_resolution = 15;
-  MatchScope match_scope = 16;
+  uint32 tags_column = 11;
+  bool force_delimiter = 12;
+  bool force_is_html = 13;
+  repeated generic.StringList preview = 14;
+  uint32 guid_column = 15;
+  DupeResolution dupe_resolution = 16;
+  MatchScope match_scope = 17;
 }
 
 message ExportCardCsvRequest {
