@@ -90,7 +90,7 @@ pub fn ensure_glibc_supported() -> Result<()> {
     };
 
     let (major, minor) = get_glibc_version().unwrap_or_default();
-    if major < 3 || (major == 2 && minor < 36) {
+    if major < 2 || (major == 2 && minor < 36) {
         anyhow::bail!("Anki requires a modern Linux distro with glibc 2.36 or later.");
     }
 
