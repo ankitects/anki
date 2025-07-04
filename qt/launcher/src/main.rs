@@ -286,10 +286,14 @@ fn main_menu_loop(state: &State) -> Result<()> {
 
                 println!("\x1B[1mUpdating Anki...\x1B[0m\n");
 
-                let python_version = read_file(&state.user_python_version_path)?;
-                let python_version_str = String::from_utf8(python_version)
-                    .context("Invalid UTF-8 in .python-version")?;
-                let python_version_trimmed = python_version_str.trim();
+                let python_version_trimmed = if state.user_python_version_path.exists() {
+                    let python_version = read_file(&state.user_python_version_path)?;
+                    let python_version_str = String::from_utf8(python_version)
+                        .context("Invalid UTF-8 in .python-version")?;
+                    Some(python_version_str.trim().to_string())
+                } else {
+                    None
+                };
 
                 // `uv sync` does not pull in Python automatically, unlike `uv run`.
                 // This might be system/platform specific and/or a uv bug.
@@ -301,8 +305,8 @@ fn main_menu_loop(state: &State) -> Result<()> {
                     .args(["python", "install"]);
 
                 // Add python version if .python-version file exists
-                if state.user_python_version_path.exists() {
-                    command.args([python_version_trimmed]);
+                if let Some(version) = &python_version_trimmed {
+                    command.args([version]);
                 }
 
                 if let Err(e) = command.ensure_success() {
@@ -320,8 +324,8 @@ fn main_menu_loop(state: &State) -> Result<()> {
                     .args(["sync", "--upgrade", "--managed-python"]);
 
                 // Add python version if .python-version file exists
-                if state.user_python_version_path.exists() {
-                    command.args(["--python", python_version_trimmed]);
+                if let Some(version) = &python_version_trimmed {
+                    command.args(["--python", version]);
                 }
 
                 // Set UV_PRERELEASE=allow if beta mode is enabled
