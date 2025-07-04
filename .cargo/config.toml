@@ -10,3 +10,6 @@ PYTHONDONTWRITEBYTECODE = "1" # prevent junk files on Windows
 
 [term]
 color = "always"
+
+[target.'cfg(all(target_env = "msvc", target_os = "windows"))']
+rustflags = ["-C", "target-feature=+crt-static"]
