@@ -470,7 +470,7 @@ fn get_version_kind() -> VersionKind {
                 return version_kind;
             }
             None => {
-                println!("Invalid version format. Please enter a version like 24.10 or 25.06.1 (minimum 2.1.50)");
+                println!("Invalid version format. Please enter a version like 25.07.1 or 24.11 (minimum 2.1.50)");
                 continue;
             }
         }
