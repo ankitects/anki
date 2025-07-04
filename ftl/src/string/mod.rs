@@ -67,7 +67,7 @@ fn additional_template_folder(dst_folder: &Utf8Path) -> Option<Utf8PathBuf> {
 
 fn all_langs(lang_folder: &Utf8Path) -> Result<Vec<Utf8PathBuf>> {
     std::fs::read_dir(lang_folder)
-        .with_context(|| format!("reading {:?}", lang_folder))?
+        .with_context(|| format!("reading {lang_folder:?}"))?
         .filter_map(Result::ok)
         .map(|e| Ok(e.path().utf8()?))
         .collect()

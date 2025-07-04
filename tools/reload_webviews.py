@@ -43,11 +43,11 @@ except Exception as e:
     print_error(
         f"Could not establish connection to Chromium remote debugger. Is Anki Open? Exception:\n{e}"
     )
-    exit(1)
+    sys.exit(1)
 
 if chrome.tabs is None:
     print_error("Was unable to get active web views.")
-    exit(1)
+    sys.exit(1)
 
 for tab_index, tab_data in enumerate(chrome.tabs):
     print(f"Reloading page: {tab_data['title']}")

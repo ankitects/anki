@@ -119,13 +119,12 @@ class ProgressManager:
             if not self._levels:
                 # no current progress; safe to fire
                 func()
+            elif repeat:
+                # skip this time; we'll fire again
+                pass
             else:
-                if repeat:
-                    # skip this time; we'll fire again
-                    pass
-                else:
-                    # retry in 100ms
-                    self.single_shot(100, func, requires_collection)
+                # retry in 100ms
+                self.single_shot(100, func, requires_collection)
 
         return handler
 
@@ -300,8 +299,7 @@ class ProgressManager:
     def _closeWin(self) -> None:
         # if the parent window has been deleted, the progress dialog may have
         # already been dropped; delete it if it hasn't been
-        if not sip.isdeleted(self._win):
-            assert self._win is not None
+        if self._win and not sip.isdeleted(self._win):
             self._win.cancel()
         self._win = None
         self._shown = 0

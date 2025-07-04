@@ -48,6 +48,7 @@ async-trait.workspace = true
 axum.workspace = true
 axum-client-ip.workspace = true
 axum-extra.workspace = true
+bitflags.workspace = true
 blake3.workspace = true
 bytes.workspace = true
 chrono.workspace = true
@@ -106,6 +107,5 @@ unicode-normalization.workspace = true
 zip.workspace = true
 zstd.workspace = true
 
-[target.'cfg(windows)'.dependencies.windows]
-version = "0.56.0"
-features = ["Media_SpeechSynthesis", "Foundation_Collections", "Storage_Streams"]
+[target.'cfg(windows)'.dependencies]
+windows.workspace = true

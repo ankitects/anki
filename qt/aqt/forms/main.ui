@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>667</width>
-     <height>24</height>
+     <height>43</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -93,6 +93,7 @@
     <addaction name="actionAdd_ons"/>
     <addaction name="separator"/>
     <addaction name="actionNoteTypes"/>
+    <addaction name="action_upgrade_downgrade"/>
     <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuqt_accel_view">
@@ -130,7 +131,7 @@
     <string notr="true">Ctrl+P</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::PreferencesRole</enum>
+    <enum>QAction::MenuRole::PreferencesRole</enum>
    </property>
   </action>
   <action name="actionAbout">
@@ -138,7 +139,7 @@
     <string>qt_accel_about</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::AboutRole</enum>
+    <enum>QAction::MenuRole::ApplicationSpecificRole</enum>
    </property>
   </action>
   <action name="actionUndo">
@@ -281,6 +282,11 @@
   <action name="action_open_backup">
    <property name="text">
     <string>qt_accel_load_backup</string>
+   </property>
+  </action>
+  <action name="action_upgrade_downgrade">
+   <property name="text">
+    <string>qt_accel_upgrade_downgrade</string>
    </property>
   </action>
  </widget>

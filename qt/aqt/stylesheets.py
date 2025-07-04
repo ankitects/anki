@@ -120,7 +120,7 @@ class CustomStyles:
     QLabel:disabled {{
         color: {tm.var(colors.FG_DISABLED)};
     }}
-    QToolTip {{ color: {tm.var(colors.FG)}; background-color: {tm.var(colors.CANVAS)}; }} 
+    QToolTip {{ color: {tm.var(colors.FG)}; background-color: {tm.var(colors.CANVAS)}; }}
         """
 
     def menu(self, tm: ThemeManager) -> str:
@@ -208,7 +208,7 @@ class CustomStyles:
             button_pressed_gradient(
                 tm.var(colors.BUTTON_GRADIENT_START),
                 tm.var(colors.BUTTON_GRADIENT_END),
-                tm.var(colors.SHADOW)
+                tm.var(colors.SHADOW),
             )
         };
     }}
@@ -340,7 +340,7 @@ class CustomStyles:
     }}
     QTabBar::tab:selected:hover {{
         background: {
-                button_gradient(
+            button_gradient(
                 tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
                 tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
             )
@@ -391,7 +391,7 @@ class CustomStyles:
             button_pressed_gradient(
                 tm.var(colors.BUTTON_GRADIENT_START),
                 tm.var(colors.BUTTON_GRADIENT_END),
-                tm.var(colors.SHADOW)
+                tm.var(colors.SHADOW),
             )
         }
     }}
@@ -404,18 +404,18 @@ class CustomStyles:
         };
     }}
     QHeaderView::section:first {{
-        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
     }}
     QHeaderView::section:!first {{
         border-left: none;
     }}
     QHeaderView::section:last {{
-        border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+        border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
     }}
     QHeaderView::section:only-one {{
-        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)}; 
+        border-left: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         border-right: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         border-top-left-radius: {tm.var(props.BORDER_RADIUS)};
         border-top-right-radius: {tm.var(props.BORDER_RADIUS)};
@@ -579,19 +579,19 @@ class CustomStyles:
     }}
     QScrollBar::handle:pressed {{
         background-color: {tm.var(colors.SCROLLBAR_BG_ACTIVE)};
-    }} 
+    }}
     QScrollBar:horizontal {{
         height: 12px;
     }}
     QScrollBar::handle:horizontal {{
         min-width: 60px;
-    }} 
+    }}
     QScrollBar:vertical {{
         width: 12px;
     }}
     QScrollBar::handle:vertical {{
         min-height: 60px;
-    }} 
+    }}
     QScrollBar::add-line {{
         border: none;
         background: none;
@@ -647,10 +647,12 @@ class CustomStyles:
         margin: -7px 0;
     }}
     QSlider::handle:hover {{
-        background: {button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-        )}
+        background: {
+            button_gradient(
+                tm.var(colors.BUTTON_GRADIENT_START),
+                tm.var(colors.BUTTON_GRADIENT_END),
+            )
+        }
     }}
     """
 

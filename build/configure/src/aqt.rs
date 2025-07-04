@@ -27,7 +27,6 @@ pub fn build_and_check_aqt(build: &mut Build) -> Result<()> {
     build_forms(build)?;
     build_generated_sources(build)?;
     build_data_folder(build)?;
-    build_macos_helper(build)?;
     build_wheel(build)?;
     check_python(build)?;
     Ok(())
@@ -39,7 +38,6 @@ fn build_forms(build: &mut Build) -> Result<()> {
     let mut py_files = vec![];
     for path in ui_files.resolve() {
         let outpath = outdir.join(path.file_name().unwrap()).into_string();
-        py_files.push(outpath.replace(".ui", "_qt5.py"));
         py_files.push(outpath.replace(".ui", "_qt6.py"));
     }
     build.add_action(
@@ -337,47 +335,25 @@ impl BuildAction for BuildThemedIcon<'_> {
     }
 }
 
-fn build_macos_helper(build: &mut Build) -> Result<()> {
-    if cfg!(target_os = "macos") {
-        build.add_action(
-            "qt:aqt:data:lib:libankihelper",
-            RunCommand {
-                command: ":pyenv:bin",
-                args: "$script $out $in",
-                inputs: hashmap! {
-                    "script" => inputs!["qt/mac/helper_build.py"],
-                    "in" => inputs![glob!["qt/mac/*.swift"]],
-                    "" => inputs!["out/env"],
-                },
-                outputs: hashmap! {
-                    "out" => vec!["qt/_aqt/data/lib/libankihelper.dylib"],
-                },
-            },
-        )?;
-    }
-    Ok(())
-}
-
 fn build_wheel(build: &mut Build) -> Result<()> {
     build.add_action(
         "wheels:aqt",
         BuildWheel {
             name: "aqt",
             version: anki_version(),
-            src_folder: "qt/aqt",
-            gen_folder: "$builddir/qt/_aqt",
             platform: None,
-            deps: inputs![":qt:aqt", glob!("qt/aqt/**"), "python/requirements.aqt.in"],
+            deps: inputs![
+                ":qt:aqt",
+                glob!("qt/aqt/**"),
+                "qt/pyproject.toml",
+                "qt/hatch_build.py"
+            ],
         },
     )
 }
 
 fn check_python(build: &mut Build) -> Result<()> {
-    python_format(
-        build,
-        "qt",
-        inputs![glob!("qt/**/*.py", "qt/bundle/PyOxidizer/**")],
-    )?;
+    python_format(build, "qt", inputs![glob!("qt/**/*.py")])?;
 
     build.add_action(
         "check:pytest:aqt",

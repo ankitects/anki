@@ -185,10 +185,16 @@ impl Card {
         self.usn = usn;
     }
 
+    pub fn clear_fsrs_data(&mut self) {
+        self.memory_state = None;
+        self.desired_retention = None;
+        self.decay = None;
+    }
+
     /// Caller must ensure provided deck exists and is not filtered.
     fn set_deck(&mut self, deck: DeckId) {
         self.remove_from_filtered_deck_restoring_queue();
-        self.memory_state = None;
+        self.clear_fsrs_data();
         self.deck_id = deck;
     }
 

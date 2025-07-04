@@ -101,7 +101,7 @@ def is_audio_file(fname: str) -> bool:
     return ext in AUDIO_EXTENSIONS
 
 
-class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
+class SoundOrVideoPlayer(Player):
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> int | None:
@@ -111,7 +111,7 @@ class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
             return None
 
 
-class SoundPlayer(Player):  # pylint: disable=abstract-method
+class SoundPlayer(Player):
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> int | None:
@@ -121,7 +121,7 @@ class SoundPlayer(Player):  # pylint: disable=abstract-method
             return None
 
 
-class VideoPlayer(Player):  # pylint: disable=abstract-method
+class VideoPlayer(Player):
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> int | None:
@@ -279,12 +279,25 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     if "LD_LIBRARY_PATH" in env and "SNAP" not in env:
         del env["LD_LIBRARY_PATH"]
 
-    if is_win:
-        packaged_path = Path(sys.prefix) / (cmd[0] + ".exe")
-    elif is_mac:
-        packaged_path = Path(sys.prefix) / ".." / "Resources" / cmd[0]
-    else:
-        packaged_path = Path(sys.prefix) / cmd[0]
+    # Try to find binary in anki-audio package for Windows/Mac
+    if is_win or is_mac:
+        try:
+            import anki_audio
+
+            audio_pkg_path = Path(anki_audio.__file__).parent
+            if is_win:
+                packaged_path = audio_pkg_path / (cmd[0] + ".exe")
+            else:  # is_mac
+                packaged_path = audio_pkg_path / cmd[0]
+
+            if packaged_path.exists():
+                cmd[0] = str(packaged_path)
+                return cmd, env
+        except ImportError:
+            # anki-audio not available, fall back to old behavior
+            pass
+
+    packaged_path = Path(sys.prefix) / cmd[0]
     if packaged_path.exists():
         cmd[0] = str(packaged_path)
 
@@ -311,7 +324,7 @@ def retryWait(proc: subprocess.Popen) -> int:
 ##########################################################################
 
 
-class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
+class SimpleProcessPlayer(Player):
     "A player that invokes a new process for each tag to play."
 
     args: list[str] = []
@@ -759,19 +772,14 @@ class RecordDialog(QDialog):
         saveGeom(self, "audioRecorder2")
 
     def _start_recording(self) -> None:
-        if qtmajor > 5:
-            if macos_helper and platform.machine() == "arm64":
-                self._recorder = NativeMacRecorder(
-                    namedtmp("rec.wav"),
-                )
-            else:
-                self._recorder = QtAudioInputRecorder(
-                    namedtmp("rec.wav"), self.mw, self._parent
-                )
+        if macos_helper and platform.machine() == "arm64":
+            self._recorder = NativeMacRecorder(
+                namedtmp("rec.wav"),
+            )
         else:
-            from aqt.qt.qt5_audio import QtAudioInputRecorder as Qt5Recorder
-
-            self._recorder = Qt5Recorder(namedtmp("rec.wav"), self.mw, self._parent)
+            self._recorder = QtAudioInputRecorder(
+                namedtmp("rec.wav"), self.mw, self._parent
+            )
         self._recorder.start(self._start_timer)
 
     def _start_timer(self) -> None:

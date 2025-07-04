@@ -307,6 +307,21 @@ impl crate::services::SchedulerService for Collection {
         })
     }
 
+    fn evaluate_params_legacy(
+        &mut self,
+        input: scheduler::EvaluateParamsLegacyRequest,
+    ) -> Result<scheduler::EvaluateParamsResponse> {
+        let ret = self.evaluate_params_legacy(
+            &input.params,
+            &input.search,
+            input.ignore_revlogs_before_ms.into(),
+        )?;
+        Ok(scheduler::EvaluateParamsResponse {
+            log_loss: ret.log_loss,
+            rmse_bins: ret.rmse_bins,
+        })
+    }
+
     fn get_optimal_retention_parameters(
         &mut self,
         input: scheduler::GetOptimalRetentionParametersRequest,

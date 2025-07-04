@@ -7,7 +7,7 @@ import copy
 from collections.abc import Sequence
 from typing import NewType
 
-import anki  # pylint: disable=unused-import
+import anki
 import anki.cards
 import anki.collection
 import anki.decks

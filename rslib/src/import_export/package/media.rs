@@ -96,7 +96,10 @@ impl SafeMediaEntry {
         media_folder.join(&self.name)
     }
 
-    pub(super) fn fetch_file<'a>(&self, archive: &'a mut ZipArchive<File>) -> Result<ZipFile<'a>> {
+    pub(super) fn fetch_file<'a>(
+        &self,
+        archive: &'a mut ZipArchive<File>,
+    ) -> Result<ZipFile<'a, File>> {
         match archive.by_name(&self.index.to_string()) {
             Ok(file) => Ok(file),
             Err(err) => invalid_input!(err, "{} missing from archive", self.index),

@@ -230,7 +230,11 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
             else:
                 max_age = 60 * 60
             return flask.send_file(
-                fullpath, mimetype=mimetype, conditional=True, max_age=max_age, download_name="foo"  # type: ignore[call-arg]
+                fullpath,
+                mimetype=mimetype,
+                conditional=True,
+                max_age=max_age,
+                download_name="foo",  # type: ignore[call-arg]
             )
         else:
             print(f"Not found: {path}")
@@ -252,14 +256,8 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
 def _builtin_data(path: str) -> bytes:
     """Return data from file in aqt/data folder.
     Path must use forward slash separators."""
-    # packaged build?
-    if getattr(sys, "frozen", False):
-        reader = aqt.__loader__.get_resource_reader("_aqt")  # type: ignore
-        with reader.open_resource(path) as f:
-            return f.read()
-    else:
-        full_path = aqt_data_path() / ".." / path
-        return full_path.read_bytes()
+    full_path = aqt_data_path() / ".." / path
+    return full_path.read_bytes()
 
 
 def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
@@ -653,7 +651,7 @@ exposed_backend_list = [
     "compute_fsrs_params",
     "compute_optimal_retention",
     "set_wants_abort",
-    "evaluate_params",
+    "evaluate_params_legacy",
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
     # DeckConfigService

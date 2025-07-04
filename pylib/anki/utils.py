@@ -24,7 +24,6 @@ from anki.dbproxy import DBProxy
 _tmpdir: str | None
 
 try:
-    # pylint: disable=c-extension-no-member
     import orjson
 
     to_json_bytes: Callable[[Any], bytes] = orjson.dumps
@@ -156,12 +155,12 @@ def field_checksum(data: str) -> int:
 # Temp files
 ##############################################################################
 
-_tmpdir = None  # pylint: disable=invalid-name
+_tmpdir = None
 
 
 def tmpdir() -> str:
     "A reusable temp folder which we clean out on each program invocation."
-    global _tmpdir  # pylint: disable=invalid-name
+    global _tmpdir
     if not _tmpdir:
 
         def cleanup() -> None:
@@ -216,7 +215,6 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
         try:
             info.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
         except Exception:
-            # pylint: disable=no-member
             info.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW  # type: ignore
     else:
         info = None
@@ -244,8 +242,8 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
 # OS helpers
 ##############################################################################
 
-is_mac = sys.platform.startswith("darwin")
-is_win = sys.platform.startswith("win32")
+is_mac = sys.platform == "darwin"
+is_win = sys.platform == "win32"
 # also covers *BSD
 is_lin = not is_mac and not is_win
 is_gnome = (
@@ -282,7 +280,7 @@ def plat_desc() -> str:
             elif is_win:
                 theos = f"win:{platform.win32_ver()[0]}"
             elif system == "Linux":
-                import distro  # pytype: disable=import-error # pylint: disable=import-error
+                import distro  # pytype: disable=import-error
 
                 dist_id = distro.id()
                 dist_version = distro.version()
@@ -309,12 +307,17 @@ def int_version() -> int:
     """Anki's version as an integer in the form YYMMPP, e.g. 230900.
     (year, month, patch).
     In 2.1.x releases, this was just the last number."""
+    import re
+
     from anki.buildinfo import version
 
+    # Strip non-numeric characters (handles beta/rc suffixes like '25.02b1' or 'rc3')
+    numeric_version = re.sub(r"[^0-9.]", "", version)
+
     try:
-        [year, month, patch] = version.split(".")
+        [year, month, patch] = numeric_version.split(".")
     except ValueError:
-        [year, month] = version.split(".")
+        [year, month] = numeric_version.split(".")
         patch = "0"
 
     year_num = int(year)

@@ -24,7 +24,7 @@
 #
 # ------------------------------------------------------------------------------
 
-# pylint: disable=raise-missing-from
+
 from __future__ import annotations
 
 import inspect
@@ -66,7 +66,6 @@ class MPVTimeoutError(MPVError):
 
 
 if is_win:
-    # pylint: disable=import-error
     import pywintypes
     import win32file  # pytype: disable=import-error
     import win32job
@@ -138,15 +137,15 @@ class MPVBase:
             extended_info = win32job.QueryInformationJobObject(
                 self._job, win32job.JobObjectExtendedLimitInformation
             )
-            extended_info["BasicLimitInformation"][
-                "LimitFlags"
-            ] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            extended_info["BasicLimitInformation"]["LimitFlags"] = (
+                win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            )
             win32job.SetInformationJobObject(
                 self._job,
                 win32job.JobObjectExtendedLimitInformation,
                 extended_info,
             )
-            handle = self._proc._handle  # pylint: disable=no-member
+            handle = self._proc._handle
             win32job.AssignProcessToJobObject(self._job, handle)
 
     def _stop_process(self):
@@ -177,7 +176,8 @@ class MPVBase:
         startup.
         """
         start = time.time()
-        while self.is_running() and time.time() < start + 10:
+        timeout = 60 if is_mac else 10
+        while self.is_running() and time.time() < start + timeout:
             time.sleep(0.1)
             if is_win:
                 # named pipe
@@ -192,7 +192,10 @@ class MPVBase:
                         None,
                     )
                     win32pipe.SetNamedPipeHandleState(
-                        self._sock, 1, None, None  # PIPE_NOWAIT
+                        self._sock,
+                        1,
+                        None,
+                        None,  # PIPE_NOWAIT
                     )
                 except pywintypes.error as err:
                     if err.args[0] == winerror.ERROR_FILE_NOT_FOUND:
@@ -393,7 +396,7 @@ class MPVBase:
             return self._get_response(timeout)
         except MPVCommandError as e:
             raise MPVCommandError(f"{message['command']!r}: {e}")
-        except Exception as e:
+        except Exception:
             if _retry:
                 print("mpv timed out, restarting")
                 self._stop_process()
@@ -500,7 +503,6 @@ class MPV(MPVBase):
         # Simulate an init event when the process and all callbacks have been
         # completely set up.
         if hasattr(self, "on_init"):
-            # pylint: disable=no-member
             self.on_init()
 
     #

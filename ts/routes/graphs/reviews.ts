@@ -141,7 +141,7 @@ export function renderReviews(
 
     const yTickFormat = (n: number): string => {
         if (showTime) {
-            return timeSpan(n / 1000, true, false, TimespanUnit.Hours);
+            return timeSpan(n / 1000, true, true, TimespanUnit.Hours);
         } else {
             if (Math.round(n) != n) {
                 return "";

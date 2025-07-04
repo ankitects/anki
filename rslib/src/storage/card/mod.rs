@@ -829,8 +829,7 @@ impl fmt::Display for ReviewOrderSubclause {
             ReviewOrderSubclause::RetrievabilitySm2 { today, order } => {
                 temp_string = format!(
                     // - (elapsed days+0.001)/(scheduled interval)
-                    "-(1 + cast({today}-due+0.001 as real)/ivl) {order}",
-                    today = today
+                    "-(1 + cast({today}-due+0.001 as real)/ivl) {order}"
                 );
                 &temp_string
             }
@@ -844,7 +843,7 @@ impl fmt::Display for ReviewOrderSubclause {
             ReviewOrderSubclause::Added => "nid asc, ord asc",
             ReviewOrderSubclause::ReverseAdded => "nid desc, ord asc",
         };
-        write!(f, "{}", clause)
+        write!(f, "{clause}")
     }
 }
 

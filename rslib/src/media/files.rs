@@ -218,7 +218,7 @@ fn truncate_filename(fname: &str, max_bytes: usize) -> Cow<str> {
     let mut new_name = if ext.is_empty() {
         stem.to_string()
     } else {
-        format!("{}.{}", stem, ext)
+        format!("{stem}.{ext}")
     };
 
     // make sure we don't break Windows by ending with a space or dot

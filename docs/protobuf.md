@@ -98,12 +98,6 @@ should preferably be assigned a number between 1 and 15. If a message contains
 
 Protobuf has an official Python implementation with an extensive [reference](https://developers.google.com/protocol-buffers/docs/reference/python-generated).
 
-- Every message used in aqt or pylib must be added to the respective `.pylintrc`
-  to avoid failing type checks. The unqualified protobuf message's name must be
-  used, not an alias from `collection.py` for example. This should be taken into
-  account when choosing a message name in order to prevent skipping typechecking
-  a Python class of the same name.
-
 ### Typescript
 
 Anki uses [protobuf-es](https://github.com/bufbuild/protobuf-es), which offers

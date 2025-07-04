@@ -126,7 +126,7 @@ fn other_to_bytes(other: &HashMap<String, Value>) -> Vec<u8> {
     } else {
         serde_json::to_vec(other).unwrap_or_else(|e| {
             // theoretically should never happen
-            println!("serialization failed for {:?}: {}", other, e);
+            println!("serialization failed for {other:?}: {e}");
             vec![]
         })
     }
@@ -140,7 +140,7 @@ pub(crate) fn parse_other_fields(
         Default::default()
     } else {
         let mut map: HashMap<String, Value> = serde_json::from_slice(bytes).unwrap_or_else(|e| {
-            println!("deserialization failed for other: {}", e);
+            println!("deserialization failed for other: {e}");
             Default::default()
         });
         map.retain(|k, _v| !reserved.contains(k));

@@ -23,25 +23,36 @@ from aqt.utils import openHelp, showWarning, supportText, tooltip, tr
 if TYPE_CHECKING:
     from aqt.main import AnkiQt
 
+# so we can be non-modal/non-blocking, without Python deallocating the message
+# box ahead of time
+_mbox: QMessageBox | None = None
+
 
 def show_exception(*, parent: QWidget, exception: Exception) -> None:
     "Present a caught exception to the user using a pop-up."
     if isinstance(exception, Interrupted):
         # nothing to do
         return
+    global _mbox
+    error_lines = []
+    help_page = HelpPage.TROUBLESHOOTING
     if isinstance(exception, BackendError):
         if exception.context:
-            print(exception.context)
+            error_lines.append(exception.context)
         if exception.backtrace:
-            print(exception.backtrace)
-        showWarning(str(exception), parent=parent, help=exception.help_page)
+            error_lines.append(exception.backtrace)
+        if exception.help_page is not None:
+            help_page = exception.help_page
     else:
         # if the error is not originating from the backend, dump
         # a traceback to the console to aid in debugging
-        traceback.print_exception(
-            None, exception, exception.__traceback__, file=sys.stdout
+        error_lines = traceback.format_exception(
+            None, exception, exception.__traceback__
         )
-        showWarning(str(exception), parent=parent)
+    error_text = "\n".join(error_lines)
+    print(error_lines)
+    _mbox = _init_message_box(str(exception), error_text, help_page)
+    _mbox.show()
 
 
 def is_chromium_cert_error(error: str) -> bool:
@@ -158,13 +169,44 @@ if not os.environ.get("DEBUG"):
 
     sys.excepthook = excepthook
 
-# so we can be non-modal/non-blocking, without Python deallocating the message
-# box ahead of time
-_mbox: QMessageBox | None = None
+
+def _init_message_box(
+    user_text: str, debug_text: str, help_page=HelpPage.TROUBLESHOOTING
+):
+    global _mbox
+
+    _mbox = QMessageBox()
+    _mbox.setWindowTitle("Anki")
+    _mbox.setText(user_text)
+    _mbox.setIcon(QMessageBox.Icon.Warning)
+    _mbox.setTextFormat(Qt.TextFormat.PlainText)
+
+    def show_help():
+        openHelp(help_page)
+
+    def copy_debug_info():
+        QApplication.clipboard().setText(debug_text)
+        tooltip(tr.errors_copied_to_clipboard(), parent=_mbox)
+
+    help = _mbox.addButton(QMessageBox.StandardButton.Help)
+    if debug_text:
+        debug_info = _mbox.addButton(
+            tr.errors_copy_debug_info_button(), QMessageBox.ButtonRole.ActionRole
+        )
+        debug_info.disconnect()
+        debug_info.clicked.connect(copy_debug_info)
+    cancel = _mbox.addButton(QMessageBox.StandardButton.Cancel)
+    cancel.setText(tr.actions_close())
+
+    help.disconnect()
+    help.clicked.connect(show_help)
+
+    return _mbox
 
 
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
+
     ivl = 100
     fatal_error_encountered = False
 
@@ -251,33 +293,7 @@ class ErrorHandler(QObject):
                 user_text += "\n\n" + self._addonText(error)
                 debug_text += addon_debug_info()
 
-        def show_troubleshooting():
-            openHelp(HelpPage.TROUBLESHOOTING)
-
-        def copy_debug_info():
-            QApplication.clipboard().setText(debug_text)
-            tooltip(tr.errors_copied_to_clipboard(), parent=_mbox)
-
-        global _mbox
-        _mbox = QMessageBox()
-        _mbox.setWindowTitle("Anki")
-        _mbox.setText(user_text)
-        _mbox.setIcon(QMessageBox.Icon.Warning)
-        _mbox.setTextFormat(Qt.TextFormat.PlainText)
-
-        troubleshooting = _mbox.addButton(
-            tr.errors_troubleshooting_button(), QMessageBox.ButtonRole.ActionRole
-        )
-        debug_info = _mbox.addButton(
-            tr.errors_copy_debug_info_button(), QMessageBox.ButtonRole.ActionRole
-        )
-        cancel = _mbox.addButton(QMessageBox.StandardButton.Cancel)
-        cancel.setText(tr.actions_close())
-
-        troubleshooting.disconnect()
-        troubleshooting.clicked.connect(show_troubleshooting)
-        debug_info.disconnect()
-        debug_info.clicked.connect(copy_debug_info)
+        _mbox = _init_message_box(user_text, debug_text)
 
         if self.fatal_error_encountered:
             _mbox.exec()

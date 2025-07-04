@@ -18,13 +18,14 @@ import aqt.operations
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.base import ScheduleCardsAsNew
-from anki.scheduler.v3 import CardAnswer, QueuedCards
-from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.scheduler.v3 import (
+    CardAnswer,
+    QueuedCards,
     SchedulingContext,
     SchedulingStates,
     SetSchedulingStatesRequest,
 )
+from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
 from anki.utils import is_mac
@@ -594,10 +595,9 @@ class Reviewer:
     def _shortcutKeys(
         self,
     ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
-
-        def generate_default_answer_keys() -> (
-            Generator[tuple[str, partial], None, None]
-        ):
+        def generate_default_answer_keys() -> Generator[
+            tuple[str, partial], None, None
+        ]:
             for ease in aqt.mw.pm.default_answer_keys:
                 key = aqt.mw.pm.get_answer_key(ease)
                 if not key:

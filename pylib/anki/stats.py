@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# pylint: disable=C
 
 from __future__ import annotations
 
@@ -27,7 +26,7 @@ def _legacy_card_stats(
     col: anki.collection.Collection, card_id: anki.cards.CardId, include_revlog: bool
 ) -> str:
     "A quick hack to preserve compatibility with the old HTML string API."
-    random_id = f"cardinfo-{base62(random.randint(0, 2 ** 64 - 1))}"
+    random_id = f"cardinfo-{base62(random.randint(0, 2**64 - 1))}"
     varName = random_id.replace("-", "")
     return f"""
 <div id="{random_id}"></div>
@@ -174,7 +173,7 @@ from revlog where type != {REVLOG_RESCHED} and id > ? """
                 cards=cards, seconds=float(thetime)
             )
             # again/pass count
-            b += "<br>" + "Again count: %s" % bold(failed)
+            b += "<br>" + "Again count: %s" % bold(str(failed))
             if cards:
                 b += " " + "(%s correct)" % bold(
                     "%0.1f%%" % ((1 - failed / float(cards)) * 100)
@@ -182,7 +181,10 @@ from revlog where type != {REVLOG_RESCHED} and id > ? """
             # type breakdown
             b += "<br>"
             b += "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s" % dict(
-                a=bold(lrn), b=bold(rev), c=bold(relrn), d=bold(filt)
+                a=bold(str(lrn)),
+                b=bold(str(rev)),
+                c=bold(str(relrn)),
+                d=bold(str(filt)),
             )
             # mature today
             mcnt, msum = self.col.db.first(
@@ -321,7 +323,6 @@ group by day order by day"""
             yaxes=[dict(min=0), dict(position="right", min=0)],
         )
         if days is not None:
-            # pylint: disable=invalid-unary-operand-type
             conf["xaxis"]["min"] = -days + 0.5
 
         def plot(id: str, data: Any, ylabel: str, ylabel2: str) -> str:
@@ -356,7 +357,6 @@ group by day order by day"""
             yaxes=[dict(min=0), dict(position="right", min=0)],
         )
         if days is not None:
-            # pylint: disable=invalid-unary-operand-type
             conf["xaxis"]["min"] = -days + 0.5
 
         def plot(id: str, data: Any, ylabel: str, ylabel2: str) -> str:

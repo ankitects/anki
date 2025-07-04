@@ -69,12 +69,6 @@ impl I18n {
 {var_build}
         self.translate("{key}"{out_args})
     }}"#,
-                func = func,
-                key = key,
-                doc = doc,
-                in_args = in_args,
-                out_args = out_args,
-                var_build = var_build,
             )
             .unwrap();
         }
@@ -103,9 +97,6 @@ fn build_vars(translation: &Translation) -> String {
             writeln!(
                 buf,
                 r#"        args.set("{fluent_name}", {rust_name}{trailer});"#,
-                fluent_name = fluent_name,
-                rust_name = rust_name,
-                trailer = trailer,
             )
             .unwrap();
         }
@@ -204,13 +195,7 @@ pub(crate) const {lang_name}: phf::Map<&str, &str> = phf::phf_map! {{",
     .unwrap();
 
     for (module, contents) in modules {
-        writeln!(
-            buf,
-            r###"        "{module}" => r##"{contents}"##,"###,
-            module = module,
-            contents = contents
-        )
-        .unwrap();
+        writeln!(buf, r###"        "{module}" => r##"{contents}"##,"###).unwrap();
     }
 
     buf.push_str("};\n");

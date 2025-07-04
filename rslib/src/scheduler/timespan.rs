@@ -25,7 +25,7 @@ pub fn answer_button_time_collapsible(seconds: u32, collapse_secs: u32, tr: &I18
     if seconds == 0 {
         tr.scheduling_end().into()
     } else if seconds < collapse_secs {
-        format!("<{}", string)
+        format!("<{string}")
     } else {
         string
     }

@@ -42,6 +42,7 @@ from anki.utils import ids2str, int_time
 
 class SchedulerBase(DeprecatedNamesMixin):
     "Actions shared between schedulers."
+
     version = 0
 
     def __init__(self, col: anki.collection.Collection) -> None:

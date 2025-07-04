@@ -106,7 +106,7 @@ class SidebarTreeView(QTreeView):
     def _setup_style(self) -> None:
         # match window background color and tweak style
         bgcolor = QPalette().window().color().name()
-        border = theme_manager.var(colors.BORDER)
+        theme_manager.var(colors.BORDER)
         styles = [
             "padding: 3px",
             "padding-right: 0px",
@@ -711,7 +711,6 @@ class SidebarTreeView(QTreeView):
 
     def _flags_tree(self, root: SidebarItem) -> None:
         icon_off = "icons:flag-variant-off-outline.svg"
-        icon = "icons:flag-variant.svg"
         icon_outline = "icons:flag-variant-outline.svg"
 
         root = self._section_root(

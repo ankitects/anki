@@ -1,11 +1,19 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import aqt
 from anki.buildinfo import buildhash
 from anki.collection import CheckForUpdateResponse, Collection
 from anki.utils import dev_mode, int_time, int_version, plat_desc
 from aqt.operations import QueryOp
+from aqt.package import (
+    launcher_executable as _launcher_executable,
+)
+from aqt.package import (
+    update_and_restart as _update_and_restart,
+)
 from aqt.qt import *
 from aqt.utils import openLink, show_warning, showText, tr
 
@@ -77,4 +85,7 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
     elif ret == QMessageBox.StandardButton.Yes:
-        openLink(aqt.appWebsiteDownloadSection)
+        if _launcher_executable():
+            _update_and_restart()
+        else:
+            openLink(aqt.appWebsiteDownloadSection)

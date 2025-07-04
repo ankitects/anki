@@ -6,9 +6,3 @@
 	path = ftl/qt-repo
 	url = https://github.com/ankitects/anki-desktop-ftl.git
 	shallow = true
-[submodule "qt/bundle/PyOxidizer"]
-	path = qt/bundle/PyOxidizer
-	url = https://github.com/ankitects/PyOxidizer.git
-	shallow = true
-	update = none
-

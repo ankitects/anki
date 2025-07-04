@@ -20,7 +20,6 @@
         "ftl/usage",
         "licenses.json",
         ".dmypy.json",
-        "qt/bundle/PyOxidizer",
         "target",
         ".mypy_cache",
         "extra",

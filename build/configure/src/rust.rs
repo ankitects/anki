@@ -154,7 +154,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
                 "$builddir/buildhash",
                 // building on Windows requires python3.lib
                 if cfg!(windows) {
-                    inputs![":extract:python"]
+                    inputs![":pyenv:bin"]
                 } else {
                     inputs![]
                 }
@@ -169,7 +169,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
 
 pub fn check_rust(build: &mut Build) -> Result<()> {
     let inputs = inputs![
-        glob!("{rslib/**,pylib/rsbridge/**,ftl/**,build/**,tools/workspace-hack/**}"),
+        glob!("{rslib/**,pylib/rsbridge/**,ftl/**,build/**,qt/launcher/**}"),
         "Cargo.lock",
         "Cargo.toml",
         "rust-toolchain.toml",
@@ -247,7 +247,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
     let files = inputs![
         glob![
             "**/*.{py,rs,ts,svelte,mjs,md}",
-            "{node_modules,qt/bundle/PyOxidizer,ts/.svelte-kit}/**"
+            "{node_modules,ts/.svelte-kit}/**"
         ],
         "Cargo.lock"
     ];

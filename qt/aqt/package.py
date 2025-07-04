@@ -5,93 +5,164 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
+import subprocess
 import sys
 from pathlib import Path
 
-
-def _fix_pywin32() -> None:
-    # extend sys.path with .pth files
-    import site
-
-    site.addsitedir(sys.path[0])
-
-    # use updated sys.path to locate dll folder and add it to path
-    path = sys.path[-1]
-    path = path.replace("Pythonwin", "pywin32_system32")
-    os.environ["PATH"] += ";" + path
-
-    # import Python modules from .dll files
-    import importlib.machinery
-
-    for name in "pythoncom", "pywintypes":
-        filename = os.path.join(path, name + "39.dll")
-        loader = importlib.machinery.ExtensionFileLoader(name, filename)
-        spec = importlib.machinery.ModuleSpec(name=name, loader=loader, origin=filename)
-        _mod = importlib._bootstrap._load(spec)  # type: ignore
+from anki.utils import is_mac, is_win
 
 
-def _patch_pkgutil() -> None:
-    """Teach pkgutil.get_data() how to read files from in-memory resources.
+# ruff: noqa: F401
+def first_run_setup() -> None:
+    """Code run the first time after install/upgrade.
 
-    This is required for jsonschema."""
-    import importlib
-    import pkgutil
+    Currently, we just import our main libraries and invoke
+    mpv/lame on macOS, which is slow on the first run, and doing
+    it this way shows progress being made.
+    """
 
-    def get_data_custom(package: str, resource: str) -> bytes | None:
-        try:
-            module = importlib.import_module(package)
-            reader = module.__loader__.get_resource_reader(package)  # type: ignore
-            with reader.open_resource(resource) as f:
-                return f.read()
-        except Exception:
-            return None
-
-    pkgutil.get_data = get_data_custom
-
-
-def _patch_certifi() -> None:
-    """Tell certifi (and thus requests) to use a file in our package folder.
-
-    By default it creates a copy of the data in a temporary folder, which then gets
-    cleaned up by macOS's temp file cleaner."""
-    import certifi
-
-    def where() -> str:
-        prefix = Path(sys.prefix)
-        if sys.platform == "darwin":
-            path = prefix / "../Resources/certifi/cacert.pem"
-        else:
-            path = prefix / "lib" / "certifi" / "cacert.pem"
-        return str(path)
-
-    certifi.where = where
-
-
-def _fix_protobuf_path() -> None:
-    sys.path.append(str(Path(sys.prefix) / "../Resources"))
-
-
-def packaged_build_setup() -> None:
-    if not getattr(sys, "frozen", False):
+    if not is_mac:
         return
 
-    print("Initial setup...")
+    # Import anki_audio first and spawn commands
+    import anki_audio
 
-    if sys.platform == "win32":
-        _fix_pywin32()
-    elif sys.platform == "darwin":
-        _fix_protobuf_path()
+    audio_pkg_path = Path(anki_audio.__file__).parent
 
-    _patch_pkgutil()
-    _patch_certifi()
+    # Start mpv and lame commands concurrently
+    processes = []
+    for cmd_name in ["mpv", "lame"]:
+        cmd_path = audio_pkg_path / cmd_name
+        proc = subprocess.Popen(
+            [str(cmd_path), "--version"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        processes.append(proc)
 
-    # escape hatch for debugging issues with packaged build startup
-    if os.getenv("ANKI_STARTUP_REPL"):
-        # mypy incorrectly thinks this does not exist on Windows
-        is_tty = os.isatty(sys.stdin.fileno())  # type: ignore
-        if is_tty:
-            import code
+    # Continue with other imports while commands run
+    import concurrent.futures
 
-            code.InteractiveConsole().interact()
-            sys.exit(0)
+    import bs4
+    import flask
+    import flask_cors
+    import markdown
+    import PyQt6.QtCore
+    import PyQt6.QtGui
+    import PyQt6.QtNetwork
+    import PyQt6.QtQuick
+    import PyQt6.QtWebChannel
+    import PyQt6.QtWebEngineCore
+    import PyQt6.QtWebEngineWidgets
+    import PyQt6.QtWidgets
+    import PyQt6.sip
+    import requests
+    import waitress
+
+    import anki.collection
+
+    from . import _macos_helper
+
+    # Wait for both commands to complete
+    for proc in processes:
+        proc.wait()
+
+
+def uv_binary() -> str | None:
+    """Return the path to the uv binary."""
+    return os.environ.get("ANKI_LAUNCHER_UV")
+
+
+def launcher_root() -> str | None:
+    """Return the path to the launcher root directory (AnkiProgramFiles)."""
+    return os.environ.get("UV_PROJECT")
+
+
+def venv_binary(cmd: str) -> str | None:
+    """Return the path to a binary in the launcher's venv."""
+    root = launcher_root()
+    if not root:
+        return None
+
+    root_path = Path(root)
+    if is_win:
+        binary_path = root_path / ".venv" / "Scripts" / cmd
+    else:
+        binary_path = root_path / ".venv" / "bin" / cmd
+
+    return str(binary_path)
+
+
+def add_python_requirements(reqs: list[str]) -> tuple[bool, str]:
+    """Add Python requirements to the launcher venv using uv add.
+
+    Returns (success, output)"""
+
+    binary = uv_binary()
+    if not binary:
+        return (False, "Not in packaged build.")
+
+    uv_cmd = [binary, "add"] + reqs
+    result = subprocess.run(uv_cmd, capture_output=True, text=True, check=False)
+
+    if result.returncode == 0:
+        root = launcher_root()
+        if root:
+            sync_marker = Path(root) / ".sync_complete"
+            sync_marker.touch()
+
+        return (True, result.stdout)
+    else:
+        return (False, result.stderr)
+
+
+def launcher_executable() -> str | None:
+    """Return the path to the Anki launcher executable."""
+    return os.getenv("ANKI_LAUNCHER")
+
+
+def trigger_launcher_run() -> None:
+    """Bump the mtime on pyproject.toml in the local data directory to trigger an update on next run."""
+    try:
+        root = launcher_root()
+        if not root:
+            return
+
+        pyproject_path = Path(root) / "pyproject.toml"
+
+        if pyproject_path.exists():
+            # Touch the file to update its mtime
+            pyproject_path.touch()
+    except Exception as e:
+        print(e)
+
+
+def update_and_restart() -> None:
+    """Update and restart Anki using the launcher."""
+    from aqt import mw
+
+    launcher = launcher_executable()
+    assert launcher
+
+    trigger_launcher_run()
+
+    with contextlib.suppress(ResourceWarning):
+        env = os.environ.copy()
+        creationflags = 0
+        if sys.platform == "win32":
+            creationflags = (
+                subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+            )
+        subprocess.Popen(
+            [launcher],
+            start_new_session=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            env=env,
+            creationflags=creationflags,
+        )
+
+    mw.app.quit()

@@ -128,7 +128,7 @@ class ProfileManager:
     default_answer_keys = {ease_num: str(ease_num) for ease_num in range(1, 5)}
     last_run_version: int = 0
 
-    def __init__(self, base: Path) -> None:  #
+    def __init__(self, base: Path) -> None:
         "base should be retrieved via ProfileMangager.get_created_base_folder"
         ## Settings which should be forgotten each Anki restart
         self.session: dict[str, Any] = {}
@@ -153,7 +153,7 @@ class ProfileManager:
         else:
             try:
                 self.load(profile)
-            except Exception as exc:
+            except Exception:
                 self.invalid_profile_provided_on_commandline = True
 
     # Profile load/save
@@ -189,11 +189,8 @@ class ProfileManager:
                                 # return the bytes directly
                                 return args[0]
                         elif name == "_unpickle_enum":
-                            if qtmajor == 5:
-                                return sip._unpickle_enum(module, klass, args)  # type: ignore
-                            else:
-                                # old style enums can't be unpickled
-                                return None
+                            # old style enums can't be unpickled
+                            return None
                         else:
                             return sip._unpickle_type(module, klass, args)  # type: ignore
 
@@ -486,7 +483,11 @@ create table if not exists profiles
         code = obj[1]
         name = obj[0]
         r = QMessageBox.question(
-            None, "Anki", tr.profiles_confirm_lang_choice(lang=name), QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No  # type: ignore
+            None,
+            "Anki",
+            tr.profiles_confirm_lang_choice(lang=name),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,  # type: ignore
         )
         if r != QMessageBox.StandardButton.Yes:
             return self.setDefaultLang(f.lang.currentRow())

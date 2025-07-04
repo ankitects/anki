@@ -21,16 +21,9 @@ use walkdir::WalkDir;
 
 const NONSTANDARD_HEADER: &[&str] = &[
     "./pylib/anki/_vendor/stringcase.py",
-    "./pylib/anki/importing/pauker.py",
-    "./pylib/anki/importing/supermemo_xml.py",
     "./pylib/anki/statsbg.py",
-    "./pylib/tools/protoc-gen-mypy.py",
-    "./python/pyqt/install.py",
-    "./python/write_wheel.py",
     "./qt/aqt/mpv.py",
     "./qt/aqt/winpaths.py",
-    "./qt/bundle/build.rs",
-    "./qt/bundle/src/main.rs",
 ];
 
 const IGNORED_FOLDERS: &[&str] = &[
@@ -38,7 +31,6 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./node_modules",
     "./qt/aqt/forms",
     "./tools/workspace-hack",
-    "./qt/bundle/PyOxidizer",
     "./target",
     ".mypy_cache",
     "./extra",
@@ -116,7 +108,7 @@ impl LintContext {
                 LazyCell::force(&self.unstaged_changes);
                 fix_copyright(path)?;
             } else {
-                println!("missing standard copyright header: {:?}", path);
+                println!("missing standard copyright header: {path:?}");
                 self.found_problems = true;
             }
         }
@@ -209,7 +201,7 @@ fn sveltekit_temp_file(path: &str) -> bool {
 }
 
 fn check_cargo_deny() -> Result<()> {
-    Command::run("cargo install cargo-deny@0.18.2")?;
+    Command::run("cargo install cargo-deny@0.18.3")?;
     Command::run("cargo deny check")?;
     Ok(())
 }
@@ -249,7 +241,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         .write(true)
         .open(path)
         .with_context(|| format!("opening {path}"))?;
-    write!(file, "{}{}", header, data).with_context(|| format!("writing {path}"))?;
+    write!(file, "{header}{data}").with_context(|| format!("writing {path}"))?;
     Ok(())
 }
 

@@ -300,7 +300,7 @@ impl BuildStatement<'_> {
 
         writeln!(buf, "build {outputs_str}: {action_name} {inputs_str}").unwrap();
         for (key, value) in self.variables.iter().sorted() {
-            writeln!(buf, "  {key} = {}", value).unwrap();
+            writeln!(buf, "  {key} = {value}").unwrap();
         }
         writeln!(buf).unwrap();
 
@@ -476,7 +476,7 @@ impl FilesHandle for BuildStatement<'_> {
         let outputs = outputs.into_iter().map(|v| {
             let v = v.as_ref();
             let v = if !v.starts_with("$builddir/") && !v.starts_with("$builddir\\") {
-                format!("$builddir/{}", v)
+                format!("$builddir/{v}")
             } else {
                 v.to_owned()
             };

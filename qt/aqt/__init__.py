@@ -3,11 +3,18 @@
 
 from __future__ import annotations
 
+# ruff: noqa: F401
 import atexit
 import logging
+import os
 import sys
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Union, cast
+
+if "ANKI_FIRST_RUN" in os.environ:
+    from .package import first_run_setup
+
+    first_run_setup()
 
 try:
     import pip_system_certs.wrapt_requests
@@ -22,7 +29,7 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 9:
 # ensure unicode filenames are supported
 try:
     "テスト".encode(sys.getfilesystemencoding())
-except UnicodeEncodeError as exc:
+except UnicodeEncodeError:
     print("Anki requires a UTF-8 locale.")
     print("Please Google 'how to change locale on [your Linux distro]'")
     sys.exit(1)
@@ -32,24 +39,19 @@ if "--syncserver" in sys.argv:
     from anki.syncserver import run_sync_server
     from anki.utils import is_mac
 
-    from .package import _fix_protobuf_path
-
-    if is_mac and getattr(sys, "frozen", False):
-        _fix_protobuf_path()
-
     # does not return
     run_sync_server()
 
-from .package import packaged_build_setup
+if sys.platform == "win32":
+    from win32com.shell import shell
 
-packaged_build_setup()
+    shell.SetCurrentProcessExplicitAppUserModelID("Ankitects.Anki")
 
 import argparse
 import builtins
 import cProfile
 import getpass
 import locale
-import os
 import tempfile
 import traceback
 from pathlib import Path
@@ -270,13 +272,7 @@ def setupLangAndBackend(
     # load qt translations
     _qtrans = QTranslator()
 
-    if is_mac and getattr(sys, "frozen", False):
-        qt_dir = os.path.join(sys.prefix, "../Resources/qt_translations")
-    else:
-        if qtmajor == 5:
-            qt_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)  # type: ignore
-        else:
-            qt_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+    qt_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
     qt_lang = lang.replace("-", "_")
     if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
@@ -294,8 +290,7 @@ def setupLangAndBackend(
 class NativeEventFilter(QAbstractNativeEventFilter):
     def nativeEventFilter(
         self, eventType: Any, message: Any
-    ) -> tuple[bool, sip.voidptr | None]:
-
+    ) -> tuple[bool, Any | None]:
         if eventType == "windows_generic_MSG":
             import ctypes.wintypes
 
@@ -386,6 +381,8 @@ class AnkiApp(QApplication):
 
     def onRecv(self) -> None:
         sock = self._srv.nextPendingConnection()
+        if sock is None:
+            return
         if not sock.waitForReadyRead(self.TMOUT):
             sys.stderr.write(sock.errorString())
             return
@@ -416,14 +413,12 @@ class AnkiApp(QApplication):
             QRadioButton,
             QMenu,
             QSlider,
-            # classes with PyQt5 compatibility proxy
-            without_qt5_compat_wrapper(QToolButton),
-            without_qt5_compat_wrapper(QTabBar),
+            QToolButton,
+            QTabBar,
         )
         if evt.type() in [QEvent.Type.Enter, QEvent.Type.HoverEnter]:
             if (isinstance(src, pointer_classes) and src.isEnabled()) or (
-                isinstance(src, without_qt5_compat_wrapper(QComboBox))
-                and not src.isEditable()
+                isinstance(src, QComboBox) and not src.isEditable()
             ):
                 self.setOverrideCursor(QCursor(Qt.CursorShape.PointingHandCursor))
             else:
@@ -535,15 +530,12 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGL)
     elif driver in (VideoDriver.Software, VideoDriver.ANGLE):
         if is_win:
-            # on Windows, this appears to be sufficient on Qt5/Qt6.
+            # on Windows, this appears to be sufficient
             # On Qt6, ANGLE is excluded by the enum.
             os.environ["QT_OPENGL"] = driver.value
         elif is_mac:
             QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
         elif is_lin:
-            # Qt5 only
-            os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
-            # Required on Qt6
             if "QTWEBENGINE_CHROMIUM_FLAGS" not in os.environ:
                 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
         if qtmajor > 5:
@@ -571,7 +563,7 @@ def run() -> None:
     print(f"Starting Anki {_version}...")
     try:
         _run()
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         QMessageBox.critical(
             None,
@@ -607,14 +599,13 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         profiler = cProfile.Profile()
         profiler.enable()
 
-    packaged = getattr(sys, "frozen", False)
     x11_available = os.getenv("DISPLAY")
     wayland_configured = qtmajor > 5 and (
         os.getenv("QT_QPA_PLATFORM") == "wayland" or os.getenv("WAYLAND_DISPLAY")
     )
     wayland_forced = os.getenv("ANKI_WAYLAND")
 
-    if (packaged or is_gnome) and wayland_configured:
+    if is_gnome and wayland_configured:
         if wayland_forced or not x11_available:
             # Work around broken fractional scaling in Wayland
             # https://bugreports.qt.io/browse/QTBUG-113574
@@ -673,12 +664,6 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
     # keyboard.
     if is_win and "QT_QPA_PLATFORM" not in os.environ:
         os.environ["QT_QPA_PLATFORM"] = "windows:altgr"
-
-    # Disable sandbox on Qt5 PyPi/packaged builds, as it causes blank screens on modern
-    # glibc versions. We check for specific patch versions, because distros may have
-    # fixed the issue in their own Qt builds.
-    if is_lin and qtfullversion in ([5, 15, 2], [5, 14, 1]):
-        os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
 
     # create the app
     QCoreApplication.setApplicationName("Anki")
