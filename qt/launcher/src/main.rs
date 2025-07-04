@@ -286,6 +286,11 @@ fn main_menu_loop(state: &State) -> Result<()> {
 
                 println!("\x1B[1mInstalling Managed Python...\x1B[0m\n");
 
+                let python_version = read_file(&state.user_python_version_path)?;
+                let python_version_str = String::from_utf8(python_version)
+                    .context("Invalid UTF-8 in .python-version")?;
+                let python_version_trimmed = python_version_str.trim();
+
                 // `uv sync` does not pull in Python automatically, unlike `uv run`.
                 // This might be system/platform specific and/or a uv bug.
                 let mut command = Command::new(&state.uv_path);
@@ -297,10 +302,6 @@ fn main_menu_loop(state: &State) -> Result<()> {
 
                 // Add python version if .python-version file exists
                 if state.user_python_version_path.exists() {
-                    let python_version = read_file(&state.user_python_version_path)?;
-                    let python_version_str = String::from_utf8(python_version)
-                        .context("Invalid UTF-8 in .python-version")?;
-                    let python_version_trimmed = python_version_str.trim();
                     command.args([python_version_trimmed]);
                 }
 
@@ -320,10 +321,6 @@ fn main_menu_loop(state: &State) -> Result<()> {
 
                 // Add python version if .python-version file exists
                 if state.user_python_version_path.exists() {
-                    let python_version = read_file(&state.user_python_version_path)?;
-                    let python_version_str = String::from_utf8(python_version)
-                        .context("Invalid UTF-8 in .python-version")?;
-                    let python_version_trimmed = python_version_str.trim();
                     command.args(["--python", python_version_trimmed]);
                 }
 
