@@ -72,6 +72,9 @@ build-backend = "hatchling.build"
 [project.scripts]
 anki = "aqt:run"
 
+[project.gui-scripts]
+ankiw = "aqt:run"
+
 [tool.hatch.build.targets.wheel]
 packages = ["aqt"]
 exclude = ["**/*.scss", "**/*.ui"]
