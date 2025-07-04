@@ -151,7 +151,15 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     return cmd, env
 
 
+def on_addon_config():
+    showInfo(
+        "This add-on is automatically added when installing older Anki versions, so that they work with the launcher. You can remove it if you wish."
+    )
+
+
 def setup():
+    mw.addonManager.setConfigAction(__name__, on_addon_config)
+
     if pointVersion() >= 250600:
         return
     if not launcher_executable():
