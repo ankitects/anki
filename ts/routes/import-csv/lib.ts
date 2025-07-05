@@ -22,8 +22,12 @@ export function getGlobalNotetype(meta: CsvMetadata): CsvMetadata_MappedNotetype
     return meta.notetype.case === "globalNotetype" ? meta.notetype.value : null;
 }
 
-export function getDeckId(meta: CsvMetadata): bigint | null {
-    return meta.deck.case === "deckId" ? meta.deck.value : null;
+export function getDeckId(meta: CsvMetadata): bigint {
+    return meta.deck.case === "deckId" ? meta.deck.value : 0n;
+}
+
+export function getDeckName(meta: CsvMetadata): string | null {
+    return meta.deck.case === "deckName" ? meta.deck.value : null;
 }
 
 export class ImportCsvState {
@@ -35,6 +39,7 @@ export class ImportCsvState {
     readonly defaultIsHtml: boolean;
     readonly defaultNotetypeId: bigint | null;
     readonly defaultDeckId: bigint | null;
+    readonly newDeckName: string | null;
 
     readonly metadata: Writable<CsvMetadata>;
     readonly globalNotetype: Writable<CsvMetadata_MappedNotetype | null>;
@@ -83,6 +88,7 @@ export class ImportCsvState {
         this.defaultIsHtml = metadata.isHtml;
         this.defaultNotetypeId = this.lastGlobalNotetype?.id || null;
         this.defaultDeckId = this.lastDeckId;
+        this.newDeckName = getDeckName(metadata);
     }
 
     doImport(): Promise<ImportResponse> {
@@ -104,7 +110,7 @@ export class ImportCsvState {
                 path: this.path,
                 delimiter: changed.delimiter,
                 notetypeId: getGlobalNotetype(changed)?.id,
-                deckId: getDeckId(changed) ?? undefined,
+                deckId: getDeckId(changed) || undefined,
                 isHtml: changed.isHtml,
             });
             // carry over tags
@@ -157,7 +163,13 @@ export class ImportCsvState {
         this.lastDeckId = deckId;
         if (deckId !== null) {
             this.metadata.update((metadata) => {
-                metadata.deck.value = deckId;
+                if (deckId !== 0n) {
+                    metadata.deck.case = "deckId";
+                    metadata.deck.value = deckId;
+                } else {
+                    metadata.deck.case = "deckName";
+                    metadata.deck.value = this.newDeckName!;
+                }
                 return metadata;
             });
         }

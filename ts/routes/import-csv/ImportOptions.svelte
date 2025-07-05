@@ -17,12 +17,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { dupeResolutionChoices, matchScopeChoices } from "./choices";
     import type { ImportCsvState } from "./lib";
+    import Warning from "../deck-options/Warning.svelte";
 
     export let state: ImportCsvState;
 
     const metadata = state.metadata;
     const globalNotetype = state.globalNotetype;
     const deckId = state.deckId;
+    const deckName = state.newDeckName;
 
     const settings = {
         notetype: {
@@ -64,6 +66,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         modal.show();
         carousel.to(index);
     }
+
+    const choices = state.deckNameIds.map(({ id, name }) => {
+        return { label: name, value: id };
+    });
+
+    if (deckName) {
+        choices.push({
+            label: deckName,
+            value: 0n,
+        });
+    }
+
+    $: newDeckCreationNotice =
+        deckName && $deckId === 0n
+            ? tr.importingNewDeckWillBeCreated({ name: deckName })
+            : "";
 </script>
 
 <TitledContainer title={tr.importingImportOptions()}>
@@ -95,13 +113,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </EnumSelectorRow>
     {/if}
 
-    {#if $deckId !== null}
+    {#if deckName || $deckId}
         <EnumSelectorRow
             bind:value={$deckId}
             defaultValue={state.defaultDeckId}
-            choices={state.deckNameIds.map(({ id, name }) => {
-                return { label: name, value: id };
-            })}
+            {choices}
         >
             <SettingTitle
                 on:click={() => openHelpModal(Object.keys(settings).indexOf("deck"))}
@@ -110,6 +126,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SettingTitle>
         </EnumSelectorRow>
     {/if}
+
+    <Warning warning={newDeckCreationNotice} className="alert-info" />
 
     <EnumSelectorRow
         bind:value={$metadata.dupeResolution}

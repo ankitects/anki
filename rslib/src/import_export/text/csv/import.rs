@@ -61,6 +61,7 @@ impl CsvDeckExt for CsvDeck {
         match self {
             Self::DeckId(did) => NameOrId::Id(*did),
             Self::DeckColumn(_) => NameOrId::default(),
+            Self::DeckName(name) => NameOrId::Name(name.into()),
         }
     }
 
@@ -68,6 +69,7 @@ impl CsvDeckExt for CsvDeck {
         match self {
             Self::DeckId(_) => None,
             Self::DeckColumn(column) => Some(*column as usize),
+            Self::DeckName(_) => None,
         }
     }
 }

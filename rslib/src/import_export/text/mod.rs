@@ -83,6 +83,15 @@ impl From<String> for NameOrId {
     }
 }
 
+impl std::fmt::Display for NameOrId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            NameOrId::Id(did) => write!(f, "{did}"),
+            NameOrId::Name(name) => write!(f, "{name}"),
+        }
+    }
+}
+
 impl ForeignNote {
     pub(crate) fn into_log_note(self) -> LogNote {
         LogNote {

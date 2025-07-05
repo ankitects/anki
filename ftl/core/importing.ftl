@@ -48,6 +48,7 @@ importing-merge-notetypes-help =
     Warning: This will require a one-way sync, and may mark existing notes as modified.
 importing-mnemosyne-20-deck-db = Mnemosyne 2.0 Deck (*.db)
 importing-multicharacter-separators-are-not-supported-please = Multi-character separators are not supported. Please enter one character only.
+importing-new-deck-will-be-created = A new deck will be created: { $name }
 importing-notes-added-from-file = Notes added from file: { $val }
 importing-notes-found-in-file = Notes found in file: { $val }
 importing-notes-skipped-as-theyre-already-in = Notes skipped, as up-to-date copies are already in your collection: { $val }

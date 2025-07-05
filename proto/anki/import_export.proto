@@ -176,9 +176,12 @@ message CsvMetadata {
   // to determine the number of columns.
   repeated string column_labels = 5;
   oneof deck {
+    // id of an existing deck
     int64 deck_id = 6;
     // One-based. 0 means n/a.
     uint32 deck_column = 7;
+    // name of new deck to be created
+    string deck_name = 17;
   }
   oneof notetype {
     // One notetype for all rows with given column mapping.
