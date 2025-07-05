@@ -47,6 +47,12 @@ pub(crate) struct CardData {
         deserialize_with = "default_on_invalid"
     )]
     pub(crate) decay: Option<f32>,
+    #[serde(
+        rename = "lrt",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) last_review_time: Option<TimestampSecs>,
 
     /// A string representation of a JSON object storing optional data
     /// associated with the card, so v3 custom scheduling code can persist
@@ -63,6 +69,7 @@ impl CardData {
             fsrs_difficulty: card.memory_state.as_ref().map(|m| m.difficulty),
             fsrs_desired_retention: card.desired_retention,
             decay: card.decay,
+            last_review_time: card.last_review_time,
             custom_data: card.custom_data.clone(),
         }
     }
@@ -169,6 +176,7 @@ mod test {
             fsrs_difficulty: Some(1.234567),
             fsrs_desired_retention: Some(0.987654),
             decay: Some(0.123456),
+            last_review_time: None,
             custom_data: "".to_string(),
         };
         assert_eq!(

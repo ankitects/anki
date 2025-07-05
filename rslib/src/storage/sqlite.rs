@@ -328,7 +328,13 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
             let Ok(due) = ctx.get_raw(1).as_i64() else {
                 return Ok(None);
             };
-            let days_elapsed = if due > 365_000 {
+            let days_elapsed = if let Some(last_review_time) = card_data.last_review_time {
+                // Use last_review_time to calculate days_elapsed
+                let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
+                    return Ok(None);
+                };
+                (next_day_at as u32).saturating_sub(last_review_time.0 as u32) / 86_400
+            } else if due > 365_000 {
                 // (re)learning card in seconds
                 let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
                     return Ok(None);
@@ -395,6 +401,14 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                         // avoid div by zero
                         desired_retrievability = desired_retrievability.max(0.0001);
                         let decay = card_data.decay.unwrap_or(FSRS5_DEFAULT_DECAY);
+
+                        let days_elapsed = if let Some(last_review_time) =
+                            card_data.last_review_time
+                        {
+                            TimestampSecs(next_day_at).elapsed_days_since(last_review_time) as u32
+                        } else {
+                            days_elapsed
+                        };
 
                         let current_retrievability = FSRS::new(None)
                             .unwrap()
