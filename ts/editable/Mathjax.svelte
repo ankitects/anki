@@ -38,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { pageTheme } from "$lib/sveltelib/theme";
 
     import { convertMathjax, unescapeSomeEntities } from "./mathjax";
-    import { ChangeTimer } from "./change-timer";
+    import { CooldownTimer } from "./cooldown-timer";
 
     export let mathjax: string;
     export let block: boolean;
@@ -46,25 +46,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let converted: string, title: string;
 
-    const debouncedMathjax = writable(mathjax);
-    const debouncer = new ChangeTimer();
-    $: debouncer.schedule(() => debouncedMathjax.set(mathjax), 500);
+    const debouncer = new CooldownTimer(500);
 
-    $: {
+    $: debouncer.schedule(() => {
         const cache = getCache($pageTheme.isDark, fontSize);
-        const entry = cache.get($debouncedMathjax);
+        const entry = cache.get(mathjax);
         if (entry) {
             [converted, title] = entry;
         } else {
             const entry = convertMathjax(
-                unescapeSomeEntities($debouncedMathjax),
+                unescapeSomeEntities(mathjax),
                 $pageTheme.isDark,
                 fontSize,
             );
             [converted, title] = entry;
-            cache.set($debouncedMathjax, entry);
+            cache.set(mathjax, entry);
         }
-    }
+    });
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
 
