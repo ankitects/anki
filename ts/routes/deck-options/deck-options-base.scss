@@ -30,8 +30,12 @@ input {
 // Setting 100% height causes the sticky element to hide as you scroll down on Safari.
 html {
     height: initial;
-    -webkit-user-select: none;
-    user-select: none;
+} 
+
+@media (hover: none) and (pointer: coarse) {   
+  -webkit-user-select: none;
+  user-select: none;
+ }
 }
 
 [dir="rtl"] .modal-header .btn-close {
