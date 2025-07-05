@@ -334,7 +334,12 @@ impl Collection {
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;
         let mut card = updater.into_card();
-        card.last_review_time = Some(answer.answered_at.as_secs());
+        if !matches!(
+            answer.current_state,
+            CardState::Filtered(FilteredState::Preview(_))
+        ) {
+            card.last_review_time = Some(answer.answered_at.as_secs());
+        }
         if let Some(data) = answer.custom_data.take() {
             card.custom_data = data;
             card.validate_custom_data()?;
