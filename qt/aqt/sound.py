@@ -101,7 +101,7 @@ def is_audio_file(fname: str) -> bool:
     return ext in AUDIO_EXTENSIONS
 
 
-class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
+class SoundOrVideoPlayer(Player):
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> int | None:
@@ -111,7 +111,7 @@ class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
             return None
 
 
-class SoundPlayer(Player):  # pylint: disable=abstract-method
+class SoundPlayer(Player):
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> int | None:
@@ -121,7 +121,7 @@ class SoundPlayer(Player):  # pylint: disable=abstract-method
             return None
 
 
-class VideoPlayer(Player):  # pylint: disable=abstract-method
+class VideoPlayer(Player):
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> int | None:
@@ -324,7 +324,7 @@ def retryWait(proc: subprocess.Popen) -> int:
 ##########################################################################
 
 
-class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
+class SimpleProcessPlayer(Player):
     "A player that invokes a new process for each tag to play."
 
     args: list[str] = []

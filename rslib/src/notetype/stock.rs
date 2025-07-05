@@ -179,8 +179,8 @@ pub(crate) fn cloze(tr: &I18n) -> Notetype {
     let back_extra = tr.notetypes_back_extra_field();
     config = nt.add_field(back_extra.as_ref());
     config.tag = Some(ClozeField::BackExtra as u32);
-    let qfmt = format!("{{{{cloze:{}}}}}", text);
-    let afmt = format!("{}<br>\n{{{{{}}}}}", qfmt, back_extra);
+    let qfmt = format!("{{{{cloze:{text}}}}}");
+    let afmt = format!("{qfmt}<br>\n{{{{{back_extra}}}}}");
     nt.add_template(nt.name.clone(), qfmt, afmt);
     nt
 }

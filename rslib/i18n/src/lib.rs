@@ -130,7 +130,7 @@ fn get_bundle(
 ) -> Option<FluentBundle<FluentResource>> {
     let res = FluentResource::try_new(text.into())
         .map_err(|e| {
-            println!("Unable to parse translations file: {:?}", e);
+            println!("Unable to parse translations file: {e:?}");
         })
         .ok()?;
 
@@ -138,14 +138,14 @@ fn get_bundle(
     bundle
         .add_resource(res)
         .map_err(|e| {
-            println!("Duplicate key detected in translation file: {:?}", e);
+            println!("Duplicate key detected in translation file: {e:?}");
         })
         .ok()?;
 
     if !extra_text.is_empty() {
         match FluentResource::try_new(extra_text) {
             Ok(res) => bundle.add_resource_overriding(res),
-            Err((_res, e)) => println!("Unable to parse translations file: {:?}", e),
+            Err((_res, e)) => println!("Unable to parse translations file: {e:?}"),
         }
     }
 
@@ -291,7 +291,7 @@ impl I18n {
             let mut errs = vec![];
             let out = bundle.format_pattern(pat, args.as_ref(), &mut errs);
             if !errs.is_empty() {
-                println!("Error(s) in translation '{}': {:?}", key, errs);
+                println!("Error(s) in translation '{key}': {errs:?}");
             }
             // clone so we can discard args
             return out.to_string().into();

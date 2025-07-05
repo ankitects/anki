@@ -1,2 +1,91 @@
-target-version = "py39"
-extend-exclude = []
+lint.select = [
+  "E", # pycodestyle errors
+  "F", # Pyflakes errors
+  "PL", # Pylint rules
+  "I", # Isort rules
+  "ARG",
+  # "UP", # pyupgrade
+  # "B", # flake8-bugbear
+  # "SIM", # flake8-simplify
+]
+
+extend-exclude = ["*_pb2.py", "*_pb2.pyi"]
+
+lint.ignore = [
+  # Docstring rules (missing-*-docstring in pylint)
+  "D100", # Missing docstring in public module
+  "D101", # Missing docstring in public class
+  "D103", # Missing docstring in public function
+
+  # Import rules (wrong-import-* in pylint)
+  "E402", # Module level import not at top of file
+  "E501", # Line too long
+
+  # pycodestyle rules
+  "E741", # ambiguous-variable-name
+
+  # Comment rules (fixme in pylint)
+  "FIX002", # Line contains TODO
+
+  # Pyflakes rules
+  "F402", # import-shadowed-by-loop-var
+  "F403", # undefined-local-with-import-star
+  "F405", # undefined-local-with-import-star-usage
+
+  # Naming rules (invalid-name in pylint)
+  "N801", # Class name should use CapWords convention
+  "N802", # Function name should be lowercase
+  "N803", # Argument name should be lowercase
+  "N806", # Variable in function should be lowercase
+  "N811", # Constant imported as non-constant
+  "N812", # Lowercase imported as non-lowercase
+  "N813", # Camelcase imported as lowercase
+  "N814", # Camelcase imported as constant
+  "N815", # Variable in class scope should not be mixedCase
+  "N816", # Variable in global scope should not be mixedCase
+  "N817", # CamelCase imported as acronym
+  "N818", # Error suffix in exception names
+
+  # Pylint rules
+  "PLW0603", # global-statement
+  "PLW2901", # redefined-loop-name
+  "PLC0415", # import-outside-top-level
+  "PLR2004", # magic-value-comparison
+
+  # Exception handling (broad-except, bare-except in pylint)
+  "BLE001", # Do not catch blind exception
+
+  # Argument rules (unused-argument in pylint)
+  "ARG001", # Unused function argument
+  "ARG002", # Unused method argument
+  "ARG005", # Unused lambda argument
+
+  # Access rules (protected-access in pylint)
+  "SLF001", # Private member accessed
+
+  # String formatting (consider-using-f-string in pylint)
+  "UP032", # Use f-string instead of format call
+
+  # Exception rules (broad-exception-raised in pylint)
+  "TRY301", # Abstract raise to an inner function
+
+  # Builtin shadowing (redefined-builtin in pylint)
+  "A001", # Variable shadows a Python builtin
+  "A002", # Argument shadows a Python builtin
+  "A003", # Class attribute shadows a Python builtin
+]
+
+[lint.per-file-ignores]
+"**/anki/*_pb2.py" = ["ALL"]
+
+[lint.pep8-naming]
+ignore-names = ["id", "tr", "db", "ok", "ip"]
+
+[lint.pylint]
+max-args = 12
+max-returns = 10
+max-branches = 35
+max-statements = 125
+
+[lint.isort]
+known-first-party = ["anki", "aqt", "tests"]

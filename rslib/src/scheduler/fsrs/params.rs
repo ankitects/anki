@@ -299,6 +299,33 @@ impl Collection {
                 .is_ok()
         })?)
     }
+
+    pub fn evaluate_params_legacy(
+        &mut self,
+        params: &Params,
+        search: &str,
+        ignore_revlogs_before: TimestampMillis,
+    ) -> Result<ModelEvaluation> {
+        let timing = self.timing_today()?;
+        let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
+        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
+        let revlogs: Vec<RevlogEntry> = guard
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_card_order()?;
+        let (items, review_count) =
+            fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
+        anki_progress.state.reviews = review_count as u32;
+        let fsrs = FSRS::new(Some(params))?;
+        Ok(fsrs.evaluate(items, |ip| {
+            anki_progress
+                .update(false, |p| {
+                    p.total_iterations = ip.total as u32;
+                    p.current_iteration = ip.current as u32;
+                })
+                .is_ok()
+        })?)
+    }
 }
 
 #[derive(Default, Clone, Copy, Debug)]

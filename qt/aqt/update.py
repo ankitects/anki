@@ -1,16 +1,21 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import os
-from pathlib import Path
+from __future__ import annotations
 
 import aqt
 from anki.buildinfo import buildhash
 from anki.collection import CheckForUpdateResponse, Collection
-from anki.utils import dev_mode, int_time, int_version, is_mac, is_win, plat_desc
+from anki.utils import dev_mode, int_time, int_version, plat_desc
 from aqt.operations import QueryOp
+from aqt.package import (
+    launcher_executable as _launcher_executable,
+)
+from aqt.package import (
+    update_and_restart as _update_and_restart,
+)
 from aqt.qt import *
-from aqt.utils import show_info, show_warning, showText, tr
+from aqt.utils import openLink, show_warning, showText, tr
 
 
 def check_for_update() -> None:
@@ -80,33 +85,7 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
     elif ret == QMessageBox.StandardButton.Yes:
-        update_and_restart()
-
-
-def update_and_restart() -> None:
-    """Download and install the update, then restart Anki."""
-    update_on_next_run()
-    # todo: do this automatically in the future
-    show_info(tr.qt_misc_please_restart_to_update_anki())
-
-
-def update_on_next_run() -> None:
-    """Bump the mtime on pyproject.toml in the local data directory to trigger an update on next run."""
-    try:
-        # Get the local data directory equivalent to Rust's dirs::data_local_dir()
-        if is_win:
-            data_dir = Path(os.environ.get("LOCALAPPDATA", ""))
-        elif is_mac:
-            data_dir = Path.home() / "Library" / "Application Support"
-        else:  # Linux
-            data_dir = Path(
-                os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share")
-            )
-
-        pyproject_path = data_dir / "AnkiProgramFiles" / "pyproject.toml"
-
-        if pyproject_path.exists():
-            # Touch the file to update its mtime
-            pyproject_path.touch()
-    except Exception as e:
-        print(e)
+        if _launcher_executable():
+            _update_and_restart()
+        else:
+            openLink(aqt.appWebsiteDownloadSection)

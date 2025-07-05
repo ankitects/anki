@@ -44,7 +44,7 @@ def get_sync_status(
 ) -> None:
     auth = mw.pm.sync_auth()
     if not auth:
-        callback(SyncStatus(required=SyncStatus.NO_CHANGES))  # pylint:disable=no-member
+        callback(SyncStatus(required=SyncStatus.NO_CHANGES))
         return
 
     def on_future_done(fut: Future[SyncStatus]) -> None:
@@ -302,7 +302,6 @@ def sync_login(
     username: str = "",
     password: str = "",
 ) -> None:
-
     def on_future_done(fut: Future[SyncAuth], username: str, password: str) -> None:
         try:
             auth = fut.result()
@@ -374,7 +373,9 @@ def get_id_and_pass_from_user(
     g.addWidget(passwd, 1, 1)
     l2.setBuddy(passwd)
     vbox.addLayout(g)
-    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)  # type: ignore
+    bb = QDialogButtonBox(
+        QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+    )  # type: ignore
     ok_button = bb.button(QDialogButtonBox.StandardButton.Ok)
     assert ok_button is not None
     ok_button.setAutoDefault(True)

@@ -5,13 +5,16 @@
 
 from __future__ import annotations
 
+import contextlib
+import os
 import subprocess
+import sys
 from pathlib import Path
 
-from anki.utils import is_mac
+from anki.utils import is_mac, is_win
 
 
-# pylint: disable=unused-import,import-error
+# ruff: noqa: F401
 def first_run_setup() -> None:
     """Code run the first time after install/upgrade.
 
@@ -65,3 +68,101 @@ def first_run_setup() -> None:
     # Wait for both commands to complete
     for proc in processes:
         proc.wait()
+
+
+def uv_binary() -> str | None:
+    """Return the path to the uv binary."""
+    return os.environ.get("ANKI_LAUNCHER_UV")
+
+
+def launcher_root() -> str | None:
+    """Return the path to the launcher root directory (AnkiProgramFiles)."""
+    return os.environ.get("UV_PROJECT")
+
+
+def venv_binary(cmd: str) -> str | None:
+    """Return the path to a binary in the launcher's venv."""
+    root = launcher_root()
+    if not root:
+        return None
+
+    root_path = Path(root)
+    if is_win:
+        binary_path = root_path / ".venv" / "Scripts" / cmd
+    else:
+        binary_path = root_path / ".venv" / "bin" / cmd
+
+    return str(binary_path)
+
+
+def add_python_requirements(reqs: list[str]) -> tuple[bool, str]:
+    """Add Python requirements to the launcher venv using uv add.
+
+    Returns (success, output)"""
+
+    binary = uv_binary()
+    if not binary:
+        return (False, "Not in packaged build.")
+
+    uv_cmd = [binary, "add"] + reqs
+    result = subprocess.run(uv_cmd, capture_output=True, text=True, check=False)
+
+    if result.returncode == 0:
+        root = launcher_root()
+        if root:
+            sync_marker = Path(root) / ".sync_complete"
+            sync_marker.touch()
+
+        return (True, result.stdout)
+    else:
+        return (False, result.stderr)
+
+
+def launcher_executable() -> str | None:
+    """Return the path to the Anki launcher executable."""
+    return os.getenv("ANKI_LAUNCHER")
+
+
+def trigger_launcher_run() -> None:
+    """Bump the mtime on pyproject.toml in the local data directory to trigger an update on next run."""
+    try:
+        root = launcher_root()
+        if not root:
+            return
+
+        pyproject_path = Path(root) / "pyproject.toml"
+
+        if pyproject_path.exists():
+            # Touch the file to update its mtime
+            pyproject_path.touch()
+    except Exception as e:
+        print(e)
+
+
+def update_and_restart() -> None:
+    """Update and restart Anki using the launcher."""
+    from aqt import mw
+
+    launcher = launcher_executable()
+    assert launcher
+
+    trigger_launcher_run()
+
+    with contextlib.suppress(ResourceWarning):
+        env = os.environ.copy()
+        creationflags = 0
+        if sys.platform == "win32":
+            creationflags = (
+                subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+            )
+        subprocess.Popen(
+            [launcher],
+            start_new_session=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            env=env,
+            creationflags=creationflags,
+        )
+
+    mw.app.quit()

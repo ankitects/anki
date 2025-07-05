@@ -33,8 +33,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EasyDaysInput from "./EasyDaysInput.svelte";
     import Warning from "./Warning.svelte";
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
+    import Modal from "bootstrap/js/dist/modal";
 
-    export let shown = false;
     export let state: DeckOptionsState;
     export let simulateFsrsRequest: SimulateFsrsReviewRequest;
     export let computing: boolean;
@@ -234,9 +234,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: easyDayPercentages = [...$config.easyDaysPercentages];
+
+    export let modal: Modal | null = null;
+
+    function setupModal(node: Element) {
+        modal = new Modal(node);
+        return {
+            destroy() {
+                modal?.dispose();
+                modal = null;
+            },
+        };
+    }
 </script>
 
-<div class="modal" class:show={shown} class:d-block={shown} tabindex="-1">
+<div class="modal" tabindex="-1" use:setupModal>
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -245,7 +257,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    on:click={() => (shown = false)}
+                    on:click={() => modal?.hide()}
                 ></button>
             </div>
             <div class="modal-body">
@@ -383,35 +395,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {/if}
                 </details>
 
-                <details>
-                    <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
-                    <button
-                        class="btn {computingRetention ? 'btn-warning' : 'btn-primary'}"
-                        disabled={!computingRetention && computing}
-                        on:click={() => computeRetention()}
-                    >
+                <div style="display:none;">
+                    <details>
+                        <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
+                        <button
+                            class="btn {computingRetention
+                                ? 'btn-warning'
+                                : 'btn-primary'}"
+                            disabled={!computingRetention && computing}
+                            on:click={() => computeRetention()}
+                        >
+                            {#if computingRetention}
+                                {tr.actionsCancel()}
+                            {:else}
+                                {tr.deckConfigComputeButton()}
+                            {/if}
+                        </button>
+
+                        {#if optimalRetention}
+                            {estimatedRetention(optimalRetention)}
+                            {#if optimalRetention - $config.desiredRetention >= 0.01}
+                                <Warning
+                                    warning={tr.deckConfigDesiredRetentionBelowOptimal()}
+                                    className="alert-warning"
+                                />
+                            {/if}
+                        {/if}
+
                         {#if computingRetention}
-                            {tr.actionsCancel()}
-                        {:else}
-                            {tr.deckConfigComputeButton()}
+                            <div>{computeRetentionProgressString}</div>
                         {/if}
-                    </button>
-
-                    {#if optimalRetention}
-                        {estimatedRetention(optimalRetention)}
-                        {#if optimalRetention - $config.desiredRetention >= 0.01}
-                            <Warning
-                                warning={tr.deckConfigDesiredRetentionBelowOptimal()}
-                                className="alert-warning"
-                            />
-                        {/if}
-                    {/if}
-
-                    {#if computingRetention}
-                        <div>{computeRetentionProgressString}</div>
-                    {/if}
-                </details>
-
+                    </details>
+                </div>
                 <button
                     class="btn {computing ? 'btn-warning' : 'btn-primary'}"
                     disabled={computing}

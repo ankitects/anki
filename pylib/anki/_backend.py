@@ -46,7 +46,6 @@ from .errors import (
 
 # the following comment is required to suppress a warning that only shows up
 # when there are other pylint failures
-# pylint: disable=c-extension-no-member
 if _rsbridge.buildhash() != anki.buildinfo.buildhash:
     raise Exception(
         f"""rsbridge and anki build hashes do not match:
@@ -164,7 +163,7 @@ class RustBackend(RustBackendGenerated):
         finally:
             elapsed = time.time() - start
             if current_thread() is main_thread() and elapsed > 0.2:
-                print(f"blocked main thread for {int(elapsed*1000)}ms:")
+                print(f"blocked main thread for {int(elapsed * 1000)}ms:")
                 print("".join(traceback.format_stack()))
 
         err = backend_pb2.BackendError()

@@ -274,6 +274,9 @@ impl<'a> Context<'a> {
             deck.name = NativeDeckName::from_human_name(name);
             self.col.add_deck_inner(&mut deck, self.usn)?;
             self.deck_ids.insert(deck.id, deck.human_name());
+            if name.is_empty() {
+                self.deck_ids.default = Some(deck.id);
+            }
             Some(deck.id)
         } else {
             None

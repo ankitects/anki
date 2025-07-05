@@ -12,7 +12,6 @@ from anki import notetypes_pb2
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.utils import from_json_bytes
 
-# pylint: disable=no-member
 StockNotetypeKind = notetypes_pb2.StockNotetype.Kind
 
 # add-on authors can add ("note type name", function)

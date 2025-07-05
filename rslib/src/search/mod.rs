@@ -240,7 +240,7 @@ impl Collection {
         } else {
             self.storage.setup_searched_cards_table()?;
         }
-        let sql = format!("insert into search_cids {}", sql);
+        let sql = format!("insert into search_cids {sql}");
 
         let cards = self
             .storage
@@ -307,7 +307,7 @@ impl Collection {
         let (sql, args) = writer.build_query(&top_node, mode.required_table())?;
 
         self.storage.setup_searched_notes_table()?;
-        let sql = format!("insert into search_nids {}", sql);
+        let sql = format!("insert into search_nids {sql}");
 
         let notes = self
             .storage

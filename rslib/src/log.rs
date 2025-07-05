@@ -69,8 +69,8 @@ fn maybe_rotate_log(path: &str) -> io::Result<()> {
         return Ok(());
     }
 
-    let path2 = format!("{}.1", path);
-    let path3 = format!("{}.2", path);
+    let path2 = format!("{path}.1");
+    let path3 = format!("{path}.2");
 
     // if a rotated file already exists, rename it
     if let Err(e) = fs::rename(&path2, path3) {

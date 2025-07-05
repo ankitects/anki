@@ -285,7 +285,7 @@ fn row_to_name_and_checksum(row: &Row) -> error::Result<(String, Sha1Hash)> {
 
 fn trace(event: rusqlite::trace::TraceEvent) {
     if let rusqlite::trace::TraceEvent::Stmt(_, sql) = event {
-        println!("sql: {}", sql);
+        println!("sql: {sql}");
     }
 }
 

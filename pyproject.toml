@@ -7,16 +7,23 @@ classifiers = ["Private :: Do Not Upload"]
 
 [dependency-groups]
 dev = [
-  "black",
-  "isort",
   "mypy",
   "mypy-protobuf",
-  "pylint",
+  "ruff",
   "pytest",
   "PyChromeDevTools",
-  "colorama", # for isort --color
   "wheel",
   "hatchling", # for type checking hatch_build.py files
+  "mock",
+  "types-protobuf",
+  "types-requests",
+  "types-orjson",
+  "types-decorator",
+  "types-flask",
+  "types-flask-cors",
+  "types-markdown",
+  "types-waitress",
+  "types-pywin32",
 ]
 
 [project.optional-dependencies]

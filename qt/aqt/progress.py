@@ -119,13 +119,12 @@ class ProgressManager:
             if not self._levels:
                 # no current progress; safe to fire
                 func()
+            elif repeat:
+                # skip this time; we'll fire again
+                pass
             else:
-                if repeat:
-                    # skip this time; we'll fire again
-                    pass
-                else:
-                    # retry in 100ms
-                    self.single_shot(100, func, requires_collection)
+                # retry in 100ms
+                self.single_shot(100, func, requires_collection)
 
         return handler
 

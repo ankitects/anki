@@ -94,6 +94,7 @@ dependencies = [
  "axum",
  "axum-client-ip",
  "axum-extra",
+ "bitflags 2.9.1",
  "blake3",
  "bytes",
  "chrono",
@@ -3543,11 +3544,13 @@ dependencies = [
  "anki_io",
  "anki_process",
  "anyhow",
+ "camino",
  "dirs 6.0.0",
  "embed-resource",
  "libc",
  "libc-stdhandle",
- "winapi",
+ "widestring",
+ "windows 0.61.3",
 ]
 
 [[package]]
@@ -7373,6 +7376,12 @@ dependencies = [
  "rustix",
  "winsafe",
 ]
+
+[[package]]
+name = "widestring"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd7cf3379ca1aac9eea11fba24fd7e315d621f8dfe35c8d7d2be8b793726e07d"
 
 [[package]]
 name = "winapi"

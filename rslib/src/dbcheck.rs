@@ -387,10 +387,10 @@ impl Collection {
         let mut basic = all_stock_notetypes(&self.tr).remove(0);
         let mut field = 3;
         while basic.fields.len() < field_count {
-            basic.add_field(format!("{}", field));
+            basic.add_field(format!("{field}"));
             field += 1;
         }
-        basic.name = format!("db-check-{}-{}", stamp, field_count);
+        basic.name = format!("db-check-{stamp}-{field_count}");
         let qfmt = basic.templates[0].config.q_format.clone();
         let afmt = basic.templates[0].config.a_format.clone();
         for n in 0..extra_cards_required {

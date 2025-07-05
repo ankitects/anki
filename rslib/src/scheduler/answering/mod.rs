@@ -33,6 +33,7 @@ use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
 use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;
+use crate::scheduler::fsrs::memory_state::get_decay_from_params;
 use crate::scheduler::states::PreviewState;
 use crate::search::SearchNode;
 
@@ -439,7 +440,9 @@ impl Collection {
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let fsrs_next_states = if fsrs_enabled {
-            let fsrs = FSRS::new(Some(config.fsrs_params()))?;
+            let params = config.fsrs_params();
+            let fsrs = FSRS::new(Some(params))?;
+            card.decay = Some(get_decay_from_params(params));
             if card.memory_state.is_none() && card.ctype != CardType::New {
                 // Card has been moved or imported into an FSRS deck after params were set,
                 // and will need its initial memory state to be calculated based on review
@@ -895,22 +898,20 @@ pub(crate) mod test {
     ) -> Result<()> {
         // Change due time to fake card answer_time,
         // works since answer_time is calculated as due - last_ivl
-        let update_due_string = format!("update cards set due={}", shift_due_time);
+        let update_due_string = format!("update cards set due={shift_due_time}");
         col.storage.db.execute_batch(&update_due_string)?;
         col.clear_study_queues();
         let current_card_state = current_state(col, post_answer.card_id);
         let state = match current_card_state {
             CardState::Normal(NormalState::Learning(state)) => state,
-            _ => panic!("State is not Normal: {:?}", current_card_state),
+            _ => panic!("State is not Normal: {current_card_state:?}"),
         };
         let elapsed_secs = state.elapsed_secs as i32;
         // Give a 1 second leeway when the test runs on the off chance
         // that the test runs as a second rolls over.
         assert!(
             (elapsed_secs - expected_elapsed_secs).abs() <= 1,
-            "elapsed_secs: {} != expected_elapsed_secs: {}",
-            elapsed_secs,
-            expected_elapsed_secs
+            "elapsed_secs: {elapsed_secs} != expected_elapsed_secs: {expected_elapsed_secs}"
         );
 
         Ok(())

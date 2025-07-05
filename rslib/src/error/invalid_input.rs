@@ -26,7 +26,7 @@ impl InvalidInputError {
 
     pub fn context(&self) -> String {
         if let Some(source) = &self.source {
-            format!("{}", source)
+            format!("{source}")
         } else {
             String::new()
         }

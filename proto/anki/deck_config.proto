@@ -236,6 +236,7 @@ message DeckConfigsForUpdate {
   bool new_cards_ignore_review_limit = 7;
   bool fsrs = 8;
   bool fsrs_health_check = 11;
+  bool fsrs_legacy_evaluate = 12;
   bool apply_all_parent_limits = 9;
   uint32 days_since_last_fsrs_optimize = 10;
 }

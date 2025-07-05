@@ -114,6 +114,12 @@ fn copy_files(output_dir: &Path) -> Result<()> {
     let launcher_dst = output_dir.join("anki.exe");
     copy_file(&launcher_src, &launcher_dst)?;
 
+    // Copy anki-console binary
+    let console_src =
+        PathBuf::from(CARGO_TARGET_DIR).join("x86_64-pc-windows-msvc/release/anki-console.exe");
+    let console_dst = output_dir.join("anki-console.exe");
+    copy_file(&console_src, &console_dst)?;
+
     // Copy uv.exe and uvw.exe
     let uv_src = PathBuf::from("../../../out/extracted/uv/uv.exe");
     let uv_dst = output_dir.join("uv.exe");
@@ -133,14 +139,12 @@ fn copy_files(output_dir: &Path) -> Result<()> {
         output_dir.join(".python-version"),
     )?;
 
-    // Copy anki-console.bat
-    copy_file("anki-console.bat", output_dir.join("anki-console.bat"))?;
-
     Ok(())
 }
 
 fn sign_binaries(output_dir: &Path) -> Result<()> {
     sign_file(&output_dir.join("anki.exe"))?;
+    sign_file(&output_dir.join("anki-console.exe"))?;
     sign_file(&output_dir.join("uv.exe"))?;
     Ok(())
 }
@@ -217,7 +221,7 @@ fn generate_install_manifest(output_dir: &Path) -> Result<()> {
                     // Convert to Windows-style backslashes for NSIS
                     let windows_path = relative_path.display().to_string().replace('/', "\\");
                     // Use Windows line endings (\r\n) as expected by NSIS
-                    manifest_content.push_str(&format!("{}\r\n", windows_path));
+                    manifest_content.push_str(&format!("{windows_path}\r\n"));
                 }
             }
         }

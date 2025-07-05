@@ -265,10 +265,8 @@ fn template_error_to_anki_error(
     };
     let details = htmlescape::encode_minimal(&localized_template_error(tr, err));
     let more_info = tr.card_template_rendering_more_info();
-    let source = format!(
-        "{}<br>{}<br><a href='{}'>{}</a>",
-        header, details, TEMPLATE_ERROR_LINK, more_info
-    );
+    let source =
+        format!("{header}<br>{details}<br><a href='{TEMPLATE_ERROR_LINK}'>{more_info}</a>");
 
     AnkiError::TemplateError { info: source }
 }
@@ -279,32 +277,29 @@ fn localized_template_error(tr: &I18n, err: TemplateError) -> String {
             .card_template_rendering_no_closing_brackets("}}", tag)
             .into(),
         TemplateError::ConditionalNotClosed(tag) => tr
-            .card_template_rendering_conditional_not_closed(format!("{{{{/{}}}}}", tag))
+            .card_template_rendering_conditional_not_closed(format!("{{{{/{tag}}}}}"))
             .into(),
         TemplateError::ConditionalNotOpen {
             closed,
             currently_open,
         } => if let Some(open) = currently_open {
             tr.card_template_rendering_wrong_conditional_closed(
-                format!("{{{{/{}}}}}", closed),
-                format!("{{{{/{}}}}}", open),
+                format!("{{{{/{closed}}}}}"),
+                format!("{{{{/{open}}}}}"),
             )
         } else {
             tr.card_template_rendering_conditional_not_open(
-                format!("{{{{/{}}}}}", closed),
-                format!("{{{{#{}}}}}", closed),
-                format!("{{{{^{}}}}}", closed),
+                format!("{{{{/{closed}}}}}"),
+                format!("{{{{#{closed}}}}}"),
+                format!("{{{{^{closed}}}}}"),
             )
         }
         .into(),
         TemplateError::FieldNotFound { field, filters } => tr
-            .card_template_rendering_no_such_field(format!("{{{{{}{}}}}}", filters, field), field)
+            .card_template_rendering_no_such_field(format!("{{{{{filters}{field}}}}}"), field)
             .into(),
         TemplateError::NoSuchConditional(condition) => tr
-            .card_template_rendering_no_such_field(
-                format!("{{{{{}}}}}", condition),
-                &condition[1..],
-            )
+            .card_template_rendering_no_such_field(format!("{{{{{condition}}}}}"), &condition[1..])
             .into(),
     }
 }
@@ -523,10 +518,7 @@ impl RenderContext<'_> {
             Ok(false ^ negated)
         } else {
             let prefix = if negated { "^" } else { "#" };
-            Err(TemplateError::NoSuchConditional(format!(
-                "{}{}",
-                prefix, key
-            )))
+            Err(TemplateError::NoSuchConditional(format!("{prefix}{key}")))
         }
     }
 }
@@ -858,14 +850,14 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
                 .unwrap();
             }
             ParsedNode::Conditional { key, children } => {
-                write!(buf, "{{{{#{}}}}}", key).unwrap();
+                write!(buf, "{{{{#{key}}}}}").unwrap();
                 nodes_to_string(buf, children);
-                write!(buf, "{{{{/{}}}}}", key).unwrap();
+                write!(buf, "{{{{/{key}}}}}").unwrap();
             }
             ParsedNode::NegatedConditional { key, children } => {
-                write!(buf, "{{{{^{}}}}}", key).unwrap();
+                write!(buf, "{{{{^{key}}}}}").unwrap();
                 nodes_to_string(buf, children);
-                write!(buf, "{{{{/{}}}}}", key).unwrap();
+                write!(buf, "{{{{/{key}}}}}").unwrap();
             }
         }
     }
