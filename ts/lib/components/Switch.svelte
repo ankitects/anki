@@ -31,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .form-check-input {
+        border-color: var(--border);
         -webkit-appearance: none;
         appearance: none;
         height: 1.5em;
