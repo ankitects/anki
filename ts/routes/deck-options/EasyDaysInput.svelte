@@ -20,31 +20,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Item>
-    <div class="easy-days-settings">
-        <span></span>
-        <span class="header min-col">{tr.deckConfigEasyDaysMinimum()}</span>
-        <span class="header">{tr.deckConfigEasyDaysReduced()}</span>
-        <span class="header normal-col">{tr.deckConfigEasyDaysNormal()}</span>
+    <div class="container">
+        <div class="easy-days-settings">
+            <span></span>
+            <span class="header min-col">{tr.deckConfigEasyDaysMinimum()}</span>
+            <span class="header">{tr.deckConfigEasyDaysReduced()}</span>
+            <span class="header normal-col">{tr.deckConfigEasyDaysNormal()}</span>
 
-        {#each easyDays as day, index}
-            <span class="day">{day}</span>
-            <div class="input-container">
-                <input
-                    type="range"
-                    bind:value={values[index]}
-                    step={0.5}
-                    max={1.0}
-                    min={0.0}
-                    list="easy_day_steplist"
-                />
-            </div>
-        {/each}
+            {#each easyDays as day, index}
+                <span class="day">{day}</span>
+                <div class="input-container">
+                    <input
+                        type="range"
+                        bind:value={values[index]}
+                        step={0.5}
+                        max={1.0}
+                        min={0.0}
+                        list="easy_day_steplist"
+                    />
+                </div>
+            {/each}
+        </div>
     </div>
 </Item>
 
 <style lang="scss">
+    .container {
+        display: flex;
+        justify-content: center;
+    }
     .easy-days-settings {
         width: 100%;
+        max-width: 1000px;
         border-collapse: collapse;
 
         display: grid;
