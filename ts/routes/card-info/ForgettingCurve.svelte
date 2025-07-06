@@ -108,7 +108,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .forgetting-curve {
         width: 100%;
         max-width: 50em;
-        margin-bottom: 10em;
+        margin-bottom: 1em;
     }
 
     .time-range-selector {
