@@ -181,6 +181,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin-bottom: 1.5rem;
     }
 
+    .modal {
+        z-index: 1066;
+        background-color: rgba($color: black, $alpha: 0.5);
+    }
+
     .modal-title {
         margin-inline-end: 0.75rem;
     }
