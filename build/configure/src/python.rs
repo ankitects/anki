@@ -125,7 +125,14 @@ impl BuildAction for BuildWheel {
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
-        build.add_inputs("uv", inputs![":uv_binary"]);
+        if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
+            let uv_path = std::env::var("UV_BINARY")
+                .expect("UV_BINARY must be set in OFFLINE_BUILD mode");
+            build.add_inputs("uv", inputs![uv_path]);
+        } else {
+            build.add_inputs("uv", inputs![":uv_binary"]);
+        }
+
         build.add_inputs("", &self.deps);
 
         // Set the project directory based on which package we're building
@@ -222,15 +229,19 @@ struct Sphinx {
 
 impl BuildAction for Sphinx {
     fn command(&self) -> &str {
-        if env::var("OFFLINE_BUILD").is_err() {
-            "$uv sync --extra sphinx && $python python/sphinx/build.py"
-        } else {
+        if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
             "$python python/sphinx/build.py"
+        } else {
+            "$uv sync --extra sphinx && $python python/sphinx/build.py"
         }
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
-        if env::var("OFFLINE_BUILD").is_err() {
+        if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
+            let uv_path = std::env::var("UV_BINARY")
+                .expect("UV_BINARY must be set in OFFLINE_BUILD mode");
+            build.add_inputs("uv", inputs![uv_path]);
+        } else {
             build.add_inputs("uv", inputs![":uv_binary"]);
             // Set environment variable to use the existing pyenv
             build.add_variable("pyenv_path", "$builddir/pyenv");
