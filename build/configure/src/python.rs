@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::env;
+use std::env::var;
 
 use anyhow::Result;
 use ninja_gen::action::BuildAction;
@@ -126,8 +126,8 @@ impl BuildAction for BuildWheel {
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
-            let uv_path = std::env::var("UV_BINARY")
-                .expect("UV_BINARY must be set in OFFLINE_BUILD mode");
+            let uv_path =
+                std::env::var("UV_BINARY").expect("UV_BINARY must be set in OFFLINE_BUILD mode");
             build.add_inputs("uv", inputs![uv_path]);
         } else {
             build.add_inputs("uv", inputs![":uv_binary"]);
@@ -238,8 +238,8 @@ impl BuildAction for Sphinx {
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
-            let uv_path = std::env::var("UV_BINARY")
-                .expect("UV_BINARY must be set in OFFLINE_BUILD mode");
+            let uv_path =
+                std::env::var("UV_BINARY").expect("UV_BINARY must be set in OFFLINE_BUILD mode");
             build.add_inputs("uv", inputs![uv_path]);
         } else {
             build.add_inputs("uv", inputs![":uv_binary"]);
