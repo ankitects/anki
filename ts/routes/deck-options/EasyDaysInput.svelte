@@ -21,52 +21,56 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Item>
     <div class="easy-days-settings">
-        <table>
-            <thead>
-                <tr>
-                    <th></th>
-                    <th class="header min-col">
-                        <span>{tr.deckConfigEasyDaysMinimum()}</span>
-                    </th>
-                    <th class="header text-center">
-                        <span>{tr.deckConfigEasyDaysReduced()}</span>
-                    </th>
-                    <th class="header normal-col">
-                        <span>{tr.deckConfigEasyDaysNormal()}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                {#each easyDays as day, index}
-                    <tr>
-                        <td class="day">{day}</td>
-                        <td colspan="3">
-                            <input
-                                type="range"
-                                bind:value={values[index]}
-                                step={0.5}
-                                max={1.0}
-                                min={0.0}
-                                list="easy_day_steplist"
-                            />
-                        </td>
-                    </tr>
-                {/each}
-            </tbody>
-        </table>
+        <span></span>
+        <span class="header min-col">{tr.deckConfigEasyDaysMinimum()}</span>
+        <span class="header">{tr.deckConfigEasyDaysReduced()}</span>
+        <span class="header normal-col">{tr.deckConfigEasyDaysNormal()}</span>
+
+        {#each easyDays as day, index}
+            <span class="day">{day}</span>
+            <div class="input-container">
+                <input
+                    type="range"
+                    bind:value={values[index]}
+                    step={0.5}
+                    max={1.0}
+                    min={0.0}
+                    list="easy_day_steplist"
+                />
+            </div>
+        {/each}
     </div>
 </Item>
 
-<style>
-    .easy-days-settings table {
+<style lang="scss">
+    .easy-days-settings {
         width: 100%;
         border-collapse: collapse;
-        table-layout: fixed;
+
+        display: grid;
+        grid-template-columns: auto 1fr 1fr 1fr;
+
+        border-collapse: collapse;
+        & > * {
+            padding: 8px 16px;
+            border-bottom: var(--border) solid 1px;
+        }
     }
-    .easy-days-settings th,
-    .easy-days-settings td {
-        padding: 8px;
-        border-bottom: var(--border) solid 1px;
+    .input-container {
+        grid-column: 2 / span 3;
+    }
+    span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.min-col {
+            justify-content: flex-start;
+        }
+
+        &.normal-col {
+            justify-content: flex-end;
+        }
     }
     .header {
         word-wrap: break-word;
@@ -79,13 +83,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .day {
         word-wrap: break-word;
         font-size: smaller;
-    }
-
-    .min-col {
-        text-align: start;
-    }
-
-    .normal-col {
-        text-align: end;
     }
 </style>
