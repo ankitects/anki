@@ -9,17 +9,23 @@ use anyhow::Result;
 pub fn relaunch_in_terminal() -> Result<()> {
     let current_exe = std::env::current_exe().context("Failed to get current executable path")?;
 
-    // Try terminals in order of preference
+    // Try terminals in roughly most specific to least specific.
+    // First, try commonly used terminals for riced systems.
+    // Second, try the minimalist/compatibility terminals.
+    // Finally, try terminals usually installed by default.
     let terminals = [
-        ("x-terminal-emulator", vec!["-e"]),
-        ("gnome-terminal", vec!["--"]),
-        ("konsole", vec!["-e"]),
-        ("xfce4-terminal", vec!["-e"]),
+        // commonly used for riced systems
         ("alacritty", vec!["-e"]),
         ("kitty", vec![]),
+        // minimalistic terminals for constrained systems
         ("foot", vec![]),
         ("urxvt", vec!["-e"]),
         ("xterm", vec!["-e"]),
+        ("x-terminal-emulator", vec!["-e"]),
+        // default installs for the most common distros
+        ("xfce4-terminal", vec!["-e"]),
+        ("gnome-terminal", vec!["--"]),
+        ("konsole", vec!["-e"]),
     ];
 
     for (terminal_cmd, args) in &terminals {
