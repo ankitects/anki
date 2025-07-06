@@ -447,19 +447,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     class="btn {computing ? 'btn-warning' : 'btn-primary'}"
                     disabled={computing}
                     on:click={() => {
-                        $config.newPerDay = simulateFsrsRequest.newLimit;
-                        $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
-                        $config.maximumReviewInterval = simulateFsrsRequest.maxInterval;
-                        $config.desiredRetention = simulateFsrsRequest.desiredRetention;
-                        $newCardsIgnoreReviewLimit =
-                            simulateFsrsRequest.newCardsIgnoreReviewLimit;
-                        $config.reviewOrder = simulateFsrsRequest.reviewOrder;
-                        $config.leechAction = suspendLeeches
-                            ? DeckConfig_Config_LeechAction.SUSPEND
-                            : DeckConfig_Config_LeechAction.TAG_ONLY;
-                        $config.leechThreshold = leechThreshold;
-                        $config.easyDaysPercentages = [...easyDayPercentages];
-                        onPresetChange();
+                        if (confirm(tr.deckConfigSaveOptionsToPresetConfirm())) {
+                            $config.newPerDay = simulateFsrsRequest.newLimit;
+                            $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
+                            $config.maximumReviewInterval =
+                                simulateFsrsRequest.maxInterval;
+                            $config.desiredRetention =
+                                simulateFsrsRequest.desiredRetention;
+                            $newCardsIgnoreReviewLimit =
+                                simulateFsrsRequest.newCardsIgnoreReviewLimit;
+                            $config.reviewOrder = simulateFsrsRequest.reviewOrder;
+                            $config.leechAction = suspendLeeches
+                                ? DeckConfig_Config_LeechAction.SUSPEND
+                                : DeckConfig_Config_LeechAction.TAG_ONLY;
+                            $config.leechThreshold = leechThreshold;
+                            $config.easyDaysPercentages = [...easyDayPercentages];
+                            onPresetChange();
+                        }
                     }}
                 >
                     {tr.deckConfigSaveOptionsToPreset()}
