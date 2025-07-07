@@ -296,7 +296,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     min={0}
                     max={9999}
                 >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                    <SettingTitle on:click={() => openHelpModal("newLimit")}>
                         {tr.schedulingNewCardsday()}
                     </SettingTitle>
                 </SpinBoxRow>
@@ -307,7 +307,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     min={0}
                     max={9999}
                 >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                    <SettingTitle on:click={() => openHelpModal("reviewLimit")}>
                         {tr.schedulingMaximumReviewsday()}
                     </SettingTitle>
                 </SpinBoxRow>
@@ -327,9 +327,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         min={1}
                         max={36500}
                     >
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
+                        <SettingTitle on:click={() => openHelpModal("maximumInterval")}>
                             {tr.schedulingMaximumInterval()}
                         </SettingTitle>
                     </SpinBoxRow>
@@ -339,9 +337,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         defaultValue={$config.reviewOrder}
                         choices={reviewOrderChoices($fsrs)}
                     >
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
+                        <SettingTitle on:click={() => openHelpModal("reviewSortOrder")}>
                             {tr.deckConfigReviewSortOrder()}
                         </SettingTitle>
                     </EnumSelectorRow>
@@ -351,7 +347,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         defaultValue={$newCardsIgnoreReviewLimit}
                     >
                         <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
+                            on:click={() => openHelpModal("newCardsIgnoreReviewLimit")}
                         >
                             <GlobalLabel
                                 title={tr.deckConfigNewCardsIgnoreReviewLimit()}
@@ -372,9 +368,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         defaultValue={$config.leechAction ==
                             DeckConfig_Config_LeechAction.SUSPEND}
                     >
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
+                        <SettingTitle on:click={() => openHelpModal("leechAction")}>
                             {tr.deckConfigSuspendLeeches()}
                         </SettingTitle>
                     </SwitchRow>
@@ -387,7 +381,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             max={9999}
                         >
                             <SettingTitle
-                                on:click={() => openHelpModal("simulateFsrsReview")}
+                                on:click={() => openHelpModal("leechThreshold")}
                             >
                                 {tr.schedulingLeechThreshold()}
                             </SettingTitle>
