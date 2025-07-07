@@ -35,6 +35,7 @@ cp Info.plist "$APP_LAUNCHER/Contents/"
 cp icon/Assets.car "$APP_LAUNCHER/Contents/Resources/"
 cp ../pyproject.toml "$APP_LAUNCHER/Contents/Resources/"
 cp ../../../.python-version "$APP_LAUNCHER/Contents/Resources/"
+cp ../versions.py "$APP_LAUNCHER/Contents/Resources/"
 
 # Codesign
 for i in "$APP_LAUNCHER/Contents/MacOS/uv" "$APP_LAUNCHER/Contents/MacOS/launcher" "$APP_LAUNCHER"; do

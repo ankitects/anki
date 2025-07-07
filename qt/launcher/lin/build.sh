@@ -61,6 +61,7 @@ done
 # Copy additional files from parent directory
 cp ../pyproject.toml "$LAUNCHER_DIR/"
 cp ../../../.python-version "$LAUNCHER_DIR/"
+cp ../versions.py "$LAUNCHER_DIR/"
 
 # Set executable permissions
 chmod +x \

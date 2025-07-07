@@ -47,6 +47,7 @@ struct State {
     uv_lock_path: std::path::PathBuf,
     sync_complete_marker: std::path::PathBuf,
     previous_version: Option<String>,
+    resources_dir: std::path::PathBuf,
 }
 
 #[derive(Debug, Clone)]
@@ -100,6 +101,7 @@ fn run() -> Result<()> {
         uv_lock_path: uv_install_root.join("uv.lock"),
         sync_complete_marker: uv_install_root.join(".sync_complete"),
         previous_version: None,
+        resources_dir,
     };
 
     // Check for uninstall request from Windows uninstaller
@@ -225,7 +227,7 @@ fn check_versions(state: &mut State) {
 
 fn main_menu_loop(state: &State) -> Result<()> {
     loop {
-        let menu_choice = get_main_menu_choice(state);
+        let menu_choice = get_main_menu_choice(state)?;
 
         match menu_choice {
             MainMenuChoice::Quit => std::process::exit(0),
@@ -379,16 +381,18 @@ fn write_sync_marker(sync_complete_marker: &std::path::Path) -> Result<()> {
     Ok(())
 }
 
-fn get_main_menu_choice(state: &State) -> MainMenuChoice {
+fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
     loop {
         println!("1) Latest Anki (just press enter)");
         println!("2) Choose a version");
         if let Some(current_version) = &state.current_version {
-            println!("3) Keep existing version ({current_version})");
+            let normalized_current = normalize_version(current_version);
+            println!("3) Keep existing version ({normalized_current})");
         }
         if let Some(prev_version) = &state.previous_version {
             if state.current_version.as_ref() != Some(prev_version) {
-                println!("4) Revert to previous version ({prev_version})");
+                let normalized_prev = normalize_version(prev_version);
+                println!("4) Revert to previous version ({normalized_prev})");
             }
         }
         println!();
@@ -415,9 +419,14 @@ fn get_main_menu_choice(state: &State) -> MainMenuChoice {
 
         println!();
 
-        return match input {
+        return Ok(match input {
             "" | "1" => MainMenuChoice::Latest,
-            "2" => MainMenuChoice::Version(get_version_kind()),
+            "2" => {
+                match get_version_kind(state)? {
+                    Some(version_kind) => MainMenuChoice::Version(version_kind),
+                    None => continue, // Return to main menu
+                }
+            }
             "3" => {
                 if state.current_version.is_some() {
                     MainMenuChoice::KeepExisting
@@ -430,7 +439,7 @@ fn get_main_menu_choice(state: &State) -> MainMenuChoice {
                 if let Some(prev_version) = &state.previous_version {
                     if state.current_version.as_ref() != Some(prev_version) {
                         if let Some(version_kind) = parse_version_kind(prev_version) {
-                            return MainMenuChoice::Version(version_kind);
+                            return Ok(MainMenuChoice::Version(version_kind));
                         }
                     }
                 }
@@ -445,36 +454,181 @@ fn get_main_menu_choice(state: &State) -> MainMenuChoice {
                 println!("Invalid input. Please try again.");
                 continue;
             }
-        };
+        });
     }
 }
 
-fn get_version_kind() -> VersionKind {
-    loop {
-        println!("Enter the version you want to install:");
-        print!("> ");
-        let _ = stdout().flush();
+fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
+    println!("Please wait...");
 
-        let mut input = String::new();
-        let _ = stdin().read_line(&mut input);
-        let input = input.trim();
+    let include_prereleases = state.prerelease_marker.exists();
+    let all_versions = fetch_versions(state)?;
+    let all_versions = filter_and_normalize_versions(all_versions, include_prereleases);
 
-        if input.is_empty() {
-            println!("Please enter a version.");
-            continue;
+    let latest_patches = with_only_latest_patch(&all_versions);
+    let latest_releases: Vec<&String> = latest_patches.iter().take(5).collect();
+    let releases_str = latest_releases
+        .iter()
+        .map(|v| v.as_str())
+        .collect::<Vec<_>>()
+        .join(", ");
+    println!("Latest releases: {releases_str}");
+
+    println!("Enter the version you want to install:");
+    print!("> ");
+    let _ = stdout().flush();
+
+    let mut input = String::new();
+    let _ = stdin().read_line(&mut input);
+    let input = input.trim();
+
+    if input.is_empty() {
+        return Ok(None);
+    }
+
+    // Normalize the input version for comparison
+    let normalized_input = normalize_version(input);
+
+    // Check if the version exists in the available versions
+    let version_exists = all_versions.iter().any(|v| v == &normalized_input);
+
+    match (parse_version_kind(input), version_exists) {
+        (Some(version_kind), true) => {
+            println!();
+            Ok(Some(version_kind))
         }
+        (None, true) => {
+            println!("Versions before 2.1.50 can't be installedn");
+            Ok(None)
+        }
+        _ => {
+            println!("Invalid version.\n");
+            Ok(None)
+        }
+    }
+}
 
-        match parse_version_kind(input) {
-            Some(version_kind) => {
-                println!();
-                return version_kind;
+fn with_only_latest_patch(versions: &[String]) -> Vec<String> {
+    // Only show the latest patch release for a given (major, minor)
+    let mut seen_major_minor = std::collections::HashSet::new();
+    versions
+        .iter()
+        .filter(|v| {
+            let (major, minor, _, _) = parse_version_for_filtering(v);
+            if major == 2 {
+                return true;
             }
-            None => {
-                println!("Invalid version format. Please enter a version like 25.07.1 or 24.11 (minimum 2.1.50)");
-                continue;
+            let major_minor = (major, minor);
+            if seen_major_minor.contains(&major_minor) {
+                false
+            } else {
+                seen_major_minor.insert(major_minor);
+                true
+            }
+        })
+        .cloned()
+        .collect()
+}
+
+fn parse_version_for_filtering(version_str: &str) -> (u32, u32, u32, bool) {
+    // Remove any build metadata after +
+    let version_str = version_str.split('+').next().unwrap_or(version_str);
+
+    // Check for prerelease markers
+    let is_prerelease = ["a", "b", "rc", "alpha", "beta"]
+        .iter()
+        .any(|marker| version_str.to_lowercase().contains(marker));
+
+    // Extract numeric parts (stop at first non-digit/non-dot character)
+    let numeric_end = version_str
+        .find(|c: char| !c.is_ascii_digit() && c != '.')
+        .unwrap_or(version_str.len());
+    let numeric_part = &version_str[..numeric_end];
+
+    let parts: Vec<&str> = numeric_part.split('.').collect();
+
+    let major = parts.first().and_then(|s| s.parse().ok()).unwrap_or(0);
+    let minor = parts.get(1).and_then(|s| s.parse().ok()).unwrap_or(0);
+    let patch = parts.get(2).and_then(|s| s.parse().ok()).unwrap_or(0);
+
+    (major, minor, patch, is_prerelease)
+}
+
+fn normalize_version(version: &str) -> String {
+    let (major, minor, patch, _is_prerelease) = parse_version_for_filtering(version);
+
+    if major <= 2 {
+        // Don't transform versions <= 2.x
+        return version.to_string();
+    }
+
+    // For versions > 2, pad the minor version with leading zero if < 10
+    let normalized_minor = if minor < 10 {
+        format!("0{minor}")
+    } else {
+        minor.to_string()
+    };
+
+    // Find any prerelease suffix
+    let mut prerelease_suffix = "";
+
+    // Look for prerelease markers after the numeric part
+    let numeric_end = version
+        .find(|c: char| !c.is_ascii_digit() && c != '.')
+        .unwrap_or(version.len());
+    if numeric_end < version.len() {
+        let suffix_part = &version[numeric_end..];
+        let suffix_lower = suffix_part.to_lowercase();
+
+        for marker in ["alpha", "beta", "rc", "a", "b"] {
+            if suffix_lower.starts_with(marker) {
+                prerelease_suffix = &version[numeric_end..];
+                break;
             }
         }
     }
+
+    // Reconstruct the version
+    if version.matches('.').count() >= 2 {
+        format!("{major}.{normalized_minor}.{patch}{prerelease_suffix}")
+    } else {
+        format!("{major}.{normalized_minor}{prerelease_suffix}")
+    }
+}
+
+fn filter_and_normalize_versions(
+    all_versions: Vec<String>,
+    include_prereleases: bool,
+) -> Vec<String> {
+    let mut valid_versions: Vec<String> = all_versions
+        .into_iter()
+        .map(|v| normalize_version(&v))
+        .collect();
+
+    // Reverse to get chronological order (newest first)
+    valid_versions.reverse();
+
+    if !include_prereleases {
+        valid_versions.retain(|v| {
+            let (_, _, _, is_prerelease) = parse_version_for_filtering(v);
+            !is_prerelease
+        });
+    }
+
+    valid_versions
+}
+
+fn fetch_versions(state: &State) -> Result<Vec<String>> {
+    let versions_script = state.resources_dir.join("versions.py");
+
+    let mut cmd = Command::new(&state.uv_path);
+    cmd.current_dir(&state.uv_install_root)
+        .args(["run", "--no-project"])
+        .arg(&versions_script);
+
+    let output = cmd.utf8_output()?;
+    let versions = serde_json::from_str(&output.stdout).context("Failed to parse versions JSON")?;
+    Ok(versions)
 }
 
 fn update_pyproject_for_version(
@@ -714,9 +868,7 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
 
     // Set UV and Python paths for the Python code
-    let (exe_dir, _) = get_exe_and_resources_dirs()?;
-    let uv_path = exe_dir.join(get_uv_binary_name());
-    cmd.env("ANKI_LAUNCHER_UV", uv_path.utf8()?.as_str());
+    cmd.env("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
     cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
 
     // Set UV_PRERELEASE=allow if beta mode is enabled
@@ -725,4 +877,30 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     }
 
     Ok(cmd)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_version() {
+        // Test versions <= 2.x (should not be transformed)
+        assert_eq!(normalize_version("2.1.50"), "2.1.50");
+
+        // Test basic versions > 2 with zero-padding
+        assert_eq!(normalize_version("25.7"), "25.07");
+        assert_eq!(normalize_version("25.07"), "25.07");
+        assert_eq!(normalize_version("25.10"), "25.10");
+        assert_eq!(normalize_version("24.6.1"), "24.06.1");
+        assert_eq!(normalize_version("24.06.1"), "24.06.1");
+
+        // Test prerelease versions
+        assert_eq!(normalize_version("25.7a1"), "25.07a1");
+        assert_eq!(normalize_version("25.7.1a1"), "25.07.1a1");
+
+        // Test versions with patch = 0
+        assert_eq!(normalize_version("25.7.0"), "25.07.0");
+        assert_eq!(normalize_version("25.7.0a1"), "25.07.0a1");
+    }
 }
