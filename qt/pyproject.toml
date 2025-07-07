@@ -77,7 +77,7 @@ ankiw = "aqt:run"
 
 [tool.hatch.build.targets.wheel]
 packages = ["aqt"]
-exclude = ["**/*.scss", "**/*.ui"]
+exclude = ["aqt/data", "**/*.ui"]
 
 [tool.hatch.version]
 source = "code"
