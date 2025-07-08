@@ -387,7 +387,7 @@ fn write_sync_marker(sync_complete_marker: &std::path::Path) -> Result<()> {
 
 fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
     loop {
-        println!("1) Latest Anki (just press enter)");
+        println!("1) Latest Anki (just press Enter)");
         println!("2) Choose a version");
         if let Some(current_version) = &state.current_version {
             let normalized_current = normalize_version(current_version);
