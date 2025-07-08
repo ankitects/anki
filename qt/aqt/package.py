@@ -150,6 +150,10 @@ def update_and_restart() -> None:
 
     with contextlib.suppress(ResourceWarning):
         env = os.environ.copy()
+        # fixes a bug where launcher fails to appear if opening it
+        # straight after updating
+        if "GNOME_TERMINAL_SCREEN" in env:
+            del env["GNOME_TERMINAL_SCREEN"]
         creationflags = 0
         if sys.platform == "win32":
             creationflags = (
