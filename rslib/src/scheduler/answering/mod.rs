@@ -229,27 +229,31 @@ impl Collection {
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
         let deck = self.get_deck(card.deck_id)?.or_not_found(card.deck_id)?;
-
-        let note_id = deck
-            .config_id()
-            .map(|deck_config_id| self.get_deck_config(deck_config_id, false))
-            .transpose()?
-            .flatten()
-            .map(|deck_config| deck_config.inner.bury_reviews)
-            .unwrap_or(false)
-            .then_some(card.note_id);
+        let note_id = card.note_id;
 
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
 
-        let load_balancer_ctx = self.state.card_queues.as_ref().and_then(|card_queues| {
-            match card_queues.load_balancer.as_ref() {
-                None => None,
-                Some(load_balancer) => {
-                    Some(load_balancer.review_context(note_id, deck.config_id()?))
-                }
+        let load_balancer_ctx = if let Some(load_balancer) = self
+            .state
+            .card_queues
+            .as_ref()
+            .and_then(|card_queues| card_queues.load_balancer.as_ref())
+        {
+            // Only get_deck_config when load balancer is enabled
+            if let Some(deck_config_id) = deck.config_id() {
+                let note_id = self
+                    .get_deck_config(deck_config_id, false)?
+                    .map(|deck_config| deck_config.inner.bury_reviews)
+                    .unwrap_or(false)
+                    .then_some(note_id);
+                Some(load_balancer.review_context(note_id, deck_config_id))
+            } else {
+                None
             }
-        });
+        } else {
+            None
+        };
 
         let state_ctx = ctx.state_context(load_balancer_ctx);
         Ok(current.next_states(&state_ctx))
