@@ -56,6 +56,12 @@ pub enum VersionKind {
     Uv(String),
 }
 
+#[derive(Debug)]
+pub struct Releases {
+    pub latest: Vec<String>,
+    pub all: Vec<String>,
+}
+
 #[derive(Debug, Clone)]
 pub enum MainMenuChoice {
     Latest,
@@ -230,13 +236,7 @@ fn check_versions(state: &mut State) {
 }
 
 fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Result<()> {
-    update_pyproject_for_version(
-        choice.clone(),
-        state.dist_pyproject_path.clone(),
-        state.user_pyproject_path.clone(),
-        state.dist_python_version_path.clone(),
-        state.user_python_version_path.clone(),
-    )?;
+    update_pyproject_for_version(choice.clone(), state)?;
 
     // Extract current version before syncing (but don't write to file yet)
     let previous_version_to_save = extract_aqt_version(&state.uv_path, &state.uv_install_root);
@@ -282,11 +282,6 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     // Add python version if .python-version file exists
     if let Some(version) = &python_version_trimmed {
         command.args(["--python", version]);
-    }
-
-    // Set UV_PRERELEASE=allow if beta mode is enabled
-    if state.prerelease_marker.exists() {
-        command.env("UV_PRERELEASE", "allow");
     }
 
     if state.no_cache_marker.exists() {
@@ -387,7 +382,7 @@ fn write_sync_marker(sync_complete_marker: &std::path::Path) -> Result<()> {
 
 fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
     loop {
-        println!("1) Latest Anki (just press Enter)");
+        println!("1) Latest Anki (press Enter)");
         println!("2) Choose a version");
         if let Some(current_version) = &state.current_version {
             let normalized_current = normalize_version(current_version);
@@ -465,13 +460,9 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
 fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
     println!("Please wait...");
 
-    let include_prereleases = state.prerelease_marker.exists();
-    let all_versions = fetch_versions(state)?;
-    let all_versions = filter_and_normalize_versions(all_versions, include_prereleases);
-
-    let latest_patches = with_only_latest_patch(&all_versions);
-    let latest_releases: Vec<&String> = latest_patches.iter().take(5).collect();
-    let releases_str = latest_releases
+    let releases = get_releases(state)?;
+    let releases_str = releases
+        .latest
         .iter()
         .map(|v| v.as_str())
         .collect::<Vec<_>>()
@@ -494,7 +485,7 @@ fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
     let normalized_input = normalize_version(input);
 
     // Check if the version exists in the available versions
-    let version_exists = all_versions.iter().any(|v| v == &normalized_input);
+    let version_exists = releases.all.iter().any(|v| v == &normalized_input);
 
     match (parse_version_kind(input), version_exists) {
         (Some(version_kind), true) => {
@@ -502,7 +493,7 @@ fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
             Ok(Some(version_kind))
         }
         (None, true) => {
-            println!("Versions before 2.1.50 can't be installedn");
+            println!("Versions before 2.1.50 can't be installed.");
             Ok(None)
         }
         _ => {
@@ -635,19 +626,70 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
     Ok(versions)
 }
 
-fn update_pyproject_for_version(
-    menu_choice: MainMenuChoice,
-    dist_pyproject_path: std::path::PathBuf,
-    user_pyproject_path: std::path::PathBuf,
-    dist_python_version_path: std::path::PathBuf,
-    user_python_version_path: std::path::PathBuf,
-) -> Result<()> {
+fn get_releases(state: &State) -> Result<Releases> {
+    let include_prereleases = state.prerelease_marker.exists();
+    let all_versions = fetch_versions(state)?;
+    let all_versions = filter_and_normalize_versions(all_versions, include_prereleases);
+
+    let latest_patches = with_only_latest_patch(&all_versions);
+    let latest_releases: Vec<String> = latest_patches.into_iter().take(5).collect();
+    Ok(Releases {
+        latest: latest_releases,
+        all: all_versions,
+    })
+}
+
+fn apply_version_kind(version_kind: &VersionKind, state: &State) -> Result<()> {
+    let content = read_file(&state.dist_pyproject_path)?;
+    let content_str = String::from_utf8(content).context("Invalid UTF-8 in pyproject.toml")?;
+    let updated_content = match version_kind {
+        VersionKind::PyOxidizer(version) => {
+            // Replace package name and add PyQt6 dependencies
+            content_str.replace(
+                "anki-release",
+                &format!(
+                    concat!(
+                        "aqt[qt6]=={}\",\n",
+                        "  \"anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'\",\n",
+                        "  \"pyqt6==6.6.1\",\n",
+                        "  \"pyqt6-qt6==6.6.2\",\n",
+                        "  \"pyqt6-webengine==6.6.0\",\n",
+                        "  \"pyqt6-webengine-qt6==6.6.2\",\n",
+                        "  \"pyqt6_sip==13.6.0"
+                    ),
+                    version
+                ),
+            )
+        }
+        VersionKind::Uv(version) => content_str.replace(
+            "anki-release",
+            &format!("anki-release=={version}\",\n  \"anki=={version}\",\n  \"aqt=={version}"),
+        ),
+    };
+    write_file(&state.user_pyproject_path, &updated_content)?;
+
+    // Update .python-version based on version kind
+    match version_kind {
+        VersionKind::PyOxidizer(_) => {
+            write_file(&state.user_python_version_path, "3.9")?;
+        }
+        VersionKind::Uv(_) => {
+            copy_file(
+                &state.dist_python_version_path,
+                &state.user_python_version_path,
+            )?;
+        }
+    }
+    Ok(())
+}
+
+fn update_pyproject_for_version(menu_choice: MainMenuChoice, state: &State) -> Result<()> {
     match menu_choice {
         MainMenuChoice::Latest => {
-            let content = read_file(&dist_pyproject_path)?;
-            write_file(&user_pyproject_path, &content)?;
-            let python_version_content = read_file(&dist_python_version_path)?;
-            write_file(&user_python_version_path, &python_version_content)?;
+            // Get the latest release version and create a VersionKind for it
+            let releases = get_releases(state)?;
+            let latest_version = releases.latest.first().context("No latest version found")?;
+            apply_version_kind(&VersionKind::Uv(latest_version.clone()), state)?;
         }
         MainMenuChoice::KeepExisting => {
             // Do nothing - keep existing pyproject.toml and .python-version
@@ -662,43 +704,7 @@ fn update_pyproject_for_version(
             unreachable!();
         }
         MainMenuChoice::Version(version_kind) => {
-            let content = read_file(&dist_pyproject_path)?;
-            let content_str =
-                String::from_utf8(content).context("Invalid UTF-8 in pyproject.toml")?;
-            let updated_content = match &version_kind {
-                VersionKind::PyOxidizer(version) => {
-                    // Replace package name and add PyQt6 dependencies
-                    content_str.replace(
-                        "anki-release",
-                        &format!(
-                            concat!(
-                                "aqt[qt6]=={}\",\n",
-                                "  \"anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'\",\n",
-                                "  \"pyqt6==6.6.1\",\n",
-                                "  \"pyqt6-qt6==6.6.2\",\n",
-                                "  \"pyqt6-webengine==6.6.0\",\n",
-                                "  \"pyqt6-webengine-qt6==6.6.2\",\n",
-                                "  \"pyqt6_sip==13.6.0"
-                            ),
-                            version
-                        ),
-                    )
-                }
-                VersionKind::Uv(version) => {
-                    content_str.replace("anki-release", &format!("anki-release=={version}"))
-                }
-            };
-            write_file(&user_pyproject_path, &updated_content)?;
-
-            // Update .python-version based on version kind
-            match &version_kind {
-                VersionKind::PyOxidizer(_) => {
-                    write_file(&user_python_version_path, "3.9")?;
-                }
-                VersionKind::Uv(_) => {
-                    copy_file(&dist_python_version_path, &user_python_version_path)?;
-                }
-            }
+            apply_version_kind(&version_kind, state)?;
         }
         MainMenuChoice::Quit => {
             std::process::exit(0);
@@ -874,11 +880,6 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     // Set UV and Python paths for the Python code
     cmd.env("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
     cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
-
-    // Set UV_PRERELEASE=allow if beta mode is enabled
-    if state.prerelease_marker.exists() {
-        cmd.env("UV_PRERELEASE", "allow");
-    }
 
     Ok(cmd)
 }
