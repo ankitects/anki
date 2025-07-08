@@ -377,6 +377,7 @@ pub(crate) fn fsrs_item_for_memory_state(
             Ok(None)
         }
     } else {
+        // no revlogs (new card or caused by ignore_revlogs_before)
         Ok(None)
     }
 }
