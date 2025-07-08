@@ -18,13 +18,14 @@ pub fn relaunch_in_terminal() -> Result<()> {
         ("alacritty", vec!["-e"]),
         ("kitty", vec![]),
         ("foot", vec![]),
+        // the user's default terminal in Debian/Ubuntu
+        ("x-terminal-emulator", vec!["-e"]),
         // default installs for the most common distros
         ("xfce4-terminal", vec!["-e"]),
-        ("gnome-terminal", vec!["--"]),
+        ("gnome-terminal", vec!["-e"]),
         ("konsole", vec!["-e"]),
         // x11-compatibility terminals
         ("urxvt", vec!["-e"]),
-        ("x-terminal-emulator", vec!["-e"]),
         ("xterm", vec!["-e"]),
     ];
 
