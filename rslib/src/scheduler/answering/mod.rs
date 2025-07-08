@@ -228,7 +228,6 @@ impl Collection {
     /// Return the next states that will be applied for each answer button.
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
-        let deck = self.get_deck(card.deck_id)?.or_not_found(card.deck_id)?;
         let note_id = card.note_id;
 
         let ctx = self.card_state_updater(card)?;
@@ -241,7 +240,7 @@ impl Collection {
             .and_then(|card_queues| card_queues.load_balancer.as_ref())
         {
             // Only get_deck_config when load balancer is enabled
-            if let Some(deck_config_id) = deck.config_id() {
+            if let Some(deck_config_id) = ctx.deck.config_id() {
                 let note_id = self
                     .get_deck_config(deck_config_id, false)?
                     .map(|deck_config| deck_config.inner.bury_reviews)
