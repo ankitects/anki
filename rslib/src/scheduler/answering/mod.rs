@@ -338,6 +338,7 @@ impl Collection {
         self.update_deck_stats_from_answer(usn, answer, &updater, original.queue)?;
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;
+        let deckconfig_id = updater.deck.config_id();
         let mut card = updater.into_card();
         if let Some(data) = answer.custom_data.take() {
             card.custom_data = data;
@@ -350,12 +351,14 @@ impl Collection {
         }
 
         if card.queue == CardQueue::Review {
-            let deck = self.get_deck(card.deck_id)?;
-            if let Some(card_queues) = self.state.card_queues.as_mut() {
-                if let Some(deckconfig_id) = deck.and_then(|deck| deck.config_id()) {
-                    if let Some(load_balancer) = card_queues.load_balancer.as_mut() {
-                        load_balancer.add_card(card.id, card.note_id, deckconfig_id, card.interval)
-                    }
+            if let Some(load_balancer) = self
+                .state
+                .card_queues
+                .as_mut()
+                .and_then(|card_queues| card_queues.load_balancer.as_mut())
+            {
+                if let Some(deckconfig_id) = deckconfig_id {
+                    load_balancer.add_card(card.id, card.note_id, deckconfig_id, card.interval)
                 }
             }
         }
