@@ -47,12 +47,19 @@ struct State {
     uv_lock_path: std::path::PathBuf,
     sync_complete_marker: std::path::PathBuf,
     previous_version: Option<String>,
+    resources_dir: std::path::PathBuf,
 }
 
 #[derive(Debug, Clone)]
 pub enum VersionKind {
     PyOxidizer(String),
     Uv(String),
+}
+
+#[derive(Debug)]
+pub struct Releases {
+    pub latest: Vec<String>,
+    pub all: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -100,6 +107,7 @@ fn run() -> Result<()> {
         uv_lock_path: uv_install_root.join("uv.lock"),
         sync_complete_marker: uv_install_root.join(".sync_complete"),
         previous_version: None,
+        resources_dir,
     };
 
     // Check for uninstall request from Windows uninstaller
@@ -111,7 +119,6 @@ fn run() -> Result<()> {
 
     // Create install directory and copy project files in
     create_dir_all(&state.uv_install_root)?;
-
     copy_if_newer(&state.dist_pyproject_path, &state.user_pyproject_path)?;
     copy_if_newer(
         &state.dist_python_version_path,
@@ -143,7 +150,12 @@ fn run() -> Result<()> {
 
     check_versions(&mut state);
 
-    main_menu_loop(&state)?;
+    let first_run = !state.uv_install_root.join(".venv").exists();
+    if first_run {
+        handle_version_install_or_update(&state, MainMenuChoice::Latest)?;
+    } else {
+        main_menu_loop(&state)?;
+    }
 
     // Write marker file to indicate we've completed the sync process
     write_sync_marker(&state.sync_complete_marker)?;
@@ -223,9 +235,90 @@ fn check_versions(state: &mut State) {
     }
 }
 
+fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Result<()> {
+    update_pyproject_for_version(choice.clone(), state)?;
+
+    // Extract current version before syncing (but don't write to file yet)
+    let previous_version_to_save = extract_aqt_version(&state.uv_path, &state.uv_install_root);
+
+    // Remove sync marker before attempting sync
+    let _ = remove_file(&state.sync_complete_marker);
+
+    println!("\x1B[1mUpdating Anki...\x1B[0m\n");
+
+    let python_version_trimmed = if state.user_python_version_path.exists() {
+        let python_version = read_file(&state.user_python_version_path)?;
+        let python_version_str =
+            String::from_utf8(python_version).context("Invalid UTF-8 in .python-version")?;
+        Some(python_version_str.trim().to_string())
+    } else {
+        None
+    };
+
+    // `uv sync` sometimes does not pull in Python automatically
+    // This might be system/platform specific and/or a uv bug.
+    let mut command = Command::new(&state.uv_path);
+    command
+        .current_dir(&state.uv_install_root)
+        .env("UV_CACHE_DIR", &state.uv_cache_dir)
+        .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
+        .args(["python", "install", "--managed-python"]);
+
+    // Add python version if .python-version file exists
+    if let Some(version) = &python_version_trimmed {
+        command.args([version]);
+    }
+
+    command.ensure_success().context("Python install failed")?;
+
+    // Sync the venv
+    let mut command = Command::new(&state.uv_path);
+    command
+        .current_dir(&state.uv_install_root)
+        .env("UV_CACHE_DIR", &state.uv_cache_dir)
+        .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
+        .args(["sync", "--upgrade", "--managed-python"]);
+
+    // Add python version if .python-version file exists
+    if let Some(version) = &python_version_trimmed {
+        command.args(["--python", version]);
+    }
+
+    if state.no_cache_marker.exists() {
+        command.env("UV_NO_CACHE", "1");
+    }
+
+    match command.ensure_success() {
+        Ok(_) => {
+            // Sync succeeded
+            if matches!(&choice, MainMenuChoice::Version(VersionKind::PyOxidizer(_))) {
+                inject_helper_addon(&state.uv_install_root)?;
+            }
+
+            // Now that sync succeeded, save the previous version
+            if let Some(current_version) = previous_version_to_save {
+                let previous_version_path = state.uv_install_root.join("previous-version");
+                if let Err(e) = write_file(&previous_version_path, &current_version) {
+                    println!("Warning: Could not save previous version: {e}");
+                }
+            }
+
+            Ok(())
+        }
+        Err(e) => {
+            // If sync fails due to things like a missing wheel on pypi,
+            // we need to remove the lockfile or uv will cache the bad result.
+            let _ = remove_file(&state.uv_lock_path);
+            println!("Install failed: {e:#}");
+            println!();
+            Err(e.into())
+        }
+    }
+}
+
 fn main_menu_loop(state: &State) -> Result<()> {
     loop {
-        let menu_choice = get_main_menu_choice(state);
+        let menu_choice = get_main_menu_choice(state)?;
 
         match menu_choice {
             MainMenuChoice::Quit => std::process::exit(0),
@@ -268,102 +361,10 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 continue;
             }
             choice @ (MainMenuChoice::Latest | MainMenuChoice::Version(_)) => {
-                // For other choices, update project files and sync
-                update_pyproject_for_version(
-                    choice.clone(),
-                    state.dist_pyproject_path.clone(),
-                    state.user_pyproject_path.clone(),
-                    state.dist_python_version_path.clone(),
-                    state.user_python_version_path.clone(),
-                )?;
-
-                // Extract current version before syncing (but don't write to file yet)
-                let previous_version_to_save =
-                    extract_aqt_version(&state.uv_path, &state.uv_install_root);
-
-                // Remove sync marker before attempting sync
-                let _ = remove_file(&state.sync_complete_marker);
-
-                println!("\x1B[1mUpdating Anki...\x1B[0m\n");
-
-                let python_version_trimmed = if state.user_python_version_path.exists() {
-                    let python_version = read_file(&state.user_python_version_path)?;
-                    let python_version_str = String::from_utf8(python_version)
-                        .context("Invalid UTF-8 in .python-version")?;
-                    Some(python_version_str.trim().to_string())
-                } else {
-                    None
-                };
-
-                // `uv sync` does not pull in Python automatically, unlike `uv run`.
-                // This might be system/platform specific and/or a uv bug.
-                let mut command = Command::new(&state.uv_path);
-                command
-                    .current_dir(&state.uv_install_root)
-                    .env("UV_CACHE_DIR", &state.uv_cache_dir)
-                    .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
-                    .args(["python", "install", "--managed-python"]);
-
-                // Add python version if .python-version file exists
-                if let Some(version) = &python_version_trimmed {
-                    command.args([version]);
-                }
-
-                if let Err(e) = command.ensure_success() {
-                    println!("Python install failed: {e:#}");
-                    println!();
+                if handle_version_install_or_update(state, choice.clone()).is_err() {
                     continue;
                 }
-
-                // Sync the venv
-                let mut command = Command::new(&state.uv_path);
-                command
-                    .current_dir(&state.uv_install_root)
-                    .env("UV_CACHE_DIR", &state.uv_cache_dir)
-                    .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
-                    .args(["sync", "--upgrade", "--managed-python"]);
-
-                // Add python version if .python-version file exists
-                if let Some(version) = &python_version_trimmed {
-                    command.args(["--python", version]);
-                }
-
-                // Set UV_PRERELEASE=allow if beta mode is enabled
-                if state.prerelease_marker.exists() {
-                    command.env("UV_PRERELEASE", "allow");
-                }
-
-                if state.no_cache_marker.exists() {
-                    command.env("UV_NO_CACHE", "1");
-                }
-
-                match command.ensure_success() {
-                    Ok(_) => {
-                        // Sync succeeded
-                        if matches!(&choice, MainMenuChoice::Version(VersionKind::PyOxidizer(_))) {
-                            inject_helper_addon(&state.uv_install_root)?;
-                        }
-
-                        // Now that sync succeeded, save the previous version
-                        if let Some(current_version) = previous_version_to_save {
-                            let previous_version_path =
-                                state.uv_install_root.join("previous-version");
-                            if let Err(e) = write_file(&previous_version_path, &current_version) {
-                                println!("Warning: Could not save previous version: {e}");
-                            }
-                        }
-
-                        break;
-                    }
-                    Err(e) => {
-                        // If sync fails due to things like a missing wheel on pypi,
-                        // we need to remove the lockfile or uv will cache the bad result.
-                        let _ = remove_file(&state.uv_lock_path);
-                        println!("Install failed: {e:#}");
-                        println!();
-                        continue;
-                    }
-                }
+                break;
             }
         }
     }
@@ -379,16 +380,18 @@ fn write_sync_marker(sync_complete_marker: &std::path::Path) -> Result<()> {
     Ok(())
 }
 
-fn get_main_menu_choice(state: &State) -> MainMenuChoice {
+fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
     loop {
-        println!("1) Latest Anki (just press enter)");
+        println!("1) Latest Anki (press Enter)");
         println!("2) Choose a version");
         if let Some(current_version) = &state.current_version {
-            println!("3) Keep existing version ({current_version})");
+            let normalized_current = normalize_version(current_version);
+            println!("3) Keep existing version ({normalized_current})");
         }
         if let Some(prev_version) = &state.previous_version {
             if state.current_version.as_ref() != Some(prev_version) {
-                println!("4) Revert to previous version ({prev_version})");
+                let normalized_prev = normalize_version(prev_version);
+                println!("4) Revert to previous version ({normalized_prev})");
             }
         }
         println!();
@@ -415,9 +418,14 @@ fn get_main_menu_choice(state: &State) -> MainMenuChoice {
 
         println!();
 
-        return match input {
+        return Ok(match input {
             "" | "1" => MainMenuChoice::Latest,
-            "2" => MainMenuChoice::Version(get_version_kind()),
+            "2" => {
+                match get_version_kind(state)? {
+                    Some(version_kind) => MainMenuChoice::Version(version_kind),
+                    None => continue, // Return to main menu
+                }
+            }
             "3" => {
                 if state.current_version.is_some() {
                     MainMenuChoice::KeepExisting
@@ -430,7 +438,7 @@ fn get_main_menu_choice(state: &State) -> MainMenuChoice {
                 if let Some(prev_version) = &state.previous_version {
                     if state.current_version.as_ref() != Some(prev_version) {
                         if let Some(version_kind) = parse_version_kind(prev_version) {
-                            return MainMenuChoice::Version(version_kind);
+                            return Ok(MainMenuChoice::Version(version_kind));
                         }
                     }
                 }
@@ -445,51 +453,243 @@ fn get_main_menu_choice(state: &State) -> MainMenuChoice {
                 println!("Invalid input. Please try again.");
                 continue;
             }
-        };
+        });
     }
 }
 
-fn get_version_kind() -> VersionKind {
-    loop {
-        println!("Enter the version you want to install:");
-        print!("> ");
-        let _ = stdout().flush();
+fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
+    println!("Please wait...");
 
-        let mut input = String::new();
-        let _ = stdin().read_line(&mut input);
-        let input = input.trim();
+    let releases = get_releases(state)?;
+    let releases_str = releases
+        .latest
+        .iter()
+        .map(|v| v.as_str())
+        .collect::<Vec<_>>()
+        .join(", ");
+    println!("Latest releases: {releases_str}");
 
-        if input.is_empty() {
-            println!("Please enter a version.");
-            continue;
+    println!("Enter the version you want to install:");
+    print!("> ");
+    let _ = stdout().flush();
+
+    let mut input = String::new();
+    let _ = stdin().read_line(&mut input);
+    let input = input.trim();
+
+    if input.is_empty() {
+        return Ok(None);
+    }
+
+    // Normalize the input version for comparison
+    let normalized_input = normalize_version(input);
+
+    // Check if the version exists in the available versions
+    let version_exists = releases.all.iter().any(|v| v == &normalized_input);
+
+    match (parse_version_kind(input), version_exists) {
+        (Some(version_kind), true) => {
+            println!();
+            Ok(Some(version_kind))
         }
-
-        match parse_version_kind(input) {
-            Some(version_kind) => {
-                println!();
-                return version_kind;
-            }
-            None => {
-                println!("Invalid version format. Please enter a version like 25.07.1 or 24.11 (minimum 2.1.50)");
-                continue;
-            }
+        (None, true) => {
+            println!("Versions before 2.1.50 can't be installed.");
+            Ok(None)
+        }
+        _ => {
+            println!("Invalid version.\n");
+            Ok(None)
         }
     }
 }
 
-fn update_pyproject_for_version(
-    menu_choice: MainMenuChoice,
-    dist_pyproject_path: std::path::PathBuf,
-    user_pyproject_path: std::path::PathBuf,
-    dist_python_version_path: std::path::PathBuf,
-    user_python_version_path: std::path::PathBuf,
-) -> Result<()> {
+fn with_only_latest_patch(versions: &[String]) -> Vec<String> {
+    // Only show the latest patch release for a given (major, minor)
+    let mut seen_major_minor = std::collections::HashSet::new();
+    versions
+        .iter()
+        .filter(|v| {
+            let (major, minor, _, _) = parse_version_for_filtering(v);
+            if major == 2 {
+                return true;
+            }
+            let major_minor = (major, minor);
+            if seen_major_minor.contains(&major_minor) {
+                false
+            } else {
+                seen_major_minor.insert(major_minor);
+                true
+            }
+        })
+        .cloned()
+        .collect()
+}
+
+fn parse_version_for_filtering(version_str: &str) -> (u32, u32, u32, bool) {
+    // Remove any build metadata after +
+    let version_str = version_str.split('+').next().unwrap_or(version_str);
+
+    // Check for prerelease markers
+    let is_prerelease = ["a", "b", "rc", "alpha", "beta"]
+        .iter()
+        .any(|marker| version_str.to_lowercase().contains(marker));
+
+    // Extract numeric parts (stop at first non-digit/non-dot character)
+    let numeric_end = version_str
+        .find(|c: char| !c.is_ascii_digit() && c != '.')
+        .unwrap_or(version_str.len());
+    let numeric_part = &version_str[..numeric_end];
+
+    let parts: Vec<&str> = numeric_part.split('.').collect();
+
+    let major = parts.first().and_then(|s| s.parse().ok()).unwrap_or(0);
+    let minor = parts.get(1).and_then(|s| s.parse().ok()).unwrap_or(0);
+    let patch = parts.get(2).and_then(|s| s.parse().ok()).unwrap_or(0);
+
+    (major, minor, patch, is_prerelease)
+}
+
+fn normalize_version(version: &str) -> String {
+    let (major, minor, patch, _is_prerelease) = parse_version_for_filtering(version);
+
+    if major <= 2 {
+        // Don't transform versions <= 2.x
+        return version.to_string();
+    }
+
+    // For versions > 2, pad the minor version with leading zero if < 10
+    let normalized_minor = if minor < 10 {
+        format!("0{minor}")
+    } else {
+        minor.to_string()
+    };
+
+    // Find any prerelease suffix
+    let mut prerelease_suffix = "";
+
+    // Look for prerelease markers after the numeric part
+    let numeric_end = version
+        .find(|c: char| !c.is_ascii_digit() && c != '.')
+        .unwrap_or(version.len());
+    if numeric_end < version.len() {
+        let suffix_part = &version[numeric_end..];
+        let suffix_lower = suffix_part.to_lowercase();
+
+        for marker in ["alpha", "beta", "rc", "a", "b"] {
+            if suffix_lower.starts_with(marker) {
+                prerelease_suffix = &version[numeric_end..];
+                break;
+            }
+        }
+    }
+
+    // Reconstruct the version
+    if version.matches('.').count() >= 2 {
+        format!("{major}.{normalized_minor}.{patch}{prerelease_suffix}")
+    } else {
+        format!("{major}.{normalized_minor}{prerelease_suffix}")
+    }
+}
+
+fn filter_and_normalize_versions(
+    all_versions: Vec<String>,
+    include_prereleases: bool,
+) -> Vec<String> {
+    let mut valid_versions: Vec<String> = all_versions
+        .into_iter()
+        .map(|v| normalize_version(&v))
+        .collect();
+
+    // Reverse to get chronological order (newest first)
+    valid_versions.reverse();
+
+    if !include_prereleases {
+        valid_versions.retain(|v| {
+            let (_, _, _, is_prerelease) = parse_version_for_filtering(v);
+            !is_prerelease
+        });
+    }
+
+    valid_versions
+}
+
+fn fetch_versions(state: &State) -> Result<Vec<String>> {
+    let versions_script = state.resources_dir.join("versions.py");
+
+    let mut cmd = Command::new(&state.uv_path);
+    cmd.current_dir(&state.uv_install_root)
+        .args(["run", "--no-project"])
+        .arg(&versions_script);
+
+    let output = cmd.utf8_output()?;
+    let versions = serde_json::from_str(&output.stdout).context("Failed to parse versions JSON")?;
+    Ok(versions)
+}
+
+fn get_releases(state: &State) -> Result<Releases> {
+    let include_prereleases = state.prerelease_marker.exists();
+    let all_versions = fetch_versions(state)?;
+    let all_versions = filter_and_normalize_versions(all_versions, include_prereleases);
+
+    let latest_patches = with_only_latest_patch(&all_versions);
+    let latest_releases: Vec<String> = latest_patches.into_iter().take(5).collect();
+    Ok(Releases {
+        latest: latest_releases,
+        all: all_versions,
+    })
+}
+
+fn apply_version_kind(version_kind: &VersionKind, state: &State) -> Result<()> {
+    let content = read_file(&state.dist_pyproject_path)?;
+    let content_str = String::from_utf8(content).context("Invalid UTF-8 in pyproject.toml")?;
+    let updated_content = match version_kind {
+        VersionKind::PyOxidizer(version) => {
+            // Replace package name and add PyQt6 dependencies
+            content_str.replace(
+                "anki-release",
+                &format!(
+                    concat!(
+                        "aqt[qt6]=={}\",\n",
+                        "  \"anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'\",\n",
+                        "  \"pyqt6==6.6.1\",\n",
+                        "  \"pyqt6-qt6==6.6.2\",\n",
+                        "  \"pyqt6-webengine==6.6.0\",\n",
+                        "  \"pyqt6-webengine-qt6==6.6.2\",\n",
+                        "  \"pyqt6_sip==13.6.0"
+                    ),
+                    version
+                ),
+            )
+        }
+        VersionKind::Uv(version) => content_str.replace(
+            "anki-release",
+            &format!("anki-release=={version}\",\n  \"anki=={version}\",\n  \"aqt=={version}"),
+        ),
+    };
+    write_file(&state.user_pyproject_path, &updated_content)?;
+
+    // Update .python-version based on version kind
+    match version_kind {
+        VersionKind::PyOxidizer(_) => {
+            write_file(&state.user_python_version_path, "3.9")?;
+        }
+        VersionKind::Uv(_) => {
+            copy_file(
+                &state.dist_python_version_path,
+                &state.user_python_version_path,
+            )?;
+        }
+    }
+    Ok(())
+}
+
+fn update_pyproject_for_version(menu_choice: MainMenuChoice, state: &State) -> Result<()> {
     match menu_choice {
         MainMenuChoice::Latest => {
-            let content = read_file(&dist_pyproject_path)?;
-            write_file(&user_pyproject_path, &content)?;
-            let python_version_content = read_file(&dist_python_version_path)?;
-            write_file(&user_python_version_path, &python_version_content)?;
+            // Get the latest release version and create a VersionKind for it
+            let releases = get_releases(state)?;
+            let latest_version = releases.latest.first().context("No latest version found")?;
+            apply_version_kind(&VersionKind::Uv(latest_version.clone()), state)?;
         }
         MainMenuChoice::KeepExisting => {
             // Do nothing - keep existing pyproject.toml and .python-version
@@ -504,43 +704,7 @@ fn update_pyproject_for_version(
             unreachable!();
         }
         MainMenuChoice::Version(version_kind) => {
-            let content = read_file(&dist_pyproject_path)?;
-            let content_str =
-                String::from_utf8(content).context("Invalid UTF-8 in pyproject.toml")?;
-            let updated_content = match &version_kind {
-                VersionKind::PyOxidizer(version) => {
-                    // Replace package name and add PyQt6 dependencies
-                    content_str.replace(
-                        "anki-release",
-                        &format!(
-                            concat!(
-                                "aqt[qt6]=={}\",\n",
-                                "  \"anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'\",\n",
-                                "  \"pyqt6==6.6.1\",\n",
-                                "  \"pyqt6-qt6==6.6.2\",\n",
-                                "  \"pyqt6-webengine==6.6.0\",\n",
-                                "  \"pyqt6-webengine-qt6==6.6.2\",\n",
-                                "  \"pyqt6_sip==13.6.0"
-                            ),
-                            version
-                        ),
-                    )
-                }
-                VersionKind::Uv(version) => {
-                    content_str.replace("anki-release", &format!("anki-release=={version}"))
-                }
-            };
-            write_file(&user_pyproject_path, &updated_content)?;
-
-            // Update .python-version based on version kind
-            match &version_kind {
-                VersionKind::PyOxidizer(_) => {
-                    write_file(&user_python_version_path, "3.9")?;
-                }
-                VersionKind::Uv(_) => {
-                    copy_file(&dist_python_version_path, &user_python_version_path)?;
-                }
-            }
+            apply_version_kind(&version_kind, state)?;
         }
         MainMenuChoice::Quit => {
             std::process::exit(0);
@@ -714,15 +878,34 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
 
     // Set UV and Python paths for the Python code
-    let (exe_dir, _) = get_exe_and_resources_dirs()?;
-    let uv_path = exe_dir.join(get_uv_binary_name());
-    cmd.env("ANKI_LAUNCHER_UV", uv_path.utf8()?.as_str());
+    cmd.env("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
     cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
 
-    // Set UV_PRERELEASE=allow if beta mode is enabled
-    if state.prerelease_marker.exists() {
-        cmd.env("UV_PRERELEASE", "allow");
-    }
-
     Ok(cmd)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_version() {
+        // Test versions <= 2.x (should not be transformed)
+        assert_eq!(normalize_version("2.1.50"), "2.1.50");
+
+        // Test basic versions > 2 with zero-padding
+        assert_eq!(normalize_version("25.7"), "25.07");
+        assert_eq!(normalize_version("25.07"), "25.07");
+        assert_eq!(normalize_version("25.10"), "25.10");
+        assert_eq!(normalize_version("24.6.1"), "24.06.1");
+        assert_eq!(normalize_version("24.06.1"), "24.06.1");
+
+        // Test prerelease versions
+        assert_eq!(normalize_version("25.7a1"), "25.07a1");
+        assert_eq!(normalize_version("25.7.1a1"), "25.07.1a1");
+
+        // Test versions with patch = 0
+        assert_eq!(normalize_version("25.7.0"), "25.07.0");
+        assert_eq!(normalize_version("25.7.0a1"), "25.07.0a1");
+    }
 }

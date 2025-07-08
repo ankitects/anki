@@ -128,7 +128,9 @@ impl Card {
     /// This uses card.due and card.ivl to infer the elapsed time. If 'set due
     /// date' or an add-on has changed the due date, this won't be accurate.
     pub(crate) fn days_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
-        if !self.is_due_in_days() {
+        if let Some(last_review_time) = self.last_review_time {
+            Some(timing.next_day_at.elapsed_days_since(last_review_time) as u32)
+        } else if !self.is_due_in_days() {
             Some(
                 (timing.next_day_at.0 as u32).saturating_sub(self.original_or_current_due() as u32)
                     / 86_400,
