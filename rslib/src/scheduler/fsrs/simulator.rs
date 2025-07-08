@@ -146,7 +146,6 @@ impl Collection {
         let new_cards =
             cards.iter().filter(|c| c.queue == CardQueue::New).count() + req.deck_size as usize;
         let fsrs = FSRS::new(Some(&req.params))?;
-        let historical_retention = req.desired_retention;
         let mut converted_cards = cards
             .into_iter()
             .filter(is_included_card)
@@ -157,7 +156,7 @@ impl Collection {
                         .memory_state_from_sm2(
                             c.ease_factor(),
                             c.interval as f32,
-                            historical_retention,
+                            req.historical_retention,
                         )
                         .ok()?
                         .into(),
