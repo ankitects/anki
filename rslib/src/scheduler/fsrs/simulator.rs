@@ -153,7 +153,8 @@ impl Collection {
             .filter_map(|c| {
                 let memory_state = match c.memory_state {
                     Some(state) => state,
-                    // cards that lack memory states after compute_memory_state have no FSRS items, implying a truncated or ignored revlog
+                    // cards that lack memory states after compute_memory_state have no FSRS items,
+                    // implying a truncated or ignored revlog
                     None => fsrs
                         .memory_state_from_sm2(
                             c.ease_factor(),
