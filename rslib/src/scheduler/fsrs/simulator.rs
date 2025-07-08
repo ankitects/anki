@@ -16,6 +16,7 @@ use rand::rngs::StdRng;
 use rand::Rng;
 
 use crate::card::CardQueue;
+use crate::card::CardType;
 use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::scheduler::states::fuzz::constrained_fuzz_bounds;
