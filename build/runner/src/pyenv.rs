@@ -32,9 +32,17 @@ pub fn setup_pyenv(args: PyenvArgs) {
         }
     }
 
+    let mut command = Command::new(args.uv_bin);
+
+    // remove UV_* environment variables to avoid interference
+    for (key, _) in std::env::vars() {
+        if key.starts_with("UV_") {
+            command.env_remove(key);
+        }
+    }
+
     run_command(
-        Command::new(args.uv_bin)
-            .env_clear()
+        command
             .env("UV_PROJECT_ENVIRONMENT", args.pyenv_folder.clone())
             .args(["sync", "--locked", "--no-config"])
             .args(args.extra_args),

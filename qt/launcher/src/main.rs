@@ -257,9 +257,16 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
 
     // Prepare to sync the venv
     let mut command = Command::new(&state.uv_path);
+    command.current_dir(&state.uv_install_root);
+
+    // remove UV_* environment variables to avoid interference
+    for (key, _) in std::env::vars() {
+        if key.starts_with("UV_") {
+            command.env_remove(key);
+        }
+    }
+
     command
-        .current_dir(&state.uv_install_root)
-        .env_clear()
         .env("UV_CACHE_DIR", &state.uv_cache_dir)
         .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
         .args(["sync", "--upgrade", "--managed-python", "--no-config"]);
