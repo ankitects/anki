@@ -132,7 +132,7 @@ impl Collection {
         fn is_included_card(c: &Card) -> bool {
             c.queue != CardQueue::Suspended
                 && c.queue != CardQueue::PreviewRepeat
-                && c.queue != CardQueue::New
+                && c.ctype != CardType::New
         }
         // calculate any missing memory state
         for c in &mut cards {
