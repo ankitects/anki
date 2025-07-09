@@ -8,15 +8,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "$lib/components/Shortcut.svelte";
     import ActionButton from "./ActionButton.svelte";
 
-    export let onClose: () => void;
-    export let enableShortcut: boolean;
-
-    const closeKeyCombination = enableShortcut ? "Control+Enter" : "";
+    export let onAdd: () => void;
+    const addKeyCombination = "Control+Enter";
 </script>
 
-<ActionButton onClick={onClose} tooltip={getPlatformString(closeKeyCombination)}>
-    {tr.actionsClose()}
-    {#if enableShortcut}
-        <Shortcut keyCombination={closeKeyCombination} on:action={onClose} />
-    {/if}
+<ActionButton onClick={onAdd} tooltip={getPlatformString(addKeyCombination)}>
+    {tr.actionsAdd()}
+    <Shortcut keyCombination={addKeyCombination} on:action={onAdd} />
 </ActionButton>

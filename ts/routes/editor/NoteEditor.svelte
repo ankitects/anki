@@ -410,6 +410,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    async function onAdd() {
+        // TODO get selected deck
+        await addCurrentNote(1n);
+    }
+
     export function saveOnPageHide() {
         if (document.visibilityState === "hidden") {
             // will fire on session close and minimize
@@ -1236,7 +1241,7 @@ components and functionality for general note editing.
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
             <TagEditor {tags} on:tagsupdate={saveTags} />
         </Collapsible>
-        <ActionButtons {mode} {onClose} />
+        <ActionButtons {mode} {onClose} {onAdd} />
     {/if}
 
     <ContextMenu bind:this={contextMenu}>
