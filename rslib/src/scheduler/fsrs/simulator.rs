@@ -145,7 +145,7 @@ impl Collection {
         }
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let new_cards =
-            cards.iter().filter(|c| c.ctype == CardType::New).count() + req.deck_size as usize;
+            cards.iter().filter(|c| c.ctype == CardType::New && c.queue != CardQueue::Suspended).count() + req.deck_size as usize;
         let fsrs = FSRS::new(Some(&req.params))?;
         let mut converted_cards = cards
             .into_iter()
