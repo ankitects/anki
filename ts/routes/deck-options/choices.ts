@@ -199,29 +199,6 @@ export function questionActionChoices(): Choice<DeckConfig_Config_QuestionAction
     ];
 }
 
-export const DEFAULT_CMRR_TARGET = "memorized";
-
-export function CMRRTargetChoices(): Choice<string>[] {
-    return [
-        {
-            label: "Memorized (Default)",
-            value: "memorized",
-        },
-        {
-            label: "Stability (Experimental)",
-            value: "stability",
-        },
-        {
-            label: "Post Abandon Memorized (Experimental)",
-            value: "futureMemorized",
-        },
-        {
-            label: "Average Post Abandon Memorized (Experimental)",
-            value: "averageFutureMemorized",
-        },
-    ];
-}
-
 function difficultyOrders(fsrs: boolean): Choice<DeckConfig_Config_ReviewCardOrder>[] {
     const order = [
         {

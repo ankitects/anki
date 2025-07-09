@@ -19,8 +19,8 @@
         "@poppanator/sveltekit-svg": "^5.0.0",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
-        "@sveltejs/kit": "^2.20.7",
-        "@sveltejs/vite-plugin-svelte": "4.0.0",
+        "@sveltejs/kit": "^2.22.2",
+        "@sveltejs/vite-plugin-svelte": "5.1",
         "@types/bootstrap": "^5.0.12",
         "@types/codemirror": "^5.60.0",
         "@types/d3": "^7.0.0",
@@ -30,7 +30,7 @@
         "@types/jqueryui": "^1.12.13",
         "@types/lodash-es": "^4.17.4",
         "@types/marked": "^5.0.0",
-        "@types/node": "^20",
+        "@types/node": "^22",
         "@typescript-eslint/eslint-plugin": "^5.60.1",
         "@typescript-eslint/parser": "^5.60.1",
         "caniuse-lite": "^1.0.30001431",
@@ -48,16 +48,16 @@
         "prettier": "^3.4.2",
         "prettier-plugin-svelte": "^3.3.2",
         "sass": "<1.77",
-        "svelte": "^5.17.3",
-        "svelte-check": "^3.4.4",
-        "svelte-preprocess": "^5.0.4",
+        "svelte": "^5.34.9",
+        "svelte-check": "^4.2.2",
+        "svelte-preprocess": "^6.0.3",
         "svelte-preprocess-esbuild": "^3.0.1",
         "svgo": "^3.2.0",
         "tslib": "^2.0.3",
-        "tsx": "^3.12.0",
+        "tsx": "^4.8.1",
         "typescript": "^5.0.4",
-        "vite": "5.4.19",
-        "vitest": "^2"
+        "vite": "6",
+        "vitest": "^3"
     },
     "dependencies": {
         "@bufbuild/protobuf": "^1.2.1",
@@ -82,7 +82,8 @@
     },
     "resolutions": {
         "canvas": "npm:empty-npm-package@1.0.0",
-        "cookie": "0.7.0"
+        "cookie": "0.7.0",
+        "vite": "6"
     },
     "browserslist": [
         "defaults",

@@ -8,29 +8,88 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
-import aqt.sound
 from anki.utils import pointVersion
 from aqt import mw
 from aqt.qt import QAction
 from aqt.utils import askUser, is_mac, is_win, showInfo
 
 
-def _anki_launcher_path() -> str | None:
+def launcher_executable() -> str | None:
+    """Return the path to the Anki launcher executable."""
     return os.getenv("ANKI_LAUNCHER")
 
 
-def have_launcher() -> bool:
-    return _anki_launcher_path() is not None
+def uv_binary() -> str | None:
+    """Return the path to the uv binary."""
+    return os.environ.get("ANKI_LAUNCHER_UV")
+
+
+def launcher_root() -> str | None:
+    """Return the path to the launcher root directory (AnkiProgramFiles)."""
+    return os.environ.get("UV_PROJECT")
+
+
+def venv_binary(cmd: str) -> str | None:
+    """Return the path to a binary in the launcher's venv."""
+    root = launcher_root()
+    if not root:
+        return None
+
+    root_path = Path(root)
+    if is_win:
+        binary_path = root_path / ".venv" / "Scripts" / cmd
+    else:
+        binary_path = root_path / ".venv" / "bin" / cmd
+
+    return str(binary_path)
+
+
+def add_python_requirements(reqs: list[str]) -> tuple[bool, str]:
+    """Add Python requirements to the launcher venv using uv add.
+
+    Returns (success, output)"""
+
+    binary = uv_binary()
+    if not binary:
+        return (False, "Not in packaged build.")
+
+    uv_cmd = [binary, "add"] + reqs
+    result = subprocess.run(uv_cmd, capture_output=True, text=True, check=False)
+
+    if result.returncode == 0:
+        root = launcher_root()
+        if root:
+            sync_marker = Path(root) / ".sync_complete"
+            sync_marker.touch()
+        return (True, result.stdout)
+    else:
+        return (False, result.stderr)
+
+
+def trigger_launcher_run() -> None:
+    """Bump the mtime on pyproject.toml in the local data directory to trigger an update on next run."""
+    try:
+        root = launcher_root()
+        if not root:
+            return
+
+        pyproject_path = Path(root) / "pyproject.toml"
+
+        if pyproject_path.exists():
+            # Touch the file to update its mtime
+            pyproject_path.touch()
+    except Exception as e:
+        print(e)
 
 
 def update_and_restart() -> None:
-    from aqt import mw
-
-    launcher = _anki_launcher_path()
+    """Update and restart Anki using the launcher."""
+    launcher = launcher_executable()
     assert launcher
 
-    _trigger_launcher_run()
+    trigger_launcher_run()
 
     with contextlib.suppress(ResourceWarning):
         env = os.environ.copy()
@@ -50,30 +109,6 @@ def update_and_restart() -> None:
         )
 
     mw.app.quit()
-
-
-def _trigger_launcher_run() -> None:
-    """Bump the mtime on pyproject.toml in the local data directory to trigger an update on next run."""
-    try:
-        # Get the local data directory equivalent to Rust's dirs::data_local_dir()
-        if is_win:
-            from aqt.winpaths import get_local_appdata
-
-            data_dir = Path(get_local_appdata())
-        elif is_mac:
-            data_dir = Path.home() / "Library" / "Application Support"
-        else:  # Linux
-            data_dir = Path(
-                os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share")
-            )
-
-        pyproject_path = data_dir / "AnkiProgramFiles" / "pyproject.toml"
-
-        if pyproject_path.exists():
-            # Touch the file to update its mtime
-            pyproject_path.touch()
-    except Exception as e:
-        print(e)
 
 
 def confirm_then_upgrade():
@@ -116,10 +151,18 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     return cmd, env
 
 
+def on_addon_config():
+    showInfo(
+        "This add-on is automatically added when installing older Anki versions, so that they work with the launcher. You can remove it if you wish."
+    )
+
+
 def setup():
+    mw.addonManager.setConfigAction(__name__, on_addon_config)
+
     if pointVersion() >= 250600:
         return
-    if not have_launcher():
+    if not launcher_executable():
         return
 
     # Add action to tools menu
@@ -129,7 +172,21 @@ def setup():
 
     # Monkey-patch audio tools to use anki-audio
     if is_win or is_mac:
+        import aqt
+        import aqt.sound
+
         aqt.sound._packagedCmd = _packagedCmd
+
+    # Inject launcher functions into launcher module
+    import aqt.package
+
+    aqt.package.launcher_executable = launcher_executable
+    aqt.package.update_and_restart = update_and_restart
+    aqt.package.trigger_launcher_run = trigger_launcher_run
+    aqt.package.uv_binary = uv_binary
+    aqt.package.launcher_root = launcher_root
+    aqt.package.venv_binary = venv_binary
+    aqt.package.add_python_requirements = add_python_requirements
 
 
 setup()

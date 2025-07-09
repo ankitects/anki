@@ -56,6 +56,8 @@ service SchedulerService {
   rpc SimulateFsrsReview(SimulateFsrsReviewRequest)
       returns (SimulateFsrsReviewResponse);
   rpc EvaluateParams(EvaluateParamsRequest) returns (EvaluateParamsResponse);
+  rpc EvaluateParamsLegacy(EvaluateParamsLegacyRequest)
+      returns (EvaluateParamsResponse);
   rpc ComputeMemoryState(cards.CardId) returns (ComputeMemoryStateResponse);
   // The number of days the calculated interval was fuzzed by on the previous
   // review (if any). Utilized by the FSRS add-on.
@@ -402,31 +404,6 @@ message SimulateFsrsReviewRequest {
   repeated float easy_days_percentages = 10;
   deck_config.DeckConfig.Config.ReviewCardOrder review_order = 11;
   optional uint32 suspend_after_lapse_count = 12;
-  // For CMRR
-  message CMRRTarget {
-    message Memorized {
-      float loss_aversion = 1;
-    };
-
-    message Stability {};
-
-    message FutureMemorized {
-      int32 days = 1;
-    };
-
-    message AverageFutureMemorized {
-      int32 days = 1;
-    };
-
-    oneof kind {
-      Memorized memorized = 1;
-      Stability stability = 2;
-      FutureMemorized future_memorized = 3;
-      AverageFutureMemorized average_future_memorized = 4;
-    };
-  };
-
-  optional CMRRTarget target = 13;
 }
 
 message SimulateFsrsReviewResponse {
@@ -465,6 +442,12 @@ message EvaluateParamsRequest {
   string search = 1;
   int64 ignore_revlogs_before_ms = 2;
   uint32 num_of_relearning_steps = 3;
+}
+
+message EvaluateParamsLegacyRequest {
+  repeated float params = 1;
+  string search = 2;
+  int64 ignore_revlogs_before_ms = 3;
 }
 
 message EvaluateParamsResponse {

@@ -333,6 +333,7 @@ impl From<CardEntry> for Card {
             memory_state: data.memory_state(),
             desired_retention: data.fsrs_desired_retention,
             decay: data.decay,
+            last_review_time: data.last_review_time,
             custom_data: data.custom_data,
         }
     }

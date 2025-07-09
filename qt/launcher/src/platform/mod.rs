@@ -128,3 +128,10 @@ pub fn ensure_terminal_shown() -> Result<()> {
     print!("\x1b]2;Anki Launcher\x07");
     Ok(())
 }
+
+pub fn ensure_os_supported() -> Result<()> {
+    #[cfg(all(unix, not(target_os = "macos")))]
+    unix::ensure_glibc_supported()?;
+
+    Ok(())
+}

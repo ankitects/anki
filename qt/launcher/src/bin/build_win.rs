@@ -139,6 +139,9 @@ fn copy_files(output_dir: &Path) -> Result<()> {
         output_dir.join(".python-version"),
     )?;
 
+    // Copy versions.py
+    copy_file("../versions.py", output_dir.join("versions.py"))?;
+
     Ok(())
 }
 

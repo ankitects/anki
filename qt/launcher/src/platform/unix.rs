@@ -9,15 +9,22 @@ use anyhow::Result;
 pub fn relaunch_in_terminal() -> Result<()> {
     let current_exe = std::env::current_exe().context("Failed to get current executable path")?;
 
-    // Try terminals in order of preference
+    // Try terminals in roughly most specific to least specific.
+    // First, try commonly used terminals for riced systems.
+    // Second, try common defaults.
+    // Finally, try x11 compatibility terminals.
     let terminals = [
-        ("x-terminal-emulator", vec!["-e"]),
-        ("gnome-terminal", vec!["--"]),
-        ("konsole", vec!["-e"]),
-        ("xfce4-terminal", vec!["-e"]),
+        // commonly used for riced systems
         ("alacritty", vec!["-e"]),
         ("kitty", vec![]),
         ("foot", vec![]),
+        // the user's default terminal in Debian/Ubuntu
+        ("x-terminal-emulator", vec!["-e"]),
+        // default installs for the most common distros
+        ("xfce4-terminal", vec!["-e"]),
+        ("gnome-terminal", vec!["-e"]),
+        ("konsole", vec!["-e"]),
+        // x11-compatibility terminals
         ("urxvt", vec!["-e"]),
         ("xterm", vec!["-e"]),
     ];
@@ -64,4 +71,35 @@ pub fn finalize_uninstall() {
     let _ = stdout().flush();
     let mut input = String::new();
     let _ = stdin().read_line(&mut input);
+}
+
+pub fn ensure_glibc_supported() -> Result<()> {
+    use std::ffi::CStr;
+    let get_glibc_version = || -> Option<(u32, u32)> {
+        let version_ptr = unsafe { libc::gnu_get_libc_version() };
+        if version_ptr.is_null() {
+            return None;
+        }
+
+        let version_cstr = unsafe { CStr::from_ptr(version_ptr) };
+        let version_str = version_cstr.to_str().ok()?;
+
+        // Parse version string (format: "2.36" or "2.36.1")
+        let version_parts: Vec<&str> = version_str.split('.').collect();
+        if version_parts.len() < 2 {
+            return None;
+        }
+
+        let major: u32 = version_parts[0].parse().ok()?;
+        let minor: u32 = version_parts[1].parse().ok()?;
+
+        Some((major, minor))
+    };
+
+    let (major, minor) = get_glibc_version().unwrap_or_default();
+    if major < 2 || (major == 2 && minor < 36) {
+        anyhow::bail!("Anki requires a modern Linux distro with glibc 2.36 or later.");
+    }
+
+    Ok(())
 }

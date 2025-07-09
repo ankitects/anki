@@ -91,6 +91,7 @@ fn write_search_node(node: &SearchNode) -> String {
         WholeCollection => "deck:*".to_string(),
         Regex(s) => maybe_quote(&format!("re:{s}")),
         NoCombining(s) => maybe_quote(&format!("nc:{s}")),
+        StripClozes(s) => maybe_quote(&format!("sc:{s}")),
         WordBoundary(s) => maybe_quote(&format!("w:{s}")),
         CustomData(k) => maybe_quote(&format!("has-cd:{k}")),
         Preset(s) => maybe_quote(&format!("preset:{s}")),

@@ -18,30 +18,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { renderSimulationChart } from "../graphs/simulator";
     import { computeOptimalRetention, simulateFsrsReview } from "@generated/backend";
     import { runWithBackendProgress } from "@tslib/progress";
-    import {
-        SimulateFsrsReviewRequest_CMRRTarget_AverageFutureMemorized,
-        SimulateFsrsReviewRequest_CMRRTarget_FutureMemorized,
-        SimulateFsrsReviewRequest_CMRRTarget_Memorized,
-        SimulateFsrsReviewRequest_CMRRTarget_Stability,
-        type ComputeOptimalRetentionResponse,
-        type SimulateFsrsReviewRequest,
-        type SimulateFsrsReviewResponse,
+    import type {
+        ComputeOptimalRetentionResponse,
+        SimulateFsrsReviewRequest,
+        SimulateFsrsReviewResponse,
     } from "@generated/anki/scheduler_pb";
     import type { DeckOptionsState } from "./lib";
     import SwitchRow from "$lib/components/SwitchRow.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
-    import {
-        DEFAULT_CMRR_TARGET,
-        CMRRTargetChoices,
-        reviewOrderChoices,
-    } from "./choices";
+    import { reviewOrderChoices } from "./choices";
     import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
     import { DeckConfig_Config_LeechAction } from "@generated/anki/deck_config_pb";
     import EasyDaysInput from "./EasyDaysInput.svelte";
     import Warning from "./Warning.svelte";
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
-    import Item from "$lib/components/Item.svelte";
     import Modal from "bootstrap/js/dist/modal";
 
     export let state: DeckOptionsState;
@@ -49,45 +40,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let computing: boolean;
     export let openHelpModal: (key: string) => void;
     export let onPresetChange: () => void;
-
-    let cmrrTargetType = DEFAULT_CMRR_TARGET;
-    // All added types must be updated in the proceeding switch statement.
-    let lastCmrrTargetType = cmrrTargetType;
-    $: if (simulateFsrsRequest?.target && cmrrTargetType !== lastCmrrTargetType) {
-        switch (cmrrTargetType) {
-            case "memorized":
-                simulateFsrsRequest.target.kind = {
-                    case: "memorized",
-                    value: new SimulateFsrsReviewRequest_CMRRTarget_Memorized({
-                        lossAversion: 1.6,
-                    }),
-                };
-                break;
-            case "stability":
-                simulateFsrsRequest.target.kind = {
-                    case: "stability",
-                    value: new SimulateFsrsReviewRequest_CMRRTarget_Stability({}),
-                };
-                break;
-            case "futureMemorized":
-                simulateFsrsRequest.target.kind = {
-                    case: "futureMemorized",
-                    value: new SimulateFsrsReviewRequest_CMRRTarget_FutureMemorized({
-                        days: 365,
-                    }),
-                };
-                break;
-            case "averageFutureMemorized":
-                simulateFsrsRequest.target.kind = {
-                    case: "averageFutureMemorized",
-                    value: new SimulateFsrsReviewRequest_CMRRTarget_AverageFutureMemorized(
-                        { days: 365 },
-                    ),
-                };
-                break;
-        }
-        lastCmrrTargetType = cmrrTargetType;
-    }
 
     const config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
@@ -344,7 +296,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     min={0}
                     max={9999}
                 >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                    <SettingTitle on:click={() => openHelpModal("newLimit")}>
                         {tr.schedulingNewCardsday()}
                     </SettingTitle>
                 </SpinBoxRow>
@@ -355,7 +307,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     min={0}
                     max={9999}
                 >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                    <SettingTitle on:click={() => openHelpModal("reviewLimit")}>
                         {tr.schedulingMaximumReviewsday()}
                     </SettingTitle>
                 </SpinBoxRow>
@@ -375,9 +327,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         min={1}
                         max={36500}
                     >
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
+                        <SettingTitle on:click={() => openHelpModal("maximumInterval")}>
                             {tr.schedulingMaximumInterval()}
                         </SettingTitle>
                     </SpinBoxRow>
@@ -387,9 +337,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         defaultValue={$config.reviewOrder}
                         choices={reviewOrderChoices($fsrs)}
                     >
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
+                        <SettingTitle on:click={() => openHelpModal("reviewSortOrder")}>
                             {tr.deckConfigReviewSortOrder()}
                         </SettingTitle>
                     </EnumSelectorRow>
@@ -399,7 +347,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         defaultValue={$newCardsIgnoreReviewLimit}
                     >
                         <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
+                            on:click={() => openHelpModal("newCardsIgnoreReviewLimit")}
                         >
                             <GlobalLabel
                                 title={tr.deckConfigNewCardsIgnoreReviewLimit()}
@@ -420,9 +368,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         defaultValue={$config.leechAction ==
                             DeckConfig_Config_LeechAction.SUSPEND}
                     >
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
+                        <SettingTitle on:click={() => openHelpModal("leechAction")}>
                             {tr.deckConfigSuspendLeeches()}
                         </SettingTitle>
                     </SwitchRow>
@@ -435,7 +381,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             max={9999}
                         >
                             <SettingTitle
-                                on:click={() => openHelpModal("simulateFsrsReview")}
+                                on:click={() => openHelpModal("leechThreshold")}
                             >
                                 {tr.schedulingLeechThreshold()}
                             </SettingTitle>
@@ -443,72 +389,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {/if}
                 </details>
 
-                <details>
-                    <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
-                    <button
-                        class="btn {computingRetention ? 'btn-warning' : 'btn-primary'}"
-                        disabled={!computingRetention && computing}
-                        on:click={() => computeRetention()}
-                    >
+                <div style="display:none;">
+                    <details>
+                        <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
+                        <button
+                            class="btn {computingRetention
+                                ? 'btn-warning'
+                                : 'btn-primary'}"
+                            disabled={!computingRetention && computing}
+                            on:click={() => computeRetention()}
+                        >
+                            {#if computingRetention}
+                                {tr.actionsCancel()}
+                            {:else}
+                                {tr.deckConfigComputeButton()}
+                            {/if}
+                        </button>
+
+                        {#if optimalRetention}
+                            {estimatedRetention(optimalRetention)}
+                            {#if optimalRetention - $config.desiredRetention >= 0.01}
+                                <Warning
+                                    warning={tr.deckConfigDesiredRetentionBelowOptimal()}
+                                    className="alert-warning"
+                                />
+                            {/if}
+                        {/if}
+
                         {#if computingRetention}
-                            {tr.actionsCancel()}
-                        {:else}
-                            {tr.deckConfigComputeButton()}
+                            <div>{computeRetentionProgressString}</div>
                         {/if}
-                    </button>
-
-                    {#if optimalRetention}
-                        {estimatedRetention(optimalRetention)}
-                        {#if optimalRetention - $config.desiredRetention >= 0.01}
-                            <Warning
-                                warning={tr.deckConfigDesiredRetentionBelowOptimal()}
-                                className="alert-warning"
-                            />
-                        {/if}
-                    {/if}
-
-                    {#if computingRetention}
-                        <div>{computeRetentionProgressString}</div>
-                    {/if}
-
-                    <Item>
-                        <EnumSelectorRow
-                            choices={CMRRTargetChoices()}
-                            bind:value={cmrrTargetType}
-                            defaultValue={DEFAULT_CMRR_TARGET}
-                        >
-                            <SettingTitle>
-                                {"Target: "}
-                            </SettingTitle>
-                        </EnumSelectorRow>
-                    </Item>
-
-                    {#if simulateFsrsRequest.target?.kind.case === "memorized"}
-                        <SpinBoxFloatRow
-                            bind:value={
-                                simulateFsrsRequest.target.kind.value.lossAversion
-                            }
-                            defaultValue={1.6}
-                        >
-                            <SettingTitle>
-                                {"Fail Cost Multiplier: "}
-                            </SettingTitle>
-                        </SpinBoxFloatRow>
-                    {/if}
-
-                    {#if simulateFsrsRequest.target?.kind.case === "futureMemorized" || simulateFsrsRequest.target?.kind.case === "averageFutureMemorized"}
-                        <SpinBoxFloatRow
-                            bind:value={simulateFsrsRequest.target.kind.value.days}
-                            defaultValue={365}
-                            step={1}
-                        >
-                            <SettingTitle>
-                                {"Days after simulation end: "}
-                            </SettingTitle>
-                        </SpinBoxFloatRow>
-                    {/if}
-                </details>
-
+                    </details>
+                </div>
                 <button
                     class="btn {computing ? 'btn-warning' : 'btn-primary'}"
                     disabled={computing}
@@ -529,19 +441,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     class="btn {computing ? 'btn-warning' : 'btn-primary'}"
                     disabled={computing}
                     on:click={() => {
-                        $config.newPerDay = simulateFsrsRequest.newLimit;
-                        $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
-                        $config.maximumReviewInterval = simulateFsrsRequest.maxInterval;
-                        $config.desiredRetention = simulateFsrsRequest.desiredRetention;
-                        $newCardsIgnoreReviewLimit =
-                            simulateFsrsRequest.newCardsIgnoreReviewLimit;
-                        $config.reviewOrder = simulateFsrsRequest.reviewOrder;
-                        $config.leechAction = suspendLeeches
-                            ? DeckConfig_Config_LeechAction.SUSPEND
-                            : DeckConfig_Config_LeechAction.TAG_ONLY;
-                        $config.leechThreshold = leechThreshold;
-                        $config.easyDaysPercentages = [...easyDayPercentages];
-                        onPresetChange();
+                        if (confirm(tr.deckConfigSaveOptionsToPresetConfirm())) {
+                            $config.newPerDay = simulateFsrsRequest.newLimit;
+                            $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
+                            $config.maximumReviewInterval =
+                                simulateFsrsRequest.maxInterval;
+                            $config.desiredRetention =
+                                simulateFsrsRequest.desiredRetention;
+                            $newCardsIgnoreReviewLimit =
+                                simulateFsrsRequest.newCardsIgnoreReviewLimit;
+                            $config.reviewOrder = simulateFsrsRequest.reviewOrder;
+                            $config.leechAction = suspendLeeches
+                                ? DeckConfig_Config_LeechAction.SUSPEND
+                                : DeckConfig_Config_LeechAction.TAG_ONLY;
+                            $config.leechThreshold = leechThreshold;
+                            $config.easyDaysPercentages = [...easyDayPercentages];
+                            onPresetChange();
+                        }
                     }}
                 >
                     {tr.deckConfigSaveOptionsToPreset()}

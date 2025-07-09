@@ -228,28 +228,31 @@ impl Collection {
     /// Return the next states that will be applied for each answer button.
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
-        let deck = self.get_deck(card.deck_id)?.or_not_found(card.deck_id)?;
-
-        let note_id = deck
-            .config_id()
-            .map(|deck_config_id| self.get_deck_config(deck_config_id, false))
-            .transpose()?
-            .flatten()
-            .map(|deck_config| deck_config.inner.bury_reviews)
-            .unwrap_or(false)
-            .then_some(card.note_id);
+        let note_id = card.note_id;
 
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
 
-        let load_balancer_ctx = self.state.card_queues.as_ref().and_then(|card_queues| {
-            match card_queues.load_balancer.as_ref() {
-                None => None,
-                Some(load_balancer) => {
-                    Some(load_balancer.review_context(note_id, deck.config_id()?))
-                }
+        let load_balancer_ctx = if let Some(load_balancer) = self
+            .state
+            .card_queues
+            .as_ref()
+            .and_then(|card_queues| card_queues.load_balancer.as_ref())
+        {
+            // Only get_deck_config when load balancer is enabled
+            if let Some(deck_config_id) = ctx.deck.config_id() {
+                let note_id = self
+                    .get_deck_config(deck_config_id, false)?
+                    .map(|deck_config| deck_config.inner.bury_reviews)
+                    .unwrap_or(false)
+                    .then_some(note_id);
+                Some(load_balancer.review_context(note_id, deck_config_id))
+            } else {
+                None
             }
-        });
+        } else {
+            None
+        };
 
         let state_ctx = ctx.state_context(load_balancer_ctx);
         Ok(current.next_states(&state_ctx))
@@ -334,7 +337,14 @@ impl Collection {
         self.update_deck_stats_from_answer(usn, answer, &updater, original.queue)?;
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;
+        let deckconfig_id = updater.deck.config_id();
         let mut card = updater.into_card();
+        if !matches!(
+            answer.current_state,
+            CardState::Filtered(FilteredState::Preview(_))
+        ) {
+            card.last_review_time = Some(answer.answered_at.as_secs());
+        }
         if let Some(data) = answer.custom_data.take() {
             card.custom_data = data;
             card.validate_custom_data()?;
@@ -346,12 +356,14 @@ impl Collection {
         }
 
         if card.queue == CardQueue::Review {
-            let deck = self.get_deck(card.deck_id)?;
-            if let Some(card_queues) = self.state.card_queues.as_mut() {
-                if let Some(deckconfig_id) = deck.and_then(|deck| deck.config_id()) {
-                    if let Some(load_balancer) = card_queues.load_balancer.as_mut() {
-                        load_balancer.add_card(card.id, card.note_id, deckconfig_id, card.interval)
-                    }
+            if let Some(load_balancer) = self
+                .state
+                .card_queues
+                .as_mut()
+                .and_then(|card_queues| card_queues.load_balancer.as_mut())
+            {
+                if let Some(deckconfig_id) = deckconfig_id {
+                    load_balancer.add_card(card.id, card.note_id, deckconfig_id, card.interval)
                 }
             }
         }
@@ -451,11 +463,14 @@ impl Collection {
                 )?;
                 card.set_memory_state(&fsrs, item, config.inner.historical_retention)?;
             }
-            let days_elapsed = self
-                .storage
-                .time_of_last_review(card.id)?
-                .map(|ts| timing.next_day_at.elapsed_days_since(ts))
-                .unwrap_or_default() as u32;
+            let days_elapsed = if let Some(last_review_time) = card.last_review_time {
+                timing.next_day_at.elapsed_days_since(last_review_time) as u32
+            } else {
+                self.storage
+                    .time_of_last_review(card.id)?
+                    .map(|ts| timing.next_day_at.elapsed_days_since(ts))
+                    .unwrap_or_default() as u32
+            };
             Some(fsrs.next_states(
                 card.memory_state.map(Into::into),
                 config.inner.desired_retention,

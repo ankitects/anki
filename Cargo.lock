@@ -94,6 +94,7 @@ dependencies = [
  "axum",
  "axum-client-ip",
  "axum-extra",
+ "bitflags 2.9.1",
  "blake3",
  "bytes",
  "chrono",
@@ -3548,6 +3549,7 @@ dependencies = [
  "embed-resource",
  "libc",
  "libc-stdhandle",
+ "serde_json",
  "widestring",
  "windows 0.61.3",
 ]

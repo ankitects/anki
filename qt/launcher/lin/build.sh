@@ -13,7 +13,7 @@ HOST_ARCH=$(uname -m)
 
 # Define output paths
 OUTPUT_DIR="../../../out/launcher"
-LAUNCHER_DIR="$OUTPUT_DIR/anki-launcher"
+LAUNCHER_DIR="$OUTPUT_DIR/anki-linux"
 
 # Clean existing output directory
 rm -rf "$LAUNCHER_DIR"
@@ -61,6 +61,7 @@ done
 # Copy additional files from parent directory
 cp ../pyproject.toml "$LAUNCHER_DIR/"
 cp ../../../.python-version "$LAUNCHER_DIR/"
+cp ../versions.py "$LAUNCHER_DIR/"
 
 # Set executable permissions
 chmod +x \
@@ -75,10 +76,9 @@ chmod +x \
 # Set proper permissions and create tarball
 chmod -R a+r "$LAUNCHER_DIR"
 
-# Create tarball using the same options as the Rust template
 ZSTD="zstd -c --long -T0 -18"
-TRANSFORM="s%^.%anki-launcher%S"
-TARBALL="$OUTPUT_DIR/anki-launcher.tar.zst"
+TRANSFORM="s%^.%anki-linux%S"
+TARBALL="$OUTPUT_DIR/anki-linux.tar.zst"
 
 tar -I "$ZSTD" --transform "$TRANSFORM" -cf "$TARBALL" -C "$LAUNCHER_DIR" .
 

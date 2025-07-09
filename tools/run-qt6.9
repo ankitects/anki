@@ -1,9 +1,0 @@
-#!/bin/bash
-
-set -e
-
-./ninja extract:uv
-
-export PYENV=./out/pyenv69
-UV_PROJECT_ENVIRONMENT=$PYENV ./out/extracted/uv/uv sync --all-packages --extra qt69
-./run $*

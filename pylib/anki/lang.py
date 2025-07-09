@@ -73,6 +73,7 @@ langs = sorted(
         ("ଓଡ଼ିଆ", "or_OR"),
         ("Filipino", "tl"),
         ("ئۇيغۇر", "ug"),
+        ("Oʻzbek", "uz_UZ"),
     ]
 )
 
@@ -123,6 +124,7 @@ compatMap = {
     "th": "th_TH",
     "tr": "tr_TR",
     "uk": "uk_UA",
+    "uz": "uz_UZ",
     "vi": "vi_VN",
 }
 

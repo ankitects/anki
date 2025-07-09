@@ -426,7 +426,7 @@ deck-config-desired-retention-tooltip =
     values will greatly increase your workload, and lower values can be demoralizing when you forget
     a lot of material.
 deck-config-desired-retention-tooltip2 = 
-    The workload values provided by the tooltip are a rough approximation. For a greater level of accuracy, use the simulator.
+    The workload values provided by the info box are a rough approximation. For a greater level of accuracy, use the simulator.
 deck-config-historical-retention-tooltip =
     When some of your review history is missing, FSRS needs to fill in the gaps. By default, it will
     assume that when you did those old reviews, you remembered 90% of the material. If your old retention
@@ -514,6 +514,7 @@ deck-config-advanced-settings = Advanced Settings
 deck-config-smooth-graph = Smooth graph
 deck-config-suspend-leeches = Suspend leeches
 deck-config-save-options-to-preset = Save Changes to Preset
+deck-config-save-options-to-preset-confirm = Overwrite the options in your current preset with the options that are currently set in the simulator?
 # Radio button in the FSRS simulation diagram (Deck options -> FSRS) selecting
 # to show the total number of cards that can be recalled or retrieved on a
 # specific date.
