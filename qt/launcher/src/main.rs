@@ -255,29 +255,14 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         None
     };
 
-    // `uv sync` sometimes does not pull in Python automatically
-    // This might be system/platform specific and/or a uv bug.
+    // Prepare to sync the venv
     let mut command = Command::new(&state.uv_path);
     command
         .current_dir(&state.uv_install_root)
+        .env_clear()
         .env("UV_CACHE_DIR", &state.uv_cache_dir)
         .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
-        .args(["python", "install", "--managed-python"]);
-
-    // Add python version if .python-version file exists
-    if let Some(version) = &python_version_trimmed {
-        command.args([version]);
-    }
-
-    command.ensure_success().context("Python install failed")?;
-
-    // Sync the venv
-    let mut command = Command::new(&state.uv_path);
-    command
-        .current_dir(&state.uv_install_root)
-        .env("UV_CACHE_DIR", &state.uv_cache_dir)
-        .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
-        .args(["sync", "--upgrade", "--managed-python"]);
+        .args(["sync", "--upgrade", "--managed-python", "--no-config"]);
 
     // Add python version if .python-version file exists
     if let Some(version) = &python_version_trimmed {

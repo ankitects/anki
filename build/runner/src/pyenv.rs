@@ -34,8 +34,9 @@ pub fn setup_pyenv(args: PyenvArgs) {
 
     run_command(
         Command::new(args.uv_bin)
+            .env_clear()
             .env("UV_PROJECT_ENVIRONMENT", args.pyenv_folder.clone())
-            .args(["sync", "--locked"])
+            .args(["sync", "--locked", "--no-config"])
             .args(args.extra_args),
     );
 
