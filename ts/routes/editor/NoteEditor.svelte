@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelContainer from "./LabelContainer.svelte";
     import LabelName from "./LabelName.svelte";
     import { EditorState, type EditorMode } from "./types";
-    import ContextMenu, { Item } from "svelte-contextmenu";
+    import { ContextMenu, Item } from "$lib/context-menu";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -1226,7 +1226,7 @@ components and functionality for general note editing.
     <ContextMenu bind:this={contextMenu}>
         {#each contextMenuItems as item}
             <Item
-                on:click={() => {
+                click={() => {
                     item.action();
                     contextMenuInput?.focus();
                 }}

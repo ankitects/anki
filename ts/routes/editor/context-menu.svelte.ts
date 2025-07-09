@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { ContextMenu, ContextMenuMouseEvent } from "$lib/context-menu";
+
 import { openMedia, showInMediaFolder } from "@generated/backend";
 import * as tr from "@generated/ftl";
 import { bridgeCommand } from "@tslib/bridgecommand";
 import { getSelection } from "@tslib/cross-browser";
-import type ContextMenu from "svelte-contextmenu";
-import type { ContextMenuMouseEvent } from "svelte-contextmenu/ContextMenuMouseEvent";
 import { get } from "svelte/store";
 import type { EditingInputAPI } from "./EditingArea.svelte";
 import type { NoteEditorAPI } from "./NoteEditor.svelte";
@@ -114,8 +114,6 @@ export function setupContextMenu(): [
         if (contextMenuItems.length > 0) {
             contextMenu?.show(event);
         }
-
-        event.preventDefault();
     }
 
     return [onContextMenu, contextMenuItems];

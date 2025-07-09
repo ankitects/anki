@@ -1761,7 +1761,6 @@ __metadata:
     sass: "npm:<1.77"
     svelte: "npm:^5.34.9"
     svelte-check: "npm:^4.2.2"
-    svelte-contextmenu: "npm:^1.0.2"
     svelte-preprocess: "npm:^6.0.3"
     svelte-preprocess-esbuild: "npm:^3.0.1"
     svgo: "npm:^3.2.0"
@@ -6226,13 +6225,6 @@ __metadata:
   bin:
     svelte-check: bin/svelte-check
   checksum: 10c0/21903d3f1af42f98311e686571e4dced2849fc41e66112ef05c3a74e9355e1bcf5755e1d8cc3f03d8c4fbeeca44b002e6f5939a44ed639a20b52219ed36c8ba3
-  languageName: node
-  linkType: hard
-
-"svelte-contextmenu@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "svelte-contextmenu@npm:1.0.2"
-  checksum: 10c0/33cf79540337862278927f4b732b5d97f2c029348666ebcd3105b5c08bed54498a1d66f61b0212c18c204942cf54c9f6ce5ed509981d9f19f99f9334d8961cdf
   languageName: node
   linkType: hard
 
