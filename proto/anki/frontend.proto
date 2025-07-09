@@ -43,6 +43,7 @@ service FrontendService {
   rpc RecordAudio(generic.Empty) returns (generic.String);
   rpc CloseAddCards(generic.Bool) returns (generic.Empty);
   rpc CloseEditCurrent(generic.Empty) returns (generic.Empty);
+  rpc OpenLink(generic.String) returns (generic.Empty);
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);

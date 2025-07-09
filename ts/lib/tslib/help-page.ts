@@ -45,4 +45,7 @@ export const HelpPage = {
         updating: "https://docs.ankiweb.net/importing/text-files.html#duplicates-and-updating",
         html: "https://docs.ankiweb.net/importing/text-files.html#html",
     },
+    Editing: {
+        adding: "https://docs.ankiweb.net/editing.html#adding-cards-and-notes",
+    },
 };

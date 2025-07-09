@@ -40,7 +40,7 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import aqt_data_path, show_warning, tr
+from aqt.utils import aqt_data_path, openLink, show_warning, tr
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
@@ -830,6 +830,14 @@ def close_edit_current() -> bytes:
     return b""
 
 
+def open_link() -> bytes:
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    url = req.val
+    aqt.mw.taskman.run_on_main(lambda: openLink(url))
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -863,6 +871,7 @@ post_handler_list = [
     write_clipboard,
     close_add_cards,
     close_edit_current,
+    open_link,
 ]
 
 
@@ -1060,5 +1069,7 @@ def _extract_dynamic_get_request(path: str) -> DynamicRequest | None:
     if path == "legacyPageData":
         return legacy_page_data
     else:
+        return None
+        return None
         return None
         return None
