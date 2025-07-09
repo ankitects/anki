@@ -34,7 +34,7 @@ class AddCards(QMainWindow):
     def __init__(self, mw: AnkiQt) -> None:
         super().__init__(None, Qt.WindowType.Window)
         self._close_event_has_cleaned_up = False
-        self._close_callback: Callable[[], None] | None = None
+        self._close_callback: Callable[[], None] = self._close
         self.mw = mw
         self.col = mw.col
         form = aqt.forms.addcards.Ui_Dialog()

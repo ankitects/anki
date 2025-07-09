@@ -818,6 +818,18 @@ def close_add_cards() -> bytes:
     return b""
 
 
+def close_edit_current() -> bytes:
+    def handle_on_main() -> None:
+        from aqt.editcurrent import EditCurrent
+
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, EditCurrent):
+            window.close()
+
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -850,6 +862,7 @@ post_handler_list = [
     read_clipboard,
     write_clipboard,
     close_add_cards,
+    close_edit_current,
 ]
 
 
@@ -1047,4 +1060,5 @@ def _extract_dynamic_get_request(path: str) -> DynamicRequest | None:
     if path == "legacyPageData":
         return legacy_page_data
     else:
+        return None
         return None

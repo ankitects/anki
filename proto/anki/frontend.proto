@@ -42,6 +42,7 @@ service FrontendService {
   rpc ShowInMediaFolder(generic.String) returns (generic.Empty);
   rpc RecordAudio(generic.Empty) returns (generic.String);
   rpc CloseAddCards(generic.Bool) returns (generic.Empty);
+  rpc CloseEditCurrent(generic.Empty) returns (generic.Empty);
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);

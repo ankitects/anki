@@ -397,6 +397,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await closeAddCardsBackend({ val: await shouldPromptBeforeClosing() });
     }
 
+    async function closeEditCurrent() {
+        saveNow();
+        await closeEditCurrentBackend({});
+    }
+
+    async function onClose() {
+        if (mode === "add") {
+            await closeAddCards();
+        } else if (mode == "current") {
+            await closeEditCurrent();
+        }
+    }
+
     export function saveOnPageHide() {
         if (document.visibilityState === "hidden") {
             // will fire on session close and minimize
@@ -588,6 +601,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         addMediaFromPath,
         updateEditorNotetype,
         closeAddCards as closeAddCardsBackend,
+        closeEditCurrent as closeEditCurrentBackend,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
@@ -611,6 +625,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { NoteFieldsCheckResponse_State, type Note } from "@generated/anki/notes_pb";
     import { setupContextMenu } from "./context-menu.svelte";
     import { registerShortcut } from "@tslib/shortcuts";
+    import ActionButtons from "./ActionButtons.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -1221,6 +1236,7 @@ components and functionality for general note editing.
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
             <TagEditor {tags} on:tagsupdate={saveTags} />
         </Collapsible>
+        <ActionButtons {mode} {onClose} />
     {/if}
 
     <ContextMenu bind:this={contextMenu}>

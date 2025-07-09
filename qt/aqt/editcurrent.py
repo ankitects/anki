@@ -32,13 +32,7 @@ class EditCurrent(QMainWindow):
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
-        close_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close)
-        assert close_button is not None
-        close_button.setShortcut(QKeySequence("Ctrl+Return"))
         add_close_shortcut(self)
-        # qt5.14+ doesn't handle numpad enter on Windows
-        self.compat_add_shorcut = QShortcut(QKeySequence("Ctrl+Enter"), self)
-        qconnect(self.compat_add_shorcut.activated, close_button.click)
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         self.show()
 
