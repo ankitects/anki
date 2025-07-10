@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SwitchRow from "$lib/components/SwitchRow.svelte";
 
     import GlobalLabel from "./GlobalLabel.svelte";
-    import { commitEditing, fsrsParams, type DeckOptionsState } from "./lib";
+    import { commitEditing, fsrsParams, type DeckOptionsState, ValueTab } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import Warning from "./Warning.svelte";
     import ParamsInputRow from "./ParamsInputRow.svelte";
@@ -32,6 +32,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         UpdateDeckConfigsMode,
     } from "@generated/anki/deck_config_pb";
     import type Modal from "bootstrap/js/dist/modal";
+    import TabbedValue from "./TabbedValue.svelte";
+    import Item from "$lib/components/Item.svelte";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -42,13 +45,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
     const fsrsReschedule = state.fsrsReschedule;
     const daysSinceLastOptimization = state.daysSinceLastOptimization;
+    const limits = state.deckLimits;
 
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
     let desiredRetentionFocused = false;
     let desiredRetentionEverFocused = false;
     let optimized = false;
-    const startingDesiredRetention = $config.desiredRetention.toFixed(2);
     $: if (desiredRetentionFocused) {
         desiredRetentionEverFocused = true;
     }
@@ -63,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: computing = computingParams || checkingParams;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
-    $: roundedRetention = Number($config.desiredRetention.toFixed(2));
+    $: roundedRetention = Number(effectiveDesiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
 
     let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
@@ -85,9 +88,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
 
+    // Create tabs for desired retention
+    const desiredRetentionTabs: ValueTab[] = [
+        new ValueTab(
+            tr.deckConfigSharedPreset(),
+            $config.desiredRetention,
+            (value) => ($config.desiredRetention = value!),
+            $config.desiredRetention,
+            null,
+        ),
+        new ValueTab(
+            tr.deckConfigDeckOnly(),
+            $limits.desiredRetention ?? null,
+            (value) => ($limits.desiredRetention = value ?? undefined),
+            null,
+            null,
+        ),
+    ];
+
+    let desiredRetentionValue = $config.desiredRetention;
+
+    // Get the effective desired retention value (deck-specific if set, otherwise config default)
+    $: effectiveDesiredRetention = $limits.desiredRetention ?? $config.desiredRetention;
+    const startingDesiredRetention = effectiveDesiredRetention.toFixed(2);
+
     $: simulateFsrsRequest = new SimulateFsrsReviewRequest({
         params: fsrsParams($config),
-        desiredRetention: $config.desiredRetention,
+        desiredRetention: effectiveDesiredRetention,
         newLimit: $config.newPerDay,
         reviewLimit: $config.reviewsPerDay,
         maxInterval: $config.maximumReviewInterval,
@@ -301,18 +328,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let simulatorModal: Modal;
 </script>
 
-<SpinBoxFloatRow
-    bind:value={$config.desiredRetention}
-    defaultValue={defaults.desiredRetention}
-    min={0.7}
-    max={0.99}
-    percentage={true}
-    bind:focused={desiredRetentionFocused}
->
-    <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
-        {tr.deckConfigDesiredRetention()}
-    </SettingTitle>
-</SpinBoxFloatRow>
+<DynamicallySlottable slotHost={Item} api={{}}>
+    <Item>
+        <SpinBoxFloatRow
+            bind:value={desiredRetentionValue}
+            defaultValue={defaults.desiredRetention}
+            min={0.7}
+            max={0.99}
+            percentage={true}
+            bind:focused={desiredRetentionFocused}
+        >
+            <TabbedValue
+                slot="tabs"
+                tabs={desiredRetentionTabs}
+                bind:value={desiredRetentionValue}
+            />
+            <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
+                {tr.deckConfigDesiredRetention()}
+            </SettingTitle>
+        </SpinBoxFloatRow>
+    </Item>
+</DynamicallySlottable>
 
 <Warning warning={desiredRetentionChangeInfo} className={"alert-info two-line"} />
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />

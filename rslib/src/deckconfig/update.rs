@@ -409,6 +409,7 @@ fn normal_deck_to_limits(deck: &NormalDeck, today: u32) -> Limits {
             .new_limit_today
             .map(|limit| limit.today == today)
             .unwrap_or_default(),
+        desired_retention: deck.desired_retention,
     }
 }
 
@@ -417,6 +418,7 @@ fn update_deck_limits(deck: &mut NormalDeck, limits: &Limits, today: u32) {
     deck.new_limit = limits.new;
     update_day_limit(&mut deck.review_limit_today, limits.review_today, today);
     update_day_limit(&mut deck.new_limit_today, limits.new_today, today);
+    deck.desired_retention = limits.desired_retention;
 }
 
 fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, today: u32) {
