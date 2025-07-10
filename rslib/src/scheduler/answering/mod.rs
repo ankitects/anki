@@ -447,8 +447,10 @@ impl Collection {
 
         // Get deck-specific desired retention if available, otherwise use config
         // default
-        let desired_retention = if let Some(deck_dr) = deck.normal()?.desired_retention {
-            deck_dr
+        let desired_retention = if let Ok(normal_deck) = deck.normal() {
+            normal_deck
+                .desired_retention
+                .unwrap_or(config.inner.desired_retention)
         } else {
             config.inner.desired_retention
         };
