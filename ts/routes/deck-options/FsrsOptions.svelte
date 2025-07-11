@@ -106,15 +106,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ),
     ];
 
-    let desiredRetentionValue = $config.desiredRetention;
-
     // Get the effective desired retention value (deck-specific if set, otherwise config default)
-    $: effectiveDesiredRetention = $limits.desiredRetention ?? $config.desiredRetention;
+    let effectiveDesiredRetention =
+        $limits.desiredRetention ?? $config.desiredRetention;
     const startingDesiredRetention = effectiveDesiredRetention.toFixed(2);
 
     $: simulateFsrsRequest = new SimulateFsrsReviewRequest({
         params: fsrsParams($config),
-        desiredRetention: effectiveDesiredRetention,
+        desiredRetention: $config.desiredRetention,
         newLimit: $config.newPerDay,
         reviewLimit: $config.reviewsPerDay,
         maxInterval: $config.maximumReviewInterval,
@@ -331,7 +330,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <DynamicallySlottable slotHost={Item} api={{}}>
     <Item>
         <SpinBoxFloatRow
-            bind:value={desiredRetentionValue}
+            bind:value={effectiveDesiredRetention}
             defaultValue={defaults.desiredRetention}
             min={0.7}
             max={0.99}
@@ -341,7 +340,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <TabbedValue
                 slot="tabs"
                 tabs={desiredRetentionTabs}
-                bind:value={desiredRetentionValue}
+                bind:value={effectiveDesiredRetention}
             />
             <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
                 {tr.deckConfigDesiredRetention()}
