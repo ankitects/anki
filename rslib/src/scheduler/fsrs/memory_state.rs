@@ -205,7 +205,17 @@ impl Collection {
             .storage
             .get_deck_config(conf_id)?
             .or_not_found(conf_id)?;
-        let desired_retention = config.inner.desired_retention;
+
+        // Get deck-specific desired retention if available, otherwise use config
+        // default
+        let desired_retention = if let Ok(normal_deck) = deck.normal() {
+            normal_deck
+                .desired_retention
+                .unwrap_or(config.inner.desired_retention)
+        } else {
+            config.inner.desired_retention
+        };
+
         let historical_retention = config.inner.historical_retention;
         let params = config.fsrs_params();
         let decay = get_decay_from_params(params);
