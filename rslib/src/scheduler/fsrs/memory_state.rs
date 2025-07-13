@@ -208,13 +208,11 @@ impl Collection {
 
         // Get deck-specific desired retention if available, otherwise use config
         // default
-        let desired_retention = if let Ok(normal_deck) = deck.normal() {
-            normal_deck
-                .desired_retention
-                .unwrap_or(config.inner.desired_retention)
-        } else {
-            config.inner.desired_retention
-        };
+        let desired_retention = deck
+            .normal()
+            .ok()
+            .and_then(|d| d.desired_retention)
+            .unwrap_or(config.inner.desired_retention);
 
         let historical_retention = config.inner.historical_retention;
         let params = config.fsrs_params();

@@ -447,13 +447,11 @@ impl Collection {
 
         // Get deck-specific desired retention if available, otherwise use config
         // default
-        let desired_retention = if let Ok(normal_deck) = deck.normal() {
-            normal_deck
-                .desired_retention
-                .unwrap_or(config.inner.desired_retention)
-        } else {
-            config.inner.desired_retention
-        };
+        let desired_retention = deck
+            .normal()
+            .ok()
+            .and_then(|d| d.desired_retention)
+            .unwrap_or(config.inner.desired_retention);
 
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let fsrs_next_states = if fsrs_enabled {
@@ -685,10 +683,7 @@ pub(crate) mod test {
         let deck_id = DeckId(1);
         let deck = col.get_deck(deck_id)?.unwrap();
         let mut deck_clone = (*deck).clone();
-        if let DeckKind::Normal(ref mut normal) = deck_clone.kind {
-            normal.desired_retention = Some(0.85); // Set deck-specific desired
-                                                   // retention
-        }
+        deck_clone.normal_mut().unwrap().desired_retention = Some(0.85);
         col.update_deck(&mut deck_clone)?;
 
         // Create a card in this deck
