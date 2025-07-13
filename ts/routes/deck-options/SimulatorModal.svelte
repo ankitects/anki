@@ -471,19 +471,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </button>
 
                 <button
-                class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                disabled={computing}
-                on:click={clearSimulation}
+                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                    disabled={computing}
+                    on:click={clearSimulation}
                 >
-                {tr.deckConfigClearLastSimulate()}
-            </button>
-            
-            <button
-            disabled={computing}
-            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-            on:click={workloadGraph}
-            >
-                Display Dr Workloads
+                    {tr.deckConfigClearLastSimulate()}
+                </button>
+
+                <button
+                    disabled={computing}
+                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                    on:click={workloadGraph}
+                >
+                    Display Dr Workloads
                 </button>
 
                 <button
