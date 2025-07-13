@@ -49,8 +49,6 @@ export function renderWorkloadChart(
     data: Point[],
     subgraph: SimulateWorkloadSubgraph,
 ) {
-    const today = new Date();
-
     const xMin = 70;
     const xMax = 99;
 

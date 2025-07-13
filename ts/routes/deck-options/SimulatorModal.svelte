@@ -270,9 +270,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
         }
 
-        const render_function = workload
-            ? renderWorkloadChart
-            : renderSimulationChart;
+        const render_function = workload ? renderWorkloadChart : renderSimulationChart;
 
         tableData = render_function(
             svg as SVGElement,
