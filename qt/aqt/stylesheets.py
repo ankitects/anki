@@ -198,6 +198,7 @@ class CustomStyles:
                 tm.var(colors.BUTTON_GRADIENT_END),
             )
         };
+        
     }}
     QPushButton:default:hover {{
         border-width: 2px;
