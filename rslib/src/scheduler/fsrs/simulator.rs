@@ -286,12 +286,17 @@ impl Collection {
                 )?;
                 Ok((
                     dr,
-                    result.memorized_cnt_per_day.last().unwrap_or(&0.)
-                        / result.cost_per_day.iter().sum::<f32>(),
+                    (
+                        *result.memorized_cnt_per_day.last().unwrap_or(&0.),
+                        result.cost_per_day.iter().sum::<f32>(),
+                    ),
                 ))
             })
             .collect::<Result<HashMap<_, _>>>()?;
-        Ok(SimulateFsrsWorkloadResponse { dr_workload })
+        Ok(SimulateFsrsWorkloadResponse {
+            memorized: dr_workload.iter().map(|(k, v)| (*k, v.0)).collect(),
+            cost: dr_workload.iter().map(|(k, v)| (*k, v.1)).collect(),
+        })
     }
 }
 
