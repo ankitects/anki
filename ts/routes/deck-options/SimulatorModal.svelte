@@ -161,6 +161,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } finally {
             simulating = false;
             if (resp) {
+                // Clear the graph if transitioning from workload to simulation
+                if (workload == true) {
+                    points = [];
+                    simulationNumber = 0;
+                }
+                workload = false;
+
                 simulationNumber += 1;
                 const dailyTotalCount = addArrays(
                     resp.dailyReviewCount,
@@ -203,15 +210,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } finally {
             simulating = false;
             if (resp) {
-                points = Object.entries(resp.memorized).map(([dr, v]) => ({
-                    x: parseInt(dr),
-                    timeCost: resp!.cost[dr],
-                    memorized: v,
-                    count: -1,
-                    label: 1,
-                }));
-
+                // Clear the graph if transitioning from simulation to workload
+                if (workload == false) {
+                    points = [];
+                    simulationNumber = 0;
+                }
                 workload = true;
+
+                simulationNumber += 1;
+
+                points = points.concat(
+                    Object.entries(resp.memorized).map(([dr, v]) => ({
+                        x: parseInt(dr),
+                        timeCost: resp!.cost[dr],
+                        memorized: v,
+                        count: -1,
+                        label: simulationNumber,
+                    })),
+                );
+
                 tableData = renderWorkloadChart(
                     svg as SVGElement,
                     bounds,
