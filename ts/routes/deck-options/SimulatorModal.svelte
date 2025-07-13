@@ -611,18 +611,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 <label>
                                     <input
                                         type="radio"
-                                        value={SimulateWorkloadSubgraph.memorized}
-                                        bind:group={simulateWorkloadSubgraph}
-                                    />
-                                    {tr.deckConfigFsrsSimulatorRadioMemorized()}
-                                </label>
-                                <label>
-                                    <input
-                                        type="radio"
                                         value={SimulateWorkloadSubgraph.time}
                                         bind:group={simulateWorkloadSubgraph}
                                     />
                                     {tr.statisticsReviewsTimeCheckbox()}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateWorkloadSubgraph.memorized}
+                                        bind:group={simulateWorkloadSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioMemorized()}
                                 </label>
                             {/if}
                         </InputBox>
