@@ -16,12 +16,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { SimulateSubgraph, type Point } from "../graphs/simulator";
     import * as tr from "@generated/ftl";
     import { renderSimulationChart } from "../graphs/simulator";
-    import { computeOptimalRetention, simulateFsrsReview } from "@generated/backend";
+    import {
+        computeOptimalRetention,
+        simulateFsrsReview,
+        simulateFsrsWorkload,
+    } from "@generated/backend";
     import { runWithBackendProgress } from "@tslib/progress";
     import type {
         ComputeOptimalRetentionResponse,
         SimulateFsrsReviewRequest,
         SimulateFsrsReviewResponse,
+        SimulateFsrsWorkloadResponse,
     } from "@generated/anki/scheduler_pb";
     import type { DeckOptionsState } from "./lib";
     import SwitchRow from "$lib/components/SwitchRow.svelte";
@@ -163,6 +168,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         timeCost: v,
                         count: dailyTotalCount[i],
                         memorized: dailyMemorizedCount[i],
+                        label: simulationNumber,
+                    })),
+                );
+
+                tableData = renderSimulationChart(
+                    svg as SVGElement,
+                    bounds,
+                    points,
+                    simulateSubgraph,
+                );
+            }
+        }
+    }
+
+    async function workloadGraph(): Promise<void> {
+        let resp: SimulateFsrsWorkloadResponse | undefined;
+        updateRequest();
+        try {
+            await runWithBackendProgress(
+                async () => {
+                    simulating = true;
+                    resp = await simulateFsrsWorkload(simulateFsrsRequest);
+                },
+                () => {},
+            );
+        } finally {
+            simulating = false;
+            if (resp) {
+                simulationNumber += 1;
+
+                points = points.concat(
+                    Object.entries(resp.memorized).map(([dr, v]) => ({
+                        x: parseInt(dr),
+                        timeCost: resp!.cost[dr],
+                        count: resp!.cost[dr] / v,
+                        memorized: v,
                         label: simulationNumber,
                     })),
                 );
@@ -430,11 +471,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </button>
 
                 <button
-                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                    disabled={computing}
-                    on:click={clearSimulation}
+                class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                disabled={computing}
+                on:click={clearSimulation}
                 >
-                    {tr.deckConfigClearLastSimulate()}
+                {tr.deckConfigClearLastSimulate()}
+            </button>
+            
+            <button
+            disabled={computing}
+            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+            on:click={workloadGraph}
+            >
+                Display Dr Workloads
                 </button>
 
                 <button
