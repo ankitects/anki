@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use std::sync::Arc;
@@ -6,6 +7,7 @@ use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
 use anki_proto::deck_config::deck_config::config::ReviewCardOrder::*;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
+use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
 use fsrs::simulate;
 use fsrs::PostSchedulingFn;
 use fsrs::ReviewPriorityFn;
@@ -266,6 +268,30 @@ impl Collection {
                 .collect_vec(),
             daily_time_cost: result.cost_per_day,
         })
+    }
+
+    pub fn simulate_workload(
+        &mut self,
+        req: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsWorkloadResponse> {
+        let (config, cards) = self.simulate_request_to_config(&req)?;
+        let dr_workload = (70u32..=99u32)
+            .map(|dr| {
+                let result = simulate(
+                    &config,
+                    &req.params,
+                    dr as f32 / 100.,
+                    None,
+                    Some(cards.clone()),
+                )?;
+                Ok((
+                    dr,
+                    result.memorized_cnt_per_day.last().unwrap_or(&0.)
+                        / result.cost_per_day.iter().sum::<f32>(),
+                ))
+            })
+            .collect::<Result<HashMap<_, _>>>()?;
+        Ok(SimulateFsrsWorkloadResponse { dr_workload })
     }
 }
 
