@@ -43,6 +43,49 @@ export enum SimulateWorkloadSubgraph {
     memorized,
 }
 
+export function renderWorkloadChart(
+    svgElem: SVGElement,
+    bounds: GraphBounds,
+    data: Point[],
+    subgraph: SimulateWorkloadSubgraph,
+) {
+    const today = new Date();
+
+    const xMin = 70;
+    const xMax = 99;
+
+    const x = scaleLinear()
+        .domain([xMin, xMax])
+        .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
+
+    const subgraph_data = ({
+        [SimulateWorkloadSubgraph.ratio]: data.map(d => ({ ...d, y: d.timeCost / d.memorized })),
+        [SimulateWorkloadSubgraph.time]: data.map(d => ({ ...d, y: d.timeCost })),
+        [SimulateWorkloadSubgraph.memorized]: data.map(d => ({ ...d, y: d.memorized })),
+    })[subgraph];
+
+    const yTickFormat = (n: number): string => {
+        return subgraph == SimulateWorkloadSubgraph.time ? timeSpan(n, true) : n.toString();
+    };
+
+    const formatY: (value: number) => string = ({
+        [SimulateWorkloadSubgraph.ratio]: (value: number) => `${timeSpan(value)} time per 1 card memorized`,
+        [SimulateWorkloadSubgraph.time]: timeSpan,
+        [SimulateWorkloadSubgraph.memorized]: (value: number) =>
+            tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
+    })[subgraph];
+
+    return _renderSimulationChart(
+        svgElem,
+        bounds,
+        subgraph_data,
+        x,
+        yTickFormat,
+        formatY,
+        (_e: MouseEvent, _d: number) => undefined,
+    );
+}
+
 export function renderSimulationChart(
     svgElem: SVGElement,
     bounds: GraphBounds,

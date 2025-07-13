@@ -13,9 +13,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TableData from "../graphs/TableData.svelte";
     import InputBox from "../graphs/InputBox.svelte";
     import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
-    import { SimulateSubgraph, type Point } from "../graphs/simulator";
+    import {
+        SimulateSubgraph,
+        SimulateWorkloadSubgraph,
+        type Point,
+    } from "../graphs/simulator";
     import * as tr from "@generated/ftl";
-    import { renderSimulationChart } from "../graphs/simulator";
+    import { renderSimulationChart, renderWorkloadChart } from "../graphs/simulator";
     import {
         computeOptimalRetention,
         simulateFsrsReview,
@@ -48,6 +52,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
+    let simulateWorkloadSubgraph: SimulateWorkloadSubgraph =
+        SimulateWorkloadSubgraph.ratio;
+    let workload: boolean = false;
     let tableData: TableDatum[] = [];
     let simulating: boolean = false;
     const fsrs = state.fsrs;
@@ -196,23 +203,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } finally {
             simulating = false;
             if (resp) {
-                simulationNumber += 1;
+                points = Object.entries(resp.memorized).map(([dr, v]) => ({
+                    x: parseInt(dr),
+                    timeCost: resp!.cost[dr],
+                    memorized: v,
+                    count: -1,
+                    label: 1,
+                }));
 
-                points = points.concat(
-                    Object.entries(resp.memorized).map(([dr, v]) => ({
-                        x: parseInt(dr),
-                        timeCost: resp!.cost[dr],
-                        count: resp!.cost[dr] / v,
-                        memorized: v,
-                        label: simulationNumber,
-                    })),
-                );
-
-                tableData = renderSimulationChart(
+                workload = true;
+                tableData = renderWorkloadChart(
                     svg as SVGElement,
                     bounds,
                     points,
-                    simulateSubgraph,
+                    simulateWorkloadSubgraph,
                 );
             }
         }
@@ -266,11 +270,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
         }
 
-        tableData = renderSimulationChart(
+        const render_function = workload
+            ? renderWorkloadChart
+            : renderSimulationChart;
+
+        tableData = render_function(
             svg as SVGElement,
             bounds,
             pointsToRender,
-            simulateSubgraph,
+            (workload ? simulateWorkloadSubgraph : simulateSubgraph) as any as never,
         );
     }
 
@@ -519,30 +527,57 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <Graph>
                     <div class="radio-group">
                         <InputBox>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={SimulateSubgraph.count}
-                                    bind:group={simulateSubgraph}
-                                />
-                                {tr.deckConfigFsrsSimulatorRadioCount()}
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={SimulateSubgraph.time}
-                                    bind:group={simulateSubgraph}
-                                />
-                                {tr.statisticsReviewsTimeCheckbox()}
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={SimulateSubgraph.memorized}
-                                    bind:group={simulateSubgraph}
-                                />
-                                {tr.deckConfigFsrsSimulatorRadioMemorized()}
-                            </label>
+                            {#if !workload}
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateSubgraph.count}
+                                        bind:group={simulateSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioCount()}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateSubgraph.time}
+                                        bind:group={simulateSubgraph}
+                                    />
+                                    {tr.statisticsReviewsTimeCheckbox()}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateSubgraph.memorized}
+                                        bind:group={simulateSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioMemorized()}
+                                </label>
+                            {:else}
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateWorkloadSubgraph.ratio}
+                                        bind:group={simulateWorkloadSubgraph}
+                                    />
+                                    {"Ratio"}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateWorkloadSubgraph.memorized}
+                                        bind:group={simulateWorkloadSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioMemorized()}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateWorkloadSubgraph.time}
+                                        bind:group={simulateWorkloadSubgraph}
+                                    />
+                                    {tr.statisticsReviewsTimeCheckbox()}
+                                </label>
+                            {/if}
                         </InputBox>
                     </div>
 
