@@ -73,6 +73,10 @@ export function renderWorkloadChart(
             tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
     })[subgraph];
 
+    function formatX(dr: number) {
+        return `Desired Retention: ${dr}%<br>`;
+    }
+
     return _renderSimulationChart(
         svgElem,
         bounds,
@@ -80,6 +84,7 @@ export function renderWorkloadChart(
         x,
         yTickFormat,
         formatY,
+        formatX,
         (_e: MouseEvent, _d: number) => undefined,
     );
 }
@@ -143,6 +148,11 @@ export function renderSimulationChart(
         );
     }
 
+    function formatX(date: Date) {
+        const days = +((date.getTime() - Date.now()) / (60 * 60 * 24 * 1000)).toFixed();
+        return `Date: ${localizedDate(date)}<br>In ${days} Days<br>`;
+    }
+
     return _renderSimulationChart(
         svgElem,
         bounds,
@@ -150,6 +160,7 @@ export function renderSimulationChart(
         x,
         yTickFormat,
         formatY,
+        formatX,
         legendMouseMove,
     );
 }
@@ -160,7 +171,8 @@ function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
     subgraph_data: T[],
     x: any,
     yTickFormat: (n: number) => string,
-    formatY: (n: number) => string,
+    formatY: (n: T["y"]) => string,
+    formatX: (n: T["x"]) => string,
     legendMouseMove: (e: MouseEvent, d: number) => void,
 ): TableDatum[] {
     const svg = select(svgElem);
@@ -272,8 +284,7 @@ function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
 
         focusLine.attr("x1", d[0]).attr("x2", d[0]).style("opacity", 1);
 
-        const days = +((date.getTime() - Date.now()) / (60 * 60 * 24 * 1000)).toFixed();
-        let tooltipContent = `Date: ${localizedDate(date)}<br>In ${days} Days<br>`;
+        let tooltipContent = formatX(date);
         for (const [key, value] of Object.entries(groupData)) {
             const path = svg.select(`path[data-group="${key}"]`);
             const hidden = path.classed("hidden");
