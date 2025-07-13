@@ -162,11 +162,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             simulating = false;
             if (resp) {
                 // Clear the graph if transitioning from workload to simulation
-                if (workload == true) {
-                    points = [];
-                    simulationNumber = 0;
-                }
-                workload = false;
 
                 simulationNumber += 1;
                 const dailyTotalCount = addArrays(
@@ -196,7 +191,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    async function workloadGraph(): Promise<void> {
+    async function simulateWorkload(): Promise<void> {
         let resp: SimulateFsrsWorkloadResponse | undefined;
         updateRequest();
         try {
@@ -210,13 +205,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } finally {
             simulating = false;
             if (resp) {
-                // Clear the graph if transitioning from simulation to workload
-                if (workload == false) {
-                    points = [];
-                    simulationNumber = 0;
-                }
-                workload = true;
-
                 simulationNumber += 1;
 
                 points = points.concat(
@@ -248,6 +236,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             points,
             simulateSubgraph,
         );
+    }
+
+    function saveConfigToPreset() {
+        if (confirm(tr.deckConfigSaveOptionsToPresetConfirm())) {
+            $config.newPerDay = simulateFsrsRequest.newLimit;
+            $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
+            $config.maximumReviewInterval = simulateFsrsRequest.maxInterval;
+            $config.desiredRetention = simulateFsrsRequest.desiredRetention;
+            $newCardsIgnoreReviewLimit = simulateFsrsRequest.newCardsIgnoreReviewLimit;
+            $config.reviewOrder = simulateFsrsRequest.reviewOrder;
+            $config.leechAction = suspendLeeches
+                ? DeckConfig_Config_LeechAction.SUSPEND
+                : DeckConfig_Config_LeechAction.TAG_ONLY;
+            $config.leechThreshold = leechThreshold;
+            $config.easyDaysPercentages = [...easyDayPercentages];
+            onPresetChange();
+        }
+    }
+
+    function switchModes() {
+        points = [];
+        simulationNumber = 0;
+        workload = !workload;
     }
 
     $: if (svg) {
@@ -485,55 +496,51 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {/if}
                     </details>
                 </div>
-                <button
-                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                    disabled={computing}
-                    on:click={simulateFsrs}
-                >
-                    {tr.deckConfigSimulate()}
-                </button>
 
-                <button
-                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                    disabled={computing}
-                    on:click={clearSimulation}
-                >
-                    {tr.deckConfigClearLastSimulate()}
-                </button>
+                <div class="button-row">
+                    <div>
+                        <button
+                            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                            disabled={computing}
+                            on:click={workload ? simulateWorkload : simulateFsrs}
+                        >
+                            {tr.deckConfigSimulate()}
+                        </button>
 
-                <button
-                    disabled={computing}
-                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                    on:click={workloadGraph}
-                >
-                    Display Dr Workloads
-                </button>
+                        <button
+                            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                            disabled={computing}
+                            on:click={clearSimulation}
+                        >
+                            {tr.deckConfigClearLastSimulate()}
+                        </button>
 
-                <button
-                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                    disabled={computing}
-                    on:click={() => {
-                        if (confirm(tr.deckConfigSaveOptionsToPresetConfirm())) {
-                            $config.newPerDay = simulateFsrsRequest.newLimit;
-                            $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
-                            $config.maximumReviewInterval =
-                                simulateFsrsRequest.maxInterval;
-                            $config.desiredRetention =
-                                simulateFsrsRequest.desiredRetention;
-                            $newCardsIgnoreReviewLimit =
-                                simulateFsrsRequest.newCardsIgnoreReviewLimit;
-                            $config.reviewOrder = simulateFsrsRequest.reviewOrder;
-                            $config.leechAction = suspendLeeches
-                                ? DeckConfig_Config_LeechAction.SUSPEND
-                                : DeckConfig_Config_LeechAction.TAG_ONLY;
-                            $config.leechThreshold = leechThreshold;
-                            $config.easyDaysPercentages = [...easyDayPercentages];
-                            onPresetChange();
-                        }
-                    }}
-                >
-                    {tr.deckConfigSaveOptionsToPreset()}
-                </button>
+                        <button
+                            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                            disabled={computing}
+                            on:click={saveConfigToPreset}
+                        >
+                            {tr.deckConfigSaveOptionsToPreset()}
+                        </button>
+                    </div>
+                    <h3>
+                        {#if workload}
+                            Desired Retention Mode
+                        {:else}
+                            Simulation Mode
+                        {/if}
+                    </h3>
+
+                    <div class="mode-switch">
+                        <button
+                            disabled={computing}
+                            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                            on:click={switchModes}
+                        >
+                            Switch to {workload ? "Simulation" : "Desired Retention"} Mode
+                        </button>
+                    </div>
+                </div>
 
                 {#if processing}
                     {tr.actionsProcessing()}
@@ -655,5 +662,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     summary {
         margin-bottom: 0.5em;
+    }
+
+    .button-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+    }
+
+    .mode-switch {
+        display: flex;
+        flex-direction: row-reverse;
     }
 </style>
