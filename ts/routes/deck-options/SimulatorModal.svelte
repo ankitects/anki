@@ -43,6 +43,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
     import Modal from "bootstrap/js/dist/modal";
+    import Row from "$lib/components/Row.svelte";
+    import Col from "$lib/components/Col.svelte";
 
     export let state: DeckOptionsState;
     export let simulateFsrsRequest: SimulateFsrsReviewRequest;
@@ -243,7 +245,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             $config.newPerDay = simulateFsrsRequest.newLimit;
             $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
             $config.maximumReviewInterval = simulateFsrsRequest.maxInterval;
-            $config.desiredRetention = simulateFsrsRequest.desiredRetention;
+            if (!workload) {
+                $config.desiredRetention = simulateFsrsRequest.desiredRetention;
+            }
             $newCardsIgnoreReviewLimit = simulateFsrsRequest.newCardsIgnoreReviewLimit;
             $config.reviewOrder = simulateFsrsRequest.reviewOrder;
             $config.leechAction = suspendLeeches
@@ -353,17 +357,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </SpinBoxRow>
 
-                <SpinBoxFloatRow
-                    bind:value={simulateFsrsRequest.desiredRetention}
-                    defaultValue={$config.desiredRetention}
-                    min={0.7}
-                    max={0.99}
-                    percentage={true}
-                >
-                    <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
-                        {tr.deckConfigDesiredRetention()}
-                    </SettingTitle>
-                </SpinBoxFloatRow>
+                {#if !workload}
+                    <SpinBoxFloatRow
+                        bind:value={simulateFsrsRequest.desiredRetention}
+                        defaultValue={$config.desiredRetention}
+                        min={0.7}
+                        max={0.99}
+                        percentage={true}
+                    >
+                        <SettingTitle
+                            on:click={() => openHelpModal("desiredRetention")}
+                        >
+                            {tr.deckConfigDesiredRetention()}
+                        </SettingTitle>
+                    </SpinBoxFloatRow>
+                {:else}
+                    <Row --cols={13}>
+                        <Col --col-size={7} breakpoint="xs">
+                            <SettingTitle
+                                on:click={() => openHelpModal("desiredRetention")}
+                            >
+                                {tr.deckConfigDesiredRetention()}
+                            </SettingTitle>
+                        </Col>
+                        <Col --col-size={6} breakpoint="xs">
+                            <input
+                                type="text"
+                                disabled
+                                value="(Plotted on the X axis)"
+                            />
+                        </Col>
+                    </Row>
+                {/if}
 
                 <SpinBoxRow
                     bind:value={simulateFsrsRequest.newLimit}
