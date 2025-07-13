@@ -67,7 +67,7 @@ export function renderWorkloadChart(
     };
 
     const formatY: (value: number) => string = ({
-        [SimulateWorkloadSubgraph.ratio]: (value: number) => `${timeSpan(value)} per 1 card memorized`,
+        [SimulateWorkloadSubgraph.ratio]: (value: number) => `${timeSpan(value)} per memorized card`,
         [SimulateWorkloadSubgraph.time]: timeSpan,
         [SimulateWorkloadSubgraph.memorized]: (value: number) =>
             tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
