@@ -99,7 +99,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         await beforeInput.dispatch({ event });
 
         const position = getCaretPosition(this);
-        undoManager.register(this, position);
+        undoManager.register(this.innerHTML, position);
 
         if (
             !range
@@ -130,7 +130,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
 
     async function onInput(this: Element, event: Event): Promise<void> {
         const position = getCaretPosition(this);
-        undoManager.register(this, position);
+        undoManager.register(this.innerHTML, position);
         await afterInput.dispatch({ event });
     }
 
@@ -165,13 +165,17 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
             event.preventDefault();
             undoManager.undo(this);
         }
+        else if((event.ctrlKey || event.metaKey) && event.key == "y"){
+            event.preventDefault();
+            undoManager.redo(this);
+        }
     }
 
     async function onPaste(this: Element, event: ClipboardEvent): Promise<void> {
         const position = getCaretPosition(this);
         //Wait for paste event to be done
         setTimeout(() => {}, 0);
-        undoManager.register(this, position);
+        undoManager.register(this.innerHTML, position);
     }
 
     function setupHandler(element: HTMLElement): { destroy(): void } {
