@@ -216,7 +216,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         x: parseInt(dr),
                         timeCost: resp!.cost[dr],
                         memorized: v,
-                        count: -1,
+                        count: resp!.reviewCount[dr],
                         label: workloadSimulationNumber,
                     })),
                 );
@@ -616,6 +616,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                         bind:group={simulateWorkloadSubgraph}
                                     />
                                     {"Ratio"}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateWorkloadSubgraph.count}
+                                        bind:group={simulateWorkloadSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioCount()}
                                 </label>
                                 <label>
                                     <input

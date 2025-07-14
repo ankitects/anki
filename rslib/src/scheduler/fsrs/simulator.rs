@@ -289,6 +289,7 @@ impl Collection {
                     (
                         *result.memorized_cnt_per_day.last().unwrap_or(&0.),
                         result.cost_per_day.iter().sum::<f32>(),
+                        result.review_cnt_per_day.iter().sum::<usize>() as u32,
                     ),
                 ))
             })
@@ -296,6 +297,7 @@ impl Collection {
         Ok(SimulateFsrsWorkloadResponse {
             memorized: dr_workload.iter().map(|(k, v)| (*k, v.0)).collect(),
             cost: dr_workload.iter().map(|(k, v)| (*k, v.1)).collect(),
+            review_count: dr_workload.iter().map(|(k, v)| (*k, v.2)).collect(),
         })
     }
 }

@@ -419,6 +419,7 @@ message SimulateFsrsReviewResponse {
 message SimulateFsrsWorkloadResponse {
   map<uint32, float> cost = 1;
   map<uint32, float> memorized = 2;
+  map<uint32, uint32> review_count = 3;
 }
 
 message ComputeOptimalRetentionResponse {

@@ -40,6 +40,7 @@ export enum SimulateSubgraph {
 export enum SimulateWorkloadSubgraph {
     ratio,
     time,
+    count,
     memorized,
 }
 
@@ -59,6 +60,7 @@ export function renderWorkloadChart(
     const subgraph_data = ({
         [SimulateWorkloadSubgraph.ratio]: data.map(d => ({ ...d, y: d.timeCost / d.memorized })),
         [SimulateWorkloadSubgraph.time]: data.map(d => ({ ...d, y: d.timeCost })),
+        [SimulateWorkloadSubgraph.count]: data.map(d => ({ ...d, y: d.count })),
         [SimulateWorkloadSubgraph.memorized]: data.map(d => ({ ...d, y: d.memorized })),
     })[subgraph];
 
@@ -69,6 +71,7 @@ export function renderWorkloadChart(
     const formatY: (value: number) => string = ({
         [SimulateWorkloadSubgraph.ratio]: (value: number) => `${timeSpan(value)} per memorized card`,
         [SimulateWorkloadSubgraph.time]: timeSpan,
+        [SimulateWorkloadSubgraph.count]: (value: number) => tr.statisticsReviews({ reviews: Math.round(value) }),
         [SimulateWorkloadSubgraph.memorized]: (value: number) =>
             tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
     })[subgraph];
