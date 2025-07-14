@@ -7,6 +7,7 @@ import { isArrowDown, isArrowLeft, isArrowRight, isArrowUp } from "@tslib/keys";
 import { singleCallback } from "@tslib/typing";
 
 import { HandlerList } from "./handler-list";
+import { UndoManager } from "./undo-manager";
 
 const nbsp = "\xa0";
 
@@ -46,6 +47,39 @@ export interface InputHandlerAPI {
     readonly specialKey: HandlerList<SpecialKeyParams>;
 }
 
+function getCaretPosition(element: Element){
+    const selection = getSelection(element)!;
+    const range = getRange(selection);
+    if(!range) return 0;
+
+    let startNode = range.startContainer;
+    let startOffset = range.startOffset;
+
+    if(!range.collapsed){
+        if(selection.anchorNode) startNode = selection.anchorNode;
+        startOffset = selection.anchorOffset;
+    }
+
+    if(startNode.nodeType == Node.TEXT_NODE){
+        let counter = 0;
+        for(const node of element.childNodes){
+            if(node === startNode) break;
+            if(node.textContent) counter += node.textContent.length;
+            if(node.nodeType !== Node.TEXT_NODE) counter++;
+        }
+        counter += startOffset;
+        return counter;
+    } else {
+        let counter = 0;
+        for(let i = 0; i < startOffset; i++){
+            const node = element.childNodes[i];
+            if(node.textContent) counter += node.textContent.length;
+            if(node.nodeType !== Node.TEXT_NODE) counter++;
+        }
+        return counter;
+    }
+}
+
 /**
  * An interface that allows Svelte components to attach event listeners via triggers.
  * They will be attached to the component(s) that install the manager.
@@ -56,12 +90,16 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     const beforeInput = new HandlerList<InputEventParams>();
     const insertText = new HandlerList<InsertTextParams>();
     const afterInput = new HandlerList<EventParams>();
+    const undoManager = new UndoManager();
 
     async function onBeforeInput(this: Element, event: InputEvent): Promise<void> {
         const selection = getSelection(this)!;
         const range = getRange(selection);
 
         await beforeInput.dispatch({ event });
+
+        const position = getCaretPosition(this);
+        undoManager.register(this, position);
 
         if (
             !range
@@ -91,6 +129,8 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     }
 
     async function onInput(this: Element, event: Event): Promise<void> {
+        const position = getCaretPosition(this);
+        undoManager.register(this, position);
         await afterInput.dispatch({ event });
     }
 
@@ -121,6 +161,17 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         } else if (event.code === "Tab") {
             specialKey.dispatch({ event, action: "tab" });
         }
+        else if((event.ctrlKey || event.metaKey) && event.key == "z"){
+            event.preventDefault();
+            undoManager.undo(this);
+        }
+    }
+
+    async function onPaste(this: Element, event: ClipboardEvent): Promise<void> {
+        const position = getCaretPosition(this);
+        //Wait for paste event to be done
+        setTimeout(() => {}, 0);
+        undoManager.register(this, position);
     }
 
     function setupHandler(element: HTMLElement): { destroy(): void } {
@@ -130,6 +181,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
             on(element, "blur", clearInsertText),
             on(element, "pointerdown", onPointerDown),
             on(element, "keydown", onKeyDown),
+            on(element, "paste", onPaste),
             on(document, "selectionchange", clearInsertText),
         );
 
