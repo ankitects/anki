@@ -269,7 +269,7 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
 
     // remove UV_* environment variables to avoid interference
     for (key, _) in std::env::vars() {
-        if key.starts_with("UV_") {
+        if key.starts_with("UV_") || key == "VIRTUAL_ENV" {
             command.env_remove(key);
         }
     }

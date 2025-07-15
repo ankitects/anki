@@ -36,7 +36,7 @@ pub fn setup_pyenv(args: PyenvArgs) {
 
     // remove UV_* environment variables to avoid interference
     for (key, _) in std::env::vars() {
-        if key.starts_with("UV_") {
+        if key.starts_with("UV_") || key == "VIRTUAL_ENV" {
             command.env_remove(key);
         }
     }
