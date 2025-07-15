@@ -29,6 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SimulatorModal from "./SimulatorModal.svelte";
     import {
         GetRetentionWorkloadRequest,
+        type GetRetentionWorkloadResponse,
         UpdateDeckConfigsMode,
     } from "@generated/anki/deck_config_pb";
     import type Modal from "bootstrap/js/dist/modal";
@@ -66,19 +67,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: roundedRetention = Number($config.desiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
 
-    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
-    const WORKLOAD_UPDATE_DELAY_MS = 100;
-
     let desiredRetentionChangeInfo = "";
     $: {
-        clearTimeout(timeoutId);
-        if (showDesiredRetentionTooltip) {
-            timeoutId = setTimeout(() => {
-                getRetentionChangeInfo(roundedRetention, fsrsParams($config));
-            }, WORKLOAD_UPDATE_DELAY_MS);
-        } else {
-            desiredRetentionChangeInfo = "";
-        }
+        showDesiredRetentionTooltip
+            ? getRetentionChangeInfo(roundedRetention, fsrsParams($config))
+            : "";
     }
 
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
@@ -111,21 +104,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    let retentionWorloadInfo: undefined | Promise<GetRetentionWorkloadResponse> =
+        undefined;
+
     async function getRetentionChangeInfo(retention: number, params: number[]) {
+        if (!retentionWorloadInfo) {
+            const request = new GetRetentionWorkloadRequest({
+                w: params,
+                search: defaultparamSearch,
+            });
+            retentionWorloadInfo = getRetentionWorkload(request);
+        }
         if (+startingDesiredRetention == roundedRetention) {
             desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorUnchanged();
             return;
         }
-        const request = new GetRetentionWorkloadRequest({
-            w: params,
-            search: defaultparamSearch,
-            before: +startingDesiredRetention,
-            after: retention,
-        });
-        const resp = await getRetentionWorkload(request);
+
+        const previous = +startingDesiredRetention * 100;
+        const after = retention * 100;
+        const resp = await retentionWorloadInfo;
+        const factor = resp.costs[after] / resp.costs[previous];
+
         desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorChange({
-            factor: resp.factor.toFixed(2),
-            previousDr: (+startingDesiredRetention * 100).toString(),
+            factor: factor.toFixed(2),
+            previousDr: previous.toString(),
         });
     }
 
