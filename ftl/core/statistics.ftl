@@ -80,7 +80,7 @@ statistics-reviews =
 # This fragment of the tooltip in the FSRS simulation
 # diagram (Deck options -> FSRS) shows the total number of
 # cards that can be recalled or retrieved on a specific date.
-statistics-memorized = {$memorized} memorized
+statistics-memorized = {$memorized} cards memorized
 statistics-today-title = Today
 statistics-today-again-count = Again count:
 statistics-today-type-counts = Learn: { $learnCount }, Review: { $reviewCount }, Relearn: { $relearnCount }, Filtered: { $filteredCount }
