@@ -5,7 +5,7 @@ requires-python = ">=3.9"
 license = "AGPL-3.0-or-later"
 dependencies = [
   "beautifulsoup4",
-  "flask",
+  "flask[async]",
   "flask_cors",
   "jsonschema",
   "requests",
