@@ -70,10 +70,10 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += f"<p>{lede}"
     abouttext += f"<p>{tr.about_anki_is_licensed_under_the_agpl3()}"
     abouttext += f"<p>{tr.about_version(val=version_with_build())}<br>"
-    abouttext += ("Python %s Qt %s PyQt %s<br>") % (
+    abouttext += ("Python %s Qt %s Chromium %s<br>") % (
         platform.python_version(),
         qVersion(),
-        PYQT_VERSION_STR,
+        qWebEngineChromiumVersion().split(".")[0],
     )
     abouttext += (
         without_unicode_isolation(tr.about_visit_website(val=aqt.appWebsite))
