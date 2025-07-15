@@ -24,7 +24,7 @@ Name "Anki"
 Unicode true
 
 ; The file to write (relative to nsis directory)
-OutFile "..\launcher_exe\anki-install.exe"
+OutFile "..\launcher_exe\anki-launcher-ANKI_VERSION-windows.exe"
 
 ; Non elevated
 RequestExecutionLevel user
@@ -214,7 +214,7 @@ Section ""
 
   ; Write the uninstall keys for Windows
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayName" "Anki Launcher"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayVersion" "1.0.0"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayVersion" "ANKI_VERSION"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "NoModify" 1

@@ -13,7 +13,8 @@ HOST_ARCH=$(uname -m)
 
 # Define output paths
 OUTPUT_DIR="../../../out/launcher"
-LAUNCHER_DIR="$OUTPUT_DIR/anki-linux"
+ANKI_VERSION=$(cat ../../../.version | tr -d '\n')
+LAUNCHER_DIR="$OUTPUT_DIR/anki-launcher-$ANKI_VERSION-linux"
 
 # Clean existing output directory
 rm -rf "$LAUNCHER_DIR"
@@ -77,8 +78,8 @@ chmod +x \
 chmod -R a+r "$LAUNCHER_DIR"
 
 ZSTD="zstd -c --long -T0 -18"
-TRANSFORM="s%^.%anki-linux%S"
-TARBALL="$OUTPUT_DIR/anki-linux.tar.zst"
+TRANSFORM="s%^.%anki-launcher-$ANKI_VERSION-linux%S"
+TARBALL="$OUTPUT_DIR/anki-launcher-$ANKI_VERSION-linux.tar.zst"
 
 tar -I "$ZSTD" --transform "$TRANSFORM" -cf "$TARBALL" -C "$LAUNCHER_DIR" .
 

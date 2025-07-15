@@ -73,7 +73,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += ("Python %s Qt %s Chromium %s<br>") % (
         platform.python_version(),
         qVersion(),
-        qWebEngineChromiumVersion().split(".")[0],
+        (qWebEngineChromiumVersion() or "").split(".")[0],
     )
     abouttext += (
         without_unicode_isolation(tr.about_visit_website(val=aqt.appWebsite))

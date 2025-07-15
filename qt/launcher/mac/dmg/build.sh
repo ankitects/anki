@@ -6,7 +6,8 @@ set -e
 # base folder with Anki.app in it
 output="$1"
 dist="$1/tmp"
-dmg_path="$output/Anki.dmg"
+ANKI_VERSION=$(cat ../../../.version | tr -d '\n')
+dmg_path="$output/anki-launcher-$ANKI_VERSION-mac.dmg"
 
 if [ -d "/Volumes/Anki" ]
 then
