@@ -66,7 +66,7 @@ requires-dist = [
     { name = "distro", marker = "sys_platform != 'darwin' and sys_platform != 'win32'" },
     { name = "markdown" },
     { name = "orjson" },
-    { name = "protobuf", specifier = ">=4.21" },
+    { name = "protobuf", specifier = ">=6.0,<8.0" },
     { name = "requests", extras = ["socks"] },
     { name = "typing-extensions" },
 ]
