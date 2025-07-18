@@ -198,6 +198,7 @@ fn extract_aqt_version(
 ) -> Option<String> {
     let output = Command::new(uv_path)
         .current_dir(uv_install_root)
+        .env("VIRTUAL_ENV", uv_install_root.join(".venv"))
         .args(["pip", "show", "aqt"])
         .output()
         .ok()?;
