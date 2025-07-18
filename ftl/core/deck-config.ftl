@@ -522,7 +522,7 @@ deck-config-plotted-on-x-axis = (Plotted on the X-axis)
 # to show the total number of cards that can be recalled or retrieved on a
 # specific date.
 deck-config-fsrs-simulator-radio-memorized = Memorized
-deck-config-fsrs-simulator-radio-ratio = Memorized / Time Ratio
+deck-config-fsrs-simulator-radio-ratio = Time / Memorized Ratio
 # $time here is pre-formatted e.g. "10 Seconds" 
 deck-config-fsrs-simulator-ratio-tooltip = { $time } per memorized card
 
