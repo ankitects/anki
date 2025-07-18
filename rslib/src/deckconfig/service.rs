@@ -1,5 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use std::collections::HashMap;
+
 use anki_proto::generic;
 
 use crate::collection::Collection;
@@ -139,30 +142,25 @@ impl crate::services::DeckConfigService for Collection {
             costs.pass_count,
         );
 
-        let before = fsrs::expected_workload(
-            &input.w,
-            input.before,
-            LEARN_SPAN,
-            cost_success,
-            cost_failure,
-            cost_learn,
-            initial_pass_rate,
-            TERMINATION_PROB,
-        )?;
-        let after = fsrs::expected_workload(
-            &input.w,
-            input.after,
-            LEARN_SPAN,
-            cost_success,
-            cost_failure,
-            cost_learn,
-            initial_pass_rate,
-            TERMINATION_PROB,
-        )?;
+        let costs = (70u32..=99u32)
+            .map(|dr| {
+                Ok((
+                    dr,
+                    fsrs::expected_workload(
+                        &input.w,
+                        dr as f32 / 100.,
+                        LEARN_SPAN,
+                        cost_success,
+                        cost_failure,
+                        cost_learn,
+                        initial_pass_rate,
+                        TERMINATION_PROB,
+                    )?,
+                ))
+            })
+            .collect::<Result<HashMap<_, _>>>()?;
 
-        Ok(anki_proto::deck_config::GetRetentionWorkloadResponse {
-            factor: after / before,
-        })
+        Ok(anki_proto::deck_config::GetRetentionWorkloadResponse { costs })
     }
 }
 

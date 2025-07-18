@@ -40,12 +40,10 @@ message DeckConfigId {
 message GetRetentionWorkloadRequest {
   repeated float w = 1;
   string search = 2;
-  float before = 3;
-  float after = 4;
 }
 
 message GetRetentionWorkloadResponse {
-  float factor = 1;
+  map<uint32, float> costs = 1;
 }
 
 message GetIgnoredBeforeCountRequest {
