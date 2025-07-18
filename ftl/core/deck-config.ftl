@@ -506,8 +506,8 @@ deck-config-desired-retention-below-optimal = Your desired retention is below op
 # diagram (Deck options -> FSRS) showing the total number of
 # cards that can be recalled or retrieved on a specific date.
 deck-config-fsrs-simulator-experimental = FSRS Simulator (Experimental)
-deck-config-fsrs-simulate-desired-retention-experimental = FSRS Desired Retention Simulator
-deck-config-fsrs-desired-retention-help-me-decide = Help Me Decide
+deck-config-fsrs-simulate-desired-retention-experimental = FSRS Desired Retention Simulator (Experimental)
+deck-config-fsrs-desired-retention-help-me-decide-experimental = Help Me Decide (Experimental)
 deck-config-additional-new-cards-to-simulate = Additional new cards to simulate
 deck-config-simulate = Simulate
 deck-config-clear-last-simulate = Clear Last Simulation
