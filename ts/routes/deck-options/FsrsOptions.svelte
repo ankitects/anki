@@ -299,6 +299,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let simulatorModal: Modal;
+    let workloadModal: Modal;
 </script>
 
 <SpinBoxFloatRow
@@ -313,6 +314,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.deckConfigDesiredRetention()}
     </SettingTitle>
 </SpinBoxFloatRow>
+
+<button class="btn btn-primary" on:click={() => workloadModal?.show()}>
+    {"Help Me Pick"}
+</button>
 
 <Warning warning={desiredRetentionChangeInfo} className={"alert-info two-line"} />
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
@@ -402,6 +407,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <SimulatorModal
     bind:modal={simulatorModal}
+    {state}
+    {simulateFsrsRequest}
+    {computing}
+    {openHelpModal}
+    {onPresetChange}
+/>
+
+<SimulatorModal
+    bind:modal={workloadModal}
+    workload
     {state}
     {simulateFsrsRequest}
     {computing}

@@ -51,12 +51,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let computing: boolean;
     export let openHelpModal: (key: string) => void;
     export let onPresetChange: () => void;
+    /** Do not modify this once set */
+    export let workload: boolean = false;
 
     const config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
     let simulateWorkloadSubgraph: SimulateWorkloadSubgraph =
         SimulateWorkloadSubgraph.ratio;
-    let workload: boolean = false;
     let tableData: TableDatum[] = [];
     let simulating: boolean = false;
     const fsrs = state.fsrs;
@@ -163,8 +164,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } finally {
             simulating = false;
             if (resp) {
-                // Clear the graph if transitioning from workload to simulation
-
                 simulationNumber += 1;
                 const dailyTotalCount = addArrays(
                     resp.dailyReviewCount,
@@ -259,12 +258,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function switchModes() {
-        points = [];
-        simulationNumber = 0;
-        workload = !workload;
-    }
-
     $: if (svg) {
         let pointsToRender = points;
         if (smooth) {
@@ -331,7 +324,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{tr.deckConfigFsrsSimulatorExperimental()}</h5>
+                <h5 class="modal-title">
+                    {#if workload}
+                        Desired Retention Simulation Graph
+                    {:else}
+                        {tr.deckConfigFsrsSimulatorExperimental()}
+                    {/if}
+                </h5>
                 <button
                     type="button"
                     class="btn-close"
@@ -522,7 +521,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </details>
                 </div>
 
-                <div class="button-row">
+                <div>
                     <div>
                         <button
                             class="btn {computing ? 'btn-warning' : 'btn-primary'}"
@@ -546,23 +545,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:click={saveConfigToPreset}
                         >
                             {tr.deckConfigSaveOptionsToPreset()}
-                        </button>
-                    </div>
-                    <h3>
-                        {#if workload}
-                            Desired Retention Mode
-                        {:else}
-                            Simulation Mode
-                        {/if}
-                    </h3>
-
-                    <div class="mode-switch">
-                        <button
-                            disabled={computing}
-                            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                            on:click={switchModes}
-                        >
-                            Switch to {workload ? "Simulation" : "Desired Retention"} Mode
                         </button>
                     </div>
                 </div>
@@ -695,15 +677,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     summary {
         margin-bottom: 0.5em;
-    }
-
-    .button-row {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-    }
-
-    .mode-switch {
-        display: flex;
-        flex-direction: row-reverse;
     }
 </style>
