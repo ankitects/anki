@@ -83,6 +83,8 @@ message Deck {
     optional uint32 new_limit = 7;
     DayLimit review_limit_today = 8;
     DayLimit new_limit_today = 9;
+    // Deck-specific desired retention override
+    optional float desired_retention = 10;
 
     reserved 12 to 15;
   }
