@@ -5,7 +5,7 @@
 		<key>CFBundleDisplayName</key>
 		<string>Anki</string>
 		<key>CFBundleShortVersionString</key>
-		<string>1.0</string>
+		<string>ANKI_VERSION</string>
 		<key>LSMinimumSystemVersion</key>
 		<string>12</string>
 		<key>LSApplicationCategoryType</key>

@@ -31,7 +31,8 @@ lipo -create \
 cp "$OUTPUT_DIR/uv" "$APP_LAUNCHER/Contents/MacOS/"
 
 # Copy support files
-cp Info.plist "$APP_LAUNCHER/Contents/"
+ANKI_VERSION=$(cat ../../../.version | tr -d '\n')
+sed "s/ANKI_VERSION/$ANKI_VERSION/g" Info.plist > "$APP_LAUNCHER/Contents/Info.plist"
 cp icon/Assets.car "$APP_LAUNCHER/Contents/Resources/"
 cp ../pyproject.toml "$APP_LAUNCHER/Contents/Resources/"
 cp ../../../.python-version "$APP_LAUNCHER/Contents/Resources/"

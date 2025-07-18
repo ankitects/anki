@@ -177,9 +177,13 @@ class CustomStyles:
     QPushButton:default {{
         border: 1px solid {tm.var(colors.BORDER_FOCUS)};
     }}
+    QPushButton {{
+        margin: 1px;
+    }}
     QPushButton:focus {{
         border: 2px solid {tm.var(colors.BORDER_FOCUS)};
         outline: none;
+        margin: 0px;
     }}
     QPushButton:hover,
     QTabBar::tab:hover,
