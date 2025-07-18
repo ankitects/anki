@@ -316,7 +316,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </SpinBoxFloatRow>
 
 <button class="btn btn-primary" on:click={() => workloadModal?.show()}>
-    {"Help Me Pick"}
+    {tr.deckConfigFsrsDesiredRetentionHelpMeDecide()}
 </button>
 
 <Warning warning={desiredRetentionChangeInfo} className={"alert-info two-line"} />
