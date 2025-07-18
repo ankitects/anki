@@ -654,6 +654,7 @@ exposed_backend_list = [
     "evaluate_params_legacy",
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
+    "simulate_fsrs_workload",
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
