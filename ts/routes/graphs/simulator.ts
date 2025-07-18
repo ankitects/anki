@@ -65,11 +65,14 @@ export function renderWorkloadChart(
     })[subgraph];
 
     const yTickFormat = (n: number): string => {
-        return subgraph == SimulateWorkloadSubgraph.time ? timeSpan(n, true) : n.toString();
+        return subgraph == SimulateWorkloadSubgraph.time || subgraph == SimulateWorkloadSubgraph.ratio
+            ? timeSpan(n, true)
+            : n.toString();
     };
 
     const formatY: (value: number) => string = ({
-        [SimulateWorkloadSubgraph.ratio]: (value: number) => `${timeSpan(value)} per memorized card`,
+        [SimulateWorkloadSubgraph.ratio]: (value: number) =>
+            tr.deckConfigFsrsSimulatorRatioTooltip({ time: timeSpan(value) }),
         [SimulateWorkloadSubgraph.time]: timeSpan,
         [SimulateWorkloadSubgraph.count]: (value: number) => tr.statisticsReviews({ reviews: Math.round(value) }),
         [SimulateWorkloadSubgraph.memorized]: (value: number) =>

@@ -326,7 +326,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <div class="modal-header">
                 <h5 class="modal-title">
                     {#if workload}
-                        Desired Retention Simulation Graph
+                        {tr.deckConfigFsrsSimulateDesiredRetentionExperimental()}
                     {:else}
                         {tr.deckConfigFsrsSimulatorExperimental()}
                     {/if}
@@ -383,7 +383,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             <input
                                 type="text"
                                 disabled
-                                value="(Plotted on the X axis)"
+                                value={tr.deckConfigPlottedOnXAxis()}
                             />
                         </Col>
                     </Row>
@@ -588,7 +588,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                         value={SimulateWorkloadSubgraph.ratio}
                                         bind:group={simulateWorkloadSubgraph}
                                     />
-                                    {"Ratio"}
+                                    {tr.deckConfigFsrsSimulatorRadioRatio()}
                                 </label>
                                 <label>
                                     <input
