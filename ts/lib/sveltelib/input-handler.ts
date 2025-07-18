@@ -49,7 +49,7 @@ export interface InputHandlerAPI {
 
 export function getMaxOffset(node: Node) {
     if (node.nodeType === Node.TEXT_NODE) {
-        if(!node.textContent) return 0;
+        if (!node.textContent) { return 0; }
         return node.textContent.length;
     } else if (node.nodeType === Node.ELEMENT_NODE) {
         return node.childNodes.length;
@@ -57,35 +57,34 @@ export function getMaxOffset(node: Node) {
     return 0;
 }
 
-
-function getCaretPosition(element: Element){
+function getCaretPosition(element: Element) {
     const selection = getSelection(element)!;
     const range = getRange(selection);
-    if(!range) return 0;
+    if (!range) { return 0; }
 
     let startNode = range.startContainer;
     let startOffset = range.startOffset;
 
-    if(!range.collapsed){
-        if(selection.anchorNode) startNode = selection.anchorNode;
+    if (!range.collapsed) {
+        if (selection.anchorNode) { startNode = selection.anchorNode; }
         startOffset = selection.anchorOffset;
     }
 
-    if(startNode.nodeType == Node.TEXT_NODE){
+    if (startNode.nodeType == Node.TEXT_NODE) {
         let counter = 0;
-        for(const node of element.childNodes){
-            if(node === startNode) break;
-            if(node.textContent && node.nodeType == Node.TEXT_NODE) counter += node.textContent.length;
-            if(node.nodeName === "BR") counter++;
+        for (const node of element.childNodes) {
+            if (node === startNode) { break; }
+            if (node.textContent && node.nodeType == Node.TEXT_NODE) { counter += node.textContent.length; }
+            if (node.nodeName === "BR") { counter++; }
         }
         counter += startOffset;
         return counter;
     } else {
         let counter = 0;
-        for(let i = 0; (i < startOffset) && (i < element.childNodes.length); i++){
+        for (let i = 0; (i < startOffset) && (i < element.childNodes.length); i++) {
             const node = element.childNodes[i];
-            if(node.textContent && node.nodeType == Node.TEXT_NODE) counter += node.textContent.length;
-            if(node.nodeName === "BR") counter++;
+            if (node.textContent && node.nodeType == Node.TEXT_NODE) { counter += node.textContent.length; }
+            if (node.nodeName === "BR") { counter++; }
         }
         return counter;
     }
@@ -107,12 +106,12 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     const config = {
         attributes: true,
         childList: true,
-        subtree: true
+        subtree: true,
     };
     const observer = new MutationObserver(onMutation);
 
-    function onMutation(mutationsList: MutationRecord[], observer){
-        const element = <Element>mutationsList[0].target;
+    function onMutation(mutationsList: MutationRecord[]) {
+        const element = <Element> mutationsList[0].target;
         undoManager.register(element.innerHTML, getMaxOffset(element));
     }
 
@@ -150,12 +149,12 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     }
 
     async function onInput(this: Element, event: Event): Promise<void> {
-        if(!hasSetupObserver) {
+        if (!hasSetupObserver) {
             observer.observe(this, config);
             hasSetupObserver = true;
         }
         const position = getCaretPosition(this);
-        undoManager.register(this.innerHTML, position-1);
+        undoManager.register(this.innerHTML, position - 1);
         undoManager.clearRedoStack();
         await afterInput.dispatch({ event });
     }
@@ -186,12 +185,10 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
             specialKey.dispatch({ event, action: "enter" });
         } else if (event.code === "Tab") {
             specialKey.dispatch({ event, action: "tab" });
-        }
-        else if((event.ctrlKey || event.metaKey) && event.key == "z"){
+        } else if ((event.ctrlKey || event.metaKey) && event.key == "z") {
             event.preventDefault();
             undoManager.undo(this);
-        }
-        else if((event.ctrlKey || event.metaKey) && event.key == "y"){
+        } else if ((event.ctrlKey || event.metaKey) && event.key == "y") {
             event.preventDefault();
             undoManager.redo(this);
         }
