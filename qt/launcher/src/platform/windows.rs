@@ -8,6 +8,7 @@ use anyhow::Context;
 use anyhow::Result;
 use widestring::u16cstr;
 use windows::core::PCWSTR;
+use windows::Wdk::System::SystemServices::RtlGetVersion;
 use windows::Win32::System::Console::AttachConsole;
 use windows::Win32::System::Console::GetConsoleWindow;
 use windows::Win32::System::Console::ATTACH_PARENT_PROCESS;
@@ -18,7 +19,24 @@ use windows::Win32::System::Registry::HKEY;
 use windows::Win32::System::Registry::HKEY_CURRENT_USER;
 use windows::Win32::System::Registry::KEY_READ;
 use windows::Win32::System::Registry::REG_SZ;
+use windows::Win32::System::SystemInformation::OSVERSIONINFOW;
 use windows::Win32::UI::Shell::SetCurrentProcessExplicitAppUserModelID;
+
+/// Returns true if running on Windows 10 (not Windows 11)
+fn is_windows_10() -> bool {
+    unsafe {
+        let mut info = OSVERSIONINFOW {
+            dwOSVersionInfoSize: std::mem::size_of::<OSVERSIONINFOW>() as u32,
+            ..Default::default()
+        };
+        if RtlGetVersion(&mut info).is_ok() {
+            // Windows 10 has build numbers < 22000, Windows 11 >= 22000
+            info.dwBuildNumber < 22000 && info.dwMajorVersion == 10
+        } else {
+            false
+        }
+    }
+}
 
 pub fn ensure_terminal_shown() -> Result<()> {
     unsafe {
@@ -29,6 +47,14 @@ pub fn ensure_terminal_shown() -> Result<()> {
     }
 
     if std::env::var("ANKI_IMPLICIT_CONSOLE").is_ok() && attach_to_parent_console() {
+        // This black magic triggers Windows to switch to the new
+        // ANSI-supporting console host, which is usually only available
+        // when the app is built with the console subsystem.
+        // Only needed on Windows 10, not Windows 11.
+        if is_windows_10() {
+            let _ = Command::new("cmd").args(["/C", ""]).status();
+        }
+
         // Successfully attached to parent console
         reconnect_stdio_to_console();
         return Ok(());
