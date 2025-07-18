@@ -522,36 +522,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </div>
 
                 <div>
-                    <div>
-                        <button
-                            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                            disabled={computing}
-                            on:click={workload ? simulateWorkload : simulateFsrs}
-                        >
-                            {tr.deckConfigSimulate()}
-                        </button>
+                    <button
+                        class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                        disabled={computing}
+                        on:click={workload ? simulateWorkload : simulateFsrs}
+                    >
+                        {tr.deckConfigSimulate()}
+                    </button>
 
-                        <button
-                            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                            disabled={computing}
-                            on:click={clearSimulation}
-                        >
-                            {tr.deckConfigClearLastSimulate()}
-                        </button>
+                    <button
+                        class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                        disabled={computing}
+                        on:click={clearSimulation}
+                    >
+                        {tr.deckConfigClearLastSimulate()}
+                    </button>
 
-                        <button
-                            class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                            disabled={computing}
-                            on:click={saveConfigToPreset}
-                        >
-                            {tr.deckConfigSaveOptionsToPreset()}
-                        </button>
-                    </div>
+                    <button
+                        class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                        disabled={computing}
+                        on:click={saveConfigToPreset}
+                    >
+                        {tr.deckConfigSaveOptionsToPreset()}
+                    </button>
+
+                    {#if processing}
+                        {tr.actionsProcessing()}
+                    {/if}
                 </div>
-
-                {#if processing}
-                    {tr.actionsProcessing()}
-                {/if}
 
                 <Graph>
                     <div class="radio-group">
