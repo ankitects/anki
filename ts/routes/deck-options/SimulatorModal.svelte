@@ -64,9 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
-    let workloadSimulationNumber = 0;
     let points: Point[] = [];
-    let workloadPoints: Point[] = [];
     const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
     let smooth = true;
     let suspendLeeches = $config.leechAction == DeckConfig_Config_LeechAction.SUSPEND;
@@ -80,8 +78,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: deckSize = 0;
     $: windowSize = Math.ceil(daysToSimulate / 365);
     $: processing = simulating || computingRetention;
-    $: currentPoints = workload ? workloadPoints : points;
-    $: currentSimulationNumber = workload ? workloadSimulationNumber : simulationNumber;
 
     function movingAverage(y: number[], windowSize: number): number[] {
         const result: number[] = [];
@@ -167,6 +163,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } finally {
             simulating = false;
             if (resp) {
+                // Clear the graph if transitioning from workload to simulation
+
                 simulationNumber += 1;
                 const dailyTotalCount = addArrays(
                     resp.dailyReviewCount,
@@ -209,22 +207,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } finally {
             simulating = false;
             if (resp) {
-                workloadSimulationNumber += 1;
+                simulationNumber += 1;
 
-                workloadPoints = workloadPoints.concat(
+                points = points.concat(
                     Object.entries(resp.memorized).map(([dr, v]) => ({
                         x: parseInt(dr),
                         timeCost: resp!.cost[dr],
                         memorized: v,
                         count: resp!.reviewCount[dr],
-                        label: workloadSimulationNumber,
+                        label: simulationNumber,
                     })),
                 );
 
                 tableData = renderWorkloadChart(
                     svg as SVGElement,
                     bounds,
-                    workloadPoints,
+                    points,
                     simulateWorkloadSubgraph,
                 );
             }
@@ -232,21 +230,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function clearSimulation() {
-        const newPoints = currentPoints.filter(
-            (p) => p.label !== currentSimulationNumber,
-        );
-        const newSimulationNumber = Math.max(0, currentSimulationNumber - 1);
-        if (workload) {
-            workloadPoints = newPoints;
-            workloadSimulationNumber = newSimulationNumber;
-        } else {
-            points = newPoints;
-            simulationNumber = newSimulationNumber;
-        }
+        points = points.filter((p) => p.label !== simulationNumber);
+        simulationNumber = Math.max(0, simulationNumber - 1);
         tableData = renderSimulationChart(
             svg as SVGElement,
             bounds,
-            newPoints,
+            points,
             simulateSubgraph,
         );
     }
@@ -271,14 +260,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function switchModes() {
+        points = [];
+        simulationNumber = 0;
         workload = !workload;
     }
 
     $: if (svg) {
-        let pointsToRender = currentPoints;
+        let pointsToRender = points;
         if (smooth) {
             // Group points by label (simulation number)
-            const groupedPoints = currentPoints.reduce(
+            const groupedPoints = points.reduce(
                 (acc, point) => {
                     acc[point.label] = acc[point.label] || [];
                     acc[point.label].push(point);
