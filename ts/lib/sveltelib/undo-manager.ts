@@ -1,4 +1,5 @@
 import { getRange, getSelection } from "@tslib/cross-browser";
+import { getMaxOffset } from "./input-handler";
 
 type State = {
     content: string;
@@ -10,9 +11,14 @@ export class UndoManager {
     private redoStack: State[] = [];
     private isUpdating: boolean = false;
     private transactionStart: number = 0;
-    public register = this.debounce(this.pushToUndo, 700, (position: number) => this.transactionStart = position);
+    public register = this.debounce(this.pushToUndo, 500, (position: number) => this.transactionStart = position);
 
-    private pushToUndo(content: string): void {
+    public clearRedoStack(){
+        if(this.isUpdating) return;
+        this.redoStack = [];
+    }
+
+    public pushToUndo(content: string): void {
         if(this.isUpdating) return;
         if (this.undoStack.length > 0 && this.undoStack[this.undoStack.length-1].content === content) return;
 
@@ -66,6 +72,7 @@ export class UndoManager {
             return;
         }
         let finalOffset = Math.min(nodeOffset, nodeFound.textContent?.length || 0);
+        if(finalOffset > getMaxOffset(nodeFound)) finalOffset = getMaxOffset(nodeFound);
         range.setStart(nodeFound, finalOffset);
         range.collapse(true);
         selection.removeAllRanges()
@@ -97,7 +104,7 @@ export class UndoManager {
                 nodeOffset = counter;
                 break;
             }
-            if(node.nodeType !== Node.TEXT_NODE) counter--;
+            if(node.nodeName === "BR") counter--;
             counter -= nodeLength;
         }
         if(!range){
@@ -113,6 +120,7 @@ export class UndoManager {
             return;
         }
         let finalOffset = Math.min(nodeOffset, nodeFound.textContent?.length || 0);
+        if(finalOffset > getMaxOffset(nodeFound)) finalOffset = getMaxOffset(nodeFound);
         range.setStart(nodeFound, finalOffset);
         range.collapse(true);
         selection.removeAllRanges()
@@ -127,10 +135,9 @@ export class UndoManager {
         return (...args) => {
             const isNewTransaction = timeout === undefined;
             clearTimeout(timeout);
-            if(isNewTransaction) onTransactionStart.call(this, args[1]);
+            if(isNewTransaction) onTransactionStart.call(this, args[1])
 
             timeout = setTimeout(() => {
-                this.redoStack = [];
                 func.call(this, args[0]);
                 timeout = undefined;
             }, delay);

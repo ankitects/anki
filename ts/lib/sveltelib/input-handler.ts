@@ -47,6 +47,17 @@ export interface InputHandlerAPI {
     readonly specialKey: HandlerList<SpecialKeyParams>;
 }
 
+export function getMaxOffset(node: Node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+        if(!node.textContent) return 0;
+        return node.textContent.length;
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+        return node.childNodes.length;
+    }
+    return 0;
+}
+
+
 function getCaretPosition(element: Element){
     const selection = getSelection(element)!;
     const range = getRange(selection);
@@ -64,17 +75,17 @@ function getCaretPosition(element: Element){
         let counter = 0;
         for(const node of element.childNodes){
             if(node === startNode) break;
-            if(node.textContent) counter += node.textContent.length;
-            if(node.nodeType !== Node.TEXT_NODE) counter++;
+            if(node.textContent && node.nodeType == Node.TEXT_NODE) counter += node.textContent.length;
+            if(node.nodeName === "BR") counter++;
         }
         counter += startOffset;
         return counter;
     } else {
         let counter = 0;
-        for(let i = 0; i < startOffset; i++){
+        for(let i = 0; (i < startOffset) && (i < element.childNodes.length); i++){
             const node = element.childNodes[i];
-            if(node.textContent) counter += node.textContent.length;
-            if(node.nodeType !== Node.TEXT_NODE) counter++;
+            if(node.textContent && node.nodeType == Node.TEXT_NODE) counter += node.textContent.length;
+            if(node.nodeName === "BR") counter++;
         }
         return counter;
     }
@@ -90,16 +101,26 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     const beforeInput = new HandlerList<InputEventParams>();
     const insertText = new HandlerList<InsertTextParams>();
     const afterInput = new HandlerList<EventParams>();
+
     const undoManager = new UndoManager();
+    let hasSetupObserver = false;
+    const config = {
+        attributes: true,
+        childList: true,
+        subtree: true
+    };
+    const observer = new MutationObserver(onMutation);
+
+    function onMutation(mutationsList: MutationRecord[], observer){
+        const element = <Element>mutationsList[0].target;
+        undoManager.register(element.innerHTML, getMaxOffset(element));
+    }
 
     async function onBeforeInput(this: Element, event: InputEvent): Promise<void> {
         const selection = getSelection(this)!;
         const range = getRange(selection);
 
         await beforeInput.dispatch({ event });
-
-        const position = getCaretPosition(this);
-        undoManager.register(this.innerHTML, position);
 
         if (
             !range
@@ -129,8 +150,13 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     }
 
     async function onInput(this: Element, event: Event): Promise<void> {
+        if(!hasSetupObserver) {
+            observer.observe(this, config);
+            hasSetupObserver = true;
+        }
         const position = getCaretPosition(this);
-        undoManager.register(this.innerHTML, position);
+        undoManager.register(this.innerHTML, position-1);
+        undoManager.clearRedoStack();
         await afterInput.dispatch({ event });
     }
 
@@ -171,13 +197,6 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         }
     }
 
-    async function onPaste(this: Element, event: ClipboardEvent): Promise<void> {
-        const position = getCaretPosition(this);
-        //Wait for paste event to be done
-        setTimeout(() => {}, 0);
-        undoManager.register(this.innerHTML, position);
-    }
-
     function setupHandler(element: HTMLElement): { destroy(): void } {
         const destroy = singleCallback(
             on(element, "beforeinput", onBeforeInput),
@@ -185,7 +204,6 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
             on(element, "blur", clearInsertText),
             on(element, "pointerdown", onPointerDown),
             on(element, "keydown", onKeyDown),
-            on(element, "paste", onPaste),
             on(document, "selectionchange", clearInsertText),
         );
 
