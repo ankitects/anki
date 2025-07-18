@@ -108,16 +108,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         undefined;
 
     async function getRetentionChangeInfo(retention: number, params: number[]) {
+        if (+startingDesiredRetention == roundedRetention) {
+            desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorUnchanged();
+            return;
+        }
         if (!retentionWorloadInfo) {
             const request = new GetRetentionWorkloadRequest({
                 w: params,
                 search: defaultparamSearch,
             });
             retentionWorloadInfo = getRetentionWorkload(request);
-        }
-        if (+startingDesiredRetention == roundedRetention) {
-            desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorUnchanged();
-            return;
         }
 
         const previous = +startingDesiredRetention * 100;
