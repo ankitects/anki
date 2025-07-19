@@ -33,7 +33,8 @@ fn component_to_regex(component: &str) -> Result<Regex> {
     Regex::new(&format!("(?i){}", regex::escape(component))).map_err(Into::into)
 }
 
-/// Returns None if tag wasn't a match, otherwise whether it was a consecutive prefix match
+/// Returns None if tag wasn't a match, otherwise whether it was a consecutive
+/// prefix match
 fn filters_match(filters: &[Regex], tag: &str) -> Option<bool> {
     let mut remaining_tag_components = tag.split("::");
     let mut is_prefix = true;
