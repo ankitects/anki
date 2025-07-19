@@ -1292,9 +1292,10 @@
   <tabstop>daily_backups</tabstop>
   <tabstop>weekly_backups</tabstop>
   <tabstop>monthly_backups</tabstop>
-  <tabstop>tabWidget</tabstop>
   <tabstop>syncAnkiHubLogout</tabstop>
   <tabstop>syncAnkiHubLogin</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

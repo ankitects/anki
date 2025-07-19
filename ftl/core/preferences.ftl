@@ -34,7 +34,7 @@ preferences-when-adding-default-to-current-deck = When adding, default to curren
 preferences-you-can-restore-backups-via-fileswitch = You can restore backups via File > Switch Profile.
 preferences-legacy-timezone-handling = Legacy timezone handling (buggy, but required for AnkiDroid <= 2.14)
 preferences-default-search-text = Default search text
-preferences-default-search-text-example = eg. 'deck:current '
+preferences-default-search-text-example = e.g. "deck:current"
 preferences-theme = Theme
 preferences-theme-follow-system = Follow System
 preferences-theme-light = Light

@@ -10,11 +10,14 @@ use fsrs::simulate;
 use fsrs::PostSchedulingFn;
 use fsrs::ReviewPriorityFn;
 use fsrs::SimulatorConfig;
+use fsrs::FSRS;
 use itertools::Itertools;
 use rand::rngs::StdRng;
 use rand::Rng;
 
 use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::scheduler::states::fuzz::constrained_fuzz_bounds;
 use crate::scheduler::states::load_balancer::calculate_easy_days_modifiers;
@@ -129,7 +132,7 @@ impl Collection {
         fn is_included_card(c: &Card) -> bool {
             c.queue != CardQueue::Suspended
                 && c.queue != CardQueue::PreviewRepeat
-                && c.queue != CardQueue::New
+                && c.ctype != CardType::New
         }
         // calculate any missing memory state
         for c in &mut cards {
@@ -143,13 +146,29 @@ impl Collection {
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let new_cards = cards
             .iter()
-            .filter(|c| c.memory_state.is_none() || c.queue == CardQueue::New)
+            .filter(|c| c.ctype == CardType::New && c.queue != CardQueue::Suspended)
             .count()
             + req.deck_size as usize;
+        let fsrs = FSRS::new(Some(&req.params))?;
         let mut converted_cards = cards
             .into_iter()
             .filter(is_included_card)
-            .filter_map(|c| Card::convert(c, days_elapsed))
+            .filter_map(|c| {
+                let memory_state = match c.memory_state {
+                    Some(state) => state,
+                    // cards that lack memory states after compute_memory_state have no FSRS items,
+                    // implying a truncated or ignored revlog
+                    None => fsrs
+                        .memory_state_from_sm2(
+                            c.ease_factor(),
+                            c.interval as f32,
+                            req.historical_retention,
+                        )
+                        .ok()?
+                        .into(),
+                };
+                Card::convert(c, days_elapsed, memory_state)
+            })
             .collect_vec();
         let introduced_today_count = self
             .search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?
@@ -251,39 +270,34 @@ impl Collection {
 }
 
 impl Card {
-    fn convert(card: Card, days_elapsed: i32) -> Option<fsrs::Card> {
-        match card.memory_state {
-            Some(state) => match card.queue {
-                CardQueue::DayLearn | CardQueue::Review => {
-                    let due = card.original_or_current_due();
-                    let relative_due = due - days_elapsed;
-                    let last_date = (relative_due - card.interval as i32).min(0) as f32;
-                    Some(fsrs::Card {
-                        id: card.id.0,
-                        difficulty: state.difficulty,
-                        stability: state.stability,
-                        last_date,
-                        due: relative_due as f32,
-                        interval: card.interval as f32,
-                        lapses: card.lapses,
-                    })
-                }
-                CardQueue::New => None,
-                CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => {
-                    Some(fsrs::Card {
-                        id: card.id.0,
-                        difficulty: state.difficulty,
-                        stability: state.stability,
-                        last_date: 0.0,
-                        due: 0.0,
-                        interval: card.interval as f32,
-                        lapses: card.lapses,
-                    })
-                }
-                CardQueue::PreviewRepeat => None,
-                CardQueue::Suspended => None,
-            },
-            None => None,
+    fn convert(card: Card, days_elapsed: i32, memory_state: FsrsMemoryState) -> Option<fsrs::Card> {
+        match card.queue {
+            CardQueue::DayLearn | CardQueue::Review => {
+                let due = card.original_or_current_due();
+                let relative_due = due - days_elapsed;
+                let last_date = (relative_due - card.interval as i32).min(0) as f32;
+                Some(fsrs::Card {
+                    id: card.id.0,
+                    difficulty: memory_state.difficulty,
+                    stability: memory_state.stability,
+                    last_date,
+                    due: relative_due as f32,
+                    interval: card.interval as f32,
+                    lapses: card.lapses,
+                })
+            }
+            CardQueue::New => None,
+            CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => Some(fsrs::Card {
+                id: card.id.0,
+                difficulty: memory_state.difficulty,
+                stability: memory_state.stability,
+                last_date: 0.0,
+                due: 0.0,
+                interval: card.interval as f32,
+                lapses: card.lapses,
+            }),
+            CardQueue::PreviewRepeat => None,
+            CardQueue::Suspended => None,
         }
     }
 }

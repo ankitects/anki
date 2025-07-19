@@ -124,17 +124,14 @@ def launcher_executable() -> str | None:
 
 
 def trigger_launcher_run() -> None:
-    """Bump the mtime on pyproject.toml in the local data directory to trigger an update on next run."""
+    """Create a trigger file to request launcher UI on next run."""
     try:
         root = launcher_root()
         if not root:
             return
 
-        pyproject_path = Path(root) / "pyproject.toml"
-
-        if pyproject_path.exists():
-            # Touch the file to update its mtime
-            pyproject_path.touch()
+        trigger_path = Path(root) / ".want-launcher"
+        trigger_path.touch()
     except Exception as e:
         print(e)
 
@@ -150,6 +147,10 @@ def update_and_restart() -> None:
 
     with contextlib.suppress(ResourceWarning):
         env = os.environ.copy()
+        # fixes a bug where launcher fails to appear if opening it
+        # straight after updating
+        if "GNOME_TERMINAL_SCREEN" in env:
+            del env["GNOME_TERMINAL_SCREEN"]
         creationflags = 0
         if sys.platform == "win32":
             creationflags = (
