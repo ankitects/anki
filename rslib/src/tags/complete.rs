@@ -12,14 +12,20 @@ impl Collection {
             .map(component_to_regex)
             .collect::<Result<_, _>>()?;
         let mut tags = vec![];
+        let mut priority = vec![];
         self.storage.get_tags_by_predicate(|tag| {
-            if tags.len() <= limit && filters_match(&filters, tag) {
-                tags.push(tag.to_string());
+            if priority.len() + tags.len() <= limit {
+                match filters_match(&filters, tag) {
+                    Some(true) => priority.push(tag.to_string()),
+                    Some(_) => tags.push(tag.to_string()),
+                    _ => {}
+                }
             }
             // we only need the tag name
             false
         })?;
-        Ok(tags)
+        priority.append(&mut tags);
+        Ok(priority)
     }
 }
 
@@ -27,20 +33,25 @@ fn component_to_regex(component: &str) -> Result<Regex> {
     Regex::new(&format!("(?i){}", regex::escape(component))).map_err(Into::into)
 }
 
-fn filters_match(filters: &[Regex], tag: &str) -> bool {
+/// Returns None if tag wasn't a match, otherwise whether it was a consecutive prefix match
+fn filters_match(filters: &[Regex], tag: &str) -> Option<bool> {
     let mut remaining_tag_components = tag.split("::");
+    let mut is_prefix = true;
     'outer: for filter in filters {
         loop {
             if let Some(component) = remaining_tag_components.next() {
-                if filter.is_match(component) {
+                if let Some(m) = filter.find(component) {
+                    is_prefix &= m.start() == 0;
                     continue 'outer;
+                } else {
+                    is_prefix = false;
                 }
             } else {
-                return false;
+                return None;
             }
         }
     }
-    true
+    Some(is_prefix)
 }
 
 #[cfg(test)]
