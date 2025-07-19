@@ -262,6 +262,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         flex-flow: row;
         justify-content: space-between;
+        border-color: var(--border);
 
         .inner {
             flex-grow: 1;
@@ -287,13 +288,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .chevron {
         height: 100%;
         align-self: flex-end;
-        border-left: 1px solid var(--border-subtle);
+        border-left: 1px solid var(--border);
     }
 
     :global([dir="rtl"]) {
         .chevron {
             border-left: none;
-            border-right: 1px solid var(--border-subtle);
+            border-right: 1px solid var(--border);
         }
     }
 </style>
