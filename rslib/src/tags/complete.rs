@@ -61,28 +61,32 @@ mod test {
     #[test]
     fn matching() -> Result<()> {
         let filters = &[component_to_regex("b")?];
-        assert!(filters_match(filters, "ABC"));
-        assert!(filters_match(filters, "ABC::def"));
-        assert!(filters_match(filters, "def::abc"));
-        assert!(!filters_match(filters, "def"));
+        assert!(filters_match(filters, "ABC").is_some());
+        assert!(filters_match(filters, "ABC::def").is_some());
+        assert!(filters_match(filters, "def::abc").is_some());
+        assert!(filters_match(filters, "def").is_none());
 
         let filters = &[component_to_regex("b")?, component_to_regex("E")?];
-        assert!(!filters_match(filters, "ABC"));
-        assert!(filters_match(filters, "ABC::def"));
-        assert!(!filters_match(filters, "def::abc"));
-        assert!(!filters_match(filters, "def"));
+        assert!(filters_match(filters, "ABC").is_none());
+        assert!(filters_match(filters, "ABC::def").is_some());
+        assert!(filters_match(filters, "def::abc").is_none());
+        assert!(filters_match(filters, "def").is_none());
 
         let filters = &[
             component_to_regex("a")?,
             component_to_regex("c")?,
             component_to_regex("e")?,
         ];
-        assert!(!filters_match(filters, "ace"));
-        assert!(!filters_match(filters, "a::c"));
-        assert!(!filters_match(filters, "c::e"));
-        assert!(filters_match(filters, "a::c::e"));
-        assert!(filters_match(filters, "a::b::c::d::e"));
-        assert!(filters_match(filters, "1::a::b::c::d::e::f"));
+        assert!(filters_match(filters, "ace").is_none());
+        assert!(filters_match(filters, "a::c").is_none());
+        assert!(filters_match(filters, "c::e").is_none());
+        assert!(filters_match(filters, "a::c::e").is_some());
+        assert!(filters_match(filters, "a::b::c::d::e").is_some());
+        assert!(filters_match(filters, "1::a::b::c::d::e::f").is_some());
+
+        assert_eq!(filters_match(filters, "a1::c2::e3"), Some(true));
+        assert_eq!(filters_match(filters, "a1::c2::?::e4"), Some(false));
+        assert_eq!(filters_match(filters, "a1::c2::3e"), Some(false));
 
         Ok(())
     }
