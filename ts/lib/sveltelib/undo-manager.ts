@@ -9,8 +9,8 @@ type State = {
 export class UndoManager {
     private undoStack: State[] = [];
     private redoStack: State[] = [];
-    private isUpdating: boolean = false;
-    private transactionStart: number = 0;
+    private isUpdating = false;
+    private transactionStart = 0;
     public register = this.debounce(this.pushToUndo, 500, (position: number) => this.transactionStart = position);
 
     public clearRedoStack() {
@@ -44,13 +44,13 @@ export class UndoManager {
         element.innerHTML = last.content;
 
         const selection = getSelection(element)!;
-        let range = getRange(selection);
+        const range = getRange(selection);
 
         let counter = this.transactionStart;
         let nodeFound: Node | null = null;
         let nodeOffset = 0;
         for (const node of element.childNodes) {
-            let nodeLength = node.textContent?.length || 0;
+            const nodeLength = node.textContent?.length || 0;
             if (counter <= nodeLength) {
                 nodeFound = node;
                 nodeOffset = counter;
@@ -94,13 +94,13 @@ export class UndoManager {
         element.innerHTML = redoedState.content;
 
         const selection = getSelection(element)!;
-        let range = getRange(selection);
+        const range = getRange(selection);
 
         let counter = this.transactionStart;
         let nodeFound: Node | null = null;
         let nodeOffset = 0;
         for (const node of element.childNodes) {
-            let nodeLength = node.textContent?.length || 0;
+            const nodeLength = node.textContent?.length || 0;
             if (counter <= nodeLength) {
                 nodeFound = node;
                 nodeOffset = counter;
@@ -134,15 +134,23 @@ export class UndoManager {
         this.isUpdating = false;
     }
 
-    private debounce(func: Function, delay: number, onTransactionStart: Function): Function {
-        let timeout;
-        return (...args) => {
+    private debounce<A, B>(
+        func: (arg: A) => void,
+        delay: number,
+        onTransactionStart: (arg: B) => void,
+    ): (mainArg: A, startArg: B) => void {
+        let timeout: ReturnType<typeof setTimeout> | undefined;
+
+        return (mainArg: A, startArg: B) => {
             const isNewTransaction = timeout === undefined;
             clearTimeout(timeout);
-            if (isNewTransaction) { onTransactionStart.call(this, args[1]); }
+
+            if (isNewTransaction) {
+                onTransactionStart.call(this, startArg);
+            }
 
             timeout = setTimeout(() => {
-                func.call(this, args[0]);
+                func.call(this, mainArg);
                 timeout = undefined;
             }, delay);
         };
