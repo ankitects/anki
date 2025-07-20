@@ -7,7 +7,7 @@ dependencies = [
   "decorator",
   "markdown",
   "orjson",
-  "protobuf>=4.21",
+  "protobuf>=6.0,<8.0",
   "requests[socks]",
   # remove after we update to min python 3.11+
   "typing_extensions",

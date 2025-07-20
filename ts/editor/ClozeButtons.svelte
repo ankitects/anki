@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
-    import { isApplePlatform } from "@tslib/platform";
+    import { chromiumVersion, isApplePlatform } from "@tslib/platform";
     import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
@@ -22,9 +22,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { focusedInput, fields } = noteEditorContext.get();
 
-    // Workaround for Cmd+Option+Shift+C not working on macOS. The keyup approach works
-    // on Linux as well, but fails on Windows.
-    const event = isApplePlatform() ? "keyup" : "keydown";
+    // Workaround for Cmd+Option+Shift+C not working on macOS on older Chromium
+    // versions.
+    const chromiumVer = chromiumVersion();
+    const event =
+        isApplePlatform() && chromiumVer != null && chromiumVer <= 112
+            ? "keyup"
+            : "keydown";
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {

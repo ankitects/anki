@@ -7,7 +7,7 @@ import { ModuleName, setupI18n } from "@tslib/i18n";
 import { optimumPixelSizeForCanvas } from "./canvas-scale";
 import { Shape } from "./shapes";
 import { Ellipse, extractShapesFromRenderedClozes, Polygon, Rectangle, Text } from "./shapes";
-import { TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
+import { SHAPE_MASK_COLOR, TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
 import type { Size } from "./types";
 
 export type DrawShapesData = {
@@ -217,7 +217,7 @@ function drawShapes(
             context,
             size,
             shape,
-            fill: shape.fill ?? properties.inActiveShapeColor,
+            fill: shape.fill !== SHAPE_MASK_COLOR ? shape.fill : properties.inActiveShapeColor,
             stroke: properties.inActiveBorder.color,
             strokeWidth: properties.inActiveBorder.width,
         });
@@ -437,7 +437,7 @@ function getShapeProperties(): ShapeProperties {
             activeShapeColor: activeShapeColor ? activeShapeColor : "#ff8e8e",
             inActiveShapeColor: inActiveShapeColor
                 ? inActiveShapeColor
-                : "#ffeba2",
+                : SHAPE_MASK_COLOR,
             highlightShapeColor: highlightShapeColor
                 ? highlightShapeColor
                 : "#ff8e8e00",

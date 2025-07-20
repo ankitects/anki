@@ -46,6 +46,8 @@ struct State {
     dist_python_version_path: std::path::PathBuf,
     uv_lock_path: std::path::PathBuf,
     sync_complete_marker: std::path::PathBuf,
+    launcher_trigger_file: std::path::PathBuf,
+    pyproject_modified_by_user: bool,
     previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
 }
@@ -70,7 +72,6 @@ pub enum MainMenuChoice {
     ToggleBetas,
     ToggleCache,
     Uninstall,
-    Quit,
 }
 
 fn main() {
@@ -106,6 +107,8 @@ fn run() -> Result<()> {
         dist_python_version_path: resources_dir.join(".python-version"),
         uv_lock_path: uv_install_root.join("uv.lock"),
         sync_complete_marker: uv_install_root.join(".sync_complete"),
+        launcher_trigger_file: uv_install_root.join(".want-launcher"),
+        pyproject_modified_by_user: false, // calculated later
         previous_version: None,
         resources_dir,
     };
@@ -125,15 +128,15 @@ fn run() -> Result<()> {
         &state.user_python_version_path,
     )?;
 
-    let pyproject_has_changed = !state.sync_complete_marker.exists() || {
-        let pyproject_toml_time = modified_time(&state.user_pyproject_path)?;
-        let sync_complete_time = modified_time(&state.sync_complete_marker)?;
-        Ok::<bool, anyhow::Error>(pyproject_toml_time > sync_complete_time)
-    }
-    .unwrap_or(true);
+    let launcher_requested = state.launcher_trigger_file.exists();
 
-    if !pyproject_has_changed {
-        // If venv is already up to date, launch Anki normally
+    // Calculate whether user has custom edits that need syncing
+    let pyproject_time = file_timestamp_secs(&state.user_pyproject_path);
+    let sync_time = file_timestamp_secs(&state.sync_complete_marker);
+    state.pyproject_modified_by_user = pyproject_time > sync_time;
+    let pyproject_has_changed = state.pyproject_modified_by_user;
+    if !launcher_requested && !pyproject_has_changed {
+        // If no launcher request and venv is already up to date, launch Anki normally
         let args: Vec<String> = std::env::args().skip(1).collect();
         let cmd = build_python_command(&state, &args)?;
         launch_anki_normally(cmd)?;
@@ -142,6 +145,11 @@ fn run() -> Result<()> {
 
     // If we weren't in a terminal, respawn ourselves in one
     ensure_terminal_shown()?;
+
+    if launcher_requested {
+        // Remove the trigger file to make request ephemeral
+        let _ = remove_file(&state.launcher_trigger_file);
+    }
 
     print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
     println!("\x1B[1mAnki Launcher\x1B[0m\n");
@@ -190,6 +198,7 @@ fn extract_aqt_version(
 ) -> Option<String> {
     let output = Command::new(uv_path)
         .current_dir(uv_install_root)
+        .env("VIRTUAL_ENV", uv_install_root.join(".venv"))
         .args(["pip", "show", "aqt"])
         .output()
         .ok()?;
@@ -261,7 +270,7 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
 
     // remove UV_* environment variables to avoid interference
     for (key, _) in std::env::vars() {
-        if key.starts_with("UV_") {
+        if key.starts_with("UV_") || key == "VIRTUAL_ENV" {
             command.env_remove(key);
         }
     }
@@ -313,9 +322,11 @@ fn main_menu_loop(state: &State) -> Result<()> {
         let menu_choice = get_main_menu_choice(state)?;
 
         match menu_choice {
-            MainMenuChoice::Quit => std::process::exit(0),
             MainMenuChoice::KeepExisting => {
-                // Skip sync, just launch existing installation
+                if state.pyproject_modified_by_user {
+                    // User has custom edits, sync them
+                    handle_version_install_or_update(state, MainMenuChoice::KeepExisting)?;
+                }
                 break;
             }
             MainMenuChoice::ToggleBetas => {
@@ -372,14 +383,28 @@ fn write_sync_marker(sync_complete_marker: &std::path::Path) -> Result<()> {
     Ok(())
 }
 
+/// Get mtime of provided file, or 0 if unavailable
+fn file_timestamp_secs(path: &std::path::Path) -> i64 {
+    modified_time(path)
+        .map(|t| t.duration_since(UNIX_EPOCH).unwrap_or_default().as_secs() as i64)
+        .unwrap_or_default()
+}
+
 fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
     loop {
         println!("1) Latest Anki (press Enter)");
         println!("2) Choose a version");
+
         if let Some(current_version) = &state.current_version {
             let normalized_current = normalize_version(current_version);
-            println!("3) Keep existing version ({normalized_current})");
+
+            if state.pyproject_modified_by_user {
+                println!("3) Sync project changes");
+            } else {
+                println!("3) Keep existing version ({normalized_current})");
+            }
         }
+
         if let Some(prev_version) = &state.previous_version {
             if state.current_version.as_ref() != Some(prev_version) {
                 let normalized_prev = normalize_version(prev_version);
@@ -400,7 +425,6 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
         );
         println!();
         println!("7) Uninstall");
-        println!("8) Quit");
         print!("> ");
         let _ = stdout().flush();
 
@@ -440,7 +464,6 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
             "5" => MainMenuChoice::ToggleBetas,
             "6" => MainMenuChoice::ToggleCache,
             "7" => MainMenuChoice::Uninstall,
-            "8" => MainMenuChoice::Quit,
             _ => {
                 println!("Invalid input. Please try again.");
                 continue;
@@ -697,9 +720,6 @@ fn update_pyproject_for_version(menu_choice: MainMenuChoice, state: &State) -> R
         }
         MainMenuChoice::Version(version_kind) => {
             apply_version_kind(&version_kind, state)?;
-        }
-        MainMenuChoice::Quit => {
-            std::process::exit(0);
         }
     }
     Ok(())

@@ -141,7 +141,7 @@ walkdir = "2.5.0"
 which = "8.0.0"
 widestring = "1.1.0"
 winapi = { version = "0.3", features = ["wincon", "winreg"] }
-windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Media_Core", "Foundation_Collections", "Storage_Streams", "Win32_System_Console", "Win32_System_Registry", "Win32_Foundation", "Win32_UI_Shell"] }
+windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Media_Core", "Foundation_Collections", "Storage_Streams", "Win32_System_Console", "Win32_System_Registry", "Win32_System_SystemInformation", "Win32_Foundation", "Win32_UI_Shell", "Wdk_System_SystemServices"] }
 wiremock = "0.6.3"
 xz2 = "0.1.7"
 zip = { version = "4.1.0", default-features = false, features = ["deflate", "time"] }
