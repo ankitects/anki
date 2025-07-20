@@ -445,14 +445,7 @@ impl Collection {
             .or_not_found(card.deck_id)?;
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
 
-        // Get deck-specific desired retention if available, otherwise use config
-        // default
-        let desired_retention = deck
-            .normal()
-            .ok()
-            .and_then(|d| d.desired_retention)
-            .unwrap_or(config.inner.desired_retention);
-
+        let desired_retention = deck.effective_desired_retention(&config);
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let fsrs_next_states = if fsrs_enabled {
             let params = config.fsrs_params();
