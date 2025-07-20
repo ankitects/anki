@@ -106,6 +106,9 @@ function initCanvas(): fabric.Canvas {
     fabric.Object.prototype.cornerStyle = "circle";
     fabric.Object.prototype.cornerStrokeColor = "#000000";
     fabric.Object.prototype.padding = 8;
+    // snap rotation around 0 by +-3deg
+    fabric.Object.prototype.snapAngle = 360;
+    fabric.Object.prototype.snapThreshold = 3;
     // disable rotation when selecting
     canvas.on("selection:created", () => {
         const g = canvas.getActiveObject();
