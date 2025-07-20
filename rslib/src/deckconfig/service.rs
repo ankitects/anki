@@ -1,6 +1,5 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 use std::collections::HashMap;
 
 use anki_proto::generic;
@@ -104,8 +103,8 @@ impl crate::services::DeckConfigService for Collection {
         &mut self,
         input: anki_proto::deck_config::GetRetentionWorkloadRequest,
     ) -> Result<anki_proto::deck_config::GetRetentionWorkloadResponse> {
-        const LEARN_SPAN: usize = 100_000_000;
-        const TERMINATION_PROB: f32 = 0.001;
+        const LEARN_SPAN: usize = 365;
+        const TERMINATION_PROB: f32 = 1e-5;
         // the default values are from https://github.com/open-spaced-repetition/Anki-button-usage/blob/881009015c2a85ac911021d76d0aacb124849937/analysis.ipynb
         const DEFAULT_LEARN_COST: f32 = 19.4698;
         const DEFAULT_PASS_COST: f32 = 7.8454;
