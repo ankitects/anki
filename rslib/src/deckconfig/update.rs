@@ -212,10 +212,13 @@ impl Collection {
         if fsrs_toggled {
             self.set_config_bool_inner(BoolKey::Fsrs, req.fsrs)?;
         }
+        let mut deck_desired_retention: HashMap<DeckId, f32> = Default::default();
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
                 let deck_id = deck.id;
-
+                if let Some(desired_retention) = normal.desired_retention {
+                    deck_desired_retention.insert(deck_id, desired_retention);
+                }
                 // previous order & params
                 let previous_config_id = DeckConfigId(normal.config_id);
                 let previous_config = configs_before_update.get(&previous_config_id);
@@ -277,10 +280,11 @@ impl Collection {
                         if req.fsrs {
                             Some(UpdateMemoryStateRequest {
                                 params: c.fsrs_params().clone(),
-                                desired_retention: c.inner.desired_retention,
+                                preset_desired_retention: c.inner.desired_retention,
                                 max_interval: c.inner.maximum_review_interval,
                                 reschedule: req.fsrs_reschedule,
                                 historical_retention: c.inner.historical_retention,
+                                deck_desired_retention: deck_desired_retention.clone(),
                             })
                         } else {
                             None
