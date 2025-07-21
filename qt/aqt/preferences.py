@@ -82,11 +82,14 @@ class Preferences(QDialog):
         )
         group = self.form.preferences_answer_keys
         group.setLayout(layout := QFormLayout())
+        tab_widget: QWidget = self.form.url_schemes
         for ease, label in ease_labels:
             layout.addRow(
                 label,
                 line_edit := QLineEdit(self.mw.pm.get_answer_key(ease) or ""),
             )
+            QWidget.setTabOrder(tab_widget, line_edit)
+            tab_widget = line_edit
             qconnect(
                 line_edit.textChanged,
                 functools.partial(self.mw.pm.set_answer_key, ease),
