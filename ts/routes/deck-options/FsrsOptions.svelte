@@ -68,10 +68,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
 
     let desiredRetentionChangeInfo = "";
-    $: {
-        showDesiredRetentionTooltip
-            ? getRetentionChangeInfo(roundedRetention, fsrsParams($config))
-            : "";
+    $: if (showDesiredRetentionTooltip) {
+        getRetentionChangeInfo(roundedRetention, fsrsParams($config));
     }
 
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
@@ -106,17 +104,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let retentionWorloadInfo: undefined | Promise<GetRetentionWorkloadResponse> =
         undefined;
+    let lastParams = [...fsrsParams($config)];
 
     async function getRetentionChangeInfo(retention: number, params: number[]) {
         if (+startingDesiredRetention == roundedRetention) {
             desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorUnchanged();
             return;
         }
-        if (!retentionWorloadInfo) {
+        if (
+            // If the cache is empty and a request has not yet been made to fill it
+            !retentionWorloadInfo ||
+            // If the parameters have been changed
+            lastParams.toString() !== fsrsParams($config).toString()
+        ) {
             const request = new GetRetentionWorkloadRequest({
                 w: params,
                 search: defaultparamSearch,
             });
+            lastParams = [...fsrsParams($config)];
             retentionWorloadInfo = getRetentionWorkload(request);
         }
 
