@@ -6,13 +6,13 @@ from collections.abc import Callable
 
 import aqt.editor
 from anki.collection import OpChanges
+from anki.errors import NotFoundError
 from aqt import gui_hooks
-from aqt.editcurrent_legacy import *
 from aqt.qt import *
 from aqt.utils import add_close_shortcut, restoreGeom, saveGeom, tr
 
 
-class NewEditCurrent(QMainWindow):
+class EditCurrent(QMainWindow):
     def __init__(self, mw: aqt.AnkiQt) -> None:
         super().__init__(None, Qt.WindowType.Window)
         self.mw = mw
@@ -23,7 +23,7 @@ class NewEditCurrent(QMainWindow):
         self.setMinimumWidth(250)
         if not is_mac:
             self.setMenuBar(None)
-        self.editor = aqt.editor.NewEditor(
+        self.editor = aqt.editor.Editor(
             self.mw,
             self.form.fieldsArea,
             self,
@@ -33,7 +33,17 @@ class NewEditCurrent(QMainWindow):
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
+        self.buttonbox = QDialogButtonBox(Qt.Orientation.Horizontal)
+        self.form.verticalLayout.insertWidget(1, self.buttonbox)
+        self.buttonbox.addButton(QDialogButtonBox.StandardButton.Close)
+        qconnect(self.buttonbox.rejected, self.close)
+        close_button = self.buttonbox.button(QDialogButtonBox.StandardButton.Close)
+        assert close_button is not None
+        close_button.setShortcut(QKeySequence("Ctrl+Return"))
         add_close_shortcut(self)
+        # qt5.14+ doesn't handle numpad enter on Windows
+        self.compat_add_shorcut = QShortcut(QKeySequence("Ctrl+Enter"), self)
+        qconnect(self.compat_add_shorcut.activated, close_button.click)
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         self.show()
 
@@ -41,13 +51,24 @@ class NewEditCurrent(QMainWindow):
         self, changes: OpChanges, handler: object | None
     ) -> None:
         if changes.note_text and handler is not self.editor:
-            self.editor.reload_note()
+            # reload note
+            note = self.editor.note
+            try:
+                assert note is not None
+                note.load()
+            except NotFoundError:
+                # note's been deleted
+                self.cleanup()
+                self.close()
+                return
+
+            self.editor.set_note(note)
 
     def cleanup(self) -> None:
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         self.editor.cleanup()
         saveGeom(self, "editcurrent")
-        aqt.dialogs.markClosed("NewEditCurrent")
+        aqt.dialogs.markClosed("EditCurrent")
 
     def reopen(self, mw: aqt.AnkiQt) -> None:
         if card := self.mw.reviewer.card:
@@ -69,4 +90,5 @@ class NewEditCurrent(QMainWindow):
 
         self.editor.call_after_note_saved(callback)
 
+    onReset = on_operation_did_execute
     onReset = on_operation_did_execute

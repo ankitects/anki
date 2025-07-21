@@ -608,10 +608,10 @@ def editor_op_changes_request(endpoint: str) -> bytes:
     response.ParseFromString(output)
 
     def handle_on_main() -> None:
-        from aqt.editor import Editor
+        from aqt.editor import NewEditor
 
         handler = aqt.mw.app.activeWindow()
-        if handler and isinstance(getattr(handler, "editor", None), Editor):
+        if handler and isinstance(getattr(handler, "editor", None), NewEditor):
             handler = handler.editor  # type: ignore
         on_op_finished(aqt.mw, response, handler)
 
@@ -808,10 +808,10 @@ def close_add_cards() -> bytes:
     req.ParseFromString(request.data)
 
     def handle_on_main() -> None:
-        from aqt.addcards import AddCards
+        from aqt.addcards import NewAddCards
 
         window = aqt.mw.app.activeWindow()
-        if isinstance(window, AddCards):
+        if isinstance(window, NewAddCards):
             window._close_if_user_wants_to_discard_changes(req.val)
 
     aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
@@ -820,10 +820,10 @@ def close_add_cards() -> bytes:
 
 def close_edit_current() -> bytes:
     def handle_on_main() -> None:
-        from aqt.editcurrent import EditCurrent
+        from aqt.editcurrent import NewEditCurrent
 
         window = aqt.mw.app.activeWindow()
-        if isinstance(window, EditCurrent):
+        if isinstance(window, NewEditCurrent):
             window.close()
 
     aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
@@ -1069,4 +1069,6 @@ def _extract_dynamic_get_request(path: str) -> DynamicRequest | None:
     if path == "legacyPageData":
         return legacy_page_data
     else:
+        return None
+        return None
         return None

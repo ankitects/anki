@@ -10,7 +10,6 @@ import mimetypes
 import os
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum
 from random import randrange
 from typing import Any
 
@@ -21,58 +20,16 @@ from anki.models import NotetypeId
 from anki.notes import Note, NoteId
 from anki.utils import is_win
 from aqt import AnkiQt, gui_hooks
+from aqt.editor_legacy import *
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import shortcut, showWarning
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
-pics = ("jpg", "jpeg", "png", "gif", "svg", "webp", "ico", "avif")
-audio = (
-    "3gp",
-    "aac",
-    "avi",
-    "flac",
-    "flv",
-    "m4a",
-    "mkv",
-    "mov",
-    "mp3",
-    "mp4",
-    "mpeg",
-    "mpg",
-    "oga",
-    "ogg",
-    "ogv",
-    "ogx",
-    "opus",
-    "spx",
-    "swf",
-    "wav",
-    "webm",
-)
-
-
-class EditorMode(Enum):
-    ADD_CARDS = 0
-    EDIT_CURRENT = 1
-    BROWSER = 2
-
-
-class EditorState(Enum):
-    """
-    Current input state of the editing UI.
-    """
-
-    INITIAL = -1
-    FIELDS = 0
-    IO_PICKER = 1
-    IO_MASKS = 2
-    IO_FIELDS = 3
-
 
 def on_editor_ready(func: Callable) -> Callable:
     @functools.wraps(func)
-    def decorated(self: Editor, *args: Any, **kwargs: Any) -> None:
+    def decorated(self: NewEditor, *args: Any, **kwargs: Any) -> None:
         if self._ready:
             func(self, *args, **kwargs)
         else:
@@ -96,7 +53,7 @@ class NoteInfo:
             self.mid = NotetypeId(int(self.mid))
 
 
-class Editor:
+class NewEditor:
     """The screen that embeds an editing widget should listen for changes via
     the `operation_did_execute` hook, and call set_note() when the editor needs
     redrawing.
@@ -152,7 +109,7 @@ class Editor:
         self.outerLayout = l
 
     def add_webview(self) -> None:
-        self.web = EditorWebView(self.widget, self)
+        self.web = NewEditorWebView(self.widget, self)
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.web.hide_while_preserving_layout()
         self.outerLayout.addWidget(self.web, 1)
@@ -213,7 +170,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self,
         icon: str | None,
         cmd: str,
-        func: Callable[[Editor], None],
+        func: Callable[[NewEditor], None],
         tip: str = "",
         label: str = "",
         id: str | None = None,
@@ -224,7 +181,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ) -> str:
         """Assign func to bridge cmd, register shortcut, return button"""
 
-        def wrapped_func(editor: Editor) -> None:
+        def wrapped_func(editor: NewEditor) -> None:
             self.call_after_note_saved(functools.partial(func, editor), keepFocus=True)
 
         self._links[cmd] = wrapped_func
@@ -553,11 +510,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     def _init_links(self) -> None:
         self._links: dict[str, Callable] = dict(
-            fields=Editor.onFields,
-            cards=Editor.onCardLayout,
-            paste=Editor.onPaste,
-            cut=Editor.onCut,
-            copy=Editor.onCopy,
+            fields=NewEditor.onFields,
+            cards=NewEditor.onCardLayout,
+            paste=NewEditor.onPaste,
+            cut=NewEditor.onCut,
+            copy=NewEditor.onCopy,
         )
 
     def get_note_info(self, on_done: Callable[[NoteInfo], None]) -> None:
@@ -571,8 +528,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 ######################################################################
 
 
-class EditorWebView(AnkiWebView):
-    def __init__(self, parent: QWidget, editor: Editor) -> None:
+class NewEditorWebView(AnkiWebView):
+    def __init__(self, parent: QWidget, editor: NewEditor) -> None:
         AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR)
         self.editor = editor
         self.setAcceptDrops(True)
@@ -591,4 +548,5 @@ class EditorWebView(AnkiWebView):
         self.triggerPageAction(QWebEnginePage.WebAction.Copy)
 
     def onPaste(self) -> None:
+        self.triggerPageAction(QWebEnginePage.WebAction.Paste)
         self.triggerPageAction(QWebEnginePage.WebAction.Paste)

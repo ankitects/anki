@@ -11,31 +11,34 @@ from anki._legacy import deprecated
 from anki.collection import OpChanges, SearchNode
 from anki.decks import DeckId
 from anki.models import NotetypeId
-from anki.notes import Note, NoteId
+from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from anki.utils import html_to_text_line, is_mac
 from aqt import AnkiQt, gui_hooks
-from aqt.addcards_legacy import *
 from aqt.deckchooser import DeckChooser
 from aqt.notetypechooser import NotetypeChooser
+from aqt.operations.note import add_note
 from aqt.qt import *
+from aqt.sound import av_player
 from aqt.utils import (
     HelpPage,
     add_close_shortcut,
     ask_user_dialog,
+    askUser,
     downArrow,
     openHelp,
     restoreGeom,
     saveGeom,
     shortcut,
+    showWarning,
+    tooltip,
     tr,
 )
 
 
-class NewAddCards(QMainWindow):
+class AddCards(QMainWindow):
     def __init__(self, mw: AnkiQt) -> None:
         super().__init__(None, Qt.WindowType.Window)
         self._close_event_has_cleaned_up = False
-        self._close_callback: Callable[[], None] = self._close
         self.mw = mw
         self.col = mw.col
         form = aqt.forms.addcards.Ui_Dialog()
@@ -80,7 +83,7 @@ class NewAddCards(QMainWindow):
         self.setAndFocusNote(new_note)
 
     def setupEditor(self) -> None:
-        self.editor = aqt.editor.NewEditor(
+        self.editor = aqt.editor.Editor(
             self.mw,
             self.form.fieldsArea,
             self,
@@ -107,6 +110,9 @@ class NewAddCards(QMainWindow):
         )
 
     def reopen(self, mw: AnkiQt) -> None:
+        if not self.editor.fieldsAreBlank():
+            return
+
         defaults = self.col.defaults_for_adding(
             current_review_card=self.mw.reviewer.card
         )
@@ -166,13 +172,63 @@ class NewAddCards(QMainWindow):
             if deck_id := self.col.default_deck_for_notetype(notetype_id):
                 self.deck_chooser.selected_deck_id = deck_id
 
-        if notetype_id:
-            self.editor.set_nid(None, mid=notetype_id, focus_to=0)
+        # only used for detecting changed sticky fields on close
+        self._last_added_note = None
+
+        # copy fields into new note with the new notetype
+        old_note = self.editor.note
+        new_note = self._new_note()
+        if old_note:
+            old_field_names = list(old_note.keys())
+            new_field_names = list(new_note.keys())
+            copied_field_names = set()
+            for f in new_note.note_type()["flds"]:
+                field_name = f["name"]
+                # copy identical non-empty fields
+                if field_name in old_field_names and old_note[field_name]:
+                    new_note[field_name] = old_note[field_name]
+                    copied_field_names.add(field_name)
+            new_idx = 0
+            for old_idx, old_field_value in enumerate(old_field_names):
+                # skip previously copied identical fields in new note
+                while (
+                    new_idx < len(new_field_names)
+                    and new_field_names[new_idx] in copied_field_names
+                ):
+                    new_idx += 1
+                if new_idx >= len(new_field_names):
+                    break
+                # copy non-empty old fields
+                if (
+                    old_field_value not in copied_field_names
+                    and old_note.fields[old_idx]
+                ):
+                    new_note.fields[new_idx] = old_note.fields[old_idx]
+                    new_idx += 1
+
+            new_note.tags = old_note.tags
+
+        # and update editor state
+        self.editor.note = new_note
+        self.editor.loadNote(
+            focusTo=min(self.editor.last_field_index or 0, len(new_note.fields) - 1)
+        )
+        gui_hooks.addcards_did_change_note_type(
+            self, old_note.note_type(), new_note.note_type()
+        )
 
     def _load_new_note(self, sticky_fields_from: Note | None = None) -> None:
-        self.editor.set_nid(
-            None, mid=self.notetype_chooser.selected_notetype_id, focus_to=0
-        )
+        note = self._new_note()
+        if old_note := sticky_fields_from:
+            flds = note.note_type()["flds"]
+            # copy fields from old note
+            if old_note:
+                for n in range(min(len(note.fields), len(old_note.fields))):
+                    if flds[n]["sticky"]:
+                        note.fields[n] = old_note.fields[n]
+            # and tags
+            note.tags = old_note.tags
+        self.setAndFocusNote(note)
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: object | None
@@ -223,7 +279,65 @@ class NewAddCards(QMainWindow):
         aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
 
     def add_current_note(self) -> None:
-        self.editor.web.eval(f"addCurrentNote({self.deck_chooser.selected_deck_id})")
+        if self.editor.current_notetype_is_image_occlusion():
+            self.editor.update_occlusions_field()
+            self.editor.call_after_note_saved(self._add_current_note)
+            self.editor.reset_image_occlusion()
+        else:
+            self.editor.call_after_note_saved(self._add_current_note)
+
+    def _add_current_note(self) -> None:
+        note = self.editor.note
+
+        if not self._note_can_be_added(note):
+            return
+
+        target_deck_id = self.deck_chooser.selected_deck_id
+
+        def on_success(changes: OpChanges) -> None:
+            # only used for detecting changed sticky fields on close
+            self._last_added_note = note
+
+            self.addHistory(note)
+
+            tooltip(tr.adding_added(), period=500)
+            av_player.stop_and_clear_queue()
+            self._load_new_note(sticky_fields_from=note)
+            gui_hooks.add_cards_did_add_note(note)
+
+        add_note(parent=self, note=note, target_deck_id=target_deck_id).success(
+            on_success
+        ).run_in_background()
+
+    def _note_can_be_added(self, note: Note) -> bool:
+        result = note.fields_check()
+        # no problem, duplicate, and confirmed cloze cases
+        problem = None
+        if result == NoteFieldsCheckResult.EMPTY:
+            if self.editor.current_notetype_is_image_occlusion():
+                problem = tr.notetypes_no_occlusion_created2()
+            else:
+                problem = tr.adding_the_first_field_is_empty()
+        elif result == NoteFieldsCheckResult.MISSING_CLOZE:
+            if not askUser(tr.adding_you_have_a_cloze_deletion_note()):
+                return False
+        elif result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
+            problem = tr.adding_cloze_outside_cloze_notetype()
+        elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
+            problem = tr.adding_cloze_outside_cloze_field()
+
+        # filter problem through add-ons
+        problem = gui_hooks.add_cards_will_add_note(problem, note)
+        if problem is not None:
+            showWarning(problem, help=HelpPage.ADDING_CARD_AND_NOTE)
+            return False
+
+        optional_problems: list[str] = []
+        gui_hooks.add_cards_might_add_note(optional_problems, note)
+        if not all(askUser(op) for op in optional_problems):
+            return False
+
+        return True
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
         if evt.key() == Qt.Key.Key_Escape:
@@ -245,32 +359,30 @@ class NewAddCards(QMainWindow):
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         self.mw.maybeReset()
         saveGeom(self, "add")
-        aqt.dialogs.markClosed("NewAddCards")
+        aqt.dialogs.markClosed("AddCards")
         self._close_event_has_cleaned_up = True
         self.mw.deferred_delete_and_garbage_collect(self)
         self.close()
 
     def ifCanClose(self, onOk: Callable) -> None:
-        self._close_callback = onOk
-        self.editor.web.eval("closeAddCards()")
-
-    def _close_if_user_wants_to_discard_changes(self, prompt: bool) -> None:
-        if not prompt:
-            self._close_callback()
-            return
-
         def callback(choice: int) -> None:
             if choice == 0:
-                self._close_callback()
+                onOk()
 
-        ask_user_dialog(
-            tr.adding_discard_current_input(),
-            callback=callback,
-            buttons=[
-                QMessageBox.StandardButton.Discard,
-                (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
-            ],
-        )
+        def afterSave() -> None:
+            if self.editor.fieldsAreBlank(self._last_added_note):
+                return onOk()
+
+            ask_user_dialog(
+                tr.adding_discard_current_input(),
+                callback=callback,
+                buttons=[
+                    QMessageBox.StandardButton.Discard,
+                    (tr.adding_keep_editing(), QMessageBox.ButtonRole.RejectRole),
+                ],
+            )
+
+        self.editor.call_after_note_saved(afterSave)
 
     def closeWithCallback(self, cb: Callable[[], None]) -> None:
         def doClose() -> None:
@@ -288,6 +400,10 @@ class NewAddCards(QMainWindow):
             # or PyQt's introspection triggers it
             print("deckChooser is deprecated; use deck_chooser instead")
         return self.deck_chooser
+
+    addCards = add_current_note
+    _addCards = _add_current_note
+    onModelChange = on_notetype_change
 
     @deprecated(info="obsolete")
     def addNote(self, note: Note) -> None:
