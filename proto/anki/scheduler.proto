@@ -404,6 +404,7 @@ message SimulateFsrsReviewRequest {
   repeated float easy_days_percentages = 10;
   deck_config.DeckConfig.Config.ReviewCardOrder review_order = 11;
   optional uint32 suspend_after_lapse_count = 12;
+  float historical_retention = 13;
 }
 
 message SimulateFsrsReviewResponse {
