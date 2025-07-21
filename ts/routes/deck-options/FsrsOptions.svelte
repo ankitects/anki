@@ -115,13 +115,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             // If the cache is empty and a request has not yet been made to fill it
             !retentionWorloadInfo ||
             // If the parameters have been changed
-            lastParams.toString() !== fsrsParams($config).toString()
+            lastParams.toString() !== params.toString()
         ) {
             const request = new GetRetentionWorkloadRequest({
                 w: params,
                 search: defaultparamSearch,
             });
-            lastParams = [...fsrsParams($config)];
+            lastParams = [...params];
             retentionWorloadInfo = getRetentionWorkload(request);
         }
 
