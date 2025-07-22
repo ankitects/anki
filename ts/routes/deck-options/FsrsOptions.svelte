@@ -315,7 +315,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </SettingTitle>
 </SpinBoxFloatRow>
 
-<button class="btn btn-primary" on:click={() => workloadModal?.show()}>
+<button
+    class="btn btn-primary"
+    on:click={() => {
+        simulateFsrsRequest.reviewLimit = 9999;
+        workloadModal?.show();
+    }}
+>
     {tr.deckConfigFsrsDesiredRetentionHelpMeDecideExperimental()}
 </button>
 

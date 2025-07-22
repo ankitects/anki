@@ -405,7 +405,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                 <SpinBoxRow
                     bind:value={simulateFsrsRequest.reviewLimit}
-                    defaultValue={$config.reviewsPerDay}
+                    defaultValue={workload ? 9999 : $config.reviewsPerDay}
                     min={0}
                     max={9999}
                 >
