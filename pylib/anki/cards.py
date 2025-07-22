@@ -133,6 +133,7 @@ class Card(DeprecatedNamesMixin):
             memory_state=self.memory_state,
             desired_retention=self.desired_retention,
             decay=self.decay,
+            last_review_time_secs=self.last_review_time,
         )
 
     @deprecated(info="please use col.update_card()")
