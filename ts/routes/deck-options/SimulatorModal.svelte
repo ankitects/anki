@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         SimulateSubgraph,
         SimulateWorkloadSubgraph,
         type Point,
+        type WorkloadPoint,
     } from "../graphs/simulator";
     import * as tr from "@generated/ftl";
     import { renderSimulationChart, renderWorkloadChart } from "../graphs/simulator";
@@ -65,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
-    let points: Point[] = [];
+    let points: (WorkloadPoint | Point)[] = [];
     const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
     let smooth = true;
     let suspendLeeches = $config.leechAction == DeckConfig_Config_LeechAction.SUSPEND;
@@ -215,13 +216,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         memorized: v,
                         count: resp!.reviewCount[dr],
                         label: simulationNumber,
+                        learnSpan: simulateFsrsRequest.daysToSimulate,
                     })),
                 );
 
                 tableData = renderWorkloadChart(
                     svg as SVGElement,
                     bounds,
-                    points,
+                    points as WorkloadPoint[],
                     simulateWorkloadSubgraph,
                 );
             }
@@ -300,7 +302,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tableData = render_function(
             svg as SVGElement,
             bounds,
-            pointsToRender,
+            // This cast shouldn't matter because we aren't switching between modes in the same modal
+            pointsToRender as WorkloadPoint[],
             (workload ? simulateWorkloadSubgraph : simulateSubgraph) as any as never,
         );
     }
