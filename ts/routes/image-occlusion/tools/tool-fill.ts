@@ -17,9 +17,7 @@ export const fillMask = (canvas: fabric.Canvas, colourStore: Readable<string>): 
     stopDraw(canvas);
 
     canvas.on("mouse:down", function(o) {
-        const target = o.target instanceof fabric.Group
-            ? findTargetInGroup(o.target, canvas.getPointer(o.e) as fabric.Point)
-            : o.target;
+        const target = o.target instanceof fabric.Group ? canvas.targets[0] : o.target;
         const colour = get(colourStore);
         if (!target || target.fill === colour) { return; }
         target.fill = colour;
