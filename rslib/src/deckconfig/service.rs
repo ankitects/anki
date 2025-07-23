@@ -105,7 +105,7 @@ impl crate::services::DeckConfigService for Collection {
     ) -> Result<anki_proto::deck_config::GetRetentionWorkloadResponse> {
         let guard =
             self.search_cards_into_table(&input.search, crate::search::SortMode::NoOrder)?;
-        
+
         let revlogs = guard
             .col
             .storage
@@ -117,11 +117,7 @@ impl crate::services::DeckConfigService for Collection {
             .map(|dr| {
                 Ok((
                     dr,
-                    fsrs::expected_workload(
-                        &input.w,
-                        dr as f32 / 100.,
-                        &config
-                    )?,
+                    fsrs::expected_workload(&input.w, dr as f32 / 100., &config)?,
                 ))
             })
             .collect::<Result<HashMap<_, _>>>()?;
