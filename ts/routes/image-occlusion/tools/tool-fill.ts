@@ -4,7 +4,7 @@
 import { fabric } from "fabric";
 
 import { get, type Readable } from "svelte/store";
-import { findTargetInGroup, stopDraw } from "./lib";
+import { stopDraw } from "./lib";
 import { undoStack } from "./tool-undo-redo";
 
 export const fillMask = (canvas: fabric.Canvas, colourStore: Readable<string>): void => {
