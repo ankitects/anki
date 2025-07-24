@@ -31,7 +31,7 @@ export const addOrUpdateNote = async function(
 
     if (mode.kind == "edit") {
         const result = await updateImageOcclusionNote({
-            noteId: BigInt(mode.noteId),
+            noteId: mode.noteId,
             occlusions: occlusionCloze,
             header,
             backExtra,
@@ -53,7 +53,7 @@ export const addOrUpdateNote = async function(
 };
 
 // show toast message
-const showResult = (noteId: number | null, result: OpChanges, count: number) => {
+const showResult = (noteId: bigint | null, result: OpChanges, count: number) => {
     const props = $state({
         message: "",
         type: "error" as "error" | "success",
