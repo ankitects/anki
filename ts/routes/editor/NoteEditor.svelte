@@ -377,7 +377,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldSave.schedule(async () => {
             if (isLegacy) {
                 bridgeCommand(
-                    `key:${index}:${getNoteId()}:${transformContentBeforeSave(
+                    `key:${index}:${getNoteId()}:${await transformContentBeforeSave(
                         content,
                     )}`,
                 );
@@ -1181,7 +1181,7 @@ components and functionality for general note editing.
                         setAddonButtonsDisabled(true);
                         if (isLegacy) {
                             bridgeCommand(
-                                `blur:${index}:${getNoteId()}:${transformContentBeforeSave(
+                                `blur:${index}:${getNoteId()}:${await transformContentBeforeSave(
                                     get(content),
                                 )}`,
                             );
