@@ -4,6 +4,3 @@
 import "./editable-base.scss";
 import "./content-editable.scss";
 import "./mathjax.scss";
-/* only imported for the CSS in the legacy editor */
-import "./ContentEditable.svelte";
-import "./Mathjax.svelte";
