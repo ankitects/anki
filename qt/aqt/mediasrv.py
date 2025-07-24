@@ -1070,5 +1070,3 @@ def _extract_dynamic_get_request(path: str) -> DynamicRequest | None:
         return legacy_page_data
     else:
         return None
-        return None
-        return None
