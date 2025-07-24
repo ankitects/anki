@@ -275,6 +275,20 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         }
     }
 
+    // remove CONDA_PREFIX/bin from PATH to avoid conda interference
+    #[cfg(target_os = "macos")]
+    if let Ok(conda_prefix) = std::env::var("CONDA_PREFIX") {
+        if let Ok(current_path) = std::env::var("PATH") {
+            let conda_bin = format!("{conda_prefix}/bin");
+            let filtered_paths: Vec<&str> = current_path
+                .split(':')
+                .filter(|&path| path != conda_bin)
+                .collect();
+            let new_path = filtered_paths.join(":");
+            command.env("PATH", new_path);
+        }
+    }
+
     command
         .env("UV_CACHE_DIR", &state.uv_cache_dir)
         .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
