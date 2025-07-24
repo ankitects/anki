@@ -633,7 +633,7 @@ class QtAudioInputRecorder(Recorder):
         from PyQt6.QtMultimedia import QAudioFormat, QAudioSource  # type: ignore
 
         format = QAudioFormat()
-        format.setChannelCount(1)
+        format.setChannelCount(2)
         format.setSampleRate(44100)
         format.setSampleFormat(QAudioFormat.SampleFormat.Int16)
 
