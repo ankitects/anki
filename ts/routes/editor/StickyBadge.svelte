@@ -16,11 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorFieldContext } from "./EditorField.svelte";
     import type { Note } from "@generated/anki/notes_pb";
     import { getNotetype, updateEditorNotetype } from "@generated/backend";
+    import { bridgeCommand } from "@tslib/bridgecommand";
 
     const animated = !document.body.classList.contains("reduce-motion");
 
     export let active: boolean;
     export let show: boolean;
+    export let isLegacy: boolean;
 
     const editorField = editorFieldContext.get();
     const keyCombination = "F9";
@@ -29,10 +31,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let note: Note;
 
     async function toggle() {
-        active = !active;
-        const notetype = await getNotetype({ ntid: note.notetypeId });
-        notetype.fields[index].config!.sticky = active;
-        await updateEditorNotetype(notetype);
+        if (isLegacy) {
+            bridgeCommand(`toggleSticky:${index}`, (value: boolean) => {
+                active = value;
+            });
+        } else {
+            active = !active;
+            const notetype = await getNotetype({ ntid: note.notetypeId });
+            notetype.fields[index].config!.sticky = active;
+            await updateEditorNotetype(notetype);
+        }
     }
 
     function shortcut(target: HTMLElement): () => void {

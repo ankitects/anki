@@ -13,6 +13,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { mount } from "svelte";
 
+    export let isLegacy = false;
+
     export let callback: (styles: Record<string, any>) => void;
 
     const [userBaseStyle, userBaseResolve] = promiseWithResolver<StyleObject>();
@@ -47,23 +49,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: setStyling("fontSize", fontSize + "px");
     $: setStyling("direction", direction);
 
-    const styles: StyleLinkType[] = [
-        {
-            id: "editableBaseStyle",
-            type: "link",
-            href: editableBaseCSS,
-        },
-        {
-            id: "contentEditableStyle",
-            type: "link",
-            href: contentEditableCSS,
-        },
-        {
-            id: "mathjaxStyle",
-            type: "link",
-            href: mathjaxCSS,
-        },
-    ];
+    let styles: StyleLinkType[];
+    if (isLegacy) {
+        styles = [
+            {
+                id: "rootStyle",
+                type: "link",
+                href: "./_anki/css/editable.css",
+            },
+        ];
+    } else {
+        styles = [
+            {
+                id: "editableBaseStyle",
+                type: "link",
+                href: editableBaseCSS,
+            },
+            {
+                id: "contentEditableStyle",
+                type: "link",
+                href: contentEditableCSS,
+            },
+            {
+                id: "mathjaxStyle",
+                type: "link",
+                href: mathjaxCSS,
+            },
+        ];
+    }
 
     function attachToShadow(element: Element) {
         const customStyles = mount(CustomStyles, {

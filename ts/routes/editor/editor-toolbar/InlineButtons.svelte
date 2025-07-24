@@ -37,6 +37,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     Object.assign(api, {
         setColorButtons,
     });
+    // For legacy editor
+    Object.assign(globalThis, { setColorButtons });
 </script>
 
 <DynamicallySlottable slotHost={Item} {api}>

@@ -215,18 +215,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function toggleStickyAll() {
-        const values: boolean[] = [];
-        const notetype = await getNotetype({ ntid: notetypeMeta.id });
-        const anySticky = notetype.fields.some((f) => f.config!.sticky);
-        for (const field of notetype.fields) {
-            const sticky = field.config!.sticky;
-            if (!anySticky || sticky) {
-                field.config!.sticky = !sticky;
+        if (isLegacy) {
+            bridgeCommand(
+                "toggleStickyAll",
+                (values: boolean[]) => (stickies = values),
+            );
+        } else {
+            const values: boolean[] = [];
+            const notetype = await getNotetype({ ntid: notetypeMeta.id });
+            const anySticky = notetype.fields.some((f) => f.config!.sticky);
+            for (const field of notetype.fields) {
+                const sticky = field.config!.sticky;
+                if (!anySticky || sticky) {
+                    field.config!.sticky = !sticky;
+                }
+                values.push(field.config!.sticky);
             }
-            values.push(field.config!.sticky);
+            await updateEditorNotetype(notetype);
+            setSticky(values);
         }
-        await updateEditorNotetype(notetype);
-        setSticky(values);
     }
 
     let deregisterSticky: () => void;
@@ -262,14 +269,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await setMeta(tagsCollapsedMetaKey, collapsed);
     }
 
-    let note: Note;
-    export function setNote(n: Note): void {
-        note = n;
+    function clearCodeMirrorHistory() {
         // TODO this is a hack, because it requires the NoteEditor to know implementation details of the PlainTextInput.
         // It should be refactored once we work on our own Undo stack
         for (const pi of plainTextInputs) {
             pi.api.codeMirror.editor.then((editor) => editor.clearHistory());
         }
+    }
+
+    let noteId: number | null = null;
+    export function setNoteId(ntid: number): void {
+        clearCodeMirrorHistory();
+        noteId = ntid;
+    }
+
+    function getNoteId(): number | null {
+        return noteId;
+    }
+
+    let note: Note;
+    export function setNote(n: Note): void {
+        note = n;
+        clearCodeMirrorHistory();
     }
 
     let notetypeMeta: NotetypeIdAndModTime;
@@ -330,13 +351,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function transformContentBeforeSave(content: string): Promise<string> {
         content = content.replace(/ data-editor-shrink="(true|false)"/g, "");
-        // misbehaving apps may include a null byte in the text
-        content = content.replaceAll("\0", "");
-        // reverse the url quoting we added to get images to display
-        content = (await decodeIriPaths({ val: content })).val;
+        if (!isLegacy) {
+            // misbehaving apps may include a null byte in the text
+            content = content.replaceAll("\0", "");
+            // reverse the url quoting we added to get images to display
+            content = (await decodeIriPaths({ val: content })).val;
 
-        if (["<br>", "<div><br></div>"].includes(content)) {
-            return "";
+            if (["<br>", "<div><br></div>"].includes(content)) {
+                return "";
+            }
         }
         return content;
     }
@@ -352,10 +375,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function updateField(index: number, content: string): Promise<void> {
         fieldSave.schedule(async () => {
-            bridgeCommand(`key:${index}`);
-            note!.fields[index] = await transformContentBeforeSave(content);
-            await updateCurrentNote();
-            await updateDuplicateDisplay();
+            if (isLegacy) {
+                bridgeCommand(
+                    `key:${index}:${getNoteId()}:${transformContentBeforeSave(
+                        content,
+                    )}`,
+                );
+            } else {
+                bridgeCommand(`key:${index}`);
+                note!.fields[index] = await transformContentBeforeSave(content);
+                await updateCurrentNote();
+                await updateDuplicateDisplay();
+            }
         }, 600);
     }
 
@@ -640,16 +671,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function pickIOImage() {
         imageOcclusionMode = undefined;
-        const filename = await openFilePickerForImageOcclusion();
-        if (!filename) {
-            return;
+        if (isLegacy) {
+            bridgeCommand("addImageForOcclusion");
+        } else {
+            const filename = await openFilePickerForImageOcclusion();
+            if (!filename) {
+                return;
+            }
+            setupMaskEditor(filename);
         }
-        setupMaskEditor(filename);
     }
 
     async function pickIOImageFromClipboard() {
         imageOcclusionMode = undefined;
-        await setupMaskEditorFromClipboard();
+        if (isLegacy) {
+            bridgeCommand("addImageForOcclusionFromClipboard");
+        } else {
+            await setupMaskEditorFromClipboard();
+        }
     }
 
     async function handlePickerDrop(event: DragEvent) {
@@ -928,6 +967,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await loadNote(note!.id, notetypeMeta.id, 0, null);
     }
 
+    function checkNonLegacy(value: any): any | undefined {
+        if (isLegacy) {
+            return value;
+        }
+        return undefined;
+    }
+
+    function preventDefaultIfNonLegacy(event: Event) {
+        if (!isLegacy) {
+            event.preventDefault();
+        }
+    }
+
     $: signalEditorState($editorState);
 
     $: $editorState = getEditorState(
@@ -976,6 +1028,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             saveNow,
             closeAddCards,
             focusIfField,
+            getNoteId,
+            setNoteId,
             setNotetypeMeta,
             wrap,
             setMathjaxEnabled,
@@ -1036,6 +1090,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let uiResolve: (api: NoteEditorAPI) => void;
     export let mode: EditorMode;
+    export let isLegacy: boolean;
 
     $: if (noteEditor) {
         uiResolve(api as NoteEditorAPI);
@@ -1044,9 +1099,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <!-- Block Qt's default drag & drop behavior -->
 <svelte:body
-    on:dragenter|preventDefault
-    on:dragover|preventDefault
-    on:drop|preventDefault
+    on:dragenter={preventDefaultIfNonLegacy}
+    on:dragover={preventDefaultIfNonLegacy}
+    on:drop={preventDefaultIfNonLegacy}
 />
 
 <!--
@@ -1059,11 +1114,13 @@ components and functionality for general note editing.
     role="presentation"
     bind:this={noteEditor}
     on:contextmenu={(event) => {
-        contextMenuInput = $focusedInput;
-        onContextMenu(event, api, $focusedInput, contextMenu);
+        if (!isLegacy) {
+            contextMenuInput = $focusedInput;
+            onContextMenu(event, api, $focusedInput, contextMenu);
+        }
     }}
-    on:dragover|preventDefault
-    on:drop={handlePickerDrop}
+    on:dragover={preventDefaultIfNonLegacy}
+    on:drop={checkNonLegacy(handlePickerDrop)}
 >
     <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
@@ -1122,12 +1179,20 @@ components and functionality for general note editing.
                     on:focusout={async () => {
                         $focusedField = null;
                         setAddonButtonsDisabled(true);
-                        bridgeCommand(`blur:${index}`);
-                        note!.fields[index] = await transformContentBeforeSave(
-                            get(content),
-                        );
-                        await updateCurrentNote();
-                        await updateDuplicateDisplay();
+                        if (isLegacy) {
+                            bridgeCommand(
+                                `blur:${index}:${getNoteId()}:${transformContentBeforeSave(
+                                    get(content),
+                                )}`,
+                            );
+                        } else {
+                            bridgeCommand(`blur:${index}`);
+                            note!.fields[index] = await transformContentBeforeSave(
+                                get(content),
+                            );
+                            await updateCurrentNote();
+                            await updateDuplicateDisplay();
+                        }
                     }}
                     on:mouseenter={() => {
                         $hoveredField = fields[index];
@@ -1160,6 +1225,7 @@ components and functionality for general note editing.
                                         bind:active={stickies[index]}
                                         {index}
                                         {note}
+                                        {isLegacy}
                                         show={fields[index] === $hoveredField ||
                                             fields[index] === $focusedField}
                                     />
@@ -1192,6 +1258,7 @@ components and functionality for general note editing.
                         >
                             <RichTextInput
                                 {hidden}
+                                {isLegacy}
                                 on:focusout={() => {
                                     saveFieldNow();
                                     $focusedInput = null;
@@ -1241,21 +1308,25 @@ components and functionality for general note editing.
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
             <TagEditor {tags} on:tagsupdate={saveTags} />
         </Collapsible>
-        <ActionButtons {mode} {onClose} {onAdd} />
+        {#if !isLegacy}
+            <ActionButtons {mode} {onClose} {onAdd} />
+        {/if}
     {/if}
 
-    <ContextMenu bind:this={contextMenu}>
-        {#each contextMenuItems as item}
-            <Item
-                click={() => {
-                    item.action();
-                    contextMenuInput?.focus();
-                }}
-            >
-                {item.label}
-            </Item>
-        {/each}
-    </ContextMenu>
+    {#if !isLegacy}
+        <ContextMenu bind:this={contextMenu}>
+            {#each contextMenuItems as item}
+                <Item
+                    click={() => {
+                        item.action();
+                        contextMenuInput?.focus();
+                    }}
+                >
+                    {item.label}
+                </Item>
+            {/each}
+        </ContextMenu>
+    {/if}
 </div>
 
 <style lang="scss">

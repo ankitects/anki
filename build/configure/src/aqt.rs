@@ -146,7 +146,10 @@ fn build_css(build: &mut Build) -> Result<()> {
             },
         )?;
     }
-    let other_ts_css = build.inputs_with_suffix(inputs![":ts:editor", ":ts:reviewer:reviewer.css"], ".css");
+    let other_ts_css = build.inputs_with_suffix(
+        inputs![":ts:editor", ":ts:editable", ":ts:reviewer:reviewer.css"],
+        ".css",
+    );
     build.add_action(
         "qt:aqt:data:web:css",
         CopyFiles {
@@ -187,8 +190,15 @@ fn build_js(build: &mut Build) -> Result<()> {
             inputs: files,
         },
     )?;
-    let files_from_ts =
-        build.inputs_with_suffix(inputs![":ts:editor", ":ts:reviewer:reviewer.js", ":ts:mathjax"], ".js");
+    let files_from_ts = build.inputs_with_suffix(
+        inputs![
+            ":ts:editor",
+            ":ts:editable",
+            ":ts:reviewer:reviewer.js",
+            ":ts:mathjax"
+        ],
+        ".js",
+    );
     build.add_action(
         "qt:aqt:data:web:js",
         CopyFiles {

@@ -203,16 +203,23 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
 
         Ok(())
     };
+    // we use the generated .css file separately in the legacy editor
+    build_page(
+        "editable",
+        false,
+        inputs![
+            ":ts:lib",
+            ":ts:components",
+            ":ts:domlib",
+            ":ts:sveltelib",
+            ":sass",
+            ":sveltekit",
+        ],
+    )?;
     build_page(
         "congrats",
         true,
-        inputs![
-            //
-            ":ts:lib",
-            ":ts:components",
-            ":sass",
-            ":sveltekit"
-        ],
+        inputs![":ts:lib", ":ts:components", ":sass", ":sveltekit"],
     )?;
 
     Ok(())

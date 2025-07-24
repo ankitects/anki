@@ -53,11 +53,11 @@ export const components = {
 
 export { editorToolbar } from "./editor-toolbar";
 
-export async function setupEditor(mode: EditorMode) {
+export async function setupEditor(mode: EditorMode, isLegacy = false) {
     if (!["add", "browser", "current"].includes(mode)) {
         alert("unexpected editor type");
         return;
     }
     await setupI18n({ modules: editorModules });
-    mount(NoteEditor, { target: document.body, props: { uiResolve, mode } });
+    mount(NoteEditor, { target: document.body, props: { uiResolve, mode, isLegacy } });
 }

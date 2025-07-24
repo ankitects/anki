@@ -187,7 +187,7 @@ class Editor:
             context=self,
             default_css=False,
         )
-        self.web.eval(f"setupEditor('{mode}')")
+        self.web.eval(f"setupEditor('{mode}', true)")
         self.web.show()
 
         lefttopbtns: list[str] = []
@@ -563,9 +563,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         if not self.note:
             return
 
-        data = [
-            (fld, self.mw.col.media.escape_media_filenames(val))
-            for fld, val in self.note.items()
+        field_names = self.note.keys()
+        field_values = [
+            self.mw.col.media.escape_media_filenames(val) for val in self.note.values()
         ]
 
         note_type = self.note_type()
@@ -600,7 +600,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         js = f"""
             saveSession();
-            setFields({json.dumps(data)});
+            setFields({json.dumps(field_names)}, {json.dumps(field_values)});
             setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
             setNotetypeMeta({json.dumps(notetype_meta)});
             setCollapsed({json.dumps(collapsed)});
@@ -1786,5 +1786,4 @@ def reverse_url_quoting(txt: str, editor: Editor) -> str:
 gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
 gui_hooks.editor_will_munge_html.append(munge_html)  # type: ignore
 gui_hooks.editor_will_munge_html.append(remove_null_bytes)  # type: ignore
-gui_hooks.editor_will_munge_html.append(reverse_url_quoting)  # type: ignore
 gui_hooks.editor_will_munge_html.append(reverse_url_quoting)  # type: ignore

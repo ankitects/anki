@@ -91,4 +91,3 @@ class EditCurrent(QMainWindow):
         self.editor.call_after_note_saved(callback)
 
     onReset = on_operation_did_execute
-    onReset = on_operation_did_execute
