@@ -378,9 +378,7 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 continue;
             }
             choice @ (MainMenuChoice::Latest | MainMenuChoice::Version(_)) => {
-                if handle_version_install_or_update(state, choice.clone()).is_err() {
-                    continue;
-                }
+                handle_version_install_or_update(state, choice.clone())?;
                 break;
             }
         }
@@ -650,7 +648,13 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
         .args(["run", "--no-project"])
         .arg(&versions_script);
 
-    let output = cmd.utf8_output()?;
+    let output = match cmd.utf8_output() {
+        Ok(output) => output,
+        Err(e) => {
+            print!("Unable to check for Anki versions. Please check your internet connection.\n\n");
+            return Err(e.into());
+        }
+    };
     let versions = serde_json::from_str(&output.stdout).context("Failed to parse versions JSON")?;
     Ok(versions)
 }
