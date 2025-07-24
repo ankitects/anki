@@ -650,6 +650,7 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
     let mut cmd = Command::new(&state.uv_path);
     cmd.current_dir(&state.uv_install_root)
         .args(["run", "--no-project", "--no-config", "--managed-python"])
+        .args(["--with", "pip-system-certs"])
         .arg(&versions_script);
 
     let output = match cmd.utf8_output() {
