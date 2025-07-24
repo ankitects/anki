@@ -292,6 +292,10 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     command
         .env("UV_CACHE_DIR", &state.uv_cache_dir)
         .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
+        .env(
+            "UV_HTTP_TIMEOUT",
+            std::env::var("UV_HTTP_TIMEOUT").unwrap_or_else(|_| "180".to_string()),
+        )
         .args(["sync", "--upgrade", "--managed-python", "--no-config"]);
 
     // Add python version if .python-version file exists
