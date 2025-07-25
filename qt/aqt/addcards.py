@@ -5,14 +5,12 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-import aqt.editor
-import aqt.forms
 from anki._legacy import deprecated
-from anki.collection import OpChanges, SearchNode
+from anki.collection import OpChanges
 from anki.decks import DeckId
 from anki.models import NotetypeId
-from anki.notes import Note, NoteId
-from anki.utils import html_to_text_line, is_mac
+from anki.notes import Note
+from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.addcards_legacy import *
 from aqt.deckchooser import DeckChooser
@@ -22,11 +20,9 @@ from aqt.utils import (
     HelpPage,
     add_close_shortcut,
     ask_user_dialog,
-    downArrow,
     openHelp,
     restoreGeom,
     saveGeom,
-    shortcut,
     tr,
 )
 
@@ -48,9 +44,6 @@ class NewAddCards(QMainWindow):
         self.setupEditor()
         add_close_shortcut(self)
         self._load_new_note()
-        self.setupButtons()
-        self.history: list[NoteId] = []
-        self._last_added_note: Note | None = None
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
@@ -116,39 +109,6 @@ class NewAddCards(QMainWindow):
     def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
 
-    def setupButtons(self) -> None:
-        bb = self.form.buttonBox
-        ar = QDialogButtonBox.ButtonRole.ActionRole
-        # add
-        self.addButton = bb.addButton(tr.actions_add(), ar)
-        qconnect(self.addButton.clicked, self.add_current_note)
-        self.addButton.setShortcut(QKeySequence("Ctrl+Return"))
-        # qt5.14+ doesn't handle numpad enter on Windows
-        self.compat_add_shorcut = QShortcut(QKeySequence("Ctrl+Enter"), self)
-        qconnect(self.compat_add_shorcut.activated, self.addButton.click)
-        self.addButton.setToolTip(shortcut(tr.adding_add_shortcut_ctrlandenter()))
-
-        # close
-        self.closeButton = QPushButton(tr.actions_close())
-        self.closeButton.setAutoDefault(False)
-        bb.addButton(self.closeButton, QDialogButtonBox.ButtonRole.RejectRole)
-        qconnect(self.closeButton.clicked, self.close)
-        # help
-        self.helpButton = QPushButton(tr.actions_help(), clicked=self.helpRequested)  # type: ignore
-        self.helpButton.setAutoDefault(False)
-        bb.addButton(self.helpButton, QDialogButtonBox.ButtonRole.HelpRole)
-        # history
-        b = bb.addButton(f"{tr.adding_history()} {downArrow()}", ar)
-        if is_mac:
-            sc = "Ctrl+Shift+H"
-        else:
-            sc = "Ctrl+H"
-        b.setShortcut(QKeySequence(sc))
-        b.setToolTip(tr.adding_shortcut(val=shortcut(sc)))
-        qconnect(b.clicked, self.onHistory)
-        b.setEnabled(False)
-        self.historyButton = b
-
     def setAndFocusNote(self, note: Note) -> None:
         self.editor.set_note(note, focusTo=0)
 
@@ -191,36 +151,6 @@ class NewAddCards(QMainWindow):
         return self.col.new_note(
             self.col.models.get(self.notetype_chooser.selected_notetype_id)
         )
-
-    def addHistory(self, note: Note) -> None:
-        self.history.insert(0, note.id)
-        self.history = self.history[:15]
-        self.historyButton.setEnabled(True)
-
-    def onHistory(self) -> None:
-        m = QMenu(self)
-        for nid in self.history:
-            if self.col.find_notes(self.col.build_search_string(SearchNode(nid=nid))):
-                note = self.col.get_note(nid)
-                fields = note.fields
-                txt = html_to_text_line(", ".join(fields))
-                if len(txt) > 30:
-                    txt = f"{txt[:30]}..."
-                line = tr.adding_edit(val=txt)
-                line = gui_hooks.addcards_will_add_history_entry(line, note)
-                line = line.replace("&", "&&")
-                # In qt action "&i" means "underline i, trigger this line when i is pressed".
-                # except for "&&" which is replaced by a single "&"
-                a = m.addAction(line)
-                qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))
-            else:
-                a = m.addAction(tr.adding_note_deleted())
-                a.setEnabled(False)
-        gui_hooks.add_cards_will_show_history_menu(self, m)
-        m.exec(self.historyButton.mapToGlobal(QPoint(0, 0)))
-
-    def editHistory(self, nid: NoteId) -> None:
-        aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
 
     def add_current_note(self) -> None:
         self.editor.web.eval(f"addCurrentNote({self.deck_chooser.selected_deck_id})")
