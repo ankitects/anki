@@ -10,10 +10,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { HistoryEntry } from "./types";
     import Icon from "$lib/components/Icon.svelte";
     import { caretDownFill } from "$lib/components/icons";
+    import { isApplePlatform } from "@tslib/platform";
 
     export let onHistory: () => void;
     export let history: HistoryEntry[] = [];
-    const historyKeyCombination = "Control+H";
+    const historyKeyCombination = isApplePlatform() ? "Control+Shift+H" : "Control+H";
 </script>
 
 <ActionButton
