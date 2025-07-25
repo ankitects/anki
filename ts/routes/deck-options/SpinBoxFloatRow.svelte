@@ -23,9 +23,12 @@
         <slot />
     </Col>
     <Col --col-size={6} breakpoint="xs">
-        <ConfigInput>
-            <SpinBox bind:value {min} {max} {step} {percentage} bind:focused />
-            <RevertButton slot="revert" bind:value {defaultValue} />
-        </ConfigInput>
+        <Row class="flex-grow-1">
+            <slot name="tabs" />
+            <ConfigInput>
+                <SpinBox bind:value {min} {max} {step} {percentage} bind:focused />
+                <RevertButton slot="revert" bind:value {defaultValue} />
+            </ConfigInput>
+        </Row>
     </Col>
 </Row>

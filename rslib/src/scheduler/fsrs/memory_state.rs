@@ -45,10 +45,11 @@ pub(crate) fn get_decay_from_params(params: &[f32]) -> f32 {
 #[derive(Debug)]
 pub(crate) struct UpdateMemoryStateRequest {
     pub params: Params,
-    pub desired_retention: f32,
+    pub preset_desired_retention: f32,
     pub historical_retention: f32,
     pub max_interval: u32,
     pub reschedule: bool,
+    pub deck_desired_retention: HashMap<DeckId, f32>,
 }
 
 pub(crate) struct UpdateMemoryStateEntry {
@@ -98,7 +99,8 @@ impl Collection {
                 historical_retention.unwrap_or(0.9),
                 ignore_before,
             )?;
-            let desired_retention = req.as_ref().map(|w| w.desired_retention);
+            let preset_desired_retention =
+                req.as_ref().map(|w| w.preset_desired_retention).unwrap();
             let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
             progress.update(false, |s| s.total_cards = items.len() as u32)?;
             for (idx, (card_id, item)) in items.into_iter().enumerate() {
@@ -109,7 +111,12 @@ impl Collection {
                     // Store decay and desired retention in the card so that add-ons, card info,
                     // stats and browser search/sorts don't need to access the deck config.
                     // Unlike memory states, scheduler doesn't use decay and dr stored in the card.
-                    card.desired_retention = desired_retention;
+                    let deck_id = card.original_or_current_deck_id();
+                    let desired_retention = *req
+                        .deck_desired_retention
+                        .get(&deck_id)
+                        .unwrap_or(&preset_desired_retention);
+                    card.desired_retention = Some(desired_retention);
                     card.decay = decay;
                     if let Some(item) = item {
                         card.set_memory_state(&fsrs, Some(item), historical_retention.unwrap())?;
@@ -132,7 +139,7 @@ impl Collection {
                                             let original_interval = card.interval;
                                             let interval = fsrs.next_interval(
                                                 Some(state.stability),
-                                                desired_retention.unwrap(),
+                                                desired_retention,
                                                 0,
                                             );
                                             card.interval = rescheduler
@@ -205,7 +212,11 @@ impl Collection {
             .storage
             .get_deck_config(conf_id)?
             .or_not_found(conf_id)?;
-        let desired_retention = config.inner.desired_retention;
+
+        // Get deck-specific desired retention if available, otherwise use config
+        // default
+        let desired_retention = deck.effective_desired_retention(&config);
+
         let historical_retention = config.inner.historical_retention;
         let params = config.fsrs_params();
         let decay = get_decay_from_params(params);

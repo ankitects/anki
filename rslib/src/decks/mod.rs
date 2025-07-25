@@ -31,6 +31,7 @@ pub(crate) use name::immediate_parent_name;
 pub use name::NativeDeckName;
 pub use schema11::DeckSchema11;
 
+use crate::deckconfig::DeckConfig;
 use crate::define_newtype;
 use crate::error::FilteredDeckError;
 use crate::markdown::render_markdown;
@@ -87,6 +88,16 @@ impl Deck {
         } else {
             None
         }
+    }
+
+    /// Get the effective desired retention value for a deck.
+    /// Returns deck-specific desired retention if available, otherwise falls
+    /// back to config default.
+    pub fn effective_desired_retention(&self, config: &DeckConfig) -> f32 {
+        self.normal()
+            .ok()
+            .and_then(|d| d.desired_retention)
+            .unwrap_or(config.inner.desired_retention)
     }
 
     // used by tests at the moment
