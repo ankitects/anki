@@ -11,7 +11,6 @@ use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
 use anki_io::copy_file;
-use anki_io::copy_if_newer;
 use anki_io::create_dir_all;
 use anki_io::modified_time;
 use anki_io::read_file;
@@ -120,13 +119,8 @@ fn run() -> Result<()> {
         return Ok(());
     }
 
-    // Create install directory and copy project files in
+    // Create install directory
     create_dir_all(&state.uv_install_root)?;
-    copy_if_newer(&state.dist_pyproject_path, &state.user_pyproject_path)?;
-    copy_if_newer(
-        &state.dist_python_version_path,
-        &state.user_python_version_path,
-    )?;
 
     let launcher_requested = state.launcher_trigger_file.exists();
 
