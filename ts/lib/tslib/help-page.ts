@@ -24,6 +24,7 @@ export const HelpPage = {
         displayOrder: "https://docs.ankiweb.net/deck-options.html#display-order",
         maximumReviewsday: "https://docs.ankiweb.net/deck-options.html#maximum-reviewsday",
         newCardsday: "https://docs.ankiweb.net/deck-options.html#new-cardsday",
+        limitsFromTop: "https://docs.ankiweb.net/deck-options.html#limits-start-from-top",
         dailyLimits: "https://docs.ankiweb.net/deck-options.html#daily-limits",
         audio: "https://docs.ankiweb.net/deck-options.html#audio",
         fsrs: "http://docs.ankiweb.net/deck-options.html#fsrs",
