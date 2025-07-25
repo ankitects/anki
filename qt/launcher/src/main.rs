@@ -644,8 +644,17 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
     let mut cmd = Command::new(&state.uv_path);
     cmd.current_dir(&state.uv_install_root)
         .args(["run", "--no-project", "--no-config", "--managed-python"])
-        .args(["--with", "pip-system-certs"])
-        .arg(&versions_script);
+        .args(["--with", "pip-system-certs"]);
+
+    let python_version = read_file(&state.dist_python_version_path)?;
+    let python_version_str =
+        String::from_utf8(python_version).context("Invalid UTF-8 in .python-version")?;
+    let version_trimmed = python_version_str.trim();
+    if !version_trimmed.is_empty() {
+        cmd.args(["--python", version_trimmed]);
+    }
+
+    cmd.arg(&versions_script);
 
     let output = match cmd.utf8_output() {
         Ok(output) => output,
