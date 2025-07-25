@@ -105,21 +105,6 @@ export const unGroupShapes = (canvas: fabric.Canvas): void => {
     redraw(canvas);
 };
 
-/** Check for the target within a (potentially nested) group
- * NOTE: assumes that masks do not overlap */
-export const findTargetInGroup = (group: fabric.Group, p: fabric.Point): fabric.Object | undefined => {
-    if (!group) { return; }
-    const point = fabric.util.transformPoint(p, fabric.util.invertTransform(group.calcOwnMatrix()));
-    for (const shape of group.getObjects()) {
-        if (shape instanceof fabric.Group) {
-            const ret = findTargetInGroup(shape, point);
-            if (ret) { return ret; }
-        } else if (shape.containsPoint(point)) {
-            return shape;
-        }
-    }
-};
-
 const copyItem = (canvas: fabric.Canvas): void => {
     const activeObject = canvas.getActiveObject();
     if (!activeObject) {

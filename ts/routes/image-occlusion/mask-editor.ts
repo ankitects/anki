@@ -109,6 +109,8 @@ function initCanvas(): fabric.Canvas {
     // snap rotation around 0 by +-3deg
     fabric.Object.prototype.snapAngle = 360;
     fabric.Object.prototype.snapThreshold = 3;
+    // populate canvas.targets with subtargets during mouse events
+    fabric.Group.prototype.subTargetCheck = true;
     // disable rotation when selecting
     canvas.on("selection:created", () => {
         const g = canvas.getActiveObject();
