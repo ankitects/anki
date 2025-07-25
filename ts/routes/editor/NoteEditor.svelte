@@ -15,6 +15,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import { EditorState, type EditorMode } from "./types";
     import { ContextMenu, Item } from "$lib/context-menu";
+    import type Modal from "bootstrap/js/dist/modal";
+    import { getContext } from "svelte";
+    import { modalsKey } from "$lib/components/context-keys";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -85,7 +88,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
-    import type { NotetypeIdAndModTime, SessionOptions } from "./types";
+    import type { HistoryEntry, NotetypeIdAndModTime, SessionOptions } from "./types";
 
     let contextMenu: ContextMenu;
     const [onContextMenu, contextMenuItems] = setupContextMenu();
@@ -446,6 +449,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await addCurrentNote(1n);
     }
 
+    const modals = getContext<Map<string, Modal>>(modalsKey);
+    let modalKey: string;
+
+    let history: HistoryEntry[] = [];
+
+    export async function addNoteToHistory(note: Note) {
+        let text = (
+            await htmlToTextLine({
+                text: note.fields.join(", "),
+                preserveMediaFilenames: true,
+            })
+        ).val;
+        if (text.length > 30) {
+            text = `${text.slice(0, 30)}...`;
+        }
+        history = [
+            ...history,
+            {
+                text,
+                noteId: note.id,
+            },
+        ];
+    }
+
+    export function onHistory() {
+        modals.get(modalKey)!.show();
+    }
+
     export function saveOnPageHide() {
         if (document.visibilityState === "hidden") {
             // will fire on session close and minimize
@@ -501,10 +532,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (!(await noteCanBeAdded())) {
             return;
         }
-        await addEditorNote({
-            note: note!,
-            deckId,
-        });
+        const noteId = (
+            await addEditorNote({
+                note: note!,
+                deckId,
+            })
+        ).noteId;
+        note.id = noteId;
+        addNoteToHistory(note!);
         lastAddedNote = note;
         await loadNewNote();
     }
@@ -638,6 +673,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         updateEditorNotetype,
         closeAddCards as closeAddCardsBackend,
         closeEditCurrent as closeEditCurrentBackend,
+        htmlToTextLine,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
@@ -662,6 +698,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setupContextMenu } from "./context-menu.svelte";
     import { registerShortcut } from "@tslib/shortcuts";
     import ActionButtons from "./ActionButtons.svelte";
+    import HistoryModal from "./HistoryModal.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -1309,7 +1346,8 @@ components and functionality for general note editing.
             <TagEditor {tags} on:tagsupdate={saveTags} />
         </Collapsible>
         {#if !isLegacy}
-            <ActionButtons {mode} {onClose} {onAdd} />
+            <ActionButtons {mode} {onClose} {onAdd} {onHistory} {history} />
+            <HistoryModal bind:modalKey {history} />
         {/if}
     {/if}
 

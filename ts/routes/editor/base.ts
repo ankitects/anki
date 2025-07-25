@@ -29,6 +29,7 @@ declare global {
     }
 }
 
+import { modalsKey } from "$lib/components/context-keys";
 import { ModuleName } from "@tslib/i18n";
 import { mount } from "svelte";
 import type { EditorMode } from "./types";
@@ -41,6 +42,7 @@ export const editorModules = [
     ModuleName.NOTETYPES,
     ModuleName.IMPORTING,
     ModuleName.UNDO,
+    ModuleName.ADDING,
 ];
 
 export const components = {
@@ -58,6 +60,8 @@ export async function setupEditor(mode: EditorMode, isLegacy = false) {
         alert("unexpected editor type");
         return;
     }
+    const context = new Map();
+    context.set(modalsKey, new Map());
     await setupI18n({ modules: editorModules });
-    mount(NoteEditor, { target: document.body, props: { uiResolve, mode, isLegacy } });
+    mount(NoteEditor, { target: document.body, props: { uiResolve, mode, isLegacy }, context });
 }

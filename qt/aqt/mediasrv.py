@@ -922,6 +922,7 @@ exposed_backend_list = [
     # CardRenderingService
     "encode_iri_paths",
     "decode_iri_paths",
+    "html_to_text_line",
     # ConfigService
     "set_config_json",
     "get_config_bool",

@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import LabelButton from "$lib/components/LabelButton.svelte";
 
-    const { children, onClick, tooltip } = $props();
+    const { children, onClick, tooltip, disabled = false } = $props();
 </script>
 
 <div class="action-button">
@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tooltip}
         --border-left-radius="5px"
         --border-right-radius="5px"
+        {disabled}
     >
         <div class="action-text">
             {@render children()}

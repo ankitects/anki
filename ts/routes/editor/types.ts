@@ -29,3 +29,8 @@ export enum EditorState {
 }
 
 export type EditorMode = "add" | "browser" | "current";
+
+export type HistoryEntry = {
+    text: string;
+    noteId: bigint;
+};
