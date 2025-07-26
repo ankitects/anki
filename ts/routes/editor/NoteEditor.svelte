@@ -1351,10 +1351,11 @@ components and functionality for general note editing.
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
             <TagEditor {tags} on:tagsupdate={saveTags} />
         </Collapsible>
-        {#if !isLegacy}
-            <ActionButtons {mode} {onClose} {onAdd} {onHistory} {history} />
-            <HistoryModal bind:modalKey {history} />
-        {/if}
+    {/if}
+
+    {#if !isLegacy}
+        <ActionButtons {mode} {onClose} {onAdd} {onHistory} {history} />
+        <HistoryModal bind:modalKey {history} />
     {/if}
 
     {#if !isLegacy}
