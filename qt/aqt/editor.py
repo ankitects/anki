@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from random import randrange
 from typing import Any
 
-from anki._legacy import deprecated
 from anki.cards import Card
 from anki.hooks import runFilter
 from anki.models import NotetypeId
@@ -85,8 +84,6 @@ class NewEditor:
         # Similar to currentField, but not set to None on a blur. May be
         # outside the bounds of the current notetype.
         self.last_field_index: int | None = None
-        # used when creating a copy of an existing note
-        self.orig_note_id: NoteId | None = None
         # current card, for card layout
         self.card: Card | None = None
         self.state: EditorState = EditorState.INITIAL
@@ -397,7 +394,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.currentField = None
         self.load_note(mid, focus_to=focus_to)
 
-    @deprecated(replaced_by=set_nid)
     def set_note(
         self,
         note: Note | None,
@@ -413,7 +409,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             self.widget.hide()
 
     @on_editor_ready
-    def load_note(self, mid: int, focus_to: int | None = None) -> None:
+    def load_note(
+        self,
+        mid: int,
+        original_note_id: NoteId | None = None,
+        focus_to: int | None = None,
+    ) -> None:
         self.widget.show()
 
         def oncallback(arg: Any) -> None:
@@ -426,7 +427,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             gui_hooks.editor_did_load_note(self)
 
         assert self.mw.pm.profile is not None
-        js = f"loadNote({json.dumps(self.nid)}, {mid}, {json.dumps(focus_to)}, {json.dumps(self.orig_note_id)});"
+        js = f"loadNote({json.dumps(self.nid)}, {mid}, {json.dumps(focus_to)}, {json.dumps(original_note_id)});"
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback
         )

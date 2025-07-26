@@ -1167,7 +1167,7 @@ timerStopped = false;
 
     def on_create_copy(self) -> None:
         if self.card:
-            aqt.dialogs.open("AddCards", self.mw).set_note(
+            aqt.dialogs.open("NewAddCards", self.mw).set_note(
                 self.card.note(), self.card.current_deck_id()
             )
 

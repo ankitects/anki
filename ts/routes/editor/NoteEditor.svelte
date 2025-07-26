@@ -924,6 +924,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 }),
             );
         }
+        if (originalNoteId) {
+            const originalNote = await getNote({
+                nid: originalNoteId,
+            });
+            note!.fields = originalNote.fields;
+            note!.tags = originalNote.tags;
+        }
         const fieldValues = (
             await Promise.all(
                 note!.fields.map((field) => encodeIriPaths({ val: field })),

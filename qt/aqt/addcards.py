@@ -65,12 +65,11 @@ class NewAddCards(QMainWindow):
         if deck_id or (deck_id := self.col.default_deck_for_notetype(note.mid)):
             self.deck_chooser.selected_deck_id = deck_id
 
-        new_note = self._new_note()
-        new_note.fields = note.fields[:]
-        new_note.tags = note.tags[:]
-
-        self.editor.orig_note_id = note.id
-        self.setAndFocusNote(new_note)
+        self.editor.load_note(
+            mid=note.mid,
+            original_note_id=note.id,
+            focus_to=0,
+        )
 
     def setupEditor(self) -> None:
         self.editor = aqt.editor.NewEditor(
@@ -109,9 +108,6 @@ class NewAddCards(QMainWindow):
     def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
 
-    def setAndFocusNote(self, note: Note) -> None:
-        self.editor.set_note(note, focusTo=0)
-
     def show_notetype_selector(self) -> None:
         self.editor.call_after_note_saved(self.notetype_chooser.choose_notetype)
 
@@ -146,11 +142,6 @@ class NewAddCards(QMainWindow):
                 ),
                 update_deck=False,
             )
-
-    def _new_note(self) -> Note:
-        return self.col.new_note(
-            self.col.models.get(self.notetype_chooser.selected_notetype_id)
-        )
 
     def add_current_note(self) -> None:
         self.editor.web.eval(f"addCurrentNote({self.deck_chooser.selected_deck_id})")
