@@ -1381,10 +1381,6 @@ components and functionality for general note editing.
         height: 100%;
     }
 
-    :global(.image-occlusion) {
-        position: fixed;
-    }
-
     :global(.image-occlusion .tab-buttons) {
         display: none !important;
     }

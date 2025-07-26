@@ -93,14 +93,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .editor-main {
-        position: absolute;
-        top: 42px;
-        left: 36px;
+        position: relative;
         bottom: 2px;
         right: 2px;
-        border: 1px solid var(--border);
         overflow: auto;
         outline: none !important;
+        height: 90vh;
     }
 
     :global([dir="rtl"]) .editor-main {
