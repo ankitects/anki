@@ -143,9 +143,6 @@ class NewAddCards(QMainWindow):
                 update_deck=False,
             )
 
-    def add_current_note(self) -> None:
-        self.editor.web.eval(f"addCurrentNote({self.deck_chooser.selected_deck_id})")
-
     def keyPressEvent(self, evt: QKeyEvent) -> None:
         if evt.key() == Qt.Key.Key_Escape:
             self.close()
