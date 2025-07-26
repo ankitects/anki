@@ -11,7 +11,6 @@ use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
 use anki_io::copy_file;
-use anki_io::copy_if_newer;
 use anki_io::create_dir_all;
 use anki_io::modified_time;
 use anki_io::read_file;
@@ -50,6 +49,7 @@ struct State {
     pyproject_modified_by_user: bool,
     previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
+    venv_folder: std::path::PathBuf,
 }
 
 #[derive(Debug, Clone)]
@@ -111,6 +111,7 @@ fn run() -> Result<()> {
         pyproject_modified_by_user: false, // calculated later
         previous_version: None,
         resources_dir,
+        venv_folder: uv_install_root.join(".venv"),
     };
 
     // Check for uninstall request from Windows uninstaller
@@ -120,15 +121,11 @@ fn run() -> Result<()> {
         return Ok(());
     }
 
-    // Create install directory and copy project files in
+    // Create install directory
     create_dir_all(&state.uv_install_root)?;
-    copy_if_newer(&state.dist_pyproject_path, &state.user_pyproject_path)?;
-    copy_if_newer(
-        &state.dist_python_version_path,
-        &state.user_python_version_path,
-    )?;
 
-    let launcher_requested = state.launcher_trigger_file.exists();
+    let launcher_requested =
+        state.launcher_trigger_file.exists() || !state.user_pyproject_path.exists();
 
     // Calculate whether user has custom edits that need syncing
     let pyproject_time = file_timestamp_secs(&state.user_pyproject_path);
@@ -158,7 +155,7 @@ fn run() -> Result<()> {
 
     check_versions(&mut state);
 
-    let first_run = !state.uv_install_root.join(".venv").exists();
+    let first_run = !state.venv_folder.exists();
     if first_run {
         handle_version_install_or_update(&state, MainMenuChoice::Latest)?;
     } else {
@@ -166,7 +163,7 @@ fn run() -> Result<()> {
     }
 
     // Write marker file to indicate we've completed the sync process
-    write_sync_marker(&state.sync_complete_marker)?;
+    write_sync_marker(&state)?;
 
     #[cfg(target_os = "macos")]
     {
@@ -192,13 +189,15 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-fn extract_aqt_version(
-    uv_path: &std::path::Path,
-    uv_install_root: &std::path::Path,
-) -> Option<String> {
-    let output = Command::new(uv_path)
-        .current_dir(uv_install_root)
-        .env("VIRTUAL_ENV", uv_install_root.join(".venv"))
+fn extract_aqt_version(state: &State) -> Option<String> {
+    // Check if .venv exists first
+    if !state.venv_folder.exists() {
+        return None;
+    }
+
+    let output = Command::new(&state.uv_path)
+        .current_dir(&state.uv_install_root)
+        .env("VIRTUAL_ENV", &state.venv_folder)
         .args(["pip", "show", "aqt"])
         .output()
         .ok()?;
@@ -223,7 +222,7 @@ fn check_versions(state: &mut State) {
     }
 
     // Determine current version by invoking uv pip show aqt
-    match extract_aqt_version(&state.uv_path, &state.uv_install_root) {
+    match extract_aqt_version(state) {
         Some(version) => {
             state.current_version = Some(version);
         }
@@ -248,12 +247,12 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     update_pyproject_for_version(choice.clone(), state)?;
 
     // Extract current version before syncing (but don't write to file yet)
-    let previous_version_to_save = extract_aqt_version(&state.uv_path, &state.uv_install_root);
+    let previous_version_to_save = extract_aqt_version(state);
 
     // Remove sync marker before attempting sync
     let _ = remove_file(&state.sync_complete_marker);
 
-    println!("\x1B[1mUpdating Anki...\x1B[0m\n");
+    println!("Updating Anki...\n");
 
     let python_version_trimmed = if state.user_python_version_path.exists() {
         let python_version = read_file(&state.user_python_version_path)?;
@@ -263,6 +262,11 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     } else {
         None
     };
+
+    let have_venv = state.venv_folder.exists();
+    if cfg!(target_os = "macos") && !have_developer_tools() && !have_venv {
+        println!("If you see a pop-up about 'install_name_tool', you can cancel it, and ignore the warning below.\n");
+    }
 
     // Prepare to sync the venv
     let mut command = Command::new(&state.uv_path);
@@ -275,9 +279,27 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         }
     }
 
+    // remove CONDA_PREFIX/bin from PATH to avoid conda interference
+    #[cfg(target_os = "macos")]
+    if let Ok(conda_prefix) = std::env::var("CONDA_PREFIX") {
+        if let Ok(current_path) = std::env::var("PATH") {
+            let conda_bin = format!("{conda_prefix}/bin");
+            let filtered_paths: Vec<&str> = current_path
+                .split(':')
+                .filter(|&path| path != conda_bin)
+                .collect();
+            let new_path = filtered_paths.join(":");
+            command.env("PATH", new_path);
+        }
+    }
+
     command
         .env("UV_CACHE_DIR", &state.uv_cache_dir)
         .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
+        .env(
+            "UV_HTTP_TIMEOUT",
+            std::env::var("UV_HTTP_TIMEOUT").unwrap_or_else(|_| "180".to_string()),
+        )
         .args(["sync", "--upgrade", "--managed-python", "--no-config"]);
 
     // Add python version if .python-version file exists
@@ -293,7 +315,7 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         Ok(_) => {
             // Sync succeeded
             if matches!(&choice, MainMenuChoice::Version(VersionKind::PyOxidizer(_))) {
-                inject_helper_addon(&state.uv_install_root)?;
+                inject_helper_addon()?;
             }
 
             // Now that sync succeeded, save the previous version
@@ -364,9 +386,7 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 continue;
             }
             choice @ (MainMenuChoice::Latest | MainMenuChoice::Version(_)) => {
-                if handle_version_install_or_update(state, choice.clone()).is_err() {
-                    continue;
-                }
+                handle_version_install_or_update(state, choice.clone())?;
                 break;
             }
         }
@@ -374,12 +394,12 @@ fn main_menu_loop(state: &State) -> Result<()> {
     Ok(())
 }
 
-fn write_sync_marker(sync_complete_marker: &std::path::Path) -> Result<()> {
+fn write_sync_marker(state: &State) -> Result<()> {
     let timestamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .context("Failed to get system time")?
         .as_secs();
-    write_file(sync_complete_marker, timestamp.to_string())?;
+    write_file(&state.sync_complete_marker, timestamp.to_string())?;
     Ok(())
 }
 
@@ -473,8 +493,6 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
 }
 
 fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
-    println!("Please wait...");
-
     let releases = get_releases(state)?;
     let releases_str = releases
         .latest
@@ -633,15 +651,32 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
 
     let mut cmd = Command::new(&state.uv_path);
     cmd.current_dir(&state.uv_install_root)
-        .args(["run", "--no-project"])
-        .arg(&versions_script);
+        .args(["run", "--no-project", "--no-config", "--managed-python"])
+        .args(["--with", "pip-system-certs"]);
 
-    let output = cmd.utf8_output()?;
+    let python_version = read_file(&state.dist_python_version_path)?;
+    let python_version_str =
+        String::from_utf8(python_version).context("Invalid UTF-8 in .python-version")?;
+    let version_trimmed = python_version_str.trim();
+    if !version_trimmed.is_empty() {
+        cmd.args(["--python", version_trimmed]);
+    }
+
+    cmd.arg(&versions_script);
+
+    let output = match cmd.utf8_output() {
+        Ok(output) => output,
+        Err(e) => {
+            print!("Unable to check for Anki versions. Please check your internet connection.\n\n");
+            return Err(e.into());
+        }
+    };
     let versions = serde_json::from_str(&output.stdout).context("Failed to parse versions JSON")?;
     Ok(versions)
 }
 
 fn get_releases(state: &State) -> Result<Releases> {
+    println!("Checking for updates...");
     let include_prereleases = state.prerelease_marker.exists();
     let all_versions = fetch_versions(state)?;
     let all_versions = filter_and_normalize_versions(all_versions, include_prereleases);
@@ -768,7 +803,7 @@ fn parse_version_kind(version: &str) -> Option<VersionKind> {
     }
 }
 
-fn inject_helper_addon(_uv_install_root: &std::path::Path) -> Result<()> {
+fn inject_helper_addon() -> Result<()> {
     let addons21_path = get_anki_addons21_path()?;
 
     if !addons21_path.exists() {
@@ -870,16 +905,24 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     Ok(true)
 }
 
+fn have_developer_tools() -> bool {
+    Command::new("xcode-select")
+        .args(["-p"])
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false)
+}
+
 fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     let python_exe = if cfg!(target_os = "windows") {
         let show_console = std::env::var("ANKI_CONSOLE").is_ok();
         if show_console {
-            state.uv_install_root.join(".venv/Scripts/python.exe")
+            state.venv_folder.join("Scripts/python.exe")
         } else {
-            state.uv_install_root.join(".venv/Scripts/pythonw.exe")
+            state.venv_folder.join("Scripts/pythonw.exe")
         }
     } else {
-        state.uv_install_root.join(".venv/bin/python")
+        state.venv_folder.join("bin/python")
     };
 
     let mut cmd = Command::new(&python_exe);
