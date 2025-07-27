@@ -7,6 +7,7 @@ import * as tr from "@generated/ftl";
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 
+import { mount } from "svelte";
 import { optimumCssSizeForCanvas } from "./canvas-scale";
 import { hideAllGuessOne, notesDataStore, saveNeededStore, tagsWritable, textEditingState } from "./store";
 import Toast from "./Toast.svelte";
@@ -50,13 +51,14 @@ export const setupMaskEditorForEdit = async (
     const clozeNoteResponse = await getImageOcclusionNote({ noteId: BigInt(noteId) });
     const kind = clozeNoteResponse.value?.case;
     if (!kind || kind === "error") {
-        new Toast({
+        mount(Toast, {
             target: document.body,
             props: {
                 message: tr.notetypesErrorGettingImagecloze(),
                 type: "error",
+                showToast: true,
             },
-        }).$set({ showToast: true });
+        });
         throw "error getting cloze";
     }
 
