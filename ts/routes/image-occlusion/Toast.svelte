@@ -8,17 +8,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { mdiClose } from "$lib/components/icons";
     import type { ToastProps } from "./types";
 
-    let { showToast, type, message }: ToastProps = $props();
+    const props: ToastProps = $props();
 
     const closeToast = () => {
-        showToast = false;
+        props.showToast = false;
     };
 </script>
 
-{#if showToast}
+{#if props.showToast}
     <div class="toast-container desktop-only">
-        <div class="toast {type === 'success' ? 'success' : 'error'}">
-            {message}
+        <div class="toast {props.type === 'success' ? 'success' : 'error'}">
+            {props.message}
             <IconButton iconSize={96} on:click={closeToast} class="toast-icon">
                 <Icon icon={mdiClose} />
             </IconButton>

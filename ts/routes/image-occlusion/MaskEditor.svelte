@@ -76,7 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => {
         window.removeEventListener("resize", resizeEvent);
         unsubscribe();
-        destroyToast(toast);
+        destroyToast(toast!);
     });
 
     const resizeEvent = () => {
