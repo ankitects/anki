@@ -17,12 +17,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { MaskEditorAPI } from "./tools/api";
     import { onResize } from "./tools/tool-zoom";
     import { saveNeededStore } from "./store";
+    import { destroyToast, initToast } from "./toast-utils.svelte";
+    import type Toast from "./Toast.svelte";
 
     export let mode: IOMode;
     const iconSize = 80;
     let innerWidth = 0;
     const startingTool = mode.kind === "add" ? "draw-rectangle" : "cursor";
     let canvas: fabric.Canvas | null = null;
+    let toast: Toast | null = null;
 
     $: {
         globalThis.maskEditor = canvas ? new MaskEditorAPI(canvas) : null;
@@ -67,11 +70,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(() => {
         window.addEventListener("resize", resizeEvent);
+        toast = initToast();
     });
 
     onDestroy(() => {
         window.removeEventListener("resize", resizeEvent);
         unsubscribe();
+        destroyToast(toast);
     });
 
     const resizeEvent = () => {

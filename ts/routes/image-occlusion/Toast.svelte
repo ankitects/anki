@@ -6,10 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
     import { mdiClose } from "$lib/components/icons";
+    import type { ToastProps } from "./types";
 
-    export let type: "success" | "error" = "success";
-    export let message;
-    export let showToast = false;
+    let { showToast, type, message }: ToastProps = $props();
+
     const closeToast = () => {
         showToast = false;
     };
