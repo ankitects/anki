@@ -89,7 +89,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import type { HistoryEntry, NotetypeIdAndModTime, SessionOptions } from "./types";
+    import { CooldownTimer } from "$lib/editable/cooldown-timer";
 
+    const loadDebouncer = new CooldownTimer(200);
     let contextMenu: ContextMenu;
     const [onContextMenu, contextMenuItems] = setupContextMenu();
     let contextMenuInput: EditingInputAPI | null = null;
@@ -897,12 +899,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    async function loadNote(
+    async function loadNoteInner(
         nid: bigint | null,
         notetypeId: bigint,
         focusTo: number,
         originalNoteId: bigint | null,
-    ): Promise<bigint> {
+    ) {
         const notetype = await getNotetype({
             ntid: notetypeId,
         });
@@ -1003,8 +1005,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         await updateDuplicateDisplay();
         triggerChanges();
+    }
 
-        return note!.id;
+    async function loadNote(
+        nid: bigint | null,
+        notetypeId: bigint,
+        focusTo: number,
+        originalNoteId: bigint | null,
+    ) {
+        loadDebouncer.schedule(async () => {
+            await loadNoteInner(nid, notetypeId, focusTo, originalNoteId);
+        });
     }
 
     async function reloadNote() {
