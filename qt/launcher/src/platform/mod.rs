@@ -116,8 +116,9 @@ pub use windows::ensure_terminal_shown;
 pub fn ensure_terminal_shown() -> Result<()> {
     use std::io::IsTerminal;
 
+    let want_terminal = std::env::var("ANKI_LAUNCHER_WANT_TERMINAL").is_ok();
     let stdout_is_terminal = IsTerminal::is_terminal(&std::io::stdout());
-    if !stdout_is_terminal {
+    if want_terminal || !stdout_is_terminal {
         #[cfg(target_os = "macos")]
         mac::relaunch_in_terminal()?;
         #[cfg(not(target_os = "macos"))]

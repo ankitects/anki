@@ -90,6 +90,7 @@ def update_and_restart() -> None:
 
     with contextlib.suppress(ResourceWarning):
         env = os.environ.copy()
+        env["ANKI_LAUNCHER_WANT_TERMINAL"] = "1"
         creationflags = 0
         if sys.platform == "win32":
             creationflags = (

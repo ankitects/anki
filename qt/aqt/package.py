@@ -147,6 +147,7 @@ def update_and_restart() -> None:
 
     with contextlib.suppress(ResourceWarning):
         env = os.environ.copy()
+        env["ANKI_LAUNCHER_WANT_TERMINAL"] = "1"
         # fixes a bug where launcher fails to appear if opening it
         # straight after updating
         if "GNOME_TERMINAL_SCREEN" in env:
