@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const key = Symbol("richText");
     const [context, setContextProperty] = contextProperty<RichTextInputAPI>(key);
-    const [globalInputHandler, setupGlobalInputHandler] = useInputHandler();
+    const [globalInputHandler, setupGlobalInputHandler] = useInputHandler( { handleUndo: false });
     const [lifecycle, instances, setupLifecycleHooks] =
         lifecycleHooks<RichTextInputAPI>();
     const apiStore = writable<SurroundedAPI | null>(null);
@@ -97,7 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const nodes = getNormalizingNodeStore();
     const [richTextPromise, resolve] = useRichTextResolve();
     const { mirror, preventResubscription } = useDOMMirror();
-    const [inputHandler, setupInputHandler] = useInputHandler();
+    const [inputHandler, setupInputHandler] = useInputHandler({ handleUndo: true });
     const [customStyles, stylesResolve] = promiseWithResolver<Record<string, any>>();
 
     export function attachShadow(element: Element): void {

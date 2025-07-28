@@ -96,23 +96,37 @@ function getCaretPosition(element: Element) {
  * Prevents that too many event listeners are attached and allows for some
  * coordination between them.
  */
-function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
+interface InputHandlerOptions {
+    handleUndo: boolean;
+}
+function useInputHandler(
+    options: InputHandlerOptions,
+): [InputHandlerAPI, SetupInputHandlerAction] {
     const beforeInput = new HandlerList<InputEventParams>();
     const insertText = new HandlerList<InsertTextParams>();
     const afterInput = new HandlerList<EventParams>();
 
-    const undoManager = new UndoManager();
-    let hasSetupObserver = false;
-    const config = {
+    let undoManager: UndoManager | null = null;
+    let isUndoing = false;
+
+    let observer: MutationObserver | null = null;
+    const observerConfig = {
         attributes: true,
         childList: true,
         subtree: true,
     };
-    const observer = new MutationObserver(onMutation);
+    let hasSetupObserver = false;
+
+    if (options.handleUndo){
+        undoManager = new UndoManager();
+        observer = new MutationObserver(onMutation);
+    }
 
     function onMutation(mutationsList: MutationRecord[]) {
+        if(isUndoing) return;
+
         const element = <Element> mutationsList[0].target;
-        undoManager.register(element.innerHTML, getMaxOffset(element));
+        undoManager!.register(element.innerHTML, getMaxOffset(element));
     }
 
     async function onBeforeInput(this: Element, event: InputEvent): Promise<void> {
@@ -149,14 +163,17 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     }
 
     async function onInput(this: Element, event: Event): Promise<void> {
+        await afterInput.dispatch({ event });
+
+        if (!undoManager) { return; }
         if (!hasSetupObserver) {
-            observer.observe(this, config);
+            observer!.observe(this, observerConfig);
             hasSetupObserver = true;
         }
+
         const position = getCaretPosition(this);
         undoManager.register(this.innerHTML, position - 1);
         undoManager.clearRedoStack();
-        await afterInput.dispatch({ event });
     }
 
     const pointerDown = new HandlerList<{ event: PointerEvent }>();
@@ -186,11 +203,19 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         } else if (event.code === "Tab") {
             specialKey.dispatch({ event, action: "tab" });
         } else if ((event.ctrlKey || event.metaKey) && event.key == "z") {
+            if (!undoManager) { return; }
+
             event.preventDefault();
+            isUndoing = true;
             undoManager.undo(this);
+            setTimeout(() => { isUndoing = false }); //reset the flag when the current execution stack is cleared
         } else if ((event.ctrlKey || event.metaKey) && event.key == "y") {
+            if (!undoManager) { return; }
+
             event.preventDefault();
+            isUndoing = true;
             undoManager.redo(this);
+            setTimeout(() => { isUndoing = false }); //reset the flag when the current execution stack is cleared
         }
     }
 
