@@ -518,8 +518,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }
         if (result.state === NoteFieldsCheckResponse_State.MISSING_CLOZE) {
-            // TODO: askUser(tr.addingYouHaveAClozeDeletionNote())
-            return false;
+            const answer = (
+                await askUser({
+                    text: tr.addingYouHaveAClozeDeletionNote(),
+                })
+            ).val;
+            if (!answer) {
+                return false;
+            }
         }
         if (result.state === NoteFieldsCheckResponse_State.NOTETYPE_NOT_CLOZE) {
             problem = tr.addingClozeOutsideClozeNotetype();
@@ -527,7 +533,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (result.state === NoteFieldsCheckResponse_State.FIELD_NOT_CLOZE) {
             problem = tr.addingClozeOutsideClozeField();
         }
-        return problem ? false : true;
+        if (problem) {
+            showMessageBox({
+                text: problem,
+                type: MessageBoxType.WARNING,
+                help: {
+                    value: {
+                        case: "helpPage",
+                        value: HelpPageLinkRequest_HelpPage.ADDING_CARD_AND_NOTE,
+                    },
+                },
+            });
+            return false;
+        }
+        return true;
     }
 
     async function addCurrentNoteInner(deckId: bigint) {
@@ -676,6 +695,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         closeAddCards as closeAddCardsBackend,
         closeEditCurrent as closeEditCurrentBackend,
         htmlToTextLine,
+        askUser,
+        showMessageBox,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
@@ -701,6 +722,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerShortcut } from "@tslib/shortcuts";
     import ActionButtons from "./ActionButtons.svelte";
     import HistoryModal from "./HistoryModal.svelte";
+    import { HelpPageLinkRequest_HelpPage } from "@generated/anki/links_pb";
+    import { MessageBoxType } from "@generated/anki/frontend_pb";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);

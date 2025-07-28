@@ -12,6 +12,7 @@ import "anki/generic.proto";
 import "anki/search.proto";
 import "anki/notes.proto";
 import "anki/notetypes.proto";
+import "anki/links.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -44,6 +45,8 @@ service FrontendService {
   rpc CloseAddCards(generic.Bool) returns (generic.Empty);
   rpc CloseEditCurrent(generic.Empty) returns (generic.Empty);
   rpc OpenLink(generic.String) returns (generic.Empty);
+  rpc AskUser(AskUserRequest) returns (generic.Bool);
+  rpc ShowMessageBox(ShowMessageBoxRequest) returns (generic.Empty);
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);
@@ -106,4 +109,32 @@ message ReadClipboardResponse {
 
 message WriteClipboardRequest {
   map<string, bytes> data = 1;
+}
+
+message Help {
+  oneof value {
+    links.HelpPageLinkRequest.HelpPage help_page = 1;
+    string help_link = 2;
+  }
+}
+
+message AskUserRequest {
+  string text = 1;
+  optional Help help = 2;
+  optional string title = 4;
+  optional bool default_no = 5;
+}
+
+enum MessageBoxType {
+  INFO = 0;
+  WARNING = 1;
+  CRITICAL = 2;
+}
+
+message ShowMessageBoxRequest {
+  string text = 1;
+  MessageBoxType type = 2;
+  optional Help help = 3;
+  optional string title = 4;
+  optional string text_format = 5;
 }

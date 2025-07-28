@@ -17,7 +17,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any, Generic, cast
 
 import flask
 import flask_cors
@@ -40,7 +40,14 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import aqt_data_path, openLink, show_warning, tr
+from aqt.utils import (
+    aqt_data_path,
+    askUser,
+    openLink,
+    show_info,
+    show_warning,
+    tr,
+)
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
@@ -704,18 +711,34 @@ def retrieve_url() -> bytes:
     ).SerializeToString()
 
 
+AsyncRequestReturnType = TypeVar("AsyncRequestReturnType")
+
+
+class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
+    def __init__(self, callback: Callable[[AsyncRequestHandler], None]) -> None:
+        self.callback = callback
+        self.loop = asyncio.get_event_loop()
+        self.future = self.loop.create_future()
+
+    def run(self) -> None:
+        aqt.mw.taskman.run_on_main(lambda: self.callback(self))
+
+    def set_result(self, result: AsyncRequestReturnType) -> None:
+        self.loop.call_soon_threadsafe(self.future.set_result, result)
+
+    async def get_result(self) -> AsyncRequestReturnType:
+        return await self.future
+
+
 async def open_file_picker() -> bytes:
     req = frontend_pb2.openFilePickerRequest()
     req.ParseFromString(request.data)
 
-    loop = asyncio.get_event_loop()
-    future = loop.create_future()
-
-    def on_main() -> None:
+    def callback(request_handler: AsyncRequestHandler) -> None:
         from aqt.utils import getFile
 
         def cb(filename: str | None) -> None:
-            loop.call_soon_threadsafe(future.set_result, filename)
+            request_handler.set_result(filename)
 
         window = aqt.mw.app.activeWindow()
         assert window is not None
@@ -727,9 +750,9 @@ async def open_file_picker() -> bytes:
             key=req.key,
         )
 
-    aqt.mw.taskman.run_on_main(on_main)
-
-    filename = await future
+    request_handler: AsyncRequestHandler[str | None] = AsyncRequestHandler(callback)
+    request_handler.run()
+    filename = await request_handler.get_result()
 
     return generic_pb2.String(val=filename if filename else "").SerializeToString()
 
@@ -757,22 +780,19 @@ def show_in_media_folder() -> bytes:
 
 
 async def record_audio() -> bytes:
-    loop = asyncio.get_event_loop()
-    future = loop.create_future()
-
-    def on_main() -> None:
+    def callback(request_handler: AsyncRequestHandler) -> None:
         from aqt.sound import record_audio
 
         def cb(path: str | None) -> None:
-            loop.call_soon_threadsafe(future.set_result, path)
+            request_handler.set_result(path)
 
         window = aqt.mw.app.activeWindow()
         assert window is not None
         record_audio(window, aqt.mw, True, cb)
 
-    aqt.mw.taskman.run_on_main(on_main)
-
-    path = await future
+    request_handler: AsyncRequestHandler[str | None] = AsyncRequestHandler(callback)
+    request_handler.run()
+    path = await request_handler.get_result()
 
     return generic_pb2.String(val=path if path else "").SerializeToString()
 
@@ -838,6 +858,67 @@ def open_link() -> bytes:
     return b""
 
 
+async def ask_user() -> bytes:
+    req = frontend_pb2.AskUserRequest()
+    req.ParseFromString(request.data)
+
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        kwargs: dict[str, Any] = dict(text=req.text)
+        if req.HasField("help"):
+            help_arg: Any
+            if req.help.WhichOneof("value") == "help_page":
+                help_arg = req.help.help_page
+            else:
+                help_arg = req.help.help_link
+            kwargs["help"] = help_arg
+        if req.HasField("title"):
+            kwargs["title"] = req.title
+        if req.HasField("default_no"):
+            kwargs["defaultno"] = req.default_no
+        answer = askUser(**kwargs)
+        request_handler.set_result(answer)
+
+    request_handler: AsyncRequestHandler[bool] = AsyncRequestHandler(callback)
+    request_handler.run()
+    answer = await request_handler.get_result()
+
+    return generic_pb2.Bool(val=answer).SerializeToString()
+
+
+async def show_message_box() -> bytes:
+    req = frontend_pb2.ShowMessageBoxRequest()
+    req.ParseFromString(request.data)
+
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        kwargs: dict[str, Any] = dict(text=req.text)
+        if req.type == frontend_pb2.MessageBoxType.INFO:
+            icon = QMessageBox.Icon.Information
+        elif req.type == frontend_pb2.MessageBoxType.WARNING:
+            icon = QMessageBox.Icon.Warning
+        elif req.type == frontend_pb2.MessageBoxType.CRITICAL:
+            icon = QMessageBox.Icon.Critical
+        kwargs["icon"] = icon
+        if req.HasField("help"):
+            help_arg: Any
+            if req.help.WhichOneof("value") == "help_page":
+                help_arg = req.help.help_page
+            else:
+                help_arg = req.help.help_link
+            kwargs["help"] = help_arg
+        if req.HasField("title"):
+            kwargs["title"] = req.title
+        if req.HasField("text_format"):
+            kwargs["text_format"] = req.text_format
+        show_info(**kwargs)
+        request_handler.set_result(True)
+
+    request_handler: AsyncRequestHandler[bool] = AsyncRequestHandler(callback)
+    request_handler.run()
+    answer = await request_handler.get_result()
+
+    return generic_pb2.Bool(val=answer).SerializeToString()
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -872,6 +953,8 @@ post_handler_list = [
     close_add_cards,
     close_edit_current,
     open_link,
+    ask_user,
+    show_message_box,
 ]
 
 
