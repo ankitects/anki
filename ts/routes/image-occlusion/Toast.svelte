@@ -6,19 +6,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
     import { mdiClose } from "$lib/components/icons";
+    import type { ToastProps } from "./types";
 
-    export let type: "success" | "error" = "success";
-    export let message;
-    export let showToast = false;
+    const props: ToastProps = $props();
+
     const closeToast = () => {
-        showToast = false;
+        props.showToast = false;
     };
 </script>
 
-{#if showToast}
+{#if props.showToast}
     <div class="toast-container desktop-only">
-        <div class="toast {type === 'success' ? 'success' : 'error'}">
-            {message}
+        <div class="toast {props.type === 'success' ? 'success' : 'error'}">
+            {props.message}
             <IconButton iconSize={96} on:click={closeToast} class="toast-icon">
                 <Icon icon={mdiClose} />
             </IconButton>
