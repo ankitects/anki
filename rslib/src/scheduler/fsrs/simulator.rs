@@ -16,6 +16,8 @@ use fsrs::FSRS;
 use itertools::Itertools;
 use rand::rngs::StdRng;
 use rand::Rng;
+use rayon::iter::IntoParallelIterator;
+use rayon::iter::ParallelIterator;
 
 use crate::card::CardQueue;
 use crate::card::CardType;
@@ -276,6 +278,7 @@ impl Collection {
     ) -> Result<SimulateFsrsWorkloadResponse> {
         let (config, cards) = self.simulate_request_to_config(&req)?;
         let dr_workload = (70u32..=99u32)
+            .into_par_iter()
             .map(|dr| {
                 let result = simulate(
                     &config,

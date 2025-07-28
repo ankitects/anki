@@ -81,6 +81,7 @@ pin-project.workspace = true
 prost.workspace = true
 pulldown-cmark.workspace = true
 rand.workspace = true
+rayon.workspace = true
 regex.workspace = true
 reqwest.workspace = true
 rusqlite.workspace = true
