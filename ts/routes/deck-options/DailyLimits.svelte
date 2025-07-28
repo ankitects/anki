@@ -140,7 +140,7 @@
         applyAllParentLimits: {
             title: tr.deckConfigApplyAllParentLimits(),
             help: applyAllParentLimitsHelp,
-            url: HelpPage.DeckOptions.newCardsday,
+            url: HelpPage.DeckOptions.limitsFromTop,
             global: true,
         },
     };

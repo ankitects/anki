@@ -5,6 +5,10 @@ import json
 import sys
 import urllib.request
 
+import pip_system_certs.wrapt_requests
+
+pip_system_certs.wrapt_requests.inject_truststore()
+
 
 def main():
     """Fetch and return all versions from PyPI, sorted by upload time."""

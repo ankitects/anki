@@ -55,6 +55,8 @@ service SchedulerService {
       returns (ComputeOptimalRetentionResponse);
   rpc SimulateFsrsReview(SimulateFsrsReviewRequest)
       returns (SimulateFsrsReviewResponse);
+  rpc SimulateFsrsWorkload(SimulateFsrsReviewRequest)
+      returns (SimulateFsrsWorkloadResponse);
   rpc EvaluateParams(EvaluateParamsRequest) returns (EvaluateParamsResponse);
   rpc EvaluateParamsLegacy(EvaluateParamsLegacyRequest)
       returns (EvaluateParamsResponse);
@@ -412,6 +414,12 @@ message SimulateFsrsReviewResponse {
   repeated uint32 daily_review_count = 2;
   repeated uint32 daily_new_count = 3;
   repeated float daily_time_cost = 4;
+}
+
+message SimulateFsrsWorkloadResponse {
+  map<uint32, float> cost = 1;
+  map<uint32, float> memorized = 2;
+  map<uint32, uint32> review_count = 3;
 }
 
 message ComputeOptimalRetentionResponse {

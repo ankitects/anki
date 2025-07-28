@@ -217,6 +217,8 @@ message DeckConfigsForUpdate {
       bool review_today_active = 5;
       // Whether new_today applies to today or a past day.
       bool new_today_active = 6;
+      // Deck-specific desired retention override
+      optional float desired_retention = 7;
     }
     string name = 1;
     int64 config_id = 2;

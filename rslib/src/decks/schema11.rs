@@ -325,6 +325,7 @@ impl From<NormalDeckSchema11> for NormalDeck {
             new_limit: deck.new_limit,
             review_limit_today: deck.review_limit_today,
             new_limit_today: deck.new_limit_today,
+            desired_retention: None,
         }
     }
 }
