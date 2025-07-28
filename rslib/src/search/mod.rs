@@ -378,9 +378,10 @@ fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<
         Column::Stability => "extract_fsrs_variable(c.data, 's') asc".into(),
         Column::Difficulty => "extract_fsrs_variable(c.data, 'd') asc".into(),
         Column::Retrievability => format!(
-            "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {}, {}) asc",
+            "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {}, {}, {}) asc",
             timing.days_elapsed,
-            timing.next_day_at.0
+            timing.next_day_at.0,
+            timing.now.0,
         )
         .into(),
     }

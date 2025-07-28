@@ -30,10 +30,10 @@ impl GraphsContext {
                 .or_insert((0.0, 0));
             entry.1 += 1;
             if let Some(state) = card.memory_state {
-                let elapsed_days = card.days_since_last_review(&timing).unwrap_or_default();
-                let r = fsrs.current_retrievability(
+                let elapsed_seconds = card.seconds_since_last_review(&timing).unwrap_or_default();
+                let r = fsrs.current_retrievability_seconds(
                     state.into(),
-                    elapsed_days,
+                    elapsed_seconds,
                     card.decay.unwrap_or(FSRS5_DEFAULT_DECAY),
                 );
 
