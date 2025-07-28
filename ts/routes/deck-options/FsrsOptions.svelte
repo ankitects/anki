@@ -325,6 +325,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let simulatorModal: Modal;
+    let workloadModal: Modal;
 </script>
 
 <DynamicallySlottable slotHost={Item} api={{}}>
@@ -348,6 +349,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </SpinBoxFloatRow>
     </Item>
 </DynamicallySlottable>
+
+<button
+    class="btn btn-primary"
+    on:click={() => {
+        simulateFsrsRequest.reviewLimit = 9999;
+        workloadModal?.show();
+    }}
+>
+    {tr.deckConfigFsrsDesiredRetentionHelpMeDecideExperimental()}
+</button>
 
 <Warning warning={desiredRetentionChangeInfo} className={"alert-info two-line"} />
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
@@ -437,6 +448,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <SimulatorModal
     bind:modal={simulatorModal}
+    {state}
+    {simulateFsrsRequest}
+    {computing}
+    {openHelpModal}
+    {onPresetChange}
+/>
+
+<SimulatorModal
+    bind:modal={workloadModal}
+    workload
     {state}
     {simulateFsrsRequest}
     {computing}

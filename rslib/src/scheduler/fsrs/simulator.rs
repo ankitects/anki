@@ -1,11 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
 use anki_proto::deck_config::deck_config::config::ReviewCardOrder::*;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
+use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
 use fsrs::simulate;
 use fsrs::PostSchedulingFn;
 use fsrs::ReviewPriorityFn;
@@ -14,6 +16,8 @@ use fsrs::FSRS;
 use itertools::Itertools;
 use rand::rngs::StdRng;
 use rand::Rng;
+use rayon::iter::IntoParallelIterator;
+use rayon::iter::ParallelIterator;
 
 use crate::card::CardQueue;
 use crate::card::CardType;
@@ -265,6 +269,38 @@ impl Collection {
                 .map(|x| *x as u32)
                 .collect_vec(),
             daily_time_cost: result.cost_per_day,
+        })
+    }
+
+    pub fn simulate_workload(
+        &mut self,
+        req: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsWorkloadResponse> {
+        let (config, cards) = self.simulate_request_to_config(&req)?;
+        let dr_workload = (70u32..=99u32)
+            .into_par_iter()
+            .map(|dr| {
+                let result = simulate(
+                    &config,
+                    &req.params,
+                    dr as f32 / 100.,
+                    None,
+                    Some(cards.clone()),
+                )?;
+                Ok((
+                    dr,
+                    (
+                        *result.memorized_cnt_per_day.last().unwrap_or(&0.),
+                        result.cost_per_day.iter().sum::<f32>(),
+                        result.review_cnt_per_day.iter().sum::<usize>() as u32,
+                    ),
+                ))
+            })
+            .collect::<Result<HashMap<_, _>>>()?;
+        Ok(SimulateFsrsWorkloadResponse {
+            memorized: dr_workload.iter().map(|(k, v)| (*k, v.0)).collect(),
+            cost: dr_workload.iter().map(|(k, v)| (*k, v.1)).collect(),
+            review_count: dr_workload.iter().map(|(k, v)| (*k, v.2)).collect(),
         })
     }
 }

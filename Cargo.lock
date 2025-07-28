@@ -131,6 +131,7 @@ dependencies = [
  "prost-reflect",
  "pulldown-cmark 0.13.0",
  "rand 0.9.1",
+ "rayon",
  "regex",
  "reqwest 0.12.20",
  "rusqlite",
