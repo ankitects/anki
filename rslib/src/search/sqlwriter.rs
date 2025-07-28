@@ -418,13 +418,13 @@ impl SqlWriter<'_> {
                 write!(self.sql, "extract_fsrs_variable(c.data, 'd') {op} {d}").unwrap()
             }
             PropertyKind::Retrievability(r) => {
-                let (elap, next_day_at) = {
+                let (elap, next_day_at, now) = {
                     let timing = self.col.timing_today()?;
-                    (timing.days_elapsed, timing.next_day_at)
+                    (timing.days_elapsed, timing.next_day_at, timing.now)
                 };
                 write!(
                     self.sql,
-                    "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {elap}, {next_day_at}) {op} {r}"
+                    "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {elap}, {next_day_at}, {now}) {op} {r}"
                 )
                 .unwrap()
             }

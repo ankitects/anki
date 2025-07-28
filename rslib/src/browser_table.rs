@@ -143,6 +143,21 @@ impl Card {
             })
         }
     }
+
+    pub(crate) fn seconds_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
+        if let Some(last_review_time) = self.last_review_time {
+            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
+        } else if !self.is_due_in_days() {
+            let last_review_time =
+                TimestampSecs(self.original_or_current_due() as i64 - self.interval as i64);
+            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
+        } else {
+            self.due_time(timing).map(|due| {
+                (due.adding_secs(-86_400 * self.interval as i64)
+                    .elapsed_secs()) as u32
+            })
+        }
+    }
 }
 
 impl Note {
@@ -543,12 +558,12 @@ impl RowContext {
         self.cards[0]
             .memory_state
             .as_ref()
-            .zip(self.cards[0].days_since_last_review(&self.timing))
+            .zip(self.cards[0].seconds_since_last_review(&self.timing))
             .zip(Some(self.cards[0].decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
-            .map(|((state, days_elapsed), decay)| {
-                let r = FSRS::new(None).unwrap().current_retrievability(
+            .map(|((state, seconds), decay)| {
+                let r = FSRS::new(None).unwrap().current_retrievability_seconds(
                     (*state).into(),
-                    days_elapsed,
+                    seconds,
                     decay,
                 );
                 format!("{:.0}%", r * 100.)
