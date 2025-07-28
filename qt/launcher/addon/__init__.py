@@ -95,12 +95,15 @@ def update_and_restart() -> None:
             creationflags = (
                 subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
             )
+        # On Windows, changing the handles breaks ANSI display
+        io = None if sys.platform == "win32" else subprocess.DEVNULL
+
         subprocess.Popen(
             [launcher],
             start_new_session=True,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdin=io,
+            stdout=io,
+            stderr=io,
             env=env,
             creationflags=creationflags,
         )
