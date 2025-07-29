@@ -35,11 +35,11 @@ impl Collection {
             last_review_time
         } else {
             let mut new_card = card.clone();
-            let last_review_time = TimestampSecs(
-                self.storage
-                    .time_of_last_review(card.id)?
-                    .unwrap_or_default(),
-            );
+            let last_review_time = self
+                .storage
+                .time_of_last_review(card.id)?
+                .unwrap_or_default();
+
             new_card.last_review_time = Some(last_review_time);
 
             let usn = self.usn()?;
