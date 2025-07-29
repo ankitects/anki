@@ -38,7 +38,6 @@ impl Collection {
             let last_review_time = TimestampSecs(
                 self.storage
                     .time_of_last_review(card.id)?
-                    .map(|ts| timing.now.elapsed_secs_since(ts))
                     .unwrap_or_default(),
             );
             new_card.last_review_time = Some(last_review_time);
