@@ -53,7 +53,7 @@ impl GraphsContext {
         self.revlog
             .iter()
             .filter(|review| {
-                review.has_rating_and_affect_scheduling()
+                review.has_rating_and_affects_scheduling()
                     // cards with an interval ≥ 1 day
                     && (review.review_kind == RevlogReviewKind::Review
                         || review.last_interval <= -86400

@@ -323,7 +323,7 @@ pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, L
         .for_each(|(card_id, group)| {
             let mut last_reviewed_at = None;
             for e in group.into_iter() {
-                if e.has_rating_and_affect_scheduling() {
+                if e.has_rating_and_affects_scheduling() {
                     last_reviewed_at = Some(e.id.as_secs());
                 }
             }
