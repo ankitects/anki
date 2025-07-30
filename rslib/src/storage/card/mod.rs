@@ -399,7 +399,7 @@ impl super::SqliteStorage {
             if let Some(mut card) = card {
                 if card.ctype != CardType::New && card.last_review_time.is_none() {
                     card.last_review_time = last_revlog_info.last_reviewed_at;
-                    self.update_card(&mut card)?;
+                    self.update_card(&card)?;
                     last_review_time_cnt += 1;
                 }
             }
