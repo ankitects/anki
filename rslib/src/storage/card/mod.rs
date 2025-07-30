@@ -33,6 +33,7 @@ use crate::decks::DeckKind;
 use crate::error::Result;
 use crate::notes::NoteId;
 use crate::scheduler::congrats::CongratsInfo;
+use crate::scheduler::fsrs::memory_state::get_last_revlog_info;
 use crate::scheduler::queue::BuryMode;
 use crate::scheduler::queue::DueCard;
 use crate::scheduler::queue::DueCardKind;
@@ -365,7 +366,7 @@ impl super::SqliteStorage {
         mtime: TimestampSecs,
         usn: Usn,
         v1_sched: bool,
-    ) -> Result<(usize, usize)> {
+    ) -> Result<(usize, usize, usize)> {
         let new_cnt = self
             .db
             .prepare(include_str!("fix_due_new.sql"))?
@@ -390,7 +391,20 @@ impl super::SqliteStorage {
             .db
             .prepare(include_str!("fix_ordinal.sql"))?
             .execute(params![mtime, usn])?;
-        Ok((new_cnt, other_cnt))
+        let mut last_review_time_cnt = 0;
+        let revlog = self.get_all_revlog_entries_in_card_order()?;
+        let last_revlog_info = get_last_revlog_info(&revlog);
+        for (card_id, last_revlog_info) in last_revlog_info {
+            let card = self.get_card(card_id)?;
+            if let Some(mut card) = card {
+                if card.ctype != CardType::New && card.last_review_time.is_none() {
+                    card.last_review_time = last_revlog_info.last_reviewed_at;
+                    self.update_card(&mut card)?;
+                    last_review_time_cnt += 1;
+                }
+            }
+        }
+        Ok((new_cnt, other_cnt, last_review_time_cnt))
     }
 
     pub(crate) fn delete_orphaned_cards(&self) -> Result<usize> {

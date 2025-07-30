@@ -84,6 +84,16 @@ impl RevlogEntry {
         })
         .unwrap()
     }
+
+    /// Returns true if the review entry is not manually rescheduled and not
+    /// cramming. Used to filter out entries that shouldn't be considered
+    /// for statistics and scheduling.
+    pub(crate) fn has_rating_and_affect_scheduling(&self) -> bool {
+        // not rescheduled/set due date/reset
+        self.button_chosen > 0
+            // not cramming
+            && (self.review_kind != RevlogReviewKind::Filtered || self.ease_factor != 0)
+    }
 }
 
 impl Collection {
