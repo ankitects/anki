@@ -313,7 +313,7 @@ pub(crate) struct LastRevlogInfo {
     pub(crate) last_reviewed_at: Option<TimestampSecs>,
 }
 
-/// Return a map of cards to info about last review/reschedule.
+/// Return a map of cards to info about last review.
 pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogInfo> {
     let mut out = HashMap::new();
     revlogs
