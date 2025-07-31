@@ -92,6 +92,16 @@ impl RevlogEntry {
         self.review_kind == RevlogReviewKind::Manual && self.ease_factor == 0
     }
 
+    /// Returns true if this entry represents a cramming operation.
+    /// These entries are created when a card is previewed using
+    /// [`crate::scheduler::answering::CardStateUpdater::apply_preview_state`].
+    /// The `ease_factor` should be 0 because
+    /// [`crate::scheduler::states::ReviewState::revlog_kind`] returns
+    /// `RevlogReviewKind::Filtered` when `days_late() < 0`.
+    pub(crate) fn is_cramming(&self) -> bool {
+        self.review_kind == RevlogReviewKind::Filtered && self.ease_factor == 0
+    }
+
     /// Returns true if the review entry is not manually rescheduled and not
     /// cramming. Used to filter out entries that shouldn't be considered
     /// for statistics and scheduling.
@@ -99,7 +109,7 @@ impl RevlogEntry {
         // not rescheduled/set due date/reset
         self.button_chosen > 0
             // not cramming
-            && (self.review_kind != RevlogReviewKind::Filtered || self.ease_factor != 0)
+            && !self.is_cramming()
     }
 }
 

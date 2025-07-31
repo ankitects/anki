@@ -394,7 +394,7 @@ pub(crate) fn reviews_for_fsrs(
     let mut revlogs_complete = false;
     // Working backwards from the latest review...
     for (index, entry) in entries.iter().enumerate().rev() {
-        if entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0 {
+        if entry.is_cramming() {
             continue;
         }
         // For incomplete review histories, initial memory state is based on the first
@@ -474,7 +474,7 @@ pub(crate) fn reviews_for_fsrs(
             // set due date, reset or rescheduled
             (entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0)
             || // cram
-            (entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0)
+            entry.is_cramming()
             || // rescheduled
             (entry.review_kind == RevlogReviewKind::Rescheduled)
         )
