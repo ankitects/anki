@@ -85,6 +85,13 @@ impl RevlogEntry {
         .unwrap()
     }
 
+    /// Returns true if this entry represents a reset operation.
+    /// These entries are created when a card is reset using
+    /// [`Collection::reschedule_cards_as_new`].
+    pub(crate) fn is_reset(&self) -> bool {
+        self.review_kind == RevlogReviewKind::Manual && self.ease_factor == 0
+    }
+
     /// Returns true if the review entry is not manually rescheduled and not
     /// cramming. Used to filter out entries that shouldn't be considered
     /// for statistics and scheduling.

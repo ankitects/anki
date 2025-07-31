@@ -325,6 +325,8 @@ pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, L
             for e in group.into_iter() {
                 if e.has_rating_and_affects_scheduling() {
                     last_reviewed_at = Some(e.id.as_secs());
+                } else if e.is_reset() {
+                    last_reviewed_at = None;
                 }
             }
             out.insert(card_id, LastRevlogInfo { last_reviewed_at });

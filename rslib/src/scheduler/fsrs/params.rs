@@ -409,10 +409,7 @@ pub(crate) fn reviews_for_fsrs(
         if user_graded && entry.review_kind == RevlogReviewKind::Learning {
             first_of_last_learn_entries = Some(index);
             revlogs_complete = true;
-        } else if matches!(
-            (entry.review_kind, entry.ease_factor),
-            (RevlogReviewKind::Manual, 0)
-        ) {
+        } else if entry.is_reset() {
             // Ignore entries prior to a `Reset` if a learning step has come after,
             // but consider revlogs complete.
             if first_of_last_learn_entries.is_some() {
