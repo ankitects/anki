@@ -102,12 +102,16 @@ impl RevlogEntry {
         self.review_kind == RevlogReviewKind::Filtered && self.ease_factor == 0
     }
 
+    pub(crate) fn has_rating(&self) -> bool {
+        self.button_chosen > 0
+    }
+
     /// Returns true if the review entry is not manually rescheduled and not
     /// cramming. Used to filter out entries that shouldn't be considered
     /// for statistics and scheduling.
     pub(crate) fn has_rating_and_affects_scheduling(&self) -> bool {
         // not rescheduled/set due date/reset
-        self.button_chosen > 0
+        self.has_rating()
             // not cramming
             && !self.is_cramming()
     }

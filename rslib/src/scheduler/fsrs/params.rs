@@ -400,7 +400,7 @@ pub(crate) fn reviews_for_fsrs(
         // For incomplete review histories, initial memory state is based on the first
         // user-graded review after the cutoff date with interval >= 1d.
         let within_cutoff = entry.id.0 > ignore_revlogs_before.0;
-        let user_graded = matches!(entry.button_chosen, 1..=4);
+        let user_graded = entry.has_rating();
         let interday = entry.interval >= 1 || entry.interval <= -86400;
         if user_graded && within_cutoff && interday {
             first_user_grade_idx = Some(index);
@@ -469,16 +469,7 @@ pub(crate) fn reviews_for_fsrs(
     }
 
     // Filter out unwanted entries
-    entries.retain(|entry| {
-        !(
-            // set due date, reset or rescheduled
-            (entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0)
-            || // cram
-            entry.is_cramming()
-            || // rescheduled
-            (entry.review_kind == RevlogReviewKind::Rescheduled)
-        )
-    });
+    entries.retain(|entry| entry.has_rating_and_affects_scheduling());
 
     // Compute delta_t for each entry
     let delta_ts = iter::once(0)
