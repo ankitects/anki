@@ -128,7 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    let retentionWorloadInfo: undefined | Promise<GetRetentionWorkloadResponse> =
+    let retentionWorkloadInfo: undefined | Promise<GetRetentionWorkloadResponse> =
         undefined;
     let lastParams = [...fsrsParams($config)];
 
@@ -139,7 +139,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         if (
             // If the cache is empty and a request has not yet been made to fill it
-            !retentionWorloadInfo ||
+            !retentionWorkloadInfo ||
             // If the parameters have been changed
             lastParams.toString() !== params.toString()
         ) {
@@ -148,12 +148,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 search: defaultparamSearch,
             });
             lastParams = [...params];
-            retentionWorloadInfo = getRetentionWorkload(request);
+            retentionWorkloadInfo = getRetentionWorkload(request);
         }
 
         const previous = +startingDesiredRetention * 100;
         const after = retention * 100;
-        const resp = await retentionWorloadInfo;
+        const resp = await retentionWorkloadInfo;
         const factor = resp.costs[after] / resp.costs[previous];
 
         desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorChange({
