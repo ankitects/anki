@@ -74,6 +74,13 @@ export function renderWorkloadChart(
             : n.toString();
     };
 
+    const formatter = new Intl.NumberFormat(undefined, {
+        style: "percent",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
+    const xTickFormat = (n: number) => formatter.format(n / 100);
+
     const formatY: (value: number) => string = ({
         [SimulateWorkloadSubgraph.ratio]: (value: number) =>
             tr.deckConfigFsrsSimulatorRatioTooltip({ time: timeSpan(value) }),
@@ -85,7 +92,7 @@ export function renderWorkloadChart(
     })[subgraph];
 
     function formatX(dr: number) {
-        return `Desired Retention: ${dr}%<br>`;
+        return `Desired Retention: ${dr}%<br>`; // <---- Ooops
     }
 
     return _renderSimulationChart(
@@ -94,6 +101,7 @@ export function renderWorkloadChart(
         subgraph_data,
         x,
         yTickFormat,
+        xTickFormat,
         formatY,
         formatX,
         (_e: MouseEvent, _d: number) => undefined,
@@ -170,6 +178,7 @@ export function renderSimulationChart(
         subgraph_data,
         x,
         yTickFormat,
+        (a) => a.toString(),
         formatY,
         formatX,
         legendMouseMove,
@@ -182,6 +191,7 @@ function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
     subgraph_data: T[],
     x: any,
     yTickFormat: (n: number) => string,
+    xTickFormat: (n: number) => string,
     formatY: (n: T["y"]) => string,
     formatX: (n: T["x"]) => string,
     legendMouseMove: (e: MouseEvent, d: number) => void,
@@ -198,7 +208,9 @@ function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
     const trans = svg.transition().duration(600) as any;
 
     svg.select<SVGGElement>(".x-ticks")
-        .call((selection) => selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0)))
+        .call((selection) =>
+            selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0).tickFormat(xTickFormat as any))
+        )
         .attr("direction", "ltr");
     // y scale
 
