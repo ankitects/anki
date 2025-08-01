@@ -92,7 +92,7 @@ export function renderWorkloadChart(
     })[subgraph];
 
     function formatX(dr: number) {
-        return `Desired Retention: ${dr}%<br>`; // <---- Ooops
+        return `${tr.deckConfigDesiredRetention()}: ${xTickFormat(dr)}<br>`;
     }
 
     return _renderSimulationChart(
