@@ -5,6 +5,11 @@ database-check-card-properties =
         [one] Fixed { $count } invalid card property.
        *[other] Fixed { $count } invalid card properties.
     }
+database-check-card-last-review-time-empty =
+    { $count ->
+        [one] Filled missing last review time in { $count } card.
+       *[other] Filled missing last review time in { $count } cards.
+    }
 database-check-missing-templates =
     { $count ->
         [one] Deleted { $count } card with missing template.

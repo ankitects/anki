@@ -394,13 +394,13 @@ pub(crate) fn reviews_for_fsrs(
     let mut revlogs_complete = false;
     // Working backwards from the latest review...
     for (index, entry) in entries.iter().enumerate().rev() {
-        if entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0 {
+        if entry.is_cramming() {
             continue;
         }
         // For incomplete review histories, initial memory state is based on the first
         // user-graded review after the cutoff date with interval >= 1d.
         let within_cutoff = entry.id.0 > ignore_revlogs_before.0;
-        let user_graded = matches!(entry.button_chosen, 1..=4);
+        let user_graded = entry.has_rating();
         let interday = entry.interval >= 1 || entry.interval <= -86400;
         if user_graded && within_cutoff && interday {
             first_user_grade_idx = Some(index);
@@ -409,10 +409,7 @@ pub(crate) fn reviews_for_fsrs(
         if user_graded && entry.review_kind == RevlogReviewKind::Learning {
             first_of_last_learn_entries = Some(index);
             revlogs_complete = true;
-        } else if matches!(
-            (entry.review_kind, entry.ease_factor),
-            (RevlogReviewKind::Manual, 0)
-        ) {
+        } else if entry.is_reset() {
             // Ignore entries prior to a `Reset` if a learning step has come after,
             // but consider revlogs complete.
             if first_of_last_learn_entries.is_some() {
@@ -472,16 +469,7 @@ pub(crate) fn reviews_for_fsrs(
     }
 
     // Filter out unwanted entries
-    entries.retain(|entry| {
-        !(
-            // set due date, reset or rescheduled
-            (entry.review_kind == RevlogReviewKind::Manual || entry.button_chosen == 0)
-            || // cram
-            (entry.review_kind == RevlogReviewKind::Filtered && entry.ease_factor == 0)
-            || // rescheduled
-            (entry.review_kind == RevlogReviewKind::Rescheduled)
-        )
-    });
+    entries.retain(|entry| entry.has_rating_and_affects_scheduling());
 
     // Compute delta_t for each entry
     let delta_ts = iter::once(0)
@@ -560,10 +548,14 @@ pub(crate) mod tests {
     }
 
     pub(crate) fn revlog(review_kind: RevlogReviewKind, days_ago: i64) -> RevlogEntry {
+        let button_chosen = match review_kind {
+            RevlogReviewKind::Manual | RevlogReviewKind::Rescheduled => 0,
+            _ => 3,
+        };
         RevlogEntry {
             review_kind,
             id: days_ago_ms(days_ago).into(),
-            button_chosen: 3,
+            button_chosen,
             interval: 1,
             ..Default::default()
         }

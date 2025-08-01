@@ -306,15 +306,15 @@ pub(crate) fn fsrs_items_for_memory_states(
         .collect()
 }
 
-struct LastRevlogInfo {
+pub(crate) struct LastRevlogInfo {
     /// Used to determine the actual elapsed time between the last time the user
     /// reviewed the card and now, so that we can determine an accurate period
     /// when the card has subsequently been rescheduled to a different day.
-    last_reviewed_at: Option<TimestampSecs>,
+    pub(crate) last_reviewed_at: Option<TimestampSecs>,
 }
 
-/// Return a map of cards to info about last review/reschedule.
-fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogInfo> {
+/// Return a map of cards to info about last review.
+pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogInfo> {
     let mut out = HashMap::new();
     revlogs
         .iter()
@@ -323,8 +323,10 @@ fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogIn
         .for_each(|(card_id, group)| {
             let mut last_reviewed_at = None;
             for e in group.into_iter() {
-                if e.button_chosen >= 1 {
+                if e.has_rating_and_affects_scheduling() {
                     last_reviewed_at = Some(e.id.as_secs());
+                } else if e.is_reset() {
+                    last_reviewed_at = None;
                 }
             }
             out.insert(card_id, LastRevlogInfo { last_reviewed_at });
