@@ -548,10 +548,14 @@ pub(crate) mod tests {
     }
 
     pub(crate) fn revlog(review_kind: RevlogReviewKind, days_ago: i64) -> RevlogEntry {
+        let button_chosen = match review_kind {
+            RevlogReviewKind::Manual | RevlogReviewKind::Rescheduled => 0,
+            _ => 3,
+        };
         RevlogEntry {
             review_kind,
             id: days_ago_ms(days_ago).into(),
-            button_chosen: 3,
+            button_chosen,
             interval: 1,
             ..Default::default()
         }
