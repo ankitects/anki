@@ -44,8 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
     import Modal from "bootstrap/js/dist/modal";
-    import Row from "$lib/components/Row.svelte";
-    import Col from "$lib/components/Col.svelte";
 
     export let state: DeckOptionsState;
     export let simulateFsrsRequest: SimulateFsrsReviewRequest;
@@ -373,23 +371,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             {tr.deckConfigDesiredRetention()}
                         </SettingTitle>
                     </SpinBoxFloatRow>
-                {:else}
-                    <Row --cols={13}>
-                        <Col --col-size={7} breakpoint="xs">
-                            <SettingTitle
-                                on:click={() => openHelpModal("desiredRetention")}
-                            >
-                                {tr.deckConfigDesiredRetention()}
-                            </SettingTitle>
-                        </Col>
-                        <Col --col-size={6} breakpoint="xs">
-                            <input
-                                type="text"
-                                disabled
-                                value={tr.deckConfigPlottedOnXAxis()}
-                            />
-                        </Col>
-                    </Row>
                 {/if}
 
                 <SpinBoxRow
