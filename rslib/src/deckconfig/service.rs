@@ -11,6 +11,7 @@ use crate::deckconfig::DeckConfigId;
 use crate::deckconfig::UpdateDeckConfigsRequest;
 use crate::error::Result;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_date_to_ms;
+use crate::scheduler::fsrs::simulator::is_included_card;
 
 impl crate::services::DeckConfigService for Collection {
     fn add_or_update_deck_config_legacy(
@@ -118,6 +119,7 @@ impl crate::services::DeckConfigService for Collection {
             .storage
             .all_searched_cards()?
             .into_iter()
+            .filter(is_included_card)
             .filter_map(|c| crate::card::Card::convert(c.clone(), days_elapsed, c.memory_state?.clone()))
             .collect::<Vec<fsrs::Card>>();
 
