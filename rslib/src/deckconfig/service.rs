@@ -103,6 +103,7 @@ impl crate::services::DeckConfigService for Collection {
         &mut self,
         input: anki_proto::deck_config::GetRetentionWorkloadRequest,
     ) -> Result<anki_proto::deck_config::GetRetentionWorkloadResponse> {
+        let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
         let guard =
             self.search_cards_into_table(&input.search, crate::search::SortMode::NoOrder)?;
 
@@ -112,12 +113,24 @@ impl crate::services::DeckConfigService for Collection {
             .get_revlog_entries_for_searched_cards_in_card_order()?;
 
         let config = guard.col.get_optimal_retention_parameters(revlogs)?;
+        let cards = guard
+            .col
+            .storage
+            .all_searched_cards()?
+            .into_iter()
+            .filter_map(|c| crate::card::Card::convert(c.clone(), days_elapsed, c.memory_state?.clone()))
+            .collect::<Vec<fsrs::Card>>();
 
         let costs = (70u32..=99u32)
             .map(|dr| {
                 Ok((
                     dr,
-                    fsrs::expected_workload(&input.w, dr as f32 / 100., &config)?,
+                    fsrs::expected_workload_with_existing_cards(
+                        &input.w,
+                        dr as f32 / 100.,
+                        &config,
+                        &cards,
+                    )?,
                 ))
             })
             .collect::<Result<HashMap<_, _>>>()?;
