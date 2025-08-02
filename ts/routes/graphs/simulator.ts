@@ -8,6 +8,7 @@ import {
     bisector,
     line,
     max,
+    min,
     pointer,
     rollup,
     scaleLinear,
@@ -62,7 +63,7 @@ export function renderWorkloadChart(
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
     const subgraph_data = ({
-        [SimulateWorkloadSubgraph.ratio]: data.map(d => ({ ...d, y: d.timeCost / d.memorized })),
+        [SimulateWorkloadSubgraph.ratio]: data.map(d => ({ ...d, y: d.memorized / d.timeCost })),
         [SimulateWorkloadSubgraph.time]: data.map(d => ({ ...d, y: d.timeCost / d.learnSpan })),
         [SimulateWorkloadSubgraph.count]: data.map(d => ({ ...d, y: d.count / d.learnSpan })),
         [SimulateWorkloadSubgraph.memorized]: data.map(d => ({ ...d, y: d.memorized })),
@@ -215,9 +216,10 @@ function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
     // y scale
 
     const yMax = max(subgraph_data, d => d.y)!;
+    const yMin = min(subgraph_data, d => d.y)!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
-        .domain([0, yMax])
+        .domain([yMin, yMax])
         .nice();
     svg.select<SVGGElement>(".y-ticks")
         .call((selection) =>
