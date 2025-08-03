@@ -237,8 +237,8 @@ impl Collection {
             learning_step_transitions: p.learning_step_transitions,
             relearning_step_transitions: p.relearning_step_transitions,
             state_rating_costs: p.state_rating_costs,
-            learning_step_count: p.learning_step_count,
-            relearning_step_count: p.relearning_step_count,
+            learning_step_count: req.learning_step_count as usize,
+            relearning_step_count: req.relearning_step_count as usize,
         };
 
         Ok((config, converted_cards))
