@@ -27,20 +27,3 @@ impl Collection {
         Ok(studied_today(today.cards, today.seconds as f32, &self.tr))
     }
 }
-
-#[cfg(test)]
-mod test {
-    use anki_i18n::I18n;
-
-    use super::studied_today;
-
-    #[test]
-    fn today() {
-        // temporary test of fluent term handling
-        let tr = I18n::template_only();
-        assert_eq!(
-            &studied_today(3, 13.0, &tr).replace('\n', " "),
-            "Studied 3 cards in 13 seconds today (4.33s/card)"
-        );
-    }
-}
