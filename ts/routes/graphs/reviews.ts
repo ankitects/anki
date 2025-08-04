@@ -18,7 +18,6 @@ import {
     bin,
     cumsum,
     curveBasis,
-    interpolateBlues,
     interpolateGreens,
     interpolateOranges,
     interpolatePurples,
