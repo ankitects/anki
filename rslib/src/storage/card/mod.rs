@@ -43,6 +43,13 @@ use crate::timestamp::TimestampMillis;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct CardFixStats {
+    pub new_cards_fixed: usize,
+    pub other_cards_fixed: usize,
+    pub last_review_time_fixed: usize,
+}
+
 impl FromSql for CardType {
     fn column_result(value: ValueRef<'_>) -> result::Result<Self, FromSqlError> {
         if let ValueRef::Integer(i) = value {
@@ -366,7 +373,7 @@ impl super::SqliteStorage {
         mtime: TimestampSecs,
         usn: Usn,
         v1_sched: bool,
-    ) -> Result<(usize, usize, usize)> {
+    ) -> Result<CardFixStats> {
         let new_cnt = self
             .db
             .prepare(include_str!("fix_due_new.sql"))?
@@ -404,7 +411,11 @@ impl super::SqliteStorage {
                 }
             }
         }
-        Ok((new_cnt, other_cnt, last_review_time_cnt))
+        Ok(CardFixStats {
+            new_cards_fixed: new_cnt,
+            other_cards_fixed: other_cnt,
+            last_review_time_fixed: last_review_time_cnt,
+        })
     }
 
     pub(crate) fn delete_orphaned_cards(&self) -> Result<usize> {
