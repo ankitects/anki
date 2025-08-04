@@ -88,19 +88,21 @@ impl RevlogEntry {
     /// Returns true if this entry represents a reset operation.
     /// These entries are created when a card is reset using
     /// [`Collection::reschedule_cards_as_new`].
-    /// The `ease_factor` should be 0 because
-    /// [`Collection::set_due_date`] also sets created `RevlogEntry` with
-    /// `RevlogReviewKind::Manual` but the `ease_factor` is not 0.
+    /// The 0 value of `ease_factor` differentiates it
+    /// from entry created by [`Collection::set_due_date`] that has
+    /// `RevlogReviewKind::Manual` but non-zero `ease_factor`.
     pub(crate) fn is_reset(&self) -> bool {
         self.review_kind == RevlogReviewKind::Manual && self.ease_factor == 0
     }
 
     /// Returns true if this entry represents a cramming operation.
-    /// These entries are created when a card is previewed using
+    /// These entries are created when a card is reviewed in a
+    /// filtered deck with "Reschedule cards based on my answers
+    /// in this deck" disabled.
     /// [`crate::scheduler::answering::CardStateUpdater::apply_preview_state`].
-    /// The `ease_factor` should be 0 because
-    /// [`crate::scheduler::states::ReviewState::revlog_kind`] returns
-    /// `RevlogReviewKind::Filtered` when `days_late() < 0`.
+    /// The 0 value of `ease_factor` distinguishes it from the entry
+    /// created when a card is reviewed before its due date in a
+    /// filtered deck with reschedule enabled or using Grade Now.
     pub(crate) fn is_cramming(&self) -> bool {
         self.review_kind == RevlogReviewKind::Filtered && self.ease_factor == 0
     }
