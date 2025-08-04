@@ -111,6 +111,18 @@ impl Timespan {
         }
     }
 
+    /// Returns the value in the given unit
+    pub fn as_provided_unit(&self, unit: TimespanUnit) -> f32 {
+        match unit {
+            TimespanUnit::Seconds => self.seconds,
+            TimespanUnit::Minutes => self.seconds / MINUTE,
+            TimespanUnit::Hours => self.seconds / HOUR,
+            TimespanUnit::Days => self.seconds / DAY,
+            TimespanUnit::Months => self.seconds / MONTH,
+            TimespanUnit::Years => self.seconds / YEAR,
+        }
+    }
+
     /// Round seconds and days to integers, otherwise
     /// truncates to one decimal place.
     pub fn as_rounded_unit(self) -> f32 {
