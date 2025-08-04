@@ -58,7 +58,7 @@ const MINUTE: f32 = 60.0 * SECOND;
 const HOUR: f32 = 60.0 * MINUTE;
 const DAY: f32 = 24.0 * HOUR;
 const YEAR: f32 = 365.0 * DAY;
-const MONTH: f32 = YEAR / 12;
+const MONTH: f32 = YEAR / 12.0;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum TimespanUnit {
