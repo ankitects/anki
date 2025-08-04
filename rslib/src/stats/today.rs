@@ -35,6 +35,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use anki_i18n::I18n;
+
     use super::studied_today;
     #[test]
     fn today() {
