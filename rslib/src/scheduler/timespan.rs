@@ -60,7 +60,7 @@ const DAY: f32 = 24.0 * HOUR;
 const MONTH: f32 = 30.417 * DAY; // 365/12 ≈ 30.417
 const YEAR: f32 = 365.0 * DAY;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum TimespanUnit {
     Seconds,
     Minutes,
