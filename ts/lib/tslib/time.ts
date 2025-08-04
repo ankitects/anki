@@ -89,7 +89,7 @@ export function naturalWholeUnit(secs: number): TimespanUnit {
 }
 
 export function studiedToday(cards: number, secs: number): string {
-    const unit = Math.min(naturalUnit(seconds), TimespanUnit.Minutes);
+    const unit = Math.min(naturalUnit(secs), TimespanUnit.Minutes);
     const amount = unitAmount(unit, secs);
     const name = unitName(unit);
 
