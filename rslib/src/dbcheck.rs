@@ -178,6 +178,12 @@ impl Collection {
         out.card_position_too_high = new_cards_fixed;
         out.card_properties_invalid += other_cards_fixed;
         out.card_last_review_time_empty = last_review_time_fixed;
+
+        // Trigger one-way sync if last_review_time was updated to avoid conflicts
+        if last_review_time_fixed > 0 {
+            self.set_schema_modified()?;
+        }
+
         Ok(())
     }
 
