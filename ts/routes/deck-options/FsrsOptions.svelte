@@ -218,29 +218,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         healthCheck: $healthCheck,
                     });
 
-                    const already_optimal =
+                    const alreadyOptimal =
                         (params.length &&
                             params.every(
                                 (n, i) => n.toFixed(4) === resp.params[i].toFixed(4),
                             )) ||
                         resp.params.length === 0;
 
+                    let healthCheckMessage = "";
                     if (resp.healthCheckPassed !== undefined) {
-                        if (resp.healthCheckPassed) {
-                            setTimeout(() => alert(tr.deckConfigFsrsGoodFit()), 200);
-                        } else {
-                            setTimeout(
-                                () => alert(tr.deckConfigFsrsBadFitWarning()),
-                                200,
-                            );
-                        }
-                    } else if (already_optimal) {
-                        const msg = resp.fsrsItems
+                        healthCheckMessage = resp.healthCheckPassed
+                            ? tr.deckConfigFsrsGoodFit()
+                            : tr.deckConfigFsrsBadFitWarning();
+                    }
+                    let alreadyOptimalMessage = "";
+                    if (alreadyOptimal) {
+                        alreadyOptimalMessage = resp.fsrsItems
                             ? tr.deckConfigFsrsParamsOptimal()
                             : tr.deckConfigFsrsParamsNoReviews();
-                        setTimeout(() => alert(msg), 200);
                     }
-                    if (!already_optimal) {
+                    const message = [alreadyOptimalMessage, healthCheckMessage]
+                        .filter((a) => a)
+                        .join("\n\n");
+
+                    if (message) {
+                        setTimeout(() => alert(message), 200);
+                    }
+
+                    if (!alreadyOptimal) {
                         $config.fsrsParams6 = resp.params;
                         setTimeout(() => {
                             optimized = true;
