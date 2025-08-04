@@ -113,6 +113,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         easyDaysPercentages: $config.easyDaysPercentages,
         reviewOrder: $config.reviewOrder,
         historicalRetention: $config.historicalRetention,
+        learningStepCount: $config.learnSteps.length,
+        relearningStepCount: $config.relearnSteps.length,
     });
 
     const DESIRED_RETENTION_LOW_THRESHOLD = 0.8;
