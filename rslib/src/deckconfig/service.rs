@@ -3,6 +3,8 @@
 use std::collections::HashMap;
 
 use anki_proto::generic;
+use rayon::iter::IntoParallelIterator;
+use rayon::iter::ParallelIterator;
 
 use crate::collection::Collection;
 use crate::deckconfig::DeckConfSchema11;
@@ -124,6 +126,7 @@ impl crate::services::DeckConfigService for Collection {
             .collect::<Vec<fsrs::Card>>();
 
         let costs = (70u32..=99u32)
+            .into_par_iter()
             .map(|dr| {
                 Ok((
                     dr,
