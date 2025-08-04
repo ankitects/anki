@@ -8,7 +8,7 @@ use crate::scheduler::timespan::Timespan;
 use crate::scheduler::timespan::TimespanUnit;
 
 pub fn studied_today(cards: u32, secs: f32, tr: &I18n) -> String {
-    let span = Timespan::from_secs(secs).to_unit(if secs < 60 {
+    let span = Timespan::from_secs(secs).to_unit(if secs < 60. {
         TimespanUnit::Seconds
     } else {
         TimespanUnit::Minutes
