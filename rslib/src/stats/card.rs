@@ -42,8 +42,7 @@ impl Collection {
 
             new_card.last_review_time = Some(last_review_time);
 
-            let usn = self.usn()?;
-            self.update_card_inner(&mut new_card, card.clone(), usn)?;
+            self.storage.update_card(&new_card)?;
             last_review_time
         };
 
