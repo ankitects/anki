@@ -2214,8 +2214,8 @@ dependencies = [
 
 [[package]]
 name = "fsrs"
-version = "5.0.1"
-source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?branch=Feat/estimate-workload-for-cards#03e83fa66d86a4f60a2bb2e920b9c5cae9106b9d"
+version = "5.1.0"
+source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?branch=Feat/estimate-workload-for-cards#e070c8870f27357f3deaa8b643933b5b3e7a2938"
 dependencies = [
  "burn",
  "itertools 0.14.0",
