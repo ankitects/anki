@@ -120,7 +120,7 @@ impl crate::services::DeckConfigService for Collection {
             .all_searched_cards()?
             .into_iter()
             .filter(is_included_card)
-            .filter_map(|c| crate::card::Card::convert(c.clone(), days_elapsed, c.memory_state?.clone()))
+            .filter_map(|c| crate::card::Card::convert(c.clone(), days_elapsed, c.memory_state?))
             .collect::<Vec<fsrs::Card>>();
 
         let costs = (70u32..=99u32)
