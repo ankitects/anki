@@ -88,6 +88,9 @@ impl RevlogEntry {
     /// Returns true if this entry represents a reset operation.
     /// These entries are created when a card is reset using
     /// [`Collection::reschedule_cards_as_new`].
+    /// The `ease_factor` should be 0 because
+    /// [`Collection::set_due_date`] also sets created `RevlogEntry` with
+    /// `RevlogReviewKind::Manual` but the `ease_factor` is not 0.
     pub(crate) fn is_reset(&self) -> bool {
         self.review_kind == RevlogReviewKind::Manual && self.ease_factor == 0
     }
