@@ -139,6 +139,13 @@ impl Timespan {
         self.unit
     }
 
+    pub fn to_unit(self, unit: TimespanUnit) -> Timespan {
+        Timespan {
+            seconds: self.seconds,
+            unit,
+        }
+    }
+
     /// Return a new timespan in the most appropriate unit, eg
     /// 70 secs -> timespan in minutes
     pub fn natural_span(self) -> Timespan {

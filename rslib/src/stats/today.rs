@@ -5,9 +5,10 @@ use anki_i18n::I18n;
 
 use crate::prelude::*;
 use crate::scheduler::timespan::Timespan;
+use crate::scheduler::timespan::TimespanUnit;
 
 pub fn studied_today(cards: u32, secs: f32, tr: &I18n) -> String {
-    let span = Timespan::from_secs(secs).natural_span();
+    let span = Timespan::from_secs(secs).to_unit(TimespanUnit::Minutes);
     let amount = span.as_unit();
     let unit = span.unit().as_str();
     let secs_per_card = if cards > 0 {
