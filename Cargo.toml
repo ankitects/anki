@@ -33,10 +33,8 @@ git = "https://github.com/ankitects/linkcheck.git"
 rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
-# version = "5.0.1"
-git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
-branch = "Feat/estimate-workload-for-cards"
-# rev = "a7f7efc10f0a26b14ee348cc7402155685f2a24f"
+version = "5.1.0"
+# git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
 # path = "../open-spaced-repetition/fsrs-rs"
 
 [workspace.dependencies]
