@@ -179,6 +179,7 @@ def _init_message_box(
     _mbox.setWindowTitle("Anki")
     _mbox.setText(user_text)
     _mbox.setIcon(QMessageBox.Icon.Warning)
+    _mbox.setTextFormat(Qt.TextFormat.PlainText)
 
     def show_help():
         openHelp(help_page)
