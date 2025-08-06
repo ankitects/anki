@@ -121,6 +121,12 @@ fn create_review_priority_fn(
     }
 }
 
+pub(crate) fn is_included_card(c: &Card) -> bool {
+    c.queue != CardQueue::Suspended
+        && c.queue != CardQueue::PreviewRepeat
+        && c.ctype != CardType::New
+}
+
 impl Collection {
     pub fn simulate_request_to_config(
         &mut self,
@@ -133,11 +139,6 @@ impl Collection {
             .get_revlog_entries_for_searched_cards_in_card_order()?;
         let mut cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
-        fn is_included_card(c: &Card) -> bool {
-            c.queue != CardQueue::Suspended
-                && c.queue != CardQueue::PreviewRepeat
-                && c.ctype != CardType::New
-        }
         // calculate any missing memory state
         for c in &mut cards {
             if is_included_card(c) && c.memory_state.is_none() {
@@ -306,7 +307,11 @@ impl Collection {
 }
 
 impl Card {
-    fn convert(card: Card, days_elapsed: i32, memory_state: FsrsMemoryState) -> Option<fsrs::Card> {
+    pub(crate) fn convert(
+        card: Card,
+        days_elapsed: i32,
+        memory_state: FsrsMemoryState,
+    ) -> Option<fsrs::Card> {
         match card.queue {
             CardQueue::DayLearn | CardQueue::Review => {
                 let due = card.original_or_current_due();
