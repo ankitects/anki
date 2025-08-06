@@ -5,17 +5,18 @@ use anki_i18n::I18n;
 
 use crate::prelude::*;
 use crate::scheduler::timespan::Timespan;
+use crate::scheduler::timespan::TimespanUnit;
 
 pub fn studied_today(cards: u32, secs: f32, tr: &I18n) -> String {
     let span = Timespan::from_secs(secs).natural_span();
-    let amount = span.as_unit();
-    let unit = span.unit().as_str();
+    let unit = std::cmp::min(span.unit(), TimespanUnit::Minutes);
+    let amount = span.to_unit(unit).as_unit();
     let secs_per_card = if cards > 0 {
         secs / (cards as f32)
     } else {
         0.0
     };
-    tr.statistics_studied_today(unit, secs_per_card, amount, cards)
+    tr.statistics_studied_today(unit.as_str(), secs_per_card, amount, cards)
         .into()
 }
 
@@ -40,6 +41,10 @@ mod test {
         assert_eq!(
             &studied_today(3, 13.0, &tr).replace('\n', " "),
             "Studied 3 cards in 13 seconds today (4.33s/card)"
+        );
+        assert_eq!(
+            &studied_today(300, 5400.0, &tr).replace('\n', " "),
+            "Studied 300 cards in 90 minutes today (18s/card)"
         );
     }
 }
