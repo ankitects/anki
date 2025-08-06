@@ -111,15 +111,10 @@ impl Timespan {
         }
     }
 
-    /// Returns the value in the given unit
-    pub fn as_provided_unit(&self, unit: TimespanUnit) -> f32 {
-        match unit {
-            TimespanUnit::Seconds => self.seconds,
-            TimespanUnit::Minutes => self.seconds / MINUTE,
-            TimespanUnit::Hours => self.seconds / HOUR,
-            TimespanUnit::Days => self.seconds / DAY,
-            TimespanUnit::Months => self.seconds / MONTH,
-            TimespanUnit::Years => self.seconds / YEAR,
+    pub fn to_unit(self, unit: TimespanUnit) -> Timespan {
+        Timespan {
+            seconds: self.seconds,
+            unit,
         }
     }
 
