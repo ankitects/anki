@@ -10,7 +10,7 @@ import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { dayLabel } from "@tslib/time";
 import type { Bin } from "d3";
-import { bin, extent, interpolateGreens, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, extent, interpolateGreens, scaleLinear, scaleSequential, sum, interpolateViridis } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, GraphRange, numericMap } from "./graph-helpers";
@@ -108,8 +108,9 @@ export function buildHistogram(
     }
 
     const xTickFormat = (n: number): string => localizedNumber(n);
-    const adjustedRange = scaleLinear().range([0.7, 0.3]);
-    const colourScale = scaleSequential((n) => interpolateGreens(adjustedRange(n)!)).domain([xMin!, xMax!]);
+    
+    const adjustedRange = scaleLinear().range([0.0, 1]);
+    const colourScale = scaleSequential((n) => interpolateViridis(adjustedRange(n)!)).domain([xMin!, xMax!]);
 
     const total = sum(bins as any, getNumericMapBinValue);
 

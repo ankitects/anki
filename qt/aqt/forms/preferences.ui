@@ -104,6 +104,23 @@
           <string>preferences_user_interface</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="0">
+           <widget class="QLabel" name="styleLabel">
+            <property name="text">
+             <string>preferences_style</string>
+            </property>
+            <property name="buddy">
+             <cstring>styleComboBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="styleComboBox">
+            <property name="currentText">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
            <widget class="QComboBox" name="theme"/>
           </item>
@@ -120,23 +137,6 @@
             </property>
             <property name="singleStep">
              <number>5</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="styleComboBox">
-            <property name="currentText">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="styleLabel">
-            <property name="text">
-             <string>preferences_style</string>
-            </property>
-            <property name="buddy">
-             <cstring>styleComboBox</cstring>
             </property>
            </widget>
           </item>
@@ -160,10 +160,23 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="4" column="0" colspan="2">
            <widget class="QPushButton" name="resetWindowSizes">
             <property name="text">
              <string>preferences_reset_window_sizes</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="color_blind">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>preferences_color_blind</string>
             </property>
            </widget>
           </item>

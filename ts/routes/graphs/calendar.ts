@@ -20,6 +20,7 @@ import {
     timeSaturday,
     timeSunday,
     timeYear,
+    interpolateMagma
 } from "d3";
 
 import type { GraphBounds, SearchDispatch } from "./graph-helpers";
@@ -136,10 +137,10 @@ export function renderCalendar(
         }
     }
     const data = Array.from(dayMap.values());
-    const cappedRange = scaleLinear().range([0.2, nightMode ? 0.8 : 1]);
+    const cappedRange = scaleLinear().range([1,0]);
     const blues = scaleSequentialSqrt()
         .domain([0, maxCount])
-        .interpolator((n) => interpolateBlues(cappedRange(n)!));
+        .interpolator((n) => interpolateMagma(cappedRange(n)!));
 
     function tooltipText(d: DayDatum): string {
         const date = localizedDate(d.date, {
