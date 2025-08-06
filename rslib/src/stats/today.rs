@@ -10,7 +10,7 @@ use crate::scheduler::timespan::TimespanUnit;
 pub fn studied_today(cards: u32, secs: f32, tr: &I18n) -> String {
     let span = Timespan::from_secs(secs).natural_span();
     let unit = std::cmp::min(span.unit(), TimespanUnit::Minutes);
-    let amount = span.as_provided_unit(unit);
+    let amount = span.to_unit(unit).as_unit();
     let secs_per_card = if cards > 0 {
         secs / (cards as f32)
     } else {
