@@ -55,6 +55,9 @@
         width: 100%;
         display: flex;
         flex-wrap: nowrap;
+        &:has(li:nth-child(3)) {
+            justify-content: space-between;
+        }
         justify-content: space-around;
         padding-inline: 0;
         margin-bottom: 0.5rem;
