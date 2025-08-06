@@ -105,7 +105,7 @@ impl Card {
 
     /// Returns true if the card has a due date in terms of days.
     fn is_due_in_days(&self) -> bool {
-        self.original_or_current_due() <= 365_000 // keep consistent with SQL
+        self.ctype != CardType::New && self.original_or_current_due() <= 365_000 // keep consistent with SQL
             || matches!(self.queue, CardQueue::DayLearn | CardQueue::Review)
             || (self.ctype == CardType::Review && self.is_undue_queue())
     }
