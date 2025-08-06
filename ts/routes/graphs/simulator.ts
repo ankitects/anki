@@ -100,11 +100,11 @@ export function renderWorkloadChart(
         bounds,
         subgraph_data,
         x,
-        yTickFormat,
-        xTickFormat,
         formatY,
         formatX,
         (_e: MouseEvent, _d: number) => undefined,
+        yTickFormat,
+        xTickFormat,
     );
 }
 
@@ -177,11 +177,11 @@ export function renderSimulationChart(
         bounds,
         subgraph_data,
         x,
-        yTickFormat,
-        (a) => a.toString(),
         formatY,
         formatX,
         legendMouseMove,
+        yTickFormat,
+        undefined,
     );
 }
 
@@ -190,11 +190,11 @@ function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
     bounds: GraphBounds,
     subgraph_data: T[],
     x: any,
-    yTickFormat: (n: number) => string,
-    xTickFormat: (n: number) => string,
     formatY: (n: T["y"]) => string,
     formatX: (n: T["x"]) => string,
     legendMouseMove: (e: MouseEvent, d: number) => void,
+    yTickFormat?: (n: number) => string,
+    xTickFormat?: (n: number) => string,
 ): TableDatum[] {
     const svg = select(svgElem);
     svg.selectAll(".lines").remove();
