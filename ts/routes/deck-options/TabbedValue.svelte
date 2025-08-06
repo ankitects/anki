@@ -55,7 +55,7 @@
         width: 100%;
         display: flex;
         flex-wrap: nowrap;
-        justify-content: space-between;
+        justify-content: space-around;
         padding-inline: 0;
         margin-bottom: 0.5rem;
         list-style: none;
