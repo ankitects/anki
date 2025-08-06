@@ -4,6 +4,7 @@
 /* eslint
 @typescript-eslint/no-explicit-any: "off",
  */
+declare function pycmd(command: string): void;
 
 import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
@@ -112,7 +113,29 @@ export function buildHistogram(
     const adjustedRange = scaleLinear().range([0.0, 1]);
     const colourScale = scaleSequential((n) => interpolateViridis(adjustedRange(n)!)).domain([xMin!, xMax!]);
 
+
+    getColorBlindSetting().then((setting) => {
+        console.log("Color Blind Setting:", setting);
+    });
+
+
+
+
     const total = sum(bins as any, getNumericMapBinValue);
+
+    function getColorBlindSetting(): Promise<boolean> {
+        return new Promise((resolve) => {
+            // Define the global callback first
+            (window as any).__setColorBlindSetting = (val: boolean) => {
+                delete (window as any).__setColorBlindSetting; // optional cleanup
+                resolve(val);
+            };
+
+            // Then trigger the Python call
+            pycmd("getColorBlindSetting");
+        });
+    }
+
 
     function hoverText(
         bin: Bin<number, number>,
@@ -127,6 +150,9 @@ export function buildHistogram(
 
         return `${days}:<br>${cards}<br>${totalLabel}: ${localizedNumber(cumulative)}`;
     }
+
+
+
 
     function onClick(bin: Bin<number, number>): void {
         const start = bin.x0!;
