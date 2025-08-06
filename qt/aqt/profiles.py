@@ -535,6 +535,12 @@ create table if not exists profiles
     def setUiScale(self, scale: float) -> None:
         self.meta["uiScale"] = scale
 
+    def set_color_blind(self, value: bool) -> None:
+        self.meta["color_blind"] = value
+
+    def color_blind(self) -> bool:
+        return self.meta.get("color_blind", False)
+
     def reduce_motion(self) -> bool:
         return self.meta.get("reduce_motion", True)
 

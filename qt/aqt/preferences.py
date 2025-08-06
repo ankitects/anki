@@ -145,6 +145,7 @@ class Preferences(QDialog):
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.render_latex.setChecked(editing.render_latex)
         form.default_search_text.setText(editing.default_search_text)
+        
 
         form.backup_explanation.setText(
             anki.lang.with_collapsed_whitespace(tr.preferences_backup_explanation())
@@ -220,6 +221,7 @@ class Preferences(QDialog):
 
         self.form.check_for_updates.setChecked(self.mw.pm.check_for_updates())
         qconnect(self.form.check_for_updates.stateChanged, self.mw.pm.set_update_check)
+
 
         self.update_login_status()
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
@@ -358,6 +360,8 @@ class Preferences(QDialog):
         self.form.theme.setCurrentIndex(self.mw.pm.theme().value)
         qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
 
+
+
         self.form.styleComboBox.addItems(["Anki"] + (["Native"] if not is_win else []))
         self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())
         qconnect(
@@ -368,10 +372,24 @@ class Preferences(QDialog):
         self.form.styleComboBox.setVisible(not is_win)
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
+        self.form.color_blind.setChecked(self.mw.pm.color_blind())
+        qconnect(self.form.color_blind.stateChanged, self.on_my_checkbox_changed)
+
+
         self.setup_language()
         self.setup_video_driver()
 
         self.setupOptions()
+
+    def on_my_checkbox_changed(self, state: int) -> None:
+        print("color_blind state changed", state)
+        if state == 2:
+            # checkbox is checked
+            self.mw.pm.set_color_blind(True)
+        else:
+            # checkbox is unchecked
+            self.mw.pm.set_color_blind(False)
+
 
     def update_global(self) -> None:
         restart_required = False
