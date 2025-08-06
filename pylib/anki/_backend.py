@@ -246,7 +246,7 @@ def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:
         return BackendError(err.message, help_page, context, backtrace)
 
     elif val == kind.SEARCH_ERROR:
-        return SearchError(markdown(err.message), help_page, context, backtrace)
+        return SearchError(err.message, help_page, context, backtrace)
 
     elif val == kind.UNDO_EMPTY:
         return UndoEmpty(err.message, help_page, context, backtrace)
