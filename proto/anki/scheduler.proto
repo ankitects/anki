@@ -407,6 +407,8 @@ message SimulateFsrsReviewRequest {
   deck_config.DeckConfig.Config.ReviewCardOrder review_order = 11;
   optional uint32 suspend_after_lapse_count = 12;
   float historical_retention = 13;
+  uint32 learning_step_count = 14;
+  uint32 relearning_step_count = 15;
 }
 
 message SimulateFsrsReviewResponse {

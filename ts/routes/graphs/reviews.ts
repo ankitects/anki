@@ -18,8 +18,8 @@ import {
     bin,
     cumsum,
     curveBasis,
-    interpolateBlues,
     interpolateGreens,
+    interpolateOranges,
     interpolatePurples,
     interpolateReds,
     max,
@@ -181,7 +181,7 @@ export function renderReviews(
     const reds = scaleSequential((n) => interpolateReds(cappedRange(n)!)).domain(
         x.domain() as any,
     );
-    const blues = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain(
+    const oranges = scaleSequential((n) => interpolateOranges(cappedRange(n)!)).domain(
         x.domain() as any,
     );
     const purples = scaleSequential((n) => interpolatePurples(cappedRange(n)!)).domain(
@@ -195,7 +195,7 @@ export function renderReviews(
             case BinIndex.Young:
                 return lighterGreens;
             case BinIndex.Learn:
-                return blues;
+                return oranges;
             case BinIndex.Relearn:
                 return reds;
             case BinIndex.Filtered:

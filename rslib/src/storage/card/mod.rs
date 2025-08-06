@@ -33,6 +33,7 @@ use crate::decks::DeckKind;
 use crate::error::Result;
 use crate::notes::NoteId;
 use crate::scheduler::congrats::CongratsInfo;
+use crate::scheduler::fsrs::memory_state::get_last_revlog_info;
 use crate::scheduler::queue::BuryMode;
 use crate::scheduler::queue::DueCard;
 use crate::scheduler::queue::DueCardKind;
@@ -41,6 +42,13 @@ use crate::scheduler::timing::SchedTimingToday;
 use crate::timestamp::TimestampMillis;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct CardFixStats {
+    pub new_cards_fixed: usize,
+    pub other_cards_fixed: usize,
+    pub last_review_time_fixed: usize,
+}
 
 impl FromSql for CardType {
     fn column_result(value: ValueRef<'_>) -> result::Result<Self, FromSqlError> {
@@ -365,7 +373,7 @@ impl super::SqliteStorage {
         mtime: TimestampSecs,
         usn: Usn,
         v1_sched: bool,
-    ) -> Result<(usize, usize)> {
+    ) -> Result<CardFixStats> {
         let new_cnt = self
             .db
             .prepare(include_str!("fix_due_new.sql"))?
@@ -390,7 +398,24 @@ impl super::SqliteStorage {
             .db
             .prepare(include_str!("fix_ordinal.sql"))?
             .execute(params![mtime, usn])?;
-        Ok((new_cnt, other_cnt))
+        let mut last_review_time_cnt = 0;
+        let revlog = self.get_all_revlog_entries_in_card_order()?;
+        let last_revlog_info = get_last_revlog_info(&revlog);
+        for (card_id, last_revlog_info) in last_revlog_info {
+            let card = self.get_card(card_id)?;
+            if let Some(mut card) = card {
+                if card.ctype != CardType::New && card.last_review_time.is_none() {
+                    card.last_review_time = last_revlog_info.last_reviewed_at;
+                    self.update_card(&card)?;
+                    last_review_time_cnt += 1;
+                }
+            }
+        }
+        Ok(CardFixStats {
+            new_cards_fixed: new_cnt,
+            other_cards_fixed: other_cnt,
+            last_review_time_fixed: last_review_time_cnt,
+        })
     }
 
     pub(crate) fn delete_orphaned_cards(&self) -> Result<usize> {

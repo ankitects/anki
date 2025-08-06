@@ -113,6 +113,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         easyDaysPercentages: $config.easyDaysPercentages,
         reviewOrder: $config.reviewOrder,
         historicalRetention: $config.historicalRetention,
+        learningStepCount: $config.learnSteps.length,
+        relearningStepCount: $config.relearnSteps.length,
     });
 
     const DESIRED_RETENTION_LOW_THRESHOLD = 0.8;
@@ -128,7 +130,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    let retentionWorloadInfo: undefined | Promise<GetRetentionWorkloadResponse> =
+    let retentionWorkloadInfo: undefined | Promise<GetRetentionWorkloadResponse> =
         undefined;
     let lastParams = [...fsrsParams($config)];
 
@@ -139,7 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         if (
             // If the cache is empty and a request has not yet been made to fill it
-            !retentionWorloadInfo ||
+            !retentionWorkloadInfo ||
             // If the parameters have been changed
             lastParams.toString() !== params.toString()
         ) {
@@ -148,12 +150,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 search: defaultparamSearch,
             });
             lastParams = [...params];
-            retentionWorloadInfo = getRetentionWorkload(request);
+            retentionWorkloadInfo = getRetentionWorkload(request);
         }
 
         const previous = +startingDesiredRetention * 100;
         const after = retention * 100;
-        const resp = await retentionWorloadInfo;
+        const resp = await retentionWorkloadInfo;
         const factor = resp.costs[after] / resp.costs[previous];
 
         desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorChange({
@@ -218,29 +220,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         healthCheck: $healthCheck,
                     });
 
-                    const already_optimal =
+                    const alreadyOptimal =
                         (params.length &&
                             params.every(
                                 (n, i) => n.toFixed(4) === resp.params[i].toFixed(4),
                             )) ||
                         resp.params.length === 0;
 
+                    let healthCheckMessage = "";
                     if (resp.healthCheckPassed !== undefined) {
-                        if (resp.healthCheckPassed) {
-                            setTimeout(() => alert(tr.deckConfigFsrsGoodFit()), 200);
-                        } else {
-                            setTimeout(
-                                () => alert(tr.deckConfigFsrsBadFitWarning()),
-                                200,
-                            );
-                        }
-                    } else if (already_optimal) {
-                        const msg = resp.fsrsItems
+                        healthCheckMessage = resp.healthCheckPassed
+                            ? tr.deckConfigFsrsGoodFit()
+                            : tr.deckConfigFsrsBadFitWarning();
+                    }
+                    let alreadyOptimalMessage = "";
+                    if (alreadyOptimal) {
+                        alreadyOptimalMessage = resp.fsrsItems
                             ? tr.deckConfigFsrsParamsOptimal()
                             : tr.deckConfigFsrsParamsNoReviews();
-                        setTimeout(() => alert(msg), 200);
                     }
-                    if (!already_optimal) {
+                    const message = [alreadyOptimalMessage, healthCheckMessage]
+                        .filter((a) => a)
+                        .join("\n\n");
+
+                    if (message) {
+                        setTimeout(() => alert(message), 200);
+                    }
+
+                    if (!alreadyOptimal) {
                         $config.fsrsParams6 = resp.params;
                         setTimeout(() => {
                             optimized = true;

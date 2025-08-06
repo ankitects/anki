@@ -627,7 +627,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .svg-container {
         width: 100%;
-        max-height: calc(100vh - 400px); /* Account for modal header, controls, etc */
+        /* Account for modal header, controls, etc */
+        max-height: max(calc(100vh - 400px), 200px);
         aspect-ratio: 600 / 250;
         display: flex;
         align-items: center;

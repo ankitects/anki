@@ -53,10 +53,7 @@ impl GraphsContext {
         self.revlog
             .iter()
             .filter(|review| {
-                // not rescheduled/set due date/reset
-                review.button_chosen > 0
-                    // not cramming
-                    && (review.review_kind != RevlogReviewKind::Filtered || review.ease_factor != 0)
+                review.has_rating_and_affects_scheduling()
                     // cards with an interval ≥ 1 day
                     && (review.review_kind == RevlogReviewKind::Review
                         || review.last_interval <= -86400
