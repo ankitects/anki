@@ -7,8 +7,8 @@ database-check-card-properties =
     }
 database-check-card-last-review-time-empty =
     { $count ->
-        [one] Filled missing last review time in { $count } card.
-       *[other] Filled missing last review time in { $count } cards.
+        [one] Added last review time to { $count } card.
+       *[other] Added last review time to { $count } cards.
     }
 database-check-missing-templates =
     { $count ->
