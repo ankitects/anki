@@ -1450,7 +1450,7 @@
   },
   {
     "name": "fsrs",
-    "version": "5.0.1",
+    "version": "5.1.0",
     "authors": "Open Spaced Repetition",
     "repository": "https://github.com/open-spaced-repetition/fsrs-rs",
     "license": "BSD-3-Clause",
