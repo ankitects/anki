@@ -28,16 +28,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <h1>
             {title}
         </h1>
-        <div
-            on:click={onHelpClick}
-            on:keydown={onHelpClick}
-            role="button"
-            tabindex="0"
-            class="help-badge position-absolute"
-            class:rtl
-        >
-            <slot name="tooltip" />
-        </div>
+        {#if onHelpClick}
+            <div
+                on:click={onHelpClick}
+                on:keydown={onHelpClick}
+                role="button"
+                tabindex="0"
+                class="help-badge position-absolute"
+                class:rtl
+            >
+                <slot name="tooltip" />
+            </div>
+        {/if}
     </div>
     <slot />
 </div>
