@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let title: string;
-    export let onTitleClick: ((_e: MouseEvent | KeyboardEvent) => void) | null = null;
+    export let onHelpClick: ((_e: MouseEvent | KeyboardEvent) => void) | null = null;
 </script>
 
 <div
@@ -29,8 +29,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {title}
         </h1>
         <div
-            on:click={onTitleClick}
-            on:keydown={onTitleClick}
+            on:click={onHelpClick}
+            on:keydown={onHelpClick}
             role="button"
             tabindex="0"
             class="help-badge position-absolute"
