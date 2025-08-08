@@ -661,7 +661,7 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
     let mut cmd = Command::new(&state.uv_path);
     cmd.current_dir(&state.uv_install_root)
         .args(["run", "--no-project", "--no-config", "--managed-python"])
-        .args(["--with", "pip-system-certs"]);
+        .args(["--with", "pip-system-certs,requests[socks]"]);
 
     let python_version = read_file(&state.dist_python_version_path)?;
     let python_version_str =
