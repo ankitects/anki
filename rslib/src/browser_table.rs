@@ -138,10 +138,9 @@ impl Card {
                     .elapsed_secs()) as u32
             })
         } else {
-            let last_review_time =
-                TimestampSecs(self.original_or_current_due() as i64);
+            let last_review_time = TimestampSecs(self.original_or_current_due() as i64);
             Some(timing.now.elapsed_secs_since(last_review_time) as u32)
-        } 
+        }
     }
 }
 
