@@ -46,6 +46,7 @@ struct State {
     uv_lock_path: std::path::PathBuf,
     sync_complete_marker: std::path::PathBuf,
     launcher_trigger_file: std::path::PathBuf,
+    mirror_path: std::path::PathBuf,
     pyproject_modified_by_user: bool,
     previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
@@ -71,6 +72,7 @@ pub enum MainMenuChoice {
     Version(VersionKind),
     ToggleBetas,
     ToggleCache,
+    DownloadMirror,
     Uninstall,
 }
 
@@ -108,6 +110,7 @@ fn run() -> Result<()> {
         uv_lock_path: uv_install_root.join("uv.lock"),
         sync_complete_marker: uv_install_root.join(".sync_complete"),
         launcher_trigger_file: uv_install_root.join(".want-launcher"),
+        mirror_path: uv_install_root.join("mirror"),
         pyproject_modified_by_user: false, // calculated later
         previous_version: None,
         resources_dir,
@@ -155,12 +158,7 @@ fn run() -> Result<()> {
 
     check_versions(&mut state);
 
-    let first_run = !state.venv_folder.exists();
-    if first_run {
-        handle_version_install_or_update(&state, MainMenuChoice::Latest)?;
-    } else {
-        main_menu_loop(&state)?;
-    }
+    main_menu_loop(&state)?;
 
     // Write marker file to indicate we've completed the sync process
     write_sync_marker(&state)?;
@@ -379,6 +377,11 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 println!();
                 continue;
             }
+            MainMenuChoice::DownloadMirror => {
+                show_mirror_submenu(state)?;
+                println!();
+                continue;
+            }
             MainMenuChoice::Uninstall => {
                 if handle_uninstall(state)? {
                     std::process::exit(0);
@@ -443,8 +446,13 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
             "6) Cache downloads: {}",
             if cache_enabled { "on" } else { "off" }
         );
+        let mirror_enabled = is_mirror_enabled(state);
+        println!(
+            "7) Download mirror: {}",
+            if mirror_enabled { "on" } else { "off" }
+        );
         println!();
-        println!("7) Uninstall");
+        println!("8) Uninstall");
         print!("> ");
         let _ = stdout().flush();
 
@@ -483,7 +491,8 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
             }
             "5" => MainMenuChoice::ToggleBetas,
             "6" => MainMenuChoice::ToggleCache,
-            "7" => MainMenuChoice::Uninstall,
+            "7" => MainMenuChoice::DownloadMirror,
+            "8" => MainMenuChoice::Uninstall,
             _ => {
                 println!("Invalid input. Please try again.");
                 continue;
@@ -716,7 +725,15 @@ fn apply_version_kind(version_kind: &VersionKind, state: &State) -> Result<()> {
             &format!("anki-release=={version}\",\n  \"anki=={version}\",\n  \"aqt=={version}"),
         ),
     };
-    write_file(&state.user_pyproject_path, &updated_content)?;
+
+    // Add mirror configuration if enabled
+    let final_content = if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
+        format!("{updated_content}\n\n[[tool.uv.index]]\nname = \"mirror\"\nurl = \"{pypi_mirror}\"\ndefault = true\n\n[tool.uv]\npython-install-mirror = \"{python_mirror}\"\n")
+    } else {
+        updated_content
+    };
+
+    write_file(&state.user_pyproject_path, &final_content)?;
 
     // Update .python-version based on version kind
     match version_kind {
@@ -748,6 +765,9 @@ fn update_pyproject_for_version(menu_choice: MainMenuChoice, state: &State) -> R
             unreachable!();
         }
         MainMenuChoice::ToggleCache => {
+            unreachable!();
+        }
+        MainMenuChoice::DownloadMirror => {
             unreachable!();
         }
         MainMenuChoice::Uninstall => {
@@ -937,6 +957,70 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
 
     Ok(cmd)
+}
+
+fn is_mirror_enabled(state: &State) -> bool {
+    state.mirror_path.exists()
+}
+
+fn get_mirror_urls(state: &State) -> Result<Option<(String, String)>> {
+    if !state.mirror_path.exists() {
+        return Ok(None);
+    }
+
+    let content = read_file(&state.mirror_path)?;
+    let content_str = String::from_utf8(content).context("Invalid UTF-8 in mirror file")?;
+
+    let lines: Vec<&str> = content_str.lines().collect();
+    if lines.len() >= 2 {
+        Ok(Some((
+            lines[0].trim().to_string(),
+            lines[1].trim().to_string(),
+        )))
+    } else {
+        Ok(None)
+    }
+}
+
+fn show_mirror_submenu(state: &State) -> Result<()> {
+    loop {
+        println!("Download mirror options:");
+        println!("1) No mirror");
+        println!("2) China");
+        print!("> ");
+        let _ = stdout().flush();
+
+        let mut input = String::new();
+        let _ = stdin().read_line(&mut input);
+        let input = input.trim();
+
+        match input {
+            "1" => {
+                // Remove mirror file
+                if state.mirror_path.exists() {
+                    let _ = remove_file(&state.mirror_path);
+                }
+                println!("Mirror disabled.");
+                break;
+            }
+            "2" => {
+                // Write China mirror URLs
+                let china_mirrors = "https://registry.npmmirror.com/-/binary/python-build-standalone/\nhttps://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/";
+                write_file(&state.mirror_path, china_mirrors)?;
+                println!("China mirror enabled.");
+                break;
+            }
+            "" => {
+                // Empty input - return to main menu
+                break;
+            }
+            _ => {
+                println!("Invalid input. Please try again.");
+                continue;
+            }
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
