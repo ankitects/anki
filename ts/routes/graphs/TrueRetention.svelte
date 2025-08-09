@@ -57,12 +57,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const title = tr.statisticsTrueRetentionTitle();
     const subtitle = tr.statisticsTrueRetentionSubtitle();
-    const onHelpClick = () => {
+    const onTitleClick = () => {
         openHelpModal(Object.keys(retentionHelp).indexOf("trueRetention"));
     };
 </script>
 
-<Graph {title} {subtitle} {onHelpClick}>
+<Graph {title} {subtitle} {onTitleClick}>
     <HelpModal
         title={tr.statisticsTrueRetentionTitle()}
         url={HelpPage.DeckOptions.fsrs}
