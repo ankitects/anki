@@ -105,7 +105,7 @@ impl Card {
 
     /// Returns true if the card has a due date in terms of days.
     fn is_due_in_days(&self) -> bool {
-        self.original_or_current_due() <= 365_000 // keep consistent with SQL
+        self.ctype != CardType::New && self.original_or_current_due() <= 365_000 // keep consistent with SQL
             || matches!(self.queue, CardQueue::DayLearn | CardQueue::Review)
             || (self.ctype == CardType::Review && self.is_undue_queue())
     }
@@ -132,15 +132,14 @@ impl Card {
     pub(crate) fn seconds_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
         if let Some(last_review_time) = self.last_review_time {
             Some(timing.now.elapsed_secs_since(last_review_time) as u32)
-        } else if !self.is_due_in_days() {
-            let last_review_time =
-                TimestampSecs(self.original_or_current_due() as i64 - self.interval as i64);
-            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
-        } else {
+        } else if self.is_due_in_days() {
             self.due_time(timing).map(|due| {
                 (due.adding_secs(-86_400 * self.interval as i64)
                     .elapsed_secs()) as u32
             })
+        } else {
+            let last_review_time = TimestampSecs(self.original_or_current_due() as i64);
+            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
         }
     }
 }

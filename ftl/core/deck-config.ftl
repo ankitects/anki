@@ -517,7 +517,6 @@ deck-config-smooth-graph = Smooth graph
 deck-config-suspend-leeches = Suspend leeches
 deck-config-save-options-to-preset = Save Changes to Preset
 deck-config-save-options-to-preset-confirm = Overwrite the options in your current preset with the options that are currently set in the simulator?
-deck-config-plotted-on-x-axis = (Plotted on the X-axis)
 # Radio button in the FSRS simulation diagram (Deck options -> FSRS) selecting
 # to show the total number of cards that can be recalled or retrieved on a
 # specific date.
@@ -545,6 +544,7 @@ deck-config-fsrs-good-fit = Health Check:
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
+deck-config-plotted-on-x-axis = (Plotted on the X-axis)
 deck-config-a-100-day-interval = 
     { $days ->
         [one] A 100 day interval will become { $days } day.
