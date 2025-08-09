@@ -1,10 +1,10 @@
 #image-occlusion-canvas {
     --inactive-shape-color: lightgray;
-    --active-shape-color: royalblue;
+    --active-shape-color: dodgerblue;
     --inactive-shape-border: 1px black;
     --active-shape-border: 1px black;
     --highlight-shape-color: transparent;
-    --highlight-shape-border: 1px royalblue;
+    --highlight-shape-border: 1px dodgerblue;
 }
 
 .card {
