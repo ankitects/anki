@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { localizedDate } from "@tslib/i18n";
+import { createLocaleNumberFormat, localizedDate } from "@tslib/i18n";
 import {
     axisBottom,
     axisLeft,
@@ -74,7 +74,7 @@ export function renderWorkloadChart(
             : n.toString();
     };
 
-    const formatter = new Intl.NumberFormat(undefined, {
+    const formatter = createLocaleNumberFormat({
         style: "percent",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
