@@ -118,7 +118,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         if out.new_endpoint:
             mw.pm.set_current_sync_url(out.new_endpoint)
         if out.server_message:
-            showText(out.server_message)
+            showText(out.server_message, parent=mw)
         if out.required == out.NO_CHANGES:
             tooltip(parent=mw, msg=tr.sync_collection_complete())
             # all done; track media progress

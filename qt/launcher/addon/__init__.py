@@ -90,17 +90,21 @@ def update_and_restart() -> None:
 
     with contextlib.suppress(ResourceWarning):
         env = os.environ.copy()
+        env["ANKI_LAUNCHER_WANT_TERMINAL"] = "1"
         creationflags = 0
         if sys.platform == "win32":
             creationflags = (
                 subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
             )
+        # On Windows, changing the handles breaks ANSI display
+        io = None if sys.platform == "win32" else subprocess.DEVNULL
+
         subprocess.Popen(
             [launcher],
             start_new_session=True,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdin=io,
+            stdout=io,
+            stderr=io,
             env=env,
             creationflags=creationflags,
         )

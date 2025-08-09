@@ -73,7 +73,7 @@ langs = sorted(
         ("ଓଡ଼ିଆ", "or_OR"),
         ("Filipino", "tl"),
         ("ئۇيغۇر", "ug"),
-        ("Oʻzbek", "uz_UZ"),
+        ("Oʻzbekcha", "uz_UZ"),
     ]
 )
 

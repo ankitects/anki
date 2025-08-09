@@ -130,7 +130,8 @@ dependencies = [
  "prost",
  "prost-reflect",
  "pulldown-cmark 0.13.0",
- "rand 0.9.1",
+ "rand 0.9.2",
+ "rayon",
  "regex",
  "reqwest 0.12.20",
  "rusqlite",
@@ -143,7 +144,7 @@ dependencies = [
  "serde_tuple",
  "sha1",
  "snafu",
- "strum 0.27.1",
+ "strum 0.27.2",
  "syn 2.0.103",
  "tempfile",
  "tokio",
@@ -219,7 +220,7 @@ dependencies = [
  "prost-types",
  "serde",
  "snafu",
- "strum 0.27.1",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -705,7 +706,7 @@ dependencies = [
  "log",
  "num-traits",
  "portable-atomic-util",
- "rand 0.9.1",
+ "rand 0.9.2",
  "rmp-serde",
  "serde",
  "serde_json",
@@ -731,7 +732,7 @@ dependencies = [
  "hashbrown 0.15.4",
  "log",
  "num-traits",
- "rand 0.9.1",
+ "rand 0.9.2",
  "serde",
  "spin 0.10.0",
  "text_placeholder",
@@ -761,12 +762,12 @@ dependencies = [
  "csv",
  "derive-new 0.7.0",
  "dirs 6.0.0",
- "rand 0.9.1",
+ "rand 0.9.2",
  "rmp-serde",
  "sanitize-filename 0.6.0",
  "serde",
  "serde_json",
- "strum 0.27.1",
+ "strum 0.27.2",
  "tempfile",
  "thiserror 2.0.12",
 ]
@@ -816,7 +817,7 @@ dependencies = [
  "num-traits",
  "paste",
  "portable-atomic-util",
- "rand 0.9.1",
+ "rand 0.9.2",
  "seq-macro",
  "spin 0.10.0",
 ]
@@ -864,7 +865,7 @@ dependencies = [
  "half",
  "hashbrown 0.15.4",
  "num-traits",
- "rand 0.9.1",
+ "rand 0.9.2",
  "rand_distr",
  "serde",
  "serde_bytes",
@@ -958,7 +959,7 @@ dependencies = [
  "memmap2",
  "num-traits",
  "num_cpus",
- "rand 0.9.1",
+ "rand 0.9.2",
  "rand_distr",
  "rayon",
  "safetensors",
@@ -1402,7 +1403,7 @@ dependencies = [
  "log",
  "num-traits",
  "portable-atomic",
- "rand 0.9.1",
+ "rand 0.9.2",
  "sanitize-filename 0.5.0",
  "serde",
  "serde_json",
@@ -2213,20 +2214,20 @@ dependencies = [
 
 [[package]]
 name = "fsrs"
-version = "4.1.1"
+version = "5.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1f3a8c3df2c324ebab71461178fe8c1fe2d7373cf603f312b652befd026f06d"
+checksum = "04954cc67c3c11ee342a2ee1f5222bf76d73f7772df08d37dc9a6cdd73c467eb"
 dependencies = [
  "burn",
  "itertools 0.14.0",
  "log",
  "ndarray",
  "priority-queue",
- "rand 0.9.1",
+ "rand 0.9.2",
  "rayon",
  "serde",
  "snafu",
- "strum 0.27.1",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -2803,7 +2804,7 @@ dependencies = [
  "cfg-if",
  "crunchy",
  "num-traits",
- "rand 0.9.1",
+ "rand 0.9.2",
  "rand_distr",
  "serde",
 ]
@@ -3657,7 +3658,7 @@ dependencies = [
  "linkcheck",
  "regex",
  "reqwest 0.12.20",
- "strum 0.27.1",
+ "strum 0.27.2",
  "tokio",
 ]
 
@@ -5095,7 +5096,7 @@ dependencies = [
  "bytes",
  "getrandom 0.3.3",
  "lru-slab",
- "rand 0.9.1",
+ "rand 0.9.2",
  "ring",
  "rustc-hash 2.1.1",
  "rustls",
@@ -5149,9 +5150,9 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.9.1"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9fbfd9d094a40bf3ae768db9361049ace4c0e04a4fd6b359518bd7b73a73dd97"
+checksum = "6db2770f06117d490610c7488547d543617b21bfa07796d7a12f6f1bd53850d1"
 dependencies = [
  "rand_chacha 0.9.0",
  "rand_core 0.9.3",
@@ -5202,7 +5203,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a8615d50dcf34fa31f7ab52692afec947c4dd0ab803cc87cb3b0b4570ff7463"
 dependencies = [
  "num-traits",
- "rand 0.9.1",
+ "rand 0.9.2",
 ]
 
 [[package]]
@@ -6112,9 +6113,9 @@ dependencies = [
 
 [[package]]
 name = "strum"
-version = "0.27.1"
+version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f64def088c51c9510a8579e3c5d67c65349dcf755e5479ad3d010aa6454e2c32"
+checksum = "af23d6f6c1a224baef9d3f61e287d2761385a5b88fdab4eb4c6f11aeb54c4bcf"
 dependencies = [
  "strum_macros 0.27.1",
 ]

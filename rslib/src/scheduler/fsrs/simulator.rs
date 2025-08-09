@@ -1,11 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
 use anki_proto::deck_config::deck_config::config::ReviewCardOrder::*;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
+use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
 use fsrs::simulate;
 use fsrs::PostSchedulingFn;
 use fsrs::ReviewPriorityFn;
@@ -14,6 +16,8 @@ use fsrs::FSRS;
 use itertools::Itertools;
 use rand::rngs::StdRng;
 use rand::Rng;
+use rayon::iter::IntoParallelIterator;
+use rayon::iter::ParallelIterator;
 
 use crate::card::CardQueue;
 use crate::card::CardType;
@@ -117,6 +121,12 @@ fn create_review_priority_fn(
     }
 }
 
+pub(crate) fn is_included_card(c: &Card) -> bool {
+    c.queue != CardQueue::Suspended
+        && c.queue != CardQueue::PreviewRepeat
+        && c.ctype != CardType::New
+}
+
 impl Collection {
     pub fn simulate_request_to_config(
         &mut self,
@@ -129,11 +139,6 @@ impl Collection {
             .get_revlog_entries_for_searched_cards_in_card_order()?;
         let mut cards = guard.col.storage.all_searched_cards()?;
         drop(guard);
-        fn is_included_card(c: &Card) -> bool {
-            c.queue != CardQueue::Suspended
-                && c.queue != CardQueue::PreviewRepeat
-                && c.ctype != CardType::New
-        }
         // calculate any missing memory state
         for c in &mut cards {
             if is_included_card(c) && c.memory_state.is_none() {
@@ -233,8 +238,8 @@ impl Collection {
             learning_step_transitions: p.learning_step_transitions,
             relearning_step_transitions: p.relearning_step_transitions,
             state_rating_costs: p.state_rating_costs,
-            learning_step_count: p.learning_step_count,
-            relearning_step_count: p.relearning_step_count,
+            learning_step_count: req.learning_step_count as usize,
+            relearning_step_count: req.relearning_step_count as usize,
         };
 
         Ok((config, converted_cards))
@@ -267,10 +272,46 @@ impl Collection {
             daily_time_cost: result.cost_per_day,
         })
     }
+
+    pub fn simulate_workload(
+        &mut self,
+        req: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsWorkloadResponse> {
+        let (config, cards) = self.simulate_request_to_config(&req)?;
+        let dr_workload = (70u32..=99u32)
+            .into_par_iter()
+            .map(|dr| {
+                let result = simulate(
+                    &config,
+                    &req.params,
+                    dr as f32 / 100.,
+                    None,
+                    Some(cards.clone()),
+                )?;
+                Ok((
+                    dr,
+                    (
+                        *result.memorized_cnt_per_day.last().unwrap_or(&0.),
+                        result.cost_per_day.iter().sum::<f32>(),
+                        result.review_cnt_per_day.iter().sum::<usize>() as u32,
+                    ),
+                ))
+            })
+            .collect::<Result<HashMap<_, _>>>()?;
+        Ok(SimulateFsrsWorkloadResponse {
+            memorized: dr_workload.iter().map(|(k, v)| (*k, v.0)).collect(),
+            cost: dr_workload.iter().map(|(k, v)| (*k, v.1)).collect(),
+            review_count: dr_workload.iter().map(|(k, v)| (*k, v.2)).collect(),
+        })
+    }
 }
 
 impl Card {
-    fn convert(card: Card, days_elapsed: i32, memory_state: FsrsMemoryState) -> Option<fsrs::Card> {
+    pub(crate) fn convert(
+        card: Card,
+        days_elapsed: i32,
+        memory_state: FsrsMemoryState,
+    ) -> Option<fsrs::Card> {
         match card.queue {
             CardQueue::DayLearn | CardQueue::Review => {
                 let due = card.original_or_current_due();

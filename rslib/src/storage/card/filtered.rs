@@ -14,6 +14,8 @@ pub(crate) fn order_and_limit_for_search(
 ) -> String {
     let temp_string;
     let today = timing.days_elapsed;
+    let next_day_at = timing.next_day_at.0;
+    let now = timing.now.0;
     let order = match term.order() {
         FilteredSearchOrder::OldestReviewedFirst => "(select max(id) from revlog where cid=c.id)",
         FilteredSearchOrder::Random => "random()",
@@ -29,15 +31,13 @@ pub(crate) fn order_and_limit_for_search(
             &temp_string
         }
         FilteredSearchOrder::RetrievabilityAscending => {
-            let next_day_at = timing.next_day_at.0;
             temp_string =
-                build_retrievability_query(fsrs, today, next_day_at, SqlSortOrder::Ascending);
+                build_retrievability_query(fsrs, today, next_day_at, now, SqlSortOrder::Ascending);
             &temp_string
         }
         FilteredSearchOrder::RetrievabilityDescending => {
-            let next_day_at = timing.next_day_at.0;
             temp_string =
-                build_retrievability_query(fsrs, today, next_day_at, SqlSortOrder::Descending);
+                build_retrievability_query(fsrs, today, next_day_at, now, SqlSortOrder::Descending);
             &temp_string
         }
     };
@@ -49,11 +49,12 @@ fn build_retrievability_query(
     fsrs: bool,
     today: u32,
     next_day_at: i64,
+    now: i64,
     order: SqlSortOrder,
 ) -> String {
     if fsrs {
         format!(
-            "extract_fsrs_relative_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, {today}, ivl, {next_day_at}) {order}"
+            "extract_fsrs_relative_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, {today}, ivl, {next_day_at}, {now}) {order}"
         )
     } else {
         format!(
