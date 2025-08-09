@@ -15,9 +15,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import { EditorState, type EditorMode } from "./types";
     import { ContextMenu, Item } from "$lib/context-menu";
-    import type Modal from "bootstrap/js/dist/modal";
-    import { getContext } from "svelte";
-    import { modalsKey } from "$lib/components/context-keys";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -451,9 +448,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await addCurrentNote(1n);
     }
 
-    const modals = getContext<Map<string, Modal>>(modalsKey);
-    let modalKey: string;
-
+    let historyModal: Modal;
     let history: HistoryEntry[] = [];
 
     export async function addNoteToHistory(note: Note) {
@@ -476,7 +471,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export function onHistory() {
-        modals.get(modalKey)!.show();
+        historyModal.show();
     }
 
     export function saveOnPageHide() {
@@ -724,6 +719,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HistoryModal from "./HistoryModal.svelte";
     import { HelpPageLinkRequest_HelpPage } from "@generated/anki/links_pb";
     import { MessageBoxType } from "@generated/anki/frontend_pb";
+    import type Modal from "$lib/components/Modal.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -1389,7 +1385,7 @@ components and functionality for general note editing.
 
     {#if !isLegacy}
         <ActionButtons {mode} {onClose} {onAdd} {onHistory} {history} />
-        <HistoryModal bind:modalKey {history} />
+        <HistoryModal bind:modal={historyModal} {history} />
     {/if}
 
     {#if !isLegacy}
