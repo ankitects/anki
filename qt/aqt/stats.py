@@ -146,7 +146,17 @@ class NewDeckStats(QDialog):
         return False
 
     def refresh(self) -> None:
+        def on_load_finished(success: bool) -> None:
+            if success:
+                is_color_blind = self.mw.pm.color_blind()
+                js_code = f"window.colorBlindMode = {str(is_color_blind).lower()};"
+                self.form.web.eval(js_code)
+            # Disconnect after running once to avoid multiple triggers
+            self.form.web.page().loadFinished.disconnect(on_load_finished)
+
+        self.form.web.page().loadFinished.connect(on_load_finished)
         self.form.web.load_sveltekit_page("graphs")
+
 
 
 class DeckStats(QDialog):
