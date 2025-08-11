@@ -10,7 +10,7 @@ import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { timeSpan } from "@tslib/time";
 import type { Bin } from "d3";
-import { bin, extent, interpolateBlues, interpolateCividis, quantile, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, extent, interpolateBlues, interpolateViridis, quantile, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { numericMap } from "./graph-helpers";
@@ -147,13 +147,14 @@ export function prepareIntervalData(
         return [null, []];
     }
 
+    //const adjustedRange = scaleLinear().range([0.7, 0.3]);
     let adjustedRange;
     let colourScale;
 
     if ((window as any).colorBlindMode)
     {
-        adjustedRange = scaleLinear().range([0.1, 1.0]);
-        colourScale = scaleSequential((n) => interpolateCividis(adjustedRange(n)!)).domain([xMax!, xMin!]);
+        adjustedRange = scaleLinear().range([0.3, 0.7]);
+        colourScale = scaleSequential((n) => interpolateViridis(adjustedRange(n)!)).domain([xMax!, xMin!]);
     }
     else 
     {

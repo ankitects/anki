@@ -9,7 +9,7 @@ import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import type { Bin, ScaleLinear, ScaleSequential } from "d3";
-import { bin, extent, interpolateRdYlGn, interpolateTurbo, interpolateViridis, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, extent, interpolateRdYlGn, interpolateViridis, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, numericMap } from "./graph-helpers";
@@ -89,7 +89,7 @@ export function prepareData(
 
     if ((window as any).colorBlindMode)
     {
-        colourScale = scaleSequential(interpolateTurbo).domain([xMin, 300]);
+        colourScale = scaleSequential(interpolateViridis).domain([xMin, 300]);
     }
     else 
     {
