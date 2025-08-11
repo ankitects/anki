@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { localizedNumber } from "@tslib/i18n";
-
     import { type RevlogRange } from "./graph-helpers";
     import {
         calculateRetentionPercentageString,
@@ -13,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type PeriodTrueRetentionData,
         type RowData,
     } from "./true-retention";
+    import { onMount } from "svelte";
 
     interface Props {
         revlogRange: RevlogRange;
@@ -22,6 +22,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { revlogRange, data }: Props = $props();
 
     const rowData: RowData[] = $derived(getRowData(data, revlogRange));
+
+    // Default (non-colorblind) colors
+    let youngColor = "#64c476";
+    let matureColor = "#31a354";
+
+    onMount(() => {
+        const isColorBlindMode = (window as any).colorBlindMode;
+        if (isColorBlindMode) {
+            youngColor = "#44ab9a";
+            matureColor = "#127733";
+        }
+        // Set globally so scoped SCSS can use them
+        document.documentElement.style.setProperty("--young-color", youngColor);
+        document.documentElement.style.setProperty("--mature-color", matureColor);
+    });
 </script>
 
 <table>
@@ -84,11 +99,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .young {
-        color: #64c476;
+        color: var(--young-color);
     }
 
     .mature {
-        color: #31a354;
+        color: var(--mature-color);
     }
 
     .total {
