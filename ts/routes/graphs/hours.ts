@@ -16,6 +16,7 @@ import {
     axisRight,
     curveBasis,
     interpolateBlues,
+    interpolatePurples,
     pointer,
     scaleBand,
     scaleLinear,
@@ -83,11 +84,21 @@ export function renderHours(
         .classed(oddTickClass, (d: any): boolean => d % 2 != 0)
         .attr("direction", "ltr");
 
-    const cappedRange = scaleLinear().range([0.1, 0.8]);
-    const colour = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
-        0,
-        yMax,
-    ]);
+    let cappedRange = scaleLinear().range([0.1, 0.8]);
+    let colour;
+    const isColorBlindMode = (window as any).colorBlindMode;
+
+    if(isColorBlindMode) { 
+        colour = scaleSequential((n) => interpolatePurples(cappedRange(n)!)).domain([
+            0,
+            yMax,
+        ]);
+    } else {
+        colour = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
+            0,
+            yMax,
+        ]);
+    }
 
     // y scale
     const yTickFormat = (n: number): string => localizedNumber(n);
