@@ -68,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         onclick={onHelpClick}
         onkeydown={onHelpClick}
         role="button"
-        tabindex="0"
+        tabindex="-1"
     >
         <HelpModal
             title={tr.statisticsTrueRetentionTitle()}
