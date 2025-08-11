@@ -370,12 +370,9 @@ class Preferences(QDialog):
         )
         self.form.styleLabel.setVisible(not is_win)
         self.form.styleComboBox.setVisible(not is_win)
-
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
         self.form.color_blind.setChecked(self.mw.pm.color_blind())
-        js_code = f"window.colorBlindMode = true;"
-        self.mw.web.eval(js_code)
         qconnect(self.form.color_blind.stateChanged, self.on_my_checkbox_changed)
 
 

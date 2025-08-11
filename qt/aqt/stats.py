@@ -132,17 +132,10 @@ class NewDeckStats(QDialog):
         pass
 
     def _on_bridge_cmd(self, cmd: str) -> bool:
-        print("Bridge command called:")
         if cmd.startswith("browserSearch"):
             _, query = cmd.split(":", 1)
             browser = aqt.dialogs.open("Browser", self.mw)
             browser.search_for(query)
-        if cmd.startswith("getColorBlindSetting"):
-            print("getColorBlindSetting called")
-            is_color_blind = self.mw.pm.color_blind()
-            js_code = f"window.__setColorBlindSetting({str(is_color_blind).lower()});"
-            self.mw.web.eval(js_code)
-            return True
         return False
 
     def refresh(self) -> None:
