@@ -18,6 +18,7 @@ import {
     schemeGreens,
     schemeOranges,
     schemeReds,
+    schemePuRd,
     schemePurples,
     schemeBuPu,
     select,
@@ -40,7 +41,8 @@ if((window as any).colorBlindMode)
     barColours = [
     schemeBlues[5][2], /* new */
     schemeOranges[5][2], /* learn */
-    schemeReds[5][2], /* relearn */
+    //schemeReds[5][2], /* relearn */
+    schemePuRd[9][7],    
     schemePurples[7][4], /* young */
     schemeBuPu[8][6], /* mature */
     "#00FF60", /* suspended */

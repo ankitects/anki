@@ -9,7 +9,7 @@ import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import type { Bin, ScaleLinear, ScaleSequential } from "d3";
-import { bin, extent, interpolateRdYlGn, interpolateTurbo, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, extent, interpolateRdYlGn, interpolateTurbo, interpolateViridis, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, numericMap } from "./graph-helpers";

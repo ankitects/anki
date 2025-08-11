@@ -161,11 +161,6 @@ export function prepareIntervalData(
         colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
     }
 
-    //const adjustedRange = scaleLinear().range([0.7, 0.3]);
-    //const adjustedRange = scaleLinear().range([0.1, 1.0]);
-    //const colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
-    //const colourScale = scaleSequential((n) => interpolateCividis(adjustedRange(n)!)).domain([xMax!, xMin!]);
-
     function hoverText(
         bin: Bin<number, number>,
         _cumulative: number,
