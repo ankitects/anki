@@ -8,8 +8,8 @@
 import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Bin, ScaleLinear } from "d3";
-import { bin, extent, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";
+import type { Bin, ScaleLinear, ScaleSequential } from "d3";
+import { bin, extent, interpolateRdYlGn, interpolateTurbo, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, numericMap } from "./graph-helpers";
@@ -84,7 +84,17 @@ export function prepareData(
         .thresholds(ticks)(allEases.entries() as any);
     const total = sum(bins as any, getNumericMapBinValue);
 
-    const colourScale = scaleSequential(interpolateRdYlGn).domain([xMin, 300]);
+    
+    let colourScale;
+
+    if ((window as any).colorBlindMode)
+    {
+        colourScale = scaleSequential(interpolateTurbo).domain([xMin, 300]);
+    }
+    else 
+    {
+        colourScale = scaleSequential(interpolateRdYlGn).domain([xMin, 300]);
+    }
 
     function hoverText(bin: Bin<number, number>, _percent: number): string {
         const minPct = Math.floor(bin.x0!);

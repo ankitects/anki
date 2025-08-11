@@ -18,6 +18,8 @@ import {
     schemeGreens,
     schemeOranges,
     schemeReds,
+    schemePurples,
+    schemeBuPu,
     select,
     sum,
 } from "d3";
@@ -31,15 +33,32 @@ export interface GraphData {
     totalCards: string;
 }
 
-const barColours = [
+let barColours;
+
+if((window as any).colorBlindMode)
+{
+    barColours = [
+    schemeBlues[5][2], /* new */
+    schemeOranges[5][2], /* learn */
+    schemeReds[5][2], /* relearn */
+    schemePurples[7][4], /* young */
+    schemeBuPu[8][6], /* mature */
+    "#00FF60", /* suspended */
+    "#1F1F1F", /* buried */
+    ];
+}
+else 
+{
+    barColours = [
     schemeBlues[5][2], /* new */
     schemeOranges[5][2], /* learn */
     schemeReds[5][2], /* relearn */
     schemeGreens[5][2], /* young */
     schemeGreens[5][3], /* mature */
     "#FFDC41", /* suspended */
-    "grey", /* buried */
-];
+    "#grey", /* buried */
+    ];
+}
 
 function countCards(data: GraphsResponse, separateInactive: boolean): Count[] {
     const countData = separateInactive ? data.cardCounts!.excludingInactive! : data.cardCounts!.includingInactive!;

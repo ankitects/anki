@@ -10,7 +10,7 @@ import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { timeSpan } from "@tslib/time";
 import type { Bin } from "d3";
-import { bin, extent, interpolateBlues, quantile, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, extent, interpolateBlues, interpolateCividis, quantile, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { numericMap } from "./graph-helpers";
@@ -147,8 +147,24 @@ export function prepareIntervalData(
         return [null, []];
     }
 
-    const adjustedRange = scaleLinear().range([0.7, 0.3]);
-    const colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
+    let adjustedRange;
+    let colourScale;
+
+    if ((window as any).colorBlindMode)
+    {
+        adjustedRange = scaleLinear().range([0.1, 1.0]);
+        colourScale = scaleSequential((n) => interpolateCividis(adjustedRange(n)!)).domain([xMax!, xMin!]);
+    }
+    else 
+    {
+        adjustedRange = scaleLinear().range([0.7, 0.3]);
+        colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
+    }
+
+    //const adjustedRange = scaleLinear().range([0.7, 0.3]);
+    //const adjustedRange = scaleLinear().range([0.1, 1.0]);
+    //const colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
+    //const colourScale = scaleSequential((n) => interpolateCividis(adjustedRange(n)!)).domain([xMax!, xMin!]);
 
     function hoverText(
         bin: Bin<number, number>,
