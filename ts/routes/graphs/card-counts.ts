@@ -18,9 +18,6 @@ import {
     schemeGreens,
     schemeOranges,
     schemeReds,
-    schemePuRd,
-    schemePurples,
-    schemeBuPu,
     select,
     sum,
 } from "d3";
@@ -39,19 +36,12 @@ let barColours;
 if((window as any).colorBlindMode)
 {
     barColours = [
-    //schemeBlues[5][2], /* new */
     "#88CCEE", /* new */
-    //schemeOranges[5][2], /* learn */
     "#44AA99", /* learn */
-    //schemePuRd[9][7],    /* relearn */
     "#117733", /* relearn */
-    //schemePurples[7][4], /* young */
     "#CC6677", /* young */
-    //schemeBuPu[8][6], /* mature */
     "#882255", /* mature */
-    //"#00FF60", /* suspended */
     "#DDCC77", /* suspended */
-    //"#1F1F1F", /* buried */
     "#332288", /* buried */
     ];
 }
