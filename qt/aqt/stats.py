@@ -142,9 +142,6 @@ class NewDeckStats(QDialog):
         def on_load_finished(success: bool) -> None:
             if success:
                 is_color_blind = self.mw.pm.color_blind()
-                selected_gradient = self.mw.pm.get_gradient_index()
-                js_code = f"window.selectedGradient = {str(selected_gradient).lower()};"
-                self.form.web.eval(js_code)
                 js_code = f"window.colorBlindMode = {str(is_color_blind).lower()};"
                 self.form.web.eval(js_code)
             # Disconnect after running once to avoid multiple triggers

@@ -375,14 +375,6 @@ class Preferences(QDialog):
         self.form.color_blind.setChecked(self.mw.pm.color_blind())
         qconnect(self.form.color_blind.stateChanged, self.on_color_blind_checkbox_changed)
 
-        self.form.gradient_selector.setVisible(not is_win)
-        self.form.gradient_selector.addItems(["Default","Viridis","Inferno","Magma","Plasma","Cividis",])
-        self.form.gradient_selector.setCurrentIndex(self.mw.pm.get_gradient_index())
-        qconnect(
-            self.form.gradient_selector.currentIndexChanged,
-            self.mw.pm.set_gradient_index,
-        )
-
         self.setup_language()
         self.setup_video_driver()
 
