@@ -105,3 +105,17 @@ export function numericMap<T>(obj: { [k: string]: T }): Map<number, T> {
 export function getNumericMapBinValue(d: Bin<Map<number, number>, number>): number {
     return sum(d, (d) => d[1]);
 }
+
+/**
+ * Colorblind-friendly colors from https://davidmathlogic.com/colorblind/
+ */
+export const colorBlindColors = {
+    new: "#88CCEE",
+    learn: "#44AA99",
+    relearn: "#117733",
+    young: "#CC6677",
+    mature: "#882255",
+    suspended: "#DDCC77",
+    buried: "#332288",
+    filtered: "#AA4499"
+};

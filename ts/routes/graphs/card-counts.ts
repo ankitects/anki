@@ -22,7 +22,7 @@ import {
     sum,
 } from "d3";
 
-import type { GraphBounds } from "./graph-helpers";
+import { colorBlindColors, type GraphBounds } from "./graph-helpers";
 
 type Count = [string, number, boolean, string];
 export interface GraphData {
@@ -36,13 +36,13 @@ let barColours;
 if((window as any).colorBlindMode)
 {
     barColours = [
-    "#88CCEE", /* new */
-    "#44AA99", /* learn */
-    "#117733", /* relearn */
-    "#CC6677", /* young */
-    "#882255", /* mature */
-    "#DDCC77", /* suspended */
-    "#332288", /* buried */
+    colorBlindColors.new, /* new */
+    colorBlindColors.learn, /* learn */
+    colorBlindColors.relearn, /* relearn */
+    colorBlindColors.young, /* young */
+    colorBlindColors.mature, /* mature */
+    colorBlindColors.suspended, /* suspended */
+    colorBlindColors.buried, /* buried */
     ];
 }
 else 

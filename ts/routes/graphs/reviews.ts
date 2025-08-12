@@ -22,16 +22,20 @@ import {
     interpolateGreens,
     interpolatePurples,
     interpolateReds,
+    interpolateRgb,
     max,
     min,
     pointer,
     scaleLinear,
+    scaleOrdinal,
     scaleSequential,
     select,
     sum,
+    color,
+    hsl
 } from "d3";
 
-import type { GraphBounds, TableDatum } from "./graph-helpers";
+import { colorBlindColors, type GraphBounds, type TableDatum } from "./graph-helpers";
 import { GraphRange, numericMap, setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
 
@@ -188,20 +192,51 @@ export function renderReviews(
         x.domain() as any,
     );
 
+    const colorBlindMode = (window as any).colorBlindMode;
+
+
+    function makeColorBlindGradient(baseHex: string, satAdjust = 0.02, lightAdjust = 0.02) {
+        const base = color(baseHex);
+        if (!base) throw new Error(`Invalid color: ${baseHex}`);
+
+        const lighter = hsl(base);
+        lighter.s = Math.min(1, lighter.s + satAdjust);
+        lighter.l = Math.min(1, lighter.l + lightAdjust);
+
+        const darker = hsl(base);
+        darker.s = Math.max(0, darker.s - satAdjust);
+        darker.l = Math.max(0, darker.l - lightAdjust);
+
+        return scaleSequential(interpolateRgb(darker.toString(), lighter.toString()));
+    }
+
+    const colorBlindScales = {
+        mature: makeColorBlindGradient(colorBlindColors.mature),
+        learn: makeColorBlindGradient(colorBlindColors.learn),
+        relearn: makeColorBlindGradient(colorBlindColors.relearn),
+        young: makeColorBlindGradient(colorBlindColors.young),
+        suspended: makeColorBlindGradient(colorBlindColors.suspended),
+        buried: makeColorBlindGradient(colorBlindColors.buried),
+        filtered: makeColorBlindGradient(colorBlindColors.filtered)
+    };
+
+    Object.values(colorBlindScales).forEach(scale => scale.domain(x.domain() as any));
+
     function binColor(idx: BinIndex): ScaleSequential<string> {
         switch (idx) {
             case BinIndex.Mature:
-                return darkerGreens;
+                return colorBlindMode ? colorBlindScales.mature : darkerGreens;
             case BinIndex.Young:
-                return lighterGreens;
+                return colorBlindMode ? colorBlindScales.young : lighterGreens;
             case BinIndex.Learn:
-                return blues;
+                return colorBlindMode ? colorBlindScales.learn : blues;
             case BinIndex.Relearn:
-                return reds;
+                return colorBlindMode ? colorBlindScales.relearn : reds;
             case BinIndex.Filtered:
-                return purples;
+                return colorBlindMode ? colorBlindScales.filtered : purples;
         }
     }
+
 
     function valueLabel(n: number): string {
         if (showTime) {
