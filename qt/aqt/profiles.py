@@ -540,6 +540,12 @@ create table if not exists profiles
 
     def color_blind(self) -> bool:
         return self.meta.get("color_blind", False)
+    
+    def set_gradient_index(self, index: int) -> None:
+        self.meta["gradient_index"] = index
+
+    def get_gradient_index(self) -> int:
+        return self.meta.get("gradient_index", 0)
 
     def reduce_motion(self) -> bool:
         return self.meta.get("reduce_motion", True)

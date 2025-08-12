@@ -10,7 +10,7 @@ import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { dayLabel } from "@tslib/time";
 import type { Bin } from "d3";
-import { bin, extent, interpolateGreens, scaleLinear, scaleSequential, sum, interpolateViridis } from "d3";
+import { bin, extent, interpolateGreens, scaleLinear, scaleSequential, sum, interpolateViridis, interpolateInferno, interpolateMagma, interpolatePlasma,interpolateCividis } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, GraphRange, numericMap } from "./graph-helpers";
@@ -123,7 +123,32 @@ export function buildHistogram(
         adjustedRange = scaleLinear().range([0.7, 0.3]);
     }
 
+    const selectedGradient = (window as any).selectedGradient;
+    console.log("Gradient selector:", selectedGradient);
 
+    switch (selectedGradient) {
+        case 0:
+            colourScale = scaleSequential((n) => interpolateGreens(adjustedRange(n)!)).domain([xMin!, xMax!]);
+            break;
+        case 1:
+            colourScale = scaleSequential((n) => interpolateViridis(adjustedRange(n)!)).domain([xMin!, xMax!]);
+            break;
+        case 2:
+            colourScale = scaleSequential((n) => interpolateInferno(adjustedRange(n)!)).domain([xMin!, xMax!]);
+            break;
+        case 3:
+            colourScale = scaleSequential((n) => interpolateMagma(adjustedRange(n)!)).domain([xMin!, xMax!]);    
+            break;
+        case 4:
+            colourScale = scaleSequential((n) => interpolatePlasma(adjustedRange(n)!)).domain([xMin!, xMax!]);
+            break;
+        case 5:
+            colourScale = scaleSequential((n) => interpolateCividis(adjustedRange(n)!)).domain([xMin!, xMax!]);
+            break;
+        default:
+            colourScale = scaleSequential((n) => interpolateGreens(adjustedRange(n)!)).domain([xMin!, xMax!]);
+            break;
+    }
 
     const total = sum(bins as any, getNumericMapBinValue);
 

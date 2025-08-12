@@ -373,16 +373,22 @@ class Preferences(QDialog):
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
         self.form.color_blind.setChecked(self.mw.pm.color_blind())
-        qconnect(self.form.color_blind.stateChanged, self.on_my_checkbox_changed)
+        qconnect(self.form.color_blind.stateChanged, self.on_color_blind_checkbox_changed)
 
+        self.form.gradient_selector.setVisible(not is_win)
+        self.form.gradient_selector.addItems(["Default","Viridis","Inferno","Magma","Plasma","Cividis",])
+        self.form.gradient_selector.setCurrentIndex(self.mw.pm.get_gradient_index())
+        qconnect(
+            self.form.gradient_selector.currentIndexChanged,
+            self.mw.pm.set_gradient_index,
+        )
 
         self.setup_language()
         self.setup_video_driver()
 
         self.setupOptions()
 
-    def on_my_checkbox_changed(self, state: int) -> None:
-        print("color_blind state changed", state)
+    def on_color_blind_checkbox_changed(self, state: int) -> None:
         if state == 2:
             # checkbox is checked
             self.mw.pm.set_color_blind(True)
