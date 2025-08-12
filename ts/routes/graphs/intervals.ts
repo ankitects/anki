@@ -147,7 +147,6 @@ export function prepareIntervalData(
         return [null, []];
     }
 
-    //const adjustedRange = scaleLinear().range([0.7, 0.3]);
     let adjustedRange;
     let colourScale;
 
