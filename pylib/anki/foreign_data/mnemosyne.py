@@ -176,7 +176,7 @@ class MnemoFact:
         try:
             fact_view = self.cards[0].fact_view_id
         except IndexError as err:
-            raise Exception(f"Fact {id} has no cards") from err
+            raise Exception(f"Fact {self.id} has no cards") from err
 
         if fact_view.startswith("1.") or fact_view.startswith("1::"):
             return FrontOnly
@@ -187,7 +187,7 @@ class MnemoFact:
         elif fact_view.startswith("5.1"):
             return Cloze
 
-        raise Exception(f"Fact {id} has unknown fact view: {fact_view}")
+        raise Exception(f"Fact {self.id} has unknown fact view: {fact_view}")
 
     def anki_fields(self, fact_view: type[MnemoFactView]) -> list[str]:
         return [munge_field(self.fields.get(k, "")) for k in fact_view.field_keys]
