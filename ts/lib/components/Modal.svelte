@@ -12,10 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let modalKey: string = Math.random().toString(36).substring(2);
     export const dialogClass: string = "";
-    export const onOkClicked: () => void = () => {};
-    export const onCancelClicked: () => void = () => {};
-    export const onShown: () => void = () => {};
-    export const onHidden: () => void = () => {};
+    export let onOkClicked: (() => void) | undefined = undefined;
+    export let onCancelClicked: (() => void) | undefined = undefined;
+    export let onShown: (() => void) | undefined = undefined;
+    export let onHidden: (() => void) | undefined = undefined;
 
     const modals = getContext<Map<string, Modal>>(modalsKey);
 
@@ -24,12 +24,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onOkClicked_(): void {
         modal.hide();
-        onOkClicked();
+        onOkClicked?.();
     }
 
     function onCancelClicked_(): void {
         modal.hide();
-        onCancelClicked();
+        onCancelClicked?.();
     }
 
     export function show(): void {
@@ -47,12 +47,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onShown_() {
         setModalOpen(true);
-        onShown();
+        onShown?.();
     }
 
     function onHidden_() {
         setModalOpen(false);
-        onHidden();
+        onHidden?.();
     }
 
     onMount(() => {
