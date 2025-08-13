@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <button type="button" class="btn btn-secondary" on:click={modal.cancelHandler}>
             Cancel
         </button>
-        <button type="button" class="btn btn-primary" on:click={onOkClicked}>OK</button>
+        <button type="button" class="btn btn-primary" on:click={modal.acceptHandler}>OK</button>
     </div>
 </Modal>
 
