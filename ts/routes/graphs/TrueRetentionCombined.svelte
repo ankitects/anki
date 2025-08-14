@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { colorBlindColors, type GraphBounds } from "./graph-helpers";
     import * as tr from "@generated/ftl";
     import { localizedNumber } from "@tslib/i18n";
     import { type RevlogRange } from "./graph-helpers";
@@ -30,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => {
         const isColorBlindMode = (window as any).colorBlindMode;
         if (isColorBlindMode) {
-            youngColor = "#44ab9a";
-            matureColor = "#127733";
+            youngColor = colorBlindColors.young;
+            matureColor = colorBlindColors.mature;
         }
         // Set globally so scoped SCSS can use them
         document.documentElement.style.setProperty("--young-color", youngColor);

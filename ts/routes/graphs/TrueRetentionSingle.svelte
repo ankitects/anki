@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { colorBlindColors, type GraphBounds } from "./graph-helpers";
     import * as tr from "@generated/ftl";
     import { type RevlogRange } from "./graph-helpers";
     import {
@@ -29,8 +30,8 @@
     onMount(() => {
         const isColorBlindMode = (window as any).colorBlindMode;
         if (isColorBlindMode) {
-            passColor = "#127733";
-            failColor = "#cb6676";
+            passColor = colorBlindColors.relearn;
+            failColor = colorBlindColors.filtered;
         }
         // Apply them to document root so SCSS can see them
         document.documentElement.style.setProperty("--pass-color", passColor);
