@@ -168,12 +168,6 @@ export function renderButtons(
 
     // Changing color based on mode
     if(isColourBlindMode){
-        /*colour = [
-            colorBlindColors.mature, // darker red, again button
-            colorBlindColors.suspended, // lighter beige/yellow, hard button
-            colorBlindColors.new, // light blue, good button
-            colorBlindColors.relearn // green, easy button
-        ]*/
         colour = scaleSequential(interpolateViridis).domain([1, 4]);
     } else {
         colour = scaleSequential(interpolateRdYlGn).domain([1, 4]);
