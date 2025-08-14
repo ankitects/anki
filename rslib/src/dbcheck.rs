@@ -24,6 +24,7 @@ use crate::notetype::NotetypeId;
 use crate::notetype::NotetypeKind;
 use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
+use crate::storage::card::CardFixStats;
 use crate::timestamp::TimestampMillis;
 use crate::timestamp::TimestampSecs;
 
@@ -40,6 +41,7 @@ pub struct CheckDatabaseOutput {
     notetypes_recovered: usize,
     invalid_utf8: usize,
     invalid_ids: usize,
+    card_last_review_time_empty: usize,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -68,6 +70,11 @@ impl CheckDatabaseOutput {
         }
         if self.card_properties_invalid > 0 {
             probs.push(tr.database_check_card_properties(self.card_properties_invalid));
+        }
+        if self.card_last_review_time_empty > 0 {
+            probs.push(
+                tr.database_check_card_last_review_time_empty(self.card_last_review_time_empty),
+            );
         }
         if self.cards_missing_note > 0 {
             probs.push(tr.database_check_card_missing_note(self.cards_missing_note));
@@ -158,14 +165,25 @@ impl Collection {
 
     fn check_card_properties(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let timing = self.timing_today()?;
-        let (new_cnt, other_cnt) = self.storage.fix_card_properties(
+        let CardFixStats {
+            new_cards_fixed,
+            other_cards_fixed,
+            last_review_time_fixed,
+        } = self.storage.fix_card_properties(
             timing.days_elapsed,
             TimestampSecs::now(),
             self.usn()?,
             self.scheduler_version() == SchedulerVersion::V1,
         )?;
-        out.card_position_too_high = new_cnt;
-        out.card_properties_invalid += other_cnt;
+        out.card_position_too_high = new_cards_fixed;
+        out.card_properties_invalid += other_cards_fixed;
+        out.card_last_review_time_empty = last_review_time_fixed;
+
+        // Trigger one-way sync if last_review_time was updated to avoid conflicts
+        if last_review_time_fixed > 0 {
+            self.set_schema_modified()?;
+        }
+
         Ok(())
     }
 
@@ -387,10 +405,10 @@ impl Collection {
         let mut basic = all_stock_notetypes(&self.tr).remove(0);
         let mut field = 3;
         while basic.fields.len() < field_count {
-            basic.add_field(format!("{}", field));
+            basic.add_field(format!("{field}"));
             field += 1;
         }
-        basic.name = format!("db-check-{}-{}", stamp, field_count);
+        basic.name = format!("db-check-{stamp}-{field_count}");
         let qfmt = basic.templates[0].config.q_format.clone();
         let afmt = basic.templates[0].config.a_format.clone();
         for n in 0..extra_cards_required {

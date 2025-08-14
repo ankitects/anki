@@ -435,7 +435,7 @@ impl TextWriter {
             item = item.trim_start_matches(' ');
         }
 
-        write!(self.buffer, "{}", item)
+        write!(self.buffer, "{item}")
     }
 
     fn write_char_into_indent(&mut self, ch: char) {

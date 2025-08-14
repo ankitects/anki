@@ -99,7 +99,7 @@ impl crate::services::SearchService for Collection {
             regex::escape(&input.search)
         };
         if !input.match_case {
-            search = format!("(?i){}", search);
+            search = format!("(?i){search}");
         }
         let mut nids = to_note_ids(input.nids);
         let field_name = if input.field_name.is_empty() {

@@ -230,7 +230,11 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
             else:
                 max_age = 60 * 60
             return flask.send_file(
-                fullpath, mimetype=mimetype, conditional=True, max_age=max_age, download_name="foo"  # type: ignore[call-arg]
+                fullpath,
+                mimetype=mimetype,
+                conditional=True,
+                max_age=max_age,
+                download_name="foo",  # type: ignore[call-arg]
             )
         else:
             print(f"Not found: {path}")
@@ -647,9 +651,10 @@ exposed_backend_list = [
     "compute_fsrs_params",
     "compute_optimal_retention",
     "set_wants_abort",
-    "evaluate_params",
+    "evaluate_params_legacy",
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
+    "simulate_fsrs_workload",
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",

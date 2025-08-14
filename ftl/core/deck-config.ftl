@@ -425,6 +425,8 @@ deck-config-desired-retention-tooltip =
     less frequently, and you will forget more of them. Be conservative when adjusting this - higher
     values will greatly increase your workload, and lower values can be demoralizing when you forget
     a lot of material.
+deck-config-desired-retention-tooltip2 = 
+    The workload values provided by the info box are a rough approximation. For a greater level of accuracy, use the simulator.
 deck-config-historical-retention-tooltip =
     When some of your review history is missing, FSRS needs to fill in the gaps. By default, it will
     assume that when you did those old reviews, you remembered 90% of the material. If your old retention
@@ -503,7 +505,9 @@ deck-config-desired-retention-below-optimal = Your desired retention is below op
 # Description of the y axis in the FSRS simulation
 # diagram (Deck options -> FSRS) showing the total number of
 # cards that can be recalled or retrieved on a specific date.
-deck-config-fsrs-simulator-experimental = FSRS simulator (experimental)
+deck-config-fsrs-simulator-experimental = FSRS Simulator (Experimental)
+deck-config-fsrs-simulate-desired-retention-experimental = FSRS Desired Retention Simulator (Experimental)
+deck-config-fsrs-desired-retention-help-me-decide-experimental = Help Me Decide (Experimental)
 deck-config-additional-new-cards-to-simulate = Additional new cards to simulate
 deck-config-simulate = Simulate
 deck-config-clear-last-simulate = Clear Last Simulation
@@ -512,10 +516,14 @@ deck-config-advanced-settings = Advanced Settings
 deck-config-smooth-graph = Smooth graph
 deck-config-suspend-leeches = Suspend leeches
 deck-config-save-options-to-preset = Save Changes to Preset
+deck-config-save-options-to-preset-confirm = Overwrite the options in your current preset with the options that are currently set in the simulator?
 # Radio button in the FSRS simulation diagram (Deck options -> FSRS) selecting
 # to show the total number of cards that can be recalled or retrieved on a
 # specific date.
 deck-config-fsrs-simulator-radio-memorized = Memorized
+deck-config-fsrs-simulator-radio-ratio = Time / Memorized Ratio
+# $time here is pre-formatted e.g. "10 Seconds" 
+deck-config-fsrs-simulator-ratio-tooltip = { $time } per memorized card
 
 ## Messages related to the FSRS scheduler’s health check. The health check determines whether the correlation between FSRS predictions and your memory is good or bad. It can be optionally triggered as part of the "Optimize" function.
 
@@ -536,6 +544,7 @@ deck-config-fsrs-good-fit = Health Check:
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
+deck-config-plotted-on-x-axis = (Plotted on the X-axis)
 deck-config-a-100-day-interval = 
     { $days ->
         [one] A 100 day interval will become { $days } day.

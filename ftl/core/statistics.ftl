@@ -80,7 +80,7 @@ statistics-reviews =
 # This fragment of the tooltip in the FSRS simulation
 # diagram (Deck options -> FSRS) shows the total number of
 # cards that can be recalled or retrieved on a specific date.
-statistics-memorized = {$memorized} memorized
+statistics-memorized = {$memorized} cards memorized
 statistics-today-title = Today
 statistics-today-again-count = Again count:
 statistics-today-type-counts = Learn: { $learnCount }, Review: { $reviewCount }, Relearn: { $relearnCount }, Filtered: { $filteredCount }
@@ -99,9 +99,9 @@ statistics-counts-relearning-cards = Relearning
 statistics-counts-title = Card Counts
 statistics-counts-separate-suspended-buried-cards = Separate suspended/buried cards
 
-## True Retention represents your actual retention rate from past reviews, in
-## comparison to the "desired retention" parameter of FSRS, which forecasts
-## future retention. True Retention is the percentage of all reviewed cards
+## Retention represents your actual retention from past reviews, in
+## comparison to the "desired retention" setting of FSRS, which forecasts
+## future retention. Retention is the percentage of all reviewed cards
 ## that were marked as "Hard," "Good," or "Easy" within a specific time period.
 ##
 ## Most of these strings are used as column / row headings in a table.
@@ -112,9 +112,9 @@ statistics-counts-separate-suspended-buried-cards = Separate suspended/buried ca
 ## N.B. Stats cards may be very small on mobile devices and when the Stats
 ##      window is certain sizes.
 
-statistics-true-retention-title = True Retention
+statistics-true-retention-title = Retention
 statistics-true-retention-subtitle = Pass rate of cards with an interval ≥ 1 day.
-statistics-true-retention-tooltip = If you are using FSRS, your true retention is expected to be close to your desired retention. Please keep in mind that data for a single day is noisy, so it's better to look at monthly data.
+statistics-true-retention-tooltip = If you are using FSRS, your retention is expected to be close to your desired retention. Please keep in mind that data for a single day is noisy, so it's better to look at monthly data.
 statistics-true-retention-range = Range
 statistics-true-retention-pass = Pass
 statistics-true-retention-fail = Fail

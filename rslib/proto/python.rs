@@ -183,9 +183,9 @@ fn python_type(field: &FieldDescriptor, output: bool) -> String {
     };
     if field.is_list() {
         if output {
-            format!("Sequence[{}]", kind)
+            format!("Sequence[{kind}]")
         } else {
-            format!("Iterable[{}]", kind)
+            format!("Iterable[{kind}]")
         }
     } else if field.is_map() {
         let map_kind = field.kind();
@@ -213,7 +213,6 @@ fn write_header(out: &mut impl Write) -> Result<()> {
     out.write_all(
         br#"# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; https://www.gnu.org/licenses/agpl.html
-# pylint: skip-file
 
 from __future__ import annotations
 

@@ -13,15 +13,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TableData from "../graphs/TableData.svelte";
     import InputBox from "../graphs/InputBox.svelte";
     import { defaultGraphBounds, type TableDatum } from "../graphs/graph-helpers";
-    import { SimulateSubgraph, type Point } from "../graphs/simulator";
+    import {
+        SimulateSubgraph,
+        SimulateWorkloadSubgraph,
+        type Point,
+        type WorkloadPoint,
+    } from "../graphs/simulator";
     import * as tr from "@generated/ftl";
-    import { renderSimulationChart } from "../graphs/simulator";
-    import { computeOptimalRetention, simulateFsrsReview } from "@generated/backend";
+    import { renderSimulationChart, renderWorkloadChart } from "../graphs/simulator";
+    import {
+        computeOptimalRetention,
+        simulateFsrsReview,
+        simulateFsrsWorkload,
+    } from "@generated/backend";
     import { runWithBackendProgress } from "@tslib/progress";
     import type {
         ComputeOptimalRetentionResponse,
         SimulateFsrsReviewRequest,
         SimulateFsrsReviewResponse,
+        SimulateFsrsWorkloadResponse,
     } from "@generated/anki/scheduler_pb";
     import type { DeckOptionsState } from "./lib";
     import SwitchRow from "$lib/components/SwitchRow.svelte";
@@ -33,16 +43,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EasyDaysInput from "./EasyDaysInput.svelte";
     import Warning from "./Warning.svelte";
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
+    import Modal from "bootstrap/js/dist/modal";
 
-    export let shown = false;
     export let state: DeckOptionsState;
     export let simulateFsrsRequest: SimulateFsrsReviewRequest;
     export let computing: boolean;
     export let openHelpModal: (key: string) => void;
     export let onPresetChange: () => void;
+    /** Do not modify this once set */
+    export let workload: boolean = false;
 
     const config = state.currentConfig;
     let simulateSubgraph: SimulateSubgraph = SimulateSubgraph.count;
+    let simulateWorkloadSubgraph: SimulateWorkloadSubgraph =
+        SimulateWorkloadSubgraph.ratio;
     let tableData: TableDatum[] = [];
     let simulating: boolean = false;
     const fsrs = state.fsrs;
@@ -50,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
-    let points: Point[] = [];
+    let points: (WorkloadPoint | Point)[] = [];
     const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
     let smooth = true;
     let suspendLeeches = $config.leechAction == DeckConfig_Config_LeechAction.SUSPEND;
@@ -177,6 +191,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    async function simulateWorkload(): Promise<void> {
+        let resp: SimulateFsrsWorkloadResponse | undefined;
+        updateRequest();
+        try {
+            await runWithBackendProgress(
+                async () => {
+                    simulating = true;
+                    resp = await simulateFsrsWorkload(simulateFsrsRequest);
+                },
+                () => {},
+            );
+        } finally {
+            simulating = false;
+            if (resp) {
+                simulationNumber += 1;
+
+                points = points.concat(
+                    Object.entries(resp.memorized).map(([dr, v]) => ({
+                        x: parseInt(dr),
+                        timeCost: resp!.cost[dr],
+                        memorized: v,
+                        count: resp!.reviewCount[dr],
+                        label: simulationNumber,
+                        learnSpan: simulateFsrsRequest.daysToSimulate,
+                    })),
+                );
+
+                tableData = renderWorkloadChart(
+                    svg as SVGElement,
+                    bounds,
+                    points as WorkloadPoint[],
+                    simulateWorkloadSubgraph,
+                );
+            }
+        }
+    }
+
     function clearSimulation() {
         points = points.filter((p) => p.label !== simulationNumber);
         simulationNumber = Math.max(0, simulationNumber - 1);
@@ -186,6 +237,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             points,
             simulateSubgraph,
         );
+    }
+
+    function saveConfigToPreset() {
+        if (confirm(tr.deckConfigSaveOptionsToPresetConfirm())) {
+            $config.newPerDay = simulateFsrsRequest.newLimit;
+            $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
+            $config.maximumReviewInterval = simulateFsrsRequest.maxInterval;
+            if (!workload) {
+                $config.desiredRetention = simulateFsrsRequest.desiredRetention;
+            }
+            $newCardsIgnoreReviewLimit = simulateFsrsRequest.newCardsIgnoreReviewLimit;
+            $config.reviewOrder = simulateFsrsRequest.reviewOrder;
+            $config.leechAction = suspendLeeches
+                ? DeckConfig_Config_LeechAction.SUSPEND
+                : DeckConfig_Config_LeechAction.TAG_ONLY;
+            $config.leechThreshold = leechThreshold;
+            $config.easyDaysPercentages = [...easyDayPercentages];
+            onPresetChange();
+        }
     }
 
     $: if (svg) {
@@ -225,27 +295,48 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
         }
 
-        tableData = renderSimulationChart(
+        const render_function = workload ? renderWorkloadChart : renderSimulationChart;
+
+        tableData = render_function(
             svg as SVGElement,
             bounds,
-            pointsToRender,
-            simulateSubgraph,
+            // This cast shouldn't matter because we aren't switching between modes in the same modal
+            pointsToRender as WorkloadPoint[],
+            (workload ? simulateWorkloadSubgraph : simulateSubgraph) as any as never,
         );
     }
 
     $: easyDayPercentages = [...$config.easyDaysPercentages];
+
+    export let modal: Modal | null = null;
+
+    function setupModal(node: Element) {
+        modal = new Modal(node);
+        return {
+            destroy() {
+                modal?.dispose();
+                modal = null;
+            },
+        };
+    }
 </script>
 
-<div class="modal" class:show={shown} class:d-block={shown} tabindex="-1">
+<div class="modal" tabindex="-1" use:setupModal>
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{tr.deckConfigFsrsSimulatorExperimental()}</h5>
+                <h5 class="modal-title">
+                    {#if workload}
+                        {tr.deckConfigFsrsSimulateDesiredRetentionExperimental()}
+                    {:else}
+                        {tr.deckConfigFsrsSimulatorExperimental()}
+                    {/if}
+                </h5>
                 <button
                     type="button"
                     class="btn-close"
                     aria-label="Close"
-                    on:click={() => (shown = false)}
+                    on:click={() => modal?.hide()}
                 ></button>
             </div>
             <div class="modal-body">
@@ -266,17 +357,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SettingTitle>
                 </SpinBoxRow>
 
-                <SpinBoxFloatRow
-                    bind:value={simulateFsrsRequest.desiredRetention}
-                    defaultValue={$config.desiredRetention}
-                    min={0.7}
-                    max={0.99}
-                    percentage={true}
-                >
-                    <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
-                        {tr.deckConfigDesiredRetention()}
-                    </SettingTitle>
-                </SpinBoxFloatRow>
+                {#if !workload}
+                    <SpinBoxFloatRow
+                        bind:value={simulateFsrsRequest.desiredRetention}
+                        defaultValue={$config.desiredRetention}
+                        min={0.7}
+                        max={0.99}
+                        percentage={true}
+                    >
+                        <SettingTitle
+                            on:click={() => openHelpModal("desiredRetention")}
+                        >
+                            {tr.deckConfigDesiredRetention()}
+                        </SettingTitle>
+                    </SpinBoxFloatRow>
+                {/if}
 
                 <SpinBoxRow
                     bind:value={simulateFsrsRequest.newLimit}
@@ -284,7 +379,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     min={0}
                     max={9999}
                 >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                    <SettingTitle on:click={() => openHelpModal("newLimit")}>
                         {tr.schedulingNewCardsday()}
                     </SettingTitle>
                 </SpinBoxRow>
@@ -295,7 +390,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     min={0}
                     max={9999}
                 >
-                    <SettingTitle on:click={() => openHelpModal("simulateFsrsReview")}>
+                    <SettingTitle on:click={() => openHelpModal("reviewLimit")}>
                         {tr.schedulingMaximumReviewsday()}
                     </SettingTitle>
                 </SpinBoxRow>
@@ -315,9 +410,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         min={1}
                         max={36500}
                     >
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
+                        <SettingTitle on:click={() => openHelpModal("maximumInterval")}>
                             {tr.schedulingMaximumInterval()}
                         </SettingTitle>
                     </SpinBoxRow>
@@ -327,9 +420,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         defaultValue={$config.reviewOrder}
                         choices={reviewOrderChoices($fsrs)}
                     >
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
+                        <SettingTitle on:click={() => openHelpModal("reviewSortOrder")}>
                             {tr.deckConfigReviewSortOrder()}
                         </SettingTitle>
                     </EnumSelectorRow>
@@ -339,7 +430,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         defaultValue={$newCardsIgnoreReviewLimit}
                     >
                         <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
+                            on:click={() => openHelpModal("newCardsIgnoreReviewLimit")}
                         >
                             <GlobalLabel
                                 title={tr.deckConfigNewCardsIgnoreReviewLimit()}
@@ -360,9 +451,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         defaultValue={$config.leechAction ==
                             DeckConfig_Config_LeechAction.SUSPEND}
                     >
-                        <SettingTitle
-                            on:click={() => openHelpModal("simulateFsrsReview")}
-                        >
+                        <SettingTitle on:click={() => openHelpModal("leechAction")}>
                             {tr.deckConfigSuspendLeeches()}
                         </SettingTitle>
                     </SwitchRow>
@@ -375,7 +464,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             max={9999}
                         >
                             <SettingTitle
-                                on:click={() => openHelpModal("simulateFsrsReview")}
+                                on:click={() => openHelpModal("leechThreshold")}
                             >
                                 {tr.schedulingLeechThreshold()}
                             </SettingTitle>
@@ -383,104 +472,131 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {/if}
                 </details>
 
-                <details>
-                    <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
-                    <button
-                        class="btn {computingRetention ? 'btn-warning' : 'btn-primary'}"
-                        disabled={!computingRetention && computing}
-                        on:click={() => computeRetention()}
-                    >
-                        {#if computingRetention}
-                            {tr.actionsCancel()}
-                        {:else}
-                            {tr.deckConfigComputeButton()}
+                <div style="display:none;">
+                    <details>
+                        <summary>{tr.deckConfigComputeOptimalRetention()}</summary>
+                        <button
+                            class="btn {computingRetention
+                                ? 'btn-warning'
+                                : 'btn-primary'}"
+                            disabled={!computingRetention && computing}
+                            on:click={() => computeRetention()}
+                        >
+                            {#if computingRetention}
+                                {tr.actionsCancel()}
+                            {:else}
+                                {tr.deckConfigComputeButton()}
+                            {/if}
+                        </button>
+
+                        {#if optimalRetention}
+                            {estimatedRetention(optimalRetention)}
+                            {#if optimalRetention - $config.desiredRetention >= 0.01}
+                                <Warning
+                                    warning={tr.deckConfigDesiredRetentionBelowOptimal()}
+                                    className="alert-warning"
+                                />
+                            {/if}
                         {/if}
+
+                        {#if computingRetention}
+                            <div>{computeRetentionProgressString}</div>
+                        {/if}
+                    </details>
+                </div>
+
+                <div>
+                    <button
+                        class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                        disabled={computing}
+                        on:click={workload ? simulateWorkload : simulateFsrs}
+                    >
+                        {tr.deckConfigSimulate()}
                     </button>
 
-                    {#if optimalRetention}
-                        {estimatedRetention(optimalRetention)}
-                        {#if optimalRetention - $config.desiredRetention >= 0.01}
-                            <Warning
-                                warning={tr.deckConfigDesiredRetentionBelowOptimal()}
-                                className="alert-warning"
-                            />
-                        {/if}
+                    <button
+                        class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                        disabled={computing}
+                        on:click={clearSimulation}
+                    >
+                        {tr.deckConfigClearLastSimulate()}
+                    </button>
+
+                    <button
+                        class="btn {computing ? 'btn-warning' : 'btn-primary'}"
+                        disabled={computing}
+                        on:click={saveConfigToPreset}
+                    >
+                        {tr.deckConfigSaveOptionsToPreset()}
+                    </button>
+
+                    {#if processing}
+                        {tr.actionsProcessing()}
                     {/if}
-
-                    {#if computingRetention}
-                        <div>{computeRetentionProgressString}</div>
-                    {/if}
-                </details>
-
-                <button
-                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                    disabled={computing}
-                    on:click={simulateFsrs}
-                >
-                    {tr.deckConfigSimulate()}
-                </button>
-
-                <button
-                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                    disabled={computing}
-                    on:click={clearSimulation}
-                >
-                    {tr.deckConfigClearLastSimulate()}
-                </button>
-
-                <button
-                    class="btn {computing ? 'btn-warning' : 'btn-primary'}"
-                    disabled={computing}
-                    on:click={() => {
-                        $config.newPerDay = simulateFsrsRequest.newLimit;
-                        $config.reviewsPerDay = simulateFsrsRequest.reviewLimit;
-                        $config.maximumReviewInterval = simulateFsrsRequest.maxInterval;
-                        $config.desiredRetention = simulateFsrsRequest.desiredRetention;
-                        $newCardsIgnoreReviewLimit =
-                            simulateFsrsRequest.newCardsIgnoreReviewLimit;
-                        $config.reviewOrder = simulateFsrsRequest.reviewOrder;
-                        $config.leechAction = suspendLeeches
-                            ? DeckConfig_Config_LeechAction.SUSPEND
-                            : DeckConfig_Config_LeechAction.TAG_ONLY;
-                        $config.leechThreshold = leechThreshold;
-                        $config.easyDaysPercentages = [...easyDayPercentages];
-                        onPresetChange();
-                    }}
-                >
-                    {tr.deckConfigSaveOptionsToPreset()}
-                </button>
-
-                {#if processing}
-                    {tr.actionsProcessing()}
-                {/if}
+                </div>
 
                 <Graph>
                     <div class="radio-group">
                         <InputBox>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={SimulateSubgraph.count}
-                                    bind:group={simulateSubgraph}
-                                />
-                                {tr.deckConfigFsrsSimulatorRadioCount()}
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={SimulateSubgraph.time}
-                                    bind:group={simulateSubgraph}
-                                />
-                                {tr.statisticsReviewsTimeCheckbox()}
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value={SimulateSubgraph.memorized}
-                                    bind:group={simulateSubgraph}
-                                />
-                                {tr.deckConfigFsrsSimulatorRadioMemorized()}
-                            </label>
+                            {#if !workload}
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateSubgraph.count}
+                                        bind:group={simulateSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioCount()}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateSubgraph.time}
+                                        bind:group={simulateSubgraph}
+                                    />
+                                    {tr.statisticsReviewsTimeCheckbox()}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateSubgraph.memorized}
+                                        bind:group={simulateSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioMemorized()}
+                                </label>
+                            {:else}
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateWorkloadSubgraph.ratio}
+                                        bind:group={simulateWorkloadSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioRatio()}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateWorkloadSubgraph.count}
+                                        bind:group={simulateWorkloadSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioCount()}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateWorkloadSubgraph.time}
+                                        bind:group={simulateWorkloadSubgraph}
+                                    />
+                                    {tr.statisticsReviewsTimeCheckbox()}
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        value={SimulateWorkloadSubgraph.memorized}
+                                        bind:group={simulateWorkloadSubgraph}
+                                    />
+                                    {tr.deckConfigFsrsSimulatorRadioMemorized()}
+                                </label>
+                            {/if}
                         </InputBox>
                     </div>
 
@@ -511,7 +627,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .svg-container {
         width: 100%;
-        max-height: calc(100vh - 400px); /* Account for modal header, controls, etc */
+        /* Account for modal header, controls, etc */
+        max-height: max(calc(100vh - 400px), 200px);
         aspect-ratio: 600 / 250;
         display: flex;
         align-items: center;

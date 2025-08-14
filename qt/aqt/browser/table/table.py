@@ -361,8 +361,7 @@ class Table:
         for m in self.col.models.all():
             for t in m["tmpls"]:
                 bsize = t.get("bsize", 0)
-                if bsize > curmax:
-                    curmax = bsize
+                curmax = max(curmax, bsize)
 
         assert self._view is not None
         vh = self._view.verticalHeader()
@@ -382,10 +381,7 @@ class Table:
         hh.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._restore_header()
         qconnect(hh.customContextMenuRequested, self._on_header_context)
-        if qtmajor == 5:
-            qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed_qt5)
-        else:
-            qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed)
+        qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed)
         qconnect(hh.sectionMoved, self._on_column_moved)
 
     # Slots
@@ -494,12 +490,6 @@ class Table:
         self._set_sort_indicator()
         if checked:
             self._scroll_to_column(self._model.len_columns() - 1)
-
-    def _on_sort_column_changed_qt5(self, section: int, order: int) -> None:
-        self._on_sort_column_changed(
-            section,
-            Qt.SortOrder.AscendingOrder if not order else Qt.SortOrder.DescendingOrder,
-        )
 
     def _on_sort_column_changed(self, section: int, order: Qt.SortOrder) -> None:
         column = self._model.column_at_section(section)

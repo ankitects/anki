@@ -11,8 +11,6 @@ from anki.importing.apkg import AnkiPackageImporter
 from anki.importing.base import Importer
 from anki.importing.csvfile import TextImporter
 from anki.importing.mnemo import MnemosyneImporter
-from anki.importing.pauker import PaukerImporter
-from anki.importing.supermemo_xml import SupermemoXmlImporter  # type: ignore
 from anki.lang import TR
 
 
@@ -24,8 +22,6 @@ def importers(col: Collection) -> Sequence[tuple[str, type[Importer]]]:
             AnkiPackageImporter,
         ),
         (col.tr.importing_mnemosyne_20_deck_db(), MnemosyneImporter),
-        (col.tr.importing_supermemo_xml_export_xml(), SupermemoXmlImporter),
-        (col.tr.importing_pauker_18_lesson_paugz(), PaukerImporter),
     ]
     anki.hooks.importing_importers(importers)
     return importers

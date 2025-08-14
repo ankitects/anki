@@ -1,23 +1,18 @@
 [project]
 name = "anki"
-# dynamic = ["version"]
-version = "0.1.2"
+dynamic = ["version"]
 requires-python = ">=3.9"
 license = "AGPL-3.0-or-later"
 dependencies = [
-  "beautifulsoup4",
   "decorator",
   "markdown",
   "orjson",
-  "protobuf>=4.21",
+  "protobuf>=6.0,<8.0",
   "requests[socks]",
+  # remove after we update to min python 3.11+
   "typing_extensions",
-  "types-protobuf",
-  "types-requests",
-  "types-orjson",
   # platform-specific dependencies
   "distro; sys_platform != 'darwin' and sys_platform != 'win32'",
-  "psutil; sys_platform == 'win32'",
 ]
 
 [build-system]

@@ -1,46 +1,65 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::os::unix::process::CommandExt;
+use std::io;
+use std::io::Write;
+use std::path::Path;
 use std::process::Command;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
+use std::sync::Arc;
+use std::thread;
+use std::time::Duration;
 
 use anki_process::CommandExt as AnkiCommandExt;
 use anyhow::Context;
 use anyhow::Result;
 
-// Re-export Unix functions that macOS uses
-pub use super::unix::{
-    exec_anki,
-    get_anki_binary_path,
-    initial_terminal_setup,
-};
+pub fn prepare_for_launch_after_update(mut cmd: Command, root: &Path) -> Result<()> {
+    // Pre-validate by running --version to trigger any Gatekeeper checks
+    print!("\n\x1B[1mThis may take a few minutes. Please wait\x1B[0m");
+    io::stdout().flush().unwrap();
 
-pub fn launch_anki_detached(anki_bin: &std::path::Path, _config: &crate::Config) -> Result<()> {
-    use std::process::Stdio;
+    // Start progress indicator
+    let running = Arc::new(AtomicBool::new(true));
+    let running_clone = running.clone();
+    let progress_thread = thread::spawn(move || {
+        while running_clone.load(Ordering::Relaxed) {
+            print!(".");
+            io::stdout().flush().unwrap();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
 
-    let child = Command::new(anki_bin)
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .process_group(0)
-        .ensure_spawn()?;
-    std::mem::forget(child);
-    Ok(())
-}
+    let _ = cmd
+        .env("ANKI_FIRST_RUN", "1")
+        .arg("--version")
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .ensure_success();
 
-pub fn handle_terminal_launch() -> Result<()> {
-    let stdout_is_terminal = std::io::IsTerminal::is_terminal(&std::io::stdout());
-    if stdout_is_terminal {
-        print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
-        println!("\x1B[1mPreparing to start Anki...\x1B[0m\n");
-    } else {
-        // If launched from GUI, relaunch in Terminal.app
-        relaunch_in_terminal()?;
+    if cfg!(target_os = "macos") {
+        // older Anki versions had a short mpv timeout and didn't support
+        // ANKI_FIRST_RUN, so we need to ensure mpv passes Gatekeeper
+        // validation prior to launch
+        let mpv_path = root.join(".venv/lib/python3.9/site-packages/anki_audio/mpv");
+        if mpv_path.exists() {
+            let _ = Command::new(&mpv_path)
+                .arg("--version")
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .ensure_success();
+        }
     }
+
+    // Stop progress indicator
+    running.store(false, Ordering::Relaxed);
+    progress_thread.join().unwrap();
+    println!(); // New line after dots
     Ok(())
 }
 
-fn relaunch_in_terminal() -> Result<()> {
+pub fn relaunch_in_terminal() -> Result<()> {
     let current_exe = std::env::current_exe().context("Failed to get current executable path")?;
     Command::new("open")
         .args(["-a", "Terminal"])
@@ -49,32 +68,31 @@ fn relaunch_in_terminal() -> Result<()> {
     std::process::exit(0);
 }
 
-pub fn handle_first_launch(anki_bin: &std::path::Path) -> Result<()> {
-    // Pre-validate by running --version to trigger any Gatekeeper checks
-    println!("\n\x1B[1mThis may take a few minutes. Please wait...\x1B[0m");
-    let _ = Command::new(anki_bin)
-        .env("ANKI_FIRST_RUN", "1")
-        .arg("--version")
-        .ensure_success();
-    Ok(())
-}
+pub fn finalize_uninstall() {
+    if let Ok(exe_path) = std::env::current_exe() {
+        // Find the .app bundle by walking up the directory tree
+        let mut app_bundle_path = exe_path.as_path();
+        while let Some(parent) = app_bundle_path.parent() {
+            if let Some(name) = parent.file_name() {
+                if name.to_string_lossy().ends_with(".app") {
+                    let result = Command::new("trash").arg(parent).output();
 
-pub fn get_exe_and_resources_dirs() -> Result<(std::path::PathBuf, std::path::PathBuf)> {
-    let exe_dir = std::env::current_exe()
-        .context("Failed to get current executable path")?
-        .parent()
-        .context("Failed to get executable directory")?
-        .to_owned();
-
-    let resources_dir = exe_dir
-        .parent()
-        .context("Failed to get parent directory")?
-        .join("Resources");
-
-    Ok((exe_dir, resources_dir))
-}
-
-pub fn get_uv_binary_name() -> &'static str {
-    // macOS uses standard uv binary name
-    "uv"
+                    match result {
+                        Ok(output) if output.status.success() => {
+                            println!("Anki has been uninstalled.");
+                            return;
+                        }
+                        _ => {
+                            // Fall back to manual instructions
+                            println!(
+                                "Please manually drag Anki.app to the trash to complete uninstall."
+                            );
+                        }
+                    }
+                    return;
+                }
+            }
+            app_bundle_path = parent;
+        }
+    }
 }

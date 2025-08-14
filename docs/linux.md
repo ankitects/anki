@@ -51,13 +51,8 @@ Anki requires a recent glibc.
 
 If you are using a distro that uses musl, Anki will not work.
 
-If your glibc version is 2.35+ on AMD64 or 2.39+ on ARM64, you can skip the rest of this section.
-
-If your system has an older glibc, you won't be able to use the PyQt wheels that are
-available in pip/PyPy, and will need to use your system-installed PyQt instead.
-Your distro will also need to have Python 3.9 or later.
-
-After installing the system libraries (eg:
+You can use your system's Qt libraries if they are Qt 6.2 or later, if
+you wish. After installing the system libraries (eg:
 'sudo apt install python3-pyqt6.qt{quick,webengine} python3-venv pyqt6-dev-tools'),
 find the place they are installed (eg '/usr/lib/python3/dist-packages'). On modern Ubuntu, you'll
 also need 'sudo apt remove python3-protobuf'. Then before running any commands like './run', tell Anki where
@@ -67,12 +62,6 @@ the packages can be found:
 export PYTHONPATH=/usr/lib/python3/dist-packages
 export PYTHON_BINARY=/usr/bin/python3
 ```
-
-There are a few things to be aware of:
-
-- You should use ./run and not tools/run-qt5\*, even if your system libraries are Qt5.
-- If your system libraries are Qt5, when creating an aqt wheel, the wheel will not work
-  on Qt6 environments.
 
 ## Packaging considerations
 

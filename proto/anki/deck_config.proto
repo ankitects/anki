@@ -40,12 +40,10 @@ message DeckConfigId {
 message GetRetentionWorkloadRequest {
   repeated float w = 1;
   string search = 2;
-  float before = 3;
-  float after = 4;
 }
 
 message GetRetentionWorkloadResponse {
-  float factor = 1;
+  map<uint32, float> costs = 1;
 }
 
 message GetIgnoredBeforeCountRequest {
@@ -219,6 +217,8 @@ message DeckConfigsForUpdate {
       bool review_today_active = 5;
       // Whether new_today applies to today or a past day.
       bool new_today_active = 6;
+      // Deck-specific desired retention override
+      optional float desired_retention = 7;
     }
     string name = 1;
     int64 config_id = 2;
@@ -236,6 +236,7 @@ message DeckConfigsForUpdate {
   bool new_cards_ignore_review_limit = 7;
   bool fsrs = 8;
   bool fsrs_health_check = 11;
+  bool fsrs_legacy_evaluate = 12;
   bool apply_all_parent_limits = 9;
   uint32 days_since_last_fsrs_optimize = 10;
 }

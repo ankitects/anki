@@ -187,7 +187,7 @@ class ThemeManager:
         self, card_ord: int, night_mode: bool | None = None
     ) -> str:
         "Returns body classes used when showing a card."
-        return f"card card{card_ord+1} {self.body_class(night_mode, reviewer=True)}"
+        return f"card card{card_ord + 1} {self.body_class(night_mode, reviewer=True)}"
 
     def var(self, vars: dict[str, str]) -> str:
         """Given day/night colors/props, return the correct one for the current theme."""
@@ -213,13 +213,12 @@ class ThemeManager:
             return False
         elif theme == Theme.DARK:
             return True
+        elif is_win:
+            return get_windows_dark_mode()
+        elif is_mac:
+            return get_macos_dark_mode()
         else:
-            if is_win:
-                return get_windows_dark_mode()
-            elif is_mac:
-                return get_macos_dark_mode()
-            else:
-                return get_linux_dark_mode()
+            return get_linux_dark_mode()
 
     def apply_style(self) -> None:
         "Apply currently configured style."
@@ -340,7 +339,7 @@ def get_windows_dark_mode() -> bool:
     if not is_win:
         return False
 
-    from winreg import (  # type: ignore[attr-defined] # pylint: disable=import-error
+    from winreg import (  # type: ignore[attr-defined]
         HKEY_CURRENT_USER,
         OpenKey,
         QueryValueEx,
@@ -352,7 +351,7 @@ def get_windows_dark_mode() -> bool:
             r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
         )
         return not QueryValueEx(key, "AppsUseLightTheme")[0]
-    except Exception as err:
+    except Exception:
         # key reportedly missing or set to wrong type on some systems
         return False
 
@@ -416,12 +415,12 @@ def get_linux_dark_mode() -> bool:
                 capture_output=True,
                 encoding="utf8",
             )
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             # detection strategy failed, missing program
             # print(e)
             continue
 
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             # detection strategy failed, command returned error
             # print(e)
             continue

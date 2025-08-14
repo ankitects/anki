@@ -1,7 +1,6 @@
 [project]
 name = "aqt"
-# dynamic = ["version"]
-version = "0.1.2"
+dynamic = ["version"]
 requires-python = ">=3.9"
 license = "AGPL-3.0-or-later"
 dependencies = [
@@ -12,18 +11,12 @@ dependencies = [
   "requests",
   "send2trash",
   "waitress>=2.0.0",
-  "psutil; sys.platform == 'win32'",
   "pywin32; sys.platform == 'win32'",
+  "anki-mac-helper; sys.platform == 'darwin'",
   "pip-system-certs!=5.1",
-  "mock",
-  "types-decorator",
-  "types-flask",
-  "types-flask-cors",
-  "types-markdown",
-  "types-waitress",
-  "types-pywin32",
   "pyqt6>=6.2",
   "pyqt6-webengine>=6.2",
+  # anki dependency is added dynamically in hatch_build.py with exact version
 ]
 
 [project.optional-dependencies]
@@ -45,6 +38,13 @@ qt67 = [
   "pyqt6_sip==13.10.2",
 ]
 qt = [
+  "pyqt6==6.9.1",
+  "pyqt6-qt6==6.9.1",
+  "pyqt6-webengine==6.8.0",
+  "pyqt6-webengine-qt6==6.8.2",
+  "pyqt6_sip==13.10.2",
+]
+qt68 = [
   "pyqt6==6.8.0",
   "pyqt6-qt6==6.8.1",
   "pyqt6-webengine==6.8.0",
@@ -58,8 +58,12 @@ conflicts = [
     { extra = "qt" },
     { extra = "qt66" },
     { extra = "qt67" },
+    { extra = "qt68" },
   ],
 ]
+
+[tool.uv.sources]
+anki = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]
@@ -68,9 +72,12 @@ build-backend = "hatchling.build"
 [project.scripts]
 anki = "aqt:run"
 
+[project.gui-scripts]
+ankiw = "aqt:run"
+
 [tool.hatch.build.targets.wheel]
 packages = ["aqt"]
-exclude = ["**/*.scss", "**/*.ui"]
+exclude = ["aqt/data", "**/*.ui"]
 
 [tool.hatch.version]
 source = "code"

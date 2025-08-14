@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { localizedDate } from "@tslib/i18n";
+import { createLocaleNumberFormat, localizedDate } from "@tslib/i18n";
 import {
     axisBottom,
     axisLeft,
@@ -31,10 +31,81 @@ export interface Point {
     label: number;
 }
 
+export type WorkloadPoint = Point & {
+    learnSpan: number;
+};
+
 export enum SimulateSubgraph {
     time,
     count,
     memorized,
+}
+
+export enum SimulateWorkloadSubgraph {
+    ratio,
+    time,
+    count,
+    memorized,
+}
+
+export function renderWorkloadChart(
+    svgElem: SVGElement,
+    bounds: GraphBounds,
+    data: WorkloadPoint[],
+    subgraph: SimulateWorkloadSubgraph,
+) {
+    const xMin = 70;
+    const xMax = 99;
+
+    const x = scaleLinear()
+        .domain([xMin, xMax])
+        .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
+
+    const subgraph_data = ({
+        [SimulateWorkloadSubgraph.ratio]: data.map(d => ({ ...d, y: d.timeCost / d.memorized })),
+        [SimulateWorkloadSubgraph.time]: data.map(d => ({ ...d, y: d.timeCost / d.learnSpan })),
+        [SimulateWorkloadSubgraph.count]: data.map(d => ({ ...d, y: d.count / d.learnSpan })),
+        [SimulateWorkloadSubgraph.memorized]: data.map(d => ({ ...d, y: d.memorized })),
+    })[subgraph];
+
+    const yTickFormat = (n: number): string => {
+        return subgraph == SimulateWorkloadSubgraph.time || subgraph == SimulateWorkloadSubgraph.ratio
+            ? timeSpan(n, true)
+            : n.toString();
+    };
+
+    const formatter = createLocaleNumberFormat({
+        style: "percent",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
+    const xTickFormat = (n: number) => formatter.format(n / 100);
+
+    const formatY: (value: number) => string = ({
+        [SimulateWorkloadSubgraph.ratio]: (value: number) =>
+            tr.deckConfigFsrsSimulatorRatioTooltip({ time: timeSpan(value) }),
+        [SimulateWorkloadSubgraph.time]: (value: number) =>
+            tr.statisticsMinutesPerDay({ count: parseFloat((value / 60).toPrecision(2)) }),
+        [SimulateWorkloadSubgraph.count]: (value: number) => tr.statisticsReviewsPerDay({ count: Math.round(value) }),
+        [SimulateWorkloadSubgraph.memorized]: (value: number) =>
+            tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
+    })[subgraph];
+
+    function formatX(dr: number) {
+        return `${tr.deckConfigDesiredRetention()}: ${xTickFormat(dr)}<br>`;
+    }
+
+    return _renderSimulationChart(
+        svgElem,
+        bounds,
+        subgraph_data,
+        x,
+        formatY,
+        formatX,
+        (_e: MouseEvent, _d: number) => undefined,
+        yTickFormat,
+        xTickFormat,
+    );
 }
 
 export function renderSimulationChart(
@@ -43,44 +114,105 @@ export function renderSimulationChart(
     data: Point[],
     subgraph: SimulateSubgraph,
 ): TableDatum[] {
-    const svg = select(svgElem);
-    svg.selectAll(".lines").remove();
-    svg.selectAll(".hover-columns").remove();
-    svg.selectAll(".focus-line").remove();
-    svg.selectAll(".legend").remove();
-    if (data.length == 0) {
-        setDataAvailable(svg, false);
-        return [];
-    }
-    const trans = svg.transition().duration(600) as any;
-
-    // Prepare data
     const today = new Date();
     const convertedData = data.map(d => ({
         ...d,
-        date: new Date(today.getTime() + d.x * 24 * 60 * 60 * 1000),
+        x: new Date(today.getTime() + d.x * 24 * 60 * 60 * 1000),
     }));
-    const xMin = today;
-    const xMax = max(convertedData, d => d.date);
-
-    const x = scaleTime()
-        .domain([xMin, xMax!])
-        .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
-
-    svg.select<SVGGElement>(".x-ticks")
-        .call((selection) => selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0)))
-        .attr("direction", "ltr");
-    // y scale
-
-    const yTickFormat = (n: number): string => {
-        return subgraph == SimulateSubgraph.time ? timeSpan(n, true) : n.toString();
-    };
 
     const subgraph_data = ({
         [SimulateSubgraph.count]: convertedData.map(d => ({ ...d, y: d.count })),
         [SimulateSubgraph.time]: convertedData.map(d => ({ ...d, y: d.timeCost })),
         [SimulateSubgraph.memorized]: convertedData.map(d => ({ ...d, y: d.memorized })),
     })[subgraph];
+
+    const xMin = today;
+    const xMax = max(subgraph_data, d => d.x);
+
+    const x = scaleTime()
+        .domain([xMin, xMax!])
+        .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
+
+    const yTickFormat = (n: number): string => {
+        return subgraph == SimulateSubgraph.time ? timeSpan(n, true) : n.toString();
+    };
+
+    const formatY: (value: number) => string = ({
+        [SimulateSubgraph.time]: timeSpan,
+        [SimulateSubgraph.count]: (value: number) => tr.statisticsReviews({ reviews: Math.round(value) }),
+        [SimulateSubgraph.memorized]: (value: number) =>
+            tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
+    })[subgraph];
+
+    const perDay = ({
+        [SimulateSubgraph.count]: tr.statisticsReviewsPerDay,
+        [SimulateSubgraph.time]: ({ count }: { count: number }) => timeSpan(count),
+        [SimulateSubgraph.memorized]: tr.statisticsCardsPerDay,
+    })[subgraph];
+
+    function legendMouseMove(e: MouseEvent, d: number) {
+        const data = subgraph_data.filter(datum => datum.label == d);
+
+        const total = subgraph == SimulateSubgraph.memorized
+            ? data[data.length - 1].memorized - data[0].memorized
+            : sumBy(data, d => d.y);
+        const average = total / (data?.length || 1);
+
+        showTooltip(
+            `#${d}:<br/>
+                ${tr.statisticsAverage()}: ${perDay({ count: average })}<br/>
+                ${tr.statisticsTotal()}: ${formatY(total)}`,
+            e.pageX,
+            e.pageY,
+        );
+    }
+
+    function formatX(date: Date) {
+        const days = +((date.getTime() - Date.now()) / (60 * 60 * 24 * 1000)).toFixed();
+        return `Date: ${localizedDate(date)}<br>In ${days} Days<br>`;
+    }
+
+    return _renderSimulationChart(
+        svgElem,
+        bounds,
+        subgraph_data,
+        x,
+        formatY,
+        formatX,
+        legendMouseMove,
+        yTickFormat,
+        undefined,
+    );
+}
+
+function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
+    svgElem: SVGElement,
+    bounds: GraphBounds,
+    subgraph_data: T[],
+    x: any,
+    formatY: (n: T["y"]) => string,
+    formatX: (n: T["x"]) => string,
+    legendMouseMove: (e: MouseEvent, d: number) => void,
+    yTickFormat?: (n: number) => string,
+    xTickFormat?: (n: number) => string,
+): TableDatum[] {
+    const svg = select(svgElem);
+    svg.selectAll(".lines").remove();
+    svg.selectAll(".hover-columns").remove();
+    svg.selectAll(".focus-line").remove();
+    svg.selectAll(".legend").remove();
+    if (subgraph_data.length == 0) {
+        setDataAvailable(svg, false);
+        return [];
+    }
+    const trans = svg.transition().duration(600) as any;
+
+    svg.select<SVGGElement>(".x-ticks")
+        .call((selection) =>
+            selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0).tickFormat(xTickFormat as any))
+        )
+        .attr("direction", "ltr");
+    // y scale
 
     const yMax = max(subgraph_data, d => d.y)!;
     const y = scaleLinear()
@@ -110,7 +242,7 @@ export function renderSimulationChart(
         .attr("fill", "currentColor");
 
     // x lines
-    const points = subgraph_data.map((d) => [x(d.date), y(d.y), d.label]);
+    const points = subgraph_data.map((d) => [x(d.x), y(d.y), d.label]);
     const groups = rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
 
     const color = schemeCategory10;
@@ -157,13 +289,6 @@ export function renderSimulationChart(
             hideTooltip();
         });
 
-    const formatY: (value: number) => string = ({
-        [SimulateSubgraph.time]: timeSpan,
-        [SimulateSubgraph.count]: (value: number) => tr.statisticsReviews({ reviews: Math.round(value) }),
-        [SimulateSubgraph.memorized]: (value: number) =>
-            tr.statisticsMemorized({ memorized: Math.round(value).toFixed(0) }),
-    })[subgraph];
-
     function mousemove(event: MouseEvent, d: any): void {
         pointer(event, document.body);
         const date = x.invert(d[0]);
@@ -182,8 +307,7 @@ export function renderSimulationChart(
 
         focusLine.attr("x1", d[0]).attr("x2", d[0]).style("opacity", 1);
 
-        const days = +((date.getTime() - Date.now()) / (60 * 60 * 24 * 1000)).toFixed();
-        let tooltipContent = `Date: ${localizedDate(date)}<br>In ${days} Days<br>`;
+        let tooltipContent = formatX(date);
         for (const [key, value] of Object.entries(groupData)) {
             const path = svg.select(`path[data-group="${key}"]`);
             const hidden = path.classed("hidden");
@@ -211,29 +335,6 @@ export function renderSimulationChart(
         .on("click", (event, d) => toggleGroup(event, d))
         .on("mousemove", legendMouseMove)
         .on("mouseout", hideTooltip);
-
-    const perDay = ({
-        [SimulateSubgraph.count]: tr.statisticsReviewsPerDay,
-        [SimulateSubgraph.time]: ({ count }: { count: number }) => timeSpan(count),
-        [SimulateSubgraph.memorized]: tr.statisticsCardsPerDay,
-    })[subgraph];
-
-    function legendMouseMove(e: MouseEvent, d: number) {
-        const data = subgraph_data.filter(datum => datum.label == d);
-
-        const total = subgraph == SimulateSubgraph.memorized
-            ? data[data.length - 1].memorized - data[0].memorized
-            : sumBy(data, d => d.y);
-        const average = total / (data?.length || 1);
-
-        showTooltip(
-            `#${d}:<br/>
-                ${tr.statisticsAverage()}: ${perDay({ count: average })}<br/>
-                ${tr.statisticsTotal()}: ${formatY(total)}`,
-            e.pageX,
-            e.pageY,
-        );
-    }
 
     legend.append("rect")
         .attr("x", bounds.width - bounds.marginRight + 36)

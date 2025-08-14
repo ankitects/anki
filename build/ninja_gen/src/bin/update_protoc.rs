@@ -72,12 +72,11 @@ fn fetch_protoc_release_info() -> Result<String, Box<dyn Error>> {
             "MacArm" => continue, // Skip MacArm since it's handled with MacX64
             "WindowsX64" => "Platform::WindowsX64 | Platform::WindowsArm",
             "WindowsArm" => continue, // Skip WindowsArm since it's handled with WindowsX64
-            _ => &format!("Platform::{}", platform),
+            _ => &format!("Platform::{platform}"),
         };
 
         match_blocks.push(format!(
-            "        {} => {{\n            OnlineArchive {{\n                url: \"{}\",\n                sha256: \"{}\",\n            }}\n        }}",
-            match_pattern, download_url, sha256
+            "        {match_pattern} => {{\n            OnlineArchive {{\n                url: \"{download_url}\",\n                sha256: \"{sha256}\",\n            }}\n        }}"
         ));
     }
 

@@ -20,8 +20,8 @@ import {
     cumsum,
     curveBasis,
     hsl,
-    interpolateBlues,
     interpolateGreens,
+    interpolateOranges,
     interpolatePurples,
     interpolateReds,
     interpolateRgb,
@@ -144,7 +144,7 @@ export function renderReviews(
 
     const yTickFormat = (n: number): string => {
         if (showTime) {
-            return timeSpan(n / 1000, true, false, TimespanUnit.Hours);
+            return timeSpan(n / 1000, true, true, TimespanUnit.Hours);
         } else {
             if (Math.round(n) != n) {
                 return "";
@@ -184,7 +184,7 @@ export function renderReviews(
     const reds = scaleSequential((n) => interpolateReds(cappedRange(n)!)).domain(
         x.domain() as any,
     );
-    const blues = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain(
+    const oranges = scaleSequential((n) => interpolateOranges(cappedRange(n)!)).domain(
         x.domain() as any,
     );
     const purples = scaleSequential((n) => interpolatePurples(cappedRange(n)!)).domain(
@@ -227,7 +227,7 @@ export function renderReviews(
             case BinIndex.Young:
                 return colorBlindMode ? colorBlindScales.young : lighterGreens;
             case BinIndex.Learn:
-                return colorBlindMode ? colorBlindScales.learn : blues;
+                return colorBlindMode ? colorBlindScales.learn : oranges;
             case BinIndex.Relearn:
                 return colorBlindMode ? colorBlindScales.relearn : reds;
             case BinIndex.Filtered:

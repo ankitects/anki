@@ -36,7 +36,7 @@ from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.models import NotetypeDict, NotetypeId, StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
-from anki.utils import checksum, is_lin, is_mac, is_win, namedtmp
+from anki.utils import checksum, is_lin, is_win, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.operations import QueryOp
 from aqt.operations.note import update_note
@@ -343,7 +343,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         gui_hooks.editor_did_init_shortcuts(cuts, self)
         for row in cuts:
             if len(row) == 2:
-                keys, fn = row  # pylint: disable=unbalanced-tuple-unpacking
+                keys, fn = row
                 fn = self._addFocusCheck(fn)
             else:
                 keys, fn, _ = row
@@ -796,7 +796,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         def accept(file: str) -> None:
             self.resolve_media(file)
 
-        file = getFile(
+        getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
             cb=cast(Callable[[Any], None], accept),
@@ -999,7 +999,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         if html.find(">") < 0:
             return html
 
-        with warnings.catch_warnings() as w:
+        with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             doc = BeautifulSoup(html, "html.parser")
 
@@ -1029,15 +1029,14 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 m = re.match(r"http://127.0.0.1:\d+/(.*)$", str(src))
                 if m:
                     tag["src"] = m.group(1)
-            else:
-                # in external pastes, download remote media
-                if isinstance(src, str) and self.isURL(src):
-                    fname = self._retrieveURL(src)
-                    if fname:
-                        tag["src"] = fname
-                elif isinstance(src, str) and src.startswith("data:image/"):
-                    # and convert inlined data
-                    tag["src"] = self.inlinedImageToFilename(str(src))
+            # in external pastes, download remote media
+            elif isinstance(src, str) and self.isURL(src):
+                fname = self._retrieveURL(src)
+                if fname:
+                    tag["src"] = fname
+            elif isinstance(src, str) and src.startswith("data:image/"):
+                # and convert inlined data
+                tag["src"] = self.inlinedImageToFilename(str(src))
 
         html = str(doc)
         return html
@@ -1102,7 +1101,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
         filter = f"{tr.editing_media()} ({extension_filter})"
 
-        file = getFile(
+        getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
             cb=cast(Callable[[Any], None], self.setup_mask_editor),
@@ -1735,10 +1734,9 @@ class EditorWebView(AnkiWebView):
         assert a is not None
         qconnect(a.triggered, lambda: openFolder(path))
 
-        if is_win or is_mac:
-            a = menu.addAction(tr.editing_show_in_folder())
-            assert a is not None
-            qconnect(a.triggered, lambda: show_in_folder(path))
+        a = menu.addAction(tr.editing_show_in_folder())
+        assert a is not None
+        qconnect(a.triggered, lambda: show_in_folder(path))
 
     def _clipboard(self) -> QClipboard:
         clipboard = self.editor.mw.app.clipboard()

@@ -24,7 +24,7 @@ Name "Anki"
 Unicode true
 
 ; The file to write (relative to nsis directory)
-OutFile "..\launcher_exe\anki-install.exe"
+OutFile "..\launcher_exe\anki-launcher-ANKI_VERSION-windows.exe"
 
 ; Non elevated
 RequestExecutionLevel user
@@ -214,7 +214,7 @@ Section ""
 
   ; Write the uninstall keys for Windows
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayName" "Anki Launcher"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayVersion" "1.0.0"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "DisplayVersion" "ANKI_VERSION"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Anki" "NoModify" 1
@@ -250,8 +250,18 @@ FunctionEnd
 ; Uninstaller
 
 function un.onInit
-   MessageBox MB_OKCANCEL "This will remove Anki's program files, but will not delete your card data. If you wish to delete your card data as well, you can do so via File>Switch Profile inside Anki first. Are you sure you wish to uninstall Anki?" /SD IDOK IDOK next
-      Quit
+   ; Check for ANKI_LAUNCHER environment variable
+   ReadEnvStr $R0 "ANKI_LAUNCHER"
+   ${If} $R0 != ""
+     ; Wait for launcher to exit
+     Sleep 2000
+     Goto next
+   ${Else}
+     ; Try to launch anki.exe with ANKI_LAUNCHER_UNINSTALL=1
+     IfFileExists "$INSTDIR\anki.exe" 0 next
+       nsExec::Exec 'cmd /c "set ANKI_LAUNCHER_UNINSTALL=1 && start /b "" "$INSTDIR\anki.exe""'
+       Quit
+   ${EndIf}
   next:
 functionEnd
 

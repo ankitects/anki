@@ -22,6 +22,11 @@ const NSIS_PATH: &str = "C:\\Program Files (x86)\\NSIS\\makensis.exe";
 fn main() -> Result<()> {
     println!("Building Windows launcher...");
 
+    // Read version early so it can be used throughout the build process
+    let version = std::fs::read_to_string("../../../.version")?
+        .trim()
+        .to_string();
+
     let output_dir = PathBuf::from(OUTPUT_DIR);
     let launcher_exe_dir = PathBuf::from(LAUNCHER_EXE_DIR);
     let nsis_dir = PathBuf::from(NSIS_DIR);
@@ -31,16 +36,20 @@ fn main() -> Result<()> {
     extract_nsis_plugins()?;
     copy_files(&output_dir)?;
     sign_binaries(&output_dir)?;
-    copy_nsis_files(&nsis_dir)?;
+    copy_nsis_files(&nsis_dir, &version)?;
     build_uninstaller(&output_dir, &nsis_dir)?;
     sign_file(&output_dir.join("uninstall.exe"))?;
     generate_install_manifest(&output_dir)?;
     build_installer(&output_dir, &nsis_dir)?;
-    sign_file(&PathBuf::from("../../../out/launcher_exe/anki-install.exe"))?;
+
+    let installer_filename = format!("anki-launcher-{version}-windows.exe");
+    let installer_path = PathBuf::from("../../../out/launcher_exe").join(&installer_filename);
+
+    sign_file(&installer_path)?;
 
     println!("Build completed successfully!");
     println!("Output directory: {}", output_dir.display());
-    println!("Installer: ../../../out/launcher_exe/anki-install.exe");
+    println!("Installer: ../../../out/launcher_exe/{installer_filename}");
 
     Ok(())
 }
@@ -114,9 +123,18 @@ fn copy_files(output_dir: &Path) -> Result<()> {
     let launcher_dst = output_dir.join("anki.exe");
     copy_file(&launcher_src, &launcher_dst)?;
 
-    // Copy uv.exe
+    // Copy anki-console binary
+    let console_src =
+        PathBuf::from(CARGO_TARGET_DIR).join("x86_64-pc-windows-msvc/release/anki-console.exe");
+    let console_dst = output_dir.join("anki-console.exe");
+    copy_file(&console_src, &console_dst)?;
+
+    // Copy uv.exe and uvw.exe
     let uv_src = PathBuf::from("../../../out/extracted/uv/uv.exe");
     let uv_dst = output_dir.join("uv.exe");
+    copy_file(&uv_src, &uv_dst)?;
+    let uv_src = PathBuf::from("../../../out/extracted/uv/uvw.exe");
+    let uv_dst = output_dir.join("uvw.exe");
     copy_file(&uv_src, &uv_dst)?;
 
     println!("Copying support files...");
@@ -130,14 +148,15 @@ fn copy_files(output_dir: &Path) -> Result<()> {
         output_dir.join(".python-version"),
     )?;
 
-    // Copy anki-console.bat
-    copy_file("anki-console.bat", output_dir.join("anki-console.bat"))?;
+    // Copy versions.py
+    copy_file("../versions.py", output_dir.join("versions.py"))?;
 
     Ok(())
 }
 
 fn sign_binaries(output_dir: &Path) -> Result<()> {
     sign_file(&output_dir.join("anki.exe"))?;
+    sign_file(&output_dir.join("anki-console.exe"))?;
     sign_file(&output_dir.join("uv.exe"))?;
     Ok(())
 }
@@ -214,7 +233,7 @@ fn generate_install_manifest(output_dir: &Path) -> Result<()> {
                     // Convert to Windows-style backslashes for NSIS
                     let windows_path = relative_path.display().to_string().replace('/', "\\");
                     // Use Windows line endings (\r\n) as expected by NSIS
-                    manifest_content.push_str(&format!("{}\r\n", windows_path));
+                    manifest_content.push_str(&format!("{windows_path}\r\n"));
                 }
             }
         }
@@ -225,11 +244,13 @@ fn generate_install_manifest(output_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-fn copy_nsis_files(nsis_dir: &Path) -> Result<()> {
+fn copy_nsis_files(nsis_dir: &Path, version: &str) -> Result<()> {
     println!("Copying NSIS support files...");
 
-    // Copy anki.template.nsi as anki.nsi
-    copy_file("anki.template.nsi", nsis_dir.join("anki.nsi"))?;
+    // Copy anki.template.nsi as anki.nsi and substitute version placeholders
+    let template_content = std::fs::read_to_string("anki.template.nsi")?;
+    let substituted_content = template_content.replace("ANKI_VERSION", version);
+    write_file(nsis_dir.join("anki.nsi"), substituted_content)?;
 
     // Copy fileassoc.nsh
     copy_file("fileassoc.nsh", nsis_dir.join("fileassoc.nsh"))?;

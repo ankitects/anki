@@ -28,6 +28,6 @@ fn main() {
             .to_string();
 
         let libs_path = stdlib_path + "s";
-        println!("cargo:rustc-link-search={}", libs_path);
+        println!("cargo:rustc-link-search={libs_path}");
     }
 }

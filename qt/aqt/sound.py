@@ -101,7 +101,7 @@ def is_audio_file(fname: str) -> bool:
     return ext in AUDIO_EXTENSIONS
 
 
-class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
+class SoundOrVideoPlayer(Player):
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> int | None:
@@ -111,7 +111,7 @@ class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
             return None
 
 
-class SoundPlayer(Player):  # pylint: disable=abstract-method
+class SoundPlayer(Player):
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> int | None:
@@ -121,7 +121,7 @@ class SoundPlayer(Player):  # pylint: disable=abstract-method
             return None
 
 
-class VideoPlayer(Player):  # pylint: disable=abstract-method
+class VideoPlayer(Player):
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> int | None:
@@ -324,7 +324,7 @@ def retryWait(proc: subprocess.Popen) -> int:
 ##########################################################################
 
 
-class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
+class SimpleProcessPlayer(Player):
     "A player that invokes a new process for each tag to play."
 
     args: list[str] = []
@@ -633,7 +633,7 @@ class QtAudioInputRecorder(Recorder):
         from PyQt6.QtMultimedia import QAudioFormat, QAudioSource  # type: ignore
 
         format = QAudioFormat()
-        format.setChannelCount(1)
+        format.setChannelCount(2)
         format.setSampleRate(44100)
         format.setSampleFormat(QAudioFormat.SampleFormat.Int16)
 
@@ -772,19 +772,14 @@ class RecordDialog(QDialog):
         saveGeom(self, "audioRecorder2")
 
     def _start_recording(self) -> None:
-        if qtmajor > 5:
-            if macos_helper and platform.machine() == "arm64":
-                self._recorder = NativeMacRecorder(
-                    namedtmp("rec.wav"),
-                )
-            else:
-                self._recorder = QtAudioInputRecorder(
-                    namedtmp("rec.wav"), self.mw, self._parent
-                )
+        if macos_helper and platform.machine() == "arm64":
+            self._recorder = NativeMacRecorder(
+                namedtmp("rec.wav"),
+            )
         else:
-            from aqt.qt.qt5_audio import QtAudioInputRecorder as Qt5Recorder
-
-            self._recorder = Qt5Recorder(namedtmp("rec.wav"), self.mw, self._parent)
+            self._recorder = QtAudioInputRecorder(
+                namedtmp("rec.wav"), self.mw, self._parent
+            )
         self._recorder.start(self._start_timer)
 
     def _start_timer(self) -> None:

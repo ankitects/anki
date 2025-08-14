@@ -147,7 +147,7 @@ impl Duplicate {
 }
 
 impl DeckIdsByNameOrId {
-    fn new(col: &mut Collection, default: &NameOrId) -> Result<Self> {
+    fn new(col: &mut Collection, default: &NameOrId, usn: Usn) -> Result<Self> {
         let names: HashMap<UniCase<String>, DeckId> = col
             .get_all_normal_deck_names(false)?
             .into_iter()
@@ -160,6 +160,13 @@ impl DeckIdsByNameOrId {
             default: None,
         };
         new.default = new.get(default);
+        if new.default.is_none() && *default != NameOrId::default() {
+            let mut deck = Deck::new_normal();
+            deck.name = NativeDeckName::from_human_name(default.to_string());
+            col.add_deck_inner(&mut deck, usn)?;
+            new.insert(deck.id, deck.human_name());
+            new.default = Some(deck.id);
+        }
 
         Ok(new)
     }
@@ -193,7 +200,7 @@ impl<'a> Context<'a> {
             NameOrId::default(),
             col.notetype_by_name_or_id(&data.default_notetype)?,
         );
-        let deck_ids = DeckIdsByNameOrId::new(col, &data.default_deck)?;
+        let deck_ids = DeckIdsByNameOrId::new(col, &data.default_deck, usn)?;
         let existing_checksums = ExistingChecksums::new(col, data.match_scope)?;
         let existing_guids = col.storage.all_notes_by_guid()?;
 
@@ -274,6 +281,9 @@ impl<'a> Context<'a> {
             deck.name = NativeDeckName::from_human_name(name);
             self.col.add_deck_inner(&mut deck, self.usn)?;
             self.deck_ids.insert(deck.id, deck.human_name());
+            if name.is_empty() {
+                self.deck_ids.default = Some(deck.id);
+            }
             Some(deck.id)
         } else {
             None

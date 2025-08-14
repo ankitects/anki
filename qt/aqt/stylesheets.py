@@ -177,9 +177,13 @@ class CustomStyles:
     QPushButton:default {{
         border: 1px solid {tm.var(colors.BORDER_FOCUS)};
     }}
+    QPushButton {{
+        margin: 1px;
+    }}
     QPushButton:focus {{
         border: 2px solid {tm.var(colors.BORDER_FOCUS)};
         outline: none;
+        margin: 0px;
     }}
     QPushButton:hover,
     QTabBar::tab:hover,
@@ -208,7 +212,7 @@ class CustomStyles:
             button_pressed_gradient(
                 tm.var(colors.BUTTON_GRADIENT_START),
                 tm.var(colors.BUTTON_GRADIENT_END),
-                tm.var(colors.SHADOW)
+                tm.var(colors.SHADOW),
             )
         };
     }}
@@ -340,7 +344,7 @@ class CustomStyles:
     }}
     QTabBar::tab:selected:hover {{
         background: {
-                button_gradient(
+            button_gradient(
                 tm.var(colors.BUTTON_PRIMARY_GRADIENT_START),
                 tm.var(colors.BUTTON_PRIMARY_GRADIENT_END),
             )
@@ -391,7 +395,7 @@ class CustomStyles:
             button_pressed_gradient(
                 tm.var(colors.BUTTON_GRADIENT_START),
                 tm.var(colors.BUTTON_GRADIENT_END),
-                tm.var(colors.SHADOW)
+                tm.var(colors.SHADOW),
             )
         }
     }}
@@ -647,10 +651,12 @@ class CustomStyles:
         margin: -7px 0;
     }}
     QSlider::handle:hover {{
-        background: {button_gradient(
-            tm.var(colors.BUTTON_GRADIENT_START),
-            tm.var(colors.BUTTON_GRADIENT_END),
-        )}
+        background: {
+            button_gradient(
+                tm.var(colors.BUTTON_GRADIENT_START),
+                tm.var(colors.BUTTON_GRADIENT_END),
+            )
+        }
     }}
     """
 

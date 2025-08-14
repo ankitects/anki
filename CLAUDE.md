@@ -21,7 +21,7 @@ Please do this as a final step before marking a task as completed.
 During development, you can build/check subsections of our code:
 
 - Rust: 'cargo check'
-- Python: './tools/dmypy'
+- Python: './tools/dmypy', and if wheel-related, './ninja wheels'
 - TypeScript/Svelte: './ninja check:svelte'
 
 Be mindful that some changes (such as modifications to .proto files) may
@@ -80,3 +80,7 @@ when possible.
 
 in rslib, use error/mod.rs's AnkiError/Result and snafu. In our other Rust modules, prefer anyhow + additional context where appropriate. Unwrapping
 in build scripts/tests is fine.
+
+## Individual preferences
+
+See @.claude/user.md

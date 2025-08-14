@@ -240,7 +240,7 @@ impl Collection {
         } else {
             self.storage.setup_searched_cards_table()?;
         }
-        let sql = format!("insert into search_cids {}", sql);
+        let sql = format!("insert into search_cids {sql}");
 
         let cards = self
             .storage
@@ -307,7 +307,7 @@ impl Collection {
         let (sql, args) = writer.build_query(&top_node, mode.required_table())?;
 
         self.storage.setup_searched_notes_table()?;
-        let sql = format!("insert into search_nids {}", sql);
+        let sql = format!("insert into search_nids {sql}");
 
         let notes = self
             .storage
@@ -378,9 +378,10 @@ fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<
         Column::Stability => "extract_fsrs_variable(c.data, 's') asc".into(),
         Column::Difficulty => "extract_fsrs_variable(c.data, 'd') asc".into(),
         Column::Retrievability => format!(
-            "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {}, {}) asc",
+            "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {}, {}, {}) asc",
             timing.days_elapsed,
-            timing.next_day_at.0
+            timing.next_day_at.0,
+            timing.now.0,
         )
         .into(),
     }

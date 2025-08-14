@@ -33,9 +33,8 @@ git = "https://github.com/ankitects/linkcheck.git"
 rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
-version = "4.1.1"
+version = "5.1.0"
 # git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
-# rev = "a7f7efc10f0a26b14ee348cc7402155685f2a24f"
 # path = "../open-spaced-repetition/fsrs-rs"
 
 [workspace.dependencies]
@@ -60,6 +59,7 @@ async-trait = "0.1.88"
 axum = { version = "0.8.4", features = ["multipart", "macros"] }
 axum-client-ip = "1.1.3"
 axum-extra = { version = "0.10.1", features = ["typed-header"] }
+bitflags = "2.9.1"
 blake3 = "1.8.2"
 bytes = "1.10.1"
 camino = "1.1.10"
@@ -93,7 +93,7 @@ junction = "1.2.0"
 libc = "0.2"
 libc-stdhandle = "0.1"
 maplit = "1.0.2"
-nom = "7.1.3"
+nom = "8.0.0"
 num-format = "0.4.4"
 num_cpus = "1.17.0"
 num_enum = "0.7.3"
@@ -109,6 +109,7 @@ prost-types = "0.13"
 pulldown-cmark = "0.13.0"
 pyo3 = { version = "0.25.1", features = ["extension-module", "abi3", "abi3-py39"] }
 rand = "0.9.1"
+rayon = "1.10.0"
 regex = "1.11.1"
 reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
 rusqlite = { version = "0.36.0", features = ["trace", "functions", "collation", "bundled"] }
@@ -138,8 +139,9 @@ unic-ucd-category = "0.9.0"
 unicode-normalization = "0.1.24"
 walkdir = "2.5.0"
 which = "8.0.0"
-winapi = { version = "0.3", features = ["wincon"] }
-windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Media_Core", "Foundation_Collections", "Storage_Streams"] }
+widestring = "1.1.0"
+winapi = { version = "0.3", features = ["wincon", "winreg"] }
+windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Media_Core", "Foundation_Collections", "Storage_Streams", "Win32_System_Console", "Win32_System_Registry", "Win32_System_SystemInformation", "Win32_Foundation", "Win32_UI_Shell", "Wdk_System_SystemServices"] }
 wiremock = "0.6.3"
 xz2 = "0.1.7"
 zip = { version = "4.1.0", default-features = false, features = ["deflate", "time"] }

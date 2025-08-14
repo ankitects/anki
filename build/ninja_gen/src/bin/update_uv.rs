@@ -53,7 +53,7 @@ fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
         // Find the corresponding .sha256 or .sha256sum asset
         let sha_asset = assets.iter().find(|a| {
             let name = a["name"].as_str().unwrap_or("");
-            name == format!("{}.sha256", asset_name) || name == format!("{}.sha256sum", asset_name)
+            name == format!("{asset_name}.sha256") || name == format!("{asset_name}.sha256sum")
         });
         if sha_asset.is_none() {
             eprintln!("No sha256 asset found for {asset_name}");
@@ -71,8 +71,7 @@ fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
         let sha256 = sha_text.split_whitespace().next().unwrap_or("");
 
         match_blocks.push(format!(
-            "        Platform::{} => {{\n            OnlineArchive {{\n                url: \"{}\",\n                sha256: \"{}\",\n            }}\n        }}",
-            platform, download_url, sha256
+            "        Platform::{platform} => {{\n            OnlineArchive {{\n                url: \"{download_url}\",\n                sha256: \"{sha256}\",\n            }}\n        }}"
         ));
     }
 
@@ -135,10 +134,7 @@ mod tests {
         assert_eq!(
             updated_lines,
             original_lines - EXPECTED_LINES_REMOVED,
-            "Expected line count to decrease by exactly {} lines (original: {}, updated: {})",
-            EXPECTED_LINES_REMOVED,
-            original_lines,
-            updated_lines
+            "Expected line count to decrease by exactly {EXPECTED_LINES_REMOVED} lines (original: {original_lines}, updated: {updated_lines})"
         );
     }
 }

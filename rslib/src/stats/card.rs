@@ -30,11 +30,24 @@ impl Collection {
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let timing = self.timing_today()?;
-        let seconds_elapsed = self
-            .storage
-            .time_of_last_review(card.id)?
-            .map(|ts| timing.now.elapsed_secs_since(ts))
-            .unwrap_or_default() as u32;
+
+        let last_review_time = if let Some(last_review_time) = card.last_review_time {
+            last_review_time
+        } else {
+            let mut new_card = card.clone();
+            let last_review_time = self
+                .storage
+                .time_of_last_review(card.id)?
+                .unwrap_or_default();
+
+            new_card.last_review_time = Some(last_review_time);
+
+            self.storage.update_card(&new_card)?;
+            last_review_time
+        };
+
+        let seconds_elapsed = timing.now.elapsed_secs_since(last_review_time) as u32;
+
         let fsrs_retrievability = card
             .memory_state
             .zip(Some(seconds_elapsed))
@@ -184,7 +197,7 @@ impl Collection {
 }
 
 fn average_and_total_secs_strings(revlog: &[RevlogEntry]) -> (f32, f32) {
-    let normal_answer_count = revlog.iter().filter(|r| r.button_chosen > 0).count();
+    let normal_answer_count = revlog.iter().filter(|r| r.has_rating()).count();
     let total_secs: f32 = revlog
         .iter()
         .map(|entry| (entry.taken_millis as f32) / 1000.0)

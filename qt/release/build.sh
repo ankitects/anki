@@ -2,7 +2,7 @@
 
 set -e
 
-test -f update.sh || {
+test -f build.sh || {
   echo "run from release folder"
   exit 1
 }
@@ -13,8 +13,8 @@ PROJ_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # Use extracted uv binary
 UV="$PROJ_ROOT/out/extracted/uv/uv"
 
-# Prompt for wheel version
-read -p "Wheel version: " VERSION
+# Read version from .version file
+VERSION=$(cat "$PROJ_ROOT/.version" | tr -d '[:space:]')
 
 # Copy existing pyproject.toml to .old if it exists
 if [ -f pyproject.toml ]; then
@@ -24,7 +24,7 @@ fi
 # Export dependencies using uv
 echo "Exporting dependencies..."
 rm -f pyproject.toml
-DEPS=$("$UV" export --no-hashes --no-annotate --no-header --extra audio --extra qt --all-packages --no-dev --no-emit-workspace)
+DEPS=$(cd "$PROJ_ROOT" && "$UV" export --no-hashes --no-annotate --no-header --extra audio --extra qt --all-packages --no-dev --no-emit-workspace)
 
 # Generate the pyproject.toml file
 cat > pyproject.toml << EOF
@@ -49,12 +49,6 @@ done
 cat >> pyproject.toml << 'EOF'
 ]
 
-[[tool.uv.index]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-publish-url = "https://test.pypi.org/legacy/"
-explicit = true
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -69,6 +63,9 @@ echo "Generated pyproject.toml with version $VERSION"
 # Show diff if .old file exists
 if [ -f pyproject.toml.old ]; then
     echo
-    echo "Differences from previous version:"
+    echo "Differences from previous release version:"
     diff -u --color=always pyproject.toml.old pyproject.toml || true
 fi
+
+echo "Building wheel..."
+"$UV" build --wheel --out-dir "$PROJ_ROOT/out/wheels"

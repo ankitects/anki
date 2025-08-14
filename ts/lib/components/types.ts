@@ -9,6 +9,7 @@ export type HelpItem = {
     help?: string;
     url?: string;
     sched?: HelpItemScheduler;
+    global?: boolean;
 };
 
 export enum HelpItemScheduler {

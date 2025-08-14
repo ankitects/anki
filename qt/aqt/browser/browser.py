@@ -10,6 +10,8 @@ import re
 from collections.abc import Callable, Sequence
 from typing import Any, cast
 
+from markdown import markdown
+
 import aqt
 import aqt.browser
 import aqt.editor
@@ -20,7 +22,7 @@ from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.decks import DeckId
-from anki.errors import NotFoundError
+from anki.errors import NotFoundError, SearchError
 from anki.lang import without_unicode_isolation
 from anki.models import NotetypeId
 from anki.notes import NoteId
@@ -498,6 +500,8 @@ class Browser(QMainWindow):
         text = self.current_search()
         try:
             normed = self.col.build_search_string(text)
+        except SearchError as err:
+            showWarning(markdown(str(err)))
         except Exception as err:
             showWarning(str(err))
         else:

@@ -13,6 +13,7 @@ use nom::character::complete::char;
 use nom::error::ErrorKind;
 use nom::sequence::preceded;
 use nom::sequence::separated_pair;
+use nom::Parser;
 
 fn unescape(text: &str) -> String {
     text.replace("\\:", ":")
@@ -22,11 +23,12 @@ pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusionShape> {
     if let Some((shape, _)) = text.split_once(':') {
         let mut properties = vec![];
         let mut remaining = &text[shape.len()..];
-        while let Ok((rem, (name, value))) = separated_pair::<_, _, _, _, (_, ErrorKind), _, _, _>(
+        while let Ok((rem, (name, value))) = separated_pair::<_, _, _, (_, ErrorKind), _, _, _>(
             preceded(tag(":"), is_not("=")),
             tag("="),
             escaped(is_not("\\:"), '\\', char(':')),
-        )(remaining)
+        )
+        .parse(remaining)
         {
             remaining = rem;
             let value = unescape(value);
@@ -96,7 +98,7 @@ pub fn get_image_cloze_data(text: &str) -> String {
                             let Some((x, y)) = point_pair.split_once(',') else {
                                 continue;
                             };
-                            write!(&mut point_str, "{},{} ", x, y).unwrap();
+                            write!(&mut point_str, "{x},{y} ").unwrap();
                         }
                         // remove the trailing space
                         point_str.pop();

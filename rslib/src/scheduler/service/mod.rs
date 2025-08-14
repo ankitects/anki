@@ -16,6 +16,7 @@ use anki_proto::scheduler::FuzzDeltaResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
+use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
 use fsrs::ComputeParametersInput;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
@@ -283,6 +284,13 @@ impl crate::services::SchedulerService for Collection {
         self.simulate_review(input)
     }
 
+    fn simulate_fsrs_workload(
+        &mut self,
+        input: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsWorkloadResponse> {
+        self.simulate_workload(input)
+    }
+
     fn compute_optimal_retention(
         &mut self,
         input: SimulateFsrsReviewRequest,
@@ -300,6 +308,21 @@ impl crate::services::SchedulerService for Collection {
             &input.search,
             input.ignore_revlogs_before_ms.into(),
             input.num_of_relearning_steps as usize,
+        )?;
+        Ok(scheduler::EvaluateParamsResponse {
+            log_loss: ret.log_loss,
+            rmse_bins: ret.rmse_bins,
+        })
+    }
+
+    fn evaluate_params_legacy(
+        &mut self,
+        input: scheduler::EvaluateParamsLegacyRequest,
+    ) -> Result<scheduler::EvaluateParamsResponse> {
+        let ret = self.evaluate_params_legacy(
+            &input.params,
+            &input.search,
+            input.ignore_revlogs_before_ms.into(),
         )?;
         Ok(scheduler::EvaluateParamsResponse {
             log_loss: ret.log_loss,

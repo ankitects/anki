@@ -93,6 +93,10 @@ impl TimestampMillis {
     pub fn adding_secs(self, secs: i64) -> Self {
         Self(self.0 + secs * 1000)
     }
+
+    pub fn elapsed_millis(self) -> u64 {
+        (Self::now().0 - self.0).max(0) as u64
+    }
 }
 
 fn elapsed() -> time::Duration {

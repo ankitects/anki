@@ -270,7 +270,7 @@ impl Note {
             self.fields
                 .last_mut()
                 .unwrap()
-                .push_str(&format!("; {}", last));
+                .push_str(&format!("; {last}"));
         }
     }
 }

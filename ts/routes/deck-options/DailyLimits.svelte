@@ -133,14 +133,15 @@
         },
         newCardsIgnoreReviewLimit: {
             title: tr.deckConfigNewCardsIgnoreReviewLimit(),
-
             help: newCardsIgnoreReviewLimitHelp,
             url: HelpPage.DeckOptions.newCardsday,
+            global: true,
         },
         applyAllParentLimits: {
             title: tr.deckConfigApplyAllParentLimits(),
             help: applyAllParentLimitsHelp,
-            url: HelpPage.DeckOptions.newCardsday,
+            url: HelpPage.DeckOptions.limitsFromTop,
+            global: true,
         },
     };
     const helpSections: HelpItem[] = Object.values(settings);

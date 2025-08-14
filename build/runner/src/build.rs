@@ -67,7 +67,10 @@ pub fn run_build(args: BuildArgs) {
             "MYPY_CACHE_DIR",
             build_root.join("tests").join("mypy").into_string(),
         )
-        .env("PYTHONPYCACHEPREFIX", build_root.join("pycache"))
+        .env(
+            "PYTHONPYCACHEPREFIX",
+            std::path::absolute(build_root.join("pycache")).unwrap(),
+        )
         // commands will not show colors by default, as we do not provide a tty
         .env("FORCE_COLOR", "1")
         .env("MYPY_FORCE_COLOR", "1")
@@ -135,7 +138,7 @@ fn setup_build_root() -> Utf8PathBuf {
             true
         };
         if create {
-            println!("Switching build root to {}", new_target);
+            println!("Switching build root to {new_target}");
             std::os::unix::fs::symlink(new_target, build_root).unwrap();
         }
     }

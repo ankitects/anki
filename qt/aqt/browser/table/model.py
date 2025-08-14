@@ -105,11 +105,11 @@ class DataModel(QAbstractTableModel):
             row = CellRow(*self.col.browser_row_for_id(item))
         except BackendError as e:
             return CellRow.disabled(self.len_columns(), str(e))
-        except Exception as e:
+        except Exception:
             return CellRow.disabled(
                 self.len_columns(), tr.errors_please_check_database()
             )
-        except BaseException as e:
+        except BaseException:
             # fatal error like a panic in the backend - dump it to the
             # console so it gets picked up by the error handler
             import traceback
@@ -325,15 +325,13 @@ class DataModel(QAbstractTableModel):
             return 0
         return self.len_columns()
 
-    _QFont = without_qt5_compat_wrapper(QFont)
-
     def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
         if not index.isValid():
             return QVariant()
         if role == Qt.ItemDataRole.FontRole:
             if not self.column_at(index).uses_cell_font:
                 return QVariant()
-            qfont = self._QFont()
+            qfont = QFont()
             row = self.get_row(index)
             qfont.setFamily(row.font_name)
             qfont.setPixelSize(row.font_size)

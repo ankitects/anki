@@ -166,7 +166,6 @@ class MacVoice(TTSVoice):
     original_name: str
 
 
-# pylint: disable=no-member
 class MacTTSPlayer(TTSProcessPlayer):
     "Invokes a process to play the audio in the background."
 
@@ -487,7 +486,7 @@ if is_win:
     class WindowsTTSPlayer(TTSProcessPlayer):
         default_rank = -1
         try:
-            import win32com.client  # pylint: disable=import-error
+            import win32com.client
 
             speaker = win32com.client.Dispatch("SAPI.SpVoice")
         except Exception as exc:

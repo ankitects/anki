@@ -221,7 +221,7 @@ class CardLayout(QDialog):
         )
         for i in range(min(len(self.cloze_numbers), 9)):
             QShortcut(  # type: ignore
-                QKeySequence(f"Alt+{i+1}"),
+                QKeySequence(f"Alt+{i + 1}"),
                 self,
                 activated=lambda n=i: self.pform.cloze_number_combo.setCurrentIndex(n),
             )
@@ -790,7 +790,7 @@ class CardLayout(QDialog):
         assert a is not None
         qconnect(
             a.triggered,
-            lambda: self.on_restore_to_default(),  # pylint: disable=unnecessary-lambda
+            lambda: self.on_restore_to_default(),
         )
 
         if not self._isCloze():

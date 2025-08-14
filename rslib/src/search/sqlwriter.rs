@@ -22,6 +22,7 @@ use crate::notes::field_checksum;
 use crate::notetype::NotetypeId;
 use crate::prelude::*;
 use crate::storage::ids_to_string;
+use crate::storage::ProcessTextFlags;
 use crate::text::glob_matcher;
 use crate::text::is_glob;
 use crate::text::normalize_to_nfc;
@@ -134,6 +135,7 @@ impl SqlWriter<'_> {
                 self.write_unqualified(
                     text,
                     self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+                    false,
                 )?
             }
             SearchNode::SingleField { field, text, is_re } => {
@@ -143,7 +145,14 @@ impl SqlWriter<'_> {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
             SearchNode::Regex(re) => self.write_regex(&self.norm_note(re), false)?,
-            SearchNode::NoCombining(text) => self.write_unqualified(&self.norm_note(text), true)?,
+            SearchNode::NoCombining(text) => {
+                self.write_unqualified(&self.norm_note(text), true, false)?
+            }
+            SearchNode::StripClozes(text) => self.write_unqualified(
+                &self.norm_note(text),
+                self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch),
+                true,
+            )?,
             SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text))?,
 
             // other
@@ -158,13 +167,12 @@ impl SqlWriter<'_> {
             },
             SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
             SearchNode::NotetypeId(ntid) => {
-                write!(self.sql, "n.mid = {}", ntid).unwrap();
+                write!(self.sql, "n.mid = {ntid}").unwrap();
             }
             SearchNode::DeckIdsWithoutChildren(dids) => {
                 write!(
                     self.sql,
-                    "c.did in ({}) or (c.odid != 0 and c.odid in ({}))",
-                    dids, dids
+                    "c.did in ({dids}) or (c.odid != 0 and c.odid in ({dids}))"
                 )
                 .unwrap();
             }
@@ -175,13 +183,13 @@ impl SqlWriter<'_> {
             SearchNode::Tag { tag, is_re } => self.write_tag(&norm(tag), *is_re),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
-                write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
+                write!(self.sql, "(c.flags & 7) == {flag}").unwrap();
             }
             SearchNode::NoteIds(nids) => {
                 write!(self.sql, "{} in ({})", self.note_id_column(), nids).unwrap();
             }
             SearchNode::CardIds(cids) => {
-                write!(self.sql, "c.id in ({})", cids).unwrap();
+                write!(self.sql, "c.id in ({cids})").unwrap();
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
             SearchNode::CustomData(key) => self.write_custom_data(key)?,
@@ -191,7 +199,12 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_unqualified(&mut self, text: &str, no_combining: bool) -> Result<()> {
+    fn write_unqualified(
+        &mut self,
+        text: &str,
+        no_combining: bool,
+        strip_clozes: bool,
+    ) -> Result<()> {
         let text = to_sql(text);
         let text = if no_combining {
             without_combining(&text)
@@ -199,20 +212,40 @@ impl SqlWriter<'_> {
             text
         };
         // implicitly wrap in %
-        let text = format!("%{}%", text);
+        let text = format!("%{text}%");
         self.args.push(text);
         let arg_idx = self.args.len();
 
-        let sfld_expr = if no_combining {
-            "coalesce(without_combining(cast(n.sfld as text)), n.sfld)"
+        let mut process_text_flags = ProcessTextFlags::empty();
+        if no_combining {
+            process_text_flags.insert(ProcessTextFlags::NoCombining);
+        }
+        if strip_clozes {
+            process_text_flags.insert(ProcessTextFlags::StripClozes);
+        }
+
+        let (sfld_expr, flds_expr) = if !process_text_flags.is_empty() {
+            let bits = process_text_flags.bits();
+            (
+                Cow::from(format!(
+                    "coalesce(process_text(cast(n.sfld as text), {bits}), n.sfld)"
+                )),
+                Cow::from(format!("coalesce(process_text(n.flds, {bits}), n.flds)")),
+            )
         } else {
-            "n.sfld"
+            (Cow::from("n.sfld"), Cow::from("n.flds"))
         };
-        let flds_expr = if no_combining {
-            "coalesce(without_combining(n.flds), n.flds)"
-        } else {
-            "n.flds"
-        };
+
+        if strip_clozes {
+            let cloze_notetypes_only_clause = self
+                .col
+                .get_all_notetypes()?
+                .iter()
+                .filter(|nt| nt.is_cloze())
+                .map(|nt| format!("n.mid = {}", nt.id))
+                .join(" or ");
+            write!(self.sql, "({cloze_notetypes_only_clause}) and ").unwrap();
+        }
 
         if let Some(field_indicies_by_notetype) = self.included_fields_by_notetype()? {
             let field_idx_str = format!("' || ?{arg_idx} || '");
@@ -279,7 +312,7 @@ impl SqlWriter<'_> {
                 text => {
                     write!(self.sql, "n.tags regexp ?").unwrap();
                     let re = &to_custom_re(text, r"\S");
-                    self.args.push(format!("(?i).* {}(::| ).*", re));
+                    self.args.push(format!("(?i).* {re}(::| ).*"));
                 }
             }
         }
@@ -293,10 +326,10 @@ impl SqlWriter<'_> {
         write!(self.sql, "c.id in (select cid from revlog where id").unwrap();
 
         match op {
-            ">" => write!(self.sql, " >= {}", target_cutoff_ms),
-            ">=" => write!(self.sql, " >= {}", day_before_cutoff_ms),
-            "<" => write!(self.sql, " < {}", day_before_cutoff_ms),
-            "<=" => write!(self.sql, " < {}", target_cutoff_ms),
+            ">" => write!(self.sql, " >= {target_cutoff_ms}"),
+            ">=" => write!(self.sql, " >= {day_before_cutoff_ms}"),
+            "<" => write!(self.sql, " < {day_before_cutoff_ms}"),
+            "<=" => write!(self.sql, " < {target_cutoff_ms}"),
             "=" => write!(
                 self.sql,
                 " between {} and {}",
@@ -314,7 +347,7 @@ impl SqlWriter<'_> {
         .unwrap();
 
         match ease {
-            RatingKind::AnswerButton(u) => write!(self.sql, " and ease = {})", u),
+            RatingKind::AnswerButton(u) => write!(self.sql, " and ease = {u})"),
             RatingKind::AnyAnswerButton => write!(self.sql, " and ease > 0)"),
             RatingKind::ManualReschedule => write!(self.sql, " and ease = 0)"),
         }
@@ -356,9 +389,9 @@ impl SqlWriter<'_> {
                 pos = pos
             )
             .unwrap(),
-            PropertyKind::Interval(ivl) => write!(self.sql, "ivl {} {}", op, ivl).unwrap(),
-            PropertyKind::Reps(reps) => write!(self.sql, "reps {} {}", op, reps).unwrap(),
-            PropertyKind::Lapses(days) => write!(self.sql, "lapses {} {}", op, days).unwrap(),
+            PropertyKind::Interval(ivl) => write!(self.sql, "ivl {op} {ivl}").unwrap(),
+            PropertyKind::Reps(reps) => write!(self.sql, "reps {op} {reps}").unwrap(),
+            PropertyKind::Lapses(days) => write!(self.sql, "lapses {op} {days}").unwrap(),
             PropertyKind::Ease(ease) => {
                 write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32).unwrap()
             }
@@ -385,13 +418,13 @@ impl SqlWriter<'_> {
                 write!(self.sql, "extract_fsrs_variable(c.data, 'd') {op} {d}").unwrap()
             }
             PropertyKind::Retrievability(r) => {
-                let (elap, next_day_at) = {
+                let (elap, next_day_at, now) = {
                     let timing = self.col.timing_today()?;
-                    (timing.days_elapsed, timing.next_day_at)
+                    (timing.days_elapsed, timing.next_day_at, timing.now)
                 };
                 write!(
                     self.sql,
-                    "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {elap}, {next_day_at}) {op} {r}"
+                    "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {elap}, {next_day_at}, {now}) {op} {r}"
                 )
                 .unwrap()
             }
@@ -474,7 +507,7 @@ impl SqlWriter<'_> {
                 };
 
                 // convert to a regex that includes child decks
-                self.args.push(format!("(?i)^{}($|\x1f)", native_deck));
+                self.args.push(format!("(?i)^{native_deck}($|\x1f)"));
                 let arg_idx = self.args.len();
                 self.sql.push_str(&format!(concat!(
                     "(c.did in (select id from decks where name regexp ?{n})",
@@ -491,7 +524,7 @@ impl SqlWriter<'_> {
             let ids = self.col.storage.deck_id_with_children(&parent)?;
             let mut buf = String::new();
             ids_to_string(&mut buf, &ids);
-            write!(self.sql, "c.did in {}", buf,).unwrap();
+            write!(self.sql, "c.did in {buf}",).unwrap();
         } else {
             self.sql.push_str("false")
         }
@@ -502,7 +535,7 @@ impl SqlWriter<'_> {
     fn write_template(&mut self, template: &TemplateKind) {
         match template {
             TemplateKind::Ordinal(n) => {
-                write!(self.sql, "c.ord = {}", n).unwrap();
+                write!(self.sql, "c.ord = {n}").unwrap();
             }
             TemplateKind::Name(name) => {
                 if is_glob(name) {
@@ -550,7 +583,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_all_fields_regexp(&mut self, val: &str) {
-        self.args.push(format!("(?i){}", val));
+        self.args.push(format!("(?i){val}"));
         write!(self.sql, "regexp_fields(?{}, n.flds)", self.args.len()).unwrap();
     }
 
@@ -566,7 +599,7 @@ impl SqlWriter<'_> {
             return Ok(());
         }
 
-        self.args.push(format!("(?i){}", val));
+        self.args.push(format!("(?i){val}"));
         let arg_idx = self.args.len();
 
         let all_notetype_clauses = field_indicies_by_notetype
@@ -775,13 +808,13 @@ impl SqlWriter<'_> {
 
     fn write_added(&mut self, days: u32) -> Result<()> {
         let cutoff = self.previous_day_cutoff(days)?.as_millis();
-        write!(self.sql, "c.id > {}", cutoff).unwrap();
+        write!(self.sql, "c.id > {cutoff}").unwrap();
         Ok(())
     }
 
     fn write_edited(&mut self, days: u32) -> Result<()> {
         let cutoff = self.previous_day_cutoff(days)?;
-        write!(self.sql, "n.mod > {}", cutoff).unwrap();
+        write!(self.sql, "n.mod > {cutoff}").unwrap();
         Ok(())
     }
 
@@ -804,16 +837,19 @@ impl SqlWriter<'_> {
 
     fn write_regex(&mut self, word: &str, no_combining: bool) -> Result<()> {
         let flds_expr = if no_combining {
-            "coalesce(without_combining(n.flds), n.flds)"
+            Cow::from(format!(
+                "coalesce(process_text(n.flds, {}), n.flds)",
+                ProcessTextFlags::NoCombining.bits()
+            ))
         } else {
-            "n.flds"
+            Cow::from("n.flds")
         };
         let word = if no_combining {
             without_combining(word)
         } else {
             std::borrow::Cow::Borrowed(word)
         };
-        self.args.push(format!(r"(?i){}", word));
+        self.args.push(format!(r"(?i){word}"));
         let arg_idx = self.args.len();
         if let Some(field_indices_by_notetype) = self.included_fields_for_unqualified_regex()? {
             let notetype_clause = |ctx: &UnqualifiedRegexSearchContext| -> String {
@@ -996,6 +1032,7 @@ impl SearchNode {
             SearchNode::Duplicates { .. } => RequiredTable::Notes,
             SearchNode::Regex(_) => RequiredTable::Notes,
             SearchNode::NoCombining(_) => RequiredTable::Notes,
+            SearchNode::StripClozes(_) => RequiredTable::Notes,
             SearchNode::WordBoundary(_) => RequiredTable::Notes,
             SearchNode::NotetypeId(_) => RequiredTable::Notes,
             SearchNode::Notetype(_) => RequiredTable::Notes,
@@ -1300,6 +1337,9 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
             "((c.did in (1) or c.odid in (1)))"
         );
         assert_eq!(&s(ctx, "preset:typo").0, "(false)");
+
+        // strip clozes
+        assert_eq!(&s(ctx, "sc:abcdef").0, "((n.mid = 1581236385343) and (coalesce(process_text(cast(n.sfld as text), 2), n.sfld) like ?1 escape '\\' or coalesce(process_text(n.flds, 2), n.flds) like ?1 escape '\\'))");
     }
 
     #[test]

@@ -66,13 +66,14 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     # WebView contents
     ######################################################################
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
-    abouttext += f"<p>{tr.about_anki_is_a_friendly_intelligent_spaced()}"
+    lede = tr.about_anki_is_a_friendly_intelligent_spaced().replace("Anki", "Anki®")
+    abouttext += f"<p>{lede}"
     abouttext += f"<p>{tr.about_anki_is_licensed_under_the_agpl3()}"
     abouttext += f"<p>{tr.about_version(val=version_with_build())}<br>"
-    abouttext += ("Python %s Qt %s PyQt %s<br>") % (
+    abouttext += ("Python %s Qt %s Chromium %s<br>") % (
         platform.python_version(),
         qVersion(),
-        PYQT_VERSION_STR,
+        (qWebEngineChromiumVersion() or "").split(".")[0],
     )
     abouttext += (
         without_unicode_isolation(tr.about_visit_website(val=aqt.appWebsite))
@@ -223,6 +224,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Mukunda Madhav Dey",
             "Adnane Taghi",
             "Anon_0000",
+            "Bilolbek Normuminov",
+            "Sagiv Marzini",
         )
     )
 
