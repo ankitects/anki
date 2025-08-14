@@ -1208,7 +1208,7 @@ components and functionality for general note editing.
     on:dragover={preventDefaultIfNonLegacy}
     on:drop={checkNonLegacy(handlePickerDrop)}
 >
-    {#if mode === "add"}
+    {#if mode === "add" && !isLegacy}
         <EditorChoosers bind:selectedNotetype bind:selectedDeck onNotetypeChange={onNotetypeChange} />
     {/if}
 
