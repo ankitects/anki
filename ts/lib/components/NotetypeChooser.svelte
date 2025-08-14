@@ -10,8 +10,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ItemChooser from "./ItemChooser.svelte";
     import * as tr from "@generated/ftl";
 
+    interface Props {
+        selectedNotetype: NotetypeNameId | null;
+        onChange?: (notetype: NotetypeNameId) => void;
+    }
+    let {selectedNotetype = $bindable(null), onChange}: Props = $props();
     let notetypes: NotetypeNameId[] = $state([]);
-    let selectedNotetype: NotetypeNameId | null = $state(null);
 
     $effect(() => {
         getNotetypeNames({}).then((response) => {
@@ -23,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ItemChooser
     title={tr.qtMiscChooseNoteType()}
     bind:selectedItem={selectedNotetype}
+    {onChange}
     items={notetypes}
     icon={mdiNewspaper}
 />

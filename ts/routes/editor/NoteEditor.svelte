@@ -15,6 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import { EditorState, type EditorMode } from "./types";
     import { ContextMenu, Item } from "$lib/context-menu";
+    import type { NotetypeNameId } from "@generated/anki/notetypes_pb";
+    import type { DeckNameId } from "@generated/anki/decks_pb";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -295,6 +297,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         clearCodeMirrorHistory();
     }
 
+    export let selectedNotetype: NotetypeNameId | null = null;
+    export let selectedDeck: DeckNameId | null = null;
+
+
+    function onNotetypeChange(notetype: NotetypeNameId) {
+        loadNote(0n, notetype.id, 0, null);
+    }
+
+    function onDeckChange(deck: DeckNameId) {
+        selectedDeck = deck;
+    }
     let notetypeMeta: NotetypeIdAndModTime;
     function setNotetypeMeta(notetype: Notetype): void {
         notetypeMeta = { id: notetype.id, modTime: notetype.mtimeSecs };
@@ -444,8 +457,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function onAdd() {
-        // TODO get selected deck
-        await addCurrentNote(1n);
+        await addCurrentNote(selectedDeck!.id);
     }
 
     let historyModal: Modal;
@@ -1196,7 +1208,7 @@ components and functionality for general note editing.
     on:dragover={preventDefaultIfNonLegacy}
     on:drop={checkNonLegacy(handlePickerDrop)}
 >
-    <EditorChoosers />
+    <EditorChoosers bind:selectedNotetype bind:selectedDeck onNotetypeChange={onNotetypeChange} />
 
     <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">

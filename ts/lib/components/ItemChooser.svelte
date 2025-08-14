@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="ts">
+<script lang="ts" generics="Item extends { id: bigint, name: string }">
     import { magnifyIcon, mdiClose } from "./icons";
     import Icon from "./Icon.svelte";
     import IconConstrain from "./IconConstrain.svelte";
@@ -10,10 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Modal from "./Modal.svelte";
     import type { IconData } from "./types";
     import * as tr from "@generated/ftl";
-    interface Item {
-        id: bigint;
-        name: string;
-    }
 
     interface Props {
         title: string;

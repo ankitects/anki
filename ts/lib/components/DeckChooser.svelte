@@ -9,8 +9,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckNameId } from "@generated/anki/decks_pb";
     import * as tr from "@generated/ftl";
 
+    interface Props {
+        selectedDeck: DeckNameId | null;
+        onChange?: (deck: DeckNameId) => void;
+    }
+    let {selectedDeck = $bindable(null), onChange}: Props = $props();
     let decks: DeckNameId[] = $state([]);
-    let selectedDeck: DeckNameId | null = $state(null);
 
     $effect(() => {
         getDeckNames({ skipEmptyDefault: true, includeFiltered: false }).then(
@@ -24,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ItemChooser
     title={tr.qtMiscChooseDeck()}
     bind:selectedItem={selectedDeck}
+    {onChange}
     items={decks}
     icon={mdiBookOutline}
 />
