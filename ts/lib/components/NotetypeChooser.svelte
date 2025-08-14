@@ -31,4 +31,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     items={notetypes}
     icon={mdiNewspaper}
     keyCombination="Control+N"
+    tooltip={tr.qtMiscChangeNoteTypeCtrlandn()}
 />

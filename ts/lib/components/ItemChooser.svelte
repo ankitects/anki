@@ -18,10 +18,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         items: Item[];
         icon: IconData;
         keyCombination: string;
+        tooltip: string;
         onChange?: (item: Item) => void;
     }
 
-    let { title, onChange, icon, items, selectedItem = $bindable(null), keyCombination }: Props = $props();
+    let { title, onChange, icon, items, selectedItem = $bindable(null), keyCombination, tooltip }: Props = $props();
     let modal: Modal | null = $state(null);
     let searchQuery = $state("");
 
@@ -52,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<LabelButton on:click={openModal} class="chooser-button">
+<LabelButton {tooltip} on:click={openModal} class="chooser-button">
     {selectedItem?.name ?? "…"}
 </LabelButton>
 
