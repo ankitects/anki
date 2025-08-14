@@ -33,28 +33,25 @@ export interface GraphData {
 
 let barColours;
 
-if((window as any).colorBlindMode)
-{
+if ((window as any).colorBlindMode) {
     barColours = [
-    colorBlindColors.new, /* new */
-    colorBlindColors.learn, /* learn */
-    colorBlindColors.relearn, /* relearn */
-    colorBlindColors.young, /* young */
-    colorBlindColors.mature, /* mature */
-    colorBlindColors.suspended, /* suspended */
-    colorBlindColors.buried, /* buried */
+        colorBlindColors.new, /* new */
+        colorBlindColors.learn, /* learn */
+        colorBlindColors.relearn, /* relearn */
+        colorBlindColors.young, /* young */
+        colorBlindColors.mature, /* mature */
+        colorBlindColors.suspended, /* suspended */
+        colorBlindColors.buried, /* buried */
     ];
-}
-else 
-{
+} else {
     barColours = [
-    schemeBlues[5][2], /* new */
-    schemeOranges[5][2], /* learn */
-    schemeReds[5][2], /* relearn */
-    schemeGreens[5][2], /* young */
-    schemeGreens[5][3], /* mature */
-    "#FFDC41", /* suspended */
-    "#grey", /* buried */
+        schemeBlues[5][2], /* new */
+        schemeOranges[5][2], /* learn */
+        schemeReds[5][2], /* relearn */
+        schemeGreens[5][2], /* young */
+        schemeGreens[5][3], /* mature */
+        "#FFDC41", /* suspended */
+        "#grey", /* buried */
     ];
 }
 

@@ -21,7 +21,7 @@ import {
     sum,
 } from "d3";
 
-import {type GraphBounds } from "./graph-helpers";
+import { type GraphBounds } from "./graph-helpers";
 import { GraphRange } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
@@ -167,7 +167,7 @@ export function renderButtons(
     let colour;
 
     // Changing color based on mode
-    if(isColourBlindMode){
+    if (isColourBlindMode) {
         colour = scaleSequential(interpolateViridis).domain([1, 4]);
     } else {
         colour = scaleSequential(interpolateRdYlGn).domain([1, 4]);

@@ -85,7 +85,7 @@ export function buildHistogram(
     const isColourBlindMode = (window as any).colorBlindMode;
 
     // Changing color based on mode
-    if(isColourBlindMode){
+    if (isColourBlindMode) {
         adjustedRange = scaleLinear().range([0.3, 0.7]);
         colourScale = scaleSequential((n) => interpolateViridis(adjustedRange(n)!)).domain([xMax!, xMin!]);
     } else {

@@ -151,7 +151,6 @@ class NewDeckStats(QDialog):
         self.form.web.load_sveltekit_page("graphs")
 
 
-
 class DeckStats(QDialog):
     """Legacy deck stats, used by some add-ons."""
 

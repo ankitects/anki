@@ -221,7 +221,6 @@ class Preferences(QDialog):
         self.form.check_for_updates.setChecked(self.mw.pm.check_for_updates())
         qconnect(self.form.check_for_updates.stateChanged, self.mw.pm.set_update_check)
 
-
         self.update_login_status()
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
         qconnect(self.form.syncLogin.clicked, self.sync_login)
@@ -359,8 +358,6 @@ class Preferences(QDialog):
         self.form.theme.setCurrentIndex(self.mw.pm.theme().value)
         qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
 
-
-
         self.form.styleComboBox.addItems(["Anki"] + (["Native"] if not is_win else []))
         self.form.styleComboBox.setCurrentIndex(self.mw.pm.get_widget_style())
         qconnect(
@@ -372,7 +369,9 @@ class Preferences(QDialog):
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
         self.form.color_blind.setChecked(self.mw.pm.color_blind())
-        qconnect(self.form.color_blind.stateChanged, self.on_color_blind_checkbox_changed)
+        qconnect(
+            self.form.color_blind.stateChanged, self.on_color_blind_checkbox_changed
+        )
 
         self.setup_language()
         self.setup_video_driver()
@@ -386,7 +385,6 @@ class Preferences(QDialog):
         else:
             # checkbox is unchecked
             self.mw.pm.set_color_blind(False)
-
 
     def update_global(self) -> None:
         restart_required = False

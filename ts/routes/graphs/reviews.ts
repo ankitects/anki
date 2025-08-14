@@ -16,8 +16,10 @@ import {
     axisLeft,
     axisRight,
     bin,
+    color,
     cumsum,
     curveBasis,
+    hsl,
     interpolateBlues,
     interpolateGreens,
     interpolatePurples,
@@ -30,8 +32,6 @@ import {
     scaleSequential,
     select,
     sum,
-    color,
-    hsl
 } from "d3";
 
 import { colorBlindColors, type GraphBounds, type TableDatum } from "./graph-helpers";
@@ -193,10 +193,9 @@ export function renderReviews(
 
     const colorBlindMode = (window as any).colorBlindMode;
 
-
     function makeColorBlindGradient(baseHex: string, satAdjust = 0.02, lightAdjust = 0.02) {
         const base = color(baseHex);
-        if (!base) {throw new Error(`Invalid color: ${baseHex}`)};
+        if (!base) { throw new Error(`Invalid color: ${baseHex}`); }
 
         const lighter = hsl(base);
         lighter.s = Math.min(1, lighter.s + satAdjust);
@@ -216,7 +215,7 @@ export function renderReviews(
         young: makeColorBlindGradient(colorBlindColors.young),
         suspended: makeColorBlindGradient(colorBlindColors.suspended),
         buried: makeColorBlindGradient(colorBlindColors.buried),
-        filtered: makeColorBlindGradient(colorBlindColors.filtered)
+        filtered: makeColorBlindGradient(colorBlindColors.filtered),
     };
 
     Object.values(colorBlindScales).forEach(scale => scale.domain(x.domain() as any));
@@ -235,7 +234,6 @@ export function renderReviews(
                 return colorBlindMode ? colorBlindScales.filtered : purples;
         }
     }
-
 
     function valueLabel(n: number): string {
         if (showTime) {

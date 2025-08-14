@@ -150,13 +150,10 @@ export function prepareIntervalData(
     let adjustedRange;
     let colourScale;
 
-    if ((window as any).colorBlindMode)
-    {
+    if ((window as any).colorBlindMode) {
         adjustedRange = scaleLinear().range([0.3, 0.7]);
         colourScale = scaleSequential((n) => interpolateViridis(adjustedRange(n)!)).domain([xMax!, xMin!]);
-    }
-    else 
-    {
+    } else {
         adjustedRange = scaleLinear().range([0.7, 0.3]);
         colourScale = scaleSequential((n) => interpolateBlues(adjustedRange(n)!)).domain([xMax!, xMin!]);
     }

@@ -88,7 +88,7 @@ export function renderHours(
     let colour;
     const isColorBlindMode = (window as any).colorBlindMode;
 
-    if(isColorBlindMode) { 
+    if (isColorBlindMode) {
         cappedRange = scaleLinear().range([0.0, 1]);
         colour = scaleSequential((n) => interpolateViridis(cappedRange(n)!)).domain([
             0,

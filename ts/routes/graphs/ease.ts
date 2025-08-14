@@ -84,15 +84,11 @@ export function prepareData(
         .thresholds(ticks)(allEases.entries() as any);
     const total = sum(bins as any, getNumericMapBinValue);
 
-    
     let colourScale;
 
-    if ((window as any).colorBlindMode)
-    {
+    if ((window as any).colorBlindMode) {
         colourScale = scaleSequential(interpolateViridis).domain([xMin, 300]);
-    }
-    else 
-    {
+    } else {
         colourScale = scaleSequential(interpolateRdYlGn).domain([xMin, 300]);
     }
 

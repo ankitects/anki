@@ -117,5 +117,5 @@ export const colorBlindColors = {
     mature: "#882255",
     suspended: "#DDCC77",
     buried: "#332288",
-    filtered: "#AA4499"
+    filtered: "#AA4499",
 };

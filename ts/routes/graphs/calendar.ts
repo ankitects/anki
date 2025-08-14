@@ -10,6 +10,7 @@ import type { CountableTimeInterval } from "d3";
 import { timeHour } from "d3";
 import {
     interpolateBlues,
+    interpolateMagma,
     pointer,
     scaleLinear,
     scaleSequentialSqrt,
@@ -20,7 +21,6 @@ import {
     timeSaturday,
     timeSunday,
     timeYear,
-    interpolateMagma
 } from "d3";
 
 import type { GraphBounds, SearchDispatch } from "./graph-helpers";
@@ -137,21 +137,20 @@ export function renderCalendar(
         }
     }
     const data = Array.from(dayMap.values());
-    const cappedRange = scaleLinear().range([1,0]);
+    const cappedRange = scaleLinear().range([1, 0]);
 
     const isColorBlindMode = (window as any).colorBlindMode;
-
 
     let gradient;
 
     if (isColorBlindMode) {
         gradient = scaleSequentialSqrt()
-        .domain([0, maxCount])
-        .interpolator((n) => interpolateMagma(cappedRange(n)!));
-    }   else {
+            .domain([0, maxCount])
+            .interpolator((n) => interpolateMagma(cappedRange(n)!));
+    } else {
         gradient = scaleSequentialSqrt()
-        .domain([0, maxCount])
-        .interpolator((n) => interpolateBlues(cappedRange(n)!));
+            .domain([0, maxCount])
+            .interpolator((n) => interpolateBlues(cappedRange(n)!));
     }
 
     function tooltipText(d: DayDatum): string {
