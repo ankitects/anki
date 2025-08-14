@@ -43,6 +43,8 @@ export const editorModules = [
     ModuleName.IMPORTING,
     ModuleName.UNDO,
     ModuleName.ADDING,
+    ModuleName.QT_MISC,
+    ModuleName.DECKS,
 ];
 
 export const components = {

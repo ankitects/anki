@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getDeckNames } from "@generated/backend";
     import ItemChooser from "./ItemChooser.svelte";
     import type { DeckNameId } from "@generated/anki/decks_pb";
+    import * as tr from "@generated/ftl";
 
     let decks: DeckNameId[] = $state([]);
     let selectedDeck: DeckNameId | null = $state(null);
@@ -21,8 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ItemChooser
-    title="Choose Deck"
-    searchPlaceholder="Search decks..."
+    title={tr.qtMiscChooseDeck()}
     bind:selectedItem={selectedDeck}
     items={decks}
     icon={mdiBookOutline}

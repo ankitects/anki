@@ -6,16 +6,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import NotetypeChooser from "$lib/components/NotetypeChooser.svelte";
     import DeckChooser from "$lib/components/DeckChooser.svelte";
+    import * as tr from "@generated/ftl";
+
 </script>
 
 <div class="top-bar">
-    <p>Type</p>
+    <p>{tr.notetypesType()}</p>
     <div class="notetype-chooser">
-        <NotetypeChooser />
+        <NotetypeChooser/>
     </div>
-    <p>Deck</p>
+    <p>{tr.decksDeck()}</p>
     <div class="deck-chooser">
-        <DeckChooser />
+        <DeckChooser/>
     </div>
 </div>
 

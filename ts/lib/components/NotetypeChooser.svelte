@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { mdiNewspaper } from "./icons";
     import { getNotetypeNames } from "@generated/backend";
     import ItemChooser from "./ItemChooser.svelte";
+    import * as tr from "@generated/ftl";
 
     let notetypes: NotetypeNameId[] = $state([]);
     let selectedNotetype: NotetypeNameId | null = $state(null);
@@ -20,8 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ItemChooser
-    title="Choose Note Type"
-    searchPlaceholder="Search note types..."
+    title={tr.qtMiscChooseNoteType()}
     bind:selectedItem={selectedNotetype}
     items={notetypes}
     icon={mdiNewspaper}

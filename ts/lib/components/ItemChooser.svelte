@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelButton from "./LabelButton.svelte";
     import Modal from "./Modal.svelte";
     import type { IconData } from "./types";
-
+    import * as tr from "@generated/ftl";
     interface Item {
         id: bigint;
         name: string;
@@ -17,14 +17,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     interface Props {
         title: string;
-        searchPlaceholder: string;
         selectedItem?: Item | null;
         items: Item[];
         icon: IconData;
         onChange?: (item: Item) => void;
     }
 
-    let { title, searchPlaceholder, onChange, icon, items, selectedItem = $bindable(null) }: Props = $props();
+    let { title, onChange, icon, items, selectedItem = $bindable(null) }: Props = $props();
     let modal: Modal | null = $state(null);
     let searchQuery = $state("");
 
@@ -84,7 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <input
                     type="text"
                     class="search-input"
-                    placeholder={searchPlaceholder}
+                    placeholder={tr.actionsSearch()}
                     bind:value={searchQuery}
                 />
                 {#if searchQuery}
