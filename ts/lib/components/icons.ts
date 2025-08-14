@@ -15,6 +15,8 @@ import AlignVerticalCenter_ from "@mdi/svg/svg/align-vertical-center.svg?compone
 import alignVerticalCenter_ from "@mdi/svg/svg/align-vertical-center.svg?url";
 import AlignVerticalTop_ from "@mdi/svg/svg/align-vertical-top.svg?component";
 import alignVerticalTop_ from "@mdi/svg/svg/align-vertical-top.svg?url";
+import BookOutline_ from "@mdi/svg/svg/book-outline.svg?component";
+import bookOutline_ from "@mdi/svg/svg/book-outline.svg?url";
 import CheckCircle_ from "@mdi/svg/svg/check-circle.svg?component";
 import checkCircle_ from "@mdi/svg/svg/check-circle.svg?url";
 import ChevronDown_ from "@mdi/svg/svg/chevron-down.svg?component";
@@ -111,6 +113,8 @@ import Math_ from "@mdi/svg/svg/math-integral-box.svg?component";
 import math_ from "@mdi/svg/svg/math-integral-box.svg?url";
 import NewBox_ from "@mdi/svg/svg/new-box.svg?component";
 import newBox_ from "@mdi/svg/svg/new-box.svg?url";
+import Newspaper_ from "@mdi/svg/svg/newspaper.svg?component";
+import newspaper_ from "@mdi/svg/svg/newspaper.svg?url";
 import Paperclip_ from "@mdi/svg/svg/paperclip.svg?component";
 import paperclip_ from "@mdi/svg/svg/paperclip.svg?url";
 import RectangleOutline_ from "@mdi/svg/svg/rectangle-outline.svg?component";
@@ -288,3 +292,5 @@ export const mdiVectorPolygonVariant = { url: vectorPolygonVariant_, component: 
 export const incrementClozeIcon = { url: incrementCloze_, component: IncrementCloze_ };
 export const mdiEarth = { url: earth_, component: Earth_ };
 export const caretDownFill = { url: caretDownFill_, component: CaretDownFill_ };
+export const mdiNewspaper = { url: newspaper_, component: Newspaper_ };
+export const mdiBookOutline = { url: bookOutline_, component: BookOutline_ };

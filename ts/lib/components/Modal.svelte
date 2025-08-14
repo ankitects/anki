@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { modalsKey } from "./context-keys";
 
     export let modalKey: string = Math.random().toString(36).substring(2);
-    export const dialogClass: string = "";
+    export let dialogClass: string = "";
     export let onOkClicked: (() => void) | undefined = undefined;
     export let onCancelClicked: (() => void) | undefined = undefined;
     export let onShown: (() => void) | undefined = undefined;

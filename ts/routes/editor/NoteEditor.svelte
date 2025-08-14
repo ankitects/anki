@@ -720,6 +720,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { HelpPageLinkRequest_HelpPage } from "@generated/anki/links_pb";
     import { MessageBoxType } from "@generated/anki/frontend_pb";
     import type Modal from "$lib/components/Modal.svelte";
+    import EditorChoosers from "./editor-toolbar/EditorChoosers.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -1195,6 +1196,8 @@ components and functionality for general note editing.
     on:dragover={preventDefaultIfNonLegacy}
     on:drop={checkNonLegacy(handlePickerDrop)}
 >
+    <EditorChoosers />
+
     <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
             {#if mode === "browser"}
