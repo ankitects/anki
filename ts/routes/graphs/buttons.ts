@@ -12,6 +12,7 @@ import {
     axisBottom,
     axisLeft,
     interpolateRdYlGn,
+    interpolateViridis,
     pointer,
     scaleBand,
     scaleLinear,
@@ -20,7 +21,7 @@ import {
     sum,
 } from "d3";
 
-import type { GraphBounds } from "./graph-helpers";
+import { colorBlindColors, type GraphBounds } from "./graph-helpers";
 import { GraphRange } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
@@ -162,7 +163,21 @@ export function renderButtons(
         .paddingOuter(1)
         .paddingInner(0.1);
 
-    const colour = scaleSequential(interpolateRdYlGn).domain([1, 4]);
+    const isColourBlindMode = (window as any).colorBlindMode;
+    let colour;
+
+    // Changing color based on mode
+    if(isColourBlindMode){
+        /*colour = [
+            colorBlindColors.mature, // darker red, again button
+            colorBlindColors.suspended, // lighter beige/yellow, hard button
+            colorBlindColors.new, // light blue, good button
+            colorBlindColors.relearn // green, easy button
+        ]*/
+        colour = scaleSequential(interpolateViridis).domain([1, 4]);
+    } else {
+        colour = scaleSequential(interpolateRdYlGn).domain([1, 4]);
+    }
 
     // y scale
     const yTickFormat = (n: number): string => localizedNumber(n);
