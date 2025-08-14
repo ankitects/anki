@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         selectedNotetype: NotetypeNameId | null;
         onChange?: (notetype: NotetypeNameId) => void;
     }
-    let {selectedNotetype = $bindable(null), onChange}: Props = $props();
+    let { selectedNotetype = $bindable(null), onChange }: Props = $props();
     let notetypes: NotetypeNameId[] = $state([]);
 
     $effect(() => {

@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         selectedDeck: DeckNameId | null;
         onChange?: (deck: DeckNameId) => void;
     }
-    let {selectedDeck = $bindable(null), onChange}: Props = $props();
+    let { selectedDeck = $bindable(null), onChange }: Props = $props();
     let decks: DeckNameId[] = $state([]);
 
     $effect(() => {

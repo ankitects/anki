@@ -22,7 +22,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         onChange?: (item: Item) => void;
     }
 
-    let { title, onChange, icon, items, selectedItem = $bindable(null), keyCombination, tooltip }: Props = $props();
+    let {
+        title,
+        onChange,
+        icon,
+        items,
+        selectedItem = $bindable(null),
+        keyCombination,
+        tooltip,
+    }: Props = $props();
     let modal: Modal | null = $state(null);
     let searchQuery = $state("");
 
@@ -57,7 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {selectedItem?.name ?? "…"}
 </LabelButton>
 
-<Shortcut keyCombination={keyCombination} on:action={() => modal?.toggle()} />
+<Shortcut {keyCombination} on:action={() => modal?.toggle()} />
 <Modal bind:this={modal} dialogClass="modal-lg">
     <div slot="header" class="modal-header">
         <IconConstrain iconSize={90}>

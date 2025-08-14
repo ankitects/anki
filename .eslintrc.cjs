@@ -41,6 +41,9 @@ module.exports = {
             parser: "svelte-eslint-parser",
             parserOptions: {
                 parser: "@typescript-eslint/parser",
+                svelteFeatures: {
+                    experimentalGenerics: true,
+                },
             },
             rules: {
                 "svelte/no-at-html-tags": "off",

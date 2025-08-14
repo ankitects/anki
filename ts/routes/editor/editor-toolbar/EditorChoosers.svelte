@@ -16,8 +16,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         onNotetypeChange?: (notetype: NotetypeNameId) => void;
         onDeckChange?: (deck: DeckNameId) => void;
     }
-    let {selectedNotetype = $bindable(null), selectedDeck = $bindable(null), onNotetypeChange, onDeckChange}: Props = $props();
-
+    let {
+        selectedNotetype = $bindable(null),
+        selectedDeck = $bindable(null),
+        onNotetypeChange,
+        onDeckChange,
+    }: Props = $props();
 </script>
 
 <div class="top-bar">

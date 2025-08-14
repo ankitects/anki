@@ -300,14 +300,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let selectedNotetype: NotetypeNameId | null = null;
     export let selectedDeck: DeckNameId | null = null;
 
-
     function onNotetypeChange(notetype: NotetypeNameId) {
         loadNote(0n, notetype.id, 0, null);
     }
 
-    function onDeckChange(deck: DeckNameId) {
-        selectedDeck = deck;
-    }
     let notetypeMeta: NotetypeIdAndModTime;
     function setNotetypeMeta(notetype: Notetype): void {
         notetypeMeta = { id: notetype.id, modTime: notetype.mtimeSecs };
@@ -1209,7 +1205,7 @@ components and functionality for general note editing.
     on:drop={checkNonLegacy(handlePickerDrop)}
 >
     {#if mode === "add" && !isLegacy}
-        <EditorChoosers bind:selectedNotetype bind:selectedDeck onNotetypeChange={onNotetypeChange} />
+        <EditorChoosers bind:selectedNotetype bind:selectedDeck {onNotetypeChange} />
     {/if}
 
     <EditorToolbar {size} {wrap} api={toolbar}>
