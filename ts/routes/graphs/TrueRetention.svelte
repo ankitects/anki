@@ -57,22 +57,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const title = tr.statisticsTrueRetentionTitle();
     const subtitle = tr.statisticsTrueRetentionSubtitle();
-    const onTitleClick = () => {
+    const onHelpClick = () => {
         openHelpModal(Object.keys(retentionHelp).indexOf("trueRetention"));
     };
 </script>
 
-<Graph {title} {subtitle} {onTitleClick}>
-    <HelpModal
-        title={tr.statisticsTrueRetentionTitle()}
-        url={HelpPage.DeckOptions.fsrs}
+<Graph {title} {subtitle}>
+    <div
         slot="tooltip"
-        {helpSections}
-        on:mount={(e) => {
-            modal = e.detail.modal;
-            carousel = e.detail.carousel;
-        }}
-    />
+        onclick={onHelpClick}
+        onkeydown={onHelpClick}
+        role="button"
+        tabindex="-1"
+    >
+        <HelpModal
+            title={tr.statisticsTrueRetentionTitle()}
+            url={HelpPage.DeckOptions.fsrs}
+            {helpSections}
+            on:mount={(e) => {
+                modal = e.detail.modal;
+                carousel = e.detail.carousel;
+            }}
+        />
+    </div>
     <InputBox>
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Young} />
