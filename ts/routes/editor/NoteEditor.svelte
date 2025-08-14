@@ -1208,7 +1208,9 @@ components and functionality for general note editing.
     on:dragover={preventDefaultIfNonLegacy}
     on:drop={checkNonLegacy(handlePickerDrop)}
 >
-    <EditorChoosers bind:selectedNotetype bind:selectedDeck onNotetypeChange={onNotetypeChange} />
+    {#if mode === "add"}
+        <EditorChoosers bind:selectedNotetype bind:selectedDeck onNotetypeChange={onNotetypeChange} />
+    {/if}
 
     <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
