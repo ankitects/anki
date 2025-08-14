@@ -40,6 +40,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         modal.hide();
     }
 
+    export function toggle(): void {
+        modal.toggle();
+    }
+
     export { onOkClicked_ as acceptHandler, onCancelClicked_ as cancelHandler };
 
     const { set: setModalOpen, remove: removeModalClosingHandler } =
