@@ -145,7 +145,6 @@ class Preferences(QDialog):
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.render_latex.setChecked(editing.render_latex)
         form.default_search_text.setText(editing.default_search_text)
-        
 
         form.backup_explanation.setText(
             anki.lang.with_collapsed_whitespace(tr.preferences_backup_explanation())

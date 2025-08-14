@@ -21,7 +21,7 @@ import {
     sum,
 } from "d3";
 
-import { colorBlindColors, type GraphBounds } from "./graph-helpers";
+import {type GraphBounds } from "./graph-helpers";
 import { GraphRange } from "./graph-helpers";
 import { setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";

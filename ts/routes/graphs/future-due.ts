@@ -10,7 +10,7 @@ import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import { dayLabel } from "@tslib/time";
 import type { Bin } from "d3";
-import { bin, extent, interpolateGreens, scaleLinear, scaleSequential, sum, interpolateViridis, interpolateInferno, interpolateMagma, interpolatePlasma,interpolateCividis } from "d3";
+import { bin, extent, interpolateGreens, scaleLinear, scaleSequential, sum, interpolateViridis} from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, GraphRange, numericMap } from "./graph-helpers";

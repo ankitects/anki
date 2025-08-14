@@ -138,9 +138,21 @@ export function renderCalendar(
     }
     const data = Array.from(dayMap.values());
     const cappedRange = scaleLinear().range([1,0]);
-    const blues = scaleSequentialSqrt()
+
+    const isColorBlindMode = (window as any).colorBlindMode;
+
+
+    let gradient;
+
+    if (isColorBlindMode) {
+        gradient = scaleSequentialSqrt()
         .domain([0, maxCount])
         .interpolator((n) => interpolateMagma(cappedRange(n)!));
+    }   else {
+        gradient = scaleSequentialSqrt()
+        .domain([0, maxCount])
+        .interpolator((n) => interpolateBlues(cappedRange(n)!));
+    }
 
     function tooltipText(d: DayDatum): string {
         const date = localizedDate(d.date, {
@@ -204,7 +216,7 @@ export function renderCalendar(
         })
         .transition()
         .duration(800)
-        .attr("fill", (d: DayDatum) => (d.count === 0 ? emptyColour : blues(d.count)!));
+        .attr("fill", (d: DayDatum) => (d.count === 0 ? emptyColour : gradient(d.count)!));
 }
 
 function timeFunctionForDay(firstDayOfWeek: Weekday): CountableTimeInterval {

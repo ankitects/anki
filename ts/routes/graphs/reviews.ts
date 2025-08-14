@@ -27,7 +27,6 @@ import {
     min,
     pointer,
     scaleLinear,
-    scaleOrdinal,
     scaleSequential,
     select,
     sum,
@@ -197,7 +196,7 @@ export function renderReviews(
 
     function makeColorBlindGradient(baseHex: string, satAdjust = 0.02, lightAdjust = 0.02) {
         const base = color(baseHex);
-        if (!base) throw new Error(`Invalid color: ${baseHex}`);
+        if (!base) {throw new Error(`Invalid color: ${baseHex}`)};
 
         const lighter = hsl(base);
         lighter.s = Math.min(1, lighter.s + satAdjust);

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { colorBlindColors, type GraphBounds } from "./graph-helpers";
+    import { colorBlindColors } from "./graph-helpers";
     import * as tr from "@generated/ftl";
     import { type RevlogRange } from "./graph-helpers";
     import {
