@@ -145,8 +145,8 @@ impl Collection {
                 let original = c.clone();
                 let fsrs_data = self.compute_memory_state(c.id)?;
                 c.memory_state = fsrs_data.state.map(Into::into);
-                c.desired_retention = fsrs_data.desired_retention;
-                c.decay = fsrs_data.decay;
+                c.desired_retention = Some(fsrs_data.desired_retention);
+                c.decay = Some(fsrs_data.decay);
                 self.update_card_inner(c, original, self.usn()?)?;
             }
         }
