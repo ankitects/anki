@@ -411,45 +411,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </SettingTitle>
     </SwitchRow>
 
-    <button
-        class="btn {computingParams ? 'btn-warning' : 'btn-primary'}"
-        disabled={!computingParams && computing}
-        on:click={() => computeParams()}
-    >
-        {#if computingParams}
-            {tr.actionsCancel()}
-        {:else}
-            {tr.deckConfigOptimizeButton()}
-        {/if}
-    </button>
-    {#if state.legacyEvaluate}
+    <div class="m-1 button-bar">
         <button
-            class="btn {checkingParams ? 'btn-warning' : 'btn-primary'}"
-            disabled={!checkingParams && computing}
-            on:click={() => checkParams()}
+            class="btn {computingParams ? 'btn-warning' : 'btn-primary'}"
+            disabled={!computingParams && computing}
+            on:click={() => computeParams()}
         >
-            {#if checkingParams}
+            {#if computingParams}
                 {tr.actionsCancel()}
             {:else}
-                {tr.deckConfigEvaluateButton()}
+                {tr.deckConfigOptimizeButton()}
             {/if}
         </button>
-    {/if}
-    <div>
-        {#if computingParams || checkingParams}
-            {computeParamsProgressString}
-        {:else if totalReviews !== undefined}
-            {tr.statisticsReviews({ reviews: totalReviews })}
+        {#if state.legacyEvaluate}
+            <button
+                class="btn {checkingParams ? 'btn-warning' : 'btn-primary'}"
+                disabled={!checkingParams && computing}
+                on:click={() => checkParams()}
+            >
+                {#if checkingParams}
+                    {tr.actionsCancel()}
+                {:else}
+                    {tr.deckConfigEvaluateButton()}
+                {/if}
+            </button>
         {/if}
+        <div style:margin-left="0.5rem">
+            {#if computingParams || checkingParams}
+                {computeParamsProgressString}
+            {:else if totalReviews !== undefined}
+                {tr.statisticsReviews({ reviews: totalReviews })}
+            {/if}
+        </div>
+
+        <button class="btn btn-primary float-right" on:click={() => computeAllParams()}>
+            {tr.deckConfigSaveAndOptimize()}
+        </button>
     </div>
-</div>
 
-<div class="m-1">
     <Warning warning={lastOptimizationWarning} className="alert-warning" />
-
-    <button class="btn btn-primary" on:click={() => computeAllParams()}>
-        {tr.deckConfigSaveAndOptimize()}
-    </button>
 </div>
 
 <hr />
@@ -496,5 +496,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     hr {
         border-top: 1px solid var(--border);
         opacity: 1;
+    }
+
+    .float-right {
+        margin-left: auto;
+    }
+
+    .button-bar {
+        display: flex;
+        align-items: baseline;
+        gap: 0.2rem;
     }
 </style>
