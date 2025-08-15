@@ -143,8 +143,10 @@ impl Collection {
         for c in &mut cards {
             if is_included_card(c) && c.memory_state.is_none() {
                 let original = c.clone();
-                let new_state = self.compute_memory_state(c.id)?.state;
-                c.memory_state = new_state.map(Into::into);
+                let fsrs_data = self.compute_memory_state(c.id)?;
+                c.memory_state = fsrs_data.state.map(Into::into);
+                c.desired_retention = fsrs_data.desired_retention;
+                c.decay = fsrs_data.decay;
                 self.update_card_inner(c, original, self.usn()?)?;
             }
         }
