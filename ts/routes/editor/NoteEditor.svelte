@@ -512,7 +512,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function loadNewNote() {
-        await loadNote(0n, notetypeMeta.id, 0, null);
+        await loadNote(0n, notetypeMeta.id, 0, null, null);
     }
 
     async function noteCanBeAdded(): Promise<boolean> {
