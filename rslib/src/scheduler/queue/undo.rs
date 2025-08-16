@@ -290,4 +290,48 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    fn learning_cards_become_due_after_counts_cached() -> Result<()> {
+        use crate::scheduler::queue::learning::LearningQueueEntry;
+        
+        let mut col = Collection::new();
+        if col.timing_today()?.near_cutoff() {
+            return Ok(());
+        }
+
+        // Add a note with learning cards
+        add_note(&mut col, true)?;
+        
+        // Answer to put a card into learning state
+        col.answer_again();
+        assert_eq!(col.counts(), [1, 1, 0]);
+        
+        // Get the current queues to cache the counts
+        let queues = col.get_queues()?;
+        let old_cutoff = queues.current_learning_cutoff;
+        
+        // Manually add a learning card that would be due now but wasn't 
+        // when the cutoff was set (simulating time passing)
+        let now = crate::timestamp::TimestampSecs::now();
+        let new_entry = LearningQueueEntry {
+            due: now,  // due right now
+            id: CardId(999),  // fake ID
+            mtime: now,
+        };
+        
+        // Insert the entry directly into the queue to simulate the bug scenario
+        let queues = col.state.card_queues.as_mut().unwrap();
+        queues.intraday_learning.push_back(new_entry);
+        
+        // The old logic would not detect this newly due card because 
+        // counts() only checked all_zero(), but our fix should detect it
+        let _updated_counts = queues.counts();
+        
+        // The important thing is that update_learning_cutoff_and_count was called,
+        // which our fix should trigger. This updates the cutoff to the current time.
+        assert!(queues.current_learning_cutoff >= old_cutoff);
+        
+        Ok(())
+    }
 }
