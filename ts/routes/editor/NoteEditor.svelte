@@ -304,9 +304,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let deckChooser: DeckChooser;
     export let selectedDeck: DeckNameId | null = null;
 
-    function onNotetypeChange(notetype: NotetypeNameId) {
+    async function onNotetypeChange(notetype: NotetypeNameId) {
         loadNote(0n, notetype.id, 0, null, null);
-        // TODO default_deck_for_notetype
+        if (
+            !(await getConfigBool({
+                key: ConfigKey_Bool.ADDING_DEFAULTS_TO_CURRENT_DECK,
+            }))
+        ) {
+            const deckId = await defaultDeckForNotetype({ ntid: notetype.id });
+            deckChooser.select(deckId.did);
+        }
     }
 
     let notetypeMeta: NotetypeIdAndModTime;
@@ -707,6 +714,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         showMessageBox,
         getCard,
         defaultsForAdding,
+        getConfigBool,
+        defaultDeckForNotetype,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
@@ -739,6 +748,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Card } from "@generated/anki/cards_pb";
     import NotetypeChooser from "$lib/components/NotetypeChooser.svelte";
     import DeckChooser from "$lib/components/DeckChooser.svelte";
+    import { ConfigKey_Bool } from "@generated/anki/config_pb";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
