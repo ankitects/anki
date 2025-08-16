@@ -15,6 +15,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     let { selectedDeck = $bindable(null), onChange }: Props = $props();
     let decks: DeckNameId[] = $state([]);
+    let itemChooser: ItemChooser<DeckNameId> | null = $state(null);
+
+    export function select(notetypeId: bigint) {
+        itemChooser?.select(notetypeId);
+    }
 
     $effect(() => {
         getDeckNames({ skipEmptyDefault: true, includeFiltered: false }).then(
@@ -26,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ItemChooser
+    bind:this={itemChooser}
     title={tr.qtMiscChooseDeck()}
     bind:selectedItem={selectedDeck}
     {onChange}

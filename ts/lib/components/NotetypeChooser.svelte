@@ -16,6 +16,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     let { selectedNotetype = $bindable(null), onChange }: Props = $props();
     let notetypes: NotetypeNameId[] = $state([]);
+    let itemChooser: ItemChooser<NotetypeNameId> | null = $state(null);
+
+    export function select(notetypeId: bigint) {
+        itemChooser?.select(notetypeId);
+    }
 
     $effect(() => {
         getNotetypeNames({}).then((response) => {
@@ -25,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ItemChooser
+    bind:this={itemChooser}
     title={tr.qtMiscChooseNoteType()}
     bind:selectedItem={selectedNotetype}
     {onChange}

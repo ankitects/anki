@@ -12,13 +12,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     interface Props {
         selectedNotetype: NotetypeNameId | null;
-        selectedDeck: DeckNameId | null;
+        selectedDeck?: DeckNameId | null;
+        notetypeChooser?: NotetypeChooser;
+        deckChooser?: DeckChooser;
         onNotetypeChange?: (notetype: NotetypeNameId) => void;
         onDeckChange?: (deck: DeckNameId) => void;
     }
     let {
         selectedNotetype = $bindable(null),
         selectedDeck = $bindable(null),
+        notetypeChooser = $bindable(),
+        deckChooser = $bindable(),
         onNotetypeChange,
         onDeckChange,
     }: Props = $props();
@@ -27,11 +31,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="top-bar">
     <p>{tr.notetypesType()}</p>
     <div class="notetype-chooser">
-        <NotetypeChooser bind:selectedNotetype onChange={onNotetypeChange} />
+        <NotetypeChooser
+            bind:this={notetypeChooser}
+            bind:selectedNotetype
+            onChange={onNotetypeChange}
+        />
     </div>
     <p>{tr.decksDeck()}</p>
     <div class="deck-chooser">
-        <DeckChooser bind:selectedDeck onChange={onDeckChange} />
+        <DeckChooser
+            bind:this={deckChooser}
+            bind:selectedDeck
+            onChange={onDeckChange}
+        />
     </div>
 </div>
 

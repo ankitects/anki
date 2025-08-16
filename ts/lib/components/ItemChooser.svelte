@@ -53,6 +53,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         modal?.show();
     }
 
+    export function select(itemId: bigint) {
+        const item = items.find((item) => item.id === itemId);
+        selectedItem = item ? item : null;
+    }
+
     $effect(() => {
         if (!selectedItem && items.length > 0) {
             selectedItem = items[0];

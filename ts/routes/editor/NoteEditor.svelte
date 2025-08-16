@@ -297,11 +297,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         clearCodeMirrorHistory();
     }
 
+    let reviewerCard: Card | null = null;
+
+    export let notetypeChooser: NotetypeChooser;
     export let selectedNotetype: NotetypeNameId | null = null;
+    export let deckChooser: DeckChooser;
     export let selectedDeck: DeckNameId | null = null;
 
     function onNotetypeChange(notetype: NotetypeNameId) {
-        loadNote(0n, notetype.id, 0, null);
+        loadNote(0n, notetype.id, 0, null, null);
+        // TODO default_deck_for_notetype
     }
 
     let notetypeMeta: NotetypeIdAndModTime;
@@ -700,6 +705,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         htmlToTextLine,
         askUser,
         showMessageBox,
+        getCard,
+        defaultsForAdding,
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
@@ -729,6 +736,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { MessageBoxType } from "@generated/anki/frontend_pb";
     import type Modal from "$lib/components/Modal.svelte";
     import EditorChoosers from "./editor-toolbar/EditorChoosers.svelte";
+    import type { Card } from "@generated/anki/cards_pb";
+    import NotetypeChooser from "$lib/components/NotetypeChooser.svelte";
+    import DeckChooser from "$lib/components/DeckChooser.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -932,6 +942,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         notetypeId: bigint,
         focusTo: number,
         originalNoteId: bigint | null,
+        reviewerCardId: bigint | null,
     ) {
         const notetype = await getNotetype({
             ntid: notetypeId,
@@ -961,6 +972,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             note!.fields = originalNote.fields;
             note!.tags = originalNote.tags;
         }
+        let homeDeckId = 0n;
+        if (reviewerCardId) {
+            reviewerCard = await getCard({ cid: reviewerCardId });
+            homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
+        }
+        const chooserDefaults = await defaultsForAdding({
+            homeDeckOfCurrentReviewCard: homeDeckId,
+        });
+        notetypeChooser.select(chooserDefaults.notetypeId);
+        deckChooser.select(chooserDefaults.deckId);
+
         const fieldValues = (
             await Promise.all(
                 note!.fields.map((field) => encodeIriPaths({ val: field })),
@@ -1040,9 +1062,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         notetypeId: bigint,
         focusTo: number,
         originalNoteId: bigint | null,
+        reviewerCardId: bigint | null,
     ) {
         loadDebouncer.schedule(async () => {
-            await loadNoteInner(nid, notetypeId, focusTo, originalNoteId);
+            await loadNoteInner(
+                nid,
+                notetypeId,
+                focusTo,
+                originalNoteId,
+                reviewerCardId,
+            );
         });
     }
 
@@ -1205,7 +1234,13 @@ components and functionality for general note editing.
     on:drop={checkNonLegacy(handlePickerDrop)}
 >
     {#if mode === "add" && !isLegacy}
-        <EditorChoosers bind:selectedNotetype bind:selectedDeck {onNotetypeChange} />
+        <EditorChoosers
+            bind:notetypeChooser
+            bind:deckChooser
+            bind:selectedNotetype
+            bind:selectedDeck
+            {onNotetypeChange}
+        />
     {/if}
 
     <EditorToolbar {size} {wrap} api={toolbar}>
