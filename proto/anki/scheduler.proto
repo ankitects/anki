@@ -193,6 +193,15 @@ message CongratsInfoResponse {
   bool is_filtered_deck = 7;
   bool bridge_commands_supported = 8;
   string deck_description = 9;
+  repeated ReviewForecastDay forecast = 10;
+}
+
+message ReviewForecastDay {
+  uint32 day_offset = 1;
+  uint32 total = 2;
+  uint32 review = 3;
+  uint32 learn = 4;
+  uint32 new = 5;
 }
 
 message UnburyDeckRequest {
