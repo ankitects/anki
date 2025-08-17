@@ -436,17 +436,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {/if}
             </button>
         {/if}
-        <div style:margin-left="0.5rem">
-            {#if computingParams || checkingParams}
-                {computeParamsProgressString}
-            {:else if totalReviews !== undefined}
-                {tr.statisticsReviews({ reviews: totalReviews })}
-            {/if}
-        </div>
 
         <button class="btn btn-primary float-right" on:click={() => computeAllParams()}>
             {tr.deckConfigSaveAndOptimize()}
         </button>
+    </div>
+
+    <div style:min-height="1.5em">
+        {#if computingParams || checkingParams}
+            {computeParamsProgressString}
+        {:else if totalReviews !== undefined}
+            {tr.statisticsReviews({ reviews: totalReviews })}
+        {/if}
     </div>
 
     <Warning warning={lastOptimizationWarning} className="alert-warning" />
