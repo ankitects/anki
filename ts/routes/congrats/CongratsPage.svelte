@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Col from "$lib/components/Col.svelte";
     import Container from "$lib/components/Container.svelte";
+    import CongratsFutureDue from "./CongratsFutureDue.svelte";
 
     import { buildNextLearnMsg } from "./lib";
     import { onMount } from "svelte";
@@ -29,6 +30,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const customStudyMsg = tr.schedulingHowToCustomStudy({
         customStudy,
     });
+
+    $: forecastData = (() => {
+        const forecast = (info as any).forecast || [];
+        return forecast.map((day: any) => ({
+            review: day.review || 0,
+            learn: day.learn || 0,
+            new: day.new || 0,
+            total: (day.review || 0) + (day.learn || 0) + (day.new || 0),
+        }));
+    })();
 
     onMount(() => {
         if (refreshPeriodically) {
@@ -75,6 +86,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {#if info.deckDescription}
                 <div class="description">
                     {@html info.deckDescription}
+                </div>
+            {/if}
+
+            {#if forecastData.length > 0 && forecastData.some((d) => d.total > 0)}
+                <div class="graph-section">
+                    <p class="graph-description">
+                        Below is your study forecast for the upcoming week. This shows
+                        how many cards you'll need to review each day for this deck.
+                    </p>
+                    <CongratsFutureDue {forecastData} />
                 </div>
             {/if}
         </div>
