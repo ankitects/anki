@@ -309,6 +309,13 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         command.env("UV_NO_CACHE", "1");
     }
 
+    // Add mirror environment variable if enabled
+    if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
+        command
+            .env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
+            .env("UV_DEFAULT_INDEX", &pypi_mirror);
+    }
+
     match command.ensure_success() {
         Ok(_) => {
             // Sync succeeded
@@ -673,6 +680,12 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
 
     cmd.arg(&versions_script);
 
+    // Add mirror environment variable if enabled
+    if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
+        cmd.env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
+            .env("UV_DEFAULT_INDEX", &pypi_mirror);
+    }
+
     let output = match cmd.utf8_output() {
         Ok(output) => output,
         Err(e) => {
@@ -725,15 +738,7 @@ fn apply_version_kind(version_kind: &VersionKind, state: &State) -> Result<()> {
             &format!("anki-release=={version}\",\n  \"anki=={version}\",\n  \"aqt=={version}"),
         ),
     };
-
-    // Add mirror configuration if enabled
-    let final_content = if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
-        format!("{updated_content}\n\n[[tool.uv.index]]\nname = \"mirror\"\nurl = \"{pypi_mirror}\"\ndefault = true\n\n[tool.uv]\npython-install-mirror = \"{python_mirror}\"\n")
-    } else {
-        updated_content
-    };
-
-    write_file(&state.user_pyproject_path, &final_content)?;
+    write_file(&state.user_pyproject_path, &updated_content)?;
 
     // Update .python-version based on version kind
     match version_kind {
