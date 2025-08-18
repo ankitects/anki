@@ -293,7 +293,8 @@ impl Collection {
                     (
                         *result.memorized_cnt_per_day.last().unwrap_or(&0.),
                         result.cost_per_day.iter().sum::<f32>(),
-                        result.review_cnt_per_day.iter().sum::<usize>() as u32,
+                        result.review_cnt_per_day.iter().sum::<usize>() as u32
+                            + result.learn_cnt_per_day.iter().sum::<usize>() as u32,
                     ),
                 ))
             })
