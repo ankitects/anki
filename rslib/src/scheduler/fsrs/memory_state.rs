@@ -99,8 +99,6 @@ impl Collection {
                 historical_retention.unwrap_or(0.9),
                 ignore_before,
             )?;
-            let preset_desired_retention =
-                req.as_ref().map(|w| w.preset_desired_retention).unwrap();
             let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
             progress.update(false, |s| s.total_cards = items.len() as u32)?;
             for (idx, (card_id, item)) in items.into_iter().enumerate() {
@@ -108,6 +106,7 @@ impl Collection {
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
                 if let Some(req) = &req {
+                    let preset_desired_retention = req.preset_desired_retention;
                     // Store decay and desired retention in the card so that add-ons, card info,
                     // stats and browser search/sorts don't need to access the deck config.
                     // Unlike memory states, scheduler doesn't use decay and dr stored in the card.
