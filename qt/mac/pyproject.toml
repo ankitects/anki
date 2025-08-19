@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "anki-mac-helper"
-version = "0.1.0"
+version = "0.1.1"
 description = "Small support library for Anki on Macs"
 requires-python = ">=3.9"
 license = { text = "AGPL-3.0-or-later" }

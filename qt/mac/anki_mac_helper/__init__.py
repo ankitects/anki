@@ -33,6 +33,12 @@ class _MacOSHelper:
         "On completion, file should be saved if no error has arrived."
         self._dll.end_wav_record()
 
+    def disable_appnap(self) -> None:
+        self._dll.disable_appnap()
+
+    def enable_appnap(self) -> None:
+        self._dll.enable_appnap()
+
 
 # this must not be overwritten or deallocated
 @CFUNCTYPE(None, c_char_p)  # type: ignore
