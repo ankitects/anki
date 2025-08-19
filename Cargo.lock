@@ -3959,6 +3959,7 @@ dependencies = [
  "anki_process",
  "anyhow",
  "camino",
+ "serde_json",
  "walkdir",
  "which",
 ]
