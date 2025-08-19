@@ -142,12 +142,11 @@ impl Collection {
         // calculate any missing memory state
         for c in &mut cards {
             if is_included_card(c) && c.memory_state.is_none() {
-                let original = c.clone();
                 let fsrs_data = self.compute_memory_state(c.id)?;
                 c.memory_state = fsrs_data.state.map(Into::into);
                 c.desired_retention = Some(fsrs_data.desired_retention);
                 c.decay = Some(fsrs_data.decay);
-                self.update_card_inner(c, original, self.usn()?)?;
+                self.storage.update_card(c)?;
             }
         }
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
