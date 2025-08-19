@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::cell::LazyCell;
+use std::collections::BTreeMap;
 use std::collections::HashSet;
 use std::env;
 use std::fs;
@@ -267,5 +268,16 @@ fn generate_licences() -> Result<String> {
         "--manifest-path",
         "rslib/Cargo.toml",
     ])?;
-    Ok(output.stdout)
+
+    let licenses: Vec<BTreeMap<String, serde_json::Value>> = serde_json::from_str(&output.stdout)?;
+
+    let filtered: Vec<BTreeMap<String, serde_json::Value>> = licenses
+        .into_iter()
+        .map(|mut entry| {
+            entry.remove("version");
+            entry
+        })
+        .collect();
+
+    Ok(serde_json::to_string_pretty(&filtered)?)
 }
