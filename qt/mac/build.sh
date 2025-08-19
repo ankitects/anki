@@ -15,6 +15,7 @@ echo "Building macOS helper dylib..."
 # Create the wheel using uv
 echo "Creating wheel..."
 cd "$SCRIPT_DIR"
+rm -rf dist
 "$PROJ_ROOT/out/extracted/uv/uv" build --wheel
 
 echo "Build complete!"
