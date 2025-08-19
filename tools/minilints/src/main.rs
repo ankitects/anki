@@ -148,7 +148,7 @@ impl LintContext {
 
         if last_author == "49699333+dependabot[bot]@users.noreply.github.com" {
             println!("Dependabot whitelisted.");
-            return Ok(());
+            std::process::exit(0);
         } else if all_contributors.contains(last_author.as_str()) {
             return Ok(());
         }
