@@ -15,9 +15,9 @@ async function save(): Promise<void> {
 export const load = (async ({ params }) => {
     let mode: IOMode;
     if (/^\d+/.test(params.imagePathOrNoteId)) {
-        mode = { kind: "edit", noteId: Number(params.imagePathOrNoteId) };
+        mode = { kind: "edit", noteId: BigInt(params.imagePathOrNoteId) };
     } else {
-        mode = { kind: "add", imagePath: params.imagePathOrNoteId, notetypeId: 0 };
+        mode = { kind: "add", imagePath: params.imagePathOrNoteId, notetypeId: 0n };
     }
 
     // for adding note from mobile devices
