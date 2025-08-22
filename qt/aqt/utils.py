@@ -226,29 +226,45 @@ def ask_user_dialog(
     )
 
 
-def show_info(text: str, callback: Callable | None = None, **kwargs: Any) -> MessageBox:
+def show_info(
+    text: str,
+    callback: Callable | None = None,
+    parent: QWidget | None = None,
+    **kwargs: Any,
+) -> MessageBox:
     "Show a small info window with an OK button."
     if "icon" not in kwargs:
         kwargs["icon"] = QMessageBox.Icon.Information
     return MessageBox(
         text,
         callback=(lambda _: callback()) if callback is not None else None,
+        parent=parent,
         **kwargs,
     )
 
 
 def show_warning(
-    text: str, callback: Callable | None = None, **kwargs: Any
+    text: str,
+    callback: Callable | None = None,
+    parent: QWidget | None = None,
+    **kwargs: Any,
 ) -> MessageBox:
     "Show a small warning window with an OK button."
-    return show_info(text, icon=QMessageBox.Icon.Warning, callback=callback, **kwargs)
+    return show_info(
+        text, icon=QMessageBox.Icon.Warning, callback=callback, parent=parent, **kwargs
+    )
 
 
 def show_critical(
-    text: str, callback: Callable | None = None, **kwargs: Any
+    text: str,
+    callback: Callable | None = None,
+    parent: QWidget | None = None,
+    **kwargs: Any,
 ) -> MessageBox:
     "Show a small critical error window with an OK button."
-    return show_info(text, icon=QMessageBox.Icon.Critical, callback=callback, **kwargs)
+    return show_info(
+        text, icon=QMessageBox.Icon.Critical, callback=callback, parent=parent, **kwargs
+    )
 
 
 def showWarning(
