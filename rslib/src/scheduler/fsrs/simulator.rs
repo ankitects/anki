@@ -97,7 +97,7 @@ fn create_review_priority_fn(
 
         // Interval-based ordering
         IntervalsAscending => wrap!(|c, _w| c.interval as i32),
-        IntervalsDescending => wrap!(|c, _w| -(c.interval as i32)),
+        IntervalsDescending => wrap!(|c, _w| (c.interval as i32).saturating_neg()),
         // Retrievability-based ordering
         RetrievabilityAscending => {
             wrap!(move |c, w| (c.retrievability(w) * 1000.0) as i32)
