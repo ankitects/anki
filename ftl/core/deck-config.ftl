@@ -533,7 +533,7 @@ deck-config-health-check = Check health when optimizing
 deck-config-fsrs-bad-fit-warning = Health Check:
     Your memory is difficult for FSRS to predict. Recommendations:
 
-    - Suspend or reformulate leeches (cards that are very hard to remember).
+    - Suspend or reformulate any cards you constantly forget.
     - Use the answer buttons consistently. Keep in mind that "Hard" is a passing grade, not a failing grade.
     - Understand before you memorize.
 
