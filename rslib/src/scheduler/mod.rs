@@ -31,6 +31,15 @@ pub struct SchedulerInfo {
     pub timing: SchedTimingToday,
 }
 
+#[derive(Debug, Clone)]
+pub struct ReviewForecastDay {
+    pub day_offset: u32,
+    pub total: u32,
+    pub review: u32,
+    pub learn: u32,
+    pub new: u32,
+}
+
 impl Collection {
     pub fn scheduler_info(&mut self) -> Result<SchedulerInfo> {
         let now = TimestampSecs::now();
@@ -131,5 +140,37 @@ impl Collection {
     pub(crate) fn set_creation_stamp(&mut self, stamp: TimestampSecs) -> Result<()> {
         self.state.scheduler_info = None;
         self.storage.set_creation_stamp(stamp)
+    }
+
+    /// Return forecast data for the next `days` days (capped at 7).
+    pub(crate) fn sched_forecast(
+        &mut self,
+        days: u32,
+    ) -> Result<Vec<anki_proto::scheduler::ReviewForecastDay>> {
+        use anki_proto::scheduler::ReviewForecastDay as PbDay;
+        let timing = self.timing_for_timestamp(TimestampSecs::now())?;
+        let today = timing.days_elapsed;
+        let mut out = Vec::new();
+        let want = days.min(7);
+
+        for offset in 0..want {
+            let target_day = today + offset;
+            let rev_cnt = self
+                .storage
+                .db
+                .prepare_cached("SELECT COUNT(*) FROM cards WHERE queue = 2 AND due = ?")
+                .and_then(|mut stmt| {
+                    stmt.query_row([(target_day as i64)], |row| row.get::<_, u32>(0))
+                })
+                .unwrap_or(0);
+            out.push(PbDay {
+                day_offset: offset,
+                total: rev_cnt,
+                review: rev_cnt,
+                learn: 0,
+                new: 0,
+            });
+        }
+        Ok(out)
     }
 }
