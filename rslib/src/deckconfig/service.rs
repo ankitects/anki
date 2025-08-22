@@ -115,7 +115,7 @@ impl crate::services::DeckConfigService for Collection {
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
 
-        let config = guard.col.get_optimal_retention_parameters(revlogs)?;
+        let mut config = guard.col.get_optimal_retention_parameters(revlogs)?;
         let cards = guard
             .col
             .storage
@@ -124,6 +124,8 @@ impl crate::services::DeckConfigService for Collection {
             .filter(is_included_card)
             .filter_map(|c| crate::card::Card::convert(c.clone(), days_elapsed, c.memory_state?))
             .collect::<Vec<fsrs::Card>>();
+
+        config.deck_size = guard.cards;
 
         let costs = (70u32..=99u32)
             .into_par_iter()
