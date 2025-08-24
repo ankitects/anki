@@ -61,13 +61,14 @@ impl QueueBuilder {
     }
 
     fn gather_new_cards(&mut self, col: &mut Collection) -> Result<()> {
+        let salt = knuth_salt(self.context.timing.days_elapsed);
         match self.context.sort_options.new_gather_priority {
             NewCardGatherPriority::Deck => {
                 self.gather_new_cards_by_deck(col, NewCardSorting::LowestPosition)
             }
             NewCardGatherPriority::DeckThenRandomNotes => self.gather_new_cards_by_deck(
                 col,
-                NewCardSorting::RandomNotes(self.context.timing.days_elapsed),
+                NewCardSorting::RandomNotes(salt),
             ),
             NewCardGatherPriority::LowestPosition => {
                 self.gather_new_cards_sorted(col, NewCardSorting::LowestPosition)
@@ -77,11 +78,11 @@ impl QueueBuilder {
             }
             NewCardGatherPriority::RandomNotes => self.gather_new_cards_sorted(
                 col,
-                NewCardSorting::RandomNotes(self.context.timing.days_elapsed),
+                NewCardSorting::RandomNotes(salt),
             ),
             NewCardGatherPriority::RandomCards => self.gather_new_cards_sorted(
                 col,
-                NewCardSorting::RandomCards(self.context.timing.days_elapsed),
+                NewCardSorting::RandomCards(salt),
             ),
         }
     }
@@ -168,5 +169,11 @@ impl QueueBuilder {
             self.new.push(card);
             true
         }
+    }
+
+    // Generates a salt for use with fnvhash. Useful to increase randomness
+    // when the base salt is a small integer.
+    fn knuth_salt(base_salt: u32) -> u32 {
+        base_salt.wrapping_mul(2654435761)
     }
 }
