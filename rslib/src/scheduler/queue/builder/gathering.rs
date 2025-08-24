@@ -61,29 +61,26 @@ impl QueueBuilder {
     }
 
     fn gather_new_cards(&mut self, col: &mut Collection) -> Result<()> {
-        let salt = knuth_salt(self.context.timing.days_elapsed);
+        let salt = Self::knuth_salt(self.context.timing.days_elapsed);
         match self.context.sort_options.new_gather_priority {
             NewCardGatherPriority::Deck => {
                 self.gather_new_cards_by_deck(col, NewCardSorting::LowestPosition)
             }
-            NewCardGatherPriority::DeckThenRandomNotes => self.gather_new_cards_by_deck(
-                col,
-                NewCardSorting::RandomNotes(salt),
-            ),
+            NewCardGatherPriority::DeckThenRandomNotes => {
+                self.gather_new_cards_by_deck(col, NewCardSorting::RandomNotes(salt))
+            }
             NewCardGatherPriority::LowestPosition => {
                 self.gather_new_cards_sorted(col, NewCardSorting::LowestPosition)
             }
             NewCardGatherPriority::HighestPosition => {
                 self.gather_new_cards_sorted(col, NewCardSorting::HighestPosition)
             }
-            NewCardGatherPriority::RandomNotes => self.gather_new_cards_sorted(
-                col,
-                NewCardSorting::RandomNotes(salt),
-            ),
-            NewCardGatherPriority::RandomCards => self.gather_new_cards_sorted(
-                col,
-                NewCardSorting::RandomCards(salt),
-            ),
+            NewCardGatherPriority::RandomNotes => {
+                self.gather_new_cards_sorted(col, NewCardSorting::RandomNotes(salt))
+            }
+            NewCardGatherPriority::RandomCards => {
+                self.gather_new_cards_sorted(col, NewCardSorting::RandomCards(salt))
+            }
         }
     }
 
