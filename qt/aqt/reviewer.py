@@ -858,7 +858,7 @@ timerStopped = false;
         middle = self._answerButtons()
         conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
         self.bottom.web.eval(
-            f"showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
+            f"anki.showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
         )
 
     def _remaining(self) -> str:
@@ -912,31 +912,25 @@ timerStopped = false;
 
         def but(i: int, label: str) -> str:
             if i == default:
-                extra = """id="defease" """
+                id = "defease"
             else:
-                extra = ""
+                id = ""
             due = self._buttonTime(i, v3_labels=labels)
             key = (
                 tr.actions_shortcut_key(val=aqt.mw.pm.get_answer_key(i))
                 if aqt.mw.pm.get_answer_key(i)
                 else ""
             )
-            return """
-<td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
-%s%s</button></td>""" % (
-                extra,
-                key,
-                i,
-                i,
-                label,
-                due,
-            )
+            return {
+                "id": id,
+                "key": key,
+                "i": i,
+                "label": label,
+                "due": due,
+            }
 
-        buf = "<center><table cellpadding=0 cellspacing=0><tr>"
-        for ease, label in self._answerButtonList():
-            buf += but(ease, label)
-        buf += "</tr></table>"
-        return buf
+        return [but(ease, label) for ease, label in self._answerButtonList()]
+         
 
     def _buttonTime(self, i: int, v3_labels: Sequence[str]) -> str:
         if self.mw.col.conf["estTimes"]:

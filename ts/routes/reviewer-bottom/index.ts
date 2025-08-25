@@ -8,6 +8,7 @@
 import { mount } from "svelte";
 import "./index.scss";
 import ReviewerBottom from "./index.svelte";
+import { writable } from "svelte/store";
 
 let time: number; // set in python code
 let timerStopped = false;
@@ -34,9 +35,10 @@ function updateTime(): void {
 }
 
 let intervalId: number | undefined;
+let answerButtons = writable<AnswerButtonInfo[]>([])
 
 export function showQuestion(txt: string, maxTime_: number): void {
-    showAnswer(txt);
+    showAnswer([]);
     time = 0;
     maxTime = maxTime_;
     updateTime();
@@ -53,8 +55,8 @@ export function showQuestion(txt: string, maxTime_: number): void {
     }, 1000);
 }
 
-function showAnswer(txt: string, stopTimer = false): void {
-    document.getElementById("middle").innerHTML = txt;
+export function showAnswer(info: AnswerButtonInfo[], stopTimer = false): void {
+    answerButtons.set(info);
     timerStopped = stopTimer;
 }
 
@@ -68,5 +70,5 @@ function selectedAnswerButton(): string {
 
 mount(
     ReviewerBottom,
-    { target: document.body },
+    { target: document.body, props: {answerButtons} },
 );
