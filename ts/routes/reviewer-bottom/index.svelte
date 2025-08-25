@@ -2,7 +2,7 @@
     import type { Writable } from "svelte/store";
     import AnswerButton from "./AnswerButton.svelte";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import * as tr from "@generated/ftl"
+    import * as tr from "@generated/ftl";
 
     export let answerButtons: Writable<AnswerButtonInfo[]>
     $: console.log($answerButtons)
@@ -19,11 +19,11 @@
                     <AnswerButton info={answerButton}></AnswerButton>
                 {/each}
             {:else}
-                <button on:click={()=>bridgeCommand("ans")}>Review Buttons</button>
+                <button on:click={()=>bridgeCommand("ans")}>{tr.studyingShowAnswer()}</button>
             {/if}
         </div>
         <div>
-            <button>More</button>
+            <button title={tr.actionsShortcutKey({val: "M"})}>{tr.studyingMore()}&#8615</button>
         </div>
     </div>
 </div>
