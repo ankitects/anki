@@ -6,8 +6,8 @@
 */
 
 import { mount } from "svelte";
-import "./index.scss"
-import ReviewerBottom from "./index.svelte"
+import "./index.scss";
+import ReviewerBottom from "./index.svelte";
 
 let time: number; // set in python code
 let timerStopped = false;
@@ -68,5 +68,5 @@ function selectedAnswerButton(): string {
 
 mount(
     ReviewerBottom,
-    {target: document.body},
-)
+    { target: document.body },
+);

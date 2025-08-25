@@ -4,6 +4,7 @@
 @use "../../lib/sass/root-vars";
 @use "../../lib/sass/vars" as *;
 @use "../../lib/sass/card-counts";
+@use "../../lib/sass/buttons";
 
 :root {
     --focus-color: #{palette-of(border-focus)};
