@@ -5,6 +5,10 @@
 @typescript-eslint/no-unused-vars: "off",
 */
 
+import "./index.scss"
+
+console.log("Hello world")
+
 let time: number; // set in python code
 let timerStopped = false;
 
@@ -61,3 +65,4 @@ function selectedAnswerButton(): string {
     }
     return node.dataset.ease;
 }
+

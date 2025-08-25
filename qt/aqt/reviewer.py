@@ -355,12 +355,7 @@ class Reviewer:
         self.web.allow_drops = True
         self.web.eval("_blockDefaultDragDropBehavior();")
         # show answer / ease buttons
-        self.bottom.web.stdHtml(
-            self._bottomHTML(),
-            css=["css/toolbar-bottom.css", "css/reviewer-bottom.css"],
-            js=["js/vendor/jquery.min.js", "js/reviewer-bottom.js"],
-            context=ReviewerBottomBar(self),
-        )
+        self.bottom.web.load_ts_page("reviewer-bottom")
 
     # Showing the question
     ##########################################################################
