@@ -23,7 +23,7 @@
             {/if}
         </div>
         <div>
-            <button title={tr.actionsShortcutKey({val: "M"})}>{tr.studyingMore()}&#8615</button>
+            <button on:click={()=>bridgeCommand("more")} title={tr.actionsShortcutKey({val: "M"})}>{tr.studyingMore()}&#8615</button>
         </div>
     </div>
 </div>
