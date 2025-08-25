@@ -355,7 +355,7 @@ class Reviewer:
         self.web.allow_drops = True
         self.web.eval("_blockDefaultDragDropBehavior();")
         # show answer / ease buttons
-        self.bottom.web.load_ts_page("reviewer-bottom")
+        self.bottom.web.load_sveltekit_page("reviewer-bottom")
 
     # Showing the question
     ##########################################################################
@@ -848,7 +848,7 @@ timerStopped = false;
         else:
             maxTime = 0
         self.bottom.web.eval(
-            "anki.showQuestion(%s,%d);" % (json.dumps(middle), maxTime)
+            "_showQuestion(%s,%d);" % (json.dumps(middle), maxTime)
         )
 
     def _showEaseButtons(self) -> None:
@@ -858,7 +858,7 @@ timerStopped = false;
         middle = self._answerButtons()
         conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
         self.bottom.web.eval(
-            f"anki.showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
+            f"_showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
         )
 
     def _remaining(self) -> str:
