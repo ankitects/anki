@@ -7,8 +7,6 @@
 
 import "./index.scss"
 
-console.log("Hello world")
-
 let time: number; // set in python code
 let timerStopped = false;
 
@@ -35,7 +33,7 @@ function updateTime(): void {
 
 let intervalId: number | undefined;
 
-function showQuestion(txt: string, maxTime_: number): void {
+export function showQuestion(txt: string, maxTime_: number): void {
     showAnswer(txt);
     time = 0;
     maxTime = maxTime_;

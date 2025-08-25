@@ -847,7 +847,7 @@ timerStopped = false;
             maxTime = self.card.time_limit() / 1000
         else:
             maxTime = 0
-        self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
+        self.bottom.web.eval("anki.showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
 
     def _showEaseButtons(self) -> None:
         if not self._states_mutated:
