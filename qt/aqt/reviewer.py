@@ -259,8 +259,6 @@ class Reviewer:
         if self._reps is None:
             self._initWeb()
 
-        self._showQuestion()
-
     def _get_next_v3_card(self) -> None:
         assert isinstance(self.mw.col.sched, V3Scheduler)
         output = self.mw.col.sched.get_queued_cards()
@@ -676,6 +674,9 @@ class Reviewer:
             self.mw.onEditCurrent()
         elif url == "more":
             self.showContextMenu()
+        elif url == "bottomReady":
+            self._showQuestion()
+            self._remaining()
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
@@ -866,15 +867,8 @@ timerStopped = false;
             return ""
 
         counts: list[int | str]
-        idx, counts_ = self._v3.counts()
-        counts = cast(list[Union[int, str]], counts_)
-        counts[idx] = f"<u>{counts[idx]}</u>"
-
-        return f"""
-<span class=new-count>{counts[0]}</span> +
-<span class=learn-count>{counts[1]}</span> +
-<span class=review-count>{counts[2]}</span>
-"""
+        idx, counts = self._v3.counts()
+        self.bottom.web.eval(f"_updateRemaining({json.dumps(counts)},{idx})")
 
     def _defaultEase(self) -> Literal[2, 3]:
         return 3
