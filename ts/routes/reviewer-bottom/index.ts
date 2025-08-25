@@ -5,7 +5,9 @@
 @typescript-eslint/no-unused-vars: "off",
 */
 
+import { mount } from "svelte";
 import "./index.scss"
+import ReviewerBottom from "./index.svelte"
 
 let time: number; // set in python code
 let timerStopped = false;
@@ -64,3 +66,7 @@ function selectedAnswerButton(): string {
     return node.dataset.ease;
 }
 
+mount(
+    ReviewerBottom,
+    {target: document.body},
+)
