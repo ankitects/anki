@@ -2,6 +2,7 @@
     import type { Writable } from "svelte/store";
     import AnswerButton from "./AnswerButton.svelte";
     import { bridgeCommand } from "@tslib/bridgecommand";
+    import * as tr from "@generated/ftl"
 
     export let answerButtons: Writable<AnswerButtonInfo[]>
     $: console.log($answerButtons)
@@ -10,7 +11,7 @@
 <div id="outer fancy">
     <div id="tableinner">
         <div>
-            <button>Edit</button>
+            <button title={tr.actionsShortcutKey({val: "E"})} on:click={()=>bridgeCommand("edit")}>{tr.studyingEdit()}</button>
         </div>
         <div>
             {#if $answerButtons.length}
