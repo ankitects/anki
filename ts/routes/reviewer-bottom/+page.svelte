@@ -5,9 +5,9 @@
     import ReviewerBottom from "./ReviewerBottom.svelte";
     import "./index.scss"
 
-    globalThis.answerButtons = writable<AnswerButtonInfo[]>([])
-    globalThis.remaining = writable<[number, number, number]>([0, 0, 0])
-    globalThis.remainingIndex = writable<number>(-1)
+    let answerButtons = writable<AnswerButtonInfo[]>([])
+    let remaining = writable<[number, number, number]>([0, 0, 0])
+    let remainingIndex = writable<number>(-1)
 
     onMount(() => {
         let timerStopped = false;
@@ -56,13 +56,13 @@
 
         function _showAnswer(info: AnswerButtonInfo[], stopTimer = false): void {
             console.log(info)
-            globalThis.answerButtons.set(info);
+            answerButtons.set(info);
             timerStopped = stopTimer;
         }
 
         function _updateRemaining(counts: [number, number, number], idx: number) {
-            globalThis.remaining.set(counts)
-            globalThis.remainingIndex.set(idx)
+            remaining.set(counts)
+            remainingIndex.set(idx)
         }
 
         globalThis._showQuestion = _showQuestion;
@@ -82,4 +82,4 @@
 </script>
 
 
-<ReviewerBottom answerButtons={globalThis.answerButtons} remaining={globalThis.remaining} remainingIndex={globalThis.remainingIndex}></ReviewerBottom>
+<ReviewerBottom {answerButtons} {remaining} {remainingIndex}></ReviewerBottom>
