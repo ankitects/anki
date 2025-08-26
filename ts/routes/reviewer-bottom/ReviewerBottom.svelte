@@ -45,6 +45,7 @@
         display: grid;
         grid-template-columns: auto 1fr auto;
         justify-items: center;
+        align-items: center;
     }
 
     .review-buttons {
