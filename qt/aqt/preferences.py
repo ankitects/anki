@@ -371,10 +371,23 @@ class Preferences(QDialog):
         self.form.styleComboBox.setVisible(not is_win)
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
+        self.form.color_blind.setChecked(self.mw.pm.color_blind())
+        qconnect(
+            self.form.color_blind.stateChanged, self.on_color_blind_checkbox_changed
+        )
+
         self.setup_language()
         self.setup_video_driver()
 
         self.setupOptions()
+
+    def on_color_blind_checkbox_changed(self, state: int) -> None:
+        if state == 2:
+            # checkbox is checked
+            self.mw.pm.set_color_blind(True)
+        else:
+            # checkbox is unchecked
+            self.mw.pm.set_color_blind(False)
 
     def update_global(self) -> None:
         restart_required = False

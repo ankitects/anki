@@ -10,6 +10,7 @@ import type { CountableTimeInterval } from "d3";
 import { timeHour } from "d3";
 import {
     interpolateBlues,
+    interpolateMagma,
     pointer,
     scaleLinear,
     scaleSequentialSqrt,
@@ -136,10 +137,21 @@ export function renderCalendar(
         }
     }
     const data = Array.from(dayMap.values());
-    const cappedRange = scaleLinear().range([0.2, nightMode ? 0.8 : 1]);
-    const blues = scaleSequentialSqrt()
-        .domain([0, maxCount])
-        .interpolator((n) => interpolateBlues(cappedRange(n)!));
+    const cappedRange = scaleLinear().range([1, 0]);
+
+    const isColorBlindMode = (window as any).colorBlindMode;
+
+    let gradient;
+
+    if (isColorBlindMode) {
+        gradient = scaleSequentialSqrt()
+            .domain([0, maxCount])
+            .interpolator((n) => interpolateMagma(cappedRange(n)!));
+    } else {
+        gradient = scaleSequentialSqrt()
+            .domain([0, maxCount])
+            .interpolator((n) => interpolateBlues(cappedRange(n)!));
+    }
 
     function tooltipText(d: DayDatum): string {
         const date = localizedDate(d.date, {
@@ -203,7 +215,7 @@ export function renderCalendar(
         })
         .transition()
         .duration(800)
-        .attr("fill", (d: DayDatum) => (d.count === 0 ? emptyColour : blues(d.count)!));
+        .attr("fill", (d: DayDatum) => (d.count === 0 ? emptyColour : gradient(d.count)!));
 }
 
 function timeFunctionForDay(firstDayOfWeek: Weekday): CountableTimeInterval {
