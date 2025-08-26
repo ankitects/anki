@@ -259,6 +259,8 @@ class Reviewer:
         if self._reps is None:
             self._initWeb()
 
+        self._showQuestion()
+
     def _get_next_v3_card(self) -> None:
         assert isinstance(self.mw.col.sched, V3Scheduler)
         output = self.mw.col.sched.get_queued_cards()
@@ -675,7 +677,6 @@ class Reviewer:
         elif url == "more":
             self.showContextMenu()
         elif url == "bottomReady":
-            self._showQuestion()
             self._remaining()
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
@@ -833,23 +834,13 @@ timerStopped = false;
         )
 
     def _showAnswerButton(self) -> None:
-        middle = """
-<button title="{}" id="ansbut" onclick='pycmd("ans");'>{}<span class=stattxt>{}</span></button>""".format(
-            tr.actions_shortcut_key(val=tr.studying_space()),
-            tr.studying_show_answer(),
-            self._remaining(),
-        )
         # wrap it in a table so it has the same top margin as the ease buttons
-        middle = (
-            "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>"
-            % middle
-        )
         if self.card.should_show_timer():
             maxTime = self.card.time_limit() / 1000
         else:
             maxTime = 0
         self.bottom.web.eval(
-            "_showQuestion(%s,%d);" % (json.dumps(middle), maxTime)
+            "_showQuestion(%s,%d);" % ("", maxTime)
         )
 
     def _showEaseButtons(self) -> None:
