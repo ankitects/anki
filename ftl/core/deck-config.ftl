@@ -384,8 +384,6 @@ deck-config-which-deck = Which deck would you like to display options for?
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
 deck-config-invalid-parameters = The provided FSRS parameters are invalid. Leave them blank to use the default parameters.
 deck-config-not-enough-history = Insufficient review history to perform this operation.
-deck-config-unable-to-determine-desired-retention =
-    Unable to determine a minimum recommended retention.
 deck-config-must-have-400-reviews =
     { $count ->
         [one] Only { $count } review was found.
@@ -394,7 +392,6 @@ deck-config-must-have-400-reviews =
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = FSRS parameters
 deck-config-compute-optimal-weights = Optimize FSRS parameters
-deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-optimize-button = Optimize Current Preset
 # Indicates that a given function or label, provided via the "text" variable, operates slowly.
 deck-config-slow-suffix = { $text } (slow)
@@ -407,7 +404,6 @@ deck-config-historical-retention = Historical retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, steps of 1 day or more are not recommended.
 deck-config-get-params = Get Params
-deck-config-predicted-minimum-recommended-retention = Minimum recommended retention: { $num }
 deck-config-complete = { $num }% complete.
 deck-config-iterations = Iteration: { $count }...
 deck-config-reschedule-cards-on-change = Reschedule cards on change
@@ -539,6 +535,10 @@ deck-config-fsrs-good-fit = Health Check:
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
+deck-config-unable-to-determine-desired-retention =
+    Unable to determine a minimum recommended retention.
+deck-config-predicted-minimum-recommended-retention = Minimum recommended retention: { $num }
+deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-compute-optimal-retention-tooltip4 =
     This tool will attempt to find the desired retention value 
     that will lead to the most material learnt, in the least amount of time. The calculated number can serve as a reference
