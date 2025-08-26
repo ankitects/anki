@@ -468,12 +468,7 @@ deck-config-compute-optimal-weights-tooltip2 =
     By default, parameters will be calculated from the review history of all decks using the current preset. You can
     optionally adjust the search before calculating the parameters, if you'd like to alter which cards are used for
     optimizing the parameters.
-deck-config-compute-optimal-retention-tooltip4 =
-    This tool will attempt to find the desired retention value 
-    that will lead to the most material learnt, in the least amount of time. The calculated number can serve as a reference
-    when deciding what to set your desired retention to. You may wish to choose a higher desired retention if you’re 
-    willing to invest more study time to achieve it. Setting your desired retention lower than the minimum
-    is not recommended, as it will lead to a higher workload, because of the high forgetting rate.
+
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-workload-factor-change = Approximate workload: {$factor}x
     (compared to {$previousDR}% desired retention)
@@ -544,6 +539,12 @@ deck-config-fsrs-good-fit = Health Check:
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
+deck-config-compute-optimal-retention-tooltip4 =
+    This tool will attempt to find the desired retention value 
+    that will lead to the most material learnt, in the least amount of time. The calculated number can serve as a reference
+    when deciding what to set your desired retention to. You may wish to choose a higher desired retention if you’re 
+    willing to invest more study time to achieve it. Setting your desired retention lower than the minimum
+    is not recommended, as it will lead to a higher workload, because of the high forgetting rate.
 deck-config-plotted-on-x-axis = (Plotted on the X-axis)
 deck-config-a-100-day-interval = 
     { $days ->
