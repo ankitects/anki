@@ -955,6 +955,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewerCardId: bigint | null,
         initial: boolean = false,
     ) {
+        let homeDeckId = 0n;
+        if (reviewerCardId) {
+            reviewerCard = await getCard({ cid: reviewerCardId });
+            homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
+        }
+        if (initial) {
+            const chooserDefaults = await defaultsForAdding({
+                homeDeckOfCurrentReviewCard: homeDeckId,
+            });
+            notetypeChooser.select(chooserDefaults.notetypeId);
+            deckChooser.select(chooserDefaults.deckId);
+            notetypeId = chooserDefaults.notetypeId;
+        }
+
         const notetype = await getNotetype({
             ntid: notetypeId,
         });
@@ -982,18 +996,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
             note!.fields = originalNote.fields;
             note!.tags = originalNote.tags;
-        }
-        let homeDeckId = 0n;
-        if (reviewerCardId) {
-            reviewerCard = await getCard({ cid: reviewerCardId });
-            homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
-        }
-        if (initial) {
-            const chooserDefaults = await defaultsForAdding({
-                homeDeckOfCurrentReviewCard: homeDeckId,
-            });
-            notetypeChooser.select(chooserDefaults.notetypeId);
-            deckChooser.select(chooserDefaults.deckId);
         }
 
         const fieldValues = (
