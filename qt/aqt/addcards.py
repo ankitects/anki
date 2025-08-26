@@ -5,16 +5,11 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from anki._legacy import deprecated
-from anki.collection import OpChanges
 from anki.decks import DeckId
-from anki.models import NotetypeId
 from anki.notes import Note
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.addcards_legacy import *
-from aqt.deckchooser import DeckChooser
-from aqt.notetypechooser import NotetypeChooser
 from aqt.qt import *
 from aqt.utils import (
     HelpPage,
@@ -40,31 +35,19 @@ class NewAddCards(QMainWindow):
         self.setWindowTitle(tr.actions_add())
         self.setMinimumHeight(300)
         self.setMinimumWidth(400)
-        self.setup_choosers()
         self.setupEditor()
         add_close_shortcut(self)
         self._load_new_note()
-        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
         if not is_mac:
             self.setMenuBar(None)
         self.show()
 
-    def set_deck(self, deck_id: DeckId) -> None:
-        self.deck_chooser.selected_deck_id = deck_id
-
-    def set_note_type(self, note_type_id: NotetypeId) -> None:
-        self.notetype_chooser.selected_notetype_id = note_type_id
-
     def set_note(self, note: Note, deck_id: DeckId | None = None) -> None:
         """Set tags, field contents and notetype according to `note`. Deck is set
         to `deck_id` or the deck last used with the notetype.
         """
-        self.notetype_chooser.selected_notetype_id = note.mid
-        if deck_id or (deck_id := self.col.default_deck_for_notetype(note.mid)):
-            self.deck_chooser.selected_deck_id = deck_id
-
         self.editor.load_note(
             mid=note.mid,
             original_note_id=note.id,
@@ -79,69 +62,17 @@ class NewAddCards(QMainWindow):
             editor_mode=aqt.editor.EditorMode.ADD_CARDS,
         )
 
-    def setup_choosers(self) -> None:
-        defaults = self.col.defaults_for_adding(
-            current_review_card=self.mw.reviewer.card
-        )
-
-        self.notetype_chooser = NotetypeChooser(
-            mw=self.mw,
-            widget=self.form.modelArea,
-            starting_notetype_id=NotetypeId(defaults.notetype_id),
-            on_button_activated=self.show_notetype_selector,
-            on_notetype_changed=self.on_notetype_change,
-        )
-        self.deck_chooser = DeckChooser(
-            self.mw,
-            self.form.deckArea,
-            starting_deck_id=DeckId(defaults.deck_id),
-            on_deck_changed=self.on_deck_changed,
-        )
-
     def reopen(self, mw: AnkiQt) -> None:
-        defaults = self.col.defaults_for_adding(
-            current_review_card=self.mw.reviewer.card
-        )
-        self.set_note_type(NotetypeId(defaults.notetype_id))
-        self.set_deck(DeckId(defaults.deck_id))
+        self.editor.reload_note()
 
     def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
 
-    def show_notetype_selector(self) -> None:
-        self.editor.call_after_note_saved(self.notetype_chooser.choose_notetype)
-
-    def on_deck_changed(self, deck_id: int) -> None:
-        gui_hooks.add_cards_did_change_deck(deck_id)
-
-    def on_notetype_change(
-        self, notetype_id: NotetypeId, update_deck: bool = True
-    ) -> None:
-        # need to adjust current deck?
-        if update_deck:
-            if deck_id := self.col.default_deck_for_notetype(notetype_id):
-                self.deck_chooser.selected_deck_id = deck_id
-
-        if notetype_id:
-            self.editor.set_nid(None, mid=notetype_id, focus_to=0)
-
-    def _load_new_note(self, sticky_fields_from: Note | None = None) -> None:
-        self.editor.set_nid(
-            None, mid=self.notetype_chooser.selected_notetype_id, focus_to=0
+    def _load_new_note(self) -> None:
+        self.editor.load_note(
+            mid=self.mw.col.models.current()["id"],
+            focus_to=0,
         )
-
-    def on_operation_did_execute(
-        self, changes: OpChanges, handler: object | None
-    ) -> None:
-        if (changes.notetype or changes.deck) and handler is not self.editor:
-            self.on_notetype_change(
-                NotetypeId(
-                    self.col.defaults_for_adding(
-                        current_review_card=self.mw.reviewer.card
-                    ).notetype_id
-                ),
-                update_deck=False,
-            )
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
         if evt.key() == Qt.Key.Key_Escape:
@@ -158,9 +89,6 @@ class NewAddCards(QMainWindow):
 
     def _close(self) -> None:
         self.editor.cleanup()
-        self.notetype_chooser.cleanup()
-        self.deck_chooser.cleanup()
-        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         self.mw.maybeReset()
         saveGeom(self, "add")
         aqt.dialogs.markClosed("NewAddCards")
@@ -196,21 +124,3 @@ class NewAddCards(QMainWindow):
             cb()
 
         self.ifCanClose(doClose)
-
-    # legacy aliases
-
-    @property
-    def deckChooser(self) -> DeckChooser:
-        if getattr(self, "form", None):
-            # show this warning only after Qt form has been initialized,
-            # or PyQt's introspection triggers it
-            print("deckChooser is deprecated; use deck_chooser instead")
-        return self.deck_chooser
-
-    @deprecated(info="obsolete")
-    def addNote(self, note: Note) -> None:
-        pass
-
-    @deprecated(info="does nothing; will go away")
-    def removeTempNote(self, note: Note) -> None:
-        pass
