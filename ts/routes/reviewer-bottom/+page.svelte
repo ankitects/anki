@@ -1,14 +1,18 @@
+<!--
+Copyright: Ankitects Pty Ltd and contributors
+License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+-->
 <script lang="ts">
     import { onMount } from "svelte";
     import { writable } from "svelte/store";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import ReviewerBottom from "./ReviewerBottom.svelte";
-    import type {AnswerButtonInfo} from "./types"
-    import "./index.scss"
+    import type { AnswerButtonInfo } from "./types";
+    import "./index.scss";
 
-    const answerButtons = writable<AnswerButtonInfo[]>([])
-    const remaining = writable<[number, number, number]>([0, 0, 0])
-    const remainingIndex = writable<number>(-1)
+    const answerButtons = writable<AnswerButtonInfo[]>([]);
+    const remaining = writable<[number, number, number]>([0, 0, 0]);
+    const remainingIndex = writable<number>(-1);
 
     onMount(() => {
         /*
@@ -37,7 +41,6 @@
 
         let intervalId: number | undefined;
 
-
         function _showQuestion(_txt: string, _maxTime_: number): void {
             _showAnswer([]);
             globalThis.time = 0;
@@ -58,14 +61,14 @@
         }
 
         function _showAnswer(info: AnswerButtonInfo[], _stopTimer = false): void {
-            console.log(info)
+            console.log(info);
             answerButtons.set(info);
             // timerStopped = stopTimer;
         }
 
         function _updateRemaining(counts: [number, number, number], idx: number) {
-            remaining.set(counts)
-            remainingIndex.set(idx)
+            remaining.set(counts);
+            remainingIndex.set(idx);
         }
 
         globalThis._showQuestion = _showQuestion;
@@ -84,6 +87,5 @@
         bridgeCommand("bottomReady");
     });
 </script>
-
 
 <ReviewerBottom {answerButtons} {remaining} {remainingIndex}></ReviewerBottom>

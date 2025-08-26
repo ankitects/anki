@@ -839,9 +839,7 @@ timerStopped = false;
             maxTime = self.card.time_limit() / 1000
         else:
             maxTime = 0
-        self.bottom.web.eval(
-            "_showQuestion(%s,%d);" % ("", maxTime)
-        )
+        self.bottom.web.eval("_showQuestion(%s,%d);" % ("", maxTime))
 
     def _showEaseButtons(self) -> None:
         if not self._states_mutated:
@@ -853,11 +851,10 @@ timerStopped = false;
             f"_showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
         )
 
-    def _remaining(self) -> str:
+    def _remaining(self):
         if not self.mw.col.conf["dueCounts"]:
             return ""
 
-        counts: list[int | str]
         idx, counts = self._v3.counts()
         self.bottom.web.eval(f"_updateRemaining({json.dumps(counts)},{idx})")
 
@@ -889,13 +886,13 @@ timerStopped = false;
         )
         return buttons_tuple
 
-    def _answerButtons(self) -> str:
+    def _answerButtons(self):
         default = self._defaultEase()
 
         assert isinstance(self.mw.col.sched, V3Scheduler)
         labels = self.mw.col.sched.describe_next_states(self._v3.states)
 
-        def but(i: int, label: str) -> str:
+        def but(i: int, label: str):
             if i == default:
                 id = "defease"
             else:
@@ -915,7 +912,6 @@ timerStopped = false;
             }
 
         return [but(ease, label) for ease, label in self._answerButtonList()]
-         
 
     def _buttonTime(self, i: int, v3_labels: Sequence[str]) -> str:
         if self.mw.col.conf["estTimes"]:
