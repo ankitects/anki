@@ -435,6 +435,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def reload_note(self) -> None:
         self.web.eval("reloadNote();")
 
+    def reload_note_if_empty(self) -> None:
+        self.web.eval("reloadNoteIfEmpty();")
+
     def call_after_note_saved(
         self, callback: Callable, keepFocus: bool = False
     ) -> None:

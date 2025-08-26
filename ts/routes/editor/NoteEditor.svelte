@@ -1094,6 +1094,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await loadNote(note!.id, notetypeMeta.id, 0, null, reviewerCard?.id ?? null);
     }
 
+    async function reloadNoteIfEmpty() {
+        const isEmpty = (await noteFieldsCheck(note!)).state == NoteFieldsCheckResponse_State.EMPTY;
+        if (isEmpty) {
+            await loadNote(note!.id, notetypeMeta.id, 0, null, reviewerCard?.id ?? null, true);
+        }
+    }
+
     function checkNonLegacy(value: any): any | undefined {
         if (isLegacy) {
             return value;
@@ -1139,6 +1146,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         Object.assign(globalThis, {
             loadNote,
             reloadNote,
+            reloadNoteIfEmpty,
             saveSession,
             setFields,
             setCollapsed,

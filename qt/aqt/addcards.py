@@ -63,7 +63,7 @@ class NewAddCards(QMainWindow):
         )
 
     def reopen(self, mw: AnkiQt) -> None:
-        self.editor.reload_note()
+        self.editor.reload_note_if_empty()
 
     def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
