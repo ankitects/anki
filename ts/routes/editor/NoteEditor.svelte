@@ -309,7 +309,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (
             !(await getConfigBool({
                 key: ConfigKey_Bool.ADDING_DEFAULTS_TO_CURRENT_DECK,
-            }))
+            })).val
         ) {
             const deckId = await defaultDeckForNotetype({ ntid: notetype.id });
             deckChooser.select(deckId.did);

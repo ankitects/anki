@@ -974,6 +974,7 @@ exposed_backend_list = [
     "new_note",
     "note_fields_check",
     "defaults_for_adding",
+    "default_deck_for_notetype",
     # NotetypesService
     "get_notetype",
     "get_notetype_names",
