@@ -61,7 +61,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $effect(() => {
         if (!selectedItem && items.length > 0) {
             selectedItem = items[0];
-            onChange?.(selectedItem);
         }
     });
 </script>
