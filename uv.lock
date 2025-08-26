@@ -147,10 +147,10 @@ dev = [
 
 [[package]]
 name = "anki-mac-helper"
-version = "0.1.0"
+version = "0.1.1"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b3/9f/c4d3e635ddbd2c6c24ff5454e96900fd2061b9abbb0198b9283446780d08/anki_mac_helper-0.1.0-py3-none-any.whl", hash = "sha256:ed449aba27ea3bc7999054afa10dacf08ef856ed7af46526d9c8599d8179a618", size = 40637, upload-time = "2025-06-19T14:38:07.672Z" },
+    { url = "https://files.pythonhosted.org/packages/40/82/edb6194704defec181dddce8bc6a53c4afc72fa1f2bb4d68ffe244567767/anki_mac_helper-0.1.1-py3-none-any.whl", hash = "sha256:774a69cf9f0fe6d4b54949e2d6588a54a76ff51e78cbfc26b527d1ed3c5b34e3", size = 41812, upload-time = "2025-08-19T09:43:50.345Z" },
 ]
 
 [[package]]
@@ -214,7 +214,7 @@ qt68 = [
 [package.metadata]
 requires-dist = [
     { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.1.0" },
-    { name = "anki-mac-helper", marker = "sys_platform == 'darwin'" },
+    { name = "anki-mac-helper", marker = "sys_platform == 'darwin'", specifier = ">=0.1.1" },
     { name = "beautifulsoup4" },
     { name = "flask", extras = ["async"] },
     { name = "flask-cors" },

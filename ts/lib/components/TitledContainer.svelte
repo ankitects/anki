@@ -12,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let title: string;
-    export let onHelpClick: ((_e: MouseEvent | KeyboardEvent) => void) | null = null;
 </script>
 
 <div
@@ -28,18 +27,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <h1>
             {title}
         </h1>
-        {#if onHelpClick}
-            <div
-                on:click={onHelpClick}
-                on:keydown={onHelpClick}
-                role="button"
-                tabindex="0"
-                class="help-badge position-absolute"
-                class:rtl
-            >
-                <slot name="tooltip" />
-            </div>
-        {/if}
+        <div class="help-badge position-absolute" class:rtl>
+            <slot name="tooltip" />
+        </div>
     </div>
     <slot />
 </div>

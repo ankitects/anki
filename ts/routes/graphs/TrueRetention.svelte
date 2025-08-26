@@ -62,17 +62,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 </script>
 
-<Graph {title} {subtitle} {onHelpClick}>
-    <HelpModal
-        title={tr.statisticsTrueRetentionTitle()}
-        url={HelpPage.DeckOptions.fsrs}
+<Graph {title} {subtitle}>
+    <div
         slot="tooltip"
-        {helpSections}
-        on:mount={(e) => {
-            modal = e.detail.modal;
-            carousel = e.detail.carousel;
-        }}
-    />
+        onclick={onHelpClick}
+        onkeydown={onHelpClick}
+        role="button"
+        tabindex="-1"
+    >
+        <HelpModal
+            title={tr.statisticsTrueRetentionTitle()}
+            url={HelpPage.DeckOptions.fsrs}
+            {helpSections}
+            on:mount={(e) => {
+                modal = e.detail.modal;
+                carousel = e.detail.carousel;
+            }}
+        />
+    </div>
     <InputBox>
         <label>
             <input type="radio" bind:group={mode} value={DisplayMode.Young} />

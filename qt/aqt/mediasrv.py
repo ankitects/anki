@@ -493,7 +493,7 @@ def update_deck_configs() -> bytes:
             update.abort = True
 
     def on_success(changes: OpChanges) -> None:
-        if isinstance(window := aqt.mw.app.activeWindow(), DeckOptionsDialog):
+        if isinstance(window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog):
             window.reject()
 
     def handle_on_main() -> None:
@@ -521,7 +521,7 @@ def set_scheduling_states() -> bytes:
 
 def import_done() -> bytes:
     def update_window_modality() -> None:
-        if window := aqt.mw.app.activeWindow():
+        if window := aqt.mw.app.activeModalWidget():
             from aqt.import_export.import_dialog import ImportDialog
 
             if isinstance(window, ImportDialog):
@@ -539,7 +539,7 @@ def import_request(endpoint: str) -> bytes:
     response.ParseFromString(output)
 
     def handle_on_main() -> None:
-        window = aqt.mw.app.activeWindow()
+        window = aqt.mw.app.activeModalWidget()
         on_op_finished(aqt.mw, response, window)
 
     aqt.mw.taskman.run_on_main(handle_on_main)
@@ -579,7 +579,7 @@ def change_notetype() -> bytes:
     data = request.data
 
     def handle_on_main() -> None:
-        window = aqt.mw.app.activeWindow()
+        window = aqt.mw.app.activeModalWidget()
         if isinstance(window, ChangeNotetypeDialog):
             window.save(data)
 
@@ -589,7 +589,7 @@ def change_notetype() -> bytes:
 
 def deck_options_require_close() -> bytes:
     def handle_on_main() -> None:
-        window = aqt.mw.app.activeWindow()
+        window = aqt.mw.app.activeModalWidget()
         if isinstance(window, DeckOptionsDialog):
             window.require_close()
 
@@ -601,7 +601,7 @@ def deck_options_require_close() -> bytes:
 
 def deck_options_ready() -> bytes:
     def handle_on_main() -> None:
-        window = aqt.mw.app.activeWindow()
+        window = aqt.mw.app.activeModalWidget()
         if isinstance(window, DeckOptionsDialog):
             window.set_ready()
 

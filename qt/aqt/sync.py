@@ -73,7 +73,7 @@ def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception) -> None:
     elif isinstance(err, Interrupted):
         # no message to show
         return
-    show_warning(str(err))
+    show_warning(str(err), parent=mw)
 
 
 def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:

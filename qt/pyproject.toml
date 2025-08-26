@@ -12,7 +12,7 @@ dependencies = [
   "send2trash",
   "waitress>=2.0.0",
   "pywin32; sys.platform == 'win32'",
-  "anki-mac-helper; sys.platform == 'darwin'",
+  "anki-mac-helper>=0.1.1; sys.platform == 'darwin'",
   "pip-system-certs!=5.1",
   "pyqt6>=6.2",
   "pyqt6-webengine>=6.2",
