@@ -170,7 +170,7 @@ fn build_imgs(build: &mut Build) -> Result<()> {
 }
 
 fn build_js(build: &mut Build) -> Result<()> {
-    for ts_file in &["deckbrowser", "webview", "toolbar", "reviewer-bottom"] {
+    for ts_file in &["deckbrowser", "webview", "toolbar"] {
         build.add_action(
             "qt:aqt:data:web:js",
             EsbuildScript {
