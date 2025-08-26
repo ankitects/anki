@@ -10,7 +10,7 @@ from collections.abc import Callable, Generator, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import partial
-from typing import Any, Literal, Match, Union, cast
+from typing import Any, Literal, Match, cast
 
 import aqt
 import aqt.browser

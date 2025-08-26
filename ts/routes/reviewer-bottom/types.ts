@@ -1,4 +1,4 @@
-interface AnswerButtonInfo {
+export interface AnswerButtonInfo {
     "extra": string,
     "key": string,
     "i": number,

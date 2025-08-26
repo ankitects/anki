@@ -1,5 +1,6 @@
 <script lang="ts">
     import { bridgeCommand } from "@tslib/bridgecommand";
+    import type { AnswerButtonInfo } from "./types";
 
     export let info: AnswerButtonInfo
 </script>

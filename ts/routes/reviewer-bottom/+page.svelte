@@ -3,13 +3,15 @@
     import { writable } from "svelte/store";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import ReviewerBottom from "./ReviewerBottom.svelte";
+    import type {AnswerButtonInfo} from "./types"
     import "./index.scss"
 
-    let answerButtons = writable<AnswerButtonInfo[]>([])
-    let remaining = writable<[number, number, number]>([0, 0, 0])
-    let remainingIndex = writable<number>(-1)
+    const answerButtons = writable<AnswerButtonInfo[]>([])
+    const remaining = writable<[number, number, number]>([0, 0, 0])
+    const remainingIndex = writable<number>(-1)
 
     onMount(() => {
+        /*
         let timerStopped = false;
 
         let maxTime = 0;
@@ -31,33 +33,34 @@
             } else {
                 timeNode.textContent = timeString;
             }
-        }
+        }*/
 
         let intervalId: number | undefined;
 
 
-        function _showQuestion(txt: string, maxTime_: number): void {
+        function _showQuestion(_txt: string, _maxTime_: number): void {
             _showAnswer([]);
             globalThis.time = 0;
-            maxTime = maxTime_;
+            // maxTime = maxTime_;
             // updateTime();
 
             if (intervalId !== undefined) {
                 clearInterval(intervalId);
             }
 
+            /*
             intervalId = setInterval(function() {
                 if (!timerStopped) {
                     globalThis.time += 1;
                     //updateTime();
                 }
-            }, 1000);
+            }, 1000);*/
         }
 
-        function _showAnswer(info: AnswerButtonInfo[], stopTimer = false): void {
+        function _showAnswer(info: AnswerButtonInfo[], _stopTimer = false): void {
             console.log(info)
             answerButtons.set(info);
-            timerStopped = stopTimer;
+            // timerStopped = stopTimer;
         }
 
         function _updateRemaining(counts: [number, number, number], idx: number) {
@@ -69,6 +72,7 @@
         globalThis._showAnswer = _showAnswer;
         globalThis._updateRemaining = _updateRemaining;
 
+        /*
         function selectedAnswerButton(): string | undefined {
             const node = document.activeElement as HTMLElement;
             if (!node) {
@@ -76,7 +80,7 @@
             }
             return node.dataset.ease;
         }
-
+        */
         bridgeCommand("bottomReady");
     });
 </script>

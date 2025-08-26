@@ -4,6 +4,7 @@
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@generated/ftl";
     import RemainingNumber from "./RemainingNumber.svelte";
+    import type { AnswerButtonInfo } from "./types";
 
     export let answerButtons: Writable<AnswerButtonInfo[]>
     export let remaining: Writable<number[]>
