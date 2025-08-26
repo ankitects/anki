@@ -427,7 +427,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             gui_hooks.editor_did_load_note(self)
 
         assert self.mw.pm.profile is not None
-        js = f"loadNote({json.dumps(self.nid)}, {mid}, {json.dumps(focus_to)}, {json.dumps(original_note_id)}, {json.dumps(self.mw.reviewer.card.id if self.mw.reviewer.card else None)});"
+        js = f"loadNote({json.dumps(self.nid)}, {mid}, {json.dumps(focus_to)}, {json.dumps(original_note_id)}, {json.dumps(self.mw.reviewer.card.id if self.mw.reviewer.card else None)}, true);"
         self.web.evalWithCallback(
             f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback
         )

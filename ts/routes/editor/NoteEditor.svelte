@@ -305,7 +305,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let selectedDeck: DeckNameId | null = null;
 
     async function onNotetypeChange(notetype: NotetypeNameId) {
-        loadNote(0n, notetype.id, 0, null, null);
+        loadNote(0n, notetype.id, 0, null, reviewerCard?.id ?? null);
         if (
             !(await getConfigBool({
                 key: ConfigKey_Bool.ADDING_DEFAULTS_TO_CURRENT_DECK,
@@ -519,7 +519,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function loadNewNote() {
-        await loadNote(0n, notetypeMeta.id, 0, null, null);
+        await loadNote(0n, notetypeMeta.id, 0, null, reviewerCard?.id ?? null);
     }
 
     async function noteCanBeAdded(): Promise<boolean> {
@@ -953,6 +953,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focusTo: number,
         originalNoteId: bigint | null,
         reviewerCardId: bigint | null,
+        initial: boolean = false,
     ) {
         const notetype = await getNotetype({
             ntid: notetypeId,
@@ -987,11 +988,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             reviewerCard = await getCard({ cid: reviewerCardId });
             homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
         }
-        const chooserDefaults = await defaultsForAdding({
-            homeDeckOfCurrentReviewCard: homeDeckId,
-        });
-        notetypeChooser.select(chooserDefaults.notetypeId);
-        deckChooser.select(chooserDefaults.deckId);
+        if (initial) {
+            const chooserDefaults = await defaultsForAdding({
+                homeDeckOfCurrentReviewCard: homeDeckId,
+            });
+            notetypeChooser.select(chooserDefaults.notetypeId);
+            deckChooser.select(chooserDefaults.deckId);
+        }
 
         const fieldValues = (
             await Promise.all(
@@ -1073,6 +1076,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focusTo: number,
         originalNoteId: bigint | null,
         reviewerCardId: bigint | null,
+        initial: boolean = false,
     ) {
         loadDebouncer.schedule(async () => {
             await loadNoteInner(
@@ -1081,12 +1085,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 focusTo,
                 originalNoteId,
                 reviewerCardId,
+                initial,
             );
         });
     }
 
     async function reloadNote() {
-        await loadNote(note!.id, notetypeMeta.id, 0, null);
+        await loadNote(note!.id, notetypeMeta.id, 0, null, reviewerCard?.id ?? null);
     }
 
     function checkNonLegacy(value: any): any | undefined {
