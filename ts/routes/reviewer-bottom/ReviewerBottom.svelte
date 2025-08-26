@@ -12,7 +12,7 @@
     $: console.log($remaining)
 </script>
 
-<div id="outer fancy">
+<div id="outer" class="fancy">
     <div id="tableinner">
         <div>
             <button title={tr.actionsShortcutKey({val: "E"})} on:click={()=>bridgeCommand("edit")}>{tr.studyingEdit()}</button>
