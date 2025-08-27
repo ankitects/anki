@@ -429,7 +429,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         assert self.mw.pm.profile is not None
         load_args = dict(
             nid=self.nid,
-            mid=mid,
+            notetypeId=mid,
             focusTo=focus_to,
             originalNoteId=original_note_id,
             reviewerCardId=self.mw.reviewer.card.id if self.mw.reviewer.card else None,
