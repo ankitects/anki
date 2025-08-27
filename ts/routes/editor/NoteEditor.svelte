@@ -28,6 +28,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         lastIOImagePath: Writable<string | null>;
     }
 
+    interface LoadNoteArgs {
+        nid: bigint | null;
+        notetypeId: bigint | null;
+        focusTo: number;
+        originalNoteId: bigint | null;
+        reviewerCardId: bigint | null;
+        initial: boolean;
+        copyFromNote: Note | null;
+    }
+
     import { registerPackage } from "@tslib/runtime-require";
     import {
         filenameToLink,
@@ -305,7 +315,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let selectedDeck: DeckNameId | null = null;
 
     async function onNotetypeChange(notetype: NotetypeNameId) {
-        loadNote(0n, notetype.id, 0, null, reviewerCard?.id ?? null, false, note);
+        loadNote({ notetypeId: notetype.id, copyFromNote: note });
         if (
             !(
                 await getConfigBool({
@@ -319,7 +329,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         lastAddedNote = null;
     }
 
-    let notetypeMeta: NotetypeIdAndModTime;
+    let notetypeMeta: NotetypeIdAndModTime | null = null;
     function setNotetypeMeta(notetype: Notetype): void {
         notetypeMeta = { id: notetype.id, modTime: notetype.mtimeSecs };
         // Discard the saved state of the fields if the notetype has been modified.
@@ -521,10 +531,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setClozeHint(hint);
     }
 
-    async function loadNewNote() {
-        await loadNote(0n, notetypeMeta.id, 0, null, reviewerCard?.id ?? null);
-    }
-
     async function noteCanBeAdded(): Promise<boolean> {
         let problem: string | null = null;
         const result = await noteFieldsCheck(note!);
@@ -580,7 +586,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         note.id = noteId;
         addNoteToHistory(note!);
         lastAddedNote = note;
-        await loadNewNote();
+        await loadNote();
     }
 
     export async function addCurrentNote(deckId: bigint) {
@@ -622,7 +628,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function getNoteInfo() {
         return {
             id: note.id.toString() ?? null,
-            mid: notetypeMeta.id.toString(),
+            mid: notetypeMeta!.id.toString(),
             fields: note.fields ?? [],
         };
     }
@@ -837,7 +843,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             mode: {
                 kind: "add",
                 imagePath: imagePath,
-                notetypeId: notetypeMeta.id,
+                notetypeId: notetypeMeta!.id,
             },
         });
     }
@@ -950,15 +956,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    async function loadNoteInner(
-        nid: bigint | null,
-        notetypeId: bigint,
-        focusTo: number,
-        originalNoteId: bigint | null,
-        reviewerCardId: bigint | null,
-        initial: boolean = false,
-        copyFromNote: Note | null = null,
-    ) {
+    async function loadNoteInner({
+        nid,
+        notetypeId,
+        focusTo,
+        originalNoteId,
+        reviewerCardId,
+        initial,
+        copyFromNote,
+    }: LoadNoteArgs) {
         let homeDeckId = 0n;
         if (reviewerCardId) {
             reviewerCard = await getCard({ cid: reviewerCardId });
@@ -1123,17 +1129,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         triggerChanges();
     }
 
-    async function loadNote(
-        nid: bigint | null,
-        notetypeId: bigint,
-        focusTo: number,
-        originalNoteId: bigint | null,
-        reviewerCardId: bigint | null,
-        initial: boolean = false,
-        copyFromNote: Note | null = null,
-    ) {
+    async function loadNote({
+        nid = note?.id,
+        notetypeId = notetypeMeta?.id,
+        focusTo = 0,
+        originalNoteId = null,
+        reviewerCardId = reviewerCard ? reviewerCard.id : null,
+        initial = false,
+        copyFromNote = null,
+    }: Partial<LoadNoteArgs> = {}) {
         loadDebouncer.schedule(async () => {
-            await loadNoteInner(
+            await loadNoteInner({
                 nid,
                 notetypeId,
                 focusTo,
@@ -1141,26 +1147,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 reviewerCardId,
                 initial,
                 copyFromNote,
-            );
+            });
         });
     }
 
     async function reloadNote() {
-        await loadNote(note!.id, notetypeMeta.id, 0, null, reviewerCard?.id ?? null);
+        await loadNote();
     }
 
     async function reloadNoteIfEmpty() {
         const isEmpty =
             (await noteFieldsCheck(note!)).state == NoteFieldsCheckResponse_State.EMPTY;
         if (isEmpty) {
-            await loadNote(
-                note!.id,
-                notetypeMeta.id,
-                0,
-                null,
-                reviewerCard?.id ?? null,
-                true,
-            );
+            await loadNote({ initial: true });
         }
     }
 
