@@ -982,8 +982,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             if (!notetypeId) {
                 notetypeId = chooserDefaults.notetypeId;
             }
-            deckChooser.select(deckId);
-            notetypeChooser.select(notetypeId);
+            deckChooser.select(BigInt(deckId));
+            notetypeChooser.select(BigInt(notetypeId));
         }
 
         const notetype = await getNotetype({
