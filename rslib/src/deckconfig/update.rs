@@ -216,9 +216,6 @@ impl Collection {
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
                 let deck_id = deck.id;
-                if let Some(desired_retention) = normal.desired_retention {
-                    deck_desired_retention.insert(deck_id, desired_retention);
-                }
                 // previous order & params
                 let previous_config_id = DeckConfigId(normal.config_id);
                 let previous_config = configs_before_update.get(&previous_config_id);
@@ -226,21 +223,23 @@ impl Collection {
                     .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
                 let previous_params = previous_config.map(|c| c.fsrs_params());
-                let previous_retention = previous_config.map(|c| c.inner.desired_retention);
+                let previous_preset_dr = previous_config.map(|c| c.inner.desired_retention);
+                let previous_deck_dr = normal.desired_retention;
+                let previous_dr = previous_deck_dr.or(previous_preset_dr);
                 let previous_easy_days = previous_config.map(|c| &c.inner.easy_days_percentages);
 
                 // if a selected (sub)deck, or its old config was removed, update deck to point
                 // to new config
-                let current_config_id = if selected_deck_ids.contains(&deck.id)
+                let (current_config_id, current_deck_dr) = if selected_deck_ids.contains(&deck.id)
                     || !configs_after_update.contains_key(&previous_config_id)
                 {
                     let mut updated = deck.clone();
                     updated.normal_mut()?.config_id = selected_config.id.0;
                     update_deck_limits(updated.normal_mut()?, &req.limits, today);
                     self.update_deck_inner(&mut updated, deck, usn)?;
-                    selected_config.id
+                    (selected_config.id, updated.normal()?.desired_retention)
                 } else {
-                    previous_config_id
+                    (previous_config_id, previous_deck_dr)
                 };
 
                 // if new order differs, deck needs re-sorting
@@ -254,11 +253,12 @@ impl Collection {
 
                 // if params differ, memory state needs to be recomputed
                 let current_params = current_config.map(|c| c.fsrs_params());
-                let current_retention = current_config.map(|c| c.inner.desired_retention);
+                let current_preset_dr = current_config.map(|c| c.inner.desired_retention);
+                let current_dr = current_deck_dr.or(current_preset_dr);
                 let current_easy_days = current_config.map(|c| &c.inner.easy_days_percentages);
                 if fsrs_toggled
                     || previous_params != current_params
-                    || previous_retention != current_retention
+                    || previous_dr != current_dr
                     || (req.fsrs_reschedule && previous_easy_days != current_easy_days)
                 {
                     decks_needing_memory_recompute
@@ -266,7 +266,9 @@ impl Collection {
                         .or_default()
                         .push(deck_id);
                 }
-
+                if let Some(desired_retention) = current_deck_dr {
+                    deck_desired_retention.insert(deck_id, desired_retention);
+                }
                 self.adjust_remaining_steps_in_deck(deck_id, previous_config, current_config, usn)?;
             }
         }
