@@ -305,11 +305,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let selectedDeck: DeckNameId | null = null;
 
     async function onNotetypeChange(notetype: NotetypeNameId) {
-        loadNote(0n, notetype.id, 0, null, reviewerCard?.id ?? null);
+        loadNote(0n, notetype.id, 0, null, reviewerCard?.id ?? null, false, note);
         if (
-            !(await getConfigBool({
-                key: ConfigKey_Bool.ADDING_DEFAULTS_TO_CURRENT_DECK,
-            })).val
+            !(
+                await getConfigBool({
+                    key: ConfigKey_Bool.ADDING_DEFAULTS_TO_CURRENT_DECK,
+                })
+            ).val
         ) {
             const deckId = await defaultDeckForNotetype({ ntid: notetype.id });
             deckChooser.select(deckId.did);
@@ -1148,9 +1150,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function reloadNoteIfEmpty() {
-        const isEmpty = (await noteFieldsCheck(note!)).state == NoteFieldsCheckResponse_State.EMPTY;
+        const isEmpty =
+            (await noteFieldsCheck(note!)).state == NoteFieldsCheckResponse_State.EMPTY;
         if (isEmpty) {
-            await loadNote(note!.id, notetypeMeta.id, 0, null, reviewerCard?.id ?? null, true);
+            await loadNote(
+                note!.id,
+                notetypeMeta.id,
+                0,
+                null,
+                reviewerCard?.id ?? null,
+                true,
+            );
         }
     }
 
