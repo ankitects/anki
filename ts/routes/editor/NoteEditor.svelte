@@ -955,6 +955,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         originalNoteId: bigint | null,
         reviewerCardId: bigint | null,
         initial: boolean = false,
+        copyFromNote: Note | null = null,
     ) {
         let homeDeckId = 0n;
         if (reviewerCardId) {
@@ -997,6 +998,53 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
             note!.fields = originalNote.fields;
             note!.tags = originalNote.tags;
+        }
+
+        if (copyFromNote) {
+            const oldFieldNames = (
+                await getFieldNames({
+                    ntid: copyFromNote.notetypeId,
+                })
+            ).vals;
+            const newFieldNames = fieldNames;
+            const copiedFieldNames = new Set<string>();
+
+            // Copy identical non-empty fields by name
+            for (const fieldName of newFieldNames) {
+                const oldFieldIndex = oldFieldNames.indexOf(fieldName);
+                const newFieldIndex = newFieldNames.indexOf(fieldName);
+                if (oldFieldIndex >= 0 && copyFromNote.fields[oldFieldIndex]) {
+                    note!.fields[newFieldIndex] = copyFromNote.fields[oldFieldIndex];
+                    copiedFieldNames.add(fieldName);
+                }
+            }
+
+            // Copy remaining non-empty fields by position
+            let newIdx = 0;
+            for (let oldIdx = 0; oldIdx < oldFieldNames.length; oldIdx++) {
+                const oldFieldName = oldFieldNames[oldIdx];
+
+                // Skip previously copied identical fields in new note
+                while (
+                    newIdx < newFieldNames.length &&
+                    copiedFieldNames.has(newFieldNames[newIdx])
+                ) {
+                    newIdx++;
+                }
+                if (newIdx >= newFieldNames.length) {
+                    break;
+                }
+
+                // Copy non-empty old fields
+                if (
+                    !copiedFieldNames.has(oldFieldName) &&
+                    copyFromNote.fields[oldIdx]
+                ) {
+                    note!.fields[newIdx] = copyFromNote.fields[oldIdx];
+                    newIdx++;
+                }
+            }
+            note!.tags = copyFromNote.tags;
         }
 
         const fieldValues = (
@@ -1080,6 +1128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         originalNoteId: bigint | null,
         reviewerCardId: bigint | null,
         initial: boolean = false,
+        copyFromNote: Note | null = null,
     ) {
         loadDebouncer.schedule(async () => {
             await loadNoteInner(
@@ -1089,6 +1138,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 originalNoteId,
                 reviewerCardId,
                 initial,
+                copyFromNote,
             );
         });
     }
