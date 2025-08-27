@@ -435,7 +435,8 @@ static RESERVED_DECK_KEYS: Set<&'static str> = phf_set! {
     "browserCollapsed",
     "extendRev",
     "id",
-    "collapsed"
+    "collapsed",
+    "desiredRetention",
 };
 
 impl From<&Deck> for DeckTodaySchema11 {
