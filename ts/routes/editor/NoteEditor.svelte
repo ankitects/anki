@@ -159,7 +159,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let fieldsCollapsed: boolean[] = [];
     export function setCollapsed(defaultCollapsed: boolean[]): void {
         fieldsCollapsed =
-            sessionOptions[notetypeMeta?.id?.toString()]?.fieldsCollapsed ??
+            sessionOptions[notetypeMeta!.id?.toString()]?.fieldsCollapsed ??
             defaultCollapsed;
     }
     let clozeFields: boolean[] = [];
@@ -172,7 +172,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextDefaults: boolean[] = [];
 
     export function setPlainTexts(defaultPlainTexts: boolean[]): void {
-        const states = sessionOptions[notetypeMeta?.id?.toString()]?.fieldStates;
+        const states = sessionOptions[notetypeMeta!.id?.toString()]?.fieldStates;
         if (states) {
             richTextsHidden = states.richTextsHidden;
             plainTextsHidden = states.plainTextsHidden;
@@ -237,7 +237,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         } else {
             const values: boolean[] = [];
-            const notetype = await getNotetype({ ntid: notetypeMeta.id });
+            const notetype = await getNotetype({ ntid: notetypeMeta!.id });
             const anySticky = notetype.fields.some((f) => f.config!.sticky);
             for (const field of notetype.fields) {
                 const sticky = field.config!.sticky;
@@ -987,7 +987,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         const notetype = await getNotetype({
-            ntid: notetypeId,
+            ntid: notetypeId!,
         });
         const fieldNames = (
             await getFieldNames({
