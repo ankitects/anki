@@ -14,6 +14,7 @@ from random import randrange
 from typing import Any
 
 from anki.cards import Card
+from anki.decks import DeckId
 from anki.hooks import runFilter
 from anki.models import NotetypeId
 from anki.notes import Note, NoteId
@@ -411,7 +412,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     @on_editor_ready
     def load_note(
         self,
-        mid: int,
+        mid: int | None = None,
+        deck_id: DeckId | None = None,
         original_note_id: NoteId | None = None,
         focus_to: int | None = None,
     ) -> None:
@@ -433,6 +435,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             focusTo=focus_to,
             originalNoteId=original_note_id,
             reviewerCardId=self.mw.reviewer.card.id if self.mw.reviewer.card else None,
+            deckId=deck_id,
             initial=True,
         )
         js = f"loadNote({json.dumps(load_args)});"
@@ -443,8 +446,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def reload_note(self) -> None:
         self.web.eval("reloadNote();")
 
-    def reload_note_if_empty(self) -> None:
-        self.web.eval("reloadNoteIfEmpty();")
+    def reload_note_if_empty(
+        self, deck_id: DeckId | None = None, notetype_id: NotetypeId | None = None
+    ) -> None:
+        self.web.eval(
+            f"reloadNoteIfEmpty({json.dumps(deck_id)}, {json.dumps(notetype_id)});"
+        )
 
     def call_after_note_saved(
         self, callback: Callable, keepFocus: bool = False

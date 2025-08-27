@@ -8,7 +8,7 @@ import json
 import math
 import re
 from collections.abc import Callable, Sequence
-from typing import Any, cast
+from typing import Any
 
 from markdown import markdown
 
@@ -79,7 +79,6 @@ from aqt.utils import (
     tr,
 )
 
-from ..addcards import NewAddCards as AddCards
 from ..changenotetype import change_notetype_dialog
 from .card_info import BrowserCardInfo
 from .find_and_replace import FindAndReplaceDialog
@@ -269,11 +268,10 @@ class Browser(QMainWindow):
         return None
 
     def add_card(self, deck_id: DeckId):
-        add_cards = cast(AddCards, aqt.dialogs.open("NewAddCards", self.mw))
-        add_cards.set_deck(deck_id)
-
+        args = [self.mw, deck_id]
         if note_type_id := self.get_active_note_type_id():
-            add_cards.set_note_type(note_type_id)
+            args.append(note_type_id)
+        aqt.dialogs.open("NewAddCards", *args)
 
     # If in the Browser we open Preview and press Ctrl+W there,
     # both Preview and Browser windows get closed by Qt out of the box.

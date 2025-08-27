@@ -23,7 +23,12 @@ from aqt.utils import (
 
 
 class NewAddCards(QMainWindow):
-    def __init__(self, mw: AnkiQt) -> None:
+    def __init__(
+        self,
+        mw: AnkiQt,
+        deck_id: DeckId | None = None,
+        notetype_id: NotetypeId | None = None,
+    ) -> None:
         super().__init__(None, Qt.WindowType.Window)
         self._close_event_has_cleaned_up = False
         self._close_callback: Callable[[], None] = self._close
@@ -37,7 +42,7 @@ class NewAddCards(QMainWindow):
         self.setMinimumWidth(400)
         self.setupEditor()
         add_close_shortcut(self)
-        self._load_new_note()
+        self._load_new_note(deck_id, notetype_id)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
         if not is_mac:
@@ -62,15 +67,23 @@ class NewAddCards(QMainWindow):
             editor_mode=aqt.editor.EditorMode.ADD_CARDS,
         )
 
-    def reopen(self, mw: AnkiQt) -> None:
-        self.editor.reload_note_if_empty()
+    def reopen(
+        self,
+        mw: AnkiQt,
+        deck_id: DeckId | None = None,
+        notetype_id: NotetypeId | None = None,
+    ) -> None:
+        self.editor.reload_note_if_empty(deck_id, notetype_id)
 
     def helpRequested(self) -> None:
         openHelp(HelpPage.ADDING_CARD_AND_NOTE)
 
-    def _load_new_note(self) -> None:
+    def _load_new_note(
+        self, deck_id: DeckId | None = None, notetype_id: NotetypeId | None = None
+    ) -> None:
         self.editor.load_note(
-            mid=self.mw.col.models.current()["id"],
+            mid=notetype_id,
+            deck_id=deck_id,
             focus_to=0,
         )
 

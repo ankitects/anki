@@ -31,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     interface LoadNoteArgs {
         nid: bigint | null;
         notetypeId: bigint | null;
+        deckId: bigint | null;
         focusTo: number;
         originalNoteId: bigint | null;
         reviewerCardId: bigint | null;
@@ -959,6 +960,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function loadNoteInner({
         nid,
         notetypeId,
+        deckId,
         focusTo,
         originalNoteId,
         reviewerCardId,
@@ -970,13 +972,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             reviewerCard = await getCard({ cid: reviewerCardId });
             homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
         }
-        if (initial) {
+        if (initial && mode === "add") {
             const chooserDefaults = await defaultsForAdding({
                 homeDeckOfCurrentReviewCard: homeDeckId,
             });
-            notetypeChooser.select(chooserDefaults.notetypeId);
-            deckChooser.select(chooserDefaults.deckId);
-            notetypeId = chooserDefaults.notetypeId;
+            if (!deckId) {
+                deckId = chooserDefaults.deckId;
+            }
+            if (!notetypeId) {
+                notetypeId = chooserDefaults.notetypeId;
+            }
+            deckChooser.select(deckId);
+            notetypeChooser.select(notetypeId);
         }
 
         const notetype = await getNotetype({
@@ -1131,7 +1138,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function loadNote({
         nid = note?.id,
-        notetypeId = notetypeMeta?.id,
+        notetypeId = notetypeMeta ? notetypeMeta.id : null,
+        deckId = null,
         focusTo = 0,
         originalNoteId = null,
         reviewerCardId = reviewerCard ? reviewerCard.id : null,
@@ -1142,6 +1150,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await loadNoteInner({
                 nid,
                 notetypeId,
+                deckId,
                 focusTo,
                 originalNoteId,
                 reviewerCardId,
@@ -1155,11 +1164,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await loadNote();
     }
 
-    async function reloadNoteIfEmpty() {
+    async function reloadNoteIfEmpty(deckId: bigint | null, notetypeId: bigint | null) {
         const isEmpty =
             (await noteFieldsCheck(note!)).state == NoteFieldsCheckResponse_State.EMPTY;
         if (isEmpty) {
-            await loadNote({ initial: true });
+            await loadNote({ initial: true, deckId, notetypeId });
         }
     }
 
