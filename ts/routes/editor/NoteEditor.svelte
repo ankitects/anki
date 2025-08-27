@@ -310,10 +310,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let reviewerCard: Card | null = null;
 
-    export let notetypeChooser: NotetypeChooser;
-    export let selectedNotetype: NotetypeNameId | null = null;
-    export let deckChooser: DeckChooser;
-    export let selectedDeck: DeckNameId | null = null;
+    let notetypeChooser: NotetypeChooser;
+    let selectedNotetype: NotetypeNameId | null = null;
+    let deckChooser: DeckChooser;
+    let selectedDeck: DeckNameId | null = null;
 
     async function onNotetypeChange(notetype: NotetypeNameId) {
         loadNote({ notetypeId: notetype.id, copyFromNote: note });
@@ -756,8 +756,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "$lib/components/Modal.svelte";
     import EditorChoosers from "./editor-toolbar/EditorChoosers.svelte";
     import type { Card } from "@generated/anki/cards_pb";
-    import NotetypeChooser from "$lib/components/NotetypeChooser.svelte";
-    import DeckChooser from "$lib/components/DeckChooser.svelte";
+    import type NotetypeChooser from "$lib/components/NotetypeChooser.svelte";
+    import type DeckChooser from "$lib/components/DeckChooser.svelte";
     import { ConfigKey_Bool } from "@generated/anki/config_pb";
 
     $: isIOImageLoaded = false;
