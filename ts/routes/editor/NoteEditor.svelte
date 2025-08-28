@@ -37,6 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewerCardId: bigint | null;
         initial: boolean;
         copyFromNote: Note | null;
+        stickyFieldsFrom: Note | null;
     }
 
     import { registerPackage } from "@tslib/runtime-require";
@@ -587,7 +588,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         note.id = noteId;
         addNoteToHistory(note!);
         lastAddedNote = note;
-        await loadNote();
+        await loadNote({ stickyFieldsFrom: note });
     }
 
     export async function addCurrentNote(deckId: bigint) {
@@ -966,6 +967,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewerCardId,
         initial,
         copyFromNote,
+        stickyFieldsFrom,
     }: LoadNoteArgs) {
         let homeDeckId = 0n;
         if (reviewerCardId) {
@@ -1062,6 +1064,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             note!.tags = copyFromNote.tags;
         }
 
+        if (stickyFieldsFrom) {
+            for (let i = 0; i < notetype.fields.length; i++) {
+                if (notetype.fields[i].config?.sticky && stickyFieldsFrom.fields[i]) {
+                    note!.fields[i] = stickyFieldsFrom.fields[i];
+                }
+            }
+            note!.tags = stickyFieldsFrom.tags;
+        }
+
         const fieldValues = (
             await Promise.all(
                 note!.fields.map((field) => encodeIriPaths({ val: field })),
@@ -1145,6 +1156,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewerCardId = reviewerCard ? reviewerCard.id : null,
         initial = false,
         copyFromNote = null,
+        stickyFieldsFrom = null,
     }: Partial<LoadNoteArgs> = {}) {
         loadDebouncer.schedule(async () => {
             await loadNoteInner({
@@ -1156,6 +1168,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 reviewerCardId,
                 initial,
                 copyFromNote,
+                stickyFieldsFrom,
             });
         });
     }
