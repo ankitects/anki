@@ -54,6 +54,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         modal?.show();
     }
 
+    function toggleModal() {
+        modal?.toggle();
+        searchQuery = "";
+    }
+
     export function select(itemId: bigint) {
         const item = items.find((item) => item.id === itemId);
         selectedItem = item ? item : null;
@@ -70,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {selectedItem?.name ?? "…"}
 </LabelButton>
 
-<Shortcut {keyCombination} on:action={() => modal?.toggle()} />
+<Shortcut {keyCombination} on:action={toggleModal} />
 <Modal bind:this={modal} onShown={() => searchInput?.focus()} dialogClass="modal-lg">
     <div slot="header" class="modal-header">
         <IconConstrain iconSize={90}>
