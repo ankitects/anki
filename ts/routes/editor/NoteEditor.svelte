@@ -1151,7 +1151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         nid = note?.id,
         notetypeId = notetypeMeta ? notetypeMeta.id : null,
         deckId = null,
-        focusTo = 0,
+        focusTo = focusedFieldIndex,
         originalNoteId = null,
         reviewerCardId = reviewerCard ? reviewerCard.id : null,
         initial = false,
@@ -1287,6 +1287,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const hoveredField: NoteEditorAPI["hoveredField"] = writable(null);
     const focusedField: NoteEditorAPI["focusedField"] = writable(null);
     const focusedInput: NoteEditorAPI["focusedInput"] = writable(null);
+    let focusedFieldIndex = 0;
 
     const api: NoteEditorAPI = {
         ...apiPartial,
@@ -1401,11 +1402,13 @@ components and functionality for general note editing.
                     api={fields[index]}
                     on:focusin={() => {
                         $focusedField = fields[index];
+                        focusedFieldIndex = index;
                         setAddonButtonsDisabled(false);
                         bridgeCommand(`focus:${index}`);
                     }}
                     on:focusout={async () => {
                         $focusedField = null;
+                        focusedFieldIndex = 0;
                         setAddonButtonsDisabled(true);
                         if (isLegacy) {
                             bridgeCommand(
