@@ -33,6 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }: Props = $props();
     let modal: Modal | null = $state(null);
     let searchQuery = $state("");
+    let searchInput: HTMLInputElement | null = $state(null);
 
     const filteredItems = $derived(
         searchQuery.trim() === ""
@@ -70,7 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </LabelButton>
 
 <Shortcut {keyCombination} on:action={() => modal?.toggle()} />
-<Modal bind:this={modal} dialogClass="modal-lg">
+<Modal bind:this={modal} onShown={() => searchInput?.focus()} dialogClass="modal-lg">
     <div slot="header" class="modal-header">
         <IconConstrain iconSize={90}>
             <Icon {icon} />
@@ -97,6 +98,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     class="search-input"
                     placeholder={tr.actionsSearch()}
                     bind:value={searchQuery}
+                    bind:this={searchInput}
                 />
                 {#if searchQuery}
                     <button
