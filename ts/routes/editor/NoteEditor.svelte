@@ -1463,7 +1463,7 @@ components and functionality for general note editing.
                             </svelte:fragment>
                             <FieldState>
                                 {#if cols[index] === "dupe"}
-                                    <DuplicateLink {note} />
+                                    <DuplicateLink {note} {isLegacy} />
                                 {/if}
                                 {#if mode === "add"}
                                     <StickyBadge

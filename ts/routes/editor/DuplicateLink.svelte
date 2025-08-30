@@ -6,11 +6,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { searchInBrowser } from "@generated/backend";
     import * as tr from "@generated/ftl";
     import type { Note } from "@generated/anki/notes_pb";
+    import { bridgeCommand } from "@tslib/bridgecommand";
 
     export let note: Note | null = null;
+    export let isLegacy: boolean;
 
-    function showDupes() {
-        if (note) {
+    function showDupes(event: MouseEvent) {
+        if (isLegacy) {
+            bridgeCommand("dupes");
+        } else if (note) {
             searchInBrowser({
                 filter: {
                     case: "dupe",
@@ -21,6 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 },
             });
         }
+        event.preventDefault();
     }
 </script>
 
