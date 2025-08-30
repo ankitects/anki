@@ -1268,4 +1268,3 @@ class Browser(QMainWindow):
         line_edit = self.form.searchEdit.lineEdit()
         assert line_edit is not None
         return line_edit
-        return line_edit
