@@ -1017,6 +1017,8 @@ exposed_backend_list = [
     "add_media_from_path",
     "get_absolute_media_path",
     "extract_media_files",
+    # CardsService
+    "get_card",
 ]
 
 
