@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         page-break-inside: avoid;
     }
     h1 {
-        border-bottom: 1px solid #c4c4c4;
+        border-bottom: 1px solid var(--border);
         padding-bottom: 0.25em;
     }
     .help-badge {
