@@ -633,7 +633,7 @@ class QtAudioInputRecorder(Recorder):
         from PyQt6.QtMultimedia import QAudioFormat, QAudioSource  # type: ignore
 
         format = QAudioFormat()
-        format.setChannelCount(1)
+        format.setChannelCount(2)
         format.setSampleRate(44100)
         format.setSampleFormat(QAudioFormat.SampleFormat.Int16)
 
@@ -743,7 +743,8 @@ class RecordDialog(QDialog):
     def _setup_dialog(self) -> None:
         self.setWindowTitle("Anki")
         icon = QLabel()
-        icon.setPixmap(QPixmap("icons:media-record.png"))
+        qicon = QIcon("icons:media-record.svg")
+        icon.setPixmap(qicon.pixmap(60, 60))
         self.label = QLabel("...")
         hbox = QHBoxLayout()
         hbox.addWidget(icon)

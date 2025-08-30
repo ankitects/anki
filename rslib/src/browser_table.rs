@@ -105,7 +105,8 @@ impl Card {
 
     /// Returns true if the card has a due date in terms of days.
     fn is_due_in_days(&self) -> bool {
-        matches!(self.queue, CardQueue::DayLearn | CardQueue::Review)
+        self.ctype != CardType::New && self.original_or_current_due() <= 365_000 // keep consistent with SQL
+            || matches!(self.queue, CardQueue::DayLearn | CardQueue::Review)
             || (self.ctype == CardType::Review && self.is_undue_queue())
     }
 
@@ -125,22 +126,20 @@ impl Card {
         }
     }
 
-    /// This uses card.due and card.ivl to infer the elapsed time. If 'set due
-    /// date' or an add-on has changed the due date, this won't be accurate.
-    pub(crate) fn days_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
+    /// If last_review_date isn't stored in the card, this uses card.due and
+    /// card.ivl to infer the elapsed time, which won't be accurate if
+    /// 'set due date' or an add-on has changed the due date.
+    pub(crate) fn seconds_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
         if let Some(last_review_time) = self.last_review_time {
-            Some(timing.next_day_at.elapsed_days_since(last_review_time) as u32)
-        } else if !self.is_due_in_days() {
-            Some(
-                (timing.next_day_at.0 as u32).saturating_sub(self.original_or_current_due() as u32)
-                    / 86_400,
-            )
-        } else {
+            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
+        } else if self.is_due_in_days() {
             self.due_time(timing).map(|due| {
                 (due.adding_secs(-86_400 * self.interval as i64)
-                    .elapsed_secs()
-                    / 86_400) as u32
+                    .elapsed_secs()) as u32
             })
+        } else {
+            let last_review_time = TimestampSecs(self.original_or_current_due() as i64);
+            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
         }
     }
 }
@@ -543,12 +542,12 @@ impl RowContext {
         self.cards[0]
             .memory_state
             .as_ref()
-            .zip(self.cards[0].days_since_last_review(&self.timing))
+            .zip(self.cards[0].seconds_since_last_review(&self.timing))
             .zip(Some(self.cards[0].decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
-            .map(|((state, days_elapsed), decay)| {
-                let r = FSRS::new(None).unwrap().current_retrievability(
+            .map(|((state, seconds), decay)| {
+                let r = FSRS::new(None).unwrap().current_retrievability_seconds(
                     (*state).into(),
-                    days_elapsed,
+                    seconds,
                     decay,
                 );
                 format!("{:.0}%", r * 100.)

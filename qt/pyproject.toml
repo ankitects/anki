@@ -12,7 +12,7 @@ dependencies = [
   "send2trash",
   "waitress>=2.0.0",
   "pywin32; sys.platform == 'win32'",
-  "anki-mac-helper; sys.platform == 'darwin'",
+  "anki-mac-helper>=0.1.1; sys.platform == 'darwin'",
   "pip-system-certs!=5.1",
   "pyqt6>=6.2",
   "pyqt6-webengine>=6.2",
@@ -40,8 +40,8 @@ qt67 = [
 qt = [
   "pyqt6==6.9.1",
   "pyqt6-qt6==6.9.1",
-  "pyqt6-webengine==6.9.0",
-  "pyqt6-webengine-qt6==6.9.1",
+  "pyqt6-webengine==6.8.0",
+  "pyqt6-webengine-qt6==6.8.2",
   "pyqt6_sip==13.10.2",
 ]
 qt68 = [

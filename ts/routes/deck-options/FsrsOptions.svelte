@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SwitchRow from "$lib/components/SwitchRow.svelte";
 
     import GlobalLabel from "./GlobalLabel.svelte";
-    import { commitEditing, fsrsParams, type DeckOptionsState } from "./lib";
+    import { commitEditing, fsrsParams, type DeckOptionsState, ValueTab } from "./lib";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import Warning from "./Warning.svelte";
     import ParamsInputRow from "./ParamsInputRow.svelte";
@@ -29,9 +29,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SimulatorModal from "./SimulatorModal.svelte";
     import {
         GetRetentionWorkloadRequest,
+        type GetRetentionWorkloadResponse,
         UpdateDeckConfigsMode,
     } from "@generated/anki/deck_config_pb";
     import type Modal from "bootstrap/js/dist/modal";
+    import TabbedValue from "./TabbedValue.svelte";
+    import Item from "$lib/components/Item.svelte";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
@@ -42,13 +46,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const defaults = state.defaults;
     const fsrsReschedule = state.fsrsReschedule;
     const daysSinceLastOptimization = state.daysSinceLastOptimization;
+    const limits = state.deckLimits;
 
     $: lastOptimizationWarning =
         $daysSinceLastOptimization > 30 ? tr.deckConfigTimeToOptimize() : "";
     let desiredRetentionFocused = false;
     let desiredRetentionEverFocused = false;
     let optimized = false;
-    const startingDesiredRetention = $config.desiredRetention.toFixed(2);
     $: if (desiredRetentionFocused) {
         desiredRetentionEverFocused = true;
     }
@@ -63,27 +67,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: computing = computingParams || checkingParams;
     $: defaultparamSearch = `preset:"${state.getCurrentNameForSearch()}" -is:suspended`;
-    $: roundedRetention = Number($config.desiredRetention.toFixed(2));
+    $: roundedRetention = Number(effectiveDesiredRetention.toFixed(2));
     $: desiredRetentionWarning = getRetentionLongShortWarning(roundedRetention);
 
-    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
-    const WORKLOAD_UPDATE_DELAY_MS = 100;
-
     let desiredRetentionChangeInfo = "";
-    $: {
-        clearTimeout(timeoutId);
-        if (showDesiredRetentionTooltip) {
-            timeoutId = setTimeout(() => {
-                getRetentionChangeInfo(roundedRetention, fsrsParams($config));
-            }, WORKLOAD_UPDATE_DELAY_MS);
-        } else {
-            desiredRetentionChangeInfo = "";
-        }
+    $: if (showDesiredRetentionTooltip) {
+        getRetentionChangeInfo(roundedRetention, fsrsParams($config));
     }
 
     $: retentionWarningClass = getRetentionWarningClass(roundedRetention);
 
     $: newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
+
+    // Create tabs for desired retention
+    const desiredRetentionTabs: ValueTab[] = [
+        new ValueTab(
+            tr.deckConfigSharedPreset(),
+            $config.desiredRetention,
+            (value) => ($config.desiredRetention = value!),
+            $config.desiredRetention,
+            null,
+        ),
+        new ValueTab(
+            tr.deckConfigDeckOnly(),
+            $limits.desiredRetention ?? null,
+            (value) => ($limits.desiredRetention = value ?? undefined),
+            null,
+            null,
+        ),
+    ];
+
+    // Get the effective desired retention value (deck-specific if set, otherwise config default)
+    let effectiveDesiredRetention =
+        $limits.desiredRetention ?? $config.desiredRetention;
+    const startingDesiredRetention = effectiveDesiredRetention.toFixed(2);
 
     $: simulateFsrsRequest = new SimulateFsrsReviewRequest({
         params: fsrsParams($config),
@@ -95,6 +112,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         newCardsIgnoreReviewLimit: $newCardsIgnoreReviewLimit,
         easyDaysPercentages: $config.easyDaysPercentages,
         reviewOrder: $config.reviewOrder,
+        historicalRetention: $config.historicalRetention,
+        learningStepCount: $config.learnSteps.length,
+        relearningStepCount: $config.relearnSteps.length,
     });
 
     const DESIRED_RETENTION_LOW_THRESHOLD = 0.8;
@@ -110,21 +130,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    let retentionWorkloadInfo: undefined | Promise<GetRetentionWorkloadResponse> =
+        undefined;
+    let lastParams = [...fsrsParams($config)];
+
     async function getRetentionChangeInfo(retention: number, params: number[]) {
         if (+startingDesiredRetention == roundedRetention) {
             desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorUnchanged();
             return;
         }
-        const request = new GetRetentionWorkloadRequest({
-            w: params,
-            search: defaultparamSearch,
-            before: +startingDesiredRetention,
-            after: retention,
-        });
-        const resp = await getRetentionWorkload(request);
+        if (
+            // If the cache is empty and a request has not yet been made to fill it
+            !retentionWorkloadInfo ||
+            // If the parameters have been changed
+            lastParams.toString() !== params.toString()
+        ) {
+            const request = new GetRetentionWorkloadRequest({
+                w: params,
+                search: defaultparamSearch,
+            });
+            lastParams = [...params];
+            retentionWorkloadInfo = getRetentionWorkload(request);
+        }
+
+        const previous = +startingDesiredRetention * 100;
+        const after = retention * 100;
+        const resp = await retentionWorkloadInfo;
+        const factor = resp.costs[after] / resp.costs[previous];
+
         desiredRetentionChangeInfo = tr.deckConfigWorkloadFactorChange({
-            factor: resp.factor.toFixed(2),
-            previousDr: (+startingDesiredRetention * 100).toString(),
+            factor: factor.toFixed(2),
+            previousDr: previous.toString(),
         });
     }
 
@@ -184,29 +220,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         healthCheck: $healthCheck,
                     });
 
-                    const already_optimal =
+                    const alreadyOptimal =
                         (params.length &&
                             params.every(
                                 (n, i) => n.toFixed(4) === resp.params[i].toFixed(4),
                             )) ||
                         resp.params.length === 0;
 
+                    let healthCheckMessage = "";
                     if (resp.healthCheckPassed !== undefined) {
-                        if (resp.healthCheckPassed) {
-                            setTimeout(() => alert(tr.deckConfigFsrsGoodFit()), 200);
-                        } else {
-                            setTimeout(
-                                () => alert(tr.deckConfigFsrsBadFitWarning()),
-                                200,
-                            );
-                        }
-                    } else if (already_optimal) {
-                        const msg = resp.fsrsItems
+                        healthCheckMessage = resp.healthCheckPassed
+                            ? tr.deckConfigFsrsGoodFit()
+                            : tr.deckConfigFsrsBadFitWarning();
+                    }
+                    let alreadyOptimalMessage = "";
+                    if (alreadyOptimal) {
+                        alreadyOptimalMessage = resp.fsrsItems
                             ? tr.deckConfigFsrsParamsOptimal()
                             : tr.deckConfigFsrsParamsNoReviews();
-                        setTimeout(() => alert(msg), 200);
                     }
-                    if (!already_optimal) {
+                    const message = [alreadyOptimalMessage, healthCheckMessage]
+                        .filter((a) => a)
+                        .join("\n\n");
+
+                    if (message) {
+                        setTimeout(() => alert(message), 200);
+                    }
+
+                    if (!alreadyOptimal) {
                         $config.fsrsParams6 = resp.params;
                         setTimeout(() => {
                             optimized = true;
@@ -298,20 +339,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let simulatorModal: Modal;
+    let workloadModal: Modal;
 </script>
 
-<SpinBoxFloatRow
-    bind:value={$config.desiredRetention}
-    defaultValue={defaults.desiredRetention}
-    min={0.7}
-    max={0.99}
-    percentage={true}
-    bind:focused={desiredRetentionFocused}
+<DynamicallySlottable slotHost={Item} api={{}}>
+    <Item>
+        <SpinBoxFloatRow
+            bind:value={effectiveDesiredRetention}
+            defaultValue={defaults.desiredRetention}
+            min={0.7}
+            max={0.99}
+            percentage={true}
+            bind:focused={desiredRetentionFocused}
+        >
+            <TabbedValue
+                slot="tabs"
+                tabs={desiredRetentionTabs}
+                bind:value={effectiveDesiredRetention}
+            />
+            <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
+                {tr.deckConfigDesiredRetention()}
+            </SettingTitle>
+        </SpinBoxFloatRow>
+    </Item>
+</DynamicallySlottable>
+
+<button
+    class="btn btn-primary"
+    on:click={() => {
+        simulateFsrsRequest.reviewLimit = 9999;
+        workloadModal?.show();
+    }}
 >
-    <SettingTitle on:click={() => openHelpModal("desiredRetention")}>
-        {tr.deckConfigDesiredRetention()}
-    </SettingTitle>
-</SpinBoxFloatRow>
+    {tr.deckConfigFsrsDesiredRetentionHelpMeDecideExperimental()}
+</button>
 
 <Warning warning={desiredRetentionChangeInfo} className={"alert-info two-line"} />
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
@@ -401,6 +462,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <SimulatorModal
     bind:modal={simulatorModal}
+    {state}
+    {simulateFsrsRequest}
+    {computing}
+    {openHelpModal}
+    {onPresetChange}
+/>
+
+<SimulatorModal
+    bind:modal={workloadModal}
+    workload
     {state}
     {simulateFsrsRequest}
     {computing}

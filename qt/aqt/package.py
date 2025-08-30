@@ -124,17 +124,14 @@ def launcher_executable() -> str | None:
 
 
 def trigger_launcher_run() -> None:
-    """Bump the mtime on pyproject.toml in the local data directory to trigger an update on next run."""
+    """Create a trigger file to request launcher UI on next run."""
     try:
         root = launcher_root()
         if not root:
             return
 
-        pyproject_path = Path(root) / "pyproject.toml"
-
-        if pyproject_path.exists():
-            # Touch the file to update its mtime
-            pyproject_path.touch()
+        trigger_path = Path(root) / ".want-launcher"
+        trigger_path.touch()
     except Exception as e:
         print(e)
 
@@ -150,6 +147,7 @@ def update_and_restart() -> None:
 
     with contextlib.suppress(ResourceWarning):
         env = os.environ.copy()
+        env["ANKI_LAUNCHER_WANT_TERMINAL"] = "1"
         # fixes a bug where launcher fails to appear if opening it
         # straight after updating
         if "GNOME_TERMINAL_SCREEN" in env:
@@ -159,12 +157,15 @@ def update_and_restart() -> None:
             creationflags = (
                 subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
             )
+        # On Windows 10, changing the handles breaks ANSI display
+        io = None if sys.platform == "win32" else subprocess.DEVNULL
+
         subprocess.Popen(
             [launcher],
             start_new_session=True,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdin=io,
+            stdout=io,
+            stderr=io,
             env=env,
             creationflags=creationflags,
         )

@@ -57,10 +57,10 @@ const SECOND: f32 = 1.0;
 const MINUTE: f32 = 60.0 * SECOND;
 const HOUR: f32 = 60.0 * MINUTE;
 const DAY: f32 = 24.0 * HOUR;
-const MONTH: f32 = 30.417 * DAY; // 365/12 ≈ 30.417
 const YEAR: f32 = 365.0 * DAY;
+const MONTH: f32 = YEAR / 12.0;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum TimespanUnit {
     Seconds,
     Minutes,
@@ -108,6 +108,13 @@ impl Timespan {
             TimespanUnit::Days => s / DAY,
             TimespanUnit::Months => s / MONTH,
             TimespanUnit::Years => s / YEAR,
+        }
+    }
+
+    pub fn to_unit(self, unit: TimespanUnit) -> Timespan {
+        Timespan {
+            seconds: self.seconds,
+            unit,
         }
     }
 

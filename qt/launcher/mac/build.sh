@@ -31,25 +31,26 @@ lipo -create \
 cp "$OUTPUT_DIR/uv" "$APP_LAUNCHER/Contents/MacOS/"
 
 # Copy support files
-cp Info.plist "$APP_LAUNCHER/Contents/"
+ANKI_VERSION=$(cat ../../../.version | tr -d '\n')
+sed "s/ANKI_VERSION/$ANKI_VERSION/g" Info.plist > "$APP_LAUNCHER/Contents/Info.plist"
 cp icon/Assets.car "$APP_LAUNCHER/Contents/Resources/"
 cp ../pyproject.toml "$APP_LAUNCHER/Contents/Resources/"
 cp ../../../.python-version "$APP_LAUNCHER/Contents/Resources/"
 cp ../versions.py "$APP_LAUNCHER/Contents/Resources/"
 
-# Codesign
-for i in "$APP_LAUNCHER/Contents/MacOS/uv" "$APP_LAUNCHER/Contents/MacOS/launcher" "$APP_LAUNCHER"; do
-    codesign --force -vvvv -o runtime -s "Developer ID Application:" \
-    --entitlements entitlements.python.xml \
-    "$i"
-done
-
-# Check
-codesign -vvv "$APP_LAUNCHER"
-spctl -a "$APP_LAUNCHER"
-
-# Notarize and bundle (skip if NODMG is set)
+# Codesign/bundle
 if [ -z "$NODMG" ]; then
+    for i in "$APP_LAUNCHER/Contents/MacOS/uv" "$APP_LAUNCHER/Contents/MacOS/launcher" "$APP_LAUNCHER"; do
+        codesign --force -vvvv -o runtime -s "Developer ID Application:" \
+        --entitlements entitlements.python.xml \
+        "$i"
+    done
+
+    # Check
+    codesign -vvv "$APP_LAUNCHER"
+    spctl -a "$APP_LAUNCHER"
+
+    # Notarize and build dmg
     ./notarize.sh "$OUTPUT_DIR"
     ./dmg/build.sh "$OUTPUT_DIR"
 fi

@@ -212,10 +212,13 @@ impl Collection {
         if fsrs_toggled {
             self.set_config_bool_inner(BoolKey::Fsrs, req.fsrs)?;
         }
+        let mut deck_desired_retention: HashMap<DeckId, f32> = Default::default();
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
                 let deck_id = deck.id;
-
+                if let Some(desired_retention) = normal.desired_retention {
+                    deck_desired_retention.insert(deck_id, desired_retention);
+                }
                 // previous order & params
                 let previous_config_id = DeckConfigId(normal.config_id);
                 let previous_config = configs_before_update.get(&previous_config_id);
@@ -277,10 +280,11 @@ impl Collection {
                         if req.fsrs {
                             Some(UpdateMemoryStateRequest {
                                 params: c.fsrs_params().clone(),
-                                desired_retention: c.inner.desired_retention,
+                                preset_desired_retention: c.inner.desired_retention,
                                 max_interval: c.inner.maximum_review_interval,
                                 reschedule: req.fsrs_reschedule,
                                 historical_retention: c.inner.historical_retention,
+                                deck_desired_retention: deck_desired_retention.clone(),
                             })
                         } else {
                             None
@@ -409,6 +413,7 @@ fn normal_deck_to_limits(deck: &NormalDeck, today: u32) -> Limits {
             .new_limit_today
             .map(|limit| limit.today == today)
             .unwrap_or_default(),
+        desired_retention: deck.desired_retention,
     }
 }
 
@@ -417,6 +422,7 @@ fn update_deck_limits(deck: &mut NormalDeck, limits: &Limits, today: u32) {
     deck.new_limit = limits.new;
     update_day_limit(&mut deck.review_limit_today, limits.review_today, today);
     update_day_limit(&mut deck.new_limit_today, limits.new_today, today);
+    deck.desired_retention = limits.desired_retention;
 }
 
 fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, today: u32) {

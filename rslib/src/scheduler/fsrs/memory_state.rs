@@ -45,10 +45,11 @@ pub(crate) fn get_decay_from_params(params: &[f32]) -> f32 {
 #[derive(Debug)]
 pub(crate) struct UpdateMemoryStateRequest {
     pub params: Params,
-    pub desired_retention: f32,
+    pub preset_desired_retention: f32,
     pub historical_retention: f32,
     pub max_interval: u32,
     pub reschedule: bool,
+    pub deck_desired_retention: HashMap<DeckId, f32>,
 }
 
 pub(crate) struct UpdateMemoryStateEntry {
@@ -98,7 +99,6 @@ impl Collection {
                 historical_retention.unwrap_or(0.9),
                 ignore_before,
             )?;
-            let desired_retention = req.as_ref().map(|w| w.desired_retention);
             let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
             progress.update(false, |s| s.total_cards = items.len() as u32)?;
             for (idx, (card_id, item)) in items.into_iter().enumerate() {
@@ -106,10 +106,16 @@ impl Collection {
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
                 let original = card.clone();
                 if let Some(req) = &req {
+                    let preset_desired_retention = req.preset_desired_retention;
                     // Store decay and desired retention in the card so that add-ons, card info,
                     // stats and browser search/sorts don't need to access the deck config.
                     // Unlike memory states, scheduler doesn't use decay and dr stored in the card.
-                    card.desired_retention = desired_retention;
+                    let deck_id = card.original_or_current_deck_id();
+                    let desired_retention = *req
+                        .deck_desired_retention
+                        .get(&deck_id)
+                        .unwrap_or(&preset_desired_retention);
+                    card.desired_retention = Some(desired_retention);
                     card.decay = decay;
                     if let Some(item) = item {
                         card.set_memory_state(&fsrs, Some(item), historical_retention.unwrap())?;
@@ -132,7 +138,7 @@ impl Collection {
                                             let original_interval = card.interval;
                                             let interval = fsrs.next_interval(
                                                 Some(state.stability),
-                                                desired_retention.unwrap(),
+                                                desired_retention,
                                                 0,
                                             );
                                             card.interval = rescheduler
@@ -205,7 +211,11 @@ impl Collection {
             .storage
             .get_deck_config(conf_id)?
             .or_not_found(conf_id)?;
-        let desired_retention = config.inner.desired_retention;
+
+        // Get deck-specific desired retention if available, otherwise use config
+        // default
+        let desired_retention = deck.effective_desired_retention(&config);
+
         let historical_retention = config.inner.historical_retention;
         let params = config.fsrs_params();
         let decay = get_decay_from_params(params);
@@ -295,15 +305,15 @@ pub(crate) fn fsrs_items_for_memory_states(
         .collect()
 }
 
-struct LastRevlogInfo {
+pub(crate) struct LastRevlogInfo {
     /// Used to determine the actual elapsed time between the last time the user
     /// reviewed the card and now, so that we can determine an accurate period
     /// when the card has subsequently been rescheduled to a different day.
-    last_reviewed_at: Option<TimestampSecs>,
+    pub(crate) last_reviewed_at: Option<TimestampSecs>,
 }
 
-/// Return a map of cards to info about last review/reschedule.
-fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogInfo> {
+/// Return a map of cards to info about last review.
+pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogInfo> {
     let mut out = HashMap::new();
     revlogs
         .iter()
@@ -312,8 +322,10 @@ fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, LastRevlogIn
         .for_each(|(card_id, group)| {
             let mut last_reviewed_at = None;
             for e in group.into_iter() {
-                if e.button_chosen >= 1 {
+                if e.has_rating_and_affects_scheduling() {
                     last_reviewed_at = Some(e.id.as_secs());
+                } else if e.is_reset() {
+                    last_reviewed_at = None;
                 }
             }
             out.insert(card_id, LastRevlogInfo { last_reviewed_at });
@@ -377,6 +389,7 @@ pub(crate) fn fsrs_item_for_memory_state(
             Ok(None)
         }
     } else {
+        // no revlogs (new card or caused by ignore_revlogs_before or deleted revlogs)
         Ok(None)
     }
 }
