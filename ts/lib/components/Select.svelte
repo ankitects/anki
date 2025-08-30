@@ -262,7 +262,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         flex-flow: row;
         justify-content: space-between;
-        border-color: var(border-ui);
+        border-color: var(--border-ui);
 
         .inner {
             flex-grow: 1;
