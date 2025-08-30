@@ -404,10 +404,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function updateCurrentNote() {
         if (mode !== "add") {
-            await updateEditorNote({
-                notes: [note!],
-                skipUndoEntry: false,
-            });
+            try {
+                await updateEditorNote(
+                    {
+                        notes: [note!],
+                        skipUndoEntry: false,
+                    },
+                    { alertOnError: false },
+                );
+            } catch {
+                console.log("Note deleted", note!.id);
+            }
         }
     }
 
@@ -1003,11 +1010,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (mode === "add") {
             setNote(await newNote({ ntid: notetype.id }));
         } else {
-            setNote(
-                await getNote({
-                    nid: nid!,
-                }),
-            );
+            try {
+                let n = await getNote(
+                    {
+                        nid: nid!,
+                    },
+                    { alertOnError: false },
+                );
+                setNote(n);
+            } catch {
+                console.log("Note deleted", nid);
+                return;
+            }
         }
         if (originalNoteId) {
             const originalNote = await getNote({
