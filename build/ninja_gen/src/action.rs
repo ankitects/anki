@@ -49,6 +49,46 @@ pub trait BuildAction {
     }
 
     fn name(&self) -> &'static str {
-        std::any::type_name::<Self>().split("::").last().unwrap()
+        std::any::type_name::<Self>()
+            .split("::")
+            .last()
+            .unwrap()
+            .split('<')
+            .next()
+            .unwrap()
     }
+}
+
+#[cfg(test)]
+trait TestBuildAction {}
+
+#[cfg(test)]
+impl<T: TestBuildAction + ?Sized> BuildAction for T {
+    fn command(&self) -> &str {
+        "test"
+    }
+    fn files(&mut self, _build: &mut impl FilesHandle) {}
+}
+
+#[allow(dead_code, unused_variables)]
+#[test]
+fn should_strip_regions_in_type_name() {
+    struct Bare;
+    impl TestBuildAction for Bare {}
+    assert_eq!(Bare {}.name(), "Bare");
+
+    struct WithLifeTime<'a>(&'a str);
+    impl TestBuildAction for WithLifeTime<'_> {}
+    assert_eq!(WithLifeTime("test").name(), "WithLifeTime");
+
+    struct WithMultiLifeTime<'a, 'b>(&'a str, &'b str);
+    impl TestBuildAction for WithMultiLifeTime<'_, '_> {}
+    assert_eq!(
+        WithMultiLifeTime("test", "test").name(),
+        "WithMultiLifeTime"
+    );
+
+    struct WithGeneric<T>(T);
+    impl<T> TestBuildAction for WithGeneric<T> {}
+    assert_eq!(WithGeneric(3).name(), "WithGeneric");
 }
