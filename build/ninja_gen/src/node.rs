@@ -98,7 +98,7 @@ impl BuildAction for YarnInstall<'_> {
     }
 }
 
-fn with_cmd_ext(bin: &str) -> Cow<str> {
+fn with_cmd_ext(bin: &str) -> Cow<'_, str> {
     if cfg!(windows) {
         format!("{bin}.cmd").into()
     } else {

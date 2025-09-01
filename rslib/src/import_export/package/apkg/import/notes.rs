@@ -664,7 +664,7 @@ mod test {
             self
         }
 
-        fn import(self, col: &mut Collection) -> NoteContext {
+        fn import(self, col: &mut Collection) -> NoteContext<'_> {
             let mut progress_handler = col.new_progress_handler();
             let media_map = Box::leak(Box::new(self.media_map));
             let mut ctx = NoteContext::new(

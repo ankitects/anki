@@ -34,7 +34,7 @@ pub fn prettify_av_tags<S: Into<String> + AsRef<str>>(txt: S) -> String {
 
 /// Parse `txt` into [CardNodes] and return the result,
 /// or [None] if it only contains text nodes.
-fn nodes_or_text_only(txt: &str) -> Option<CardNodes> {
+fn nodes_or_text_only(txt: &str) -> Option<CardNodes<'_>> {
     let nodes = CardNodes::parse(txt);
     (!nodes.text_only).then_some(nodes)
 }

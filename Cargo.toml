@@ -133,7 +133,7 @@ tokio-util = { version = "0.7.15", features = ["io"] }
 tower-http = { version = "0.6.6", features = ["trace"] }
 tracing = { version = "0.1.41", features = ["max_level_trace", "release_max_level_debug"] }
 tracing-appender = "0.2.3"
-tracing-subscriber = { version = "0.3.19", features = ["fmt", "env-filter"] }
+tracing-subscriber = { version = "0.3.20", features = ["fmt", "env-filter"] }
 unic-langid = { version = "0.9.6", features = ["macros"] }
 unic-ucd-category = "0.9.0"
 unicode-normalization = "0.1.24"

@@ -231,7 +231,10 @@ fn svg_getter(notetypes: &[Notetype]) -> impl Fn(NotetypeId) -> bool {
 }
 
 impl Collection {
-    fn gather_notes(&mut self, search: impl TryIntoSearch) -> Result<(Vec<Note>, NoteTableGuard)> {
+    fn gather_notes(
+        &mut self,
+        search: impl TryIntoSearch,
+    ) -> Result<(Vec<Note>, NoteTableGuard<'_>)> {
         let guard = self.search_notes_into_table(search)?;
         guard
             .col
@@ -240,7 +243,7 @@ impl Collection {
             .map(|notes| (notes, guard))
     }
 
-    fn gather_cards(&mut self) -> Result<(Vec<Card>, CardTableGuard)> {
+    fn gather_cards(&mut self) -> Result<(Vec<Card>, CardTableGuard<'_>)> {
         let guard = self.search_cards_of_notes_into_table()?;
         guard
             .col

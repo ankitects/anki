@@ -154,7 +154,7 @@ pub(super) fn extract_media_entries(
     }
 }
 
-pub(super) fn safe_normalized_file_name(name: &str) -> Result<Cow<str>> {
+pub(super) fn safe_normalized_file_name(name: &str) -> Result<Cow<'_, str>> {
     if !filename_is_safe(name) {
         Err(AnkiError::ImportError {
             source: ImportError::Corrupt,

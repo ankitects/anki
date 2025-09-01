@@ -59,11 +59,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             sched: HelpItemScheduler.FSRS,
             global: true,
         },
-        computeOptimalRetention: {
-            title: tr.deckConfigComputeOptimalRetention(),
-            help: tr.deckConfigComputeOptimalRetentionTooltip4(),
-            sched: HelpItemScheduler.FSRS,
-        },
         healthCheck: {
             title: tr.deckConfigHealthCheck(),
             help:

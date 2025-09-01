@@ -54,8 +54,8 @@ enum Token<'a> {
 }
 
 /// Tokenize string
-fn tokenize(mut text: &str) -> impl Iterator<Item = Token> {
-    fn open_cloze(text: &str) -> IResult<&str, Token> {
+fn tokenize(mut text: &str) -> impl Iterator<Item = Token<'_>> {
+    fn open_cloze(text: &str) -> IResult<&str, Token<'_>> {
         // opening brackets and 'c'
         let (text, _opening_brackets_and_c) = tag("{{c")(text)?;
         // following number
@@ -75,12 +75,12 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token> {
         Ok((text, Token::OpenCloze(digits)))
     }
 
-    fn close_cloze(text: &str) -> IResult<&str, Token> {
+    fn close_cloze(text: &str) -> IResult<&str, Token<'_>> {
         map(tag("}}"), |_| Token::CloseCloze).parse(text)
     }
 
     /// Match a run of text until an open/close marker is encountered.
-    fn normal_text(text: &str) -> IResult<&str, Token> {
+    fn normal_text(text: &str) -> IResult<&str, Token<'_>> {
         if text.is_empty() {
             return Err(nom::Err::Error(nom::error::make_error(
                 text,
@@ -132,7 +132,7 @@ impl ExtractedCloze<'_> {
         self.hint.unwrap_or("...")
     }
 
-    fn clozed_text(&self) -> Cow<str> {
+    fn clozed_text(&self) -> Cow<'_, str> {
         // happy efficient path?
         if self.nodes.len() == 1 {
             if let TextOrCloze::Text(text) = self.nodes.last().unwrap() {
@@ -353,7 +353,7 @@ pub fn parse_image_occlusions(text: &str) -> Vec<ImageOcclusion> {
         .collect()
 }
 
-pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
+pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<'_, str> {
     let mut buf = String::new();
     let mut active_cloze_found_in_text = false;
     for node in &parse_text_with_clozes(text) {
@@ -376,7 +376,7 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
     }
 }
 
-pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
+pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow<'_, str> {
     let mut output = Vec::new();
     for node in &parse_text_with_clozes(text) {
         reveal_cloze_text_in_nodes(node, cloze_ord, question, &mut output);
@@ -384,7 +384,7 @@ pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow
     output.join(", ").into()
 }
 
-pub fn extract_cloze_for_typing(text: &str, cloze_ord: u16) -> Cow<str> {
+pub fn extract_cloze_for_typing(text: &str, cloze_ord: u16) -> Cow<'_, str> {
     let mut output = Vec::new();
     for node in &parse_text_with_clozes(text) {
         reveal_cloze_text_in_nodes(node, cloze_ord, false, &mut output);
@@ -460,7 +460,7 @@ pub(crate) fn strip_clozes(text: &str) -> Cow<'_, str> {
     CLOZE.replace_all(text, "$1")
 }
 
-fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
+fn strip_html_inside_mathjax(text: &str) -> Cow<'_, str> {
     MATHJAX.replace_all(text, |caps: &Captures| -> String {
         format!(
             "{}{}{}",
