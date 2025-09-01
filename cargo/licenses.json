@@ -600,6 +600,22 @@
     "repository": "https://github.com/mackwic/colored"
   },
   {
+    "authors": "Wim Looman <wim@nemo157.com>|Allen Bui <fairingrey@gmail.com>",
+    "description": "Adaptors for various compression algorithms.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "compression-codecs",
+    "repository": "https://github.com/Nullus157/async-compression"
+  },
+  {
+    "authors": "Wim Looman <wim@nemo157.com>|Allen Bui <fairingrey@gmail.com>",
+    "description": "Abstractions for compression algorithms.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "compression-core",
+    "repository": "https://github.com/Nullus157/async-compression"
+  },
+  {
     "authors": "Stjepan Glavina <stjepang@gmail.com>|Taiki Endo <te316e89@gmail.com>|John Nunley <dev@notgull.net>",
     "description": "Concurrent multi-producer multi-consumer queue",
     "license": "Apache-2.0 OR MIT",
@@ -1760,6 +1776,14 @@
     "repository": "https://github.com/hyperium/http-body"
   },
   {
+    "authors": null,
+    "description": "No-dep range header parser",
+    "license": "MIT",
+    "license_file": null,
+    "name": "http-range-header",
+    "repository": "https://github.com/MarcusGrass/parse-range-headers"
+  },
+  {
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "description": "A tiny, safe, speedy, zero-copy HTTP/1.x parser.",
     "license": "Apache-2.0 OR MIT",
@@ -1942,6 +1966,14 @@
     "license_file": null,
     "name": "intl_pluralrules",
     "repository": "https://github.com/zbraniecki/pluralrules"
+  },
+  {
+    "authors": "quininer <quininer@live.com>",
+    "description": "The low-level `io_uring` userspace interface for Rust",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "io-uring",
+    "repository": "https://github.com/tokio-rs/io-uring"
   },
   {
     "authors": "Kris Price <kris@krisprice.nz>",
@@ -2168,7 +2200,7 @@
     "repository": "https://github.com/servo/html5ever"
   },
   {
-    "authors": null,
+    "authors": "The html5ever Project Developers",
     "description": "Procedural macro for html5ever.",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3032,7 +3064,7 @@
     "repository": "https://github.com/bluss/rawpointer/"
   },
   {
-    "authors": "Niko Matsakis <niko@alum.mit.edu>|Josh Stone <cuviper@gmail.com>",
+    "authors": null,
     "description": "Simple work-stealing parallelism for Rust",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3040,7 +3072,7 @@
     "repository": "https://github.com/rayon-rs/rayon"
   },
   {
-    "authors": "Niko Matsakis <niko@alum.mit.edu>|Josh Stone <cuviper@gmail.com>",
+    "authors": null,
     "description": "Core APIs for Rayon",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3093,7 +3125,7 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "regex-automata",
-    "repository": "https://github.com/rust-lang/regex/tree/master/regex-automata"
+    "repository": "https://github.com/rust-lang/regex"
   },
   {
     "authors": "The Rust Project Developers|Andrew Gallant <jamslam@gmail.com>",
@@ -3101,7 +3133,7 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "regex-syntax",
-    "repository": "https://github.com/rust-lang/regex/tree/master/regex-syntax"
+    "repository": "https://github.com/rust-lang/regex"
   },
   {
     "authors": "John-John Tedro <udoprog@tedro.se>",
@@ -3432,14 +3464,6 @@
     "repository": "https://github.com/dtolnay/serde-repr"
   },
   {
-    "authors": null,
-    "description": "Serde-compatible spanned Value",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "serde_spanned",
-    "repository": "https://github.com/toml-rs/toml"
-  },
-  {
     "authors": "Jacob Brown <kardeiz@gmail.com>",
     "description": "De/serialize structs with named fields as array of values",
     "license": "MIT",
@@ -3688,14 +3712,6 @@
     "repository": "https://github.com/dtolnay/syn"
   },
   {
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "description": "Parser for Rust source code",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "syn",
-    "repository": "https://github.com/dtolnay/syn"
-  },
-  {
     "authors": "Actyx AG <developer@actyx.io>",
     "description": "A tool for enlisting the compiler's help in proving the absence of concurrency",
     "license": "Apache-2.0",
@@ -3904,6 +3920,14 @@
     "repository": "https://github.com/rustls/tokio-rustls"
   },
   {
+    "authors": "Daniel Abramov <dabramov@snapview.de>|Alexey Galakhov <agalakhov@snapview.de>",
+    "description": "Tokio binding for Tungstenite, the Lightweight stream-based WebSocket implementation",
+    "license": "MIT",
+    "license_file": null,
+    "name": "tokio-tungstenite",
+    "repository": "https://github.com/snapview/tokio-tungstenite"
+  },
+  {
     "authors": "Tokio Contributors <team@tokio.rs>",
     "description": "Additional utilities for working with Tokio.",
     "license": "MIT",
@@ -3925,14 +3949,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "toml_edit",
-    "repository": "https://github.com/toml-rs/toml"
-  },
-  {
-    "authors": null,
-    "description": "A low-level interface for writing out TOML",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "toml_write",
     "repository": "https://github.com/toml-rs/toml"
   },
   {
@@ -4022,6 +4038,14 @@
     "license_file": null,
     "name": "try-lock",
     "repository": "https://github.com/seanmonstar/try-lock"
+  },
+  {
+    "authors": "Alexey Galakhov|Daniel Abramov",
+    "description": "Lightweight stream-based WebSocket implementation",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "tungstenite",
+    "repository": "https://github.com/snapview/tungstenite-rs"
   },
   {
     "authors": "Jacob Brown <kardeiz@gmail.com>",
@@ -4896,11 +4920,11 @@
     "repository": "https://github.com/LukeMathWalker/wiremock-rs"
   },
   {
-    "authors": null,
-    "description": "Runtime support for the `wit-bindgen` crate",
+    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "description": "Rust bindings generator and runtime support for WIT and the component model. Used when compiling Rust programs to the component model.",
     "license": "Apache-2.0 OR Apache-2.0 WITH LLVM-exception OR MIT",
     "license_file": null,
-    "name": "wit-bindgen-rt",
+    "name": "wit-bindgen",
     "repository": "https://github.com/bytecodealliance/wit-bindgen"
   },
   {
