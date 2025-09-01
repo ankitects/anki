@@ -34,6 +34,7 @@ export interface Point {
 
 export type WorkloadPoint = Point & {
     learnSpan: number;
+    start_memorized: number;
 };
 
 export enum SimulateSubgraph {
@@ -63,14 +64,17 @@ export function renderWorkloadChart(
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
     const subgraph_data = ({
-        [SimulateWorkloadSubgraph.ratio]: data.map(d => ({ ...d, y: d.memorized / d.timeCost })),
+        [SimulateWorkloadSubgraph.ratio]: data.map(d => ({
+            ...d,
+            y: (60 * 60 * (d.memorized - d.start_memorized)) / d.timeCost,
+        })),
         [SimulateWorkloadSubgraph.time]: data.map(d => ({ ...d, y: d.timeCost / d.learnSpan })),
         [SimulateWorkloadSubgraph.count]: data.map(d => ({ ...d, y: d.count / d.learnSpan })),
         [SimulateWorkloadSubgraph.memorized]: data.map(d => ({ ...d, y: d.memorized })),
     })[subgraph];
 
     const yTickFormat = (n: number): string => {
-        return subgraph == SimulateWorkloadSubgraph.time || subgraph == SimulateWorkloadSubgraph.ratio
+        return subgraph == SimulateWorkloadSubgraph.time
             ? timeSpan(n, true)
             : n.toString();
     };
@@ -84,7 +88,7 @@ export function renderWorkloadChart(
 
     const formatY: (value: number) => string = ({
         [SimulateWorkloadSubgraph.ratio]: (value: number) =>
-            tr.deckConfigFsrsSimulatorRatioTooltip({ time: timeSpan(value) }),
+            tr.deckConfigFsrsSimulatorRatioTooltip({ time: value.toFixed(2) }),
         [SimulateWorkloadSubgraph.time]: (value: number) =>
             tr.statisticsMinutesPerDay({ count: parseFloat((value / 60).toPrecision(2)) }),
         [SimulateWorkloadSubgraph.count]: (value: number) => tr.statisticsReviewsPerDay({ count: Math.round(value) }),
