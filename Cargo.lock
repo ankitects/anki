@@ -183,6 +183,7 @@ dependencies = [
  "itertools 0.14.0",
  "num-format",
  "phf 0.11.3",
+ "regex",
  "serde",
  "serde_json",
  "unic-langid",
