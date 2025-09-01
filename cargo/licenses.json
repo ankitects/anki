@@ -2568,14 +2568,6 @@
     "repository": "https://github.com/reem/rust-ordered-float"
   },
   {
-    "authors": "Daniel Salvadori <danaugrs@gmail.com>",
-    "description": "Provides a macro to simplify operator overloading.",
-    "license": "MIT",
-    "license_file": null,
-    "name": "overload",
-    "repository": "https://github.com/danaugrs/overload"
-  },
-  {
     "authors": "Stjepan Glavina <stjepang@gmail.com>|The Rust Project Developers",
     "description": "Thread parking and unparking",
     "license": "Apache-2.0 OR MIT",
@@ -3096,28 +3088,12 @@
     "repository": "https://github.com/rust-lang/regex"
   },
   {
-    "authors": "Andrew Gallant <jamslam@gmail.com>",
-    "description": "Automata construction and matching using regular expressions.",
-    "license": "MIT OR Unlicense",
-    "license_file": null,
-    "name": "regex-automata",
-    "repository": "https://github.com/BurntSushi/regex-automata"
-  },
-  {
     "authors": "The Rust Project Developers|Andrew Gallant <jamslam@gmail.com>",
     "description": "Automata construction and matching using regular expressions.",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "regex-automata",
     "repository": "https://github.com/rust-lang/regex/tree/master/regex-automata"
-  },
-  {
-    "authors": "The Rust Project Developers",
-    "description": "A regular expression parser.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "regex-syntax",
-    "repository": "https://github.com/rust-lang/regex"
   },
   {
     "authors": "The Rust Project Developers|Andrew Gallant <jamslam@gmail.com>",
