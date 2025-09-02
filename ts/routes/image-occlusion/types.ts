@@ -14,4 +14,5 @@ export interface ToastProps {
     message: string;
     type: "success" | "error";
     showToast: boolean;
+    timeout?: number;
 }

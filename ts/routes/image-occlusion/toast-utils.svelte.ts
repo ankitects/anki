@@ -11,21 +11,27 @@ const toastProps: ToastProps = $state({
     message: "",
 });
 
-export function initToast(): Toast {
-    return mount(Toast, {
+let toast: Toast | null = null;
+
+export function initToast() {
+    toast = mount(Toast, {
         target: document.body,
         props: toastProps,
     });
 }
 
-export function destroyToast(toast: Toast) {
-    unmount(toast);
+export function destroyToast() {
+    if (toast) {
+        unmount(toast);
+        toast = null;
+    }
 }
 
-export function showToast(message: string, type: "success" | "error") {
+export function showToast(message: string, type: "success" | "error", timeout?: number) {
     toastProps.message = message;
     toastProps.type = type;
     toastProps.showToast = true;
+    toastProps.timeout = timeout;
 }
 
 export function hideToast() {

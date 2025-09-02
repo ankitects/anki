@@ -586,12 +586,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (!(await noteCanBeAdded())) {
             return;
         }
-        const noteId = (
-            await addEditorNote({
-                note: note!,
-                deckId,
-            })
-        ).noteId;
+        const response = await addEditorNote({
+            note: note!,
+            deckId,
+        });
+        showToast(
+            tr.importingCardsAdded({ count: response.changes!.count }),
+            "success",
+            500,
+        );
+        const noteId = response.noteId;
         note.id = noteId;
         addNoteToHistory(note!);
         lastAddedNote = note;
@@ -767,6 +771,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type NotetypeChooser from "$lib/components/NotetypeChooser.svelte";
     import type DeckChooser from "$lib/components/DeckChooser.svelte";
     import { ConfigKey_Bool } from "@generated/anki/config_pb";
+    import {
+        destroyToast,
+        initToast,
+        showToast,
+    } from "../image-occlusion/toast-utils.svelte";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -1231,6 +1240,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             deregisterSticky = registerShortcut(toggleStickyAll, "Shift+F9");
         }
 
+        initToast();
+
         function wrap(before: string, after: string): void {
             if (!$focusedInput || !editingInputIsRichText($focusedInput)) {
                 return;
@@ -1293,6 +1304,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onDestroy(() => {
         deregisterSticky();
+        destroyToast();
     });
 
     let apiPartial: Partial<NoteEditorAPI> = {};
