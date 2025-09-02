@@ -11,10 +11,13 @@ import {
     min,
     pointer,
     rollup,
+    type ScaleLinear,
     scaleLinear,
+    type ScaleTime,
     scaleTime,
     schemeCategory10,
     select,
+    type Selection,
 } from "d3";
 
 import * as tr from "@generated/ftl";
@@ -66,7 +69,7 @@ export function renderWorkloadChart(
     const subgraph_data = ({
         [SimulateWorkloadSubgraph.ratio]: data.map(d => ({
             ...d,
-            y: (60 * 60 * (d.memorized - d.start_memorized)) / d.timeCost,
+            y: (60 * 60 * (d.memorized - d.start_memorized)) / d.count,
         })),
         [SimulateWorkloadSubgraph.time]: data.map(d => ({ ...d, y: d.timeCost / d.learnSpan })),
         [SimulateWorkloadSubgraph.count]: data.map(d => ({ ...d, y: d.count / d.learnSpan })),
@@ -100,6 +103,19 @@ export function renderWorkloadChart(
         return `${tr.deckConfigDesiredRetention()}: ${xTickFormat(dr)}<br>`;
     }
 
+    select(svgElem)
+        .enter()
+        .datum(subgraph_data[subgraph_data.length - 1])
+        .append("line")
+        .attr("x1", bounds.marginLeft)
+        .attr("x2", bounds.width - bounds.marginRight)
+        .attr("y1", bounds.marginTop)
+        .attr("y2", bounds.marginTop)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1);
+
+    const startMemorized = subgraph_data[0].start_memorized;
+
     return _renderSimulationChart(
         svgElem,
         bounds,
@@ -110,6 +126,20 @@ export function renderWorkloadChart(
         (_e: MouseEvent, _d: number) => undefined,
         yTickFormat,
         xTickFormat,
+        (svg, x, y) => {
+            svg
+                .selectAll("line")
+                .data(subgraph == SimulateWorkloadSubgraph.memorized ? [startMemorized] : [])
+                .enter()
+                .attr("x1", x(xMin))
+                .attr("x2", x(xMax))
+                .attr("y1",d => y(d))
+                .attr("y2",d => y(d))
+                .attr("stroke", "black")
+                .attr("stroke-dasharray", "5,5")
+                .attr("stroke-width", 1);
+        },
+        subgraph == SimulateWorkloadSubgraph.memorized ? startMemorized : 0,
     );
 }
 
@@ -190,16 +220,25 @@ export function renderSimulationChart(
     );
 }
 
-function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
+function _renderSimulationChart<
+    X extends ScaleLinear<number, number> | ScaleTime<number, number>,
+    T extends { x: any; y: any; label: number },
+>(
     svgElem: SVGElement,
     bounds: GraphBounds,
     subgraph_data: T[],
-    x: any,
+    x: X,
     formatY: (n: T["y"]) => string,
     formatX: (n: T["x"]) => string,
     legendMouseMove: (e: MouseEvent, d: number) => void,
     yTickFormat?: (n: number) => string,
     xTickFormat?: (n: number) => string,
+    renderExtra?: (
+        svg: Selection<SVGElement, unknown, null, undefined>,
+        x: X,
+        y: ScaleLinear<number, number, never>,
+    ) => void,
+    y_min: number = Infinity,
 ): TableDatum[] {
     const svg = select(svgElem);
     svg.selectAll(".lines").remove();
@@ -220,7 +259,8 @@ function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
     // y scale
 
     const yMax = max(subgraph_data, d => d.y)!;
-    const yMin = min(subgraph_data, d => d.y)!;
+    let yMin = min(subgraph_data, d => d.y)!;
+    yMin = min([yMin, y_min])!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([yMin, yMax])
@@ -248,7 +288,7 @@ function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
         .attr("fill", "currentColor");
 
     // x lines
-    const points = subgraph_data.map((d) => [x(d.x), y(d.y), d.label]);
+    const points = subgraph_data.map((d) => [x(d.x)!, y(d.y)!, d.label]);
     const groups = rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
 
     const color = schemeCategory10;
@@ -369,6 +409,8 @@ function _renderSimulationChart<T extends { x: any; y: any; label: number }>(
     };
 
     setDataAvailable(svg, true);
+
+    renderExtra?.(svg, x, y);
 
     const tableData: TableDatum[] = [];
 
