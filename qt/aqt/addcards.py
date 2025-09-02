@@ -300,7 +300,7 @@ class AddCards(QMainWindow):
 
             self.addHistory(note)
 
-            tooltip(tr.adding_added_cards(count=changes.count), period=500)
+            tooltip(tr.importing_cards_added(count=changes.count), period=500)
             av_player.stop_and_clear_queue()
             self._load_new_note(sticky_fields_from=note)
             gui_hooks.add_cards_did_add_note(note)
