@@ -138,9 +138,12 @@ impl SqlWriter<'_> {
                     false,
                 )?
             }
-            SearchNode::SingleField { field, text, is_re } => {
-                self.write_field(&norm(field), &self.norm_note(text), *is_re)?
-            }
+            SearchNode::SingleField {
+                field,
+                text,
+                is_re,
+                is_nc,
+            } => self.write_field(&norm(field), &self.norm_note(text), *is_re, *is_nc)?,
             SearchNode::Duplicates { notetype_id, text } => {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
@@ -180,7 +183,7 @@ impl SqlWriter<'_> {
             SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),
             SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
 
-            SearchNode::Tag { tag, is_re } => self.write_tag(&norm(tag), *is_re),
+            SearchNode::Tag { tag, is_re, is_nc } => self.write_tag(&norm(tag), *is_re, *is_nc),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {flag}").unwrap();
@@ -296,7 +299,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_tag(&mut self, tag: &str, is_re: bool) {
+    fn write_tag(&mut self, tag: &str, is_re: bool, _is_nc: bool) {
         if is_re {
             self.args.push(format!("(?i){tag}"));
             write!(self.sql, "regexp_tags(?{}, n.tags)", self.args.len()).unwrap();
@@ -567,7 +570,7 @@ impl SqlWriter<'_> {
         }
     }
 
-    fn write_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
+    fn write_field(&mut self, field_name: &str, val: &str, is_re: bool, is_nc: bool) -> Result<()> {
         if matches!(field_name, "*" | "_*" | "*_") {
             if is_re {
                 self.write_all_fields_regexp(val);
@@ -577,6 +580,8 @@ impl SqlWriter<'_> {
             Ok(())
         } else if is_re {
             self.write_single_field_regexp(field_name, val)
+        } else if is_nc {
+            self.write_single_field_nc(field_name, val)
         } else {
             self.write_single_field(field_name, val)
         }
@@ -590,6 +595,58 @@ impl SqlWriter<'_> {
     fn write_all_fields(&mut self, val: &str) {
         self.args.push(format!("(?is)^{}$", to_re(val)));
         write!(self.sql, "regexp_fields(?{}, n.flds)", self.args.len()).unwrap();
+    }
+
+    fn write_single_field_nc(&mut self, field_name: &str, val: &str) -> Result<()> {
+        let field_indicies_by_notetype = self.num_fields_and_fields_indices_by_notetype(
+            field_name,
+            matches!(val, "*" | "_*" | "*_"),
+        )?;
+        if field_indicies_by_notetype.is_empty() {
+            write!(self.sql, "false").unwrap();
+            return Ok(());
+        }
+
+        let val = to_sql(val);
+        let val = without_combining(&val);
+        self.args.push(val.into());
+        let arg_idx = self.args.len();
+        let field_idx_str = format!("' || ?{arg_idx} || '");
+        let other_idx_str = "%".to_string();
+
+        let notetype_clause = |ctx: &FieldQualifiedSearchContext| -> String {
+            let field_index_clause = |range: &Range<u32>| {
+                let f = (0..ctx.total_fields_in_note)
+                    .filter_map(|i| {
+                        if i as u32 == range.start {
+                            Some(&field_idx_str)
+                        } else if range.contains(&(i as u32)) {
+                            None
+                        } else {
+                            Some(&other_idx_str)
+                        }
+                    })
+                    .join("\x1f");
+                format!(
+                    "coalesce(process_text(n.flds, {}), n.flds) like '{f}' escape '\\'",
+                    ProcessTextFlags::NoCombining.bits()
+                )
+            };
+
+            let all_field_clauses = ctx
+                .field_ranges_to_search
+                .iter()
+                .map(field_index_clause)
+                .join(" or ");
+            format!("(n.mid = {mid} and ({all_field_clauses}))", mid = ctx.ntid)
+        };
+        let all_notetype_clauses = field_indicies_by_notetype
+            .iter()
+            .map(notetype_clause)
+            .join(" or ");
+        write!(self.sql, "({all_notetype_clauses})").unwrap();
+
+        Ok(())
     }
 
     fn write_single_field_regexp(&mut self, field_name: &str, val: &str) -> Result<()> {
@@ -1114,6 +1171,20 @@ mod test {
                 )
                 .into(),
                 vec!["(?i)te.*st".into()]
+            )
+        );
+        // field search with no-combine
+        assert_eq!(
+            s(ctx, "front:nc:frânçais"),
+            (
+                concat!(
+                    "(((n.mid = 1581236385344 and (coalesce(process_text(n.flds, 1), n.flds) like '' || ?1 || '\u{1f}%' escape '\\')) or ",
+                    "(n.mid = 1581236385345 and (coalesce(process_text(n.flds, 1), n.flds) like '' || ?1 || '\u{1f}%\u{1f}%' escape '\\')) or ",
+                    "(n.mid = 1581236385346 and (coalesce(process_text(n.flds, 1), n.flds) like '' || ?1 || '\u{1f}%' escape '\\')) or ",
+                    "(n.mid = 1581236385347 and (coalesce(process_text(n.flds, 1), n.flds) like '' || ?1 || '\u{1f}%' escape '\\'))))"
+                )
+                .into(),
+                vec!["francais".into()]
             )
         );
         // all field search

@@ -175,6 +175,7 @@ impl SearchNode {
         Self::Tag {
             tag: escape_anki_wildcards_for_search_node(name),
             is_re: false,
+            is_nc: false,
         }
     }
 

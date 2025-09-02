@@ -57,6 +57,7 @@ pub enum SearchNode {
         field: String,
         text: String,
         is_re: bool,
+        is_nc: bool,
     },
     AddedInDays(u32),
     EditedInDays(u32),
@@ -78,6 +79,7 @@ pub enum SearchNode {
     Tag {
         tag: String,
         is_re: bool,
+        is_nc: bool,
     },
     Duplicates {
         notetype_id: NotetypeId,
@@ -374,11 +376,13 @@ fn parse_tag(s: &str) -> ParseResult<'_, SearchNode> {
         SearchNode::Tag {
             tag: unescape_quotes(re),
             is_re: true,
+            is_nc: false,
         }
     } else {
         SearchNode::Tag {
             tag: unescape(s)?,
             is_re: false,
+            is_nc: false,
         }
     })
 }
@@ -671,12 +675,21 @@ fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<'a, SearchN
             field: unescape(key)?,
             text: unescape_quotes(stripped),
             is_re: true,
+            is_nc: false,
+        }
+    } else if let Some(stripped) = val.strip_prefix("nc:") {
+        SearchNode::SingleField {
+            field: unescape(key)?,
+            text: unescape_quotes(stripped),
+            is_re: false,
+            is_nc: true,
         }
     } else {
         SearchNode::SingleField {
             field: unescape(key)?,
             text: unescape(val)?,
             is_re: false,
+            is_nc: false,
         }
     })
 }
@@ -807,6 +820,7 @@ mod test {
                         field: "foo".into(),
                         text: "bar baz".into(),
                         is_re: false,
+                        is_nc: false,
                     })
                 ]))),
                 Or,
@@ -819,7 +833,18 @@ mod test {
             vec![Search(SingleField {
                 field: "foo".into(),
                 text: "bar".into(),
-                is_re: true
+                is_re: true,
+                is_nc: false
+            })]
+        );
+
+        assert_eq!(
+            parse("foo:nc:bar")?,
+            vec![Search(SingleField {
+                field: "foo".into(),
+                text: "bar".into(),
+                is_re: false,
+                is_nc: true
             })]
         );
 
@@ -829,7 +854,8 @@ mod test {
             vec![Search(SingleField {
                 field: "field".into(),
                 text: "va\"lue".into(),
-                is_re: false
+                is_re: false,
+                is_nc: false
             })]
         );
         assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:"va\"lue""#)?,);
@@ -906,14 +932,16 @@ mod test {
             parse("tag:hard")?,
             vec![Search(Tag {
                 tag: "hard".into(),
-                is_re: false
+                is_re: false,
+                is_nc: false
             })]
         );
         assert_eq!(
             parse(r"tag:re:\\")?,
             vec![Search(Tag {
                 tag: r"\\".into(),
-                is_re: true
+                is_re: true,
+                is_nc: false
             })]
         );
         assert_eq!(

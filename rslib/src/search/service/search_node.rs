@@ -41,6 +41,7 @@ impl TryFrom<anki_proto::search::SearchNode> for Node {
                     field: escape_anki_wildcards_for_search_node(&s),
                     text: "_*".to_string(),
                     is_re: false,
+                    is_nc: false,
                 }),
                 Filter::Rated(rated) => Node::Search(SearchNode::Rated {
                     days: rated.days,
@@ -108,6 +109,7 @@ impl TryFrom<anki_proto::search::SearchNode> for Node {
                     field: escape_anki_wildcards(&field.field_name),
                     text: escape_anki_wildcards(&field.text),
                     is_re: field.is_re,
+                    is_nc: false,
                 }),
                 Filter::LiteralText(text) => {
                     let text = escape_anki_wildcards(&text);
