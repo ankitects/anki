@@ -115,7 +115,7 @@ class ThemeManager:
         # Workaround for Qt bug. First attempt was percent-escaping the chars,
         # but Qt can't handle that.
         # https://forum.qt.io/topic/55274/solved-qss-with-special-characters/11
-        path = re.sub(r"([\u00A1-\u00FF])", r"\\\1", path)
+        path = re.sub(r"(['\u00A1-\u00FF])", r"\\\1", path)
         return path
 
     def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:

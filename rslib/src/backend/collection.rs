@@ -94,7 +94,7 @@ impl BackendCollectionService for Backend {
 }
 
 impl Backend {
-    pub(super) fn lock_open_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+    pub(super) fn lock_open_collection(&self) -> Result<MutexGuard<'_, Option<Collection>>> {
         let guard = self.col.lock().unwrap();
         guard
             .is_some()
@@ -102,7 +102,7 @@ impl Backend {
             .ok_or(AnkiError::CollectionNotOpen)
     }
 
-    pub(super) fn lock_closed_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+    pub(super) fn lock_closed_collection(&self) -> Result<MutexGuard<'_, Option<Collection>>> {
         let guard = self.col.lock().unwrap();
         guard
             .is_none()

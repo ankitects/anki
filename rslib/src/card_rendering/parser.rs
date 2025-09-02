@@ -103,13 +103,13 @@ fn is_not0<'parser, 'arr: 'parser, 's: 'parser>(
     move |s| alt((is_not(arr), success(""))).parse(s)
 }
 
-fn node(s: &str) -> IResult<Node> {
+fn node(s: &str) -> IResult<'_, Node<'_>> {
     alt((sound_node, tag_node, text_node)).parse(s)
 }
 
 /// A sound tag `[sound:resource]`, where `resource` is pointing to a sound or
 /// video file.
-fn sound_node(s: &str) -> IResult<Node> {
+fn sound_node(s: &str) -> IResult<'_, Node<'_>> {
     map(
         delimited(tag("[sound:"), is_not("]"), tag("]")),
         Node::SoundOrVideo,
@@ -117,7 +117,7 @@ fn sound_node(s: &str) -> IResult<Node> {
     .parse(s)
 }
 
-fn take_till_potential_tag_start(s: &str) -> IResult<&str> {
+fn take_till_potential_tag_start(s: &str) -> IResult<'_, &str> {
     // first char could be '[', but wasn't part of a node, so skip (eof ends parse)
     let (after, offset) = anychar(s).map(|(s, c)| (s, c.len_utf8()))?;
     Ok(match after.find('[') {
@@ -127,9 +127,9 @@ fn take_till_potential_tag_start(s: &str) -> IResult<&str> {
 }
 
 /// An Anki tag `[anki:tag...]...[/anki:tag]`.
-fn tag_node(s: &str) -> IResult<Node> {
+fn tag_node(s: &str) -> IResult<'_, Node<'_>> {
     /// Match the start of an opening tag and return its name.
-    fn name(s: &str) -> IResult<&str> {
+    fn name(s: &str) -> IResult<'_, &str> {
         preceded(tag("[anki:"), is_not("] \t\r\n")).parse(s)
     }
 
@@ -139,12 +139,12 @@ fn tag_node(s: &str) -> IResult<Node> {
     ) -> impl FnMut(&'s str) -> IResult<'s, Vec<(&'s str, &'s str)>> + 'name {
         /// List of whitespace-separated `key=val` tuples, where `val` may be
         /// empty.
-        fn options(s: &str) -> IResult<Vec<(&str, &str)>> {
-            fn key(s: &str) -> IResult<&str> {
+        fn options(s: &str) -> IResult<'_, Vec<(&str, &str)>> {
+            fn key(s: &str) -> IResult<'_, &str> {
                 is_not("] \t\r\n=").parse(s)
             }
 
-            fn val(s: &str) -> IResult<&str> {
+            fn val(s: &str) -> IResult<'_, &str> {
                 alt((
                     delimited(tag("\""), is_not0("\""), tag("\"")),
                     is_not0("] \t\r\n\""),
@@ -197,7 +197,7 @@ fn tag_node(s: &str) -> IResult<Node> {
     .parse(s)
 }
 
-fn text_node(s: &str) -> IResult<Node> {
+fn text_node(s: &str) -> IResult<'_, Node<'_>> {
     map(take_till_potential_tag_start, Node::Text).parse(s)
 }
 

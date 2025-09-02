@@ -117,7 +117,7 @@ fn captured_sound(caps: &Captures) -> bool {
     caps.get(2).unwrap().as_str().starts_with("sound:")
 }
 
-fn kana_filter(text: &str) -> Cow<str> {
+fn kana_filter(text: &str) -> Cow<'_, str> {
     FURIGANA
         .replace_all(&text.replace("&nbsp;", " "), |caps: &Captures| {
             if captured_sound(caps) {
@@ -130,7 +130,7 @@ fn kana_filter(text: &str) -> Cow<str> {
         .into()
 }
 
-fn kanji_filter(text: &str) -> Cow<str> {
+fn kanji_filter(text: &str) -> Cow<'_, str> {
     FURIGANA
         .replace_all(&text.replace("&nbsp;", " "), |caps: &Captures| {
             if captured_sound(caps) {
@@ -143,7 +143,7 @@ fn kanji_filter(text: &str) -> Cow<str> {
         .into()
 }
 
-fn furigana_filter(text: &str) -> Cow<str> {
+fn furigana_filter(text: &str) -> Cow<'_, str> {
     FURIGANA
         .replace_all(&text.replace("&nbsp;", " "), |caps: &Captures| {
             if captured_sound(caps) {

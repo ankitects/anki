@@ -174,7 +174,7 @@ impl LoadBalancer {
         &self,
         note_id: Option<NoteId>,
         deckconfig_id: DeckConfigId,
-    ) -> LoadBalancerContext {
+    ) -> LoadBalancerContext<'_> {
         LoadBalancerContext {
             load_balancer: self,
             note_id,

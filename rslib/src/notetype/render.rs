@@ -25,7 +25,7 @@ pub struct RenderCardOutput {
 
 impl RenderCardOutput {
     /// The question text. This is only valid to call when partial_render=false.
-    pub fn question(&self) -> Cow<str> {
+    pub fn question(&self) -> Cow<'_, str> {
         match self.qnodes.as_slice() {
             [RenderedNode::Text { text }] => text.into(),
             _ => "not fully rendered".into(),
@@ -33,7 +33,7 @@ impl RenderCardOutput {
     }
 
     /// The answer text. This is only valid to call when partial_render=false.
-    pub fn answer(&self) -> Cow<str> {
+    pub fn answer(&self) -> Cow<'_, str> {
         match self.anodes.as_slice() {
             [RenderedNode::Text { text }] => text.into(),
             _ => "not fully rendered".into(),
