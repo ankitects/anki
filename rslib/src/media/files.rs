@@ -91,7 +91,7 @@ fn nonbreaking_space(char: char) -> bool {
 /// - Any problem characters are removed.
 /// - Windows device names like CON and PRN have '_' appended
 /// - The filename is limited to 120 bytes.
-pub(crate) fn normalize_filename(fname: &str) -> Cow<str> {
+pub(crate) fn normalize_filename(fname: &str) -> Cow<'_, str> {
     let mut output = Cow::Borrowed(fname);
 
     if !is_nfc(output.as_ref()) {
@@ -102,7 +102,7 @@ pub(crate) fn normalize_filename(fname: &str) -> Cow<str> {
 }
 
 /// See normalize_filename(). This function expects NFC-normalized input.
-pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
+pub(crate) fn normalize_nfc_filename(mut fname: Cow<'_, str>) -> Cow<'_, str> {
     if fname.contains(disallowed_char) {
         fname = fname.replace(disallowed_char, "").into()
     }
@@ -137,7 +137,7 @@ pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
 /// but can be accessed as NFC. On these devices, if the filename
 /// is otherwise valid, the filename is returned as NFC.
 #[allow(clippy::collapsible_else_if)]
-pub(crate) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
+pub(crate) fn filename_if_normalized(fname: &str) -> Option<Cow<'_, str>> {
     if cfg!(target_vendor = "apple") {
         if !is_nfc(fname) {
             let as_nfc = fname.chars().nfc().collect::<String>();
@@ -208,7 +208,7 @@ pub(crate) fn add_hash_suffix_to_file_stem(fname: &str, hash: &Sha1Hash) -> Stri
 }
 
 /// If filename is longer than max_bytes, truncate it.
-fn truncate_filename(fname: &str, max_bytes: usize) -> Cow<str> {
+fn truncate_filename(fname: &str, max_bytes: usize) -> Cow<'_, str> {
     if fname.len() <= max_bytes {
         return Cow::Borrowed(fname);
     }

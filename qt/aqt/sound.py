@@ -32,6 +32,7 @@ from aqt._macos_helper import macos_helper
 from aqt.mpv import MPV, MPVBase, MPVCommandError
 from aqt.qt import *
 from aqt.taskman import TaskManager
+from aqt.theme import theme_manager
 from aqt.utils import (
     disable_help_button,
     restoreGeom,
@@ -743,7 +744,8 @@ class RecordDialog(QDialog):
     def _setup_dialog(self) -> None:
         self.setWindowTitle("Anki")
         icon = QLabel()
-        icon.setPixmap(QPixmap("icons:media-record.png"))
+        qicon = theme_manager.icon_from_resources("icons:media-record.svg")
+        icon.setPixmap(qicon.pixmap(60, 60))
         self.label = QLabel("...")
         hbox = QHBoxLayout()
         hbox.addWidget(icon)

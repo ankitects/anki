@@ -97,7 +97,7 @@ fn create_review_priority_fn(
 
         // Interval-based ordering
         IntervalsAscending => wrap!(|c, _w| c.interval as i32),
-        IntervalsDescending => wrap!(|c, _w| -(c.interval as i32)),
+        IntervalsDescending => wrap!(|c, _w| (c.interval as i32).saturating_neg()),
         // Retrievability-based ordering
         RetrievabilityAscending => {
             wrap!(move |c, w| (c.retrievability(w) * 1000.0) as i32)
@@ -142,10 +142,11 @@ impl Collection {
         // calculate any missing memory state
         for c in &mut cards {
             if is_included_card(c) && c.memory_state.is_none() {
-                let original = c.clone();
-                let new_state = self.compute_memory_state(c.id)?.state;
-                c.memory_state = new_state.map(Into::into);
-                self.update_card_inner(c, original, self.usn()?)?;
+                let fsrs_data = self.compute_memory_state(c.id)?;
+                c.memory_state = fsrs_data.state.map(Into::into);
+                c.desired_retention = Some(fsrs_data.desired_retention);
+                c.decay = Some(fsrs_data.decay);
+                self.storage.update_card(c)?;
             }
         }
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
@@ -293,7 +294,8 @@ impl Collection {
                     (
                         *result.memorized_cnt_per_day.last().unwrap_or(&0.),
                         result.cost_per_day.iter().sum::<f32>(),
-                        result.review_cnt_per_day.iter().sum::<usize>() as u32,
+                        result.review_cnt_per_day.iter().sum::<usize>() as u32
+                            + result.learn_cnt_per_day.iter().sum::<usize>() as u32,
                     ),
                 ))
             })

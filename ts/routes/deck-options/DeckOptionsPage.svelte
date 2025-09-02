@@ -136,12 +136,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(.container-columns) {
             display: grid;
-            gap: 20px;
+            gap: 0px;
         }
 
         @include bp.with-breakpoint("lg") {
             :global(.container-columns) {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
             }
         }
     }

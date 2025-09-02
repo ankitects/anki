@@ -147,7 +147,7 @@ fn rendered_nodes_to_str(nodes: &[RenderedNode]) -> String {
         .join("")
 }
 
-fn field_to_record_field(field: &str, with_html: bool) -> Cow<str> {
+fn field_to_record_field(field: &str, with_html: bool) -> Cow<'_, str> {
     let mut text = strip_redundant_sections(field);
     if !with_html {
         text = text.map_cow(|t| html_to_text_line(t, false));
@@ -155,7 +155,7 @@ fn field_to_record_field(field: &str, with_html: bool) -> Cow<str> {
     text
 }
 
-fn strip_redundant_sections(text: &str) -> Cow<str> {
+fn strip_redundant_sections(text: &str) -> Cow<'_, str> {
     static RE: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(
             r"(?isx)
@@ -169,7 +169,7 @@ fn strip_redundant_sections(text: &str) -> Cow<str> {
     RE.replace_all(text.as_ref(), "")
 }
 
-fn strip_answer_side_question(text: &str) -> Cow<str> {
+fn strip_answer_side_question(text: &str) -> Cow<'_, str> {
     static RE: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"(?is)^.*<hr id=answer>\n*").unwrap());
     RE.replace_all(text.as_ref(), "")
@@ -251,7 +251,7 @@ impl NoteContext {
             .chain(self.tags(note))
     }
 
-    fn notetype_name(&self, note: &Note) -> Option<Cow<[u8]>> {
+    fn notetype_name(&self, note: &Note) -> Option<Cow<'_, [u8]>> {
         self.with_notetype.then(|| {
             self.notetypes
                 .get(&note.notetype_id)
@@ -259,7 +259,7 @@ impl NoteContext {
         })
     }
 
-    fn deck_name(&self, note: &Note) -> Option<Cow<[u8]>> {
+    fn deck_name(&self, note: &Note) -> Option<Cow<'_, [u8]>> {
         self.with_deck.then(|| {
             self.deck_ids
                 .get(&note.id)
@@ -268,7 +268,7 @@ impl NoteContext {
         })
     }
 
-    fn tags(&self, note: &Note) -> Option<Cow<[u8]>> {
+    fn tags(&self, note: &Note) -> Option<Cow<'_, [u8]>> {
         self.with_tags
             .then(|| Cow::from(note.tags.join(" ").into_bytes()))
     }

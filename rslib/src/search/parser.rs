@@ -158,7 +158,7 @@ pub fn parse(input: &str) -> Result<Vec<Node>> {
 
 /// Zero or more nodes inside brackets, eg 'one OR two -three'.
 /// Empty vec must be handled by caller.
-fn group_inner(input: &str) -> IResult<Vec<Node>> {
+fn group_inner(input: &str) -> IResult<'_, Vec<Node>> {
     let mut remaining = input;
     let mut nodes = vec![];
 
@@ -203,16 +203,16 @@ fn group_inner(input: &str) -> IResult<Vec<Node>> {
     Ok((remaining, nodes))
 }
 
-fn whitespace0(s: &str) -> IResult<Vec<char>> {
+fn whitespace0(s: &str) -> IResult<'_, Vec<char>> {
     many0(one_of(" \u{3000}")).parse(s)
 }
 
 /// Optional leading space, then a (negated) group or text
-fn node(s: &str) -> IResult<Node> {
+fn node(s: &str) -> IResult<'_, Node> {
     preceded(whitespace0, alt((negated_node, group, text))).parse(s)
 }
 
-fn negated_node(s: &str) -> IResult<Node> {
+fn negated_node(s: &str) -> IResult<'_, Node> {
     map(preceded(char('-'), alt((group, text))), |node| {
         Node::Not(Box::new(node))
     })
@@ -220,7 +220,7 @@ fn negated_node(s: &str) -> IResult<Node> {
 }
 
 /// One or more nodes surrounded by brackets, eg (one OR two)
-fn group(s: &str) -> IResult<Node> {
+fn group(s: &str) -> IResult<'_, Node> {
     let (opened, _) = char('(')(s)?;
     let (tail, inner) = group_inner(opened)?;
     if let Some(remaining) = tail.strip_prefix(')') {
@@ -235,18 +235,18 @@ fn group(s: &str) -> IResult<Node> {
 }
 
 /// Either quoted or unquoted text
-fn text(s: &str) -> IResult<Node> {
+fn text(s: &str) -> IResult<'_, Node> {
     alt((quoted_term, partially_quoted_term, unquoted_term)).parse(s)
 }
 
 /// Quoted text, including the outer double quotes.
-fn quoted_term(s: &str) -> IResult<Node> {
+fn quoted_term(s: &str) -> IResult<'_, Node> {
     let (remaining, term) = quoted_term_str(s)?;
     Ok((remaining, Node::Search(search_node_for_text(term)?)))
 }
 
 /// eg deck:"foo bar" - quotes must come after the :
-fn partially_quoted_term(s: &str) -> IResult<Node> {
+fn partially_quoted_term(s: &str) -> IResult<'_, Node> {
     let (remaining, (key, val)) = separated_pair(
         escaped(is_not("\"(): \u{3000}\\"), '\\', none_of(" \u{3000}")),
         char(':'),
@@ -260,7 +260,7 @@ fn partially_quoted_term(s: &str) -> IResult<Node> {
 }
 
 /// Unquoted text, terminated by whitespace or unescaped ", ( or )
-fn unquoted_term(s: &str) -> IResult<Node> {
+fn unquoted_term(s: &str) -> IResult<'_, Node> {
     match escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}"))(s) {
         Ok((tail, term)) => {
             if term.is_empty() {
@@ -297,7 +297,7 @@ fn unquoted_term(s: &str) -> IResult<Node> {
 }
 
 /// Non-empty string delimited by unescaped double quotes.
-fn quoted_term_str(s: &str) -> IResult<&str> {
+fn quoted_term_str(s: &str) -> IResult<'_, &str> {
     let (opened, _) = char('"')(s)?;
     if let Ok((tail, inner)) =
         escaped::<_, ParseError, _, _>(is_not(r#""\"#), '\\', anychar).parse(opened)
@@ -321,7 +321,7 @@ fn quoted_term_str(s: &str) -> IResult<&str> {
 
 /// Determine if text is a qualified search, and handle escaped chars.
 /// Expect well-formed input: unempty and no trailing \.
-fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
+fn search_node_for_text(s: &str) -> ParseResult<'_, SearchNode> {
     // leading : is only possible error for well-formed input
     let (tail, head) = verify(escaped(is_not(r":\"), '\\', anychar), |t: &str| {
         !t.is_empty()
@@ -369,7 +369,7 @@ fn search_node_for_text_with_argument<'a>(
     })
 }
 
-fn parse_tag(s: &str) -> ParseResult<SearchNode> {
+fn parse_tag(s: &str) -> ParseResult<'_, SearchNode> {
     Ok(if let Some(re) = s.strip_prefix("re:") {
         SearchNode::Tag {
             tag: unescape_quotes(re),
@@ -383,7 +383,7 @@ fn parse_tag(s: &str) -> ParseResult<SearchNode> {
     })
 }
 
-fn parse_template(s: &str) -> ParseResult<SearchNode> {
+fn parse_template(s: &str) -> ParseResult<'_, SearchNode> {
     Ok(SearchNode::CardTemplate(match s.parse::<u16>() {
         Ok(n) => TemplateKind::Ordinal(n.max(1) - 1),
         Err(_) => TemplateKind::Name(unescape(s)?),
@@ -391,7 +391,7 @@ fn parse_template(s: &str) -> ParseResult<SearchNode> {
 }
 
 /// flag:0-7
-fn parse_flag(s: &str) -> ParseResult<SearchNode> {
+fn parse_flag(s: &str) -> ParseResult<'_, SearchNode> {
     if let Ok(flag) = s.parse::<u8>() {
         if flag > 7 {
             Err(parse_failure(s, FailKind::InvalidFlag))
@@ -404,7 +404,7 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode> {
 }
 
 /// eg resched:3
-fn parse_resched(s: &str) -> ParseResult<SearchNode> {
+fn parse_resched(s: &str) -> ParseResult<'_, SearchNode> {
     parse_u32(s, "resched:").map(|days| SearchNode::Rated {
         days,
         ease: RatingKind::ManualReschedule,
@@ -412,7 +412,7 @@ fn parse_resched(s: &str) -> ParseResult<SearchNode> {
 }
 
 /// eg prop:ivl>3, prop:ease!=2.5
-fn parse_prop(prop_clause: &str) -> ParseResult<SearchNode> {
+fn parse_prop(prop_clause: &str) -> ParseResult<'_, SearchNode> {
     let (tail, prop) = alt((
         tag("ivl"),
         tag("due"),
@@ -580,23 +580,23 @@ fn parse_prop_rated<'a>(num: &str, context: &'a str) -> ParseResult<'a, Property
 }
 
 /// eg added:1
-fn parse_added(s: &str) -> ParseResult<SearchNode> {
+fn parse_added(s: &str) -> ParseResult<'_, SearchNode> {
     parse_u32(s, "added:").map(|n| SearchNode::AddedInDays(n.max(1)))
 }
 
 /// eg edited:1
-fn parse_edited(s: &str) -> ParseResult<SearchNode> {
+fn parse_edited(s: &str) -> ParseResult<'_, SearchNode> {
     parse_u32(s, "edited:").map(|n| SearchNode::EditedInDays(n.max(1)))
 }
 
 /// eg introduced:1
-fn parse_introduced(s: &str) -> ParseResult<SearchNode> {
+fn parse_introduced(s: &str) -> ParseResult<'_, SearchNode> {
     parse_u32(s, "introduced:").map(|n| SearchNode::IntroducedInDays(n.max(1)))
 }
 
 /// eg rated:3 or rated:10:2
 /// second arg must be between 1-4
-fn parse_rated(s: &str) -> ParseResult<SearchNode> {
+fn parse_rated(s: &str) -> ParseResult<'_, SearchNode> {
     let mut it = s.splitn(2, ':');
     let days = parse_u32(it.next().unwrap(), "rated:")?.max(1);
     let button = parse_answer_button(it.next(), s)?;
@@ -604,7 +604,7 @@ fn parse_rated(s: &str) -> ParseResult<SearchNode> {
 }
 
 /// eg is:due
-fn parse_state(s: &str) -> ParseResult<SearchNode> {
+fn parse_state(s: &str) -> ParseResult<'_, SearchNode> {
     use StateKind::*;
     Ok(SearchNode::State(match s {
         "new" => New,
@@ -624,7 +624,7 @@ fn parse_state(s: &str) -> ParseResult<SearchNode> {
     }))
 }
 
-fn parse_mid(s: &str) -> ParseResult<SearchNode> {
+fn parse_mid(s: &str) -> ParseResult<'_, SearchNode> {
     parse_i64(s, "mid:").map(|n| SearchNode::NotetypeId(n.into()))
 }
 
@@ -646,7 +646,7 @@ fn check_id_list<'a>(s: &'a str, context: &str) -> ParseResult<'a, &'a str> {
 }
 
 /// eg dupe:1231,hello
-fn parse_dupe(s: &str) -> ParseResult<SearchNode> {
+fn parse_dupe(s: &str) -> ParseResult<'_, SearchNode> {
     let mut it = s.splitn(2, ',');
     let ntid = parse_i64(it.next().unwrap(), s)?;
     if let Some(text) = it.next() {
@@ -700,7 +700,7 @@ fn unescape_quotes_and_backslashes(s: &str) -> String {
 }
 
 /// Unescape chars with special meaning to the parser.
-fn unescape(txt: &str) -> ParseResult<String> {
+fn unescape(txt: &str) -> ParseResult<'_, String> {
     if let Some(seq) = invalid_escape_sequence(txt) {
         Err(parse_failure(
             txt,

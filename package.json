@@ -82,6 +82,7 @@
     "resolutions": {
         "canvas": "npm:empty-npm-package@1.0.0",
         "cookie": "0.7.0",
+        "devalue": "^5.3.2",
         "vite": "6"
     },
     "browserslist": [
