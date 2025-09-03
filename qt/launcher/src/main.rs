@@ -88,9 +88,13 @@ fn main() {
 }
 
 fn run() -> Result<()> {
-    let uv_install_root = dirs::data_local_dir()
-        .context("Unable to determine data_dir")?
-        .join("AnkiProgramFiles");
+    let uv_install_root = if let Ok(custom_root) = std::env::var("ANKI_LAUNCHER_VENV_ROOT") {
+        std::path::PathBuf::from(custom_root)
+    } else {
+        dirs::data_local_dir()
+            .context("Unable to determine data_dir")?
+            .join("AnkiProgramFiles")
+    };
 
     let (exe_dir, resources_dir) = get_exe_and_resources_dirs()?;
 
