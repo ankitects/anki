@@ -193,8 +193,8 @@ fn extract_aqt_version(state: &State) -> Option<String> {
         return None;
     }
 
-    let output = Command::new(&state.uv_path)
-        .current_dir(&state.uv_install_root)
+    let output = uv_command(state)
+        .ok()?
         .env("VIRTUAL_ENV", &state.venv_folder)
         .args(["pip", "show", "aqt"])
         .output()
@@ -262,15 +262,7 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     };
 
     // Prepare to sync the venv
-    let mut command = Command::new(&state.uv_path);
-    command.current_dir(&state.uv_install_root);
-
-    // remove UV_* environment variables to avoid interference
-    for (key, _) in std::env::vars() {
-        if key.starts_with("UV_") || key == "VIRTUAL_ENV" {
-            command.env_remove(key);
-        }
-    }
+    let mut command = uv_command(state)?;
 
     if cfg!(target_os = "macos") {
         // remove CONDA_PREFIX/bin from PATH to avoid conda interference
@@ -314,13 +306,6 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
 
     if state.no_cache_marker.exists() {
         command.env("UV_NO_CACHE", "1");
-    }
-
-    // Add mirror environment variable if enabled
-    if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
-        command
-            .env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
-            .env("UV_DEFAULT_INDEX", &pypi_mirror);
     }
 
     match command.ensure_success() {
@@ -672,9 +657,8 @@ fn filter_and_normalize_versions(
 fn fetch_versions(state: &State) -> Result<Vec<String>> {
     let versions_script = state.resources_dir.join("versions.py");
 
-    let mut cmd = Command::new(&state.uv_path);
-    cmd.current_dir(&state.uv_install_root)
-        .args(["run", "--no-project", "--no-config", "--managed-python"])
+    let mut cmd = uv_command(state)?;
+    cmd.args(["run", "--no-project", "--no-config", "--managed-python"])
         .args(["--with", "pip-system-certs,requests[socks]"]);
 
     let python_version = read_file(&state.dist_python_version_path)?;
@@ -686,12 +670,6 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
     }
 
     cmd.arg(&versions_script);
-
-    // Add mirror environment variable if enabled
-    if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
-        cmd.env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
-            .env("UV_DEFAULT_INDEX", &pypi_mirror);
-    }
 
     let output = match cmd.utf8_output() {
         Ok(output) => output,
@@ -935,6 +913,27 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     platform::unix::finalize_uninstall();
 
     Ok(true)
+}
+
+fn uv_command(state: &State) -> Result<Command> {
+    let mut command = Command::new(&state.uv_path);
+    command.current_dir(&state.uv_install_root);
+
+    // remove UV_* environment variables to avoid interference
+    for (key, _) in std::env::vars() {
+        if key.starts_with("UV_") || key == "VIRTUAL_ENV" {
+            command.env_remove(key);
+        }
+    }
+
+    // Add mirror environment variable if enabled
+    if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
+        command
+            .env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
+            .env("UV_DEFAULT_INDEX", &pypi_mirror);
+    }
+
+    Ok(command)
 }
 
 fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
