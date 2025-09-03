@@ -215,7 +215,7 @@ impl Collection {
         ctx: &CardGenContext<impl Deref<Target = Notetype>>,
         note: &Note,
         target_deck_id: DeckId,
-    ) -> Result<()> {
+    ) -> Result<usize> {
         self.generate_cards_for_note(
             ctx,
             note,
@@ -231,7 +231,8 @@ impl Collection {
         note: &Note,
     ) -> Result<()> {
         let existing = self.storage.existing_cards_for_note(note.id)?;
-        self.generate_cards_for_note(ctx, note, &existing, ctx.last_deck, &mut Default::default())
+        self.generate_cards_for_note(ctx, note, &existing, ctx.last_deck, &mut Default::default())?;
+        Ok(())
     }
 
     fn generate_cards_for_note(
@@ -241,12 +242,13 @@ impl Collection {
         existing: &[AlreadyGeneratedCardInfo],
         target_deck_id: Option<DeckId>,
         cache: &mut CardGenCache,
-    ) -> Result<()> {
+    ) -> Result<usize> {
         let cards = ctx.new_cards_required(note, existing, true);
         if cards.is_empty() {
-            return Ok(());
+            return Ok(0);
         }
-        self.add_generated_cards(note.id, &cards, target_deck_id, cache)
+        self.add_generated_cards(note.id, &cards, target_deck_id, cache)?;
+        Ok(cards.len())
     }
 
     pub(crate) fn generate_cards_for_notetype(
