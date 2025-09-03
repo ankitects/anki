@@ -10,7 +10,7 @@ from collections.abc import Callable, Generator, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import partial
-from typing import Any, Literal, Match, cast
+from typing import Any, Literal, Match, Union, cast
 
 import aqt
 import aqt.browser
@@ -341,12 +341,26 @@ class Reviewer:
     def _initWeb(self) -> None:
         self._reps = 0
         # main window
-        self.web.load_sveltekit_page("reviewer")
+        self.web.stdHtml(
+            self.revHtml(),
+            css=["css/reviewer.css"],
+            js=[
+                "js/mathjax.js",
+                "js/vendor/mathjax/tex-chtml-full.js",
+                "js/reviewer.js",
+            ],
+            context=self,
+        )
         # block default drag & drop behavior while allowing drop events to be received by JS handlers
         self.web.allow_drops = True
         self.web.eval("_blockDefaultDragDropBehavior();")
         # show answer / ease buttons
-        self.bottom.web = self.web
+        self.bottom.web.stdHtml(
+            self._bottomHTML(),
+            css=["css/toolbar-bottom.css", "css/reviewer-bottom.css"],
+            js=["js/vendor/jquery.min.js", "js/reviewer-bottom.js"],
+            context=ReviewerBottomBar(self),
+        )
 
     # Showing the question
     ##########################################################################
@@ -667,8 +681,6 @@ class Reviewer:
             self.mw.onEditCurrent()
         elif url == "more":
             self.showContextMenu()
-        elif url == "bottomReady":
-            self._remaining()
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
@@ -825,13 +837,22 @@ timerStopped = false;
         )
 
     def _showAnswerButton(self) -> None:
+        middle = """
+<button title="{}" id="ansbut" onclick='pycmd("ans");'>{}<span class=stattxt>{}</span></button>""".format(
+            tr.actions_shortcut_key(val=tr.studying_space()),
+            tr.studying_show_answer(),
+            self._remaining(),
+        )
         # wrap it in a table so it has the same top margin as the ease buttons
+        middle = (
+            "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>"
+            % middle
+        )
         if self.card.should_show_timer():
             maxTime = self.card.time_limit() / 1000
         else:
             maxTime = 0
-        self._remaining()
-        self.bottom.web.eval("_showQuestion(%s,%d);" % ("", maxTime))
+        self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))
 
     def _showEaseButtons(self) -> None:
         if not self._states_mutated:
@@ -840,15 +861,23 @@ timerStopped = false;
         middle = self._answerButtons()
         conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
         self.bottom.web.eval(
-            f"_showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
+            f"showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
         )
 
-    def _remaining(self):
+    def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:
             return ""
 
-        idx, counts = self._v3.counts()
-        self.bottom.web.eval(f"_updateRemaining({json.dumps(counts)},{idx})")
+        counts: list[int | str]
+        idx, counts_ = self._v3.counts()
+        counts = cast(list[Union[int, str]], counts_)
+        counts[idx] = f"<u>{counts[idx]}</u>"
+
+        return f"""
+<span class=new-count>{counts[0]}</span> +
+<span class=learn-count>{counts[1]}</span> +
+<span class=review-count>{counts[2]}</span>
+"""
 
     def _defaultEase(self) -> Literal[2, 3]:
         return 3
@@ -878,32 +907,39 @@ timerStopped = false;
         )
         return buttons_tuple
 
-    def _answerButtons(self):
+    def _answerButtons(self) -> str:
         default = self._defaultEase()
 
         assert isinstance(self.mw.col.sched, V3Scheduler)
         labels = self.mw.col.sched.describe_next_states(self._v3.states)
 
-        def but(i: int, label: str):
+        def but(i: int, label: str) -> str:
             if i == default:
-                id = "defease"
+                extra = """id="defease" """
             else:
-                id = ""
+                extra = ""
             due = self._buttonTime(i, v3_labels=labels)
             key = (
                 tr.actions_shortcut_key(val=aqt.mw.pm.get_answer_key(i))
                 if aqt.mw.pm.get_answer_key(i)
                 else ""
             )
-            return {
-                "id": id,
-                "key": key,
-                "i": i,
-                "label": label,
-                "due": due,
-            }
+            return """
+<td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+%s%s</button></td>""" % (
+                extra,
+                key,
+                i,
+                i,
+                label,
+                due,
+            )
 
-        return [but(ease, label) for ease, label in self._answerButtonList()]
+        buf = "<center><table cellpadding=0 cellspacing=0><tr>"
+        for ease, label in self._answerButtonList():
+            buf += but(ease, label)
+        buf += "</tr></table>"
+        return buf
 
     def _buttonTime(self, i: int, v3_labels: Sequence[str]) -> str:
         if self.mw.col.conf["estTimes"]:
@@ -1190,6 +1226,65 @@ timerStopped = false;
     onDelete = delete_current_note
     onMark = toggle_mark_on_current_note
     setFlag = set_flag_on_current_card
+
+class SvelteReviewer(Reviewer):
+    def _answerButtons(self) -> str:
+        default = self._defaultEase()
+
+        assert isinstance(self.mw.col.sched, V3Scheduler)
+        labels = self.mw.col.sched.describe_next_states(self._v3.states)
+
+        def but(i: int, label: str):
+            if i == default:
+                id = "defease"
+            else:
+                id = ""
+            due = self._buttonTime(i, v3_labels=labels)
+            key = (
+                tr.actions_shortcut_key(val=aqt.mw.pm.get_answer_key(i))
+                if aqt.mw.pm.get_answer_key(i)
+                else ""
+            )
+            return {
+                "id": id,
+                "key": key,
+                "i": i,
+                "label": label,
+                "due": due,
+            }
+
+        return [but(ease, label) for ease, label in self._answerButtonList()]
+
+    def _remaining(self) -> str:
+        if not self.mw.col.conf["dueCounts"]:
+            return ""
+
+        idx, counts = self._v3.counts()
+        self.bottom.web.eval(f"_updateRemaining({json.dumps(counts)},{idx})")
+
+    def _showAnswerButton(self) -> None:
+        if self.card.should_show_timer():
+            maxTime = self.card.time_limit() / 1000
+        else:
+            maxTime = 0
+        self._remaining()
+        self.bottom.web.eval("_showQuestion(%s,%d);" % ("", maxTime))
+
+    def _linkHandler(self, url: str) -> None:
+        if url == "bottomReady":
+            self._remaining()
+            return
+        super()._linkHandler(url)
+
+    def _initWeb(self) -> None:
+        self._reps = 0
+        # main window
+        self.web.load_sveltekit_page("reviewer")
+        # block default drag & drop behavior while allowing drop events to be received by JS handlers
+        self.web.allow_drops = True
+        self.web.eval("_blockDefaultDragDropBehavior();")
+        # ensure bottom web functions trigger
+        self.bottom.web = self.web
 
 
 # if the last element is a comment, then the RUN_STATE_MUTATION code
