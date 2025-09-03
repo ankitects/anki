@@ -69,7 +69,7 @@ export function renderWorkloadChart(
     const subgraph_data = ({
         [SimulateWorkloadSubgraph.ratio]: data.map(d => ({
             ...d,
-            y: (60 * 60 * (d.memorized - d.start_memorized)) / d.count,
+            y: (60 * 60 * (d.memorized - d.start_memorized)) / d.timeCost,
         })),
         [SimulateWorkloadSubgraph.time]: data.map(d => ({ ...d, y: d.timeCost / d.learnSpan })),
         [SimulateWorkloadSubgraph.count]: data.map(d => ({ ...d, y: d.count / d.learnSpan })),
