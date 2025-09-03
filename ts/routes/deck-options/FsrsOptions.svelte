@@ -340,9 +340,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function showSimulatorModal(modal: Modal) {
-        if (
-            fsrsParams($config).toString() === initialParams.toString()
-        ) {
+        if (fsrsParams($config).toString() === initialParams.toString()) {
             modal?.show();
         } else {
             alert(tr.deckConfigFsrsSimulateSavePreset());
