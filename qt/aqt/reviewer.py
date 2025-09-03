@@ -1254,7 +1254,7 @@ class SvelteReviewer(Reviewer):
                 "due": due,
             }
 
-        return [but(ease, label) for ease, label in self._answerButtonList()]
+        return [but(ease, label) for ease, label in self._answerButtonList()]  # type: ignore
 
     def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:
@@ -1262,6 +1262,7 @@ class SvelteReviewer(Reviewer):
 
         idx, counts = self._v3.counts()
         self.bottom.web.eval(f"_updateRemaining({json.dumps(counts)},{idx})")
+        return ""
 
     def _showAnswerButton(self) -> None:
         if self.card.should_show_timer():
