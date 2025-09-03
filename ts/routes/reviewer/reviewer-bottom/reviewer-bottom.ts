@@ -1,6 +1,6 @@
+import { bridgeCommand } from "@tslib/bridgecommand";
 import { writable } from "svelte/store";
 import type { AnswerButtonInfo } from "./types";
-import { bridgeCommand } from "@tslib/bridgecommand";
 
 export function setupBottomBar() {
     /*
@@ -77,7 +77,7 @@ export function setupBottomBar() {
     }
     */
 
-    // TODO This should probably be a "ready" command now that it is part of the actual reviewer, 
+    // TODO This should probably be a "ready" command now that it is part of the actual reviewer,
     // Currently this depends on this component mounting after the reviewer which it should but seems hacky.
     // Maybe use a counter with a counter.subscribe($counter == 2 then call("ready"))
     bridgeCommand("bottomReady");

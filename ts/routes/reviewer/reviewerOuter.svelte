@@ -7,12 +7,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setupReviewer } from "./reviewer";
     import Reviewer from "./reviewer.svelte";
 
-    import "../../reviewer/reviewer.scss"
+    import "../../reviewer/reviewer.scss";
 
     let reviewerInfo: null | ReturnType<typeof setupReviewer> = null;
 
     onMount(() => {
-        reviewerInfo = setupReviewer()
+        reviewerInfo = setupReviewer();
     });
 </script>
 

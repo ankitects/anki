@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { Writable } from "svelte/store";
 
-    export let html: Writable<string>
-    export let cardClass: Writable<string>
+    export let html: Writable<string>;
+    export let cardClass: Writable<string>;
 </script>
 
 <div id="qa" class={$cardClass}>
@@ -11,6 +11,6 @@
 
 <style lang="scss">
     #qa {
-        flex: 1
+        flex: 1;
     }
 </style>

@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let reviewerInfo: null | ReturnType<typeof setupBottomBar> = null;
 
     onMount(() => {
-        reviewerInfo = setupBottomBar()
+        reviewerInfo = setupBottomBar();
     });
 </script>
 
