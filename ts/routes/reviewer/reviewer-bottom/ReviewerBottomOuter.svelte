@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount } from "svelte";
     import ReviewerBottom from "./ReviewerBottom.svelte";
     import "./index.scss";
-    import { setupBottomBar } from "./reviewer";
+    import { setupBottomBar } from "./reviewer-bottom";
 
     let reviewerInfo: null | ReturnType<typeof setupBottomBar> = null;
 
