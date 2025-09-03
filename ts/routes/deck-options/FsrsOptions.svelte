@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let desiredRetentionFocused = false;
     let desiredRetentionEverFocused = false;
     let optimized = false;
-    const initialParmas = [...fsrsParams($config)];
+    const initialParams = [...fsrsParams($config)];
     $: if (desiredRetentionFocused) {
         desiredRetentionEverFocused = true;
     }
@@ -341,7 +341,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function showSimulatorModal(modal: Modal) {
         if (
-            fsrsParams($config).toString() === initialParmas.toString()
+            fsrsParams($config).toString() === initialParams.toString()
         ) {
             modal?.show();
         } else {
