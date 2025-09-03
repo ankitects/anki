@@ -261,11 +261,6 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         None
     };
 
-    let have_venv = state.venv_folder.exists();
-    if cfg!(target_os = "macos") && !have_developer_tools() && !have_venv {
-        println!("If you see a pop-up about 'install_name_tool', you can cancel it, and ignore the warning below.\n");
-    }
-
     // Prepare to sync the venv
     let mut command = Command::new(&state.uv_path);
     command.current_dir(&state.uv_install_root);
@@ -277,17 +272,29 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         }
     }
 
-    // remove CONDA_PREFIX/bin from PATH to avoid conda interference
-    #[cfg(target_os = "macos")]
-    if let Ok(conda_prefix) = std::env::var("CONDA_PREFIX") {
+    if cfg!(target_os = "macos") {
+        // remove CONDA_PREFIX/bin from PATH to avoid conda interference
+        if let Ok(conda_prefix) = std::env::var("CONDA_PREFIX") {
+            if let Ok(current_path) = std::env::var("PATH") {
+                let conda_bin = format!("{conda_prefix}/bin");
+                let filtered_paths: Vec<&str> = current_path
+                    .split(':')
+                    .filter(|&path| path != conda_bin)
+                    .collect();
+                let new_path = filtered_paths.join(":");
+                command.env("PATH", new_path);
+            }
+        }
+        // put our fake install_name_tool at the top of the path to override
+        // potential conflicts
         if let Ok(current_path) = std::env::var("PATH") {
-            let conda_bin = format!("{conda_prefix}/bin");
-            let filtered_paths: Vec<&str> = current_path
-                .split(':')
-                .filter(|&path| path != conda_bin)
-                .collect();
-            let new_path = filtered_paths.join(":");
-            command.env("PATH", new_path);
+            let exe_dir = std::env::current_exe()
+                .ok()
+                .and_then(|exe| exe.parent().map(|p| p.to_path_buf()));
+            if let Some(exe_dir) = exe_dir {
+                let new_path = format!("{}:{}", exe_dir.display(), current_path);
+                command.env("PATH", new_path);
+            }
         }
     }
 
@@ -928,14 +935,6 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     platform::unix::finalize_uninstall();
 
     Ok(true)
-}
-
-fn have_developer_tools() -> bool {
-    Command::new("xcode-select")
-        .args(["-p"])
-        .output()
-        .map(|output| output.status.success())
-        .unwrap_or(false)
 }
 
 fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
