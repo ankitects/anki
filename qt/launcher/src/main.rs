@@ -51,6 +51,8 @@ struct State {
     previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
     venv_folder: std::path::PathBuf,
+    /// system Python + PyQt6 library mode
+    system_qt: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -117,6 +119,8 @@ fn run() -> Result<()> {
         mirror_path: uv_install_root.join("mirror"),
         pyproject_modified_by_user: false, // calculated later
         previous_version: None,
+        system_qt: (cfg!(unix) && !cfg!(target_os = "macos"))
+            && resources_dir.join("system_qt").exists(),
         resources_dir,
         venv_folder: uv_install_root.join(".venv"),
     };
@@ -294,18 +298,36 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         }
     }
 
+    // Create venv with system site packages if system Qt is enabled
+    if state.system_qt {
+        let mut venv_command = uv_command(state)?;
+        venv_command.args([
+            "venv",
+            "--no-managed-python",
+            "--system-site-packages",
+            "--no-config",
+        ]);
+        venv_command.ensure_success()?;
+    }
+
     command
         .env("UV_CACHE_DIR", &state.uv_cache_dir)
         .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
         .env(
             "UV_HTTP_TIMEOUT",
             std::env::var("UV_HTTP_TIMEOUT").unwrap_or_else(|_| "180".to_string()),
-        )
-        .args(["sync", "--upgrade", "--managed-python", "--no-config"]);
+        );
 
-    // Add python version if .python-version file exists
+    command.args(["sync", "--upgrade", "--no-config"]);
+    if !state.system_qt {
+        command.arg("--managed-python");
+    }
+
+    // Add python version if .python-version file exists (but not for system Qt)
     if let Some(version) = &python_version_trimmed {
-        command.args(["--python", version]);
+        if !state.system_qt {
+            command.args(["--python", version]);
+        }
     }
 
     if state.no_cache_marker.exists() {
@@ -727,7 +749,26 @@ fn apply_version_kind(version_kind: &VersionKind, state: &State) -> Result<()> {
             &format!("anki-release=={version}\",\n  \"anki=={version}\",\n  \"aqt=={version}"),
         ),
     };
-    write_file(&state.user_pyproject_path, &updated_content)?;
+
+    let final_content = if state.system_qt {
+        format!(
+            concat!(
+                "{}\n\n[tool.uv]\n",
+                "override-dependencies = [\n",
+                "  \"pyqt6; sys_platform=='never'\",\n",
+                "  \"pyqt6-qt6; sys_platform=='never'\",\n",
+                "  \"pyqt6-webengine; sys_platform=='never'\",\n",
+                "  \"pyqt6-webengine-qt6; sys_platform=='never'\",\n",
+                "  \"pyqt6_sip; sys_platform=='never'\"\n",
+                "]\n"
+            ),
+            updated_content
+        )
+    } else {
+        updated_content
+    };
+
+    write_file(&state.user_pyproject_path, &final_content)?;
 
     // Update .python-version based on version kind
     match version_kind {
