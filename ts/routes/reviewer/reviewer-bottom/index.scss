@@ -1,10 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "../../lib/sass/root-vars";
-@use "../../lib/sass/vars" as *;
-@use "../../lib/sass/card-counts";
-@use "../../lib/sass/buttons";
+@use "../../../lib/sass/root-vars";
+@use "../../../lib/sass/vars" as *;
+@use "../../../lib/sass/card-counts";
+@use "../../../lib/sass/buttons";
 
 :root {
     --focus-color: #{palette-of(border-focus)};

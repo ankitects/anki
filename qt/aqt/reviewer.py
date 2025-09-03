@@ -341,21 +341,12 @@ class Reviewer:
     def _initWeb(self) -> None:
         self._reps = 0
         # main window
-        self.web.stdHtml(
-            self.revHtml(),
-            css=["css/reviewer.css"],
-            js=[
-                "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml-full.js",
-                "js/reviewer.js",
-            ],
-            context=self,
-        )
+        self.web.load_sveltekit_page("reviewer")
         # block default drag & drop behavior while allowing drop events to be received by JS handlers
         self.web.allow_drops = True
         self.web.eval("_blockDefaultDragDropBehavior();")
         # show answer / ease buttons
-        self.bottom.web.load_sveltekit_page("reviewer-bottom")
+        self.bottom.web = self.web
 
     # Showing the question
     ##########################################################################
