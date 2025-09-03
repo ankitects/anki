@@ -53,6 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let desiredRetentionFocused = false;
     let desiredRetentionEverFocused = false;
     let optimized = false;
+    const initialParmas = [...fsrsParams($config)];
     $: if (desiredRetentionFocused) {
         desiredRetentionEverFocused = true;
     }
@@ -338,6 +339,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state.save(UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS);
     }
 
+    function showSimulatorModal(modal: Modal) {
+        if (
+            initialParmas.length === 0 ||
+            fsrsParams($config).toString() === initialParmas.toString()
+        ) {
+            modal?.show();
+        } else {
+            alert(tr.deckConfigFsrsSimulateSavePreset());
+        }
+    }
+
     let simulatorModal: Modal;
     let workloadModal: Modal;
 </script>
@@ -368,7 +380,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="btn btn-primary"
     on:click={() => {
         simulateFsrsRequest.reviewLimit = 9999;
-        workloadModal?.show();
+        showSimulatorModal(workloadModal);
     }}
 >
     {tr.deckConfigFsrsDesiredRetentionHelpMeDecideExperimental()}
@@ -455,7 +467,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <hr />
 
 <div class="m-1">
-    <button class="btn btn-primary" on:click={() => simulatorModal?.show()}>
+    <button class="btn btn-primary" on:click={() => showSimulatorModal(simulatorModal)}>
         {tr.deckConfigFsrsSimulatorExperimental()}
     </button>
 </div>
