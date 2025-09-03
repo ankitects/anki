@@ -64,7 +64,7 @@ export function setupBottomBar() {
     }
 
     globalThis._showQuestion = _showQuestion;
-    globalThis._showAnswer = _showAnswer;
+    globalThis.showAnswer = _showAnswer;
     globalThis._updateRemaining = _updateRemaining;
 
     /*
