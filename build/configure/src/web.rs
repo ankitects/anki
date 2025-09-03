@@ -228,7 +228,7 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":sveltekit"
         ],
     )?;
-    
+
     Ok(())
 }
 

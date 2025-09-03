@@ -1077,7 +1077,7 @@ title="{}" {}>{}</button>""".format(
     def setupReviewer(self) -> None:
         from aqt.reviewer import Reviewer, SvelteReviewer
 
-        self.reviewer =  SvelteReviewer(self) if True else Reviewer(self)
+        self.reviewer = SvelteReviewer(self) if True else Reviewer(self)
 
     # Syncing
     ##########################################################################
