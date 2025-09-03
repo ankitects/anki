@@ -6,6 +6,7 @@ export function setupReviewer() {
 
     function showQuestion(q, a, bodyclass) {
         html.set(q)
+        document.body.className = bodyclass
         preloadAnswerImages(a)
     }
 
