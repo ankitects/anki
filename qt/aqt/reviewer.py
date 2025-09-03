@@ -1288,6 +1288,7 @@ class SvelteReviewer(Reviewer):
         self.web.eval("_blockDefaultDragDropBehavior();")
         # ensure bottom web functions trigger
         self.bottom.web = self.web
+        self.mw.bottomWeb.hide()
 
 
 # if the last element is a comment, then the RUN_STATE_MUTATION code
