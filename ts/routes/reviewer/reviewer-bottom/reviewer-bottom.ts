@@ -63,7 +63,7 @@ export function setupBottomBar() {
         remainingIndex.set(idx);
     }
 
-    globalThis._showQuestion = _showQuestion;
+    globalThis.showQuestion = _showQuestion;
     globalThis.showAnswer = _showAnswer;
     globalThis._updateRemaining = _updateRemaining;
 
