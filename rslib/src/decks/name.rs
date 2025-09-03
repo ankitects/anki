@@ -191,7 +191,7 @@ fn invalid_char_for_deck_component(c: char) -> bool {
     c.is_ascii_control()
 }
 
-fn normalized_deck_name_component(comp: &str) -> Cow<str> {
+fn normalized_deck_name_component(comp: &str) -> Cow<'_, str> {
     let mut out = normalize_to_nfc(comp);
     if out.contains(invalid_char_for_deck_component) {
         out = out.replace(invalid_char_for_deck_component, "").into();

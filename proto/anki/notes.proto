@@ -59,7 +59,7 @@ message AddNoteRequest {
 }
 
 message AddNoteResponse {
-  collection.OpChanges changes = 1;
+  collection.OpChangesWithCount changes = 1;
   int64 note_id = 2;
 }
 

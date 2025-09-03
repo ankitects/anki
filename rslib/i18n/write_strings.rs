@@ -195,10 +195,28 @@ pub(crate) const {lang_name}: phf::Map<&str, &str> = phf::phf_map! {{",
     .unwrap();
 
     for (module, contents) in modules {
-        writeln!(buf, r###"        "{module}" => r##"{contents}"##,"###).unwrap();
+        let escaped_contents = escape_unicode_control_chars(contents);
+        writeln!(
+            buf,
+            r###"        "{module}" => r##"{escaped_contents}"##,"###
+        )
+        .unwrap();
     }
 
     buf.push_str("};\n");
+}
+
+fn escape_unicode_control_chars(input: &str) -> String {
+    use regex::Regex;
+
+    static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| Regex::new(r"[\u{202a}-\u{202e}\u{2066}-\u{2069}]").unwrap());
+
+    re.replace_all(input, |caps: &regex::Captures| {
+        let c = caps.get(0).unwrap().as_str().chars().next().unwrap();
+        format!("\\u{{{:04x}}}", c as u32)
+    })
+    .into_owned()
 }
 
 fn lang_constant_name(lang: &str) -> String {

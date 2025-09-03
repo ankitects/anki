@@ -215,8 +215,8 @@ pub fn is_html(text: impl AsRef<str>) -> bool {
     HTML.is_match(text.as_ref())
 }
 
-pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<str> {
-    let (html_stripper, sound_rep): (fn(&str) -> Cow<str>, _) = if preserve_media_filenames {
+pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<'_, str> {
+    let (html_stripper, sound_rep): (fn(&str) -> Cow<'_, str>, _) = if preserve_media_filenames {
         (strip_html_preserving_media_filenames, "$1")
     } else {
         (strip_html, "")
@@ -229,15 +229,15 @@ pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<str>
         .trim()
 }
 
-pub fn strip_html(html: &str) -> Cow<str> {
+pub fn strip_html(html: &str) -> Cow<'_, str> {
     strip_html_preserving_entities(html).map_cow(decode_entities)
 }
 
-pub fn strip_html_preserving_entities(html: &str) -> Cow<str> {
+pub fn strip_html_preserving_entities(html: &str) -> Cow<'_, str> {
     HTML.replace_all(html, "")
 }
 
-pub fn decode_entities(html: &str) -> Cow<str> {
+pub fn decode_entities(html: &str) -> Cow<'_, str> {
     if html.contains('&') {
         match htmlescape::decode_html(html) {
             Ok(text) => text.replace('\u{a0}', " ").into(),
@@ -249,7 +249,7 @@ pub fn decode_entities(html: &str) -> Cow<str> {
     }
 }
 
-pub(crate) fn newlines_to_spaces(text: &str) -> Cow<str> {
+pub(crate) fn newlines_to_spaces(text: &str) -> Cow<'_, str> {
     if text.contains('\n') {
         text.replace('\n', " ").into()
     } else {
@@ -257,7 +257,7 @@ pub(crate) fn newlines_to_spaces(text: &str) -> Cow<str> {
     }
 }
 
-pub fn strip_html_for_tts(html: &str) -> Cow<str> {
+pub fn strip_html_for_tts(html: &str) -> Cow<'_, str> {
     HTML_LINEBREAK_TAGS
         .replace_all(html, " ")
         .map_cow(strip_html)
@@ -282,7 +282,7 @@ pub(crate) struct MediaRef<'a> {
     pub fname_decoded: Cow<'a, str>,
 }
 
-pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
+pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef<'_>> {
     let mut out = vec![];
 
     for caps in HTML_MEDIA_TAGS.captures_iter(text) {
@@ -359,11 +359,11 @@ pub(crate) fn extract_underscored_references(text: &str) -> Vec<&str> {
 /// Returns the first matching group as a str. This is intended for regexes
 /// where exactly one group matches, and will panic for matches without matching
 /// groups.
-fn extract_match(caps: Captures) -> &str {
+fn extract_match(caps: Captures<'_>) -> &str {
     caps.iter().skip(1).find_map(|g| g).unwrap().as_str()
 }
 
-pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
+pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<'_, str> {
     HTML_MEDIA_TAGS
         .replace_all(html, r" ${1}${2}${3} ")
         .map_cow(strip_html)
@@ -385,7 +385,7 @@ pub(crate) fn sanitize_html_no_images(html: &str) -> String {
         .to_string()
 }
 
-pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
+pub(crate) fn normalize_to_nfc(s: &str) -> Cow<'_, str> {
     match is_nfc(s) {
         false => s.chars().nfc().collect::<String>().into(),
         true => s.into(),
@@ -429,7 +429,7 @@ static EXTRA_NO_COMBINING_REPLACEMENTS: phf::Map<char, &str> = phf::phf_map! {
 };
 
 /// Convert provided string to NFKD form and strip combining characters.
-pub(crate) fn without_combining(s: &str) -> Cow<str> {
+pub(crate) fn without_combining(s: &str) -> Cow<'_, str> {
     // if the string is already normalized
     if matches!(is_nfkd_quick(s.chars()), IsNormalized::Yes) {
         // and no combining characters found, return unchanged
@@ -472,7 +472,7 @@ pub(crate) fn is_glob(txt: &str) -> bool {
 }
 
 /// Convert to a RegEx respecting Anki wildcards.
-pub(crate) fn to_re(txt: &str) -> Cow<str> {
+pub(crate) fn to_re(txt: &str) -> Cow<'_, str> {
     to_custom_re(txt, ".")
 }
 
@@ -492,7 +492,7 @@ pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
 }
 
 /// Convert to SQL respecting Anki wildcards.
-pub(crate) fn to_sql(txt: &str) -> Cow<str> {
+pub(crate) fn to_sql(txt: &str) -> Cow<'_, str> {
     // escape sequences and unescaped special characters which need conversion
     static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\[\\*]|[*%]").unwrap());
     RE.replace_all(txt, |caps: &Captures| {
@@ -508,7 +508,7 @@ pub(crate) fn to_sql(txt: &str) -> Cow<str> {
 }
 
 /// Unescape everything.
-pub(crate) fn to_text(txt: &str) -> Cow<str> {
+pub(crate) fn to_text(txt: &str) -> Cow<'_, str> {
     static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\(.)").unwrap());
     RE.replace_all(txt, "$1")
 }
@@ -561,14 +561,14 @@ const FRAGMENT_QUERY_UNION: &AsciiSet = &CONTROLS
     .add(b'#');
 
 /// IRI-encode unescaped local paths in HTML fragment.
-pub(crate) fn encode_iri_paths(unescaped_html: &str) -> Cow<str> {
+pub(crate) fn encode_iri_paths(unescaped_html: &str) -> Cow<'_, str> {
     transform_html_paths(unescaped_html, |fname| {
         utf8_percent_encode(fname, FRAGMENT_QUERY_UNION).into()
     })
 }
 
 /// URI-decode escaped local paths in HTML fragment.
-pub(crate) fn decode_iri_paths(escaped_html: &str) -> Cow<str> {
+pub(crate) fn decode_iri_paths(escaped_html: &str) -> Cow<'_, str> {
     transform_html_paths(escaped_html, |fname| {
         percent_decode_str(fname).decode_utf8_lossy()
     })
@@ -577,9 +577,9 @@ pub(crate) fn decode_iri_paths(escaped_html: &str) -> Cow<str> {
 /// Apply a transform to local filename references in tags like IMG.
 /// Required at display time, as Anki unfortunately stores the references
 /// in unencoded form in the database.
-fn transform_html_paths<F>(html: &str, transform: F) -> Cow<str>
+fn transform_html_paths<F>(html: &str, transform: F) -> Cow<'_, str>
 where
-    F: Fn(&str) -> Cow<str>,
+    F: Fn(&str) -> Cow<'_, str>,
 {
     HTML_MEDIA_TAGS.replace_all(html, |caps: &Captures| {
         let fname = caps

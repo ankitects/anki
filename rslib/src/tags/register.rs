@@ -155,7 +155,7 @@ fn invalid_char_for_tag(c: char) -> bool {
     c.is_ascii_control() || is_tag_separator(c)
 }
 
-fn normalized_tag_name_component(comp: &str) -> Cow<str> {
+fn normalized_tag_name_component(comp: &str) -> Cow<'_, str> {
     let mut out = normalize_to_nfc(comp);
     if out.contains(invalid_char_for_tag) {
         out = out.replace(invalid_char_for_tag, "").into();
@@ -170,7 +170,7 @@ fn normalized_tag_name_component(comp: &str) -> Cow<str> {
     }
 }
 
-pub(super) fn normalize_tag_name(name: &str) -> Result<Cow<str>> {
+pub(super) fn normalize_tag_name(name: &str) -> Result<Cow<'_, str>> {
     let normalized_name: Cow<str> = if name
         .split("::")
         .any(|comp| matches!(normalized_tag_name_component(comp), Cow::Owned(_)))

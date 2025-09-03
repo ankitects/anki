@@ -49,7 +49,7 @@ pub fn compare_answer(expected: &str, typed: &str, combining: bool) -> String {
 trait DiffTrait {
     fn get_typed(&self) -> &[char];
     fn get_expected(&self) -> &[char];
-    fn get_expected_original(&self) -> Cow<str>;
+    fn get_expected_original(&self) -> Cow<'_, str>;
 
     fn new(expected: &str, typed: &str) -> Self;
 
@@ -136,7 +136,7 @@ fn render_tokens(tokens: &[DiffToken]) -> String {
 
 /// Prefixes a leading mark character with a non-breaking space to prevent
 /// it from joining the previous token.
-fn isolate_leading_mark(text: &str) -> Cow<str> {
+fn isolate_leading_mark(text: &str) -> Cow<'_, str> {
     if text
         .chars()
         .next()
@@ -161,7 +161,7 @@ impl DiffTrait for Diff {
     fn get_expected(&self) -> &[char] {
         &self.expected
     }
-    fn get_expected_original(&self) -> Cow<str> {
+    fn get_expected_original(&self) -> Cow<'_, str> {
         Cow::Owned(self.get_expected().iter().collect::<String>())
     }
 
@@ -191,7 +191,7 @@ impl DiffTrait for DiffNonCombining {
     fn get_expected(&self) -> &[char] {
         &self.base.expected
     }
-    fn get_expected_original(&self) -> Cow<str> {
+    fn get_expected_original(&self) -> Cow<'_, str> {
         Cow::Borrowed(&self.expected_original)
     }
 

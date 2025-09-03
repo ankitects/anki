@@ -62,7 +62,7 @@ pub fn prepare_for_launch_after_update(mut cmd: Command, root: &Path) -> Result<
 pub fn relaunch_in_terminal() -> Result<()> {
     let current_exe = std::env::current_exe().context("Failed to get current executable path")?;
     Command::new("open")
-        .args(["-a", "Terminal"])
+        .args(["-na", "Terminal"])
         .arg(current_exe)
         .ensure_spawn()?;
     std::process::exit(0);
