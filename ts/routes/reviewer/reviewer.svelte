@@ -4,12 +4,12 @@
     export let html: Writable<string>
 </script>
 
-<div class="qa">
+<div id="qa" class="card">
     {@html $html}
 </div>
 
 <style lang="scss">
-    .qa {
+    #qa {
         flex: 1
     }
 </style>
