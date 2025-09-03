@@ -9,6 +9,7 @@ use regex::Regex;
 use crate::notetype::NotetypeId as NotetypeIdType;
 use crate::prelude::*;
 use crate::search::parser::parse;
+use crate::search::parser::FieldSearchMode;
 use crate::search::parser::Node;
 use crate::search::parser::PropertyKind;
 use crate::search::parser::RatingKind;
@@ -69,12 +70,7 @@ fn write_search_node(node: &SearchNode) -> String {
     use SearchNode::*;
     match node {
         UnqualifiedText(s) => maybe_quote(&s.replace(':', "\\:")),
-        SingleField {
-            field,
-            text,
-            is_re,
-            is_nc,
-        } => write_single_field(field, text, *is_re, *is_nc),
+        SingleField { field, text, mode } => write_single_field(field, text, *mode),
         AddedInDays(u) => format!("added:{u}"),
         EditedInDays(u) => format!("edited:{u}"),
         IntroducedInDays(u) => format!("introduced:{u}"),
@@ -86,7 +82,7 @@ fn write_search_node(node: &SearchNode) -> String {
         NotetypeId(NotetypeIdType(i)) => format!("mid:{i}"),
         Notetype(s) => maybe_quote(&format!("note:{s}")),
         Rated { days, ease } => write_rated(days, ease),
-        Tag { tag, is_re, is_nc } => write_single_field("tag", tag, *is_re, *is_nc),
+        Tag { tag, mode } => write_single_field("tag", tag, *mode),
         Duplicates { notetype_id, text } => write_dupe(notetype_id, text),
         State(k) => write_state(k),
         Flag(u) => format!("flag:{u}"),
@@ -121,15 +117,15 @@ fn needs_quotation(txt: &str) -> bool {
 }
 
 /// Also used by tag search, which has the same syntax.
-fn write_single_field(field: &str, text: &str, is_re: bool, is_nc: bool) -> String {
-    let prefix = if is_re {
-        "re:"
-    } else if is_nc {
-        "nc:"
-    } else {
-        ""
+fn write_single_field(field: &str, text: &str, mode: FieldSearchMode) -> String {
+    let prefix = match mode {
+        FieldSearchMode::Normal => "",
+        FieldSearchMode::Regex => "re:",
+        FieldSearchMode::NoCombining => "nc:",
     };
-    let text = if !is_re && !is_nc && (text.starts_with("re:") || text.starts_with("ne:")) {
+    let text = if mode == FieldSearchMode::Normal
+        && (text.starts_with("re:") || text.starts_with("nc:"))
+    {
         text.replacen(':', "\\:", 1)
     } else {
         text.to_string()

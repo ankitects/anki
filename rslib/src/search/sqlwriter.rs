@@ -7,6 +7,7 @@ use std::ops::Range;
 
 use itertools::Itertools;
 
+use super::parser::FieldSearchMode;
 use super::parser::Node;
 use super::parser::PropertyKind;
 use super::parser::RatingKind;
@@ -138,12 +139,9 @@ impl SqlWriter<'_> {
                     false,
                 )?
             }
-            SearchNode::SingleField {
-                field,
-                text,
-                is_re,
-                is_nc,
-            } => self.write_field(&norm(field), &self.norm_note(text), *is_re, *is_nc)?,
+            SearchNode::SingleField { field, text, mode } => {
+                self.write_field(&norm(field), &self.norm_note(text), *mode)?
+            }
             SearchNode::Duplicates { notetype_id, text } => {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
@@ -183,7 +181,7 @@ impl SqlWriter<'_> {
             SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),
             SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
 
-            SearchNode::Tag { tag, is_re, is_nc } => self.write_tag(&norm(tag), *is_re, *is_nc),
+            SearchNode::Tag { tag, mode } => self.write_tag(&norm(tag), *mode),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {flag}").unwrap();
@@ -299,8 +297,8 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_tag(&mut self, tag: &str, is_re: bool, _is_nc: bool) {
-        if is_re {
+    fn write_tag(&mut self, tag: &str, mode: FieldSearchMode) {
+        if mode == FieldSearchMode::Regex {
             self.args.push(format!("(?i){tag}"));
             write!(self.sql, "regexp_tags(?{}, n.tags)", self.args.len()).unwrap();
         } else {
@@ -570,17 +568,17 @@ impl SqlWriter<'_> {
         }
     }
 
-    fn write_field(&mut self, field_name: &str, val: &str, is_re: bool, is_nc: bool) -> Result<()> {
+    fn write_field(&mut self, field_name: &str, val: &str, mode: FieldSearchMode) -> Result<()> {
         if matches!(field_name, "*" | "_*" | "*_") {
-            if is_re {
+            if mode == FieldSearchMode::Regex {
                 self.write_all_fields_regexp(val);
             } else {
                 self.write_all_fields(val);
             }
             Ok(())
-        } else if is_re {
+        } else if mode == FieldSearchMode::Regex {
             self.write_single_field_regexp(field_name, val)
-        } else if is_nc {
+        } else if mode == FieldSearchMode::NoCombining {
             self.write_single_field_nc(field_name, val)
         } else {
             self.write_single_field(field_name, val)

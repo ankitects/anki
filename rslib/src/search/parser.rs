@@ -48,6 +48,24 @@ pub enum Node {
     Search(SearchNode),
 }
 
+#[derive(Copy, Debug, PartialEq, Eq, Clone)]
+pub enum FieldSearchMode {
+    Normal,
+    Regex,
+    NoCombining,
+}
+
+impl From<i32> for FieldSearchMode {
+    fn from(val: i32) -> Self {
+        match val {
+            0 => Self::Normal,
+            1 => Self::Regex,
+            2 => Self::NoCombining,
+            _ => Self::Normal,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum SearchNode {
     // text without a colon
@@ -56,8 +74,7 @@ pub enum SearchNode {
     SingleField {
         field: String,
         text: String,
-        is_re: bool,
-        is_nc: bool,
+        mode: FieldSearchMode,
     },
     AddedInDays(u32),
     EditedInDays(u32),
@@ -78,8 +95,7 @@ pub enum SearchNode {
     },
     Tag {
         tag: String,
-        is_re: bool,
-        is_nc: bool,
+        mode: FieldSearchMode,
     },
     Duplicates {
         notetype_id: NotetypeId,
@@ -375,14 +391,12 @@ fn parse_tag(s: &str) -> ParseResult<'_, SearchNode> {
     Ok(if let Some(re) = s.strip_prefix("re:") {
         SearchNode::Tag {
             tag: unescape_quotes(re),
-            is_re: true,
-            is_nc: false,
+            mode: FieldSearchMode::Regex,
         }
     } else {
         SearchNode::Tag {
             tag: unescape(s)?,
-            is_re: false,
-            is_nc: false,
+            mode: FieldSearchMode::Normal,
         }
     })
 }
@@ -674,22 +688,19 @@ fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<'a, SearchN
         SearchNode::SingleField {
             field: unescape(key)?,
             text: unescape_quotes(stripped),
-            is_re: true,
-            is_nc: false,
+            mode: FieldSearchMode::Regex,
         }
     } else if let Some(stripped) = val.strip_prefix("nc:") {
         SearchNode::SingleField {
             field: unescape(key)?,
             text: unescape_quotes(stripped),
-            is_re: false,
-            is_nc: true,
+            mode: FieldSearchMode::NoCombining,
         }
     } else {
         SearchNode::SingleField {
             field: unescape(key)?,
             text: unescape(val)?,
-            is_re: false,
-            is_nc: false,
+            mode: FieldSearchMode::Normal,
         }
     })
 }
@@ -819,8 +830,7 @@ mod test {
                     Search(SingleField {
                         field: "foo".into(),
                         text: "bar baz".into(),
-                        is_re: false,
-                        is_nc: false,
+                        mode: FieldSearchMode::Normal,
                     })
                 ]))),
                 Or,
@@ -833,8 +843,7 @@ mod test {
             vec![Search(SingleField {
                 field: "foo".into(),
                 text: "bar".into(),
-                is_re: true,
-                is_nc: false
+                mode: FieldSearchMode::Regex,
             })]
         );
 
@@ -843,8 +852,7 @@ mod test {
             vec![Search(SingleField {
                 field: "foo".into(),
                 text: "bar".into(),
-                is_re: false,
-                is_nc: true
+                mode: FieldSearchMode::NoCombining,
             })]
         );
 
@@ -854,8 +862,7 @@ mod test {
             vec![Search(SingleField {
                 field: "field".into(),
                 text: "va\"lue".into(),
-                is_re: false,
-                is_nc: false
+                mode: FieldSearchMode::Normal,
             })]
         );
         assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:"va\"lue""#)?,);
@@ -932,16 +939,14 @@ mod test {
             parse("tag:hard")?,
             vec![Search(Tag {
                 tag: "hard".into(),
-                is_re: false,
-                is_nc: false
+                mode: FieldSearchMode::Normal
             })]
         );
         assert_eq!(
             parse(r"tag:re:\\")?,
             vec![Search(Tag {
                 tag: r"\\".into(),
-                is_re: true,
-                is_nc: false
+                mode: FieldSearchMode::Regex
             })]
         );
         assert_eq!(

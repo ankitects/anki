@@ -74,10 +74,15 @@ message SearchNode {
     repeated SearchNode nodes = 1;
     Joiner joiner = 2;
   }
+  enum FieldSearchMode {
+    FIELD_SEARCH_NORMAL = 0;
+    FIELD_SEARCH_REGEX = 1;
+    FIELD_SEARCH_NOCOMBINING = 2;
+  }
   message Field {
     string field_name = 1;
     string text = 2;
-    bool is_re = 3;
+    FieldSearchMode mode = 3;
   }
 
   oneof filter {
