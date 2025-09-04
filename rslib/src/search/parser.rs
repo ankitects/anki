@@ -3,6 +3,7 @@
 
 use std::sync::LazyLock;
 
+use anki_proto::search::search_node::FieldSearchMode as FieldSearchModeProto;
 use nom::branch::alt;
 use nom::bytes::complete::escaped;
 use nom::bytes::complete::is_not;
@@ -27,7 +28,6 @@ use crate::error::ParseError;
 use crate::error::Result;
 use crate::error::SearchErrorKind as FailKind;
 use crate::prelude::*;
-
 type IResult<'a, O> = std::result::Result<(&'a str, O), nom::Err<ParseError<'a>>>;
 type ParseResult<'a, O> = std::result::Result<O, nom::Err<ParseError<'a>>>;
 
@@ -55,13 +55,12 @@ pub enum FieldSearchMode {
     NoCombining,
 }
 
-impl From<i32> for FieldSearchMode {
-    fn from(val: i32) -> Self {
-        match val {
-            0 => Self::Normal,
-            1 => Self::Regex,
-            2 => Self::NoCombining,
-            _ => Self::Normal,
+impl From<FieldSearchModeProto> for FieldSearchMode {
+    fn from(mode: FieldSearchModeProto) -> Self {
+        match mode {
+            FieldSearchModeProto::FieldSearchNormal => Self::Normal,
+            FieldSearchModeProto::FieldSearchRegex => Self::Regex,
+            FieldSearchModeProto::FieldSearchNocombining => Self::NoCombining,
         }
     }
 }

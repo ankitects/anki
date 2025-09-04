@@ -108,7 +108,7 @@ impl TryFrom<anki_proto::search::SearchNode> for Node {
                 Filter::Field(field) => Node::Search(SearchNode::SingleField {
                     field: escape_anki_wildcards(&field.field_name),
                     text: escape_anki_wildcards(&field.text),
-                    mode: field.mode.into(),
+                    mode: field.mode().into(),
                 }),
                 Filter::LiteralText(text) => {
                     let text = escape_anki_wildcards(&text);
