@@ -210,7 +210,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .spin-box {
         width: 100%;
         background: var(--canvas-inset);
-        border: 1px solid var(--border);
+        border: 1px solid var(--border-ui);
         border-radius: var(--border-radius);
         overflow: hidden;
         position: relative;

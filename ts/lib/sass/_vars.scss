@@ -178,6 +178,13 @@ $vars: (
                     dark: palette(blue, 5),
                 ),
             ),
+            ui: (
+                "Border color of ui elements, designed for minimum A11Y contrast against the background.",
+                (
+                    light: palette(lightgray, 10),
+                    dark: palette(blue, 5),
+                ),
+            ),
         ),
         button: (
             bg: (
