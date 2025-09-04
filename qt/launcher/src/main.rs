@@ -966,10 +966,13 @@ fn uv_command(state: &State) -> Result<Command> {
 
     // remove UV_* environment variables to avoid interference
     for (key, _) in std::env::vars() {
-        if key.starts_with("UV_") || key == "VIRTUAL_ENV" {
+        if key.starts_with("UV_") {
             command.env_remove(key);
         }
     }
+    command
+        .env_remove("VIRTUAL_ENV")
+        .env_remove("SSLKEYLOGFILE");
 
     // Add mirror environment variable if enabled
     if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
@@ -1003,6 +1006,7 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     // Set UV and Python paths for the Python code
     cmd.env("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
     cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
+    cmd.env_remove("SSLKEYLOGFILE");
 
     Ok(cmd)
 }
