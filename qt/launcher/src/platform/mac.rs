@@ -64,6 +64,7 @@ pub fn relaunch_in_terminal() -> Result<()> {
     Command::new("open")
         .args(["-na", "Terminal"])
         .arg(current_exe)
+        .env_remove("ANKI_LAUNCHER_WANT_TERMINAL")
         .ensure_spawn()?;
     std::process::exit(0);
 }
