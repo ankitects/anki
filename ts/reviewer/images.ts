@@ -10,6 +10,9 @@ export function allImagesLoaded(): Promise<void[]> {
 }
 
 function imageLoaded(img: HTMLImageElement): Promise<void> {
+    if (!img.getAttribute("decoding")) {
+        img.decoding = "async";
+    }
     return img.complete
         ? Promise.resolve()
         : new Promise((resolve) => {
