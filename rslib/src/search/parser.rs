@@ -58,9 +58,9 @@ pub enum FieldSearchMode {
 impl From<FieldSearchModeProto> for FieldSearchMode {
     fn from(mode: FieldSearchModeProto) -> Self {
         match mode {
-            FieldSearchModeProto::FieldSearchNormal => Self::Normal,
-            FieldSearchModeProto::FieldSearchRegex => Self::Regex,
-            FieldSearchModeProto::FieldSearchNocombining => Self::NoCombining,
+            FieldSearchModeProto::Normal => Self::Normal,
+            FieldSearchModeProto::Regex => Self::Regex,
+            FieldSearchModeProto::Nocombining => Self::NoCombining,
         }
     }
 }
