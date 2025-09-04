@@ -60,6 +60,7 @@ preferences-full-screen-only = Full screen only
 preferences-appearance = Appearance
 preferences-general = General
 preferences-style = Style
+preferences-color-blind = Color Blind Mode
 preferences-review = Review
 preferences-answer-keys = Answer keys
 preferences-distractions = Distractions

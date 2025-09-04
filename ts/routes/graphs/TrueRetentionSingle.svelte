@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { colorBlindColors } from "./graph-helpers";
     import * as tr from "@generated/ftl";
     import { type RevlogRange } from "./graph-helpers";
     import {
@@ -15,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type Scope,
     } from "./true-retention";
     import { localizedNumber } from "@tslib/i18n";
+    import { onMount } from "svelte";
 
     interface Props {
         revlogRange: RevlogRange;
@@ -25,6 +27,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { revlogRange, data, scope }: Props = $props();
 
     const rowData: RowData[] = $derived(getRowData(data, revlogRange));
+
+    let passColor = "#3bc464";
+    let failColor = "#c43b3b";
+
+    onMount(() => {
+        const isColorBlindMode = (window as any).colorBlindMode;
+        if (isColorBlindMode) {
+            passColor = colorBlindColors.relearn;
+            failColor = colorBlindColors.filtered;
+        }
+        // Apply them to document root so SCSS can see them
+        document.documentElement.style.setProperty("--pass-color", passColor);
+        document.documentElement.style.setProperty("--fail-color", failColor);
+    });
 </script>
 
 <table>
@@ -71,11 +87,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .pass {
-        color: #3bc464;
+        color: var(--pass-color);
     }
 
     .fail {
-        color: #c43b3b;
+        color: var(--fail-color);
     }
 
     .retention {
