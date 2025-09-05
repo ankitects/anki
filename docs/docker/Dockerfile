@@ -43,23 +43,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libice6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pyenv 
-ENV PYENV_ROOT=/root/.pyenv
-ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
-
-RUN curl https://pyenv.run | bash && \
-    pyenv install ${PYTHON_VERSION} && \
-    pyenv global ${PYTHON_VERSION} && \
-    python3 -m ensurepip && \
-    python3 -m pip install --upgrade pip
-
 # install rust with rustup
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Install uv 
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    ln -s /root/.local/bin/uv /usr/local/bin/uv
+# Install uv and Python 3.9 with uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && ln -s /root/.local/bin/uv /usr/local/bin/uv
+ENV PATH="/root/.local/bin:${PATH}"
+
+RUN uv python install ${PYTHON_MINOR} --default
 
 COPY . . 
 
