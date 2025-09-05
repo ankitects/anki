@@ -51,6 +51,8 @@ struct State {
     previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
     venv_folder: std::path::PathBuf,
+    /// system Python + PyQt6 library mode
+    system_qt: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -88,9 +90,13 @@ fn main() {
 }
 
 fn run() -> Result<()> {
-    let uv_install_root = dirs::data_local_dir()
-        .context("Unable to determine data_dir")?
-        .join("AnkiProgramFiles");
+    let uv_install_root = if let Ok(custom_root) = std::env::var("ANKI_LAUNCHER_VENV_ROOT") {
+        std::path::PathBuf::from(custom_root)
+    } else {
+        dirs::data_local_dir()
+            .context("Unable to determine data_dir")?
+            .join("AnkiProgramFiles")
+    };
 
     let (exe_dir, resources_dir) = get_exe_and_resources_dirs()?;
 
@@ -113,6 +119,8 @@ fn run() -> Result<()> {
         mirror_path: uv_install_root.join("mirror"),
         pyproject_modified_by_user: false, // calculated later
         previous_version: None,
+        system_qt: (cfg!(unix) && !cfg!(target_os = "macos"))
+            && resources_dir.join("system_qt").exists(),
         resources_dir,
         venv_folder: uv_install_root.join(".venv"),
     };
@@ -193,8 +201,8 @@ fn extract_aqt_version(state: &State) -> Option<String> {
         return None;
     }
 
-    let output = Command::new(&state.uv_path)
-        .current_dir(&state.uv_install_root)
+    let output = uv_command(state)
+        .ok()?
         .env("VIRTUAL_ENV", &state.venv_folder)
         .args(["pip", "show", "aqt"])
         .output()
@@ -261,34 +269,45 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         None
     };
 
-    let have_venv = state.venv_folder.exists();
-    if cfg!(target_os = "macos") && !have_developer_tools() && !have_venv {
-        println!("If you see a pop-up about 'install_name_tool', you can cancel it, and ignore the warning below.\n");
-    }
-
     // Prepare to sync the venv
-    let mut command = Command::new(&state.uv_path);
-    command.current_dir(&state.uv_install_root);
+    let mut command = uv_command(state)?;
 
-    // remove UV_* environment variables to avoid interference
-    for (key, _) in std::env::vars() {
-        if key.starts_with("UV_") || key == "VIRTUAL_ENV" {
-            command.env_remove(key);
+    if cfg!(target_os = "macos") {
+        // remove CONDA_PREFIX/bin from PATH to avoid conda interference
+        if let Ok(conda_prefix) = std::env::var("CONDA_PREFIX") {
+            if let Ok(current_path) = std::env::var("PATH") {
+                let conda_bin = format!("{conda_prefix}/bin");
+                let filtered_paths: Vec<&str> = current_path
+                    .split(':')
+                    .filter(|&path| path != conda_bin)
+                    .collect();
+                let new_path = filtered_paths.join(":");
+                command.env("PATH", new_path);
+            }
+        }
+        // put our fake install_name_tool at the top of the path to override
+        // potential conflicts
+        if let Ok(current_path) = std::env::var("PATH") {
+            let exe_dir = std::env::current_exe()
+                .ok()
+                .and_then(|exe| exe.parent().map(|p| p.to_path_buf()));
+            if let Some(exe_dir) = exe_dir {
+                let new_path = format!("{}:{}", exe_dir.display(), current_path);
+                command.env("PATH", new_path);
+            }
         }
     }
 
-    // remove CONDA_PREFIX/bin from PATH to avoid conda interference
-    #[cfg(target_os = "macos")]
-    if let Ok(conda_prefix) = std::env::var("CONDA_PREFIX") {
-        if let Ok(current_path) = std::env::var("PATH") {
-            let conda_bin = format!("{conda_prefix}/bin");
-            let filtered_paths: Vec<&str> = current_path
-                .split(':')
-                .filter(|&path| path != conda_bin)
-                .collect();
-            let new_path = filtered_paths.join(":");
-            command.env("PATH", new_path);
-        }
+    // Create venv with system site packages if system Qt is enabled
+    if state.system_qt {
+        let mut venv_command = uv_command(state)?;
+        venv_command.args([
+            "venv",
+            "--no-managed-python",
+            "--system-site-packages",
+            "--no-config",
+        ]);
+        venv_command.ensure_success()?;
     }
 
     command
@@ -297,23 +316,22 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         .env(
             "UV_HTTP_TIMEOUT",
             std::env::var("UV_HTTP_TIMEOUT").unwrap_or_else(|_| "180".to_string()),
-        )
-        .args(["sync", "--upgrade", "--managed-python", "--no-config"]);
+        );
 
-    // Add python version if .python-version file exists
+    command.args(["sync", "--upgrade", "--no-config"]);
+    if !state.system_qt {
+        command.arg("--managed-python");
+    }
+
+    // Add python version if .python-version file exists (but not for system Qt)
     if let Some(version) = &python_version_trimmed {
-        command.args(["--python", version]);
+        if !state.system_qt {
+            command.args(["--python", version]);
+        }
     }
 
     if state.no_cache_marker.exists() {
         command.env("UV_NO_CACHE", "1");
-    }
-
-    // Add mirror environment variable if enabled
-    if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
-        command
-            .env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
-            .env("UV_DEFAULT_INDEX", &pypi_mirror);
     }
 
     match command.ensure_success() {
@@ -665,9 +683,8 @@ fn filter_and_normalize_versions(
 fn fetch_versions(state: &State) -> Result<Vec<String>> {
     let versions_script = state.resources_dir.join("versions.py");
 
-    let mut cmd = Command::new(&state.uv_path);
-    cmd.current_dir(&state.uv_install_root)
-        .args(["run", "--no-project", "--no-config", "--managed-python"])
+    let mut cmd = uv_command(state)?;
+    cmd.args(["run", "--no-project", "--no-config", "--managed-python"])
         .args(["--with", "pip-system-certs,requests[socks]"]);
 
     let python_version = read_file(&state.dist_python_version_path)?;
@@ -679,12 +696,6 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
     }
 
     cmd.arg(&versions_script);
-
-    // Add mirror environment variable if enabled
-    if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
-        cmd.env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
-            .env("UV_DEFAULT_INDEX", &pypi_mirror);
-    }
 
     let output = match cmd.utf8_output() {
         Ok(output) => output,
@@ -738,7 +749,26 @@ fn apply_version_kind(version_kind: &VersionKind, state: &State) -> Result<()> {
             &format!("anki-release=={version}\",\n  \"anki=={version}\",\n  \"aqt=={version}"),
         ),
     };
-    write_file(&state.user_pyproject_path, &updated_content)?;
+
+    let final_content = if state.system_qt {
+        format!(
+            concat!(
+                "{}\n\n[tool.uv]\n",
+                "override-dependencies = [\n",
+                "  \"pyqt6; sys_platform=='never'\",\n",
+                "  \"pyqt6-qt6; sys_platform=='never'\",\n",
+                "  \"pyqt6-webengine; sys_platform=='never'\",\n",
+                "  \"pyqt6-webengine-qt6; sys_platform=='never'\",\n",
+                "  \"pyqt6_sip; sys_platform=='never'\"\n",
+                "]\n"
+            ),
+            updated_content
+        )
+    } else {
+        updated_content
+    };
+
+    write_file(&state.user_pyproject_path, &final_content)?;
 
     // Update .python-version based on version kind
     match version_kind {
@@ -930,12 +960,28 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     Ok(true)
 }
 
-fn have_developer_tools() -> bool {
-    Command::new("xcode-select")
-        .args(["-p"])
-        .output()
-        .map(|output| output.status.success())
-        .unwrap_or(false)
+fn uv_command(state: &State) -> Result<Command> {
+    let mut command = Command::new(&state.uv_path);
+    command.current_dir(&state.uv_install_root);
+
+    // remove UV_* environment variables to avoid interference
+    for (key, _) in std::env::vars() {
+        if key.starts_with("UV_") {
+            command.env_remove(key);
+        }
+    }
+    command
+        .env_remove("VIRTUAL_ENV")
+        .env_remove("SSLKEYLOGFILE");
+
+    // Add mirror environment variable if enabled
+    if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
+        command
+            .env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
+            .env("UV_DEFAULT_INDEX", &pypi_mirror);
+    }
+
+    Ok(command)
 }
 
 fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
@@ -960,6 +1006,7 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     // Set UV and Python paths for the Python code
     cmd.env("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
     cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
+    cmd.env_remove("SSLKEYLOGFILE");
 
     Ok(cmd)
 }
