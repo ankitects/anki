@@ -9,3 +9,10 @@ export interface Size {
 export type ConstructorParams<T> = {
     [P in keyof T]?: T[P];
 };
+
+export interface ToastProps {
+    message: string;
+    type: "success" | "error";
+    showToast: boolean;
+    timeout?: number;
+}

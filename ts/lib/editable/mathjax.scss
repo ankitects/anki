@@ -1,0 +1,13 @@
+:global(anki-mathjax) {
+    white-space: pre;
+}
+
+img {
+    vertical-align: var(--vertical-center);
+}
+
+.block {
+    display: block;
+    margin: 1rem auto;
+    transform: scale(1.1);
+}
