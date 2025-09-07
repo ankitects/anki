@@ -699,18 +699,6 @@ def convert_pasted_image() -> bytes:
     return frontend_pb2.ConvertPastedImageResponse(data=data).SerializeToString()
 
 
-def retrieve_url() -> bytes:
-    from aqt.utils import retrieve_url
-
-    req = generic_pb2.String()
-    req.ParseFromString(request.data)
-    url = req.val
-    filename, error = retrieve_url(url)
-    return frontend_pb2.RetrieveUrlResponse(
-        filename=filename, error=error
-    ).SerializeToString()
-
-
 AsyncRequestReturnType = TypeVar("AsyncRequestReturnType")
 
 
@@ -943,7 +931,6 @@ post_handler_list = [
     set_meta_json,
     get_config_json,
     convert_pasted_image,
-    retrieve_url,
     open_file_picker,
     open_media,
     show_in_media_folder,
@@ -1015,6 +1002,7 @@ exposed_backend_list = [
     # MediaService
     "add_media_file",
     "add_media_from_path",
+    "add_media_from_url",
     "get_absolute_media_path",
     "extract_media_files",
     # CardsService

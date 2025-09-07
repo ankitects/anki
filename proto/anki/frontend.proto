@@ -37,7 +37,6 @@ service FrontendService {
   rpc AddEditorNote(notes.AddNoteRequest) returns (notes.AddNoteResponse);
   rpc ConvertPastedImage(ConvertPastedImageRequest)
       returns (ConvertPastedImageResponse);
-  rpc RetrieveUrl(generic.String) returns (RetrieveUrlResponse);
   rpc OpenFilePicker(openFilePickerRequest) returns (generic.String);
   rpc OpenMedia(generic.String) returns (generic.Empty);
   rpc ShowInMediaFolder(generic.String) returns (generic.Empty);
@@ -80,11 +79,6 @@ message ConvertPastedImageRequest {
 
 message ConvertPastedImageResponse {
   bytes data = 1;
-}
-
-message RetrieveUrlResponse {
-  string filename = 1;
-  string error = 2;
 }
 
 message SetSettingJsonRequest {

@@ -9,19 +9,16 @@ import re
 import shutil
 import subprocess
 import sys
-import urllib
 from collections.abc import Callable, Sequence
 from functools import partial, wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Union
 
-import requests
 from send2trash import send2trash
 
 import aqt
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.collection import Collection, HelpPage
-from anki.httpclient import HttpClient
 from anki.lang import TR, tr_legacyglobal  # noqa: F401
 from anki.utils import (
     call,
@@ -126,49 +123,6 @@ def openLink(link: str | QUrl) -> None:
     tooltip(tr.qt_misc_loading(), period=1000)
     with no_bundled_libs():
         QDesktopServices.openUrl(QUrl(link))
-
-
-def retrieve_url(url: str) -> tuple[str, str]:
-    "Download file into media folder and return local filename or None."
-
-    local = url.lower().startswith("file://")
-    content_type = None
-    error_msg: str | None = None
-    try:
-        if local:
-            # urllib doesn't understand percent-escaped utf8, but requires things like
-            # '#' to be escaped.
-            url = urllib.parse.unquote(url)
-            url = url.replace("%", "%25")
-            url = url.replace("#", "%23")
-            req = urllib.request.Request(
-                url, None, {"User-Agent": "Mozilla/5.0 (compatible; Anki)"}
-            )
-            with urllib.request.urlopen(req) as response:
-                filecontents = response.read()
-        else:
-            with HttpClient() as client:
-                client.timeout = 30
-                with client.get(url) as response:
-                    if response.status_code != 200:
-                        error_msg = tr.qt_misc_unexpected_response_code(
-                            val=response.status_code,
-                        )
-                        return "", error_msg
-                    filecontents = response.content
-                    content_type = response.headers.get("content-type")
-    except (urllib.error.URLError, requests.exceptions.RequestException) as e:
-        error_msg = tr.editing_an_error_occurred_while_opening(val=str(e))
-        return "", error_msg
-    # strip off any query string
-    url = re.sub(r"\?.*?$", "", url)
-    fname = os.path.basename(urllib.parse.unquote(url))
-    if not fname.strip():
-        fname = "paste"
-    if content_type:
-        fname = aqt.mw.col.media.add_extension_based_on_mime(fname, content_type)
-
-    return aqt.mw.col.media.write_data(fname, filecontents), ""
 
 
 class MessageBox(QMessageBox):

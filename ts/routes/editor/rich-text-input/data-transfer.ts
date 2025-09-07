@@ -5,13 +5,13 @@ import { ConfigKey_Bool } from "@generated/anki/config_pb";
 import type { ReadClipboardResponse } from "@generated/anki/frontend_pb";
 import {
     addMediaFile,
+    addMediaFromUrl,
     convertPastedImage,
     extractMediaFiles,
     getAbsoluteMediaPath,
     getConfigBool,
     openFilePicker,
     readClipboard,
-    retrieveUrl as retrieveUrlBackend,
     writeClipboard,
 } from "@generated/backend";
 import * as tr from "@generated/ftl";
@@ -125,13 +125,12 @@ async function getImageData(data: DataTransfer | ReadClipboardResponse): Promise
 }
 
 async function retrieveUrl(url: string): Promise<string | null> {
-    const response = await retrieveUrlBackend({ val: url });
+    const response = await addMediaFromUrl({ url });
     if (response.error) {
         alert(response.error);
         return null;
     }
-
-    return response.filename;
+    return response.filename!;
 }
 
 async function urlToFile(url: string, allowedSuffixes = mediaSuffixes): Promise<string | null> {
