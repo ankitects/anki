@@ -151,6 +151,7 @@ class Editor:
         self.add_webview()
         self.setupWeb()
         self.setupShortcuts()
+        self.setupColourPalette()
         gui_hooks.editor_did_init(self)
 
     # Initial setup
@@ -348,6 +349,18 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             else:
                 keys, fn, _ = row
             QShortcut(QKeySequence(keys), self.widget, activated=fn)  # type: ignore
+
+    def setupColourPalette(self) -> None:
+        assert self.mw.pm.profile is not None
+        if custom_colours := str(
+            self.mw.pm.profile.get("customColorPickerPalette", "")
+        ):
+            for i, colour in enumerate(
+                custom_colours.split(",")[: QColorDialog.customCount()]
+            ):
+                if not QColor.isValidColorName(colour):
+                    break
+                QColorDialog.setCustomColor(i, QColor.fromString(colour))
 
     def _addFocusCheck(self, fn: Callable) -> Callable:
         def checkFocus() -> None:
