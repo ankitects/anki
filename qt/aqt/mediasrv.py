@@ -599,6 +599,18 @@ def deck_options_ready() -> bytes:
     return b""
 
 
+def save_custom_colours() -> bytes:
+    colours = ",".join(
+        [
+            QColorDialog.customColor(i).name(QColor.NameFormat.HexArgb)
+            for i in range(QColorDialog.customCount())
+        ]
+    )
+    assert aqt.mw.pm.profile is not None
+    aqt.mw.pm.profile["customColorPickerPalette"] = colours
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -614,6 +626,7 @@ post_handler_list = [
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
+    save_custom_colours,
 ]
 
 
