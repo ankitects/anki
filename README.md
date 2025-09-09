@@ -2,32 +2,31 @@
 
 [![Build status](https://badge.buildkite.com/c9edf020a4aec976f9835e54751cc5409d843adbb66d043bd3.svg?branch=main)](https://buildkite.com/ankitects/anki-ci)
 
-This repo contains the source code for the computer version of
-[Anki](https://apps.ankiweb.net).
+Welcome to the source code repository for **Anki**. It's a popular spaced repetition program that helps you remember things more efficiently using flashcards.
 
-# About
+## About Anki
 
-Anki is a spaced repetition program. Please see the [website](https://apps.ankiweb.net) to learn more.
+Anki is a spaced repetition program designed to make learning easier and more effective. Learn more on the [official website](https://apps.ankiweb.net). 
 
-# Getting Started
+## Getting Started
 
-### Anki Betas
+### Using Anki Betas
 
-If you'd like to try development builds of Anki but don't feel comfortable
-building the code, please see [Anki betas](https://betas.ankiweb.net/)
+If you'd like to try development builds of Anki but don't feel comfortable building the code yourself, check out the [Anki betas](https://betas.ankiweb.net/)
 
-### Developing
+### Developing Anki
 
-For more information on building and developing, please see [Development](./docs/development.md).
+For detailed instructions on building and contributing to Anki, please see our [Development Guide](./docs/development.md).
 
 ### Contributing
 
-Want to contribute to Anki? Check out the [Contribution Guidelines](./docs/contributing.md).
+We welcome contributions from everyone! To get started, please read the [Contribution Guidelines](./docs/contributing.md).
 
 ### Anki Contributors
 
+A big thanks to all the people who have contributed to Anki:
 [CONTRIBUTORS](./CONTRIBUTORS)
 
-# License
+## License
 
-Anki's license: [LICENSE](./LICENSE)
+Anki is licensed under: [LICENSE](./LICENSE)
