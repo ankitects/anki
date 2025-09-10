@@ -153,13 +153,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:input={(event) => {
                 color = setColor(event);
                 bridgeCommand(`lastTextColor:${color}`);
-                saveCustomColours({});
             }}
             on:change={() => {
                 // Delay added to work around intermittent failures on macOS/Qt6.5
                 setTimeout(() => {
                     setTextColor();
                 }, 200);
+                saveCustomColours({});
             }}
         />
     </IconButton>

@@ -134,9 +134,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:input={(event) => {
                 color = setColor(event);
                 bridgeCommand(`lastHighlightColor:${color}`);
+            }}
+            on:change={() => {
+                setTextColor();
                 saveCustomColours({});
             }}
-            on:change={() => setTextColor()}
         />
     </IconButton>
 </WithColorHelper>
