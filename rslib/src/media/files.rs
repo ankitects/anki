@@ -565,18 +565,18 @@ mod test {
 
     #[test]
     fn safe_rename_moves_file() {
-        let dir = tempdir().unwrap();
-        let src = dir.path().join("test_src.txt");
-        let dst = dir.path().join("test_dst.txt");
+    let dir = tempdir().unwrap();
+    let src = dir.path().join("myfile.txt");
+    let dst = dir.path().join("myfile_trashed.txt");
 
-        fs::write(&src, b"hello world").unwrap();
-        safe_rename(&src, &dst).unwrap();
+    fs::write(&src, b"My test content").unwrap();
+    safe_rename(&src, &dst).unwrap();
 
-        assert!(dst.exists());
-        assert!(!src.exists());
-        let contents = fs::read(&dst).unwrap();
-        assert_eq!(contents, b"hello world");
+    assert!(dst.exists());
+    assert!(!src.exists());
+    let contents = fs::read(&dst).unwrap();
+    assert_eq!(contents, b"My test content");
 
-        fs::remove_file(&dst).unwrap();
+    fs::remove_file(&dst).unwrap();
     }
 }
