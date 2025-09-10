@@ -2,11 +2,11 @@
 
 [![Build status](https://badge.buildkite.com/c9edf020a4aec976f9835e54751cc5409d843adbb66d043bd3.svg?branch=main)](https://buildkite.com/ankitects/anki-ci)
 
-Welcome to the source code repository for **Anki**. It's a popular spaced repetition program that helps you remember things more efficiently using flashcards.
+Welcome to the source code repository for **Anki**, a spaced repetition program that uses flashcards to make learning more effective.
 
-## About Anki
+## About
 
-Anki is a spaced repetition program designed to make learning easier and more effective. Learn more on the [official website](https://apps.ankiweb.net). 
+Anki is a spaced repetition program designed to make learning easier and more effective. Learn more on the [official website](https://apps.ankiweb.net)
 
 ## Getting Started
 
@@ -14,15 +14,15 @@ Anki is a spaced repetition program designed to make learning easier and more ef
 
 If you'd like to try development builds of Anki but don't feel comfortable building the code yourself, check out the [Anki betas](https://betas.ankiweb.net/)
 
-### Developing Anki
+### Developing
 
-For detailed instructions on building and contributing to Anki, please see our [Development Guide](./docs/development.md).
+For detailed instructions on building and contributing to Anki, see our [Development Guide](./docs/development.md)
 
 ### Contributing
 
-We welcome contributions from everyone! To get started, please read the [Contribution Guidelines](./docs/contributing.md).
+We welcome contributions from everyone! To get started, read the [Contribution Guidelines](./docs/contributing.md)
 
-### Anki Contributors
+### Contributors
 
 A big thanks to all the people who have contributed to Anki:
 [CONTRIBUTORS](./CONTRIBUTORS)
