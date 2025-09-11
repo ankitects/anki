@@ -79,10 +79,7 @@ pub fn extract_latex(text: &str, svg: bool) -> (Cow<'_, str>, Vec<ExtractedLatex
 
         let fname = fname_for_latex(&latex, svg);
         let img_link = image_link_for_fname(&latex, &fname);
-        extracted.push(ExtractedLatex {
-            fname,
-            latex: latex.into(),
-        });
+        extracted.push(ExtractedLatex { fname, latex });
 
         img_link
     });
