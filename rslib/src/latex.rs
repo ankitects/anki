@@ -64,18 +64,24 @@ pub fn extract_latex(text: &str, svg: bool) -> (Cow<'_, str>, Vec<ExtractedLatex
     let mut extracted = vec![];
 
     let new_text = LATEX.replace_all(text, |caps: &Captures| {
+        // [latex] blocks preserve newlines between <br>/<div>
+        // [$] and [$$] blocks remove <br>/<div> completely so that
+        // no blank lines are introduced inside math environments.
         let latex = match (caps.get(1), caps.get(2), caps.get(3)) {
-            (Some(m), _, _) => m.as_str().into(),
-            (_, Some(m), _) => format!("${}$", m.as_str()),
-            (_, _, Some(m)) => format!(r"\begin{{displaymath}}{}\end{{displaymath}}", m.as_str()),
+            (Some(m), _, _) => strip_html_for_latex(m.as_str()).into(),
+            (_, Some(m), _) => format!("${}$", strip_html_for_latex_math(m.as_str())),
+            (_, _, Some(m)) => format!(
+                r"\begin{{displaymath}}{}\end{{displaymath}}",
+                strip_html_for_latex_math(m.as_str())
+            ),
             _ => unreachable!(),
         };
-        let latex_text = strip_html_for_latex(&latex);
-        let fname = fname_for_latex(&latex_text, svg);
-        let img_link = image_link_for_fname(&latex_text, &fname);
+
+        let fname = fname_for_latex(&latex, svg);
+        let img_link = image_link_for_fname(&latex, &fname);
         extracted.push(ExtractedLatex {
             fname,
-            latex: latex_text.into(),
+            latex: latex.into(),
         });
 
         img_link
@@ -93,6 +99,20 @@ fn strip_html_for_latex(html: &str) -> Cow<'_, str> {
         out = o.into();
     }
 
+    out
+}
+
+/// Removes HTML breaks (<br>, <div>) from math blocks instead of
+/// converting them to newlines. This prevents LaTeX environments
+/// from being broken by unintended blank lines.
+fn strip_html_for_latex_math(html: &str) -> Cow<'_, str> {
+    let mut out: Cow<str> = html.into();
+    if let Cow::Owned(o) = LATEX_NEWLINES.replace_all(html, "") {
+        out = o.into();
+    }
+    if let Cow::Owned(o) = strip_html(out.as_ref()) {
+        out = o.into();
+    }
     out
 }
 
@@ -144,6 +164,20 @@ mod test {
                 fname: "latex-8899f3f849ffdef6e4e9f2f34a923a1f608ebc07.png".to_string(),
                 latex: r"\begin{displaymath}math & stuff\end{displaymath}".to_string()
             }]
+        );
+    }
+
+    /// Ensures that math blocks do not contain unintended blank lines
+    /// when <br> or <div> elements are present in the HTML.
+    #[test]
+    fn no_blank_lines_in_math() {
+        let input = "[$$]\\begin{tikzcd}x & y\\end{tikzcd}[/$$]";
+        let (_, extracts) = extract_latex(input, false);
+        let extracted = &extracts[0].latex;
+
+        assert!(
+            !extracted.contains("\n\n"),
+            "Should not contain blank lines inside math"
         );
     }
 }
