@@ -448,9 +448,9 @@ pub(crate) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<V
 
 #[cfg(test)]
 mod test {
+    use super::safe_rename;
     use std::borrow::Cow;
     use std::fs;
-    use super::safe_rename;
 
     use tempfile::tempdir;
 
