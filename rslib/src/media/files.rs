@@ -3,7 +3,7 @@
 
 use std::borrow::Cow;
 use std::fs;
-use std::fs::FileTimes;
+use filetime::FileTimes;
 use std::io;
 use std::io::Read;
 use std::path::Path;
