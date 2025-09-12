@@ -448,12 +448,12 @@ pub(crate) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<V
 
 #[cfg(test)]
 mod test {
-    use super::safe_rename;
     use std::borrow::Cow;
     use std::fs;
 
     use tempfile::tempdir;
 
+    use super::safe_rename;
     use crate::media::files::add_data_to_folder_uniquely;
     use crate::media::files::add_hash_suffix_to_file_stem;
     use crate::media::files::normalize_filename;
