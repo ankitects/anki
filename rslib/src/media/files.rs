@@ -320,6 +320,18 @@ pub(crate) fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {
         .as_millis() as i64)
 }
 
+pub(crate) fn safe_rename(src: &Path, dst: &Path) -> io::Result<()> {
+    match fs::rename(src, dst) {
+        Ok(_) => Ok(()),
+        Err(e) if e.raw_os_error() == Some(18) => {
+            fs::copy(src, dst)?;
+            fs::remove_file(src)?;
+            Ok(())
+        }
+        Err(e) => Err(e),
+    }
+}
+
 pub fn remove_files<S>(media_folder: &Path, files: &[S]) -> Result<()>
 where
     S: AsRef<str> + std::fmt::Debug,
@@ -344,7 +356,7 @@ where
         }
 
         // move file to trash, clobbering any existing file with the same name
-        fs::rename(&src_path, &dst_path)?;
+        safe_rename(&src_path, &dst_path)?;
 
         // mark it as modified, so we can expire it in the future
         let secs = time::SystemTime::now();
@@ -549,5 +561,21 @@ mod test {
             ),
             Cow::<str>::Owned(format!("{}_", " ".repeat(MAX_MEDIA_FILENAME_LENGTH - 2)))
         );
+    }
+    #[test]
+    fn safe_rename_moves_file() {
+        let dir = tempfile::tempdir().unwrap();
+        let src = dir.path().join("myfile.txt");
+        let dst = dir.path().join("myfile_trashed.txt");
+
+        fs::write(&src, b"My test content").unwrap();
+        safe_rename(&src, &dst).unwrap();
+
+        assert!(dst.exists());
+        assert!(!src.exists());
+        let contents = fs::read(&dst).unwrap();
+        assert_eq!(contents, b"My test content");
+
+        fs::remove_file(&dst).unwrap();
     }
 }
