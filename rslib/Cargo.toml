@@ -107,7 +107,6 @@ unicase.workspace = true
 unicode-normalization.workspace = true
 zip.workspace = true
 zstd.workspace = true
-filetime = "0.2"
 
 [target.'cfg(windows)'.dependencies]
 windows.workspace = true

@@ -3,7 +3,7 @@
 
 use std::borrow::Cow;
 use std::fs;
-use filetime::{FileTime, set_file_times};
+use std::fs::FileTimes;
 use std::io;
 use std::io::Read;
 use std::path::Path;
@@ -28,7 +28,6 @@ use unicode_normalization::UnicodeNormalization;
 
 use crate::prelude::*;
 use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
-use crate::media::files::safe_rename;
 
 static WINDOWS_DEVICE_NAME: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
