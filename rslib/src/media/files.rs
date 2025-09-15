@@ -320,10 +320,12 @@ pub(crate) fn mtime_as_i64<P: AsRef<Path>>(path: P) -> io::Result<i64> {
         .as_millis() as i64)
 }
 
+/// On POSIX this is EXDEV (error 18) and on Windows it is ERROR_NOT_SAME_DEVICE
+/// (error 17).
 pub(crate) fn safe_rename(src: &Path, dst: &Path) -> io::Result<()> {
     match fs::rename(src, dst) {
         Ok(_) => Ok(()),
-        Err(e) if e.raw_os_error() == Some(18) => {
+        Err(e) if e.kind() == io::ErrorKind::CrossesDevices => {
             fs::copy(src, dst)?;
             fs::remove_file(src)?;
             Ok(())
@@ -566,6 +568,8 @@ mod test {
     }
     #[test]
     fn safe_rename_moves_file() {
+        // This test only verifies that ´safe_rename´calls back to copy+remove logic
+        // when needed. It does not simulate a real cross-device move.
         let dir = tempdir().unwrap();
         let src = dir.path().join("test_src.txt");
         let dst = dir.path().join("test_dst.txt");
