@@ -2,7 +2,7 @@ ARG DEBIAN_FRONTEND="noninteractive"
 
 FROM ubuntu:24.04 AS build
 WORKDIR /opt/anki
-ENV PYTHON_VERSION="3.9"
+ENV PYTHON_VERSION="3.13"
 
 
 # System deps
@@ -47,12 +47,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Install uv and Python 3.9 with uv
+# Install uv and Python 3.13 with uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
     && ln -s /root/.local/bin/uv /usr/local/bin/uv
 ENV PATH="/root/.local/bin:${PATH}"
 
-RUN uv python install ${PYTHON_MINOR} --default
+RUN uv python install ${PYTHON_VERSION} --default
 
 COPY . . 
 
@@ -60,7 +60,7 @@ RUN ./tools/build
 
 
 # Install pre-compiled Anki.
-FROM python:3.9-slim AS installer
+FROM python:3.13-slim AS installer
 WORKDIR /opt/anki/
 COPY --from=build /opt/anki/out/wheels/ wheels/
 # Use virtual environment.
@@ -70,7 +70,7 @@ RUN python -m venv venv \
 
 
 # We use another build stage here so we don't include the wheels in the final image.
-FROM python:3.9-slim AS final
+FROM python:3.13-slim AS final
 COPY --from=installer /opt/anki/venv /opt/anki/venv
 ENV PATH=/opt/anki/venv/bin:$PATH
 # Install run-time dependencies.
