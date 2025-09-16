@@ -81,7 +81,7 @@ class Previewer(QDialog):
         qconnect(self.finished, self._on_finished)
         self.silentlyClose = True
         self.vbox = QVBoxLayout()
-        self.vbox.setContentsMargins(0, 0, 0, 0)
+        self.vbox.setContentsMargins(0, 0, 2, 4)
         self._web: AnkiWebView | None = AnkiWebView(kind=AnkiWebViewKind.PREVIEWER)
         self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
