@@ -57,3 +57,16 @@ studying-card-studied-in-minute =
     }
 studying-question-time-elapsed = Question time elapsed
 studying-answer-time-elapsed = Answer time elapsed
+
+## OBSOLETE; you do not need to translate this
+
+studying-card-studied-in =
+    { $count ->
+        [one] { $count } card studied in
+       *[other] { $count } cards studied in
+    }
+studying-minute =
+    { $count ->
+        [one] { $count } minute.
+       *[other] { $count } minutes.
+    }
