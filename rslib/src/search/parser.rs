@@ -392,6 +392,11 @@ fn parse_tag(s: &str) -> ParseResult<'_, SearchNode> {
             tag: unescape_quotes(re),
             mode: FieldSearchMode::Regex,
         }
+    } else if let Some(nc) = s.strip_prefix("nc:") {
+        SearchNode::Tag {
+            tag: unescape(nc)?,
+            mode: FieldSearchMode::NoCombining,
+        }
     } else {
         SearchNode::Tag {
             tag: unescape(s)?,
