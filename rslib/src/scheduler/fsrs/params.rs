@@ -488,13 +488,11 @@ pub(crate) fn reviews_for_fsrs(
             rating: entry.button_chosen as u32,
             delta_t,
         });
-        if idx >= skip {
-            if !training || current_reviews.last().unwrap().delta_t > 0 {
-                let item = FSRSItem {
-                    reviews: current_reviews.clone(),
-                };
-                items.push((entry.id, item));
-            }
+        if idx >= skip && (!training || current_reviews.last().unwrap().delta_t > 0) {
+            let item = FSRSItem {
+                reviews: current_reviews.clone(),
+            };
+            items.push((entry.id, item));
         }
     }
     if items.is_empty() {
