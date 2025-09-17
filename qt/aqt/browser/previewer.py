@@ -13,7 +13,7 @@ import aqt.browser
 from anki.cards import Card
 from anki.collection import Config
 from anki.tags import MARKED_TAG
-from aqt import AnkiQt, gui_hooks
+from aqt import AnkiQt, gui_hooks, is_mac
 from aqt.qt import (
     QCheckBox,
     QDialog,
@@ -81,10 +81,15 @@ class Previewer(QDialog):
         qconnect(self.finished, self._on_finished)
         self.silentlyClose = True
         self.vbox = QVBoxLayout()
-        self.vbox.setContentsMargins(0, 0, 2, 4)
+        spacing = 6
+        self.vbox.setContentsMargins(0, 0, 0, 0)
+        self.vbox.setSpacing(spacing)
         self._web: AnkiWebView | None = AnkiWebView(kind=AnkiWebViewKind.PREVIEWER)
         self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
+        self.bbox.setContentsMargins(
+            spacing, spacing if is_mac else 0, spacing, spacing
+        )
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
         gui_hooks.card_review_webview_did_init(self._web, AnkiWebViewKind.PREVIEWER)
