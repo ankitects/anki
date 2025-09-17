@@ -481,24 +481,22 @@ pub(crate) fn reviews_for_fsrs(
     let skip = if training { 1 } else { 0 };
     // Convert the remaining entries into separate FSRSItems, where each item
     // contains all reviews done until then.
-    let items: Vec<(RevlogId, FSRSItem)> = entries
-        .iter()
-        .enumerate()
-        .skip(skip)
-        .map(|(outer_idx, entry)| {
-            let reviews = entries
-                .iter()
-                .take(outer_idx + 1)
-                .enumerate()
-                .map(|(inner_idx, r)| FSRSReview {
-                    rating: r.button_chosen as u32,
-                    delta_t: delta_ts[inner_idx],
-                })
-                .collect();
-            (entry.id, FSRSItem { reviews })
-        })
-        .filter(|(_, item)| !training || item.reviews.last().unwrap().delta_t > 0)
-        .collect_vec();
+    let mut items = Vec::with_capacity(entries.len());
+    let mut current_reviews = Vec::with_capacity(entries.len());
+    for (idx, (entry, &delta_t)) in entries.iter().zip(delta_ts.iter()).enumerate() {
+        current_reviews.push(FSRSReview {
+            rating: entry.button_chosen as u32,
+            delta_t,
+        });
+        if idx >= skip {
+            if !training || current_reviews.last().unwrap().delta_t > 0 {
+                let item = FSRSItem {
+                    reviews: current_reviews.clone(),
+                };
+                items.push((entry.id, item));
+            }
+        }
+    }
     if items.is_empty() {
         None
     } else {
