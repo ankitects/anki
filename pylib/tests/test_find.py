@@ -309,3 +309,12 @@ def test_findDupes():
     assert not r
     # front isn't dupe
     assert col.find_dupes("Front") == []
+
+
+def test_find_cards_with_newlines():
+    col = getEmptyCol()
+    note = col.newNote()
+    note["Front"] = "foo"
+    note["Back"] = "foo<br>bar"
+    col.addNote(note)
+    assert len(col.find_cards("foo\nbar")) == 1

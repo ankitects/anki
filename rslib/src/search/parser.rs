@@ -221,7 +221,7 @@ fn group_inner(input: &str) -> IResult<'_, Vec<Node>> {
 }
 
 fn whitespace0(s: &str) -> IResult<'_, Vec<char>> {
-    many0(one_of(" \u{3000}")).parse(s)
+    many0(one_of(" \n\u{3000}")).parse(s)
 }
 
 /// Optional leading space, then a (negated) group or text
@@ -265,7 +265,7 @@ fn quoted_term(s: &str) -> IResult<'_, Node> {
 /// eg deck:"foo bar" - quotes must come after the :
 fn partially_quoted_term(s: &str) -> IResult<'_, Node> {
     let (remaining, (key, val)) = separated_pair(
-        escaped(is_not("\"(): \u{3000}\\"), '\\', none_of(" \u{3000}")),
+        escaped(is_not("\"(): \n\u{3000}\\"), '\\', none_of(" \n\u{3000}")),
         char(':'),
         quoted_term_str,
     )
@@ -278,7 +278,7 @@ fn partially_quoted_term(s: &str) -> IResult<'_, Node> {
 
 /// Unquoted text, terminated by whitespace or unescaped ", ( or )
 fn unquoted_term(s: &str) -> IResult<'_, Node> {
-    match escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}"))(s) {
+    match escaped(is_not("\"() \n\u{3000}\\"), '\\', none_of(" \n\u{3000}"))(s) {
         Ok((tail, term)) => {
             if term.is_empty() {
                 Err(parse_error(s))
@@ -298,7 +298,7 @@ fn unquoted_term(s: &str) -> IResult<'_, Node> {
                         provided: format!("\\{c}"),
                     },
                 ))
-            } else if "\"() \u{3000}".contains(s.chars().next().unwrap()) {
+            } else if "\"() \n\u{3000}".contains(s.chars().next().unwrap()) {
                 Err(parse_error(s))
             } else {
                 // input ends in an odd number of backslashes
