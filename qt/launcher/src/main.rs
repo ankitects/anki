@@ -161,6 +161,7 @@ fn run() -> Result<()> {
 
     print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
     println!("\x1B[1mAnki Launcher\x1B[0m\n");
+    println!("This is the Anki Launcher. If you're running it for the first time, press Enter to install the latest version. Otherwise, pressing Enter will check for updates and then open Anki.\n");
 
     ensure_os_supported()?;
 
@@ -440,8 +441,8 @@ fn file_timestamp_secs(path: &std::path::Path) -> i64 {
 
 fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
     loop {
-        println!("1) Latest Anki (press Enter)");
-        println!("2) Choose a version");
+        println!("1) Install Latest Anki (press Enter)");
+        println!("2) Choose a specific version");
 
         if let Some(current_version) = &state.current_version {
             let normalized_current = normalize_version(current_version);
@@ -477,7 +478,7 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
             if mirror_enabled { "on" } else { "off" }
         );
         println!();
-        println!("8) Uninstall");
+        println!("8) Uninstall Anki");
         print!("> ");
         let _ = stdout().flush();
 
