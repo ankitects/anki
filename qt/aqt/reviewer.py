@@ -17,6 +17,7 @@ import aqt.browser
 import aqt.operations
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
+from anki.lang import with_collapsed_whitespace
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import (
     CardAnswer,
@@ -968,8 +969,10 @@ timerStopped = false;
             assert not isinstance(elapsed, bool)
             cards_val = elapsed[1]
             minutes_val = int(round(elapsed[0] / 60))
-            message = tr.studying_card_studied_in_minute(
-                cards=cards_val, minutes=str(minutes_val)
+            message = with_collapsed_whitespace(
+                tr.studying_card_studied_in_minute(
+                    cards=cards_val, minutes=str(minutes_val)
+                )
             )
             fin = tr.studying_finish()
             diag = askUserDialog(message, [tr.studying_continue(), fin])
