@@ -44,7 +44,10 @@ impl Collection {
             })
             // roll back on error
             .or_else(|err| {
-                self.discard_undo_and_study_queues();
+                // not necesarry to discard queues for all errors
+                if !matches!(err, AnkiError::FilteredDeckError { .. }) {
+                    self.discard_undo_and_study_queues();
+                }
                 if autocommit {
                     self.storage.rollback_trx()?;
                 } else {
