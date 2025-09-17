@@ -478,23 +478,42 @@ pub(crate) fn reviews_for_fsrs(
         }))
         .collect_vec();
 
-    let skip = if training { 1 } else { 0 };
-    // Convert the remaining entries into separate FSRSItems, where each item
-    // contains all reviews done until then.
-    let mut items = Vec::with_capacity(entries.len());
-    let mut current_reviews = Vec::with_capacity(entries.len());
-    for (idx, (entry, &delta_t)) in entries.iter().zip(delta_ts.iter()).enumerate() {
-        current_reviews.push(FSRSReview {
-            rating: entry.button_chosen as u32,
-            delta_t,
-        });
-        if idx >= skip && (!training || current_reviews.last().unwrap().delta_t > 0) {
-            let item = FSRSItem {
-                reviews: current_reviews.clone(),
-            };
-            items.push((entry.id, item));
+    let items = if training {
+        // Convert the remaining entries into separate FSRSItems, where each item
+        // contains all reviews done until then.
+        let mut items = Vec::with_capacity(entries.len());
+        let mut current_reviews = Vec::with_capacity(entries.len());
+        for (idx, (entry, &delta_t)) in entries.iter().zip(delta_ts.iter()).enumerate() {
+            current_reviews.push(FSRSReview {
+                rating: entry.button_chosen as u32,
+                delta_t,
+            });
+            if idx >= 1 && delta_t > 0 {
+                items.push((
+                    entry.id,
+                    FSRSItem {
+                        reviews: current_reviews.clone(),
+                    },
+                ));
+            }
         }
-    }
+        items
+    } else {
+        // When not training, we only need the final FSRS item, which represents
+        // the complete history of the card. This avoids expensive clones in a loop.
+        let reviews = entries
+            .iter()
+            .zip(delta_ts.iter())
+            .map(|(entry, &delta_t)| FSRSReview {
+                rating: entry.button_chosen as u32,
+                delta_t,
+            })
+            .collect();
+        let last_entry = entries.last().unwrap();
+
+        vec![(last_entry.id, FSRSItem { reviews })]
+    };
+
     if items.is_empty() {
         None
     } else {
@@ -734,7 +753,7 @@ pub(crate) mod tests {
                 ],
                 false,
             ),
-            fsrs_items!([review(0)], [review(0), review(1)])
+            fsrs_items!([review(0), review(1)])
         );
     }
 
@@ -805,7 +824,7 @@ pub(crate) mod tests {
         // R | A X R
         assert_eq!(
             convert_ignore_before(revlogs, false, days_ago_ms(9)),
-            fsrs_items!([review(0)], [review(0), review(2)])
+            fsrs_items!([review(0), review(2)])
         );
     }
 
@@ -824,6 +843,9 @@ pub(crate) mod tests {
         assert_eq!(
             convert_ignore_before(revlogs, false, days_ago_ms(9))
                 .unwrap()
+                .last()
+                .unwrap()
+                .reviews
                 .len(),
             2
         );
@@ -845,6 +867,9 @@ pub(crate) mod tests {
         assert_eq!(
             convert_ignore_before(revlogs, false, days_ago_ms(9))
                 .unwrap()
+                .last()
+                .unwrap()
+                .reviews
                 .len(),
             2
         );
