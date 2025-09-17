@@ -174,7 +174,7 @@ impl Collection {
             }
         }
 
-        let health_check_passed = if health_check {
+        let health_check_passed = if health_check && input.train_set.len() > 300 {
             let fsrs = FSRS::new(None)?;
             fsrs.evaluate_with_time_series_splits(input, |_| true)
                 .ok()
