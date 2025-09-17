@@ -1,3 +1,5 @@
+# This is a user-contributed Dockerfile. No official support is available.
+
 ARG DEBIAN_FRONTEND="noninteractive"
 
 FROM ubuntu:24.04 AS build
