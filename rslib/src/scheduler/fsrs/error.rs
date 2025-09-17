@@ -15,7 +15,7 @@ impl From<FSRSError> for AnkiError {
             FSRSError::InvalidParameters => AnkiError::FsrsParamsInvalid,
             FSRSError::InvalidInput => AnkiError::InvalidInput {
                 source: InvalidInputError {
-                    message: "invalid params provided".to_string(),
+                    message: "The provided FSRS parameters are invalid. See: https://faqs.ankiweb.net/fsrs-parameters.html".to_string(),
                     source: None,
                     backtrace: None,
                 },
