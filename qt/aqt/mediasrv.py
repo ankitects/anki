@@ -600,14 +600,11 @@ def deck_options_ready() -> bytes:
 
 
 def save_custom_colours() -> bytes:
-    colours = ",".join(
-        [
-            QColorDialog.customColor(i).name(QColor.NameFormat.HexArgb)
-            for i in range(QColorDialog.customCount())
-        ]
-    )
-    assert aqt.mw.pm.profile is not None
-    aqt.mw.pm.profile["customColorPickerPalette"] = colours
+    colors = [
+        QColorDialog.customColor(i).name(QColor.NameFormat.HexArgb)
+        for i in range(QColorDialog.customCount())
+    ]
+    aqt.mw.col.set_config("customColorPickerPalette", colors)
     return b""
 
 
