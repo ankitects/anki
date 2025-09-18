@@ -504,4 +504,76 @@ mod tests {
         );
         Ok(())
     }
+
+    mod update_memory_state {
+        use std::{fs::File, io::BufReader};
+
+        use tempfile::{NamedTempFile, TempPath};
+        use zstd::stream::copy_decode;
+
+        use crate::{browser_table::Column, collection::CollectionBuilder, search::SortMode};
+
+        use super::*;
+
+        const TEST_COLLECTION_PATH: &str = "tests/support/large/collection.anki21b";
+
+        fn assert_file_size_hasnt_changed() {
+            insta::assert_snapshot!(std::fs::metadata(TEST_COLLECTION_PATH).unwrap().len(), @"50563219");
+        }
+
+        fn open_temp_collection() -> (Collection, TempPath) {
+            assert_file_size_hasnt_changed();
+
+            let mut test_collection = BufReader::new(File::open(TEST_COLLECTION_PATH).unwrap());
+            let mut temp_file = NamedTempFile::new().unwrap();
+            copy_decode(&mut test_collection, temp_file.as_file_mut()).unwrap();
+            let temp_path = temp_file.into_temp_path();
+            let collection = CollectionBuilder::new(temp_path.to_path_buf())
+                .build()
+                .unwrap();
+            (collection, temp_path)
+        }
+
+        pub static PARAMS: [f32; 21] = [
+            0.212, 1.2931, 2.3065, 8.2956, 6.4133, 0.8334, 3.0194, 0.001, 1.8722, 0.1666, 0.796,
+            1.4835, 0.0614, 0.2629, 1.6483, 0.6014, 1.8729, 0.5425, 0.0912, 0.0658, 0.1542,
+        ];
+
+        #[test]
+        #[ignore = "the test collection isn't yet automatically downloaded."]
+        fn snapshot_req() {
+            let (mut collection, _temp) = open_temp_collection();
+
+            let deck_name = "Main::English";
+            let deck_id = collection.get_deck_id(deck_name).unwrap().unwrap();
+            let search = SearchNode::DeckIdWithChildren(deck_id);
+
+            collection
+                .update_memory_state(vec![UpdateMemoryStateEntry {
+                    req: Some(UpdateMemoryStateRequest {
+                        params: PARAMS.to_vec(),
+                        preset_desired_retention: 0.9,
+                        historical_retention: 0.9,
+                        max_interval: 36_500,
+                        reschedule: true,
+                        deck_desired_retention: [(deck_id, 0.9)].into_iter().collect(),
+                    }),
+                    search: search.clone(),
+                    ignore_before: TimestampMillis(0),
+                }])
+                .unwrap();
+
+            let cards_in_deck = collection
+                .all_cards_for_search_in_order(
+                    search,
+                    SortMode::Builtin {
+                        column: Column::SortField,
+                        reverse: false,
+                    },
+                )
+                .unwrap();
+
+            insta::assert_debug_snapshot!(cards_in_deck);
+        }
+    }
 }
