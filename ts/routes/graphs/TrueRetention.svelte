@@ -72,7 +72,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         <HelpModal
             title={tr.statisticsTrueRetentionTitle()}
-            url={HelpPage.DeckOptions.fsrs}
+            url={HelpPage.DeckOptions.desiredRetention}
+            linkLabel="Desired retention"
             {helpSections}
             on:mount={(e) => {
                 modal = e.detail.modal;
