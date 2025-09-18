@@ -630,6 +630,7 @@ post_handler_list = [
 exposed_backend_list = [
     # CollectionService
     "latest_progress",
+    "get_custom_colours",
     # DeckService
     "get_deck_names",
     # I18nService
