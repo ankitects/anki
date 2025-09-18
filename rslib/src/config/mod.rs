@@ -71,6 +71,7 @@ pub(crate) enum ConfigKey {
     NextNewCardPosition,
     #[strum(to_string = "schedVer")]
     SchedulerVersion,
+    CustomColorPickerPalette,
 }
 
 #[derive(PartialEq, Eq, Serialize_repr, Deserialize_repr, Clone, Copy, Debug)]

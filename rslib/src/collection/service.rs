@@ -1,8 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+use anki_proto::collection::GetCustomColoursResponse;
 use anki_proto::generic;
 
 use crate::collection::Collection;
+use crate::config::ConfigKey;
 use crate::error;
 use crate::prelude::BoolKey;
 use crate::prelude::Op;
@@ -61,5 +63,14 @@ impl crate::services::CollectionService for Collection {
             Ok(())
         })
         .map(Into::into)
+    }
+
+    fn get_custom_colours(
+        &mut self,
+    ) -> error::Result<anki_proto::collection::GetCustomColoursResponse> {
+        let colours = self
+            .get_config_optional(ConfigKey::CustomColorPickerPalette)
+            .unwrap_or_default();
+        Ok(GetCustomColoursResponse { colours })
     }
 }

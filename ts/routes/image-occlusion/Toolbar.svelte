@@ -55,6 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         onWheelDragX,
     } from "./tools/tool-zoom";
     import { fillMask } from "./tools/tool-fill";
+    import { getCustomColours, saveCustomColours } from "@generated/backend";
 
     export let canvas;
     export let iconSize;
@@ -75,6 +76,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let removeHandlers: Callback;
     let colourRef: HTMLInputElement | undefined;
     const colour = writable(SHAPE_MASK_COLOR);
+
+    const customColorPickerPalette = writable<string[]>([]);
+
+    async function loadCustomColours() {
+        customColorPickerPalette.set(
+            (await getCustomColours({})).colours.filter(
+                (hex) => !hex.startsWith("#ffffff"),
+            ),
+        );
+    }
 
     function onClick(event: MouseEvent) {
         const upperCanvas = document.querySelector(".upper-canvas");
@@ -233,6 +244,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on(document, "touchstart", onTouchstart),
             on(document, "mousemove", onMousemoveDocument),
         );
+        loadCustomColours();
     });
 
     onDestroy(() => {
@@ -241,7 +253,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <datalist id="colour-palette">
-    <option value={SHAPE_MASK_COLOR}></option>
+    <option>{SHAPE_MASK_COLOR}</option>
+    {#each $customColorPickerPalette as colour}
+        <option>{colour}</option>
+    {/each}
 </datalist>
 
 <input
@@ -251,6 +266,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     list="colour-palette"
     value={SHAPE_MASK_COLOR}
     on:input={(e) => ($colour = e.currentTarget!.value)}
+    on:change={() => saveCustomColours({})}
 />
 
 <div class="tool-bar-container" style:--fill-tool-colour={$colour}>
