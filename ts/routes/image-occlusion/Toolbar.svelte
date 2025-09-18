@@ -55,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         onWheelDragX,
     } from "./tools/tool-zoom";
     import { fillMask } from "./tools/tool-fill";
-    import { getCustomColours } from "@generated/backend";
+    import { getCustomColours, saveCustomColours } from "@generated/backend";
 
     export let canvas;
     export let iconSize;
@@ -266,6 +266,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     list="colour-palette"
     value={SHAPE_MASK_COLOR}
     on:input={(e) => ($colour = e.currentTarget!.value)}
+    on:change={() => saveCustomColours({})}
 />
 
 <div class="tool-bar-container" style:--fill-tool-colour={$colour}>
