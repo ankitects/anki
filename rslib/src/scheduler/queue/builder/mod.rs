@@ -420,6 +420,21 @@ mod test {
         ];
         assert_eq!(col.queue_as_deck_and_template(parent.id), cards);
 
+        // each from random deck - test that we get expected count with variety across decks
+        col.set_deck_gather_order(&mut parent, NewCardGatherPriority::EachFromRandomDeck);
+        let cards = col.queue_as_deck_and_template(parent.id);
+
+        // Verify we get cards from multiple decks
+        let unique_decks: std::collections::HashSet<_> = cards.iter().map(|(deck_id, _)| *deck_id).collect();
+        assert!(unique_decks.len() > 1, "EachFromRandomDeck should select from multiple decks");
+
+        // Verify the child limit is respected (child + grandchild <= 3)
+        let child_family_count = cards.iter().filter(|(deck_id, _)| *deck_id == child.id || *deck_id == grandchild.id).count();
+        assert!(child_family_count <= 3, "Child limit should be respected");
+
+        // Should get 7 (out of 8) cards total (respects child limit of 3)
+        assert_eq!(cards.len(), 7);
+
         Ok(())
     }
 

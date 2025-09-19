@@ -26,6 +26,10 @@ export function newGatherPriorityChoices(): Choice<DeckConfig_Config_NewCardGath
             value: DeckConfig_Config_NewCardGatherPriority.DECK_THEN_RANDOM_NOTES,
         },
         {
+            label: tr.deckConfigNewGatherPriorityEachFromRandomDeck(),
+            value: DeckConfig_Config_NewCardGatherPriority.EACH_FROM_RANDOM_DECK,
+        },
+        {
             label: tr.deckConfigNewGatherPriorityPositionLowestFirst(),
             value: DeckConfig_Config_NewCardGatherPriority.LOWEST_POSITION,
         },

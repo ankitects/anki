@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use rand::thread_rng;
+use rand::Rng;
+use std::collections::HashSet;
 use super::DueCard;
 use super::NewCard;
 use super::QueueBuilder;
@@ -65,6 +68,10 @@ impl QueueBuilder {
             NewCardGatherPriority::Deck => {
                 self.gather_new_cards_by_deck(col, NewCardSorting::LowestPosition)
             }
+            NewCardGatherPriority::EachFromRandomDeck => {
+                self.gather_new_cards_by_each_from_random_deck(col, NewCardSorting::LowestPosition)
+            }
+
             NewCardGatherPriority::DeckThenRandomNotes => self.gather_new_cards_by_deck(
                 col,
                 NewCardSorting::RandomNotes(self.context.timing.days_elapsed),
@@ -107,6 +114,55 @@ impl QueueBuilder {
                     }
                     Ok(!limit_reached)
                 })?;
+        }
+
+        Ok(())
+    }
+
+    fn gather_new_cards_by_each_from_random_deck(
+        &mut self,
+        col: &mut Collection,
+        sort: NewCardSorting,
+    ) -> Result<()> {
+        let mut deck_ids = col.storage.get_active_deck_ids_sorted()?;
+        let mut rng = thread_rng();
+        let mut cards_added = HashSet::<CardId>::new();
+
+        // Continue until global limit is reached or no more decks with cards.
+        while !self.limits.root_limit_reached(LimitKind::New) && !deck_ids.is_empty() {
+            let selected_index = rng.gen_range(0..deck_ids.len());
+            let selected_deck = deck_ids[selected_index];
+
+            if self.limits.limit_reached(selected_deck, LimitKind::New)? {
+                // Remove the deck from the list since it's at its limit.
+                deck_ids.swap_remove(selected_index);
+                continue;
+            }
+
+            let mut found_card = false;
+            col.storage
+                .for_each_new_card_in_deck(selected_deck, sort, |card| {
+                    let limit_reached = self.limits.limit_reached(selected_deck, LimitKind::New)?;
+                    if limit_reached {
+                        Ok(false)
+                    }
+                    else if !cards_added.contains(&card.id) && self.add_new_card(card) {
+                        cards_added.insert(card.id);
+                        self.limits
+                            .decrement_deck_and_parent_limits(selected_deck, LimitKind::New)?;
+                        found_card = true;
+                        // Stop iterating this deck after getting one card.
+                        return Ok(false);
+                    }
+                    else {
+                        Ok(true)
+                    }
+                })?;
+
+            // If we couldn't find any card from this deck, remove it from consideration
+            if !found_card {
+                deck_ids.swap_remove(selected_index);
+            }
         }
 
         Ok(())
