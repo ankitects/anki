@@ -1,3 +1,4 @@
 Cargo.lock
 .build
 target
+tests/support/large
