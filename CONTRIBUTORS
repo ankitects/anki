@@ -26,10 +26,10 @@ GitHub's online interface.
 For users who previously confirmed the license of their contributions on the
 support site, it would be great if you could add your name below as well.
 
-********************
+---
 
 AMBOSS MD Inc. <https://www.amboss.com/>
-Aristotelis P.  <https://glutanimate.com/contact>
+Aristotelis P. <https://glutanimate.com/contact>
 Erez Volk <erez.volk@gmail.com>
 zjosua <zjosua@hotmail.com>
 Yngve Hoiseth <yngve@hoiseth.net>
@@ -160,7 +160,7 @@ Marko Sisovic <msisovic13@gmail.com>
 Viktor Ricci <ricci@primateer.de>
 Harvey Randall <harveyrandall2001@gmail.com>
 Pedro Lameiras <pedrolameiras@tecnico.ulisboa.pt>
-Kai Knoblich  <kai@FreeBSD.org>
+Kai Knoblich <kai@FreeBSD.org>
 Lucas Scharenbroch <lucasscharenbroch@gmail.com>
 Antonio Cavallo <a.cavallo@cavallinux.eu>
 Han Yeong-woo <han@yeongwoo.dev>
@@ -189,7 +189,7 @@ Christian Donat <https://github.com/cdonat2>
 Asuka Minato <https://asukaminato.eu.org>
 Dillon Baldwin <https://github.com/DillBal>
 Voczi <https://github.com/voczi>
-Ben Nguyen <105088397+bpnguyen107@users.noreply.github.com>     
+Ben Nguyen <105088397+bpnguyen107@users.noreply.github.com>  
 Themis Demetriades <themis100@outlook.com>
 Luke Bartholomew <lukesbart@icloud.com>
 Gregory Abrasaldo <degeemon@gmail.com>
@@ -243,8 +243,9 @@ Lee Doughty <32392044+leedoughty@users.noreply.github.com>
 memchr <memchr@proton.me>
 Max Romanowski <maxr777@proton.me>
 Aldlss <ayaldlss@gmail.com>
+josse <112946011+josod827@users.noreply.github.com>
 
-********************
+---
 
 The text of the 3 clause BSD license follows:
 
@@ -254,15 +255,15 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
+   list of conditions and the following disclaimer.
 
 2. Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
 
 3. Neither the name of the copyright holder nor the names of its contributors
-may be used to endorse or promote products derived from this software without
-specific prior written permission.
+   may be used to endorse or promote products derived from this software without
+   specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
