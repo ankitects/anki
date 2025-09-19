@@ -32,13 +32,14 @@ from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
+from anki.errors import BackendError
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import aqt_data_path, show_warning, tr
+from aqt.utils import aqt_data_path, show_warning, tr, showWarning
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
@@ -701,6 +702,14 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
                     response.headers["Content-Type"] = "application/binary"
                 else:
                     response = _text_response(HTTPStatus.NO_CONTENT, "")
+            except BackendError as e:
+                if "empty" in str(e).lower():
+                    def warn():
+                        showWarning("The file you selected is empty and cannot be imported.")
+                    aqt.mw.taskman.run_on_main(warn)
+                    return _text_response(HTTPStatus.NO_CONTENT, "")
+                else:
+                    response = _text_response(HTTPStatus.INTERNAL_SERVER_ERROR, str(e))
             except Exception as exc:
                 print(traceback.format_exc())
                 response = _text_response(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
