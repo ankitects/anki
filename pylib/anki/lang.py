@@ -65,6 +65,7 @@ langs = sorted(
         ("Українська мова", "uk_UA"),
         ("Հայերեն", "hy_AM"),
         ("עִבְרִית", "he_IL"),
+        ("ייִדיש", "yi"),
         ("العربية", "ar_SA"),
         ("فارسی", "fa_IR"),
         ("ภาษาไทย", "th_TH"),
@@ -128,6 +129,7 @@ compatMap = {
     "uk": "uk_UA",
     "uz": "uz_UZ",
     "vi": "vi_VN",
+    "yi": "yi",
 }
 
 
@@ -235,7 +237,7 @@ def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
 
 
 def is_rtl(lang: str) -> bool:
-    return lang in ("he", "ar", "fa", "ug")
+    return lang in ("he", "ar", "fa", "ug", "yi")
 
 
 # strip off unicode isolation markers from a translated string
