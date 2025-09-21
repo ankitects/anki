@@ -18,7 +18,7 @@ from anki._legacy import DeprecatedNamesMixinForModule
 TR = anki._fluent.LegacyTranslationEnum
 FormatTimeSpan = _pb.FormatTimespanRequest
 
-
+# When adding new languages here, check lang_to_disk_lang() below
 langs = sorted(
     [
         ("Afrikaans", "af_ZA"),
@@ -38,6 +38,7 @@ langs = sorted(
         ("Italiano", "it_IT"),
         ("lo jbobau", "jbo_EN"),
         ("Lenga d'òc", "oc_FR"),
+        ("Қазақша", "kk_KZ"),
         ("Magyar", "hu_HU"),
         ("Nederlands", "nl_NL"),
         ("Norsk", "nb_NO"),
@@ -104,6 +105,7 @@ compatMap = {
     "it": "it_IT",
     "ja": "ja_JP",
     "jbo": "jbo_EN",
+    "kk": "kk_KZ",
     "ko": "ko_KR",
     "la": "la_LA",
     "mn": "mn_MN",
