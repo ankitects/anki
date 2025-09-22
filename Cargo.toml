@@ -51,7 +51,7 @@ ninja_gen = { "path" = "build/ninja_gen" }
 unicase = "=2.6.0" # any changes could invalidate sqlite indexes
 
 # normal
-ammonia = "4.1.0"
+ammonia = "4.1.2"
 anyhow = "1.0.98"
 async-compression = { version = "0.4.24", features = ["zstd", "tokio"] }
 async-stream = "0.3.6"
