@@ -247,6 +247,9 @@ Hanna Nilsén <hanni614@student.liu.se>
 Elias Johansson Lara <elias.johanssonlara@gmail.com>
 Toby Penner <tobypenner01@gmail.com>
 Danilo Spillebeen <spillebeendanilo@gmail.com>
+Matbe766 <matildabergstrom01@gmail.com
+
+>>>>>>> fcd53376f (qt: normalize large progress totals to kilobytes to avoid QProgressBar overflow (#4341); docs: update CONTRIBUTORS)
 
 ********************
 
