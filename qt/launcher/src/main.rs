@@ -10,6 +10,7 @@ use std::process::Command;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
+use anki_i18n::I18n;
 use anki_io::copy_file;
 use anki_io::create_dir_all;
 use anki_io::modified_time;
@@ -31,6 +32,7 @@ use crate::platform::respawn_launcher;
 mod platform;
 
 struct State {
+    tr: I18n,
     current_version: Option<String>,
     prerelease_marker: std::path::PathBuf,
     uv_install_root: std::path::PathBuf,
@@ -100,7 +102,14 @@ fn run() -> Result<()> {
 
     let (exe_dir, resources_dir) = get_exe_and_resources_dirs()?;
 
+    let locale = locale_config::Locale::user_default().to_string();
+
     let mut state = State {
+        tr: I18n::new(&[if !locale.is_empty() {
+            locale
+        } else {
+            "en".to_owned()
+        }]),
         current_version: None,
         prerelease_marker: uv_install_root.join("prerelease"),
         uv_install_root: uv_install_root.clone(),
