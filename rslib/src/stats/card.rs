@@ -80,6 +80,7 @@ impl Collection {
                 .iter()
                 .find(|entry| entry.has_rating())
                 .map(|entry| entry.id.as_secs().0),
+            // last_review_time is not used to ensure cram revlogs are included.
             latest_review: revlog
                 .iter()
                 .rfind(|entry| entry.has_rating())
