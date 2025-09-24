@@ -15,7 +15,7 @@ use crate::extract::VariableKind;
 use crate::gather::TranslationsByFile;
 use crate::gather::TranslationsByLang;
 
-pub fn write_strings(map: &TranslationsByLang, modules: &[Module]) {
+pub fn write_strings(map: &TranslationsByLang, modules: &[Module], out_fn: &str) {
     let mut buf = String::new();
 
     // lang->module map
@@ -28,14 +28,16 @@ pub fn write_strings(map: &TranslationsByLang, modules: &[Module]) {
     write_methods(modules, &mut buf);
 
     let dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
-    let path = dir.join("strings.rs");
+    let path = dir.join(out_fn);
     fs::write(path, buf).unwrap();
 }
 
 fn write_methods(modules: &[Module], buf: &mut String) {
     buf.push_str(
         r#"
+#[allow(unused_imports)]
 use crate::{I18n,Number};
+#[allow(unused_imports)]
 use fluent::{FluentValue, FluentArgs};
 use std::borrow::Cow;
 

@@ -5,4 +5,8 @@
 
 #![allow(clippy::all)]
 
+#[cfg(not(launcher))]
 include!(concat!(env!("OUT_DIR"), "/strings.rs"));
+
+#[cfg(launcher)]
+include!(concat!(env!("OUT_DIR"), "/strings_launcher.rs"));
