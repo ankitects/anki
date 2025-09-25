@@ -136,6 +136,15 @@ impl Collection {
                                             let deckconfig_id = deck.config_id().unwrap();
                                             // reschedule it
                                             let original_interval = card.interval;
+                                            // This should ideally use lastIvl from the latest revlog entry.
+                                            // days_elapsed is used for performance reasons.
+                                            let greater_than_last = |interval: u32| {
+                                                if interval > days_elapsed {
+                                                    days_elapsed + 1
+                                                } else {
+                                                    0
+                                                }
+                                            };
                                             let interval = fsrs.next_interval(
                                                 Some(state.stability),
                                                 desired_retention,
@@ -146,7 +155,7 @@ impl Collection {
                                                 .and_then(|r| {
                                                     r.find_interval(
                                                         interval,
-                                                        1,
+                                                        greater_than_last(interval as u32).max(1),
                                                         req.max_interval,
                                                         days_elapsed as u32,
                                                         deckconfig_id,
@@ -157,7 +166,7 @@ impl Collection {
                                                     with_review_fuzz(
                                                         card.get_fuzz_factor(true),
                                                         interval,
-                                                        1,
+                                                        greater_than_last(interval as u32).max(1),
                                                         req.max_interval,
                                                     )
                                                 });
