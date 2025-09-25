@@ -630,7 +630,7 @@ def deck_options_ready() -> bytes:
 
 def save_custom_colours() -> bytes:
     colors = [
-        QColorDialog.customColor(i).name(QColor.NameFormat.HexArgb)
+        QColorDialog.customColor(i).name(QColor.NameFormat.HexRgb)
         for i in range(QColorDialog.customCount())
     ]
     aqt.mw.col.set_config("customColorPickerPalette", colors)
@@ -659,6 +659,7 @@ post_handler_list = [
 exposed_backend_list = [
     # CollectionService
     "latest_progress",
+    "get_custom_colours",
     # DeckService
     "get_deck_names",
     # I18nService
