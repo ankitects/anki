@@ -137,7 +137,8 @@ impl Collection {
                                             // reschedule it
                                             let original_interval = card.interval;
                                             let greater_than_last = |interval: u32| {
-                                                let previous_interval = last_info.previous_interval.unwrap_or(0);
+                                                let previous_interval =
+                                                    last_info.previous_interval.unwrap_or(0);
                                                 if interval > previous_interval {
                                                     previous_interval + 1
                                                 } else {
@@ -346,10 +347,13 @@ pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, L
                     previous_interval = None;
                 }
             }
-            out.insert(card_id, LastRevlogInfo {
-                last_reviewed_at,
-                previous_interval,
-            });
+            out.insert(
+                card_id,
+                LastRevlogInfo {
+                    last_reviewed_at,
+                    previous_interval,
+                },
+            );              
         });
     out
 }
