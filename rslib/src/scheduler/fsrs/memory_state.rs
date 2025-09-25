@@ -137,7 +137,7 @@ impl Collection {
                                             // reschedule it
                                             let original_interval = card.interval;
                                             let greater_than_last = |interval: u32| {
-                                                let previous_interval = last_info.previous_interval as u32
+                                                let previous_interval = last_info.previous_interval.unwrap_or(0);
                                                 if interval > previous_interval {
                                                     previous_interval + 1
                                                 } else {
@@ -336,7 +336,11 @@ pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, L
             for e in group.into_iter() {
                 if e.has_rating_and_affects_scheduling() {
                     last_reviewed_at = Some(e.id.as_secs());
-                    previous_interval = Some(e.last_interval);
+                    previous_interval = if e.last_interval >= 0 {
+                        Some(e.last_interval as u32)
+                    } else {
+                        None
+                    };
                 } else if e.is_reset() {
                     last_reviewed_at = None;
                     previous_interval = None;
