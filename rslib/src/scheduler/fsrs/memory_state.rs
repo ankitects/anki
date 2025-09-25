@@ -136,11 +136,10 @@ impl Collection {
                                             let deckconfig_id = deck.config_id().unwrap();
                                             // reschedule it
                                             let original_interval = card.interval;
-                                            // This should ideally use lastIvl from latest revlog.
-                                            // days_elapsed is used for performance reasons.
                                             let greater_than_last = |interval: u32| {
-                                                if interval > days_elapsed as u32 {
-                                                    days_elapsed as u32 + 1
+                                                let previous_interval = last_info.previous_interval as u32
+                                                if interval > previous_interval {
+                                                    previous_interval + 1
                                                 } else {
                                                     0
                                                 }
@@ -319,6 +318,9 @@ pub(crate) struct LastRevlogInfo {
     /// reviewed the card and now, so that we can determine an accurate period
     /// when the card has subsequently been rescheduled to a different day.
     pub(crate) last_reviewed_at: Option<TimestampSecs>,
+    /// The interval before the latest review. Used to prevent fuzz from going
+    /// backwards when rescheduling the card
+    pub(crate) previous_interval: Option<u32>,
 }
 
 /// Return a map of cards to info about last review.
@@ -330,14 +332,20 @@ pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, L
         .into_iter()
         .for_each(|(card_id, group)| {
             let mut last_reviewed_at = None;
+            let mut previous_interval = None;
             for e in group.into_iter() {
                 if e.has_rating_and_affects_scheduling() {
                     last_reviewed_at = Some(e.id.as_secs());
+                    previous_interval = Some(e.last_interval);
                 } else if e.is_reset() {
                     last_reviewed_at = None;
+                    previous_interval = None;
                 }
             }
-            out.insert(card_id, LastRevlogInfo { last_reviewed_at });
+            out.insert(card_id, LastRevlogInfo {
+                last_reviewed_at,
+                previous_interval,
+            });
         });
     out
 }
