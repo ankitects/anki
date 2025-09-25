@@ -353,7 +353,7 @@ pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, L
                     last_reviewed_at,
                     previous_interval,
                 },
-            );              
+            );
         });
     out
 }
