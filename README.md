@@ -27,8 +27,9 @@ Want to contribute to Anki? Check out the [Contribution Guidelines](./docs/contr
 When opening a pull request, please make sure the PR title follows the
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) style.
 Examples:
-    - `feat: add new learning mode`
-    - `fix: avoid crash when merging notetypes`
+
+- `feat: add new learning mode`
+- `fix: avoid crash when merging notetypes`
 
 ### Anki Contributors
 
