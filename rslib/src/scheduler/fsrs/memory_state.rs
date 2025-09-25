@@ -136,11 +136,11 @@ impl Collection {
                                             let deckconfig_id = deck.config_id().unwrap();
                                             // reschedule it
                                             let original_interval = card.interval;
-                                            // This should ideally use lastIvl from the latest revlog entry.
+                                            // This should ideally use lastIvl from latest revlog.
                                             // days_elapsed is used for performance reasons.
                                             let greater_than_last = |interval: u32| {
-                                                if interval > days_elapsed {
-                                                    days_elapsed + 1
+                                                if interval > days_elapsed as u32 {
+                                                    days_elapsed as u32 + 1
                                                 } else {
                                                     0
                                                 }
