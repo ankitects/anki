@@ -32,6 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         saveNeededStore,
         opacityStateStore,
     } from "./store";
+    import { get } from "svelte/store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
     import { makeMaskTransparent, SHAPE_MASK_COLOR } from "./tools/lib";
     import { enableSelectable, stopDraw } from "./tools/lib";
@@ -233,7 +234,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => {
-        opacityStateStore.set(maskOpacity);
+        maskOpacity = get(opacityStateStore);
         removeHandlers = singleCallback(
             on(document, "click", onClick),
             on(window, "mousemove", onMousemove),
