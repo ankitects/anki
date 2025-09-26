@@ -10,6 +10,6 @@ pub struct All;
 include!(concat!(env!("OUT_DIR"), "/strings.rs"));
 
 impl Translations for All {
-    const _STRINGS: &phf::Map<&str, &phf::Map<&str, &str>> = &STRINGS;
-    const _KEYS_BY_MODULE: &[&[&str]] = &KEYS_BY_MODULE;
+    const STRINGS: &phf::Map<&str, &phf::Map<&str, &str>> = &_STRINGS;
+    const KEYS_BY_MODULE: &[&[&str]] = &_KEYS_BY_MODULE;
 }

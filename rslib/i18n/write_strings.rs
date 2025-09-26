@@ -144,7 +144,7 @@ fn write_translation_key_index(modules: &[Module], buf: &mut String) {
 
     writeln!(
         buf,
-        "pub(crate) const KEYS_BY_MODULE: [&[&str]; {count}] = [",
+        "pub(crate) const _KEYS_BY_MODULE: [&[&str]; {count}] = [",
         count = modules.len(),
     )
     .unwrap();
@@ -164,7 +164,7 @@ fn write_translation_key_index(modules: &[Module], buf: &mut String) {
 fn write_lang_map(map: &TranslationsByLang, buf: &mut String) {
     buf.push_str(
         "
-pub(crate) const STRINGS: phf::Map<&str, &phf::Map<&str, &str>> = phf::phf_map! {
+pub(crate) const _STRINGS: phf::Map<&str, &phf::Map<&str, &str>> = phf::phf_map! {
 ",
     );
 

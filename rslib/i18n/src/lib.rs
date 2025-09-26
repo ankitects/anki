@@ -191,8 +191,8 @@ fn get_bundle_with_extra(
 }
 
 pub trait Translations {
-    const _STRINGS: &phf::Map<&str, &phf::Map<&str, &str>>;
-    const _KEYS_BY_MODULE: &[&[&str]];
+    const STRINGS: &phf::Map<&str, &phf::Map<&str, &str>>;
+    const KEYS_BY_MODULE: &[&[&str]];
 }
 
 #[derive(Clone)]
@@ -203,7 +203,7 @@ pub struct I18n<P: Translations = All> {
 
 impl<P: Translations> I18n<P> {
     fn get_key(module_idx: usize, translation_idx: usize) -> &'static str {
-        P::_KEYS_BY_MODULE
+        P::KEYS_BY_MODULE
             .get(module_idx)
             .and_then(|translations| translations.get(translation_idx))
             .cloned()
@@ -217,7 +217,7 @@ impl<P: Translations> I18n<P> {
             .map(|lang| {
                 let mut buf = String::new();
                 let lang_name = remapped_lang_name(&lang);
-                if let Some(strings) = P::_STRINGS.get(lang_name) {
+                if let Some(strings) = P::STRINGS.get(lang_name) {
                     if desired_modules.is_empty() {
                         // empty list, provide all modules
                         for value in strings.values() {
@@ -240,7 +240,7 @@ impl<P: Translations> I18n<P> {
     /// either access each &str separately, or load them on demand.
     fn ftl_localized_text(lang: &LanguageIdentifier) -> Option<String> {
         let lang = remapped_lang_name(lang);
-        if let Some(module) = P::_STRINGS.get(lang) {
+        if let Some(module) = P::STRINGS.get(lang) {
             let mut text = String::new();
             for module_text in module.values() {
                 text.push_str(module_text)
