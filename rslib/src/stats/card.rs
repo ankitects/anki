@@ -220,7 +220,7 @@ fn stats_revlog_entry(
         ease: entry.ease_factor,
         taken_secs: entry.taken_millis as f32 / 1000.,
         memory_state: None,
-        last_interval: entry.last_interval,
+        last_interval: entry.last_interval_secs(),
     }
 }
 
