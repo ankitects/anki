@@ -2,8 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod generated;
+mod generated_launcher;
 
 use std::borrow::Cow;
+use std::marker::PhantomData;
 use std::sync::Arc;
 use std::sync::Mutex;
 
@@ -12,8 +14,6 @@ use fluent::FluentArgs;
 use fluent::FluentResource;
 use fluent::FluentValue;
 use fluent_bundle::bundle::FluentBundle as FluentBundleOrig;
-use generated::KEYS_BY_MODULE;
-use generated::STRINGS;
 use num_format::Locale;
 use serde::Serialize;
 use unic_langid::LanguageIdentifier;
@@ -21,6 +21,9 @@ use unic_langid::LanguageIdentifier;
 type FluentBundle<T> = FluentBundleOrig<T, intl_memoizer::concurrent::IntlLangMemoizer>;
 
 pub use fluent::fluent_args as tr_args;
+
+pub use crate::generated::All;
+pub use crate::generated_launcher::Launcher;
 
 pub trait Number: Into<FluentNumber> {
     fn round(self) -> Self;
@@ -187,20 +190,67 @@ fn get_bundle_with_extra(
     get_bundle(text, extra_text, &locales)
 }
 
+pub trait Translations {
+    const _STRINGS: &phf::Map<&str, &phf::Map<&str, &str>>;
+    const _KEYS_BY_MODULE: &[&[&str]];
+}
+
 #[derive(Clone)]
-pub struct I18n {
+pub struct I18n<P: Translations = All> {
     inner: Arc<Mutex<I18nInner>>,
+    _translations_type: std::marker::PhantomData<P>,
 }
 
-fn get_key(module_idx: usize, translation_idx: usize) -> &'static str {
-    KEYS_BY_MODULE
-        .get(module_idx)
-        .and_then(|translations| translations.get(translation_idx))
-        .cloned()
-        .unwrap_or("invalid-module-or-translation-index")
-}
+impl<P: Translations> I18n<P> {
+    fn get_key(module_idx: usize, translation_idx: usize) -> &'static str {
+        P::_KEYS_BY_MODULE
+            .get(module_idx)
+            .and_then(|translations| translations.get(translation_idx))
+            .cloned()
+            .unwrap_or("invalid-module-or-translation-index")
+    }
 
-impl I18n {
+    fn get_modules(langs: &[LanguageIdentifier], desired_modules: &[String]) -> Vec<String> {
+        langs
+            .iter()
+            .cloned()
+            .map(|lang| {
+                let mut buf = String::new();
+                let lang_name = remapped_lang_name(&lang);
+                if let Some(strings) = P::_STRINGS.get(lang_name) {
+                    if desired_modules.is_empty() {
+                        // empty list, provide all modules
+                        for value in strings.values() {
+                            buf.push_str(value)
+                        }
+                    } else {
+                        for module_name in desired_modules {
+                            if let Some(text) = strings.get(module_name.as_str()) {
+                                buf.push_str(text);
+                            }
+                        }
+                    }
+                }
+                buf
+            })
+            .collect()
+    }
+
+    /// This temporarily behaves like the older code; in the future we could
+    /// either access each &str separately, or load them on demand.
+    fn ftl_localized_text(lang: &LanguageIdentifier) -> Option<String> {
+        let lang = remapped_lang_name(lang);
+        if let Some(module) = P::_STRINGS.get(lang) {
+            let mut text = String::new();
+            for module_text in module.values() {
+                text.push_str(module_text)
+            }
+            Some(text)
+        } else {
+            None
+        }
+    }
+
     pub fn template_only() -> Self {
         Self::new::<&str>(&[])
     }
@@ -225,7 +275,7 @@ impl I18n {
         let mut output_langs = vec![];
         for lang in input_langs {
             // if the language is bundled in the binary
-            if let Some(text) = ftl_localized_text(&lang).or_else(|| {
+            if let Some(text) = Self::ftl_localized_text(&lang).or_else(|| {
                 // when testing, allow missing translations
                 if cfg!(test) {
                     Some(String::new())
@@ -244,7 +294,7 @@ impl I18n {
 
         // add English templates
         let template_lang = "en-US".parse().unwrap();
-        let template_text = ftl_localized_text(&template_lang).unwrap();
+        let template_text = Self::ftl_localized_text(&template_lang).unwrap();
         let template_bundle = get_bundle_with_extra(&template_text, None).unwrap();
         bundles.push(template_bundle);
         output_langs.push(template_lang);
@@ -261,6 +311,7 @@ impl I18n {
                 bundles,
                 langs: output_langs,
             })),
+            _translations_type: PhantomData,
         }
     }
 
@@ -270,7 +321,7 @@ impl I18n {
         message_index: usize,
         args: FluentArgs,
     ) -> String {
-        let key = get_key(module_index, message_index);
+        let key = Self::get_key(module_index, message_index);
         self.translate(key, Some(args)).into()
     }
 
@@ -305,52 +356,11 @@ impl I18n {
     /// implementation.
     pub fn resources_for_js(&self, desired_modules: &[String]) -> ResourcesForJavascript {
         let inner = self.inner.lock().unwrap();
-        let resources = get_modules(&inner.langs, desired_modules);
+        let resources = Self::get_modules(&inner.langs, desired_modules);
         ResourcesForJavascript {
             langs: inner.langs.iter().map(ToString::to_string).collect(),
             resources,
         }
-    }
-}
-
-fn get_modules(langs: &[LanguageIdentifier], desired_modules: &[String]) -> Vec<String> {
-    langs
-        .iter()
-        .cloned()
-        .map(|lang| {
-            let mut buf = String::new();
-            let lang_name = remapped_lang_name(&lang);
-            if let Some(strings) = STRINGS.get(lang_name) {
-                if desired_modules.is_empty() {
-                    // empty list, provide all modules
-                    for value in strings.values() {
-                        buf.push_str(value)
-                    }
-                } else {
-                    for module_name in desired_modules {
-                        if let Some(text) = strings.get(module_name.as_str()) {
-                            buf.push_str(text);
-                        }
-                    }
-                }
-            }
-            buf
-        })
-        .collect()
-}
-
-/// This temporarily behaves like the older code; in the future we could either
-/// access each &str separately, or load them on demand.
-fn ftl_localized_text(lang: &LanguageIdentifier) -> Option<String> {
-    let lang = remapped_lang_name(lang);
-    if let Some(module) = STRINGS.get(lang) {
-        let mut text = String::new();
-        for module_text in module.values() {
-            text.push_str(module_text)
-        }
-        Some(text)
-    } else {
-        None
     }
 }
 
@@ -490,7 +500,7 @@ mod test {
     #[test]
     fn i18n() {
         // English template
-        let tr = I18n::new(&["zz"]);
+        let tr = I18n::<All>::new(&["zz"]);
         assert_eq!(tr.translate("valid-key", None), "a valid key");
         assert_eq!(tr.translate("invalid-key", None), "invalid-key");
 
@@ -513,7 +523,7 @@ mod test {
         );
 
         // Another language
-        let tr = I18n::new(&["ja_JP"]);
+        let tr = I18n::<All>::new(&["ja_JP"]);
         assert_eq!(tr.translate("valid-key", None), "キー");
         assert_eq!(tr.translate("only-in-english", None), "not translated");
         assert_eq!(tr.translate("invalid-key", None), "invalid-key");
@@ -524,7 +534,7 @@ mod test {
         );
 
         // Decimal separator
-        let tr = I18n::new(&["pl-PL"]);
+        let tr = I18n::<All>::new(&["pl-PL"]);
         // Polish will use a comma if the string is translated
         assert_eq!(
             tr.translate("one-arg-key", Some(tr_args!["one"=>2.07])),

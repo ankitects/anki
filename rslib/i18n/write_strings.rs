@@ -15,7 +15,7 @@ use crate::extract::VariableKind;
 use crate::gather::TranslationsByFile;
 use crate::gather::TranslationsByLang;
 
-pub fn write_strings(map: &TranslationsByLang, modules: &[Module], out_fn: &str) {
+pub fn write_strings(map: &TranslationsByLang, modules: &[Module], out_fn: &str, tag: &str) {
     let mut buf = String::new();
 
     // lang->module map
@@ -25,25 +25,25 @@ pub fn write_strings(map: &TranslationsByLang, modules: &[Module], out_fn: &str)
     // ordered list of translations by module
     write_translation_key_index(modules, &mut buf);
     // methods to generate messages
-    write_methods(modules, &mut buf);
+    write_methods(modules, &mut buf, tag);
 
     let dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     let path = dir.join(out_fn);
     fs::write(path, buf).unwrap();
 }
 
-fn write_methods(modules: &[Module], buf: &mut String) {
+fn write_methods(modules: &[Module], buf: &mut String, tag: &str) {
     buf.push_str(
         r#"
 #[allow(unused_imports)]
-use crate::{I18n,Number};
+use crate::{I18n,Number,Translations};
 #[allow(unused_imports)]
 use fluent::{FluentValue, FluentArgs};
 use std::borrow::Cow;
 
-impl I18n {
 "#,
     );
+    writeln!(buf, "impl I18n<{tag}> {{").unwrap();
     for module in modules {
         for translation in &module.translations {
             let func = translation.key.to_snake_case();

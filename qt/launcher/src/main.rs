@@ -32,7 +32,7 @@ use crate::platform::respawn_launcher;
 mod platform;
 
 struct State {
-    tr: I18n,
+    tr: I18n<anki_i18n::Launcher>,
     current_version: Option<String>,
     prerelease_marker: std::path::PathBuf,
     uv_install_root: std::path::PathBuf,

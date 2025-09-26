@@ -26,7 +26,7 @@ fn main() -> Result<()> {
     let mut map = get_ftl_data();
     check(&map);
     let mut modules = get_modules(&map);
-    write_strings(&map, &modules, "strings.rs");
+    write_strings(&map, &modules, "strings.rs", "All");
 
     typescript::write_ts_interface(&modules)?;
     python::write_py_interface(&modules)?;
@@ -42,14 +42,11 @@ fn main() -> Result<()> {
         }
     }
 
-    // allow passing in "--cfg launcher" for the launcher
-    println!("cargo::rustc-check-cfg=cfg(launcher)");
-
     // generate strings for the launcher
     map.iter_mut()
         .for_each(|(_, modules)| modules.retain(|module, _| module == "launcher"));
     modules.retain(|module| module.name == "launcher");
-    write_strings(&map, &modules, "strings_launcher.rs");
+    write_strings(&map, &modules, "strings_launcher.rs", "Launcher");
 
     Ok(())
 }
