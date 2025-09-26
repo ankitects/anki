@@ -37,6 +37,7 @@ message CardStatsResponse {
     uint32 ease = 5;
     float taken_secs = 6;
     optional cards.FsrsMemoryState memory_state = 7;
+    int64 last_interval = 8;
   }
   repeated StatsRevlogEntry revlog = 1;
   int64 card_id = 2;
