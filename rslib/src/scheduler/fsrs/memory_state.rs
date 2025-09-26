@@ -337,7 +337,7 @@ pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, L
             for e in group.into_iter() {
                 if e.has_rating_and_affects_scheduling() {
                     last_reviewed_at = Some(e.id.as_secs());
-                    previous_interval = if e.last_interval >= 0 {
+                    previous_interval = if e.last_interval >= 0 && e.button_chosen > 1 {
                         Some(e.last_interval as u32)
                     } else {
                         None
