@@ -390,10 +390,10 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 // Toggle beta prerelease file
                 if state.prerelease_marker.exists() {
                     let _ = remove_file(&state.prerelease_marker);
-                    println!("Beta releases disabled.");
+                    println!("{}", state.tr.launcher_beta_releases_disabled());
                 } else {
                     write_file(&state.prerelease_marker, "")?;
-                    println!("Beta releases enabled.");
+                    println!("{}", state.tr.launcher_beta_releases_enabled());
                 }
                 println!();
                 continue;
@@ -402,14 +402,14 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 // Toggle cache disable file
                 if state.no_cache_marker.exists() {
                     let _ = remove_file(&state.no_cache_marker);
-                    println!("Download caching enabled.");
+                    println!("{}", state.tr.launcher_download_caching_enabled());
                 } else {
                     write_file(&state.no_cache_marker, "")?;
                     // Delete the cache directory and everything in it
                     if state.uv_cache_dir.exists() {
                         let _ = anki_io::remove_dir_all(&state.uv_cache_dir);
                     }
-                    println!("Download caching disabled and cache cleared.");
+                    println!("{}", state.tr.launcher_download_caching_disabled());
                 }
                 println!();
                 continue;

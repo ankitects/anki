@@ -31,3 +31,7 @@ launcher-mirror-no-mirror = No mirror
 launcher-mirror-china = China
 launcher-mirror-disabled = Mirror disabled.
 launcher-mirror-china-enabled = China mirror enabled.
+launcher-beta-releases-enabled = Beta releases enabled.
+launcher-beta-releases-disabled = Beta releases disabled.
+launcher-download-caching-enabled = Download caching enabled.
+launcher-download-caching-disabled = Download caching disabled and cache cleared.
