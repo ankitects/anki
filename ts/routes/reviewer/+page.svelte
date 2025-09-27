@@ -1,6 +1,6 @@
 <script>
     import ReviewerBottomOuter from "./reviewer-bottom/ReviewerBottomOuter.svelte";
-    import Reviewer from "./reviewer.svelte";
+    import Reviewer from "./Reviewer.svelte";
 </script>
 
 <div>
