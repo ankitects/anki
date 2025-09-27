@@ -1,27 +1,9 @@
 <script lang="ts">
-    import { bridgeCommand } from "@tslib/bridgecommand";
-    import type { Writable } from "svelte/store";
-    import { isNightMode } from "../../html-filter/helpers";
-
-    export let html: Writable<string>;
-    export let cardClass: Writable<string>;
+    import { setupReviewer } from "./reviewer";
 
     let iframe: HTMLIFrameElement;
 
-    html.subscribe(($html) => {
-        if (iframe?.contentDocument) {
-            iframe.contentDocument.body.innerHTML = $html;
-            iframe.contentDocument.head.innerHTML = document.head.innerHTML;
-            iframe.contentDocument.body.className = isNightMode()
-                ? "nightMode card"
-                : "card";
-            iframe.contentDocument.querySelector("html")!.className = isNightMode()
-                ? "night-mode"
-                : "";
-            //@ts-ignore
-            iframe.contentDocument.pycmd = bridgeCommand;
-        }
-    });
+    $: ({ cardClass } = setupReviewer(iframe));
 </script>
 
 <div id="qa" class={$cardClass}>
