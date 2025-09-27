@@ -10,6 +10,7 @@ use std::process::Command;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
+use anki_i18n::I18n;
 use anki_io::copy_file;
 use anki_io::create_dir_all;
 use anki_io::modified_time;
@@ -31,6 +32,7 @@ use crate::platform::respawn_launcher;
 mod platform;
 
 struct State {
+    tr: I18n<anki_i18n::Launcher>,
     current_version: Option<String>,
     prerelease_marker: std::path::PathBuf,
     uv_install_root: std::path::PathBuf,
@@ -100,7 +102,14 @@ fn run() -> Result<()> {
 
     let (exe_dir, resources_dir) = get_exe_and_resources_dirs()?;
 
+    let locale = locale_config::Locale::user_default().to_string();
+
     let mut state = State {
+        tr: I18n::new(&[if !locale.is_empty() {
+            locale
+        } else {
+            "en".to_owned()
+        }]),
         current_version: None,
         prerelease_marker: uv_install_root.join("prerelease"),
         uv_install_root: uv_install_root.clone(),
@@ -160,7 +169,7 @@ fn run() -> Result<()> {
     }
 
     print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
-    println!("\x1B[1mAnki Launcher\x1B[0m\n");
+    println!("\x1B[1m{}\x1B[0m\n", state.tr.launcher_title());
 
     ensure_os_supported()?;
 
@@ -178,15 +187,18 @@ fn run() -> Result<()> {
     }
 
     if cfg!(unix) && !cfg!(target_os = "macos") {
-        println!("\nPress enter to start Anki.");
+        println!("\n{}", state.tr.launcher_press_enter_to_start());
         let mut input = String::new();
         let _ = stdin().read_line(&mut input);
     } else {
         // on Windows/macOS, the user needs to close the terminal/console
         // currently, but ideas on how we can avoid this would be good!
         println!();
-        println!("Anki will start shortly.");
-        println!("\x1B[1mYou can close this window.\x1B[0m\n");
+        println!("{}", state.tr.launcher_anki_will_start_shortly());
+        println!(
+            "\x1B[1m{}\x1B[0m\n",
+            state.tr.launcher_you_can_close_this_window()
+        );
     }
 
     // respawn the launcher as a disconnected subprocess for normal startup
@@ -258,7 +270,7 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     // Remove sync marker before attempting sync
     let _ = remove_file(&state.sync_complete_marker);
 
-    println!("Updating Anki...\n");
+    println!("{}\n", state.tr.launcher_updating_anki());
 
     let python_version_trimmed = if state.user_python_version_path.exists() {
         let python_version = read_file(&state.user_python_version_path)?;
@@ -440,44 +452,62 @@ fn file_timestamp_secs(path: &std::path::Path) -> i64 {
 
 fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
     loop {
-        println!("1) Latest Anki (press Enter)");
-        println!("2) Choose a version");
+        println!("1) {}", state.tr.launcher_latest_anki());
+        println!("2) {}", state.tr.launcher_choose_a_version());
 
         if let Some(current_version) = &state.current_version {
             let normalized_current = normalize_version(current_version);
 
             if state.pyproject_modified_by_user {
-                println!("3) Sync project changes");
+                println!("3) {}", state.tr.launcher_sync_project_changes());
             } else {
-                println!("3) Keep existing version ({normalized_current})");
+                println!(
+                    "3) {}",
+                    state.tr.launcher_keep_existing_version(normalized_current)
+                );
             }
         }
 
         if let Some(prev_version) = &state.previous_version {
             if state.current_version.as_ref() != Some(prev_version) {
                 let normalized_prev = normalize_version(prev_version);
-                println!("4) Revert to previous version ({normalized_prev})");
+                println!(
+                    "4) {}",
+                    state.tr.launcher_revert_to_previous(normalized_prev)
+                );
             }
         }
         println!();
 
         let betas_enabled = state.prerelease_marker.exists();
         println!(
-            "5) Allow betas: {}",
-            if betas_enabled { "on" } else { "off" }
+            "5) {}",
+            state.tr.launcher_allow_betas(if betas_enabled {
+                state.tr.launcher_on()
+            } else {
+                state.tr.launcher_off()
+            })
         );
         let cache_enabled = !state.no_cache_marker.exists();
         println!(
-            "6) Cache downloads: {}",
-            if cache_enabled { "on" } else { "off" }
+            "6) {}",
+            state.tr.launcher_cache_downloads(if cache_enabled {
+                state.tr.launcher_on()
+            } else {
+                state.tr.launcher_off()
+            })
         );
         let mirror_enabled = is_mirror_enabled(state);
         println!(
-            "7) Download mirror: {}",
-            if mirror_enabled { "on" } else { "off" }
+            "7) {}",
+            state.tr.launcher_download_mirror(if mirror_enabled {
+                state.tr.launcher_on()
+            } else {
+                state.tr.launcher_off()
+            })
         );
         println!();
-        println!("8) Uninstall");
+        println!("8) {}", state.tr.launcher_uninstall());
         print!("> ");
         let _ = stdout().flush();
 
@@ -499,7 +529,7 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
                 if state.current_version.is_some() {
                     MainMenuChoice::KeepExisting
                 } else {
-                    println!("Invalid input. Please try again.\n");
+                    println!("{}\n", state.tr.launcher_invalid_input());
                     continue;
                 }
             }
@@ -511,7 +541,7 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
                         }
                     }
                 }
-                println!("Invalid input. Please try again.\n");
+                println!("{}\n", state.tr.launcher_invalid_input());
                 continue;
             }
             "5" => MainMenuChoice::ToggleBetas,
@@ -519,7 +549,7 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
             "7" => MainMenuChoice::DownloadMirror,
             "8" => MainMenuChoice::Uninstall,
             _ => {
-                println!("Invalid input. Please try again.");
+                println!("{}\n", state.tr.launcher_invalid_input());
                 continue;
             }
         });
@@ -534,9 +564,9 @@ fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
         .map(|v| v.as_str())
         .collect::<Vec<_>>()
         .join(", ");
-    println!("Latest releases: {releases_str}");
+    println!("{}", state.tr.launcher_latest_releases(releases_str));
 
-    println!("Enter the version you want to install:");
+    println!("{}", state.tr.launcher_enter_the_version_you_want());
     print!("> ");
     let _ = stdout().flush();
 
@@ -560,11 +590,11 @@ fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
             Ok(Some(version_kind))
         }
         (None, true) => {
-            println!("Versions before 2.1.50 can't be installed.");
+            println!("{}", state.tr.launcher_versions_before_cant_be_installed());
             Ok(None)
         }
         _ => {
-            println!("Invalid version.\n");
+            println!("{}\n", state.tr.launcher_invalid_version());
             Ok(None)
         }
     }
@@ -700,7 +730,7 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
     let output = match cmd.utf8_output() {
         Ok(output) => output,
         Err(e) => {
-            print!("Unable to check for Anki versions. Please check your internet connection.\n\n");
+            print!("{}\n\n", state.tr.launcher_unable_to_check_for_versions());
             return Err(e.into());
         }
     };
@@ -709,7 +739,7 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
 }
 
 fn get_releases(state: &State) -> Result<Releases> {
-    println!("Checking for updates...");
+    println!("{}", state.tr.launcher_checking_for_updates());
     let include_prereleases = state.prerelease_marker.exists();
     let all_versions = fetch_versions(state)?;
     let all_versions = filter_and_normalize_versions(all_versions, include_prereleases);
@@ -911,7 +941,7 @@ fn get_anki_addons21_path() -> Result<std::path::PathBuf> {
 }
 
 fn handle_uninstall(state: &State) -> Result<bool> {
-    println!("Uninstall Anki's program files? (y/n)");
+    println!("{}", state.tr.launcher_uninstall_confirm());
     print!("> ");
     let _ = stdout().flush();
 
@@ -920,7 +950,7 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     let input = input.trim().to_lowercase();
 
     if input != "y" {
-        println!("Uninstall cancelled.");
+        println!("{}", state.tr.launcher_uninstall_cancelled());
         println!();
         return Ok(false);
     }
@@ -928,11 +958,11 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     // Remove program files
     if state.uv_install_root.exists() {
         anki_io::remove_dir_all(&state.uv_install_root)?;
-        println!("Program files removed.");
+        println!("{}", state.tr.launcher_program_files_removed());
     }
 
     println!();
-    println!("Remove all profiles/cards? (y/n)");
+    println!("{}", state.tr.launcher_remove_all_profiles_confirm());
     print!("> ");
     let _ = stdout().flush();
 
@@ -942,7 +972,7 @@ fn handle_uninstall(state: &State) -> Result<bool> {
 
     if input == "y" && state.anki_base_folder.exists() {
         anki_io::remove_dir_all(&state.anki_base_folder)?;
-        println!("User data removed.");
+        println!("{}", state.tr.launcher_user_data_removed());
     }
 
     println!();
@@ -1036,9 +1066,9 @@ fn get_mirror_urls(state: &State) -> Result<Option<(String, String)>> {
 
 fn show_mirror_submenu(state: &State) -> Result<()> {
     loop {
-        println!("Download mirror options:");
-        println!("1) No mirror");
-        println!("2) China");
+        println!("{}", state.tr.launcher_download_mirror_options());
+        println!("1) {}", state.tr.launcher_mirror_no_mirror());
+        println!("2) {}", state.tr.launcher_mirror_china());
         print!("> ");
         let _ = stdout().flush();
 
@@ -1052,14 +1082,14 @@ fn show_mirror_submenu(state: &State) -> Result<()> {
                 if state.mirror_path.exists() {
                     let _ = remove_file(&state.mirror_path);
                 }
-                println!("Mirror disabled.");
+                println!("{}", state.tr.launcher_mirror_disabled());
                 break;
             }
             "2" => {
                 // Write China mirror URLs
                 let china_mirrors = "https://registry.npmmirror.com/-/binary/python-build-standalone/\nhttps://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/";
                 write_file(&state.mirror_path, china_mirrors)?;
-                println!("China mirror enabled.");
+                println!("{}", state.tr.launcher_mirror_china_enabled());
                 break;
             }
             "" => {
@@ -1067,7 +1097,7 @@ fn show_mirror_submenu(state: &State) -> Result<()> {
                 break;
             }
             _ => {
-                println!("Invalid input. Please try again.");
+                println!("{}", state.tr.launcher_invalid_input());
                 continue;
             }
         }
