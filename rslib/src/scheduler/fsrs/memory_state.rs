@@ -136,14 +136,18 @@ impl Collection {
                                             let deckconfig_id = deck.config_id().unwrap();
                                             // reschedule it
                                             let original_interval = card.interval;
-                                            let greater_than_last = |interval: u32| {
+                                            let min_interval = |interval: u32| {
                                                 let previous_interval =
                                                     last_info.previous_interval.unwrap_or(0);
                                                 if interval > previous_interval {
+                                                    // interval grew; don't allow fuzzed interval to
+                                                    // be less than previous+1
                                                     previous_interval + 1
                                                 } else {
+                                                    // interval shrunk; don't restrict negative fuzz
                                                     0
                                                 }
+                                                .max(1)
                                             };
                                             let interval = fsrs.next_interval(
                                                 Some(state.stability),
@@ -155,7 +159,7 @@ impl Collection {
                                                 .and_then(|r| {
                                                     r.find_interval(
                                                         interval,
-                                                        greater_than_last(interval as u32).max(1),
+                                                        min_interval(interval as u32),
                                                         req.max_interval,
                                                         days_elapsed as u32,
                                                         deckconfig_id,
@@ -166,7 +170,7 @@ impl Collection {
                                                     with_review_fuzz(
                                                         card.get_fuzz_factor(true),
                                                         interval,
-                                                        greater_than_last(interval as u32).max(1),
+                                                        min_interval(interval as u32),
                                                         req.max_interval,
                                                     )
                                                 });
