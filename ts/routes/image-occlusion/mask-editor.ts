@@ -8,10 +8,22 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
-import { hideAllGuessOne, notesDataStore, opacityStateStore, saveNeededStore, tagsWritable, textEditingState } from "./store";
+import {
+    hideAllGuessOne,
+    notesDataStore,
+    opacityStateStore,
+    saveNeededStore,
+    tagsWritable,
+    textEditingState,
+} from "./store";
 import Toast from "./Toast.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
-import { enableSelectable, makeMaskTransparent, makeShapesRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
+import {
+    enableSelectable,
+    makeMaskTransparent,
+    makeShapesRemainInCanvas,
+    moveShapeToCanvasBoundaries,
+} from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
 import { enablePinchZoom, onResize, setCanvasSize } from "./tools/tool-zoom";
