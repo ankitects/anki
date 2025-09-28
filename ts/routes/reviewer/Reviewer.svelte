@@ -7,7 +7,12 @@
 </script>
 
 <div id="qa" class={$cardClass}>
-    <iframe bind:this={iframe} title="card" frameborder="0"></iframe>
+    <iframe
+        src="/reviewer-inner"
+        bind:this={iframe}
+        title="card"
+        frameborder="0"
+    ></iframe>
 </div>
 
 <style lang="scss">
