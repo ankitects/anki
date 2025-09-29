@@ -2226,7 +2226,7 @@
   {
     "authors": "Ibraheem Ahmed <ibraheem@ibraheem.ca>",
     "description": "A high performance, zero-copy URL router.",
-    "license": "MIT AND BSD-3-Clause",
+    "license": "BSD-3-Clause AND MIT",
     "license_file": null,
     "name": "matchit",
     "repository": "https://github.com/ibraheemdev/matchit"
@@ -4154,7 +4154,7 @@
   {
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "description": "Determine whether characters have the XID_Start or XID_Continue properties according to Unicode Standard Annex #31",
-    "license": "(MIT OR Apache-2.0) AND Unicode-3.0",
+    "license": "(Apache-2.0 OR MIT) AND Unicode-3.0",
     "license_file": null,
     "name": "unicode-ident",
     "repository": "https://github.com/dtolnay/unicode-ident"
