@@ -931,30 +931,30 @@ timerStopped = false;
                 if aqt.mw.pm.get_answer_key(i)
                 else ""
             )
-            
+
             if self.mw.col.conf["hideColor"]:
                 return """
 <td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s%s</button></td>""" % (
-                extra,
-                key,
-                i,
-                i,
-                label,
-                due,
-            )
+                    extra,
+                    key,
+                    i,
+                    i,
+                    label,
+                    due,
+                )
             else:
                 return """
 <td align=center><button %s class="answerButton %s" title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s%s</button></td>""" % (
-                extra,
-                button_class,
-                key,
-                i,
-                i,
-                label,
-                due,
-            )
+                    extra,
+                    button_class,
+                    key,
+                    i,
+                    i,
+                    label,
+                    due,
+                )
 
         buf = "<center><table cellpadding=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
