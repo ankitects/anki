@@ -97,6 +97,8 @@ impl Collection {
             show_remaining_due_counts: self.get_config_bool(BoolKey::ShowRemainingDueCountsInStudy),
             show_intervals_on_buttons: self
                 .get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons),
+            hide_colored_buttons: self
+                .get_config_bool(BoolKey::HideColoredButtons),
             time_limit_secs: self.get_answer_time_limit_secs(),
             load_balancer_enabled: self.get_config_bool(BoolKey::LoadBalancerEnabled),
             fsrs_short_term_with_steps_enabled: self
@@ -118,6 +120,10 @@ impl Collection {
         self.set_config_bool_inner(
             BoolKey::ShowIntervalsAboveAnswerButtons,
             s.show_intervals_on_buttons,
+        )?;
+        self.set_config_bool_inner(
+            BoolKey::HideColoredButtons,
+            s.hide_colored_buttons,
         )?;
         self.set_answer_time_limit_secs(s.time_limit_secs)?;
         self.set_config_bool_inner(BoolKey::LoadBalancerEnabled, s.load_balancer_enabled)?;

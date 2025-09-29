@@ -931,7 +931,20 @@ timerStopped = false;
                 if aqt.mw.pm.get_answer_key(i)
                 else ""
             )
-            return """
+            
+            if self.mw.col.conf["hideColor"]:
+                return """
+<td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+%s%s</button></td>""" % (
+                extra,
+                key,
+                i,
+                i,
+                label,
+                due,
+            )
+            else:
+                return """
 <td align=center><button %s class="answerButton %s" title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s%s</button></td>""" % (
                 extra,
