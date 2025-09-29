@@ -932,7 +932,7 @@ timerStopped = false;
                 else ""
             )
 
-            if self.mw.col.conf["showColor"]:
+            if not self.mw.col.conf["showColor"]:
                 return """
 <td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s%s</button></td>""" % (
