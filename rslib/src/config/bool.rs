@@ -54,7 +54,7 @@ pub enum BoolKey {
     ShowRemainingDueCountsInStudy,
     #[strum(to_string = "addToCur")]
     AddingDefaultsToCurrentDeck,
-    #[strum(to_string = "hideColor")]
+    #[strum(to_string = "showColor")]
     ShowColoredButtons,
 }
 
