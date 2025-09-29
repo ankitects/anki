@@ -137,7 +137,7 @@ class Preferences(QDialog):
         form.showEstimates.setChecked(reviewing.show_intervals_on_buttons)
         form.showProgress.setChecked(reviewing.show_remaining_due_counts)
         form.showPlayButtons.setChecked(not reviewing.hide_audio_play_buttons)
-        form.showColoredButtons.setChecked(not reviewing.show_colored_buttons)
+        form.showColoredButtons.setChecked(reviewing.show_colored_buttons)
         form.interrupt_audio.setChecked(reviewing.interrupt_audio_when_answering)
 
         editing = self.prefs.editing
