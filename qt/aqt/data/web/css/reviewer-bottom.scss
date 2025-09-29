@@ -28,6 +28,34 @@ button {
     white-space: nowrap;
     margin: 9px;
     position: relative;
+    border-top-color: color(border-subtle);
+}
+
+.answerButton,
+.answerButton:hover {
+    border-style: solid;
+}
+
+.answerButton:focus {
+    border-style: dashed;
+}
+
+.answerButton,
+.answerButton:hover,
+.answerButton:focus {
+    border-width: 2px;
+}
+
+.answerIncorrect,
+.answerIncorrect:hover,
+.answerIncorrect:focus {
+    border-color: #e01b24;
+}
+
+.answerCorrect,
+.answerCorrect:hover,
+.answerCorrect:focus {
+    border-color: #2ec27e;
 }
 
 .hitem {
