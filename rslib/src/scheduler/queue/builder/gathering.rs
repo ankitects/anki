@@ -141,10 +141,7 @@ impl QueueBuilder {
             let mut found_card = false;
             col.storage
                 .for_each_new_card_in_deck(selected_deck, sort, |card| {
-                    let limit_reached = self.limits.limit_reached(selected_deck, LimitKind::New)?;
-                    if limit_reached {
-                        Ok(false)
-                    } else if !cards_added.contains(&card.id) && self.add_new_card(card) {
+                    if !cards_added.contains(&card.id) && self.add_new_card(card) {
                         cards_added.insert(card.id);
                         self.limits
                             .decrement_deck_and_parent_limits(selected_deck, LimitKind::New)?;
