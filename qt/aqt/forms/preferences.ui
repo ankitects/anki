@@ -426,7 +426,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="hideColoredButtons">
+             <widget class="QCheckBox" name="showColoredButtons">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>

@@ -55,7 +55,7 @@ pub enum BoolKey {
     #[strum(to_string = "addToCur")]
     AddingDefaultsToCurrentDeck,
     #[strum(to_string = "hideColor")]
-    HideColoredButtons,
+    ShowColoredButtons,
 }
 
 /// This is a workaround for old clients that used ints to represent boolean
@@ -73,7 +73,7 @@ impl Collection {
             // some keys default to true
             BoolKey::InterruptAudioWhenAnswering
             | BoolKey::ShowIntervalsAboveAnswerButtons
-            | BoolKey::HideColoredButtons
+            | BoolKey::ShowColoredButtons
             | BoolKey::AddingDefaultsToCurrentDeck
             | BoolKey::FutureDueShowBacklog
             | BoolKey::ShowRemainingDueCountsInStudy
