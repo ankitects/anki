@@ -39,22 +39,16 @@ button {
     border-style: dashed;
 }
 
-.answerButton,
-.answerButton:hover,
-.answerButton:focus {
-    border-width: 1px;
-}
-
 .answerIncorrect,
 .answerIncorrect:hover,
 .answerIncorrect:focus {
-    border-color: #e01b24;
+    border-color: color(border-answerIncorrect);
 }
 
 .answerCorrect,
 .answerCorrect:hover,
 .answerCorrect:focus {
-    border-color: #2ec27e;
+    border-color: color(border-answerCorrect);
 }
 
 .hitem {
