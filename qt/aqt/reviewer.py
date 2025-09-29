@@ -932,7 +932,7 @@ timerStopped = false;
                 else ""
             )
 
-            if not self.mw.col.conf["showColor"]:
+            if not self.mw.col.get_config_bool(Config.Bool.SHOW_COLORED_BUTTONS):
                 return """
 <td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s%s</button></td>""" % (
