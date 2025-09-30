@@ -3,6 +3,7 @@
 
 use std::sync::LazyLock;
 
+use anki_proto::search::search_node::FieldSearchMode as FieldSearchModeProto;
 use nom::branch::alt;
 use nom::bytes::complete::escaped;
 use nom::bytes::complete::is_not;
@@ -27,7 +28,6 @@ use crate::error::ParseError;
 use crate::error::Result;
 use crate::error::SearchErrorKind as FailKind;
 use crate::prelude::*;
-
 type IResult<'a, O> = std::result::Result<(&'a str, O), nom::Err<ParseError<'a>>>;
 type ParseResult<'a, O> = std::result::Result<O, nom::Err<ParseError<'a>>>;
 
@@ -48,6 +48,23 @@ pub enum Node {
     Search(SearchNode),
 }
 
+#[derive(Copy, Debug, PartialEq, Eq, Clone)]
+pub enum FieldSearchMode {
+    Normal,
+    Regex,
+    NoCombining,
+}
+
+impl From<FieldSearchModeProto> for FieldSearchMode {
+    fn from(mode: FieldSearchModeProto) -> Self {
+        match mode {
+            FieldSearchModeProto::Normal => Self::Normal,
+            FieldSearchModeProto::Regex => Self::Regex,
+            FieldSearchModeProto::Nocombining => Self::NoCombining,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum SearchNode {
     // text without a colon
@@ -56,7 +73,7 @@ pub enum SearchNode {
     SingleField {
         field: String,
         text: String,
-        is_re: bool,
+        mode: FieldSearchMode,
     },
     AddedInDays(u32),
     EditedInDays(u32),
@@ -77,7 +94,7 @@ pub enum SearchNode {
     },
     Tag {
         tag: String,
-        is_re: bool,
+        mode: FieldSearchMode,
     },
     Duplicates {
         notetype_id: NotetypeId,
@@ -373,12 +390,17 @@ fn parse_tag(s: &str) -> ParseResult<'_, SearchNode> {
     Ok(if let Some(re) = s.strip_prefix("re:") {
         SearchNode::Tag {
             tag: unescape_quotes(re),
-            is_re: true,
+            mode: FieldSearchMode::Regex,
+        }
+    } else if let Some(nc) = s.strip_prefix("nc:") {
+        SearchNode::Tag {
+            tag: unescape(nc)?,
+            mode: FieldSearchMode::NoCombining,
         }
     } else {
         SearchNode::Tag {
             tag: unescape(s)?,
-            is_re: false,
+            mode: FieldSearchMode::Normal,
         }
     })
 }
@@ -670,13 +692,19 @@ fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<'a, SearchN
         SearchNode::SingleField {
             field: unescape(key)?,
             text: unescape_quotes(stripped),
-            is_re: true,
+            mode: FieldSearchMode::Regex,
+        }
+    } else if let Some(stripped) = val.strip_prefix("nc:") {
+        SearchNode::SingleField {
+            field: unescape(key)?,
+            text: unescape_quotes(stripped),
+            mode: FieldSearchMode::NoCombining,
         }
     } else {
         SearchNode::SingleField {
             field: unescape(key)?,
             text: unescape(val)?,
-            is_re: false,
+            mode: FieldSearchMode::Normal,
         }
     })
 }
@@ -806,7 +834,7 @@ mod test {
                     Search(SingleField {
                         field: "foo".into(),
                         text: "bar baz".into(),
-                        is_re: false,
+                        mode: FieldSearchMode::Normal,
                     })
                 ]))),
                 Or,
@@ -819,7 +847,16 @@ mod test {
             vec![Search(SingleField {
                 field: "foo".into(),
                 text: "bar".into(),
-                is_re: true
+                mode: FieldSearchMode::Regex,
+            })]
+        );
+
+        assert_eq!(
+            parse("foo:nc:bar")?,
+            vec![Search(SingleField {
+                field: "foo".into(),
+                text: "bar".into(),
+                mode: FieldSearchMode::NoCombining,
             })]
         );
 
@@ -829,7 +866,7 @@ mod test {
             vec![Search(SingleField {
                 field: "field".into(),
                 text: "va\"lue".into(),
-                is_re: false
+                mode: FieldSearchMode::Normal,
             })]
         );
         assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:"va\"lue""#)?,);
@@ -906,14 +943,14 @@ mod test {
             parse("tag:hard")?,
             vec![Search(Tag {
                 tag: "hard".into(),
-                is_re: false
+                mode: FieldSearchMode::Normal
             })]
         );
         assert_eq!(
             parse(r"tag:re:\\")?,
             vec![Search(Tag {
                 tag: r"\\".into(),
-                is_re: true
+                mode: FieldSearchMode::Regex
             })]
         );
         assert_eq!(

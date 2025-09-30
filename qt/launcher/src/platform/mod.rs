@@ -134,5 +134,8 @@ pub fn ensure_os_supported() -> Result<()> {
     #[cfg(all(unix, not(target_os = "macos")))]
     unix::ensure_glibc_supported()?;
 
+    #[cfg(target_os = "windows")]
+    windows::ensure_windows_version_supported()?;
+
     Ok(())
 }

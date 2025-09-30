@@ -115,13 +115,14 @@ impl Rescheduler {
     pub fn find_interval(
         &self,
         interval: f32,
-        minimum: u32,
-        maximum: u32,
+        minimum_interval: u32,
+        maximum_interval: u32,
         days_elapsed: u32,
         deckconfig_id: DeckConfigId,
         fuzz_seed: Option<u64>,
     ) -> Option<u32> {
-        let (before_days, after_days) = constrained_fuzz_bounds(interval, minimum, maximum);
+        let (before_days, after_days) =
+            constrained_fuzz_bounds(interval, minimum_interval, maximum_interval);
 
         // Don't reschedule the card when it's overdue
         if after_days < days_elapsed {

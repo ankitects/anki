@@ -76,8 +76,15 @@ impl Collection {
             note_id: card.note_id.into(),
             deck: deck.human_name(),
             added: card.id.as_secs().0,
-            first_review: revlog.first().map(|entry| entry.id.as_secs().0),
-            latest_review: revlog.last().map(|entry| entry.id.as_secs().0),
+            first_review: revlog
+                .iter()
+                .find(|entry| entry.has_rating())
+                .map(|entry| entry.id.as_secs().0),
+            // last_review_time is not used to ensure cram revlogs are included.
+            latest_review: revlog
+                .iter()
+                .rfind(|entry| entry.has_rating())
+                .map(|entry| entry.id.as_secs().0),
             due_date: self.due_date(&card)?,
             due_position: self.position(&card),
             interval: card.interval,
@@ -220,6 +227,7 @@ fn stats_revlog_entry(
         ease: entry.ease_factor,
         taken_secs: entry.taken_millis as f32 / 1000.,
         memory_state: None,
+        last_interval: entry.last_interval_secs(),
     }
 }
 

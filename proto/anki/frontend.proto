@@ -58,6 +58,9 @@ service FrontendService {
   // Clipboard
   rpc ReadClipboard(ReadClipboardRequest) returns (ReadClipboardResponse);
   rpc WriteClipboard(WriteClipboardRequest) returns (generic.Empty);
+
+  // Save colour picker's custom colour palette
+  rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
 }
 
 service BackendFrontendService {}

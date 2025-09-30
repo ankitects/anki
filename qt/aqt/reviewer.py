@@ -17,6 +17,7 @@ import aqt.browser
 import aqt.operations
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
+from anki.lang import with_collapsed_whitespace
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import (
     CardAnswer,
@@ -966,11 +967,15 @@ timerStopped = false;
         elapsed = self.mw.col.timeboxReached()
         if elapsed:
             assert not isinstance(elapsed, bool)
-            part1 = tr.studying_card_studied_in(count=elapsed[1])
-            mins = int(round(elapsed[0] / 60))
-            part2 = tr.studying_minute(count=mins)
+            cards_val = elapsed[1]
+            minutes_val = int(round(elapsed[0] / 60))
+            message = with_collapsed_whitespace(
+                tr.studying_card_studied_in_minute(
+                    cards=cards_val, minutes=str(minutes_val)
+                )
+            )
             fin = tr.studying_finish()
-            diag = askUserDialog(f"{part1} {part2}", [tr.studying_continue(), fin])
+            diag = askUserDialog(message, [tr.studying_continue(), fin])
             diag.setIcon(QMessageBox.Icon.Information)
             if diag.run() == fin:
                 self.mw.moveToState("deckBrowser")
