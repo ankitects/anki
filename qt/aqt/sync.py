@@ -209,11 +209,30 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
         return
     sync_progress = progress.full_sync
 
+    # If we've reached total, show the "checking" label
     if sync_progress.transferred == sync_progress.total:
         label = tr.sync_checking()
+
+    INT32_MAX = 2_147_483_647
+    total = sync_progress.total
+    transferred = sync_progress.transferred
+
+    # Unknown/zero total -> indeterminate spinner (0..0)
+    if not total or total <= 0:
+        value_for_bar = None
+        max_for_bar = 0
+    elif total > INT32_MAX:  # scale to kB if too large for int32
+        max_for_bar = (total + 1023) // 1024
+        value_for_bar = (transferred + 1023) // 1024
+        value_for_bar = min(value_for_bar, max_for_bar)
+    else:
+        # Small totals -> keep exact bytes
+        max_for_bar = total
+        value_for_bar = min(transferred, total)
+
     mw.progress.update(
-        value=sync_progress.transferred,
-        max=sync_progress.total,
+        value=value_for_bar,
+        max=max_for_bar,
         process=False,
         label=label,
     )
