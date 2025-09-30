@@ -14,8 +14,6 @@ from aqt.qt import *
 from aqt.qt import sip
 from aqt.utils import disable_help_button, tr
 
-INT32_MAX = 2_147_483_647  # QProgressBar only accepts 32-bit ints
-
 # Progress info
 ##########################################################################
 
@@ -31,9 +29,6 @@ class ProgressManager:
         self._win: ProgressDialog | None = None
         self._levels = 0
         self._backend_timer: QTimer | None = None
-        self._use_kb = (
-            False  # scale raw bytes to kilobytes when totals exceed INT32_MAX
-        )
 
     # Safer timers
     ##########################################################################
@@ -155,17 +150,8 @@ class ProgressManager:
 
         label = label or tr.qt_misc_processing()
         self._win = ProgressDialog(parent)
-        # If the total is already known and too large for a 32-bit range,
-        # drive the bar by kilobytes instead of raw bytes (per issue tip).
-        self._use_kb = bool(max and max > INT32_MAX)
-        if self._use_kb:
-            scaled_max = (max + 1023) // 1024  # ceil(bytes/1024) -> kB
-            # scaled_max will be ~2M for a 2 GiB upload; well under INT32
-            self._win.form.progressBar.setRange(0, int(scaled_max))
-        else:
-            self._win.form.progressBar.setMinimum(min)
-            self._win.form.progressBar.setMaximum(max)
-
+        self._win.form.progressBar.setMinimum(min)
+        self._win.form.progressBar.setMaximum(max)
         self._win.form.progressBar.setTextVisible(False)
         self._win.form.label.setText(label)
         self._win.setWindowTitle(title)
@@ -236,31 +222,9 @@ class ProgressManager:
             self._win.form.label.setText(label)
 
         self._max = max or 0
-        # Unknown/zero max -> indeterminate (Qt "busy" mode)
-        if not self._max or self._max <= 0:
-            self._win.form.progressBar.setRange(0, 0)
-            return
-
-        # If max is larger than int32, normalize both value and max to kilobytes
-        if self._max > INT32_MAX:
-            self._use_kb = True
-            # update our internal counter as before (value or auto-increment)
+        self._win.form.progressBar.setMaximum(self._max)
+        if self._max:
             self._counter = value if value is not None else (self._counter + 1)
-
-            scaled_max = (self._max + 1023) // 1024  # ceil bytes->kB
-            scaled_val = (self._counter + 1023) // 1024
-
-            scaled_val = min(scaled_val, scaled_max)
-
-            # kB are safely within 32-bit limits for realistic uploads
-            self._win.form.progressBar.setRange(0, int(scaled_max))
-            self._win.form.progressBar.setValue(int(scaled_val))
-        else:
-            # Small totals: keep exact byte counts (legacy behavior)
-            self._win.form.progressBar.setRange(0, int(self._max))
-            self._counter = value if value is not None else (self._counter + 1)
-            self._counter = min(self._counter, self._max)
-
             self._win.form.progressBar.setValue(self._counter)
 
     def finish(self) -> None:
