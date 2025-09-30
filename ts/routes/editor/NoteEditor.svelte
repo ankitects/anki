@@ -1377,7 +1377,7 @@ components and functionality for general note editing.
         />
     {/if}
 
-    <EditorToolbar {size} {wrap} api={toolbar}>
+    <EditorToolbar {size} {wrap} {isLegacy} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
             {#if mode === "browser"}
                 <ButtonGroupItem>

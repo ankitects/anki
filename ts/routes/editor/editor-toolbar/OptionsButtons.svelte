@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import OptionsButton from "./OptionsButton.svelte";
 
     export let api = {};
+    export let isLegacy = false;
 </script>
 
 <ButtonGroup>
@@ -25,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {api}
     >
         <ButtonGroupItem id="options">
-            <OptionsButton />
+            <OptionsButton {isLegacy} />
         </ButtonGroupItem>
     </DynamicallySlottable>
 </ButtonGroup>

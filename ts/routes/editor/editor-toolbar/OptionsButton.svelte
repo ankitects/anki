@@ -17,7 +17,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { shrinkImagesByDefault } from "../image-overlay/ImageOverlay.svelte";
     import { closeHTMLTags } from "../plain-text-input/PlainTextInput.svelte";
     import { setColConfig } from "@tslib/profile";
+    import { bridgeCommand } from "@tslib/bridgecommand";
 
+    export let isLegacy = false;
     let showFloating = false;
 
     function toggleShrinkImages(_evt: MouseEvent): void {
@@ -28,8 +30,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function toggleShowMathjax(_evt: MouseEvent): void {
         mathjaxConfig.enabled = !mathjaxConfig.enabled;
-        setColConfig("renderMathjax", mathjaxConfig.enabled);
-        // FIXME: refresh
+        if (isLegacy) {
+            bridgeCommand("toggleMathjax");
+        } else {
+            setColConfig("renderMathjax", mathjaxConfig.enabled);
+            // FIXME: refresh
+        }
     }
 
     function toggleCloseHTMLTags(_evt: MouseEvent): void {

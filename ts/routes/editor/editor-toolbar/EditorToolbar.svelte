@@ -64,6 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TemplateButtons from "./TemplateButtons.svelte";
     import type { InlineButtonsAPI } from "./InlineButtons.svelte";
 
+    export let isLegacy = false;
     export let size: number;
     export let wrap: boolean;
 
@@ -105,7 +106,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Item>
 
             <Item id="settings">
-                <OptionsButtons api={optionsButtons} />
+                <OptionsButtons api={optionsButtons} {isLegacy} />
             </Item>
 
             <Item id="inlineFormatting">
