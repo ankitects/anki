@@ -213,22 +213,12 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
     if sync_progress.transferred == sync_progress.total:
         label = tr.sync_checking()
 
-    INT32_MAX = 2_147_483_647
     total = sync_progress.total
     transferred = sync_progress.transferred
 
-    # Unknown/zero total -> indeterminate spinner (0..0)
-    if not total or total <= 0:
-        value_for_bar = None
-        max_for_bar = 0
-    elif total > INT32_MAX:  # scale to kB if too large for int32
-        max_for_bar = (total + 1023) // 1024
-        value_for_bar = (transferred + 1023) // 1024
-        value_for_bar = min(value_for_bar, max_for_bar)
-    else:
-        # Small totals -> keep exact bytes
-        max_for_bar = total
-        value_for_bar = min(transferred, total)
+    # Scale both to kilobytes with floor division
+    max_for_bar = total // 1024
+    value_for_bar = transferred // 1024
 
     mw.progress.update(
         value=value_for_bar,
