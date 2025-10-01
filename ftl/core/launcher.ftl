@@ -1,9 +1,9 @@
 launcher-title = Anki Launcher
-launcher-press-enter-to-start = Press enter to start Anki.
+launcher-press-enter-to-start = Press the Enter/Return key on your keyboard to install or update Anki.
 launcher-anki-will-start-shortly = Anki will start shortly.
 launcher-you-can-close-this-window = You can close this window.
 launcher-updating-anki = Updating Anki...
-launcher-latest-anki = Latest Anki (just press Enter)
+launcher-latest-anki = Install Latest Anki (default)
 launcher-choose-a-version = Choose a version
 launcher-sync-project-changes = Sync project changes
 launcher-keep-existing-version = Keep existing version ({ $current })
