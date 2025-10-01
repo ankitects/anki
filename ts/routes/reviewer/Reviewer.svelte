@@ -8,10 +8,11 @@
 
 <div id="qa" class={$cardClass}>
     <iframe
-        src="/reviewer-inner"
+        src="/_anki/pages/reviewer-inner.html"
         bind:this={iframe}
         title="card"
         frameborder="0"
+        sandbox="allow-scripts"
     ></iframe>
 </div>
 

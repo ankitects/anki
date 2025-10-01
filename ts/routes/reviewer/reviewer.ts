@@ -6,7 +6,7 @@ export function setupReviewer(iframe: HTMLIFrameElement) {
     const cardClass = writable("");
 
     function updateHtml(htmlString) {
-        iframe.contentWindow?.postMessage({ type: "html", value: htmlString });
+        iframe.contentWindow?.postMessage({ type: "html", value: htmlString }, "*");
     }
 
     function showQuestion(q, a, cc) {
@@ -16,7 +16,14 @@ export function setupReviewer(iframe: HTMLIFrameElement) {
         preloadAnswerImages(a);
     }
 
-    addEventListener("message", (e) => {
+    function onReady() {
+        bridgeCommand("bottomReady");
+        iframe.contentWindow?.postMessage({ type: "nightMode", value: true }, "*");
+    }
+
+    iframe?.addEventListener("load", onReady)
+
+    /* addEventListener("message", (e) => {
         switch (e.data.type) {
             case "ready":
                 // TODO This should probably be a "ready" command now that it is part of the actual reviewer,
@@ -29,7 +36,7 @@ export function setupReviewer(iframe: HTMLIFrameElement) {
                 console.warn(`Unknown message type: ${e.data.type}`);
                 break;
         }
-    });
+    }); */
 
     globalThis._showAnswer = updateHtml;
     globalThis._showQuestion = showQuestion;

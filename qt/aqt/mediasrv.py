@@ -335,7 +335,6 @@ def is_sveltekit_page(path: str) -> bool:
         "import-page",
         "image-occlusion",
         "reviewer",
-        "reviewer-inner",
     ]
 
 
