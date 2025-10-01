@@ -1,4 +1,4 @@
-@import "$lib/sass/base";
+@import "../lib/sass/base";
 
 // override Bootstrap transition duration
 $carousel-transition: var(--transition);
@@ -11,8 +11,8 @@ $carousel-transition: var(--transition);
 @import "bootstrap/scss/close";
 @import "bootstrap/scss/alert";
 @import "bootstrap/scss/badge";
-@import "$lib/sass/bootstrap-forms";
-@import "$lib/sass/bootstrap-tooltip";
+@import "../lib/sass/bootstrap-forms";
+@import "../lib/sass/bootstrap-tooltip";
 
 input[type="text"],
 input[type="date"],

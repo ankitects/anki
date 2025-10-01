@@ -1,3 +1,4 @@
+import "../base.scss"
 import "../../reviewer/reviewer.scss"
 
 addEventListener("message", (e) => {
