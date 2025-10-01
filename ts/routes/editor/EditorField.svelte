@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
 
     import type { EditingAreaAPI } from "./EditingArea.svelte";
+    import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
 
     export interface FieldData {
         name: string;
@@ -117,13 +118,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 fontSize={field.fontSize}
                 api={editingArea}
             >
-                {#if flipInputs}
-                    <slot name="plain-text-input" />
-                    <slot name="rich-text-input" />
-                {:else}
-                    <slot name="rich-text-input" />
-                    <slot name="plain-text-input" />
-                {/if}
+                {#key mathjaxConfig.enabled}
+                    {#if flipInputs}
+                        <slot name="plain-text-input" />
+                        <slot name="rich-text-input" />
+                    {:else}
+                        <slot name="rich-text-input" />
+                        <slot name="plain-text-input" />
+                    {/if}
+                {/key}
             </EditingArea>
         </div>
     </Collapsible>

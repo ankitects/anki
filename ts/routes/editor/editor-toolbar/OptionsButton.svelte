@@ -34,7 +34,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bridgeCommand("toggleMathjax");
         } else {
             setColConfig("renderMathjax", mathjaxConfig.enabled);
-            // FIXME: refresh
         }
     }
 

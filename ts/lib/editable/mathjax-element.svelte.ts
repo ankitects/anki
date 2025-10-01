@@ -22,9 +22,9 @@ function trimBreaks(text: string): string {
         .replace(/\n*$/, "");
 }
 
-export const mathjaxConfig = {
+export const mathjaxConfig = $state({
     enabled: true,
-};
+});
 
 interface MathjaxProps {
     mathjax: string;
