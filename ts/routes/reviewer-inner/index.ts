@@ -25,3 +25,7 @@ addEventListener("message", (e) => {
             break;
     }
 });
+
+const base = document.createElement('base')
+base.href = '/'
+document.head.appendChild(base);
