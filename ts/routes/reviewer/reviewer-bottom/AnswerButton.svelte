@@ -10,7 +10,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <span>
-    {info.due}
+    {#if info.due}
+        {info.due}
+    {:else}
+        &nbsp;
+    {/if}
 </span>
 <button on:click={() => bridgeCommand(`ease${info.i}`)}>
     {info.label}

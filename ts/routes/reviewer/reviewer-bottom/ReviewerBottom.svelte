@@ -65,6 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: 100%;
         display: grid;
         grid-template-columns: auto 1fr auto;
+        justify-content: space-between;
         justify-items: center;
         align-items: center;
     }
