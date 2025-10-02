@@ -1272,6 +1272,9 @@ class SvelteReviewer(Reviewer):
         self._remaining()
         self.bottom.web.eval('showQuestion("",%d);' % (maxTime))
 
+    def _buttonTime(self, i: int, v3_labels: Sequence[str]) -> str:
+        return v3_labels[i - 1] if self.mw.col.conf["estTimes"] else ""
+
     def _linkHandler(self, url: str) -> None:
         if url == "bottomReady":
             self._showQuestion()

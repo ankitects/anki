@@ -9,6 +9,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let info: AnswerButtonInfo;
 </script>
 
+<span>
+    {info.due}
+</span>
 <button on:click={() => bridgeCommand(`ease${info.i}`)}>
     {info.label}
 </button>
+
+<style>
+    span {
+        text-align: center;
+    }
+</style>
