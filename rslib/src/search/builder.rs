@@ -6,6 +6,7 @@ use std::mem;
 use itertools::Itertools;
 
 use super::writer::write_nodes;
+use super::FieldSearchMode;
 use super::Node;
 use super::SearchNode;
 use super::StateKind;
@@ -174,7 +175,7 @@ impl SearchNode {
     pub fn from_tag_name(name: &str) -> Self {
         Self::Tag {
             tag: escape_anki_wildcards_for_search_node(name),
-            is_re: false,
+            mode: FieldSearchMode::Normal,
         }
     }
 

@@ -4,12 +4,12 @@
 #![allow(clippy::all)]
 
 #[derive(Clone)]
-pub struct All;
+pub struct Launcher;
 
 // Include auto-generated content
-include!(concat!(env!("OUT_DIR"), "/strings.rs"));
+include!(concat!(env!("OUT_DIR"), "/strings_launcher.rs"));
 
-impl Translations for All {
+impl Translations for Launcher {
     const STRINGS: &phf::Map<&str, &phf::Map<&str, &str>> = &_STRINGS;
     const KEYS_BY_MODULE: &[&[&str]] = &_KEYS_BY_MODULE;
 }

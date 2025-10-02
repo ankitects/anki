@@ -631,17 +631,43 @@ class QtAudioInputRecorder(Recorder):
         self.mw = mw
         self._parent = parent
 
-        from PyQt6.QtMultimedia import QAudioFormat, QAudioSource  # type: ignore
+        from PyQt6.QtMultimedia import QAudioSource, QMediaDevices  # type: ignore
 
-        format = QAudioFormat()
-        format.setChannelCount(2)
-        format.setSampleRate(44100)
-        format.setSampleFormat(QAudioFormat.SampleFormat.Int16)
+        # Get the default audio input device
+        device = QMediaDevices.defaultAudioInput()
 
-        source = QAudioSource(format, parent)
+        # Try to use Int16 format first (avoids conversion)
+        preferred_format = device.preferredFormat()
+        int16_format = preferred_format
+        int16_format.setSampleFormat(preferred_format.SampleFormat.Int16)
 
+        if device.isFormatSupported(int16_format):
+            # Use Int16 if supported
+            format = int16_format
+        else:
+            # Fall back to device's preferred format
+            format = preferred_format
+
+        # Create the audio source with the chosen format
+        source = QAudioSource(device, format, parent)
+
+        # Store the actual format being used
         self._format = source.format()
         self._audio_input = source
+
+    def _convert_float_to_int16(self, float_buffer: bytearray) -> bytes:
+        """Convert float32 audio samples to int16 format for WAV output."""
+        import struct
+
+        float_count = len(float_buffer) // 4  # 4 bytes per float32
+        floats = struct.unpack(f"{float_count}f", float_buffer)
+
+        # Convert to int16 range, clipping and scaling in one step
+        int16_samples = [
+            max(-32768, min(32767, int(max(-1.0, min(1.0, f)) * 32767))) for f in floats
+        ]
+
+        return struct.pack(f"{len(int16_samples)}h", *int16_samples)
 
     def start(self, on_done: Callable[[], None]) -> None:
         self._iodevice = self._audio_input.start()
@@ -665,18 +691,32 @@ class QtAudioInputRecorder(Recorder):
                 return
 
             def write_file() -> None:
-                # swallow the first 300ms to allow audio device to quiesce
-                wait = int(44100 * self.STARTUP_DELAY)
-                if len(self._buffer) <= wait:
-                    return
-                self._buffer = self._buffer[wait:]
+                from PyQt6.QtMultimedia import QAudioFormat
 
-                # write out the wave file
+                # swallow the first 300ms to allow audio device to quiesce
+                bytes_per_frame = self._format.bytesPerFrame()
+                frames_to_skip = int(self._format.sampleRate() * self.STARTUP_DELAY)
+                bytes_to_skip = frames_to_skip * bytes_per_frame
+
+                if len(self._buffer) <= bytes_to_skip:
+                    return
+                self._buffer = self._buffer[bytes_to_skip:]
+
+                # Check if we need to convert float samples to int16
+                if self._format.sampleFormat() == QAudioFormat.SampleFormat.Float:
+                    audio_data = self._convert_float_to_int16(self._buffer)
+                    sample_width = 2  # int16 is 2 bytes
+                else:
+                    # For integer formats, use the data as-is
+                    audio_data = bytes(self._buffer)
+                    sample_width = self._format.bytesPerSample()
+
+                # write out the wave file with the correct format parameters
                 wf = wave.open(self.output_path, "wb")
                 wf.setnchannels(self._format.channelCount())
-                wf.setsampwidth(2)
+                wf.setsampwidth(sample_width)
                 wf.setframerate(self._format.sampleRate())
-                wf.writeframes(self._buffer)
+                wf.writeframes(audio_data)
                 wf.close()
 
             def and_then(fut: Future) -> None:
