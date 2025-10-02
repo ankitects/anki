@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div id="outer" class="fancy">
     <div id="tableinner">
-        <div>
+        <div class="edit">
             <button
                 title={tr.actionsShortcutKey({ val: "E" })}
                 on:click={() => bridgeCommand("edit")}
@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </button>
             {/if}
         </div>
-        <div>
+        <div class="more">
             <button
                 on:click={() => bridgeCommand("more")}
                 title={tr.actionsShortcutKey({ val: "M" })}
@@ -78,5 +78,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .remaining-count {
         text-align: center;
+    }
+
+    @media (max-width: 583px) {
+        .edit, .more {
+            display: none;
+        }
+        
+        #tableinner {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
