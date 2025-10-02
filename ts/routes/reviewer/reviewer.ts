@@ -21,7 +21,7 @@ export function setupReviewer(iframe: HTMLIFrameElement) {
         iframe.contentWindow?.postMessage({ type: "nightMode", value: true }, "*");
     }
 
-    iframe?.addEventListener("load", onReady)
+    iframe?.addEventListener("load", onReady);
 
     /* addEventListener("message", (e) => {
         switch (e.data.type) {

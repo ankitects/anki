@@ -1,5 +1,5 @@
-import "../base.scss"
-import "../../reviewer/reviewer.scss"
+import "../base.scss";
+import "../../reviewer/reviewer.scss";
 
 addEventListener("message", (e) => {
     switch (e.data.type) {
@@ -26,6 +26,6 @@ addEventListener("message", (e) => {
     }
 });
 
-const base = document.createElement('base')
-base.href = '/'
+const base = document.createElement("base");
+base.href = "/";
 document.head.appendChild(base);

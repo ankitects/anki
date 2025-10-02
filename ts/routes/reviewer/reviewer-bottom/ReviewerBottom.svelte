@@ -37,10 +37,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <RemainingNumber cls="new-count" underlined={$remainingIndex === 0}>
                         {$remaining[0]}
                     </RemainingNumber> +
-                    <RemainingNumber cls="learn-count" underlined={$remainingIndex === 1}>
+                    <RemainingNumber
+                        cls="learn-count"
+                        underlined={$remainingIndex === 1}
+                    >
                         {$remaining[1]}
                     </RemainingNumber> +
-                    <RemainingNumber cls="review-count" underlined={$remainingIndex === 2}>
+                    <RemainingNumber
+                        cls="review-count"
+                        underlined={$remainingIndex === 2}
+                    >
                         {$remaining[2]}
                     </RemainingNumber>
                 </span>
@@ -81,10 +87,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     @media (max-width: 583px) {
-        .edit, .more {
+        .edit,
+        .more {
             display: none;
         }
-        
+
         #tableinner {
             grid-template-columns: 1fr;
         }
