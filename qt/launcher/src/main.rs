@@ -170,6 +170,7 @@ fn run() -> Result<()> {
 
     print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
     println!("\x1B[1m{}\x1B[0m\n", state.tr.launcher_title());
+    println!("{}\n", state.tr.launcher_press_enter_to_install());
 
     ensure_os_supported()?;
 
