@@ -1,5 +1,6 @@
 launcher-title = Anki Launcher
-launcher-press-enter-to-start = Press the Enter/Return key on your keyboard to install or update Anki.
+launcher-press-enter-to-install = Press the Enter/Return key on your keyboard to install or update Anki.
+launcher-press-enter-to-start = Press enter to start Anki.
 launcher-anki-will-start-shortly = Anki will start shortly.
 launcher-you-can-close-this-window = You can close this window.
 launcher-updating-anki = Updating Anki...
@@ -13,7 +14,7 @@ launcher-on = on
 launcher-off = off
 launcher-cache-downloads = Cache downloads: { $state }
 launcher-download-mirror = Download mirror: { $state }
-launcher-uninstall = Uninstall
+launcher-uninstall = Uninstall Anki
 launcher-invalid-input = Invalid input. Please try again.
 launcher-latest-releases = Latest releases: { $releases }
 launcher-enter-the-version-you-want = Enter the version you want to install:
