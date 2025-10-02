@@ -10,7 +10,7 @@
 
 <style>
     div {
-        height: calc(100vh - 40px);
+        height: 100vh;
         display: flex;
         flex-direction: column;
     }
