@@ -3,10 +3,11 @@ import "../../reviewer/reviewer.scss";
 
 addEventListener("message", (e) => {
     switch (e.data.type) {
-        case "html":
+        case "html": {
             document.body.innerHTML = e.data.value;
             break;
-        case "nightMode":
+        }
+        case "nightMode": {
             // This method currently "Flashbangs" the user if they have nightmode on and is a placeholder
             // I will probably use #night-mode in the url.
             const root = document.querySelector("html")!;
@@ -20,9 +21,11 @@ addEventListener("message", (e) => {
             root.className = nightMode ? "night-mode" : "";
             root.setAttribute("data-bs-theme", nightMode ? "dark" : "light");
             break;
-        default:
+        }
+        default: {
             console.warn(`Unknown message type: ${e.data.type}`);
             break;
+        }
     }
 });
 

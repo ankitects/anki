@@ -1,4 +1,3 @@
-import { bridgeCommand } from "@tslib/bridgecommand";
 import { writable } from "svelte/store";
 import type { AnswerButtonInfo } from "./types";
 
