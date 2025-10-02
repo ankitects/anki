@@ -48,10 +48,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const UNLOCK_EDIT_COUNT = 3;
-    let rightClickCount = 0;
-    function onRightClick() {
-        rightClickCount += 1;
-        if (rightClickCount == UNLOCK_EDIT_COUNT) {
+    let clickCount = 0;
+    function onClick() {
+        clickCount += 1;
+        if (clickCount == UNLOCK_EDIT_COUNT) {
             alert(tr.deckConfigManualParameterEditWarning());
         }
     }
@@ -65,13 +65,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:blur={update}
     class="w-100"
     placeholder={render(defaults)}
-    disabled={rightClickCount < UNLOCK_EDIT_COUNT}
-    on:contextmenu={onRightClick}
+    readonly={clickCount < UNLOCK_EDIT_COUNT}
+    on:click={onClick}
 ></textarea>
 
 <style>
     textarea {
         resize: none;
         overflow-y: auto;
+    }
+
+    textarea:read-only {
+        opacity: 0.75;
     }
 </style>
