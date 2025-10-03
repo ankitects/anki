@@ -289,6 +289,10 @@ class AddCards(QMainWindow):
     def _add_current_note(self) -> None:
         note = self.editor.note
 
+        # Prevent adding a note that has already been added (e.g., from double-clicking)
+        if note.id != 0:
+            return
+
         if not self._note_can_be_added(note):
             return
 
