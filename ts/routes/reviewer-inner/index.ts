@@ -34,3 +34,8 @@ addEventListener("message", (e) => {
 const base = document.createElement("base");
 base.href = "/";
 document.head.appendChild(base);
+
+function pycmd(cmd: string) {
+    window.parent.postMessage({ type: "pycmd", value: cmd }, "*");
+}
+globalThis.pycmd = pycmd;

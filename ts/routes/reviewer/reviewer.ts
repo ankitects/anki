@@ -19,26 +19,32 @@ export function setupReviewer(iframe: HTMLIFrameElement) {
     }
 
     function onReady() {
+        // TODO This should probably be a "ready" command now that it is part of the actual reviewer,
+        // Currently this depends on the reviewer component mounting after the bottom-reviewer which it should but seems hacky.
+        // Maybe use a counter with a counter.subscribe($counter == 2 then call("ready"))
         bridgeCommand("bottomReady");
         iframe.contentWindow?.postMessage({ type: "nightMode", value: true }, "*");
     }
 
     iframe?.addEventListener("load", onReady);
 
-    /* addEventListener("message", (e) => {
+    addEventListener("message", (e) => {
         switch (e.data.type) {
-            case "ready":
-                // TODO This should probably be a "ready" command now that it is part of the actual reviewer,
-                // Currently this depends on the reviewer component mounting after the bottom-reviewer which it should but seems hacky.
-                // Maybe use a counter with a counter.subscribe($counter == 2 then call("ready"))
-                bridgeCommand("bottomReady");
-                iframe.contentWindow?.postMessage({ type: "nightMode", value: true });
+            case "pycmd": {
+                const cmd = e.data.value as string;
+                if (cmd.startsWith("play:")) {
+                    bridgeCommand(e.data.value);
+                } else {
+                    console.error("pycmd command is either invalid or forbidden:", cmd);
+                }
                 break;
-            default:
+            }
+            default: {
                 console.warn(`Unknown message type: ${e.data.type}`);
                 break;
+            }
         }
-    }); */
+    });
 
     globalThis._showAnswer = updateHtml;
     globalThis._showQuestion = showQuestion;
