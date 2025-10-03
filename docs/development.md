@@ -195,6 +195,20 @@ If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 - The anki-release package is created/published with the scripts in qt/release.
 - The installer/launcher is created with the build scripts in qt/launcher/{platform}.
 
+On Linux, you can build the launcher by following these steps:
+```
+cd ./qt/launcher/lin/
+./build.sh
+```
+
+After that, you will get a path to the launcher folder and can run it via
+```
+../../../out/launcher/anki-launcher-25.09.2-linux/launcher.amd64
+```
+
+If you are experiencing issues building the launcher, make sure that all dependencies
+are installed. See [Building from source](#building-from-source) for more info.
+
 ## Mixing development and study
 
 You may wish to create a separate profile with File>Switch Profile for use
