@@ -173,6 +173,8 @@ fn run() -> Result<()> {
 
     ensure_os_supported()?;
 
+    println!("{}\n", state.tr.launcher_press_enter_to_install());
+
     check_versions(&mut state);
 
     main_menu_loop(&state)?;
