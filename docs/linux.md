@@ -41,6 +41,13 @@ On some distros such as Arch Linux and Fedora, you may need to install the
 error while loading shared libraries: libcrypt.so.1: cannot open shared object file: No such file or directory
 ```
 
+## Dependencies for building the launcher
+
+If you want to build the launcher, you will need to install the following dependency:
+```
+sudo apt install gcc-aarch64-linux-gnu
+```
+
 ## Audio
 
 To play and record audio during development, install mpv and lame.
