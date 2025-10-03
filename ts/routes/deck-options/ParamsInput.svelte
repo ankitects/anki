@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { tick } from "svelte";
     import * as tr from "@generated/ftl";
+    import Warning from "./Warning.svelte";
 
     export let value: number[];
 
@@ -50,10 +51,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let clickCount = 0;
     function onClick() {
         clickCount += 1;
-        if (clickCount == UNLOCK_EDIT_COUNT) {
-            alert(tr.deckConfigManualParameterEditWarning());
-        }
     }
+
+    $: unlockEditWarning =
+        clickCount >= UNLOCK_EDIT_COUNT
+            ? tr.deckConfigManualParameterEditWarning()
+            : "";
 </script>
 
 <svelte:window onresize={updateHeight} />
@@ -70,6 +73,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         disabled={clickCount < UNLOCK_EDIT_COUNT}
     ></textarea>
 </div>
+
+<Warning warning={unlockEditWarning} className="alert-danger"></Warning>
 
 <style>
     textarea {
