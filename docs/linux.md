@@ -44,6 +44,7 @@ error while loading shared libraries: libcrypt.so.1: cannot open shared object f
 ## Dependencies for building the launcher
 
 If you want to build the launcher, you will need to install the following dependency:
+
 ```
 sudo apt install gcc-aarch64-linux-gnu
 ```
