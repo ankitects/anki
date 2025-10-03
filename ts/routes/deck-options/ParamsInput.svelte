@@ -58,15 +58,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <svelte:window onresize={updateHeight} />
 
-<textarea
-    bind:this={taRef}
-    value={stringValue}
-    on:blur={update}
-    class="w-100"
-    placeholder={tr.deckConfigPlaceholderParameters()}
-    readonly={clickCount < UNLOCK_EDIT_COUNT}
-    on:click={onClick}
-></textarea>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div on:click={onClick}>
+    <textarea
+        bind:this={taRef}
+        value={stringValue}
+        on:blur={update}
+        class="w-100"
+        placeholder={tr.deckConfigPlaceholderParameters()}
+        disabled={clickCount < UNLOCK_EDIT_COUNT}
+    ></textarea>
+</div>
 
 <style>
     textarea {
@@ -74,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflow-y: auto;
     }
 
-    textarea:read-only {
-        opacity: 0.75;
+    textarea:disabled {
+        pointer-events: none;
     }
 </style>
