@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
 
     export let value: number[];
-    export let defaults: number[];
 
     let stringValue: string;
     let taRef: HTMLTextAreaElement;
@@ -64,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     value={stringValue}
     on:blur={update}
     class="w-100"
-    placeholder={render(defaults)}
+    placeholder={tr.deckConfigPlaceholderParameters()}
     readonly={clickCount < UNLOCK_EDIT_COUNT}
     on:click={onClick}
 ></textarea>
