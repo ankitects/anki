@@ -3,13 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script>
-    import ReviewerBottomOuter from "./reviewer-bottom/ReviewerBottomOuter.svelte";
+    import { ReviewerState } from "./reviewer";
+    import ReviewerBottom from "./reviewer-bottom/ReviewerBottom.svelte";
     import Reviewer from "./Reviewer.svelte";
+
+    let state = new ReviewerState
 </script>
 
 <div>
-    <Reviewer></Reviewer>
-    <ReviewerBottomOuter></ReviewerBottomOuter>
+    <Reviewer {state}></Reviewer>
+    <ReviewerBottom {state}></ReviewerBottom>
 </div>
 
 <style>

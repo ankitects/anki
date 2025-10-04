@@ -3,18 +3,20 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Writable } from "svelte/store";
     import AnswerButton from "./AnswerButton.svelte";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@generated/ftl";
     import RemainingNumber from "./RemainingNumber.svelte";
-    import type { AnswerButtonInfo } from "./types";
+    import type { ReviewerState } from "../reviewer";
+    import { writable } from "svelte/store";
 
-    export let answerButtons: Writable<AnswerButtonInfo[]>;
-    export let remaining: Writable<number[]>;
-    export let remainingIndex: Writable<number>;
+    export let state: ReviewerState
 
-    $: console.log($remaining);
+    // Placeholders
+    let answerButtons = writable([]);
+    let remaining = writable([0, 0, 0]);
+    let remainingIndex = writable(0);
+
     $: answerShown = $answerButtons.length;
 </script>
 

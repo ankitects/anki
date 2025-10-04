@@ -5,42 +5,45 @@ import {
     type NextCardDataResponse_NextCardData,
 } from "@generated/anki/scheduler_pb";
 import { nextCardData } from "@generated/backend";
-import { bridgeCommand } from "@tslib/bridgecommand";
 import { writable } from "svelte/store";
 
-export function setupReviewer(iframe: HTMLIFrameElement) {
-    const cardClass = writable("");
-    let answer_html = "";
-    let cardData: NextCardDataResponse_NextCardData | undefined = undefined;
-    let startAnswering = Date.now();
+export class ReviewerState {
+    answerHtml: string = ""
+    cardData: NextCardDataResponse_NextCardData | undefined = undefined;
+    beginAnsweringMs = Date.now();
+    readonly cardClass = writable("");
+    
+    iframe: HTMLIFrameElement | undefined = undefined;
 
-    function updateHtml(htmlString) {
-        iframe.contentWindow?.postMessage({ type: "html", value: htmlString }, "*");
+    onReady() {
+        this.iframe?.contentWindow?.postMessage({ type: "nightMode", value: true }, "*");
+        this.showQuestion(null);
     }
 
-    async function showQuestion(answer: CardAnswer | null) {
+    public registerIFrame(iframe: HTMLIFrameElement) {
+        this.iframe = iframe;
+        iframe.addEventListener("load", this.onReady.bind(this));
+    }
+
+    updateHtml(htmlString: string) {
+        this.iframe?.contentWindow?.postMessage({ type: "html", value: htmlString }, "*");
+    }
+    
+    async showQuestion(answer: CardAnswer | null) {
         const resp = await nextCardData({
             answer: answer || undefined,
         });
         // TODO: "Congratulation screen" logic
         const question = resp.nextCard?.front || "";
-        answer_html = resp.nextCard?.back || "";
-        cardData = resp.nextCard;
-        console.log({ resp });
-        updateHtml(question);
+        this.updateHtml(question);
     }
 
-    function showAnswer() {
-        updateHtml(answer_html);
+    public showAnswer() {
+        this.updateHtml(this.cardData?.back || "");
     }
 
-    function onReady() {
-        iframe.contentWindow?.postMessage({ type: "nightMode", value: true }, "*");
-        showQuestion(null);
-    }
-
-    function easeButtonPressed(rating: number) {
-        const states = cardData!.states!;
+    public easeButtonPressed(rating: number) {
+        const states = this.cardData!.states!;
 
         let newState = ({
             [1]: states.again!,
@@ -49,40 +52,15 @@ export function setupReviewer(iframe: HTMLIFrameElement) {
             [4]: states.easy!,
         })[rating]!;
 
-        showQuestion(
+        this.showQuestion(
             new CardAnswer({
                 rating: rating,
                 currentState: states!.current!,
                 newState,
-                cardId: cardData!.cardId,
+                cardId: this.cardData!.cardId,
                 answeredAtMillis: BigInt(Date.now()),
-                millisecondsTaken: Date.now() - startAnswering,
+                millisecondsTaken: Date.now() - this.beginAnsweringMs,
             }),
         );
     }
-
-    iframe?.addEventListener("load", onReady);
-
-    addEventListener("message", (e) => {
-        switch (e.data.type) {
-            case "pycmd": {
-                const cmd = e.data.value as string;
-                if (cmd.startsWith("play:")) {
-                    bridgeCommand(e.data.value);
-                } else {
-                    console.error("pycmd command is either invalid or forbidden:", cmd);
-                }
-                break;
-            }
-            default: {
-                console.warn(`Unknown message type: ${e.data.type}`);
-                break;
-            }
-        }
-    });
-
-    globalThis._showQuestion = showQuestion;
-    globalThis._showAnswer = showAnswer;
-
-    return { cardClass, easeButtonPressed };
 }

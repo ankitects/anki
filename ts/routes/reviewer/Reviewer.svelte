@@ -3,14 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { setupReviewer } from "./reviewer";
+    import type { ReviewerState } from "./reviewer";
+
 
     let iframe: HTMLIFrameElement;
+    export let state: ReviewerState
 
-    $: ({ cardClass } = setupReviewer(iframe));
+    $: if (iframe) state.registerIFrame(iframe)
+
 </script>
 
-<div id="qa" class={$cardClass}>
+<div id="qa">
     <iframe
         src="/_anki/pages/reviewer-inner.html"
         bind:this={iframe}
