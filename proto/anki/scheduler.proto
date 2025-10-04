@@ -292,10 +292,11 @@ message NextCardDataRequest {
 
 message NextCardDataResponse {
   message NextCardData {
-    string front = 1;
-    string back = 2;
+    int64 card_id = 1;
+    string front = 2;
+    string back = 3;
 
-    SchedulingStates states = 3;
+    SchedulingStates states = 4;
   }
 
   optional NextCardData next_card = 1;

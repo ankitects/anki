@@ -400,6 +400,7 @@ impl crate::services::SchedulerService for Collection {
 
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
+                    card_id: cid.0,
                     front: [style.clone(), render.question().to_string()].concat(),
                     back: [style, render.answer().to_string()].concat(),
 

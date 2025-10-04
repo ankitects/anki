@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type { CardAnswer, SchedulingStates } from "@generated/anki/scheduler_pb";
+import {
+    CardAnswer,
+    type NextCardDataResponse_NextCardData,
+} from "@generated/anki/scheduler_pb";
 import { nextCardData } from "@generated/backend";
 import { bridgeCommand } from "@tslib/bridgecommand";
 import { writable } from "svelte/store";
@@ -8,7 +11,8 @@ import { writable } from "svelte/store";
 export function setupReviewer(iframe: HTMLIFrameElement) {
     const cardClass = writable("");
     let answer_html = "";
-    let _states: SchedulingStates | undefined = undefined;
+    let cardData: NextCardDataResponse_NextCardData | undefined = undefined;
+    let startAnswering = Date.now();
 
     function updateHtml(htmlString) {
         iframe.contentWindow?.postMessage({ type: "html", value: htmlString }, "*");
@@ -21,7 +25,7 @@ export function setupReviewer(iframe: HTMLIFrameElement) {
         // TODO: "Congratulation screen" logic
         const question = resp.nextCard?.front || "";
         answer_html = resp.nextCard?.back || "";
-        _states = resp.nextCard?.states;
+        cardData = resp.nextCard;
         console.log({ resp });
         updateHtml(question);
     }
@@ -33,6 +37,28 @@ export function setupReviewer(iframe: HTMLIFrameElement) {
     function onReady() {
         iframe.contentWindow?.postMessage({ type: "nightMode", value: true }, "*");
         showQuestion(null);
+    }
+
+    function easeButtonPressed(rating: number) {
+        const states = cardData!.states!;
+
+        let newState = ({
+            [1]: states.again!,
+            [2]: states.hard!,
+            [3]: states.good!,
+            [4]: states.easy!,
+        })[rating]!;
+
+        showQuestion(
+            new CardAnswer({
+                rating: rating,
+                currentState: states!.current!,
+                newState,
+                cardId: cardData!.cardId,
+                answeredAtMillis: BigInt(Date.now()),
+                millisecondsTaken: Date.now() - startAnswering,
+            }),
+        );
     }
 
     iframe?.addEventListener("load", onReady);
@@ -58,5 +84,5 @@ export function setupReviewer(iframe: HTMLIFrameElement) {
     globalThis._showQuestion = showQuestion;
     globalThis._showAnswer = showAnswer;
 
-    return { cardClass };
+    return { cardClass, easeButtonPressed };
 }
