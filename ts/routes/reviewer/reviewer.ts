@@ -48,12 +48,12 @@ export class ReviewerState {
     public easeButtonPressed(rating: number) {
         const states = this.cardData!.states!;
 
-        const newState = ({
-            [1]: states.again!,
-            [2]: states.hard!,
-            [3]: states.good!,
-            [4]: states.easy!,
-        })[rating]!;
+        const newState = ([
+            states.again!,
+            states.hard!,
+            states.good!,
+            states.easy!,
+        ])[rating]!;
 
         this.showQuestion(
             new CardAnswer({
