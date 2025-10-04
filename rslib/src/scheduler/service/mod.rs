@@ -411,11 +411,10 @@ impl crate::services::SchedulerService for Collection {
 
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
-                    card_id: cid.0,
+                    queue: Some(queue.into()),
                     front: [style.clone(), render.question().to_string()].concat(),
                     back: [style, render.answer().to_string()].concat(),
 
-                    states: Some(next_card.states.clone().into()),
                     answer_buttons,
                 }),
             })

@@ -45,13 +45,17 @@ export class ReviewerState {
         this.beginAnsweringMs = Date.now();
     }
 
+    get currentCard() {
+        return this.cardData?.queue?.cards[0];
+    }
+
     public showAnswer() {
         this.answerShown.set(true);
         this.updateHtml(this.cardData?.back || "");
     }
 
     public easeButtonPressed(rating: number) {
-        const states = this.cardData!.states!;
+        const states = this.currentCard!.states!;
 
         const newState = [
             states.again!,
@@ -65,7 +69,7 @@ export class ReviewerState {
                 rating: rating,
                 currentState: states!.current!,
                 newState,
-                cardId: this.cardData!.cardId,
+                cardId: this.currentCard?.card?.id,
                 answeredAtMillis: BigInt(Date.now()),
                 millisecondsTaken: Date.now() - this.beginAnsweringMs,
             }),
