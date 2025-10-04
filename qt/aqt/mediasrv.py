@@ -720,6 +720,7 @@ post_handlers = {
     for handler in exposed_backend_list
 }
 
+
 def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
     if not aqt.mw.col:
         return NotFound(message=f"collection not open, ignore request for {path}")
@@ -767,7 +768,7 @@ def _check_dynamic_request_permissions():
         "/_anki/i18nResources",
         "/_anki/congratsInfo",
         # TODO: Unsure about this
-        "/_anki/nextCardData"
+        "/_anki/nextCardData",
     ):
         pass
     else:
