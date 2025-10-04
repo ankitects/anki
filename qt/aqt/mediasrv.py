@@ -363,6 +363,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-csv",
         "import-page",
         "image-occlusion",
+        "reviewer",
     ]
 
 
@@ -695,6 +696,7 @@ exposed_backend_list = [
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
     "simulate_fsrs_workload",
+    "next_card_data",
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
@@ -765,6 +767,8 @@ def _check_dynamic_request_permissions():
         "/_anki/setSchedulingStates",
         "/_anki/i18nResources",
         "/_anki/congratsInfo",
+        # TODO: Unsure about this
+        "/_anki/nextCardData",
     ):
         pass
     else:

@@ -17,6 +17,7 @@ import "anki/deck_config.proto";
 service SchedulerService {
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
   rpc AnswerCard(CardAnswer) returns (collection.OpChanges);
+  rpc NextCardData(NextCardDataRequest) returns (NextCardDataResponse);
   rpc SchedTimingToday(generic.Empty) returns (SchedTimingTodayResponse);
   rpc StudiedToday(generic.Empty) returns (generic.String);
   rpc StudiedTodayMessage(StudiedTodayMessageRequest) returns (generic.String);
@@ -283,6 +284,28 @@ message CardAnswer {
   Rating rating = 4;
   int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
+}
+
+message NextCardDataRequest {
+  optional CardAnswer answer = 1;
+}
+
+message NextCardDataResponse {
+  message AnswerButton {
+    CardAnswer.Rating rating = 1;
+    string due = 2;
+  }
+
+  message NextCardData {
+    int64 card_id = 1;
+    string front = 2;
+    string back = 3;
+
+    SchedulingStates states = 4;
+    repeated AnswerButton answer_buttons = 5;
+  }
+
+  optional NextCardData next_card = 1;
 }
 
 message CustomStudyRequest {

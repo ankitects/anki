@@ -7,6 +7,8 @@ mod states;
 use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
+use anki_proto::scheduler::next_card_data_response::AnswerButton;
+use anki_proto::scheduler::next_card_data_response::NextCardData;
 use anki_proto::scheduler::ComputeFsrsParamsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
@@ -14,6 +16,8 @@ use anki_proto::scheduler::FsrsBenchmarkResponse;
 use anki_proto::scheduler::FuzzDeltaRequest;
 use anki_proto::scheduler::FuzzDeltaResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
+use anki_proto::scheduler::NextCardDataRequest;
+use anki_proto::scheduler::NextCardDataResponse;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
@@ -381,6 +385,43 @@ impl crate::services::SchedulerService for Collection {
         Ok(FuzzDeltaResponse {
             delta_days: self.get_fuzz_delta(input.card_id.into(), input.interval)?,
         })
+    }
+
+    fn next_card_data(&mut self, req: NextCardDataRequest) -> Result<NextCardDataResponse> {
+        if let Some(answer) = req.answer {
+            self.answer_card(&mut answer.into())?;
+        }
+        let queue = self.get_queued_cards(1, false)?;
+        let next_card = queue.cards.first();
+        if let Some(next_card) = next_card {
+            let cid = next_card.card.id;
+
+            let render = self.render_existing_card(cid, false, false)?;
+            let style = format!("<style>{}</style>", render.css);
+
+            let answer_buttons = self
+                .describe_next_states(&next_card.states)?
+                .into_iter()
+                .enumerate()
+                .map(|(i, due)| AnswerButton {
+                    rating: i as i32,
+                    due,
+                })
+                .collect();
+
+            Ok(NextCardDataResponse {
+                next_card: Some(NextCardData {
+                    card_id: cid.0,
+                    front: [style.clone(), render.question().to_string()].concat(),
+                    back: [style, render.answer().to_string()].concat(),
+
+                    states: Some(next_card.states.clone().into()),
+                    answer_buttons,
+                }),
+            })
+        } else {
+            Ok(NextCardDataResponse::default())
+        }
     }
 }
 
