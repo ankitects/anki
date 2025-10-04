@@ -396,11 +396,12 @@ impl crate::services::SchedulerService for Collection {
             let cid = next_card.card.id;
 
             let render = self.render_existing_card(cid, false, false)?;
+            let style = format!("<style>{}</style>", render.css);
 
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
-                    front: render.question().to_string(),
-                    back: render.answer().to_string(),
+                    front: [style.clone(), render.question().to_string()].concat(),
+                    back: [style, render.answer().to_string()].concat(),
 
                     states: Some(next_card.states.clone().into()),
                 }),
