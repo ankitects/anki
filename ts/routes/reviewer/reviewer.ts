@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import { CardAnswer, NextCardDataResponse_AnswerButton, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
+import {
+    CardAnswer,
+    type NextCardDataResponse_AnswerButton,
+    type NextCardDataResponse_NextCardData,
+} from "@generated/anki/scheduler_pb";
 import { nextCardData } from "@generated/backend";
 import { writable } from "svelte/store";
 
@@ -10,7 +14,7 @@ export class ReviewerState {
     beginAnsweringMs = Date.now();
     readonly cardClass = writable("");
     readonly answerButtons = writable<NextCardDataResponse_AnswerButton[]>([]);
-    readonly answerShown = writable(false)
+    readonly answerShown = writable(false);
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -38,7 +42,7 @@ export class ReviewerState {
         const question = resp.nextCard?.front || "";
         this.answerShown.set(false);
         this.updateHtml(question);
-        this.beginAnsweringMs = Date.now()
+        this.beginAnsweringMs = Date.now();
     }
 
     public showAnswer() {
@@ -49,12 +53,12 @@ export class ReviewerState {
     public easeButtonPressed(rating: number) {
         const states = this.cardData!.states!;
 
-        const newState = ([
+        const newState = [
             states.again!,
             states.hard!,
             states.good!,
             states.easy!,
-        ])[rating]!;
+        ][rating]!;
 
         this.showQuestion(
             new CardAnswer({

@@ -10,9 +10,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let info: NextCardDataResponse_AnswerButton;
     export let state: ReviewerState;
 
-    const labels = [tr.studyingAgain(), tr.studyingHard(), tr.studyingGood(), tr.studyingEasy()]
+    const labels = [
+        tr.studyingAgain(),
+        tr.studyingHard(),
+        tr.studyingGood(),
+        tr.studyingEasy(),
+    ];
     $: label = labels[info.rating];
-
 </script>
 
 <span>

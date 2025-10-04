@@ -21,7 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const remainingIndex = writable(0);
 
     $: button_count = $answerShown ? $answerButtons.length : 1;
-
 </script>
 
 <div id="outer" class="fancy">
