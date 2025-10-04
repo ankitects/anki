@@ -34,6 +34,7 @@ export class ReviewerState {
             answer: answer || undefined,
         });
         // TODO: "Congratulation screen" logic
+        this.cardData = resp.nextCard
         const question = resp.nextCard?.front || "";
         this.updateHtml(question);
     }

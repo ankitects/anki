@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {$remaining[2]}
                 </RemainingNumber>
             </span>
-            <button on:click={() => bridgeCommand("ans")}>
+            <button on:click={() => state.showAnswer()}>
                 {tr.studyingShowAnswer()}
             </button>
         {/if}
