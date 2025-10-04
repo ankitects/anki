@@ -7,6 +7,7 @@ mod states;
 use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
+use anki_proto::scheduler::next_card_data_response::NextCardData;
 use anki_proto::scheduler::ComputeFsrsParamsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
@@ -14,6 +15,8 @@ use anki_proto::scheduler::FsrsBenchmarkResponse;
 use anki_proto::scheduler::FuzzDeltaRequest;
 use anki_proto::scheduler::FuzzDeltaResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
+use anki_proto::scheduler::NextCardDataRequest;
+use anki_proto::scheduler::NextCardDataResponse;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
@@ -381,6 +384,30 @@ impl crate::services::SchedulerService for Collection {
         Ok(FuzzDeltaResponse {
             delta_days: self.get_fuzz_delta(input.card_id.into(), input.interval)?,
         })
+    }
+
+    fn next_card_data(&mut self, req: NextCardDataRequest) -> Result<NextCardDataResponse> {
+        if let Some(answer) = req.answer {
+            self.answer_card(&mut answer.into())?;
+        }
+        let queue = self.get_queued_cards(1, false)?;
+        let next_card = queue.cards.first();
+        if let Some(next_card) = next_card {
+            let cid = next_card.card.id;
+
+            let render = self.render_existing_card(cid, false, false)?;
+
+            Ok(NextCardDataResponse {
+                next_card: Some(NextCardData {
+                    front: render.question().to_string(),
+                    back: render.answer().to_string(),
+
+                    states: Some(next_card.states.clone().into()),
+                }),
+            })
+        } else {
+            Ok(NextCardDataResponse::default())
+        }
     }
 }
 

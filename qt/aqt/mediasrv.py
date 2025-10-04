@@ -696,6 +696,7 @@ exposed_backend_list = [
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
     "simulate_fsrs_workload",
+    "next_card_data",
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
@@ -718,7 +719,6 @@ post_handlers = {
     stringcase.camelcase(handler): raw_backend_request(handler)
     for handler in exposed_backend_list
 }
-
 
 def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
     if not aqt.mw.col:
@@ -766,6 +766,8 @@ def _check_dynamic_request_permissions():
         "/_anki/setSchedulingStates",
         "/_anki/i18nResources",
         "/_anki/congratsInfo",
+        # TODO: Unsure about this
+        "/_anki/nextCardData"
     ):
         pass
     else:
