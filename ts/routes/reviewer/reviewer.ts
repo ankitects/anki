@@ -38,6 +38,7 @@ export class ReviewerState {
         const question = resp.nextCard?.front || "";
         this.answerShown.set(false);
         this.updateHtml(question);
+        this.beginAnsweringMs = Date.now()
     }
 
     public showAnswer() {
