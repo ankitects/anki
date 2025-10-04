@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import "./index.scss";
+
     import AnswerButton from "./AnswerButton.svelte";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@generated/ftl";
@@ -10,18 +12,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ReviewerState } from "../reviewer";
     import { writable } from "svelte/store";
 
-    export let state: ReviewerState
+    export let state: ReviewerState;
 
+    const answerButtons = state.answerButtons;
+    const answerShown = state.answerShown;
     // Placeholders
-    let answerButtons = writable([]);
-    let remaining = writable([0, 0, 0]);
-    let remainingIndex = writable(0);
+    const remaining = writable([0, 0, 0]);
+    const remainingIndex = writable(0);
 
-    $: answerShown = $answerButtons.length;
+    $: button_count = $answerShown ? $answerButtons.length : 1;
+
 </script>
 
 <div id="outer" class="fancy">
-    <div id="tableinner" style="--answer-button-count: {$answerButtons.length || 1}">
+    <div id="tableinner" style="--answer-button-count: {button_count}">
         <span class="disappearing"></span>
         <div class="disappearing edit">
             <button
@@ -31,9 +35,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.studyingEdit()}
             </button>
         </div>
-        {#if answerShown}
+        {#if $answerShown}
             {#each $answerButtons as answerButton}
-                <AnswerButton info={answerButton}></AnswerButton>
+                <AnswerButton {state} info={answerButton}></AnswerButton>
             {/each}
         {:else}
             <span class="remaining-count">

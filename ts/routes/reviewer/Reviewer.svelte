@@ -5,12 +5,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { ReviewerState } from "./reviewer";
 
-
     let iframe: HTMLIFrameElement;
-    export let state: ReviewerState
+    export let state: ReviewerState;
 
-    $: if (iframe) state.registerIFrame(iframe)
-
+    $: if (iframe) {
+        state.registerIFrame(iframe);
+    }
 </script>
 
 <div id="qa">

@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ReviewerBottom from "./reviewer-bottom/ReviewerBottom.svelte";
     import Reviewer from "./Reviewer.svelte";
 
-    let state = new ReviewerState
+    const state = new ReviewerState();
 </script>
 
 <div>

@@ -3,10 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { bridgeCommand } from "@tslib/bridgecommand";
-    import type { AnswerButtonInfo } from "./types";
+    import type { NextCardDataResponse_AnswerButton } from "@generated/anki/scheduler_pb";
+    import * as tr from "@generated/ftl";
+    import type { ReviewerState } from "../reviewer";
 
-    export let info: AnswerButtonInfo;
+    export let info: NextCardDataResponse_AnswerButton;
+    export let state: ReviewerState;
+
+    const labels = [tr.studyingAgain(), tr.studyingHard(), tr.studyingGood(), tr.studyingEasy()]
+    $: label = labels[info.rating];
+
 </script>
 
 <span>
@@ -16,8 +22,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &nbsp;
     {/if}
 </span>
-<button on:click={() => bridgeCommand(`ease${info.i}`)}>
-    {info.label}
+<button on:click={() => state.easeButtonPressed(info.rating)}>
+    {label}
 </button>
 
 <style>

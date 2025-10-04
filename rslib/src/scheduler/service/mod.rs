@@ -7,6 +7,7 @@ mod states;
 use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
+use anki_proto::scheduler::next_card_data_response::AnswerButton;
 use anki_proto::scheduler::next_card_data_response::NextCardData;
 use anki_proto::scheduler::ComputeFsrsParamsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
@@ -398,6 +399,16 @@ impl crate::services::SchedulerService for Collection {
             let render = self.render_existing_card(cid, false, false)?;
             let style = format!("<style>{}</style>", render.css);
 
+            let answer_buttons = self
+                .describe_next_states(&next_card.states)?
+                .into_iter()
+                .enumerate()
+                .map(|(i, due)| AnswerButton {
+                    rating: i as i32,
+                    due,
+                })
+                .collect();
+
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
                     card_id: cid.0,
@@ -405,6 +416,7 @@ impl crate::services::SchedulerService for Collection {
                     back: [style, render.answer().to_string()].concat(),
 
                     states: Some(next_card.states.clone().into()),
+                    answer_buttons,
                 }),
             })
         } else {

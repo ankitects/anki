@@ -1,18 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import {
-    CardAnswer,
-    type NextCardDataResponse_NextCardData,
-} from "@generated/anki/scheduler_pb";
+import { CardAnswer, NextCardDataResponse_AnswerButton, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
 import { nextCardData } from "@generated/backend";
 import { writable } from "svelte/store";
 
 export class ReviewerState {
-    answerHtml: string = ""
+    answerHtml = "";
     cardData: NextCardDataResponse_NextCardData | undefined = undefined;
     beginAnsweringMs = Date.now();
     readonly cardClass = writable("");
-    
+    readonly answerButtons = writable<NextCardDataResponse_AnswerButton[]>([]);
+    readonly answerShown = writable(false)
+
     iframe: HTMLIFrameElement | undefined = undefined;
 
     onReady() {
@@ -28,25 +27,28 @@ export class ReviewerState {
     updateHtml(htmlString: string) {
         this.iframe?.contentWindow?.postMessage({ type: "html", value: htmlString }, "*");
     }
-    
+
     async showQuestion(answer: CardAnswer | null) {
         const resp = await nextCardData({
             answer: answer || undefined,
         });
         // TODO: "Congratulation screen" logic
-        this.cardData = resp.nextCard
+        this.cardData = resp.nextCard;
+        this.answerButtons.set(this.cardData?.answerButtons ?? []);
         const question = resp.nextCard?.front || "";
+        this.answerShown.set(false);
         this.updateHtml(question);
     }
 
     public showAnswer() {
+        this.answerShown.set(true);
         this.updateHtml(this.cardData?.back || "");
     }
 
     public easeButtonPressed(rating: number) {
         const states = this.cardData!.states!;
 
-        let newState = ({
+        const newState = ({
             [1]: states.again!,
             [2]: states.hard!,
             [3]: states.good!,

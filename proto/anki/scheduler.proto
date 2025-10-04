@@ -291,12 +291,18 @@ message NextCardDataRequest {
 }
 
 message NextCardDataResponse {
+  message AnswerButton {
+    CardAnswer.Rating rating = 1;
+    string due = 2;
+  }
+
   message NextCardData {
     int64 card_id = 1;
     string front = 2;
     string back = 3;
 
     SchedulingStates states = 4;
+    repeated AnswerButton answer_buttons = 5;
   }
 
   optional NextCardData next_card = 1;
