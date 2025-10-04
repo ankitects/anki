@@ -8,17 +8,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import AnswerButton from "./AnswerButton.svelte";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@generated/ftl";
-    import RemainingNumber from "./RemainingNumber.svelte";
     import type { ReviewerState } from "../reviewer";
-    import { writable } from "svelte/store";
+    import Remaining from "./Remaining.svelte";
 
     export let state: ReviewerState;
 
     const answerButtons = state.answerButtons;
     const answerShown = state.answerShown;
-    // Placeholders
-    const remaining = writable([0, 0, 0]);
-    const remainingIndex = writable(0);
 
     $: button_count = $answerShown ? $answerButtons.length : 1;
 </script>
@@ -39,17 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <AnswerButton {state} info={answerButton}></AnswerButton>
             {/each}
         {:else}
-            <span class="remaining-count">
-                <RemainingNumber cls="new-count" underlined={$remainingIndex === 0}>
-                    {$remaining[0]}
-                </RemainingNumber> +
-                <RemainingNumber cls="learn-count" underlined={$remainingIndex === 1}>
-                    {$remaining[1]}
-                </RemainingNumber> +
-                <RemainingNumber cls="review-count" underlined={$remainingIndex === 2}>
-                    {$remaining[2]}
-                </RemainingNumber>
-            </span>
+            <Remaining {state}></Remaining>
             <button on:click={() => state.showAnswer()}>
                 {tr.studyingShowAnswer()}
             </button>
@@ -76,10 +62,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justify-items: center;
         align-items: center;
         grid-auto-flow: column;
-    }
-
-    .remaining-count {
-        text-align: center;
     }
 
     .more,

@@ -1,20 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import {
-    CardAnswer,
-    type NextCardDataResponse_AnswerButton,
-    type NextCardDataResponse_NextCardData,
-} from "@generated/anki/scheduler_pb";
+import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
 import { nextCardData } from "@generated/backend";
-import { writable } from "svelte/store";
+import { derived, writable } from "svelte/store";
 
 export class ReviewerState {
     answerHtml = "";
-    cardData: NextCardDataResponse_NextCardData | undefined = undefined;
+    _cardData: NextCardDataResponse_NextCardData | undefined = undefined;
     beginAnsweringMs = Date.now();
     readonly cardClass = writable("");
-    readonly answerButtons = writable<NextCardDataResponse_AnswerButton[]>([]);
     readonly answerShown = writable(false);
+    readonly cardData = writable<NextCardDataResponse_NextCardData | undefined>(undefined);
+    readonly answerButtons = derived(this.cardData, ($cardData) => $cardData?.answerButtons ?? []);
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -36,22 +33,25 @@ export class ReviewerState {
         const resp = await nextCardData({
             answer: answer || undefined,
         });
+
         // TODO: "Congratulation screen" logic
-        this.cardData = resp.nextCard;
-        this.answerButtons.set(this.cardData?.answerButtons ?? []);
-        const question = resp.nextCard?.front || "";
+        this._cardData = resp.nextCard;
+        this.cardData.set(this._cardData);
         this.answerShown.set(false);
+
+        const question = resp.nextCard?.front || "";
         this.updateHtml(question);
+
         this.beginAnsweringMs = Date.now();
     }
 
     get currentCard() {
-        return this.cardData?.queue?.cards[0];
+        return this._cardData?.queue?.cards[0];
     }
 
     public showAnswer() {
         this.answerShown.set(true);
-        this.updateHtml(this.cardData?.back || "");
+        this.updateHtml(this._cardData?.back || "");
     }
 
     public easeButtonPressed(rating: number) {
