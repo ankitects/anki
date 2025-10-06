@@ -160,7 +160,7 @@ importing-cards-added =
         [one] { $count } card added.
        *[other] { $count } cards added.
     }
-importing-file-empty = The file you selected is empty.
+importing-file-empty = The selected file is empty. Please choose a valid file.
 importing-notes-added =
     { $count ->
         [one] { $count } new note imported.

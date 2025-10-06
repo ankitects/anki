@@ -41,7 +41,8 @@ async function postProtoInner(url: string, body: Uint8Array): Promise<Uint8Array
         } catch {
             // ignore
         }
-        throw new Error(`${result.status}: ${msg}`);
+        // it is ugly to show internall server client status to user, we should just show error's to user
+        throw new Error(process.env.NODE_ENV === "production"?`${msg}`:`${result.status}: ${msg}`);
     }
     const blob = await result.blob();
     const respBuf = await new Response(blob).arrayBuffer();

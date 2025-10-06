@@ -6,14 +6,19 @@ import { ImportCsvState } from "../lib";
 import type { PageLoad } from "./$types";
 
 export const load = (async ({ params }) => {
-    const [notetypes, decks, metadata] = await Promise.all([
-        getNotetypeNames({}),
-        getDeckNames({
-            skipEmptyDefault: false,
-            includeFiltered: false,
-        }),
-        getCsvMetadata({ path: params.path }, { alertOnError: false }),
-    ]);
-    const state = new ImportCsvState(params.path, notetypes, decks, metadata);
-    return { state };
+    try {
+        const [notetypes, decks, metadata] = await Promise.all([
+            getNotetypeNames({}),
+            getDeckNames({
+                skipEmptyDefault: false,
+                includeFiltered: false,
+            }),
+            getCsvMetadata({ path: params.path }, { alertOnError: false }),
+        ]);
+        const state = new ImportCsvState(params.path, notetypes, decks, metadata);
+        return { state };
+    } catch (error: any) {
+        const rawMsg = error?.message ?? String(error ?? "");
+        return { initialError: new Error(rawMsg) };
+    }
 }) satisfies PageLoad;
