@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: if (iframe) {
         state.registerIFrame(iframe);
+        state.registerShortcuts();
     }
 </script>
 

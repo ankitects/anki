@@ -25,6 +25,35 @@ export class ReviewerState {
         iframe.addEventListener("load", this.onReady.bind(this));
     }
 
+    onKeyDown(e: KeyboardEvent) {
+        switch (e.key) {
+            case "1": {
+                this.easeButtonPressed(0);
+                break;
+            }
+            case "2": {
+                this.easeButtonPressed(1);
+                break;
+            }
+            case "3": {
+                this.easeButtonPressed(2);
+                break;
+            }
+            case "4": {
+                this.easeButtonPressed(3);
+                break;
+            }
+            case " ": {
+                this.showAnswer();
+                break;
+            }
+        }
+    }
+
+    public registerShortcuts() {
+        document.addEventListener("keydown", this.onKeyDown.bind(this));
+    }
+
     updateHtml(htmlString: string) {
         this.iframe?.contentWindow?.postMessage({ type: "html", value: htmlString }, "*");
     }

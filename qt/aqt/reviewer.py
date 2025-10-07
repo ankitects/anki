@@ -1298,6 +1298,9 @@ class SvelteReviewer(Reviewer):
         self.bottom.web = self.web
         self.mw.bottomWeb.hide()
 
+    def _shortcutKeys(self) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
+        return []
+
 
 # if the last element is a comment, then the RUN_STATE_MUTATION code
 # breaks due to the comment wrongly commenting out python code.
