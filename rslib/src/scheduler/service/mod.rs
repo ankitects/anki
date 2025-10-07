@@ -34,6 +34,7 @@ use crate::scheduler::states::CardState;
 use crate::scheduler::states::SchedulingStates;
 use crate::search::SortMode;
 use crate::stats::studied_today;
+use crate::text::encode_iri_paths;
 
 impl crate::services::SchedulerService for Collection {
     /// This behaves like _updateCutoff() in older code - it also unburies at
@@ -409,11 +410,17 @@ impl crate::services::SchedulerService for Collection {
                 })
                 .collect();
 
+            let prepare_card_text_for_display = |html: &str| {
+                let html = [style.clone(), html.to_string()].concat();
+                let html = encode_iri_paths(&html).to_string();
+                html
+            };
+
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
                     queue: Some(queue.into()),
-                    front: [style.clone(), render.question().to_string()].concat(),
-                    back: [style, render.answer().to_string()].concat(),
+                    front: prepare_card_text_for_display(&render.question()),
+                    back: prepare_card_text_for_display(&render.answer()),
 
                     answer_buttons,
                 }),
