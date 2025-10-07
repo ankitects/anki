@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
 import { nextCardData } from "@generated/backend";
-import { derived, writable } from "svelte/store";
+import { derived, get, writable } from "svelte/store";
 
 export class ReviewerState {
     answerHtml = "";
@@ -44,7 +44,11 @@ export class ReviewerState {
                 break;
             }
             case " ": {
-                this.showAnswer();
+                if (!get(this.answerShown)) {
+                    this.showAnswer();
+                } else {
+                    this.easeButtonPressed(2);
+                }
                 break;
             }
         }
@@ -84,6 +88,10 @@ export class ReviewerState {
     }
 
     public easeButtonPressed(rating: number) {
+        if (!get(this.answerShown)) {
+            return;
+        }
+
         const states = this.currentCard!.states!;
 
         const newState = [
