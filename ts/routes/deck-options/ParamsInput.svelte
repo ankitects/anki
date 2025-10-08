@@ -60,29 +60,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             clickTimeout = setTimeout(() => {
                 clickCount = 0;
             }, UNLOCK_CLICK_TIMEOUT_MS);
+        } else {
+            taRef.focus();
         }
     }
 
-    $: unlockEditWarning =
-        clickCount >= UNLOCK_EDIT_COUNT
-            ? tr.deckConfigManualParameterEditWarning()
-            : "";
+    $: unlocked = clickCount >= UNLOCK_EDIT_COUNT;
+    $: unlockEditWarning = unlocked ? tr.deckConfigManualParameterEditWarning() : "";
 </script>
 
 <svelte:window onresize={updateHeight} />
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div on:click={onClick}>
+<span
+    on:click={onClick}
+    on:keypress={onClick}
+    role="button"
+    aria-label={"FSRS Parameters"}
+    tabindex={unlocked ? -1 : 0}
+>
     <textarea
         bind:this={taRef}
         value={stringValue}
         on:blur={update}
         class="w-100"
         placeholder={tr.deckConfigPlaceholderParameters()}
-        disabled={clickCount < UNLOCK_EDIT_COUNT}
+        disabled={!unlocked}
     ></textarea>
-</div>
+</span>
 
 <Warning warning={unlockEditWarning} className="alert-danger"></Warning>
 
