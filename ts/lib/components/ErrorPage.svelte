@@ -2,16 +2,14 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script context="module" lang="ts">
-    declare function pycmd(cmd: string);
-</script>
 
 <script lang="ts">
+    import { bridgeCommand } from "@tslib/bridgecommand";
     export let error: Error;
 
     function closePage() {
         try {
-            pycmd("close");
+            bridgeCommand("close");
         } catch {
             history.back();
         }
