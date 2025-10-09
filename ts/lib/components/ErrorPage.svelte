@@ -5,6 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import { bridgeCommand } from "@tslib/bridgecommand";
+    import * as tr from "@generated/ftl";
+
     export let error: Error;
 
     function closePage() {
@@ -18,7 +20,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="error-box">
     <p class="error-text">{error.message}</p>
-    <button class="btn btn-primary" on:click={closePage}>Got it</button>
+    <button class="btn btn-primary" on:click={closePage}>
+        {tr.actionsClose() || "Got it"}
+    </button>
 </div>
 
 <style lang="scss">
@@ -33,6 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         text-align: center;
         box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
     }
+
     .error-text {
         color: var(--error-fg);
         font-weight: 600;
