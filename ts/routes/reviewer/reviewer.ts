@@ -4,6 +4,25 @@ import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/a
 import { nextCardData } from "@generated/backend";
 import { derived, get, writable } from "svelte/store";
 
+export function isNightMode() {
+    // https://stackoverflow.com/a/57795518
+    // This will be true in browsers if darkmode but also false in the reviewer if darkmode
+    // If in the reviewer then this will need to be set by the python instead
+    return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        || document.documentElement.classList.contains("night-mode");
+}
+
+export function enableNightMode() {
+    document.documentElement.classList.add("night-mode");
+    document.documentElement.setAttribute("data-bs-theme", "dark");
+}
+
+export function updateNightMode() {
+    if (isNightMode()) {
+        enableNightMode();
+    }
+}
+
 export class ReviewerState {
     answerHtml = "";
     _cardData: NextCardDataResponse_NextCardData | undefined = undefined;
@@ -16,7 +35,6 @@ export class ReviewerState {
     iframe: HTMLIFrameElement | undefined = undefined;
 
     onReady() {
-        this.iframe?.contentWindow?.postMessage({ type: "nightMode", value: true }, "*");
         this.showQuestion(null);
     }
 
