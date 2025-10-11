@@ -212,7 +212,7 @@ function drawShapes(
             strokeWidth: properties.activeBorder.width,
         });
     }
-    for (const shape of inactiveShapes.filter((s) => s.occludeInactive)) {
+    for (const shape of inactiveShapes.filter((s) => s.occludeInactive || s.ordinal === 0)) {
         drawShape({
             context,
             size,
