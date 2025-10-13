@@ -195,21 +195,44 @@ If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 - The anki-release package is created/published with the scripts in qt/release.
 - The installer/launcher is created with the build scripts in qt/launcher/{platform}.
 
-On Linux, you can build the launcher by following these steps:
+## Building
+
+The steps to build the launcher vary slightly depending on your operating
+system. First, you have to navigate to the appropriate folder:
+| Operating System | Path |
+|---|---|
+| Linux | ./qt/launcher/lin/ |
+| MacOS | ./qt/launcher/mac/ |
+| Windows | .\qt\launcher\win\ |
+
+Next, run the `build.sh` script (on Linux and MacOS) or the `build.bat` script
+(on Windows).
+
+For example, on Linux, you can build the launcher by following these steps:
 
 ```
 cd ./qt/launcher/lin/
 ./build.sh
 ```
 
-After that, you will get a path to the launcher folder and can run it via
+## Issues during Building
+
+If you are experiencing issues building the launcher, make sure that all dependencies
+are installed. See [Building from source](#building-from-source) for more info.
+
+## Running
+
+After building, the launcher executable can found under `out/launcher` (located
+in the project root). In that folder, you will find a `launcher.amd64` and a
+`launcher.arm64` binary file. Select the one matching your architecture and run
+it to test your changes.
+
+For example, on Linux, after following the build steps above, you can run the
+amd64 launcher via this command:
 
 ```
 ../../../out/launcher/anki-launcher-25.09.2-linux/launcher.amd64
 ```
-
-If you are experiencing issues building the launcher, make sure that all dependencies
-are installed. See [Building from source](#building-from-source) for more info.
 
 ## Mixing development and study
 
