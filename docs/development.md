@@ -234,7 +234,7 @@ amd64 launcher via this command:
 ../../../out/launcher/anki-launcher-25.09.2-linux/launcher.amd64
 ```
 
-## Mixing development and study
+# Mixing development and study
 
 You may wish to create a separate profile with File>Switch Profile for use
 during development. You can pass the arguments "-p [profile name]" when starting
