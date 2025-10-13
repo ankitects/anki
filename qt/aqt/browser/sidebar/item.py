@@ -80,7 +80,7 @@ class SidebarItem:
         self.search_node = search_node
         self.on_expanded = on_expanded
         self.children: list[SidebarItem] = []
-        self.tooltip: str | None = None
+        self.tooltip: str = name
         self._parent_item: SidebarItem | None = None
         self._expanded = expanded
         self._row_in_parent: int | None = None
