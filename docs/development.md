@@ -199,11 +199,12 @@ If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 
 The steps to build the launcher vary slightly depending on your operating
 system. First, you have to navigate to the appropriate folder:
-| Operating System | Path |
-|---|---|
-| Linux | ./qt/launcher/lin/ |
-| MacOS | ./qt/launcher/mac/ |
-| Windows | .\qt\launcher\win\ |
+
+| Operating System | Path               |
+| ---------------- | ------------------ |
+| Linux            | ./qt/launcher/lin/ |
+| MacOS            | ./qt/launcher/mac/ |
+| Windows          | .\qt\launcher\win\ |
 
 Next, run the `build.sh` script (on Linux and MacOS) or the `build.bat` script
 (on Windows).
