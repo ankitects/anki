@@ -8,10 +8,22 @@ import { fabric } from "fabric";
 import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
-import { hideAllGuessOne, notesDataStore, saveNeededStore, tagsWritable, textEditingState } from "./store";
+import {
+    hideAllGuessOne,
+    notesDataStore,
+    opacityStateStore,
+    saveNeededStore,
+    tagsWritable,
+    textEditingState,
+} from "./store";
 import { showToast } from "./toast-utils.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
-import { enableSelectable, makeShapesRemainInCanvas, moveShapeToCanvasBoundaries } from "./tools/lib";
+import {
+    enableSelectable,
+    makeMaskTransparent,
+    makeShapesRemainInCanvas,
+    moveShapeToCanvasBoundaries,
+} from "./tools/lib";
 import { modifiedPolygon } from "./tools/tool-polygon";
 import { undoStack } from "./tools/tool-undo-redo";
 import { enablePinchZoom, onResize, setCanvasSize } from "./tools/tool-zoom";
@@ -77,6 +89,7 @@ export const setupMaskEditorForEdit = async (
         window.requestAnimationFrame(() => {
             onImageLoaded({ noteId: BigInt(noteId) });
         });
+        if (get(opacityStateStore)) { makeMaskTransparent(canvas, true); }
     };
 
     return canvas;
