@@ -562,36 +562,6 @@ def import_done() -> bytes:
     return b""
 
 
-def import_request(endpoint: str) -> bytes:
-    output = raw_backend_request(endpoint)()
-    response = OpChangesOnly()
-    response.ParseFromString(output)
-
-    def handle_on_main() -> None:
-        window = aqt.mw.app.activeModalWidget()
-        on_op_finished(aqt.mw, response, window)
-
-    aqt.mw.taskman.run_on_main(handle_on_main)
-
-    return output
-
-
-def import_csv() -> bytes:
-    return import_request("import_csv")
-
-
-def import_anki_package() -> bytes:
-    return import_request("import_anki_package")
-
-
-def import_json_file() -> bytes:
-    return import_request("import_json_file")
-
-
-def import_json_string() -> bytes:
-    return import_request("import_json_string")
-
-
 def search_in_browser() -> bytes:
     node = SearchNode()
     node.ParseFromString(request.data)
@@ -636,36 +606,6 @@ def deck_options_ready() -> bytes:
 
     aqt.mw.taskman.run_on_main(handle_on_main)
     return b""
-
-
-def editor_op_changes_request(endpoint: str) -> bytes:
-    output = raw_backend_request(endpoint)()
-    response = OpChanges()
-    response.ParseFromString(output)
-
-    def handle_on_main() -> None:
-        from aqt.editor import NewEditor
-
-        handler = aqt.mw.app.activeWindow()
-        if handler and isinstance(getattr(handler, "editor", None), NewEditor):
-            handler = handler.editor  # type: ignore
-        on_op_finished(aqt.mw, response, handler)
-
-    aqt.mw.taskman.run_on_main(handle_on_main)
-
-    return output
-
-
-def update_editor_note() -> bytes:
-    return editor_op_changes_request("update_notes")
-
-
-def update_editor_notetype() -> bytes:
-    return editor_op_changes_request("update_notetype")
-
-
-def add_editor_note() -> bytes:
-    return editor_op_changes_request("add_note")
 
 
 def get_setting_json(getter: Callable[[str], Any]) -> bytes:
@@ -953,16 +893,9 @@ post_handler_list = [
     set_scheduling_states,
     change_notetype,
     import_done,
-    import_csv,
-    import_anki_package,
-    import_json_file,
-    import_json_string,
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
-    update_editor_note,
-    update_editor_notetype,
-    add_editor_note,
     get_profile_config_json,
     set_profile_config_json,
     get_meta_json,
@@ -995,6 +928,10 @@ exposed_backend_list = [
     # ImportExportService
     "get_csv_metadata",
     "get_import_anki_package_presets",
+    "import_csv",
+    "import_anki_package",
+    "import_json_file",
+    "import_json_string",
     # NotesService
     "get_field_names",
     "get_note",
@@ -1002,6 +939,9 @@ exposed_backend_list = [
     "note_fields_check",
     "defaults_for_adding",
     "default_deck_for_notetype",
+    "add_note",
+    "update_notes",
+    "update_notetype",
     # NotetypesService
     "get_notetype",
     "get_notetype_names",
@@ -1056,7 +996,25 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     assert hasattr(RustBackend, f"{endpoint}_raw")
 
-    return lambda: getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+    def wrapped() -> bytes:
+        output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+        if "Has-Op-Changes" in request.headers:
+            response = OpChangesOnly()
+            response.ParseFromString(output)
+
+            def handle_on_main() -> None:
+                from aqt.editor import NewEditor
+
+                handler = aqt.mw.app.activeModalWidget()
+                if handler and isinstance(getattr(handler, "editor", None), NewEditor):
+                    handler = handler.editor  # type: ignore
+                on_op_finished(aqt.mw, response, handler)
+
+            aqt.mw.taskman.run_on_main(handle_on_main)
+
+        return output
+
+    return wrapped
 
 
 # all methods in here require a collection

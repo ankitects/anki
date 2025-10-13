@@ -12,6 +12,7 @@ use anki_proto_gen::Method;
 use anyhow::Result;
 use inflections::Inflect;
 use itertools::Itertools;
+use prost_reflect::MessageDescriptor;
 
 pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
     let root = Path::new("../../out/ts/lib/generated");
@@ -73,6 +74,7 @@ fn write_ts_method(
         input_type,
         output_type,
         comments,
+        has_op_changes,
     }: &MethodDetails,
     out: &mut String,
 ) {
@@ -80,7 +82,7 @@ fn write_ts_method(
     writeln!(
         out,
         r#"{comments}export async function {method_name}(input: PlainMessage<{input_type}>, options?: PostProtoOptions): Promise<{output_type}> {{
-        return await postProto("{method_name}", new {input_type}(input), {output_type}, options);
+        return await postProto("{method_name}", new {input_type}(input), {output_type}, options, {has_op_changes});
 }}"#
     ).unwrap()
 }
@@ -97,6 +99,7 @@ struct MethodDetails {
     input_type: String,
     output_type: String,
     comments: Option<String>,
+    has_op_changes: bool,
 }
 
 impl MethodDetails {
@@ -105,12 +108,28 @@ impl MethodDetails {
         let input_type = full_name_to_imported_reference(method.proto.input().full_name());
         let output_type = full_name_to_imported_reference(method.proto.output().full_name());
         let comments = method.comments.clone();
+        let has_op_changes = has_op_changes(&method.proto.output());
         Self {
             method_name: name,
             input_type,
             output_type,
             comments,
+            has_op_changes,
         }
+    }
+}
+
+fn has_op_changes(message: &MessageDescriptor) -> bool {
+    if message.full_name() == "anki.collection.OpChanges" {
+        true
+    } else if let Some(field) = message.get_field(1) {
+        if let Some(field_message) = field.kind().as_message() {
+            has_op_changes(field_message)
+        } else {
+            false
+        }
+    } else {
+        false
     }
 }
 
