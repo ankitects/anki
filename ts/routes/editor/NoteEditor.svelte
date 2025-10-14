@@ -1243,6 +1243,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 const chooserDefaults = await defaultsForAdding({
                     homeDeckOfCurrentReviewCard: homeDeckId,
                 });
+                notetypeChooser.select(chooserDefaults.notetypeId);
                 onNotetypeChange(chooserDefaults.notetypeId, false);
             }
         });
