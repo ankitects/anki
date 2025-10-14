@@ -923,6 +923,7 @@ exposed_backend_list = [
     "get_custom_colours",
     # DeckService
     "get_deck_names",
+    "get_deck",
     # I18nService
     "i18n_resources",
     # ImportExportService
@@ -1003,11 +1004,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
             response.ParseFromString(output)
 
             def handle_on_main() -> None:
-                from aqt.editor import NewEditor
-
-                handler = aqt.mw.app.activeModalWidget()
-                if handler and isinstance(getattr(handler, "editor", None), NewEditor):
-                    handler = handler.editor  # type: ignore
+                handler = aqt.mw.app.activeWindow()
                 on_op_finished(aqt.mw, response, handler)
 
             aqt.mw.taskman.run_on_main(handle_on_main)

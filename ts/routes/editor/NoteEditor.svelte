@@ -15,8 +15,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import { EditorState, type EditorMode } from "./types";
     import { ContextMenu, Item } from "$lib/context-menu";
-    import type { NotetypeNameId } from "@generated/anki/notetypes_pb";
-    import type { DeckNameId } from "@generated/anki/decks_pb";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -312,20 +310,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let reviewerCard: Card | null = null;
 
     let notetypeChooser: NotetypeChooser;
-    let selectedNotetype: NotetypeNameId | null = null;
     let deckChooser: DeckChooser;
-    let selectedDeck: DeckNameId | null = null;
 
-    async function onNotetypeChange(notetype: NotetypeNameId) {
-        loadNote({ notetypeId: notetype.id, copyFromNote: note });
+    async function onNotetypeChange(notetypeId: bigint, updateDeck: boolean = true) {
+        loadNote({ notetypeId, copyFromNote: note });
         if (
+            updateDeck &&
             !(
                 await getConfigBool({
                     key: ConfigKey_Bool.ADDING_DEFAULTS_TO_CURRENT_DECK,
                 })
             ).val
         ) {
-            const deckId = await defaultDeckForNotetype({ ntid: notetype.id });
+            const deckId = await defaultDeckForNotetype({ ntid: notetypeId });
             deckChooser.select(deckId.did);
         }
         lastAddedNote = null;
@@ -487,7 +484,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function onAdd() {
-        await addCurrentNote(selectedDeck!.id);
+        await addCurrentNote((await deckChooser.getSelected()).id);
     }
 
     let historyModal: Modal;
@@ -742,6 +739,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
     import Shortcut from "$lib/components/Shortcut.svelte";
+    import { registerOperationHandler } from "@tslib/operations";
 
     import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
     import ImageOcclusionPage from "../image-occlusion/ImageOcclusionPage.svelte";
@@ -1236,6 +1234,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => {
+        registerOperationHandler(async (changes) => {
+            if (mode === "add" && (changes.notetype || changes.deck)) {
+                let homeDeckId = 0n;
+                if (reviewerCard) {
+                    homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
+                }
+                const chooserDefaults = await defaultsForAdding({
+                    homeDeckOfCurrentReviewCard: homeDeckId,
+                });
+                onNotetypeChange(chooserDefaults.notetypeId, false);
+            }
+        });
+
         if (mode === "add") {
             deregisterSticky = registerShortcut(toggleStickyAll, "Shift+F9");
         }
@@ -1371,9 +1382,7 @@ components and functionality for general note editing.
         <EditorChoosers
             bind:notetypeChooser
             bind:deckChooser
-            bind:selectedNotetype
-            bind:selectedDeck
-            {onNotetypeChange}
+            onNotetypeChange={(notetype) => onNotetypeChange(notetype.id)}
         />
     {/if}
 

@@ -11,16 +11,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
 
     interface Props {
-        selectedNotetype: NotetypeNameId | null;
-        selectedDeck?: DeckNameId | null;
         notetypeChooser?: NotetypeChooser;
         deckChooser?: DeckChooser;
         onNotetypeChange?: (notetype: NotetypeNameId) => void;
         onDeckChange?: (deck: DeckNameId) => void;
     }
     let {
-        selectedNotetype = $bindable(null),
-        selectedDeck = $bindable(null),
         notetypeChooser = $bindable(),
         deckChooser = $bindable(),
         onNotetypeChange,
@@ -31,19 +27,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="top-bar">
     <p>{tr.notetypesType()}</p>
     <div class="notetype-chooser">
-        <NotetypeChooser
-            bind:this={notetypeChooser}
-            bind:selectedNotetype
-            onChange={onNotetypeChange}
-        />
+        <NotetypeChooser bind:this={notetypeChooser} onChange={onNotetypeChange} />
     </div>
     <p>{tr.decksDeck()}</p>
     <div class="deck-chooser">
-        <DeckChooser
-            bind:this={deckChooser}
-            bind:selectedDeck
-            onChange={onDeckChange}
-        />
+        <DeckChooser bind:this={deckChooser} onChange={onDeckChange} />
     </div>
 </div>
 
