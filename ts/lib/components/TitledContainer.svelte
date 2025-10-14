@@ -24,6 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     style:--container-margin="0"
 >
     <div class="position-relative">
+        <slot name="title" />
         <h1>
             {title}
         </h1>
