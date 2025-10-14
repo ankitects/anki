@@ -308,7 +308,7 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
 }
 
 fn check_web(build: &mut Build) -> Result<()> {
-    let fmt_excluded = "{target,ts/.svelte-kit,node_modules}/**";
+    let fmt_excluded = "{target,ts/.svelte-kit,node_modules,qt/launcher-gui/.svelte-kit}/**";
     let dprint_files = inputs![glob!["**/*.{ts,mjs,js,md,json,toml,scss}", fmt_excluded]];
     let prettier_files = inputs![glob!["**/*.svelte", fmt_excluded]];
 
@@ -363,8 +363,11 @@ fn check_web(build: &mut Build) -> Result<()> {
         },
     )?;
     let eslint_rc = inputs![".eslintrc.cjs"];
-    for folder in ["ts", "qt/aqt/data/web/js"] {
-        let inputs = inputs![glob![format!("{folder}/**"), "ts/.svelte-kit/**"]];
+    for folder in ["ts", "qt/aqt/data/web/js", "qt/launcher-gui/src"] {
+        let inputs = inputs![glob![
+            format!("{folder}/**"),
+            "{ts,qt/launcher-gui}/.svelte-kit/**"
+        ]];
         build.add_action(
             "check:eslint",
             Eslint {
