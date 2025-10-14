@@ -12,5 +12,5 @@ copy .\out\extracted\uv\uv.exe .\target\debug\
 
 copy .\.python-version .\target\release\
 copy .\qt\launcher\versions.py .\target\release\
-copy .\qt\launcher\pyproject.toml .\target\debug\
+copy .\qt\launcher\pyproject.toml .\target\release\
 copy .\out\extracted\uv\uv.exe .\target\release\

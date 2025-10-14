@@ -16,4 +16,4 @@ cp .python-version target/release/
 cp qt/launcher/versions.py target/release/
 cp qt/launcher/pyproject.toml target/release/
 cp out/extracted/uv/uv target/release/uv.amd64
-cp out/extracted/uv/uv target/debug/uv.arm64
+cp out/extracted/uv/uv target/release/uv.arm64
