@@ -706,6 +706,8 @@ pub(crate) mod test {
     #[test]
     fn state_application() -> Result<()> {
         let mut col = Collection::new();
+        // Disable FSRS for this legacy scheduler test
+        col.set_config_bool(BoolKey::Fsrs, false, false)?;
         if col.timing_today()?.near_cutoff() {
             return Ok(());
         }
