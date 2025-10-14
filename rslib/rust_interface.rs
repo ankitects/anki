@@ -20,14 +20,20 @@ pub fn write_rust_interface(pool: &DescriptorPool) -> Result<()> {
     let mut buf = String::new();
     buf.push_str("use crate::error::Result; use prost::Message;");
 
+    // TODO: we're misusing this for the launcher
     let (col_services, backend_services) = get_services(pool);
     let col_services = col_services
         .into_iter()
-        .filter(|s| s.name != "FrontendService")
+        .filter(|s| !matches!(&*s.name, "FrontendService" | "LauncherService"))
         .collect_vec();
     let backend_services = backend_services
         .into_iter()
-        .filter(|s| s.name != "BackendFrontendService")
+        .filter(|s| {
+            !matches!(
+                &*s.name,
+                "BackendFrontendService" | "BackendLauncherService"
+            )
+        })
         .collect_vec();
 
     render_collection_services(&col_services, &mut buf)?;

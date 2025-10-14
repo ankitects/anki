@@ -49,6 +49,7 @@ pub fn write_rust_protos(descriptors_path: PathBuf) -> Result<DescriptorPool> {
             "ImportAnkiPackageUpdateCondition",
             "#[derive(serde::Deserialize, serde::Serialize)]",
         )
+        .type_attribute(".anki.launcher.Mirror", "#[derive(strum::EnumIter)]")
         .compile_protos(paths.as_slice(), &[proto_dir])
         .context("prost build")?;
 

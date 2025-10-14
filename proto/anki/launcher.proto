@@ -1,0 +1,87 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.launcher;
+
+import "anki/generic.proto";
+
+service LauncherService {
+  rpc I18nResources(I18nResourcesRequest) returns (generic.Json);
+  rpc GetLangs(generic.Empty) returns (GetLangsResponse);
+  rpc SetLang(generic.String) returns (generic.Empty);
+  rpc GetVersions(generic.Empty) returns (GetVersionsResponse);
+  rpc ChooseVersion(ChooseVersionRequest) returns (ChooseVersionResponse);
+  rpc GetOptions(generic.Empty) returns (Options);
+  rpc GetMirrors(generic.Empty) returns (GetMirrorsResponse);
+  rpc WindowReady(generic.Empty) returns (generic.Empty);
+  rpc ZoomWebview(ZoomWebviewRequest) returns (generic.Empty);
+}
+
+// TODO: this should not be necessary
+service BackendLauncherService {}
+
+// TODO: codegen
+enum Event {
+  TERM_INPUT = 0;
+  WINDOWS_READY = 1;
+}
+
+message I18nResourcesRequest {
+  repeated string modules = 1;
+}
+
+message I18nResourcesResponse {
+  repeated string langs = 1;
+  repeated string resources = 2;
+}
+
+message GetLangsResponse {
+  message Pair {
+    string name = 1;
+    string locale = 2;
+  }
+  string user_locale = 1;
+  repeated Pair langs = 2;
+}
+
+enum Mirror {
+  DISABLED = 0;
+  CHINA = 1;
+}
+
+message GetMirrorsResponse {
+  message Pair {
+    Mirror mirror = 1;
+    string name = 2;
+  }
+  repeated Pair mirrors = 1;
+}
+
+message Options {
+  bool allow_betas = 1;
+  bool download_caching = 2;
+  Mirror mirror = 3;
+}
+
+message GetVersionsResponse {
+  repeated string all = 1;
+  repeated string latest = 2;
+  optional string current = 3;
+  optional string previous = 4;
+}
+
+message ChooseVersionRequest {
+  string version = 1;
+  bool keep_existing = 2;
+  Options options = 3;
+}
+
+message ChooseVersionResponse {
+  string version = 1;
+}
+
+message ZoomWebviewRequest {
+  float scale_factor = 1;
+}
