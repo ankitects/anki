@@ -96,7 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     />
     <DynamicallySlottable slotHost={Item} {api}>
         <Item>
-            <SwitchRow bind:value={$fsrs} defaultValue={false}>
+            <SwitchRow bind:value={$fsrs} defaultValue={true}>
                 <SettingTitle
                     on:click={() =>
                         openHelpModal(Object.keys(settings).indexOf("fsrs"))}
