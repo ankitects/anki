@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-import aqt.editor
-from anki.collection import OpChanges
-from aqt import gui_hooks
 from aqt.editcurrent_legacy import *
 from aqt.qt import *
 from aqt.utils import add_close_shortcut, restoreGeom, saveGeom, tr
@@ -34,17 +31,9 @@ class NewEditCurrent(QMainWindow):
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
         add_close_shortcut(self)
-        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         self.show()
 
-    def on_operation_did_execute(
-        self, changes: OpChanges, handler: object | None
-    ) -> None:
-        if changes.note_text and handler is not self.editor:
-            self.editor.reload_note()
-
     def cleanup(self) -> None:
-        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         self.editor.cleanup()
         saveGeom(self, "editcurrent")
         aqt.dialogs.markClosed("NewEditCurrent")
@@ -68,5 +57,3 @@ class NewEditCurrent(QMainWindow):
             onsuccess()
 
         self.editor.call_after_note_saved(callback)
-
-    onReset = on_operation_did_execute

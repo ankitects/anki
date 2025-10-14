@@ -774,6 +774,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         initToast,
         showToast,
     } from "../image-occlusion/toast-utils.svelte";
+    import type { OpChanges } from "@generated/anki/collection_pb";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -1219,6 +1220,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    async function onOperationDidExecute(changes: Partial<OpChanges>) {
+        if (mode === "add" && (changes.notetype || changes.deck)) {
+            let homeDeckId = 0n;
+            if (reviewerCard) {
+                homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
+            }
+            const chooserDefaults = await defaultsForAdding({
+                homeDeckOfCurrentReviewCard: homeDeckId,
+            });
+            notetypeChooser.select(chooserDefaults.notetypeId);
+            onNotetypeChange(chooserDefaults.notetypeId, false);
+        }
+        else if (mode !== "add" && changes.noteText) {
+            reloadNote();
+        }
+    }
+
     $: signalEditorState($editorState);
 
     $: $editorState = getEditorState(
@@ -1234,19 +1252,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => {
-        registerOperationHandler(async (changes) => {
-            if (mode === "add" && (changes.notetype || changes.deck)) {
-                let homeDeckId = 0n;
-                if (reviewerCard) {
-                    homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
-                }
-                const chooserDefaults = await defaultsForAdding({
-                    homeDeckOfCurrentReviewCard: homeDeckId,
-                });
-                notetypeChooser.select(chooserDefaults.notetypeId);
-                onNotetypeChange(chooserDefaults.notetypeId, false);
-            }
-        });
+        registerOperationHandler(onOperationDidExecute);
 
         if (mode === "add") {
             deregisterSticky = registerShortcut(toggleStickyAll, "Shift+F9");
