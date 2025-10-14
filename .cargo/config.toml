@@ -1,6 +1,7 @@
 [env]
 STRINGS_PY = { value = "out/pylib/anki/_fluent.py", relative = true }
 STRINGS_TS = { value = "out/ts/lib/generated/ftl.ts", relative = true }
+STRINGS_LAUNCHER_TS = { value = "out/ts/lib/generated/ftl-launcher.ts", relative = true }
 DESCRIPTORS_BIN = { value = "out/rslib/proto/descriptors.bin", relative = true }
 # build script will append .exe if necessary
 PROTOC = { value = "out/extracted/protoc/bin/protoc", relative = true }

@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     let mut modules = get_modules(&map);
     write_strings(&map, &modules, "strings.rs", "All");
 
-    typescript::write_ts_interface(&modules)?;
+    typescript::write_ts_interface(&modules, "STRINGS_TS")?;
     python::write_py_interface(&modules)?;
 
     // write strings.json file to requested path
@@ -47,6 +47,8 @@ fn main() -> Result<()> {
         .for_each(|(_, modules)| modules.retain(|module, _| module == "launcher"));
     modules.retain(|module| module.name == "launcher");
     write_strings(&map, &modules, "strings_launcher.rs", "Launcher");
+
+    typescript::write_ts_interface(&modules, "STRINGS_LAUNCHER_TS")?;
 
     Ok(())
 }

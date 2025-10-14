@@ -15,14 +15,14 @@ use crate::extract::Module;
 use crate::extract::Variable;
 use crate::extract::VariableKind;
 
-pub fn write_ts_interface(modules: &[Module]) -> Result<()> {
+pub fn write_ts_interface(modules: &[Module], path_key: &str) -> Result<()> {
     let mut ts_out = header();
     write_imports(&mut ts_out);
 
     render_module_map(modules, &mut ts_out);
     render_methods(modules, &mut ts_out);
 
-    if let Ok(path) = env::var("STRINGS_TS") {
+    if let Ok(path) = env::var(path_key) {
         let path = PathBuf::from(path);
         create_dir_all(path.parent().unwrap())?;
         write_file_if_changed(path, ts_out)?;
