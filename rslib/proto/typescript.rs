@@ -74,15 +74,16 @@ fn write_ts_method(
         input_type,
         output_type,
         comments,
-        has_op_changes,
+        op_changes_type,
     }: &MethodDetails,
     out: &mut String,
 ) {
+    let op_changes_type = *op_changes_type as u8;
     let comments = format_comments(comments);
     writeln!(
         out,
         r#"{comments}export async function {method_name}(input: PlainMessage<{input_type}>, options?: PostProtoOptions): Promise<{output_type}> {{
-        return await postProto("{method_name}", new {input_type}(input), {output_type}, options, {has_op_changes});
+        return await postProto("{method_name}", new {input_type}(input), {output_type}, options, {op_changes_type});
 }}"#
     ).unwrap()
 }
@@ -94,12 +95,20 @@ fn format_comments(comments: &Option<String>) -> String {
         .unwrap_or_default()
 }
 
+#[derive(Clone, Copy)]
+#[repr(u8)]
+enum OpChangesType {
+    None = 0,
+    OpChanges = 1,
+    OpChangesOnly = 2,
+}
+
 struct MethodDetails {
     method_name: String,
     input_type: String,
     output_type: String,
     comments: Option<String>,
-    has_op_changes: bool,
+    op_changes_type: OpChangesType,
 }
 
 impl MethodDetails {
@@ -108,28 +117,32 @@ impl MethodDetails {
         let input_type = full_name_to_imported_reference(method.proto.input().full_name());
         let output_type = full_name_to_imported_reference(method.proto.output().full_name());
         let comments = method.comments.clone();
-        let has_op_changes = has_op_changes(&method.proto.output());
+        let op_changes_type = get_op_changes_type(&method.proto.output(), true);
         Self {
             method_name: name,
             input_type,
             output_type,
             comments,
-            has_op_changes,
+            op_changes_type,
         }
     }
 }
 
-fn has_op_changes(message: &MessageDescriptor) -> bool {
+fn get_op_changes_type(message: &MessageDescriptor, root: bool) -> OpChangesType {
     if message.full_name() == "anki.collection.OpChanges" {
-        true
+        if root {
+            OpChangesType::OpChanges
+        } else {
+            OpChangesType::OpChangesOnly
+        }
     } else if let Some(field) = message.get_field(1) {
         if let Some(field_message) = field.kind().as_message() {
-            has_op_changes(field_message)
+            get_op_changes_type(field_message, false)
         } else {
-            false
+            OpChangesType::None
         }
     } else {
-        false
+        OpChangesType::None
     }
 }
 

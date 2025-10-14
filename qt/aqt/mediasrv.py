@@ -999,8 +999,13 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     def wrapped() -> bytes:
         output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
-        if "Has-Op-Changes" in request.headers:
-            response = OpChangesOnly()
+        op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
+        if op_changes_type:
+            response: OpChanges | OpChangesOnly
+            if op_changes_type == 1:
+                response = OpChanges()
+            else:
+                response = OpChangesOnly()
             response.ParseFromString(output)
 
             def handle_on_main() -> None:
