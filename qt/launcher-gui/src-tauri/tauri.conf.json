@@ -1,0 +1,38 @@
+{
+    "$schema": "https://schema.tauri.app/config/2",
+    "productName": "anki-launcher",
+    "version": "0.1.0",
+    "identifier": "com.ichi2.anki-launcher",
+    "build": {
+        "beforeDevCommand": "./launcher",
+        "devUrl": "http://localhost:1420",
+        "beforeBuildCommand": "./yarn lb",
+        "frontendDist": "../build"
+    },
+    "app": {
+        "windows": [
+            {
+                "title": "Anki Launcher",
+                "width": 600,
+                "height": 600,
+                "visible": true
+            }
+        ],
+        "security": {
+            "csp": {
+                "default-src": "'self'",
+                "connect-src": "anki: http://anki.localhost ipc: http://ipc.localhost tauri: http://tauri.localhost",
+                "img-src": "data: 'self'",
+                "style-src": "'self' 'unsafe-inline'"
+            }
+        }
+    },
+    "bundle": {
+        "active": false,
+        "targets": [],
+        "icon": [
+            "../../launcher/lin/anki.png",
+            "icons/icon.ico"
+        ]
+    }
+}

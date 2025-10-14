@@ -1,0 +1,50 @@
+[package]
+name = "launcher-gui"
+version = "1.0.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
+
+[build-dependencies]
+anki_io.workspace = true
+anki_proto_gen.workspace = true
+anyhow.workspace = true
+inflections.workspace = true
+prettyplease.workspace = true
+prost-build.workspace = true
+prost-reflect.workspace = true
+tauri-build.workspace = true
+syn.workspace = true
+
+[dependencies]
+anki_i18n.workspace = true
+anki_io.workspace = true
+anki_process.workspace = true
+anki_proto.workspace = true
+anyhow.workspace = true
+data-encoding.workspace = true
+dirs.workspace = true
+futures.workspace = true
+phf.workspace = true
+portable-pty.workspace = true
+prost.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+snafu.workspace = true
+strum.workspace = true
+tauri.workspace = true
+tauri-plugin-log.workspace = true
+tauri-plugin-os.workspace = true
+tauri-plugin-single-instance.workspace = true
+tokio.workspace = true
+
+[target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
+libc.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows.workspace = true
+widestring.workspace = true
+libc.workspace = true
+libc-stdhandle.workspace = true
