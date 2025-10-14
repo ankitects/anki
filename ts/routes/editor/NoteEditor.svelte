@@ -1231,8 +1231,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             });
             notetypeChooser.select(chooserDefaults.notetypeId);
             onNotetypeChange(chooserDefaults.notetypeId, false);
-        }
-        else if (mode !== "add" && changes.noteText) {
+        } else if (mode !== "add" && changes.noteText) {
             reloadNote();
         }
     }
