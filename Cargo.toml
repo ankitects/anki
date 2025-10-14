@@ -13,6 +13,7 @@ members = [
   "ftl",
   "pylib/rsbridge",
   "qt/launcher",
+  "qt/launcher-gui/src-tauri",
   "rslib",
   "rslib/i18n",
   "rslib/io",

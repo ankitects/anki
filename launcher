@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+./ninja node_modules extract:uv ts:generated
+
+mkdir -p target/debug target/release
+
+cp .python-version target/debug/
+cp qt/launcher/versions.py target/debug/
+cp qt/launcher/pyproject.toml target/debug/
+cp out/extracted/uv/uv target/debug/uv.amd64
+cp out/extracted/uv/uv target/debug/uv.arm64
+
+cp .python-version target/release/
+cp qt/launcher/versions.py target/release/
+cp qt/launcher/pyproject.toml target/release/
+cp out/extracted/uv/uv target/release/uv.amd64
+cp out/extracted/uv/uv target/debug/uv.arm64
