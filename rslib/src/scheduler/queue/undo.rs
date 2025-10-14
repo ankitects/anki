@@ -100,6 +100,8 @@ mod test {
     fn undo() -> Result<()> {
         // add a note
         let mut col = Collection::new();
+        // Disable FSRS for this legacy scheduler test
+        col.set_config_bool(BoolKey::Fsrs, false, false)?;
         let nid = add_note(&mut col, true)?;
 
         // turn burying and leech suspension on
