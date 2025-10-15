@@ -12,6 +12,20 @@ pub(crate) struct LearningQueueEntry {
     pub due: TimestampSecs,
     pub id: CardId,
     pub mtime: TimestampSecs,
+    pub reps: u32,
+}
+
+impl LearningQueueEntry {
+    /// Compare two learning queue entries, prioritizing previously-attempted
+    /// cards (reps > 0) before never-attempted cards (reps == 0), then by
+    /// due time.
+    pub(crate) fn cmp_by_reps_then_due(&self, other: &Self) -> std::cmp::Ordering {
+        // Create a sort key: (has_no_reps, due)
+        // Cards with reps get false (0), cards without get true (1)
+        let self_key = (self.reps == 0, self.due);
+        let other_key = (other.reps == 0, other.due);
+        self_key.cmp(&other_key)
+    }
 }
 
 impl CardQueues {
@@ -71,6 +85,7 @@ impl CardQueues {
             due: TimestampSecs(card.due as i64),
             id: card.id,
             mtime: card.mtime,
+            reps: card.reps,
         };
 
         Some(self.requeue_learning_entry(entry))
@@ -141,7 +156,7 @@ impl CardQueues {
 
         let target_idx = self
             .intraday_learning
-            .binary_search_by(|e| e.due.cmp(&entry.due))
+            .binary_search_by(|e| e.cmp_by_reps_then_due(&entry))
             .unwrap_or_else(|e| e);
         self.intraday_learning.insert(target_idx, entry);
     }
