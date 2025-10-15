@@ -38,6 +38,7 @@ pub(crate) struct DueCard {
     pub current_deck_id: DeckId,
     pub original_deck_id: DeckId,
     pub kind: DueCardKind,
+    pub reps: u32,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -87,6 +88,7 @@ impl From<DueCard> for LearningQueueEntry {
             due: TimestampSecs(c.due as i64),
             id: c.id,
             mtime: c.mtime,
+            reps: c.reps,
         }
     }
 }
@@ -274,9 +276,21 @@ fn merge_new(
     }
 }
 
-fn sort_learning(mut learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
-    learning.sort_unstable_by(|a, b| a.due.cmp(&b.due));
-    learning.into_iter().map(LearningQueueEntry::from).collect()
+fn sort_learning(learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
+    // Prioritize intraday learning cards that were previously attempted
+    // (reps > 0) before never-attempted cards (reps == 0). Preserve due-time
+    // ordering within each group.
+    let (mut previously_attempted, mut never_attempted): (Vec<DueCard>, Vec<DueCard>) =
+        learning.into_iter().partition(|c| c.reps > 0);
+
+    previously_attempted.sort_unstable_by(|a, b| a.due.cmp(&b.due));
+    never_attempted.sort_unstable_by(|a, b| a.due.cmp(&b.due));
+
+    previously_attempted
+        .into_iter()
+        .chain(never_attempted)
+        .map(LearningQueueEntry::from)
+        .collect()
 }
 
 impl Collection {
@@ -542,5 +556,50 @@ mod test {
         CardAdder::new().deck(child.id).add(&mut col);
         col.set_current_deck(child.id).unwrap();
         assert_eq!(col.card_queue_len(), 0);
+    }
+
+    #[test]
+    fn intraday_learning_prioritizes_previously_attempted() -> Result<()> {
+        let mut col = Collection::new();
+
+        // create two notes with one card each
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut n1 = nt.new_note();
+        n1.set_field(0, "one")?;
+        col.add_note(&mut n1, DeckId(1))?;
+        let mut n2 = nt.new_note();
+        n2.set_field(0, "two")?;
+        col.add_note(&mut n2, DeckId(1))?;
+
+        // fetch their cards and make them intraday learning cards
+        let mut c1 = col.storage.get_card_by_ordinal(n1.id, 0)?.unwrap();
+        let mut c2 = col.storage.get_card_by_ordinal(n2.id, 0)?.unwrap();
+
+        c1.queue = CardQueue::Learn;
+        c2.queue = CardQueue::Learn;
+
+        // c1: never attempted, due earlier (0)
+        c1.due = 0;
+        c1.reps = 0;
+        // c2: previously attempted, due later (600)
+        c2.due = 600;
+        c2.reps = 1;
+
+        let id1 = c1.id;
+        let id2 = c2.id;
+
+        col.update_cards_maybe_undoable(vec![c1, c2], false)?;
+
+        // build queues and inspect intraday learning order
+        let queues = col.build_queues(DeckId(1))?;
+        let ids: Vec<_> = queues.intraday_learning.iter().map(|e| e.id).collect();
+
+        // ensure the previously attempted card appears before the never-attempted one
+        assert!(
+            ids.iter().position(|&id| id == id2).unwrap()
+                < ids.iter().position(|&id| id == id1).unwrap()
+        );
+
+        Ok(())
     }
 }
