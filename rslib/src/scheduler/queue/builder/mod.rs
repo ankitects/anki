@@ -38,6 +38,7 @@ pub(crate) struct DueCard {
     pub current_deck_id: DeckId,
     pub original_deck_id: DeckId,
     pub kind: DueCardKind,
+    pub reps: u32,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -87,6 +88,7 @@ impl From<DueCard> for LearningQueueEntry {
             due: TimestampSecs(c.due as i64),
             id: c.id,
             mtime: c.mtime,
+            reps: c.reps,
         }
     }
 }
@@ -274,9 +276,21 @@ fn merge_new(
     }
 }
 
-fn sort_learning(mut learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
-    learning.sort_unstable_by(|a, b| a.due.cmp(&b.due));
-    learning.into_iter().map(LearningQueueEntry::from).collect()
+fn sort_learning(learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
+    // Prioritize intraday learning cards that were previously attempted
+    // (reps > 0) before never-attempted cards (reps == 0). Preserve due-time
+    // ordering within each group.
+    let (mut previously_attempted, mut never_attempted): (Vec<DueCard>, Vec<DueCard>) =
+        learning.into_iter().partition(|c| c.reps > 0);
+
+    previously_attempted.sort_unstable_by(|a, b| a.due.cmp(&b.due));
+    never_attempted.sort_unstable_by(|a, b| a.due.cmp(&b.due));
+
+    previously_attempted
+        .into_iter()
+        .chain(never_attempted)
+        .map(LearningQueueEntry::from)
+        .collect()
 }
 
 impl Collection {
