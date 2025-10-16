@@ -9,7 +9,9 @@ mod sorting;
 
 use std::collections::HashMap;
 use std::collections::VecDeque;
+use std::hash::Hasher;
 
+use fnv::FnvHasher;
 use intersperser::Intersperser;
 use sized_chain::SizedChain;
 
@@ -278,13 +280,19 @@ fn merge_new(
 
 fn sort_learning(learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
     // Prioritize intraday learning cards that were previously attempted
-    // (reps > 0) before never-attempted cards (reps == 0). Preserve due-time
-    // ordering within each group.
+    // (reps > 0) before never-attempted cards (reps == 0). Sort previously
+    // attempted cards by due-time and never-attempted cards deterministically
+    // by an FNV hash of their id.
     let (mut previously_attempted, mut never_attempted): (Vec<DueCard>, Vec<DueCard>) =
         learning.into_iter().partition(|c| c.reps > 0);
 
     previously_attempted.sort_unstable_by(|a, b| a.due.cmp(&b.due));
-    never_attempted.sort_unstable_by(|a, b| a.due.cmp(&b.due));
+
+    never_attempted.sort_unstable_by_key(|c| {
+        let mut hasher = FnvHasher::default();
+        hasher.write_i64(c.id.0);
+        hasher.finish()
+    });
 
     previously_attempted
         .into_iter()
