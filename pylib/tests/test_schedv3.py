@@ -10,6 +10,7 @@ from typing import Dict
 import pytest
 
 from anki import hooks
+from anki.config import Config
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.scheduler import UnburyDeck
@@ -19,6 +20,8 @@ from tests.shared import getEmptyCol as getEmptyColOrig
 
 def getEmptyCol():
     col = getEmptyColOrig()
+    # Disable FSRS for legacy scheduler tests
+    col.set_config_bool(Config.Bool.FSRS, False, undoable=False)
     return col
 
 
