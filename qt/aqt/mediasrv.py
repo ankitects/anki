@@ -30,7 +30,13 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import frontend_pb2, generic_pb2, hooks
-from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
+from anki.collection import (
+    NestedOpChanges,
+    OpChanges,
+    OpChangesOnly,
+    Progress,
+    SearchNode,
+)
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode, from_json_bytes, to_json_bytes
@@ -1001,16 +1007,19 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
         output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
         op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
         if op_changes_type:
-            response: OpChanges | OpChangesOnly
-            if op_changes_type == 1:
-                response = OpChanges()
-            else:
-                response = OpChangesOnly()
-            response.ParseFromString(output)
+            op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
+            try:
+                response = op_message_types[op_changes_type - 1]()
+                response.ParseFromString(output)
+                changes: Any = response
+                for _ in range(op_changes_type - 1):
+                    changes = changes.changes
+            except IndexError:
+                raise ValueError(f"unhandled op changes level: {op_changes_type}")
 
             def handle_on_main() -> None:
                 handler = aqt.mw.app.activeWindow()
-                on_op_finished(aqt.mw, response, handler)
+                on_op_finished(aqt.mw, changes, handler)
 
             aqt.mw.taskman.run_on_main(handle_on_main)
 

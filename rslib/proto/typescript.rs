@@ -101,6 +101,7 @@ enum OpChangesType {
     None = 0,
     OpChanges = 1,
     OpChangesOnly = 2,
+    NestedOpChanges = 3,
 }
 
 struct MethodDetails {
@@ -117,7 +118,8 @@ impl MethodDetails {
         let input_type = full_name_to_imported_reference(method.proto.input().full_name());
         let output_type = full_name_to_imported_reference(method.proto.output().full_name());
         let comments = method.comments.clone();
-        let op_changes_type = get_op_changes_type(&method.proto.output(), true);
+        let op_changes_type =
+            get_op_changes_type(&method.proto.output(), &method.proto.output(), 1);
         Self {
             method_name: name,
             input_type,
@@ -128,16 +130,26 @@ impl MethodDetails {
     }
 }
 
-fn get_op_changes_type(message: &MessageDescriptor, root: bool) -> OpChangesType {
+fn get_op_changes_type(
+    root_message: &MessageDescriptor,
+    message: &MessageDescriptor,
+    level: u8,
+) -> OpChangesType {
     if message.full_name() == "anki.collection.OpChanges" {
-        if root {
-            OpChangesType::OpChanges
-        } else {
-            OpChangesType::OpChangesOnly
+        match level {
+            0 => OpChangesType::None,
+            1 => OpChangesType::OpChanges,
+            2 => OpChangesType::OpChangesOnly,
+            3 => OpChangesType::NestedOpChanges,
+            _ => panic!(
+                "unhandled op changes level for message {}: {}",
+                root_message.full_name(),
+                level
+            ),
         }
     } else if let Some(field) = message.get_field(1) {
         if let Some(field_message) = field.kind().as_message() {
-            get_op_changes_type(field_message, false)
+            get_op_changes_type(root_message, field_message, level + 1)
         } else {
             OpChangesType::None
         }
