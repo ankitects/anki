@@ -410,7 +410,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     { alertOnError: false },
                 );
             } catch {
-                console.log("Note deleted", note!.id);
+                // Note deleted
+                return;
             }
         }
     }
@@ -1027,7 +1028,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 );
                 setNote(n);
             } catch {
-                console.log("Note deleted", nid);
+                // Note deleted
                 return;
             }
         }
