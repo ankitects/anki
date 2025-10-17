@@ -1233,6 +1233,75 @@ timerStopped = false;
     setFlag = set_flag_on_current_card
 
 
+class SvelteReviewer(Reviewer):
+    def _answerButtons(self) -> str:
+        default = self._defaultEase()
+
+        assert isinstance(self.mw.col.sched, V3Scheduler)
+        labels = self.mw.col.sched.describe_next_states(self._v3.states)
+
+        def but(i: int, label: str):
+            if i == default:
+                id = "defease"
+            else:
+                id = ""
+            due = self._buttonTime(i, v3_labels=labels)
+            key = (
+                tr.actions_shortcut_key(val=aqt.mw.pm.get_answer_key(i))
+                if aqt.mw.pm.get_answer_key(i)
+                else ""
+            )
+            return {
+                "id": id,
+                "key": key,
+                "i": i,
+                "label": label,
+                "due": due,
+            }
+
+        return [but(ease, label) for ease, label in self._answerButtonList()]  # type: ignore
+
+    def _remaining(self) -> str:
+        if not self.mw.col.conf["dueCounts"]:
+            return ""
+
+        idx, counts = self._v3.counts()
+        self.bottom.web.eval(f"_updateRemaining({json.dumps(counts)},{idx})")
+        return ""
+
+    def _showAnswerButton(self) -> None:
+        if self.card.should_show_timer():
+            maxTime = self.card.time_limit() / 1000
+        else:
+            maxTime = 0
+        self._remaining()
+        self.bottom.web.eval('showQuestion("",%d);' % (maxTime))
+
+    def _buttonTime(self, i: int, v3_labels: Sequence[str]) -> str:
+        return v3_labels[i - 1] if self.mw.col.conf["estTimes"] else ""
+
+    def _linkHandler(self, url: str) -> None:
+        if url == "bottomReady":
+            self._showQuestion()
+            self._remaining()
+            return
+        super()._linkHandler(url)
+
+    def _initWeb(self) -> None:
+        self._reps = 0
+        # main window
+        self.web.load_sveltekit_page("reviewer")
+        # block default drag & drop behavior while allowing drop events to be received by JS handlers
+        self.web.allow_drops = True
+        self.web.eval("_blockDefaultDragDropBehavior();")
+        # ensure bottom web functions trigger
+        self.bottom.web = self.web
+        self.mw.bottomWeb.hide()
+
+    def _shortcutKeys(self) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
+        return []
+
+
 # if the last element is a comment, then the RUN_STATE_MUTATION code
 # breaks due to the comment wrongly commenting out python code.
 # To prevent this we put the js code on a separate line

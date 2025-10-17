@@ -1,0 +1,34 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import "../base.scss";
+import "../../reviewer/reviewer.scss";
+import { enableNightMode } from "../reviewer/reviewer";
+
+addEventListener("message", (e) => {
+    switch (e.data.type) {
+        case "html": {
+            document.body.innerHTML = e.data.value;
+            break;
+        }
+        default: {
+            console.warn(`Unknown message type: ${e.data.type}`);
+            break;
+        }
+    }
+});
+
+const base = document.createElement("base");
+base.href = "/";
+document.head.appendChild(base);
+
+function pycmd(cmd: string) {
+    window.parent.postMessage({ type: "pycmd", value: cmd }, "*");
+}
+globalThis.pycmd = pycmd;
+
+const params = new URLSearchParams(location.search);
+const theme = params.get("nightMode");
+if (theme !== null) {
+    enableNightMode();
+}
+document.documentElement.classList.add("card");
