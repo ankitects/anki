@@ -13,9 +13,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if warning}
-    <Row>
+    <Row class="centre m-3">
         <div class="col-12 alert {className} mb-0" in:slide out:slide>
+            <slot name="icon" />
             {withoutUnicodeIsolation(warning)}
         </div>
     </Row>
 {/if}
+
+<style lang="scss">
+    .centre {
+        justify-content: center;
+    }
+</style>
