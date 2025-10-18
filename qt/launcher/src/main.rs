@@ -603,17 +603,26 @@ fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
 }
 
 fn with_only_latest_patch(versions: &[String]) -> Vec<String> {
-    // Only show the latest patch release for a given (major, minor)
+    // Assumes versions are sorted in descending order (newest first)
+    // Only show the latest patch release for a given (major, minor),
+    // and exclude pre-releases if a newer major_minor exists
     let mut seen_major_minor = std::collections::HashSet::new();
     versions
         .iter()
         .filter(|v| {
-            let (major, minor, _, _) = parse_version_for_filtering(v);
+            let (major, minor, _, is_prerelease) = parse_version_for_filtering(v);
             if major == 2 {
                 return true;
             }
             let major_minor = (major, minor);
             if seen_major_minor.contains(&major_minor) {
+                false
+            } else if is_prerelease
+                && seen_major_minor
+                    .iter()
+                    .any(|&(seen_major, seen_minor)| (seen_major, seen_minor) > (major, minor))
+            {
+                // Exclude pre-release if a newer major_minor exists
                 false
             } else {
                 seen_major_minor.insert(major_minor);
