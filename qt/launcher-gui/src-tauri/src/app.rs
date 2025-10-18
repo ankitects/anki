@@ -13,13 +13,32 @@ use tauri::UriSchemeResponder;
 use tauri_plugin_os::locale;
 
 use crate::generated;
-use crate::lang::setup_i18n;
+use crate::lang::I18n;
+use crate::state::State;
 use crate::uv;
 
 pub const PROTOCOL: &str = "anki";
 
-pub fn setup(app: &mut App, state: uv::State) -> anyhow::Result<()> {
-    setup_i18n(app.app_handle(), &[&locale().unwrap_or_default()]);
+pub fn init() -> Option<State> {
+    let mut state = State::init().unwrap_or_else(State::Error);
+
+    match state {
+        State::Normal(ref mut state) => state.check_versions(),
+        State::LaunchAnki(ref paths) => {
+            let args: Vec<String> = std::env::args().skip(1).collect();
+            let cmd = paths.build_python_command(&args).unwrap();
+            uv::launch_anki_normally(cmd).unwrap();
+            return None;
+        }
+        _ => {}
+    }
+
+    Some(state)
+}
+
+pub fn setup(app: &mut App, state: State) -> anyhow::Result<()> {
+    let tr = I18n::new(&[&locale().unwrap_or_default()]);
+    app.manage(crate::lang::Tr::new(Some(tr)));
 
     app.manage(state);
 

@@ -16,7 +16,6 @@ pub type I18n = anki_i18n::I18n<anki_i18n::Launcher>;
 pub type Tr = RwLock<Option<I18n>>;
 
 pub fn setup_i18n<R: Runtime>(app: &AppHandle<R>, locales: &[&str]) {
-    app.manage(Tr::default()); // no-op if it already exists
     *app.state::<Tr>().write().expect("tr lock was poisoned!") = Some(I18n::new(locales));
 }
 

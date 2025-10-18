@@ -10,16 +10,13 @@ mod error;
 mod generated;
 mod lang;
 mod platform;
+mod state;
 mod uv;
 
 fn main() {
-    let Some(state) = uv::init_state().unwrap() else {
-        // either anki was spawned or os not supported (TODO)
-        return;
-    };
+    let Some(state) = app::init() else { return };
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_os::init())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .clear_targets()
@@ -29,6 +26,8 @@ fn main() {
                 .level(tauri_plugin_log::log::LevelFilter::Trace)
                 .build(),
         )
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_single_instance::init(app::on_second_instance))
         .setup(|app| Ok(app::setup(app, state)?))
         .register_asynchronous_uri_scheme_protocol(app::PROTOCOL, app::serve)
