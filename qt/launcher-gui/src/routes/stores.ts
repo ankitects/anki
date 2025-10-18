@@ -6,9 +6,4 @@ import * as _tr from "@generated/ftl-launcher";
 import { writable } from "svelte/store";
 
 export const zoomFactor = writable(1.2);
-export const langsStore = writable<GetLangsResponse_Pair[]>([]);
-export const mirrorsStore = writable<GetMirrorsResponse_Pair[]>([]);
-export const currentLang = writable("");
-export const initialLang = writable("");
-export const versionsStore = writable<GetVersionsResponse | undefined>(undefined);
 export const tr = writable(_tr);
