@@ -36,3 +36,21 @@ launcher-beta-releases-enabled = Beta releases enabled.
 launcher-beta-releases-disabled = Beta releases disabled.
 launcher-download-caching-enabled = Download caching enabled.
 launcher-download-caching-disabled = Download caching disabled and cache cleared.
+
+# TODO: dedup
+launcher-language = Language
+launcher-latest-anki-version = Install Latest Anki ({ $version })
+launcher-allow-betas-toggle = Allow betas
+launcher-use-mirror =  Download mirror
+launcher-download-caching = Download caching
+launcher-advanced = Advanced
+launcher-output = Output
+launcher-syncing = Syncing
+launcher-failed-to-sync = Failed to sync!
+launcher-loading = Loading
+launcher-loading-versions = Loading versions
+lauuncher-failed-to-load-versions = Failed to load versions!
+launcher-error-details = Error details
+launcher-will-close-in = Launcher will close in { $count }
+launcher-anki-is-warming-up = Anki is preparing to run
+launcher-this-may-take = This may take a few minutes. Please wait\

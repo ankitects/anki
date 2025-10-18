@@ -12,7 +12,10 @@
         "svelte-check:once": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --threshold warning",
         "svelte-check": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "vitest:once": "cd ts && vitest run",
-        "vitest": "cd ts && vitest"
+        "vitest": "cd ts && vitest",
+        "ld": "cd qt/launcher-gui && vite dev",
+        "lb": "cd qt/launcher-gui && vite build",
+        "lsc": "cd qt/launcher-gui && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --threshold warning"
     },
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.8.0",
@@ -65,6 +68,10 @@
         "@fluent/bundle": "^0.18.0",
         "@mdi/svg": "^7.0.96",
         "@popperjs/core": "^2.11.8",
+        "@tauri-apps/api": "^2",
+        "@tauri-apps/plugin-log": "^2.7.0",
+        "@xterm/addon-webgl": "^0.18.0",
+        "@xterm/xterm": "^5.5.0",
         "bootstrap": "^5.3.0",
         "bootstrap-icons": "^1.10.5",
         "codemirror": "^5.63.1",

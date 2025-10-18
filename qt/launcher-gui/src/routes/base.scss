@@ -1,0 +1,19 @@
+@import "$lib/sass/base";
+
+// override Bootstrap transition duration
+$carousel-transition: var(--transition);
+
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/button-group";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/carousel";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/badge";
+@import "$lib/sass/bootstrap-forms";
+@import "$lib/sass/bootstrap-tooltip";
+
+input {
+    color: var(--fg);
+}

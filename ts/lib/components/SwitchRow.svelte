@@ -13,6 +13,7 @@
     export let value: boolean;
     export let defaultValue: boolean;
     export let disabled: boolean = false;
+    export let hideRevert: boolean = false;
 
     const id = Math.random().toString(36).substring(2);
 </script>
@@ -22,7 +23,9 @@
     <Col --col-justify="flex-end">
         <ConfigInput grow={false}>
             <Switch {id} bind:value {disabled} />
-            <RevertButton slot="revert" bind:value {defaultValue} />
+            {#if !hideRevert}
+                <RevertButton slot="revert" bind:value {defaultValue} />
+            {/if}
         </ConfigInput>
     </Col>
 </Row>

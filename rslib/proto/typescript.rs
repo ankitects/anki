@@ -13,7 +13,7 @@ use anyhow::Result;
 use inflections::Inflect;
 use itertools::Itertools;
 
-pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
+pub(crate) fn write_ts_interface(services: &[BackendService], is_launcher: bool) -> Result<()> {
     let root = Path::new("../../out/ts/lib/generated");
     create_dir_all(root)?;
 
@@ -29,13 +29,17 @@ pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
             let method = MethodDetails::from_method(method);
             record_referenced_type(&mut referenced_packages, &method.input_type);
             record_referenced_type(&mut referenced_packages, &method.output_type);
-            write_ts_method(&method, &mut ts_out);
+            write_ts_method(&method, &mut ts_out, is_launcher);
         }
     }
 
     let imports = imports(referenced_packages);
     write_file_if_changed(
-        root.join("backend.ts"),
+        root.join(if is_launcher {
+            "backend-launcher.ts"
+        } else {
+            "backend.ts"
+        }),
         format!("{}{}{}", ts_header(), imports, ts_out),
     )?;
 
@@ -75,12 +79,19 @@ fn write_ts_method(
         comments,
     }: &MethodDetails,
     out: &mut String,
+    is_launcher: bool,
 ) {
     let comments = format_comments(comments);
+    let proto_method_name = method_name;
+    let options = if is_launcher {
+        "{ ...options, customProtocol: true, alertOnError: false }"
+    } else {
+        "options"
+    };
     writeln!(
         out,
         r#"{comments}export async function {method_name}(input: PlainMessage<{input_type}>, options?: PostProtoOptions): Promise<{output_type}> {{
-        return await postProto("{method_name}", new {input_type}(input), {output_type}, options);
+        return await postProto("{proto_method_name}", new {input_type}(input), {output_type}, {options});
 }}"#
     ).unwrap()
 }
