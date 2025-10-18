@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { isWindows } from "@tslib/platform";
-
 export interface PostProtoOptions {
     /** True by default. Shows a dialog with the error message, then rethrows. */
     alertOnError?: boolean;
@@ -10,7 +8,8 @@ export interface PostProtoOptions {
     customProtocol?: boolean;
 }
 
-const CUSTOM_PROTOCOL_URI = isWindows() ? "http://anki.localhost" : "anki://localhost" ;
+const IS_WINDOWS = navigator.platform.startsWith("Win");
+const CUSTOM_PROTOCOL_URI = IS_WINDOWS ? "http://anki.localhost" : "anki://localhost";
 
 export async function postProto<T>(
     method: string,

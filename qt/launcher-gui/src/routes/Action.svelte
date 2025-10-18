@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { tr } from "./stores";
-    import { ExistingVersions, Versions } from "@generated/anki/launcher_pb";
+    import type { ExistingVersions, Versions } from "@generated/anki/launcher_pb";
     import Row from "$lib/components/Row.svelte";
     import EnumSelector from "$lib/components/EnumSelector.svelte";
 
@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         choose: (version: string, existing: boolean, current?: string) => void;
     } = $props();
 
-    const availableVersions = $derived(
+    let availableVersions = $derived(
         releases.all
             .filter((v) => allowBetas || !v.isPrerelease)
             .map((v) => ({ label: v.version, value: v.version })),
@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let selected = $derived(availableVersions[0]?.value ?? null);
     let current = $derived(existing.current?.version);
 
-    let pyprojectModified = existing.pyprojectModifiedByUser;
+    let pyprojectModified = $derived(existing.pyprojectModifiedByUser);
 
     function _choose(version: string, keepExisting: boolean = false) {
         choose(version, keepExisting, current);

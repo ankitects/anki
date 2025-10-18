@@ -73,6 +73,7 @@ impl From<NormalState> for State {
 
 pub enum State {
     LaunchAnki(Arc<uv::Paths>),
+    #[allow(dead_code)] // TODO: use
     Error(anyhow::Error),
     Uninstall(Arc<uv::Paths>),
     Normal(NormalState),
@@ -93,10 +94,6 @@ impl State {
             State::Normal(state) => Ok(&state.paths),
             _ => Err(anyhow!("unexpected state")),
         }
-    }
-
-    pub fn should_launch_anki(&self) -> bool {
-        matches!(self, State::LaunchAnki(_))
     }
 }
 

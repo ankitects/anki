@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Options from "./Options.svelte";
     import Term from "./Term.svelte";
     import AnkiWillStart from "./AnkiWillStart.svelte";
-    import { Terminal } from "@xterm/xterm";
+    import type { Terminal } from "@xterm/xterm";
 
     let {
         langs,
