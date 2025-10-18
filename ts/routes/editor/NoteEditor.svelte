@@ -433,15 +433,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }, 600);
     }
 
-    function saveFieldNow(): void {
+    async function saveFieldNow() {
         /* this will always be a key save */
-        fieldSave.fireImmediately();
+        await fieldSave.fireImmediately();
     }
 
-    function saveNow(): void {
+    async function saveNow() {
         closeMathjaxEditor?.();
         $commitTagEdits();
-        saveFieldNow();
+        await saveFieldNow();
     }
 
     // Used for detecting changed sticky fields on close
@@ -467,12 +467,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function closeAddCards() {
-        saveNow();
+        await saveNow();
         await closeAddCardsBackend({ val: await shouldPromptBeforeClosing() });
     }
 
     async function closeEditCurrent() {
-        saveNow();
+        await saveNow();
         await closeEditCurrentBackend({});
     }
 
@@ -514,10 +514,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         historyModal.show();
     }
 
-    export function saveOnPageHide() {
+    export async function saveOnPageHide() {
         if (document.visibilityState === "hidden") {
             // will fire on session close and minimize
-            saveFieldNow();
+            await saveNow();
         }
     }
 
@@ -581,6 +581,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function addCurrentNoteInner(deckId: bigint) {
+        await saveNow();
         if (!(await noteCanBeAdded())) {
             return;
         }
@@ -830,7 +831,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             fieldStores[ioFields.image].set(options.html);
             // the image field is set programmatically and does not need debouncing
             // commit immediately to avoid a race condition with the occlusions field
-            saveFieldNow();
+            await saveFieldNow();
 
             // new image is being added
             if (isIOImageLoaded) {
@@ -909,13 +910,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     // reset for new occlusion in add mode
-    function resetIOImageLoaded() {
+    async function resetIOImageLoaded() {
         isIOImageLoaded = false;
         globalThis.canvas.clear();
         globalThis.canvas = undefined;
         if (imageOcclusionMode?.kind === "add") {
             // canvas.clear indirectly calls saveOcclusions
-            saveFieldNow();
+            await saveFieldNow();
             fieldStores[ioFields.image].set("");
         }
         const page = document.querySelector(".image-occlusion");

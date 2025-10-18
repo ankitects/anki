@@ -9,7 +9,7 @@ export class ChangeTimer {
         this.fireImmediately = this.fireImmediately.bind(this);
     }
 
-    schedule(action: () => void, delay: number): void {
+    schedule(action: () => Promise<void>, delay: number): void {
         this.clear();
         this.action = action;
         this.value = setTimeout(this.fireImmediately, delay) as any;
@@ -22,9 +22,9 @@ export class ChangeTimer {
         }
     }
 
-    fireImmediately(): void {
+    async fireImmediately(): Promise<void> {
         if (this.action) {
-            this.action();
+            await this.action();
             this.action = null;
         }
 
