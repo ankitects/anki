@@ -7,11 +7,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import type { PageProps } from "./$types";
+    import * as _tr from "@generated/ftl-launcher";
     import { setLang, windowReady, zoomWebview } from "@generated/backend-launcher";
     import { getMirrors } from "@generated/backend-launcher";
     import { ModuleName, setupI18n } from "@tslib/i18n";
     import { onMount } from "svelte";
-    import { currentLang, zoomFactor } from "./stores";
+    import { tr, zoomFactor } from "./stores";
     import Start from "./Start.svelte";
 
     const { data }: PageProps = $props();
@@ -22,19 +23,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let selectedLang = $state(data.userLocale);
 
     async function onLangChange(lang: string) {
-        // TODO: setLang could call setupI18n?
         await setLang({ val: lang });
         await setupI18n({ modules: [ModuleName.LAUNCHER] }, true);
-        $currentLang = lang;
+
+        $tr = _tr;
+        mirrors = (await getMirrors({})).mirrors;
     }
 
     $effect(() => {
         onLangChange(selectedLang);
-    });
-
-    $effect(() => {
-        $currentLang; // rerun on i18n reinit
-        getMirrors({}).then(({ mirrors: _mirrors }) => (mirrors = _mirrors));
     });
 
     $effect(() => {

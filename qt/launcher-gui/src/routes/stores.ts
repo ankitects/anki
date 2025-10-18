@@ -11,6 +11,4 @@ export const mirrorsStore = writable<GetMirrorsResponse_Pair[]>([]);
 export const currentLang = writable("");
 export const initialLang = writable("");
 export const versionsStore = writable<GetVersionsResponse | undefined>(undefined);
-
 export const tr = writable(_tr);
-currentLang.subscribe(() => tr.set(_tr));
