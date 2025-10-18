@@ -102,7 +102,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
-                <NotetypeButtons {noteEditor} api={notetypeButtons}>
+                <NotetypeButtons {isLegacy} {noteEditor} api={notetypeButtons}>
                     <slot name="notetypeButtons" />
                 </NotetypeButtons>
             </Item>

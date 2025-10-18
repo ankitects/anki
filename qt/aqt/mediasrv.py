@@ -882,6 +882,32 @@ async def show_message_box() -> bytes:
     return generic_pb2.Bool(val=answer).SerializeToString()
 
 
+def open_fields_dialog() -> bytes:
+    def handle_on_main() -> None:
+        from aqt.editor import NewEditor
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
+            window.editor.onFields()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
+def open_cards_dialog() -> bytes:
+    def handle_on_main() -> None:
+        from aqt.editor import NewEditor
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
+            window.editor.onCardLayout()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
 def save_custom_colours() -> bytes:
     colors = [
         QColorDialog.customColor(i).name(QColor.NameFormat.HexRgb)
@@ -919,6 +945,8 @@ post_handler_list = [
     open_link,
     ask_user,
     show_message_box,
+    open_fields_dialog,
+    open_cards_dialog,
     save_custom_colours,
 ]
 

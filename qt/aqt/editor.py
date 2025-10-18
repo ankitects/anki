@@ -300,9 +300,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         return checkFocus
 
     def onFields(self) -> None:
-        self.call_after_note_saved(self._onFields)
-
-    def _onFields(self) -> None:
         from aqt.fields import FieldDialog
 
         def on_note_info(note_info: NoteInfo) -> None:
@@ -313,9 +310,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.get_note_info(on_note_info)
 
     def onCardLayout(self) -> None:
-        self.call_after_note_saved(self._onCardLayout)
-
-    def _onCardLayout(self) -> None:
         from aqt.clayout import CardLayout
 
         if self.card:
@@ -539,8 +533,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     def _init_links(self) -> None:
         self._links: dict[str, Callable] = dict(
-            fields=NewEditor.onFields,
-            cards=NewEditor.onCardLayout,
             paste=NewEditor.onPaste,
             cut=NewEditor.onCut,
             copy=NewEditor.onCopy,

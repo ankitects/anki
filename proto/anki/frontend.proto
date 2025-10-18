@@ -43,6 +43,8 @@ service FrontendService {
   rpc OpenLink(generic.String) returns (generic.Empty);
   rpc AskUser(AskUserRequest) returns (generic.Bool);
   rpc ShowMessageBox(ShowMessageBoxRequest) returns (generic.Empty);
+  rpc OpenFieldsDialog(generic.Empty) returns (generic.Empty);
+  rpc OpenCardsDialog(generic.Empty) returns (generic.Empty);
 
   // Profile config
   rpc GetProfileConfigJson(generic.String) returns (generic.Json);

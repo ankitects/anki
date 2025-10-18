@@ -17,9 +17,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelButton from "$lib/components/LabelButton.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
     import type { NoteEditorAPI } from "../NoteEditor.svelte";
+    import { openFieldsDialog, openCardsDialog } from "@generated/backend";
 
     export let api = {};
     export let noteEditor: NoteEditorAPI;
+    export let isLegacy = false;
 
     const keyCombination = "Control+L";
 </script>
@@ -37,7 +39,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 tooltip={tr.editingCustomizeFields()}
                 on:click={async () => {
                     await noteEditor.saveNow();
-                    bridgeCommand("fields");
+                    if (isLegacy) {
+                        bridgeCommand("fields");
+                    } else {
+                        await openFieldsDialog({});
+                    }
                 }}
             >
                 {tr.editingFields()}...
@@ -51,7 +57,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 )})"
                 on:click={async () => {
                     await noteEditor.saveNow();
-                    bridgeCommand("cards");
+                    if (isLegacy) {
+                        bridgeCommand("cards");
+                    } else {
+                        await openCardsDialog({});
+                    }
                 }}
             >
                 {tr.editingCards()}...
