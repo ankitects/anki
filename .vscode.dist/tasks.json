@@ -12,8 +12,7 @@
                 "command": "tools/ninja.bat",
                 "args": [
                     "pylib",
-                    "qt",
-                    "extract:win_amd64_audio"
+                    "qt"
                 ]
             }
         }
