@@ -7,9 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
-    import editableBaseCSS from "$lib/editable/editable-base.scss?url";
-    import contentEditableCSS from "$lib/editable/content-editable.scss?url";
-    import mathjaxCSS from "$lib/editable/mathjax.scss?url";
 
     import { mount } from "svelte";
 
@@ -49,36 +46,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: setStyling("fontSize", fontSize + "px");
     $: setStyling("direction", direction);
 
-    let styles: StyleLinkType[];
-    if (isLegacy) {
-        styles = [
-            {
-                id: "rootStyle",
-                type: "link",
-                href: "./_anki/css/editable.css",
-            },
-        ];
-    } else {
-        styles = [
-            {
-                id: "editableBaseStyle",
-                type: "link",
-                href: editableBaseCSS,
-            },
-            {
-                id: "contentEditableStyle",
-                type: "link",
-                href: contentEditableCSS,
-            },
-            {
-                id: "mathjaxStyle",
-                type: "link",
-                href: mathjaxCSS,
-            },
-        ];
-    }
 
-    function attachToShadow(element: Element) {
+    async function attachToShadow(element: Element) {
+        let styles: StyleLinkType[];
+        if (isLegacy) {
+            styles = [
+                {
+                    id: "rootStyle",
+                    type: "link",
+                    href: "./_anki/css/editable.css",
+                },
+            ];
+        } else {
+            styles = [
+                {
+                    id: "editableBaseStyle",
+                    type: "link",
+                    href: (await import("$lib/editable/editable-base.scss?url")).default,
+                },
+                {
+                    id: "contentEditableStyle",
+                    type: "link",
+                    href: (await import("$lib/editable/content-editable.scss?url")).default,
+                },
+                {
+                    id: "mathjaxStyle",
+                    type: "link",
+                    href: (await import("$lib/editable/mathjax.scss?url")).default,
+                },
+            ];
+        }
         const customStyles = mount(CustomStyles, {
             target: element.shadowRoot!,
             props: { styles },
