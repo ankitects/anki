@@ -90,6 +90,7 @@ class NewEditor:
         self.state: EditorState = EditorState.INITIAL
         self._ready = False
         self._ready_callbacks: list[Callable[[], None]] = []
+        self._saved_callbacks: list[Callable[[], None]] = []
         self._init_links()
         self.setupOuter()
         self.add_webview()
@@ -461,13 +462,20 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self, callback: Callable, keepFocus: bool = False
     ) -> None:
         "Save unsaved edits then call callback()."
+
         if not self.nid:
             # calling code may not expect the callback to fire immediately
             self.mw.progress.single_shot(10, callback)
             return
-        self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
+        self._saved_callbacks.append(callback)
+        self.web.eval("saveNow(%d)" % keepFocus)
 
     saveNow = call_after_note_saved
+
+    def on_note_saved(self) -> None:
+        for callback in self._saved_callbacks:
+            callback()
+        self._saved_callbacks = []
 
     def cleanup(self) -> None:
         av_player.stop_and_clear_queue_if_caller(self.editorMode)
@@ -536,6 +544,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             paste=NewEditor.onPaste,
             cut=NewEditor.onCut,
             copy=NewEditor.onCopy,
+            saved=NewEditor.on_note_saved,
         )
 
     def get_note_info(self, on_done: Callable[[NoteInfo], None]) -> None:

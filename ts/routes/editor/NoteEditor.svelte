@@ -443,6 +443,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         closeMathjaxEditor?.();
         $commitTagEdits();
         await saveFieldNow();
+        if(!isLegacy) {
+            bridgeCommand("saved");
+        }
     }
 
     // Used for detecting changed sticky fields on close
