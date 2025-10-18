@@ -46,43 +46,48 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: setStyling("fontSize", fontSize + "px");
     $: setStyling("direction", direction);
 
-
-    async function attachToShadow(element: Element) {
-        let styles: StyleLinkType[];
+    function attachToShadow(element: Element) {
+        let stylesPromise: Promise<StyleLinkType[]>;
         if (isLegacy) {
-            styles = [
+            stylesPromise = Promise.resolve([
                 {
                     id: "rootStyle",
                     type: "link",
                     href: "./_anki/css/editable.css",
                 },
-            ];
+            ]);
         } else {
-            styles = [
+            stylesPromise = Promise.all([
+                import("$lib/editable/editable-base.scss?url"),
+                import("$lib/editable/content-editable.scss?url"),
+                import("$lib/editable/mathjax.scss?url"),
+            ]).then(([editableBase, contentEditable, mathjax]) => [
                 {
                     id: "editableBaseStyle",
                     type: "link",
-                    href: (await import("$lib/editable/editable-base.scss?url")).default,
+                    href: editableBase.default,
                 },
                 {
                     id: "contentEditableStyle",
                     type: "link",
-                    href: (await import("$lib/editable/content-editable.scss?url")).default,
+                    href: contentEditable.default,
                 },
                 {
                     id: "mathjaxStyle",
                     type: "link",
-                    href: (await import("$lib/editable/mathjax.scss?url")).default,
+                    href: mathjax.default,
                 },
-            ];
+            ]);
         }
-        const customStyles = mount(CustomStyles, {
-            target: element.shadowRoot!,
-            props: { styles },
-        });
-        customStyles.addStyleTag("userBase").then((styleTag) => {
-            userBaseResolve(styleTag);
-            callback(customStyles);
+        stylesPromise.then((styles) => {
+            const customStyles = mount(CustomStyles, {
+                target: element.shadowRoot!,
+                props: { styles },
+            });
+            customStyles.addStyleTag("userBase").then((styleTag) => {
+                userBaseResolve(styleTag);
+                callback(customStyles);
+            });
         });
     }
 </script>
