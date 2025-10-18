@@ -84,7 +84,7 @@ fn write_ts_method(
     let comments = format_comments(comments);
     let proto_method_name = method_name;
     let options = if is_launcher {
-        "{ ...options, customProtocol: true }"
+        "{ ...options, customProtocol: true, alertOnError: false }"
     } else {
         "options"
     };
