@@ -30,7 +30,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             // TODO: saw this in the docs, but do we need it?
             // windowsMode: navigator.platform.indexOf("Win") != -1,
         });
-        // term.options.
 
         term.open(termRef);
 
