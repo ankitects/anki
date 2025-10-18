@@ -6,6 +6,7 @@
     "permissions": [
         "core:default",
         "os:default",
-        "log:default"
+        "log:default",
+        "dialog:default"
     ]
 }
