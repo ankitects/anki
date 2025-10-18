@@ -87,7 +87,7 @@
        <widget class="QSpinBox" name="limit">
         <property name="maximumSize">
          <size>
-          <width>60</width>
+          <width>75</width>
           <height>16777215</height>
          </size>
         </property>
