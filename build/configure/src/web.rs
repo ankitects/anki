@@ -235,7 +235,7 @@ fn build_and_check_editor(build: &mut Build) -> Result<()> {
         ":ts:html-filter",
         ":sass",
         ":sveltekit",
-        glob!("ts/lib/editable,routes/{editor,image-occlusion}/**")
+        glob!("ts/lib/editable,ts/routes/{editor,image-occlusion}/**")
     ];
 
     build.add_action(
