@@ -8,15 +8,16 @@ use anki_proto::launcher::ChooseVersionRequest;
 use anki_proto::launcher::ChooseVersionResponse;
 use anki_proto::launcher::GetLangsResponse;
 use anki_proto::launcher::GetMirrorsResponse;
-use anki_proto::launcher::GetVersionsResponse;
 use anki_proto::launcher::I18nResourcesRequest;
 use anki_proto::launcher::Mirror;
 use anki_proto::launcher::Options;
 use anki_proto::launcher::ZoomWebviewRequest;
+use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 use strum::IntoEnumIterator;
 use tauri::AppHandle;
+use tauri::Emitter;
 use tauri::Manager;
 use tauri::Runtime;
 use tauri::WebviewWindow;
@@ -27,6 +28,9 @@ use crate::lang::setup_i18n;
 use crate::lang::LANGS;
 use crate::lang::LANGS_DEFAULT_REGION;
 use crate::lang::LANGS_WITH_REGIONS;
+use crate::state::ExistingVersions;
+use crate::state::State;
+use crate::state::Versions;
 use crate::uv;
 
 pub async fn i18n_resources<R: Runtime>(
@@ -107,45 +111,40 @@ pub async fn get_options<R: Runtime>(
     app: AppHandle<R>,
     _window: WebviewWindow<R>,
 ) -> Result<Options> {
-    let state = app.state::<uv::State>();
-    let allow_betas = state.prerelease_marker.exists();
-    let download_caching = !state.no_cache_marker.exists();
-    let mirror = if state.mirror_path.exists() {
-        Mirror::China
-    } else {
-        Mirror::Disabled
-    }
-    .into();
-
-    Ok(Options {
-        allow_betas,
-        download_caching,
-        mirror,
-    })
+    let state = app.state::<State>();
+    let options = (&state.normal()?.initial_options).into();
+    Ok(options)
 }
 
-pub async fn get_versions<R: Runtime>(
+pub async fn get_available_versions<R: Runtime>(
     app: AppHandle<R>,
     _window: WebviewWindow<R>,
-) -> Result<GetVersionsResponse> {
-    let state = (*app.state::<uv::State>()).clone();
-    // TODO: why...
-    let mut state1 = state.clone();
+) -> Result<Versions> {
+    let state = app.state::<State>();
+    let state = state.normal()?;
+    let mut rx = state.available_versions.clone().unwrap();
+    rx.changed().await.unwrap();
+    let x = rx.borrow();
+    match x.as_ref().unwrap() {
+        Ok(versions) => Ok(versions.clone()),
+        // TODO: errors are passed as strings to the web
+        Err(e) => Err(anyhow!("{e:?}")),
+    }
+}
 
-    let releases_fut = tauri::async_runtime::spawn_blocking(move || uv::get_releases(&state));
-    let check_fut = tauri::async_runtime::spawn_blocking(move || uv::check_versions(&mut state1));
-
-    let (releases, check) = futures::future::join(releases_fut, check_fut).await;
-    // TODO: handle errors properly
-    let uv::Releases { latest, all } = releases.unwrap().unwrap();
-    let (current, previous) = check.unwrap().unwrap();
-
-    Ok(GetVersionsResponse {
-        latest,
-        all,
-        current,
-        previous,
-    })
+pub async fn get_existing_versions<R: Runtime>(
+    app: AppHandle<R>,
+    _window: WebviewWindow<R>,
+) -> Result<ExistingVersions> {
+    let state = app.state::<State>();
+    let state = state.normal()?;
+    let mut rx = state.current_versions.clone().unwrap();
+    rx.changed().await.unwrap();
+    let x = rx.borrow();
+    match x.as_ref().unwrap() {
+        Ok(versions) => Ok(versions.clone()),
+        Err(e) => Err(anyhow!("{e:?}")),
+    }
 }
 
 pub async fn choose_version<R: Runtime>(
@@ -153,46 +152,59 @@ pub async fn choose_version<R: Runtime>(
     _window: WebviewWindow<R>,
     input: ChooseVersionRequest,
 ) -> Result<ChooseVersionResponse> {
-    let state = (*app.state::<uv::State>()).clone();
-    let version = input.version.clone();
+    let state = app.state::<State>();
+    let state = state.normal()?;
+    let paths = state.paths.clone();
 
-    tauri::async_runtime::spawn_blocking(move || -> Result<()> {
+    tauri::async_runtime::spawn_blocking(move || {
         if let Some(options) = input.options {
-            uv::set_allow_betas(&state, options.allow_betas)?;
-            uv::set_cache_enabled(&state, options.download_caching)?;
-            uv::set_mirror(&state, options.mirror != Mirror::Disabled as i32)?;
+            uv::set_allow_betas(&paths, options.allow_betas)?;
+            uv::set_cache_enabled(&paths, options.download_caching)?;
+            uv::set_mirror(&paths, options.mirror != Mirror::Disabled as i32)?;
         }
 
-        if !input.keep_existing || state.pyproject_modified_by_user {
+        let version = input.version;
+        let on_pty_data = move |data| {
+            let _ = app.emit("pty-data", data);
+        };
+
+        if !input.keep_existing || paths.pyproject_modified_by_user {
             // install or resync
-            let res = uv::handle_version_install_or_update(
-                app.clone(),
-                &state,
-                &input.version,
+            uv::handle_version_install_or_update(
+                &paths,
+                &version,
                 input.keep_existing,
-            );
-            println!("handle_version_install_or_update: {res:?}");
-            res?;
+                input.current.as_deref(),
+                on_pty_data,
+            )?;
         }
 
-        uv::post_install(&state)?;
+        let warming_up = paths.post_install()?;
 
-        // TODO: show some sort of notification before closing
-        // if let Some(window) = app.get_webview_window("main") {
-        //     let _ = window.destroy();
-        // }
-        // // app.exit can't be called from the main thread
-        // app.exit(0);
-
-        Ok(())
+        Ok(ChooseVersionResponse {
+            version,
+            warming_up,
+        })
     })
-    .await??;
+    .await?
+}
 
-    Ok(ChooseVersionResponse { version })
+pub async fn launch_anki<R: Runtime>(app: AppHandle<R>, _window: WebviewWindow<R>) -> Result<()> {
+    app.state::<State>().paths()?.launch_anki()
+}
+
+pub async fn exit<R: Runtime>(app: AppHandle<R>, window: WebviewWindow<R>) -> Result<()> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let _ = window.destroy();
+        // can't be called from the main thread
+        app.exit(0);
+    });
+
+    Ok(())
 }
 
 /// NOTE:  [zoomHotkeysEnabled](https://v2.tauri.app/reference/config/#zoomhotkeysenabled) exists
-/// but the polyfill it uses on lin doesn't allow regular scrolling
+/// but the polyfill it uses on linux doesn't allow regular scrolling
 pub async fn zoom_webview<R: Runtime>(
     _app: AppHandle<R>,
     window: WebviewWindow<R>,
