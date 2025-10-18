@@ -18,6 +18,7 @@ pub fn write_rust_interface(pool: &DescriptorPool) -> Result<()> {
     let mut buf = String::new();
     buf.push_str("use prost::Message; use anyhow::Context; use anyhow::anyhow;");
 
+    // TODO: render as trait for better compiler errors
     let (services, _) = get_services(pool);
     if let Some(s) = services
         .into_iter()
@@ -108,7 +109,6 @@ pub(crate) async fn handle_rpc<R: ::tauri::Runtime>(
         r#"
         _ => Err(anyhow!("{method} not implemented"))?,
     }
-    .with_context(|| format!("{method} rpc call failed"))
 }
         "#,
     )
