@@ -6,17 +6,23 @@ syntax = "proto3";
 package anki.launcher;
 
 import "anki/generic.proto";
+import "google/protobuf/empty.proto";
 
 service LauncherService {
   rpc I18nResources(I18nResourcesRequest) returns (generic.Json);
   rpc GetLangs(generic.Empty) returns (GetLangsResponse);
   rpc SetLang(generic.String) returns (generic.Empty);
-  rpc GetVersions(generic.Empty) returns (GetVersionsResponse);
   rpc ChooseVersion(ChooseVersionRequest) returns (ChooseVersionResponse);
   rpc GetOptions(generic.Empty) returns (Options);
   rpc GetMirrors(generic.Empty) returns (GetMirrorsResponse);
   rpc WindowReady(generic.Empty) returns (generic.Empty);
   rpc ZoomWebview(ZoomWebviewRequest) returns (generic.Empty);
+
+  rpc GetAvailableVersions(generic.Empty) returns (Versions);
+  rpc GetExistingVersions(generic.Empty) returns (ExistingVersions);
+
+  rpc LaunchAnki(generic.Empty) returns (generic.Empty);
+  rpc Exit(generic.Empty) returns (generic.Empty);
 }
 
 // TODO: this should not be necessary
@@ -74,14 +80,32 @@ message GetVersionsResponse {
 
 message ChooseVersionRequest {
   string version = 1;
-  bool keep_existing = 2;
-  Options options = 3;
+  optional string current = 2;
+  bool keep_existing = 3;
+  Options options = 4;
 }
 
 message ChooseVersionResponse {
   string version = 1;
+  bool warming_up = 2;
 }
 
 message ZoomWebviewRequest {
   float scale_factor = 1;
+}
+
+message Version {
+  string version = 1;
+  bool is_prerelease = 2;
+}
+
+message Versions {
+  repeated Version all = 1;
+  repeated Version latest = 2;
+}
+
+message ExistingVersions {
+  optional Version current = 1;
+  optional Version previous = 2;
+  bool pyproject_modified_by_user = 3;
 }
