@@ -70,6 +70,7 @@
         "@popperjs/core": "^2.11.8",
         "@tauri-apps/api": "^2",
         "@tauri-apps/plugin-log": "^2.7.0",
+        "@xterm/addon-webgl": "^0.18.0",
         "@xterm/xterm": "^5.5.0",
         "bootstrap": "^5.3.0",
         "bootstrap-icons": "^1.10.5",

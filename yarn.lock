@@ -1803,6 +1803,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@xterm/addon-webgl@npm:^0.18.0":
+  version: 0.18.0
+  resolution: "@xterm/addon-webgl@npm:0.18.0"
+  peerDependencies:
+    "@xterm/xterm": ^5.0.0
+  checksum: 10c0/682a3f5f128ee09a0cf1b41cbb7b2f925a5e43056e12ba0c523b93a1f5f188045caef9e31f32db933b8a7a1b12d8f9babaddfa11e6f11df0c7b265009103476c
+  languageName: node
+  linkType: hard
+
 "@xterm/xterm@npm:^5.5.0":
   version: 5.5.0
   resolution: "@xterm/xterm@npm:5.5.0"
@@ -1941,6 +1950,7 @@ __metadata:
     "@types/node": "npm:^22"
     "@typescript-eslint/eslint-plugin": "npm:^5.60.1"
     "@typescript-eslint/parser": "npm:^5.60.1"
+    "@xterm/addon-webgl": "npm:^0.18.0"
     "@xterm/xterm": "npm:^5.5.0"
     bootstrap: "npm:^5.3.0"
     bootstrap-icons: "npm:^1.10.5"
