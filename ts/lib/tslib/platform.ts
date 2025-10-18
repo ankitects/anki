@@ -10,6 +10,11 @@ export function isApplePlatform(): boolean {
     );
 }
 
+export function isWindows(): boolean {
+    const platform = window.navigator["platform" + ""];
+    return platform.startsWith("Win");
+}
+
 export function isDesktop(): boolean {
     return !(/iphone|ipad|ipod|android/i.test(window.navigator.userAgent));
 }
