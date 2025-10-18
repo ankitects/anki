@@ -152,7 +152,9 @@ fn run() -> Result<()> {
     let sync_time = file_timestamp_secs(&state.sync_complete_marker);
     state.pyproject_modified_by_user = pyproject_time > sync_time;
     let pyproject_has_changed = state.pyproject_modified_by_user;
-    if !launcher_requested && !pyproject_has_changed {
+    let different_launcher = diff_launcher_was_installed(&state)?;
+
+    if !launcher_requested && !pyproject_has_changed && !different_launcher {
         // If no launcher request and venv is already up to date, launch Anki normally
         let args: Vec<String> = std::env::args().skip(1).collect();
         let cmd = build_python_command(&state, &args)?;
@@ -1105,6 +1107,20 @@ fn show_mirror_submenu(state: &State) -> Result<()> {
         }
     }
     Ok(())
+}
+
+fn diff_launcher_was_installed(state: &State) -> Result<bool> {
+    let launcher_version = option_env!("BUILDHASH").unwrap_or("dev").trim();
+    let launcher_version_path = state.uv_install_root.join("launcher-version");
+    if let Ok(content) = read_file(&launcher_version_path) {
+        if let Ok(version_str) = String::from_utf8(content) {
+            if version_str.trim() == launcher_version {
+                return Ok(false);
+            }
+        }
+    }
+    write_file(launcher_version_path, launcher_version)?;
+    Ok(true)
 }
 
 #[cfg(test)]
