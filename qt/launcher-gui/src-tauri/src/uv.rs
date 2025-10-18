@@ -19,19 +19,19 @@ use anki_process::CommandExt as AnkiCommandExt;
 use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
-use tauri::AppHandle;
-use tauri::Emitter;
-use tauri::Runtime;
 
 use crate::platform;
 use crate::platform::ensure_os_supported;
 use crate::platform::get_exe_and_resources_dirs;
 use crate::platform::get_uv_binary_name;
 pub use crate::platform::launch_anki_normally;
+use crate::platform::respawn_launcher;
+use crate::state::ExistingVersions;
+use crate::state::Version;
+use crate::state::Versions;
 
 #[derive(Debug, Clone)]
-pub struct State {
-    pub current_version: Option<String>,
+pub struct Paths {
     pub prerelease_marker: std::path::PathBuf,
     uv_install_root: std::path::PathBuf,
     uv_cache_dir: std::path::PathBuf,
@@ -48,7 +48,6 @@ pub struct State {
     launcher_trigger_file: std::path::PathBuf,
     pub mirror_path: std::path::PathBuf,
     pub pyproject_modified_by_user: bool,
-    previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
     venv_folder: std::path::PathBuf,
     /// system Python + PyQt6 library mode
@@ -61,186 +60,25 @@ pub enum VersionKind {
     Uv(String),
 }
 
-#[derive(Debug)]
-pub struct Releases {
-    pub latest: Vec<String>,
-    pub all: Vec<String>,
-}
-
-pub fn init_state() -> Result<Option<State>> {
-    let uv_install_root = if let Ok(custom_root) = std::env::var("ANKI_LAUNCHER_VENV_ROOT") {
-        std::path::PathBuf::from(custom_root)
-    } else {
-        dirs::data_local_dir()
-            .context("Unable to determine data_dir")?
-            .join("AnkiProgramFiles")
-    };
-
-    let (exe_dir, resources_dir) = get_exe_and_resources_dirs()?;
-
-    let mut state = State {
-        // TODO: return error instead of relying on member field here if os unsupported
-        current_version: None,
-        prerelease_marker: uv_install_root.join("prerelease"),
-        uv_install_root: uv_install_root.clone(),
-        uv_cache_dir: uv_install_root.join("cache"),
-        no_cache_marker: uv_install_root.join("nocache"),
-        anki_base_folder: get_anki_base_path()?,
-        uv_path: exe_dir.join(get_uv_binary_name()),
-        uv_python_install_dir: uv_install_root.join("python"),
-        user_pyproject_path: uv_install_root.join("pyproject.toml"),
-        user_python_version_path: uv_install_root.join(".python-version"),
-        dist_pyproject_path: resources_dir.join("pyproject.toml"),
-        dist_python_version_path: resources_dir.join(".python-version"),
-        uv_lock_path: uv_install_root.join("uv.lock"),
-        sync_complete_marker: uv_install_root.join(".sync_complete"),
-        launcher_trigger_file: uv_install_root.join(".want-launcher"),
-        mirror_path: uv_install_root.join("mirror"),
-        pyproject_modified_by_user: false, // calculated later
-        previous_version: None,
-        system_qt: (cfg!(unix) && !cfg!(target_os = "macos"))
-            && resources_dir.join("system_qt").exists(),
-        resources_dir,
-        venv_folder: uv_install_root.join(".venv"),
-    };
-
-    // Check for uninstall request from Windows uninstaller
-    if std::env::var("ANKI_LAUNCHER_UNINSTALL").is_ok() {
-        // handle_uninstall(&state)?;
-        println!("TODO: UNINSTALL");
-        return Ok(None);
-    }
-
-    // Create install directory
-    create_dir_all(&state.uv_install_root)?;
-
-    let launcher_requested =
-        state.launcher_trigger_file.exists() || !state.user_pyproject_path.exists();
-
-    // Calculate whether user has custom edits that need syncing
-    let pyproject_time = file_timestamp_secs(&state.user_pyproject_path);
-    let sync_time = file_timestamp_secs(&state.sync_complete_marker);
-    state.pyproject_modified_by_user = pyproject_time > sync_time;
-    let pyproject_has_changed = state.pyproject_modified_by_user;
-
-    let debug = cfg!(debug_assertions);
-
-    if !launcher_requested && !pyproject_has_changed && !debug {
-        let args: Vec<String> = std::env::args().skip(1).collect();
-        let cmd = build_python_command(&state, &args)?;
-        launch_anki_normally(cmd)?;
-        return Ok(None);
-    }
-
-    if launcher_requested {
-        // Remove the trigger file to make request ephemeral
-        let _ = remove_file(&state.launcher_trigger_file);
-    }
-
-    // TODO:
-    let _ = ensure_os_supported();
-
-    // TODO: we should call this here instead of via getVersions
-    // check_versions(&mut state);
-
-    Ok(Some(state))
-}
-
-pub fn post_install(state: &State) -> Result<()> {
-    // Write marker file to indicate we've completed the sync process
-    write_sync_marker(state)?;
-
-    #[cfg(target_os = "macos")]
-    {
-        let cmd = build_python_command(&state, &[])?;
-        platform::mac::prepare_for_launch_after_update(cmd, &uv_install_root)?;
-    }
-
-    // respawn the launcher as a disconnected subprocess for normal startup
-    // respawn_launcher()?;
-    let args: Vec<String> = std::env::args().skip(1).collect();
-    let cmd = build_python_command(state, &args)?;
-    launch_anki_normally(cmd)?;
-
-    Ok(())
-}
-
-fn extract_aqt_version(state: &State) -> Option<String> {
-    // Check if .venv exists first
-    if !state.venv_folder.exists() {
-        return None;
-    }
-
-    let output = uv_command(state)
-        .ok()?
-        .env("VIRTUAL_ENV", &state.venv_folder)
-        .args(["pip", "show", "aqt"])
-        .output();
-
-    let output = output.ok()?;
-
-    if !output.status.success() {
-        return None;
-    }
-
-    let stdout = String::from_utf8(output.stdout).ok()?;
-    for line in stdout.lines() {
-        if let Some(version) = line.strip_prefix("Version: ") {
-            return Some(version.trim().to_string());
-        }
-    }
-    None
-}
-
-pub fn check_versions(state: &mut State) -> Result<(Option<String>, Option<String>)> {
-    // If sync_complete_marker is missing, do nothing
-    if !state.sync_complete_marker.exists() {
-        return Ok((None, None));
-    }
-
-    // Determine current version by invoking uv pip show aqt
-    match extract_aqt_version(state) {
-        Some(version) => {
-            state.current_version = Some(normalize_version(&version));
-        }
-        None => {
-            Err(anyhow::anyhow!(
-                "Warning: Could not determine current Anki version"
-            ))?;
-        }
-    }
-
-    // Read previous version from "previous-version" file
-    let previous_version_path = state.uv_install_root.join("previous-version");
-    if let Ok(content) = read_file(&previous_version_path) {
-        if let Ok(version_str) = String::from_utf8(content) {
-            let version = version_str.trim().to_string();
-            if !version.is_empty() {
-                state.previous_version = Some(normalize_version(&version));
-            }
-        }
-    }
-
-    Ok((
-        state.current_version.clone(),
-        state.previous_version.clone(),
-    ))
-}
-
-pub fn handle_version_install_or_update<R: Runtime>(
-    app: AppHandle<R>,
-    state: &State,
+pub fn handle_version_install_or_update<F>(
+    state: &Paths,
     version: &str,
     keep_existing: bool,
-) -> Result<()> {
-    let version_kind =
-        parse_version_kind(version).ok_or_else(|| anyhow!("{version} is not a valid version!"))?;
+    previous_version_to_save: Option<&str>,
+    on_pty_data: F,
+) -> Result<()>
+where
+    F: Fn(String) + Send + 'static,
+{
+    let version_kind = parse_version_kind(version)
+        .ok_or_else(|| anyhow!(r#""{version}" is not a valid version!"#))?;
     if !keep_existing {
         apply_version_kind(&version_kind, state)?;
     }
 
+    // TODO: support this
     // Extract current version before syncing (but don't write to file yet)
-    let previous_version_to_save = state.current_version.clone();
+    // let previous_version_to_save = state.current_version.clone();
 
     // Remove sync marker before attempting sync
     let _ = remove_file(&state.sync_complete_marker);
@@ -326,15 +164,15 @@ pub fn handle_version_install_or_update<R: Runtime>(
         .openpty(portable_pty::PtySize {
             // NOTE: must be the same as xterm.js', otherwise text won't wrap
             // TODO: maybe don't hardcode?
-            rows: 12,
-            cols: 60,
+            rows: 10,
+            cols: 50,
             pixel_width: 0,
             pixel_height: 0,
         })
-        .unwrap();
+        .with_context(|| "failed to open pty")?;
 
-    let mut reader = pair.master.try_clone_reader().unwrap();
-    let mut writer = pair.master.take_writer().unwrap();
+    let mut reader = pair.master.try_clone_reader()?;
+    let mut writer = pair.master.take_writer()?;
 
     tauri::async_runtime::spawn_blocking(move || {
         let mut buf = [0u8; 1024];
@@ -345,13 +183,13 @@ pub fn handle_version_install_or_update<R: Runtime>(
                 Ok(0) => break,
                 Ok(n) => {
                     let output = String::from_utf8_lossy(&buf[..n]).to_string();
-                    // NOTE: windows requests curspr position before actually running child
+                    // NOTE: windows requests cursor position before actually running child
                     if output == "\x1b[6n" {
                         writeln!(&mut writer, "\x1b[0;0R").unwrap();
                     }
                     // cheaper to base64ise a string than jsonify an [u8]
                     let data = data_encoding::BASE64.encode(&buf[..n]);
-                    let _ = app.emit("pty-data", data);
+                    on_pty_data(data);
                 }
                 Err(e) => {
                     eprintln!("Error reading from PTY: {}", e);
@@ -361,6 +199,8 @@ pub fn handle_version_install_or_update<R: Runtime>(
         }
     });
 
+    let cmdline = command.as_unix_command_line()?;
+
     let mut child = pair.slave.spawn_command(command).unwrap();
     drop(pair.slave);
     println!("waiting on uv...");
@@ -368,8 +208,8 @@ pub fn handle_version_install_or_update<R: Runtime>(
     println!("uv exited with status: {:?}", status);
 
     match status {
-        Ok(_) => {
-            // Sync succeeded
+        // Sync succeeded
+        Ok(exit_status) if exit_status.success() => {
             if !keep_existing && matches!(version_kind, VersionKind::PyOxidizer(_)) {
                 inject_helper_addon()?;
             }
@@ -377,7 +217,7 @@ pub fn handle_version_install_or_update<R: Runtime>(
             // Now that sync succeeded, save the previous version
             if let Some(current_version) = previous_version_to_save {
                 let previous_version_path = state.uv_install_root.join("previous-version");
-                if let Err(e) = write_file(&previous_version_path, &current_version) {
+                if let Err(e) = write_file(&previous_version_path, current_version) {
                     // TODO:
                     println!("Warning: Could not save previous version: {e}");
                 }
@@ -385,19 +225,21 @@ pub fn handle_version_install_or_update<R: Runtime>(
 
             Ok(())
         }
-        Err(e) => {
-            // TODO:
-            // If sync fails due to things like a missing wheel on pypi,
-            // we need to remove the lockfile or uv will cache the bad result.
+        // If sync fails due to things like a missing wheel on pypi,
+        // we need to remove the lockfile or uv will cache the bad result.
+        Ok(exit_status) => {
             let _ = remove_file(&state.uv_lock_path);
-            println!("Install failed: {e:#}");
-            println!();
+            let code = exit_status.exit_code();
+            Err(anyhow!("Failed to run ({code}): {cmdline}"))
+        }
+        Err(e) => {
+            let _ = remove_file(&state.uv_lock_path);
             Err(e.into())
         }
     }
 }
 
-pub fn set_allow_betas(state: &State, allow_betas: bool) -> Result<()> {
+pub fn set_allow_betas(state: &Paths, allow_betas: bool) -> Result<()> {
     if allow_betas {
         write_file(&state.prerelease_marker, "")?;
     } else {
@@ -406,7 +248,7 @@ pub fn set_allow_betas(state: &State, allow_betas: bool) -> Result<()> {
     Ok(())
 }
 
-pub fn set_cache_enabled(state: &State, cache_enabled: bool) -> Result<()> {
+pub fn set_cache_enabled(state: &Paths, cache_enabled: bool) -> Result<()> {
     if cache_enabled {
         let _ = remove_file(&state.no_cache_marker);
     } else {
@@ -419,15 +261,6 @@ pub fn set_cache_enabled(state: &State, cache_enabled: bool) -> Result<()> {
     Ok(())
 }
 
-fn write_sync_marker(state: &State) -> Result<()> {
-    let timestamp = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .context("Failed to get system time")?
-        .as_secs();
-    write_file(&state.sync_complete_marker, timestamp.to_string())?;
-    Ok(())
-}
-
 /// Get mtime of provided file, or 0 if unavailable
 fn file_timestamp_secs(path: &std::path::Path) -> i64 {
     modified_time(path)
@@ -435,13 +268,13 @@ fn file_timestamp_secs(path: &std::path::Path) -> i64 {
         .unwrap_or_default()
 }
 
-fn with_only_latest_patch(versions: &[String]) -> Vec<String> {
+fn with_only_latest_patch(versions: &[Version]) -> Vec<Version> {
     // Only show the latest patch release for a given (major, minor)
     let mut seen_major_minor = std::collections::HashSet::new();
     versions
         .iter()
         .filter(|v| {
-            let (major, minor, _, _) = parse_version_for_filtering(v);
+            let (major, minor, _, _) = parse_version_for_filtering(&v.version);
             if major == 2 {
                 return true;
             }
@@ -481,12 +314,15 @@ fn parse_version_for_filtering(version_str: &str) -> (u32, u32, u32, bool) {
     (major, minor, patch, is_prerelease)
 }
 
-fn normalize_version(version: &str) -> String {
-    let (major, minor, patch, _is_prerelease) = parse_version_for_filtering(version);
+fn normalize_version(version: &str) -> Version {
+    let (major, minor, patch, is_prerelease) = parse_version_for_filtering(version);
 
     if major <= 2 {
         // Don't transform versions <= 2.x
-        return version.to_string();
+        return Version {
+            version: version.to_string(),
+            is_prerelease,
+        };
     }
 
     // For versions > 2, pad the minor version with leading zero if < 10
@@ -516,18 +352,20 @@ fn normalize_version(version: &str) -> String {
     }
 
     // Reconstruct the version
-    if version.matches('.').count() >= 2 {
+    let version = if version.matches('.').count() >= 2 {
         format!("{major}.{normalized_minor}.{patch}{prerelease_suffix}")
     } else {
         format!("{major}.{normalized_minor}{prerelease_suffix}")
+    };
+
+    Version {
+        version,
+        is_prerelease,
     }
 }
 
-fn filter_and_normalize_versions(
-    all_versions: Vec<String>,
-    include_prereleases: bool,
-) -> Vec<String> {
-    let mut valid_versions: Vec<String> = all_versions
+fn filter_and_normalize_versions1(all_versions: Vec<String>) -> Vec<Version> {
+    let mut valid_versions: Vec<Version> = all_versions
         .into_iter()
         .map(|v| normalize_version(&v))
         .collect();
@@ -535,57 +373,10 @@ fn filter_and_normalize_versions(
     // Reverse to get chronological order (newest first)
     valid_versions.reverse();
 
-    if !include_prereleases {
-        valid_versions.retain(|v| {
-            let (_, _, _, is_prerelease) = parse_version_for_filtering(v);
-            !is_prerelease
-        });
-    }
-
     valid_versions
 }
 
-fn fetch_versions(state: &State) -> Result<Vec<String>> {
-    let versions_script = state.resources_dir.join("versions.py");
-
-    let mut cmd = uv_command(state)?;
-    cmd.args(["run", "--no-project", "--no-config", "--managed-python"])
-        .args(["--with", "pip-system-certs,requests[socks]"]);
-
-    let python_version = read_file(&state.dist_python_version_path)?;
-    let python_version_str =
-        String::from_utf8(python_version).context("Invalid UTF-8 in .python-version")?;
-    let version_trimmed = python_version_str.trim();
-    if !version_trimmed.is_empty() {
-        cmd.args(["--python", version_trimmed]);
-    }
-
-    cmd.arg(&versions_script);
-
-    let output = match cmd.utf8_output() {
-        Ok(output) => output,
-        Err(e) => {
-            return Err(e.into());
-        }
-    };
-    let versions = serde_json::from_str(&output.stdout).context("Failed to parse versions JSON")?;
-    Ok(versions)
-}
-
-pub fn get_releases(state: &State) -> Result<Releases> {
-    let include_prereleases = state.prerelease_marker.exists();
-    let all_versions = fetch_versions(state)?;
-    let all_versions = filter_and_normalize_versions(all_versions, include_prereleases);
-
-    let latest_patches = with_only_latest_patch(&all_versions);
-    let latest_releases: Vec<String> = latest_patches.into_iter().take(5).collect();
-    Ok(Releases {
-        latest: latest_releases,
-        all: all_versions,
-    })
-}
-
-pub fn apply_version_kind(version_kind: &VersionKind, state: &State) -> Result<()> {
+pub fn apply_version_kind(version_kind: &VersionKind, state: &Paths) -> Result<()> {
     let content = read_file(&state.dist_pyproject_path)?;
     let content_str = String::from_utf8(content).context("Invalid UTF-8 in pyproject.toml")?;
     let updated_content = match version_kind {
@@ -745,7 +536,7 @@ fn get_anki_addons21_path() -> Result<std::path::PathBuf> {
 
 // TODO: revert
 #[allow(unused)]
-fn handle_uninstall(state: &State) -> Result<bool> {
+fn handle_uninstall(state: &Paths) -> Result<bool> {
     // println!("{}", state.tr.launcher_uninstall_confirm());
     print!("> ");
     let _ = stdout().flush();
@@ -795,7 +586,7 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     Ok(true)
 }
 
-fn uv_command(state: &State) -> Result<Command> {
+fn uv_command(state: &Paths) -> Result<Command> {
     let mut command = Command::new(&state.uv_path);
     command.current_dir(&state.uv_install_root);
 
@@ -825,7 +616,7 @@ fn uv_command(state: &State) -> Result<Command> {
     Ok(command)
 }
 
-fn uv_pty_command(state: &State) -> Result<portable_pty::CommandBuilder> {
+fn uv_pty_command(state: &Paths) -> Result<portable_pty::CommandBuilder> {
     let mut command = portable_pty::CommandBuilder::new(&state.uv_path);
     command.cwd(&state.uv_install_root);
 
@@ -847,34 +638,7 @@ fn uv_pty_command(state: &State) -> Result<portable_pty::CommandBuilder> {
     Ok(command)
 }
 
-pub fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
-    let python_exe = if cfg!(target_os = "windows") {
-        let show_console = std::env::var("ANKI_CONSOLE").is_ok();
-        if show_console {
-            state.venv_folder.join("Scripts/python.exe")
-        } else {
-            state.venv_folder.join("Scripts/pythonw.exe")
-        }
-    } else {
-        state.venv_folder.join("bin/python")
-    };
-
-    let mut cmd = Command::new(&python_exe);
-    cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
-    cmd.args(args);
-    // tell the Python code it was invoked by the launcher, and updating is
-    // available
-    cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
-
-    // Set UV and Python paths for the Python code
-    cmd.env("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
-    cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
-    cmd.env_remove("SSLKEYLOGFILE");
-
-    Ok(cmd)
-}
-
-fn get_mirror_urls(state: &State) -> Result<Option<(String, String)>> {
+fn get_mirror_urls(state: &Paths) -> Result<Option<(String, String)>> {
     if !state.mirror_path.exists() {
         return Ok(None);
     }
@@ -893,7 +657,7 @@ fn get_mirror_urls(state: &State) -> Result<Option<(String, String)>> {
     }
 }
 
-pub fn set_mirror(state: &State, enabled: bool) -> Result<()> {
+pub fn set_mirror(state: &Paths, enabled: bool) -> Result<()> {
     if enabled {
         let china_mirrors = "https://registry.npmmirror.com/-/binary/python-build-standalone/\nhttps://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/";
         write_file(&state.mirror_path, china_mirrors)?;
@@ -903,12 +667,299 @@ pub fn set_mirror(state: &State, enabled: bool) -> Result<()> {
     Ok(())
 }
 
+impl crate::state::State {
+    pub fn init() -> Result<Self> {
+        let uv_install_root = if let Ok(custom_root) = std::env::var("ANKI_LAUNCHER_VENV_ROOT") {
+            std::path::PathBuf::from(custom_root)
+        } else {
+            dirs::data_local_dir()
+                .context("Unable to determine data_dir")?
+                .join("AnkiProgramFiles")
+        };
+
+        let (exe_dir, resources_dir) = get_exe_and_resources_dirs()?;
+
+        let mut paths = Paths {
+            prerelease_marker: uv_install_root.join("prerelease"),
+            uv_install_root: uv_install_root.clone(),
+            uv_cache_dir: uv_install_root.join("cache"),
+            no_cache_marker: uv_install_root.join("nocache"),
+            anki_base_folder: get_anki_base_path()?,
+            uv_path: exe_dir.join(get_uv_binary_name()),
+            uv_python_install_dir: uv_install_root.join("python"),
+            user_pyproject_path: uv_install_root.join("pyproject.toml"),
+            user_python_version_path: uv_install_root.join(".python-version"),
+            dist_pyproject_path: resources_dir.join("pyproject.toml"),
+            dist_python_version_path: resources_dir.join(".python-version"),
+            uv_lock_path: uv_install_root.join("uv.lock"),
+            sync_complete_marker: uv_install_root.join(".sync_complete"),
+            launcher_trigger_file: uv_install_root.join(".want-launcher"),
+            mirror_path: uv_install_root.join("mirror"),
+            pyproject_modified_by_user: false, // calculated later
+            system_qt: (cfg!(unix) && !cfg!(target_os = "macos"))
+                && resources_dir.join("system_qt").exists(),
+            resources_dir,
+            venv_folder: uv_install_root.join(".venv"),
+        };
+
+        // Check for uninstall request from Windows uninstaller
+        if std::env::var("ANKI_LAUNCHER_UNINSTALL").is_ok() {
+            return Ok(Self::Uninstall(paths.into()));
+        }
+
+        // Create install directory
+        create_dir_all(&paths.uv_install_root)?;
+
+        let launcher_requested =
+            paths.launcher_trigger_file.exists() || !paths.user_pyproject_path.exists();
+
+        // TODO: remove
+        let skip = std::env::var("ANKI_LAUNCHER_SKIP").is_ok();
+
+        // Calculate whether user has custom edits that need syncing
+        let pyproject_time = file_timestamp_secs(&paths.user_pyproject_path);
+        let sync_time = file_timestamp_secs(&paths.sync_complete_marker);
+        paths.pyproject_modified_by_user = pyproject_time > sync_time;
+        let pyproject_has_changed = paths.pyproject_modified_by_user;
+
+        #[allow(clippy::nonminimal_bool)]
+        let debug = true && cfg!(debug_assertions);
+
+        if !launcher_requested && !pyproject_has_changed && (!debug || skip) {
+            return Ok(Self::LaunchAnki(paths.into()));
+        }
+
+        if launcher_requested {
+            // Remove the trigger file to make request ephemeral
+            let _ = remove_file(&paths.launcher_trigger_file);
+        }
+
+        ensure_os_supported()?;
+
+        Ok(Self::Normal(paths.into()))
+    }
+}
+
+impl Paths {
+    fn get_mirror_urls(&self) -> Result<Option<(String, String)>> {
+        if !self.mirror_path.exists() {
+            return Ok(None);
+        }
+
+        let content = read_file(&self.mirror_path)?;
+        let content_str = String::from_utf8(content).context("Invalid UTF-8 in mirror file")?;
+
+        let lines: Vec<&str> = content_str.lines().collect();
+        if lines.len() >= 2 {
+            Ok(Some((
+                lines[0].trim().to_string(),
+                lines[1].trim().to_string(),
+            )))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn uv_command(&self) -> Result<Command> {
+        let mut command = Command::new(&self.uv_path);
+        command.current_dir(&self.uv_install_root);
+
+        // remove UV_* environment variables to avoid interference
+        for (key, _) in std::env::vars() {
+            if key.starts_with("UV_") {
+                command.env_remove(key);
+            }
+        }
+        command
+            .env_remove("VIRTUAL_ENV")
+            .env_remove("SSLKEYLOGFILE");
+
+        // Add mirror environment variable if enabled
+        if let Some((python_mirror, pypi_mirror)) = self.get_mirror_urls()? {
+            command
+                .env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
+                .env("UV_DEFAULT_INDEX", &pypi_mirror);
+        }
+
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+
+            command.creation_flags(windows::Win32::System::Threading::CREATE_NO_WINDOW.0);
+        }
+        Ok(command)
+    }
+
+    fn fetch_versions(&self) -> Result<Vec<String>> {
+        let versions_script = self.resources_dir.join("versions.py");
+
+        let mut cmd = self.uv_command()?;
+        cmd.args(["run", "--no-project", "--no-config", "--managed-python"])
+            .args(["--with", "pip-system-certs,requests[socks]"]);
+
+        let python_version = read_file(&self.dist_python_version_path)?;
+        let python_version_str =
+            String::from_utf8(python_version).context("Invalid UTF-8 in .python-version")?;
+        let version_trimmed = python_version_str.trim();
+        if !version_trimmed.is_empty() {
+            cmd.args(["--python", version_trimmed]);
+        }
+
+        cmd.arg(&versions_script);
+
+        let output = match cmd.utf8_output() {
+            Ok(output) => output,
+            Err(e) => {
+                return Err(e.into());
+            }
+        };
+        let versions =
+            serde_json::from_str(&output.stdout).context("Failed to parse versions JSON")?;
+        Ok(versions)
+    }
+
+    pub fn get_releases(&self) -> Result<Versions> {
+        let all_versions = self.fetch_versions()?;
+        let all_versions = filter_and_normalize_versions1(all_versions);
+
+        let latest_patches = with_only_latest_patch(&all_versions);
+        let latest_releases: Vec<Version> = latest_patches.into_iter().take(5).collect();
+
+        Ok(Versions {
+            latest: latest_releases,
+            all: all_versions,
+        })
+    }
+
+    fn extract_aqt_version(&self) -> Option<String> {
+        // Check if .venv exists first
+        if !self.venv_folder.exists() {
+            return None;
+        }
+
+        let output = self
+            .uv_command()
+            .ok()?
+            .env("VIRTUAL_ENV", &self.venv_folder)
+            .args(["pip", "show", "aqt"])
+            .output();
+
+        let output = output.ok()?;
+
+        if !output.status.success() {
+            return None;
+        }
+
+        let stdout = String::from_utf8(output.stdout).ok()?;
+        for line in stdout.lines() {
+            if let Some(version) = line.strip_prefix("Version: ") {
+                return Some(version.trim().to_string());
+            }
+        }
+        None
+    }
+
+    pub fn check_versions(&self) -> Result<ExistingVersions> {
+        let mut res = ExistingVersions {
+            pyproject_modified_by_user: self.pyproject_modified_by_user,
+            ..Default::default()
+        };
+
+        // If sync_complete_marker is missing, do nothing
+        if !self.sync_complete_marker.exists() {
+            return Ok(res);
+        }
+
+        // Determine current version by invoking uv pip show aqt
+        match self.extract_aqt_version() {
+            Some(version) => {
+                res.current = Some(normalize_version(&version));
+            }
+            None => {
+                Err(anyhow::anyhow!(
+                    "Warning: Could not determine current Anki version"
+                ))?;
+            }
+        }
+
+        // Read previous version from "previous-version" file
+        let previous_version_path = self.uv_install_root.join("previous-version");
+        if let Ok(content) = read_file(&previous_version_path) {
+            if let Ok(version_str) = String::from_utf8(content) {
+                let version = version_str.trim().to_string();
+                if !version.is_empty() {
+                    res.previous = Some(normalize_version(&version));
+                }
+            }
+        }
+
+        Ok(res)
+    }
+
+    fn write_sync_marker(&self) -> Result<()> {
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .context("Failed to get system time")?
+            .as_secs();
+        write_file(&self.sync_complete_marker, timestamp.to_string())?;
+        Ok(())
+    }
+
+    pub fn post_install(&self) -> Result<bool> {
+        // Write marker file to indicate we've completed the sync process
+        self.write_sync_marker()?;
+
+        // whether or not anki needs to warm up
+        Ok(cfg!(target_os = "macos"))
+    }
+
+    pub fn launch_anki(&self) -> Result<()> {
+        #[cfg(target_os = "macos")]
+        {
+            let cmd = self.build_python_command(&[])?;
+            platform::mac::prepare_for_launch_after_update(cmd, &self.uv_install_root)?;
+        }
+
+        // respawn the launcher as a disconnected subprocess for normal startup
+        respawn_launcher()
+    }
+
+    pub fn build_python_command(&self, args: &[String]) -> Result<Command> {
+        let python_exe = if cfg!(target_os = "windows") {
+            let show_console = std::env::var("ANKI_CONSOLE").is_ok();
+            if show_console {
+                self.venv_folder.join("Scripts/python.exe")
+            } else {
+                self.venv_folder.join("Scripts/pythonw.exe")
+            }
+        } else {
+            self.venv_folder.join("bin/python")
+        };
+
+        let mut cmd = Command::new(&python_exe);
+        cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
+        cmd.args(args);
+        // tell the Python code it was invoked by the launcher, and updating is
+        // available
+        cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
+
+        // Set UV and Python paths for the Python code
+        cmd.env("ANKI_LAUNCHER_UV", self.uv_path.utf8()?.as_str());
+        cmd.env("UV_PROJECT", self.uv_install_root.utf8()?.as_str());
+        cmd.env_remove("SSLKEYLOGFILE");
+
+        Ok(cmd)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_normalize_version() {
+        let normalize_version = |v| normalize_version(v).version;
+
         // Test versions <= 2.x (should not be transformed)
         assert_eq!(normalize_version("2.1.50"), "2.1.50");
 

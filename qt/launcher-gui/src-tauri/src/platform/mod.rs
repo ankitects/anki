@@ -4,7 +4,7 @@
 #[cfg(all(unix, not(target_os = "macos")))]
 pub mod unix;
 
-#[cfg(target_os = "macos")]
+// #[cfg(target_os = "macos")]
 pub mod mac;
 
 #[cfg(target_os = "windows")]
@@ -49,6 +49,58 @@ pub fn get_uv_binary_name() -> &'static str {
     }
 }
 
+pub fn respawn_launcher() -> Result<()> {
+    use std::process::Stdio;
+
+    let mut launcher_cmd = if cfg!(target_os = "macos") {
+        // On macOS, we need to launch the .app bundle, not the executable directly
+        let current_exe =
+            std::env::current_exe().context("Failed to get current executable path")?;
+
+        // Navigate from Contents/MacOS/launcher to the .app bundle
+        let app_bundle = current_exe
+            .parent() // MacOS
+            .and_then(|p| p.parent()) // Contents
+            .and_then(|p| p.parent()) // .app
+            .context("Failed to find .app bundle")?;
+
+        let mut cmd = std::process::Command::new("open");
+        cmd.arg(app_bundle);
+        cmd
+    } else {
+        let current_exe =
+            std::env::current_exe().context("Failed to get current executable path")?;
+        std::process::Command::new(current_exe)
+    };
+
+    launcher_cmd
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+
+    // TODO: remove
+    launcher_cmd.env("ANKI_LAUNCHER_SKIP", "1");
+
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NEW_PROCESS_GROUP: u32 = 0x00000200;
+        const DETACHED_PROCESS: u32 = 0x00000008;
+        launcher_cmd.creation_flags(CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS);
+    }
+
+    #[cfg(all(unix, not(target_os = "macos")))]
+    {
+        use std::os::unix::process::CommandExt;
+        launcher_cmd.process_group(0);
+    }
+
+    let child = launcher_cmd.ensure_spawn()?;
+    std::mem::forget(child);
+
+    Ok(())
+}
+
 pub fn launch_anki_normally(mut cmd: std::process::Command) -> Result<()> {
     #[cfg(windows)]
     {
@@ -56,7 +108,7 @@ pub fn launch_anki_normally(mut cmd: std::process::Command) -> Result<()> {
         cmd.ensure_spawn()?;
     }
     #[cfg(unix)]
-    cmd.ensure_spawn()?;
+    cmd.ensure_exec()?;
     Ok(())
 }
 
