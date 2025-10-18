@@ -24,6 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toolbar: EditorToolbarAPI;
         state: Writable<EditorState>;
         lastIOImagePath: Writable<string | null>;
+        saveNow: () => Promise<void>;
     }
 
     interface LoadNoteArgs {
@@ -1343,6 +1344,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fields,
         state: editorState,
         lastIOImagePath,
+        saveNow,
     };
 
     setContextProperty(api);
@@ -1394,7 +1396,7 @@ components and functionality for general note editing.
         />
     {/if}
 
-    <EditorToolbar {size} {wrap} {isLegacy} api={toolbar}>
+    <EditorToolbar noteEditor={api} {size} {wrap} {isLegacy} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
             {#if mode === "browser"}
                 <ButtonGroupItem>

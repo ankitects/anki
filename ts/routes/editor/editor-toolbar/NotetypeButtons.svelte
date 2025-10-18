@@ -16,8 +16,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
     import LabelButton from "$lib/components/LabelButton.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
+    import type { NoteEditorAPI } from "../NoteEditor.svelte";
 
     export let api = {};
+    export let noteEditor: NoteEditorAPI;
 
     const keyCombination = "Control+L";
 </script>
@@ -33,7 +35,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonGroupItem>
             <LabelButton
                 tooltip={tr.editingCustomizeFields()}
-                on:click={() => bridgeCommand("fields")}
+                on:click={async () => {
+                    await noteEditor.saveNow();
+                    bridgeCommand("fields");
+                }}
             >
                 {tr.editingFields()}...
             </LabelButton>
@@ -44,11 +49,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 tooltip="{tr.editingCustomizeCardTemplates()} ({getPlatformString(
                     keyCombination,
                 )})"
-                on:click={() => bridgeCommand("cards")}
+                on:click={async () => {
+                    await noteEditor.saveNow();
+                    bridgeCommand("cards");
+                }}
             >
                 {tr.editingCards()}...
             </LabelButton>
-            <Shortcut {keyCombination} on:action={() => bridgeCommand("cards")} />
+            <Shortcut
+                {keyCombination}
+                on:action={async () => {
+                    await noteEditor.saveNow();
+                    bridgeCommand("cards");
+                }}
+            />
         </ButtonGroupItem>
 
         <slot />
