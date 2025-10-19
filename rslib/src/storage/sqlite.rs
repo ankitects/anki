@@ -677,7 +677,10 @@ mod test {
     use crate::storage::card::ReviewOrderSubclause;
 
     #[test]
-    fn missing_memory_state_falls_back_to_sm2() -> Result<()> {
+    // Ascending R uses relative R, which can be approximated using ivl
+    // and elapsed days.
+    // Descending R uses pure R, which can't be approximated.
+    fn missing_memory_state_falls_back_to_sm2_for_asc_r() -> Result<()> {
         let (mut col, _cids) = v3_test_collection(1)?;
         col.set_config_bool(BoolKey::Fsrs, true, true)?;
         col.answer_easy();
