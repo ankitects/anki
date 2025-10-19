@@ -325,7 +325,6 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     }
 
     command
-        .env("UV_CACHE_DIR", &state.uv_cache_dir)
         .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
         .env(
             "UV_HTTP_TIMEOUT",
@@ -342,10 +341,6 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         if !state.system_qt {
             command.args(["--python", version]);
         }
-    }
-
-    if state.no_cache_marker.exists() {
-        command.env("UV_NO_CACHE", "1");
     }
 
     match command.ensure_success() {
@@ -1011,6 +1006,12 @@ fn uv_command(state: &State) -> Result<Command> {
         command
             .env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
             .env("UV_DEFAULT_INDEX", &pypi_mirror);
+    }
+
+    if state.no_cache_marker.exists() {
+        command.env("UV_NO_CACHE", "1");
+    } else {
+        command.env("UV_CACHE_DIR", &state.uv_cache_dir);
     }
 
     Ok(command)
