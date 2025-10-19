@@ -680,7 +680,7 @@ AsyncRequestReturnType = TypeVar("AsyncRequestReturnType")
 class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
     def __init__(self, callback: Callable[[AsyncRequestHandler], None]) -> None:
         self.callback = callback
-        self.loop = asyncio.get_event_loop()
+        self.loop = asyncio.get_running_loop()
         self.future = self.loop.create_future()
 
     def run(self) -> None:
@@ -1075,18 +1075,7 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
                 import inspect
 
                 if inspect.iscoroutinefunction(handler):
-                    try:
-                        loop = asyncio.get_event_loop()
-                        if loop.is_running():
-                            import concurrent.futures
-
-                            with concurrent.futures.ThreadPoolExecutor() as executor:
-                                future = executor.submit(asyncio.run, handler())
-                                data = future.result()
-                        else:
-                            data = loop.run_until_complete(handler())
-                    except RuntimeError:
-                        data = asyncio.run(handler())
+                    data = asyncio.run(handler())
                 else:
                     result = handler()
                     data = result
