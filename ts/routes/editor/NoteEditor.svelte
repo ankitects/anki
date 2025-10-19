@@ -1200,6 +1200,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if(args.initial) {
             initialLoadArgs = args;
         }
+        if(typeof args.focusTo === "undefined") {
+            args.focusTo = focusedFieldIndex;
+        }
         loadDebouncer.schedule(async () => {
             await loadNoteInner(initialLoadArgs ? {
                     ...initialLoadArgs,
