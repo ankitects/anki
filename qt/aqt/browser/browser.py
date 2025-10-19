@@ -30,6 +30,8 @@ from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
+from aqt.addcards import NewAddCards
+from aqt.addcards_legacy import AddCards
 from aqt.errors import show_exception
 from aqt.exporting import ExportDialog as LegacyExportDialog
 from aqt.import_export.exporting import ExportDialog
@@ -262,10 +264,14 @@ class Browser(QMainWindow):
         return None
 
     def add_card(self, deck_id: DeckId):
-        args: list[Any] = [deck_id]
-        if note_type_id := self.get_active_note_type_id():
-            args.append(note_type_id)
-        self.mw._open_new_or_legacy_dialog("AddCards", *args)
+        add_cards = self.mw._open_new_or_legacy_dialog("AddCards")
+        if isinstance(add_cards, AddCards):
+            add_cards.set_deck(deck_id)
+            if note_type_id := self.get_active_note_type_id():
+                add_cards.set_note_type(note_type_id)
+        else:
+            assert isinstance(add_cards, NewAddCards)
+            add_cards.load_new_note(deck_id, self.get_active_note_type_id())
 
     # If in the Browser we open Preview and press Ctrl+W there,
     # both Preview and Browser windows get closed by Qt out of the box.

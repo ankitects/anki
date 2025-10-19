@@ -1287,7 +1287,11 @@ title="{}" {}>{}</button>""".format(
         return aqt.dialogs.open(name, self, *args, **kwargs)
 
     def onAddCard(self) -> None:
-        self._open_new_or_legacy_dialog("AddCards")
+        from aqt.addcards import NewAddCards
+
+        add_cards = self._open_new_or_legacy_dialog("AddCards")
+        if isinstance(add_cards, NewAddCards):
+            add_cards.load_new_note()
 
     def onBrowse(self) -> None:
         aqt.dialogs.open("Browser", self, card=self.reviewer.card)
