@@ -3,7 +3,7 @@
 
 export class ChangeTimer {
     private value: number | null = null;
-    private action: (() => void) | null = null;
+    private action: (() => Promise<void>) | null = null;
 
     constructor() {
         this.fireImmediately = this.fireImmediately.bind(this);
