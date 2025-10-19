@@ -102,6 +102,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { CooldownTimer } from "$lib/editable/cooldown-timer";
 
     const loadDebouncer = new CooldownTimer(200);
+    let initialLoadArgs: Partial<LoadNoteArgs> | null = null;
     let contextMenu: ContextMenu;
     const [onContextMenu, contextMenuItems] = setupContextMenu();
     let contextMenuInput: EditingInputAPI | null = null;
@@ -1175,34 +1176,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         triggerChanges();
     }
 
-    async function loadNote({
-        nid = note?.id,
-        notetypeId = notetypeMeta ? notetypeMeta.id : null,
-        deckId = null,
-        focusTo = focusedFieldIndex,
-        originalNoteId = null,
-        reviewerCardId = reviewerCard ? reviewerCard.id : null,
-        initial = false,
-        copyFromNote = null,
-        stickyFieldsFrom = null,
-    }: Partial<LoadNoteArgs> = {}) {
+    async function loadNote(args: Partial<LoadNoteArgs>) {
+        if(args.initial) {
+            initialLoadArgs = args;
+        }
         loadDebouncer.schedule(async () => {
-            await loadNoteInner({
-                nid,
-                notetypeId,
-                deckId,
-                focusTo,
-                originalNoteId,
-                reviewerCardId,
-                initial,
-                copyFromNote,
-                stickyFieldsFrom,
-            });
+            await loadNoteInner(initialLoadArgs ? {
+                    ...initialLoadArgs,
+                    ...args,
+                } as LoadNoteArgs : args as LoadNoteArgs);
         });
     }
 
     async function reloadNote() {
-        await loadNote();
+        await loadNote(initialLoadArgs!);
     }
 
     async function reloadNoteIfEmpty(deckId: bigint | null, notetypeId: bigint | null) {
