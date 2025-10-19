@@ -55,6 +55,7 @@ class NewAddCards(QMainWindow):
         """
         self.editor.load_note(
             mid=note.mid,
+            deck_id=deck_id,
             original_note_id=note.id,
             focus_to=0,
         )
