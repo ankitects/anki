@@ -992,11 +992,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stickyFieldsFrom,
     }: LoadNoteArgs) {
         // Convert values coming from Python
-        if(nid) nid = BigInt(nid);
-        if(notetypeId) notetypeId = BigInt(notetypeId);
-        if(deckId) deckId = BigInt(deckId);
-        if(originalNoteId) originalNoteId = BigInt(originalNoteId);
-        if(reviewerCardId) reviewerCardId = BigInt(reviewerCardId);
+        if (nid) {
+            nid = BigInt(nid);
+        }
+        if (notetypeId) {
+            notetypeId = BigInt(notetypeId);
+        }
+        if (deckId) {
+            deckId = BigInt(deckId);
+        }
+        if (originalNoteId) {
+            originalNoteId = BigInt(originalNoteId);
+        }
+        if (reviewerCardId) {
+            reviewerCardId = BigInt(reviewerCardId);
+        }
 
         let homeDeckId = 0n;
         if (reviewerCardId) {
@@ -1012,9 +1022,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     nid: originalNoteId,
                 });
                 selectedNotetypeId = originalNote.notetypeId;
-                selectedDeckId = (await defaultDeckForNotetype({ ntid: originalNote.notetypeId })).did;
-            }
-            else if (initial) {
+                selectedDeckId = (
+                    await defaultDeckForNotetype({ ntid: originalNote.notetypeId })
+                ).did;
+            } else if (initial) {
                 const chooserDefaults = await defaultsForAdding({
                     homeDeckOfCurrentReviewCard: homeDeckId,
                 });
@@ -1028,7 +1039,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (notetypeId) {
             selectedNotetypeId = BigInt(notetypeId);
         }
-        if(mode === "add") {
+        if (mode === "add") {
             deckChooser.select(selectedDeckId!);
             notetypeChooser.select(selectedNotetypeId!);
         }
@@ -1197,17 +1208,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function loadNote(args: Partial<LoadNoteArgs>) {
-        if(args.initial) {
+        if (args.initial) {
             initialLoadArgs = args;
         }
-        if(typeof args.focusTo === "undefined") {
+        if (typeof args.focusTo === "undefined") {
             args.focusTo = focusedFieldIndex;
         }
         loadDebouncer.schedule(async () => {
-            await loadNoteInner(initialLoadArgs ? {
-                    ...initialLoadArgs,
-                    ...args,
-                } as LoadNoteArgs : args as LoadNoteArgs);
+            await loadNoteInner(
+                initialLoadArgs
+                    ? ({
+                          ...initialLoadArgs,
+                          ...args,
+                      } as LoadNoteArgs)
+                    : (args as LoadNoteArgs),
+            );
         });
     }
 
