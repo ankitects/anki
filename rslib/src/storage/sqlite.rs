@@ -654,7 +654,7 @@ impl SqliteStorage {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SqlSortOrder {
     Ascending,
     Descending,
@@ -686,8 +686,7 @@ mod test {
         col.answer_easy();
 
         let timing = col.timing_today()?;
-        let order = SqlSortOrder::Ascending;
-        let sql_func = ReviewOrderSubclause::RetrievabilityFsrs { timing, order }
+        let sql_func = ReviewOrderSubclause::RelativeOverdueness { timing }
             .to_string()
             .replace(" asc", "");
         let sql = format!("select {sql_func} from cards");

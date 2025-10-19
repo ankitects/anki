@@ -808,6 +808,9 @@ pub(crate) enum ReviewOrderSubclause {
         timing: SchedTimingToday,
         order: SqlSortOrder,
     },
+    RelativeOverdueness {
+        timing: SchedTimingToday,
+    },
     Added,
     ReverseAdded,
 }
@@ -837,7 +840,15 @@ impl fmt::Display for ReviewOrderSubclause {
                 let next_day_at = timing.next_day_at.0;
                 let now = timing.now.0;
                 temp_string =
-                    format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) {order}");
+                    format!("extract_fsrs_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) {order}");
+                &temp_string
+            }
+            ReviewOrderSubclause::RelativeOverdueness { timing } => {
+                let today = timing.days_elapsed;
+                let next_day_at = timing.next_day_at.0;
+                let now = timing.now.0;
+                temp_string =
+                    format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) asc");
                 &temp_string
             }
             ReviewOrderSubclause::Added => "nid asc, ord asc",
@@ -871,6 +882,9 @@ fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool
         }
         ReviewCardOrder::RetrievabilityDescending => {
             build_retrievability_clauses(fsrs, timing, SqlSortOrder::Descending)
+        }
+        ReviewCardOrder::RelativeOverdueness => {
+            vec![ReviewOrderSubclause::RelativeOverdueness { timing }]
         }
         ReviewCardOrder::Random => vec![],
         ReviewCardOrder::Added => vec![ReviewOrderSubclause::Added],
