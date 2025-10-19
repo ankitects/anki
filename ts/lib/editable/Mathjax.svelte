@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const debouncer = new CooldownTimer(500);
 
-    $: debouncer.schedule(() => {
+    $: debouncer.schedule(async () => {
         const cache = getCache($pageTheme.isDark, fontSize);
         const entry = cache.get(mathjax);
         if (entry) {

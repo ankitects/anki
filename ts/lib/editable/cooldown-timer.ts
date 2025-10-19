@@ -3,20 +3,19 @@
 
 export class CooldownTimer {
     private executing = false;
-    private queuedAction: (() => void) | null = null;
+    private queuedAction: (() => Promise<void>) | null = null;
     private delay: number;
 
     constructor(delayMs: number) {
         this.delay = delayMs;
     }
 
-    schedule(action: () => void): void {
+    schedule(action: () => Promise<void>): void {
         if (this.executing) {
             this.queuedAction = action;
         } else {
             this.executing = true;
-            action();
-            setTimeout(this.#pop.bind(this), this.delay);
+            action().then(() => setTimeout(this.#pop.bind(this), this.delay));
         }
     }
 
