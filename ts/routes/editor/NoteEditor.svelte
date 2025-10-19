@@ -991,27 +991,50 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         copyFromNote,
         stickyFieldsFrom,
     }: LoadNoteArgs) {
+        // Convert values coming from Python
+        if(nid) nid = BigInt(nid);
+        if(notetypeId) notetypeId = BigInt(notetypeId);
+        if(deckId) deckId = BigInt(deckId);
+        if(originalNoteId) originalNoteId = BigInt(originalNoteId);
+        if(reviewerCardId) reviewerCardId = BigInt(reviewerCardId);
+
         let homeDeckId = 0n;
         if (reviewerCardId) {
             reviewerCard = await getCard({ cid: reviewerCardId });
             homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
         }
-        if (initial && mode === "add") {
-            const chooserDefaults = await defaultsForAdding({
-                homeDeckOfCurrentReviewCard: homeDeckId,
-            });
-            if (!deckId) {
-                deckId = chooserDefaults.deckId;
+        let originalNote: Note | null = null;
+        let selectedNotetypeId: bigint | null = null;
+        let selectedDeckId: bigint | null = null;
+        if (mode === "add") {
+            if (originalNoteId) {
+                originalNote = await getNote({
+                    nid: originalNoteId,
+                });
+                selectedNotetypeId = originalNote.notetypeId;
+                selectedDeckId = (await defaultDeckForNotetype({ ntid: originalNote.notetypeId })).did;
             }
-            if (!notetypeId) {
-                notetypeId = chooserDefaults.notetypeId;
+            else if (initial) {
+                const chooserDefaults = await defaultsForAdding({
+                    homeDeckOfCurrentReviewCard: homeDeckId,
+                });
+                selectedDeckId = chooserDefaults.deckId;
+                selectedNotetypeId = chooserDefaults.notetypeId;
             }
-            deckChooser.select(BigInt(deckId));
-            notetypeChooser.select(BigInt(notetypeId));
+        }
+        if (deckId) {
+            selectedDeckId = BigInt(deckId);
+        }
+        if (notetypeId) {
+            selectedNotetypeId = BigInt(notetypeId);
+        }
+        if(mode === "add") {
+            deckChooser.select(selectedDeckId!);
+            notetypeChooser.select(selectedNotetypeId!);
         }
 
         const notetype = await getNotetype({
-            ntid: notetypeId!,
+            ntid: selectedNotetypeId!,
         });
         const fieldNames = (
             await getFieldNames({
@@ -1038,10 +1061,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 return;
             }
         }
-        if (originalNoteId) {
-            const originalNote = await getNote({
-                nid: originalNoteId,
-            });
+        if (originalNote) {
             note!.fields = originalNote.fields;
             note!.tags = originalNote.tags;
         }

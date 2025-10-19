@@ -66,7 +66,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const item = items.find((item) => item.id === itemId);
         if (item) {
             selectedItem = item;
-            onChange?.(item);
         }
     }
 
