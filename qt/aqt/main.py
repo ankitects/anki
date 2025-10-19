@@ -1280,11 +1280,11 @@ title="{}" {}>{}</button>""".format(
     # Other menu operations
     ##########################################################################
 
-    def _open_new_or_legacy_dialog(self, name: str, *args: Any, **kwargs: Any) -> None:
+    def _open_new_or_legacy_dialog(self, name: str, *args: Any, **kwargs: Any) -> Any:
         want_old = KeyboardModifiersPressed().shift
         if not want_old:
             name = f"New{name}"
-        aqt.dialogs.open(name, self, *args, **kwargs)
+        return aqt.dialogs.open(name, self, *args, **kwargs)
 
     def onAddCard(self) -> None:
         self._open_new_or_legacy_dialog("AddCards")

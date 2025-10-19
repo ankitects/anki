@@ -262,10 +262,10 @@ class Browser(QMainWindow):
         return None
 
     def add_card(self, deck_id: DeckId):
-        args = [self.mw, deck_id]
+        args: list[Any] = [deck_id]
         if note_type_id := self.get_active_note_type_id():
             args.append(note_type_id)
-        aqt.dialogs.open("NewAddCards", *args)
+        self.mw._open_new_or_legacy_dialog("AddCards", *args)
 
     # If in the Browser we open Preview and press Ctrl+W there,
     # both Preview and Browser windows get closed by Qt out of the box.
@@ -804,7 +804,7 @@ class Browser(QMainWindow):
             assert current_card is not None
 
             deck_id = current_card.current_deck_id()
-            aqt.dialogs.open("NewAddCards", self.mw).set_note(note, deck_id)
+            self.mw._open_new_or_legacy_dialog("AddCards").set_note(note, deck_id)
 
     @no_arg_trigger
     @skip_if_selection_is_empty
