@@ -14,13 +14,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount } from "svelte";
     import { tr, zoomFactor } from "./stores";
     import Start from "./Start.svelte";
+    import ErrorState from "./ErrorState.svelte";
+    import Normal from "./Normal.svelte";
+    import Uninstall from "./Uninstall.svelte";
+    import { launcherOsUnsupported } from "@generated/ftl";
 
     const { data }: PageProps = $props();
 
-    const langs = data.langs;
-    const options = $state(data.options);
-    let mirrors = $state(data.mirrors);
+    let langs = $state(data.langs);
     let selectedLang = $state(data.userLocale);
+    let flow = $state(data.state);
+    let mirrors = $state(data.mirrors);
 
     async function onLangChange(lang: string) {
         await setLang({ val: lang });
@@ -39,6 +43,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     onMount(() => windowReady({}));
+
+    let footer: any = $state(null);
+
+    const uninstall = () => {
+        flow.case = "uninstall";
+    };
 </script>
 
-<Start bind:selectedLang {langs} {options} {mirrors} />
+<Start bind:selectedLang {langs} {footer}>
+    {#if flow.case === "normal"}
+        <Normal {mirrors} options={flow.value.options!} {uninstall} bind:footer />
+    {:else if flow.case === "uninstall"}
+        <Uninstall bind:footer />
+    {:else if flow.case === "osUnsupported" }
+        <ErrorState title={$tr.launcherOsUnsupported()} detail={flow.value} bind:footer />
+    {:else if flow.case === "unknownError" }
+        <ErrorState title={$tr.launcherUnknownError()} detail={flow.value} bind:footer />
+    {/if}
+</Start>
