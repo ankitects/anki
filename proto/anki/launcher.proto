@@ -18,6 +18,8 @@ service LauncherService {
   rpc WindowReady(generic.Empty) returns (generic.Empty);
   rpc ZoomWebview(ZoomWebviewRequest) returns (generic.Empty);
 
+  rpc GetState(generic.Empty) returns (State);
+
   rpc GetAvailableVersions(generic.Empty) returns (Versions);
   rpc GetExistingVersions(generic.Empty) returns (ExistingVersions);
 
@@ -108,4 +110,17 @@ message ExistingVersions {
   optional Version current = 1;
   optional Version previous = 2;
   bool pyproject_modified_by_user = 3;
+}
+
+message NormalState {
+  Options options = 1;
+}
+
+message State {
+  oneof kind {
+    string os_unsupported = 1;
+    string unknown_error = 2;
+    NormalState normal = 3;
+    google.protobuf.Empty uninstall = 4;
+  }
 }

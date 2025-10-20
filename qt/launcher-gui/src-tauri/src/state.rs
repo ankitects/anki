@@ -73,8 +73,8 @@ impl From<NormalState> for State {
 
 pub enum State {
     LaunchAnki(Arc<uv::Paths>),
-    #[allow(dead_code)] // TODO: use
-    Error(anyhow::Error),
+    OsUnsupported(anyhow::Error),
+    UnknownError(anyhow::Error),
     Uninstall(Arc<uv::Paths>),
     Normal(NormalState),
 }

@@ -734,7 +734,9 @@ impl crate::state::State {
             let _ = remove_file(&paths.launcher_trigger_file);
         }
 
-        ensure_os_supported()?;
+        if let Err(e) = ensure_os_supported() {
+            return Ok(Self::OsUnsupported(e));
+        }
 
         Ok(Self::Normal(paths.into()))
     }

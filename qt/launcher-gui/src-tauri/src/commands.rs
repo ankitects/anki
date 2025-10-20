@@ -4,13 +4,16 @@
 use anki_proto::generic;
 use anki_proto::launcher::get_langs_response;
 use anki_proto::launcher::get_mirrors_response;
+use anki_proto::launcher::state::Kind as StateProtoKind;
 use anki_proto::launcher::ChooseVersionRequest;
 use anki_proto::launcher::ChooseVersionResponse;
 use anki_proto::launcher::GetLangsResponse;
 use anki_proto::launcher::GetMirrorsResponse;
 use anki_proto::launcher::I18nResourcesRequest;
 use anki_proto::launcher::Mirror;
+use anki_proto::launcher::NormalState as NormalStateProto;
 use anki_proto::launcher::Options;
+use anki_proto::launcher::State as StateProto;
 use anki_proto::launcher::ZoomWebviewRequest;
 use anyhow::anyhow;
 use anyhow::Context;
@@ -86,6 +89,23 @@ pub async fn set_lang<R: Runtime>(
     };
     setup_i18n(&app, &[&*input]);
     Ok(())
+}
+
+pub async fn get_state<R: Runtime>(
+    app: AppHandle<R>,
+    _window: WebviewWindow<R>,
+) -> Result<StateProto> {
+    let state = app.state::<State>();
+    let kind = match &*state {
+        State::LaunchAnki(_) => unreachable!(),
+        State::OsUnsupported(e) => StateProtoKind::OsUnsupported(format!("{e:?}")),
+        State::UnknownError(e) => StateProtoKind::UnknownError(format!("{e:?}")),
+        State::Uninstall(_) => StateProtoKind::Uninstall(()),
+        State::Normal(normal) => StateProtoKind::Normal(NormalStateProto {
+            options: Some((&normal.initial_options).into()),
+        }),
+    };
+    Ok(StateProto { kind: Some(kind) })
 }
 
 pub async fn get_mirrors<R: Runtime>(

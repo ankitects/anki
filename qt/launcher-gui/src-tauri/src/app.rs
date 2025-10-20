@@ -20,7 +20,7 @@ use crate::uv;
 pub const PROTOCOL: &str = "anki";
 
 pub fn init() -> Option<State> {
-    let mut state = State::init().unwrap_or_else(State::Error);
+    let mut state = State::init().unwrap_or_else(State::UnknownError);
 
     match state {
         State::Normal(ref mut state) => state.check_versions(),
