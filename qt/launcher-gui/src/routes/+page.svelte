@@ -56,9 +56,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Normal {mirrors} options={flow.value.options!} {uninstall} bind:footer />
     {:else if flow.case === "uninstall"}
         <Uninstall bind:footer />
-    {:else if flow.case === "osUnsupported" }
-        <ErrorState title={$tr.launcherOsUnsupported()} detail={flow.value} bind:footer />
-    {:else if flow.case === "unknownError" }
-        <ErrorState title={$tr.launcherUnknownError()} detail={flow.value} bind:footer />
+    {:else if flow.case === "osUnsupported"}
+        <ErrorState
+            title={$tr.launcherOsUnsupported()}
+            detail={flow.value}
+            bind:footer
+        />
+    {:else if flow.case === "unknownError"}
+        <ErrorState
+            title={$tr.launcherUnknownError()}
+            detail={flow.value}
+            bind:footer
+        />
     {/if}
 </Start>

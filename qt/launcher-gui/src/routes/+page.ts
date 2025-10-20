@@ -15,7 +15,7 @@ export const load = (async () => {
         i18nPromise,
         langsPromise,
         statePromise,
-        mirrorsPromise
+        mirrorsPromise,
     ]);
 
     return { langs, userLocale, state, mirrors };
