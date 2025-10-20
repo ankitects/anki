@@ -53,4 +53,6 @@ lauuncher-failed-to-load-versions = Failed to load versions!
 launcher-error-details = Error details
 launcher-will-close-in = Launcher will close in { $count }
 launcher-anki-is-warming-up = Anki is preparing to run
-launcher-this-may-take = This may take a few minutes. Please wait\
+launcher-this-may-take = This may take a few minutes. Please wait
+launcher-os-unsupported = Unsupported OS
+launcher-unknown-error = Unknown error
