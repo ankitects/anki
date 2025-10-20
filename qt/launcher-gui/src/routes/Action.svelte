@@ -13,11 +13,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         existing,
         allowBetas,
         choose,
+        uninstall,
     }: {
         releases: Versions;
         existing: ExistingVersions;
         allowBetas: boolean;
         choose: (version: string, existing: boolean, current?: string) => void;
+        uninstall: (() => void) | null;
     } = $props();
 
     let availableVersions = $derived(
@@ -77,6 +79,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <EnumSelector bind:value={selected} choices={availableVersions} />
         </div>
     </Row>
+    {#if uninstall != null}
+        <Row class="centre m-3">
+            <button class="btn btn-primary" onclick={uninstall}>
+                {$tr.launcherUninstall()}
+            </button>
+        </Row>
+    {/if}
 </div>
 
 <style lang="scss">
