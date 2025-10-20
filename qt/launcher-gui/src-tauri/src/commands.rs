@@ -199,7 +199,7 @@ pub async fn choose_version<R: Runtime>(
             )?;
         }
 
-        let warming_up = paths.post_install()?;
+        let warming_up = uv::post_install(&paths)?;
 
         Ok(ChooseVersionResponse {
             version,
@@ -210,7 +210,7 @@ pub async fn choose_version<R: Runtime>(
 }
 
 pub async fn launch_anki<R: Runtime>(app: AppHandle<R>, _window: WebviewWindow<R>) -> Result<()> {
-    app.state::<State>().paths()?.launch_anki()
+    app.state::<State>().paths().and_then(uv::launch_anki)
 }
 
 pub async fn exit<R: Runtime>(app: AppHandle<R>, window: WebviewWindow<R>) -> Result<()> {

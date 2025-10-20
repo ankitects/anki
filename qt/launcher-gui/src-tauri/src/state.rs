@@ -102,14 +102,14 @@ impl NormalState {
         let (av_tx, av_rx) = tokio::sync::watch::channel(None);
         let paths = self.paths.clone();
         tauri::async_runtime::spawn_blocking(move || {
-            let res = paths.get_releases();
+            let res = uv::get_releases(&paths);
             let _ = av_tx.send(Some(res));
         });
 
         let (cv_tx, cv_rx) = tokio::sync::watch::channel(None);
         let paths = self.paths.clone();
         tauri::async_runtime::spawn_blocking(move || {
-            let res = paths.check_versions();
+            let res = uv::check_versions(&paths);
             let _ = cv_tx.send(Some(res));
         });
 

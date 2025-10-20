@@ -27,6 +27,7 @@ use crate::platform::get_uv_binary_name;
 pub use crate::platform::launch_anki_normally;
 use crate::platform::respawn_launcher;
 use crate::state::ExistingVersions;
+use crate::state::State;
 use crate::state::Version;
 use crate::state::Versions;
 
@@ -58,6 +59,92 @@ pub struct Paths {
 pub enum VersionKind {
     PyOxidizer(String),
     Uv(String),
+}
+
+fn extract_aqt_version(state: &Paths) -> Option<String> {
+    // Check if .venv exists first
+    if !state.venv_folder.exists() {
+        return None;
+    }
+
+    let output = uv_command(state)
+        .ok()?
+        .env("VIRTUAL_ENV", &state.venv_folder)
+        .args(["pip", "show", "aqt"])
+        .output();
+
+    let output = output.ok()?;
+
+    if !output.status.success() {
+        return None;
+    }
+
+    let stdout = String::from_utf8(output.stdout).ok()?;
+    for line in stdout.lines() {
+        if let Some(version) = line.strip_prefix("Version: ") {
+            return Some(version.trim().to_string());
+        }
+    }
+    None
+}
+
+pub fn check_versions(state: &Paths) -> Result<ExistingVersions> {
+    let mut res = ExistingVersions {
+        pyproject_modified_by_user: state.pyproject_modified_by_user,
+        ..Default::default()
+    };
+
+    // If sync_complete_marker is missing, do nothing
+    if !state.sync_complete_marker.exists() {
+        return Ok(res);
+    }
+
+    // Determine current version by invoking uv pip show aqt
+    match extract_aqt_version(state) {
+        Some(version) => {
+            res.current = Some(normalize_version(&version));
+        }
+        None => {
+            Err(anyhow::anyhow!(
+                "Warning: Could not determine current Anki version"
+            ))?;
+        }
+    }
+
+    // Read previous version from "previous-version" file
+    let previous_version_path = state.uv_install_root.join("previous-version");
+    if let Ok(content) = read_file(&previous_version_path) {
+        if let Ok(version_str) = String::from_utf8(content) {
+            let version = version_str.trim().to_string();
+            if !version.is_empty() {
+                res.previous = Some(normalize_version(&version));
+            }
+        }
+    }
+
+    Ok(res)
+}
+
+pub fn set_allow_betas(state: &Paths, allow_betas: bool) -> Result<()> {
+    if allow_betas {
+        write_file(&state.prerelease_marker, "")?;
+    } else {
+        let _ = remove_file(&state.prerelease_marker);
+    }
+    Ok(())
+}
+
+pub fn set_cache_enabled(state: &Paths, cache_enabled: bool) -> Result<()> {
+    if cache_enabled {
+        let _ = remove_file(&state.no_cache_marker);
+    } else {
+        write_file(&state.no_cache_marker, "")?;
+        // Delete the cache directory and everything in it
+        if state.uv_cache_dir.exists() {
+            let _ = anki_io::remove_dir_all(&state.uv_cache_dir);
+        }
+    }
+    Ok(())
 }
 
 pub fn handle_version_install_or_update<F>(
@@ -239,25 +326,12 @@ where
     }
 }
 
-pub fn set_allow_betas(state: &Paths, allow_betas: bool) -> Result<()> {
-    if allow_betas {
-        write_file(&state.prerelease_marker, "")?;
-    } else {
-        let _ = remove_file(&state.prerelease_marker);
-    }
-    Ok(())
-}
-
-pub fn set_cache_enabled(state: &Paths, cache_enabled: bool) -> Result<()> {
-    if cache_enabled {
-        let _ = remove_file(&state.no_cache_marker);
-    } else {
-        write_file(&state.no_cache_marker, "")?;
-        // Delete the cache directory and everything in it
-        if state.uv_cache_dir.exists() {
-            let _ = anki_io::remove_dir_all(&state.uv_cache_dir);
-        }
-    }
+fn write_sync_marker(state: &Paths) -> Result<()> {
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .context("Failed to get system time")?
+        .as_secs();
+    write_file(&state.sync_complete_marker, timestamp.to_string())?;
     Ok(())
 }
 
@@ -374,6 +448,46 @@ fn filter_and_normalize_versions1(all_versions: Vec<String>) -> Vec<Version> {
     valid_versions.reverse();
 
     valid_versions
+}
+
+fn fetch_versions(state: &Paths) -> Result<Vec<String>> {
+    let versions_script = state.resources_dir.join("versions.py");
+
+    let mut cmd = uv_command(state)?;
+    cmd.args(["run", "--no-project", "--no-config", "--managed-python"])
+        .args(["--with", "pip-system-certs,requests[socks]"]);
+
+    let python_version = read_file(&state.dist_python_version_path)?;
+    let python_version_str =
+        String::from_utf8(python_version).context("Invalid UTF-8 in .python-version")?;
+    let version_trimmed = python_version_str.trim();
+    if !version_trimmed.is_empty() {
+        cmd.args(["--python", version_trimmed]);
+    }
+
+    cmd.arg(&versions_script);
+
+    let output = match cmd.utf8_output() {
+        Ok(output) => output,
+        Err(e) => {
+            return Err(e.into());
+        }
+    };
+    let versions = serde_json::from_str(&output.stdout).context("Failed to parse versions JSON")?;
+    Ok(versions)
+}
+
+pub fn get_releases(state: &Paths) -> Result<Versions> {
+    let all_versions = fetch_versions(state)?;
+    let all_versions = filter_and_normalize_versions1(all_versions);
+
+    let latest_patches = with_only_latest_patch(&all_versions);
+    let latest_releases: Vec<Version> = latest_patches.into_iter().take(5).collect();
+
+    Ok(Versions {
+        latest: latest_releases,
+        all: all_versions,
+    })
 }
 
 pub fn apply_version_kind(version_kind: &VersionKind, state: &Paths) -> Result<()> {
@@ -666,8 +780,53 @@ pub fn set_mirror(state: &Paths, enabled: bool) -> Result<()> {
     }
     Ok(())
 }
+pub fn post_install(state: &Paths) -> Result<bool> {
+    // Write marker file to indicate we've completed the sync process
+    write_sync_marker(state)?;
 
-impl crate::state::State {
+    // whether or not anki needs to warm up
+    Ok(cfg!(target_os = "macos"))
+}
+
+pub fn launch_anki(_state: &Paths) -> Result<()> {
+    #[cfg(target_os = "macos")]
+    {
+        let cmd = self.build_python_command(&[])?;
+        platform::mac::prepare_for_launch_after_update(cmd, &_state.uv_install_root)?;
+    }
+
+    // respawn the launcher as a disconnected subprocess for normal startup
+    respawn_launcher()
+}
+
+pub fn build_python_command(state: &Paths, args: &[String]) -> Result<Command> {
+    let python_exe = if cfg!(target_os = "windows") {
+        let show_console = std::env::var("ANKI_CONSOLE").is_ok();
+        if show_console {
+            state.venv_folder.join("Scripts/python.exe")
+        } else {
+            state.venv_folder.join("Scripts/pythonw.exe")
+        }
+    } else {
+        state.venv_folder.join("bin/python")
+    };
+
+    let mut cmd = Command::new(&python_exe);
+    cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
+    cmd.args(args);
+    // tell the Python code it was invoked by the launcher, and updating is
+    // available
+    cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
+
+    // Set UV and Python paths for the Python code
+    cmd.env("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
+    cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
+    cmd.env_remove("SSLKEYLOGFILE");
+
+    Ok(cmd)
+}
+
+impl State {
     pub fn init() -> Result<Self> {
         let uv_install_root = if let Ok(custom_root) = std::env::var("ANKI_LAUNCHER_VENV_ROOT") {
             std::path::PathBuf::from(custom_root)
@@ -739,218 +898,6 @@ impl crate::state::State {
         }
 
         Ok(Self::Normal(paths.into()))
-    }
-}
-
-impl Paths {
-    fn get_mirror_urls(&self) -> Result<Option<(String, String)>> {
-        if !self.mirror_path.exists() {
-            return Ok(None);
-        }
-
-        let content = read_file(&self.mirror_path)?;
-        let content_str = String::from_utf8(content).context("Invalid UTF-8 in mirror file")?;
-
-        let lines: Vec<&str> = content_str.lines().collect();
-        if lines.len() >= 2 {
-            Ok(Some((
-                lines[0].trim().to_string(),
-                lines[1].trim().to_string(),
-            )))
-        } else {
-            Ok(None)
-        }
-    }
-
-    fn uv_command(&self) -> Result<Command> {
-        let mut command = Command::new(&self.uv_path);
-        command.current_dir(&self.uv_install_root);
-
-        // remove UV_* environment variables to avoid interference
-        for (key, _) in std::env::vars() {
-            if key.starts_with("UV_") {
-                command.env_remove(key);
-            }
-        }
-        command
-            .env_remove("VIRTUAL_ENV")
-            .env_remove("SSLKEYLOGFILE");
-
-        // Add mirror environment variable if enabled
-        if let Some((python_mirror, pypi_mirror)) = self.get_mirror_urls()? {
-            command
-                .env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
-                .env("UV_DEFAULT_INDEX", &pypi_mirror);
-        }
-
-        #[cfg(windows)]
-        {
-            use std::os::windows::process::CommandExt;
-
-            command.creation_flags(windows::Win32::System::Threading::CREATE_NO_WINDOW.0);
-        }
-        Ok(command)
-    }
-
-    fn fetch_versions(&self) -> Result<Vec<String>> {
-        let versions_script = self.resources_dir.join("versions.py");
-
-        let mut cmd = self.uv_command()?;
-        cmd.args(["run", "--no-project", "--no-config", "--managed-python"])
-            .args(["--with", "pip-system-certs,requests[socks]"]);
-
-        let python_version = read_file(&self.dist_python_version_path)?;
-        let python_version_str =
-            String::from_utf8(python_version).context("Invalid UTF-8 in .python-version")?;
-        let version_trimmed = python_version_str.trim();
-        if !version_trimmed.is_empty() {
-            cmd.args(["--python", version_trimmed]);
-        }
-
-        cmd.arg(&versions_script);
-
-        let output = match cmd.utf8_output() {
-            Ok(output) => output,
-            Err(e) => {
-                return Err(e.into());
-            }
-        };
-        let versions =
-            serde_json::from_str(&output.stdout).context("Failed to parse versions JSON")?;
-        Ok(versions)
-    }
-
-    pub fn get_releases(&self) -> Result<Versions> {
-        let all_versions = self.fetch_versions()?;
-        let all_versions = filter_and_normalize_versions1(all_versions);
-
-        let latest_patches = with_only_latest_patch(&all_versions);
-        let latest_releases: Vec<Version> = latest_patches.into_iter().take(5).collect();
-
-        Ok(Versions {
-            latest: latest_releases,
-            all: all_versions,
-        })
-    }
-
-    fn extract_aqt_version(&self) -> Option<String> {
-        // Check if .venv exists first
-        if !self.venv_folder.exists() {
-            return None;
-        }
-
-        let output = self
-            .uv_command()
-            .ok()?
-            .env("VIRTUAL_ENV", &self.venv_folder)
-            .args(["pip", "show", "aqt"])
-            .output();
-
-        let output = output.ok()?;
-
-        if !output.status.success() {
-            return None;
-        }
-
-        let stdout = String::from_utf8(output.stdout).ok()?;
-        for line in stdout.lines() {
-            if let Some(version) = line.strip_prefix("Version: ") {
-                return Some(version.trim().to_string());
-            }
-        }
-        None
-    }
-
-    pub fn check_versions(&self) -> Result<ExistingVersions> {
-        let mut res = ExistingVersions {
-            pyproject_modified_by_user: self.pyproject_modified_by_user,
-            ..Default::default()
-        };
-
-        // If sync_complete_marker is missing, do nothing
-        if !self.sync_complete_marker.exists() {
-            return Ok(res);
-        }
-
-        // Determine current version by invoking uv pip show aqt
-        match self.extract_aqt_version() {
-            Some(version) => {
-                res.current = Some(normalize_version(&version));
-            }
-            None => {
-                Err(anyhow::anyhow!(
-                    "Warning: Could not determine current Anki version"
-                ))?;
-            }
-        }
-
-        // Read previous version from "previous-version" file
-        let previous_version_path = self.uv_install_root.join("previous-version");
-        if let Ok(content) = read_file(&previous_version_path) {
-            if let Ok(version_str) = String::from_utf8(content) {
-                let version = version_str.trim().to_string();
-                if !version.is_empty() {
-                    res.previous = Some(normalize_version(&version));
-                }
-            }
-        }
-
-        Ok(res)
-    }
-
-    fn write_sync_marker(&self) -> Result<()> {
-        let timestamp = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .context("Failed to get system time")?
-            .as_secs();
-        write_file(&self.sync_complete_marker, timestamp.to_string())?;
-        Ok(())
-    }
-
-    pub fn post_install(&self) -> Result<bool> {
-        // Write marker file to indicate we've completed the sync process
-        self.write_sync_marker()?;
-
-        // whether or not anki needs to warm up
-        Ok(cfg!(target_os = "macos"))
-    }
-
-    pub fn launch_anki(&self) -> Result<()> {
-        #[cfg(target_os = "macos")]
-        {
-            let cmd = self.build_python_command(&[])?;
-            platform::mac::prepare_for_launch_after_update(cmd, &self.uv_install_root)?;
-        }
-
-        // respawn the launcher as a disconnected subprocess for normal startup
-        respawn_launcher()
-    }
-
-    pub fn build_python_command(&self, args: &[String]) -> Result<Command> {
-        let python_exe = if cfg!(target_os = "windows") {
-            let show_console = std::env::var("ANKI_CONSOLE").is_ok();
-            if show_console {
-                self.venv_folder.join("Scripts/python.exe")
-            } else {
-                self.venv_folder.join("Scripts/pythonw.exe")
-            }
-        } else {
-            self.venv_folder.join("bin/python")
-        };
-
-        let mut cmd = Command::new(&python_exe);
-        cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
-        cmd.args(args);
-        // tell the Python code it was invoked by the launcher, and updating is
-        // available
-        cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
-
-        // Set UV and Python paths for the Python code
-        cmd.env("ANKI_LAUNCHER_UV", self.uv_path.utf8()?.as_str());
-        cmd.env("UV_PROJECT", self.uv_install_root.utf8()?.as_str());
-        cmd.env_remove("SSLKEYLOGFILE");
-
-        Ok(cmd)
     }
 }
 

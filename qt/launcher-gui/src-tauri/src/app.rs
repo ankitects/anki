@@ -26,7 +26,7 @@ pub fn init() -> Option<State> {
         State::Normal(ref mut state) => state.check_versions(),
         State::LaunchAnki(ref paths) => {
             let args: Vec<String> = std::env::args().skip(1).collect();
-            let cmd = paths.build_python_command(&args).unwrap();
+            let cmd = uv::build_python_command(paths, &args).unwrap();
             uv::launch_anki_normally(cmd).unwrap();
             return None;
         }
