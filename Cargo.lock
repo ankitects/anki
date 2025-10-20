@@ -4705,7 +4705,6 @@ dependencies = [
  "prost-reflect",
  "serde",
  "serde_json",
- "snafu",
  "strum 0.27.2",
  "syn 2.0.106",
  "tauri",

@@ -6,7 +6,6 @@
 
 mod app;
 mod commands;
-mod error;
 mod generated;
 mod lang;
 mod platform;

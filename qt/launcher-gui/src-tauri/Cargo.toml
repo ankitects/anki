@@ -32,7 +32,6 @@ portable-pty.workspace = true
 prost.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-snafu.workspace = true
 strum.workspace = true
 tauri.workspace = true
 tauri-plugin-dialog.workspace = true
