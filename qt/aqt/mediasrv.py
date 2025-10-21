@@ -28,9 +28,16 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
+from anki.cards import Card
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
+from anki.scheduler_pb2 import NextCardDataResponse
+from anki.template import (
+    PartiallyRenderedCard,
+    TemplateRenderContext,
+    apply_custom_filters,
+)
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
@@ -638,6 +645,31 @@ def save_custom_colours() -> bytes:
     return b""
 
 
+def next_card_data() -> bytes:
+    raw = aqt.mw.col._backend.next_card_data_raw(request.data)
+    data = NextCardDataResponse.FromString(raw)
+    backend_card = data.next_card.queue.cards[0].card
+    card = Card(aqt.mw.col, backend_card=backend_card)
+
+    ctx = TemplateRenderContext.from_existing_card(card, False)
+
+    qside = apply_custom_filters(
+        PartiallyRenderedCard.nodes_from_proto(data.next_card.partial_front),
+        ctx,
+        None,
+    )
+    aside = apply_custom_filters(
+        PartiallyRenderedCard.nodes_from_proto(data.next_card.partial_back),
+        ctx,
+        qside,
+    )
+
+    data.next_card.front = qside
+    data.next_card.back = aside
+
+    return data.SerializeToString()
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -654,6 +686,7 @@ post_handler_list = [
     deck_options_require_close,
     deck_options_ready,
     save_custom_colours,
+    next_card_data,
 ]
 
 
@@ -696,7 +729,6 @@ exposed_backend_list = [
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
     "simulate_fsrs_workload",
-    "next_card_data",
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",

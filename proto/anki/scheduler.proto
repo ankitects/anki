@@ -13,6 +13,7 @@ import "anki/decks.proto";
 import "anki/collection.proto";
 import "anki/config.proto";
 import "anki/deck_config.proto";
+import "anki/card_rendering.proto";
 
 service SchedulerService {
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
@@ -298,9 +299,18 @@ message NextCardDataResponse {
 
   message NextCardData {
     QueuedCards queue = 1;
-    string front = 2;
-    string back = 3;
-    repeated AnswerButton answer_buttons = 4;
+    repeated AnswerButton answer_buttons = 2;
+
+    // TODO: We can probably make this a little faster by using oneof and
+    // preventing the partial_front and back being sent to svelte where it isn't
+    // used Alternatively we can use a completely different message for both
+    // Rust -> Python and the Python -> Svelte though this would be more
+    // complicated to implement.
+    string front = 3;
+    string back = 4;
+
+    repeated card_rendering.RenderedTemplateNode partial_front = 5;
+    repeated card_rendering.RenderedTemplateNode partial_back = 6;
   }
 
   optional NextCardData next_card = 1;

@@ -27,6 +27,7 @@ use fsrs::FSRSReview;
 use fsrs::FSRS;
 
 use crate::backend::Backend;
+use crate::card_rendering::service::rendered_nodes_to_proto;
 use crate::prelude::*;
 use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::scheduler::new::NewCardDueOrder;
@@ -34,7 +35,6 @@ use crate::scheduler::states::CardState;
 use crate::scheduler::states::SchedulingStates;
 use crate::search::SortMode;
 use crate::stats::studied_today;
-use crate::text::encode_iri_paths;
 
 impl crate::services::SchedulerService for Collection {
     /// This behaves like _updateCutoff() in older code - it also unburies at
@@ -397,8 +397,8 @@ impl crate::services::SchedulerService for Collection {
         if let Some(next_card) = next_card {
             let cid = next_card.card.id;
 
-            let render = self.render_existing_card(cid, false, false)?;
-            let style = format!("<style>{}</style>", render.css);
+            let render = self.render_existing_card(cid, false, true)?;
+            //let style = format!("<style>{}</style>", render.css);
 
             let answer_buttons = self
                 .describe_next_states(&next_card.states)?
@@ -410,17 +410,15 @@ impl crate::services::SchedulerService for Collection {
                 })
                 .collect();
 
-            let prepare_card_text_for_display = |html: &str| {
-                let html = [style.clone(), html.to_string()].concat();
-                let html = encode_iri_paths(&html).to_string();
-                html
-            };
-
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
                     queue: Some(queue.into()),
-                    front: prepare_card_text_for_display(&render.question()),
-                    back: prepare_card_text_for_display(&render.answer()),
+
+                    front: "".to_string(),
+                    back: "".to_string(),
+
+                    partial_front: rendered_nodes_to_proto(render.qnodes),
+                    partial_back: rendered_nodes_to_proto(render.anodes),
 
                     answer_buttons,
                 }),
