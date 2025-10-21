@@ -3,6 +3,7 @@
 import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
 import { nextCardData } from "@generated/backend";
 import { derived, get, writable } from "svelte/store";
+import type { InnerReviewerRequest } from "../reviewer-inner/reviewerRequest";
 
 export function isNightMode() {
     // https://stackoverflow.com/a/57795518
@@ -76,8 +77,12 @@ export class ReviewerState {
         document.addEventListener("keydown", this.onKeyDown.bind(this));
     }
 
+    sendInnerRequest(message: InnerReviewerRequest) {
+        this.iframe?.contentWindow?.postMessage(message, "*");
+    }
+
     updateHtml(htmlString: string, css?: string, bodyclass?: string) {
-        this.iframe?.contentWindow?.postMessage({ type: "html", value: htmlString, css, bodyclass }, "*");
+        this.sendInnerRequest({ type: "html", value: htmlString, css, bodyclass });
     }
 
     async showQuestion(answer: CardAnswer | null) {

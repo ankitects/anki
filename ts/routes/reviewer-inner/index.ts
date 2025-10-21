@@ -3,13 +3,14 @@
 import "../base.scss";
 import "../../reviewer/reviewer.scss";
 import { enableNightMode } from "../reviewer/reviewer";
+import type { InnerReviewerRequest } from "./reviewerRequest";
 
 const urlParams = new URLSearchParams(location.search);
 
 const style = document.createElement("style");
 document.head.appendChild(style);
 
-addEventListener("message", (e) => {
+addEventListener("message", (e: MessageEvent<InnerReviewerRequest>) => {
     switch (e.data.type) {
         case "html": {
             document.body.innerHTML = e.data.value;
