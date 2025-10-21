@@ -4,6 +4,8 @@ import "../base.scss";
 import "../../reviewer/reviewer.scss";
 import { enableNightMode } from "../reviewer/reviewer";
 
+const urlParams = new URLSearchParams(location.search);
+
 const style = document.createElement("style");
 document.head.appendChild(style);
 
@@ -16,6 +18,12 @@ addEventListener("message", (e) => {
             }
             if (e.data.bodyclass) {
                 document.body.className = e.data.bodyclass;
+                const theme = urlParams.get("nightMode");
+                if (theme !== null) {
+                    enableNightMode();
+                    document.body.classList.add("night_mode");
+                    document.body.classList.add("nightMode");
+                }
             }
             break;
         }
@@ -34,9 +42,3 @@ function pycmd(cmd: string) {
     window.parent.postMessage({ type: "pycmd", value: cmd }, "*");
 }
 globalThis.pycmd = pycmd;
-
-const params = new URLSearchParams(location.search);
-const theme = params.get("nightMode");
-if (theme !== null) {
-    enableNightMode();
-}
