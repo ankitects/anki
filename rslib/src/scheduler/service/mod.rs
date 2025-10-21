@@ -417,6 +417,7 @@ impl crate::services::SchedulerService for Collection {
                     // Filled by python
                     front: "".to_string(),
                     back: "".to_string(),
+                    body_class: "".to_string(),
 
                     partial_front: rendered_nodes_to_proto(render.qnodes),
                     partial_back: rendered_nodes_to_proto(render.anodes),

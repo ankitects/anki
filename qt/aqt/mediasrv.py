@@ -45,6 +45,7 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
+from aqt.theme import ThemeManager
 from aqt.utils import aqt_data_path, show_warning, tr
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
@@ -645,6 +646,9 @@ def save_custom_colours() -> bytes:
     return b""
 
 
+theme_manager = ThemeManager()
+
+
 def next_card_data() -> bytes:
     raw = aqt.mw.col._backend.next_card_data_raw(request.data)
     data = NextCardDataResponse.FromString(raw)
@@ -666,6 +670,9 @@ def next_card_data() -> bytes:
 
     data.next_card.front = qside
     data.next_card.back = aside
+    # Night mode is handled by the frontend so that it works with the browsers theme if used outside of anki.
+    # Perhaps the OS class should be handled this way too?
+    data.next_card.body_class = theme_manager.body_classes_for_card_ord(card.ord, False)
 
     return data.SerializeToString()
 

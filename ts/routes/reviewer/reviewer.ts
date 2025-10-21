@@ -76,8 +76,8 @@ export class ReviewerState {
         document.addEventListener("keydown", this.onKeyDown.bind(this));
     }
 
-    updateHtml(htmlString: string, css?: string) {
-        this.iframe?.contentWindow?.postMessage({ type: "html", value: htmlString, css }, "*");
+    updateHtml(htmlString: string, css?: string, bodyclass?: string) {
+        this.iframe?.contentWindow?.postMessage({ type: "html", value: htmlString, css, bodyclass }, "*");
     }
 
     async showQuestion(answer: CardAnswer | null) {
@@ -91,7 +91,7 @@ export class ReviewerState {
         this.answerShown.set(false);
 
         const question = resp.nextCard?.front || "";
-        this.updateHtml(question, resp?.nextCard?.css);
+        this.updateHtml(question, resp?.nextCard?.css, resp?.nextCard?.bodyClass);
 
         this.beginAnsweringMs = Date.now();
     }

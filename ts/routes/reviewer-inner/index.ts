@@ -14,6 +14,9 @@ addEventListener("message", (e) => {
             if (e.data.css) {
                 style.innerHTML = e.data.css;
             }
+            if (e.data.bodyclass) {
+                document.body.className = e.data.bodyclass;
+            }
             break;
         }
         default: {
@@ -37,4 +40,3 @@ const theme = params.get("nightMode");
 if (theme !== null) {
     enableNightMode();
 }
-document.documentElement.classList.add("card");
