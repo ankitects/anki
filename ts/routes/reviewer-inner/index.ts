@@ -4,10 +4,16 @@ import "../base.scss";
 import "../../reviewer/reviewer.scss";
 import { enableNightMode } from "../reviewer/reviewer";
 
+const style = document.createElement("style");
+document.head.appendChild(style);
+
 addEventListener("message", (e) => {
     switch (e.data.type) {
         case "html": {
             document.body.innerHTML = e.data.value;
+            if (e.data.css) {
+                style.innerHTML = e.data.css;
+            }
             break;
         }
         default: {

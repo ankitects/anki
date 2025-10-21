@@ -398,7 +398,6 @@ impl crate::services::SchedulerService for Collection {
             let cid = next_card.card.id;
 
             let render = self.render_existing_card(cid, false, true)?;
-            //let style = format!("<style>{}</style>", render.css);
 
             let answer_buttons = self
                 .describe_next_states(&next_card.states)?
@@ -414,6 +413,8 @@ impl crate::services::SchedulerService for Collection {
                 next_card: Some(NextCardData {
                     queue: Some(queue.into()),
 
+                    css: render.css,
+                    // Filled by python
                     front: "".to_string(),
                     back: "".to_string(),
 

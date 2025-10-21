@@ -308,9 +308,10 @@ message NextCardDataResponse {
     // complicated to implement.
     string front = 3;
     string back = 4;
+    string css = 5;
 
-    repeated card_rendering.RenderedTemplateNode partial_front = 5;
-    repeated card_rendering.RenderedTemplateNode partial_back = 6;
+    repeated card_rendering.RenderedTemplateNode partial_front = 6;
+    repeated card_rendering.RenderedTemplateNode partial_back = 7;
   }
 
   optional NextCardData next_card = 1;
