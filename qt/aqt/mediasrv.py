@@ -668,6 +668,12 @@ def next_card_data() -> bytes:
         qside,
     )
 
+    qside = ctx.col()._backend.extract_av_tags(text=qside, question_side=True).text
+    aside = ctx.col()._backend.extract_av_tags(text=aside, question_side=False).text
+
+    qside = aqt.mw.prepare_card_text_for_display(qside)
+    aside = aqt.mw.prepare_card_text_for_display(aside)
+
     data.next_card.front = qside
     data.next_card.back = aside
     # Night mode is handled by the frontend so that it works with the browsers theme if used outside of anki.
