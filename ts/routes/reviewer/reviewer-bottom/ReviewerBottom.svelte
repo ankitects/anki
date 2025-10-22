@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import type { ReviewerState } from "../reviewer";
     import Remaining from "./Remaining.svelte";
+    import More from "./More.svelte";
 
     export let state: ReviewerState;
 
@@ -42,12 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
         <span class="disappearing"></span>
         <div class="disappearing more">
-            <button
-                on:click={() => bridgeCommand("more")}
-                title={tr.actionsShortcutKey({ val: "M" })}
-            >
-                {tr.studyingMore()}&#8615
-            </button>
+            <More></More>
         </div>
     </div>
 </div>
