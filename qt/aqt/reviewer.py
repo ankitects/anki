@@ -1261,6 +1261,15 @@ class SvelteReviewer(Reviewer):
 
         return [but(ease, label) for ease, label in self._answerButtonList()]  # type: ignore
 
+    def refresh_if_needed(self):
+        if self._refresh_needed:
+            self.mw.fade_in_webview()
+            self.web.eval("if (anki) {anki.changeReceived()}")
+            self._refresh_needed = None
+
+    def show(self) -> None:
+        self._initWeb()
+
     def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:
             return ""

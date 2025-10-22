@@ -11,6 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const state = new ReviewerState();
     onMount(() => {
         updateNightMode();
+        globalThis.anki ??= {};
+        globalThis.anki.changeReceived = () => state.showQuestion(null);
     });
 </script>
 
