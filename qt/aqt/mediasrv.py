@@ -745,6 +745,8 @@ exposed_backend_list = [
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
+    # CardsService
+    "set_flag",
 ]
 
 
@@ -812,8 +814,9 @@ def _check_dynamic_request_permissions():
         "/_anki/setSchedulingStates",
         "/_anki/i18nResources",
         "/_anki/congratsInfo",
-        # TODO: Unsure about this
+        # TODO: Correctly set the auth token
         "/_anki/nextCardData",
+        "/_anki/setFlag",
     ):
         pass
     else:

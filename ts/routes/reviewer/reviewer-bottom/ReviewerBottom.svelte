@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
         <span class="disappearing"></span>
         <div class="disappearing more">
-            <More></More>
+            <More {state}></More>
         </div>
     </div>
 </div>
