@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::io::stdin;
-use std::io::stdout;
 use std::io::Write;
 use std::process::Command;
 use std::time::SystemTime;
@@ -16,6 +14,7 @@ use anki_io::remove_file;
 use anki_io::write_file;
 use anki_io::ToUtf8Path;
 use anki_process::CommandExt as AnkiCommandExt;
+use anki_proto::launcher::uninstall_response::ActionNeeded;
 use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
@@ -34,10 +33,10 @@ use crate::state::Versions;
 #[derive(Debug, Clone)]
 pub struct Paths {
     pub prerelease_marker: std::path::PathBuf,
-    uv_install_root: std::path::PathBuf,
+    pub uv_install_root: std::path::PathBuf,
     uv_cache_dir: std::path::PathBuf,
     pub no_cache_marker: std::path::PathBuf,
-    anki_base_folder: std::path::PathBuf,
+    pub anki_base_folder: std::path::PathBuf,
     uv_path: std::path::PathBuf,
     uv_python_install_dir: std::path::PathBuf,
     user_pyproject_path: std::path::PathBuf,
@@ -53,6 +52,12 @@ pub struct Paths {
     venv_folder: std::path::PathBuf,
     /// system Python + PyQt6 library mode
     system_qt: bool,
+}
+
+impl AsRef<Paths> for Paths {
+    fn as_ref(&self) -> &Paths {
+        self
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -648,56 +653,25 @@ fn get_anki_addons21_path() -> Result<std::path::PathBuf> {
     Ok(get_anki_base_path()?.join("addons21"))
 }
 
-// TODO: revert
-#[allow(unused)]
-fn handle_uninstall(state: &Paths) -> Result<bool> {
-    // println!("{}", state.tr.launcher_uninstall_confirm());
-    print!("> ");
-    let _ = stdout().flush();
-
-    let mut input = String::new();
-    let _ = stdin().read_line(&mut input);
-    let input = input.trim().to_lowercase();
-
-    if input != "y" {
-        // println!("{}", state.tr.launcher_uninstall_cancelled());
-        println!();
-        return Ok(false);
-    }
-
+pub fn handle_uninstall(state: &Paths, delete_base_folder: bool) -> Result<Option<ActionNeeded>> {
     // Remove program files
-    if state.uv_install_root.exists() {
-        anki_io::remove_dir_all(&state.uv_install_root)?;
-        // println!("{}", state.tr.launcher_program_files_removed());
+    anki_io::remove_dir_all(&state.uv_install_root)
+        .with_context(|| anyhow!("Failed to delete AnkiProgramFiles"))?;
+
+    if delete_base_folder {
+        anki_io::remove_dir_all(&state.anki_base_folder)
+            .with_context(|| anyhow!("Failed to delete anki base folder"))?;
     }
-
-    println!();
-    // println!("{}", state.tr.launcher_remove_all_profiles_confirm());
-    print!("> ");
-    let _ = stdout().flush();
-
-    let mut input = String::new();
-    let _ = stdin().read_line(&mut input);
-    let input = input.trim().to_lowercase();
-
-    if input == "y" && state.anki_base_folder.exists() {
-        anki_io::remove_dir_all(&state.anki_base_folder)?;
-        // println!("{}", state.tr.launcher_user_data_removed());
-    }
-
-    println!();
 
     // Platform-specific messages
     #[cfg(target_os = "macos")]
-    platform::mac::finalize_uninstall();
+    return platform::mac::finalize_uninstall();
 
     #[cfg(target_os = "windows")]
-    platform::windows::finalize_uninstall();
+    return platform::windows::finalize_uninstall();
 
     #[cfg(all(unix, not(target_os = "macos")))]
-    platform::unix::finalize_uninstall();
-
-    Ok(true)
+    return platform::unix::finalize_uninstall();
 }
 
 fn uv_command(state: &Paths) -> Result<Command> {
