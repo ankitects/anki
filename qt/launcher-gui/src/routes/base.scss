@@ -15,5 +15,10 @@ $carousel-transition: var(--transition);
 @import "$lib/sass/bootstrap-tooltip";
 
 input {
-    color: var(--fg);
+  color: var(--fg);
+}
+
+// follows AnkiWebView.standard_css
+html {
+  font-family: "Segoe UI", "Helvetica", sans-serif;
 }
