@@ -19,6 +19,16 @@ use crate::uv;
 
 pub const PROTOCOL: &str = "anki";
 
+pub trait StateExt<R: Runtime> {
+    fn flow(&self) -> &State;
+}
+
+impl<R: Runtime, T: Manager<R>> StateExt<R> for T {
+    fn flow(&self) -> &State {
+        self.state::<State>().inner()
+    }
+}
+
 pub fn init() -> Option<State> {
     let mut state = State::init().unwrap_or_else(State::UnknownError);
 
