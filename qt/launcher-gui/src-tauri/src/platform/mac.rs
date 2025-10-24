@@ -5,6 +5,7 @@ use std::path::Path;
 use std::process::Command;
 
 use anki_process::CommandExt as AnkiCommandExt;
+use anki_proto::launcher::uninstall_response::ActionNeeded;
 use anyhow::Result;
 
 pub fn prepare_for_launch_after_update(mut cmd: Command, root: &Path) -> Result<()> {
@@ -34,7 +35,7 @@ pub fn prepare_for_launch_after_update(mut cmd: Command, root: &Path) -> Result<
     Ok(())
 }
 
-pub fn finalize_uninstall() {
+pub fn finalize_uninstall() -> Result<Option<ActionNeeded>> {
     if let Ok(exe_path) = std::env::current_exe() {
         // Find the .app bundle by walking up the directory tree
         let mut app_bundle_path = exe_path.as_path();
@@ -43,22 +44,17 @@ pub fn finalize_uninstall() {
                 if name.to_string_lossy().ends_with(".app") {
                     let result = Command::new("trash").arg(parent).output();
 
-                    match result {
-                        Ok(output) if output.status.success() => {
-                            println!("Anki has been uninstalled.");
-                            return;
-                        }
+                    return Ok(match result {
+                        Ok(output) if output.status.success() => None,
                         _ => {
                             // Fall back to manual instructions
-                            println!(
-                                "Please manually drag Anki.app to the trash to complete uninstall."
-                            );
+                            Some(ActionNeeded::MacManual(()))
                         }
-                    }
-                    return;
+                    });
                 }
             }
             app_bundle_path = parent;
         }
     }
+    Ok(None)
 }

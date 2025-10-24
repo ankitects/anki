@@ -4,7 +4,8 @@
 use std::io::stdin;
 use std::process::Command;
 
-use anyhow::Context;
+use anki_proto::launcher::uninstall_response::ActionNeeded;
+use anki_proto::launcher::uninstall_response::WindowsInstallerError;
 use anyhow::Result;
 use widestring::u16cstr;
 use windows::core::PCWSTR;
@@ -58,33 +59,34 @@ pub fn ensure_windows_version_supported() -> Result<()> {
     }
 }
 
-pub fn finalize_uninstall() {
+pub fn finalize_uninstall() -> Result<Option<ActionNeeded>> {
     let uninstaller_path = get_uninstaller_path();
 
-    match uninstaller_path {
+    Ok(match uninstaller_path {
         Some(path) => {
             println!("Launching Windows uninstaller...");
             let result = Command::new(&path).env("ANKI_LAUNCHER", "1").spawn();
 
             match result {
-                Ok(_) => {
-                    println!("Uninstaller launched successfully.");
-                    return;
-                }
+                Ok(_) => None,
                 Err(e) => {
                     println!("Failed to launch uninstaller: {e}");
                     println!("You can manually run: {}", path.display());
+                    Some(ActionNeeded::WindowsInstallerFailed(
+                        WindowsInstallerError {
+                            error: format!("{e:?}"),
+                            path: path.display().to_string(),
+                        },
+                    ))
                 }
             }
         }
         None => {
             println!("Windows uninstaller not found.");
             println!("You may need to uninstall via Windows Settings > Apps.");
+            Some(ActionNeeded::WindowsInstallerNotFound(()))
         }
-    }
-    println!("Press enter to close...");
-    let mut input = String::new();
-    let _ = stdin().read_line(&mut input);
+    })
 }
 
 fn get_uninstaller_path() -> Option<std::path::PathBuf> {

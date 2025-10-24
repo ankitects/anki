@@ -1,24 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki_proto::launcher::uninstall_response::ActionNeeded;
 use anyhow::Result;
 
-pub fn finalize_uninstall() {
-    use std::io::stdin;
-    use std::io::stdout;
-    use std::io::Write;
-
+pub fn finalize_uninstall() -> Result<Option<ActionNeeded>> {
     let uninstall_script = std::path::Path::new("/usr/local/share/anki/uninstall.sh");
 
-    if uninstall_script.exists() {
-        println!("To finish uninstalling, run 'sudo /usr/local/share/anki/uninstall.sh'");
-    } else {
-        println!("Anki has been uninstalled.");
-    }
-    println!("Press enter to quit.");
-    let _ = stdout().flush();
-    let mut input = String::new();
-    let _ = stdin().read_line(&mut input);
+    Ok(uninstall_script
+        .exists()
+        .then_some(ActionNeeded::UnixScript(
+            uninstall_script.display().to_string(),
+        )))
 }
 
 pub fn ensure_glibc_supported() -> Result<()> {
