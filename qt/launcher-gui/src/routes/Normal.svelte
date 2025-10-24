@@ -23,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Term from "./Term.svelte";
     import AnkiWillStart from "./AnkiWillStart.svelte";
     import type { Terminal } from "@xterm/xterm";
+    import { tick } from "svelte";
 
     let {
         options,
@@ -52,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let error: Error | null = $state(null);
     const setError = (e: Error) => {
-        error = e;
+        tick().then(() => (error = e));
     };
 
     let term: Terminal | undefined = $state(undefined);
