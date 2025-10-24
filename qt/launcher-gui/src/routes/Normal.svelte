@@ -100,6 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {setError(e)}
     <Warning warning={$tr.launcherFailedToSync()} className="alert-danger" />
 {/await}
+
 {#if error != null}
     <Row>
         <pre>{error.message}</pre>
@@ -132,30 +133,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         -webkit-text-size-adjust: 100%;
     }
 
-    .logo {
-        max-width: 50px;
-        margin-inline-end: 1em;
-
-        -webkit-user-drag: none;
-        user-select: none;
-        -moz-user-select: none;
-        -webkit-user-select: none;
-        -ms-user-select: none;
-    }
-
-    .title {
-        align-items: center;
-    }
-
     :global(.centre) {
         justify-content: center;
     }
 
     pre {
-        white-space: pre-wrap; /* Since CSS 2.1 */
-        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-        white-space: -pre-wrap; /* Opera 4-6 */
-        white-space: -o-pre-wrap; /* Opera 7 */
-        word-wrap: break-word; /* Internet Explorer 5.5+ */
+        white-space: pre-wrap;
     }
 </style>

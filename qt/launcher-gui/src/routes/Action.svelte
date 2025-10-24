@@ -82,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if uninstall != null}
         <Row class="centre m-3">
             <button class="btn btn-primary" onclick={uninstall}>
-                {$tr.launcherUninstall()} (TODO)
+                {$tr.launcherUninstall()}
             </button>
         </Row>
     {/if}
