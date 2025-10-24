@@ -142,6 +142,7 @@ class AnkiWebPage(QWebEnginePage):
             AnkiWebViewKind.IMPORT_ANKI_PACKAGE,
             AnkiWebViewKind.IMPORT_CSV,
             AnkiWebViewKind.IMPORT_LOG,
+            AnkiWebViewKind.MAIN,
         )
 
         global _profile_with_api_access, _profile_without_api_access

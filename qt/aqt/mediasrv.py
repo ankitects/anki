@@ -814,9 +814,6 @@ def _check_dynamic_request_permissions():
         "/_anki/setSchedulingStates",
         "/_anki/i18nResources",
         "/_anki/congratsInfo",
-        # TODO: Correctly set the auth token
-        "/_anki/nextCardData",
-        "/_anki/setFlag",
     ):
         pass
     else:
