@@ -58,7 +58,7 @@ trait DiffTrait {
         if self.get_typed() == self.get_expected() {
             format_typeans!(format!(
                 "<span class=typeGood>{}</span>",
-                self.get_expected_original()
+                htmlescape::encode_minimal(self.get_expected_original().into())
             ))
         } else {
             let output = self.to_tokens();
