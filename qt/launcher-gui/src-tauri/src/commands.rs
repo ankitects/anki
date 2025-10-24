@@ -14,6 +14,9 @@ use anki_proto::launcher::Mirror;
 use anki_proto::launcher::NormalState as NormalStateProto;
 use anki_proto::launcher::Options;
 use anki_proto::launcher::State as StateProto;
+use anki_proto::launcher::Uninstall as UninstallProto;
+use anki_proto::launcher::UninstallRequest;
+use anki_proto::launcher::UninstallResponse;
 use anki_proto::launcher::ZoomWebviewRequest;
 use anyhow::anyhow;
 use anyhow::Context;
@@ -32,6 +35,7 @@ use crate::lang::LANGS_DEFAULT_REGION;
 use crate::lang::LANGS_WITH_REGIONS;
 use crate::state::ExistingVersions;
 use crate::state::State;
+use crate::state::Uninstall;
 use crate::state::Versions;
 use crate::uv;
 
@@ -216,6 +220,23 @@ pub async fn exit<R: Runtime>(app: AppHandle<R>, window: WebviewWindow<R>) -> Re
     });
 
     Ok(())
+}
+
+pub async fn get_uninstall_info<R: Runtime>(
+    app: AppHandle<R>,
+    _window: WebviewWindow<R>,
+) -> Result<UninstallProto> {
+    app.flow().paths().map(Uninstall::from).map(Into::into)
+}
+
+pub async fn uninstall_anki<R: Runtime>(
+    app: AppHandle<R>,
+    _window: WebviewWindow<R>,
+    input: UninstallRequest,
+) -> Result<UninstallResponse> {
+    let paths = app.flow().paths()?;
+    let action_needed = uv::handle_uninstall(paths, input.delete_base_folder)?;
+    Ok(UninstallResponse { action_needed })
 }
 
 /// NOTE:  [zoomHotkeysEnabled](https://v2.tauri.app/reference/config/#zoomhotkeysenabled) exists

@@ -6,6 +6,7 @@ use std::sync::Arc;
 pub use anki_proto::launcher::ExistingVersions;
 use anki_proto::launcher::Mirror;
 use anki_proto::launcher::Options as OptionsProto;
+use anki_proto::launcher::Uninstall as UninstallProto;
 pub use anki_proto::launcher::Version;
 pub use anki_proto::launcher::Versions;
 use anyhow::anyhow;
@@ -68,6 +69,30 @@ impl From<uv::Paths> for NormalState {
 impl From<NormalState> for State {
     fn from(state: NormalState) -> Self {
         Self::Normal(state)
+    }
+}
+
+pub struct Uninstall {
+    anki_program_files_exists: bool,
+    anki_base_folder_exists: bool,
+}
+
+impl<T: AsRef<uv::Paths>> From<T> for Uninstall {
+    fn from(paths: T) -> Self {
+        let paths = paths.as_ref();
+        Self {
+            anki_program_files_exists: paths.uv_install_root.exists(),
+            anki_base_folder_exists: paths.anki_base_folder.exists(),
+        }
+    }
+}
+
+impl From<Uninstall> for UninstallProto {
+    fn from(u: Uninstall) -> Self {
+        Self {
+            anki_program_files_exists: u.anki_program_files_exists,
+            anki_base_folder_exists: u.anki_base_folder_exists,
+        }
     }
 }
 
