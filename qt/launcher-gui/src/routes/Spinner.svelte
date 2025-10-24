@@ -36,7 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             position: absolute;
             width: 32px;
             height: 32px;
-            margin: 32px;
+            inset: 0;
+            margin: auto;
             border: 2px solid #000;
             border-radius: 50%;
             animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
