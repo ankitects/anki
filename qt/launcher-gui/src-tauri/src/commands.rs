@@ -7,6 +7,7 @@ use anki_proto::launcher::get_mirrors_response;
 use anki_proto::launcher::state::Kind as StateProtoKind;
 use anki_proto::launcher::ChooseVersionRequest;
 use anki_proto::launcher::ChooseVersionResponse;
+use anki_proto::launcher::Event;
 use anki_proto::launcher::GetLangsResponse;
 use anki_proto::launcher::GetMirrorsResponse;
 use anki_proto::launcher::I18nResourcesRequest;
@@ -184,7 +185,7 @@ pub async fn choose_version<R: Runtime>(
 
         let version = input.version;
         let on_pty_data = move |data| {
-            let _ = app.emit("pty-data", data);
+            let _ = app.emit(Event::PtyData.as_str_name(), data);
         };
 
         if !input.keep_existing || paths.pyproject_modified_by_user {

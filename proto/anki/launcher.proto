@@ -33,11 +33,7 @@ service LauncherService {
 // TODO: this should not be necessary
 service BackendLauncherService {}
 
-// TODO: codegen
-enum Event {
-  TERM_INPUT = 0;
-  WINDOWS_READY = 1;
-}
+enum Event { PTY_DATA = 0; }
 
 message I18nResourcesRequest {
   repeated string modules = 1;

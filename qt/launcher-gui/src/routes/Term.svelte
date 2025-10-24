@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Terminal } from "@xterm/xterm";
     import { WebglAddon } from "@xterm/addon-webgl";
     import "@xterm/xterm/css/xterm.css";
+    import { Event as BackendEvent } from "@generated/anki/launcher_pb";
 
     let {
         term = $bindable(),
@@ -41,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             console.log("WebGL addon threw an exception during load", e);
         }
 
-        const unlisten = listen<string>("pty-data", (e) => {
+        const unlisten = listen<string>(BackendEvent[BackendEvent.PTY_DATA], (e) => {
             const data = protoBase64.dec(e.payload);
             open = true;
             term!.write(data);
