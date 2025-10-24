@@ -846,19 +846,16 @@ impl State {
         let launcher_requested =
             paths.launcher_trigger_file.exists() || !paths.user_pyproject_path.exists();
 
-        // TODO: remove
-        let skip = std::env::var("ANKI_LAUNCHER_SKIP").is_ok();
-
         // Calculate whether user has custom edits that need syncing
         let pyproject_time = file_timestamp_secs(&paths.user_pyproject_path);
         let sync_time = file_timestamp_secs(&paths.sync_complete_marker);
         paths.pyproject_modified_by_user = pyproject_time > sync_time;
         let pyproject_has_changed = paths.pyproject_modified_by_user;
 
-        #[allow(clippy::nonminimal_bool)]
-        let debug = true && cfg!(debug_assertions);
+        // TODO: remove
+        let debug = cfg!(debug_assertions) && std::env::var("ANKI_LAUNCHER_SKIP").is_err();
 
-        if !launcher_requested && !pyproject_has_changed && (!debug || skip) {
+        if !launcher_requested && !pyproject_has_changed && !debug {
             return Ok(Self::LaunchAnki(paths.into()));
         }
 
