@@ -68,4 +68,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     div :global(button) {
         width: fit-content;
     }
+
+    button {
+        line-height: 18px;
+    }
 </style>
