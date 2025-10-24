@@ -8,23 +8,29 @@ use anyhow::Result;
 use phf::phf_map;
 use phf::phf_ordered_map;
 use phf::phf_set;
-use tauri::AppHandle;
 use tauri::Manager;
 use tauri::Runtime;
 
 pub type I18n = anki_i18n::I18n<anki_i18n::Launcher>;
 pub type Tr = RwLock<Option<I18n>>;
 
-pub fn setup_i18n<R: Runtime>(app: &AppHandle<R>, locales: &[&str]) {
-    *app.state::<Tr>().write().expect("tr lock was poisoned!") = Some(I18n::new(locales));
+pub trait I18nExt<R: Runtime> {
+    fn setup_tr(&self, locales: &[&str]);
+    fn tr(&self) -> Result<I18n>;
 }
 
-pub fn get_tr<R: Runtime>(app: &AppHandle<R>) -> Result<I18n> {
-    let tr_state = app.state::<Tr>();
-    let guard = tr_state.read().expect("tr lock was poisoned!");
-    guard
-        .clone()
-        .ok_or_else(|| anyhow!("tr was not initialised!"))
+impl<R: Runtime, T: Manager<R>> I18nExt<R> for T {
+    fn setup_tr(&self, locales: &[&str]) {
+        *self.state::<Tr>().write().expect("tr lock was poisoned!") = Some(I18n::new(locales));
+    }
+
+    fn tr(&self) -> Result<I18n> {
+        let tr_state = self.state::<Tr>();
+        let guard = tr_state.read().expect("tr lock was poisoned!");
+        guard
+            .clone()
+            .ok_or_else(|| anyhow!("tr was not initialised!"))
+    }
 }
 
 pub const LANGS: phf::OrderedMap<&'static str, &'static str> = phf_ordered_map! {
