@@ -17,7 +17,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ErrorState from "./ErrorState.svelte";
     import Normal from "./Normal.svelte";
     import Uninstall from "./Uninstall.svelte";
-    import { launcherOsUnsupported } from "@generated/ftl";
 
     const { data }: PageProps = $props();
 
@@ -25,6 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let selectedLang = $state(data.userLocale);
     let flow = $state(data.state);
     let mirrors = $state(data.mirrors);
+    let uninstallInfo = data.uninstallInfo;
 
     async function onLangChange(lang: string) {
         await setLang({ val: lang });
@@ -46,16 +46,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let footer: any = $state(null);
 
-    const uninstall = () => {
-        flow.case = "uninstall";
-    };
+    const uninstall = uninstallInfo.ankiProgramFilesExists
+        ? () => {
+              flow.case = "uninstall";
+          }
+        : null;
 </script>
 
 <Start bind:selectedLang {langs} {footer}>
     {#if flow.case === "normal"}
         <Normal {mirrors} options={flow.value.options!} {uninstall} bind:footer />
     {:else if flow.case === "uninstall"}
-        <Uninstall bind:footer />
+        <Uninstall {uninstallInfo} bind:footer />
     {:else if flow.case === "osUnsupported"}
         <ErrorState
             title={$tr.launcherOsUnsupported()}
