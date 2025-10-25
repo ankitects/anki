@@ -677,23 +677,55 @@ mod tests {
 
     mod update_memory_state {
         use super::*;
-        use crate::collection::CollectionBuilder;
 
         #[test]
-        fn smoke() {
-            let mut collection = CollectionBuilder::default().build().unwrap();
+        fn no_req_clears_fsrs_params() -> Result<()> {
+            let mut col = Collection::new();
+            let nt = col.get_notetype_by_name("Basic")?.unwrap();
+            let mut note1 = nt.new_note();
+            col.add_note(&mut note1, DeckId(1))?;
+            let mut card = col
+                .storage
+                .all_cards_of_note(note1.id)?
+                .into_iter()
+                .next()
+                .unwrap();
+            let card_id = card.id;
+            // Make the card not new
+            card.ctype = CardType::Review;
+            card.interval = 1;
+            // Set FSRS parameters
+            card.memory_state = Some(FsrsMemoryState {
+                stability: 1.0,
+                difficulty: 1.0,
+            });
+            card.desired_retention = Some(0.123);
+            card.decay = Some(0.456);
+
+            col.storage.update_card(&card)?;
+
+            // Add a revlog entry so the card is found within update_memory_state
+            let mut rev = revlog(RevlogReviewKind::Review, 1);
+            rev.cid = card_id;
+            col.storage.add_revlog_entry(&rev, false)?;
+
             let entry = UpdateMemoryStateEntry {
                 req: None,
                 search: SearchNode::WholeCollection,
                 ignore_before: TimestampMillis(0),
             };
+            col.transact(Op::UpdateDeckConfig, |col| {
+                col.update_memory_state(vec![entry]).unwrap();
+                Ok(())
+            })
+            .unwrap();
 
-            collection
-                .transact(Op::UpdateDeckConfig, |collection| {
-                    collection.update_memory_state(vec![entry]).unwrap();
-                    Ok(())
-                })
-                .unwrap();
+            let card = col.storage.get_card(card_id)?.unwrap();
+            assert_eq!(card.memory_state, None);
+            assert_eq!(card.desired_retention, None);
+            assert_eq!(card.decay, None);
+
+            Ok(())
         }
     }
 }
