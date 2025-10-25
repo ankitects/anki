@@ -95,7 +95,7 @@ impl Collection {
 
             let Some(req) = &req else {
                 let items = fsrs_items_for_memory_states(
-                    &FSRS::new(Some([].as_slice()))?,
+                    &FSRS::new(Some(&[]))?,
                     revlog,
                     timing.next_day_at,
                     0.9,
