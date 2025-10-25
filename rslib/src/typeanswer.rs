@@ -392,6 +392,15 @@ mod test {
     }
 
     #[test]
+    fn correct_input_is_escaped() {
+        let ctx = Diff::new("source <dir>/bin/activate", "source <dir>/bin/activate");
+        assert_eq!(
+            ctx.to_html(),
+            "<code id=typeans><span class=typeGood>source &lt;dir&gt;/bin/activate</span></code>"
+        );
+    }
+
+    #[test]
     fn correct_input_is_collapsed() {
         let ctx = Diff::new("123", "123");
         assert_eq!(
