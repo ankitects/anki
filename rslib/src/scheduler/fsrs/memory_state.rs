@@ -679,7 +679,7 @@ mod tests {
         use super::*;
 
         #[test]
-        fn no_req_clears_fsrs_params() -> Result<()> {
+        fn no_req_clears_fsrs_data() -> Result<()> {
             let mut col = Collection::new();
             let nt = col.get_notetype_by_name("Basic")?.unwrap();
             let mut note1 = nt.new_note();
