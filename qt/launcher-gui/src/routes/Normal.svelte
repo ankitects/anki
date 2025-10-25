@@ -51,11 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         Promise.resolve(null),
     );
 
-    let error: Error | null = $state(null);
-    const setError = (e: Error) => {
-        tick().then(() => (error = e));
-    };
-
     let term: Terminal | undefined = $state(undefined);
     let termOpen = $state(false);
     let chosen = $state(false);
@@ -85,11 +80,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {:then [releases, existing]}
             <Action {releases} {existing} {allowBetas} {choose} {uninstall} />
         {:catch e}
-            {setError(e)}
             <Warning
                 warning={$tr.lauuncherFailedToLoadVersions()}
                 className="alert-danger"
             />
+            <Row>
+                <pre>{e.message}</pre>
+            </Row>
         {/await}
     {:else}
         <Row class="centre m-3">
@@ -97,15 +94,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Row>
     {/if}
 {:catch e}
-    {setError(e)}
     <Warning warning={$tr.launcherFailedToSync()} className="alert-danger" />
-{/await}
-
-{#if error != null}
     <Row>
-        <pre>{error.message}</pre>
+        <pre>{e.message}</pre>
     </Row>
-{/if}
+{/await}
 
 {#snippet _footer()}
     <Term bind:term bind:open={termOpen} />
