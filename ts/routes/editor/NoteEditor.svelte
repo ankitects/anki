@@ -314,10 +314,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let notetypeChooser: NotetypeChooser;
     let deckChooser: DeckChooser;
 
-    async function onNotetypeChange(notetypeId: bigint, updateDeck: boolean = true) {
+    async function onNotetypeChange(notetypeId: bigint) {
         loadNote({ notetypeId, copyFromNote: note });
         if (
-            updateDeck &&
             !(
                 await getConfigBool({
                     key: ConfigKey_Bool.ADDING_DEFAULTS_TO_CURRENT_DECK,
@@ -1034,10 +1033,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }
         if (deckId) {
-            selectedDeckId = BigInt(deckId);
+            selectedDeckId = deckId;
         }
         if (notetypeId) {
-            selectedNotetypeId = BigInt(notetypeId);
+            selectedNotetypeId = notetypeId;
+        }
+        if(!selectedNotetypeId && copyFromNote) {
+            selectedNotetypeId = copyFromNote?.notetypeId;
         }
         if (mode === "add") {
             deckChooser.select(selectedDeckId!);
@@ -1253,15 +1255,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function onOperationDidExecute(changes: Partial<OpChanges>) {
         if (mode === "add" && (changes.notetype || changes.deck)) {
-            let homeDeckId = 0n;
-            if (reviewerCard) {
-                homeDeckId = reviewerCard.originalDeckId || reviewerCard.deckId;
-            }
-            const chooserDefaults = await defaultsForAdding({
-                homeDeckOfCurrentReviewCard: homeDeckId,
-            });
-            notetypeChooser.select(chooserDefaults.notetypeId);
-            onNotetypeChange(chooserDefaults.notetypeId, false);
+            loadNote({ copyFromNote: note });
+            lastAddedNote = null;
         } else if (mode !== "add" && changes.noteText) {
             reloadNote();
         }
