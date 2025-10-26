@@ -169,6 +169,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    .search-container {
+        padding: 1rem 0;
+    }
+
     .search-input-wrapper {
         position: relative;
         display: flex;
@@ -222,6 +226,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1rem;
         padding: 0.5rem 0;
+        padding-inline-end: 0.5em;
+        overflow-y: auto;
     }
 
     :global(.item-card) {
@@ -261,13 +267,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .modal-body {
-        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
         max-height: 80vh;
-        overflow-y: auto;
     }
 
     .modal-header {
-        padding: 1.5rem;
         border-bottom: 1px solid var(--border-subtle);
         background: var(--canvas-elevated);
     }
