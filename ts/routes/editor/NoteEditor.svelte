@@ -1038,7 +1038,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (notetypeId) {
             selectedNotetypeId = notetypeId;
         }
-        if(!selectedNotetypeId && copyFromNote) {
+        if (!selectedNotetypeId && copyFromNote) {
             selectedNotetypeId = copyFromNote?.notetypeId;
         }
         if (mode === "add") {
@@ -1211,10 +1211,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function loadNote(args: Partial<LoadNoteArgs>) {
         if (args.initial) {
-            initialLoadArgs = {...args, initial: false};
+            initialLoadArgs = { ...args, initial: false };
         }
         if (typeof args.focusTo === "undefined") {
-            args = {...args, focusTo: focusedFieldIndex};
+            args = { ...args, focusTo: focusedFieldIndex };
         }
         loadDebouncer.schedule(async () => {
             await loadNoteInner(

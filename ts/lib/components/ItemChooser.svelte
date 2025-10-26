@@ -72,9 +72,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onShown() {
         searchInput?.focus();
-        for(const element of filteredElements) {
-            if(element.classList.contains("selected")) {
-                element.scrollIntoView({block: "start"});
+        for (const element of filteredElements) {
+            if (element.classList.contains("selected")) {
+                element.scrollIntoView({ block: "start" });
             }
         }
     }
@@ -91,7 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </LabelButton>
 
 <Shortcut {keyCombination} on:action={toggleModal} />
-<Modal bind:this={modal} onShown={onShown} dialogClass="modal-lg">
+<Modal bind:this={modal} {onShown} dialogClass="modal-lg">
     <div slot="header" class="modal-header">
         <IconConstrain iconSize={90}>
             <Icon {icon} />
