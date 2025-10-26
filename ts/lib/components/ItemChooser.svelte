@@ -42,6 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                   item.name.toLowerCase().includes(searchQuery.toLowerCase()),
               ),
     );
+    const filteredElements: HTMLButtonElement[] = $state([]);
 
     function onSelect(item: Item) {
         selectedItem = item;
@@ -69,6 +70,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function onShown() {
+        searchInput?.focus();
+        for(const element of filteredElements) {
+            if(element.classList.contains("selected")) {
+                element.scrollIntoView({block: "start"});
+            }
+        }
+    }
+
     $effect(() => {
         if (!selectedItem && items.length > 0) {
             selectedItem = items[0];
@@ -81,7 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </LabelButton>
 
 <Shortcut {keyCombination} on:action={toggleModal} />
-<Modal bind:this={modal} onShown={() => searchInput?.focus()} dialogClass="modal-lg">
+<Modal bind:this={modal} onShown={onShown} dialogClass="modal-lg">
     <div slot="header" class="modal-header">
         <IconConstrain iconSize={90}>
             <Icon {icon} />
@@ -125,8 +135,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
         </div>
         <div class="item-grid">
-            {#each filteredItems as item (item.id)}
+            {#each filteredItems as item, i (item.id)}
                 <button
+                    bind:this={filteredElements[i]}
                     class="item-card"
                     class:selected={selectedItem?.id === item.id}
                     onclick={() => onSelect(item)}
