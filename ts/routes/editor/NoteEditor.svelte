@@ -1209,10 +1209,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function loadNote(args: Partial<LoadNoteArgs>) {
         if (args.initial) {
-            initialLoadArgs = args;
+            initialLoadArgs = {...args, initial: false};
         }
         if (typeof args.focusTo === "undefined") {
-            args.focusTo = focusedFieldIndex;
+            args = {...args, focusTo: focusedFieldIndex};
         }
         loadDebouncer.schedule(async () => {
             await loadNoteInner(
