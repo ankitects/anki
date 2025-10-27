@@ -33,7 +33,7 @@ git = "https://github.com/ankitects/linkcheck.git"
 rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
-version = "5.1.0"
+version = "5.2.0"
 # git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
 # path = "../open-spaced-repetition/fsrs-rs"
 
@@ -100,6 +100,7 @@ num_cpus = "1.17.0"
 num_enum = "0.7.3"
 once_cell = "1.21.3"
 pbkdf2 = { version = "0.12", features = ["simple"] }
+permutation = "0.4.1"
 phf = { version = "0.11.3", features = ["macros"] }
 pin-project = "1.1.10"
 prettyplease = "0.2.34"
