@@ -152,7 +152,9 @@ fn run() -> Result<()> {
     let sync_time = file_timestamp_secs(&state.sync_complete_marker);
     state.pyproject_modified_by_user = pyproject_time > sync_time;
     let pyproject_has_changed = state.pyproject_modified_by_user;
-    if !launcher_requested && !pyproject_has_changed {
+    let different_launcher = diff_launcher_was_installed(&state)?;
+
+    if !launcher_requested && !pyproject_has_changed && !different_launcher {
         // If no launcher request and venv is already up to date, launch Anki normally
         let args: Vec<String> = std::env::args().skip(1).collect();
         let cmd = build_python_command(&state, &args)?;
@@ -598,17 +600,26 @@ fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
 }
 
 fn with_only_latest_patch(versions: &[String]) -> Vec<String> {
-    // Only show the latest patch release for a given (major, minor)
+    // Assumes versions are sorted in descending order (newest first)
+    // Only show the latest patch release for a given (major, minor),
+    // and exclude pre-releases if a newer major_minor exists
     let mut seen_major_minor = std::collections::HashSet::new();
     versions
         .iter()
         .filter(|v| {
-            let (major, minor, _, _) = parse_version_for_filtering(v);
+            let (major, minor, _, is_prerelease) = parse_version_for_filtering(v);
             if major == 2 {
                 return true;
             }
             let major_minor = (major, minor);
             if seen_major_minor.contains(&major_minor) {
+                false
+            } else if is_prerelease
+                && seen_major_minor
+                    .iter()
+                    .any(|&(seen_major, seen_minor)| (seen_major, seen_minor) > (major, minor))
+            {
+                // Exclude pre-release if a newer major_minor exists
                 false
             } else {
                 seen_major_minor.insert(major_minor);
@@ -1014,6 +1025,9 @@ fn uv_command(state: &State) -> Result<Command> {
         command.env("UV_CACHE_DIR", &state.uv_cache_dir);
     }
 
+    // have uv use the system certstore instead of webpki-roots'
+    command.env("UV_NATIVE_TLS", "1");
+
     Ok(command)
 }
 
@@ -1106,6 +1120,20 @@ fn show_mirror_submenu(state: &State) -> Result<()> {
         }
     }
     Ok(())
+}
+
+fn diff_launcher_was_installed(state: &State) -> Result<bool> {
+    let launcher_version = option_env!("BUILDHASH").unwrap_or("dev").trim();
+    let launcher_version_path = state.uv_install_root.join("launcher-version");
+    if let Ok(content) = read_file(&launcher_version_path) {
+        if let Ok(version_str) = String::from_utf8(content) {
+            if version_str.trim() == launcher_version {
+                return Ok(false);
+            }
+        }
+    }
+    write_file(launcher_version_path, launcher_version)?;
+    Ok(true)
 }
 
 #[cfg(test)]
