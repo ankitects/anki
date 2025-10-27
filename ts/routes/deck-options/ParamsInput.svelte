@@ -71,7 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <svelte:window onresize={updateHeight} />
 
-<span
+<div
     on:click={onClick}
     on:keypress={onClick}
     role="button"
@@ -86,7 +86,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         placeholder={tr.deckConfigPlaceholderParameters()}
         disabled={!unlocked}
     ></textarea>
-</span>
+</div>
 
 <Warning warning={unlockEditWarning} className="alert-danger"></Warning>
 
