@@ -1015,6 +1015,9 @@ fn uv_command(state: &State) -> Result<Command> {
             .env("UV_DEFAULT_INDEX", &pypi_mirror);
     }
 
+    // have uv use the system certstore instead of webpki-roots'
+    command.env("UV_NATIVE_TLS", "1");
+
     Ok(command)
 }
 
