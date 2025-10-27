@@ -2,15 +2,18 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import "../base.scss";
 import "../../reviewer/reviewer.scss";
+import "mathjax/es5/tex-chtml-full.js";
+import { renderError } from "../../reviewer";
 import { enableNightMode } from "../reviewer/reviewer";
 import type { InnerReviewerRequest } from "./reviewerRequest";
 
+declare const MathJax: any;
 const urlParams = new URLSearchParams(location.search);
 
 const style = document.createElement("style");
 document.head.appendChild(style);
 
-addEventListener("message", (e: MessageEvent<InnerReviewerRequest>) => {
+addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
     switch (e.data.type) {
         case "html": {
             document.body.innerHTML = e.data.value;
@@ -26,6 +29,17 @@ addEventListener("message", (e: MessageEvent<InnerReviewerRequest>) => {
                     document.body.classList.add("nightMode");
                 }
             }
+
+            // wait for mathjax to ready
+            await MathJax.startup.promise
+                .then(() => {
+                    // clear MathJax buffers from previous typesets
+                    MathJax.typesetClear();
+
+                    return MathJax.typesetPromise([document.body]);
+                })
+                .catch(renderError("MathJax"));
+
             break;
         }
         default: {
