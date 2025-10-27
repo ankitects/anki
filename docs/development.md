@@ -216,7 +216,7 @@ cd ./qt/launcher/lin/
 ./build.sh
 ```
 
-## Issues during Building
+## Issues During Building
 
 If you are experiencing issues building the launcher, make sure that all dependencies
 are installed. See [Building from source](#building-from-source) for more info.
