@@ -7,4 +7,7 @@ fn main() {
             .manifest_required()
             .unwrap();
     }
+    println!("cargo:rerun-if-changed=../../out/buildhash");
+    let buildhash = std::fs::read_to_string("../../out/buildhash").unwrap_or_default();
+    println!("cargo:rustc-env=BUILDHASH={buildhash}");
 }

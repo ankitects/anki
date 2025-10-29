@@ -31,7 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { randomUUID } from "@tslib/uuid";
     import { onDestroy } from "svelte";
     import { writable } from "svelte/store";
 
@@ -66,7 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
 
-    const uuid = randomUUID();
+    const uuid = crypto.randomUUID();
     const imageHeight = writable(0);
     imageToHeightMap.set(uuid, imageHeight);
 
