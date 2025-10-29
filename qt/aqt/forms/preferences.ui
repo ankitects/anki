@@ -426,6 +426,19 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="showColoredButtons">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>preferences_show_colored_buttons</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="spacebar_rates_card">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1271,6 +1284,7 @@
   <tabstop>interrupt_audio</tabstop>
   <tabstop>showProgress</tabstop>
   <tabstop>showEstimates</tabstop>
+  <tabstop>showColoredButtons</tabstop>
   <tabstop>spacebar_rates_card</tabstop>
   <tabstop>render_latex</tabstop>
   <tabstop>url_schemes</tabstop>
