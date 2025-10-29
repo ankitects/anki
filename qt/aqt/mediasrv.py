@@ -28,9 +28,10 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
+from anki.frontend_pb2 import PlayAudioRequest
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.scheduler_pb2 import NextCardDataResponse
 from anki.template import (
@@ -45,6 +46,7 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
+from aqt.sound import play_clicked_audio_with_index
 from aqt.theme import ThemeManager
 from aqt.utils import aqt_data_path, show_warning, tr
 
@@ -683,6 +685,12 @@ def next_card_data() -> bytes:
     return data.SerializeToString()
 
 
+def play_audio():
+    req = PlayAudioRequest.FromString(request.data)
+    card = aqt.mw.col.get_card(CardId(req.cid))
+    play_clicked_audio_with_index(req.index, req.answer_side, card)
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -700,6 +708,7 @@ post_handler_list = [
     deck_options_ready,
     save_custom_colours,
     next_card_data,
+    play_audio,
 ]
 
 

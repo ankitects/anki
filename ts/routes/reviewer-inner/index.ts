@@ -54,6 +54,10 @@ base.href = "/";
 document.head.appendChild(base);
 
 function pycmd(cmd: string) {
-    window.parent.postMessage({ type: "pycmd", value: cmd }, "*");
+    const match = cmd.match(/play:(q|a):(\d+)/);
+    if (match) {
+        const [_, context, index] = match;
+        window.parent.postMessage({ type: "audio", answerSide: context == "a", index: parseInt(index) }, "*");
+    }
 }
 globalThis.pycmd = pycmd;

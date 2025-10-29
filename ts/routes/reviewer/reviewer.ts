@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
-import { nextCardData } from "@generated/backend";
+import { nextCardData, playAudio } from "@generated/backend";
 import { derived, get, writable } from "svelte/store";
 import type { InnerReviewerRequest } from "../reviewer-inner/reviewerRequest";
 
@@ -37,6 +37,16 @@ export class ReviewerState {
 
     onReady() {
         this.showQuestion(null);
+        addEventListener("message", this.onMessage.bind(this));
+    }
+
+    onMessage(e: MessageEvent<any>) {
+        switch (e.data.type) {
+            case "audio": {
+                playAudio({ answerSide: e.data.answerSide, index: e.data.index, cid: this.currentCard!.card!.id });
+                break;
+            }
+        }
     }
 
     public registerIFrame(iframe: HTMLIFrameElement) {

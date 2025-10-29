@@ -925,11 +925,15 @@ def play_clicked_audio(pycmd: str, card: Card) -> None:
     """eg. if pycmd is 'play:q:0', play the first audio on the question side."""
     play, context, str_idx = pycmd.split(":")
     idx = int(str_idx)
-    if context == "q":
-        tags = card.question_av_tags()
-    else:
+    play_clicked_audio_with_index(idx, context == "q", card)
+
+
+def play_clicked_audio_with_index(index: int, answer_side: bool, card: Card):
+    if answer_side:
         tags = card.answer_av_tags()
-    av_player.play_tags([tags[idx]])
+    else:
+        tags = card.question_av_tags()
+    av_player.play_tags([tags[index]])
 
 
 # Init defaults

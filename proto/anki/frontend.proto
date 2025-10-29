@@ -30,6 +30,8 @@ service FrontendService {
 
   // Save colour picker's custom colour palette
   rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
+
+  rpc PlayAudio(PlayAudioRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -42,4 +44,10 @@ message SchedulingStatesWithContext {
 message SetSchedulingStatesRequest {
   string key = 1;
   scheduler.SchedulingStates states = 2;
+}
+
+message PlayAudioRequest {
+  bool answer_side = 1;
+  uint32 index = 2;
+  uint64 cid = 3;
 }
