@@ -490,14 +490,14 @@ def test_nextIvl():
     ##################################################
     ni = col.sched.nextIvl
     assert ni(c, 1) == 30
-    assert ni(c, 2) == (30 + 180) // 2
+    assert ni(c, 2) == round(30 * 0.75 + 180 * 0.25)
     assert ni(c, 3) == 180
     assert ni(c, 4) == 4 * 86400
     col.sched.answerCard(c, 1)
     # cards in learning
     ##################################################
     assert ni(c, 1) == 30
-    assert ni(c, 2) == (30 + 180) // 2
+    assert ni(c, 2) == round(30 * 0.75 + 180 * 0.25)
     assert ni(c, 3) == 180
     assert ni(c, 4) == 4 * 86400
     col.sched.answerCard(c, 3)
@@ -1177,9 +1177,9 @@ def test_initial_repeat():
 
     c = col.sched.getCard()
     col.sched.answerCard(c, 2)
-    # should be due in ~ 5.5 mins
-    expected = time.time() + 5.5 * 60
+    # should be due in ~ 3.25 mins
+    expected = time.time() + 3.25 * 60
     assert expected - 10 < c.due < expected * 1.25
 
     ivl = col.db.scalar("select ivl from revlog")
-    assert ivl == -5.5 * 60
+    assert ivl == -3.25 * 60
