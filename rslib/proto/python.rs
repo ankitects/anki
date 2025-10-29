@@ -249,6 +249,7 @@ import anki.stats_pb2
 import anki.sync_pb2
 import anki.tags_pb2
 import anki.ankihub_pb2
+import anki.frontend_pb2
 
 class RustBackendGenerated:
     def _run_command(self, service: int, method: int, input: Any) -> bytes:
