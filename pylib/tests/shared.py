@@ -9,6 +9,7 @@ import tempfile
 import time
 
 from anki.collection import Collection as aopen
+from anki.config import Config
 
 # Between 2-4AM, shift the time back so test assumptions hold.
 lt = time.localtime()
@@ -49,6 +50,8 @@ def getEmptyCol():
     (fd, path) = tempfile.mkstemp(suffix=".anki2")
     shutil.copy(_emptyCol, path)
     col = aopen(path)
+    # Disable FSRS for legacy scheduler tests
+    col.set_config_bool(Config.Bool.FSRS, False, undoable=False)
     return col
 
 

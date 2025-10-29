@@ -431,6 +431,8 @@ mod test {
     #[test]
     fn review_queue_building() -> Result<()> {
         let mut col = Collection::new();
+        // Disable FSRS for this legacy scheduler test
+        col.set_config_bool(BoolKey::Fsrs, false, false)?;
 
         let mut deck = col.get_or_create_normal_deck("Default").unwrap();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
