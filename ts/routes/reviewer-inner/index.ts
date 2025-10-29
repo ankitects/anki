@@ -5,7 +5,8 @@ import "../../reviewer/reviewer.scss";
 import "mathjax/es5/tex-chtml-full.js";
 import { renderError } from "../../reviewer";
 import { enableNightMode } from "../reviewer/reviewer";
-import type { InnerReviewerRequest } from "./reviewerRequest";
+import type { ReviewerRequest } from "../reviewer/reviewerRequest";
+import type { InnerReviewerRequest } from "./innerReviewerRequest";
 
 declare const MathJax: any;
 const urlParams = new URLSearchParams(location.search);
@@ -57,7 +58,10 @@ function pycmd(cmd: string) {
     const match = cmd.match(/play:(q|a):(\d+)/);
     if (match) {
         const [_, context, index] = match;
-        window.parent.postMessage({ type: "audio", answerSide: context == "a", index: parseInt(index) }, "*");
+        window.parent.postMessage(
+            { type: "audio", answerSide: context == "a", index: parseInt(index) } satisfies ReviewerRequest,
+            "*",
+        );
     }
 }
 globalThis.pycmd = pycmd;

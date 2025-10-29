@@ -3,7 +3,8 @@
 import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
 import { nextCardData, playAudio } from "@generated/backend";
 import { derived, get, writable } from "svelte/store";
-import type { InnerReviewerRequest } from "../reviewer-inner/reviewerRequest";
+import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
+import type { ReviewerRequest } from "./reviewerRequest";
 
 export function isNightMode() {
     // https://stackoverflow.com/a/57795518
@@ -40,7 +41,7 @@ export class ReviewerState {
         addEventListener("message", this.onMessage.bind(this));
     }
 
-    onMessage(e: MessageEvent<any>) {
+    onMessage(e: MessageEvent<ReviewerRequest>) {
         switch (e.data.type) {
             case "audio": {
                 playAudio({ answerSide: e.data.answerSide, index: e.data.index, cid: this.currentCard!.card!.id });
