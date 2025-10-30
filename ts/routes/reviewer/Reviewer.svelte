@@ -32,5 +32,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     iframe {
         width: 100%;
         height: 100%;
+        visibility: hidden;
     }
 </style>

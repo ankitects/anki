@@ -37,6 +37,7 @@ export class ReviewerState {
     iframe: HTMLIFrameElement | undefined = undefined;
 
     onReady() {
+        this.iframe!.style.visibility = "visible";
         this.showQuestion(null);
         addEventListener("message", this.onMessage.bind(this));
     }
