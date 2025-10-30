@@ -690,10 +690,10 @@ def play_audio():
     card = aqt.mw.col.get_card(CardId(req.cid))
     # TODO: Pass tags with next_card_data rather than rendering the card here.
     tags = card.answer_av_tags() if req.answer_side else card.question_av_tags()
-    if req.index is None:
-        play_tags(tags)
-    else:
+    if req.HasField("index"):
         play_tags([tags[req.index]])
+    else:
+        play_tags(tags)
 
 
 post_handler_list = [
