@@ -31,6 +31,8 @@ service FrontendService {
   // Save colour picker's custom colour palette
   rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
 
+  // Plays an audio tag at an index in a specific card
+  // If the index is blank, plays all audio on that side
   rpc PlayAudio(PlayAudioRequest) returns (generic.Empty);
 }
 
@@ -48,6 +50,6 @@ message SetSchedulingStatesRequest {
 
 message PlayAudioRequest {
   bool answer_side = 1;
-  uint32 index = 2;
+  optional uint32 index = 2;
   uint64 cid = 3;
 }

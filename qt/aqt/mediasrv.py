@@ -46,7 +46,7 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.sound import play_clicked_audio_with_index
+from aqt.sound import play_tags
 from aqt.theme import ThemeManager
 from aqt.utils import aqt_data_path, show_warning, tr
 
@@ -688,7 +688,12 @@ def next_card_data() -> bytes:
 def play_audio():
     req = PlayAudioRequest.FromString(request.data)
     card = aqt.mw.col.get_card(CardId(req.cid))
-    play_clicked_audio_with_index(req.index, req.answer_side, card)
+    # TODO: Pass tags with next_card_data rather than rendering the card here.
+    tags = card.answer_av_tags() if req.answer_side else card.question_av_tags()
+    if req.index is None:
+        play_tags(tags)
+    else:
+        play_tags([tags[req.index]])
 
 
 post_handler_list = [
