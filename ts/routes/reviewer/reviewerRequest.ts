@@ -12,7 +12,7 @@ interface UpdateTypedAnswerMessage {
 }
 
 interface KeyPressMessage {
-    type: "keyPress";
+    type: "keypress";
     key: string;
 }
 

@@ -56,7 +56,7 @@ export class ReviewerState {
                 this.currentTypedAnswer = e.data.value;
                 break;
             }
-            case "keyPress": {
+            case "keypress": {
                 this.handleKeyPress(e.data.key);
                 break;
             }
