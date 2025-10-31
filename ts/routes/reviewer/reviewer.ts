@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
-import { nextCardData, playAudio } from "@generated/backend";
+import { nextCardData, playAvtags } from "@generated/backend";
 import { derived, get, writable } from "svelte/store";
 import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
 import type { ReviewerRequest } from "./reviewerRequest";
@@ -46,7 +46,7 @@ export class ReviewerState {
         switch (e.data.type) {
             case "audio": {
                 const tags = get(this.answerShown) ? this._cardData!.answerAvTags : this._cardData!.questionAvTags;
-                playAudio({ tags: [tags[e.data.index]] });
+                playAvtags({ tags: [tags[e.data.index]] });
                 break;
             }
         }
@@ -110,7 +110,7 @@ export class ReviewerState {
 
         const question = resp.nextCard?.front || "";
         this.updateHtml(question, resp?.nextCard?.css, resp?.nextCard?.bodyClass);
-        playAudio({ tags: this._cardData!.questionAvTags });
+        playAvtags({ tags: this._cardData!.questionAvTags });
 
         this.beginAnsweringMs = Date.now();
     }
@@ -121,7 +121,7 @@ export class ReviewerState {
 
     public showAnswer() {
         this.answerShown.set(true);
-        playAudio({ tags: this._cardData!.answerAvTags });
+        playAvtags({ tags: this._cardData!.answerAvTags });
         this.updateHtml(this._cardData?.back || "");
     }
 

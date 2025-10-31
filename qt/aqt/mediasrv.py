@@ -31,7 +31,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
-from anki.frontend_pb2 import PlayAudioRequest
+from anki.frontend_pb2 import PlayAVTagsRequest
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.scheduler_pb2 import NextCardDataResponse
 from anki.template import (
@@ -693,8 +693,8 @@ def next_card_data() -> bytes:
     return data.SerializeToString()
 
 
-def play_audio():
-    req = PlayAudioRequest.FromString(request.data)
+def play_avtags():
+    req = PlayAVTagsRequest.FromString(request.data)
     play_tags(av_tags_to_native(req.tags))
 
 
@@ -715,7 +715,7 @@ post_handler_list = [
     deck_options_ready,
     save_custom_colours,
     next_card_data,
-    play_audio,
+    play_avtags,
 ]
 
 

@@ -32,8 +32,8 @@ service FrontendService {
   // Save colour picker's custom colour palette
   rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
 
-  // Plays the listed audio tags
-  rpc PlayAudio(PlayAudioRequest) returns (generic.Empty);
+  // Plays the listed AV tags
+  rpc PlayAVTags(PlayAVTagsRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -48,6 +48,6 @@ message SetSchedulingStatesRequest {
   scheduler.SchedulingStates states = 2;
 }
 
-message PlayAudioRequest {
+message PlayAVTagsRequest {
   repeated card_rendering.AVTag tags = 1;
 }
