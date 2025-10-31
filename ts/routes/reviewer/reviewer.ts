@@ -27,6 +27,7 @@ export function updateNightMode() {
 
 export class ReviewerState {
     answerHtml = "";
+    currentTypedAnswer = "";
     _cardData: NextCardDataResponse_NextCardData | undefined = undefined;
     beginAnsweringMs = Date.now();
     readonly cardClass = writable("");
@@ -42,12 +43,15 @@ export class ReviewerState {
         addEventListener("message", this.onMessage.bind(this));
     }
 
-    onMessage(e: MessageEvent<ReviewerRequest>) {
+    async onMessage(e: MessageEvent<ReviewerRequest>) {
         switch (e.data.type) {
             case "audio": {
                 const tags = get(this.answerShown) ? this._cardData!.answerAvTags : this._cardData!.questionAvTags;
                 playAvtags({ tags: [tags[e.data.index]] });
                 break;
+            }
+            case "typed": {
+                this.currentTypedAnswer = e.data.value;
             }
         }
     }
