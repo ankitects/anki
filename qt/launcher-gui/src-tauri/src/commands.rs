@@ -145,7 +145,7 @@ pub async fn get_available_versions<R: Runtime>(
 ) -> Result<Versions> {
     let state = app.flow().normal()?;
     let mut rx = state.available_versions.clone().unwrap();
-    rx.changed().await.unwrap();
+    rx.changed().await?;
     let x = rx.borrow();
     match x.as_ref().unwrap() {
         Ok(versions) => Ok(versions.clone()),
@@ -160,7 +160,7 @@ pub async fn get_existing_versions<R: Runtime>(
 ) -> Result<ExistingVersions> {
     let state = app.flow().normal()?;
     let mut rx = state.current_versions.clone().unwrap();
-    rx.changed().await.unwrap();
+    rx.changed().await?;
     let x = rx.borrow();
     match x.as_ref().unwrap() {
         Ok(versions) => Ok(versions.clone()),
