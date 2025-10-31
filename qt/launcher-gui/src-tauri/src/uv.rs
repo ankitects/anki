@@ -804,6 +804,20 @@ pub fn build_python_command(state: &Paths, args: &[String]) -> Result<Command> {
     Ok(cmd)
 }
 
+fn diff_launcher_was_installed(state: &Paths) -> Result<bool> {
+    let launcher_version = option_env!("BUILDHASH").unwrap_or("dev").trim();
+    let launcher_version_path = state.uv_install_root.join("launcher-version");
+    if let Ok(content) = read_file(&launcher_version_path) {
+        if let Ok(version_str) = String::from_utf8(content) {
+            if version_str.trim() == launcher_version {
+                return Ok(false);
+            }
+        }
+    }
+    write_file(launcher_version_path, launcher_version)?;
+    Ok(true)
+}
+
 impl State {
     pub fn init() -> Result<Self> {
         let uv_install_root = if let Ok(custom_root) = std::env::var("ANKI_LAUNCHER_VENV_ROOT") {
@@ -855,11 +869,12 @@ impl State {
         let sync_time = file_timestamp_secs(&paths.sync_complete_marker);
         paths.pyproject_modified_by_user = pyproject_time > sync_time;
         let pyproject_has_changed = paths.pyproject_modified_by_user;
+        let different_launcher = diff_launcher_was_installed(&paths)?;
 
         // TODO: remove
         let debug = cfg!(debug_assertions) && std::env::var("ANKI_LAUNCHER_SKIP").is_err();
 
-        if !launcher_requested && !pyproject_has_changed && !debug {
+        if !launcher_requested && !pyproject_has_changed && !different_launcher && !debug {
             return Ok(Self::LaunchAnki(paths.into()));
         }
 

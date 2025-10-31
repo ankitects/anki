@@ -13,6 +13,10 @@ fn main() -> Result<()> {
     let pool = DescriptorPool::decode(std::fs::read(descriptors_path)?.as_ref())?;
     rust_interface::write_rust_interface(&pool)?;
 
+    println!("cargo:rerun-if-changed=../../../out/buildhash");
+    let buildhash = std::fs::read_to_string("../../../out/buildhash").unwrap_or_default();
+    println!("cargo:rustc-env=BUILDHASH={buildhash}");
+
     tauri_build::build();
 
     Ok(())
