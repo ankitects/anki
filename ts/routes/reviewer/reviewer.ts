@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
-import { nextCardData, playAvtags } from "@generated/backend";
+import { compareAnswer, nextCardData, playAvtags } from "@generated/backend";
 import { derived, get, writable } from "svelte/store";
 import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
 import type { ReviewerRequest } from "./reviewerRequest";
@@ -24,6 +24,8 @@ export function updateNightMode() {
         enableNightMode();
     }
 }
+
+const typedAnswerRegex = /\[\[type:(.+?:)?(.+?)\]\]/m;
 
 export class ReviewerState {
     answerHtml = "";
@@ -125,12 +127,27 @@ export class ReviewerState {
         return this._cardData?.queue?.cards[0];
     }
 
-    public showAnswer() {
+    async showTypedAnswer(html: string) {
+        if (!this._cardData?.typedAnswer) {
+            return html;
+        }
+        const compareAnswerResp = await compareAnswer({
+            expected: this._cardData?.typedAnswer,
+            provided: this.currentTypedAnswer,
+            combining: false,
+        });
+        const display = compareAnswerResp.val;
+
+        console.log({ typedAnswerRegex, html, display });
+        return html.replace(typedAnswerRegex, display);
+    }
+
+    public async showAnswer() {
         this.answerShown.set(true);
         if (this._cardData?.autoplay) {
             playAvtags({ tags: this._cardData!.answerAvTags });
         }
-        this.updateHtml(this._cardData?.back || "");
+        this.updateHtml(await this.showTypedAnswer(this._cardData?.back || ""));
     }
 
     public easeButtonPressed(rating: number) {

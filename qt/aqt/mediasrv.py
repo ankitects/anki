@@ -763,6 +763,7 @@ exposed_backend_list = [
     "get_retention_workload",
     # CardsService
     "set_flag",
+    "compare_answer",
 ]
 
 

@@ -65,3 +65,14 @@ function pycmd(cmd: string) {
     }
 }
 globalThis.pycmd = pycmd;
+
+function _typeAnsPress() {
+    const elem = document.getElementById("typeans")! as HTMLInputElement;
+    let key = (window.event as KeyboardEvent).key;
+    key = key.length == 1 ? key : "";
+    window.parent.postMessage(
+        { type: "typed", value: elem.value + key } satisfies ReviewerRequest,
+        "*",
+    );
+}
+globalThis._typeAnsPress = _typeAnsPress;
