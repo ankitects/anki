@@ -42,14 +42,11 @@ export class ReviewerState {
         addEventListener("message", this.onMessage.bind(this));
     }
 
-    playAudio(answerSide: boolean, index?: number) {
-        playAudio({ answerSide, index, cid: this.currentCard!.card!.id });
-    }
-
     onMessage(e: MessageEvent<ReviewerRequest>) {
         switch (e.data.type) {
             case "audio": {
-                this.playAudio(e.data.answerSide, e.data.index);
+                const tags = get(this.answerShown) ? this._cardData!.answerAvTags : this._cardData!.questionAvTags;
+                playAudio({ tags: [tags[e.data.index]] });
                 break;
             }
         }
@@ -113,7 +110,7 @@ export class ReviewerState {
 
         const question = resp.nextCard?.front || "";
         this.updateHtml(question, resp?.nextCard?.css, resp?.nextCard?.bodyClass);
-        this.playAudio(false)
+        playAudio({ tags: this._cardData!.questionAvTags });
 
         this.beginAnsweringMs = Date.now();
     }
@@ -124,7 +121,7 @@ export class ReviewerState {
 
     public showAnswer() {
         this.answerShown.set(true);
-        this.playAudio(true)
+        playAudio({ tags: this._cardData!.answerAvTags });
         this.updateHtml(this._cardData?.back || "");
     }
 

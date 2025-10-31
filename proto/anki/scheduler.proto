@@ -306,13 +306,16 @@ message NextCardDataResponse {
     string css = 5;
     string body_class = 6;
 
+    repeated card_rendering.AVTag question_av_tags = 7;
+    repeated card_rendering.AVTag answer_av_tags = 8;
+
     // TODO: We can probably make this a little faster by using oneof and
     // preventing the partial_front and back being sent to svelte where it isn't
     // used. Alternatively we can use a completely different message for both
     // Rust -> Python and the Python -> Svelte though this would be more
     // complicated to implement.
-    repeated card_rendering.RenderedTemplateNode partial_front = 7;
-    repeated card_rendering.RenderedTemplateNode partial_back = 8;
+    repeated card_rendering.RenderedTemplateNode partial_front = 9;
+    repeated card_rendering.RenderedTemplateNode partial_back = 10;
   }
 
   optional NextCardData next_card = 1;

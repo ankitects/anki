@@ -10,6 +10,7 @@ package anki.frontend;
 import "anki/scheduler.proto";
 import "anki/generic.proto";
 import "anki/search.proto";
+import "anki/card_rendering.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -31,8 +32,7 @@ service FrontendService {
   // Save colour picker's custom colour palette
   rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
 
-  // Plays an audio tag at an index in a specific card
-  // If the index is blank, plays all audio on that side
+  // Plays the listed audio tags
   rpc PlayAudio(PlayAudioRequest) returns (generic.Empty);
 }
 
@@ -49,7 +49,5 @@ message SetSchedulingStatesRequest {
 }
 
 message PlayAudioRequest {
-  bool answer_side = 1;
-  optional uint32 index = 2;
-  uint64 cid = 3;
+  repeated card_rendering.AVTag tags = 1;
 }

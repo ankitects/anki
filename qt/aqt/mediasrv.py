@@ -28,7 +28,7 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.cards import Card, CardId
+from anki.cards import Card
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.frontend_pb2 import PlayAudioRequest
@@ -38,6 +38,7 @@ from anki.template import (
     PartiallyRenderedCard,
     TemplateRenderContext,
     apply_custom_filters,
+    av_tags_to_native,
 )
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
@@ -670,8 +671,15 @@ def next_card_data() -> bytes:
         qside,
     )
 
-    qside = ctx.col()._backend.extract_av_tags(text=qside, question_side=True).text
-    aside = ctx.col()._backend.extract_av_tags(text=aside, question_side=False).text
+    q_avtags = ctx.col()._backend.extract_av_tags(text=qside, question_side=True)
+    a_avtags = ctx.col()._backend.extract_av_tags(text=aside, question_side=False)
+
+    # Assumes the av tags are empty in the original response
+    data.next_card.question_av_tags.extend(q_avtags.av_tags)
+    data.next_card.answer_av_tags.extend(a_avtags.av_tags)
+
+    qside = q_avtags.text
+    aside = a_avtags.text
 
     qside = aqt.mw.prepare_card_text_for_display(qside)
     aside = aqt.mw.prepare_card_text_for_display(aside)
@@ -687,13 +695,7 @@ def next_card_data() -> bytes:
 
 def play_audio():
     req = PlayAudioRequest.FromString(request.data)
-    card = aqt.mw.col.get_card(CardId(req.cid))
-    # TODO: Pass tags with next_card_data rather than rendering the card here.
-    tags = card.answer_av_tags() if req.answer_side else card.question_av_tags()
-    if req.HasField("index"):
-        play_tags([tags[req.index]])
-    else:
-        play_tags(tags)
+    play_tags(av_tags_to_native(req.tags))
 
 
 post_handler_list = [

@@ -413,11 +413,13 @@ impl crate::services::SchedulerService for Collection {
                 next_card: Some(NextCardData {
                     queue: Some(queue.into()),
 
-                    css: render.css,
+                    css: render.css.clone(),
                     // Filled by python
                     front: "".to_string(),
                     back: "".to_string(),
                     body_class: "".to_string(),
+                    question_av_tags: vec![],
+                    answer_av_tags: vec![],
 
                     partial_front: rendered_nodes_to_proto(render.qnodes),
                     partial_back: rendered_nodes_to_proto(render.anodes),
