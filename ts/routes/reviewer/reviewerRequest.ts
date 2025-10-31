@@ -11,4 +11,9 @@ interface UpdateTypedAnswerMessage {
     value: string;
 }
 
-export type ReviewerRequest = AudioMessage | UpdateTypedAnswerMessage;
+interface KeyPressMessage {
+    type: "keyPress";
+    key: string;
+}
+
+export type ReviewerRequest = AudioMessage | UpdateTypedAnswerMessage | KeyPressMessage;

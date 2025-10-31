@@ -54,6 +54,11 @@ export class ReviewerState {
             }
             case "typed": {
                 this.currentTypedAnswer = e.data.value;
+                break;
+            }
+            case "keyPress": {
+                this.handleKeyPress(e.data.key);
+                break;
             }
         }
     }
@@ -63,8 +68,8 @@ export class ReviewerState {
         iframe.addEventListener("load", this.onReady.bind(this));
     }
 
-    onKeyDown(e: KeyboardEvent) {
-        switch (e.key) {
+    handleKeyPress(key: string) {
+        switch (key) {
             case "1": {
                 this.easeButtonPressed(0);
                 break;
@@ -90,6 +95,10 @@ export class ReviewerState {
                 break;
             }
         }
+    }
+
+    onKeyDown(e: KeyboardEvent) {
+        this.handleKeyPress(e.key);
     }
 
     public registerShortcuts() {

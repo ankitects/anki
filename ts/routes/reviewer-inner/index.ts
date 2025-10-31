@@ -8,6 +8,13 @@ import { enableNightMode } from "../reviewer/reviewer";
 import type { ReviewerRequest } from "../reviewer/reviewerRequest";
 import type { InnerReviewerRequest } from "./innerReviewerRequest";
 
+function postParentMessage(message: ReviewerRequest) {
+    window.parent.postMessage(
+        message,
+        "*",
+    );
+}
+
 declare const MathJax: any;
 const urlParams = new URLSearchParams(location.search);
 
@@ -50,16 +57,15 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
     }
 });
 
+addEventListener("keydown", (e) => {
+    if (e.key.length == 1 && "1234 ".includes(e.key) && !document.activeElement?.matches("#typeans")) {
+        postParentMessage({ type: "keyPress", key: e.key });
+    }
+});
+
 const base = document.createElement("base");
 base.href = "/";
 document.head.appendChild(base);
-
-function postParentMessage(message: ReviewerRequest) {
-    window.parent.postMessage(
-        message,
-        "*",
-    );
-}
 
 function pycmd(cmd: string) {
     const match = cmd.match(/play:(q|a):(\d+)/);
