@@ -696,6 +696,9 @@ fn uv_command(state: &Paths) -> Result<Command> {
         command.env("UV_CACHE_DIR", &state.uv_cache_dir);
     }
 
+    // have uv use the system certstore instead of webpki-roots'
+    command.env("UV_NATIVE_TLS", "1");
+
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
