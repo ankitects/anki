@@ -255,13 +255,11 @@ class AnkiQt(QMainWindow):
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
-        self.setupReviewer()
+        # self.setupReviewer()
 
     def finish_ui_setup(self) -> None:
         "Actions that are deferred until after add-on loading."
         self.toolbar.draw()
-        # add-ons are only available here after setupAddons
-        gui_hooks.reviewer_did_init(self.reviewer)
 
     def setupProfileAfterWebviewsLoaded(self) -> None:
         for w in (self.web, self.bottomWeb):
@@ -679,6 +677,8 @@ class AnkiQt(QMainWindow):
             # dump error to stderr so it gets picked up by errors.py
             traceback.print_exc()
 
+        self.setupReviewer(self.backend.get_config_bool(Config.Bool.NEW_REVIEWER))
+
         return True
 
     def _loadCollection(self) -> None:
@@ -1074,10 +1074,13 @@ title="{}" {}>{}</button>""".format(
 
         self.overview = Overview(self)
 
-    def setupReviewer(self) -> None:
+    def setupReviewer(self, new: bool) -> None:
         from aqt.reviewer import Reviewer, SvelteReviewer
 
-        self.reviewer = SvelteReviewer(self) if True else Reviewer(self)
+        self.reviewer = SvelteReviewer(self) if new else Reviewer(self)
+
+        # add-ons are only available here after setupAddons
+        gui_hooks.reviewer_did_init(self.reviewer)
 
     # Syncing
     ##########################################################################
