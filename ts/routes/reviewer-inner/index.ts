@@ -54,14 +54,22 @@ const base = document.createElement("base");
 base.href = "/";
 document.head.appendChild(base);
 
+function postParentMessage(message: ReviewerRequest) {
+    window.parent.postMessage(
+        message,
+        "*",
+    );
+}
+
 function pycmd(cmd: string) {
     const match = cmd.match(/play:(q|a):(\d+)/);
     if (match) {
         const [_, context, index] = match;
-        window.parent.postMessage(
-            { type: "audio", answerSide: context == "a", index: parseInt(index) } satisfies ReviewerRequest,
-            "*",
-        );
+        postParentMessage({
+            type: "audio",
+            answerSide: context === "a",
+            index: parseInt(index),
+        });
     }
 }
 globalThis.pycmd = pycmd;
@@ -70,9 +78,8 @@ function _typeAnsPress() {
     const elem = document.getElementById("typeans")! as HTMLInputElement;
     let key = (window.event as KeyboardEvent).key;
     key = key.length == 1 ? key : "";
-    window.parent.postMessage(
-        { type: "typed", value: elem.value + key } satisfies ReviewerRequest,
-        "*",
+    postParentMessage(
+        { type: "typed", value: elem.value + key },
     );
 }
 globalThis._typeAnsPress = _typeAnsPress;
