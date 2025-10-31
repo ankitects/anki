@@ -6,9 +6,9 @@ interface AudioMessage {
     index: number;
 }
 
-interface CompareTypedAnswerMessage {
+interface UpdateTypedAnswerMessage {
     type: "typed";
     value: string;
 }
 
-export type ReviewerRequest = AudioMessage | CompareTypedAnswerMessage;
+export type ReviewerRequest = AudioMessage | UpdateTypedAnswerMessage;
