@@ -4,9 +4,13 @@
 mod answering;
 mod states;
 
+use std::sync::LazyLock;
+
 use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
+use anki_proto::scheduler::next_card_data_response::AnswerButton;
+use anki_proto::scheduler::next_card_data_response::NextCardData;
 use anki_proto::scheduler::ComputeFsrsParamsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
@@ -14,6 +18,8 @@ use anki_proto::scheduler::FsrsBenchmarkResponse;
 use anki_proto::scheduler::FuzzDeltaRequest;
 use anki_proto::scheduler::FuzzDeltaResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
+use anki_proto::scheduler::NextCardDataRequest;
+use anki_proto::scheduler::NextCardDataResponse;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
@@ -21,15 +27,19 @@ use fsrs::ComputeParametersInput;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::FSRS;
+use regex::Regex;
 
 use crate::backend::Backend;
+use crate::card_rendering::service::rendered_nodes_to_proto;
 use crate::prelude::*;
 use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::scheduler::new::NewCardDueOrder;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::SchedulingStates;
 use crate::search::SortMode;
+use crate::services::NotesService;
 use crate::stats::studied_today;
+use crate::template::RenderedNode;
 
 impl crate::services::SchedulerService for Collection {
     /// This behaves like _updateCutoff() in older code - it also unburies at
@@ -381,6 +391,85 @@ impl crate::services::SchedulerService for Collection {
         Ok(FuzzDeltaResponse {
             delta_days: self.get_fuzz_delta(input.card_id.into(), input.interval)?,
         })
+    }
+
+    fn next_card_data(&mut self, req: NextCardDataRequest) -> Result<NextCardDataResponse> {
+        if let Some(answer) = req.answer {
+            self.answer_card(&mut answer.into())?;
+        }
+        let queue = self.get_queued_cards(1, false)?;
+        let next_card = queue.cards.first();
+        if let Some(next_card) = next_card {
+            let cid = next_card.card.id;
+
+            let render = self.render_existing_card(cid, false, true)?;
+
+            let answer_buttons = self
+                .describe_next_states(&next_card.states)?
+                .into_iter()
+                .enumerate()
+                .map(|(i, due)| AnswerButton {
+                    rating: i as i32,
+                    due,
+                })
+                .collect();
+
+            let config = self.deck_config_for_card(&next_card.card)?;
+
+            // Typed answer replacements
+            static ANSWER_REGEX: LazyLock<Regex> =
+                LazyLock::new(|| Regex::new(r"\[\[type:(.+?:)?(.+?)\]\]").unwrap());
+
+            const ANSWER_HTML: &str = "<center>
+<input type=text id=typeans onkeypress=\"_typeAnsPress();\"
+   style=\"font-family: '{self.typeFont}'; font-size: {self.typeSize}px;\">
+</center>";
+
+            let mut q_nodes = render.qnodes;
+            let typed_answer_parent_node = q_nodes.iter_mut().find_map(|node| {
+                if let RenderedNode::Text { text } = node {
+                    let mut out = None;
+                    *text = ANSWER_REGEX
+                        .replace(text, |cap: &regex::Captures<'_>| {
+                            out = Some(cap[2].to_string());
+                            ANSWER_HTML
+                        })
+                        .to_string();
+                    out
+                } else {
+                    None
+                }
+            });
+
+            let typed_answer = typed_answer_parent_node.map(|field| {
+                let note = self.get_note(next_card.card.note_id.into()).unwrap();
+                let notetype = self.get_notetype(note.notetype_id.into()).unwrap().unwrap();
+                note.fields[notetype.get_field_ord(&field).unwrap()].clone()
+            });
+
+            Ok(NextCardDataResponse {
+                next_card: Some(NextCardData {
+                    queue: Some(queue.into()),
+
+                    css: render.css.clone(),
+                    partial_front: rendered_nodes_to_proto(q_nodes),
+                    partial_back: rendered_nodes_to_proto(render.anodes),
+
+                    answer_buttons,
+                    autoplay: !config.inner.disable_autoplay,
+                    typed_answer,
+
+                    // Filled by python
+                    front: "".to_string(),
+                    back: "".to_string(),
+                    body_class: "".to_string(),
+                    question_av_tags: vec![],
+                    answer_av_tags: vec![],
+                }),
+            })
+        } else {
+            Ok(NextCardDataResponse::default())
+        }
     }
 }
 

@@ -10,6 +10,7 @@ package anki.frontend;
 import "anki/scheduler.proto";
 import "anki/generic.proto";
 import "anki/search.proto";
+import "anki/card_rendering.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -30,6 +31,9 @@ service FrontendService {
 
   // Save colour picker's custom colour palette
   rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
+
+  // Plays the listed AV tags
+  rpc PlayAVTags(PlayAVTagsRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -42,4 +46,8 @@ message SchedulingStatesWithContext {
 message SetSchedulingStatesRequest {
   string key = 1;
   scheduler.SchedulingStates states = 2;
+}
+
+message PlayAVTagsRequest {
+  repeated card_rendering.AVTag tags = 1;
 }
