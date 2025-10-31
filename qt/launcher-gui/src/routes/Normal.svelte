@@ -23,7 +23,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Term from "./Term.svelte";
     import AnkiWillStart from "./AnkiWillStart.svelte";
     import type { Terminal } from "@xterm/xterm";
-    import { tick } from "svelte";
 
     let {
         options,
@@ -39,9 +38,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     footer = _footer;
 
-    let releasesPromise = $state(getAvailableVersions({}, { alertOnError: false }));
-    let existingPromise = $state(getExistingVersions({}, { alertOnError: false }));
-    let loadPromise = $derived(Promise.all([releasesPromise, existingPromise]));
+    let releasesPromise = $state(getAvailableVersions({}));
+    let existingPromise = $state(getExistingVersions({}));
+    let loadPromise = $derived(Promise.any([releasesPromise, existingPromise]));
 
     let allowBetas = $state(options.allowBetas);
     let downloadCaching = $state(options.downloadCaching);
@@ -77,16 +76,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Row class="centre m-3">
                 <Spinner label={$tr.launcherLoadingVersions()} />
             </Row>
-        {:then [releases, existing]}
-            <Action {releases} {existing} {allowBetas} {choose} {uninstall} />
-        {:catch e}
+        {:then}
+            <Action
+                {releasesPromise}
+                {existingPromise}
+                {allowBetas}
+                {choose}
+                {uninstall}
+            />
+            {#await releasesPromise catch e}
+                <Row>
+                    <pre>{e.message}</pre>
+                </Row>
+            {/await}
+        {:catch e: AggregateError}
             <Warning
-                warning={$tr.lauuncherFailedToLoadVersions()}
+                warning={$tr.launcherFailedToGetExistingAndAvailable()}
                 className="alert-danger"
             />
-            <Row>
-                <pre>{e.message}</pre>
-            </Row>
+            {#each e.errors as err}
+                <Row>
+                    <pre>{err.message}</pre>
+                </Row>
+            {/each}
         {/await}
     {:else}
         <Row class="centre m-3">
