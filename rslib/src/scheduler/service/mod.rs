@@ -409,22 +409,25 @@ impl crate::services::SchedulerService for Collection {
                 })
                 .collect();
 
+            let config = self.deck_config_for_card(&next_card.card)?;
+
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
                     queue: Some(queue.into()),
 
                     css: render.css.clone(),
+                    partial_front: rendered_nodes_to_proto(render.qnodes),
+                    partial_back: rendered_nodes_to_proto(render.anodes),
+
+                    answer_buttons,
+                    autoplay: !config.inner.disable_autoplay,
+
                     // Filled by python
                     front: "".to_string(),
                     back: "".to_string(),
                     body_class: "".to_string(),
                     question_av_tags: vec![],
                     answer_av_tags: vec![],
-
-                    partial_front: rendered_nodes_to_proto(render.qnodes),
-                    partial_back: rendered_nodes_to_proto(render.anodes),
-
-                    answer_buttons,
                 }),
             })
         } else {

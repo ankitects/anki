@@ -110,7 +110,9 @@ export class ReviewerState {
 
         const question = resp.nextCard?.front || "";
         this.updateHtml(question, resp?.nextCard?.css, resp?.nextCard?.bodyClass);
-        playAvtags({ tags: this._cardData!.questionAvTags });
+        if (this._cardData?.autoplay) {
+            playAvtags({ tags: this._cardData!.questionAvTags });
+        }
 
         this.beginAnsweringMs = Date.now();
     }
@@ -121,7 +123,9 @@ export class ReviewerState {
 
     public showAnswer() {
         this.answerShown.set(true);
-        playAvtags({ tags: this._cardData!.answerAvTags });
+        if (this._cardData?.autoplay) {
+            playAvtags({ tags: this._cardData!.answerAvTags });
+        }
         this.updateHtml(this._cardData?.back || "");
     }
 
