@@ -13,6 +13,7 @@ pub mod windows;
 use std::path::PathBuf;
 
 use anki_process::CommandExt;
+use anyhow::ensure;
 use anyhow::Context;
 use anyhow::Result;
 
@@ -152,4 +153,22 @@ struct PyFfi {
     Py_IsInitialized: PyIsInitialized,
     PyRun_SimpleString: PyRunSimpleString,
     Py_FinalizeEx: PyFinalizeEx,
+}
+
+impl PyFfi {
+    fn run(self, preamble: impl AsRef<std::ffi::CStr>) -> Result<()> {
+        (self.Py_InitializeEx)(1);
+
+        let res = (self.Py_IsInitialized)();
+        ensure!(res != 0, "failed to initialise");
+        let res = (self.PyRun_SimpleString)(preamble.as_ref().as_ptr());
+        ensure!(res == 0, "failed to run preamble");
+        // test importing aqt first before falling back to usual launch
+        let res = (self.PyRun_SimpleString)(c"import aqt".as_ptr());
+        ensure!(res == 0, "failed to import aqt");
+        // from here on, don't fallback if we fail
+        let _ = (self.PyRun_SimpleString)(c"aqt.run()".as_ptr());
+
+        Ok(())
+    }
 }
