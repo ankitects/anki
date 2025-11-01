@@ -43,7 +43,7 @@ async function postProtoInner(url: string, body: Uint8Array): Promise<Uint8Array
         } catch {
             // ignore
         }
-        // it is ugly to show internall server client status to user, we should just show error's to user
+        // hide HTTP status in production builds
         throw new Error(
             process.env.NODE_ENV === "production"
                 ? `${msg}`
