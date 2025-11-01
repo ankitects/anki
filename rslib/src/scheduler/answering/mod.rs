@@ -447,7 +447,7 @@ impl Collection {
         let original_deck = self
             .storage
             .get_deck(card.original_or_current_deck_id())?
-            .ok_or(AnkiError::DatabaseCheckRequired)?;
+            .or_not_found(card.original_or_current_deck_id())?;
 
         let desired_retention = original_deck.effective_desired_retention(&config);
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
