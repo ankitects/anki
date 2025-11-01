@@ -10,6 +10,9 @@ pub mod mac;
 #[cfg(target_os = "windows")]
 pub mod windows;
 
+#[cfg(unix)]
+pub mod nix;
+
 use std::path::PathBuf;
 
 use anki_process::CommandExt;
