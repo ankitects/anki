@@ -1033,7 +1033,7 @@ fn uv_command(state: &State) -> Result<Command> {
     Ok(command)
 }
 
-fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
+fn _build_python_command(state: &State) -> Result<Command> {
     let python_exe = if cfg!(target_os = "windows") {
         let show_console = std::env::var("ANKI_CONSOLE").is_ok();
         if show_console {
@@ -1046,8 +1046,6 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     };
 
     let mut cmd = Command::new(&python_exe);
-    cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
-    cmd.args(args);
     // tell the Python code it was invoked by the launcher, and updating is
     // available
     cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
@@ -1058,6 +1056,63 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     cmd.env_remove("SSLKEYLOGFILE");
 
     Ok(cmd)
+}
+
+fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
+    let mut cmd = _build_python_command(state)?;
+    cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
+    cmd.args(args);
+    Ok(cmd)
+}
+
+fn get_libpython_path(state: &State) -> Result<std::path::PathBuf> {
+    // we can cache this, as it can only change after syncing the project
+    // as it stands, we already expect there to be a trusted python exe in
+    // a particular place so this doesn't seem too concerning security-wise
+    // TODO: let-chains...
+    if let Ok(path) = read_file(&state.libpython_path) {
+        if let Ok(rel_path) = String::from_utf8(path).map(std::path::PathBuf::from) {
+            if let Ok(lib_path) = state.uv_install_root.join(rel_path).canonicalize() {
+                // make sure we're still within AnkiProgramFiles
+                if lib_path.strip_prefix(&state.uv_install_root).is_ok() {
+                    return Ok(lib_path);
+                }
+            }
+        }
+    }
+
+    let mut cmd = _build_python_command(state)?;
+    // NOTE:
+    // we can check which sysconfig vars are available
+    // with `sysconfig.get_config_vars()`. very limited on
+    // windows pre-3.13 (probably because no ./configure)
+    // from what i've found, `installed_base` seems to be
+    // available on 3.9/3.13 on both windows and linux.
+    // `LIBDIR` and `LDLIBRARY` aren't present on 3.9/win.
+    // on win, we can't use python3.dll, only python3XX.dll
+    let script = if cfg!(windows) {
+        include_str!("libpython_win.py")
+    } else {
+        include_str!("libpython_nix.py")
+    }
+    .trim();
+
+    cmd.args(["-c", script]);
+
+    let output = cmd.utf8_output()?;
+    let lib_path_str = output.stdout.trim();
+    let lib_path = std::path::PathBuf::from(lib_path_str);
+    if !lib_path.exists() {
+        anyhow::bail!("library path doesn't exist: {lib_path:?}");
+    }
+
+    let cached_path = lib_path
+        .strip_prefix(&state.uv_install_root)?
+        .to_str()
+        .ok_or_else(|| anyhow::anyhow!("failed to make relative path"))?;
+    let _ = write_file(&state.libpython_path, cached_path);
+
+    Ok(lib_path)
 }
 
 fn is_mirror_enabled(state: &State) -> bool {
