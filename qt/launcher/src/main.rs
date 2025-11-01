@@ -276,6 +276,9 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     // Remove sync marker before attempting sync
     let _ = remove_file(&state.sync_complete_marker);
 
+    // clear possibly invalidated libpython path cache
+    let _ = remove_file(&state.libpython_path);
+
     println!("{}\n", state.tr.launcher_updating_anki());
 
     let python_version_trimmed = if state.user_python_version_path.exists() {
