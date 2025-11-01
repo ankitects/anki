@@ -139,3 +139,17 @@ pub fn ensure_os_supported() -> Result<()> {
 
     Ok(())
 }
+
+pub type PyInitializeEx = extern "C" fn(initsigs: std::ffi::c_int);
+pub type PyIsInitialized = extern "C" fn() -> std::ffi::c_int;
+pub type PyRunSimpleString = extern "C" fn(command: *const std::ffi::c_char) -> std::ffi::c_int;
+pub type PyFinalizeEx = extern "C" fn() -> std::ffi::c_int;
+
+#[allow(non_snake_case)]
+struct PyFfi {
+    lib: *mut std::ffi::c_void,
+    Py_InitializeEx: PyInitializeEx,
+    Py_IsInitialized: PyIsInitialized,
+    PyRun_SimpleString: PyRunSimpleString,
+    Py_FinalizeEx: PyFinalizeEx,
+}
