@@ -113,6 +113,30 @@ pub fn launch_anki_normally(mut cmd: std::process::Command) -> Result<()> {
     Ok(())
 }
 
+pub fn _run_anki_normally(state: &crate::State) -> Result<()> {
+    #[cfg(windows)]
+    {
+        let console = std::env::var("ANKI_CONSOLE").is_ok();
+        if console {
+            // no pythonw.exe available for us to use
+            ensure_terminal_shown()?;
+        }
+        crate::platform::windows::prepare_to_launch_normally();
+        windows::run(state, console)?;
+    }
+    #[cfg(unix)]
+    nix::run(state)?;
+    Ok(())
+}
+
+pub fn run_anki_normally(state: &crate::State) -> bool {
+    if let Err(e) = _run_anki_normally(state) {
+        eprintln!("failed to run as embedded: {e:?}");
+        return false;
+    }
+    true
+}
+
 #[cfg(windows)]
 pub use windows::ensure_terminal_shown;
 
