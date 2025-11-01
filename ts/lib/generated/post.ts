@@ -19,7 +19,9 @@ export async function postProto<T>(
         return outputType.fromBinary(outputBytes);
     } catch (err) {
         const { alertOnError = true } = options;
-        if (alertOnError && !(err instanceof Error && err.message === "500: Interrupted")) {
+        if (
+            alertOnError && !(err instanceof Error && err.message === "500: Interrupted")
+        ) {
             alert(err);
         }
         throw err;
@@ -41,7 +43,12 @@ async function postProtoInner(url: string, body: Uint8Array): Promise<Uint8Array
         } catch {
             // ignore
         }
-        throw new Error(`${result.status}: ${msg}`);
+        // hide HTTP status in production builds
+        throw new Error(
+            process.env.NODE_ENV === "production"
+                ? `${msg}`
+                : `${result.status}: ${msg}`,
+        );
     }
     const blob = await result.blob();
     const respBuf = await new Response(blob).arrayBuffer();
