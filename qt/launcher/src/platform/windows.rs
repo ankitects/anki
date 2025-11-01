@@ -1,17 +1,27 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::ffi::CString;
 use std::io::stdin;
+use std::os::windows::ffi::OsStrExt;
 use std::process::Command;
 
+use anki_io::ToUtf8Path;
+use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 use widestring::u16cstr;
+use windows::core::PCSTR;
 use windows::core::PCWSTR;
 use windows::Wdk::System::SystemServices::RtlGetVersion;
+use windows::Win32::Foundation::FreeLibrary;
+use windows::Win32::Foundation::HMODULE;
 use windows::Win32::System::Console::AttachConsole;
 use windows::Win32::System::Console::GetConsoleWindow;
 use windows::Win32::System::Console::ATTACH_PARENT_PROCESS;
+use windows::Win32::System::LibraryLoader::GetProcAddress;
+use windows::Win32::System::LibraryLoader::LoadLibraryExW;
+use windows::Win32::System::LibraryLoader::LOAD_LIBRARY_FLAGS;
 use windows::Win32::System::Registry::RegCloseKey;
 use windows::Win32::System::Registry::RegOpenKeyExW;
 use windows::Win32::System::Registry::RegQueryValueExW;
@@ -21,6 +31,10 @@ use windows::Win32::System::Registry::KEY_READ;
 use windows::Win32::System::Registry::REG_SZ;
 use windows::Win32::System::SystemInformation::OSVERSIONINFOW;
 use windows::Win32::UI::Shell::SetCurrentProcessExplicitAppUserModelID;
+
+use crate::get_libpython_path;
+use crate::platform::PyFfi;
+use crate::State;
 
 /// Returns true if running on Windows 10 (not Windows 11)
 fn is_windows_10() -> bool {
@@ -260,4 +274,108 @@ pub fn prepare_to_launch_normally() {
     }
 
     attach_to_parent_console();
+}
+
+impl Drop for PyFfi {
+    fn drop(&mut self) {
+        unsafe {
+            (self.Py_FinalizeEx)();
+            let _ = FreeLibrary(HMODULE(self.lib));
+        };
+    }
+}
+
+macro_rules! load_sym {
+    ($lib:expr, $name:literal) => {
+        std::mem::transmute(
+            GetProcAddress($lib, PCSTR::from_raw($name.as_ptr().cast()))
+                .ok_or_else(|| anyhow!("failed to load {}", $name.to_string_lossy()))?,
+        )
+    };
+}
+
+impl PyFfi {
+    #[allow(non_snake_case)]
+    pub fn load(path: impl AsRef<std::path::Path>) -> Result<Self> {
+        unsafe {
+            let wide_filename: Vec<u16> = path
+                .as_ref()
+                .as_os_str()
+                .encode_wide()
+                .chain(Some(0))
+                .collect();
+
+            let lib = LoadLibraryExW(
+                PCWSTR::from_raw(wide_filename.as_ptr()),
+                None,
+                LOAD_LIBRARY_FLAGS::default(),
+            )?;
+
+            #[allow(clippy::missing_transmute_annotations)] // they're not missing
+            Ok(PyFfi {
+                Py_InitializeEx: load_sym!(lib, c"Py_InitializeEx"),
+                Py_IsInitialized: load_sym!(lib, c"Py_IsInitialized"),
+                PyRun_SimpleString: load_sym!(lib, c"PyRun_SimpleString"),
+                Py_FinalizeEx: load_sym!(lib, c"Py_FinalizeEx"),
+                lib: lib.0,
+            })
+        }
+    }
+}
+
+pub fn run(state: &State, console: bool) -> Result<()> {
+    let lib_path = get_libpython_path(state)?;
+
+    // NOTE: needed for 3.9 on windows (not for 3.13)
+    std::env::set_current_dir(
+        lib_path
+            .parent()
+            .ok_or_else(|| anyhow!("expected parent dir for lib_path: {lib_path:?}"))?,
+    )?;
+
+    let path = std::env::var("PATH")?;
+    let paths = std::env::split_paths(&path);
+    let path =
+        std::env::join_paths(std::iter::once(state.venv_folder.join("Scripts")).chain(paths))?;
+    std::env::set_var("PATH", path);
+    std::env::set_var("VIRTUAL_ENV", &state.venv_folder);
+    std::env::set_var("PYTHONHOME", "");
+
+    std::env::set_var("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
+    std::env::set_var("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
+    std::env::set_var("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
+    std::env::remove_var("SSLKEYLOGFILE");
+
+    let ffi = PyFfi::load(lib_path)?;
+
+    let args: String = std::env::args()
+        .skip(1)
+        .map(|s| format!(r#","{s}""#))
+        .collect::<String>()
+        .replace('\\', "\\\\");
+
+    let venv_activate_path = state.venv_folder.join("Scripts\\activate_this.py");
+    let venv_activate_path = venv_activate_path
+        .as_os_str()
+        .to_str()
+        .ok_or_else(|| anyhow!("failed to get venv activation script path"))?
+        .replace('\\', "\\\\");
+
+    // NOTE: without windows_subsystem=console or pythonw,
+    // we need to reconnect stdin/stdout/stderr within the interp
+    // reconnect_stdio_to_console doesn't make a difference here
+    let console_snippet = if console {
+        r#" sys.stdout = sys.stderr = open("CONOUT$", "w"); sys.stdin = open("CONIN$", "r");"#
+    } else {
+        ""
+    };
+
+    // NOTE: windows needs the venv activation script
+    let preamble = CString::new(format!(
+        r#"import sys, runpy; sys.argv = ['Anki'{args}]; runpy.run_path("{venv_activate_path}");{console_snippet}"#,
+    ))?;
+
+    ffi.run(preamble)?;
+
+    Ok(())
 }

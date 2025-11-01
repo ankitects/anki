@@ -10,9 +10,13 @@ pub mod mac;
 #[cfg(target_os = "windows")]
 pub mod windows;
 
+#[cfg(unix)]
+pub mod nix;
+
 use std::path::PathBuf;
 
 use anki_process::CommandExt;
+use anyhow::ensure;
 use anyhow::Context;
 use anyhow::Result;
 
@@ -109,6 +113,30 @@ pub fn launch_anki_normally(mut cmd: std::process::Command) -> Result<()> {
     Ok(())
 }
 
+pub fn _run_anki_normally(state: &crate::State) -> Result<()> {
+    #[cfg(windows)]
+    {
+        let console = std::env::var("ANKI_CONSOLE").is_ok();
+        if console {
+            // no pythonw.exe available for us to use
+            ensure_terminal_shown()?;
+        }
+        crate::platform::windows::prepare_to_launch_normally();
+        windows::run(state, console)?;
+    }
+    #[cfg(unix)]
+    nix::run(state)?;
+    Ok(())
+}
+
+pub fn run_anki_normally(state: &crate::State) -> bool {
+    if let Err(e) = _run_anki_normally(state) {
+        eprintln!("failed to run as embedded: {e:?}");
+        return false;
+    }
+    true
+}
+
 #[cfg(windows)]
 pub use windows::ensure_terminal_shown;
 
@@ -138,4 +166,36 @@ pub fn ensure_os_supported() -> Result<()> {
     windows::ensure_windows_version_supported()?;
 
     Ok(())
+}
+
+pub type PyInitializeEx = extern "C" fn(initsigs: std::ffi::c_int);
+pub type PyIsInitialized = extern "C" fn() -> std::ffi::c_int;
+pub type PyRunSimpleString = extern "C" fn(command: *const std::ffi::c_char) -> std::ffi::c_int;
+pub type PyFinalizeEx = extern "C" fn() -> std::ffi::c_int;
+
+#[allow(non_snake_case)]
+struct PyFfi {
+    lib: *mut std::ffi::c_void,
+    Py_InitializeEx: PyInitializeEx,
+    Py_IsInitialized: PyIsInitialized,
+    PyRun_SimpleString: PyRunSimpleString,
+    Py_FinalizeEx: PyFinalizeEx,
+}
+
+impl PyFfi {
+    fn run(self, preamble: impl AsRef<std::ffi::CStr>) -> Result<()> {
+        (self.Py_InitializeEx)(1);
+
+        let res = (self.Py_IsInitialized)();
+        ensure!(res != 0, "failed to initialise");
+        let res = (self.PyRun_SimpleString)(preamble.as_ref().as_ptr());
+        ensure!(res == 0, "failed to run preamble");
+        // test importing aqt first before falling back to usual launch
+        let res = (self.PyRun_SimpleString)(c"import aqt".as_ptr());
+        ensure!(res == 0, "failed to import aqt");
+        // from here on, don't fallback if we fail
+        let _ = (self.PyRun_SimpleString)(c"aqt.run()".as_ptr());
+
+        Ok(())
+    }
 }
