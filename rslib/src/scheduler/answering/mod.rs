@@ -444,8 +444,12 @@ impl Collection {
             .get_deck(card.deck_id)?
             .or_not_found(card.deck_id)?;
         let config = self.home_deck_config(deck.config_id(), card.original_deck_id)?;
+        let original_deck = self
+            .storage
+            .get_deck(card.original_or_current_deck_id())?
+            .ok_or(AnkiError::DatabaseCheckRequired)?;
 
-        let desired_retention = deck.effective_desired_retention(&config);
+        let desired_retention = original_deck.effective_desired_retention(&config);
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let fsrs_next_states = if fsrs_enabled {
             let params = config.fsrs_params();
