@@ -53,6 +53,7 @@ struct State {
     previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
     venv_folder: std::path::PathBuf,
+    libpython_path: std::path::PathBuf,
     /// system Python + PyQt6 library mode
     system_qt: bool,
 }
@@ -132,6 +133,7 @@ fn run() -> Result<()> {
             && resources_dir.join("system_qt").exists(),
         resources_dir,
         venv_folder: uv_install_root.join(".venv"),
+        libpython_path: uv_install_root.join("libpath"),
     };
 
     // Check for uninstall request from Windows uninstaller
