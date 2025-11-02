@@ -443,10 +443,14 @@ impl Collection {
             .storage
             .get_deck(card.deck_id)?
             .or_not_found(card.deck_id)?;
-        let home_deck = self
-            .storage
-            .get_deck(card.original_or_current_deck_id())?
-            .or_not_found(card.original_or_current_deck_id())?;
+        let home_deck = if card.original_deck_id.0 == 0 {
+            &deck
+        } else {
+            &self
+                .storage
+                .get_deck(card.original_deck_id)?
+                .or_not_found(card.original_deck_id)?
+        };
         let config = self
             .storage
             .get_deck_config(home_deck.config_id().or_invalid("home deck is filtered")?)?
