@@ -16,10 +16,12 @@ pub mod nix;
 mod py313;
 mod py39;
 
+use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::PathBuf;
 
 use anki_process::CommandExt;
+use anyhow::anyhow;
 use anyhow::ensure;
 use anyhow::Context;
 use anyhow::Result;
@@ -205,17 +207,94 @@ struct PyFfi {
     PyStatus_Exception: PyStatusException,
 }
 
-impl PyFfi {
-    fn run(self, preamble: impl AsRef<std::ffi::CStr>) -> Result<()> {
-        (self.Py_InitializeEx)(1);
+trait PyConfigExt {
+    fn init(ffi: &PyFfi) -> Self
+    where
+        Self: Sized;
+    fn set_exec(&mut self, ffi: &PyFfi) -> Result<&mut Self>;
+    fn set_argv(&mut self, ffi: &PyFfi) -> Result<&mut Self>;
+}
 
-        let res = (self.Py_IsInitialized)();
-        ensure!(res != 0, "failed to initialise");
-        let res = (self.PyRun_SimpleString)(preamble.as_ref().as_ptr());
-        ensure!(res == 0, "failed to run preamble");
+macro_rules! impl_pyconfig {
+    ($($pyconfig:path),* $(,)*) => {
+        $(impl PyConfigExt for $pyconfig {
+            fn init(ffi: &PyFfi) -> Self
+            where
+                Self: Sized,
+            {
+                let mut config: Self = unsafe { std::mem::zeroed() };
+                (ffi.PyConfig_InitPythonConfig)(&mut config as *const _ as *mut _);
+                config.parse_argv = 0;
+                config.install_signal_handlers = 1;
+                config
+            }
+
+            fn set_exec(&mut self, ffi: &PyFfi) -> Result<&mut Self> {
+                let status = (ffi.PyConfig_SetBytesString)(
+                    self as *const _ as *mut _,
+                    &mut self.executable,
+                    ffi.exec.as_ptr(),
+                );
+                ensure!(
+                    (ffi.PyStatus_Exception)(status) == 0,
+                    "failed to set config"
+                );
+                Ok(self)
+            }
+
+            fn set_argv(&mut self, ffi: &PyFfi) -> Result<&mut Self> {
+                let argv = std::env::args_os()
+                    .map(|x| CString::new(x.as_encoded_bytes()))
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_err(|_| anyhow!("unable to construct argv"))?;
+                let argvp = argv
+                    .iter()
+                    .map(|x| x.as_ptr() as *mut i8)
+                    .collect::<Vec<_>>();
+                let status = (ffi.PyConfig_SetBytesArgv)(
+                    self as *mut _ as *mut _,
+                    argvp.len() as isize,
+                    argvp.as_ptr() as *mut _,
+                );
+                ensure!((ffi.PyStatus_Exception)(status) == 0, "failed to set argv");
+                Ok(self)
+            }
+        })*
+    };
+}
+
+impl_pyconfig![py39::PyConfig, py313::PyConfig];
+
+impl PyFfi {
+    fn run(self, version: &str, preamble: Option<&CStr>) -> Result<()> {
+        match version {
+            "39" => {
+                let mut config = py39::PyConfig::init(&self);
+                config.set_exec(&self)?.set_argv(&self)?;
+                (self.Py_InitializeFromConfig)(&config as *const _ as *const _);
+            }
+            "313" => {
+                let mut config = py313::PyConfig::init(&self);
+                config.set_exec(&self)?.set_argv(&self)?;
+                (self.Py_InitializeFromConfig)(&config as *const _ as *const _);
+            }
+            _ => Err(anyhow!("unsupported python version: {version}"))?,
+        };
+
+        ensure!(
+            (self.Py_IsInitialized)() == 1,
+            "interpreter was not initialised!"
+        );
+
+        if let Some(preamble) = preamble {
+            let res = (self.PyRun_SimpleString)(preamble.as_ptr());
+            ensure!(res == 0, "failed to run preamble");
+        }
+
         // test importing aqt first before falling back to usual launch
         let res = (self.PyRun_SimpleString)(c"import aqt".as_ptr());
         ensure!(res == 0, "failed to import aqt");
+
         // from here on, don't fallback if we fail
         let _ = (self.PyRun_SimpleString)(c"aqt.run()".as_ptr());
 
