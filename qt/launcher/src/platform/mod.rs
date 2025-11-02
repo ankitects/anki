@@ -171,10 +171,24 @@ pub fn ensure_os_supported() -> Result<()> {
     Ok(())
 }
 
-pub type PyInitializeEx = extern "C" fn(initsigs: std::ffi::c_int);
 pub type PyIsInitialized = extern "C" fn() -> std::ffi::c_int;
 pub type PyRunSimpleString = extern "C" fn(command: *const std::ffi::c_char) -> std::ffi::c_int;
 pub type PyFinalizeEx = extern "C" fn() -> std::ffi::c_int;
+pub type PyConfigInitPythonConfig = extern "C" fn(*mut std::ffi::c_void);
+// WARN: py39 and py313's PyStatus are identical
+// check if this remains true in future versions
+pub type PyConfigSetBytesString = extern "C" fn(
+    config: *mut std::ffi::c_void,
+    config_str: *mut *mut libc::wchar_t,
+    str_: *const std::os::raw::c_char,
+) -> py313::PyStatus;
+pub type PyConfigSetBytesArgv = extern "C" fn(
+    config: *mut std::ffi::c_void,
+    argc: isize,
+    argv: *const *mut std::os::raw::c_char,
+) -> py313::PyStatus;
+pub type PyInitializeFromConfig = extern "C" fn(*const std::ffi::c_void) -> py313::PyStatus;
+pub type PyStatusException = extern "C" fn(err: py313::PyStatus) -> std::os::raw::c_int;
 
 #[allow(non_snake_case)]
 struct PyFfi {
