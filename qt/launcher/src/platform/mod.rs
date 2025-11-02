@@ -13,6 +13,9 @@ pub mod windows;
 #[cfg(unix)]
 pub mod nix;
 
+mod py313;
+mod py39;
+
 use std::path::PathBuf;
 
 use anki_process::CommandExt;
