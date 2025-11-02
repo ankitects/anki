@@ -206,6 +206,11 @@ system. First, you have to navigate to the appropriate folder:
 | MacOS            | ./qt/launcher/mac/ |
 | Windows          | .\qt\launcher\win\ |
 
+If you are on Windows, you will now have to set `NOCOMP=1` to skip code signing
+and compression. If you are on MacOS, you will have to use `NODMG=1` to skip the
+slow bundling / code signing. If you are on linux, you won't have to set any
+special environment variables.
+
 Next, run the `build.sh` script (on Linux and MacOS) or the `build.bat` script
 (on Windows).
 
