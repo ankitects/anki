@@ -6,10 +6,9 @@ use std::ffi::CString;
 use std::os::unix::prelude::OsStrExt;
 
 use anki_io::ToUtf8Path;
-use anyhow::anyhow;
 use anyhow::Result;
 
-use crate::get_libpython_path;
+use crate::get_python_env_info;
 use crate::platform::PyFfi;
 use crate::State;
 
@@ -72,44 +71,12 @@ impl PyFfi {
 }
 
 pub fn run(state: &State) -> Result<()> {
-    let lib_path = get_libpython_path(state)?;
-
-    // NOTE: activate venv before loading lib
-    let path = std::env::var("PATH")?;
-    let paths = std::env::split_paths(&path);
-    let path = std::env::join_paths(std::iter::once(state.venv_folder.join("bin")).chain(paths))?;
-    std::env::set_var("PATH", path);
-    std::env::set_var("VIRTUAL_ENV", &state.venv_folder);
-    std::env::set_var("PYTHONHOME", "");
+    let (version, lib_path, exec) = get_python_env_info(state)?;
 
     std::env::set_var("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
     std::env::set_var("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
     std::env::set_var("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
     std::env::remove_var("SSLKEYLOGFILE");
 
-    let ffi = PyFfi::load(lib_path)?;
-
-    // NOTE: sys.argv would normally be set via PyConfig, but we don't have it here
-    let args: String = std::env::args()
-        .skip(1)
-        .map(|s| format!(r#","{s}""#))
-        .collect();
-
-    // NOTE:
-    // the venv activation script doesn't seem to be
-    // necessary for linux, only PATH and VIRTUAL_ENV
-    // but just call it anyway to have a standard setup
-    let venv_activate_path = state.venv_folder.join("bin/activate_this.py");
-    let venv_activate_path = venv_activate_path
-        .as_os_str()
-        .to_str()
-        .ok_or_else(|| anyhow!("failed to get venv activation script path"))?;
-
-    let preamble = std::ffi::CString::new(format!(
-        r#"import sys, runpy; sys.argv = ['Anki'{args}]; runpy.run_path("{venv_activate_path}")"#,
-    ))?;
-
-    ffi.run(preamble)?;
-
-    Ok(())
+    PyFfi::load(lib_path, exec)?.run(&version, None)
 }

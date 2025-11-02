@@ -32,7 +32,7 @@ use windows::Win32::System::Registry::REG_SZ;
 use windows::Win32::System::SystemInformation::OSVERSIONINFOW;
 use windows::Win32::UI::Shell::SetCurrentProcessExplicitAppUserModelID;
 
-use crate::get_libpython_path;
+use crate::get_python_env_info;
 use crate::platform::PyFfi;
 use crate::State;
 
@@ -335,58 +335,19 @@ impl PyFfi {
 }
 
 pub fn run(state: &State, console: bool) -> Result<()> {
-    let lib_path = get_libpython_path(state)?;
-
-    // NOTE: needed for 3.9 on windows (not for 3.13)
-    std::env::set_current_dir(
-        lib_path
-            .parent()
-            .ok_or_else(|| anyhow!("expected parent dir for lib_path: {lib_path:?}"))?,
-    )?;
-
-    let path = std::env::var("PATH")?;
-    let paths = std::env::split_paths(&path);
-    let path =
-        std::env::join_paths(std::iter::once(state.venv_folder.join("Scripts")).chain(paths))?;
-    std::env::set_var("PATH", path);
-    std::env::set_var("VIRTUAL_ENV", &state.venv_folder);
-    std::env::set_var("PYTHONHOME", "");
+    let (version, lib_path, exec) = get_python_env_info(state)?;
 
     std::env::set_var("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
     std::env::set_var("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
     std::env::set_var("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
     std::env::remove_var("SSLKEYLOGFILE");
 
-    let ffi = PyFfi::load(lib_path)?;
-
-    let args: String = std::env::args()
-        .skip(1)
-        .map(|s| format!(r#","{s}""#))
-        .collect::<String>()
-        .replace('\\', "\\\\");
-
-    let venv_activate_path = state.venv_folder.join("Scripts\\activate_this.py");
-    let venv_activate_path = venv_activate_path
-        .as_os_str()
-        .to_str()
-        .ok_or_else(|| anyhow!("failed to get venv activation script path"))?
-        .replace('\\', "\\\\");
-
     // NOTE: without windows_subsystem=console or pythonw,
     // we need to reconnect stdin/stdout/stderr within the interp
     // reconnect_stdio_to_console doesn't make a difference here
-    let console_snippet = if console {
-        r#" sys.stdout = sys.stderr = open("CONOUT$", "w"); sys.stdin = open("CONIN$", "r");"#
-    } else {
-        ""
-    };
+    let preamble = console.then_some(
+        cr#"import sys; sys.stdout = sys.stderr = open("CONOUT$", "w"); sys.stdin = open("CONIN$", "r");"#,
+    );
 
-    // NOTE: windows needs the venv activation script
-    let preamble = CString::new(format!(
-        r#"import sys, runpy; sys.argv = ['Anki'{args}]; runpy.run_path("{venv_activate_path}");{console_snippet}"#,
-    ))?;
-
-    ffi.run(preamble)?;
-
-    Ok(())
+    PyFfi::load(lib_path, exec)?.run(&version, preamble)
 }
