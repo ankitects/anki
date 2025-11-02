@@ -16,6 +16,7 @@ pub mod nix;
 mod py313;
 mod py39;
 
+use std::ffi::CString;
 use std::path::PathBuf;
 
 use anki_process::CommandExt;
@@ -192,11 +193,16 @@ pub type PyStatusException = extern "C" fn(err: py313::PyStatus) -> std::os::raw
 
 #[allow(non_snake_case)]
 struct PyFfi {
+    exec: CString,
     lib: *mut std::ffi::c_void,
-    Py_InitializeEx: PyInitializeEx,
     Py_IsInitialized: PyIsInitialized,
     PyRun_SimpleString: PyRunSimpleString,
     Py_FinalizeEx: PyFinalizeEx,
+    PyConfig_InitPythonConfig: PyConfigInitPythonConfig,
+    PyConfig_SetBytesString: PyConfigSetBytesString,
+    Py_InitializeFromConfig: PyInitializeFromConfig,
+    PyConfig_SetBytesArgv: PyConfigSetBytesArgv,
+    PyStatus_Exception: PyStatusException,
 }
 
 impl PyFfi {
