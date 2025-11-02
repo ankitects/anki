@@ -286,7 +286,7 @@ impl Drop for PyFfi {
 }
 
 macro_rules! load_sym {
-    ($lib:expr, $name:literal) => {
+    ($lib:expr, $name:expr) => {
         std::mem::transmute(
             GetProcAddress($lib, PCSTR::from_raw($name.as_ptr().cast()))
                 .ok_or_else(|| anyhow!("failed to load {}", $name.to_string_lossy()))?,
@@ -294,9 +294,16 @@ macro_rules! load_sym {
     };
 }
 
+macro_rules! ffi {
+    ($lib:expr, $exec:expr, $($field:ident),* $(,)?) => {
+        #[allow(clippy::missing_transmute_annotations)] // they're not missing
+        PyFfi { exec: $exec, $($field: load_sym!($lib, ::std::ffi::CString::new(stringify!($field)).unwrap()),)* lib: $lib.0, }
+    };
+}
+
 impl PyFfi {
     #[allow(non_snake_case)]
-    pub fn load(path: impl AsRef<std::path::Path>) -> Result<Self> {
+    pub fn load(path: impl AsRef<std::path::Path>, exec: CString) -> Result<Self> {
         unsafe {
             let wide_filename: Vec<u16> = path
                 .as_ref()
@@ -311,13 +318,17 @@ impl PyFfi {
                 LOAD_LIBRARY_FLAGS::default(),
             )?;
 
-            #[allow(clippy::missing_transmute_annotations)] // they're not missing
-            Ok(PyFfi {
-                Py_InitializeEx: load_sym!(lib, c"Py_InitializeEx"),
-                Py_IsInitialized: load_sym!(lib, c"Py_IsInitialized"),
-                PyRun_SimpleString: load_sym!(lib, c"PyRun_SimpleString"),
-                Py_FinalizeEx: load_sym!(lib, c"Py_FinalizeEx"),
-                lib: lib.0,
+            Ok(ffi! {
+                lib,
+                exec,
+                Py_IsInitialized,
+                PyRun_SimpleString,
+                Py_FinalizeEx,
+                PyConfig_InitPythonConfig,
+                PyConfig_SetBytesString,
+                Py_InitializeFromConfig,
+                PyConfig_SetBytesArgv,
+                PyStatus_Exception,
             })
         }
     }
