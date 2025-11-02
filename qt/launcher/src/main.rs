@@ -7,9 +7,6 @@ use std::ffi::CString;
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
-use std::path::Component;
-use std::path::Path;
-use std::path::PathBuf;
 use std::process::Command;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
@@ -17,13 +14,13 @@ use std::time::UNIX_EPOCH;
 use anki_i18n::I18n;
 use anki_io::copy_file;
 use anki_io::create_dir_all;
-use anki_io::create_file;
 use anki_io::modified_time;
 use anki_io::read_file;
 use anki_io::remove_file;
 use anki_io::write_file;
 use anki_io::ToUtf8Path;
 use anki_process::CommandExt as AnkiCommandExt;
+use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 
@@ -1044,8 +1041,8 @@ fn uv_command(state: &State) -> Result<Command> {
     Ok(command)
 }
 
-fn _build_python_command(state: &State) -> Result<Command> {
-    let python_exe = if cfg!(target_os = "windows") {
+fn get_venv_bin_path(state: &State) -> std::path::PathBuf {
+    if cfg!(target_os = "windows") {
         let show_console = std::env::var("ANKI_CONSOLE").is_ok();
         if show_console {
             state.venv_folder.join("Scripts/python.exe")
@@ -1054,9 +1051,11 @@ fn _build_python_command(state: &State) -> Result<Command> {
         }
     } else {
         state.venv_folder.join("bin/python")
-    };
+    }
+}
 
-    let mut cmd = Command::new(&python_exe);
+fn _build_python_command(state: &State, python_exe: &std::path::Path) -> Result<Command> {
+    let mut cmd = Command::new(python_exe);
     // tell the Python code it was invoked by the launcher, and updating is
     // available
     cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
@@ -1070,78 +1069,38 @@ fn _build_python_command(state: &State) -> Result<Command> {
 }
 
 fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
-    let mut cmd = _build_python_command(state)?;
+    let python_exe = get_venv_bin_path(state);
+    let mut cmd = _build_python_command(state, &python_exe)?;
     cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
     cmd.args(args);
     Ok(cmd)
 }
 
-/// Normalize a path, removing things like `.` and `..` w/o following symlinks
-/// NOTE: lifted from https://github.com/rust-lang/cargo/blob/28b79ea2b7b6d922d3ee85a935e63deed42db9c1/crates/cargo-util/src/paths.rs#L84
-pub fn normalize_path(path: &Path) -> PathBuf {
-    let mut components = path.components().peekable();
-    let mut ret = if let Some(c @ Component::Prefix(..)) = components.peek().cloned() {
-        components.next();
-        PathBuf::from(c.as_os_str())
-    } else {
-        PathBuf::new()
-    };
-
-    for component in components {
-        match component {
-            Component::Prefix(..) => unreachable!(),
-            Component::RootDir => {
-                ret.push(Component::RootDir);
-            }
-            Component::CurDir => {}
-            Component::ParentDir => {
-                if ret.ends_with(Component::ParentDir) {
-                    ret.push(Component::ParentDir);
-                } else {
-                    let popped = ret.pop();
-                    if !popped && !ret.has_root() {
-                        ret.push(Component::ParentDir);
-                    }
-                }
-            }
-            Component::Normal(c) => {
-                ret.push(c);
-            }
-        }
-    }
-    ret
-}
-
 fn get_python_env_info(state: &State) -> Result<(String, std::path::PathBuf, CString)> {
+    let python_exe = get_venv_bin_path(state);
     // we can cache this, as it can only change after syncing the project
     // as it stands, we already expect there to be a trusted python exe in
     // a particular place so this doesn't seem too concerning security-wise
-    type Cache = (String, PathBuf, PathBuf);
     // TODO: let-chains...
     if let Ok(cached) = read_file(&state.libpython_info) {
         if let Ok(cached) = String::from_utf8(cached) {
-            if let Ok((version, lib_path, exec_path)) = serde_json::from_str::<Cache>(&cached) {
+            if let Some((version, lib_path)) = cached.split_once('\n') {
                 if let Ok(lib_path) = state.uv_install_root.join(lib_path).canonicalize() {
-                    // can't use canonicalise here as it follows symlinks,
-                    // we need bin to be in the venv for it to know where
-                    // to find the pyvenv.cfg that's in the parent dir
-                    let exec_path = normalize_path(&state.uv_install_root.join(exec_path));
                     // make sure we're still within AnkiProgramFiles...
-                    if lib_path.strip_prefix(&state.uv_install_root).is_ok()
-                        && exec_path.strip_prefix(&state.uv_install_root).is_ok()
-                    {
+                    if lib_path.strip_prefix(&state.uv_install_root).is_ok() {
                         return Ok((
-                            version,
+                            version.to_string(),
                             lib_path,
-                            CString::new(exec_path.as_os_str().as_encoded_bytes())?,
+                            CString::new(python_exe.as_os_str().as_encoded_bytes())?,
                         ));
                     }
                 }
             }
         }
+        let _ = remove_file(&state.libpython_info);
     }
 
-    let mut cmd = _build_python_command(state)?;
+    let mut cmd = _build_python_command(state, &python_exe)?;
     // NOTE:
     // we can check which sysconfig vars are available
     // with `sysconfig.get_config_vars()`. very limited on
@@ -1162,29 +1121,26 @@ fn get_python_env_info(state: &State) -> Result<(String, std::path::PathBuf, CSt
     let output = cmd.utf8_output()?;
     let output = output.stdout.trim();
 
-    let (version, lib_path, exec_path): Cache = serde_json::from_str(output)?;
+    let (version, lib_path) = output
+        .split_once('\n')
+        .ok_or_else(|| anyhow!("invalid libpython info"))?;
+    let lib_path = std::path::PathBuf::from(lib_path);
 
     if !lib_path.exists() {
         anyhow::bail!("library path doesn't exist: {lib_path:?}");
     }
 
-    if !exec_path.exists() {
-        anyhow::bail!("exec path doesn't exist: {exec_path:?}");
-    }
-
-    if let Ok(file) = create_file(&state.libpython_info) {
-        let cached = (
-            version.clone(),
-            lib_path.strip_prefix(&state.uv_install_root)?,
-            exec_path.strip_prefix(&state.uv_install_root)?,
+    if let Ok(lib_path) = lib_path.strip_prefix(&state.uv_install_root) {
+        let _ = write_file(
+            &state.libpython_info,
+            format!("{version}\n{}", lib_path.display()),
         );
-        let _ = serde_json::to_writer(file, &cached);
     }
 
     Ok((
         version.to_owned(),
         lib_path,
-        CString::new(exec_path.as_os_str().as_encoded_bytes())?,
+        CString::new(python_exe.as_os_str().as_encoded_bytes())?,
     ))
 }
 
