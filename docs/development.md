@@ -223,10 +223,12 @@ are installed. See [Building from source](#building-from-source) for more info.
 
 ## Running
 
-Once the launcher is built, you can find the executable under `out/launcher` (located
-in the project root). In that folder, you will find a `launcher.amd64` and a
-`launcher.arm64` binary file. Select the one matching your architecture and run
-it to test your changes.
+Once the launcher is built, you can find the executable under `out/launcher`
+(located in the project root). In that folder, you will find the binary file of
+the launcher.
+
+On linux, you will find a `launcher.amd64` and a `launcher.arm64` binary file.
+Select the one matching your architecture and run it to test your changes.
 
 For example, on Linux, after following the build steps above, you can run the
 amd64 launcher via this command:
