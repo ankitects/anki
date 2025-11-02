@@ -23,7 +23,7 @@ impl Drop for PyFfi {
 }
 
 macro_rules! load_sym {
-    ($lib:expr, $name:literal) => {{
+    ($lib:expr, $name:expr) => {{
         libc::dlerror();
         let sym = libc::dlsym($lib, $name.as_ptr());
         if sym.is_null() {
@@ -34,9 +34,16 @@ macro_rules! load_sym {
     }};
 }
 
+macro_rules! ffi {
+    ($lib:expr, $exec:expr, $($field:ident),* $(,)?) => {
+        #[allow(clippy::missing_transmute_annotations)] // they're not missing
+        PyFfi { exec: $exec, $($field: load_sym!($lib, ::std::ffi::CString::new(stringify!($field)).unwrap()),)* lib: $lib, }
+    };
+}
+
 impl PyFfi {
     #[allow(non_snake_case)]
-    pub fn load(path: impl AsRef<std::path::Path>) -> Result<Self> {
+    pub fn load(path: impl AsRef<std::path::Path>, exec: CString) -> Result<Self> {
         unsafe {
             libc::dlerror();
             let lib = libc::dlopen(
@@ -48,14 +55,18 @@ impl PyFfi {
                 anyhow::bail!("failed to load library: {dlerror_str}");
             }
 
-            #[allow(clippy::missing_transmute_annotations)] // they're not missing
-            Ok(PyFfi {
-                Py_InitializeEx: load_sym!(lib, c"Py_InitializeEx"),
-                Py_IsInitialized: load_sym!(lib, c"Py_IsInitialized"),
-                PyRun_SimpleString: load_sym!(lib, c"PyRun_SimpleString"),
-                Py_FinalizeEx: load_sym!(lib, c"Py_FinalizeEx"),
+            Ok(ffi!(
                 lib,
-            })
+                exec,
+                Py_IsInitialized,
+                PyRun_SimpleString,
+                Py_FinalizeEx,
+                PyConfig_InitPythonConfig,
+                PyConfig_SetBytesString,
+                Py_InitializeFromConfig,
+                PyConfig_SetBytesArgv,
+                PyStatus_Exception
+            ))
         }
     }
 }
