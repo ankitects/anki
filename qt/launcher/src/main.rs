@@ -3,9 +3,13 @@
 
 #![windows_subsystem = "windows"]
 
+use std::ffi::CString;
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
+use std::path::Component;
+use std::path::Path;
+use std::path::PathBuf;
 use std::process::Command;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
@@ -13,6 +17,7 @@ use std::time::UNIX_EPOCH;
 use anki_i18n::I18n;
 use anki_io::copy_file;
 use anki_io::create_dir_all;
+use anki_io::create_file;
 use anki_io::modified_time;
 use anki_io::read_file;
 use anki_io::remove_file;
@@ -54,7 +59,7 @@ struct State {
     previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
     venv_folder: std::path::PathBuf,
-    libpython_path: std::path::PathBuf,
+    libpython_info: std::path::PathBuf,
     /// system Python + PyQt6 library mode
     system_qt: bool,
 }
@@ -134,7 +139,7 @@ fn run() -> Result<()> {
             && resources_dir.join("system_qt").exists(),
         resources_dir,
         venv_folder: uv_install_root.join(".venv"),
-        libpython_path: uv_install_root.join("libpath"),
+        libpython_info: uv_install_root.join(".cached-info"),
     };
 
     // Check for uninstall request from Windows uninstaller
@@ -279,8 +284,8 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     // Remove sync marker before attempting sync
     let _ = remove_file(&state.sync_complete_marker);
 
-    // clear possibly invalidated libpython path cache
-    let _ = remove_file(&state.libpython_path);
+    // clear possibly invalidated ibpython info cache
+    let _ = remove_file(&state.libpython_info);
 
     println!("{}\n", state.tr.launcher_updating_anki());
 
@@ -1071,17 +1076,66 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     Ok(cmd)
 }
 
-fn get_libpython_path(state: &State) -> Result<std::path::PathBuf> {
+/// Normalize a path, removing things like `.` and `..` w/o following symlinks
+/// NOTE: lifted from https://github.com/rust-lang/cargo/blob/28b79ea2b7b6d922d3ee85a935e63deed42db9c1/crates/cargo-util/src/paths.rs#L84
+pub fn normalize_path(path: &Path) -> PathBuf {
+    let mut components = path.components().peekable();
+    let mut ret = if let Some(c @ Component::Prefix(..)) = components.peek().cloned() {
+        components.next();
+        PathBuf::from(c.as_os_str())
+    } else {
+        PathBuf::new()
+    };
+
+    for component in components {
+        match component {
+            Component::Prefix(..) => unreachable!(),
+            Component::RootDir => {
+                ret.push(Component::RootDir);
+            }
+            Component::CurDir => {}
+            Component::ParentDir => {
+                if ret.ends_with(Component::ParentDir) {
+                    ret.push(Component::ParentDir);
+                } else {
+                    let popped = ret.pop();
+                    if !popped && !ret.has_root() {
+                        ret.push(Component::ParentDir);
+                    }
+                }
+            }
+            Component::Normal(c) => {
+                ret.push(c);
+            }
+        }
+    }
+    ret
+}
+
+fn get_python_env_info(state: &State) -> Result<(String, std::path::PathBuf, CString)> {
     // we can cache this, as it can only change after syncing the project
     // as it stands, we already expect there to be a trusted python exe in
     // a particular place so this doesn't seem too concerning security-wise
+    type Cache = (String, PathBuf, PathBuf);
     // TODO: let-chains...
-    if let Ok(path) = read_file(&state.libpython_path) {
-        if let Ok(rel_path) = String::from_utf8(path).map(std::path::PathBuf::from) {
-            if let Ok(lib_path) = state.uv_install_root.join(rel_path).canonicalize() {
-                // make sure we're still within AnkiProgramFiles
-                if lib_path.strip_prefix(&state.uv_install_root).is_ok() {
-                    return Ok(lib_path);
+    if let Ok(cached) = read_file(&state.libpython_info) {
+        if let Ok(cached) = String::from_utf8(cached) {
+            if let Ok((version, lib_path, exec_path)) = serde_json::from_str::<Cache>(&cached) {
+                if let Ok(lib_path) = state.uv_install_root.join(lib_path).canonicalize() {
+                    // can't use canonicalise here as it follows symlinks,
+                    // we need bin to be in the venv for it to know where
+                    // to find the pyvenv.cfg that's in the parent dir
+                    let exec_path = normalize_path(&state.uv_install_root.join(exec_path));
+                    // make sure we're still within AnkiProgramFiles...
+                    if lib_path.strip_prefix(&state.uv_install_root).is_ok()
+                        && exec_path.strip_prefix(&state.uv_install_root).is_ok()
+                    {
+                        return Ok((
+                            version,
+                            lib_path,
+                            CString::new(exec_path.as_os_str().as_encoded_bytes())?,
+                        ));
+                    }
                 }
             }
         }
@@ -1106,19 +1160,32 @@ fn get_libpython_path(state: &State) -> Result<std::path::PathBuf> {
     cmd.args(["-c", script]);
 
     let output = cmd.utf8_output()?;
-    let lib_path_str = output.stdout.trim();
-    let lib_path = std::path::PathBuf::from(lib_path_str);
+    let output = output.stdout.trim();
+
+    let (version, lib_path, exec_path): Cache = serde_json::from_str(output)?;
+
     if !lib_path.exists() {
         anyhow::bail!("library path doesn't exist: {lib_path:?}");
     }
 
-    let cached_path = lib_path
-        .strip_prefix(&state.uv_install_root)?
-        .to_str()
-        .ok_or_else(|| anyhow::anyhow!("failed to make relative path"))?;
-    let _ = write_file(&state.libpython_path, cached_path);
+    if !exec_path.exists() {
+        anyhow::bail!("exec path doesn't exist: {exec_path:?}");
+    }
 
-    Ok(lib_path)
+    if let Ok(file) = create_file(&state.libpython_info) {
+        let cached = (
+            version.clone(),
+            lib_path.strip_prefix(&state.uv_install_root)?,
+            exec_path.strip_prefix(&state.uv_install_root)?,
+        );
+        let _ = serde_json::to_writer(file, &cached);
+    }
+
+    Ok((
+        version.to_owned(),
+        lib_path,
+        CString::new(exec_path.as_os_str().as_encoded_bytes())?,
+    ))
 }
 
 fn is_mirror_enabled(state: &State) -> bool {
