@@ -1085,11 +1085,11 @@ fn get_python_env_info(state: &State) -> Result<(String, std::path::PathBuf, CSt
     if let Ok(cached) = read_file(&state.libpython_info) {
         if let Ok(cached) = String::from_utf8(cached) {
             if let Some((version, lib_path)) = cached.split_once('\n') {
-                if let Ok(lib_path) = state.uv_install_root.join(lib_path).canonicalize() {
+                if let Ok(lib_path) = state.uv_install_root.join(lib_path.trim()).canonicalize() {
                     // make sure we're still within AnkiProgramFiles...
                     if lib_path.strip_prefix(&state.uv_install_root).is_ok() {
                         return Ok((
-                            version.to_string(),
+                            version.trim().to_string(),
                             lib_path,
                             CString::new(python_exe.as_os_str().as_encoded_bytes())?,
                         ));
@@ -1124,7 +1124,7 @@ fn get_python_env_info(state: &State) -> Result<(String, std::path::PathBuf, CSt
     let (version, lib_path) = output
         .split_once('\n')
         .ok_or_else(|| anyhow!("invalid libpython info"))?;
-    let lib_path = std::path::PathBuf::from(lib_path);
+    let lib_path = std::path::PathBuf::from(lib_path.trim());
 
     if !lib_path.exists() {
         anyhow::bail!("library path doesn't exist: {lib_path:?}");
@@ -1138,7 +1138,7 @@ fn get_python_env_info(state: &State) -> Result<(String, std::path::PathBuf, CSt
     }
 
     Ok((
-        version.to_owned(),
+        version.trim().to_owned(),
         lib_path,
         CString::new(python_exe.as_os_str().as_encoded_bytes())?,
     ))
