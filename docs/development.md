@@ -200,16 +200,15 @@ If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 The steps to build the launcher vary slightly depending on your operating
 system. First, you have to navigate to the appropriate folder:
 
-| Operating System | Path               |
-| ---------------- | ------------------ |
-| Linux            | ./qt/launcher/lin/ |
-| MacOS            | ./qt/launcher/mac/ |
-| Windows          | .\qt\launcher\win\ |
+| Operating System | Path               | Env variables |
+| ---------------- | ------------------ | ------------- |
+| Linux            | ./qt/launcher/lin/ | -             |
+| MacOS            | ./qt/launcher/mac/ | `NODMG=1`     |
+| Windows          | .\qt\launcher\win\ | `NOCOMP=1`    |
 
-If you are on Windows, you will now have to set `NOCOMP=1` to skip code signing
-and compression. If you are on MacOS, you will have to use `NODMG=1` to skip the
-slow bundling / code signing. If you are on linux, you won't have to set any
-special environment variables.
+If you are on Windows or MacOS, you will now have to set the environment
+variables as outlined in the table above. `NOCOMP=1` skips code signing
+and compression, whereas `NODMG=1` skips the slow bundling / code signing.
 
 Next, run the `build.sh` script (on Linux and MacOS) or the `build.bat` script
 (on Windows).
