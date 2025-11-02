@@ -36,7 +36,7 @@ macro_rules! load_sym {
 macro_rules! ffi {
     ($lib:expr, $exec:expr, $($field:ident),* $(,)?) => {
         #[allow(clippy::missing_transmute_annotations)] // they're not missing
-        PyFfi { exec: $exec, $($field: load_sym!($lib, ::std::ffi::CString::new(stringify!($field)).unwrap()),)* lib: $lib, }
+        PyFfi { exec: $exec, $($field: load_sym!($lib, ::std::ffi::CString::new(stringify!($field)).map_err(|_| anyhow::anyhow!("failed to construct symbol CString"))?),)* lib: $lib, }
     };
 }
 
