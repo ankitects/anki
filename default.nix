@@ -1,4 +1,4 @@
-{ fetchFromGitHub, anki, lib, rustPlatform, yarn-berry }:
+{ fetchFromGitHub, anki, lib, rustPlatform, yarn-berry, rsync }:
 
 let
   version = "local";
@@ -21,7 +21,7 @@ in anki.overrideAttrs (oldAttrs: {
 
   yarnOfflineCache = yarn-berry.fetchYarnBerryDeps {
     yarnLock = "${src}/yarn.lock";
-    hash = "sha256-EmKeHORr/+qsDzAwtearMi7qodcCgjeAQcy+79HL7Vg=";
+    hash = "sha256-lxRdOFDdNsNvsd4UMZZoES4En4EGOr1nGLKV/QyWahs=";
     missingHashes = ./missingHashes.json;
   };
 })
