@@ -450,8 +450,6 @@ impl crate::services::SchedulerService for Collection {
                 note.fields[notetype.get_field_ord(&field.1).unwrap()].clone()
             });
 
-            dbg!(&typed_answer_parent_node);
-
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
                     queue: Some(queue.into()),
