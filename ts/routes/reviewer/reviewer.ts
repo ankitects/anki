@@ -137,13 +137,13 @@ export class ReviewerState {
     }
 
     async showTypedAnswer(html: string) {
-        if (!this._cardData?.typedAnswer) {
+        if (!this._cardData?.typedAnswer || !this._cardData.typedAnswerArgs) {
             return html;
         }
         const compareAnswerResp = await compareAnswer({
             expected: this._cardData?.typedAnswer,
             provided: this.currentTypedAnswer,
-            combining: false,
+            combining: !this._cardData.typedAnswerArgs.includes("nc"),
         });
         const display = compareAnswerResp.val;
 

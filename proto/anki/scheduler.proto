@@ -307,6 +307,7 @@ message NextCardDataResponse {
     string body_class = 6;
     bool autoplay = 7;
     optional string typed_answer = 12;
+    optional string typed_answer_args = 13;
 
     repeated card_rendering.AVTag question_av_tags = 8;
     repeated card_rendering.AVTag answer_av_tags = 9;

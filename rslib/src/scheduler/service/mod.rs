@@ -431,7 +431,10 @@ impl crate::services::SchedulerService for Collection {
                     let mut out = None;
                     *text = ANSWER_REGEX
                         .replace(text, |cap: &regex::Captures<'_>| {
-                            out = Some(cap[2].to_string());
+                            out = Some((
+                                cap.get(1).map(|g| g.as_str().to_string()),
+                                cap[2].to_string(),
+                            ));
                             ANSWER_HTML
                         })
                         .to_string();
@@ -441,11 +444,13 @@ impl crate::services::SchedulerService for Collection {
                 }
             });
 
-            let typed_answer = typed_answer_parent_node.map(|field| {
+            let typed_answer = typed_answer_parent_node.as_ref().map(|field| {
                 let note = self.get_note(next_card.card.note_id.into()).unwrap();
                 let notetype = self.get_notetype(note.notetype_id.into()).unwrap().unwrap();
-                note.fields[notetype.get_field_ord(&field).unwrap()].clone()
+                note.fields[notetype.get_field_ord(&field.1).unwrap()].clone()
             });
+
+            dbg!(&typed_answer_parent_node);
 
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
@@ -458,6 +463,7 @@ impl crate::services::SchedulerService for Collection {
                     answer_buttons,
                     autoplay: !config.inner.disable_autoplay,
                     typed_answer,
+                    typed_answer_args: typed_answer_parent_node.and_then(|v| v.0),
 
                     // Filled by python
                     front: "".to_string(),
