@@ -16,6 +16,13 @@
 
         devShells.default = pkgs.mkShell {
           inputsFrom = [ self.packages.${system}.default ];
+          shellHook = ''
+            echo "======================================"
+            echo "⚠️  Remember to build with submodules:"
+            echo ""
+            echo "   nix build '.?submodules=1'"
+            echo "======================================"
+          '';
         };
       });
 }

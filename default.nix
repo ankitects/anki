@@ -3,7 +3,20 @@
 let
   version = "local";
   src = ./.;
-in anki.overrideAttrs (oldAttrs: {
+
+  # Sanity check: verify git submodules are included
+  checkSubmodules =
+    if !builtins.pathExists "${src}/ftl/core-repo/core" then
+      throw ''
+        ❌ Git submodules are missing from the source!
+
+        The ftl/core-repo and ftl/qt-repo submodules are required for building.
+
+        Fix: Build with the submodules parameter:
+          nix build '.?submodules=1'
+      ''
+    else true;
+in assert checkSubmodules; anki.overrideAttrs (oldAttrs: {
 
   inherit version src;
 
