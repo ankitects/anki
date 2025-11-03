@@ -121,6 +121,24 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
             showText(out.server_message, parent=mw)
         if out.required == out.NO_CHANGES:
             tooltip(parent=mw, msg=tr.sync_collection_complete())
+            
+            # Monitor window focus and close tooltip if window loses focus
+            def check_focus() -> None:
+                from aqt.utils import closeTooltip
+                # Close tooltip if window loses focus, becomes invisible, or is minimized
+                if not mw.isActiveWindow() or not mw.isVisible() or (mw.windowState() & Qt.WindowState.WindowMinimized):
+                    closeTooltip()
+                    focus_timer.stop()
+            
+            focus_timer = QTimer(mw)
+            qconnect(focus_timer.timeout, check_focus)
+            focus_timer.start(100)  # Check every 100ms
+            
+            # Stop monitoring after tooltip's natural expiry time
+            def stop_monitoring() -> None:
+                focus_timer.stop()
+            
+            QTimer.singleShot(3000, stop_monitoring)
             # all done; track media progress
             mw.media_syncer.start_monitoring()
             return on_done()
