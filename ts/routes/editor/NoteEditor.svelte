@@ -1038,8 +1038,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (notetypeId) {
             selectedNotetypeId = notetypeId;
         }
-        if (!selectedNotetypeId && copyFromNote) {
-            selectedNotetypeId = copyFromNote?.notetypeId;
+        if (!selectedNotetypeId) {
+            if (copyFromNote) {
+                selectedNotetypeId = copyFromNote.notetypeId;
+            } else {
+                selectedNotetypeId = (await notetypeChooser.getSelected()).id;
+            }
         }
         if (mode === "add") {
             deckChooser.select(selectedDeckId!);
