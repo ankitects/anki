@@ -168,7 +168,7 @@ async function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOption
     // setup button for toggle image occlusion
     const button = document.getElementById("toggle");
     if (button) {
-        if (document.querySelector("[data-occludeinactive=\"1\"]")) {
+        if (document.querySelector("[data-occludeinactive=\"1\"], [data-occludeinactive=\"2\"]")) {
             button.addEventListener("click", () => toggleMasks(setupOptions));
         } else {
             button.style.display = "none";
@@ -202,35 +202,55 @@ function drawShapes(
         properties = processed.properties;
     }
 
-    for (const shape of activeShapes) {
-        drawShape({
-            context,
-            size,
-            shape,
-            fill: properties.activeShapeColor,
-            stroke: properties.activeBorder.color,
-            strokeWidth: properties.activeBorder.width,
-        });
-    }
-    for (const shape of inactiveShapes.filter((s) => s.occludeInactive)) {
-        drawShape({
-            context,
-            size,
-            shape,
-            fill: shape.fill !== SHAPE_MASK_COLOR ? shape.fill : properties.inActiveShapeColor,
-            stroke: properties.inActiveBorder.color,
-            strokeWidth: properties.inActiveBorder.width,
-        });
-    }
-    for (const shape of highlightShapes) {
-        drawShape({
-            context,
-            size,
-            shape,
-            fill: properties.highlightShapeColor,
-            stroke: properties.highlightShapeBorder.color,
-            strokeWidth: properties.highlightShapeBorder.width,
-        });
+    // Determine occlusion mode from the first shape
+    const occlusionMode = activeShapes[0]?.occlusionMode ?? inactiveShapes[0]?.occlusionMode ?? 0;
+
+    // Mode 0 (HideOne): Draw active only (front), reveal answer with highlight (back)
+    // Mode 1 (HideAll): Draw both active and inactive (front & back)
+    // Mode 2 (HideAllButOne): Draw inactive only (front), draw nothing (back)
+
+    // Check if we're on the back side (highlightShapes only exist on back)
+    const isBackSide = highlightShapes.length > 0;
+
+    // For mode 2 on the back side, draw nothing (show full unoccluded image)
+    if (occlusionMode === 2 && isBackSide) {
+        // Don't draw any shapes on the back for "Hide All But One" mode
+    } else {
+        // Normal drawing logic for all other cases
+        if (occlusionMode !== 2) {
+            for (const shape of activeShapes) {
+                drawShape({
+                    context,
+                    size,
+                    shape,
+                    fill: properties.activeShapeColor,
+                    stroke: properties.activeBorder.color,
+                    strokeWidth: properties.activeBorder.width,
+                });
+            }
+        }
+        if (occlusionMode === 1 || occlusionMode === 2) {
+            for (const shape of inactiveShapes) {
+                drawShape({
+                    context,
+                    size,
+                    shape,
+                    fill: shape.fill !== SHAPE_MASK_COLOR ? shape.fill : properties.inActiveShapeColor,
+                    stroke: properties.inActiveBorder.color,
+                    strokeWidth: properties.inActiveBorder.width,
+                });
+            }
+        }
+        for (const shape of highlightShapes) {
+            drawShape({
+                context,
+                size,
+                shape,
+                fill: properties.highlightShapeColor,
+                stroke: properties.highlightShapeBorder.color,
+                strokeWidth: properties.highlightShapeBorder.width,
+            });
+        }
     }
 
     onDidDrawShapes?.({

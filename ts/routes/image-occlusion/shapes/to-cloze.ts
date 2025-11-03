@@ -4,6 +4,7 @@
 import { fabric } from "fabric";
 import { cloneDeep } from "lodash-es";
 
+import { OcclusionMode } from "../store";
 import { getBoundingBoxSize } from "../tools/lib";
 import type { Size } from "../types";
 import type { Shape, ShapeOrShapes } from "./base";
@@ -12,7 +13,7 @@ import { Polygon } from "./polygon";
 import { Rectangle } from "./rectangle";
 import { Text } from "./text";
 
-export function exportShapesToClozeDeletions(occludeInactive: boolean): {
+export function exportShapesToClozeDeletions(mode: OcclusionMode): {
     clozes: string;
     noteCount: number;
 } {
@@ -76,7 +77,7 @@ export function exportShapesToClozeDeletions(occludeInactive: boolean): {
         clozes += shapeOrShapesToCloze(
             shapeOrShapes,
             ordinal,
-            occludeInactive,
+            mode,
         );
 
         if (!(shapeOrShapes instanceof Text)) {
@@ -179,7 +180,7 @@ function fabricObjectToBaseShapeOrShapes(
 function shapeOrShapesToCloze(
     shapeOrShapes: ShapeOrShapes,
     ordinal: number,
-    occludeInactive: boolean,
+    mode: OcclusionMode,
 ): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
@@ -190,7 +191,7 @@ function shapeOrShapesToCloze(
     let type: string;
     if (Array.isArray(shapeOrShapes)) {
         return shapeOrShapes
-            .map((shape) => shapeOrShapesToCloze(shape, ordinal, occludeInactive))
+            .map((shape) => shapeOrShapesToCloze(shape, ordinal, mode))
             .join("");
     } else if (shapeOrShapes instanceof Rectangle) {
         type = "rect";
@@ -207,8 +208,8 @@ function shapeOrShapesToCloze(
     for (const [key, value] of Object.entries(shapeOrShapes.toDataForCloze())) {
         addKeyValue(key, value);
     }
-    if (occludeInactive) {
-        addKeyValue("oi", "1");
+    if (mode !== OcclusionMode.HideOne) {
+        addKeyValue("oi", mode.toString());
     }
 
     text = `{{c${ordinal}::image-occlusion:${type}${text}}}<br>`;

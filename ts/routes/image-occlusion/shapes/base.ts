@@ -20,23 +20,23 @@ export class Shape {
     top: number;
     angle?: number; // polygons don't use it
     fill: string;
-    /** Whether occlusions from other cloze numbers should be shown on the
-     * question side. Used only in reviewer code.
+    /** Occlusion mode: 0=HideOne, 1=HideAll, 2=HideAllButOne.
+     * Used only in reviewer code.
      */
-    occludeInactive?: boolean;
+    occlusionMode?: number;
     /* Cloze ordinal */
     ordinal: number | undefined;
     id: string | undefined;
 
     constructor(
-        { left = 0, top = 0, angle = 0, fill = SHAPE_MASK_COLOR, occludeInactive, ordinal = undefined }:
+        { left = 0, top = 0, angle = 0, fill = SHAPE_MASK_COLOR, occlusionMode, ordinal = undefined }:
             ConstructorParams<Shape> = {},
     ) {
         this.left = left;
         this.top = top;
         this.angle = angle;
         this.fill = fill;
-        this.occludeInactive = occludeInactive;
+        this.occlusionMode = occlusionMode;
         this.ordinal = ordinal;
     }
 

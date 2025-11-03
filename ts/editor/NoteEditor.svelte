@@ -423,9 +423,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { IOMode } from "../routes/image-occlusion/lib";
     import { exportShapesToClozeDeletions } from "../routes/image-occlusion/shapes/to-cloze";
     import {
-        hideAllGuessOne,
         ioImageLoadedStore,
         ioMaskEditorVisible,
+        occlusionMode,
     } from "../routes/image-occlusion/store";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
@@ -477,7 +477,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function saveOcclusions(): void {
         if (isImageOcclusion && globalThis.canvas) {
-            const occlusionsData = exportShapesToClozeDeletions($hideAllGuessOne);
+            const occlusionsData = exportShapesToClozeDeletions($occlusionMode);
             fieldStores[ioFields.occlusions].set(occlusionsData.clozes);
         }
     }
