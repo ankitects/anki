@@ -839,4 +839,22 @@ mod test {
         let card2_html = reveal_cloze_text(text, 2, true);
         assert!(card2_html.contains(r#"data-ordinal="1,2""#));
     }
+
+    #[test]
+    fn image_occlusion_modes() {
+        // Mode 1 (HideAll): should include data-occludeinactive="1"
+        let hide_all = "{{c1::image-occlusion:rect:left=10:top=20:width=30:height=40:oi=1}}";
+        let html = reveal_cloze_text(hide_all, 1, true);
+        assert!(html.contains(r#"data-occludeInactive="1""#));
+
+        // Mode 2 (HideAllButOne): should include data-occludeinactive="2"
+        let hide_all_but_one = "{{c1::image-occlusion:rect:left=10:top=20:width=30:height=40:oi=2}}";
+        let html = reveal_cloze_text(hide_all_but_one, 1, true);
+        assert!(html.contains(r#"data-occludeInactive="2""#));
+
+        // Mode 0 (HideOne): should not include data-occludeinactive attribute
+        let hide_one = "{{c1::image-occlusion:rect:left=10:top=20:width=30:height=40}}";
+        let html = reveal_cloze_text(hide_one, 1, true);
+        assert!(!html.contains("data-occludeInactive"));
+    }
 }
