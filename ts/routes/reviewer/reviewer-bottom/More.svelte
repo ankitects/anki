@@ -37,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
         title={tr.actionsShortcutKey({ val: "M" })}
     >
-        {tr.studyingMore()}&#8615
+        {tr.studyingMore()}{"▾"}
     </button>
 
     <div slot="items">
