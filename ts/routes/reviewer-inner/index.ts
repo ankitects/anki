@@ -58,7 +58,7 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
 });
 
 addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && document.activeElement?.matches("#typeans")) {
+    if (e.key === "Enter") {
         postParentMessage({ type: "keypress", key: " " });
     } else if (
         e.key.length == 1 && "1234 ".includes(e.key)
