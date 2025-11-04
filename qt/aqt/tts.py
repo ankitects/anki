@@ -94,8 +94,18 @@ class TTSPlayer:
 
             rank -= 1
 
-        # if no preferred voices match, we fall back on language
-        # with a rank of -100
+        # if no requested voices match, use a preferred fallback voice
+        # (for example, Apple Samantha) with rank of -50
+        for avail in avail_voices:
+            if avail.lang == tag.lang:
+                if (
+                    avail.lang == "en_US"
+                    and avail.name == "Apple_Samantha_(English_(US))"
+                ):
+                    return TTSVoiceMatch(voice=avail, rank=-50)
+
+        # if no requested or preferred voices match, we fall back on
+        # the first available voice for the language, with a rank of -100
         for avail in avail_voices:
             if avail.lang == tag.lang:
                 return TTSVoiceMatch(voice=avail, rank=-100)
