@@ -1290,11 +1290,7 @@ class SvelteReviewer(Reviewer):
         return v3_labels[i - 1] if self.mw.col.conf["estTimes"] else ""
 
     def _linkHandler(self, url: str) -> None:
-        if url == "bottomReady":
-            self._showQuestion()
-            self._remaining()
-            return
-        super()._linkHandler(url)
+        pass
 
     def _initWeb(self) -> None:
         self._reps = 0
