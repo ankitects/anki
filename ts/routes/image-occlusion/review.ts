@@ -7,6 +7,7 @@ import { ModuleName, setupI18n } from "@tslib/i18n";
 import { optimumPixelSizeForCanvas } from "./canvas-scale";
 import { Shape } from "./shapes";
 import { Ellipse, extractShapesFromRenderedClozes, Polygon, Rectangle, Text } from "./shapes";
+import { OcclusionMode } from "./store";
 import { SHAPE_MASK_COLOR, TEXT_BACKGROUND_COLOR, TEXT_FONT_FAMILY, TEXT_PADDING } from "./tools/lib";
 import type { Size } from "./types";
 
@@ -168,10 +169,18 @@ async function setupImageOcclusionInner(setupOptions?: SetupImageOcclusionOption
     // setup button for toggle image occlusion
     const button = document.getElementById("toggle");
     if (button) {
-        if (document.querySelector("[data-occludeinactive=\"1\"], [data-occludeinactive=\"2\"]")) {
-            button.addEventListener("click", () => toggleMasks(setupOptions));
-        } else {
+        const hasHideAllMode = document.querySelector(`[data-occludeinactive="${OcclusionMode.HideAll}"]`);
+        const hasHideAllButOneMode = document.querySelector(`[data-occludeinactive="${OcclusionMode.HideAllButOne}"]`);
+        const hasAnyToggleableMode = hasHideAllMode || hasHideAllButOneMode;
+        const isBackSide = document.querySelectorAll(".cloze-highlight").length > 0;
+
+        // Hide button if:
+        // 1. No shapes with Hide All or Hide All But One modes, OR
+        // 2. Hide All But One mode on the back side (no shapes to toggle)
+        if (!hasAnyToggleableMode || (hasHideAllButOneMode && isBackSide)) {
             button.style.display = "none";
+        } else {
+            button.addEventListener("click", () => toggleMasks(setupOptions));
         }
     }
 
@@ -203,21 +212,21 @@ function drawShapes(
     }
 
     // Determine occlusion mode from the first shape
-    const occlusionMode = activeShapes[0]?.occlusionMode ?? inactiveShapes[0]?.occlusionMode ?? 0;
+    const occlusionMode = activeShapes[0]?.occlusionMode ?? inactiveShapes[0]?.occlusionMode ?? OcclusionMode.HideOne;
 
-    // Mode 0 (HideOne): Draw active only (front), reveal answer with highlight (back)
-    // Mode 1 (HideAll): Draw both active and inactive (front & back)
-    // Mode 2 (HideAllButOne): Draw inactive only (front), draw nothing (back)
+    // HideOne: Draw active only (front), reveal answer with highlight (back)
+    // HideAll: Draw both active and inactive (front & back)
+    // HideAllButOne: Draw inactive only (front), draw nothing (back)
 
     // Check if we're on the back side (highlightShapes only exist on back)
     const isBackSide = highlightShapes.length > 0;
 
-    // For mode 2 on the back side, draw nothing (show full unoccluded image)
-    if (occlusionMode === 2 && isBackSide) {
+    // For HideAllButOne on the back side, draw nothing (show full unoccluded image)
+    if (occlusionMode === OcclusionMode.HideAllButOne && isBackSide) {
         // Don't draw any shapes on the back for "Hide All But One" mode
     } else {
         // Normal drawing logic for all other cases
-        if (occlusionMode !== 2) {
+        if (occlusionMode !== OcclusionMode.HideAllButOne) {
             for (const shape of activeShapes) {
                 drawShape({
                     context,
@@ -229,7 +238,7 @@ function drawShapes(
                 });
             }
         }
-        if (occlusionMode === 1 || occlusionMode === 2) {
+        if (occlusionMode === OcclusionMode.HideAll || occlusionMode === OcclusionMode.HideAllButOne) {
             for (const shape of inactiveShapes) {
                 drawShape({
                     context,
