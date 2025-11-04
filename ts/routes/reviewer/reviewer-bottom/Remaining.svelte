@@ -14,21 +14,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <span>
-    <RemainingNumber cls="new-count" underlined={underlined === QueuedCards_Queue.NEW}>
-        {queue?.newCount}
-    </RemainingNumber> +
+    <RemainingNumber
+        cls="new-count"
+        underlined={underlined === QueuedCards_Queue.NEW}
+        count={queue?.newCount}
+    ></RemainingNumber>
+    {"+"}
     <RemainingNumber
         cls="learn-count"
         underlined={underlined === QueuedCards_Queue.LEARNING}
-    >
-        {queue?.learningCount}
-    </RemainingNumber> +
+        count={queue?.learningCount}
+    ></RemainingNumber>
+    {"+"}
     <RemainingNumber
         cls="review-count"
         underlined={underlined === QueuedCards_Queue.REVIEW}
-    >
-        {queue?.reviewCount}
-    </RemainingNumber>
+        count={queue?.reviewCount}
+    ></RemainingNumber>
 </span>
 
 <style>
