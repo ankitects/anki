@@ -1275,7 +1275,7 @@ class SvelteReviewer(Reviewer):
             return ""
 
         idx, counts = self._v3.counts()
-        self.bottom.web.eval(f"_updateRemaining({json.dumps(counts)},{idx})")
+        self.web.eval(f"_updateRemaining({json.dumps(counts)},{idx})")
         return ""
 
     def _showAnswerButton(self) -> None:
@@ -1284,7 +1284,7 @@ class SvelteReviewer(Reviewer):
         else:
             maxTime = 0
         self._remaining()
-        self.bottom.web.eval('showQuestion("",%d);' % (maxTime))
+        self.web.eval('showQuestion("",%d);' % (maxTime))
 
     def _buttonTime(self, i: int, v3_labels: Sequence[str]) -> str:
         return v3_labels[i - 1] if self.mw.col.conf["estTimes"] else ""
@@ -1298,14 +1298,13 @@ class SvelteReviewer(Reviewer):
 
     def _initWeb(self) -> None:
         self._reps = 0
+        # hide the bottom bar
+        self.bottom.web.setHtml("<style>body {margin:0;} html {height:0;}</style>")
         # main window
         self.web.load_sveltekit_page("reviewer")
         # block default drag & drop behavior while allowing drop events to be received by JS handlers
         self.web.allow_drops = True
         self.web.eval("_blockDefaultDragDropBehavior();")
-        # ensure bottom web functions trigger
-        self.bottom.web = self.web
-        self.mw.bottomWeb.hide()
 
     def _shortcutKeys(self) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
         return []
