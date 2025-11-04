@@ -1,87 +1,15 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "../../../lib/sass/root-vars";
-@use "../../../lib/sass/vars" as *;
-@use "../../../lib/sass/card-counts";
+@use "../../../../qt/aqt/data/web/css/reviewer-bottom.scss";
+@use "../../../../qt/aqt/data/web/css/toolbar.scss";
 @use "../../../lib/sass/buttons";
 
-:root {
-    --focus-color: #{palette-of(border-focus)};
-
-    .isMac {
-        --focus-color: rgba(0 103 244 / 0.247);
-    }
-}
-
-body {
-    margin: 0;
-    padding: 0;
+html body {
     font-size: 12px;
     height: 72px;
-}
 
-#middle td[align="center"] {
-    padding-top: 10px;
-    position: relative;
-}
-
-button {
-    min-width: 80px;
-    white-space: nowrap;
-    margin: 9px;
-    position: relative;
-}
-
-.hitem {
-    margin-top: 2px;
-}
-
-.stat {
-    padding-top: 10px;
-
-    @media (max-width: 583px) {
-        display: none;
-    }
-}
-
-.stat2 {
-    padding-top: 10px;
-    font-weight: normal;
-}
-
-:focus {
-    border-color: color(border-focus);
-}
-
-.nobold,
-.stattxt {
-    position: absolute;
-    white-space: nowrap;
-    font-size: small;
-    top: -3px;
-    left: 50%;
-    transform: translate(-50%, -100%);
-    font-weight: normal;
-    display: inline-block;
-}
-
-.spacer {
-    height: 18px;
-}
-
-.spacer2 {
-    height: 16px;
-}
-
-#outer {
-    border-top: 1px solid color(border);
-    /* Better compatibility with graphics pad/touchscreen */
-    -webkit-user-select: none;
-}
-
-.nightMode {
-    #outer {
-        border-top-color: color(border-subtle);
+    button {
+        min-width: 80px;
     }
 }

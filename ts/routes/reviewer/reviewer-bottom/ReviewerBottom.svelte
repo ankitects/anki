@@ -60,6 +60,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         grid-auto-flow: column;
     }
 
+    #outer {
+        padding: 8px;
+    }
+
     .more,
     .edit {
         width: 100%;
