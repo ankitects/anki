@@ -147,7 +147,6 @@ export class ReviewerState {
         });
         const display = compareAnswerResp.val;
 
-        console.log({ typedAnswerRegex, html, display });
         return html.replace(typedAnswerRegex, display);
     }
 
