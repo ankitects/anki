@@ -56,7 +56,6 @@ waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROT
 
 logger = logging.getLogger(__name__)
 app = flask.Flask(__name__, root_path="/fake")
-card_data_app = flask.Flask(__name__, root_path="/fake")
 flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
 
 
@@ -116,17 +115,10 @@ class MediaServer(threading.Thread):
         try:
             desired_host = os.getenv("ANKI_API_HOST", "127.0.0.1")
             desired_port = int(os.getenv("ANKI_API_PORT") or 0)
-            desired_card_data_port = int(os.getenv("ANKI_CARD_DATA_PORT") or 0)
             self.server = create_server(
                 app,
                 host=desired_host,
                 port=desired_port,
-                clear_untrusted_proxy_headers=True,
-            )
-            self.card_data_server = create_server(
-                card_data_app,
-                host=desired_host,
-                port=desired_card_data_port,
                 clear_untrusted_proxy_headers=True,
             )
             logger.info(
@@ -134,17 +126,9 @@ class MediaServer(threading.Thread):
                 self.server.effective_host,  # type: ignore[union-attr]
                 self.server.effective_port,  # type: ignore[union-attr]
             )
-            logger.info(
-                "Serving iframes on http://%s:%s",
-                self.card_data_server.effective_host,  # type: ignore[union-attr]
-                self.card_data_server.effective_port,  # type: ignore[union-attr]
-            )
 
             self._ready.set()
-            card_data_thread = threading.Thread(target=self.card_data_server.run)
-            card_data_thread.start()
             self.server.run()
-            card_data_thread.join()
 
         except Exception:
             if not self.is_shutdown:
@@ -193,19 +177,6 @@ class MediaServer(threading.Thread):
 def favicon() -> Response:
     request = BundledFileRequest(os.path.join("imgs", "favicon.ico"))
     return _handle_builtin_file_request(request)
-
-
-@card_data_app.route("/reviewer-inner.<ext>")
-def card_data(ext):
-    if ext not in ("html", "js", "css"):
-        abort(404)
-    response = _handle_builtin_file_request(
-        BundledFileRequest(path=os.path.join("pages", f"reviewer-inner.{ext}"))
-    )
-    print(response.headers)
-    response.headers["Content-Security-Policy"] = ""
-    print(response.headers)
-    return response
 
 
 def _mime_for_path(path: str) -> str:

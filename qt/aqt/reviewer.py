@@ -1297,8 +1297,7 @@ class SvelteReviewer(Reviewer):
         # hide the bottom bar
         self.bottom.web.setHtml("<style>body {margin:0;} html {height:0;}</style>")
         # main window
-        inner_port = self.mw.mediaServer.card_data_server.effective_port
-        self.web.load_sveltekit_page(f"reviewer?p={inner_port}")
+        self.web.load_sveltekit_page("reviewer")
         # block default drag & drop behavior while allowing drop events to be received by JS handlers
         self.web.allow_drops = True
         self.web.eval("_blockDefaultDragDropBehavior();")
