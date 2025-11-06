@@ -7,12 +7,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ReviewerState, updateNightMode } from "./reviewer";
     import ReviewerBottom from "./reviewer-bottom/ReviewerBottom.svelte";
     import Reviewer from "./Reviewer.svelte";
+    import { _blockDefaultDragDropBehavior } from "../../reviewer";
 
     const state = new ReviewerState();
     onMount(() => {
         updateNightMode();
         globalThis.anki ??= {};
         globalThis.anki.changeReceived = () => state.showQuestion(null);
+        _blockDefaultDragDropBehavior();
     });
 </script>
 
