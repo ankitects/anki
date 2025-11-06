@@ -48,6 +48,11 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
                 })
                 .catch(renderError("MathJax"));
 
+            // "".innerHTML =" does not run scripts
+            for (const script of document.querySelectorAll("script")) {
+                eval(script.innerHTML);
+            }
+
             break;
         }
         default: {
