@@ -444,7 +444,6 @@ class Reviewer:
             tooltip(tr.studying_question_time_elapsed())
 
     def autoplay(self, card: Card) -> bool:
-        print("use card.autoplay() instead of reviewer.autoplay(card)")
         return card.autoplay()
 
     def _update_flag_icon(self) -> None:
@@ -1297,7 +1296,7 @@ class SvelteReviewer(Reviewer):
         # hide the bottom bar
         self.bottom.web.setHtml("<style>body {margin:0;} html {height:0;}</style>")
         # main window
-        inner_port = self.mw.mediaServer.card_data_server.effective_port
+        inner_port = self.mw.mediaServer.card_data_server.effective_port  # type: ignore[union-attr]
         self.web.load_sveltekit_page(f"reviewer?p={inner_port}")
         # block default drag & drop behavior while allowing drop events to be received by JS handlers
         self.web.allow_drops = True
