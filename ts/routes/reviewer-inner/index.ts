@@ -2,11 +2,21 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import "../base.scss";
 import "../../reviewer/reviewer.scss";
+
 import "mathjax/es5/tex-chtml-full.js";
 import { renderError } from "../../reviewer";
+import { addBrowserClasses } from "../../reviewer/browser_selector";
+import { imageOcclusionAPI } from "../image-occlusion/review";
 import { enableNightMode } from "../reviewer/reviewer";
 import type { ReviewerRequest } from "../reviewer/reviewerRequest";
 import type { InnerReviewerRequest } from "./innerReviewerRequest";
+
+const anki = globalThis.anki || {};
+anki.imageOcclusion = imageOcclusionAPI;
+anki.setupImageCloze = imageOcclusionAPI.setup; // deprecated
+addBrowserClasses();
+
+Object.defineProperty(window, "anki", { value: anki });
 
 function postParentMessage(message: ReviewerRequest) {
     window.parent.postMessage(
