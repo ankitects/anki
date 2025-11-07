@@ -448,17 +448,22 @@ impl crate::services::SchedulerService for Collection {
                 }
             });
 
-            let typed_answer = typed_answer_parent_node.map(|field| {
-                let note = self.get_note(next_card.card.note_id.into()).unwrap();
-                let notetype = self.get_notetype(note.notetype_id.into()).unwrap().unwrap();
-                let ord = notetype.get_field_ord(&field.1).unwrap();
-                let mut correct = note.fields[ord].clone();
-                if field.0.contains("cloze") {
-                    correct = extract_cloze_for_typing(&correct, (ord + 1).try_into().unwrap())
-                        .to_string()
-                }
-                (field.0, correct)
-            });
+            let typed_answer = typed_answer_parent_node
+                .map(|field| -> Result<(String, String)> {
+                    let note = self.get_note(next_card.card.note_id.into())?;
+                    let notetype = self
+                        .get_notetype(note.notetype_id.into())?
+                        .or_not_found(note.notetype_id)?;
+                    let ord = notetype.get_field_ord(&field.1).or_not_found(field.1)?;
+                    let mut correct = note.fields[ord].clone();
+                    if field.0.contains("cloze") {
+                        correct =
+                            extract_cloze_for_typing(&correct, (ord + 1).try_into().unwrap_or(0))
+                                .to_string()
+                    }
+                    Ok((field.0, correct))
+                })
+                .transpose()?;
 
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
