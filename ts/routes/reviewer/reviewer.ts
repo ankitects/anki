@@ -146,13 +146,14 @@ export class ReviewerState {
     }
 
     async showTypedAnswer(html: string) {
-        if (!this._cardData?.typedAnswer || !this._cardData.typedAnswerArgs) {
+        console.log({ data: this._cardData });
+        if (this._cardData?.typedAnswer === undefined) {
             return html;
         }
         const compareAnswerResp = await compareAnswer({
-            expected: this._cardData?.typedAnswer,
+            expected: this._cardData.typedAnswer.text,
             provided: this.currentTypedAnswer,
-            combining: !this._cardData.typedAnswerArgs.includes("nc"),
+            combining: !this._cardData.typedAnswer.args.includes("nc"),
         });
         const display = compareAnswerResp.val;
 

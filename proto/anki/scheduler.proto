@@ -297,6 +297,11 @@ message NextCardDataResponse {
     string due = 2;
   }
 
+  message TypedAnswer {
+    string text = 1;
+    string args = 2;
+  }
+
   message NextCardData {
     QueuedCards queue = 1;
     repeated AnswerButton answer_buttons = 2;
@@ -306,8 +311,7 @@ message NextCardDataResponse {
     string css = 5;
     string body_class = 6;
     bool autoplay = 7;
-    optional string typed_answer = 12;
-    optional string typed_answer_args = 13;
+    optional TypedAnswer typed_answer = 12;
 
     repeated card_rendering.AVTag question_av_tags = 8;
     repeated card_rendering.AVTag answer_av_tags = 9;
