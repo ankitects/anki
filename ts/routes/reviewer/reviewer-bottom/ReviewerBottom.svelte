@@ -6,11 +6,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import "./index.scss";
 
     import AnswerButton from "./AnswerButton.svelte";
-    import { bridgeCommand } from "@tslib/bridgecommand";
     import * as tr from "@generated/ftl";
     import type { ReviewerState } from "../reviewer";
     import Remaining from "./Remaining.svelte";
     import More from "./More.svelte";
+    import { displayEditMenu } from "@generated/backend";
 
     export let state: ReviewerState;
 
@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="disappearing edit">
             <button
                 title={tr.actionsShortcutKey({ val: "E" })}
-                on:click={() => bridgeCommand("edit")}
+                on:click={() => displayEditMenu({ cid: state.currentCard?.card?.id })}
             >
                 {tr.studyingEdit()}
             </button>

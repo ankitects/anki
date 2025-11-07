@@ -34,6 +34,7 @@ service FrontendService {
 
   // Plays the listed AV tags
   rpc PlayAVTags(PlayAVTagsRequest) returns (generic.Empty);
+  rpc displayEditMenu(DisplayEditMenuRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -50,4 +51,8 @@ message SetSchedulingStatesRequest {
 
 message PlayAVTagsRequest {
   repeated card_rendering.AVTag tags = 1;
+}
+
+message DisplayEditMenuRequest {
+  optional int64 cid = 1;
 }
