@@ -454,12 +454,11 @@ impl crate::services::SchedulerService for Collection {
                     let notetype = self
                         .get_notetype(note.notetype_id.into())?
                         .or_not_found(note.notetype_id)?;
-                    let ord = notetype.get_field_ord(&field.1).or_not_found(field.1)?;
-                    let mut correct = note.fields[ord].clone();
+                    let field_ord = notetype.get_field_ord(&field.1).or_not_found(field.1)?;
+                    let mut correct = note.fields[field_ord].clone();
                     if field.0.contains("cloze") {
-                        correct =
-                            extract_cloze_for_typing(&correct, (ord + 1).try_into().unwrap_or(0))
-                                .to_string()
+                        let card_ord = queue.cards[0].card.template_idx;
+                        correct = extract_cloze_for_typing(&correct, card_ord + 1).to_string()
                     }
                     Ok((field.0, correct))
                 })
