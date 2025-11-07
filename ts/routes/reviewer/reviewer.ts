@@ -146,16 +146,18 @@ export class ReviewerState {
     }
 
     async showTypedAnswer(html: string) {
-        console.log({ data: this._cardData });
         if (this._cardData?.typedAnswer === undefined) {
             return html;
         }
+        const args = this._cardData.typedAnswer.args;
         const compareAnswerResp = await compareAnswer({
             expected: this._cardData.typedAnswer.text,
             provided: this.currentTypedAnswer,
-            combining: !this._cardData.typedAnswer.args.includes("nc"),
+            combining: !args.includes("nc"),
         });
-        const display = compareAnswerResp.val;
+
+        const prefix = args.includes("cloze") ? "<br/>" : "";
+        const display = prefix + compareAnswerResp.val;
 
         return html.replace(typedAnswerRegex, display);
     }
