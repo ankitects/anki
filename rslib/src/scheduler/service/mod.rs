@@ -32,6 +32,7 @@ use regex::Regex;
 
 use crate::backend::Backend;
 use crate::card_rendering::service::rendered_nodes_to_proto;
+use crate::cloze::extract_cloze_for_typing;
 use crate::prelude::*;
 use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::scheduler::new::NewCardDueOrder;
@@ -450,10 +451,13 @@ impl crate::services::SchedulerService for Collection {
             let typed_answer = typed_answer_parent_node.map(|field| {
                 let note = self.get_note(next_card.card.note_id.into()).unwrap();
                 let notetype = self.get_notetype(note.notetype_id.into()).unwrap().unwrap();
-                (
-                    field.0,
-                    note.fields[notetype.get_field_ord(&field.1).unwrap()].clone(),
-                )
+                let ord = notetype.get_field_ord(&field.1).unwrap();
+                let mut correct = note.fields[ord].clone();
+                if field.0.contains("cloze") {
+                    correct = extract_cloze_for_typing(&correct, (ord + 1).try_into().unwrap())
+                        .to_string()
+                }
+                (field.0, correct)
             });
 
             Ok(NextCardDataResponse {
