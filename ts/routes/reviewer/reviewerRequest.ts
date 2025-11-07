@@ -16,4 +16,9 @@ interface KeyPressMessage {
     key: string;
 }
 
-export type ReviewerRequest = AudioMessage | UpdateTypedAnswerMessage | KeyPressMessage;
+interface SetStorageMessage {
+    type: "setstorage";
+    json_buffer: Uint8Array;
+}
+
+export type ReviewerRequest = AudioMessage | UpdateTypedAnswerMessage | KeyPressMessage | SetStorageMessage;

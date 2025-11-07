@@ -7,4 +7,9 @@ interface HtmlMessage {
     bodyclass?: string;
 }
 
-export type InnerReviewerRequest = HtmlMessage;
+interface StorageUpdateMessage {
+    type: "setstorage";
+    json_buffer: Uint8Array;
+}
+
+export type InnerReviewerRequest = HtmlMessage | StorageUpdateMessage;

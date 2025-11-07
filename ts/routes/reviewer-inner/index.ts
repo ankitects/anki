@@ -17,12 +17,17 @@ function postParentMessage(message: ReviewerRequest) {
 
 declare const MathJax: any;
 const urlParams = new URLSearchParams(location.search);
-
+const decoder = new TextDecoder();
 const style = document.createElement("style");
 document.head.appendChild(style);
 
 addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
     switch (e.data.type) {
+        case "setstorage": {
+            const json = JSON.parse(decoder.decode(e.data.json_buffer));
+            Object.assign(storageObj, json);
+            break;
+        }
         case "html": {
             document.body.innerHTML = e.data.value;
             if (e.data.css) {
@@ -56,7 +61,7 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
             break;
         }
         default: {
-            console.warn(`Unknown message type: ${e.data.type}`);
+            // console.warn(`Unknown message type: ${e.data.type}`);
             break;
         }
     }
@@ -99,3 +104,61 @@ function _typeAnsPress() {
     );
 }
 globalThis._typeAnsPress = _typeAnsPress;
+
+const storageObj = {};
+const encoder = new TextEncoder();
+
+function updateParentStorage() {
+    postParentMessage({ type: "setstorage", json_buffer: encoder.encode(JSON.stringify(storageObj)) });
+}
+
+function createStorageProxy() {
+    return new Proxy({}, {
+        get(_target, prop) {
+            switch (prop) {
+                case "getItem":
+                    return (key) => key in storageObj ? storageObj[key] : null;
+                case "setItem":
+                    return (key, value) => {
+                        storageObj[key] = String(value);
+                        updateParentStorage();
+                    };
+                case "removeItem":
+                    return (key) => {
+                        delete storageObj[key];
+                        updateParentStorage();
+                    };
+                case "clear":
+                    return () => {
+                        Object.keys(storageObj).forEach(key => delete storageObj[key]);
+                        updateParentStorage();
+                    };
+                case "key":
+                    return (index) => Object.keys(storageObj)[index] ?? null;
+                case "length":
+                    return Object.keys(storageObj).length;
+                default:
+                    return storageObj[prop];
+            }
+        },
+        set(_target, prop, value) {
+            storageObj[prop] = String(value);
+            return true;
+        },
+        ownKeys() {
+            return Object.keys(storageObj);
+        },
+        getOwnPropertyDescriptor(_target, _prop) {
+            return { enumerable: true, configurable: true };
+        },
+    });
+}
+
+const ankiStorage = createStorageProxy();
+
+Object.defineProperty(window, "localStorage", {
+    value: ankiStorage,
+    writable: false,
+    configurable: true,
+    enumerable: true,
+});

@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
-import { compareAnswer, nextCardData, playAvtags } from "@generated/backend";
+import { compareAnswer, getConfigJson, nextCardData, playAvtags, setConfigJson } from "@generated/backend";
 import { derived, get, writable } from "svelte/store";
 import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
 import type { ReviewerRequest } from "./reviewerRequest";
@@ -39,8 +39,10 @@ export class ReviewerState {
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
-    onReady() {
+    async onReady() {
         this.iframe!.style.visibility = "visible";
+        const { json } = await getConfigJson({ val: "reviewer_storage" });
+        this.sendInnerRequest({ type: "setstorage", json_buffer: json });
         this.showQuestion(null);
         addEventListener("message", this.onMessage.bind(this));
     }
@@ -59,6 +61,13 @@ export class ReviewerState {
             case "keypress": {
                 this.handleKeyPress(e.data.key);
                 break;
+            }
+            case "setstorage": {
+                setConfigJson({
+                    key: "reviewer_storage",
+                    valueJson: e.data.json_buffer,
+                    undoable: false,
+                });
             }
         }
     }
