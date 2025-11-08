@@ -332,14 +332,14 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                 return Ok(None);
             };
             let seconds_elapsed = if let Some(last_review_time) = card_data.last_review_time {
-                now.saturating_sub(last_review_time.0) as u32
+                (now as u32).saturating_sub(last_review_time.0 as u32)
             } else if due > 365_000 {
                 // (re)learning card in seconds
                 let Ok(ivl) = ctx.get_raw(2).as_i64() else {
                     return Ok(None);
                 };
-                let last_review_time = due.saturating_sub(ivl);
-                now.saturating_sub(last_review_time) as u32
+                let last_review_time = (due as u32).saturating_sub(ivl as u32);
+                (now as u32).saturating_sub(last_review_time)
             } else {
                 let Ok(ivl) = ctx.get_raw(2).as_i64() else {
                     return Ok(None);
@@ -347,8 +347,8 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                 let Ok(days_elapsed) = ctx.get_raw(3).as_i64() else {
                     return Ok(None);
                 };
-                let review_day = due.saturating_sub(ivl);
-                days_elapsed.saturating_sub(review_day) as u32 * 86_400
+                let review_day = (due as u32).saturating_sub(ivl as u32);
+                (days_elapsed as u32).saturating_sub(review_day) * 86_400
             };
             let decay = card_data.decay.unwrap_or(FSRS5_DEFAULT_DECAY);
             let retrievability = card_data.memory_state().map(|state| {
@@ -416,8 +416,8 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                                 let Ok(ivl) = ctx.get_raw(2).as_i64() else {
                                     return Ok(None);
                                 };
-                                let last_review_time = due.saturating_sub(ivl);
-                                now.saturating_sub(last_review_time) as u32
+                                let last_review_time = due.saturating_sub(ivl) as u32;
+                                (now as u32).saturating_sub(last_review_time)
                             } else {
                                 let Ok(ivl) = ctx.get_raw(2).as_i64() else {
                                     return Ok(None);

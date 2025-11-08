@@ -48,11 +48,12 @@ export function getAdjustedScaleAndTicks(
     const predomain = prescale.domain() as [number, number];
 
     const minOffset = min - predomain[0];
-    const tickSize = ticks[1] - ticks[0];
+    let tickSize = ticks[1] - ticks[0];
 
     const minBinSize = 1;
     if (tickSize < minBinSize) {
         ticks = range(min, max, minBinSize);
+        tickSize = minBinSize;
     }
 
     if (minOffset === 0 || (minOffset % tickSize !== 0 && tickSize % minOffset !== 0)) {
