@@ -7,14 +7,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { createEventDispatcher } from "svelte";
 
-    import { DifficultyRange, gatherData, prepareData } from "./difficulty";
+    import { gatherData, prepareData } from "./difficulty";
     import Graph from "./Graph.svelte";
     import type { GraphPrefs } from "./graph-helpers";
     import type { SearchEventMap, TableDatum } from "./graph-helpers";
     import type { HistogramData } from "./histogram-graph";
     import HistogramGraph from "./HistogramGraph.svelte";
     import TableData from "./TableData.svelte";
-    import InputBox from "./InputBox.svelte";
+    import PercentageRange from "./PercentageRange.svelte";
+    import { PercentageRangeEnum, PercentageRangeToQuantile } from "./percentageRange";
 
     export let sourceData: GraphsResponse | null = null;
     export let prefs: GraphPrefs;
@@ -23,13 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let histogramData: HistogramData | null = null;
     let tableData: TableDatum[] = [];
-    let range = DifficultyRange.All;
-
-    $: percentile = {
-        [DifficultyRange.Percentile50]: 0.5,
-        [DifficultyRange.Percentile95]: 0.95,
-        [DifficultyRange.All]: 1,
-    }[range];
+    let range = PercentageRangeEnum.All;
 
     $: if (sourceData) {
         const data = gatherData(sourceData);
@@ -40,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             data,
             dispatch,
             $prefs.browserLinksSupported,
-            1 - percentile,
+            PercentageRangeToQuantile(range),
         );
     }
 
@@ -50,28 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 {#if sourceData?.fsrs}
     <Graph {title} {subtitle}>
-        <InputBox>
-            <label>
-                <input
-                    type="radio"
-                    bind:group={range}
-                    value={DifficultyRange.Percentile50}
-                />
-                50%
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    bind:group={range}
-                    value={DifficultyRange.Percentile95}
-                />
-                95%
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={DifficultyRange.All} />
-                {tr.statisticsRangeAllTime()}
-            </label>
-        </InputBox>
+        <PercentageRange bind:range />
 
         <HistogramGraph data={histogramData} />
 

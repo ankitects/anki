@@ -9,17 +9,11 @@ import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import type { Bin, ScaleLinear } from "d3";
-import { bin, interpolateRdYlGn, quantile, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
-
-export enum DifficultyRange {
-    All = 0,
-    Percentile50 = 1,
-    Percentile95 = 2,
-}
 
 export interface GraphData {
     eases: Map<number, number>;
@@ -63,19 +57,29 @@ function getAdjustedScaleAndTicks(
     ];
 }
 
+export function easeQuantile(data: Map<number, number>, quantile: number) {
+    let count = sum(data.values()) * quantile;
+    for (const [key, value] of data.entries()) {
+        count -= value;
+        if (count <= 0) {
+            return key;
+        }
+    }
+}
+
 export function prepareData(
     data: GraphData,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean,
-    lowerQuantile: number = 0
+    quantile?: number,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allEases = data.eases;
     if (!allEases.size) {
         return [null, []];
     }
-    const xMin = quantile(Array.from(allEases.keys()), lowerQuantile) ?? 0;
-    const xMax = 100
+    const xMin = quantile ? easeQuantile(allEases, 1 - quantile) ?? 0 : 0;
+    const xMax = quantile ? easeQuantile(allEases, quantile) ?? 0 : 100;
     const desiredBars = 20;
 
     const [scale, ticks] = getAdjustedScaleAndTicks(xMin, xMax, desiredBars);
