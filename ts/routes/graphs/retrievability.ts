@@ -8,13 +8,13 @@
 import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
-import type { Bin, ScaleLinear } from "d3";
-import { bin, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";
+import type { Bin } from "d3";
+import { bin, interpolateRdYlGn, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
-import { percentageRangeMinMax } from "./percentageRange";
+import { getAdjustedScaleAndTicks, percentageRangeMinMax } from "./percentageRange";
 
 export interface GraphData {
     retrievability: Map<number, number>;
@@ -39,30 +39,6 @@ function makeQuery(start: number, end: number): string {
         tillQuery = tillQuery.replace("<", "<=");
     }
     return `${fromQuery} AND ${tillQuery}`;
-}
-
-function getAdjustedScaleAndTicks(
-    min: number,
-    max: number,
-    desiredBars: number,
-): [ScaleLinear<number, number, never>, number[]] {
-    const prescale = scaleLinear().domain([min, max]).nice();
-    const ticks = prescale.ticks(desiredBars);
-
-    const predomain = prescale.domain() as [number, number];
-
-    const minOffset = min - predomain[0];
-    const tickSize = ticks[1] - ticks[0];
-
-    if (minOffset === 0 || (minOffset % tickSize !== 0 && tickSize % minOffset !== 0)) {
-        return [prescale, ticks];
-    }
-
-    const add = (n: number): number => n + minOffset;
-    return [
-        scaleLinear().domain(predomain.map(add) as [number, number]),
-        ticks.map(add),
-    ];
 }
 
 export function prepareData(

@@ -1,6 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 
-import { sum } from "d3";
+import { range, type ScaleLinear, scaleLinear, sum } from "d3";
 
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 export enum PercentageRangeEnum {
@@ -32,4 +32,32 @@ export function percentageRangeMinMax(data: Map<number, number>, range: number |
     const xMax = range ? easeQuantile(data, range) ?? 0 : 100;
 
     return [xMin, xMax];
+}
+
+export function getAdjustedScaleAndTicks(
+    min: number,
+    max: number,
+    desiredBars: number,
+): [ScaleLinear<number, number, never>, number[]] {
+    const prescale = scaleLinear().domain([min, max]).nice();
+    let ticks = prescale.ticks(desiredBars);
+
+    const predomain = prescale.domain() as [number, number];
+
+    const minOffset = min - predomain[0];
+    const tickSize = ticks[1] - ticks[0];
+
+    if (tickSize < 1) {
+        ticks = range(min, max);
+    }
+
+    if (minOffset === 0 || (minOffset % tickSize !== 0 && tickSize % minOffset !== 0)) {
+        return [prescale, ticks];
+    }
+
+    const add = (n: number): number => n + minOffset;
+    return [
+        scaleLinear().domain(predomain.map(add) as [number, number]),
+        ticks.map(add),
+    ];
 }
