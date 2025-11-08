@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <input
             type="radio"
             bind:group={range}
-            value={PercentageRangeEnum.Percentile95}
+            value={PercentageRangeEnum.Percentile50}
         />
         50%
     </label>
