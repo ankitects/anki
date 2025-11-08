@@ -332,6 +332,12 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                 return Ok(None);
             };
             let seconds_elapsed = if let Some(last_review_time) = card_data.last_review_time {
+                // This and any following
+                // (x as u32).saturating_sub(y as u32)
+                // must not be changed to
+                // x.saturating_sub(y) as u32
+                // as x and y are i64's and saturating_sub will therfore allow negative numbers
+                // before converting to u32 in the latter example.
                 (now as u32).saturating_sub(last_review_time.0 as u32)
             } else if due > 365_000 {
                 // (re)learning card in seconds
@@ -416,6 +422,9 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                                 let Ok(ivl) = ctx.get_raw(2).as_i64() else {
                                     return Ok(None);
                                 };
+                                // Don't change this to now.subtracting_sub(last_review_time) as u32
+                                // for the same reasons listed in the comment
+                                // in add_extract_fsrs_retrievability
                                 let last_review_time = due.saturating_sub(ivl) as u32;
                                 (now as u32).saturating_sub(last_review_time)
                             } else {
