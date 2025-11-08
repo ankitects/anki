@@ -14,6 +14,7 @@ import { bin, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
+import { percentageRangeMinMax } from "./percentageRange";
 
 export interface GraphData {
     eases: Map<number, number>;
@@ -57,16 +58,6 @@ function getAdjustedScaleAndTicks(
     ];
 }
 
-export function easeQuantile(data: Map<number, number>, quantile: number) {
-    let count = sum(data.values()) * quantile;
-    for (const [key, value] of data.entries()) {
-        count -= value;
-        if (count <= 0) {
-            return key;
-        }
-    }
-}
-
 export function prepareData(
     data: GraphData,
     dispatch: SearchDispatch,
@@ -78,8 +69,7 @@ export function prepareData(
     if (!allEases.size) {
         return [null, []];
     }
-    const xMin = quantile ? easeQuantile(allEases, 1 - quantile) ?? 0 : 0;
-    const xMax = quantile ? easeQuantile(allEases, quantile) ?? 0 : 100;
+    const [xMin, xMax] = percentageRangeMinMax(allEases, quantile);
     const desiredBars = 20;
 
     const [scale, ticks] = getAdjustedScaleAndTicks(xMin, xMax, desiredBars);

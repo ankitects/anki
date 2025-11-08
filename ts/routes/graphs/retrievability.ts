@@ -14,6 +14,7 @@ import { bin, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
+import { percentageRangeMinMax } from "./percentageRange";
 
 export interface GraphData {
     retrievability: Map<number, number>;
@@ -68,14 +69,14 @@ export function prepareData(
     data: GraphData,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean,
+    quantile?: number,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allEases = data.retrievability;
     if (!allEases.size) {
         return [null, []];
     }
-    const xMin = 0;
-    const xMax = 100;
+    const [xMin, xMax] = percentageRangeMinMax(allEases, quantile);
     const desiredBars = 20;
 
     const [scale, ticks] = getAdjustedScaleAndTicks(xMin, xMax, desiredBars);
