@@ -9,11 +9,17 @@ import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
 import { localizedNumber } from "@tslib/i18n";
 import type { Bin, ScaleLinear } from "d3";
-import { bin, interpolateRdYlGn, scaleLinear, scaleSequential, sum } from "d3";
+import { bin, interpolateRdYlGn, quantile, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { getNumericMapBinValue, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
+
+export enum DifficultyRange {
+    All = 0,
+    Percentile50 = 1,
+    Percentile95 = 2,
+}
 
 export interface GraphData {
     eases: Map<number, number>;
@@ -61,14 +67,15 @@ export function prepareData(
     data: GraphData,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean,
+    lowerQuantile: number = 0
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allEases = data.eases;
     if (!allEases.size) {
         return [null, []];
     }
-    const xMin = 0;
-    const xMax = 100;
+    const xMin = quantile(Array.from(allEases.keys()), lowerQuantile) ?? 0;
+    const xMax = 100
     const desiredBars = 20;
 
     const [scale, ticks] = getAdjustedScaleAndTicks(xMin, xMax, desiredBars);
