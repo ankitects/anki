@@ -50,8 +50,9 @@ export function getAdjustedScaleAndTicks(
     const minOffset = min - predomain[0];
     const tickSize = ticks[1] - ticks[0];
 
-    if (tickSize < 1) {
-        ticks = range(min, max);
+    const minBinSize = 1;
+    if (tickSize < minBinSize) {
+        ticks = range(min, max, minBinSize);
     }
 
     if (minOffset === 0 || (minOffset % tickSize !== 0 && tickSize % minOffset !== 0)) {
