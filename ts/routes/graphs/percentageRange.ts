@@ -11,10 +11,11 @@ export enum PercentageRangeEnum {
 }
 
 export function PercentageRangeToQuantile(range: PercentageRangeEnum) {
+    // These are halved because the quantiles are in both directions
     return ({
         [PercentageRangeEnum.Percentile100]: 1,
-        [PercentageRangeEnum.Percentile95]: 0.95,
-        [PercentageRangeEnum.Percentile50]: 0.5,
+        [PercentageRangeEnum.Percentile95]: 0.975,
+        [PercentageRangeEnum.Percentile50]: 0.75,
         [PercentageRangeEnum.All]: undefined,
     })[range];
 }
