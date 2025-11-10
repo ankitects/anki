@@ -95,7 +95,8 @@ export class ReviewerState {
                 this.easeButtonPressed(3);
                 break;
             }
-            case " ": {
+            case " ":
+            case "Enter": {
                 if (!get(this.answerShown)) {
                     this.showAnswer();
                 } else {

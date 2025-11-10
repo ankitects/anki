@@ -79,7 +79,7 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
 
 addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-        postParentMessage({ type: "keypress", key: " " });
+        postParentMessage({ type: "keypress", key: e.key });
     } else if (
         e.key.length == 1 && "1234 ".includes(e.key)
         && !document.activeElement?.matches("input[type=text], input[type=number], textarea")
