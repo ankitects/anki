@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+"use-strict";
 import "../base.scss";
 import "../../reviewer/reviewer.scss";
 
@@ -11,12 +12,10 @@ import { enableNightMode } from "../reviewer/reviewer";
 import type { ReviewerRequest } from "../reviewer/reviewerRequest";
 import type { InnerReviewerRequest } from "./innerReviewerRequest";
 
-const anki = globalThis.anki || {};
-anki.imageOcclusion = imageOcclusionAPI;
-anki.setupImageCloze = imageOcclusionAPI.setup; // deprecated
 addBrowserClasses();
 
-Object.defineProperty(window, "anki", { value: anki });
+export const imageOcclusion = imageOcclusionAPI;
+export const setupImageCloze = imageOcclusionAPI.setup; // deprecated
 
 function postParentMessage(message: ReviewerRequest) {
     window.parent.postMessage(
