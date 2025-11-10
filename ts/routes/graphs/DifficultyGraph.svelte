@@ -27,12 +27,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let range = PercentageRangeEnum.All;
 
     $: if (sourceData) {
-        const data = gatherData(sourceData);
-
-        console.log(data.eases);
-
         [histogramData, tableData] = prepareData(
-            data,
+            gatherData(sourceData),
             dispatch,
             $prefs.browserLinksSupported,
             PercentageRangeToQuantile(range),
