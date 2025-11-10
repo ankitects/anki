@@ -41,7 +41,7 @@ export class ReviewerState {
 
     async onReady() {
         this.iframe!.style.visibility = "visible";
-        const { json } = await getConfigJson({ val: "reviewer_storage" });
+        const { json } = await getConfigJson({ val: "reviewerStorage" });
         this.sendInnerRequest({ type: "setstorage", json_buffer: json });
         this.showQuestion(null);
         addEventListener("message", this.onMessage.bind(this));
@@ -64,7 +64,7 @@ export class ReviewerState {
             }
             case "setstorage": {
                 setConfigJson({
-                    key: "reviewer_storage",
+                    key: "reviewerStorage",
                     valueJson: e.data.json_buffer,
                     undoable: false,
                 });
