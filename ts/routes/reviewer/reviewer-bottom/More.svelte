@@ -26,6 +26,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function changeFlag(index: number) {
         setFlag({ cardIds: [state.currentCard!.card!.id], flag: index });
+        state.cardData.update(($cardData) => {
+            $cardData!.queue!.cards[0].card!.flags = index;
+            return $cardData;
+        });
     }
 </script>
 
