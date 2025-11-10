@@ -403,20 +403,21 @@ impl crate::services::SchedulerService for Collection {
         let next_card = queue.cards.first();
         if let Some(next_card) = next_card {
             let cid = next_card.card.id;
+            let deck_config = self.deck_config_for_card(&next_card.card)?;
 
             let render = self.render_existing_card(cid, false, true)?;
+            let show_due =  self.get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons);
 
-            let answer_buttons = self
-                .describe_next_states(&next_card.states)?
-                .into_iter()
-                .enumerate()
-                .map(|(i, due)| AnswerButton {
-                    rating: i as i32,
-                    due,
-                })
-                .collect();
-
-            let config = self.deck_config_for_card(&next_card.card)?;
+            let answer_buttons =
+                self.describe_next_states(&next_card.states)?
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, due)| AnswerButton {
+                        rating: i as i32,
+                        due: if show_due { due } else { "\u{00A0}".to_string() /* &nbsp */ }
+                    })
+                    .collect();
+            
 
             // Typed answer replacements
             static ANSWER_REGEX: LazyLock<Regex> =
@@ -473,7 +474,7 @@ impl crate::services::SchedulerService for Collection {
                     partial_back: rendered_nodes_to_proto(render.anodes),
 
                     answer_buttons,
-                    autoplay: !config.inner.disable_autoplay,
+                    autoplay: !deck_config.inner.disable_autoplay,
                     typed_answer: typed_answer.map(|answer| TypedAnswer {
                         text: answer.1,
                         args: answer.0,
