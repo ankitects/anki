@@ -98,10 +98,7 @@ class TTSPlayer:
         # (for example, Apple Samantha) with rank of -50
         for avail in avail_voices:
             if avail.lang == tag.lang:
-                if (
-                    avail.lang == "en_US"
-                    and avail.name == "Apple_Samantha_(English_(US))"
-                ):
+                if avail.lang == "en_US" and avail.name.startswith("Apple_Samantha"):
                     return TTSVoiceMatch(voice=avail, rank=-50)
 
         # if no requested or preferred voices match, we fall back on
