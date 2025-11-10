@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script>
+    import "./index.scss";
+
     import { onMount } from "svelte";
     import { ReviewerState, updateNightMode } from "./reviewer";
     import ReviewerBottom from "./reviewer-bottom/ReviewerBottom.svelte";
@@ -16,12 +18,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         globalThis.anki.changeReceived = () => state.showQuestion(null);
         _blockDefaultDragDropBehavior();
     });
+    $: cardData = state.cardData;
+    $: flag = $cardData?.queue?.cards[0].card?.flags;
 </script>
 
 <div>
     <Reviewer {state}></Reviewer>
     <ReviewerBottom {state}></ReviewerBottom>
 </div>
+
+{#if flag}
+    <div id="_flag" style:color={`var(--flag-${flag})`}>⚑</div>
+{/if}
 
 <style>
     div {
