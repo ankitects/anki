@@ -113,7 +113,7 @@ export class ReviewerState {
             case "z": {
                 if (ctrl) {
                     if (shift) {
-                        redo({});
+                        await redo({});
                     } else {
                         await undo({});
                     }
