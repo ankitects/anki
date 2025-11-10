@@ -1,7 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
-import { compareAnswer, getConfigJson, nextCardData, playAvtags, redo, setConfigJson, undo } from "@generated/backend";
+import {
+    compareAnswer,
+    displayEditMenu,
+    getConfigJson,
+    nextCardData,
+    playAvtags,
+    redo,
+    setConfigJson,
+    undo,
+} from "@generated/backend";
 import { derived, get, writable } from "svelte/store";
 import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
 import type { ReviewerRequest } from "./reviewerRequest";
@@ -82,6 +91,10 @@ export class ReviewerState {
         this.showQuestion(null);
     }
 
+    public displayEditMenu() {
+        displayEditMenu({ cid: this.currentCard?.card?.id });
+    }
+
     async handleKeyPress(key: string, ctrl: boolean, shift: boolean) {
         key = key.toLowerCase();
         switch (key) {
@@ -120,6 +133,9 @@ export class ReviewerState {
                     this.refresh();
                 }
                 break;
+            }
+            case "e": {
+                this.displayEditMenu();
             }
         }
     }

@@ -10,7 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ReviewerState } from "../reviewer";
     import Remaining from "./Remaining.svelte";
     import More from "./More.svelte";
-    import { displayEditMenu } from "@generated/backend";
 
     export let state: ReviewerState;
 
@@ -26,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="disappearing edit">
             <button
                 title={tr.actionsShortcutKey({ val: "E" })}
-                on:click={() => displayEditMenu({ cid: state.currentCard?.card?.id })}
+                on:click={() => state.displayEditMenu()}
             >
                 {tr.studyingEdit()}
             </button>
