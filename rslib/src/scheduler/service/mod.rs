@@ -406,18 +406,21 @@ impl crate::services::SchedulerService for Collection {
             let deck_config = self.deck_config_for_card(&next_card.card)?;
 
             let render = self.render_existing_card(cid, false, true)?;
-            let show_due =  self.get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons);
+            let show_due = self.get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons);
 
-            let answer_buttons =
-                self.describe_next_states(&next_card.states)?
-                    .into_iter()
-                    .enumerate()
-                    .map(|(i, due)| AnswerButton {
-                        rating: i as i32,
-                        due: if show_due { due } else { "\u{00A0}".to_string() /* &nbsp */ }
-                    })
-                    .collect();
-            
+            let answer_buttons = self
+                .describe_next_states(&next_card.states)?
+                .into_iter()
+                .enumerate()
+                .map(|(i, due)| AnswerButton {
+                    rating: i as i32,
+                    due: if show_due {
+                        due
+                    } else {
+                        "\u{00A0}".to_string() /* &nbsp */
+                    },
+                })
+                .collect();
 
             // Typed answer replacements
             static ANSWER_REGEX: LazyLock<Regex> =
