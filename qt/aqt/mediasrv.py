@@ -56,7 +56,15 @@ waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROT
 
 logger = logging.getLogger(__name__)
 app = flask.Flask(__name__, root_path="/fake")
-flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
+flask_cors.CORS(
+    app,
+    resources={
+        r"/_anki/js/vendor/mathjax/output/chtml/fonts/woff-v2/.*.woff": {
+            "origins": "*"
+        },
+        r"/*": {"origins": "127.0.0.1"},
+    },
+)
 
 
 @dataclass

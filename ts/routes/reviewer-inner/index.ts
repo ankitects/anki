@@ -4,6 +4,7 @@
 import "../base.scss";
 import "../../reviewer/reviewer.scss";
 
+import "../../mathjax";
 import "mathjax/es5/tex-chtml-full.js";
 import { renderError } from "../../reviewer";
 import { addBrowserClasses } from "../../reviewer/browser_selector";
