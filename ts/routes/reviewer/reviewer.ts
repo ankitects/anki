@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
-import { compareAnswer, getConfigJson, nextCardData, playAvtags, setConfigJson } from "@generated/backend";
+import { compareAnswer, getConfigJson, nextCardData, playAvtags, redo, setConfigJson, undo } from "@generated/backend";
 import { derived, get, writable } from "svelte/store";
 import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
 import type { ReviewerRequest } from "./reviewerRequest";
@@ -33,6 +33,7 @@ export class ReviewerState {
     _cardData: NextCardDataResponse_NextCardData | undefined = undefined;
     beginAnsweringMs = Date.now();
     readonly cardClass = writable("");
+    readonly undoMessage = writable("");
     readonly answerShown = writable(false);
     readonly cardData = writable<NextCardDataResponse_NextCardData | undefined>(undefined);
     readonly answerButtons = derived(this.cardData, ($cardData) => $cardData?.answerButtons ?? []);
@@ -59,7 +60,7 @@ export class ReviewerState {
                 break;
             }
             case "keypress": {
-                this.handleKeyPress(e.data.key);
+                this.handleKeyPress(e.data.key, e.data.ctrl, e.data.shift);
                 break;
             }
             case "setstorage": {
@@ -77,7 +78,12 @@ export class ReviewerState {
         iframe.addEventListener("load", this.onReady.bind(this));
     }
 
-    handleKeyPress(key: string) {
+    public refresh() {
+        this.showQuestion(null);
+    }
+
+    async handleKeyPress(key: string, ctrl: boolean, shift: boolean) {
+        key = key.toLowerCase();
         switch (key) {
             case "1": {
                 this.easeButtonPressed(0);
@@ -96,7 +102,7 @@ export class ReviewerState {
                 break;
             }
             case " ":
-            case "Enter": {
+            case "enter": {
                 if (!get(this.answerShown)) {
                     this.showAnswer();
                 } else {
@@ -104,11 +110,22 @@ export class ReviewerState {
                 }
                 break;
             }
+            case "z": {
+                if (ctrl) {
+                    if (shift) {
+                        redo({});
+                    } else {
+                        await undo({});
+                    }
+                    this.refresh();
+                }
+                break;
+            }
         }
     }
 
     onKeyDown(e: KeyboardEvent) {
-        this.handleKeyPress(e.key);
+        this.handleKeyPress(e.key, e.ctrlKey, e.shiftKey);
     }
 
     public registerShortcuts() {

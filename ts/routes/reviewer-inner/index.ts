@@ -78,13 +78,15 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
 });
 
 addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        postParentMessage({ type: "keypress", key: e.key });
-    } else if (
+    const keyInfo: ReviewerRequest = { type: "keypress", key: e.key, ctrl: e.ctrlKey, shift: e.shiftKey };
+    if (
         e.key.length == 1 && "1234 ".includes(e.key)
-        && !document.activeElement?.matches("input[type=text], input[type=number], textarea")
     ) {
-        postParentMessage({ type: "keypress", key: e.key });
+        if (!document.activeElement?.matches("input[type=text], input[type=number], textarea")) {
+            postParentMessage(keyInfo);
+        }
+    } else {
+        postParentMessage(keyInfo);
     }
 });
 

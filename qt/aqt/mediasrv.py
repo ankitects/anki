@@ -734,6 +734,8 @@ exposed_backend_list = [
     "get_custom_colours",
     "set_config_json",
     "get_config_json",
+    "undo",
+    "redo",
     # DeckService
     "get_deck_names",
     # I18nService

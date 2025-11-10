@@ -14,6 +14,8 @@ interface UpdateTypedAnswerMessage {
 interface KeyPressMessage {
     type: "keypress";
     key: string;
+    ctrl: boolean;
+    shift: boolean;
 }
 
 interface SetStorageMessage {
