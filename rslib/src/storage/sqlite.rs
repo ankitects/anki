@@ -350,11 +350,11 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                 let Ok(ivl) = ctx.get_raw(2).as_i64() else {
                     return Ok(None);
                 };
-                let Ok(days_elapsed) = ctx.get_raw(3).as_i64() else {
+                let Ok(today) = ctx.get_raw(3).as_i64() else {
                     return Ok(None);
                 };
                 let review_day = (due as u32).saturating_sub(ivl as u32);
-                (days_elapsed as u32).saturating_sub(review_day) * 86_400
+                (today as u32).saturating_sub(review_day) * 86_400
             };
             let decay = card_data.decay.unwrap_or(FSRS5_DEFAULT_DECAY);
             let retrievability = card_data.memory_state().map(|state| {
@@ -370,7 +370,7 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
 }
 
 /// eg. extract_fsrs_relative_retrievability(card.data, card.due,
-/// timing.days_elapsed, card.ivl, timing.next_day_at, timing.now) -> float |
+/// card.ivl, timing.days_elapsed, timing.next_day_at, timing.now) -> float |
 /// null. The higher the number, the higher the card's retrievability relative
 /// to the configured desired retention.
 fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result<()> {
@@ -384,7 +384,7 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
             let Ok(due) = ctx.get_raw(1).as_i64() else {
                 return Ok(None);
             };
-            let Ok(interval) = ctx.get_raw(3).as_i64() else {
+            let Ok(interval) = ctx.get_raw(2).as_i64() else {
                 return Ok(None);
             };
             let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
@@ -393,17 +393,21 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
             let Ok(now) = ctx.get_raw(5).as_i64() else {
                 return Ok(None);
             };
-            let days_elapsed = if due > 365_000 {
-                // (re)learning
-                (next_day_at as u32).saturating_sub(due as u32) / 86_400
+            let secs_elapsed = if due > 365_000 {
+                // (re)learning card with due in seconds
+
+                // Don't change this to now.subtracting_sub(due) as u32
+                // for the same reasons listed in the comment
+                // in add_extract_fsrs_retrievability
+                (now as u32).saturating_sub(due as u32)
             } else {
-                let Ok(days_elapsed) = ctx.get_raw(2).as_i64() else {
+                let Ok(today) = ctx.get_raw(3).as_i64() else {
                     return Ok(None);
                 };
                 let review_day = due.saturating_sub(interval);
-
-                (days_elapsed as u32).saturating_sub(review_day as u32)
+                (today as u32).saturating_sub(review_day as u32) * 86_400
             };
+            let days_elapsed = secs_elapsed / 86_400;
             if let Ok(card_data) = ctx.get_raw(0).as_str() {
                 if !card_data.is_empty() {
                     let card_data = &CardData::from_str(card_data);
@@ -417,25 +421,8 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                         let seconds_elapsed =
                             if let Some(last_review_time) = card_data.last_review_time {
                                 now.saturating_sub(last_review_time.0) as u32
-                            } else if due > 365_000 {
-                                // (re)learning card in seconds
-                                let Ok(ivl) = ctx.get_raw(2).as_i64() else {
-                                    return Ok(None);
-                                };
-                                // Don't change this to now.subtracting_sub(last_review_time) as u32
-                                // for the same reasons listed in the comment
-                                // in add_extract_fsrs_retrievability
-                                let last_review_time = due.saturating_sub(ivl) as u32;
-                                (now as u32).saturating_sub(last_review_time)
                             } else {
-                                let Ok(ivl) = ctx.get_raw(2).as_i64() else {
-                                    return Ok(None);
-                                };
-                                let Ok(days_elapsed) = ctx.get_raw(3).as_i64() else {
-                                    return Ok(None);
-                                };
-                                let review_day = due.saturating_sub(ivl);
-                                days_elapsed.saturating_sub(review_day) as u32 * 86_400
+                                secs_elapsed
                             };
 
                         let current_retrievability = FSRS::new(None)
