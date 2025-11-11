@@ -18,3 +18,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Popover>
     </WithFloating>
 </div>
+
+<style>
+    div :global(.popover) {
+        padding: 0;
+    }
+</style>

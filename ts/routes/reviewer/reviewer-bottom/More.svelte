@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import DropdownItem from "$lib/components/DropdownItem.svelte";
     import * as tr from "@generated/ftl";
     import MoreSubmenu from "./MoreSubmenu.svelte";
     import MoreItem from "./MoreItem.svelte";
@@ -51,66 +50,46 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div slot="items" class="dropdown">
         <div class="row">
             <MoreSubmenu bind:showFloating={showFlags}>
-                <DropdownItem
+                <MoreItem
                     slot="button"
                     on:click={() => {
                         showFlags = !showFlags;
                     }}
                 >
                     {tr.studyingFlagCard()}
-                </DropdownItem>
+                </MoreItem>
                 <div slot="items" class="dropdown">
                     {#each flags as flag, i}
-                        <div class="row">
-                            <MoreItem
-                                shortcut={flag.shortcut}
-                                onClick={() => changeFlag(i + 1)}
-                            >
-                                {flag.colour}
-                            </MoreItem>
-                            <span>{flag.shortcut}</span>
-                        </div>
+                        <MoreItem
+                            shortcut={flag.shortcut}
+                            on:click={() => changeFlag(i + 1)}
+                        >
+                            {flag.colour}
+                        </MoreItem>
                     {/each}
                 </div>
             </MoreSubmenu>
         </div>
-        <span></span>
         {#each shortcuts as shortcut}
-            <div class="row">
-                <div>
-                    <MoreItem shortcut={shortcut.shortcut} onClick={shortcut.onClick}>
-                        {shortcut.name}
-                    </MoreItem>
-                </div>
-                <span>
-                    {shortcut.shortcut}
-                </span>
-            </div>
+            <MoreItem shortcut={shortcut.shortcut} on:click={shortcut.onClick}>
+                {shortcut.name}
+            </MoreItem>
         {/each}
     </div>
 </MoreSubmenu>
 
 <style lang="scss">
     div.dropdown {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        align-items: baseline;
-
         :global(button) {
             border-radius: 0;
             padding: 0.5em;
             margin: 0;
 
-            // TODO: Hover effects
             &:hover {
                 background: inherit;
                 color: inherit;
             }
         }
-    }
-
-    div.row {
-        display: contents;
     }
 
     button {
