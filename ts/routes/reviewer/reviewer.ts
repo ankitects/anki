@@ -112,12 +112,25 @@ export class ReviewerState {
         this.displayMenu("CardInfo");
     }
 
-    public buryCurrentCard() {
+    public buryOrSuspendCurrentCard(suspend: boolean) {
+        const mode = suspend ? BuryOrSuspendCardsRequest_Mode.SUSPEND : BuryOrSuspendCardsRequest_Mode.BURY_USER;
         if (this.currentCard?.card?.id) {
             buryOrSuspendCards({
-                cardIds: [this.currentCard?.card?.id],
+                cardIds: [this.currentCard.card.id],
                 noteIds: [],
-                mode: BuryOrSuspendCardsRequest_Mode.BURY_USER,
+                mode,
+            });
+            this.refresh();
+        }
+    }
+
+    public buryOrSuspendCurrentNote(suspend: boolean) {
+        const mode = suspend ? BuryOrSuspendCardsRequest_Mode.SUSPEND : BuryOrSuspendCardsRequest_Mode.BURY_USER;
+        if (this.currentCard?.card?.noteId) {
+            buryOrSuspendCards({
+                cardIds: [],
+                noteIds: [this.currentCard.card.noteId],
+                mode,
             });
             this.refresh();
         }
@@ -167,7 +180,7 @@ export class ReviewerState {
                 break;
             }
             case "-": {
-                this.buryCurrentCard();
+                this.buryOrSuspendCurrentCard(false);
                 break;
             }
         }

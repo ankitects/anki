@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {
             name: tr.studyingBuryCard(),
             shortcut: "-",
-            onClick: state.buryCurrentCard.bind(state),
+            onClick: state.buryOrSuspendCurrentCard.bind(state, false),
         },
         { name: tr.actionsForgetCard(), shortcut: "Ctrl+Alt+N", onClick: todo },
         {
@@ -40,7 +40,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             shortcut: "Ctrl+Shift+D",
             onClick: state.displaySetDueDateMenu.bind(state),
         },
-        { name: tr.actionsSuspendCard(), shortcut: "@", onClick: todo },
+        {
+            name: tr.actionsSuspendCard(),
+            shortcut: "@",
+            onClick: state.buryOrSuspendCurrentCard.bind(state, true),
+        },
         { name: tr.actionsOptions(), shortcut: "O", onClick: todo },
         {
             name: tr.actionsCardInfo(),
@@ -52,8 +56,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         "hr",
         // Notes
         { name: tr.studyingMarkNote(), shortcut: "*", onClick: todo },
-        { name: tr.studyingBuryNote(), shortcut: "=", onClick: todo },
-        { name: tr.studyingSuspendNote(), shortcut: "!", onClick: todo },
+        {
+            name: tr.studyingBuryNote(),
+            shortcut: "=",
+            onClick: state.buryOrSuspendCurrentNote.bind(state, false),
+        },
+        {
+            name: tr.studyingSuspendNote(),
+            shortcut: "!",
+            onClick: state.buryOrSuspendCurrentNote.bind(state, true),
+        },
         { name: tr.actionsCreateCopy(), shortcut: "Ctrl+Alt+E", onClick: todo },
         {
             name: tr.studyingDeleteNote(),
