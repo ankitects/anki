@@ -350,6 +350,7 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                 let Ok(ivl) = ctx.get_raw(2).as_i64() else {
                     return Ok(None);
                 };
+                // timing.days_elapsed
                 let Ok(today) = ctx.get_raw(3).as_i64() else {
                     return Ok(None);
                 };
