@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 
     function todo() {
-        alert("Not Yet Implemented");
+        alert("Not yet implemented in new reviewer.");
     }
 
     const shortcuts = [
@@ -113,9 +113,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </MoreSubmenu>
         </div>
         {#each shortcuts as shortcut}
-            <MoreItem shortcut={shortcut.shortcut} on:click={shortcut.onClick}>
-                {shortcut.name}
-            </MoreItem>
+            <div
+                style:background-color={shortcut.onClick == todo
+                    ? "RGBA(255,0,0,0.25)"
+                    : ""}
+            >
+                <MoreItem shortcut={shortcut.shortcut} on:click={shortcut.onClick}>
+                    {shortcut.name}
+                </MoreItem>
+            </div>
         {/each}
     </div>
 </MoreSubmenu>
