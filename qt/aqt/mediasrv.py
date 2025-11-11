@@ -779,6 +779,7 @@ exposed_backend_list = [
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
     "simulate_fsrs_workload",
+    "bury_or_suspend_cards",
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",

@@ -1,7 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import { CardAnswer, type NextCardDataResponse_NextCardData } from "@generated/anki/scheduler_pb";
 import {
+    BuryOrSuspendCardsRequest_Mode,
+    CardAnswer,
+    type NextCardDataResponse_NextCardData,
+} from "@generated/anki/scheduler_pb";
+import {
+    buryOrSuspendCards,
     compareAnswer,
     displayEditMenu,
     getConfigJson,
@@ -95,6 +100,17 @@ export class ReviewerState {
         displayEditMenu({ cid: this.currentCard?.card?.id });
     }
 
+    public buryCurrentCard() {
+        if (this.currentCard?.card?.id) {
+            buryOrSuspendCards({
+                cardIds: [this.currentCard?.card?.id],
+                noteIds: [],
+                mode: BuryOrSuspendCardsRequest_Mode.BURY_USER,
+            });
+            this.refresh();
+        }
+    }
+
     async handleKeyPress(key: string, ctrl: boolean, shift: boolean) {
         key = key.toLowerCase();
         switch (key) {
@@ -136,6 +152,11 @@ export class ReviewerState {
             }
             case "e": {
                 this.displayEditMenu();
+                break;
+            }
+            case "-": {
+                this.buryCurrentCard();
+                break;
             }
         }
     }
