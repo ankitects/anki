@@ -34,7 +34,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             onClick: state.buryCurrentCard.bind(state),
         },
         { name: tr.actionsForgetCard(), shortcut: "Ctrl+Alt+N", onClick: todo },
-        { name: tr.actionsSetDueDate(), shortcut: "Ctrl+Shift+D", onClick: todo },
+        {
+            name: tr.actionsSetDueDate(),
+            shortcut: "Ctrl+Shift+D",
+            onClick: state.displaySetDueDateMenu.bind(state),
+        },
         { name: tr.actionsSuspendCard(), shortcut: "@", onClick: todo },
         { name: tr.actionsOptions(), shortcut: "O", onClick: todo },
         { name: tr.actionsCardInfo(), shortcut: "I", onClick: todo },

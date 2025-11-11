@@ -706,16 +706,16 @@ def play_avtags():
     play_tags(av_tags_to_native(req.tags))
 
 
-REVIEWER_MENUS = {
-    "EditCurrent": lambda: aqt.mw.taskman.run_on_main(aqt.mw.onEditCurrent),
-}
-
-
 def open_reviewer_menu():
+    REVIEWER_MENUS = {
+        "EditCurrent": aqt.mw.onEditCurrent,
+        "SetDueDate": aqt.mw.reviewer.on_set_due,
+    }
+
     req = openReviewerMenuRequest.FromString(request.data)
     if req.HasField("current_card_id"):
         aqt.mw.reviewer.card = aqt.mw.col.get_card(CardId(req.current_card_id))
-    REVIEWER_MENUS[req.name]()
+    aqt.mw.taskman.run_on_main(REVIEWER_MENUS[req.name])
 
 
 post_handler_list = [
