@@ -8,7 +8,7 @@ import {
 import {
     buryOrSuspendCards,
     compareAnswer,
-    displayEditMenu,
+    openDialogMenu,
     getConfigJson,
     nextCardData,
     playAvtags,
@@ -96,8 +96,12 @@ export class ReviewerState {
         this.showQuestion(null);
     }
 
+    public displayMenu(name: string) {
+        openDialogMenu({name, currentCardId: this.currentCard?.card?.id });
+    }
+
     public displayEditMenu() {
-        displayEditMenu({ cid: this.currentCard?.card?.id });
+        this.displayMenu("EditCurrent")
     }
 
     public buryCurrentCard() {

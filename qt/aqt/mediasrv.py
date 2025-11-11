@@ -31,7 +31,7 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
-from anki.frontend_pb2 import DisplayEditMenuRequest, PlayAVTagsRequest
+from anki.frontend_pb2 import OpenDialogMenuRequest, PlayAVTagsRequest
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.scheduler_pb2 import NextCardDataResponse
 from anki.template import (
@@ -706,12 +706,13 @@ def play_avtags():
     play_tags(av_tags_to_native(req.tags))
 
 
-def display_edit_menu():
-    req = DisplayEditMenuRequest.FromString(request.data)
-    aqt.mw.reviewer.card = aqt.mw.col.get_card(
-        CardId(req.cid) if req.HasField("cid") else None
-    )
-    aqt.mw.taskman.run_on_main(aqt.mw.onEditCurrent)
+def open_dialog_menu():
+    req = OpenDialogMenuRequest.FromString(request.data)
+    if req.HasField("current_card_id"):
+        aqt.mw.reviewer.card = aqt.mw.col.get_card(
+            CardId(req.current_card_id)
+        )
+    aqt.mw.taskman.run_on_main(lambda: aqt.dialogs.open(req.name, aqt.mw))
 
 
 post_handler_list = [
@@ -732,7 +733,7 @@ post_handler_list = [
     save_custom_colours,
     next_card_data,
     play_avtags,
-    display_edit_menu,
+    open_dialog_menu,
 ]
 
 
