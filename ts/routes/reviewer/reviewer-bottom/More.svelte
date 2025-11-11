@@ -23,8 +23,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         { colour: tr.actionsFlagPurple(), shortcut: "Ctrl+7" },
     ];
 
+    function todo() {
+        alert("Not Yet Implemented");
+    }
+
     const shortcuts = [
-        { onClick: state.buryCurrentCard.bind(state), name: "bury", shortcut: "~" },
+        { name: tr.studyingBuryCard(), shortcut: "-", onClick: state.buryCurrentCard.bind(state) },
+        { name: tr.actionsForgetCard(), shortcut: "Ctrl+Alt+N", onClick: todo },
+        { name: tr.actionsSetDueDate(), shortcut: "Ctrl+Shift+D", onClick: todo },
+        { name: tr.actionsSuspendCard(), shortcut: "@", onClick: todo },
+        { name: tr.actionsOptions(), shortcut: "O", onClick: todo },
+        { name: tr.actionsCardInfo(), shortcut: "I", onClick: todo },
+        { name: tr.actionsPreviousCardInfo(), shortcut: "Ctrl+Alt+I", onClick: todo },
+
+        // Notes
+        { name: tr.studyingMarkNote(), shortcut: "*", onClick: todo },
+        { name: tr.studyingBuryNote(), shortcut: "=", onClick: todo },
+        { name: tr.studyingSuspendNote(), shortcut: "!", onClick: todo },
+        { name: tr.actionsCreateCopy(), shortcut: "Ctrl+Alt+E", onClick: todo },
+        {
+            name: tr.studyingDeleteNote(),
+            shortcut: /* isMac ? "Ctrl+Backspace"  :*/ "Ctrl+Delete",
+            onClick: todo,
+        },
+
+        // Audio
+        { name: tr.actionsReplayAudio(), shortcut: "R", onClick: todo },
+        { name: tr.studyingPauseAudio(), shortcut: "5", onClick: todo },
+        { name: tr.studyingAudio5s(), shortcut: "6", onClick: todo },
+        { name: tr.studyingAudioAnd5s(), shortcut: "7", onClick: todo },
+        { name: tr.studyingRecordOwnVoice(), shortcut: "Shift+V", onClick: todo },
+        { name: tr.studyingReplayOwnVoice(), shortcut: "V", onClick: todo },
+        {
+            name: tr.actionsAutoAdvance(),
+            shortcut: "Shift+A",
+            onClick: todo /* checked: autoAdvanceEnabled */,
+        },
     ];
 
     function changeFlag(index: number) {
