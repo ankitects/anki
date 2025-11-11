@@ -8,9 +8,9 @@ import {
 import {
     buryOrSuspendCards,
     compareAnswer,
-    openDialogMenu,
     getConfigJson,
     nextCardData,
+    openReviewerMenu,
     playAvtags,
     redo,
     setConfigJson,
@@ -97,11 +97,11 @@ export class ReviewerState {
     }
 
     public displayMenu(name: string) {
-        openDialogMenu({name, currentCardId: this.currentCard?.card?.id });
+        openReviewerMenu({ name, currentCardId: this.currentCard?.card?.id });
     }
 
     public displayEditMenu() {
-        this.displayMenu("EditCurrent")
+        this.displayMenu("EditCurrent");
     }
 
     public buryCurrentCard() {
