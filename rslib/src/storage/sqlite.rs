@@ -387,9 +387,12 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
             let Ok(interval) = ctx.get_raw(2).as_i64() else {
                 return Ok(None);
             };
+            /*
+            // Unused
             let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
                 return Ok(None);
             };
+            */
             let Ok(now) = ctx.get_raw(5).as_i64() else {
                 return Ok(None);
             };
@@ -401,13 +404,13 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                 // in add_extract_fsrs_retrievability
                 (now as u32).saturating_sub(due as u32)
             } else {
-                let Ok(today) = ctx.get_raw(3).as_i64() else {
+                // timing.days_elapsed
+                let Ok(today) = ctx.get_raw(2).as_i64() else {
                     return Ok(None);
                 };
                 let review_day = due.saturating_sub(interval);
                 (today as u32).saturating_sub(review_day as u32) * 86_400
             };
-            let days_elapsed = secs_elapsed / 86_400;
             if let Ok(card_data) = ctx.get_raw(0).as_str() {
                 if !card_data.is_empty() {
                     let card_data = &CardData::from_str(card_data);
@@ -420,6 +423,9 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
 
                         let seconds_elapsed =
                             if let Some(last_review_time) = card_data.last_review_time {
+                                // Don't change this to now.subtracting_sub(due) as u32
+                                // for the same reasons listed in the comment
+                                // in add_extract_fsrs_retrievability
                                 now.saturating_sub(last_review_time.0) as u32
                             } else {
                                 secs_elapsed
@@ -437,7 +443,7 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                     }
                 }
             }
-
+            let days_elapsed = secs_elapsed / 86_400;
             // FSRS data missing; fall back to SM2 ordering
             Ok(Some(
                 -((days_elapsed as f32) + 0.001) / (interval as f32).max(1.0),
