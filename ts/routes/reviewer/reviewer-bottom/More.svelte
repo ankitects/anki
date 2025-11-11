@@ -28,7 +28,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const shortcuts = [
-        { name: tr.studyingBuryCard(), shortcut: "-", onClick: state.buryCurrentCard.bind(state) },
+        {
+            name: tr.studyingBuryCard(),
+            shortcut: "-",
+            onClick: state.buryCurrentCard.bind(state),
+        },
         { name: tr.actionsForgetCard(), shortcut: "Ctrl+Alt+N", onClick: todo },
         { name: tr.actionsSetDueDate(), shortcut: "Ctrl+Shift+D", onClick: todo },
         { name: tr.actionsSuspendCard(), shortcut: "@", onClick: todo },
