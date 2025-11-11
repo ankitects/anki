@@ -406,7 +406,7 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                 (now as u32).saturating_sub(due as u32)
             } else {
                 // timing.days_elapsed
-                let Ok(today) = ctx.get_raw(2).as_i64() else {
+                let Ok(today) = ctx.get_raw(3).as_i64() else {
                     return Ok(None);
                 };
                 let review_day = due.saturating_sub(interval);
