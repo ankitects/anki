@@ -426,7 +426,7 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                                 // Don't change this to now.subtracting_sub(due) as u32
                                 // for the same reasons listed in the comment
                                 // in add_extract_fsrs_retrievability
-                                now.saturating_sub(last_review_time.0) as u32
+                                (now as u32).saturating_sub(last_review_time.0 as u32)
                             } else {
                                 secs_elapsed
                             };
