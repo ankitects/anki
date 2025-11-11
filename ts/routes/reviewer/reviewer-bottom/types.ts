@@ -7,3 +7,9 @@ export interface AnswerButtonInfo {
     "label": string;
     "due": string;
 }
+
+export type MoreMenuItemInfo = {
+    name: string;
+    onClick: () => any;
+    shortcut: string;
+} | "hr";

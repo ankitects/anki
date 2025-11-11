@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import MoreItem from "./MoreItem.svelte";
     import { setFlag } from "@generated/backend";
     import type { ReviewerState } from "../reviewer";
+    import type { MoreMenuItemInfo } from "./types";
 
     let showFloating = false;
     let showFlags = false;
@@ -27,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         alert("Not yet implemented in new reviewer.");
     }
 
-    const shortcuts = [
+    const shortcuts: MoreMenuItemInfo[] = [
         {
             name: tr.studyingBuryCard(),
             shortcut: "-",
@@ -44,6 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         { name: tr.actionsCardInfo(), shortcut: "I", onClick: todo },
         { name: tr.actionsPreviousCardInfo(), shortcut: "Ctrl+Alt+I", onClick: todo },
 
+        "hr",
         // Notes
         { name: tr.studyingMarkNote(), shortcut: "*", onClick: todo },
         { name: tr.studyingBuryNote(), shortcut: "=", onClick: todo },
@@ -55,6 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             onClick: todo,
         },
 
+        "hr",
         // Audio
         { name: tr.actionsReplayAudio(), shortcut: "R", onClick: todo },
         { name: tr.studyingPauseAudio(), shortcut: "5", onClick: todo },
@@ -113,15 +116,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </MoreSubmenu>
         </div>
         {#each shortcuts as shortcut}
-            <div
-                style:background-color={shortcut.onClick == todo
-                    ? "RGBA(255,0,0,0.25)"
-                    : ""}
-            >
-                <MoreItem shortcut={shortcut.shortcut} on:click={shortcut.onClick}>
-                    {shortcut.name}
-                </MoreItem>
-            </div>
+            {#if shortcut == "hr"}
+                <hr />
+            {:else}
+                <div
+                    style:background-color={shortcut.onClick == todo
+                        ? "RGBA(255,0,0,0.25)"
+                        : ""}
+                >
+                    <MoreItem shortcut={shortcut.shortcut} on:click={shortcut.onClick}>
+                        {shortcut.name}
+                    </MoreItem>
+                </div>
+            {/if}
         {/each}
     </div>
 </MoreSubmenu>
@@ -138,6 +145,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 color: inherit;
             }
         }
+    }
+
+    hr {
+        margin: 0;
     }
 
     button {
