@@ -434,9 +434,10 @@ impl SqlWriter<'_> {
                     let timing = self.col.timing_today()?;
                     (timing.days_elapsed, timing.next_day_at, timing.now)
                 };
+                let new_type = CardType::New as i8;
                 write!(
                     self.sql,
-                    "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {elap}, {next_day_at}, {now}) {op} {r}"
+                    "case when c.type = {new_type} then false else (extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {elap}, {next_day_at}, {now}) {op} {r}) end"
                 )
                 .unwrap()
             }
