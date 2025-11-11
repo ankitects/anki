@@ -108,6 +108,10 @@ export class ReviewerState {
         this.displayMenu("SetDueDate");
     }
 
+    public displayCardInfoMenu() {
+        this.displayMenu("CardInfo");
+    }
+
     public buryCurrentCard() {
         if (this.currentCard?.card?.id) {
             buryOrSuspendCards({

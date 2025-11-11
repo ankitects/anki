@@ -42,7 +42,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         { name: tr.actionsSuspendCard(), shortcut: "@", onClick: todo },
         { name: tr.actionsOptions(), shortcut: "O", onClick: todo },
-        { name: tr.actionsCardInfo(), shortcut: "I", onClick: todo },
+        {
+            name: tr.actionsCardInfo(),
+            shortcut: "I",
+            onClick: state.displayCardInfoMenu.bind(state),
+        },
         { name: tr.actionsPreviousCardInfo(), shortcut: "Ctrl+Alt+I", onClick: todo },
 
         "hr",

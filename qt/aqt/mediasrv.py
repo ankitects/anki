@@ -707,14 +707,21 @@ def play_avtags():
 
 
 def open_reviewer_menu():
+    reviewer = aqt.mw.reviewer
+
+    def on_card_info():
+        reviewer._card_info.set_card(reviewer.card)
+        reviewer.on_card_info()
+
     REVIEWER_MENUS = {
         "EditCurrent": aqt.mw.onEditCurrent,
-        "SetDueDate": aqt.mw.reviewer.on_set_due,
+        "SetDueDate": reviewer.on_set_due,
+        "CardInfo": on_card_info,
     }
 
     req = openReviewerMenuRequest.FromString(request.data)
     if req.HasField("current_card_id"):
-        aqt.mw.reviewer.card = aqt.mw.col.get_card(CardId(req.current_card_id))
+        reviewer.card = aqt.mw.col.get_card(CardId(req.current_card_id))
     aqt.mw.taskman.run_on_main(REVIEWER_MENUS[req.name])
 
 
