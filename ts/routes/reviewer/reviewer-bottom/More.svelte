@@ -24,6 +24,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         { colour: tr.actionsFlagPurple(), shortcut: "Ctrl+7" },
     ];
 
+    const shortcuts = [
+        { onClick: state.buryCurrentCard.bind(state), name: "bury", shortcut: "~" },
+    ];
+
     function changeFlag(index: number) {
         setFlag({ cardIds: [state.currentCard!.card!.id], flag: index });
         state.cardData.update(($cardData) => {
@@ -44,33 +48,69 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.studyingMore()}{"▾"}
     </button>
 
-    <div slot="items">
-        <MoreSubmenu bind:showFloating={showFlags}>
-            <DropdownItem
-                slot="button"
-                on:click={() => {
-                    showFlags = !showFlags;
-                }}
-            >
-                {tr.studyingFlagCard()}
-            </DropdownItem>
-            <div slot="items">
-                {#each flags as flag, i}
-                    <MoreItem
-                        shortcut={flag.shortcut}
-                        onClick={() => changeFlag(i + 1)}
-                    >
-                        {flag.colour}
+    <div slot="items" class="dropdown">
+        <div class="row">
+            <MoreSubmenu bind:showFloating={showFlags}>
+                <DropdownItem
+                    slot="button"
+                    on:click={() => {
+                        showFlags = !showFlags;
+                    }}
+                >
+                    {tr.studyingFlagCard()}
+                </DropdownItem>
+                <div slot="items" class="dropdown">
+                    {#each flags as flag, i}
+                        <div class="row">
+                            <MoreItem
+                                shortcut={flag.shortcut}
+                                onClick={() => changeFlag(i + 1)}
+                            >
+                                {flag.colour}
+                            </MoreItem>
+                            <span>{flag.shortcut}</span>
+                        </div>
+                    {/each}
+                </div>
+            </MoreSubmenu>
+        </div>
+        <span></span>
+        {#each shortcuts as shortcut}
+            <div class="row">
+                <div>
+                    <MoreItem shortcut={shortcut.shortcut} onClick={shortcut.onClick}>
+                        {shortcut.name}
                     </MoreItem>
-                {/each}
+                </div>
+                <span>
+                    {shortcut.shortcut}
+                </span>
             </div>
-        </MoreSubmenu>
+        {/each}
     </div>
 </MoreSubmenu>
 
-<style>
-    div :global(button) {
-        width: fit-content;
+<style lang="scss">
+    div.dropdown {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: baseline;
+
+        :global(button) {
+            border-radius: 0;
+            padding: 0.5em;
+            margin: 0;
+
+            // TODO: Hover effects
+            &:hover {
+                background: inherit;
+                color: inherit;
+            }
+        }
+    }
+
+    div.row {
+        display: contents;
     }
 
     button {
