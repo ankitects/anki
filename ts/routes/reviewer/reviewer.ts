@@ -181,9 +181,11 @@ export class ReviewerState {
             case "z": {
                 if (ctrl) {
                     if (shift) {
-                        await redo({});
+                        const op = await redo({});
+                        this.showTooltip(tr.undoActionRedone({ action: op.operation }));
                     } else {
-                        await undo({});
+                        const op = await undo({});
+                        this.showTooltip(tr.undoActionUndone({ action: op.operation }));
                     }
                     this.refresh();
                 }
