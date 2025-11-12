@@ -769,6 +769,8 @@ exposed_backend_list = [
     "get_field_names",
     "get_note",
     "remove_notes",
+    "add_note_tags",
+    "remove_note_tags",
     # NotetypesService
     "get_notetype_names",
     "get_change_notetype_info",

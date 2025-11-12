@@ -311,6 +311,7 @@ message NextCardDataResponse {
     string css = 5;
     string body_class = 6;
     bool autoplay = 7;
+    bool marked = 13;
     optional TypedAnswer typed_answer = 12;
 
     repeated card_rendering.AVTag question_av_tags = 8;

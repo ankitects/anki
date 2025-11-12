@@ -404,6 +404,7 @@ impl crate::services::SchedulerService for Collection {
         if let Some(next_card) = next_card {
             let cid = next_card.card.id;
             let deck_config = self.deck_config_for_card(&next_card.card)?;
+            let note = self.get_note(next_card.card.note_id.into())?;
 
             let render = self.render_existing_card(cid, false, true)?;
             let show_due = self.get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons);
@@ -454,7 +455,6 @@ impl crate::services::SchedulerService for Collection {
 
             let typed_answer = typed_answer_parent_node
                 .map(|field| -> Result<(String, String)> {
-                    let note = self.get_note(next_card.card.note_id.into())?;
                     let notetype = self
                         .get_notetype(note.notetype_id.into())?
                         .or_not_found(note.notetype_id)?;
@@ -467,6 +467,8 @@ impl crate::services::SchedulerService for Collection {
                     Ok((field.0, correct))
                 })
                 .transpose()?;
+
+            let marked = note.tags.contains(&"marked".to_string());
 
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
@@ -482,6 +484,7 @@ impl crate::services::SchedulerService for Collection {
                         text: answer.1,
                         args: answer.0,
                     }),
+                    marked,
 
                     // Filled by python
                     front: "".to_string(),

@@ -6,6 +6,7 @@ import {
     type NextCardDataResponse_NextCardData,
 } from "@generated/anki/scheduler_pb";
 import {
+    addNoteTags,
     buryOrSuspendCards,
     compareAnswer,
     getConfigJson,
@@ -14,6 +15,7 @@ import {
     playAvtags,
     redo,
     removeNotes,
+    removeNoteTags,
     setConfigJson,
     undo,
 } from "@generated/backend";
@@ -127,6 +129,23 @@ export class ReviewerState {
 
     public displayOptionsMenu() {
         this.displayMenu("Options");
+    }
+
+    public toggleMarked() {
+        if (this._cardData && this.currentCard?.card?.noteId) {
+            const noteIds = [this.currentCard.card.noteId];
+            if (this._cardData.marked) {
+                removeNoteTags({ noteIds, tags: "marked" });
+            } else {
+                addNoteTags({ noteIds, tags: "marked" });
+            }
+            this.cardData.update($cardData => {
+                if ($cardData) {
+                    $cardData.marked = !$cardData.marked;
+                }
+                return $cardData;
+            });
+        }
     }
 
     public showTooltip(message: string) {

@@ -63,7 +63,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         "hr",
         // Notes
-        { name: tr.studyingMarkNote(), shortcut: "*", onClick: todo },
+        {
+            name: tr.studyingMarkNote(),
+            shortcut: "*",
+            onClick: state.toggleMarked.bind(state),
+        },
         {
             name: tr.studyingBuryNote(),
             shortcut: "=",
