@@ -101,7 +101,7 @@ export class ReviewerState {
         this.showQuestion(null);
     }
 
-    public displayMenu(name: string) {
+    displayMenu(name: string) {
         openReviewerMenu({ name, currentCardId: this.currentCard?.card?.id });
     }
 
@@ -119,6 +119,14 @@ export class ReviewerState {
 
     public displayCreateCopyMenu() {
         this.displayMenu("CreateCopy");
+    }
+
+    public displayForgetMenu() {
+        this.displayMenu("Forget");
+    }
+
+    public displayOptionsMenu() {
+        this.displayMenu("Options");
     }
 
     public showTooltip(message: string) {

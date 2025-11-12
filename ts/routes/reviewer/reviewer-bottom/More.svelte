@@ -34,7 +34,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             shortcut: "-",
             onClick: state.buryOrSuspendCurrentCard.bind(state, false),
         },
-        { name: tr.actionsForgetCard(), shortcut: "Ctrl+Alt+N", onClick: todo },
+        {
+            name: tr.actionsForgetCard(),
+            shortcut: "Ctrl+Alt+N",
+            onClick: state.displayForgetMenu.bind(state),
+        },
         {
             name: tr.actionsSetDueDate(),
             shortcut: "Ctrl+Shift+D",
@@ -45,7 +49,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             shortcut: "@",
             onClick: state.buryOrSuspendCurrentCard.bind(state, true),
         },
-        { name: tr.actionsOptions(), shortcut: "O", onClick: todo },
+        {
+            name: tr.actionsOptions(),
+            shortcut: "O",
+            onClick: state.displayOptionsMenu.bind(state),
+        },
         {
             name: tr.actionsCardInfo(),
             shortcut: "I",

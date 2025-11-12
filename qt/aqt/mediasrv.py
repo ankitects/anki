@@ -718,6 +718,8 @@ def open_reviewer_menu():
         "SetDueDate": reviewer.on_set_due,
         "CardInfo": on_card_info,
         "CreateCopy": reviewer.on_create_copy,
+        "Forget": reviewer.forget_current_card,
+        "Options": reviewer.onOptions,
     }
 
     req = OpenReviewerMenuRequest.FromString(request.data)
