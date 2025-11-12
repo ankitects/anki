@@ -21,22 +21,30 @@ impl Drop for PyFfi {
     }
 }
 
-macro_rules! load_sym {
-    ($lib:expr, $name:expr) => {{
-        libc::dlerror();
-        let sym = libc::dlsym($lib, $name.as_ptr());
-        if sym.is_null() {
-            let dlerror_str = CStr::from_ptr(libc::dlerror()).to_str()?;
-            anyhow::bail!("failed to load {}: {dlerror_str}", $name.to_string_lossy());
-        }
-        std::mem::transmute(sym)
-    }};
-}
-
 macro_rules! ffi {
     ($lib:expr, $exec:expr, $($field:ident),* $(,)?) => {
-        #[allow(clippy::missing_transmute_annotations)] // they're not missing
-        PyFfi { exec: $exec, $($field: load_sym!($lib, ::std::ffi::CString::new(stringify!($field)).map_err(|_| anyhow::anyhow!("failed to construct symbol CString"))?),)* lib: $lib, }
+        #[allow(clippy::missing_transmute_annotations)]
+        $crate::platform::PyFfi {
+            exec: $exec,
+            $($field: {
+                ::libc::dlerror();
+                let name = ::std::ffi::CString::new(stringify!($field)).map_err(|_| ::anyhow::anyhow!("failed to construct sym"))?;
+                let sym = ::libc::dlsym($lib, name.as_ptr());
+                if sym.is_null() {
+                    let dlerror_ptr = ::libc::dlerror();
+                    let dlerror_str = if !dlerror_ptr.is_null() {
+                        ::std::ffi::CStr::from_ptr(dlerror_ptr)
+                            .to_str()
+                            .unwrap_or_default()
+                    } else {
+                        ""
+                    };
+                    ::anyhow::bail!("failed to load {}: {dlerror_str}", stringify!($field));
+                }
+                ::std::mem::transmute(sym)
+            },)*
+            lib: $lib,
+        }
     };
 }
 
