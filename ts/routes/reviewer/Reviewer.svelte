@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state.registerShortcuts();
     }
     $: tooltipMessage = state.tooltipMessage;
+    $: tooltipShown = state.tooltipShown;
 </script>
 
 <div class="iframe-container">
@@ -24,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         sandbox="allow-scripts"
     ></iframe>
 
-    <div class="tooltip" style:opacity={$tooltipMessage ? 1 : 0}>
+    <div class="tooltip" style:opacity={$tooltipShown ? 1 : 0}>
         {$tooltipMessage}
     </div>
 </div>
@@ -44,6 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         z-index: var(--bs-tooltip-z-index);
         border: 2px solid white;
         opacity: 1;
+        transition: opacity 0.3s;
     }
 
     iframe {

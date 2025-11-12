@@ -58,6 +58,7 @@ export class ReviewerState {
     readonly answerButtons = derived(this.cardData, ($cardData) => $cardData?.answerButtons ?? []);
     tooltipMessageTimeout: ReturnType<typeof setTimeout> | undefined;
     readonly tooltipMessage = writable("");
+    readonly tooltipShown = writable(false);
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -151,8 +152,9 @@ export class ReviewerState {
     public showTooltip(message: string) {
         clearTimeout(this.tooltipMessageTimeout);
         this.tooltipMessage.set(message);
+        this.tooltipShown.set(true);
         this.tooltipMessageTimeout = setTimeout(() => {
-            this.tooltipMessage.set("");
+            this.tooltipShown.set(false);
         }, TOOLTIP_TIMEOUT_MS);
     }
 
