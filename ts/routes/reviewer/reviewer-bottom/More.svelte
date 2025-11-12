@@ -70,7 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {
             name: tr.studyingDeleteNote(),
             shortcut: /* isMac ? "Ctrl+Backspace"  :*/ "Ctrl+Delete",
-            onClick: todo,
+            onClick: state.deleteCurrentNote.bind(state),
         },
 
         "hr",

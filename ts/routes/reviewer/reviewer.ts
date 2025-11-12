@@ -13,6 +13,7 @@ import {
     openReviewerMenu,
     playAvtags,
     redo,
+    removeNotes,
     setConfigJson,
     undo,
 } from "@generated/backend";
@@ -146,6 +147,14 @@ export class ReviewerState {
                 mode,
             });
             this.showTooltip(suspend ? tr.studyingNoteSuspended() : tr.studyingCardsBuried({ count: op.count }));
+            this.refresh();
+        }
+    }
+
+    public async deleteCurrentNote() {
+        if (this.currentCard?.card?.noteId) {
+            const op = await removeNotes({ noteIds: [this.currentCard.card.noteId], cardIds: [] });
+            this.showTooltip(tr.browsingCardsDeleted({ count: op.count }));
             this.refresh();
         }
     }
