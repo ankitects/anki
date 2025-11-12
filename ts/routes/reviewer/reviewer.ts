@@ -16,6 +16,7 @@ import {
     setConfigJson,
     undo,
 } from "@generated/backend";
+import * as tr from "@generated/ftl";
 import { derived, get, writable } from "svelte/store";
 import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
 import type { ReviewerRequest } from "./reviewerRequest";
@@ -40,6 +41,7 @@ export function updateNightMode() {
 }
 
 const typedAnswerRegex = /\[\[type:(.+?:)?(.+?)\]\]/m;
+const TOOLTIP_TIMEOUT_MS = 2000;
 
 export class ReviewerState {
     answerHtml = "";
@@ -51,6 +53,8 @@ export class ReviewerState {
     readonly answerShown = writable(false);
     readonly cardData = writable<NextCardDataResponse_NextCardData | undefined>(undefined);
     readonly answerButtons = derived(this.cardData, ($cardData) => $cardData?.answerButtons ?? []);
+    tooltipMessageTimeout: ReturnType<typeof setTimeout> | undefined;
+    readonly tooltipMessage = writable("");
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -112,26 +116,36 @@ export class ReviewerState {
         this.displayMenu("CardInfo");
     }
 
-    public buryOrSuspendCurrentCard(suspend: boolean) {
+    public showTooltip(message: string) {
+        clearTimeout(this.tooltipMessageTimeout);
+        this.tooltipMessage.set(message);
+        this.tooltipMessageTimeout = setTimeout(() => {
+            this.tooltipMessage.set("");
+        }, TOOLTIP_TIMEOUT_MS);
+    }
+
+    public async buryOrSuspendCurrentCard(suspend: boolean) {
         const mode = suspend ? BuryOrSuspendCardsRequest_Mode.SUSPEND : BuryOrSuspendCardsRequest_Mode.BURY_USER;
         if (this.currentCard?.card?.id) {
-            buryOrSuspendCards({
+            await buryOrSuspendCards({
                 cardIds: [this.currentCard.card.id],
                 noteIds: [],
                 mode,
             });
+            this.showTooltip(suspend ? tr.studyingCardSuspended() : tr.studyingCardsBuried({ count: 1 }));
             this.refresh();
         }
     }
 
-    public buryOrSuspendCurrentNote(suspend: boolean) {
+    public async buryOrSuspendCurrentNote(suspend: boolean) {
         const mode = suspend ? BuryOrSuspendCardsRequest_Mode.SUSPEND : BuryOrSuspendCardsRequest_Mode.BURY_USER;
         if (this.currentCard?.card?.noteId) {
-            buryOrSuspendCards({
+            const op = await buryOrSuspendCards({
                 cardIds: [],
                 noteIds: [this.currentCard.card.noteId],
                 mode,
             });
+            this.showTooltip(suspend ? tr.studyingNoteSuspended() : tr.studyingCardsBuried({ count: op.count }));
             this.refresh();
         }
     }
