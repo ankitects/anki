@@ -89,13 +89,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 
     const cardData = state.cardData;
+    $: card = $cardData?.queue?.cards[0].card;
 
     function changeFlag(index: number) {
-        const card = $cardData!.queue!.cards[0].card!;
-        if (card.flags === index) {
+        if (card?.flags === index) {
             index = 0;
         }
-        setFlag({ cardIds: [card.id], flag: index });
+        setFlag({ cardIds: [card!.id], flag: index });
         $cardData!.queue!.cards[0].card!.flags = index;
     }
 </script>
@@ -124,12 +124,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </MoreItem>
                 <div slot="items" class="dropdown">
                     {#each flags as flag, i}
-                        <MoreItem
-                            shortcut={flag.shortcut}
-                            on:click={() => changeFlag(i + 1)}
+                        <div
+                            style:background-color={card?.flags == i + 1
+                                ? "RGBA(0,255,0,0.25)"
+                                : ""}
                         >
-                            {flag.colour}
-                        </MoreItem>
+                            <MoreItem
+                                shortcut={flag.shortcut}
+                                on:click={() => changeFlag(i + 1)}
+                            >
+                                {flag.colour}
+                            </MoreItem>
+                        </div>
                     {/each}
                 </div>
             </MoreSubmenu>
