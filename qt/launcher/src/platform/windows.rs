@@ -11,7 +11,6 @@ use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 use widestring::u16cstr;
-use windows::core::PCSTR;
 use windows::core::PCWSTR;
 use windows::Wdk::System::SystemServices::RtlGetVersion;
 use windows::Win32::Foundation::FreeLibrary;
@@ -19,7 +18,6 @@ use windows::Win32::Foundation::HMODULE;
 use windows::Win32::System::Console::AttachConsole;
 use windows::Win32::System::Console::GetConsoleWindow;
 use windows::Win32::System::Console::ATTACH_PARENT_PROCESS;
-use windows::Win32::System::LibraryLoader::GetProcAddress;
 use windows::Win32::System::LibraryLoader::LoadLibraryExW;
 use windows::Win32::System::LibraryLoader::LOAD_LIBRARY_FLAGS;
 use windows::Win32::System::Registry::RegCloseKey;
@@ -285,22 +283,22 @@ impl Drop for PyFfi {
     }
 }
 
-macro_rules! load_sym {
-    ($lib:expr, $name:expr) => {
-        std::mem::transmute(
-            GetProcAddress($lib, PCSTR::from_raw($name.as_ptr().cast()))
-                .ok_or_else(|| anyhow!("failed to load {}", $name.to_string_lossy()))?,
-        )
-    };
-}
-
 macro_rules! ffi {
     ($lib:expr, $exec:expr, $($field:ident),* $(,)?) => {
-        #[allow(clippy::missing_transmute_annotations)] // they're not missing
-        PyFfi { exec: $exec, $($field: {
-            let sym = ::std::ffi::CString::new(stringify!($field)).map_err(|_| anyhow::anyhow!("failed to construct symbol CString"))?;
-            load_sym!($lib, sym)
-        },)* lib: $lib.0, }
+        #[allow(clippy::missing_transmute_annotations)]
+        $crate::platform::PyFfi {
+            exec: $exec,
+            $($field: {
+                let sym = ::std::ffi::CString::new(stringify!($field)).map_err(|_| ::anyhow::anyhow!("failed to construct sym"))?;
+                ::std::mem::transmute(
+                    ::windows::Win32::System::LibraryLoader::GetProcAddress(
+                        $lib,
+                        ::windows::core::PCSTR::from_raw(sym.as_ptr().cast()),
+                    )
+                    .ok_or_else(|| anyhow!("failed to load {}", stringify!($field)))?,
+                )
+            },)*
+            lib: $lib.0, }
     };
 }
 
