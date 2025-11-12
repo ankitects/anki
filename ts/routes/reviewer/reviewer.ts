@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import type { UndoStatus } from "@generated/anki/collection_pb";
 import {
     BuryOrSuspendCardsRequest_Mode,
     CardAnswer,
@@ -59,6 +60,7 @@ export class ReviewerState {
     tooltipMessageTimeout: ReturnType<typeof setTimeout> | undefined;
     readonly tooltipMessage = writable("");
     readonly tooltipShown = writable(false);
+    undoStatus: UndoStatus | undefined = undefined;
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -222,12 +224,16 @@ export class ReviewerState {
             }
             case "z": {
                 if (ctrl) {
-                    if (shift) {
+                    if (shift && this.undoStatus?.redo) {
                         const op = await redo({});
                         this.showTooltip(tr.undoActionRedone({ action: op.operation }));
-                    } else {
+                        this.undoStatus = op.newStatus;
+                    } else if (this.undoStatus?.undo) {
                         const op = await undo({});
                         this.showTooltip(tr.undoActionUndone({ action: op.operation }));
+                        this.undoStatus = op.newStatus;
+                    } else {
+                        this.showTooltip(shift ? tr.actionsNothingToRedo() : tr.actionsNothingToUndo());
                     }
                     this.refresh();
                 }
@@ -261,6 +267,10 @@ export class ReviewerState {
     }
 
     async showQuestion(answer: CardAnswer | null) {
+        if (answer !== null && this.undoStatus) {
+            this.undoStatus.undo = tr.actionsAnswerCard();
+        }
+
         const resp = await nextCardData({
             answer: answer || undefined,
         });

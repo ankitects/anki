@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script>
+<script lang="ts">
     import "./index.scss";
 
     import { onMount } from "svelte";
@@ -10,13 +10,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ReviewerBottom from "./reviewer-bottom/ReviewerBottom.svelte";
     import Reviewer from "./Reviewer.svelte";
     import { _blockDefaultDragDropBehavior } from "../../reviewer";
+    import type { PageData } from "./$types";
 
+    export let data: PageData;
     const state = new ReviewerState();
+
     onMount(() => {
         updateNightMode();
         globalThis.anki ??= {};
         globalThis.anki.changeReceived = () => state.showQuestion(null);
         _blockDefaultDragDropBehavior();
+        state.undoStatus = data.initialUndoStatus;
     });
     $: cardData = state.cardData;
     $: flag = $cardData?.queue?.cards[0].card?.flags;
