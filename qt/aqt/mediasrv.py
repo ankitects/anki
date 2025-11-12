@@ -31,7 +31,7 @@ from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
-from anki.frontend_pb2 import PlayAVTagsRequest, openReviewerMenuRequest
+from anki.frontend_pb2 import OpenReviewerMenuRequest, PlayAVTagsRequest
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.scheduler_pb2 import NextCardDataResponse
 from anki.template import (
@@ -719,7 +719,7 @@ def open_reviewer_menu():
         "CardInfo": on_card_info,
     }
 
-    req = openReviewerMenuRequest.FromString(request.data)
+    req = OpenReviewerMenuRequest.FromString(request.data)
     if req.HasField("current_card_id"):
         reviewer.card = aqt.mw.col.get_card(CardId(req.current_card_id))
     aqt.mw.taskman.run_on_main(REVIEWER_MENUS[req.name])
