@@ -717,6 +717,7 @@ def open_reviewer_menu():
         "EditCurrent": aqt.mw.onEditCurrent,
         "SetDueDate": reviewer.on_set_due,
         "CardInfo": on_card_info,
+        "CreateCopy": reviewer.on_create_copy,
     }
 
     req = OpenReviewerMenuRequest.FromString(request.data)

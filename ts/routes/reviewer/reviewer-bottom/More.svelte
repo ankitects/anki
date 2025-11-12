@@ -66,7 +66,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             shortcut: "!",
             onClick: state.buryOrSuspendCurrentNote.bind(state, true),
         },
-        { name: tr.actionsCreateCopy(), shortcut: "Ctrl+Alt+E", onClick: todo },
+        {
+            name: tr.actionsCreateCopy(),
+            shortcut: "Ctrl+Alt+E",
+            onClick: state.displayCreateCopyMenu.bind(state),
+        },
         {
             name: tr.studyingDeleteNote(),
             shortcut: /* isMac ? "Ctrl+Backspace"  :*/ "Ctrl+Delete",

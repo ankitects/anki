@@ -117,6 +117,10 @@ export class ReviewerState {
         this.displayMenu("CardInfo");
     }
 
+    public displayCreateCopyMenu() {
+        this.displayMenu("CreateCopy");
+    }
+
     public showTooltip(message: string) {
         clearTimeout(this.tooltipMessageTimeout);
         this.tooltipMessage.set(message);
