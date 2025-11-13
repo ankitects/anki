@@ -81,7 +81,7 @@ fun stdHtml(
             </style>
         </head>
         <body class="${bodyClass()}">
-            <div id="qa"></div>
+            <div id="qa" dir="auto"></div>
             $jsTxt
         </body>
         </html>
