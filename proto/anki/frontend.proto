@@ -54,6 +54,15 @@ message PlayAVTagsRequest {
 }
 
 message OpenReviewerMenuRequest {
-  string name = 1;
+  enum ReviewerMenu {
+    EditCurrent = 0;
+    SetDueDate = 1;
+    CardInfo = 2;
+    CreateCopy = 3;
+    Forget = 4;
+    Options = 5;
+  };
+
+  ReviewerMenu menu = 1;
   optional int64 current_card_id = 2;
 }

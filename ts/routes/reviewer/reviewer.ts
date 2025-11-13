@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { UndoStatus } from "@generated/anki/collection_pb";
+import { OpenReviewerMenuRequest_ReviewerMenu } from "@generated/anki/frontend_pb";
 import {
     BuryOrSuspendCardsRequest_Mode,
     CardAnswer,
@@ -106,32 +107,32 @@ export class ReviewerState {
         this.showQuestion(null);
     }
 
-    displayMenu(name: string) {
-        openReviewerMenu({ name, currentCardId: this.currentCard?.card?.id });
+    displayMenu(menu: OpenReviewerMenuRequest_ReviewerMenu) {
+        openReviewerMenu({ menu, currentCardId: this.currentCard?.card?.id });
     }
 
     public displayEditMenu() {
-        this.displayMenu("EditCurrent");
+        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.EditCurrent);
     }
 
     public displaySetDueDateMenu() {
-        this.displayMenu("SetDueDate");
+        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.SetDueDate);
     }
 
     public displayCardInfoMenu() {
-        this.displayMenu("CardInfo");
+        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.CardInfo);
     }
 
     public displayCreateCopyMenu() {
-        this.displayMenu("CreateCopy");
+        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.CreateCopy);
     }
 
     public displayForgetMenu() {
-        this.displayMenu("Forget");
+        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.Forget);
     }
 
     public displayOptionsMenu() {
-        this.displayMenu("Options");
+        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.Options);
     }
 
     public toggleMarked() {

@@ -708,24 +708,25 @@ def play_avtags():
 
 def open_reviewer_menu():
     reviewer = aqt.mw.reviewer
+    MENU_ENUM = OpenReviewerMenuRequest.ReviewerMenu
 
     def on_card_info():
         reviewer._card_info.set_card(reviewer.card)
         reviewer.on_card_info()
 
     REVIEWER_MENUS = {
-        "EditCurrent": aqt.mw.onEditCurrent,
-        "SetDueDate": reviewer.on_set_due,
-        "CardInfo": on_card_info,
-        "CreateCopy": reviewer.on_create_copy,
-        "Forget": reviewer.forget_current_card,
-        "Options": reviewer.onOptions,
+        MENU_ENUM.EditCurrent: aqt.mw.onEditCurrent,
+        MENU_ENUM.SetDueDate: reviewer.on_set_due,
+        MENU_ENUM.CardInfo: on_card_info,
+        MENU_ENUM.CreateCopy: reviewer.on_create_copy,
+        MENU_ENUM.Forget: reviewer.forget_current_card,
+        MENU_ENUM.Options: reviewer.onOptions,
     }
 
     req = OpenReviewerMenuRequest.FromString(request.data)
     if req.HasField("current_card_id"):
         reviewer.card = aqt.mw.col.get_card(CardId(req.current_card_id))
-    aqt.mw.taskman.run_on_main(REVIEWER_MENUS[req.name])
+    aqt.mw.taskman.run_on_main(REVIEWER_MENUS[req.menu])
 
 
 post_handler_list = [
