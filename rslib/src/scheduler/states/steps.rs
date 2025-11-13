@@ -54,8 +54,11 @@ impl LearningSteps<'_> {
     /// at least with reasonable settings.
     fn hard_delay_secs_for_first_step(self, again_secs: u32) -> u32 {
         if let Some(next) = self.secs_at_index(1) {
-            // average of first (again) and second (good) steps
-            maybe_round_in_days(again_secs.saturating_add(next) / 2)
+            const AGAIN_WEIGHT: f64 = 0.75;
+            const GOOD_WEIGHT: f64 = 0.25;
+            let hard = (again_secs as f64) * AGAIN_WEIGHT + (next as f64) * GOOD_WEIGHT;
+            let hard = hard.round().max(0.0).min(u32::MAX as f64) as u32;
+            maybe_round_in_days(hard)
         } else {
             // 50% more than the again secs, but at most one day more
             // otherwise, a learning step of 3 days and a graduating interval of 4 days e.g.
@@ -126,10 +129,10 @@ mod test {
             None
         );
 
-        assert_delay_secs!([1.0, 10.0], 2, Some(60), Some(330), Some(600));
+        assert_delay_secs!([1.0, 10.0], 2, Some(60), Some(195), Some(600));
         assert_delay_secs!([1.0, 10.0], 1, Some(60), Some(600), None);
 
-        assert_delay_secs!([1.0, 10.0, 100.0], 3, Some(60), Some(330), Some(600));
+        assert_delay_secs!([1.0, 10.0, 100.0], 3, Some(60), Some(195), Some(600));
         assert_delay_secs!([1.0, 10.0, 100.0], 2, Some(60), Some(600), Some(6000));
         assert_delay_secs!([1.0, 10.0, 100.0], 1, Some(60), Some(6000), None);
     }
