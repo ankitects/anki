@@ -17,6 +17,8 @@ import AlignVerticalTop_ from "@mdi/svg/svg/align-vertical-top.svg?component";
 import alignVerticalTop_ from "@mdi/svg/svg/align-vertical-top.svg?url";
 import CheckCircle_ from "@mdi/svg/svg/check-circle.svg?component";
 import checkCircle_ from "@mdi/svg/svg/check-circle.svg?url";
+import CheckDecagramOutline_ from "@mdi/svg/svg/check-decagram-outline.svg?component";
+import checkDecagramOutline_ from "@mdi/svg/svg/check-decagram-outline.svg?url";
 import ChevronDown_ from "@mdi/svg/svg/chevron-down.svg?component";
 import chevronDown_ from "@mdi/svg/svg/chevron-down.svg?url";
 import ChevronUp_ from "@mdi/svg/svg/chevron-up.svg?component";
@@ -192,6 +194,7 @@ import StickySolid_ from "../../icons/sticky-pin-solid.svg?component";
 import stickySolid_ from "../../icons/sticky-pin-solid.svg?url";
 
 export const checkCircle = { url: checkCircle_, component: CheckCircle_ };
+export const checkDecagramOutline = { url: checkDecagramOutline_, component: CheckDecagramOutline_ };
 export const chevronDown = { url: chevronDown_, component: ChevronDown_ };
 export const chevronUp = { url: chevronUp_, component: ChevronUp_ };
 export const closeBox = { url: closeBox_, component: CloseBox_ };

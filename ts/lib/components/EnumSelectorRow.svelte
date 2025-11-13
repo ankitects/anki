@@ -18,6 +18,7 @@
     export let choices: Choice<T>[];
     export let disabled: boolean = false;
     export let disabledChoices: T[] = [];
+    export let hideRevert: boolean = false;
 </script>
 
 <Row --cols={13}>
@@ -27,7 +28,9 @@
     <Col --col-size={6} {breakpoint}>
         <ConfigInput>
             <EnumSelector bind:value {choices} {disabled} {disabledChoices} />
-            <RevertButton slot="revert" bind:value {defaultValue} />
+            {#if !hideRevert}
+                <RevertButton slot="revert" bind:value {defaultValue} />
+            {/if}
         </ConfigInput>
     </Col>
 </Row>

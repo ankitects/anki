@@ -4,6 +4,7 @@
 import "intl-pluralrules";
 
 import { i18nResources } from "@generated/backend";
+import { i18nResources as launcherI18nResources } from "@generated/backend-launcher";
 import type { ModuleName } from "@generated/ftl";
 import { FluentBundle, FluentResource } from "@generated/ftl";
 import { firstLanguage, setBundles } from "@generated/ftl";
@@ -77,8 +78,9 @@ export function withoutUnicodeIsolation(s: string): string {
     return s.replace(/[\u2068-\u2069]+/g, "");
 }
 
-export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> {
-    const resources = await i18nResources(args);
+export async function setupI18n(args: { modules: ModuleName[] }, launcher = false): Promise<void> {
+    const fn = launcher ? launcherI18nResources : i18nResources;
+    const resources = await fn(args);
     const json = JSON.parse(new TextDecoder().decode(resources.json));
 
     const newBundles: FluentBundle[] = [];
