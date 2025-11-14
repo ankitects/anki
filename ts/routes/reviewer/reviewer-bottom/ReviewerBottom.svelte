@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const answerButtons = state.answerButtons;
     const answerShown = state.answerShown;
 
-    $: button_count = $answerShown ? $answerButtons.length : 1;
+    $: buttonCount = $answerShown ? $answerButtons.length : 1;
     $: cardData = state.cardData;
     $: remainingShown =
         ($cardData?.queue?.learningCount ?? 0) +
@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div id="outer" class="fancy">
-    <div id="tableinner" style="--answer-button-count: {button_count}">
+    <div id="tableinner" style="--answer-button-count: {buttonCount}">
         <span class="disappearing"></span>
         <div class="disappearing edit">
             <button
