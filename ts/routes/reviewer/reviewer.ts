@@ -65,7 +65,6 @@ export class ReviewerState {
     iframe: HTMLIFrameElement | undefined = undefined;
 
     async onReady() {
-        this.iframe!.style.visibility = "visible";
         const { json } = await getConfigJson({ val: "reviewerStorage" });
         this.sendInnerRequest({ type: "setstorage", json_buffer: json });
         this.showQuestion(null);
@@ -305,6 +304,7 @@ export class ReviewerState {
 
         const question = resp.nextCard?.front || "";
         this.updateHtml(question, resp?.nextCard?.css, resp?.nextCard?.bodyClass);
+        this.iframe!.style.visibility = "visible";
         if (this._cardData?.autoplay) {
             playAvtags({ tags: this._cardData!.questionAvTags });
         }
