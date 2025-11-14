@@ -809,7 +809,7 @@ def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
     wsize = widget.size()
     cappedWidth = min(geom.width(), wsize.width())
     cappedHeight = min(geom.height(), wsize.height())
-    if cappedWidth > wsize.width() or cappedHeight > wsize.height():
+    if cappedWidth < wsize.width() or cappedHeight < wsize.height():
         widget.resize(QSize(cappedWidth, cappedHeight))
 
     # ensure widget is inside top left
