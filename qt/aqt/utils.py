@@ -1103,16 +1103,16 @@ def tooltip(
     lab.move(aw.mapToGlobal(QPoint(0 + x_offset, aw.height() - y_offset)))
     lab.show()
     window = aw.window() if hasattr(aw, "window") else aw
-    if window is None:
-        window = aw
+      
+    was_active = window.isActiveWindow() if window else False
 
     def close_if_parent_inactive() -> None:
         if not _tooltipLabel or window is None:
             return
         if (
-            not window.isActiveWindow()
-            or not window.isVisible()
+            not window.isVisible()
             or (window.windowState() & Qt.WindowState.WindowMinimized)
+            or (was_active and not window.isActiveWindow())
         ):
             closeTooltip()
 
@@ -1124,11 +1124,12 @@ def tooltip(
             pass
         _tooltipFocusTimer = None
 
-    focus_timer = QTimer(lab)
-    focus_timer.setInterval(100)
-    qconnect(focus_timer.timeout, close_if_parent_inactive)
-    focus_timer.start()
-    _tooltipFocusTimer = focus_timer
+    if was_active:
+        focus_timer = QTimer(lab)
+        focus_timer.setInterval(100)
+        qconnect(focus_timer.timeout, close_if_parent_inactive)
+        focus_timer.start()
+        _tooltipFocusTimer = focus_timer
     _tooltipTimer = aqt.mw.progress.timer(
         period, closeTooltip, False, requiresCollection=False, parent=aw
     )
