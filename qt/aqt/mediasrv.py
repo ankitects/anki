@@ -663,6 +663,10 @@ theme_manager = ThemeManager()
 def next_card_data() -> bytes:
     raw = aqt.mw.col._backend.next_card_data_raw(request.data)
     data = NextCardDataResponse.FromString(raw)
+
+    if len(data.next_card.queue.cards) == 0:
+        return data.SerializeToString()
+
     backend_card = data.next_card.queue.cards[0].card
     card = Card(aqt.mw.col, backend_card=backend_card)
 
