@@ -17,6 +17,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const answerShown = state.answerShown;
 
     $: button_count = $answerShown ? $answerButtons.length : 1;
+    $: cardData = state.cardData;
+    $: remainingShown =
+        ($cardData?.queue?.learningCount ?? 0) +
+            ($cardData?.queue?.reviewCount ?? 0) +
+            ($cardData?.queue?.newCount ?? 0) >
+        0;
 </script>
 
 <div id="outer" class="fancy">
@@ -35,7 +41,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <AnswerButton {state} info={answerButton}></AnswerButton>
             {/each}
         {:else}
-            <Remaining {state}></Remaining>
+            {#if remainingShown}
+                <Remaining {state}></Remaining>
+            {:else}
+                <span>&nbsp;</span>
+            {/if}
             <button on:click={() => state.showAnswer()}>
                 {tr.studyingShowAnswer()}
             </button>

@@ -399,7 +399,7 @@ impl crate::services::SchedulerService for Collection {
         if let Some(answer) = req.answer {
             self.answer_card(&mut answer.into())?;
         }
-        let queue = self.get_queued_cards(1, false)?;
+        let mut queue = self.get_queued_cards(1, false)?;
         let next_card = queue.cards.first();
         if let Some(next_card) = next_card {
             let cid = next_card.card.id;
@@ -408,6 +408,7 @@ impl crate::services::SchedulerService for Collection {
 
             let render = self.render_existing_card(cid, false, true)?;
             let show_due = self.get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons);
+            let show_remaning = self.get_config_bool(BoolKey::ShowRemainingDueCountsInStudy);
 
             let answer_buttons = self
                 .describe_next_states(&next_card.states)?
@@ -469,6 +470,12 @@ impl crate::services::SchedulerService for Collection {
                 .transpose()?;
 
             let marked = note.tags.contains(&"marked".to_string());
+
+            if !show_remaning {
+                queue.learning_count = 0;
+                queue.review_count = 0;
+                queue.new_count = 0;
+            }
 
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
