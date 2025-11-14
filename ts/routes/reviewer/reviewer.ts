@@ -53,6 +53,7 @@ export class ReviewerState {
     currentTypedAnswer = "";
     _cardData: NextCardDataResponse_NextCardData | undefined = undefined;
     beginAnsweringMs = Date.now();
+    answerMs: number | undefined = undefined;
     readonly cardClass = writable("");
     readonly answerShown = writable(false);
     readonly cardData = writable<NextCardDataResponse_NextCardData | undefined>(undefined);
@@ -310,6 +311,7 @@ export class ReviewerState {
         }
 
         this.beginAnsweringMs = Date.now();
+        this.answerMs = undefined;
     }
 
     get currentCard() {
@@ -338,6 +340,7 @@ export class ReviewerState {
         if (this._cardData?.autoplay) {
             playAvtags({ tags: this._cardData!.answerAvTags });
         }
+        this.answerMs = Date.now();
         this.updateHtml(await this.showTypedAnswer(this._cardData?.back || ""));
     }
 

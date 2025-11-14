@@ -52,7 +52,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </button>
         {/if}
         <div class="disappearing more">
-            <Timer {state}></Timer>
+            {#if $cardData?.timer}
+                <Timer {state}></Timer>
+            {/if}
         </div>
         <div class="disappearing more">
             <More {state}></More>
@@ -82,7 +84,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .more {
-        // text-align: right;
         direction: rtl;
     }
 

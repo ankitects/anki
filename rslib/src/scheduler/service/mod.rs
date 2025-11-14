@@ -11,6 +11,7 @@ use anki_proto::generic;
 use anki_proto::scheduler;
 use anki_proto::scheduler::next_card_data_response::AnswerButton;
 use anki_proto::scheduler::next_card_data_response::NextCardData;
+use anki_proto::scheduler::next_card_data_response::TimerPreferences;
 use anki_proto::scheduler::next_card_data_response::TypedAnswer;
 use anki_proto::scheduler::ComputeFsrsParamsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
@@ -403,7 +404,7 @@ impl crate::services::SchedulerService for Collection {
         let next_card = queue.cards.first();
         if let Some(next_card) = next_card {
             let cid = next_card.card.id;
-            let deck_config = self.deck_config_for_card(&next_card.card)?;
+            let deck_config = self.deck_config_for_card(&next_card.card)?.inner;
             let note = self.get_note(next_card.card.note_id.into())?;
 
             let render = self.render_existing_card(cid, false, true)?;
@@ -477,6 +478,11 @@ impl crate::services::SchedulerService for Collection {
                 queue.new_count = 0;
             }
 
+            let timer = deck_config.show_timer.then_some(TimerPreferences {
+                max_time_ms: deck_config.cap_answer_time_to_secs * 1000,
+                stop_on_answer: deck_config.stop_timer_on_answer,
+            });
+
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
                     queue: Some(queue.into()),
@@ -486,13 +492,13 @@ impl crate::services::SchedulerService for Collection {
                     partial_back: rendered_nodes_to_proto(render.anodes),
 
                     answer_buttons,
-                    autoplay: !deck_config.inner.disable_autoplay,
+                    autoplay: !deck_config.disable_autoplay,
                     typed_answer: typed_answer.map(|answer| TypedAnswer {
                         text: answer.1,
                         args: answer.0,
                     }),
                     marked,
-                    max_time_ms: deck_config.inner.cap_answer_time_to_secs * 1000,
+                    timer,
 
                     // Filled by python
                     front: "".to_string(),

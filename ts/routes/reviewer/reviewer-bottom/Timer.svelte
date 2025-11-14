@@ -12,14 +12,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let cls = "";
 
     function step() {
-        let time = Date.now() - state.beginAnsweringMs;
-        const maxTime = state._cardData?.maxTimeMs ?? 0;
+        const timerPreferences = state._cardData?.timer;
+        let time = Date.now();
+        if (timerPreferences?.stopOnAnswer && state.answerMs !== undefined) {
+            time = state.answerMs;
+        }
+        time -= state.beginAnsweringMs;
+        const maxTime = state._cardData?.timer?.maxTimeMs ?? 0;
         if (time >= maxTime) {
             time = maxTime;
             cls = "overtime";
         } else {
             cls = "";
         }
+
         text = formatTime(time);
     }
 
@@ -37,7 +43,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => {
         clearInterval(interval);
     });
-    step();
 
     function formatTime(time: number) {
         const seconds = time / 1000;
