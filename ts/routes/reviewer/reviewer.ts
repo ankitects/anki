@@ -54,7 +54,6 @@ export class ReviewerState {
     _cardData: NextCardDataResponse_NextCardData | undefined = undefined;
     beginAnsweringMs = Date.now();
     readonly cardClass = writable("");
-    readonly undoMessage = writable("");
     readonly answerShown = writable(false);
     readonly cardData = writable<NextCardDataResponse_NextCardData | undefined>(undefined);
     readonly answerButtons = derived(this.cardData, ($cardData) => $cardData?.answerButtons ?? []);
@@ -161,6 +160,18 @@ export class ReviewerState {
         }, TOOLTIP_TIMEOUT_MS);
     }
 
+    public setUndo(status: string) {
+        // For a list of statuses, see
+        // https://github.com/ankitects/anki/blob/acdf486b290bd47d13e2e880fbb1c14773899091/rslib/src/ops.rs#L57
+        if (this.undoStatus) { // Skip if "undoStatus" is disabled / not set
+            this.undoStatus.undo = status;
+        }
+    }
+
+    public setBuryOrSuspendUndo(suspend: boolean) {
+        this.setUndo(suspend ? tr.studyingSuspend() : tr.studyingBury());
+    }
+
     public async buryOrSuspendCurrentCard(suspend: boolean) {
         const mode = suspend ? BuryOrSuspendCardsRequest_Mode.SUSPEND : BuryOrSuspendCardsRequest_Mode.BURY_USER;
         if (this.currentCard?.card?.id) {
@@ -170,6 +181,7 @@ export class ReviewerState {
                 mode,
             });
             this.showTooltip(suspend ? tr.studyingCardSuspended() : tr.studyingCardsBuried({ count: 1 }));
+            this.setBuryOrSuspendUndo(suspend);
             this.refresh();
         }
     }
@@ -183,6 +195,7 @@ export class ReviewerState {
                 mode,
             });
             this.showTooltip(suspend ? tr.studyingNoteSuspended() : tr.studyingCardsBuried({ count: op.count }));
+            this.setBuryOrSuspendUndo(suspend);
             this.refresh();
         }
     }
@@ -191,6 +204,7 @@ export class ReviewerState {
         if (this.currentCard?.card?.noteId) {
             const op = await removeNotes({ noteIds: [this.currentCard.card.noteId], cardIds: [] });
             this.showTooltip(tr.browsingCardsDeleted({ count: op.count }));
+            this.setUndo(tr.studyingDeleteNote());
             this.refresh();
         }
     }
@@ -268,8 +282,8 @@ export class ReviewerState {
     }
 
     async showQuestion(answer: CardAnswer | null) {
-        if (answer !== null && this.undoStatus) {
-            this.undoStatus.undo = tr.actionsAnswerCard();
+        if (answer !== null) {
+            this.setUndo(tr.actionsAnswerCard());
         }
 
         const resp = await nextCardData({
