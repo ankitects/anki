@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ReviewerState } from "../reviewer";
     import Remaining from "./Remaining.svelte";
     import More from "./More.svelte";
+    import Timer from "./Timer.svelte";
 
     export let state: ReviewerState;
 
@@ -50,7 +51,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.studyingShowAnswer()}
             </button>
         {/if}
-        <span class="disappearing"></span>
+        <div class="disappearing more">
+            <Timer {state}></Timer>
+        </div>
         <div class="disappearing more">
             <More {state}></More>
         </div>
@@ -79,7 +82,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .more {
-        text-align: right;
+        // text-align: right;
+        direction: rtl;
     }
 
     @media (max-width: 583px) {
