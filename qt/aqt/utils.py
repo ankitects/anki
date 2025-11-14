@@ -1103,7 +1103,7 @@ def tooltip(
     lab.move(aw.mapToGlobal(QPoint(0 + x_offset, aw.height() - y_offset)))
     lab.show()
     window = aw.window() if hasattr(aw, "window") else aw
-      
+
     was_active = window.isActiveWindow() if window else False
 
     def close_if_parent_inactive() -> None:
