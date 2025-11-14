@@ -134,6 +134,10 @@ export class ReviewerState {
         this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.Options);
     }
 
+    public displayOverview() {
+        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.Overview);
+    }
+
     public toggleMarked() {
         if (this._cardData && this.currentCard?.card?.noteId) {
             const noteIds = [this.currentCard.card.noteId];
@@ -290,7 +294,11 @@ export class ReviewerState {
             answer: answer || undefined,
         });
 
-        // TODO: "Congratulation screen" logic
+        if (!resp.nextCard) {
+            this.displayOverview();
+            return;
+        }
+
         this._cardData = resp.nextCard;
         this.cardData.set(this._cardData);
         this.answerShown.set(false);

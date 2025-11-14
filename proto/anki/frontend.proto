@@ -59,8 +59,12 @@ message OpenReviewerMenuRequest {
     SetDueDate = 1;
     CardInfo = 2;
     CreateCopy = 3;
+    // Reset
     Forget = 4;
+    // Preset Options
     Options = 5;
+    // "Congratulations"
+    Overview = 6;
   };
 
   ReviewerMenu menu = 1;
