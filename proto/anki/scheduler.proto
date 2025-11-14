@@ -313,6 +313,7 @@ message NextCardDataResponse {
     bool autoplay = 7;
     bool marked = 13;
     optional TypedAnswer typed_answer = 12;
+    uint32 max_time_ms = 14;
 
     repeated card_rendering.AVTag question_av_tags = 8;
     repeated card_rendering.AVTag answer_av_tags = 9;

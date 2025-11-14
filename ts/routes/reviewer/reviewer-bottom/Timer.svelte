@@ -4,21 +4,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { ReviewerState } from "../reviewer";
-    import { onMount } from "svelte";
+    import { onDestroy } from "svelte";
 
     export let state: ReviewerState;
 
     let text = "";
+    let cls = "";
 
     function step() {
-        text = formatTime(Date.now() - state.beginAnsweringMs);
+        let time = Date.now() - state.beginAnsweringMs;
+        const maxTime = state._cardData?.maxTimeMs ?? 0;
+        if (time >= maxTime) {
+            time = maxTime;
+            cls = "overtime";
+        } else {
+            cls = "";
+        }
+        text = formatTime(time);
     }
 
-    onMount(() => {
-        const interval = setInterval(step, 1000);
-        return () => {
-            clearInterval(interval);
-        };
+    let interval: ReturnType<typeof setInterval> | undefined = undefined;
+    function startTimer() {
+        clearInterval(interval);
+        interval = setInterval(step, 1000);
+        text = formatTime(0);
+        cls = "";
+        console.log("startTimer");
+    }
+
+    state.cardData.subscribe(startTimer);
+
+    onDestroy(() => {
+        clearInterval(interval);
     });
     step();
 
@@ -30,15 +47,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<span>
-    <div>
-        {text}
-    </div>
-</span>
+<div class={cls}>
+    {text}
+</div>
 
 <style>
     div {
         width: 88px;
         text-align: center;
+    }
+
+    .overtime {
+        color: red;
     }
 </style>

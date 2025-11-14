@@ -492,6 +492,7 @@ impl crate::services::SchedulerService for Collection {
                         args: answer.0,
                     }),
                     marked,
+                    max_time_ms: deck_config.inner.cap_answer_time_to_secs * 1000,
 
                     // Filled by python
                     front: "".to_string(),
