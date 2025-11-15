@@ -34,7 +34,10 @@ const keyCodeLookup = {
     ".": 190,
     "/": 191,
     "`": 192,
-};
+    "!": 49,
+    "*": 56,
+    "@": 50,
+} as const;
 
 function isRequiredModifier(modifier: string): boolean {
     return !modifier.endsWith("?");

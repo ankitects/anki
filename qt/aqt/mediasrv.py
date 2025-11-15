@@ -28,9 +28,18 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
+from anki.cards import Card, CardId
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
+from anki.frontend_pb2 import OpenReviewerMenuRequest, PlayAVTagsRequest
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
+from anki.scheduler_pb2 import NextCardDataResponse
+from anki.template import (
+    PartiallyRenderedCard,
+    TemplateRenderContext,
+    apply_custom_filters,
+    av_tags_to_native,
+)
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
@@ -38,6 +47,8 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
+from aqt.sound import play_tags
+from aqt.theme import ThemeManager
 from aqt.utils import aqt_data_path, show_warning, tr
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
@@ -45,7 +56,15 @@ waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROT
 
 logger = logging.getLogger(__name__)
 app = flask.Flask(__name__, root_path="/fake")
-flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
+flask_cors.CORS(
+    app,
+    resources={
+        r"/_anki/js/vendor/mathjax/output/chtml/fonts/woff-v2/.*.woff": {
+            "origins": "*"
+        },
+        r"/*": {"origins": "127.0.0.1"},
+    },
+)
 
 
 @dataclass
@@ -363,6 +382,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-csv",
         "import-page",
         "image-occlusion",
+        "reviewer",
     ]
 
 
@@ -637,6 +657,86 @@ def save_custom_colours() -> bytes:
     return b""
 
 
+theme_manager = ThemeManager()
+
+
+def next_card_data() -> bytes:
+    raw = aqt.mw.col._backend.next_card_data_raw(request.data)
+    data = NextCardDataResponse.FromString(raw)
+
+    if len(data.next_card.queue.cards) == 0:
+        return data.SerializeToString()
+
+    backend_card = data.next_card.queue.cards[0].card
+    card = Card(aqt.mw.col, backend_card=backend_card)
+
+    ctx = TemplateRenderContext.from_existing_card(card, False)
+
+    qside = apply_custom_filters(
+        PartiallyRenderedCard.nodes_from_proto(data.next_card.partial_front),
+        ctx,
+        None,
+    )
+    aside = apply_custom_filters(
+        PartiallyRenderedCard.nodes_from_proto(data.next_card.partial_back),
+        ctx,
+        qside,
+    )
+
+    q_avtags = ctx.col()._backend.extract_av_tags(text=qside, question_side=True)
+    a_avtags = ctx.col()._backend.extract_av_tags(text=aside, question_side=False)
+
+    # Assumes the av tags are empty in the original response
+    data.next_card.question_av_tags.extend(q_avtags.av_tags)
+    data.next_card.answer_av_tags.extend(a_avtags.av_tags)
+
+    qside = q_avtags.text
+    aside = a_avtags.text
+
+    qside = aqt.mw.prepare_card_text_for_display(qside)
+    aside = aqt.mw.prepare_card_text_for_display(aside)
+
+    data.next_card.front = qside
+    data.next_card.back = aside
+    # Night mode is handled by the frontend so that it works with the browsers theme if used outside of anki.
+    # Perhaps the OS class should be handled this way too?
+    data.next_card.body_class = theme_manager.body_classes_for_card_ord(card.ord, False)
+
+    return data.SerializeToString()
+
+
+def play_avtags():
+    req = PlayAVTagsRequest.FromString(request.data)
+    play_tags(av_tags_to_native(req.tags))
+
+
+def open_reviewer_menu():
+    reviewer = aqt.mw.reviewer
+    MENU_ENUM = OpenReviewerMenuRequest.ReviewerMenu
+
+    def on_card_info():
+        reviewer._card_info.set_card(reviewer.card)
+        reviewer.on_card_info()
+
+    def overview():
+        aqt.mw.moveToState("overview")
+
+    REVIEWER_MENUS = {
+        MENU_ENUM.EditCurrent: aqt.mw.onEditCurrent,
+        MENU_ENUM.SetDueDate: reviewer.on_set_due,
+        MENU_ENUM.CardInfo: on_card_info,
+        MENU_ENUM.CreateCopy: reviewer.on_create_copy,
+        MENU_ENUM.Forget: reviewer.forget_current_card,
+        MENU_ENUM.Options: reviewer.onOptions,
+        MENU_ENUM.Overview: overview,
+    }
+
+    req = OpenReviewerMenuRequest.FromString(request.data)
+    if req.HasField("current_card_id"):
+        reviewer.card = aqt.mw.col.get_card(CardId(req.current_card_id))
+    aqt.mw.taskman.run_on_main(REVIEWER_MENUS[req.menu])
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -653,6 +753,9 @@ post_handler_list = [
     deck_options_require_close,
     deck_options_ready,
     save_custom_colours,
+    next_card_data,
+    play_avtags,
+    open_reviewer_menu,
 ]
 
 
@@ -660,6 +763,11 @@ exposed_backend_list = [
     # CollectionService
     "latest_progress",
     "get_custom_colours",
+    "set_config_json",
+    "get_config_json",
+    "get_undo_status",
+    "undo",
+    "redo",
     # DeckService
     "get_deck_names",
     # I18nService
@@ -670,6 +778,9 @@ exposed_backend_list = [
     # NotesService
     "get_field_names",
     "get_note",
+    "remove_notes",
+    "add_note_tags",
+    "remove_note_tags",
     # NotetypesService
     "get_notetype_names",
     "get_change_notetype_info",
@@ -695,9 +806,13 @@ exposed_backend_list = [
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
     "simulate_fsrs_workload",
+    "bury_or_suspend_cards",
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
+    # CardsService
+    "set_flag",
+    "compare_answer",
 ]
 
 
