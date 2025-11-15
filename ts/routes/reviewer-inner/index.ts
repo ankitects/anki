@@ -78,14 +78,21 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
 });
 
 addEventListener("keydown", (e) => {
-    const keyInfo: ReviewerRequest = { type: "keypress", key: e.key, ctrl: e.ctrlKey, shift: e.shiftKey };
+    const keyInfo: ReviewerRequest = {
+        type: "keypress",
+        eventInit: {
+            key: e.key,
+            code: e.code,
+            altKey: e.altKey,
+            ctrlKey: e.ctrlKey,
+            shiftKey: e.shiftKey,
+            metaKey: e.metaKey,
+            repeat: e.repeat,
+        },
+    };
     if (
-        e.key.length == 1 && "1234 ".includes(e.key)
+        !document.activeElement?.matches("input[type=text], input[type=number], textarea") && e.key !== "Enter"
     ) {
-        if (!document.activeElement?.matches("input[type=text], input[type=number], textarea")) {
-            postParentMessage(keyInfo);
-        }
-    } else {
         postParentMessage(keyInfo);
     }
 });

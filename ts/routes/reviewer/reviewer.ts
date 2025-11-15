@@ -84,7 +84,7 @@ export class ReviewerState {
                 break;
             }
             case "keypress": {
-                this.handleKeyPress(e.data.key, e.data.ctrl, e.data.shift);
+                dispatchEvent(new KeyboardEvent("keydown", e.data.eventInit));
                 break;
             }
             case "setstorage": {
@@ -272,7 +272,7 @@ export class ReviewerState {
     }
 
     public registerShortcuts() {
-        document.addEventListener("keydown", this.onKeyDown.bind(this));
+        window.addEventListener("keydown", this.onKeyDown.bind(this));
     }
 
     sendInnerRequest(message: InnerReviewerRequest) {
