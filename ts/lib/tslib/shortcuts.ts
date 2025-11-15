@@ -116,7 +116,6 @@ function keyCombinationToCheck(
         keyCombination.slice(0, -1),
     );
 
-    console.log({ keyCode, required, optional });
     return check(keyCode, required, optional);
 }
 
