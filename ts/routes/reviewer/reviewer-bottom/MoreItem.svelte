@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="row" on:click on:keydown role="button" tabindex="0">
-    <!--<Shortcut keyCombination={shortcut}></Shortcut>-->
     <slot />
     <span>{shortcut}</span>
 </div>

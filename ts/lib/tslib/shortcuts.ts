@@ -34,7 +34,10 @@ const keyCodeLookup = {
     ".": 190,
     "/": 191,
     "`": 192,
-};
+    "!": 49,
+    "*": 56,
+    "@": 50,
+} as const;
 
 function isRequiredModifier(modifier: string): boolean {
     return !modifier.endsWith("?");
@@ -113,6 +116,7 @@ function keyCombinationToCheck(
         keyCombination.slice(0, -1),
     );
 
+    console.log({ keyCode, required, optional });
     return check(keyCode, required, optional);
 }
 

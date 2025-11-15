@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setFlag } from "@generated/backend";
     import type { ReviewerState } from "../reviewer";
     import type { MoreMenuItemInfo } from "./types";
+    import Shortcut from "$lib/components/Shortcut.svelte";
 
     let showFloating = false;
     let showFlags = false;
@@ -114,7 +115,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setFlag({ cardIds: [card!.id], flag: index });
         $cardData!.queue!.cards[0].card!.flags = index;
     }
+
+    function prepKeycodeForShortcut(keycode: string) {
+        return keycode.replace("Ctrl", "Control");
+    }
 </script>
+
+{#each shortcuts as shortcut}
+    {#if shortcut !== "hr"}
+        <Shortcut
+            keyCombination={prepKeycodeForShortcut(shortcut.shortcut)}
+            event="keydown"
+            on:action={shortcut.onClick}
+        />
+    {/if}
+{/each}
+
+{#each flags as flag, i}
+    <Shortcut
+        keyCombination={prepKeycodeForShortcut(flag.shortcut)}
+        event="keydown"
+        on:action={() => changeFlag(i + 1)}
+    />
+{/each}
 
 <MoreSubmenu bind:showFloating>
     <button
@@ -165,7 +188,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? "RGBA(255,0,0,0.25)"
                         : ""}
                 >
-                    <MoreItem shortcut={shortcut.shortcut} on:click={shortcut.onClick}>
+                    <MoreItem
+                        shortcut={shortcut.shortcut}
+                        on:click={shortcut.onClick}
+                        on:keydown={shortcut.onClick}
+                        on:action={console.log}
+                    >
                         {shortcut.name}
                     </MoreItem>
                 </div>

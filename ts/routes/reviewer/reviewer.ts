@@ -259,12 +259,10 @@ export class ReviewerState {
                 break;
             }
             case "e": {
-                this.displayEditMenu();
-                break;
-            }
-            case "-": {
-                this.buryOrSuspendCurrentCard(false);
-                break;
+                if (!ctrl) {
+                    this.displayEditMenu();
+                    break;
+                }
             }
         }
     }
