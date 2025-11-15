@@ -1109,10 +1109,13 @@ def tooltip(
     def close_if_parent_inactive() -> None:
         if not _tooltipLabel or window is None:
             return
+        # Check if window is still active and application has focus
+        app_has_focus = aqt.mw.app.focusWindow() is not None
+        window_is_active = window.isActiveWindow()
         if (
             not window.isVisible()
             or (window.windowState() & Qt.WindowState.WindowMinimized)
-            or (was_active and not window.isActiveWindow())
+            or (was_active and (not window_is_active or not app_has_focus))
         ):
             closeTooltip()
 
