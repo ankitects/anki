@@ -163,14 +163,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </MoreItem>
                 <div slot="items" class="dropdown">
                     {#each flags as flag, i}
+                        {@const flag_id = i + 1}
                         <div
-                            style:background-color={card?.flags == i + 1
-                                ? "RGBA(0,255,0,0.25)"
+                            style:background-color={card?.flags == flag_id
+                                ? `color-mix(in srgb, var(--flag-${flag_id}) 50%, transparent)`
                                 : ""}
                         >
                             <MoreItem
                                 shortcut={flag.shortcut}
-                                on:click={() => changeFlag(i + 1)}
+                                on:click={() => changeFlag(flag_id)}
                             >
                                 {flag.colour}
                             </MoreItem>
