@@ -83,11 +83,14 @@ addEventListener("keydown", (e) => {
         eventInit: {
             key: e.key,
             code: e.code,
+            keyCode: e.keyCode,
+            which: e.which,
             altKey: e.altKey,
             ctrlKey: e.ctrlKey,
             shiftKey: e.shiftKey,
             metaKey: e.metaKey,
             repeat: e.repeat,
+            bubbles: true,
         },
     };
     if (

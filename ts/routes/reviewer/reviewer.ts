@@ -84,7 +84,7 @@ export class ReviewerState {
                 break;
             }
             case "keypress": {
-                dispatchEvent(new KeyboardEvent("keydown", e.data.eventInit));
+                document.dispatchEvent(new KeyboardEvent("keydown", e.data.eventInit));
                 break;
             }
             case "setstorage": {
