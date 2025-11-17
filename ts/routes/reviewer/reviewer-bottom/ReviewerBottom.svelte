@@ -84,7 +84,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .more {
-        direction: rtl;
+        display: flex;
+        justify-content: flex-end;
     }
 
     @media (max-width: 583px) {
