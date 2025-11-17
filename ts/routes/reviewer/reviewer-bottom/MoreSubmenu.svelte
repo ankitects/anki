@@ -7,10 +7,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithFloating from "$lib/components/WithFloating.svelte";
 
     export let showFloating = false;
+    export let lockOpen = false;
 </script>
 
 <div>
-    <WithFloating show={showFloating} inline on:close={() => (showFloating = false)}>
+    <WithFloating
+        show={showFloating}
+        inline
+        on:close={() => {
+            if (!lockOpen) {
+                showFloating = false;
+            }
+        }}
+        closeOnInsideClick
+    >
         <slot slot="reference" name="button"></slot>
 
         <Popover slot="floating">

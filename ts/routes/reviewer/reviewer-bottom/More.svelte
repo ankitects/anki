@@ -139,7 +139,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     />
 {/each}
 
-<MoreSubmenu bind:showFloating>
+<MoreSubmenu bind:showFloating bind:lockOpen={showFlags}>
     <button
         slot="button"
         on:click={() => {
