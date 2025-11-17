@@ -35,7 +35,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         interval = setInterval(step, 1000);
         text = formatTime(0);
         cls = "";
-        console.log("startTimer");
     }
 
     state.cardData.subscribe(startTimer);
