@@ -6,39 +6,6 @@ import type { Modifier } from "./keys";
 import { checkIfModifierKey, checkModifiers, keyToPlatformString, modifiersToPlatformString } from "./keys";
 import { registerPackage } from "./runtime-require";
 
-const keyCodeLookup = {
-    Backspace: 8,
-    Delete: 46,
-    Tab: 9,
-    Enter: 13,
-    F1: 112,
-    F2: 113,
-    F3: 114,
-    F4: 115,
-    F5: 116,
-    F6: 117,
-    F7: 118,
-    F8: 119,
-    F9: 120,
-    F10: 121,
-    F11: 122,
-    F12: 123,
-    "=": 187,
-    "-": 189,
-    "[": 219,
-    "]": 221,
-    "\\": 220,
-    ";": 186,
-    "'": 222,
-    ",": 188,
-    ".": 190,
-    "/": 191,
-    "`": 192,
-    "!": 49,
-    "*": 56,
-    "@": 50,
-} as const;
-
 function isRequiredModifier(modifier: string): boolean {
     return !modifier.endsWith("?");
 }
@@ -61,10 +28,8 @@ export function getPlatformString(keyCombinationString: string): string {
         .join(", ");
 }
 
-function checkKey(event: KeyboardEvent, key: number): boolean {
-    // avoid deprecation warning
-    const which = event["which" + ""];
-    return which === key;
+function checkKey(event: KeyboardEvent, key: string): boolean {
+    return event.key.toLowerCase() === key.toLowerCase();
 }
 
 function partition<T>(predicate: (t: T) => boolean, items: T[]): [T[], T[]] {
@@ -96,25 +61,23 @@ function separateRequiredOptionalModifiers(
 }
 
 const check =
-    (keyCode: number, requiredModifiers: Modifier[], optionalModifiers: Modifier[]) =>
-    (event: KeyboardEvent): boolean => {
+    (key: string, requiredModifiers: Modifier[], optionalModifiers: Modifier[]) => (event: KeyboardEvent): boolean => {
         return (
-            checkKey(event, keyCode)
+            checkKey(event, key)
             && checkModifiers(requiredModifiers, optionalModifiers)(event)
         );
     };
 
-function keyToCode(key: string): number {
-    return keyCodeLookup[key] || key.toUpperCase().charCodeAt(0);
-}
-
 function keyCombinationToCheck(
     keyCombination: string[],
 ): (event: KeyboardEvent) => boolean {
-    const keyCode = keyToCode(keyCombination[keyCombination.length - 1]);
+    const keyCode = keyCombination[keyCombination.length - 1];
     const [required, optional] = separateRequiredOptionalModifiers(
         keyCombination.slice(0, -1),
     );
+    if ("@*!".includes(keyCode)) {
+        optional.push("Shift");
+    }
 
     return check(keyCode, required, optional);
 }
