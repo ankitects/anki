@@ -701,6 +701,7 @@ def next_card_data() -> bytes:
     # Night mode is handled by the frontend so that it works with the browsers theme if used outside of anki.
     # Perhaps the OS class should be handled this way too?
     data.next_card.body_class = theme_manager.body_classes_for_card_ord(card.ord, False)
+    data.next_card.accept_enter = aqt.mw.pm.spacebar_rates_card()
 
     return data.SerializeToString()
 

@@ -319,6 +319,10 @@ message NextCardDataResponse {
     bool marked = 13;
     optional TypedAnswer typed_answer = 12;
     optional TimerPreferences timer = 14;
+    // TODO: Is it worth setting up some sort of "ReviewerPreferences" endpoint
+    // akin to GetGraphPreferences Also should this reviewer setting be moved to
+    // a config bool rather than config.meta
+    bool accept_enter = 15;
 
     repeated card_rendering.AVTag question_av_tags = 8;
     repeated card_rendering.AVTag answer_av_tags = 9;

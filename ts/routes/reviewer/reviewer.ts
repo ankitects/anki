@@ -236,7 +236,7 @@ export class ReviewerState {
             case "enter": {
                 if (!get(this.answerShown)) {
                     this.showAnswer();
-                } else {
+                } else if (this._cardData?.acceptEnter ?? true) {
                     this.easeButtonPressed(2);
                 }
                 break;

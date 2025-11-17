@@ -501,6 +501,7 @@ impl crate::services::SchedulerService for Collection {
                     timer,
 
                     // Filled by python
+                    accept_enter: true,
                     front: "".to_string(),
                     back: "".to_string(),
                     body_class: "".to_string(),
