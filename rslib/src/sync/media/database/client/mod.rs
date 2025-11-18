@@ -189,11 +189,12 @@ delete from media where fname=?",
     }
 
     /// Returns all filenames and checksums, where the checksum is not null.
-    pub(crate) fn all_registered_checksums(&self) -> error::Result<HashMap<String, Sha1Hash>> {
+    pub(crate) fn all_registered_checksums(&self) -> error::Result<Checksums> {
         self.db
             .prepare("SELECT fname, csum FROM media WHERE csum IS NOT NULL")?
             .query_and_then([], row_to_name_and_checksum)?
-            .collect()
+            .collect::<error::Result<_>>()
+            .map(Checksums)
     }
 
     pub(crate) fn force_resync(&self) -> error::Result<()> {
