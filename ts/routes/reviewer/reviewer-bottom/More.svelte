@@ -151,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }}
         title={tr.actionsShortcutKey({ val: "M" })}
     >
-        {tr.studyingMore()}{"▾"}
+        {tr.studyingMore()}&nbsp;{"▾"}&nbsp;
     </button>
 
     <div slot="items" class="dropdown">
