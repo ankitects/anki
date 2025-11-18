@@ -94,7 +94,7 @@ addEventListener("keydown", (e) => {
         },
     };
     if (
-        !document.activeElement?.matches("input[type=text], input[type=number], textarea") && e.key !== "Enter"
+        !document.activeElement?.matches("input[type=text], input[type=number], textarea") || e.key === "Enter"
     ) {
         postParentMessage(keyInfo);
     }
