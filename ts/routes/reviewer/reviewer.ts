@@ -142,6 +142,34 @@ export class ReviewerState {
         this.reviewerAction(ReviewerActionRequest_ReviewerAction.Overview);
     }
 
+    public replayAudio() {
+        if (this._answerShown) {
+            playAvtags({ tags: this._cardData!.answerAvTags });
+        } else {
+            playAvtags({ tags: this._cardData!.questionAvTags });
+        }
+    }
+
+    public pauseAudio() {
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.PauseAudio);
+    }
+
+    public AudioSeekBackward() {
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.SeekBackward);
+    }
+
+    public AudioSeekForward() {
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.SeekForward);
+    }
+
+    public RecordVoice() {
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.RecordVoice);
+    }
+
+    public ReplayRecorded() {
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.ReplayRecorded);
+    }
+
     public toggleMarked() {
         if (this._cardData && this.currentCard?.card?.noteId) {
             const noteIds = [this.currentCard.card.noteId];
@@ -238,7 +266,7 @@ export class ReviewerState {
             }
             case " ":
             case "enter": {
-                if (!get(this.answerShown)) {
+                if (this._answerShown) {
                     this.showAnswer();
                 } else if (this._cardData?.acceptEnter ?? true) {
                     this.easeButtonPressed(2);
@@ -346,8 +374,12 @@ export class ReviewerState {
         this.updateHtml(await this.showTypedAnswer(this._cardData?.back || ""));
     }
 
+    get _answerShown() {
+        return get(this.answerShown);
+    }
+
     public easeButtonPressed(rating: number) {
-        if (!get(this.answerShown)) {
+        if (!this._answerShown) {
             return;
         }
 

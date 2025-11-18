@@ -96,12 +96,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         "hr",
         // Audio
-        { name: tr.actionsReplayAudio(), shortcut: "R", onClick: todo },
-        { name: tr.studyingPauseAudio(), shortcut: "5", onClick: todo },
-        { name: tr.studyingAudio5s(), shortcut: "6", onClick: todo },
-        { name: tr.studyingAudioAnd5s(), shortcut: "7", onClick: todo },
-        { name: tr.studyingRecordOwnVoice(), shortcut: "Shift+V", onClick: todo },
-        { name: tr.studyingReplayOwnVoice(), shortcut: "V", onClick: todo },
+        {
+            name: tr.actionsReplayAudio(),
+            shortcut: "R",
+            onClick: state.replayAudio.bind(state),
+        },
+        {
+            name: tr.studyingPauseAudio(),
+            shortcut: "5",
+            onClick: state.pauseAudio.bind(state),
+        },
+        {
+            name: tr.studyingAudio5s(),
+            shortcut: "6",
+            onClick: state.AudioSeekBackward.bind(state),
+        },
+        {
+            name: tr.studyingAudioAnd5s(),
+            shortcut: "7",
+            onClick: state.AudioSeekForward.bind(state),
+        },
+        {
+            name: tr.studyingRecordOwnVoice(),
+            shortcut: "Shift+V",
+            onClick: state.RecordVoice.bind(state),
+        },
+        {
+            name: tr.studyingReplayOwnVoice(),
+            shortcut: "V",
+            onClick: state.ReplayRecorded.bind(state),
+        },
         {
             name: tr.actionsAutoAdvance(),
             shortcut: "Shift+A",

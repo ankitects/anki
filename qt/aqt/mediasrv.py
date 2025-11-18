@@ -728,20 +728,25 @@ def play_avtags():
 
 def reviewer_action():
     reviewer = aqt.mw.reviewer
-    MENU_ENUM = ReviewerActionRequest.ReviewerAction
+    ACTION_ENUM = ReviewerActionRequest.ReviewerAction
 
     def overview():
         aqt.mw.moveToState("overview")
 
     REVIEWER_ACTIONS = {
-        MENU_ENUM.EditCurrent: aqt.mw.onEditCurrent,
-        MENU_ENUM.SetDueDate: reviewer.on_set_due,
-        MENU_ENUM.CardInfo: reviewer.on_card_info,
-        MENU_ENUM.PreviousCardInfo: reviewer.on_previous_card_info,
-        MENU_ENUM.CreateCopy: reviewer.on_create_copy,
-        MENU_ENUM.Forget: reviewer.forget_current_card,
-        MENU_ENUM.Options: reviewer.onOptions,
-        MENU_ENUM.Overview: overview,
+        ACTION_ENUM.EditCurrent: aqt.mw.onEditCurrent,
+        ACTION_ENUM.SetDueDate: reviewer.on_set_due,
+        ACTION_ENUM.CardInfo: reviewer.on_card_info,
+        ACTION_ENUM.PreviousCardInfo: reviewer.on_previous_card_info,
+        ACTION_ENUM.CreateCopy: reviewer.on_create_copy,
+        ACTION_ENUM.Forget: reviewer.forget_current_card,
+        ACTION_ENUM.Options: reviewer.onOptions,
+        ACTION_ENUM.Overview: overview,
+        ACTION_ENUM.PauseAudio: reviewer.on_pause_audio,
+        ACTION_ENUM.SeekBackward: reviewer.on_seek_backward,
+        ACTION_ENUM.SeekForward: reviewer.on_seek_forward,
+        ACTION_ENUM.RecordVoice: reviewer.onRecordVoice,
+        ACTION_ENUM.ReplayRecorded: reviewer.onReplayRecorded,
     }
 
     req = ReviewerActionRequest.FromString(request.data)

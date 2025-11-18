@@ -55,6 +55,7 @@ message PlayAVTagsRequest {
 
 message ReviewerActionRequest {
   enum ReviewerAction {
+    // Menus
     EditCurrent = 0;
     SetDueDate = 1;
     CardInfo = 2;
@@ -66,6 +67,13 @@ message ReviewerActionRequest {
     Options = 6;
     // "Congratulations"
     Overview = 7;
+
+    // Audio
+    PauseAudio = 9;
+    SeekBackward = 10;
+    SeekForward = 11;
+    RecordVoice = 12;
+    ReplayRecorded = 13;
   };
 
   ReviewerAction menu = 1;
