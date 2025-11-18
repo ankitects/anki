@@ -21,10 +21,14 @@ pub mod changetracker;
 pub struct Checksums(HashMap<String, Sha1Hash>);
 
 impl Checksums {
-    // case-fold filenames when checking files to be imported
-    // to account for case-insensitive filesystems
     pub fn get(&self, key: impl AsRef<str>) -> Option<&Sha1Hash> {
-        self.0.get(key.as_ref().to_lowercase().as_str())
+        if cfg!(windows) {
+            // case-fold filenames when checking files to be imported
+            // to account for case-insensitive filesystems
+            self.0.get(key.as_ref().to_lowercase().as_str())
+        } else {
+            self.0.get(key.as_ref())
+        }
     }
 
     pub fn contains_key(&self, key: impl AsRef<str>) -> bool {
