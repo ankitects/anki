@@ -34,7 +34,7 @@ service FrontendService {
 
   // Plays the listed AV tags
   rpc PlayAVTags(PlayAVTagsRequest) returns (generic.Empty);
-  rpc OpenReviewerMenu(OpenReviewerMenuRequest) returns (generic.Empty);
+  rpc ReviewerAction(ReviewerActionRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -53,8 +53,8 @@ message PlayAVTagsRequest {
   repeated card_rendering.AVTag tags = 1;
 }
 
-message OpenReviewerMenuRequest {
-  enum ReviewerMenu {
+message ReviewerActionRequest {
+  enum ReviewerAction {
     EditCurrent = 0;
     SetDueDate = 1;
     CardInfo = 2;
@@ -68,7 +68,7 @@ message OpenReviewerMenuRequest {
     Overview = 7;
   };
 
-  ReviewerMenu menu = 1;
+  ReviewerAction menu = 1;
   // In case the card isn't set in a next_card_data intercept function
   optional int64 current_card_id = 2;
 }

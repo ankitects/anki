@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { UndoStatus } from "@generated/anki/collection_pb";
-import { OpenReviewerMenuRequest_ReviewerMenu } from "@generated/anki/frontend_pb";
+import { ReviewerActionRequest_ReviewerAction } from "@generated/anki/frontend_pb";
 import {
     BuryOrSuspendCardsRequest_Mode,
     CardAnswer,
@@ -13,11 +13,11 @@ import {
     compareAnswer,
     getConfigJson,
     nextCardData,
-    openReviewerMenu,
     playAvtags,
     redo,
     removeNotes,
     removeNoteTags,
+    reviewerAction,
     setConfigJson,
     undo,
 } from "@generated/backend";
@@ -106,40 +106,40 @@ export class ReviewerState {
         this.showQuestion(null);
     }
 
-    displayMenu(menu: OpenReviewerMenuRequest_ReviewerMenu) {
-        openReviewerMenu({ menu, currentCardId: this.currentCard?.card?.id });
+    reviewerAction(menu: ReviewerActionRequest_ReviewerAction) {
+        reviewerAction({ menu, currentCardId: this.currentCard?.card?.id });
     }
 
     public displayEditMenu() {
-        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.EditCurrent);
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.EditCurrent);
     }
 
     public displaySetDueDateMenu() {
-        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.SetDueDate);
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.SetDueDate);
     }
 
     public displayCardInfoMenu() {
-        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.CardInfo);
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.CardInfo);
     }
 
     public displayPreviousCardInfoMenu() {
-        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.PreviousCardInfo);
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.PreviousCardInfo);
     }
 
     public displayCreateCopyMenu() {
-        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.CreateCopy);
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.CreateCopy);
     }
 
     public displayForgetMenu() {
-        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.Forget);
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.Forget);
     }
 
     public displayOptionsMenu() {
-        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.Options);
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.Options);
     }
 
     public displayOverview() {
-        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.Overview);
+        this.reviewerAction(ReviewerActionRequest_ReviewerAction.Overview);
     }
 
     public toggleMarked() {

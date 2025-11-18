@@ -31,7 +31,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
-from anki.frontend_pb2 import OpenReviewerMenuRequest, PlayAVTagsRequest
+from anki.frontend_pb2 import PlayAVTagsRequest, ReviewerActionRequest
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.scheduler_pb2 import NextCardDataResponse
 from anki.template import (
@@ -726,14 +726,14 @@ def play_avtags():
     play_tags(av_tags_to_native(req.tags))
 
 
-def open_reviewer_menu():
+def reviewer_action():
     reviewer = aqt.mw.reviewer
-    MENU_ENUM = OpenReviewerMenuRequest.ReviewerMenu
+    MENU_ENUM = ReviewerActionRequest.ReviewerAction
 
     def overview():
         aqt.mw.moveToState("overview")
 
-    REVIEWER_MENUS = {
+    REVIEWER_ACTIONS = {
         MENU_ENUM.EditCurrent: aqt.mw.onEditCurrent,
         MENU_ENUM.SetDueDate: reviewer.on_set_due,
         MENU_ENUM.CardInfo: reviewer.on_card_info,
@@ -744,8 +744,8 @@ def open_reviewer_menu():
         MENU_ENUM.Overview: overview,
     }
 
-    req = OpenReviewerMenuRequest.FromString(request.data)
-    aqt.mw.taskman.run_on_main(REVIEWER_MENUS[req.menu])
+    req = ReviewerActionRequest.FromString(request.data)
+    aqt.mw.taskman.run_on_main(REVIEWER_ACTIONS[req.menu])
 
 
 post_handler_list = [
@@ -766,7 +766,7 @@ post_handler_list = [
     save_custom_colours,
     next_card_data,
     play_avtags,
-    open_reviewer_menu,
+    reviewer_action,
 ]
 
 
