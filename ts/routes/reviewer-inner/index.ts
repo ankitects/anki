@@ -65,6 +65,7 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
 
             // "".innerHTML =" does not run scripts
             for (const script of document.querySelectorAll("script")) {
+                // strict mode prevents the use of "eval" here
                 const parent = script.parentElement!;
                 const _script = script.parentElement!.removeChild(script);
                 const new_script = document.createElement("script");
