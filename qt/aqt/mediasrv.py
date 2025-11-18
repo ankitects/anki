@@ -671,6 +671,7 @@ def next_card_data() -> bytes:
         card = Card(aqt.mw.col, backend_card=backend_card)
 
     reviewer = aqt.mw.reviewer
+    # This if statement prevents refreshes from causing the previous card to update.
     if reviewer.card is None or card is None or card.id != reviewer.card.id:
         reviewer.previous_card = reviewer.card
         reviewer.card = card
