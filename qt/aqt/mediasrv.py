@@ -62,6 +62,7 @@ flask_cors.CORS(
         r"/_anki/js/vendor/mathjax/output/chtml/fonts/woff-v2/.*.woff": {
             "origins": "*"
         },
+        r"/media/.*": {"origins": "*"},
         r"/*": {"origins": "127.0.0.1"},
     },
 )
@@ -481,6 +482,7 @@ def _extract_request(
     if not aqt.mw.col:
         return NotFound(message=f"collection not open, ignore request for {path}")
 
+    path = path.removeprefix("media/")
     path = hooks.media_file_filter(path)
     return LocalFileRequest(root=aqt.mw.col.media.dir(), path=path)
 

@@ -101,7 +101,7 @@ addEventListener("keydown", (e) => {
 });
 
 const base = document.createElement("base");
-base.href = "/";
+base.href = "/media/";
 document.head.appendChild(base);
 
 function pycmd(cmd: string) {
