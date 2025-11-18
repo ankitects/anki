@@ -149,6 +149,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
+<Shortcut
+    keyCombination="m"
+    event="keyup"
+    on:action={() => (showFloating = !showFloating)}
+/>
+
 {#each shortcuts as shortcut}
     {#if shortcut !== "hr"}
         <Shortcut
