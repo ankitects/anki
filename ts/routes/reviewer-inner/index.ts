@@ -65,7 +65,12 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
 
             // "".innerHTML =" does not run scripts
             for (const script of document.querySelectorAll("script")) {
-                eval(script.innerHTML);
+                const parent = script.parentElement!;
+                const _script = script.parentElement!.removeChild(script);
+                const new_script = document.createElement("script");
+                const new_script_text = document.createTextNode(_script.innerHTML);
+                new_script.appendChild(new_script_text);
+                parent.appendChild(new_script);
             }
 
             break;
