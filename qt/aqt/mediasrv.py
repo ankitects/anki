@@ -671,15 +671,15 @@ def next_card_data() -> bytes:
         card = Card(aqt.mw.col, backend_card=backend_card)
 
     reviewer = aqt.mw.reviewer
+    if reviewer.card is None or card is None or card.id != reviewer.card.id:
+        reviewer.previous_card = reviewer.card
+        reviewer.card = card
 
-    reviewer.previous_card = reviewer.card
-    reviewer.card = card
+        def update_card_info():
+            reviewer._previous_card_info.set_card(reviewer.previous_card)
+            reviewer._card_info.set_card(card)
 
-    def update_card_info():
-        reviewer._previous_card_info.set_card(reviewer.previous_card)
-        reviewer._card_info.set_card(card)
-
-    aqt.mw.taskman.run_on_main(update_card_info)
+        aqt.mw.taskman.run_on_main(update_card_info)
 
     if card is None:
         return data.SerializeToString()
