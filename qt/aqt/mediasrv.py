@@ -665,10 +665,10 @@ def next_card_data() -> bytes:
     data = NextCardDataResponse.FromString(raw)
 
     if len(data.next_card.queue.cards) == 0:
-        return data.SerializeToString()
-
-    backend_card = data.next_card.queue.cards[0].card
-    card = Card(aqt.mw.col, backend_card=backend_card)
+        card = None
+    else:
+        backend_card = data.next_card.queue.cards[0].card
+        card = Card(aqt.mw.col, backend_card=backend_card)
 
     reviewer = aqt.mw.reviewer
 
@@ -680,6 +680,9 @@ def next_card_data() -> bytes:
         reviewer._card_info.set_card(card)
 
     aqt.mw.taskman.run_on_main(update_card_info)
+
+    if card is None:
+        return data.SerializeToString()
 
     ctx = TemplateRenderContext.from_existing_card(card, False)
 
