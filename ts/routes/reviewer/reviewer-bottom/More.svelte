@@ -60,7 +60,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             shortcut: "I",
             onClick: state.displayCardInfoMenu.bind(state),
         },
-        { name: tr.actionsPreviousCardInfo(), shortcut: "Ctrl+Alt+I", onClick: todo },
+        {
+            name: tr.actionsPreviousCardInfo(),
+            shortcut: "Ctrl+Alt+I",
+            onClick: state.displayPreviousCardInfoMenu.bind(state),
+        },
 
         "hr",
         // Notes

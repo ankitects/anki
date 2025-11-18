@@ -122,6 +122,10 @@ export class ReviewerState {
         this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.CardInfo);
     }
 
+    public displayPreviousCardInfoMenu() {
+        this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.PreviousCardInfo);
+    }
+
     public displayCreateCopyMenu() {
         this.displayMenu(OpenReviewerMenuRequest_ReviewerMenu.CreateCopy);
     }

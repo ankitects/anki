@@ -58,15 +58,17 @@ message OpenReviewerMenuRequest {
     EditCurrent = 0;
     SetDueDate = 1;
     CardInfo = 2;
-    CreateCopy = 3;
+    PreviousCardInfo = 3;
+    CreateCopy = 4;
     // Reset
-    Forget = 4;
+    Forget = 5;
     // Preset Options
-    Options = 5;
+    Options = 6;
     // "Congratulations"
-    Overview = 6;
+    Overview = 7;
   };
 
   ReviewerMenu menu = 1;
+  // In case the card isn't set in a next_card_data intercept function
   optional int64 current_card_id = 2;
 }

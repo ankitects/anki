@@ -28,7 +28,7 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.cards import Card, CardId
+from anki.cards import Card
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs
 from anki.frontend_pb2 import OpenReviewerMenuRequest, PlayAVTagsRequest
@@ -726,17 +726,14 @@ def open_reviewer_menu():
     reviewer = aqt.mw.reviewer
     MENU_ENUM = OpenReviewerMenuRequest.ReviewerMenu
 
-    def on_card_info():
-        reviewer._card_info.set_card(reviewer.card)
-        reviewer.on_card_info()
-
     def overview():
         aqt.mw.moveToState("overview")
 
     REVIEWER_MENUS = {
         MENU_ENUM.EditCurrent: aqt.mw.onEditCurrent,
         MENU_ENUM.SetDueDate: reviewer.on_set_due,
-        MENU_ENUM.CardInfo: on_card_info,
+        MENU_ENUM.CardInfo: reviewer.on_card_info,
+        MENU_ENUM.PreviousCardInfo: reviewer.on_previous_card_info,
         MENU_ENUM.CreateCopy: reviewer.on_create_copy,
         MENU_ENUM.Forget: reviewer.forget_current_card,
         MENU_ENUM.Options: reviewer.onOptions,
@@ -744,8 +741,6 @@ def open_reviewer_menu():
     }
 
     req = OpenReviewerMenuRequest.FromString(request.data)
-    if req.HasField("current_card_id"):
-        reviewer.card = aqt.mw.col.get_card(CardId(req.current_card_id))
     aqt.mw.taskman.run_on_main(REVIEWER_MENUS[req.menu])
 
 
