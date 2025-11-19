@@ -498,8 +498,14 @@ mod test {
             "test.mp3"
         );
 
-        // different contents
+        // different contents, filenames differ only by case
         let h2 = sha1_of_data(b"hello1");
+        assert_eq!(
+            add_data_to_folder_uniquely(dpath, "Test.mp3", b"hello1", h2).unwrap(),
+            "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3"
+        );
+
+        // same contents, filenames differ only by case
         assert_eq!(
             add_data_to_folder_uniquely(dpath, "test.mp3", b"hello1", h2).unwrap(),
             "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3"
