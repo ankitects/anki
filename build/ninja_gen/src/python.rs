@@ -3,6 +3,7 @@
 
 use std::env;
 
+use anki_io::read_file;
 use anyhow::Result;
 use camino::Utf8Path;
 use maplit::hashmap;
@@ -145,10 +146,18 @@ impl BuildAction for PythonEnvironment {
         if env::var("OFFLINE_BUILD").is_err() {
             build.add_inputs("uv_binary", inputs![":uv_binary"]);
 
-            // Add --python flag to extra_args if PYTHON_BINARY is set
+            // Set --python flag to .python-version (--no-config ignores it)
+            // override if PYTHON_BINARY is set
             let mut args = self.extra_args.to_string();
             if let Ok(python_binary) = env::var("PYTHON_BINARY") {
                 args = format!("--python {python_binary} {args}");
+            } else {
+                let python_version =
+                    read_file(".python-version").expect("No .python-version in cwd");
+                let python_version_str =
+                    String::from_utf8(python_version).expect("Invalid UTF-8 in .python-version");
+                let python_version_trimmed = python_version_str.trim().to_string();
+                args = format!("--python {python_version_trimmed} {args}");
             }
             build.add_variable("extra_args", args);
         }
