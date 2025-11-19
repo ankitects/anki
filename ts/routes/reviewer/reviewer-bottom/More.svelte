@@ -128,8 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
     ];
 
-    $: current_flag = state.flag;
-    // TOOD: Fix above capitals
+    $: currentFlag = state.flag;
     $: autoAdvance = state.autoAdvance;
 
     function prepKeycodeForShortcut(keycode: string) {
@@ -189,7 +188,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {#each flags as flag, i}
                         {@const flag_id = i + 1}
                         <div
-                            style:background-color={$current_flag == flag_id
+                            style:background-color={$currentFlag == flag_id
                                 ? `color-mix(in srgb, var(--flag-${flag_id}) 50%, transparent)`
                                 : ""}
                         >
