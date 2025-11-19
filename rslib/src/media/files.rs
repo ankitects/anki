@@ -173,7 +173,9 @@ pub fn add_data_to_folder_uniquely<'a, P>(
 where
     P: AsRef<Path>,
 {
-    let normalized_name = normalize_filename(desired_name);
+    // case-fold when to account for case-insensitive filesystems
+    // but not within normalize_filename, for existing media refs
+    let normalized_name: Cow<_> = normalize_filename(desired_name).to_lowercase().into();
 
     let mut target_path = folder.as_ref().join(normalized_name.as_ref());
 
