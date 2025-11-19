@@ -19,6 +19,7 @@ import {
     removeNoteTags,
     reviewerAction,
     setConfigJson,
+    setFlag,
     undo,
 } from "@generated/backend";
 import * as tr from "@generated/ftl";
@@ -61,6 +62,8 @@ export class ReviewerState {
     tooltipMessageTimeout: ReturnType<typeof setTimeout> | undefined;
     readonly tooltipMessage = writable("");
     readonly tooltipShown = writable(false);
+    readonly flag = writable(0);
+    readonly marked = writable(false);
     undoStatus: UndoStatus | undefined = undefined;
 
     iframe: HTMLIFrameElement | undefined = undefined;
@@ -178,13 +181,18 @@ export class ReviewerState {
             } else {
                 addNoteTags({ noteIds, tags: "marked" });
             }
-            this.cardData.update($cardData => {
-                if ($cardData) {
-                    $cardData.marked = !$cardData.marked;
-                }
-                return $cardData;
-            });
+            this.marked.update($marked => !$marked);
         }
+    }
+
+    public changeFlag(index: number) {
+        this.flag.update($flag => {
+            if ($flag === index) {
+                index = 0;
+            }
+            setFlag({ cardIds: [this.currentCard!.card!.id], flag: index });
+            return index;
+        });
     }
 
     public showTooltip(message: string) {
@@ -331,6 +339,8 @@ export class ReviewerState {
 
         this._cardData = resp.nextCard;
         this.cardData.set(this._cardData);
+        this.flag.set(this.currentCard?.card?.flags ?? 0);
+        this.marked.set(this._cardData.marked);
         this.answerShown.set(false);
 
         const question = resp.nextCard?.front || "";

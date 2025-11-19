@@ -22,23 +22,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         _blockDefaultDragDropBehavior();
         state.undoStatus = data.initialUndoStatus;
     });
-    $: cardData = state.cardData;
-    $: flag = $cardData?.queue?.cards[0].card?.flags;
-    $: marked = $cardData?.marked;
 </script>
 
 <div>
     <Reviewer {state}></Reviewer>
     <ReviewerBottom {state}></ReviewerBottom>
 </div>
-
-{#if flag}
-    <div id="_flag" style:color={`var(--flag-${flag})`}>⚑</div>
-{/if}
-
-{#if marked}
-    <div id="_mark">★</div>
-{/if}
 
 <style>
     div {

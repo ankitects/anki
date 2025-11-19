@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import MoreSubmenu from "./MoreSubmenu.svelte";
     import MoreItem from "./MoreItem.svelte";
-    import { setFlag } from "@generated/backend";
     import type { ReviewerState } from "../reviewer";
     import type { MoreMenuItemInfo } from "./types";
     import Shortcut from "$lib/components/Shortcut.svelte";
@@ -133,16 +132,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
     ];
 
-    const cardData = state.cardData;
-    $: card = $cardData?.queue?.cards[0].card;
-
-    function changeFlag(index: number) {
-        if (card?.flags === index) {
-            index = 0;
-        }
-        setFlag({ cardIds: [card!.id], flag: index });
-        $cardData!.queue!.cards[0].card!.flags = index;
-    }
+    $: current_flag = state.flag;
 
     function prepKeycodeForShortcut(keycode: string) {
         return keycode.replace("Ctrl", "Control");
@@ -169,7 +159,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Shortcut
         keyCombination={prepKeycodeForShortcut(flag.shortcut)}
         event="keydown"
-        on:action={() => changeFlag(i + 1)}
+        on:action={() => {
+            state.changeFlag(i + 1);
+        }}
     />
 {/each}
 
@@ -199,13 +191,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {#each flags as flag, i}
                         {@const flag_id = i + 1}
                         <div
-                            style:background-color={card?.flags == flag_id
+                            style:background-color={$current_flag == flag_id
                                 ? `color-mix(in srgb, var(--flag-${flag_id}) 50%, transparent)`
                                 : ""}
                         >
                             <MoreItem
                                 shortcut={flag.shortcut}
-                                on:click={() => changeFlag(flag_id)}
+                                on:click={() => {
+                                    state.changeFlag(flag_id);
+                                }}
                             >
                                 {flag.colour}
                             </MoreItem>

@@ -14,6 +14,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     $: tooltipMessage = state.tooltipMessage;
     $: tooltipShown = state.tooltipShown;
+    $: flag = state.flag;
+    $: marked = state.marked;
 </script>
 
 <div class="iframe-container">
@@ -29,6 +31,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {$tooltipMessage}
     </div>
 </div>
+
+{#if $flag}
+    <div id="_flag" style:color={`var(--flag-${$flag})`}>⚑</div>
+{/if}
+
+{#if $marked}
+    <div id="_mark">★</div>
+{/if}
 
 <style lang="scss">
     div.iframe-container {
