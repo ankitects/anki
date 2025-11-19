@@ -75,7 +75,7 @@ function keyCombinationToCheck(
     const [required, optional] = separateRequiredOptionalModifiers(
         keyCombination.slice(0, -1),
     );
-    if ("@*!".includes(keyCode)) {
+    if ("@*!=".includes(keyCode)) {
         optional.push("Shift");
     }
 
