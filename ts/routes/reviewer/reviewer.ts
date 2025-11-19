@@ -113,7 +113,9 @@ export class ReviewerState {
                 break;
             }
             case "keypress": {
-                document.dispatchEvent(new KeyboardEvent("keydown", e.data.eventInit));
+                // This is a hacky fix because otherwise while focused on the reviewer-bottom, pressing m only keeps the menu open for the duration of the button press (using "keyup" in the shortcut in More.svelte fixed this)
+                const forceKeyUp = e.data.eventInit.key?.toLowerCase() == "m";
+                document.dispatchEvent(new KeyboardEvent(forceKeyUp ? "keyup" : "keydown", e.data.eventInit));
                 break;
             }
             case "setstorage": {
