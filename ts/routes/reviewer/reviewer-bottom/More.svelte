@@ -24,10 +24,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         { colour: tr.actionsFlagPurple(), shortcut: "Ctrl+7" },
     ];
 
-    function todo() {
-        alert("Not yet implemented in new reviewer.");
-    }
-
     const shortcuts: MoreMenuItemInfo[] = [
         {
             name: tr.studyingBuryCard(),
@@ -128,11 +124,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {
             name: tr.actionsAutoAdvance(),
             shortcut: "Shift+A",
-            onClick: todo /* checked: autoAdvanceEnabled */,
+            onClick: () => state.toggleAutoAdvance(),
         },
     ];
 
     $: current_flag = state.flag;
+    // TOOD: Fix above capitals
+    $: autoAdvance = state.autoAdvance;
 
     function prepKeycodeForShortcut(keycode: string) {
         return keycode.replace("Ctrl", "Control");
@@ -212,11 +210,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {#if shortcut == "hr"}
                 <hr />
             {:else}
-                <div
-                    style:background-color={shortcut.onClick == todo
-                        ? "RGBA(255,0,0,0.25)"
-                        : ""}
-                >
+                {@const highlighted = shortcut.shortcut == "Shift+A" && $autoAdvance}
+                <div style:background-color={highlighted ? "RGBA(0,255,0,0.25)" : ""}>
                     <MoreItem
                         shortcut={shortcut.shortcut}
                         on:click={shortcut.onClick}

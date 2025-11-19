@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { UndoStatus } from "@generated/anki/collection_pb";
+import { DeckConfig_Config_AnswerAction, DeckConfig_Config_QuestionAction } from "@generated/anki/deck_config_pb";
 import { ReviewerActionRequest_ReviewerAction } from "@generated/anki/frontend_pb";
 import {
     BuryOrSuspendCardsRequest_Mode,
@@ -64,9 +65,34 @@ export class ReviewerState {
     readonly tooltipShown = writable(false);
     readonly flag = writable(0);
     readonly marked = writable(false);
+    readonly autoAdvance = writable(false);
     undoStatus: UndoStatus | undefined = undefined;
+    autoAdvanceQuestionTimeout: ReturnType<typeof setTimeout> | undefined;
+    autoAdvanceAnswerTimeout: ReturnType<typeof setTimeout> | undefined;
 
     iframe: HTMLIFrameElement | undefined = undefined;
+
+    constructor() {
+        this.autoAdvance.subscribe($autoAdvance => {
+            if (this._answerShown) {
+                this.updateAutoAdvanceAnswer();
+            } else {
+                this.updateAutoAdvanceQuestion();
+            }
+            if (!$autoAdvance) {
+                clearInterval(this.autoAdvanceQuestionTimeout);
+                clearInterval(this.autoAdvanceAnswerTimeout);
+            }
+        });
+    }
+
+    public toggleAutoAdvance() {
+        this.autoAdvance.update(($autoAdvance) => {
+            // Reversed because the $autoAdvance will be flipped by the return.
+            this.showTooltip($autoAdvance ? tr.actionsAutoAdvanceDeactivated() : tr.actionsAutoAdvanceActivated());
+            return !$autoAdvance;
+        });
+    }
 
     async onReady() {
         const { json } = await getConfigJson({ val: "reviewerStorage" });
@@ -323,6 +349,47 @@ export class ReviewerState {
         this.sendInnerRequest({ type: "html", value: htmlString, css, bodyclass });
     }
 
+    updateAutoAdvanceQuestion() {
+        clearTimeout(this.autoAdvanceAnswerTimeout);
+        if (get(this.autoAdvance) && this._cardData!.autoAdvanceQuestionSeconds) {
+            const action = ({
+                [DeckConfig_Config_QuestionAction.SHOW_ANSWER]: () => {
+                    this.showAnswer();
+                },
+                [DeckConfig_Config_QuestionAction.SHOW_REMINDER]: () => {
+                    this.showTooltip(tr.studyingQuestionTimeElapsed());
+                },
+            })[this._cardData!.autoAdvanceQuestionAction];
+
+            this.autoAdvanceQuestionTimeout = setTimeout(action, this._cardData!.autoAdvanceQuestionSeconds * 1000);
+        }
+    }
+
+    updateAutoAdvanceAnswer() {
+        clearTimeout(this.autoAdvanceQuestionTimeout);
+        if (get(this.autoAdvance) && this._cardData?.autoAdvanceAnswerSeconds) {
+            const action = ({
+                [DeckConfig_Config_AnswerAction.ANSWER_AGAIN]: () => {
+                    this.easeButtonPressed(0);
+                },
+                [DeckConfig_Config_AnswerAction.ANSWER_HARD]: () => {
+                    this.easeButtonPressed(1);
+                },
+                [DeckConfig_Config_AnswerAction.ANSWER_GOOD]: () => {
+                    this.easeButtonPressed(2);
+                },
+                [DeckConfig_Config_AnswerAction.BURY_CARD]: () => {
+                    this.buryOrSuspendCurrentCard(false);
+                },
+                [DeckConfig_Config_AnswerAction.SHOW_REMINDER]: () => {
+                    this.showTooltip(tr.studyingAnswerTimeElapsed());
+                },
+            })[this._cardData.autoAdvanceAnswerAction];
+
+            this.autoAdvanceAnswerTimeout = setTimeout(action, this._cardData.autoAdvanceAnswerSeconds * 1000);
+        }
+    }
+
     async showQuestion(answer: CardAnswer | null) {
         if (answer !== null) {
             this.setUndo(tr.actionsAnswerCard());
@@ -352,6 +419,7 @@ export class ReviewerState {
 
         this.beginAnsweringMs = Date.now();
         this.answerMs = undefined;
+        this.updateAutoAdvanceQuestion();
     }
 
     get currentCard() {
@@ -382,6 +450,7 @@ export class ReviewerState {
         }
         this.answerMs = Date.now();
         this.updateHtml(await this.showTypedAnswer(this._cardData?.back || ""));
+        this.updateAutoAdvanceAnswer();
     }
 
     get _answerShown() {

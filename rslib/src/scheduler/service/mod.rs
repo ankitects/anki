@@ -500,6 +500,13 @@ impl crate::services::SchedulerService for Collection {
                     marked,
                     timer,
 
+                    auto_advance_answer_seconds: deck_config.seconds_to_show_answer,
+                    auto_advance_question_seconds: deck_config.seconds_to_show_question,
+                    auto_advance_wait_for_audio: deck_config.wait_for_audio,
+
+                    auto_advance_answer_action: deck_config.answer_action,
+                    auto_advance_question_action: deck_config.question_action,
+
                     // Filled by python
                     accept_enter: true,
                     front: "".to_string(),

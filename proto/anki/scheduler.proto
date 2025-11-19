@@ -327,6 +327,13 @@ message NextCardDataResponse {
     repeated card_rendering.AVTag question_av_tags = 8;
     repeated card_rendering.AVTag answer_av_tags = 9;
 
+    float autoAdvanceQuestionSeconds = 16;
+    float autoAdvanceAnswerSeconds = 17;
+    bool autoAdvanceWaitForAudio = 20;
+
+    deck_config.DeckConfig.Config.QuestionAction autoAdvanceQuestionAction = 18;
+    deck_config.DeckConfig.Config.AnswerAction autoAdvanceAnswerAction = 19;
+
     // TODO: We can probably make this a little faster by using oneof and
     // preventing the partial_front and back being sent to svelte where it isn't
     // used. Alternatively we can use a completely different message for both
