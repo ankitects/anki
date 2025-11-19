@@ -6,7 +6,8 @@ import "../../reviewer/reviewer.scss";
 
 import "../../mathjax";
 import "mathjax/es5/tex-chtml-full.js";
-import { renderError } from "../../reviewer";
+import { registerPackage } from "@tslib/runtime-require";
+import { _runHook, renderError } from "../../reviewer";
 import { addBrowserClasses } from "../../reviewer/browser_selector";
 import { imageOcclusionAPI } from "../image-occlusion/review";
 import { enableNightMode } from "../reviewer/reviewer";
@@ -24,6 +25,14 @@ function postParentMessage(message: ReviewerRequest) {
         "*",
     );
 }
+
+type Callback = () => void | Promise<void>;
+
+export const onUpdateHook: Array<Callback> = [];
+export const onShownHook: Array<Callback> = [];
+
+globalThis.onUpdateHook = onUpdateHook;
+globalThis.onShownHook = onShownHook;
 
 declare const MathJax: any;
 const urlParams = new URLSearchParams(location.search);
@@ -53,15 +62,8 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
                 }
             }
 
-            // wait for mathjax to ready
-            await MathJax.startup.promise
-                .then(() => {
-                    // clear MathJax buffers from previous typesets
-                    MathJax.typesetClear();
-
-                    return MathJax.typesetPromise([document.body]);
-                })
-                .catch(renderError("MathJax"));
+            onUpdateHook.length = 0;
+            onShownHook.length = 0;
 
             // "".innerHTML =" does not run scripts
             for (const script of document.querySelectorAll("script")) {
@@ -74,6 +76,18 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
                 parent.appendChild(new_script);
             }
 
+            _runHook(onUpdateHook);
+            // wait for mathjax to ready
+            await MathJax.startup.promise
+                .then(() => {
+                    // clear MathJax buffers from previous typesets
+                    MathJax.typesetClear();
+
+                    return MathJax.typesetPromise([document.body]);
+                })
+                .catch(renderError("MathJax"));
+
+            _runHook(onShownHook);
             break;
         }
         default: {
@@ -189,4 +203,14 @@ Object.defineProperty(window, "localStorage", {
     writable: false,
     configurable: true,
     enumerable: true,
+});
+
+registerPackage("anki/reviewer", {
+    // If you append a function to this each time the question or answer
+    // is shown, it will be called before MathJax has been rendered.
+    onUpdateHook,
+    // If you append a function to this each time the question or answer
+    // is shown, it will be called after images have been preloaded and
+    // MathJax has been rendered.
+    onShownHook,
 });

@@ -36,7 +36,7 @@ export function getTypedAnswer(): string | null {
     return typeans?.value ?? null;
 }
 
-function _runHook(
+export function _runHook(
     hooks: Array<Callback>,
 ): Promise<PromiseSettledResult<void | Promise<void>>[]> {
     const promises: (Promise<void> | void)[] = [];
