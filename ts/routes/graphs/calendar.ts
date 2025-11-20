@@ -118,6 +118,10 @@ export function renderCalendar(
             // don't fill out future dates
             continue;
         }
+        if (date.getFullYear() != targetYear) {
+            // only fill blanks for the target year
+            continue;
+        }
         if (revlogRange == RevlogRange.Year && date < oneYearAgoFromNow) {
             // don't fill out dates older than a year
             continue;
