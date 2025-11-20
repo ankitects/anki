@@ -15,6 +15,8 @@ import AlignVerticalCenter_ from "@mdi/svg/svg/align-vertical-center.svg?compone
 import alignVerticalCenter_ from "@mdi/svg/svg/align-vertical-center.svg?url";
 import AlignVerticalTop_ from "@mdi/svg/svg/align-vertical-top.svg?component";
 import alignVerticalTop_ from "@mdi/svg/svg/align-vertical-top.svg?url";
+import CheckboxBlankOutline_ from "@mdi/svg/svg/checkbox-blank-outline.svg?component";
+import checkboxBlankOutline_ from "@mdi/svg/svg/checkbox-blank-outline.svg?url";
 import CheckCircle_ from "@mdi/svg/svg/check-circle.svg?component";
 import checkCircle_ from "@mdi/svg/svg/check-circle.svg?url";
 import ChevronDown_ from "@mdi/svg/svg/chevron-down.svg?component";
@@ -251,6 +253,7 @@ export const underlineIcon = { url: underline_, component: Underline_ };
 export const deleteIcon = { url: delete_, component: Delete_ };
 export const inlineIcon = { url: inline_, component: Inline_ };
 export const blockIcon = { url: block_, component: Block_ };
+export const mdiCheckboxBlankOutline = { url: checkboxBlankOutline_, component: CheckboxBlankOutline_ };
 export const mdiAlignHorizontalCenter = { url: alignHorizontalCenter_, component: AlignHorizontalCenter_ };
 export const mdiAlignHorizontalLeft = { url: alignHorizontalLeft_, component: AlignHorizontalLeft_ };
 export const mdiAlignHorizontalRight = { url: alignHorizontalRight_, component: AlignHorizontalRight_ };
