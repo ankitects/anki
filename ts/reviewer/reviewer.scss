@@ -23,7 +23,7 @@ body {
 
 // explicit nightMode definition required
 // to override default .card styling
-body.nightMode {
+body.nightMode * {
     background-color: var(--canvas);
     color: var(--fg);
 }
