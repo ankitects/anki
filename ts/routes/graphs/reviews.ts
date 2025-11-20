@@ -111,9 +111,7 @@ export function renderReviews(
     const desiredBars = Math.min(70, Math.abs(xMin!));
 
     const x = scaleLinear().domain([xMin!, xMax]);
-    if (range === GraphRange.AllTime) {
-        x.nice(desiredBars);
-    }
+
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
     const bins = bin()
@@ -212,7 +210,9 @@ export function renderReviews(
     }
 
     function tooltipText(d: BinType, cumulative: number): string {
-        const day = dayLabel(d.x0!, d.x1!);
+        const startDay = Math.trunc(d.x0!);
+        const endDay = Math.trunc(d.x1!);
+        const day = dayLabel(startDay, endDay);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
         let buf = `<table><tr><td>${day}</td><td align=end>${dayTotal}</td></tr>`;
