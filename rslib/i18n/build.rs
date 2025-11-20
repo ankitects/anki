@@ -8,7 +8,6 @@ mod python;
 mod typescript;
 mod write_strings;
 
-use std::env;
 use std::path::PathBuf;
 
 use anki_io::create_dir_all;
@@ -32,8 +31,7 @@ fn main() -> Result<()> {
     python::write_py_interface(&modules)?;
 
     // write strings.json file to requested path
-    println!("cargo:rerun-if-env-changed=STRINGS_JSON");
-    if let Ok(path) = env::var("STRINGS_JSON") {
+    if let Some(path) = option_env!("STRINGS_JSON") {
         if !path.is_empty() {
             let path = PathBuf::from(path);
             let meta_json = serde_json::to_string_pretty(&modules).unwrap();
