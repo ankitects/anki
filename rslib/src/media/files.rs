@@ -173,7 +173,7 @@ pub fn add_data_to_folder_uniquely<'a, P>(
 where
     P: AsRef<Path>,
 {
-    // case-fold when to account for case-insensitive filesystems
+    // force lowercase to account for case-insensitive filesystems
     // but not within normalize_filename, for existing media refs
     let normalized_name: Cow<_> = normalize_filename(desired_name).to_lowercase().into();
 
