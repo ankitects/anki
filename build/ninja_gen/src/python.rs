@@ -124,7 +124,7 @@ pub struct PythonEnvironment {
 impl BuildAction for PythonEnvironment {
     fn command(&self) -> &str {
         if env::var("OFFLINE_BUILD").is_err() {
-            "$runner pyenv $uv_binary $builddir/$pyenv_folder -- $extra_args"
+            "$runner pyenv $uv_binary $builddir/$pyenv_folder $python -- $extra_args"
         } else {
             "echo 'OFFLINE_BUILD is set. Using the existing PythonEnvironment.'"
         }
@@ -148,18 +148,15 @@ impl BuildAction for PythonEnvironment {
 
             // Set --python flag to .python-version (--no-config ignores it)
             // override if PYTHON_BINARY is set
-            let mut args = self.extra_args.to_string();
-            if let Ok(python_binary) = env::var("PYTHON_BINARY") {
-                args = format!("--python {python_binary} {args}");
-            } else {
+            let python = env::var("PYTHON_BINARY").unwrap_or_else(|_| {
                 let python_version =
                     read_file(".python-version").expect("No .python-version in cwd");
                 let python_version_str =
                     String::from_utf8(python_version).expect("Invalid UTF-8 in .python-version");
-                let python_version_trimmed = python_version_str.trim().to_string();
-                args = format!("--python {python_version_trimmed} {args}");
-            }
-            build.add_variable("extra_args", args);
+                python_version_str.trim().to_string()
+            });
+            build.add_variable("python", python);
+            build.add_variable("extra_args", self.extra_args);
         }
 
         build.add_outputs_ext("bin", bin_path("python"), true);
