@@ -12,6 +12,7 @@ pub(crate) mod dbproxy;
 mod error;
 mod i18n;
 mod import_export;
+mod media;
 mod ops;
 mod sync;
 
