@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
-    import { createEventDispatcher } from "svelte";
 
     import Icon from "$lib/components/Icon.svelte";
     import IconConstrain from "$lib/components/IconConstrain.svelte";
@@ -16,10 +15,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let keyCombination: string;
 
-    const dispatch = createEventDispatcher<{ tagappend: null }>();
+    export let onTagAppend: (() => void) | undefined;
 
     function appendTag() {
-        dispatch("tagappend");
+    if (onTagAppend) onTagAppend();
     }
 </script>
 
@@ -43,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </span>
 </div>
 
-<Shortcut {keyCombination} on:action={() => dispatch("tagappend")} />
+<Shortcut {keyCombination} on:action={appendTag} />
 
 <style lang="scss">
     .tag-add-button {
