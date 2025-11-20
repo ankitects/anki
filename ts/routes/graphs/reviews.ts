@@ -112,7 +112,6 @@ export function renderReviews(
 
     const x = scaleLinear().domain([xMin!, xMax]);
 
-
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
     const bins = bin()
         .value((m) => {
