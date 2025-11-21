@@ -110,18 +110,39 @@ export function renderReviews(
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
 
-    const x = scaleLinear().domain([xMin!, xMax]);
-    if (range === GraphRange.AllTime) {
-        x.nice(desiredBars);
+    let x = scaleLinear().domain([xMin!, xMax]);
+    let thresholds = x.ticks(desiredBars);
+    if (thresholds.length >= 2) {
+        const spacing = thresholds[1] - thresholds[0];
+        const partial = thresholds[0] - x.domain()[0];
+        if (spacing > 0 && partial > 0 && partial < spacing) {
+            const adjustedMin = thresholds[0] - spacing;
+            x = scaleLinear().domain([adjustedMin, xMax]);
+            thresholds = x.ticks(desiredBars);
+        }
     }
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
-    const bins = bin()
+    let bins = bin()
         .value((m) => {
             return m[0];
         })
         .domain(x.domain() as any)
-        .thresholds(x.ticks(desiredBars))(sourceMap.entries() as any);
+        .thresholds(thresholds)(sourceMap.entries() as any);
+
+    if (bins.length > 1 && thresholds.length > 1) {
+        const lastBin = bins[bins.length - 1];
+        const prevBin = bins[bins.length - 2];
+        const nominalWidth = thresholds[1] - thresholds[0];
+        const lastWidth = lastBin.x1! - lastBin.x0!;
+        if (lastBin.x1! > 0 && lastWidth < nominalWidth * 0.75) {
+            for (const entry of lastBin) {
+                prevBin.push(entry);
+            }
+            prevBin.x1 = lastBin.x1;
+            bins = bins.slice(0, -1);
+        }
+    }
 
     // empty graph?
     const totalDays = sum(bins, (bin) => bin.length);
@@ -212,7 +233,9 @@ export function renderReviews(
     }
 
     function tooltipText(d: BinType, cumulative: number): string {
-        const day = dayLabel(d.x0!, d.x1!);
+        const startDay = Math.floor(d.x0!);
+        const endDay = Math.ceil(d.x1!);
+        const day = dayLabel(startDay, endDay);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
         let buf = `<table><tr><td>${day}</td><td align=end>${dayTotal}</td></tr>`;
