@@ -123,12 +123,26 @@ export function renderReviews(
     }
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
-    const bins = bin()
+    let bins = bin()
         .value((m) => {
             return m[0];
         })
         .domain(x.domain() as any)
         .thresholds(thresholds)(sourceMap.entries() as any);
+
+    if (bins.length > 1 && thresholds.length > 1) {
+        const lastBin = bins[bins.length - 1];
+        const prevBin = bins[bins.length - 2];
+        const nominalWidth = thresholds[1] - thresholds[0];
+        const lastWidth = lastBin.x1! - lastBin.x0!;
+        if (lastBin.x1! > 0 && lastWidth < nominalWidth * 0.75) {
+            for (const entry of lastBin) {
+                prevBin.push(entry);
+            }
+            prevBin.x1 = lastBin.x1;
+            bins = bins.slice(0, -1);
+        }
+    }
 
     // empty graph?
     const totalDays = sum(bins, (bin) => bin.length);
@@ -219,8 +233,8 @@ export function renderReviews(
     }
 
     function tooltipText(d: BinType, cumulative: number): string {
-        const startDay = Math.trunc(d.x0!);
-        const endDay = Math.trunc(d.x1!);
+        const startDay = Math.floor(d.x0!);
+        const endDay = Math.ceil(d.x1!);
         const day = dayLabel(startDay, endDay);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
