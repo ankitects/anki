@@ -4,7 +4,12 @@
 export interface PostProtoOptions {
     /** True by default. Shows a dialog with the error message, then rethrows. */
     alertOnError?: boolean;
+    // whether to use the "anki:" custom protocol or not
+    customProtocol?: boolean;
 }
+
+const IS_WINDOWS = navigator.platform.startsWith("Win");
+const CUSTOM_PROTOCOL_URI = IS_WINDOWS ? "http://anki.localhost" : "anki://localhost";
 
 export async function postProto<T>(
     method: string,
@@ -12,13 +17,14 @@ export async function postProto<T>(
     outputType: { fromBinary(arr: Uint8Array): T },
     options: PostProtoOptions = {},
 ): Promise<T> {
+    const { alertOnError = true, customProtocol = false } = options;
     try {
         const inputBytes = input.toBinary();
-        const path = `/_anki/${method}`;
+        const backendUrl = customProtocol ? CUSTOM_PROTOCOL_URI : "/_anki";
+        const path = `${backendUrl}/${method}`;
         const outputBytes = await postProtoInner(path, inputBytes);
         return outputType.fromBinary(outputBytes);
     } catch (err) {
-        const { alertOnError = true } = options;
         if (alertOnError && !(err instanceof Error && err.message === "500: Interrupted")) {
             alert(err);
         }

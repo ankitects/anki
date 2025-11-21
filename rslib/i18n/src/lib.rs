@@ -467,10 +467,10 @@ fn format_number_values(val: &FluentValue, alt_separator: Option<&'static str>) 
     }
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct ResourcesForJavascript {
-    langs: Vec<String>,
-    resources: Vec<String>,
+    pub langs: Vec<String>,
+    pub resources: Vec<String>,
 }
 
 pub fn without_unicode_isolation(s: &str) -> String {
