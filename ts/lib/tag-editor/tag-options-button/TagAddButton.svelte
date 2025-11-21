@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let onTagAppend: (() => void) | undefined;
 
     function appendTag() {
-    if (onTagAppend) onTagAppend();
+        if (onTagAppend) onTagAppend();
     }
 </script>
 
