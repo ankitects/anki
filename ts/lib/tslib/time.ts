@@ -178,11 +178,9 @@ export function dayLabel(daysStart: number, daysEnd: number): string {
                 daysEnd: daysEnd - 1,
             });
         } else {
-            const mostRecent = daysEnd <= 0 ? Math.abs(daysEnd - 1) : 0;
-            const oldest = -daysStart;
             return tr.statisticsDaysAgoRange({
-                daysStart: mostRecent,
-                daysEnd: oldest,
+                daysStart: Math.abs(daysEnd - 1),
+                daysEnd: -daysStart,
             });
         }
     }
