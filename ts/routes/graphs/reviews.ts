@@ -110,7 +110,17 @@ export function renderReviews(
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
 
-    const x = scaleLinear().domain([xMin!, xMax]);
+    let x = scaleLinear().domain([xMin!, xMax]);
+    let thresholds = x.ticks(desiredBars);
+    if (thresholds.length >= 2) {
+        const spacing = thresholds[1] - thresholds[0];
+        const partial = thresholds[0] - x.domain()[0];
+        if (spacing > 0 && partial > 0 && partial < spacing) {
+            const adjustedMin = thresholds[0] - spacing;
+            x = scaleLinear().domain([adjustedMin, xMax]);
+            thresholds = x.ticks(desiredBars);
+        }
+    }
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
     const bins = bin()
@@ -118,7 +128,7 @@ export function renderReviews(
             return m[0];
         })
         .domain(x.domain() as any)
-        .thresholds(x.ticks(desiredBars))(sourceMap.entries() as any);
+        .thresholds(thresholds)(sourceMap.entries() as any);
 
     // empty graph?
     const totalDays = sum(bins, (bin) => bin.length);
