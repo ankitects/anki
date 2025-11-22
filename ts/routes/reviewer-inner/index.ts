@@ -3,6 +3,7 @@
 "use-strict";
 import "../base.scss";
 import "../../reviewer/reviewer.scss";
+import "../../../qt/aqt/data/web/css/webview.scss";
 
 import "../../mathjax";
 import "mathjax/es5/tex-chtml-full.js";
