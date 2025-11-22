@@ -92,6 +92,13 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
                 })
                 .catch(renderError("MathJax"));
 
+            const scrollTarget = document.getElementById("answer");
+            if (scrollTarget) {
+                scrollTarget.scrollIntoView();
+            } else {
+                window.scrollTo(0, 0);
+            }
+
             _runHook(onShownHook);
             break;
         }
