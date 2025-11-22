@@ -211,7 +211,11 @@ class BottomWebView(ToolbarWebView):
     def animate_height(self, height: int) -> None:
         self.web_height = height
 
-        if self.mw.pm.reduce_motion() or height == self.height():
+        if (
+            self.mw.pm.reduce_motion()
+            or self.mw.col.conf.get("newReviewer")
+            or height == self.height()
+        ):
             self.setFixedHeight(height)
         else:
             # Collapse/Expand animation

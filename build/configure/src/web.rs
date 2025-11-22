@@ -228,6 +228,17 @@ fn build_and_check_pages(build: &mut Build) -> Result<()> {
             ":sveltekit"
         ],
     )?;
+    build_page(
+        "reviewer-inner",
+        true,
+        inputs![
+            //
+            ":ts:lib",
+            ":ts:components",
+            ":sass",
+            ":sveltekit"
+        ],
+    )?;
 
     Ok(())
 }
