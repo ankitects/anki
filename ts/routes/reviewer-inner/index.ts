@@ -39,6 +39,10 @@ const urlParams = new URLSearchParams(location.search);
 const decoder = new TextDecoder();
 const style = document.createElement("style");
 document.head.appendChild(style);
+const qaDiv = document.createElement("div");
+document.body.appendChild(qaDiv);
+qaDiv.id = "qa";
+qaDiv.style.opacity = "1";
 
 addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
     switch (e.data.type) {
@@ -48,7 +52,7 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
             break;
         }
         case "html": {
-            document.body.innerHTML = e.data.value;
+            qaDiv.innerHTML = e.data.value;
             if (e.data.css) {
                 style.innerHTML = e.data.css;
             }
@@ -66,7 +70,7 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
             onShownHook.length = 0;
 
             // "".innerHTML =" does not run scripts
-            for (const script of document.querySelectorAll("script")) {
+            for (const script of qaDiv.querySelectorAll("script")) {
                 // strict mode prevents the use of "eval" here
                 const parent = script.parentElement!;
                 const _script = script.parentElement!.removeChild(script);
