@@ -1,17 +1,25 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::ffi::CString;
 use std::io::stdin;
+use std::os::windows::ffi::OsStrExt;
 use std::process::Command;
 
+use anki_io::ToUtf8Path;
+use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 use widestring::u16cstr;
 use windows::core::PCWSTR;
 use windows::Wdk::System::SystemServices::RtlGetVersion;
+use windows::Win32::Foundation::FreeLibrary;
+use windows::Win32::Foundation::HMODULE;
 use windows::Win32::System::Console::AttachConsole;
 use windows::Win32::System::Console::GetConsoleWindow;
 use windows::Win32::System::Console::ATTACH_PARENT_PROCESS;
+use windows::Win32::System::LibraryLoader::LoadLibraryExW;
+use windows::Win32::System::LibraryLoader::LOAD_LIBRARY_FLAGS;
 use windows::Win32::System::Registry::RegCloseKey;
 use windows::Win32::System::Registry::RegOpenKeyExW;
 use windows::Win32::System::Registry::RegQueryValueExW;
@@ -21,6 +29,10 @@ use windows::Win32::System::Registry::KEY_READ;
 use windows::Win32::System::Registry::REG_SZ;
 use windows::Win32::System::SystemInformation::OSVERSIONINFOW;
 use windows::Win32::UI::Shell::SetCurrentProcessExplicitAppUserModelID;
+
+use crate::get_python_env_info;
+use crate::platform::PyFfi;
+use crate::State;
 
 /// Returns true if running on Windows 10 (not Windows 11)
 fn is_windows_10() -> bool {
@@ -260,4 +272,83 @@ pub fn prepare_to_launch_normally() {
     }
 
     attach_to_parent_console();
+}
+
+impl Drop for PyFfi {
+    fn drop(&mut self) {
+        unsafe {
+            (self.Py_FinalizeEx)();
+            let _ = FreeLibrary(HMODULE(self.lib));
+        };
+    }
+}
+
+macro_rules! ffi {
+    ($lib:expr, $exec:expr, $($field:ident),* $(,)?) => {
+        #[allow(clippy::missing_transmute_annotations)]
+        $crate::platform::PyFfi {
+            exec: $exec,
+            $($field: {
+                let sym = ::std::ffi::CString::new(stringify!($field)).map_err(|_| ::anyhow::anyhow!("failed to construct sym"))?;
+                ::std::mem::transmute(
+                    ::windows::Win32::System::LibraryLoader::GetProcAddress(
+                        $lib,
+                        ::windows::core::PCSTR::from_raw(sym.as_ptr().cast()),
+                    )
+                    .ok_or_else(|| anyhow!("failed to load {}", stringify!($field)))?,
+                )
+            },)*
+            lib: $lib.0, }
+    };
+}
+
+impl PyFfi {
+    #[allow(non_snake_case)]
+    pub fn load(path: impl AsRef<std::path::Path>, exec: CString) -> Result<Self> {
+        unsafe {
+            let wide_filename: Vec<u16> = path
+                .as_ref()
+                .as_os_str()
+                .encode_wide()
+                .chain(Some(0))
+                .collect();
+
+            let lib = LoadLibraryExW(
+                PCWSTR::from_raw(wide_filename.as_ptr()),
+                None,
+                LOAD_LIBRARY_FLAGS::default(),
+            )?;
+
+            Ok(ffi! {
+                lib,
+                exec,
+                Py_IsInitialized,
+                PyRun_SimpleString,
+                Py_FinalizeEx,
+                PyConfig_InitPythonConfig,
+                PyConfig_SetBytesString,
+                Py_InitializeFromConfig,
+                PyConfig_SetBytesArgv,
+                PyStatus_Exception,
+            })
+        }
+    }
+}
+
+pub fn run(state: &State, console: bool) -> Result<()> {
+    let (version, lib_path, exec) = get_python_env_info(state)?;
+
+    std::env::set_var("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
+    std::env::set_var("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
+    std::env::set_var("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
+    std::env::remove_var("SSLKEYLOGFILE");
+
+    // NOTE: without windows_subsystem=console or pythonw,
+    // we need to reconnect stdin/stdout/stderr within the interp
+    // reconnect_stdio_to_console doesn't make a difference here
+    let preamble = console.then_some(
+        cr#"import sys; sys.stdout = sys.stderr = open("CONOUT$", "w"); sys.stdin = open("CONIN$", "r");"#,
+    );
+
+    PyFfi::load(lib_path, exec)?.run(&version, preamble)
 }
