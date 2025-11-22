@@ -223,7 +223,7 @@ macro_rules! impl_pyconfig {
                 Self: Sized,
             {
                 let mut config: Self = unsafe { std::mem::zeroed() };
-                (ffi.PyConfig_InitPythonConfig)(&mut config as *const _ as *mut _);
+                (ffi.PyConfig_InitPythonConfig)(&raw mut config as _);
                 config.parse_argv = 0;
                 config.install_signal_handlers = 1;
                 config
@@ -231,7 +231,7 @@ macro_rules! impl_pyconfig {
 
             fn set_exec(&mut self, ffi: &PyFfi) -> Result<&mut Self> {
                 let status = (ffi.PyConfig_SetBytesString)(
-                    self as *const _ as *mut _,
+                    self as *mut _ as _,
                     &mut self.executable,
                     ffi.exec.as_ptr(),
                 );
@@ -252,9 +252,9 @@ macro_rules! impl_pyconfig {
                     .map(|x| x.as_ptr() as *mut i8)
                     .collect::<Vec<_>>();
                 let status = (ffi.PyConfig_SetBytesArgv)(
-                    self as *mut _ as *mut _,
+                    self as *mut _ as _,
                     argvp.len() as isize,
-                    argvp.as_ptr() as *mut _,
+                    argvp.as_ptr().cast(),
                 );
                 ensure!((ffi.PyStatus_Exception)(status) == 0, "failed to set argv");
                 Ok(self)
@@ -271,12 +271,12 @@ impl PyFfi {
             "39" => {
                 let mut config = py39::PyConfig::init(&self);
                 config.set_exec(&self)?.set_argv(&self)?;
-                (self.Py_InitializeFromConfig)(&config as *const _ as *const _);
+                (self.Py_InitializeFromConfig)(&raw const config as _);
             }
             "313" => {
                 let mut config = py313::PyConfig::init(&self);
                 config.set_exec(&self)?.set_argv(&self)?;
-                (self.Py_InitializeFromConfig)(&config as *const _ as *const _);
+                (self.Py_InitializeFromConfig)(&raw const config as _);
             }
             _ => Err(anyhow!("unsupported python version: {version}"))?,
         };
