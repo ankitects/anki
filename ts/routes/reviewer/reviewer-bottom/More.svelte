@@ -85,7 +85,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         {
             name: tr.studyingDeleteNote(),
-            shortcut: /* isMac ? "Ctrl+Backspace"  :*/ "Ctrl+Delete",
+            shortcut:
+                /* FIXME: (I have no apple devices to test it) isMac ? "Ctrl+Backspace"  :*/ "Ctrl+Delete",
             onClick: state.deleteCurrentNote.bind(state),
         },
 
