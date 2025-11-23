@@ -5,12 +5,9 @@ use std::ffi::CStr;
 use std::ffi::CString;
 use std::os::unix::prelude::OsStrExt;
 
-use anki_io::ToUtf8Path;
 use anyhow::Result;
 
-use crate::get_python_env_info;
 use crate::platform::PyFfi;
-use crate::State;
 
 impl Drop for PyFfi {
     fn drop(&mut self) {
@@ -76,15 +73,4 @@ impl PyFfi {
             ))
         }
     }
-}
-
-pub fn run(state: &State) -> Result<()> {
-    let (version, lib_path, exec) = get_python_env_info(state)?;
-
-    std::env::set_var("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
-    std::env::set_var("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
-    std::env::set_var("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
-    std::env::remove_var("SSLKEYLOGFILE");
-
-    PyFfi::load(lib_path, exec)?.run(&version, None)
 }

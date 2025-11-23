@@ -20,6 +20,7 @@ use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::PathBuf;
 
+use anki_io::ToUtf8Path;
 use anki_process::CommandExt;
 use anyhow::anyhow;
 use anyhow::ensure;
@@ -119,7 +120,16 @@ pub fn launch_anki_normally(mut cmd: std::process::Command) -> Result<()> {
     Ok(())
 }
 
-pub fn _run_anki_normally(state: &crate::State) -> Result<()> {
+pub fn _run_anki_embeddedly(state: &crate::State) -> Result<()> {
+    let (version, lib_path, exec) = crate::get_python_env_info(state)?;
+
+    std::env::set_var("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
+    std::env::set_var("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
+    std::env::set_var("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
+    std::env::remove_var("SSLKEYLOGFILE");
+
+    let ffi = PyFfi::load(lib_path, exec)?;
+
     #[cfg(windows)]
     {
         let console = std::env::var("ANKI_CONSOLE").is_ok();
@@ -128,15 +138,17 @@ pub fn _run_anki_normally(state: &crate::State) -> Result<()> {
             ensure_terminal_shown()?;
         }
         crate::platform::windows::prepare_to_launch_normally();
-        windows::run(state, console)?;
+        // NOTE: without windows_subsystem=console or pythonw,
+        // we need to reconnect stdin/stdout/stderr within the interp
+        let preamble = console.then_some(cr#"import sys; sys.stdout = sys.stderr = open("CONOUT$", "w"); sys.stdin = open("CONIN$", "r");"#);
+        ffi.run(&version, preamble)
     }
     #[cfg(unix)]
-    nix::run(state)?;
-    Ok(())
+    ffi.run(&version, None)
 }
 
-pub fn run_anki_normally(state: &crate::State) -> bool {
-    if let Err(e) = _run_anki_normally(state) {
+pub fn run_anki_embeddedly(state: &crate::State) -> bool {
+    if let Err(e) = _run_anki_embeddedly(state) {
         eprintln!("failed to run as embedded: {e:?}");
         return false;
     }

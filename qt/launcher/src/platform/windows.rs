@@ -6,7 +6,6 @@ use std::io::stdin;
 use std::os::windows::ffi::OsStrExt;
 use std::process::Command;
 
-use anki_io::ToUtf8Path;
 use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
@@ -30,9 +29,7 @@ use windows::Win32::System::Registry::REG_SZ;
 use windows::Win32::System::SystemInformation::OSVERSIONINFOW;
 use windows::Win32::UI::Shell::SetCurrentProcessExplicitAppUserModelID;
 
-use crate::get_python_env_info;
 use crate::platform::PyFfi;
-use crate::State;
 
 /// Returns true if running on Windows 10 (not Windows 11)
 fn is_windows_10() -> bool {
@@ -333,22 +330,4 @@ impl PyFfi {
             })
         }
     }
-}
-
-pub fn run(state: &State, console: bool) -> Result<()> {
-    let (version, lib_path, exec) = get_python_env_info(state)?;
-
-    std::env::set_var("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
-    std::env::set_var("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
-    std::env::set_var("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
-    std::env::remove_var("SSLKEYLOGFILE");
-
-    // NOTE: without windows_subsystem=console or pythonw,
-    // we need to reconnect stdin/stdout/stderr within the interp
-    // reconnect_stdio_to_console doesn't make a difference here
-    let preamble = console.then_some(
-        cr#"import sys; sys.stdout = sys.stderr = open("CONOUT$", "w"); sys.stdin = open("CONIN$", "r");"#,
-    );
-
-    PyFfi::load(lib_path, exec)?.run(&version, preamble)
 }

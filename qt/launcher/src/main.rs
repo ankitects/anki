@@ -30,7 +30,7 @@ use crate::platform::get_exe_and_resources_dirs;
 use crate::platform::get_uv_binary_name;
 use crate::platform::launch_anki_normally;
 use crate::platform::respawn_launcher;
-use crate::platform::run_anki_normally;
+use crate::platform::run_anki_embeddedly;
 
 mod platform;
 
@@ -161,7 +161,7 @@ fn run() -> Result<()> {
 
     if !launcher_requested && !pyproject_has_changed && !different_launcher {
         // If no launcher request and venv is already up to date, launch Anki normally
-        if std::env::var("ANKI_LAUNCHER_NO_EMBED").is_ok() || !run_anki_normally(&state) {
+        if std::env::var("ANKI_LAUNCHER_NO_EMBED").is_ok() || !run_anki_embeddedly(&state) {
             let args: Vec<String> = std::env::args().skip(1).collect();
             let cmd = build_python_command(&state, &args)?;
             launch_anki_normally(cmd)?;
