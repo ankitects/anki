@@ -237,6 +237,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 color: inherit;
             }
         }
+
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        max-height: 90vh;
     }
 
     hr {

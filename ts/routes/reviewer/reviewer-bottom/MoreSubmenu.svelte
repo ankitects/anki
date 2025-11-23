@@ -32,5 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     div :global(.popover) {
         padding: 0;
+
+        max-height: 100vh;
     }
 </style>
