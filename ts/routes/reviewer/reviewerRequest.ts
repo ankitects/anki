@@ -16,9 +16,18 @@ interface KeyPressMessage {
     eventInit: KeyboardEventInit;
 }
 
+interface CloseMenuMessage {
+    type: "closemenu";
+}
+
 interface SetStorageMessage {
     type: "setstorage";
     json_buffer: Uint8Array;
 }
 
-export type ReviewerRequest = AudioMessage | UpdateTypedAnswerMessage | KeyPressMessage | SetStorageMessage;
+export type ReviewerRequest =
+    | AudioMessage
+    | UpdateTypedAnswerMessage
+    | KeyPressMessage
+    | SetStorageMessage
+    | CloseMenuMessage;

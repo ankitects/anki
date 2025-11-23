@@ -132,6 +132,10 @@ addEventListener("keydown", (e) => {
     }
 });
 
+addEventListener("click", () => {
+    postParentMessage({ type: "closemenu" });
+});
+
 const base = document.createElement("base");
 base.href = "/media/";
 document.head.appendChild(base);

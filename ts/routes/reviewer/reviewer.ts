@@ -119,6 +119,10 @@ export class ReviewerState {
                 document.dispatchEvent(new KeyboardEvent(forceKeyUp ? "keyup" : "keydown", e.data.eventInit));
                 break;
             }
+            case "closemenu": {
+                document.dispatchEvent(new CustomEvent("closemenu"));
+                break;
+            }
             case "setstorage": {
                 setConfigJson({
                     key: "reviewerStorage",
