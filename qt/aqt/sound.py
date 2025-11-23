@@ -925,8 +925,11 @@ def play_clicked_audio(pycmd: str, card: Card) -> None:
     """eg. if pycmd is 'play:q:0', play the first audio on the question side."""
     play, context, str_idx = pycmd.split(":")
     idx = int(str_idx)
-    tags = card.question_av_tags() if context == "q" else card.answer_av_tags()
-    play_tags([tags[idx]])
+    if context == "q":
+        tags = card.question_av_tags()
+    else:
+        tags = card.answer_av_tags()
+    av_player.play_tags([tags[idx]])
 
 
 play_tags = av_player.play_tags
