@@ -47,7 +47,7 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.sound import play_tags
+from aqt.sound import av_player
 from aqt.theme import ThemeManager
 from aqt.utils import aqt_data_path, show_warning, tr
 
@@ -725,7 +725,7 @@ def next_card_data() -> bytes:
 
 def play_avtags():
     req = PlayAVTagsRequest.FromString(request.data)
-    play_tags(av_tags_to_native(req.tags))
+    av_player.play_tags(av_tags_to_native(req.tags))
 
 
 def reviewer_action():

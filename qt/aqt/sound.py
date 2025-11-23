@@ -932,8 +932,6 @@ def play_clicked_audio(pycmd: str, card: Card) -> None:
     av_player.play_tags([tags[idx]])
 
 
-play_tags = av_player.play_tags
-
 # Init defaults
 ##########################################################################
 
