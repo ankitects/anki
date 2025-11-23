@@ -666,6 +666,8 @@ def next_card_data() -> bytes:
     raw = aqt.mw.col._backend.next_card_data_raw(request.data)
     data = NextCardDataResponse.FromString(raw)
 
+    av_player.stop_and_clear_queue()
+
     if len(data.next_card.queue.cards) == 0:
         card = None
     else:
