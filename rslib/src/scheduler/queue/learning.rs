@@ -12,6 +12,7 @@ pub(crate) struct LearningQueueEntry {
     pub due: TimestampSecs,
     pub id: CardId,
     pub mtime: TimestampSecs,
+    pub reps: u32,
 }
 
 impl CardQueues {
@@ -71,6 +72,7 @@ impl CardQueues {
             due: TimestampSecs(card.due as i64),
             id: card.id,
             mtime: card.mtime,
+            reps: card.reps,
         };
 
         Some(self.requeue_learning_entry(entry))
