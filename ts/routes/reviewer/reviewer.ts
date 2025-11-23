@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import type { AVTag } from "@generated/anki/card_rendering_pb";
 import type { UndoStatus } from "@generated/anki/collection_pb";
 import { DeckConfig_Config_AnswerAction, DeckConfig_Config_QuestionAction } from "@generated/anki/deck_config_pb";
 import { ReviewerActionRequest_ReviewerAction } from "@generated/anki/frontend_pb";
@@ -105,7 +106,7 @@ export class ReviewerState {
         switch (e.data.type) {
             case "audio": {
                 const tags = get(this.answerShown) ? this._cardData!.answerAvTags : this._cardData!.questionAvTags;
-                playAvtags({ tags: [tags[e.data.index]] });
+                this.playAudio([tags[e.data.index]]);
                 break;
             }
             case "typed": {
@@ -173,11 +174,23 @@ export class ReviewerState {
         this.reviewerAction(ReviewerActionRequest_ReviewerAction.Overview);
     }
 
+    public playAudio(tags: AVTag[]) {
+        if (tags.length) {
+            playAvtags({ tags });
+        }
+    }
+
+    maybeAutoPlayAudio(tags: AVTag[]) {
+        if (this._cardData?.autoplay) {
+            this.playAudio(tags);
+        }
+    }
+
     public replayAudio() {
         if (this._answerShown) {
-            playAvtags({ tags: this._cardData!.answerAvTags });
+            this.playAudio(this._cardData!.answerAvTags);
         } else {
-            playAvtags({ tags: this._cardData!.questionAvTags });
+            this.playAudio(this._cardData!.questionAvTags);
         }
     }
 
@@ -415,10 +428,7 @@ export class ReviewerState {
         const question = resp.nextCard?.front || "";
         this.updateHtml(question, resp?.nextCard?.css, resp?.nextCard?.bodyClass);
         this.iframe!.style.visibility = "visible";
-        if (this._cardData?.autoplay) {
-            playAvtags({ tags: this._cardData!.questionAvTags });
-        }
-
+        this.maybeAutoPlayAudio(this._cardData.questionAvTags);
         this.beginAnsweringMs = Date.now();
         this.answerMs = undefined;
         this.updateAutoAdvanceQuestion();
@@ -447,9 +457,7 @@ export class ReviewerState {
 
     public async showAnswer() {
         this.answerShown.set(true);
-        if (this._cardData?.autoplay) {
-            playAvtags({ tags: this._cardData!.answerAvTags });
-        }
+        this.maybeAutoPlayAudio(this._cardData!.answerAvTags);
         this.answerMs = Date.now();
         this.updateHtml(await this.showTypedAnswer(this._cardData?.back || ""));
         this.updateAutoAdvanceAnswer();
