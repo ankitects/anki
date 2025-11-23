@@ -14,9 +14,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => {
-        document.addEventListener("closemenu", () => close());
+        document.addEventListener("closemenu", close);
+        window.addEventListener("blur", close);
         return () => {
             document.removeEventListener("closemenu", close);
+            window.removeEventListener("blur", close);
         };
     });
 </script>
