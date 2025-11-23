@@ -135,6 +135,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function prepKeycodeForShortcut(keycode: string) {
         return keycode.replace("Ctrl", "Control");
     }
+
+    $: if (!showFloating) {
+        showFlags = false;
+    }
 </script>
 
 <Shortcut
