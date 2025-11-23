@@ -452,6 +452,13 @@
              </widget>
             </item>
             <item>
+              <widget class="QComboBox" name="reviewerTypeComboBox">
+                <property name="currentText">
+                  <string/>
+                </property>
+              </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="url_schemes">
               <property name="text">
                <string>preferences_url_schemes</string>

@@ -53,6 +53,7 @@ from aqt.dbcheck import check_db
 from aqt.debug_console import show_debug_console
 from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
+from aqt.flexible_grading_reviewer.widgets import FlexibleBottomBar
 from aqt.import_export.exporting import ExportDialog
 from aqt.import_export.importing import (
     import_collection_package_op,
@@ -66,6 +67,7 @@ from aqt.operations import QueryOp
 from aqt.operations.collection import redo, undo
 from aqt.operations.deck import set_current_deck
 from aqt.profiles import ProfileManager as ProfileManagerType
+from aqt.profiles import ReviewerType
 from aqt.qt import *
 from aqt.qt import sip
 from aqt.sync import sync_collection, sync_login
@@ -182,6 +184,7 @@ class AnkiQt(QMainWindow):
     pm: ProfileManagerType
     web: MainWebView
     bottomWeb: BottomWebView
+    bottomWidget: FlexibleBottomBar
 
     def __init__(
         self,
@@ -977,6 +980,10 @@ title="{}" {}>{}</button>""".format(
         self.mainLayout.addWidget(sweb)
         self.form.centralwidget.setLayout(self.mainLayout)
 
+        if self.pm.reviewer() == ReviewerType.flexible:
+            self.bottomWidget = FlexibleBottomBar(self)
+            self.mainLayout.addWidget(self.bottomWidget)
+
         # force webengine processes to load before cwd is changed
         if is_win:
             for webview in self.web, self.bottomWeb:
@@ -1065,19 +1072,28 @@ title="{}" {}>{}</button>""".format(
         return self._mainThread == QThread.currentThread()
 
     def setupDeckBrowser(self) -> None:
-        from aqt.deckbrowser import DeckBrowser
+        from aqt.deckbrowser import DeckBrowser, FlexibleDeckBrowser
 
-        self.deckBrowser = DeckBrowser(self)
+        self.deckBrowser = {
+            ReviewerType.default: DeckBrowser,
+            ReviewerType.flexible: FlexibleDeckBrowser,
+        }[self.pm.reviewer()](self)
 
     def setupOverview(self) -> None:
-        from aqt.overview import Overview
+        from aqt.overview import Overview, FlexibleOverview
 
-        self.overview = Overview(self)
+        self.overview = {
+            ReviewerType.default: Overview,
+            ReviewerType.flexible: FlexibleOverview,
+        }[self.pm.reviewer()](self)
 
     def setupReviewer(self) -> None:
-        from aqt.reviewer import Reviewer
+        from aqt.reviewer import FlexibleReviewer, Reviewer
 
-        self.reviewer = Reviewer(self)
+        self.reviewer = {
+            ReviewerType.default: Reviewer,
+            ReviewerType.flexible: FlexibleReviewer,
+        }[self.pm.reviewer()](self)
 
     # Syncing
     ##########################################################################
@@ -1166,6 +1182,9 @@ title="{}" {}>{}</button>""".format(
     def set_theme(self, theme: Theme) -> None:
         self.pm.set_theme(theme)
         self.setupStyle()
+
+    def set_reviewer(self, reviewer: ReviewerType) -> None:
+        self.pm.set_reviewer(reviewer)
 
     # Key handling
     ##########################################################################

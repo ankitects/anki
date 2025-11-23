@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import functools
 import html
 from copy import deepcopy
 from dataclasses import dataclass
@@ -14,6 +15,10 @@ from anki.collection import Collection, OpChanges
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
+from aqt.flexible_grading_reviewer.widgets import (
+    FlexibleButtonsList,
+    FlexiblePushButton,
+)
 from aqt.operations import QueryOp
 from aqt.operations.deck import (
     add_deck_dialog,
@@ -436,3 +441,42 @@ class DeckBrowser:
 
         showInfo(tr.scheduling_update_done())
         self.refresh()
+
+
+class FlexibleDeckBrowser(DeckBrowser):
+    """
+    Adds *Flexible Grading* features to Anki as a separate Reviewer.
+    The idea is that Anki can have many Reviewer classes, and the user can choose which they prefer.
+
+    Initially, Flexible Grading was implemented as an add-on.
+    However, add-ons require patching every time Anki introduces a change that breaks add-on compatibility.
+    Thus, it proves better to add new features directly to Anki.
+    """
+
+    def add_bottom_buttons(self) -> None:
+        self.mw.bottomWidget.left_bucket.reset(is_visible=False)
+        self.mw.bottomWidget.right_bucket.reset(is_visible=False)
+        self.mw.bottomWidget.middle_bucket.reset(is_visible=True)
+
+        draw_links = deepcopy(self.drawLinks)
+        pycmds = {
+            "shared": self._onShared,
+            "create": self._on_create,
+            "import": self.mw.onImport,
+        }
+        for keyboard_shortcut, pycmd, button_text in draw_links:
+            button = self.mw.bottomWidget.middle_bucket.add_button(
+                FlexiblePushButton(text=button_text),
+                on_clicked=functools.partial(pycmds[pycmd]),
+            )
+            if keyboard_shortcut:
+                button.setToolTip(
+                    tr.actions_shortcut_key(val=shortcut(keyboard_shortcut))
+                )
+
+    def _clear_bottom_web(self) -> None:
+        self.bottom.web.setHtml("<style>body {margin:0;} html {height:0;}</style>")
+
+    def _drawButtons(self) -> None:
+        self._clear_bottom_web()
+        self.add_bottom_buttons()
