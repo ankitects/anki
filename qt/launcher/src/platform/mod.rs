@@ -133,10 +133,6 @@ pub fn _run_anki_embeddedly(state: &crate::State) -> Result<()> {
     #[cfg(windows)]
     {
         let console = std::env::var("ANKI_CONSOLE").is_ok();
-        if console {
-            // no pythonw.exe available for us to use
-            ensure_terminal_shown()?;
-        }
         crate::platform::windows::prepare_to_launch_normally();
         // NOTE: without windows_subsystem=console or pythonw,
         // we need to reconnect stdin/stdout/stderr within the interp
