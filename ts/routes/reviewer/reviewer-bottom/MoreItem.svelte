@@ -19,6 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0.5em;
         cursor: pointer;
         line-height: normal;
+        gap: 0.5em;
 
         &:hover {
             background: var(--highlight-bg);
@@ -26,8 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         span {
-            min-width: 5em;
-            text-align: right;
+            min-width: 6em;
         }
     }
 </style>
