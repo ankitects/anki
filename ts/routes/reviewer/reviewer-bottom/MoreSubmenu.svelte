@@ -8,12 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount } from "svelte";
 
     export let showFloating = false;
-    export let lockOpen = false;
 
     function close() {
-        if (!lockOpen) {
-            showFloating = false;
-        }
+        showFloating = false;
     }
 
     onMount(() => {
