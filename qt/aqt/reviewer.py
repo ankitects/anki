@@ -1268,7 +1268,7 @@ class SvelteReviewer(Reviewer):
 
     def show(self) -> None:
         self._initWeb()
-        self.mw.setStateShortcuts(self._shortcutKeys())
+        self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
 
     def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:
