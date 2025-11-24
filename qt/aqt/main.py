@@ -1080,7 +1080,7 @@ title="{}" {}>{}</button>""".format(
         }[self.pm.reviewer()](self)
 
     def setupOverview(self) -> None:
-        from aqt.overview import Overview, FlexibleOverview
+        from aqt.overview import FlexibleOverview, Overview
 
         self.overview = {
             ReviewerType.default: Overview,

@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import functools
-
 import html
-from aqt.flexible_grading_reviewer.widgets import FlexiblePushButton
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -17,6 +15,7 @@ from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
 from aqt.deckoptions import display_options_for_deck
+from aqt.flexible_grading_reviewer.widgets import FlexiblePushButton
 from aqt.operations import QueryOp
 from aqt.operations.scheduling import (
     empty_filtered_deck,
