@@ -37,11 +37,7 @@ from aqt.flexible_grading_reviewer.utils import (
     ease_to_answer_key_short,
     studied_today_count,
 )
-from aqt.flexible_grading_reviewer.widgets import (
-    FlexibleButtonsList,
-    FlexibleHorizontalBar,
-    FlexiblePushButton,
-)
+from aqt.flexible_grading_reviewer.widgets import FlexiblePushButton
 from aqt.operations.card import set_card_flag
 from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (

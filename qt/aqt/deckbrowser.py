@@ -15,10 +15,7 @@ from anki.collection import Collection, OpChanges
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
-from aqt.flexible_grading_reviewer.widgets import (
-    FlexibleButtonsList,
-    FlexiblePushButton,
-)
+from aqt.flexible_grading_reviewer.widgets import FlexiblePushButton
 from aqt.operations import QueryOp
 from aqt.operations.deck import (
     add_deck_dialog,
