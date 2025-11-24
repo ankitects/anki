@@ -1282,7 +1282,7 @@ class FlexibleReviewer(Reviewer):
             on_clicked=partial(self.showContextMenu),
         )
 
-    def browse_queue(self, queue_type: Union[str, QueuedCards]) -> None:
+    def browse_queue(self, queue_type: Union[str, Any]) -> None:
         if queue_type == QueuedCards.LEARNING:
             queue_type = "learn"
         elif queue_type == QueuedCards.NEW:
@@ -1310,7 +1310,7 @@ class FlexibleReviewer(Reviewer):
                     text=f"{labels[ease - 1]}[{ease_to_answer_key_short(ease)}]",
                     text_color=self._ease_to_color[ease],
                 ),
-                on_clicked=partial(self._answerCard, ease),
+                on_clicked=partial(self._answerCard, cast(Literal[1, 2, 3, 4], ease)),
             )
 
     def _add_middle_buttons_for_answer_side(self) -> None:
