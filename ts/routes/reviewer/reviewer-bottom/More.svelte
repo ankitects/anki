@@ -183,6 +183,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <MoreSubmenu bind:showFloating={showFlags}>
                 <MoreItem
                     slot="button"
+                    submenu
                     on:click={() => {
                         showFlags = !showFlags;
                     }}
