@@ -29,7 +29,12 @@ import aqt.main
 import aqt.operations
 from anki import hooks
 from anki.cards import Card
-from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
+from anki.collection import (
+    OpChanges,
+    OpChangesOnly,
+    Progress,
+    SearchNode,
+)
 from anki.decks import UpdateDeckConfigs
 from anki.frontend_pb2 import PlayAVTagsRequest, ReviewerActionRequest
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
@@ -667,6 +672,7 @@ def next_card_data() -> bytes:
     data = NextCardDataResponse.FromString(raw)
 
     av_player.stop_and_clear_queue()
+    aqt.mw.update_undo_actions()
 
     if len(data.next_card.queue.cards) == 0:
         card = None
@@ -757,6 +763,20 @@ def reviewer_action():
     aqt.mw.taskman.run_on_main(REVIEWER_ACTIONS[req.menu])
 
 
+def undo_redo(action: str):
+    resp = raw_backend_request(action)()
+    aqt.mw.update_undo_actions()
+    return resp
+
+
+def undo():
+    return undo_redo("undo")
+
+
+def redo():
+    return undo_redo("redo")
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -776,6 +796,8 @@ post_handler_list = [
     next_card_data,
     play_avtags,
     reviewer_action,
+    undo,
+    redo,
 ]
 
 
@@ -786,8 +808,6 @@ exposed_backend_list = [
     "set_config_json",
     "get_config_json",
     "get_undo_status",
-    "undo",
-    "redo",
     # DeckService
     "get_deck_names",
     # I18nService
