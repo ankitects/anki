@@ -1238,33 +1238,6 @@ timerStopped = false;
 
 
 class SvelteReviewer(Reviewer):
-    def _answerButtons(self) -> str:
-        default = self._defaultEase()
-
-        assert isinstance(self.mw.col.sched, V3Scheduler)
-        labels = self.mw.col.sched.describe_next_states(self._v3.states)
-
-        def but(i: int, label: str):
-            if i == default:
-                id = "defease"
-            else:
-                id = ""
-            due = self._buttonTime(i, v3_labels=labels)
-            key = (
-                tr.actions_shortcut_key(val=aqt.mw.pm.get_answer_key(i))
-                if aqt.mw.pm.get_answer_key(i)
-                else ""
-            )
-            return {
-                "id": id,
-                "key": key,
-                "i": i,
-                "label": label,
-                "due": due,
-            }
-
-        return [but(ease, label) for ease, label in self._answerButtonList()]  # type: ignore
-
     def refresh_if_needed(self):
         if self._refresh_needed:
             self.mw.fade_in_webview()
@@ -1276,25 +1249,6 @@ class SvelteReviewer(Reviewer):
             return
         self._initWeb()
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
-
-    def _remaining(self) -> str:
-        if not self.mw.col.conf["dueCounts"]:
-            return ""
-
-        idx, counts = self._v3.counts()
-        self.web.eval(f"_updateRemaining({json.dumps(counts)},{idx})")
-        return ""
-
-    def _showAnswerButton(self) -> None:
-        if self.card.should_show_timer():
-            maxTime = self.card.time_limit() / 1000
-        else:
-            maxTime = 0
-        self._remaining()
-        self.web.eval('showQuestion("",%d);' % (maxTime))
-
-    def _buttonTime(self, i: int, v3_labels: Sequence[str]) -> str:
-        return v3_labels[i - 1] if self.mw.col.conf["estTimes"] else ""
 
     def _linkHandler(self, url: str) -> None:
         pass
