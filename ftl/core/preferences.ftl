@@ -42,6 +42,7 @@ preferences-theme-dark = Dark
 preferences-reviewer-type = Reviewer Type
 preferences-reviewer-type-default = Default
 preferences-reviewer-type-flexible = Flexible
+preferences-reviewer-show-reps-done-today = Show Number of Reviews done today
 preferences-v3-scheduler = V3 scheduler
 preferences-check-for-updates = Check for program updates
 preferences-ignore-accents-in-search = Ignore accents in search (slower)

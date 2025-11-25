@@ -1345,10 +1345,11 @@ class FlexibleReviewer(Reviewer):
                 )
 
         # show reps done today
-        self.mw.bottomWidget.middle_bucket.add_button(
-            FlexiblePushButton(text=f"Reps: {studied_today_count(self.mw.col)}"),
-            on_clicked=partial(self.browse_query, "rated:1"),
-        )
+        if self.mw.pm.reviewer_show_reps_done_today():
+            self.mw.bottomWidget.middle_bucket.add_button(
+                FlexiblePushButton(text=f"Reps: {studied_today_count(self.mw.col)}"),
+                on_clicked=partial(self.browse_query, "rated:1"),
+            )
 
     def _clear_bottom_web(self) -> None:
         self.bottom.web.setHtml("<style>body {margin:0;} html {height:0;}</style>")

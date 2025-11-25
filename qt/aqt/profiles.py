@@ -618,6 +618,12 @@ create table if not exists profiles
     def set_reviewer(self, reviewer: ReviewerType) -> None:
         self.meta["reviewer_type"] = reviewer.value
 
+    def reviewer_show_reps_done_today(self) -> bool:
+        return bool(self.meta.get("reviewer_show_reps_done_today", True))
+
+    def set_reviewer_show_reps_done_today(self, enabled: bool) -> None:
+        self.meta["reviewer_show_reps_done_today"] = bool(enabled)
+
     def set_widget_style(self, style: WidgetStyle) -> None:
         self.meta["widget_style"] = style
         theme_manager.apply_style()
