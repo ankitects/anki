@@ -1272,13 +1272,13 @@ class FlexibleReviewer(Reviewer):
         # Left side
         self.mw.bottomWidget.left_bucket.reset(is_visible=True)
         self.mw.bottomWidget.left_bucket.add_button(
-            FlexiblePushButton(text="[E]dit"),
+            FlexiblePushButton(text=tr.studying_edit()),
             on_clicked=partial(self.mw.onEditCurrent),
         )
         # Right side
         self.mw.bottomWidget.right_bucket.reset(is_visible=True)
         self.mw.bottomWidget.right_bucket.add_button(
-            FlexiblePushButton(text="[M]ore"),
+            FlexiblePushButton(text=tr.studying_more()),
             on_clicked=partial(self.showContextMenu),
         )
 
