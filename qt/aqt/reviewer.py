@@ -1356,7 +1356,7 @@ class FlexibleReviewer(Reviewer):
 
     def _showAnswerButton(self) -> None:
         self._add_side_buttons()
-        self._add_middle_buttons_for_answer_side()
+        self._add_middle_buttons_for_question_side()
         self._clear_bottom_web()
 
     def _showEaseButtons(self) -> None:
@@ -1364,7 +1364,7 @@ class FlexibleReviewer(Reviewer):
             self.mw.progress.single_shot(50, self._showEaseButtons)
             return
         self._add_side_buttons()
-        self._add_middle_buttons_for_question_side()
+        self._add_middle_buttons_for_answer_side()
         self._clear_bottom_web()
 
     def onEnterKey(self) -> None:
