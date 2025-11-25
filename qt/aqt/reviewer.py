@@ -1307,6 +1307,7 @@ class FlexibleReviewer(Reviewer):
         Otherwise, return the first letter of the text label.
         """
         if self.mw.col.conf["estTimes"]:
+            assert isinstance(self.mw.col.sched, V3Scheduler)
             button_times = self.mw.col.sched.describe_next_states(self._v3.states)
             return button_times[ease - 1]
         else:
@@ -1314,7 +1315,6 @@ class FlexibleReviewer(Reviewer):
 
     def _add_middle_buttons_for_answer_side(self) -> None:
         self.mw.bottomWidget.middle_bucket.reset(is_visible=True)
-        assert isinstance(self.mw.col.sched, V3Scheduler)
         for ease, label in self._answerButtonList():
             self.mw.bottomWidget.middle_bucket.add_button(
                 FlexiblePushButton(
