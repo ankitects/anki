@@ -374,6 +374,13 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
+              <widget class="QComboBox" name="reviewerTypeComboBox">
+                <property name="currentText">
+                  <string/>
+                </property>
+              </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="showPlayButtons">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -450,13 +457,6 @@
                <string>preferences_generate_latex_images_automatically</string>
               </property>
              </widget>
-            </item>
-            <item>
-              <widget class="QComboBox" name="reviewerTypeComboBox">
-                <property name="currentText">
-                  <string/>
-                </property>
-              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="url_schemes">
@@ -1274,6 +1274,7 @@
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>
+  <tabstop>reviewerTypeComboBox</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
   <tabstop>showProgress</tabstop>
