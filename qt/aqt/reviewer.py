@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import random
 import re
+from anki.utils import html_to_text_line
 from collections.abc import Generator, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -1300,20 +1301,30 @@ class FlexibleReviewer(Reviewer):
         else:
             browser.onSearchActivated()
 
-    def _add_middle_buttons_for_question_side(self) -> None:
+    def _answer_button_label(self,  ease: int, label: str) -> str:
+        """
+        If estTimes (showEstimates) are enabled, return the estimate as string.
+        Otherwise, return the first letter of the text label.
+        """
+        if self.mw.col.conf["estTimes"]:
+            button_times = self.mw.col.sched.describe_next_states(self._v3.states)
+            return button_times[ease - 1]
+        else:
+            return html_to_text_line(label)[:1].upper()
+
+    def _add_middle_buttons_for_answer_side(self) -> None:
         self.mw.bottomWidget.middle_bucket.reset(is_visible=True)
         assert isinstance(self.mw.col.sched, V3Scheduler)
-        labels = self.mw.col.sched.describe_next_states(self._v3.states)
         for ease, label in self._answerButtonList():
             self.mw.bottomWidget.middle_bucket.add_button(
                 FlexiblePushButton(
-                    text=f"{labels[ease - 1]}[{ease_to_answer_key_short(ease)}]",
+                    text=f"{self._answer_button_label(ease, label)}[{ease_to_answer_key_short(ease)}]",
                     text_color=self._ease_to_color[ease],
                 ),
                 on_clicked=partial(self._answerCard, cast(Literal[1, 2, 3, 4], ease)),
             )
 
-    def _add_middle_buttons_for_answer_side(self) -> None:
+    def _add_middle_buttons_for_question_side(self) -> None:
         self.mw.bottomWidget.middle_bucket.reset(is_visible=True)
 
         if self.mw.col.conf["dueCounts"]:
