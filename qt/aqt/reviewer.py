@@ -172,9 +172,7 @@ class Reviewer:
         gui_hooks.av_player_did_end_playing.append(self._on_av_player_did_end_playing)
 
     def show(self) -> None:
-        if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():
-            self.mw.moveToState("deckBrowser")
-            show_warning(tr.scheduling_update_required().replace("V2", "v3"))
+        if not self._scheduler_version_check():
             return
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
@@ -183,6 +181,13 @@ class Reviewer:
         self._reps = None
         self._refresh_needed = RefreshNeeded.QUEUES
         self.refresh_if_needed()
+
+    def _scheduler_version_check(self):
+        if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():
+            self.mw.moveToState("deckBrowser")
+            show_warning(tr.scheduling_update_required().replace("V2", "v3"))
+            return False
+        return True
 
     # this is only used by add-ons
     def lastCard(self) -> Card | None:
@@ -1267,6 +1272,8 @@ class SvelteReviewer(Reviewer):
             self._refresh_needed = None
 
     def show(self) -> None:
+        if not self._scheduler_version_check():
+            return
         self._initWeb()
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
 
