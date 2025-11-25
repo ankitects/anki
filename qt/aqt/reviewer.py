@@ -1248,6 +1248,7 @@ class SvelteReviewer(Reviewer):
         if not self._scheduler_version_check():
             return
         self._initWeb()
+        # Prevents the shortcuts selecting the toolbar buttons for the next time enter is pressed
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
 
     def _linkHandler(self, url: str) -> None:
