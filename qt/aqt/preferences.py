@@ -380,12 +380,21 @@ class Preferences(QDialog):
         ]
         self.form.reviewerTypeComboBox.addItems(reviewers)
         self.form.reviewerTypeComboBox.setCurrentIndex(self.mw.pm.reviewer().value)
-        qconnect(self.form.reviewerTypeComboBox.currentIndexChanged, self.on_reviewer_changed)
+        qconnect(
+            self.form.reviewerTypeComboBox.currentIndexChanged, self.on_reviewer_changed
+        )
 
         # Show reps done today
-        self.form.reviewerShowRepsDoneToday.setChecked(self.mw.pm.reviewer_show_reps_done_today())
-        qconnect(self.form.reviewerShowRepsDoneToday.stateChanged, self.mw.pm.set_reviewer_show_reps_done_today)
-        self.form.reviewerShowRepsDoneToday.setVisible(self.mw.pm.reviewer() == ReviewerType.flexible)
+        self.form.reviewerShowRepsDoneToday.setChecked(
+            self.mw.pm.reviewer_show_reps_done_today()
+        )
+        qconnect(
+            self.form.reviewerShowRepsDoneToday.stateChanged,
+            self.mw.pm.set_reviewer_show_reps_done_today,
+        )
+        self.form.reviewerShowRepsDoneToday.setVisible(
+            self.mw.pm.reviewer() == ReviewerType.flexible
+        )
 
         ##############
 
@@ -414,7 +423,9 @@ class Preferences(QDialog):
 
     def on_reviewer_changed(self, index: int) -> None:
         self.mw.set_reviewer(ReviewerType(index))
-        self.form.reviewerShowRepsDoneToday.setVisible(self.mw.pm.reviewer() == ReviewerType.flexible)
+        self.form.reviewerShowRepsDoneToday.setVisible(
+            self.mw.pm.reviewer() == ReviewerType.flexible
+        )
 
     def on_reset_window_sizes(self) -> None:
         assert self.prof is not None
