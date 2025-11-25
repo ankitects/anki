@@ -28,7 +28,7 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.collection import (
     OpChanges,
     OpChangesOnly,
@@ -38,7 +38,7 @@ from anki.collection import (
 from anki.decks import UpdateDeckConfigs
 from anki.frontend_pb2 import PlayAVTagsRequest, ReviewerActionRequest
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
-from anki.scheduler_pb2 import NextCardDataResponse
+from anki.scheduler_pb2 import NextCardDataRequest, NextCardDataResponse
 from anki.template import (
     PartiallyRenderedCard,
     TemplateRenderContext,
@@ -46,6 +46,7 @@ from anki.template import (
     av_tags_to_native,
 )
 from anki.utils import dev_mode
+from aqt import gui_hooks
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations import on_op_finished
@@ -679,6 +680,16 @@ def next_card_data() -> bytes:
     else:
         backend_card = data.next_card.queue.cards[0].card
         card = Card(aqt.mw.col, backend_card=backend_card)
+
+    # TODO: Is dealing with gui_hooks in mediasrv like this a good idea?
+    if gui_hooks.reviewer_did_answer_card.count() > 0:
+        req = NextCardDataRequest.FromString(request.data)
+        if req.HasField("answer"):
+            gui_hooks.reviewer_did_answer_card(
+                aqt.mw.reviewer,
+                aqt.mw.col.get_card(CardId(req.answer.card_id)),
+                req.answer.rating + 1,  # type: ignore
+            )
 
     reviewer = aqt.mw.reviewer
     # This if statement prevents refreshes from causing the previous card to update.
