@@ -6,7 +6,6 @@ from __future__ import annotations
 import json
 import random
 import re
-from anki.utils import html_to_text_line
 from collections.abc import Generator, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -30,6 +29,7 @@ from anki.scheduler.v3 import (
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
+from anki.utils import html_to_text_line
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
 from aqt.deckoptions import confirm_deck_then_display_options
@@ -1301,7 +1301,7 @@ class FlexibleReviewer(Reviewer):
         else:
             browser.onSearchActivated()
 
-    def _answer_button_label(self,  ease: int, label: str) -> str:
+    def _answer_button_label(self, ease: int, label: str) -> str:
         """
         If estTimes (showEstimates) are enabled, return the estimate as string.
         Otherwise, return the first letter of the text label.
