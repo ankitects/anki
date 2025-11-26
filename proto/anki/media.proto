@@ -18,6 +18,7 @@ service MediaService {
   rpc RestoreTrash(generic.Empty) returns (generic.Empty);
   rpc ExtractStaticMediaFiles(notetypes.NotetypeId)
       returns (generic.StringList);
+  rpc GetMediaConstants(generic.Empty) returns (MediaConstants);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -39,4 +40,13 @@ message TrashMediaFilesRequest {
 message AddMediaFileRequest {
   string desired_name = 1;
   bytes data = 2;
+}
+
+message MediaConstants {
+  // Maximum media file size in bytes (100 MiB)
+  uint64 max_individual_file_size = 1;
+  // Maximum media filename length (client-side)
+  uint32 max_filename_length = 2;
+  // Maximum media filename length (server-side)
+  uint32 max_filename_length_server = 3;
 }

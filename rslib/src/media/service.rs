@@ -1,7 +1,8 @@
-use std::collections::HashSet;
-
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use std::collections::HashSet;
+
 use anki_proto::generic;
 use anki_proto::media::AddMediaFileRequest;
 use anki_proto::media::CheckMediaResponse;
@@ -65,5 +66,18 @@ impl crate::services::MediaService for Collection {
         notetype.gather_media_names(&mut inserter);
 
         Ok(files.into_iter().collect::<Vec<_>>().into())
+    }
+
+    fn get_media_constants(&mut self) -> error::Result<anki_proto::media::MediaConstants> {
+        use crate::sync::media::{
+            MAX_INDIVIDUAL_MEDIA_FILE_SIZE, MAX_MEDIA_FILENAME_LENGTH,
+            MAX_MEDIA_FILENAME_LENGTH_SERVER,
+        };
+
+        Ok(anki_proto::media::MediaConstants {
+            max_individual_file_size: MAX_INDIVIDUAL_MEDIA_FILE_SIZE as u64,
+            max_filename_length: MAX_MEDIA_FILENAME_LENGTH as u32,
+            max_filename_length_server: MAX_MEDIA_FILENAME_LENGTH_SERVER as u32,
+        })
     }
 }
