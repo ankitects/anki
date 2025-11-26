@@ -685,10 +685,12 @@ def next_card_data() -> bytes:
     if gui_hooks.reviewer_did_answer_card.count() > 0:
         req = NextCardDataRequest.FromString(request.data)
         if req.HasField("answer"):
-            gui_hooks.reviewer_did_answer_card(
-                aqt.mw.reviewer,
-                aqt.mw.col.get_card(CardId(req.answer.card_id)),
-                req.answer.rating + 1,  # type: ignore
+            aqt.mw.taskman.run_on_main(
+                lambda: gui_hooks.reviewer_did_answer_card(
+                    aqt.mw.reviewer,
+                    aqt.mw.col.get_card(CardId(req.answer.card_id)),
+                    req.answer.rating + 1,  # type: ignore
+                )
             )
 
     reviewer = aqt.mw.reviewer
