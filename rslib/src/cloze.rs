@@ -10,6 +10,7 @@ use std::sync::LazyLock;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusion;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
+use itertools::Itertools;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_while;
@@ -26,7 +27,7 @@ use crate::template::RenderContext;
 use crate::text::strip_html_preserving_entities;
 
 static CLOZE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?s)\{\{c\d+::(.*?)(::.*?)?\}\}").unwrap());
+    LazyLock::new(|| Regex::new(r"(?s)\{\{c[\d,]+::(.*?)(::.*?)?\}\}").unwrap());
 
 static MATHJAX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -48,7 +49,7 @@ mod mathjax_caps {
 #[derive(Debug)]
 enum Token<'a> {
     // The parameter is the cloze number as is appears in the field content.
-    OpenCloze(u16),
+    OpenCloze(Vec<u16>),
     Text(&'a str),
     CloseCloze,
 }
@@ -58,21 +59,24 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token<'_>> {
     fn open_cloze(text: &str) -> IResult<&str, Token<'_>> {
         // opening brackets and 'c'
         let (text, _opening_brackets_and_c) = tag("{{c")(text)?;
-        // following number
-        let (text, digits) = take_while(|c: char| c.is_ascii_digit())(text)?;
-        let digits: u16 = match digits.parse() {
-            Ok(digits) => digits,
-            Err(_) => {
-                // not a valid number; fail to recognize
-                return Err(nom::Err::Error(nom::error::make_error(
-                    text,
-                    nom::error::ErrorKind::Digit,
-                )));
-            }
-        };
+        // following comma-seperated numbers
+        let (text, ordinals) = take_while(|c: char| c.is_ascii_digit() || c == ',')(text)?;
+        let ordinals: Vec<u16> = ordinals
+            .split(',')
+            .filter_map(|s| s.parse().ok())
+            .collect::<HashSet<_>>() // deduplicate
+            .into_iter()
+            .sorted() // set conversion can de-order
+            .collect();
+        if ordinals.is_empty() {
+            return Err(nom::Err::Error(nom::error::make_error(
+                text,
+                nom::error::ErrorKind::Digit,
+            )));
+        }
         // ::
         let (text, _colons) = tag("::")(text)?;
-        Ok((text, Token::OpenCloze(digits)))
+        Ok((text, Token::OpenCloze(ordinals)))
     }
 
     fn close_cloze(text: &str) -> IResult<&str, Token<'_>> {
@@ -121,9 +125,18 @@ enum TextOrCloze<'a> {
 #[derive(Debug)]
 struct ExtractedCloze<'a> {
     // `ordinal` is the cloze number as is appears in the field content.
-    ordinal: u16,
+    ordinals: Vec<u16>,
     nodes: Vec<TextOrCloze<'a>>,
     hint: Option<&'a str>,
+}
+
+/// Generate a string representation of the ordinals for HTML
+fn ordinals_str(ordinals: &[u16]) -> String {
+    ordinals
+        .iter()
+        .map(|o| o.to_string())
+        .collect::<Vec<_>>()
+        .join(",")
 }
 
 impl ExtractedCloze<'_> {
@@ -151,6 +164,11 @@ impl ExtractedCloze<'_> {
         buf.into()
     }
 
+    /// Checks if this cloze is active for a given ordinal
+    fn contains_ordinal(&self, ordinal: u16) -> bool {
+        self.ordinals.contains(&ordinal)
+    }
+
     /// If cloze starts with image-occlusion:, return the text following that.
     fn image_occlusion(&self) -> Option<&str> {
         let TextOrCloze::Text(text) = self.nodes.first()? else {
@@ -165,10 +183,10 @@ fn parse_text_with_clozes(text: &str) -> Vec<TextOrCloze<'_>> {
     let mut output = vec![];
     for token in tokenize(text) {
         match token {
-            Token::OpenCloze(ordinal) => {
+            Token::OpenCloze(ordinals) => {
                 if open_clozes.len() < 10 {
                     open_clozes.push(ExtractedCloze {
-                        ordinal,
+                        ordinals,
                         nodes: Vec::with_capacity(1), // common case
                         hint: None,
                     })
@@ -214,7 +232,7 @@ fn reveal_cloze_text_in_nodes(
     output: &mut Vec<String>,
 ) {
     if let TextOrCloze::Cloze(cloze) = node {
-        if cloze.ordinal == cloze_ord {
+        if cloze.contains_ordinal(cloze_ord) {
             if question {
                 output.push(cloze.hint().into())
             } else {
@@ -234,14 +252,15 @@ fn reveal_cloze(
     active_cloze_found_in_text: &mut bool,
     buf: &mut String,
 ) {
-    let active = cloze.ordinal == cloze_ord;
+    let active = cloze.contains_ordinal(cloze_ord);
     *active_cloze_found_in_text |= active;
+
     if let Some(image_occlusion_text) = cloze.image_occlusion() {
         buf.push_str(&render_image_occlusion(
             image_occlusion_text,
             question,
             active,
-            cloze.ordinal,
+            &cloze.ordinals,
         ));
         return;
     }
@@ -265,7 +284,7 @@ fn reveal_cloze(
                 buf,
                 r#"<span class="cloze" data-cloze="{}" data-ordinal="{}">[{}]</span>"#,
                 encode_attribute(&content_buf),
-                cloze.ordinal,
+                ordinals_str(&cloze.ordinals),
                 cloze.hint()
             )
             .unwrap();
@@ -274,7 +293,7 @@ fn reveal_cloze(
             write!(
                 buf,
                 r#"<span class="cloze" data-ordinal="{}">"#,
-                cloze.ordinal
+                ordinals_str(&cloze.ordinals)
             )
             .unwrap();
             for node in &cloze.nodes {
@@ -292,7 +311,7 @@ fn reveal_cloze(
             write!(
                 buf,
                 r#"<span class="cloze-inactive" data-ordinal="{}">"#,
-                cloze.ordinal
+                ordinals_str(&cloze.ordinals)
             )
             .unwrap();
             for node in &cloze.nodes {
@@ -308,23 +327,28 @@ fn reveal_cloze(
     }
 }
 
-fn render_image_occlusion(text: &str, question_side: bool, active: bool, ordinal: u16) -> String {
-    if (question_side && active) || ordinal == 0 {
+fn render_image_occlusion(
+    text: &str,
+    question_side: bool,
+    active: bool,
+    ordinals: &[u16],
+) -> String {
+    if (question_side && active) || ordinals.contains(&0) {
         format!(
             r#"<div class="cloze" data-ordinal="{}" {}></div>"#,
-            ordinal,
+            ordinals_str(ordinals),
             &get_image_cloze_data(text)
         )
     } else if !active {
         format!(
             r#"<div class="cloze-inactive" data-ordinal="{}" {}></div>"#,
-            ordinal,
+            ordinals_str(ordinals),
             &get_image_cloze_data(text)
         )
     } else if !question_side && active {
         format!(
             r#"<div class="cloze-highlight" data-ordinal="{}" {}></div>"#,
-            ordinal,
+            ordinals_str(ordinals),
             &get_image_cloze_data(text)
         )
     } else {
@@ -338,7 +362,10 @@ pub fn parse_image_occlusions(text: &str) -> Vec<ImageOcclusion> {
         if let TextOrCloze::Cloze(cloze) = node {
             if cloze.image_occlusion().is_some() {
                 if let Some(shape) = parse_image_cloze(cloze.image_occlusion().unwrap()) {
-                    occlusions.entry(cloze.ordinal).or_default().push(shape);
+                    // Associate this occlusion with all ordinals in this cloze
+                    for &ordinal in &cloze.ordinals {
+                        occlusions.entry(ordinal).or_default().push(shape.clone());
+                    }
                 }
             }
         }
@@ -420,7 +447,7 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
 pub(crate) fn contains_cloze(text: &str) -> bool {
     parse_text_with_clozes(text)
         .iter()
-        .any(|node| matches!(node, TextOrCloze::Cloze(e) if e.ordinal != 0))
+        .any(|node| matches!(node, TextOrCloze::Cloze(e) if e.ordinals.iter().any(|&o| o != 0)))
 }
 
 /// Returns the set of cloze number as they appear in the fields's content.
@@ -433,10 +460,12 @@ pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
 fn add_cloze_numbers_in_text_with_clozes(nodes: &[TextOrCloze], set: &mut HashSet<u16>) {
     for node in nodes {
         if let TextOrCloze::Cloze(cloze) = node {
-            if cloze.ordinal != 0 {
-                set.insert(cloze.ordinal);
-                add_cloze_numbers_in_text_with_clozes(&cloze.nodes, set);
+            for &ordinal in &cloze.ordinals {
+                if ordinal != 0 {
+                    set.insert(ordinal);
+                }
             }
+            add_cloze_numbers_in_text_with_clozes(&cloze.nodes, set);
         }
     }
 }
@@ -653,5 +682,161 @@ mod test {
                 r#"<div class="cloze" data-ordinal="1" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" ></div>"#,
             )
         );
+    }
+
+    #[test]
+    fn multi_card_card_generation() {
+        let text = "{{c1,2,3::multi}}";
+        assert_eq!(
+            cloze_number_in_fields(vec![text]),
+            vec![1, 2, 3].into_iter().collect::<HashSet<u16>>()
+        );
+    }
+
+    #[test]
+    fn multi_card_cloze_basic() {
+        let text = "{{c1,2::shared}} word and {{c1::first}} vs {{c2::second}}";
+
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 1, true)).as_ref(),
+            "[...] word and [...] vs second"
+        );
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 2, true)).as_ref(),
+            "[...] word and first vs [...]"
+        );
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 1, false)).as_ref(),
+            "shared word and first vs second"
+        );
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 2, false)).as_ref(),
+            "shared word and first vs second"
+        );
+        assert_eq!(
+            cloze_numbers_in_string(text),
+            vec![1, 2].into_iter().collect::<HashSet<u16>>()
+        );
+    }
+
+    #[test]
+    fn multi_card_cloze_html_attributes() {
+        let text = "{{c1,2,3::multi}}";
+
+        let card1_html = reveal_cloze_text(text, 1, true);
+        assert!(card1_html.contains(r#"data-ordinal="1,2,3""#));
+
+        let card2_html = reveal_cloze_text(text, 2, true);
+        assert!(card2_html.contains(r#"data-ordinal="1,2,3""#));
+
+        let card3_html = reveal_cloze_text(text, 3, true);
+        assert!(card3_html.contains(r#"data-ordinal="1,2,3""#));
+    }
+
+    #[test]
+    fn multi_card_cloze_with_hints() {
+        let text = "{{c1,2::answer::hint}}";
+
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 1, true)).as_ref(),
+            "[hint]"
+        );
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 2, true)).as_ref(),
+            "[hint]"
+        );
+
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 1, false)).as_ref(),
+            "answer"
+        );
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 2, false)).as_ref(),
+            "answer"
+        );
+    }
+
+    #[test]
+    fn multi_card_cloze_edge_cases() {
+        assert_eq!(
+            cloze_numbers_in_string("{{c1,1,2::test}}"),
+            vec![1, 2].into_iter().collect::<HashSet<u16>>()
+        );
+
+        assert_eq!(
+            cloze_numbers_in_string("{{c0,1,2::test}}"),
+            vec![1, 2].into_iter().collect::<HashSet<u16>>()
+        );
+
+        assert_eq!(
+            cloze_numbers_in_string("{{c1,,3::test}}"),
+            vec![1, 3].into_iter().collect::<HashSet<u16>>()
+        );
+    }
+
+    #[test]
+    fn multi_card_cloze_only_filter() {
+        let text = "{{c1,2::shared}} and {{c1::first}} vs {{c2::second}}";
+
+        assert_eq!(reveal_cloze_text_only(text, 1, true), "..., ...");
+        assert_eq!(reveal_cloze_text_only(text, 2, true), "..., ...");
+        assert_eq!(reveal_cloze_text_only(text, 1, false), "shared, first");
+        assert_eq!(reveal_cloze_text_only(text, 2, false), "shared, second");
+    }
+
+    #[test]
+    fn multi_card_nested_cloze() {
+        let text = "{{c1,2::outer {{c3::inner}}}}";
+
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 1, true)).as_ref(),
+            "[...]"
+        );
+
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 2, true)).as_ref(),
+            "[...]"
+        );
+
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 3, true)).as_ref(),
+            "outer [...]"
+        );
+
+        assert_eq!(
+            cloze_numbers_in_string(text),
+            vec![1, 2, 3].into_iter().collect::<HashSet<u16>>()
+        );
+    }
+
+    #[test]
+    fn nested_parent_child_card_same_cloze() {
+        let text = "{{c1::outer {{c1::inner}}}}";
+
+        assert_eq!(
+            strip_html(&reveal_cloze_text(text, 1, true)).as_ref(),
+            "[...]"
+        );
+
+        assert_eq!(
+            cloze_numbers_in_string(text),
+            vec![1].into_iter().collect::<HashSet<u16>>()
+        );
+    }
+
+    #[test]
+    fn multi_card_image_occlusion() {
+        let text = "{{c1,2::image-occlusion:rect:left=10:top=20:width=30:height=40}}";
+
+        let occlusions = parse_image_occlusions(text);
+        assert_eq!(occlusions.len(), 2);
+        assert!(occlusions.iter().any(|o| o.ordinal == 1));
+        assert!(occlusions.iter().any(|o| o.ordinal == 2));
+
+        let card1_html = reveal_cloze_text(text, 1, true);
+        assert!(card1_html.contains(r#"data-ordinal="1,2""#));
+
+        let card2_html = reveal_cloze_text(text, 2, true);
+        assert!(card2_html.contains(r#"data-ordinal="1,2""#));
     }
 }

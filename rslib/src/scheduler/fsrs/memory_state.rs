@@ -136,6 +136,19 @@ impl Collection {
                                             let deckconfig_id = deck.config_id().unwrap();
                                             // reschedule it
                                             let original_interval = card.interval;
+                                            let min_interval = |interval: u32| {
+                                                let previous_interval =
+                                                    last_info.previous_interval.unwrap_or(0);
+                                                if interval > previous_interval {
+                                                    // interval grew; don't allow fuzzed interval to
+                                                    // be less than previous+1
+                                                    previous_interval + 1
+                                                } else {
+                                                    // interval shrunk; don't restrict negative fuzz
+                                                    0
+                                                }
+                                                .max(1)
+                                            };
                                             let interval = fsrs.next_interval(
                                                 Some(state.stability),
                                                 desired_retention,
@@ -146,7 +159,7 @@ impl Collection {
                                                 .and_then(|r| {
                                                     r.find_interval(
                                                         interval,
-                                                        1,
+                                                        min_interval(interval as u32),
                                                         req.max_interval,
                                                         days_elapsed as u32,
                                                         deckconfig_id,
@@ -157,7 +170,7 @@ impl Collection {
                                                     with_review_fuzz(
                                                         card.get_fuzz_factor(true),
                                                         interval,
-                                                        1,
+                                                        min_interval(interval as u32),
                                                         req.max_interval,
                                                     )
                                                 });
@@ -310,6 +323,9 @@ pub(crate) struct LastRevlogInfo {
     /// reviewed the card and now, so that we can determine an accurate period
     /// when the card has subsequently been rescheduled to a different day.
     pub(crate) last_reviewed_at: Option<TimestampSecs>,
+    /// The interval before the latest review. Used to prevent fuzz from going
+    /// backwards when rescheduling the card
+    pub(crate) previous_interval: Option<u32>,
 }
 
 /// Return a map of cards to info about last review.
@@ -321,14 +337,27 @@ pub(crate) fn get_last_revlog_info(revlogs: &[RevlogEntry]) -> HashMap<CardId, L
         .into_iter()
         .for_each(|(card_id, group)| {
             let mut last_reviewed_at = None;
+            let mut previous_interval = None;
             for e in group.into_iter() {
                 if e.has_rating_and_affects_scheduling() {
                     last_reviewed_at = Some(e.id.as_secs());
+                    previous_interval = if e.last_interval >= 0 && e.button_chosen > 1 {
+                        Some(e.last_interval as u32)
+                    } else {
+                        None
+                    };
                 } else if e.is_reset() {
                     last_reviewed_at = None;
+                    previous_interval = None;
                 }
             }
-            out.insert(card_id, LastRevlogInfo { last_reviewed_at });
+            out.insert(
+                card_id,
+                LastRevlogInfo {
+                    last_reviewed_at,
+                    previous_interval,
+                },
+            );
         });
     out
 }

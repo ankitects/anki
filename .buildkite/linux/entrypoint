@@ -16,6 +16,7 @@ if [ "$CLEAR_RUST" = "1" ]; then
     rm -rf $BUILD_ROOT/rust
 fi
 
+rm -f out/build.ninja
 ./ninja pylib qt check
 
 echo "--- Ensure libs importable"

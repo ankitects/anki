@@ -311,8 +311,19 @@ impl SqlWriter<'_> {
                 }
                 s if s.contains(' ') => write!(self.sql, "false").unwrap(),
                 text => {
-                    write!(self.sql, "n.tags regexp ?").unwrap();
-                    let re = &to_custom_re(text, r"\S");
+                    let text = if mode == FieldSearchMode::Normal {
+                        write!(self.sql, "n.tags regexp ?").unwrap();
+                        Cow::from(text)
+                    } else {
+                        write!(
+                            self.sql,
+                            "coalesce(process_text(n.tags, {}), n.tags) regexp ?",
+                            ProcessTextFlags::NoCombining.bits()
+                        )
+                        .unwrap();
+                        without_combining(text)
+                    };
+                    let re = &to_custom_re(&text, r"\S");
                     self.args.push(format!("(?i).* {re}(::| ).*"));
                 }
             }

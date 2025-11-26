@@ -8,11 +8,13 @@ publish = false
 rust-version.workspace = true
 
 [dependencies]
+anki_i18n.workspace = true
 anki_io.workspace = true
 anki_process.workspace = true
 anyhow.workspace = true
 camino.workspace = true
 dirs.workspace = true
+locale_config.workspace = true
 serde_json.workspace = true
 
 [target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
