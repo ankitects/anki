@@ -91,7 +91,7 @@ export function renderWorkloadChart(
 
     const formatY: (value: number) => string = ({
         [SimulateWorkloadSubgraph.ratio]: (value: number) =>
-            tr.deckConfigFsrsSimulatorRatioTooltip({ time: value.toFixed(2) }),
+            tr.deckConfigFsrsSimulatorRatioTooltip2({ time: value.toFixed(2) }),
         [SimulateWorkloadSubgraph.time]: (value: number) =>
             tr.statisticsMinutesPerDay({ count: parseFloat((value / 60).toPrecision(2)) }),
         [SimulateWorkloadSubgraph.count]: (value: number) => tr.statisticsReviewsPerDay({ count: Math.round(value) }),

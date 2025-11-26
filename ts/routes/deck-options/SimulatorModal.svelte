@@ -571,7 +571,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                         value={SimulateWorkloadSubgraph.ratio}
                                         bind:group={simulateWorkloadSubgraph}
                                     />
-                                    {tr.deckConfigFsrsSimulatorRadioRatio()}
+                                    {tr.deckConfigFsrsSimulatorRadioRatio2()}
                                 </label>
                                 <label>
                                     <input
