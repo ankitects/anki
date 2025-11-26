@@ -302,7 +302,7 @@ impl Collection {
             .collect::<Result<HashMap<_, _>>>()?;
         let start_memorized = cards
             .iter()
-            .fold(0., |p, c| p + c.retention_on(&req.params, 0.));
+            .fold(0., |p, c| p + c.retention_on(&req.params, req.days_to_simulate as f32));
         Ok(SimulateFsrsWorkloadResponse {
             start_memorized,
             memorized: dr_workload.iter().map(|(k, v)| (*k, v.0)).collect(),
