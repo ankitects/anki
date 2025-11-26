@@ -218,15 +218,38 @@ export function renderReviews(
     }
 
     function tooltipText(d: BinType, cumulative: number): string {
+        let dateStr: string;
         const now = new Date();
-        let date = timeDay.offset(now, Math.floor(d.x0!));
-        date = timeHour.offset(date, -sourceData.rolloverHour);
-        const dateStr = localizedDate(date, {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
+        const larger = Math.max(Math.abs(d.x0!), Math.abs(d.x1!));
+        const smaller = Math.min(Math.abs(d.x0!), Math.abs(d.x1!));
+        if (larger - smaller > 1) {
+            // range (year)
+            let startDate = timeDay.offset(now, Math.floor(d.x0!));
+            startDate = timeHour.offset(startDate, -sourceData.rolloverHour);
+            let endDate = timeDay.offset(now, Math.floor(d.x1!) - 1);
+            endDate = timeHour.offset(endDate, -sourceData.rolloverHour);
+            const startDateStr = localizedDate(startDate, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+            const endDateStr = localizedDate(endDate, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+            dateStr = startDateStr + " - " + endDateStr;
+        } else {
+            // 1 month, 3 months
+            let date = timeDay.offset(now, Math.floor(d.x0!));
+            date = timeHour.offset(date, -sourceData.rolloverHour);
+            dateStr = localizedDate(date, {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            });
+        }
         const day = dayLabel(d.x0!, d.x1!);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
