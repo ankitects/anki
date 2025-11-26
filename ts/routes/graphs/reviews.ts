@@ -7,9 +7,10 @@
 
 import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
-import { localizedNumber } from "@tslib/i18n";
+import { localizedDate, localizedNumber } from "@tslib/i18n";
 import { dayLabel, timeSpan, TimespanUnit } from "@tslib/time";
 import type { Bin, ScaleSequential } from "d3";
+import { timeDay, timeHour } from "d3";
 import {
     area,
     axisBottom,
@@ -47,12 +48,17 @@ export interface GraphData {
     // indexed by day, where day is relative to today
     reviewCount: Map<number, Reviews>;
     reviewTime: Map<number, Reviews>;
+    rolloverHour: number;
 }
 
 type BinType = Bin<Map<number, Reviews[]>, number>;
 
 export function gatherData(data: GraphsResponse): GraphData {
-    return { reviewCount: numericMap(data.reviews!.count), reviewTime: numericMap(data.reviews!.time) };
+    return {
+        reviewCount: numericMap(data.reviews!.count),
+        reviewTime: numericMap(data.reviews!.time),
+        rolloverHour: data.rolloverHour,
+    };
 }
 
 enum BinIndex {
@@ -212,10 +218,20 @@ export function renderReviews(
     }
 
     function tooltipText(d: BinType, cumulative: number): string {
+        const now = new Date();
+        let date = timeDay.offset(now, Math.floor(d.x0!));
+        date = timeHour.offset(date, -sourceData.rolloverHour);
+        const dateStr = localizedDate(date, {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
         const day = dayLabel(d.x0!, d.x1!);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
-        let buf = `<table><tr><td>${day}</td><td align=end>${dayTotal}</td></tr>`;
+        let buf =
+            `<table><tr><td colspan="2">${dateStr}<td></tr><tr><td>${day}</td><td align=end>${dayTotal}</td></tr>`;
         const lines: [BinIndex | null, string][] = [
             [BinIndex.Filtered, tr.statisticsCountsFilteredCards()],
             [BinIndex.Learn, tr.statisticsCountsLearningCards()],
