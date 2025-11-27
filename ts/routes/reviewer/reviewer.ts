@@ -364,8 +364,8 @@ export class ReviewerState {
         this.iframe?.contentWindow?.postMessage(message, "*");
     }
 
-    updateHtml(htmlString: string, css?: string, bodyclass?: string) {
-        this.sendInnerRequest({ type: "html", value: htmlString, css, bodyclass });
+    updateHtml(htmlString: string, css?: string, bodyclass?: string, preload?: string) {
+        this.sendInnerRequest({ type: "html", value: htmlString, css, bodyclass, preload });
     }
 
     updateAutoAdvanceQuestion() {
@@ -430,7 +430,7 @@ export class ReviewerState {
         this.answerShown.set(false);
 
         const question = resp.nextCard?.front || "";
-        this.updateHtml(question, resp?.nextCard?.css, resp?.nextCard?.bodyClass);
+        this.updateHtml(question, resp?.nextCard?.css, resp?.nextCard?.bodyClass, resp?.preload);
         this.iframe!.style.visibility = "visible";
         this.maybeAutoPlayAudio(this._cardData.questionAvTags);
         this.beginAnsweringMs = Date.now();

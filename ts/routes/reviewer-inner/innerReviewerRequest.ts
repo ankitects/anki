@@ -5,6 +5,7 @@ interface HtmlMessage {
     value: string;
     css?: string;
     bodyclass?: string;
+    preload?: string;
 }
 
 interface StorageUpdateMessage {

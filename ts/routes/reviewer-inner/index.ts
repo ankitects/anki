@@ -10,6 +10,7 @@ import "mathjax/es5/tex-chtml-full.js";
 import { registerPackage } from "@tslib/runtime-require";
 import { _runHook, renderError } from "../../reviewer";
 import { addBrowserClasses } from "../../reviewer/browser_selector";
+import { preloadResources } from "../../reviewer/preload";
 import { imageOcclusionAPI } from "../image-occlusion/review";
 import { enableNightMode } from "../reviewer/reviewer";
 import type { ReviewerRequest } from "../reviewer/reviewerRequest";
@@ -100,6 +101,10 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
             }
 
             _runHook(onShownHook);
+
+            if (e.data.preload) {
+                preloadResources(e.data.preload);
+            }
             break;
         }
         default: {

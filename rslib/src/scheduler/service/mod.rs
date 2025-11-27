@@ -400,7 +400,7 @@ impl crate::services::SchedulerService for Collection {
         if let Some(answer) = req.answer {
             self.answer_card(&mut answer.into())?;
         }
-        let mut queue = self.get_queued_cards(1, false)?;
+        let mut queue = self.get_queued_cards(2, false)?;
         let next_card = queue.cards.first();
         if let Some(next_card) = next_card {
             let cid = next_card.card.id;
@@ -483,6 +483,17 @@ impl crate::services::SchedulerService for Collection {
                 stop_on_answer: deck_config.stop_timer_on_answer,
             });
 
+            let preload = queue
+                .cards
+                .get(1)
+                .map(|after_card| -> Result<Vec<String>> {
+                    let after_note = self.get_note(after_card.card.note_id.into())?;
+                    Ok(after_note.fields)
+                })
+                .transpose()?
+                .unwrap_or(vec![])
+                .join("");
+
             Ok(NextCardDataResponse {
                 next_card: Some(NextCardData {
                     queue: Some(queue.into()),
@@ -515,6 +526,7 @@ impl crate::services::SchedulerService for Collection {
                     question_av_tags: vec![],
                     answer_av_tags: vec![],
                 }),
+                preload,
             })
         } else {
             Ok(NextCardDataResponse::default())

@@ -344,6 +344,8 @@ message NextCardDataResponse {
   }
 
   optional NextCardData next_card = 1;
+  // For media pre-loading. The fields of the note after next_card.
+  string preload = 2;
 }
 
 message CustomStudyRequest {
