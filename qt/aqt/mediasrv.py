@@ -747,6 +747,7 @@ def next_card_data() -> bytes:
 def play_avtags():
     req = PlayAVTagsRequest.FromString(request.data)
     av_player.play_tags(av_tags_to_native(req.tags))
+    return b""
 
 
 def reviewer_action():
@@ -774,6 +775,7 @@ def reviewer_action():
 
     req = ReviewerActionRequest.FromString(request.data)
     aqt.mw.taskman.run_on_main(REVIEWER_ACTIONS[req.menu])
+    return b""
 
 
 def undo_redo(action: str):
