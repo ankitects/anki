@@ -420,7 +420,7 @@ message SimulateFsrsReviewResponse {
 
 message SimulateFsrsWorkloadResponse {
   map<uint32, float> cost = 1;
-  float start_memorized = 2;
+  float reviewless_end_memorized = 2;
   map<uint32, float> memorized = 3;
   map<uint32, uint32> review_count = 4;
 }

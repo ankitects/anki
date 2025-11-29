@@ -37,7 +37,7 @@ export interface Point {
 
 export type WorkloadPoint = Point & {
     learnSpan: number;
-    start_memorized: number;
+    reviewless_end_memorized: number;
 };
 
 export enum SimulateSubgraph {
@@ -69,7 +69,7 @@ export function renderWorkloadChart(
     const subgraph_data = ({
         [SimulateWorkloadSubgraph.ratio]: data.map(d => ({
             ...d,
-            y: (60 * 60 * (d.memorized - d.start_memorized)) / d.timeCost,
+            y: (60 * 60 * (d.memorized - d.reviewless_end_memorized)) / d.timeCost,
         })),
         [SimulateWorkloadSubgraph.time]: data.map(d => ({ ...d, y: d.timeCost / d.learnSpan })),
         [SimulateWorkloadSubgraph.count]: data.map(d => ({ ...d, y: d.count / d.learnSpan })),
@@ -114,7 +114,7 @@ export function renderWorkloadChart(
         .attr("stroke", "black")
         .attr("stroke-width", 1);
 
-    const startMemorized = subgraph_data[0].start_memorized;
+    const startMemorized = subgraph_data[0].reviewless_end_memorized;
 
     return _renderSimulationChart(
         svgElem,
@@ -133,8 +133,8 @@ export function renderWorkloadChart(
                 .enter()
                 .attr("x1", x(xMin))
                 .attr("x2", x(xMax))
-                .attr("y1",d => y(d))
-                .attr("y2",d => y(d))
+                .attr("y1", d => y(d))
+                .attr("y2", d => y(d))
                 .attr("stroke", "black")
                 .attr("stroke-dasharray", "5,5")
                 .attr("stroke-width", 1);
