@@ -528,7 +528,7 @@ class Collection(DeprecatedNamesMixin):
     def new_note(self, notetype: NotetypeDict) -> Note:
         return Note(self, notetype)
 
-    def add_note(self, note: Note, deck_id: DeckId) -> OpChanges:
+    def add_note(self, note: Note, deck_id: DeckId) -> OpChangesWithCount:
         hooks.note_will_be_added(self, note, deck_id)
         out = self._backend.add_note(note=note._to_backend_note(), deck_id=deck_id)
         note.id = NoteId(out.note_id)

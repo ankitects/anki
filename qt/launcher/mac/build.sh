@@ -30,6 +30,12 @@ lipo -create \
     -output "$APP_LAUNCHER/Contents/MacOS/launcher"
 cp "$OUTPUT_DIR/uv" "$APP_LAUNCHER/Contents/MacOS/"
 
+# Build install_name_tool stub
+clang -arch arm64 -o "$OUTPUT_DIR/stub_arm64" stub.c
+clang -arch x86_64 -o "$OUTPUT_DIR/stub_x86_64" stub.c
+lipo -create "$OUTPUT_DIR/stub_arm64" "$OUTPUT_DIR/stub_x86_64" -output "$APP_LAUNCHER/Contents/MacOS/install_name_tool"
+rm "$OUTPUT_DIR/stub_arm64" "$OUTPUT_DIR/stub_x86_64"
+
 # Copy support files
 ANKI_VERSION=$(cat ../../../.version | tr -d '\n')
 sed "s/ANKI_VERSION/$ANKI_VERSION/g" Info.plist > "$APP_LAUNCHER/Contents/Info.plist"
@@ -40,7 +46,7 @@ cp ../versions.py "$APP_LAUNCHER/Contents/Resources/"
 
 # Codesign/bundle
 if [ -z "$NODMG" ]; then
-    for i in "$APP_LAUNCHER/Contents/MacOS/uv" "$APP_LAUNCHER/Contents/MacOS/launcher" "$APP_LAUNCHER"; do
+    for i in "$APP_LAUNCHER/Contents/MacOS/uv" "$APP_LAUNCHER/Contents/MacOS/install_name_tool" "$APP_LAUNCHER/Contents/MacOS/launcher" "$APP_LAUNCHER"; do
         codesign --force -vvvv -o runtime -s "Developer ID Application:" \
         --entitlements entitlements.python.xml \
         "$i"

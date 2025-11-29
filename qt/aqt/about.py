@@ -226,6 +226,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Anon_0000",
             "Bilolbek Normuminov",
             "Sagiv Marzini",
+            "Zhanibek Rassululy",
         )
     )
 

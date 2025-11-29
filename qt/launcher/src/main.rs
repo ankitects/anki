@@ -10,6 +10,7 @@ use std::process::Command;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
+use anki_i18n::I18n;
 use anki_io::copy_file;
 use anki_io::create_dir_all;
 use anki_io::modified_time;
@@ -31,6 +32,7 @@ use crate::platform::respawn_launcher;
 mod platform;
 
 struct State {
+    tr: I18n<anki_i18n::Launcher>,
     current_version: Option<String>,
     prerelease_marker: std::path::PathBuf,
     uv_install_root: std::path::PathBuf,
@@ -51,6 +53,8 @@ struct State {
     previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
     venv_folder: std::path::PathBuf,
+    /// system Python + PyQt6 library mode
+    system_qt: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -88,13 +92,24 @@ fn main() {
 }
 
 fn run() -> Result<()> {
-    let uv_install_root = dirs::data_local_dir()
-        .context("Unable to determine data_dir")?
-        .join("AnkiProgramFiles");
+    let uv_install_root = if let Ok(custom_root) = std::env::var("ANKI_LAUNCHER_VENV_ROOT") {
+        std::path::PathBuf::from(custom_root)
+    } else {
+        dirs::data_local_dir()
+            .context("Unable to determine data_dir")?
+            .join("AnkiProgramFiles")
+    };
 
     let (exe_dir, resources_dir) = get_exe_and_resources_dirs()?;
 
+    let locale = locale_config::Locale::user_default().to_string();
+
     let mut state = State {
+        tr: I18n::new(&[if !locale.is_empty() {
+            locale
+        } else {
+            "en".to_owned()
+        }]),
         current_version: None,
         prerelease_marker: uv_install_root.join("prerelease"),
         uv_install_root: uv_install_root.clone(),
@@ -113,6 +128,8 @@ fn run() -> Result<()> {
         mirror_path: uv_install_root.join("mirror"),
         pyproject_modified_by_user: false, // calculated later
         previous_version: None,
+        system_qt: (cfg!(unix) && !cfg!(target_os = "macos"))
+            && resources_dir.join("system_qt").exists(),
         resources_dir,
         venv_folder: uv_install_root.join(".venv"),
     };
@@ -135,7 +152,9 @@ fn run() -> Result<()> {
     let sync_time = file_timestamp_secs(&state.sync_complete_marker);
     state.pyproject_modified_by_user = pyproject_time > sync_time;
     let pyproject_has_changed = state.pyproject_modified_by_user;
-    if !launcher_requested && !pyproject_has_changed {
+    let different_launcher = diff_launcher_was_installed(&state)?;
+
+    if !launcher_requested && !pyproject_has_changed && !different_launcher {
         // If no launcher request and venv is already up to date, launch Anki normally
         let args: Vec<String> = std::env::args().skip(1).collect();
         let cmd = build_python_command(&state, &args)?;
@@ -152,9 +171,11 @@ fn run() -> Result<()> {
     }
 
     print!("\x1B[2J\x1B[H"); // Clear screen and move cursor to top
-    println!("\x1B[1mAnki Launcher\x1B[0m\n");
+    println!("\x1B[1m{}\x1B[0m\n", state.tr.launcher_title());
 
     ensure_os_supported()?;
+
+    println!("{}\n", state.tr.launcher_press_enter_to_install());
 
     check_versions(&mut state);
 
@@ -170,15 +191,18 @@ fn run() -> Result<()> {
     }
 
     if cfg!(unix) && !cfg!(target_os = "macos") {
-        println!("\nPress enter to start Anki.");
+        println!("\n{}", state.tr.launcher_press_enter_to_start());
         let mut input = String::new();
         let _ = stdin().read_line(&mut input);
     } else {
         // on Windows/macOS, the user needs to close the terminal/console
         // currently, but ideas on how we can avoid this would be good!
         println!();
-        println!("Anki will start shortly.");
-        println!("\x1B[1mYou can close this window.\x1B[0m\n");
+        println!("{}", state.tr.launcher_anki_will_start_shortly());
+        println!(
+            "\x1B[1m{}\x1B[0m\n",
+            state.tr.launcher_you_can_close_this_window()
+        );
     }
 
     // respawn the launcher as a disconnected subprocess for normal startup
@@ -193,8 +217,8 @@ fn extract_aqt_version(state: &State) -> Option<String> {
         return None;
     }
 
-    let output = Command::new(&state.uv_path)
-        .current_dir(&state.uv_install_root)
+    let output = uv_command(state)
+        .ok()?
         .env("VIRTUAL_ENV", &state.venv_folder)
         .args(["pip", "show", "aqt"])
         .output()
@@ -250,7 +274,7 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
     // Remove sync marker before attempting sync
     let _ = remove_file(&state.sync_complete_marker);
 
-    println!("Updating Anki...\n");
+    println!("{}\n", state.tr.launcher_updating_anki());
 
     let python_version_trimmed = if state.user_python_version_path.exists() {
         let python_version = read_file(&state.user_python_version_path)?;
@@ -261,52 +285,64 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
         None
     };
 
-    let have_venv = state.venv_folder.exists();
-    if cfg!(target_os = "macos") && !have_developer_tools() && !have_venv {
-        println!("If you see a pop-up about 'install_name_tool', you can cancel it, and ignore the warning below.\n");
-    }
-
     // Prepare to sync the venv
-    let mut command = Command::new(&state.uv_path);
-    command.current_dir(&state.uv_install_root);
+    let mut command = uv_command(state)?;
 
-    // remove UV_* environment variables to avoid interference
-    for (key, _) in std::env::vars() {
-        if key.starts_with("UV_") || key == "VIRTUAL_ENV" {
-            command.env_remove(key);
+    if cfg!(target_os = "macos") {
+        // remove CONDA_PREFIX/bin from PATH to avoid conda interference
+        if let Ok(conda_prefix) = std::env::var("CONDA_PREFIX") {
+            if let Ok(current_path) = std::env::var("PATH") {
+                let conda_bin = format!("{conda_prefix}/bin");
+                let filtered_paths: Vec<&str> = current_path
+                    .split(':')
+                    .filter(|&path| path != conda_bin)
+                    .collect();
+                let new_path = filtered_paths.join(":");
+                command.env("PATH", new_path);
+            }
+        }
+        // put our fake install_name_tool at the top of the path to override
+        // potential conflicts
+        if let Ok(current_path) = std::env::var("PATH") {
+            let exe_dir = std::env::current_exe()
+                .ok()
+                .and_then(|exe| exe.parent().map(|p| p.to_path_buf()));
+            if let Some(exe_dir) = exe_dir {
+                let new_path = format!("{}:{}", exe_dir.display(), current_path);
+                command.env("PATH", new_path);
+            }
         }
     }
 
-    // remove CONDA_PREFIX/bin from PATH to avoid conda interference
-    #[cfg(target_os = "macos")]
-    if let Ok(conda_prefix) = std::env::var("CONDA_PREFIX") {
-        if let Ok(current_path) = std::env::var("PATH") {
-            let conda_bin = format!("{conda_prefix}/bin");
-            let filtered_paths: Vec<&str> = current_path
-                .split(':')
-                .filter(|&path| path != conda_bin)
-                .collect();
-            let new_path = filtered_paths.join(":");
-            command.env("PATH", new_path);
-        }
+    // Create venv with system site packages if system Qt is enabled
+    if state.system_qt {
+        let mut venv_command = uv_command(state)?;
+        venv_command.args([
+            "venv",
+            "--no-managed-python",
+            "--system-site-packages",
+            "--no-config",
+        ]);
+        venv_command.ensure_success()?;
     }
 
     command
-        .env("UV_CACHE_DIR", &state.uv_cache_dir)
         .env("UV_PYTHON_INSTALL_DIR", &state.uv_python_install_dir)
         .env(
             "UV_HTTP_TIMEOUT",
             std::env::var("UV_HTTP_TIMEOUT").unwrap_or_else(|_| "180".to_string()),
-        )
-        .args(["sync", "--upgrade", "--managed-python", "--no-config"]);
+        );
 
-    // Add python version if .python-version file exists
-    if let Some(version) = &python_version_trimmed {
-        command.args(["--python", version]);
+    command.args(["sync", "--upgrade", "--no-config"]);
+    if !state.system_qt {
+        command.arg("--managed-python");
     }
 
-    if state.no_cache_marker.exists() {
-        command.env("UV_NO_CACHE", "1");
+    // Add python version if .python-version file exists (but not for system Qt)
+    if let Some(version) = &python_version_trimmed {
+        if !state.system_qt {
+            command.args(["--python", version]);
+        }
     }
 
     match command.ensure_success() {
@@ -353,10 +389,10 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 // Toggle beta prerelease file
                 if state.prerelease_marker.exists() {
                     let _ = remove_file(&state.prerelease_marker);
-                    println!("Beta releases disabled.");
+                    println!("{}", state.tr.launcher_beta_releases_disabled());
                 } else {
                     write_file(&state.prerelease_marker, "")?;
-                    println!("Beta releases enabled.");
+                    println!("{}", state.tr.launcher_beta_releases_enabled());
                 }
                 println!();
                 continue;
@@ -365,14 +401,14 @@ fn main_menu_loop(state: &State) -> Result<()> {
                 // Toggle cache disable file
                 if state.no_cache_marker.exists() {
                     let _ = remove_file(&state.no_cache_marker);
-                    println!("Download caching enabled.");
+                    println!("{}", state.tr.launcher_download_caching_enabled());
                 } else {
                     write_file(&state.no_cache_marker, "")?;
                     // Delete the cache directory and everything in it
                     if state.uv_cache_dir.exists() {
                         let _ = anki_io::remove_dir_all(&state.uv_cache_dir);
                     }
-                    println!("Download caching disabled and cache cleared.");
+                    println!("{}", state.tr.launcher_download_caching_disabled());
                 }
                 println!();
                 continue;
@@ -415,44 +451,62 @@ fn file_timestamp_secs(path: &std::path::Path) -> i64 {
 
 fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
     loop {
-        println!("1) Latest Anki (press Enter)");
-        println!("2) Choose a version");
+        println!("1) {}", state.tr.launcher_latest_anki());
+        println!("2) {}", state.tr.launcher_choose_a_version());
 
         if let Some(current_version) = &state.current_version {
             let normalized_current = normalize_version(current_version);
 
             if state.pyproject_modified_by_user {
-                println!("3) Sync project changes");
+                println!("3) {}", state.tr.launcher_sync_project_changes());
             } else {
-                println!("3) Keep existing version ({normalized_current})");
+                println!(
+                    "3) {}",
+                    state.tr.launcher_keep_existing_version(normalized_current)
+                );
             }
         }
 
         if let Some(prev_version) = &state.previous_version {
             if state.current_version.as_ref() != Some(prev_version) {
                 let normalized_prev = normalize_version(prev_version);
-                println!("4) Revert to previous version ({normalized_prev})");
+                println!(
+                    "4) {}",
+                    state.tr.launcher_revert_to_previous(normalized_prev)
+                );
             }
         }
         println!();
 
         let betas_enabled = state.prerelease_marker.exists();
         println!(
-            "5) Allow betas: {}",
-            if betas_enabled { "on" } else { "off" }
+            "5) {}",
+            state.tr.launcher_allow_betas(if betas_enabled {
+                state.tr.launcher_on()
+            } else {
+                state.tr.launcher_off()
+            })
         );
         let cache_enabled = !state.no_cache_marker.exists();
         println!(
-            "6) Cache downloads: {}",
-            if cache_enabled { "on" } else { "off" }
+            "6) {}",
+            state.tr.launcher_cache_downloads(if cache_enabled {
+                state.tr.launcher_on()
+            } else {
+                state.tr.launcher_off()
+            })
         );
         let mirror_enabled = is_mirror_enabled(state);
         println!(
-            "7) Download mirror: {}",
-            if mirror_enabled { "on" } else { "off" }
+            "7) {}",
+            state.tr.launcher_download_mirror(if mirror_enabled {
+                state.tr.launcher_on()
+            } else {
+                state.tr.launcher_off()
+            })
         );
         println!();
-        println!("8) Uninstall");
+        println!("8) {}", state.tr.launcher_uninstall());
         print!("> ");
         let _ = stdout().flush();
 
@@ -474,7 +528,7 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
                 if state.current_version.is_some() {
                     MainMenuChoice::KeepExisting
                 } else {
-                    println!("Invalid input. Please try again.\n");
+                    println!("{}\n", state.tr.launcher_invalid_input());
                     continue;
                 }
             }
@@ -486,7 +540,7 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
                         }
                     }
                 }
-                println!("Invalid input. Please try again.\n");
+                println!("{}\n", state.tr.launcher_invalid_input());
                 continue;
             }
             "5" => MainMenuChoice::ToggleBetas,
@@ -494,7 +548,7 @@ fn get_main_menu_choice(state: &State) -> Result<MainMenuChoice> {
             "7" => MainMenuChoice::DownloadMirror,
             "8" => MainMenuChoice::Uninstall,
             _ => {
-                println!("Invalid input. Please try again.");
+                println!("{}\n", state.tr.launcher_invalid_input());
                 continue;
             }
         });
@@ -509,9 +563,9 @@ fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
         .map(|v| v.as_str())
         .collect::<Vec<_>>()
         .join(", ");
-    println!("Latest releases: {releases_str}");
+    println!("{}", state.tr.launcher_latest_releases(releases_str));
 
-    println!("Enter the version you want to install:");
+    println!("{}", state.tr.launcher_enter_the_version_you_want());
     print!("> ");
     let _ = stdout().flush();
 
@@ -535,28 +589,37 @@ fn get_version_kind(state: &State) -> Result<Option<VersionKind>> {
             Ok(Some(version_kind))
         }
         (None, true) => {
-            println!("Versions before 2.1.50 can't be installed.");
+            println!("{}", state.tr.launcher_versions_before_cant_be_installed());
             Ok(None)
         }
         _ => {
-            println!("Invalid version.\n");
+            println!("{}\n", state.tr.launcher_invalid_version());
             Ok(None)
         }
     }
 }
 
 fn with_only_latest_patch(versions: &[String]) -> Vec<String> {
-    // Only show the latest patch release for a given (major, minor)
+    // Assumes versions are sorted in descending order (newest first)
+    // Only show the latest patch release for a given (major, minor),
+    // and exclude pre-releases if a newer major_minor exists
     let mut seen_major_minor = std::collections::HashSet::new();
     versions
         .iter()
         .filter(|v| {
-            let (major, minor, _, _) = parse_version_for_filtering(v);
+            let (major, minor, _, is_prerelease) = parse_version_for_filtering(v);
             if major == 2 {
                 return true;
             }
             let major_minor = (major, minor);
             if seen_major_minor.contains(&major_minor) {
+                false
+            } else if is_prerelease
+                && seen_major_minor
+                    .iter()
+                    .any(|&(seen_major, seen_minor)| (seen_major, seen_minor) > (major, minor))
+            {
+                // Exclude pre-release if a newer major_minor exists
                 false
             } else {
                 seen_major_minor.insert(major_minor);
@@ -658,9 +721,8 @@ fn filter_and_normalize_versions(
 fn fetch_versions(state: &State) -> Result<Vec<String>> {
     let versions_script = state.resources_dir.join("versions.py");
 
-    let mut cmd = Command::new(&state.uv_path);
-    cmd.current_dir(&state.uv_install_root)
-        .args(["run", "--no-project", "--no-config", "--managed-python"])
+    let mut cmd = uv_command(state)?;
+    cmd.args(["run", "--no-project", "--no-config", "--managed-python"])
         .args(["--with", "pip-system-certs,requests[socks]"]);
 
     let python_version = read_file(&state.dist_python_version_path)?;
@@ -676,7 +738,7 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
     let output = match cmd.utf8_output() {
         Ok(output) => output,
         Err(e) => {
-            print!("Unable to check for Anki versions. Please check your internet connection.\n\n");
+            print!("{}\n\n", state.tr.launcher_unable_to_check_for_versions());
             return Err(e.into());
         }
     };
@@ -685,7 +747,7 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
 }
 
 fn get_releases(state: &State) -> Result<Releases> {
-    println!("Checking for updates...");
+    println!("{}", state.tr.launcher_checking_for_updates());
     let include_prereleases = state.prerelease_marker.exists();
     let all_versions = fetch_versions(state)?;
     let all_versions = filter_and_normalize_versions(all_versions, include_prereleases);
@@ -726,9 +788,20 @@ fn apply_version_kind(version_kind: &VersionKind, state: &State) -> Result<()> {
         ),
     };
 
-    // Add mirror configuration if enabled
-    let final_content = if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
-        format!("{updated_content}\n\n[[tool.uv.index]]\nname = \"mirror\"\nurl = \"{pypi_mirror}\"\ndefault = true\n\n[tool.uv]\npython-install-mirror = \"{python_mirror}\"\n")
+    let final_content = if state.system_qt {
+        format!(
+            concat!(
+                "{}\n\n[tool.uv]\n",
+                "override-dependencies = [\n",
+                "  \"pyqt6; sys_platform=='never'\",\n",
+                "  \"pyqt6-qt6; sys_platform=='never'\",\n",
+                "  \"pyqt6-webengine; sys_platform=='never'\",\n",
+                "  \"pyqt6-webengine-qt6; sys_platform=='never'\",\n",
+                "  \"pyqt6_sip; sys_platform=='never'\"\n",
+                "]\n"
+            ),
+            updated_content
+        )
     } else {
         updated_content
     };
@@ -876,7 +949,7 @@ fn get_anki_addons21_path() -> Result<std::path::PathBuf> {
 }
 
 fn handle_uninstall(state: &State) -> Result<bool> {
-    println!("Uninstall Anki's program files? (y/n)");
+    println!("{}", state.tr.launcher_uninstall_confirm());
     print!("> ");
     let _ = stdout().flush();
 
@@ -885,7 +958,7 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     let input = input.trim().to_lowercase();
 
     if input != "y" {
-        println!("Uninstall cancelled.");
+        println!("{}", state.tr.launcher_uninstall_cancelled());
         println!();
         return Ok(false);
     }
@@ -893,11 +966,11 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     // Remove program files
     if state.uv_install_root.exists() {
         anki_io::remove_dir_all(&state.uv_install_root)?;
-        println!("Program files removed.");
+        println!("{}", state.tr.launcher_program_files_removed());
     }
 
     println!();
-    println!("Remove all profiles/cards? (y/n)");
+    println!("{}", state.tr.launcher_remove_all_profiles_confirm());
     print!("> ");
     let _ = stdout().flush();
 
@@ -907,7 +980,7 @@ fn handle_uninstall(state: &State) -> Result<bool> {
 
     if input == "y" && state.anki_base_folder.exists() {
         anki_io::remove_dir_all(&state.anki_base_folder)?;
-        println!("User data removed.");
+        println!("{}", state.tr.launcher_user_data_removed());
     }
 
     println!();
@@ -925,12 +998,37 @@ fn handle_uninstall(state: &State) -> Result<bool> {
     Ok(true)
 }
 
-fn have_developer_tools() -> bool {
-    Command::new("xcode-select")
-        .args(["-p"])
-        .output()
-        .map(|output| output.status.success())
-        .unwrap_or(false)
+fn uv_command(state: &State) -> Result<Command> {
+    let mut command = Command::new(&state.uv_path);
+    command.current_dir(&state.uv_install_root);
+
+    // remove UV_* environment variables to avoid interference
+    for (key, _) in std::env::vars() {
+        if key.starts_with("UV_") {
+            command.env_remove(key);
+        }
+    }
+    command
+        .env_remove("VIRTUAL_ENV")
+        .env_remove("SSLKEYLOGFILE");
+
+    // Add mirror environment variable if enabled
+    if let Some((python_mirror, pypi_mirror)) = get_mirror_urls(state)? {
+        command
+            .env("UV_PYTHON_INSTALL_MIRROR", &python_mirror)
+            .env("UV_DEFAULT_INDEX", &pypi_mirror);
+    }
+
+    if state.no_cache_marker.exists() {
+        command.env("UV_NO_CACHE", "1");
+    } else {
+        command.env("UV_CACHE_DIR", &state.uv_cache_dir);
+    }
+
+    // have uv use the system certstore instead of webpki-roots'
+    command.env("UV_NATIVE_TLS", "1");
+
+    Ok(command)
 }
 
 fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
@@ -955,6 +1053,7 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     // Set UV and Python paths for the Python code
     cmd.env("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
     cmd.env("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
+    cmd.env_remove("SSLKEYLOGFILE");
 
     Ok(cmd)
 }
@@ -984,9 +1083,9 @@ fn get_mirror_urls(state: &State) -> Result<Option<(String, String)>> {
 
 fn show_mirror_submenu(state: &State) -> Result<()> {
     loop {
-        println!("Download mirror options:");
-        println!("1) No mirror");
-        println!("2) China");
+        println!("{}", state.tr.launcher_download_mirror_options());
+        println!("1) {}", state.tr.launcher_mirror_no_mirror());
+        println!("2) {}", state.tr.launcher_mirror_china());
         print!("> ");
         let _ = stdout().flush();
 
@@ -1000,14 +1099,14 @@ fn show_mirror_submenu(state: &State) -> Result<()> {
                 if state.mirror_path.exists() {
                     let _ = remove_file(&state.mirror_path);
                 }
-                println!("Mirror disabled.");
+                println!("{}", state.tr.launcher_mirror_disabled());
                 break;
             }
             "2" => {
                 // Write China mirror URLs
                 let china_mirrors = "https://registry.npmmirror.com/-/binary/python-build-standalone/\nhttps://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/";
                 write_file(&state.mirror_path, china_mirrors)?;
-                println!("China mirror enabled.");
+                println!("{}", state.tr.launcher_mirror_china_enabled());
                 break;
             }
             "" => {
@@ -1015,12 +1114,26 @@ fn show_mirror_submenu(state: &State) -> Result<()> {
                 break;
             }
             _ => {
-                println!("Invalid input. Please try again.");
+                println!("{}", state.tr.launcher_invalid_input());
                 continue;
             }
         }
     }
     Ok(())
+}
+
+fn diff_launcher_was_installed(state: &State) -> Result<bool> {
+    let launcher_version = option_env!("BUILDHASH").unwrap_or("dev").trim();
+    let launcher_version_path = state.uv_install_root.join("launcher-version");
+    if let Ok(content) = read_file(&launcher_version_path) {
+        if let Ok(version_str) = String::from_utf8(content) {
+            if version_str.trim() == launcher_version {
+                return Ok(false);
+            }
+        }
+    }
+    write_file(launcher_version_path, launcher_version)?;
+    Ok(true)
 }
 
 #[cfg(test)]

@@ -38,6 +38,26 @@ fn is_windows_10() -> bool {
     }
 }
 
+/// Ensures Windows 10 version 1809 or later
+pub fn ensure_windows_version_supported() -> Result<()> {
+    unsafe {
+        let mut info = OSVERSIONINFOW {
+            dwOSVersionInfoSize: std::mem::size_of::<OSVERSIONINFOW>() as u32,
+            ..Default::default()
+        };
+
+        if RtlGetVersion(&mut info).is_err() {
+            anyhow::bail!("Failed to get Windows version information");
+        }
+
+        if info.dwBuildNumber >= 17763 {
+            return Ok(());
+        }
+
+        anyhow::bail!("Windows 10 version 1809 or later is required.")
+    }
+}
+
 pub fn ensure_terminal_shown() -> Result<()> {
     unsafe {
         if !GetConsoleWindow().is_invalid() {

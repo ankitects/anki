@@ -175,8 +175,8 @@ class MnemoFact:
     def fact_view(self) -> type[MnemoFactView]:
         try:
             fact_view = self.cards[0].fact_view_id
-        except IndexError as err:
-            raise Exception(f"Fact {self.id} has no cards") from err
+        except IndexError:
+            return FrontOnly
 
         if fact_view.startswith("1.") or fact_view.startswith("1::"):
             return FrontOnly

@@ -511,7 +511,7 @@ impl NoteContext<'_> {
 }
 
 impl Note {
-    fn first_field_stripped(&self) -> Cow<str> {
+    fn first_field_stripped(&self) -> Cow<'_, str> {
         strip_html_preserving_media_filenames(&self.fields()[0])
     }
 }
@@ -623,7 +623,7 @@ impl ForeignNote {
                 .all(|(opt, field)| opt.as_ref().map(|s| s == field).unwrap_or(true))
     }
 
-    fn first_field_stripped(&self) -> Option<Cow<str>> {
+    fn first_field_stripped(&self) -> Option<Cow<'_, str>> {
         self.fields
             .first()
             .and_then(|s| s.as_ref())

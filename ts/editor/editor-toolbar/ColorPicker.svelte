@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Shortcut from "$lib/components/Shortcut.svelte";
+    import { saveCustomColours } from "@generated/backend";
 
     export let keyCombination: string | null = null;
     export let value: string;
@@ -11,7 +12,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let inputRef: HTMLInputElement;
 </script>
 
-<input bind:this={inputRef} tabindex="-1" type="color" bind:value on:input on:change />
+<input
+    bind:this={inputRef}
+    tabindex="-1"
+    type="color"
+    bind:value
+    on:input
+    on:change
+    on:click={() => saveCustomColours({})}
+/>
 
 {#if keyCombination}
     <Shortcut {keyCombination} on:action={() => inputRef.click()} />

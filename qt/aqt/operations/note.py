@@ -18,7 +18,7 @@ def add_note(
     parent: QWidget,
     note: Note,
     target_deck_id: DeckId,
-) -> CollectionOp[OpChanges]:
+) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.add_note(note, target_deck_id))
 
 

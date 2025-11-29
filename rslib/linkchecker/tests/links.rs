@@ -42,14 +42,14 @@ enum CheckableUrl {
 }
 
 impl CheckableUrl {
-    fn url(&self) -> Cow<str> {
+    fn url(&self) -> Cow<'_, str> {
         match *self {
             Self::HelpPage(page) => help_page_to_link(page).into(),
             Self::String(s) => s.into(),
         }
     }
 
-    fn anchor(&self) -> Cow<str> {
+    fn anchor(&self) -> Cow<'_, str> {
         match *self {
             Self::HelpPage(page) => help_page_link_suffix(page).into(),
             Self::String(s) => s.split('#').next_back().unwrap_or_default().into(),

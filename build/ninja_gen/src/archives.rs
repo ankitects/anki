@@ -67,7 +67,7 @@ impl Platform {
 }
 
 /// Append .exe to path if on Windows.
-pub fn with_exe(path: &str) -> Cow<str> {
+pub fn with_exe(path: &str) -> Cow<'_, str> {
     if cfg!(windows) {
         format!("{path}.exe").into()
     } else {

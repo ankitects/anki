@@ -95,8 +95,8 @@
         "repository": "https://github.com/TooTallNate/node-agent-base",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "path": "node_modules/https-proxy-agent/node_modules/agent-base",
-        "licenseFile": "node_modules/https-proxy-agent/node_modules/agent-base/README.md"
+        "path": "node_modules/http-proxy-agent/node_modules/agent-base",
+        "licenseFile": "node_modules/http-proxy-agent/node_modules/agent-base/README.md"
     },
     "asynckit@0.4.0": {
         "licenses": "MIT",
@@ -126,6 +126,14 @@
         "publisher": "kumavis",
         "path": "node_modules/browser-process-hrtime",
         "licenseFile": "node_modules/browser-process-hrtime/LICENSE"
+    },
+    "call-bind-apply-helpers@1.0.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ljharb/call-bind-apply-helpers",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/call-bind-apply-helpers",
+        "licenseFile": "node_modules/call-bind-apply-helpers/LICENSE"
     },
     "codemirror@5.65.18": {
         "licenses": "MIT",
@@ -436,9 +444,57 @@
         "path": "node_modules/domexception",
         "licenseFile": "node_modules/domexception/LICENSE.txt"
     },
+    "dunder-proto@1.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/es-shims/dunder-proto",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/dunder-proto",
+        "licenseFile": "node_modules/dunder-proto/LICENSE"
+    },
     "empty-npm-package@1.0.0": {
         "licenses": "ISC",
         "path": "node_modules/canvas"
+    },
+    "es-define-property@1.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ljharb/es-define-property",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/es-set-tostringtag/node_modules/es-define-property",
+        "licenseFile": "node_modules/es-set-tostringtag/node_modules/es-define-property/LICENSE"
+    },
+    "es-errors@1.3.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ljharb/es-errors",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/es-errors",
+        "licenseFile": "node_modules/es-errors/LICENSE"
+    },
+    "es-object-atoms@1.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ljharb/es-object-atoms",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/es-object-atoms",
+        "licenseFile": "node_modules/es-object-atoms/LICENSE"
+    },
+    "es-object-atoms@1.1.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ljharb/es-object-atoms",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/es-set-tostringtag/node_modules/es-object-atoms",
+        "licenseFile": "node_modules/es-set-tostringtag/node_modules/es-object-atoms/LICENSE"
+    },
+    "es-set-tostringtag@2.1.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/es-shims/es-set-tostringtag",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/es-set-tostringtag",
+        "licenseFile": "node_modules/es-set-tostringtag/LICENSE"
     },
     "escodegen@2.1.0": {
         "licenses": "BSD-2-Clause",
@@ -474,13 +530,45 @@
         "path": "node_modules/fabric",
         "licenseFile": "node_modules/fabric/LICENSE"
     },
-    "form-data@4.0.1": {
+    "form-data@4.0.4": {
         "licenses": "MIT",
         "repository": "https://github.com/form-data/form-data",
         "publisher": "Felix Geisendörfer",
         "email": "felix@debuggable.com",
         "path": "node_modules/form-data",
         "licenseFile": "node_modules/form-data/License"
+    },
+    "function-bind@1.1.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/Raynos/function-bind",
+        "publisher": "Raynos",
+        "email": "raynos2@gmail.com",
+        "path": "node_modules/function-bind",
+        "licenseFile": "node_modules/function-bind/LICENSE"
+    },
+    "get-intrinsic@1.3.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ljharb/get-intrinsic",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/es-set-tostringtag/node_modules/get-intrinsic",
+        "licenseFile": "node_modules/es-set-tostringtag/node_modules/get-intrinsic/LICENSE"
+    },
+    "get-proto@1.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ljharb/get-proto",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/get-proto",
+        "licenseFile": "node_modules/get-proto/LICENSE"
+    },
+    "gopd@1.2.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ljharb/gopd",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/dunder-proto/node_modules/gopd",
+        "licenseFile": "node_modules/dunder-proto/node_modules/gopd/LICENSE"
     },
     "hammerjs@2.0.8": {
         "licenses": "MIT",
@@ -489,6 +577,38 @@
         "email": "j.tangelder@gmail.com",
         "path": "node_modules/hammerjs",
         "licenseFile": "node_modules/hammerjs/LICENSE.md"
+    },
+    "has-symbols@1.0.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/inspect-js/has-symbols",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/has-symbols",
+        "licenseFile": "node_modules/has-symbols/LICENSE"
+    },
+    "has-symbols@1.1.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/inspect-js/has-symbols",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/es-set-tostringtag/node_modules/has-symbols",
+        "licenseFile": "node_modules/es-set-tostringtag/node_modules/has-symbols/LICENSE"
+    },
+    "has-tostringtag@1.0.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/inspect-js/has-tostringtag",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/has-tostringtag",
+        "licenseFile": "node_modules/has-tostringtag/LICENSE"
+    },
+    "hasown@2.0.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/inspect-js/hasOwn",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/hasown",
+        "licenseFile": "node_modules/hasown/LICENSE"
     },
     "html-encoding-sniffer@3.0.0": {
         "licenses": "MIT",
@@ -586,6 +706,14 @@
         "publisher": "Christopher Jeffrey",
         "path": "node_modules/marked",
         "licenseFile": "node_modules/marked/LICENSE.md"
+    },
+    "math-intrinsics@1.1.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/es-shims/math-intrinsics",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/math-intrinsics",
+        "licenseFile": "node_modules/math-intrinsics/LICENSE"
     },
     "mathjax@3.2.2": {
         "licenses": "Apache-2.0",

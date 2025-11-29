@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ColorPicker from "./ColorPicker.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import WithColorHelper from "./WithColorHelper.svelte";
+    import { saveCustomColours } from "@generated/backend";
 
     export let color: string;
 
@@ -158,6 +159,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 setTimeout(() => {
                     setTextColor();
                 }, 200);
+                saveCustomColours({});
             }}
         />
     </IconButton>

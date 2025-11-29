@@ -121,7 +121,7 @@ pub enum Token<'a> {
     CloseConditional(&'a str),
 }
 
-fn comment_token(s: &str) -> nom::IResult<&str, Token> {
+fn comment_token(s: &str) -> nom::IResult<&str, Token<'_>> {
     map(
         delimited(
             tag(COMMENT_START),
@@ -151,7 +151,7 @@ fn tokens(mut template: &str) -> impl Iterator<Item = TemplateResult<Token<'_>>>
 }
 
 /// classify handle based on leading character
-fn classify_handle(s: &str) -> Token {
+fn classify_handle(s: &str) -> Token<'_> {
     let start = s.trim_start_matches('{').trim();
     if start.len() < 2 {
         return Token::Replacement(start);
