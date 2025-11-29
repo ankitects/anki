@@ -238,7 +238,7 @@ function _renderSimulationChart<
         x: X,
         y: ScaleLinear<number, number, never>,
     ) => void,
-    y_min: number = Infinity,
+    y_min = Infinity,
 ): TableDatum[] {
     const svg = select(svgElem);
     svg.selectAll(".lines").remove();
