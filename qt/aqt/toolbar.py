@@ -430,6 +430,7 @@ class Toolbar:
     ######################################################################
 
     def _linkHandler(self, link: str) -> bool:
+        self.mw.web.setFocus()
         if link in self.link_handlers:
             self.link_handlers[link]()
         return False
@@ -461,7 +462,7 @@ class Toolbar:
     ######################################################################
 
     _body = """
-<div class="header">
+<div class="header" onclick="pycmd('focus')">
   <div class="left-tray">{left_tray_content}</div>
   <div class="toolbar">{toolbar_content}</div>
   <div class="right-tray">{right_tray_content}</div>
