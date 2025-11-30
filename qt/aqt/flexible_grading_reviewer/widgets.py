@@ -96,8 +96,9 @@ class FlexibleHorizontalBar(QWidget):
     def add_stretch(self, stretch_value: int = 1) -> None:
         return self._layout.addStretch(stretch_value)
 
-    def add_widget(self, widget: QWidget) -> None:
+    def add_widget(self, widget: QWidget) -> QWidget:
         self._layout.addWidget(widget)
+        return widget
 
     def add_button(self, button: QPushButton, *, on_clicked: Callable) -> QPushButton:
         self.add_widget(button)
@@ -142,7 +143,7 @@ class FlexibleBottomBar(FlexibleHorizontalBar):
 
 
 class FlexibleTimerLabel(QLabel):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self._time = 0  # current time (seconds)
         self._max_time = 0  # maximum time (seconds); 0 means hidden
@@ -152,7 +153,7 @@ class FlexibleTimerLabel(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setHidden(True)
 
-    def start(self, max_time: int):
+    def start(self, max_time: int) -> None:
         self._time = 0
         self._max_time = max_time
         self._update_display()
@@ -160,12 +161,12 @@ class FlexibleTimerLabel(QLabel):
             self._qtimer.stop()
         self._qtimer.start()
 
-    def stop(self):
+    def stop(self) -> None:
         if self._qtimer.isActive():
             self._qtimer.stop()
 
     # Internal tick handler
-    def _on_tick(self):
+    def _on_tick(self) -> None:
         self._time += 1
         # clamp to max_time if set (mirrors TS: time = Math.min(maxTime, time))
         if self._time > self._max_time > 0:
@@ -173,7 +174,7 @@ class FlexibleTimerLabel(QLabel):
         self._update_display()
         # if reached max, keep ticking but display in red (TS continues interval)
 
-    def _update_display(self):
+    def _update_display(self) -> None:
         if self._max_time <= 0:
             super().setText("")  # hide when max_time == 0
             self.setHidden(True)
