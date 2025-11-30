@@ -146,16 +146,17 @@ class FlexibleTimerLabel(QLabel):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self._time = 0  # current time (seconds)
-        self._max_time = 0  # maximum time (seconds); 0 means hidden
+        self._max_time = 0  # maximum time (seconds); 0 means unset
         self._qtimer = QTimer(self)
         self._qtimer.setInterval(1000)
         qconnect(self._qtimer.timeout, self._on_tick)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setHidden(True)
 
     def start(self, max_time: int) -> None:
-        self._time = 0
+        if max_time <= 0:
+            raise ValueError("max time should be greater than 0")
         self._max_time = max_time
+        self._time = 0
         self._update_display()
         if self._qtimer.isActive():
             self._qtimer.stop()
@@ -165,30 +166,21 @@ class FlexibleTimerLabel(QLabel):
         if self._qtimer.isActive():
             self._qtimer.stop()
 
-    # Internal tick handler
     def _on_tick(self) -> None:
-        self._time += 1
-        # clamp to max_time if set (mirrors TS: time = Math.min(maxTime, time))
-        if self._time > self._max_time > 0:
-            self._time = self._max_time
+        self._time = min(self._time + 1, self._max_time)
         self._update_display()
-        # if reached max, keep ticking but display in red (TS continues interval)
 
     def _update_display(self) -> None:
         if self._max_time <= 0:
-            super().setText("")  # hide when max_time == 0
-            self.setHidden(True)
-            return
+            raise ValueError("max time should be greater than 0")
 
-        self.setHidden(False)
-        t = min(self._max_time, self._time) if self._max_time > 0 else self._time
-        m = t // 60
-        s = t % 60
+        t = min(self._max_time, self._time)
+        m, s = divmod(t, 60)
         s_str = f"{s:02d}"
         time_string = f"{m}:{s_str}"
 
         if t >= self._max_time > 0:
-            # display red when time == maxTime (using simple HTML)
-            super().setText(f"<font color='red'>{time_string}</font>")
+            self.setText(f"<font color='red'>{time_string}</font>")
+            self.stop()
         else:
-            super().setText(time_string)
+            self.setText(time_string)
