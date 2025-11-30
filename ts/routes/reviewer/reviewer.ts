@@ -70,6 +70,7 @@ export class ReviewerState {
     undoStatus: UndoStatus | undefined = undefined;
     autoAdvanceQuestionTimeout: ReturnType<typeof setTimeout> | undefined;
     autoAdvanceAnswerTimeout: ReturnType<typeof setTimeout> | undefined;
+    _answerShown = false;
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -414,6 +415,7 @@ export class ReviewerState {
             this.setUndo(tr.actionsAnswerCard());
         }
 
+        this._answerShown = false;
         const resp = await nextCardData({
             answer: answer || undefined,
         });
@@ -461,14 +463,11 @@ export class ReviewerState {
 
     public async showAnswer() {
         this.answerShown.set(true);
+        this._answerShown = true;
         this.maybeAutoPlayAudio(this._cardData!.answerAvTags);
         this.answerMs = Date.now();
         this.updateHtml(await this.showTypedAnswer(this._cardData?.back || ""));
         this.updateAutoAdvanceAnswer();
-    }
-
-    get _answerShown() {
-        return get(this.answerShown);
     }
 
     public easeButtonPressed(rating: number) {
