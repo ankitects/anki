@@ -10,7 +10,7 @@ from collections.abc import Generator, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import partial
-from typing import Any, Literal, Match, cast
+from typing import Any, Literal, Match, Optional, cast
 
 import aqt
 import aqt.browser
@@ -38,7 +38,7 @@ from aqt.flexible_grading_reviewer.utils import (
     ease_to_answer_key_short,
     studied_today_count,
 )
-from aqt.flexible_grading_reviewer.widgets import FlexiblePushButton
+from aqt.flexible_grading_reviewer.widgets import FlexiblePushButton, FlexibleTimerLabel
 from aqt.operations.card import set_card_flag
 from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (
@@ -1257,8 +1257,11 @@ class FlexibleReviewer(Reviewer):
         QueuedCards.REVIEW: "ForestGreen",
     }
 
+    timer: Optional[FlexibleTimerLabel] = None
+
     def __init__(self, mw: AnkiQt) -> None:
         super().__init__(mw)
+        self.timer = None
 
     def cleanup(self) -> None:
         super().cleanup()
@@ -1282,6 +1285,8 @@ class FlexibleReviewer(Reviewer):
             FlexiblePushButton(text=tr.studying_more()),
             on_clicked=partial(self.showContextMenu),
         )
+        # Right side: add timer
+        self.timer = self.mw.bottomWidget.right_bucket.add_widget(FlexibleTimerLabel())
 
     def browse_queue(self, queue_type: Union[str, Any]) -> None:
         if queue_type == QueuedCards.LEARNING:
@@ -1354,10 +1359,23 @@ class FlexibleReviewer(Reviewer):
     def _clear_bottom_web(self) -> None:
         self.bottom.web.setHtml("<style>body {margin:0;} html {height:0;}</style>")
 
+    def _max_time(self) -> int:
+        if self.card.should_show_timer():
+            return self.card.time_limit() // 1000
+        else:
+            return 0
+
     def _showAnswerButton(self) -> None:
         self._add_side_buttons()
         self._add_middle_buttons_for_question_side()
         self._clear_bottom_web()
+
+        assert self.timer, "timer should exist."
+        self.timer.start(max_time=self._max_time())
+
+    def _should_stop_timer_on_answer(self) -> bool:
+        conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
+        return bool(conf["stopTimerOnAnswer"])
 
     def _showEaseButtons(self) -> None:
         if not self._states_mutated:
@@ -1366,6 +1384,10 @@ class FlexibleReviewer(Reviewer):
         self._add_side_buttons()
         self._add_middle_buttons_for_answer_side()
         self._clear_bottom_web()
+
+        assert self.timer, "timer should exist."
+        if self._should_stop_timer_on_answer():
+            self.timer.stop()
 
     def onEnterKey(self) -> None:
         if self.state == "question":
