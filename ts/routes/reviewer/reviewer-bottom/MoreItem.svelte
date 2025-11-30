@@ -39,6 +39,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         text-align: right;
         padding-right: 0.5em;
         opacity: 50%;
-        transform: translateY(-1px);
+        :global(.isLin) & {
+            transform: translateY(-1px);
+        }
     }
 </style>

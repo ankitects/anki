@@ -174,8 +174,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             showFloating = !showFloating;
         }}
         title={tr.actionsShortcutKey({ val: "M" })}
+        class="more"
     >
-        {tr.studyingMore()}&nbsp;{"▾"}&nbsp;
+        {tr.studyingMore()}
     </button>
 
     <div slot="items" class="dropdown">
@@ -248,6 +249,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-direction: column;
         flex-wrap: wrap;
         max-height: 90vh;
+    }
+
+    .more::after {
+        content: " ▾ ";
+
+        :global(.isWin) & {
+            content: " ▼ ";
+        }
     }
 
     hr {
