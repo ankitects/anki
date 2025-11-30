@@ -1285,8 +1285,6 @@ class FlexibleReviewer(Reviewer):
             FlexiblePushButton(text=tr.studying_more()),
             on_clicked=partial(self.showContextMenu),
         )
-        # Right side: add timer
-        self.timer = self.mw.bottomWidget.right_bucket.add_widget(FlexibleTimerLabel())
 
     def browse_queue(self, queue_type: Union[str, Any]) -> None:
         if queue_type == QueuedCards.LEARNING:
@@ -1376,8 +1374,12 @@ class FlexibleReviewer(Reviewer):
         self._create_middle_buttons_for_question_side()
         self._clear_bottom_web()
 
-        assert self.timer, "timer should exist."
-        self.timer.start(max_time=self._max_time())
+        # Right side: add timer
+        if (max_time := self._max_time()) > 0:
+            self.timer = self.mw.bottomWidget.right_bucket.add_widget(
+                widget=FlexibleTimerLabel()
+            )
+            self.timer.start(max_time=max_time)
 
     def _should_stop_timer_on_answer(self) -> bool:
         conf = self.mw.col.decks.config_dict_for_deck_id(self.card.current_deck_id())
@@ -1393,8 +1395,7 @@ class FlexibleReviewer(Reviewer):
         self._create_middle_buttons_for_answer_side()
         self._clear_bottom_web()
 
-        assert self.timer, "timer should exist."
-        if self._should_stop_timer_on_answer():
+        if self.timer and self._should_stop_timer_on_answer():
             self.timer.stop()
 
     def onEnterKey(self) -> None:
