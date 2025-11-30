@@ -1272,7 +1272,7 @@ class FlexibleReviewer(Reviewer):
     def _bottomHTML(self) -> str:
         return "<style></style>"
 
-    def _add_side_buttons(self) -> None:
+    def _create_side_buttons(self) -> None:
         # Left side
         self.mw.bottomWidget.left_bucket.reset(is_visible=True)
         self.mw.bottomWidget.left_bucket.add_button(
@@ -1318,7 +1318,7 @@ class FlexibleReviewer(Reviewer):
         else:
             return html_to_text_line(label)[:1].upper()
 
-    def _add_middle_buttons_for_answer_side(self) -> None:
+    def _create_middle_buttons_for_answer_side(self) -> None:
         self.mw.bottomWidget.middle_bucket.reset(is_visible=True)
         for ease, label in self._answerButtonList():
             self.mw.bottomWidget.middle_bucket.add_button(
@@ -1329,7 +1329,10 @@ class FlexibleReviewer(Reviewer):
                 on_clicked=partial(self._answerCard, cast(Literal[1, 2, 3, 4], ease)),
             )
 
-    def _add_middle_buttons_for_question_side(self) -> None:
+    def _create_middle_buttons_for_question_side(self) -> None:
+        """
+        Show the number of remaining cards in three queues: New, Learning, Review.
+        """
         self.mw.bottomWidget.middle_bucket.reset(is_visible=True)
 
         if self.mw.col.conf["dueCounts"]:
@@ -1366,8 +1369,11 @@ class FlexibleReviewer(Reviewer):
             return 0
 
     def _showAnswerButton(self) -> None:
-        self._add_side_buttons()
-        self._add_middle_buttons_for_question_side()
+        """
+        Show Front side (Question side). Button: Flip card
+        """
+        self._create_side_buttons()
+        self._create_middle_buttons_for_question_side()
         self._clear_bottom_web()
 
         assert self.timer, "timer should exist."
@@ -1378,11 +1384,13 @@ class FlexibleReviewer(Reviewer):
         return bool(conf["stopTimerOnAnswer"])
 
     def _showEaseButtons(self) -> None:
+        """
+        Show Back side (Answer side). Buttons: Again, Hard, Good, Easy
+        """
         if not self._states_mutated:
             self.mw.progress.single_shot(50, self._showEaseButtons)
             return
-        self._add_side_buttons()
-        self._add_middle_buttons_for_answer_side()
+        self._create_middle_buttons_for_answer_side()
         self._clear_bottom_web()
 
         assert self.timer, "timer should exist."
