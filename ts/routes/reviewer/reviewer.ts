@@ -354,6 +354,9 @@ export class ReviewerState {
     }
 
     onKeyDown(e: KeyboardEvent) {
+        if (e.repeat) {
+            return;
+        }
         this.handleKeyPress(e.key, e.ctrlKey, e.shiftKey);
     }
 
