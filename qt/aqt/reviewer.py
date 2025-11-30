@@ -1378,7 +1378,7 @@ class FlexibleReviewer(Reviewer):
         if (max_time := self._max_time()) > 0:
             self.timer = self.mw.bottomWidget.right_bucket.add_widget(
                 widget=FlexibleTimerLabel()
-            )
+            )  # type: ignore
             self.timer.start(max_time=max_time)
 
     def _should_stop_timer_on_answer(self) -> bool:
