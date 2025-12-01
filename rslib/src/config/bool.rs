@@ -59,11 +59,8 @@ pub enum BoolKey {
 /// This is a workaround for old clients that used ints to represent boolean
 /// values. For new config items, prefer using a bool directly.
 #[derive(Deserialize, Default)]
-struct BoolLike(
-    #[serde(deserialize_with = "deserialize_bool_from_anything")]
-    #[allow(dead_code)]
-    bool,
-);
+#[allow(dead_code)]
+struct BoolLike(#[serde(deserialize_with = "deserialize_bool_from_anything")] bool);
 
 impl Collection {
     pub fn get_config_bool(&self, key: BoolKey) -> bool {

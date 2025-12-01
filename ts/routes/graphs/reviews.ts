@@ -239,7 +239,14 @@ export function renderReviews(
         const startDay = Math.floor(d.x0!);
         // If bin ends at 0, treat it as including day 0 (so use 1 as endDay for dayLabel)
         // For negative bins, use the bin end directly (dayLabel will handle the conversion)
-        const endDay = d.x1! === 0 ? 1 : d.x1! < 0 ? d.x1! : Math.ceil(d.x1!);
+        let endDay: number;
+        if (d.x1! === 0) {
+            endDay = 1;
+        } else if (d.x1! < 0) {
+            endDay = d.x1!;
+        } else {
+            endDay = Math.ceil(d.x1!);
+        }
         const day = dayLabel(startDay, endDay);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));

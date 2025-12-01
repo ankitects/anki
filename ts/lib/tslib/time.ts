@@ -170,37 +170,37 @@ export function dayLabel(daysStart: number, daysEnd: number): string {
         } else {
             return tr.statisticsDaysAgoSingle({ days: -daysStart });
         }
+    } else {
+        // range
+        if (daysStart >= 0) {
+            return tr.statisticsInDaysRange({
+                daysStart,
+                daysEnd: daysEnd - 1,
+            });
         } else {
-            // range
-            if (daysStart >= 0) {
-                return tr.statisticsInDaysRange({
-                    daysStart,
-                    daysEnd: daysEnd - 1,
+            // For bins that cross or end at day 0, we need special handling
+            if (daysEnd > 0) {
+                // Bin crosses day 0: show from 0 to the oldest day (exclusive of endDay)
+                // If bin is [-5, 1), we want "0-4 days ago"
+                return tr.statisticsDaysAgoRange({
+                    daysStart: 0,
+                    daysEnd: -daysStart - 1,
                 });
             } else {
-                // For bins that cross or end at day 0, we need special handling
-                if (daysEnd > 0) {
-                    // Bin crosses day 0: show from 0 to the oldest day (exclusive of endDay)
-                    // If bin is [-5, 1), we want "0-4 days ago"
-                    return tr.statisticsDaysAgoRange({
-                        daysStart: 0,
-                        daysEnd: -daysStart - 1,
-                    });
-                } else {
-                    // Bin is entirely in the past: show from newest to oldest
-                    // For a bin [startDay, endDay), to show consecutive ranges like "0-4", "5-9", "10-14",
-                    // we use endDay as the start of the range
-                    // The bin width is daysEnd - daysStart, so daysEnd = daysStart + (width - 1)
-                    // Example: bin [-10, -5) has width 5, should show "5-9 days ago"
-                    const binWidth = Math.abs(daysEnd - daysStart);
-                    const daysStartAbs = Math.abs(daysEnd);
-                    return tr.statisticsDaysAgoRange({
-                        daysStart: daysStartAbs,
-                        daysEnd: daysStartAbs + binWidth - 1,
-                    });
-                }
+                // Bin is entirely in the past: show from newest to oldest
+                // For a bin [startDay, endDay), to show consecutive ranges like "0-4", "5-9", "10-14",
+                // we use endDay as the start of the range
+                // The bin width is daysEnd - daysStart, so daysEnd = daysStart + (width - 1)
+                // Example: bin [-10, -5) has width 5, should show "5-9 days ago"
+                const binWidth = Math.abs(daysEnd - daysStart);
+                const daysStartAbs = Math.abs(daysEnd);
+                return tr.statisticsDaysAgoRange({
+                    daysStart: daysStartAbs,
+                    daysEnd: daysStartAbs + binWidth - 1,
+                });
             }
         }
+    }
 }
 
 /** Helper for converting Unix timestamps to date strings. */
