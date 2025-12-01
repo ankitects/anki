@@ -219,15 +219,18 @@ export class ReviewerState {
         this.reviewerAction(ReviewerActionRequest_ReviewerAction.ReplayRecorded);
     }
 
-    public toggleMarked() {
+    public async toggleMarked() {
         if (this._cardData && this.currentCard?.card?.noteId) {
             const noteIds = [this.currentCard.card.noteId];
             if (this._cardData.marked) {
-                removeNoteTags({ noteIds, tags: "marked" });
+                await removeNoteTags({ noteIds, tags: "marked" });
+                this.undoStatus!.undo = tr.actionsRemoveTag();
             } else {
-                addNoteTags({ noteIds, tags: "marked" });
+                await addNoteTags({ noteIds, tags: "marked" });
+                this.undoStatus!.undo = tr.actionsUpdateTag();
             }
             this.marked.update($marked => !$marked);
+            this._cardData.marked = !this._cardData.marked;
         }
     }
 
