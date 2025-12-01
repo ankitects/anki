@@ -224,10 +224,10 @@ export class ReviewerState {
             const noteIds = [this.currentCard.card.noteId];
             if (this._cardData.marked) {
                 await removeNoteTags({ noteIds, tags: "marked" });
-                this.undoStatus!.undo = tr.actionsRemoveTag();
+                this.setUndo(tr.actionsRemoveTag());
             } else {
                 await addNoteTags({ noteIds, tags: "marked" });
-                this.undoStatus!.undo = tr.actionsUpdateTag();
+                this.setUndo(tr.actionsUpdateTag());
             }
             this.marked.update($marked => !$marked);
             this._cardData.marked = !this._cardData.marked;
