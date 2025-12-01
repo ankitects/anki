@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         span {
-            min-width: 6em;
+            min-width: 7em;
         }
     }
 
