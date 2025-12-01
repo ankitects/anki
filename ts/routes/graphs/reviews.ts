@@ -105,7 +105,7 @@ export function renderReviews(
             break;
         case GraphRange.Year:
             xMin = -364;
-            xMax = 0;  
+            xMax = 0;
             break;
         case GraphRange.AllTime:
             xMin = min(sourceData.reviewCount.keys())!;
