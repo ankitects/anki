@@ -91,18 +91,21 @@ export function renderReviews(
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
-    const xMax = 1;
+    let xMax = 1;
     let xMin = 0;
     // cap max to selected range
     switch (range) {
         case GraphRange.Month:
             xMin = -30;
+            xMax = 0;
             break;
         case GraphRange.ThreeMonths:
             xMin = -89;
+            xMax = 0;
             break;
         case GraphRange.Year:
             xMin = -364;
+            xMax = 0;  
             break;
         case GraphRange.AllTime:
             xMin = min(sourceData.reviewCount.keys())!;
