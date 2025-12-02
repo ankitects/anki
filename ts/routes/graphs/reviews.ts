@@ -90,7 +90,6 @@ export function renderReviews(
 ): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
- 
     let xMax = 1;
     let xMin = 0;
     // cap max to selected range
