@@ -90,7 +90,7 @@ export function renderReviews(
 ): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
-    let xMax = 1;
+    const xMax = 1;
     let xMin = 0;
     // cap max to selected range
     switch (range) {
@@ -102,7 +102,6 @@ export function renderReviews(
             break;
         case GraphRange.Year:
             xMin = -364;
-            xMax = 0;
             break;
         case GraphRange.AllTime:
             xMin = min(sourceData.reviewCount.keys())!;
