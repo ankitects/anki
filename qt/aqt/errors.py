@@ -36,6 +36,14 @@ def show_exception(*, parent: QWidget, exception: Exception) -> None:
     global _mbox
     error_lines = []
     help_page = HelpPage.TROUBLESHOOTING
+
+    # default to PlainText
+    text_format = Qt.TextFormat.PlainText
+
+    # set CardTypeError messages as rich text to allow HTML formatting
+    if type(exception).__name__ == "CardTypeError":
+        text_format = Qt.TextFormat.RichText
+
     if isinstance(exception, BackendError):
         if exception.context:
             error_lines.append(exception.context)
@@ -51,7 +59,7 @@ def show_exception(*, parent: QWidget, exception: Exception) -> None:
         )
     error_text = "\n".join(error_lines)
     print(error_lines)
-    _mbox = _init_message_box(str(exception), error_text, help_page)
+    _mbox = _init_message_box(str(exception), error_text, help_page, text_format)
     _mbox.show()
 
 
@@ -171,7 +179,10 @@ if not os.environ.get("DEBUG"):
 
 
 def _init_message_box(
-    user_text: str, debug_text: str, help_page=HelpPage.TROUBLESHOOTING
+    user_text: str,
+    debug_text: str,
+    help_page=HelpPage.TROUBLESHOOTING,
+    text_format=Qt.TextFormat.PlainText,
 ):
     global _mbox
 
@@ -179,7 +190,7 @@ def _init_message_box(
     _mbox.setWindowTitle("Anki")
     _mbox.setText(user_text)
     _mbox.setIcon(QMessageBox.Icon.Warning)
-    _mbox.setTextFormat(Qt.TextFormat.RichText)
+    _mbox.setTextFormat(text_format)
 
     def show_help():
         openHelp(help_page)
