@@ -130,7 +130,9 @@ impl Collection {
                                     // and the card's not new
                                     if let Some(state) = &card.memory_state {
                                         // or in (re)learning and suspended
-                                        if card.ctype == CardType::Review && card.queue != CardQueue::Suspended {
+                                        if card.ctype == CardType::Review
+                                            && card.queue != CardQueue::Suspended
+                                        {
                                             let deck = self
                                                 .get_deck(card.original_or_current_deck_id())?
                                                 .or_not_found(card.original_or_current_deck_id())?;
