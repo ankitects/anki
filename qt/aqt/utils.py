@@ -1061,6 +1061,7 @@ def send_to_trash(path: Path) -> None:
 ######################################################################
 
 _tooltipTimer: QTimer | None = None
+_tooltipFocusTimer: QTimer | None = None
 _tooltipLabel: QLabel | None = None
 
 
@@ -1071,7 +1072,7 @@ def tooltip(
     x_offset: int = 0,
     y_offset: int = 100,
 ) -> None:
-    global _tooltipTimer, _tooltipLabel
+    global _tooltipTimer, _tooltipLabel, _tooltipFocusTimer
 
     class CustomLabel(QLabel):
         silentlyClose = True
@@ -1101,6 +1102,37 @@ def tooltip(
         lab.setPalette(p)
     lab.move(aw.mapToGlobal(QPoint(0 + x_offset, aw.height() - y_offset)))
     lab.show()
+    window = aw.window() if hasattr(aw, "window") else aw
+
+    was_active = window.isActiveWindow() if window else False
+
+    def close_if_parent_inactive() -> None:
+        if not _tooltipLabel or window is None:
+            return
+        # Check if window is still active and application has focus
+        app_has_focus = aqt.mw.app.focusWindow() is not None
+        window_is_active = window.isActiveWindow()
+        if (
+            not window.isVisible()
+            or (window.windowState() & Qt.WindowState.WindowMinimized)
+            or (was_active and (not window_is_active or not app_has_focus))
+        ):
+            closeTooltip()
+
+    if _tooltipFocusTimer:
+        try:
+            _tooltipFocusTimer.stop()
+            _tooltipFocusTimer.deleteLater()
+        except RuntimeError:
+            pass
+        _tooltipFocusTimer = None
+
+    if was_active:
+        focus_timer = QTimer(lab)
+        focus_timer.setInterval(100)
+        qconnect(focus_timer.timeout, close_if_parent_inactive)
+        focus_timer.start()
+        _tooltipFocusTimer = focus_timer
     _tooltipTimer = aqt.mw.progress.timer(
         period, closeTooltip, False, requiresCollection=False, parent=aw
     )
@@ -1108,7 +1140,7 @@ def tooltip(
 
 
 def closeTooltip() -> None:
-    global _tooltipLabel, _tooltipTimer
+    global _tooltipLabel, _tooltipTimer, _tooltipFocusTimer
     if _tooltipLabel:
         try:
             _tooltipLabel.deleteLater()
@@ -1122,6 +1154,13 @@ def closeTooltip() -> None:
         except RuntimeError:
             pass
         _tooltipTimer = None
+    if _tooltipFocusTimer:
+        try:
+            _tooltipFocusTimer.stop()
+            _tooltipFocusTimer.deleteLater()
+        except RuntimeError:
+            pass
+        _tooltipFocusTimer = None
 
 
 # true if invalid; print warning
