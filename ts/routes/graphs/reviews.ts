@@ -220,9 +220,7 @@ export function renderReviews(
     function tooltipText(d: BinType, cumulative: number): string {
         let dateStr: string;
         const now = new Date();
-        const larger = Math.max(Math.abs(d.x0!), Math.abs(d.x1!));
-        const smaller = Math.min(Math.abs(d.x0!), Math.abs(d.x1!));
-        if (larger - smaller > 1) {
+        if (d.x1! - d.x0! > 1) {
             // range (year)
             let startDate = timeDay.offset(now, Math.floor(d.x0!));
             startDate = timeHour.offset(startDate, -sourceData.rolloverHour);
