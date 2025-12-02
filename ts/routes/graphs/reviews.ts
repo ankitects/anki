@@ -234,17 +234,10 @@ export function renderReviews(
     }
 
     function tooltipText(d: BinType, cumulative: number): string {
+        // Convert bin boundaries [x0, x1) for dayLabel
+        // If bin ends at 0, treat it as crossing zero so day 0 is included
         const startDay = Math.floor(d.x0!);
-        // If bin ends at 0, treat it as including day 0 (so use 1 as endDay for dayLabel)
-        // For negative bins, use the bin end directly (dayLabel will handle the conversion)
-        let endDay: number;
-        if (d.x1! === 0) {
-            endDay = 1;
-        } else if (d.x1! < 0) {
-            endDay = d.x1!;
-        } else {
-            endDay = Math.ceil(d.x1!);
-        }
+        const endDay = d.x1! === 0 ? 1 : d.x1!;
         const day = dayLabel(startDay, endDay);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
