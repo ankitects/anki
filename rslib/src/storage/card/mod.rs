@@ -836,9 +836,17 @@ impl fmt::Display for ReviewOrderSubclause {
                 let today = timing.days_elapsed;
                 let next_day_at = timing.next_day_at.0;
                 let now = timing.now.0;
-                temp_string =
-                    format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, {today}, ivl, {next_day_at}, {now}) {order}");
-                &temp_string
+                if *order == SqlSortOrder::Ascending {
+                    // Use relative retrievability to give higher priority to high DR cards,
+                    // while selecting the most overdue ones first
+                    temp_string =
+                        format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, {today}, ivl, {next_day_at}, {now}) asc");
+                    &temp_string
+                } else {
+                    temp_string =
+                        format!("extract_fsrs_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) desc");
+                    &temp_string
+                }
             }
             ReviewOrderSubclause::Added => "nid asc, ord asc",
             ReviewOrderSubclause::ReverseAdded => "nid desc, ord asc",
