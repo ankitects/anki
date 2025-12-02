@@ -91,7 +91,7 @@ export function renderReviews(
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
  
-    let xMax = 0;
+    let xMax = 1;
     let xMin = 0;
     // cap max to selected range
     switch (range) {
@@ -103,10 +103,10 @@ export function renderReviews(
             break;
         case GraphRange.Year:
             xMin = -364;
+            xMax = 0;
             break;
         case GraphRange.AllTime:
             xMin = min(sourceData.reviewCount.keys())!;
-            xMax = 1;
             break;
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
