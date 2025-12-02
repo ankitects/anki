@@ -13,6 +13,7 @@ use itertools::Itertools;
 
 use super::params::ignore_revlogs_before_ms_from_config;
 use super::rescheduler::Rescheduler;
+use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
@@ -128,8 +129,8 @@ impl Collection {
                                         timing.next_day_at.elapsed_days_since(*last_review) as i32;
                                     // and the card's not new
                                     if let Some(state) = &card.memory_state {
-                                        // or in (re)learning
-                                        if card.ctype == CardType::Review {
+                                        // or in (re)learning and suspended
+                                        if card.ctype == CardType::Review && card.queue != CardQueue::Suspended {
                                             let deck = self
                                                 .get_deck(card.original_or_current_deck_id())?
                                                 .or_not_found(card.original_or_current_deck_id())?;
