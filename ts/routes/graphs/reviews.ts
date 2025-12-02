@@ -90,37 +90,37 @@ export function renderReviews(
 ): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
-
-    let xMax = 1;
+ 
+    let xMax = 0;
     let xMin = 0;
     // cap max to selected range
     switch (range) {
         case GraphRange.Month:
             xMin = -30;
-            xMax = 0;
             break;
         case GraphRange.ThreeMonths:
             xMin = -89;
-            xMax = 0;
             break;
         case GraphRange.Year:
             xMin = -364;
-            xMax = 0;
             break;
         case GraphRange.AllTime:
             xMin = min(sourceData.reviewCount.keys())!;
+            xMax = 1;
             break;
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
 
+    // Create initial scale to determine tick spacing
     let x = scaleLinear().domain([xMin!, xMax]);
     let thresholds = x.ticks(desiredBars);
+    // Adjust xMin to align with tick spacing so the oldest bin has the same width as others
     if (thresholds.length >= 2) {
         const spacing = thresholds[1] - thresholds[0];
-        const partial = thresholds[0] - x.domain()[0];
+        const partial = thresholds[0] - xMin!;
         if (spacing > 0 && partial > 0 && partial < spacing) {
-            const adjustedMin = thresholds[0] - spacing;
-            x = scaleLinear().domain([adjustedMin, xMax]);
+            xMin = thresholds[0] - spacing;
+            x = scaleLinear().domain([xMin, xMax]);
             thresholds = x.ticks(desiredBars);
         }
     }
