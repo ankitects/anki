@@ -1,10 +1,12 @@
-use std::collections::HashSet;
-
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use std::collections::HashSet;
+
 use anki_proto::generic;
 use anki_proto::media::AddMediaFileRequest;
 use anki_proto::media::CheckMediaResponse;
+use anki_proto::media::MediaConstants;
 use anki_proto::media::TrashMediaFilesRequest;
 
 use crate::collection::Collection;
@@ -12,6 +14,9 @@ use crate::error;
 use crate::error::OrNotFound;
 use crate::notes::service::to_i64s;
 use crate::notetype::NotetypeId;
+use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
+use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
+use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH_SERVER;
 
 impl crate::services::MediaService for Collection {
     fn check_media(&mut self) -> error::Result<CheckMediaResponse> {
@@ -65,5 +70,13 @@ impl crate::services::MediaService for Collection {
         notetype.gather_media_names(&mut inserter);
 
         Ok(files.into_iter().collect::<Vec<_>>().into())
+    }
+
+    fn get_media_constants(&mut self) -> error::Result<MediaConstants> {
+        Ok(MediaConstants {
+            max_individual_media_file_size: MAX_INDIVIDUAL_MEDIA_FILE_SIZE as i64,
+            max_media_filename_length: MAX_MEDIA_FILENAME_LENGTH as i64,
+            max_media_filename_length_server: MAX_MEDIA_FILENAME_LENGTH_SERVER as i64,
+        })
     }
 }
