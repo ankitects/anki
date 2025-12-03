@@ -36,13 +36,11 @@ message TrashMediaFilesRequest {
   repeated string fnames = 1;
 }
 
-// AddMediaFileRequest now supports both inline byte data and file path references.
-// Using oneof ensures backward compatibility - exactly one must be provided.
+// AddMediaFileRequest now supports file path references for streaming uploads.
 
 message AddMediaFileRequest {
   string desired_name = 1;
-  oneof data_source {
-    bytes data = 2;
-    string file_path = 3;
+  bytes data = 2;
+  optional string file_path = ;
   }
 }
