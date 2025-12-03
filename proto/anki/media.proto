@@ -41,6 +41,6 @@ message TrashMediaFilesRequest {
 message AddMediaFileRequest {
   string desired_name = 1;
   bytes data = 2;
-  optional string file_path = ;
+  optional string file_path = 3;
   }
 }
