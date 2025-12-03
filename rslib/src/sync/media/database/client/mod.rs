@@ -18,6 +18,20 @@ use crate::prelude::*;
 
 pub mod changetracker;
 
+pub struct Checksums(HashMap<String, Sha1Hash>);
+
+impl Checksums {
+    // case-fold filenames when checking files to be imported
+    // to account for case-insensitive filesystems
+    pub fn get(&self, key: impl AsRef<str>) -> Option<&Sha1Hash> {
+        self.0.get(key.as_ref().to_lowercase().as_str())
+    }
+
+    pub fn contains_key(&self, key: impl AsRef<str>) -> bool {
+        self.get(key).is_some()
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct MediaEntry {
     pub fname: String,
@@ -175,11 +189,12 @@ delete from media where fname=?",
     }
 
     /// Returns all filenames and checksums, where the checksum is not null.
-    pub(crate) fn all_registered_checksums(&self) -> error::Result<HashMap<String, Sha1Hash>> {
+    pub(crate) fn all_registered_checksums(&self) -> error::Result<Checksums> {
         self.db
             .prepare("SELECT fname, csum FROM media WHERE csum IS NOT NULL")?
             .query_and_then([], row_to_name_and_checksum)?
-            .collect()
+            .collect::<error::Result<_>>()
+            .map(Checksums)
     }
 
     pub(crate) fn force_resync(&self) -> error::Result<()> {
