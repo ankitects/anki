@@ -14,7 +14,7 @@ from markdown import markdown
 
 import aqt
 from anki.collection import HelpPage
-from anki.errors import BackendError, Interrupted
+from anki.errors import BackendError, CardTypeError, Interrupted
 from anki.utils import is_win
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
@@ -41,7 +41,7 @@ def show_exception(*, parent: QWidget, exception: Exception) -> None:
     text_format = Qt.TextFormat.PlainText
 
     # set CardTypeError messages as rich text to allow HTML formatting
-    if type(exception).__name__ == "CardTypeError":
+    if isinstance(exception, CardTypeError):
         text_format = Qt.TextFormat.RichText
 
     if isinstance(exception, BackendError):
