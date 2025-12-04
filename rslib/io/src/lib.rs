@@ -338,7 +338,7 @@ pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>)
 
     match std::env::var("CARGO_PKG_NAME") {
         Ok(pkg) if pkg == "anki_proto" || pkg == "anki_i18n" => {
-            // at comptime for the proto /i18n crates, register implicit output as input
+            // at comptime for the proto/i18n crates, register implicit output as input
             println!("cargo:rerun-if-changed={}", path.to_str().unwrap());
         }
         _ => {}
