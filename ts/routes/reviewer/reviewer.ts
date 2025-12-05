@@ -360,6 +360,9 @@ export class ReviewerState {
         if (e.repeat) {
             return;
         }
+        if (e.key == "Enter") {
+            e.preventDefault();
+        }
         this.handleKeyPress(e.key, e.ctrlKey, e.shiftKey);
     }
 
