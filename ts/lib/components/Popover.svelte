@@ -84,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: var(--popover-padding-block, 6px) var(--popover-padding-inline, 6px);
 
         &.scrollable {
-            max-height: 400px;
+            max-height: 200px;
             overflow: hidden auto;
         }
 

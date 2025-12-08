@@ -14,8 +14,16 @@ fn main() -> Result<()> {
 
     let pool = rust::write_rust_protos(descriptors_path)?;
     let (_, services) = get_services(&pool);
+
+    let (services, launcher_services): (Vec<_>, Vec<_>) = services
+        .into_iter()
+        .partition(|s| !s.name.trim_start_matches("Backend").starts_with("Launcher"));
+
     python::write_python_interface(&services)?;
-    typescript::write_ts_interface(&services)?;
+    typescript::write_ts_interface(&services, false)?;
+
+    // for launcher-gui
+    typescript::write_ts_interface(&launcher_services, true)?;
 
     Ok(())
 }

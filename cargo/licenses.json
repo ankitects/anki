@@ -2504,6 +2504,14 @@
     "repository": "https://github.com/illicitonion/num_enum"
   },
   {
+    "authors": "Jacob Pratt <open-source@jhpratt.dev>",
+    "description": "A minimal library that determines the number of running threads for the current process.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "num_threads",
+    "repository": "https://github.com/jhpratt/num_threads"
+  },
+  {
     "authors": "Cldfire",
     "description": "A safe and ergonomic Rust wrapper for the NVIDIA Management Library",
     "license": "Apache-2.0 OR MIT",
@@ -3464,6 +3472,14 @@
     "repository": "https://github.com/dtolnay/serde-repr"
   },
   {
+    "authors": null,
+    "description": "Serde-compatible spanned Value",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "serde_spanned",
+    "repository": "https://github.com/toml-rs/toml"
+  },
+  {
     "authors": "Jacob Brown <kardeiz@gmail.com>",
     "description": "De/serialize structs with named fields as array of values",
     "license": "MIT",
@@ -4248,6 +4264,14 @@
     "repository": "https://github.com/tokio-rs/valuable"
   },
   {
+    "authors": "Ashley Mannix <ashleymannix@live.com.au>",
+    "description": "Anonymous structured values",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "value-bag",
+    "repository": "https://github.com/sval-rs/value-bag"
+  },
+  {
     "authors": null,
     "description": "Implement things as if rust had variadics",
     "license": "Apache-2.0 OR MIT",
@@ -4609,6 +4633,14 @@
   },
   {
     "authors": null,
+    "description": "Linking for Windows",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "windows-link",
+    "repository": "https://github.com/microsoft/windows-rs"
+  },
+  {
+    "authors": null,
     "description": "Windows numeric types",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -4681,6 +4713,14 @@
   },
   {
     "authors": "Microsoft",
+    "description": "Rust for Windows",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "windows-sys",
+    "repository": "https://github.com/microsoft/windows-rs"
+  },
+  {
+    "authors": null,
     "description": "Rust for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,

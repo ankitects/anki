@@ -1,0 +1,147 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.launcher;
+
+import "anki/generic.proto";
+import "google/protobuf/empty.proto";
+
+service LauncherService {
+  rpc I18nResources(I18nResourcesRequest) returns (generic.Json);
+  rpc GetLangs(generic.Empty) returns (GetLangsResponse);
+  rpc SetLang(generic.String) returns (generic.Empty);
+  rpc ChooseVersion(ChooseVersionRequest) returns (ChooseVersionResponse);
+  rpc GetOptions(generic.Empty) returns (Options);
+  rpc GetMirrors(generic.Empty) returns (GetMirrorsResponse);
+  rpc WindowReady(generic.Empty) returns (generic.Empty);
+  rpc ZoomWebview(ZoomWebviewRequest) returns (generic.Empty);
+
+  rpc GetState(generic.Empty) returns (State);
+
+  rpc GetAvailableVersions(generic.Empty) returns (Versions);
+  rpc GetExistingVersions(generic.Empty) returns (ExistingVersions);
+
+  rpc GetUninstallInfo(generic.Empty) returns (Uninstall);
+  rpc UninstallAnki(UninstallRequest) returns (UninstallResponse);
+
+  rpc LaunchAnki(generic.Empty) returns (generic.Empty);
+  rpc Exit(generic.Empty) returns (generic.Empty);
+}
+
+// TODO: this should not be necessary
+service BackendLauncherService {}
+
+enum Event { PTY_DATA = 0; }
+
+message I18nResourcesRequest {
+  repeated string modules = 1;
+}
+
+message I18nResourcesResponse {
+  repeated string langs = 1;
+  repeated string resources = 2;
+}
+
+message GetLangsResponse {
+  message Pair {
+    string name = 1;
+    string locale = 2;
+  }
+  string user_locale = 1;
+  repeated Pair langs = 2;
+}
+
+enum Mirror {
+  DISABLED = 0;
+  CHINA = 1;
+}
+
+message GetMirrorsResponse {
+  message Pair {
+    Mirror mirror = 1;
+    string name = 2;
+  }
+  repeated Pair mirrors = 1;
+}
+
+message Options {
+  bool allow_betas = 1;
+  bool download_caching = 2;
+  Mirror mirror = 3;
+}
+
+message GetVersionsResponse {
+  repeated string all = 1;
+  repeated string latest = 2;
+  optional string current = 3;
+  optional string previous = 4;
+}
+
+message ChooseVersionRequest {
+  string version = 1;
+  optional string current = 2;
+  bool keep_existing = 3;
+  Options options = 4;
+}
+
+message ChooseVersionResponse {
+  string version = 1;
+  bool warming_up = 2;
+}
+
+message UninstallRequest {
+  bool delete_base_folder = 1;
+}
+
+message UninstallResponse {
+  message WindowsInstallerError {
+    string error = 1;
+    string path = 2;
+  }
+  oneof action_needed {
+    string unix_script = 1;
+    google.protobuf.Empty mac_manual = 2;
+    WindowsInstallerError windows_installer_failed = 3;
+    google.protobuf.Empty windows_installer_not_found = 4;
+  }
+}
+
+message ZoomWebviewRequest {
+  float scale_factor = 1;
+}
+
+message Version {
+  string version = 1;
+  bool is_prerelease = 2;
+}
+
+message Versions {
+  repeated Version all = 1;
+  repeated Version latest = 2;
+}
+
+message ExistingVersions {
+  optional Version current = 1;
+  optional Version previous = 2;
+  bool pyproject_modified_by_user = 3;
+}
+
+message Uninstall {
+  bool anki_program_files_exists = 1;
+  bool anki_base_folder_exists = 2;
+}
+
+message NormalState {
+  Options options = 1;
+}
+
+message State {
+  oneof kind {
+    string os_unsupported = 1;
+    string unknown_error = 2;
+    NormalState normal = 3;
+    google.protobuf.Empty uninstall = 4;
+  }
+}

@@ -57,6 +57,7 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
             outputs: &[
                 RustOutput::Data("py", "pylib/anki/_fluent.py"),
                 RustOutput::Data("ts", "ts/lib/generated/ftl.ts"),
+                RustOutput::Data("launcher_ts", "ts/lib/generated/ftl_launcher.ts"),
             ],
             target: None,
             extra_args: "-p anki_i18n",
@@ -247,7 +248,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
     let files = inputs![
         glob![
             "**/*.{py,rs,ts,svelte,mjs,md}",
-            "{node_modules,ts/.svelte-kit}/**"
+            "{node_modules,ts/.svelte-kit,qt/launcher-gui/.svelte-kit}/**"
         ],
         "Cargo.lock"
     ];
