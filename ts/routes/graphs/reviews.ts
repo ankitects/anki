@@ -90,7 +90,7 @@ export function renderReviews(
 ): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
-    const xMax = 1;
+    let xMax = 1;
     let xMin = 0;
     // cap max to selected range
     switch (range) {
@@ -119,21 +119,20 @@ export function renderReviews(
         const spacing = thresholds[1] - thresholds[0];
         const partial = thresholds[0] - xMin!;
         if (spacing > 0 && partial > 0 && partial < spacing) {
-            const adjustedMin = thresholds[0] - spacing;
-            // Don't extend beyond the original range limit for fixed ranges
-            xMin = shouldCapRange
-                ? Math.max(adjustedMin, originalXMin!)
-                : adjustedMin;
+            xMin = Math.max(thresholds[0] - spacing, shouldCapRange ? originalXMin! : -Infinity);
             x = scaleLinear().domain([xMin, xMax]);
             thresholds = x.ticks(desiredBars);
         }
     }
+    
+    // For Year, shift thresholds forward by one day to make first bin 0-4 instead of 0-5
+    if (range === GraphRange.Year) {
+        thresholds = [...new Set(thresholds.map(t => Math.min(t + 1, 1)))].sort((a, b) => a - b);
+    }
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
     let bins = bin()
-        .value((m) => {
-            return m[0];
-        })
+        .value((m) => m[0])
         .domain(x.domain() as any)
         .thresholds(thresholds)(sourceMap.entries() as any);
 
