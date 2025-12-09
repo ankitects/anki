@@ -108,6 +108,8 @@ export function renderReviews(
             break;
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
+    const shouldCapRange = range !== GraphRange.AllTime;
+    const originalXMin = shouldCapRange ? xMin! : undefined;
 
     // Create initial scale to determine tick spacing
     let x = scaleLinear().domain([xMin!, xMax]);
@@ -117,7 +119,11 @@ export function renderReviews(
         const spacing = thresholds[1] - thresholds[0];
         const partial = thresholds[0] - xMin!;
         if (spacing > 0 && partial > 0 && partial < spacing) {
-            xMin = thresholds[0] - spacing;
+            const adjustedMin = thresholds[0] - spacing;
+            // Don't extend beyond the original range limit for fixed ranges
+            xMin = shouldCapRange
+                ? Math.max(adjustedMin, originalXMin!)
+                : adjustedMin;
             x = scaleLinear().domain([xMin, xMax]);
             thresholds = x.ticks(desiredBars);
         }

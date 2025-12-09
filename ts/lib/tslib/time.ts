@@ -177,17 +177,10 @@ export function dayLabel(daysStart: number, daysEnd: number): string {
                 daysStart,
                 daysEnd: daysEnd - 1,
             });
-        } else if (daysEnd <= 0) {
-            // Past: [-10, -5) -> "5-9 days ago"
-            return tr.statisticsDaysAgoRange({
-                daysStart: Math.abs(daysEnd),
-                daysEnd: Math.abs(daysStart) - 1,
-            });
         } else {
-            // Crosses zero: [-5, 1) -> "0-4 days ago"
             return tr.statisticsDaysAgoRange({
-                daysStart: 0,
-                daysEnd: Math.abs(daysStart) - 1,
+                daysStart: Math.abs(daysEnd - 1),
+                daysEnd: -daysStart,
             });
         }
     }
