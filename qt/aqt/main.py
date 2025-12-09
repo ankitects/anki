@@ -48,6 +48,7 @@ from anki.utils import (
     split_fields,
 )
 from aqt import gui_hooks
+from aqt._macos_helper import macos_helper
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.dbcheck import check_db
 from aqt.debug_console import show_debug_console
@@ -1718,6 +1719,9 @@ title="{}" {}>{}</button>""".format(
             self.hideMenuAccels = True
             self.maybeHideAccelerators()
             self.hideStatusTips()
+            # prevent App Nap from suspending Anki in the background
+            if macos_helper:
+                macos_helper.disable_appnap()
         elif is_win:
             self._setupWin32()
 
