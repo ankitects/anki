@@ -90,7 +90,7 @@ export function renderReviews(
 ): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
-    let xMax = 1;
+    const xMax = 1;
     let xMin = 0;
     // cap max to selected range
     switch (range) {
@@ -124,7 +124,6 @@ export function renderReviews(
             thresholds = x.ticks(desiredBars);
         }
     }
-    
     // For Year, shift thresholds forward by one day to make first bin 0-4 instead of 0-5
     if (range === GraphRange.Year) {
         thresholds = [...new Set(thresholds.map(t => Math.min(t + 1, 1)))].sort((a, b) => a - b);
