@@ -113,12 +113,15 @@ export function renderReviews(
 
     // Create initial scale to determine tick spacing
     let x = scaleLinear().domain([xMin!, xMax]);
+    // Generate thresholds: these define where bins are split (e.g., [-5, -10, -15, ...])
+    // D3's bin() will create bins between consecutive thresholds: [threshold[i], threshold[i+1])
     let thresholds = x.ticks(desiredBars);
     // Adjust xMin to align with tick spacing so the oldest bin has the same width as others
     if (thresholds.length >= 2) {
         const spacing = thresholds[1] - thresholds[0];
         const partial = thresholds[0] - xMin!;
         if (spacing > 0 && partial > 0 && partial < spacing) {
+            // Extend xMin backward to align with tick spacing, but cap at originalXMin for fixed ranges
             xMin = Math.max(thresholds[0] - spacing, shouldCapRange ? originalXMin! : -Infinity);
             x = scaleLinear().domain([xMin, xMax]);
             thresholds = x.ticks(desiredBars);
