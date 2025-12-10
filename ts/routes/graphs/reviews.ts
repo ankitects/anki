@@ -133,24 +133,12 @@ export function renderReviews(
     }
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
+    // Create bins using the thresholds: each bin contains data points between consecutive thresholds
     let bins = bin()
-        .value((m) => m[0])
-        .domain(x.domain() as any)
-        .thresholds(thresholds)(sourceMap.entries() as any);
+        .value((m) => m[0]) // Extract the day number from each map entry [day, data]
+        .domain(x.domain() as any) // Bins are constrained to this domain [xMin, xMax]
+        .thresholds(thresholds)(sourceMap.entries() as any); // Use computed thresholds to split data into bins
 
-    if (bins.length > 1 && thresholds.length > 1) {
-        const lastBin = bins[bins.length - 1];
-        const prevBin = bins[bins.length - 2];
-        const nominalWidth = thresholds[1] - thresholds[0];
-        const lastWidth = lastBin.x1! - lastBin.x0!;
-        if (lastBin.x1! > 0 && lastWidth < nominalWidth * 0.75) {
-            for (const entry of lastBin) {
-                prevBin.push(entry);
-            }
-            prevBin.x1 = lastBin.x1;
-            bins = bins.slice(0, -1);
-        }
-    }
 
     // empty graph?
     const totalDays = sum(bins, (bin) => bin.length);
