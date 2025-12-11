@@ -128,7 +128,7 @@ export function renderReviews(
         }
     }
     // For Year, shift thresholds forward by one day to make first bin 0-4 instead of 0-5
-    if (range === GraphRange.Year) {
+    if (range === GraphRange.Year || range === GraphRange.AllTime) {
         thresholds = [...new Set(thresholds.map(t => Math.min(t + 1, 1)))].sort((a, b) => a - b);
     }
 
