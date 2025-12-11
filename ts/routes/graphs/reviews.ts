@@ -109,7 +109,7 @@ export function renderReviews(
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
     const shouldCapRange = range !== GraphRange.AllTime;
-    const originalXMin = shouldCapRange ? xMin! : undefined;
+    const originalXMin = xMin!;
 
     // Create initial scale to determine tick spacing
     let x = scaleLinear().domain([xMin!, xMax]);
