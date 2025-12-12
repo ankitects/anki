@@ -109,9 +109,7 @@ export function renderReviews(
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
     const shouldCapRange = range !== GraphRange.AllTime;
-    // Store original xMin before any adjustments (needed for periodDays calculation)
-    const originalXMinBeforeAdjustment = xMin!;
-    const originalXMin = shouldCapRange ? xMin! : undefined;
+    const originalXMin = xMin!;
 
     // Create initial scale to determine tick spacing
     let x = scaleLinear().domain([xMin!, xMax]);
@@ -130,7 +128,7 @@ export function renderReviews(
         }
     }
     // For Year, shift thresholds forward by one day to make first bin 0-4 instead of 0-5
-    if (range === GraphRange.Year) {
+    if (range === GraphRange.Year || range === GraphRange.AllTime) {
         thresholds = [...new Set(thresholds.map(t => Math.min(t + 1, 1)))].sort((a, b) => a - b);
     }
 
@@ -235,7 +233,7 @@ export function renderReviews(
         // For the first (oldest) bin, use the original xMin to ensure labels match the intended range
         const isFirstBin = bins.length > 0 && d.x0 === bins[0].x0;
         const startDay = isFirstBin
-            ? originalXMinBeforeAdjustment
+            ? originalXMin
             : Math.floor(d.x0!);
         const endDay = d.x1! === 0 ? 1 : d.x1!;
         const day = dayLabel(startDay, endDay);
@@ -356,8 +354,7 @@ export function renderReviews(
     // Calculate periodDays from the actual data range, not the adjusted xMin
     // For AllTime, xMin might be extended for bin alignment, so use the original xMin (actual oldest data)
     // For fixed ranges, use the original xMin before adjustment (which matches the displayed range)
-    const actualXMin = originalXMinBeforeAdjustment;
-    const periodDays = -actualXMin + 1;
+    const periodDays = -originalXMin + 1;
     const studiedDays = sum(bins, (bin) => bin.length);
     const studiedPercent = (studiedDays / periodDays) * 100;
     const total = yCumMax;
