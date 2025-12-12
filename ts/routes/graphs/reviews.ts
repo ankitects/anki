@@ -90,7 +90,6 @@ export function renderReviews(
 ): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
-
     const xMax = 1;
     let xMin = 0;
     // cap max to selected range
@@ -109,19 +108,36 @@ export function renderReviews(
             break;
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
+    const shouldCapRange = range !== GraphRange.AllTime;
+    const originalXMin = xMin!;
 
-    const x = scaleLinear().domain([xMin!, xMax]);
-    if (range === GraphRange.AllTime) {
-        x.nice(desiredBars);
+    // Create initial scale to determine tick spacing
+    let x = scaleLinear().domain([xMin!, xMax]);
+    // Generate thresholds: these define where bins are split (e.g., [-5, -10, -15, ...])
+    // D3's bin() will create bins between consecutive thresholds: [threshold[i], threshold[i+1])
+    let thresholds = x.ticks(desiredBars);
+    // Adjust xMin to align with tick spacing so the oldest bin has the same width as others
+    if (thresholds.length >= 2) {
+        const spacing = thresholds[1] - thresholds[0];
+        const partial = thresholds[0] - xMin!;
+        if (spacing > 0 && partial > 0 && partial < spacing) {
+            // Extend xMin backward to align with tick spacing, but cap at originalXMin for fixed ranges
+            xMin = Math.max(thresholds[0] - spacing, shouldCapRange ? originalXMin! : -Infinity);
+            x = scaleLinear().domain([xMin, xMax]);
+            thresholds = x.ticks(desiredBars);
+        }
+    }
+    // For Year, shift thresholds forward by one day to make first bin 0-4 instead of 0-5
+    if (range === GraphRange.Year || range === GraphRange.AllTime) {
+        thresholds = [...new Set(thresholds.map(t => Math.min(t + 1, 1)))].sort((a, b) => a - b);
     }
 
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
+    // Create bins using the thresholds: each bin contains data points between consecutive thresholds
     const bins = bin()
-        .value((m) => {
-            return m[0];
-        })
-        .domain(x.domain() as any)
-        .thresholds(x.ticks(desiredBars))(sourceMap.entries() as any);
+        .value((m) => m[0]) // Extract the day number from each map entry [day, data]
+        .domain(x.domain() as any) // Bins are constrained to this domain [xMin, xMax]
+        .thresholds(thresholds)(sourceMap.entries() as any); // Use computed thresholds to split data into bins
 
     // empty graph?
     const totalDays = sum(bins, (bin) => bin.length);
@@ -212,7 +228,15 @@ export function renderReviews(
     }
 
     function tooltipText(d: BinType, cumulative: number): string {
-        const day = dayLabel(d.x0!, d.x1!);
+        // Convert bin boundaries [x0, x1) for dayLabel
+        // If bin ends at 0, treat it as crossing zero so day 0 is included
+        // For the first (oldest) bin, use the original xMin to ensure labels match the intended range
+        const isFirstBin = bins.length > 0 && d.x0 === bins[0].x0;
+        const startDay = isFirstBin
+            ? originalXMin
+            : Math.floor(d.x0!);
+        const endDay = d.x1! === 0 ? 1 : d.x1!;
+        const day = dayLabel(startDay, endDay);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
         let buf = `<table><tr><td>${day}</td><td align=end>${dayTotal}</td></tr>`;
@@ -327,7 +351,10 @@ export function renderReviews(
         })
         .on("mouseout", hideTooltip);
 
-    const periodDays = -xMin + 1;
+    // Calculate periodDays from the actual data range, not the adjusted xMin
+    // For AllTime, xMin might be extended for bin alignment, so use the original xMin (actual oldest data)
+    // For fixed ranges, use the original xMin before adjustment (which matches the displayed range)
+    const periodDays = -originalXMin + 1;
     const studiedDays = sum(bins, (bin) => bin.length);
     const studiedPercent = (studiedDays / periodDays) * 100;
     const total = yCumMax;
