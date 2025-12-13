@@ -95,7 +95,7 @@ class CustomStudy(QDialog):
         text_after_spinner = tr.custom_study_cards()
         title_text = ""
         show_cram_type = False
-        enable_ok_button = self.card_count > 0
+        enable_ok_button = self.card_count is not None and self.card_count > 0
         ok = tr.custom_study_ok()
 
         if idx == RADIO_NEW:
