@@ -35,14 +35,17 @@ class CustomStudy(QDialog):
     def fetch_data_and_show(mw: aqt.AnkiQt) -> None:
         def fetch_data(
             col: Collection,
-        ) -> tuple[DeckId, CustomStudyDefaults]:
+        ) -> tuple[DeckId, CustomStudyDefaults, Any]:
             deck_id = mw.col.decks.get_current_id()
             defaults = col.sched.custom_study_defaults(deck_id)
-            return (deck_id, defaults)
+            card_count = col.decks.card_count(deck_id, True)
+            return (deck_id, defaults, card_count)
 
-        def show_dialog(data: tuple[DeckId, CustomStudyDefaults]) -> None:
-            deck_id, defaults = data
-            CustomStudy(mw=mw, deck_id=deck_id, defaults=defaults)
+        def show_dialog(data: tuple[DeckId, CustomStudyDefaults, Any]) -> None:
+            deck_id, defaults, card_count = data
+            CustomStudy(
+                mw=mw, deck_id=deck_id, card_count=card_count, defaults=defaults
+            )
 
         QueryOp(
             parent=mw, op=fetch_data, success=show_dialog
@@ -52,12 +55,14 @@ class CustomStudy(QDialog):
         self,
         mw: aqt.AnkiQt,
         deck_id: DeckId,
+        card_count: Any,
         defaults: CustomStudyDefaults,
     ) -> None:
         "Don't call this directly; use CustomStudy.fetch_data_and_show()."
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck_id = deck_id
+        self.card_count = card_count
         self.defaults = defaults
         self.form = aqt.forms.customstudy.Ui_Dialog()
         self.form.setupUi(self)
@@ -90,6 +95,7 @@ class CustomStudy(QDialog):
         text_after_spinner = tr.custom_study_cards()
         title_text = ""
         show_cram_type = False
+        enable_ok_button = self.card_count > 0
         ok = tr.custom_study_ok()
 
         if idx == RADIO_NEW:
@@ -102,6 +108,7 @@ class CustomStudy(QDialog):
             text_before_spinner = tr.custom_study_increase_todays_new_card_limit_by()
             current_spinner_value = self.defaults.extend_new
             min_spinner_value = -DYN_MAX_SIZE
+            enable_ok_button = True
         elif idx == RADIO_REV:
             title_text = tr.custom_study_available_review_cards_2(
                 count_string=self.count_with_children(
@@ -112,6 +119,7 @@ class CustomStudy(QDialog):
             text_before_spinner = tr.custom_study_increase_todays_review_limit_by()
             current_spinner_value = self.defaults.extend_review
             min_spinner_value = -DYN_MAX_SIZE
+            enable_ok_button = True
         elif idx == RADIO_FORGOT:
             text_before_spinner = tr.custom_study_review_cards_forgotten_in_last()
             text_after_spinner = tr.scheduling_days()
@@ -149,6 +157,7 @@ class CustomStudy(QDialog):
         ok_button = form.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
         assert ok_button is not None
         ok_button.setText(ok)
+        ok_button.setEnabled(enable_ok_button)
 
         self.radioIdx = idx
 
