@@ -72,6 +72,7 @@
     <addaction name="actionSwitchProfile"/>
     <addaction name="separator"/>
     <addaction name="actionImport"/>
+    <addaction name="actionImportClipboard"/>
     <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="action_create_backup"/>
@@ -201,6 +202,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+I</string>
+   </property>
+  </action>
+  <action name="actionImportClipboard">
+   <property name="text">
+    <string>qt_accel_import_clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+Shift+I</string>
    </property>
   </action>
   <action name="actionStudyDeck">

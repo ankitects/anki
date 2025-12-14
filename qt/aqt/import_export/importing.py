@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import re
+import tempfile
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from itertools import chain
@@ -165,6 +166,36 @@ def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
 def prompt_for_file_then_import(mw: aqt.main.AnkiQt) -> None:
     if path := get_file_path(mw):
         import_file(mw, path)
+
+
+def import_from_clipboard(mw: aqt.main.AnkiQt) -> None:
+    clipboard = QApplication.clipboard()
+
+    if clipboard is None:
+        showWarning("Clipboard not available.")
+        return
+
+    text = clipboard.text()
+
+    if not text:
+        showWarning("Clipboard is empty.")
+        return
+
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            prefix="clipboard_",
+            suffix=".txt",
+            delete=False,
+            encoding="utf-8",
+        ) as f:
+            f.write(text)
+            temp_path = f.name
+
+        import_file(mw, temp_path)
+
+    except Exception as e:
+        showWarning(f"Failed to import from clipboard: {e}")
 
 
 def get_file_path(mw: aqt.main.AnkiQt) -> str | None:
