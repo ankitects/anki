@@ -1940,7 +1940,7 @@ __metadata:
     lodash-es: "npm:^4.17.21"
     lru-cache: "npm:^10.2.0"
     marked: "npm:^5.1.0"
-    mathjax: "npm:^3.1.2"
+    mathjax: "npm:^4.0.0"
     prettier: "npm:^3.4.2"
     prettier-plugin-svelte: "npm:^3.3.2"
     sass: "npm:<1.77"
@@ -5020,10 +5020,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mathjax@npm:^3.1.2":
-  version: 3.2.2
-  resolution: "mathjax@npm:3.2.2"
-  checksum: 10c0/26c8557f948d1ef76ce2b0bc1ad66128c9a78a7e4f3d96587f90b23dd25cfbf14c9b58a1c75a7d8d35f92b72bab054eab61873443babe646b7bfd6b40bb717e6
+"mathjax@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "mathjax@npm:4.0.0"
+  checksum: 10c0/8e91d59bb070420bd4c8e032cdd98f518b7e331621611021f15ff49a93df20ee300ac0f403bd6cb9c8bdbddb3a279344c412af16e47d9b4c3c328a72012636e2
   languageName: node
   linkType: hard
 
