@@ -90,6 +90,7 @@ export function renderReviews(
 ): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
+
     const xMax = 1;
     let xMin = 0;
     // cap max to selected range
@@ -346,8 +347,7 @@ export function renderReviews(
         .on("mouseout", hideTooltip);
 
     // The xMin might be extended for bin alignment, so use the original xMin
-    const actualXMin = originalXMin;
-    const periodDays = -actualXMin + 1;
+    const periodDays = -originalXMin + 1;
     const studiedDays = sum(bins, (bin) => bin.length);
     const studiedPercent = (studiedDays / periodDays) * 100;
     const total = yCumMax;
