@@ -20,7 +20,7 @@ Anki uses the **Rust programming language** for parts of its codebase.
 2. Download and install **rustup**
 3. During installation, accept the default options
 
-> **Windows ARM users**  
+> **Windows ARM users**\
 > After installing rustup, run the following command in a terminal, inside the project folder:
 >
 > ```bash
@@ -34,11 +34,11 @@ Anki uses the **Rust programming language** for parts of its codebase.
 1. Download **Visual Studio Community Edition**
 2. Open the installer
 3. Select:
-   -  **Desktop Development with C++**
+   - **Desktop Development with C++**
 4. Leave the advanced options unchanged
 
-> **Note**  
->  This step is required to compile native parts of the project.
+> **Note**\
+> This step is required to compile native parts of the project.
 
 ---
 
@@ -67,7 +67,7 @@ C:\msys64\usr\bin
 
 4. Reboot your computer
 
->  **Important note**  
+> **Important note**\
 > If you already use **Git for Windows** (for example, [posh-git](https://github.com/dahlbyk/posh-git) in PowerShell), it may conflict with the MSYS2 Git.
 >
 > - Prefer using [Git for Windows](https://gitforwindows.org/)
@@ -79,15 +79,17 @@ C:\msys64\usr\bin
 
 To avoid build issues:
 
--  Avoid long directory paths
--  Avoid spaces in folder names
+- Avoid long directory paths
+- Avoid spaces in folder names
 
- **Recommended**:
+**Recommended**:
+
 ```text
 C:\anki
 ```
 
- **Problematic**:
+**Problematic**:
+
 ```text
 C:\Users\Your Name\Documents\Projects\Anki Source Code
 ```
@@ -105,13 +107,16 @@ To play and record audio during development, ensure the following executables ar
 
 ## Common Problems
 
-###  Build errors
+### Build errors
+
 - Make sure Visual Studio was installed with **Desktop Development with C++**
 
-###  `git` command not found
+### `git` command not found
+
 - Verify that the PATH variable is configured correctly
 
-###  Issues caused by spaces in paths
+### Issues caused by spaces in paths
+
 - Move the project to a shorter path, such as `C:\anki`
 
 ---
@@ -124,6 +129,5 @@ For advanced topics such as running tests or building wheels, see:
 
 ---
 
-> **Note**  
+> **Note**\
 > This guide does not replace the official documentation. It is intended to make the first steps easier for new Anki contributors on Windows.
-
