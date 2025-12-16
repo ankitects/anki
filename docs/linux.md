@@ -34,7 +34,13 @@ sudo apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
   libxcb-randr0 libxcb-render-util0 libxkbfile1
 ```
 
-On some distros such as Arch Linux and Fedora, you may need to install the
+The libraries that might be required on Arch Linux:
+
+```
+sudo pacman -S nss libxkbfile
+```
+
+On some distros such as Fedora, you may need to install the
 `libxcrypt-compat` package if you get an error like this:
 
 ```
