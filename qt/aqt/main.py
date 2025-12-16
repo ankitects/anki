@@ -57,6 +57,7 @@ from aqt.import_export.exporting import ExportDialog
 from aqt.import_export.importing import (
     import_collection_package_op,
     import_file,
+    import_from_clipboard,
     prompt_for_file_then_import,
 )
 from aqt.legacy import install_pylib_legacy
@@ -1360,6 +1361,10 @@ title="{}" {}>{}</button>""".format(
         else:
             aqt.importing.onImport(self)
 
+    def onImportFromClipboard(self) -> None:
+        """Import from clipboard text."""
+        import_from_clipboard(self)
+
     def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting
 
@@ -1403,6 +1408,7 @@ title="{}" {}>{}</button>""".format(
             m.actionSwitchProfile.triggered, self.unloadProfileAndShowProfileManager
         )
         qconnect(m.actionImport.triggered, self.onImport)
+        qconnect(m.actionImportClipboard.triggered, self.onImportFromClipboard)
         qconnect(m.actionExport.triggered, self.onExport)
         qconnect(m.action_create_backup.triggered, self.on_create_backup_now)
         qconnect(m.action_open_backup.triggered, self.onOpenBackup)
