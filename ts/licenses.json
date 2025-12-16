@@ -715,7 +715,7 @@
         "path": "node_modules/math-intrinsics",
         "licenseFile": "node_modules/math-intrinsics/LICENSE"
     },
-    "mathjax@3.2.2": {
+    "mathjax@4.0.0": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/mathjax/MathJax",
         "path": "node_modules/mathjax",

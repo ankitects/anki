@@ -77,7 +77,7 @@
         "lodash-es": "^4.17.21",
         "lru-cache": "^10.2.0",
         "marked": "^5.1.0",
-        "mathjax": "^3.1.2"
+        "mathjax": "^4.0.0"
     },
     "resolutions": {
         "canvas": "npm:empty-npm-package@1.0.0",
