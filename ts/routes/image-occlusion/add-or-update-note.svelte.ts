@@ -37,7 +37,9 @@ export const addOrUpdateNote = async function(
             backExtra,
             tags,
         });
-        showResult(mode.noteId, result, noteCount);
+        if (result.note) {
+            showResult(mode.noteId, result, noteCount);
+        }
     } else {
         const result = await addImageOcclusionNote({
             // IOCloningMode is not used on mobile
@@ -55,23 +57,12 @@ export const addOrUpdateNote = async function(
 // show toast message
 const showResult = (noteId: number | null, result: OpChanges, count: number) => {
     const props = $state({
-        message: "",
-        type: "error" as "error" | "success",
+        message: noteId ? tr.browsingCardsUpdated({ count: count }) : tr.importingCardsAdded({ count: count }),
+        type: "success" as "error" | "success",
         showToast: true,
     });
     mount(Toast, {
         target: document.body,
         props,
     });
-
-    if (result.note) {
-        const msg = noteId ? tr.browsingCardsUpdated({ count: count }) : tr.importingCardsAdded({ count: count });
-        props.message = msg;
-        props.type = "success";
-        props.showToast = true;
-    } else {
-        const msg = tr.notetypesErrorGeneratingCloze();
-        props.message = msg;
-        props.showToast = true;
-    }
 };
