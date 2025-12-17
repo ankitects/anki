@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {#if tagsSelected}
             <TagsSelectedButton on:tagselectall on:tagcopy on:tagdelete />
         {:else}
-            <TagAddButton on:tagappend {keyCombination} />
+            <TagAddButton {keyCombination} onTagAppend={() => {}} />
         {/if}
     {/key}
 </div>
