@@ -800,15 +800,12 @@ pub(crate) enum ReviewOrderSubclause {
     DifficultyAscending,
     /// FSRS
     DifficultyDescending,
-    RetrievabilitySm2 {
-        today: u32,
-        order: SqlSortOrder,
-    },
     RetrievabilityFsrs {
         timing: SchedTimingToday,
         order: SqlSortOrder,
     },
     RelativeOverdueness {
+        fsrs: bool,
         timing: SchedTimingToday,
     },
     Added,
@@ -828,13 +825,6 @@ impl fmt::Display for ReviewOrderSubclause {
             ReviewOrderSubclause::EaseDescending => "factor desc",
             ReviewOrderSubclause::DifficultyAscending => "extract_fsrs_variable(data, 'd') asc",
             ReviewOrderSubclause::DifficultyDescending => "extract_fsrs_variable(data, 'd') desc",
-            ReviewOrderSubclause::RetrievabilitySm2 { today, order } => {
-                temp_string = format!(
-                    // - (elapsed days+0.001)/(scheduled interval)
-                    "-(1 + cast({today}-due+0.001 as real)/ivl) {order}"
-                );
-                &temp_string
-            }
             ReviewOrderSubclause::RetrievabilityFsrs { timing, order } => {
                 let today = timing.days_elapsed;
                 let next_day_at = timing.next_day_at.0;
@@ -843,12 +833,18 @@ impl fmt::Display for ReviewOrderSubclause {
                     format!("extract_fsrs_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) {order}");
                 &temp_string
             }
-            ReviewOrderSubclause::RelativeOverdueness { timing } => {
+            ReviewOrderSubclause::RelativeOverdueness { fsrs, timing } => {
                 let today = timing.days_elapsed;
                 let next_day_at = timing.next_day_at.0;
                 let now = timing.now.0;
-                temp_string =
-                    format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) asc");
+                temp_string = if *fsrs {
+                    format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) asc")
+                } else {
+                    format!(
+                        // - (elapsed days+0.001)/(scheduled interval)
+                        "-(1 + cast({today}-due+0.001 as real)/ivl) asc"
+                    )
+                };
                 &temp_string
             }
             ReviewOrderSubclause::Added => "nid asc, ord asc",
@@ -878,13 +874,19 @@ fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool
             ReviewOrderSubclause::EaseDescending
         }],
         ReviewCardOrder::RetrievabilityAscending => {
-            build_retrievability_clauses(fsrs, timing, SqlSortOrder::Ascending)
+            vec![ReviewOrderSubclause::RetrievabilityFsrs {
+                timing,
+                order: SqlSortOrder::Ascending,
+            }]
         }
         ReviewCardOrder::RetrievabilityDescending => {
-            build_retrievability_clauses(fsrs, timing, SqlSortOrder::Descending)
+            vec![ReviewOrderSubclause::RetrievabilityFsrs {
+                timing,
+                order: SqlSortOrder::Descending,
+            }]
         }
         ReviewCardOrder::RelativeOverdueness => {
-            vec![ReviewOrderSubclause::RelativeOverdueness { timing }]
+            vec![ReviewOrderSubclause::RelativeOverdueness { fsrs, timing }]
         }
         ReviewCardOrder::Random => vec![],
         ReviewCardOrder::Added => vec![ReviewOrderSubclause::Added],
@@ -897,21 +899,6 @@ fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool
         .map(ReviewOrderSubclause::to_string)
         .collect();
     v.join(", ")
-}
-
-fn build_retrievability_clauses(
-    fsrs: bool,
-    timing: SchedTimingToday,
-    order: SqlSortOrder,
-) -> Vec<ReviewOrderSubclause> {
-    vec![if fsrs {
-        ReviewOrderSubclause::RetrievabilityFsrs { timing, order }
-    } else {
-        ReviewOrderSubclause::RetrievabilitySm2 {
-            today: timing.days_elapsed,
-            order,
-        }
-    }]
 }
 
 #[derive(Debug, Clone, Copy)]
