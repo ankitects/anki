@@ -686,7 +686,7 @@ mod test {
         col.answer_easy();
 
         let timing = col.timing_today()?;
-        let sql_func = ReviewOrderSubclause::RelativeOverdueness { timing }
+        let sql_func = ReviewOrderSubclause::RelativeOverdueness { fsrs: true, timing }
             .to_string()
             .replace(" asc", "");
         let sql = format!("select {sql_func} from cards");
