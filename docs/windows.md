@@ -71,7 +71,7 @@ C:\msys64\usr\bin
 > If you already have native Windows apps relying on Git (for example, [posh-git](https://github.com/dahlbyk/posh-git) in PowerShell), they may conflict with the MSYS2 Git.
 >
 > - In that case, prefer using [Git for Windows](https://gitforwindows.org/) over msys2.
-> - Ensure the `rsync` command is available
+> - Ensure that `rsync` is available some other way
 
 ---
 
