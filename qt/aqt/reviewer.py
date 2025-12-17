@@ -335,7 +335,7 @@ class Reviewer:
 <div id="_mark" hidden>&#x2605;</div>
 <div id="_flag" hidden>&#x2691;</div>
 {fade}
-<div id="qa"></div>
+<div id="qa" dir="auto"></div>
 {extra}
 """
 
