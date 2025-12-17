@@ -55,7 +55,7 @@ pacman -S git rsync
 
 ---
 
-## Step 4 – Configure the PATH Environment Variable
+### Configure the PATH Environment Variable
 
 1. Open **Windows Environment Variables**
 2. Edit the **PATH** variable
@@ -75,7 +75,7 @@ C:\msys64\usr\bin
 
 ---
 
-## Step 5 – Choose a Good Source Code Location
+## Step 4 – Choose a Good Source Code Location
 
 To avoid build issues:
 
@@ -129,5 +129,3 @@ For advanced topics such as running tests or building wheels, see:
 
 ---
 
-> **Note**\
-> This guide does not replace the official documentation. It is intended to make the first steps easier for new Anki contributors on Windows.
