@@ -61,6 +61,6 @@ fn build_retrievability_query(
             "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, ivl, {today}, {next_day_at}, {now}) {order}"
         )
     } else {
-        format!("")
+        String::new()
     }
 }
