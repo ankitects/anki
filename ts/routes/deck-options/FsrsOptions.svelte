@@ -356,7 +356,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <SpinBoxFloatRow
             bind:value={effectiveDesiredRetention}
             defaultValue={defaults.desiredRetention}
-            min={0.7}
+            min={0.1}
             max={0.99}
             percentage={true}
             bind:focused={desiredRetentionFocused}
