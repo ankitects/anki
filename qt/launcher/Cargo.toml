@@ -14,16 +14,13 @@ anki_process.workspace = true
 anyhow.workspace = true
 camino.workspace = true
 dirs.workspace = true
+libc.workspace = true
 locale_config.workspace = true
 serde_json.workspace = true
-
-[target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
-libc.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 windows.workspace = true
 widestring.workspace = true
-libc.workspace = true
 libc-stdhandle.workspace = true
 
 [[bin]]
