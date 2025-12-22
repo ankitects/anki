@@ -567,7 +567,6 @@ def getText(
     d = GetTextDialog(
         parent, prompt, help=help, edit=edit, default=default, title=title, **kwargs
     )
-    add_close_shortcut(d)
     d.setWindowModality(Qt.WindowModality.WindowModal)
     if geomKey:
         restoreGeom(d, geomKey)
