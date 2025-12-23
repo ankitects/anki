@@ -23,7 +23,6 @@ from aqt.theme import Theme
 from aqt.url_schemes import show_url_schemes_dialog
 from aqt.utils import (
     HelpPage,
-    add_close_shortcut,
     add_ellipsis_to_action_label,
     askUser,
     disable_help_button,
@@ -67,7 +66,6 @@ class Preferences(QDialog):
         self.setup_profile()
         self.setup_global()
         self.setup_configurable_answer_keys()
-        add_close_shortcut(self)
         self.show()
 
     def setup_configurable_answer_keys(self):
