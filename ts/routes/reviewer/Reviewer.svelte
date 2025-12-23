@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0.8em;
         background-color: var(--bs-tooltip-color);
         z-index: var(--bs-tooltip-z-index);
-        border: 2px solid white;
+        border: 2px solid var(--highlight-fg);
         opacity: 1;
         transition: opacity 0.3s;
     }
