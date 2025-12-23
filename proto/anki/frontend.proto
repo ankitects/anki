@@ -10,6 +10,7 @@ package anki.frontend;
 import "anki/scheduler.proto";
 import "anki/generic.proto";
 import "anki/search.proto";
+import "anki/card_rendering.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -30,6 +31,10 @@ service FrontendService {
 
   // Save colour picker's custom colour palette
   rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
+
+  // Plays the listed AV tags
+  rpc PlayAVTags(PlayAVTagsRequest) returns (generic.Empty);
+  rpc ReviewerAction(ReviewerActionRequest) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
@@ -42,4 +47,36 @@ message SchedulingStatesWithContext {
 message SetSchedulingStatesRequest {
   string key = 1;
   scheduler.SchedulingStates states = 2;
+}
+
+message PlayAVTagsRequest {
+  repeated card_rendering.AVTag tags = 1;
+}
+
+message ReviewerActionRequest {
+  enum ReviewerAction {
+    // Menus
+    EditCurrent = 0;
+    SetDueDate = 1;
+    CardInfo = 2;
+    PreviousCardInfo = 3;
+    CreateCopy = 4;
+    // Reset
+    Forget = 5;
+    // Preset Options
+    Options = 6;
+    // "Congratulations"
+    Overview = 7;
+
+    // Audio
+    PauseAudio = 9;
+    SeekBackward = 10;
+    SeekForward = 11;
+    RecordVoice = 12;
+    ReplayRecorded = 13;
+  };
+
+  ReviewerAction menu = 1;
+  // In case the card isn't set in a next_card_data intercept function
+  optional int64 current_card_id = 2;
 }
