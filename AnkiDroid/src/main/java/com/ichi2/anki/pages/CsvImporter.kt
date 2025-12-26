@@ -27,6 +27,8 @@ import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.hideShowButtonCss
+import com.ichi2.utils.OLDEST_WORKING_WEBVIEW_VERSION
+import com.ichi2.utils.WebViewVersion
 
 /**
  * Anki page used to import text/csv files
@@ -36,6 +38,8 @@ class CsvImporter : PageFragment() {
         val filePath = requireArguments().getString(KEY_FILE_PATH)
         "import-csv$filePath"
     }
+
+    override val minimumWebViewVersion: WebViewVersion = OLDEST_WORKING_WEBVIEW_VERSION
 
     override fun onCreateWebViewClient(savedInstanceState: Bundle?): PageWebViewClient {
         // the back callback is only enabled when import is running and showing progress

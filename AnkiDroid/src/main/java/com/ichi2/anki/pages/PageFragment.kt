@@ -30,6 +30,8 @@ import com.ichi2.anki.R
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.themes.Themes
+import com.ichi2.utils.WebViewVersion
+import com.ichi2.utils.showDialogIfWebViewOutdated
 import timber.log.Timber
 
 /**
@@ -63,6 +65,8 @@ abstract class PageFragment(
     protected open fun onCreateWebViewClient(savedInstanceState: Bundle?) = PageWebViewClient()
 
     protected open fun onWebViewCreated() { }
+
+    protected open val minimumWebViewVersion: WebViewVersion? = null
 
     /**
      * When the webview calls `BridgeCommand("foo")`, the PageFragment execute `bridgeCommands["foo"]`.
@@ -103,10 +107,21 @@ abstract class PageFragment(
         server = AnkiServer(this).also { it.start() }
         webViewLayout = view.findViewById(R.id.webview_layout)
 
+        minimumWebViewVersion?.let { minVersion ->
+            val isOutdated =
+                with(requireContext()) {
+                    showDialogIfWebViewOutdated(minVersion) {
+                        requireActivity().finish()
+                    }
+                }
+            if (isOutdated) {
+                Timber.w("${this::class.simpleName} requires modern WebView version, aborting load")
+                return
+            }
+        }
         view.findViewById<MaterialToolbar>(R.id.toolbar)?.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
-
         setupWebView(savedInstanceState)
     }
 

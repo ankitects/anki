@@ -25,12 +25,16 @@ import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.hideShowButtonCss
+import com.ichi2.utils.OLDEST_WORKING_WEBVIEW_VERSION
+import com.ichi2.utils.WebViewVersion
 
 class AnkiPackageImporterFragment : PageFragment() {
     override val pagePath: String by lazy {
         val filePath = requireArguments().getString(KEY_FILE_PATH)
         "import-anki-package$filePath"
     }
+
+    override val minimumWebViewVersion: WebViewVersion = OLDEST_WORKING_WEBVIEW_VERSION
 
     override fun onCreateWebViewClient(savedInstanceState: Bundle?): PageWebViewClient {
         // the back callback is only enabled when import is running and showing progress
