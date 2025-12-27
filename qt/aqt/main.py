@@ -1348,6 +1348,11 @@ title="{}" {}>{}</button>""".format(
     def onDocumentation(self) -> None:
         openHelp(HelpPage.INDEX)
 
+    def onCheckForUpdates(self) -> None:
+        from aqt.update import check_for_update
+
+        check_for_update()
+
     # legacy
 
     def onDeckConf(self, deck: DeckDict | None = None) -> None:
@@ -1431,6 +1436,7 @@ title="{}" {}>{}</button>""".format(
 
         # Help
         qconnect(m.actionDocumentation.triggered, self.onDocumentation)
+        qconnect(m.actionCheckForUpdates.triggered, self.onCheckForUpdates)
         qconnect(m.actionDonate.triggered, self.onDonate)
         qconnect(m.actionAbout.triggered, self.onAbout)
         m.actionAbout.setText(tr.qt_accel_about_mac())
