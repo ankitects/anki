@@ -1351,7 +1351,7 @@ title="{}" {}>{}</button>""".format(
     def onCheckForUpdates(self) -> None:
         from aqt.update import check_for_update
 
-        check_for_update()
+        check_for_update(notify_if_no_update=True)
 
     # legacy
 
