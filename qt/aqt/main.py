@@ -1022,6 +1022,11 @@ title="{}" {}>{}</button>""".format(
     def maybe_check_for_addon_updates(
         self, on_done: Callable[[list[DownloadLogEntry]], None] | None = None
     ) -> None:
+        if not self.pm.check_for_addon_updates():
+            if on_done:
+                on_done([])
+            return
+
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
 
@@ -1327,6 +1332,11 @@ title="{}" {}>{}</button>""".format(
     def onDocumentation(self) -> None:
         openHelp(HelpPage.INDEX)
 
+    def onCheckForUpdates(self) -> None:
+        from aqt.update import check_for_update
+
+        check_for_update(notify_if_no_update=True)
+
     # legacy
 
     def onDeckConf(self, deck: DeckDict | None = None) -> None:
@@ -1410,6 +1420,7 @@ title="{}" {}>{}</button>""".format(
 
         # Help
         qconnect(m.actionDocumentation.triggered, self.onDocumentation)
+        qconnect(m.actionCheckForUpdates.triggered, self.onCheckForUpdates)
         qconnect(m.actionDonate.triggered, self.onDonate)
         qconnect(m.actionAbout.triggered, self.onAbout)
         m.actionAbout.setText(tr.qt_accel_about_mac())

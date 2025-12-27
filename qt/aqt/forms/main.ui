@@ -55,6 +55,7 @@
     </property>
     <addaction name="actionDocumentation"/>
     <addaction name="separator"/>
+    <addaction name="actionCheckForUpdates"/>
     <addaction name="actionDonate"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -177,6 +178,11 @@
    </property>
    <property name="shortcut">
     <string notr="true">F1</string>
+   </property>
+  </action>
+  <action name="actionCheckForUpdates">
+   <property name="text">
+    <string>qt_accel_check_for_updates</string>
    </property>
   </action>
   <action name="actionSwitchProfile">
