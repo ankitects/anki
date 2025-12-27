@@ -596,6 +596,12 @@ create table if not exists profiles
     def set_last_addon_update_check(self, secs: int) -> None:
         self.meta["last_addon_update_check"] = secs
 
+    def check_for_addon_updates(self) -> bool:
+        return self.meta.get("check_for_addon_updates", True)
+
+    def set_check_for_addon_updates(self, on: bool) -> None:
+        self.meta["check_for_addon_updates"] = on
+
     @deprecated(info="use theme_manager.night_mode")
     def night_mode(self) -> bool:
         return theme_manager.night_mode
