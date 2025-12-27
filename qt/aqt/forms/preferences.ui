@@ -82,27 +82,24 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="updatesGroup">
+         <property name="title">
+          <string>preferences_updates</string>
+         </property>
+         <layout class="QVBoxLayout" name="updatesLayout">
+          <item>
            <widget class="QCheckBox" name="check_for_updates">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
             <property name="text">
              <string>preferences_check_for_updates</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item>
            <widget class="QCheckBox" name="check_for_addon_updates">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
             <property name="text">
              <string>preferences_check_for_addon_updates</string>
             </property>
