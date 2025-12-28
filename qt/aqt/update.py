@@ -15,10 +15,10 @@ from aqt.package import (
     update_and_restart as _update_and_restart,
 )
 from aqt.qt import *
-from aqt.utils import openLink, show_info, show_warning, showText, tr
+from aqt.utils import openLink, show_warning, showText, tr
 
 
-def check_for_update(notify_if_no_update: bool = False) -> None:
+def check_for_update() -> None:
     from aqt import mw
 
     def do_check(_col: Collection) -> CheckForUpdateResponse:
@@ -54,11 +54,6 @@ def check_for_update(notify_if_no_update: bool = False) -> None:
         if ver := resp.new_version:
             if mw.pm.meta.get("suppressUpdate", None) != ver:
                 prompt_to_update(mw, ver)
-        elif notify_if_no_update:
-            show_info(
-                tr.qt_misc_no_update_available(val=aqt.appVersion),
-                textFormat=Qt.TextFormat.RichText,
-            )
 
     def on_fail(exc: Exception) -> None:
         print(f"update check failed: {exc}")
