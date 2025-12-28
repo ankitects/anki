@@ -3,7 +3,6 @@ qt-misc-addons = Add-ons
 qt-misc-all-cards-notes-and-media-for = All cards, notes, and media for this profile will be deleted. Are you sure?
 qt-misc-all-cards-notes-and-media-for2 = All cards, notes, and media for the profile "{ $name }" will be deleted. Are you sure?
 qt-misc-anki-updatedanki-has-been-released = <h1>Anki Updated</h1>Anki { $val } has been released.<br><br>
-qt-misc-no-update-available = You're up to date!<br><br>Anki { $val } is currently the newest version available.
 qt-misc-automatic-syncing-and-backups-have-been = Backup successfully restored. Automatic syncing and backups have been disabled for now. To enable them again, close the profile or restart Anki.
 qt-misc-back-side-only = Back Side Only
 qt-misc-backing-up = Backing Up...
