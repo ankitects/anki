@@ -11,6 +11,7 @@ use anki_proto::generic;
 use anki_proto::scheduler;
 use anki_proto::scheduler::next_card_data_response::AnswerButton;
 use anki_proto::scheduler::next_card_data_response::NextCardData;
+use anki_proto::scheduler::next_card_data_response::PartialTemplate;
 use anki_proto::scheduler::next_card_data_response::TimerPreferences;
 use anki_proto::scheduler::next_card_data_response::TypedAnswer;
 use anki_proto::scheduler::ComputeFsrsParamsResponse;
@@ -499,8 +500,10 @@ impl crate::services::SchedulerService for Collection {
                     queue: Some(queue.into()),
 
                     css: render.css.clone(),
-                    partial_front: rendered_nodes_to_proto(q_nodes),
-                    partial_back: rendered_nodes_to_proto(render.anodes),
+                    partial_template: Some(PartialTemplate {
+                        front: rendered_nodes_to_proto(q_nodes),
+                        back: rendered_nodes_to_proto(render.anodes),
+                    }),
 
                     answer_buttons,
                     autoplay: !deck_config.disable_autoplay,
