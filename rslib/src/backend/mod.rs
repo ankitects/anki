@@ -152,7 +152,7 @@ impl Backend {
             return Ok(());
         }
 
-        if rustls_pemfile::read_all(Cursor::new(cert_str.as_bytes()).by_ref()).count() != 1 {
+        if rustls_pki_types::pem::PemObject::from_pem_slice(cert_str.as_bytes()).is_err() {
             return Err(AnkiError::InvalidCertificateFormat);
         }
 

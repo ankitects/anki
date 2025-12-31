@@ -112,9 +112,9 @@ pyo3 = { version = "0.25.1", features = ["extension-module", "abi3", "abi3-py39"
 rand = "0.9.1"
 rayon = "1.10.0"
 regex = "1.11.1"
-reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
+reqwest = { version = "0.12.28", default-features = false, features = ["json", "socks", "stream", "multipart"] }
 rusqlite = { version = "0.36.0", features = ["trace", "functions", "collation", "bundled"] }
-rustls-pemfile = "2.2.0"
+rustls-pki-types = "1.13.2"
 scopeguard = "1.2.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde-aux = "4.7.0"
