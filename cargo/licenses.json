@@ -2216,14 +2216,6 @@
     "repository": "https://github.com/hawkw/matchers"
   },
   {
-    "authors": null,
-    "description": "A macro to evaluate, as a boolean, whether an expression matches a pattern.",
-    "license": "MIT",
-    "license_file": null,
-    "name": "matches",
-    "repository": "https://github.com/SimonSapin/rust-std-candidates"
-  },
-  {
     "authors": "Ibraheem Ahmed <ibraheem@ibraheem.ca>",
     "description": "A high performance, zero-copy URL router.",
     "license": "BSD-3-Clause AND MIT",
@@ -3265,14 +3257,6 @@
   },
   {
     "authors": null,
-    "description": "Basic .pem file parser for keys and certificates",
-    "license": "Apache-2.0 OR ISC OR MIT",
-    "license_file": null,
-    "name": "rustls-pemfile",
-    "repository": "https://github.com/rustls/pemfile"
-  },
-  {
-    "authors": null,
     "description": "Shared types for the rustls PKI ecosystem",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3430,6 +3414,14 @@
     "license_file": null,
     "name": "serde_bytes",
     "repository": "https://github.com/serde-rs/bytes"
+  },
+  {
+    "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
+    "description": "Serde traits only, with no support for derive -- use the `serde` crate instead",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "serde_core",
+    "repository": "https://github.com/serde-rs/serde"
   },
   {
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
@@ -4072,30 +4064,6 @@
     "repository": "https://github.com/LaurentMazare/ug"
   },
   {
-    "authors": "The UNIC Project Developers",
-    "description": "UNIC — Unicode Character Tools — Character Property taxonomy, contracts and build macros",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "unic-char-property",
-    "repository": "https://github.com/open-i18n/rust-unic/"
-  },
-  {
-    "authors": "The UNIC Project Developers",
-    "description": "UNIC — Unicode Character Tools — Character Range and Iteration",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "unic-char-range",
-    "repository": "https://github.com/open-i18n/rust-unic/"
-  },
-  {
-    "authors": "The UNIC Project Developers",
-    "description": "UNIC — Common Utilities",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "unic-common",
-    "repository": "https://github.com/open-i18n/rust-unic/"
-  },
-  {
     "authors": "Zibi Braniecki <gandalf@mozilla.com>",
     "description": "API for managing Unicode Language Identifiers",
     "license": "Apache-2.0 OR MIT",
@@ -4126,22 +4094,6 @@
     "license_file": null,
     "name": "unic-langid-macros-impl",
     "repository": "https://github.com/zbraniecki/unic-locale"
-  },
-  {
-    "authors": "The UNIC Project Developers",
-    "description": "UNIC — Unicode Character Database — General Category",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "unic-ucd-category",
-    "repository": "https://github.com/open-i18n/rust-unic/"
-  },
-  {
-    "authors": "The UNIC Project Developers",
-    "description": "UNIC — Unicode Character Database — Version",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "unic-ucd-version",
-    "repository": "https://github.com/open-i18n/rust-unic/"
   },
   {
     "authors": "Sean McArthur <sean@seanmonstar.com>",

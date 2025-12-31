@@ -85,6 +85,8 @@ globset = "0.4.16"
 hex = "0.4.3"
 htmlescape = "0.3.1"
 hyper = "1"
+icu_properties = "2.1.2"
+icu_properties_data = "2.1.2"
 id_tree = "1.8.0"
 inflections = "1.1.1"
 intl-memoizer = "0.5.3"
@@ -112,9 +114,9 @@ pyo3 = { version = "0.25.1", features = ["extension-module", "abi3", "abi3-py39"
 rand = "0.9.1"
 rayon = "1.10.0"
 regex = "1.11.1"
-reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
+reqwest = { version = "0.12.28", default-features = false, features = ["json", "socks", "stream", "multipart"] }
 rusqlite = { version = "0.36.0", features = ["trace", "functions", "collation", "bundled"] }
-rustls-pemfile = "2.2.0"
+rustls-pki-types = "1.13.2"
 scopeguard = "1.2.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde-aux = "4.7.0"
@@ -136,7 +138,6 @@ tracing = { version = "0.1.41", features = ["max_level_trace", "release_max_leve
 tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.20", features = ["fmt", "env-filter"] }
 unic-langid = { version = "0.9.6", features = ["macros"] }
-unic-ucd-category = "0.9.0"
 unicode-normalization = "0.1.24"
 walkdir = "2.5.0"
 which = "8.0.0"

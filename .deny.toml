@@ -7,6 +7,8 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 ignore = [
   # burn depends on an unmaintained package 'paste'
   "RUSTSEC-2024-0436",
+  # removing rustls-pemfile requires an update to our linkcheck fork
+  "RUSTSEC-2025-0134",
 ]
 
 [licenses]

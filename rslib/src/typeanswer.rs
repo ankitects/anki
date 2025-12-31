@@ -5,8 +5,10 @@ use std::borrow::Cow;
 use std::sync::LazyLock;
 
 use difflib::sequencematcher::SequenceMatcher;
+use icu_properties::props::EnumeratedProperty;
+use icu_properties::props::GeneralCategory;
+use icu_properties::props::GeneralCategoryGroup;
 use regex::Regex;
-use unic_ucd_category::GeneralCategory;
 use unicode_normalization::char::is_combining_mark;
 use unicode_normalization::UnicodeNormalization;
 
@@ -140,7 +142,7 @@ fn isolate_leading_mark(text: &str) -> Cow<'_, str> {
     if text
         .chars()
         .next()
-        .is_some_and(|c| GeneralCategory::of(c).is_mark())
+        .is_some_and(|c| GeneralCategoryGroup::Mark.contains(GeneralCategory::for_char(c)))
     {
         Cow::Owned(format!("\u{a0}{text}"))
     } else {
