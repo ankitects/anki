@@ -85,6 +85,8 @@ globset = "0.4.16"
 hex = "0.4.3"
 htmlescape = "0.3.1"
 hyper = "1"
+icu_properties = "2.1.2"
+icu_properties_data = "2.1.2"
 id_tree = "1.8.0"
 inflections = "1.1.1"
 intl-memoizer = "0.5.3"
@@ -136,8 +138,6 @@ tracing = { version = "0.1.41", features = ["max_level_trace", "release_max_leve
 tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.20", features = ["fmt", "env-filter"] }
 unic-langid = { version = "0.9.6", features = ["macros"] }
-icu_properties_data = "2.1.2"
-icu_properties = "2.1.2"
 unicode-normalization = "0.1.24"
 walkdir = "2.5.0"
 which = "8.0.0"
