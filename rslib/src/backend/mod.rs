@@ -140,10 +140,9 @@ impl Backend {
 
     #[cfg(feature = "rustls")]
     fn set_custom_certificate_inner(&self, cert_str: String) -> Result<()> {
-        use std::io::Cursor;
-        use std::io::Read;
-
         use reqwest::Certificate;
+        use rustls_pki_types::pem::PemObject;
+        use rustls_pki_types::PrivateKeyDer;
 
         let mut web_client = self.web_client.lock().unwrap();
 
@@ -152,7 +151,7 @@ impl Backend {
             return Ok(());
         }
 
-        if rustls_pki_types::pem::PemObject::from_pem_slice(cert_str.as_bytes()).is_err() {
+        if PrivateKeyDer::from_pem_slice(cert_str.as_bytes()).is_err() {
             return Err(AnkiError::InvalidCertificateFormat);
         }
 
