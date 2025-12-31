@@ -37,7 +37,7 @@ Anki uses the **Rust programming language** for parts of its codebase.
    - **Desktop Development with C++**
 4. Leave the advanced options unchanged
 
-> **Note**
+> **Note**:
 > This step is required to compile native parts of the project.
 > On Windows, compiling native code requires Microsoft's MSVC toolchain and the Windows SDK
 > (system headers and libraries), which are typically installed via Visual Studio or
