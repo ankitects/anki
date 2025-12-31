@@ -18,11 +18,12 @@ use anki_io::write_file;
 use anki_io::FileIoError;
 use anki_io::FileIoSnafu;
 use anki_io::FileOp;
+use icu_properties::props::EnumeratedProperty;
+use icu_properties::props::GeneralCategory;
 use regex::Regex;
 use sha1::Digest;
 use sha1::Sha1;
 use tracing::debug;
-use unic_ucd_category::GeneralCategory;
 use unicode_normalization::is_nfc;
 use unicode_normalization::UnicodeNormalization;
 
@@ -76,7 +77,7 @@ fn disallowed_char(char: char) -> bool {
         '[' | ']' | '<' | '>' | ':' | '"' | '/' | '?' | '*' | '^' | '\\' | '|' => true,
         c if c.is_ascii_control() => true,
         // Macs do not allow invalid Unicode characters like 05F8 to be in a filename.
-        c if GeneralCategory::of(c) == GeneralCategory::Unassigned => true,
+        c if GeneralCategory::for_char(c) == GeneralCategory::Unassigned => true,
         _ => false,
     }
 }
