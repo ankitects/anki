@@ -552,6 +552,7 @@ pub(crate) mod test {
 
     use super::*;
     use crate::collection::CollectionBuilder;
+    use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
     use crate::tests::NoteAdder;
 
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
@@ -871,14 +872,11 @@ Unused: unused.jpg
         Ok(())
     }
 
-    /// Regression test for https://github.com/ankitects/anki/issues/1909
     #[test]
     fn long_filename_rename_not_reported_as_unused() -> Result<()> {
         let (_dir, mgr, mut col) = common_setup()?;
 
-        // 65 Greek α characters (2 bytes each) + ".mp3" = 134 bytes
-        let long_filename = format!("{}.mp3", "α".repeat(65));
-        assert!(long_filename.len() > 120);
+        let long_filename = format!("{}.mp3", "a".repeat(MAX_MEDIA_FILENAME_LENGTH + 1));
 
         NoteAdder::basic(&mut col)
             .fields(&["test", &format!("[sound:{}]", long_filename)])
@@ -893,7 +891,7 @@ Unused: unused.jpg
 
         assert!(output.renamed.contains_key(&long_filename));
         let new_filename = output.renamed.get(&long_filename).unwrap();
-        assert!(new_filename.len() <= 120);
+        assert!(new_filename.len() <= MAX_MEDIA_FILENAME_LENGTH);
         assert!(!output.unused.contains(new_filename));
         assert!(!output.missing.contains(new_filename));
 
