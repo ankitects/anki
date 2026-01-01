@@ -11,14 +11,18 @@ MINIMUM_REQUIRED_GLIBC_VERSION=2.36
 # `ldd --version` returns the version of glibc, such as 2.41 with other text.
 # `grep --only-matching "[0-9]\+.[0-9]\+"` returns the (version) numbers.
 # `head --lines=1` only returns the first number (which is the glibc version)
-users_glibc_version=$(ldd --version | grep --only-matching "[0-9]\+.[0-9]\+" | head --lines=1)
+users_glibc_version=$(
+    ldd --version | grep --only-matching "[0-9]\+.[0-9]\+" | head --lines=1
+)
 
 # check if the users glibc is less than the required glibc and abort if true.
 # bash doesn't do floating point comparisons. But integer comparisons do work.
 # Thus, `$(echo $variable | sed "s/\.//")` is used to get an integer
 # representation of the floating point number (2.36 becomes 236).
-if [ $(echo $users_glibc_version | sed "s/\.//") -lt $(echo $MINIMUM_REQUIRED_GLIBC_VERSION | sed "s/\.//") ]; then
-    echo "Error: Your glibc version is $users_glibc_version but $MINIMUM_REQUIRED_GLIBC_VERSION is required. Aborting."
+if [ $(echo $users_glibc_version | sed "s/\.//") -lt \
+     $(echo $MINIMUM_REQUIRED_GLIBC_VERSION | sed "s/\.//") ]; then
+    echo "Error: Your glibc version is $users_glibc_version but" \
+         "$MINIMUM_REQUIRED_GLIBC_VERSION is required. Aborting."
     exit 1
 fi
 
