@@ -10,6 +10,8 @@ use regex::Regex;
 
 use crate::cloze::cloze_filter;
 use crate::cloze::cloze_only_filter;
+use crate::markdown::render_markdown;
+use crate::markdown::render_markdown_inline;
 use crate::template::RenderContext;
 use crate::text::strip_html;
 
@@ -86,6 +88,11 @@ fn apply_filter(
         "hint" => hint_filter(text, field_name),
         "cloze" => cloze_filter(text, context),
         "cloze-only" => cloze_only_filter(text, context),
+        // Markdown filter: converts markdown syntax to HTML
+        // Supports GFM tables, strikethrough, task lists, footnotes, code blocks
+        "markdown" | "md" => render_markdown(text),
+        // Inline markdown: same as markdown but strips outer <p> tags
+        "markdown-inline" | "md-inline" => render_markdown_inline(text),
         // an empty filter name (caused by using two colons) is ignored
         "" => text.into(),
         _ => {
@@ -299,5 +306,104 @@ field</a>
             tts_filter("en_US voices=Bob,Jane", "foo"),
             "[anki:tts lang=en_US voices=Bob,Jane]foo[/anki:tts]"
         );
+    }
+
+    // Markdown filter tests
+    #[test]
+    fn markdown_basic() {
+        let ctx = RenderContext {
+            fields: &Default::default(),
+            nonempty_fields: &Default::default(),
+            frontside: None,
+            card_ord: 0,
+            partial_for_python: false,
+        };
+
+        // Test bold
+        let (result, remaining) = apply_filters("**bold**", &["markdown"], "Field", &ctx);
+        assert!(result.contains("<strong>bold</strong>"));
+        assert!(remaining.is_empty());
+
+        // Test with alias
+        let (result, _) = apply_filters("*italic*", &["md"], "Field", &ctx);
+        assert!(result.contains("<em>italic</em>"));
+    }
+
+    #[test]
+    fn markdown_tables() {
+        let ctx = RenderContext {
+            fields: &Default::default(),
+            nonempty_fields: &Default::default(),
+            frontside: None,
+            card_ord: 0,
+            partial_for_python: false,
+        };
+
+        let table = "| A | B |\n|---|---|\n| 1 | 2 |";
+        let (result, _) = apply_filters(table, &["markdown"], "Field", &ctx);
+        assert!(result.contains("<table>"));
+        assert!(result.contains("<th>"));
+        assert!(result.contains("<td>"));
+    }
+
+    #[test]
+    fn markdown_strikethrough() {
+        let ctx = RenderContext {
+            fields: &Default::default(),
+            nonempty_fields: &Default::default(),
+            frontside: None,
+            card_ord: 0,
+            partial_for_python: false,
+        };
+
+        let (result, _) = apply_filters("~~deleted~~", &["markdown"], "Field", &ctx);
+        assert!(result.contains("<del>deleted</del>"));
+    }
+
+    #[test]
+    fn markdown_inline() {
+        let ctx = RenderContext {
+            fields: &Default::default(),
+            nonempty_fields: &Default::default(),
+            frontside: None,
+            card_ord: 0,
+            partial_for_python: false,
+        };
+
+        let (result, _) = apply_filters("**bold**", &["md-inline"], "Field", &ctx);
+        assert_eq!(result.trim(), "<strong>bold</strong>");
+        assert!(!result.contains("<p>"));
+    }
+
+    #[test]
+    fn markdown_code_blocks() {
+        let ctx = RenderContext {
+            fields: &Default::default(),
+            nonempty_fields: &Default::default(),
+            frontside: None,
+            card_ord: 0,
+            partial_for_python: false,
+        };
+
+        let code = "```python\nprint('hello')\n```";
+        let (result, _) = apply_filters(code, &["markdown"], "Field", &ctx);
+        assert!(result.contains("<pre>"));
+        assert!(result.contains("<code"));
+    }
+
+    #[test]
+    fn markdown_combined_with_other_filters() {
+        let ctx = RenderContext {
+            fields: &Default::default(),
+            nonempty_fields: &Default::default(),
+            frontside: None,
+            card_ord: 0,
+            partial_for_python: false,
+        };
+
+        // Markdown then strip HTML
+        let (result, _) = apply_filters("**bold**", &["markdown", "text"], "Field", &ctx);
+        assert_eq!(result.trim(), "bold");
+        assert!(!result.contains("<strong>"));
     }
 }
