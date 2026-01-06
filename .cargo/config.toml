@@ -13,3 +13,6 @@ color = "always"
 
 [target.'cfg(all(target_env = "msvc", target_os = "windows"))']
 rustflags = ["-C", "target-feature=+crt-static"]
+
+[build]
+target-dir = "out/rust"
