@@ -129,16 +129,6 @@ impl CardQueues {
         self.main.is_empty()
     }
 
-    /// Remove the head of the intraday learning queue, and update counts.
-    pub(super) fn pop_intraday_learning(&mut self) -> Option<LearningQueueEntry> {
-        self.intraday_learning.pop_front().inspect(|_head| {
-            // FIXME:
-            // under normal circumstances this should not go below 0, but currently
-            // the Python unit tests answer learning cards before they're due
-            self.counts.learning = self.counts.learning.saturating_sub(1);
-        })
-    }
-
     /// Add an undone entry to the top of the intraday learning queue.
     pub(super) fn push_intraday_learning(&mut self, entry: LearningQueueEntry) {
         self.intraday_learning.push_front(entry);
