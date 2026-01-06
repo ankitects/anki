@@ -190,12 +190,8 @@ impl QueueBuilder {
         let intraday_learning = sort_learning(self.learning);
         let now = TimestampSecs::now();
         let cutoff = now.adding_secs(learn_ahead_secs);
-        let learn_count = intraday_learning
-            .iter()
-            .take_while(|e| e.due <= cutoff)
-            .count()
-            + self.day_learning.len();
-
+        let learn_count =
+            intraday_learning.iter().filter(|e| e.due <= cutoff).count() + self.day_learning.len();
         let review_count = self.review.len();
         let new_count = self.new.len();
 

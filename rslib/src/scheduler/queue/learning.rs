@@ -34,7 +34,7 @@ impl CardQueues {
         let cutoff = self.current_learning_cutoff;
         self.intraday_learning
             .iter()
-            .take_while(move |e| e.due <= cutoff)
+            .filter(move |e| e.due <= cutoff)
     }
 
     /// Intraday learning cards that can be shown after the main queue is empty.
@@ -43,8 +43,7 @@ impl CardQueues {
         let ahead_cutoff = self.current_learn_ahead_cutoff();
         self.intraday_learning
             .iter()
-            .skip_while(move |e| e.due <= cutoff)
-            .take_while(move |e| e.due <= ahead_cutoff)
+            .filter(move |e| e.due > cutoff && e.due <= ahead_cutoff)
     }
 
     /// Increase the cutoff to the current time, and increase the learning count
@@ -60,8 +59,7 @@ impl CardQueues {
         let new_learning_cards = self
             .intraday_learning
             .iter()
-            .skip_while(|e| e.due <= last_ahead_cutoff)
-            .take_while(|e| e.due <= new_ahead_cutoff)
+            .filter(|e| e.due > last_ahead_cutoff && e.due <= new_ahead_cutoff)
             .count();
         self.counts.learning += new_learning_cards;
 
