@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Icon from "$lib/components/Icon.svelte";
     import IconConstrain from "$lib/components/IconConstrain.svelte";
-    import { mdiEye } from "$lib/components/icons";
+    import { mdiViewCompact, mdiViewList } from "$lib/components/icons";
 
     export let full: boolean = false;
     export let keyCombination: string = "Control+.";
@@ -20,20 +20,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dispatch("displaymodechange");
     }
 
-    $: title = `${tr.editingTagDisplayToggle()} (${getPlatformString(keyCombination)})`;
+    $: title = full
+        ? `${tr.editingTagsShowCompact()} (${getPlatformString(keyCombination)})`
+        : `${tr.editingTagsShowFull()} (${getPlatformString(keyCombination)})`;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
     class="tag-display-mode-button"
-    class:active={full}
     {title}
     role="button"
     tabindex="-1"
     on:click={toggle}
 >
     <IconConstrain>
-        <Icon icon={mdiEye} />
+        {#if full}
+            <Icon icon={mdiViewCompact} />
+        {:else}
+            <Icon icon={mdiViewList} />
+        {/if}
     </IconConstrain>
 </div>
 
@@ -49,8 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             opacity: 0.4;
         }
 
-        &:hover :global(svg),
-        &.active :global(svg) {
+        &:hover :global(svg) {
             opacity: 1;
         }
     }
