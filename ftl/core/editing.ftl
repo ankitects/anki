@@ -69,6 +69,7 @@ editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will no
 editing-mathjax-preview = MathJax Preview
 editing-shrink-images = Shrink Images
 editing-close-html-tags = Auto-close HTML tags
+editing-tag-display-toggle = Toggle full tag display
 editing-from-clipboard = From Clipboard
 editing-alignment = Alignment
 editing-equations = Equations

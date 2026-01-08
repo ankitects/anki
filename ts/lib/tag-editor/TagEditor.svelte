@@ -6,13 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { completeTag } from "@generated/backend";
     import { tagActionsShortcutsKey } from "@tslib/context-keys";
     import { isArrowDown, isArrowUp } from "@tslib/keys";
-    import { createEventDispatcher, setContext, tick } from "svelte";
+    import { createEventDispatcher, onDestroy, setContext, tick } from "svelte";
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
     import Shortcut from "$lib/components/Shortcut.svelte";
     import { execCommand } from "$lib/domlib";
 
+    import TagDisplayModeButton from "./TagDisplayModeButton.svelte";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
@@ -28,6 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tags: Writable<string[]>;
     export let keyCombination: string = "Control+Shift+T";
+    export let displayFull: boolean = false;
 
     const selectAllShortcut = "Control+A";
     const copyShortcut = "Control+C";
@@ -388,8 +390,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // typically correct for rows < 7
     $: assumedRows = Math.floor(height / badgeHeight);
-    $: shortenTags = shortenTags || assumedRows > 2;
+    $: shortenTags = displayFull ? false : shortenTags || assumedRows > 2;
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
+
+    // Track editor width for tag truncation
+    let editorElement: HTMLDivElement;
+    let editorWidth: number = 0;
+    let resizeObserver: ResizeObserver | null = null;
+    let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    function updateEditorWidth(): void {
+        if (editorElement) {
+            editorWidth = editorElement.clientWidth;
+        }
+    }
+
+    function debouncedUpdateWidth(): void {
+        if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
+        }
+        resizeTimeout = setTimeout(updateEditorWidth, 32);
+    }
+
+    $: if (editorElement && !resizeObserver) {
+        resizeObserver = new ResizeObserver(debouncedUpdateWidth);
+        resizeObserver.observe(editorElement);
+        updateEditorWidth();
+    }
+
+    onDestroy(() => {
+        resizeObserver?.disconnect();
+        if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
+        }
+    });
 </script>
 
 {#if anyTagsSelected}
@@ -398,17 +432,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Shortcut keyCombination={removeShortcut} on:action={deleteSelectedTags} />
 {/if}
 
-<div class="tag-editor" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
-    <TagOptionsButton
-        bind:badgeHeight
-        tagsSelected={anyTagsSelected}
-        on:tagselectall={selectAllTags}
-        on:tagcopy={copySelectedTags}
-        on:tagdelete={deleteSelectedTags}
-        on:tagappend={appendEmptyTag}
-        {keyCombination}
-        --icon-align="baseline"
-    />
+<div
+    class="tag-editor"
+    class:display-full={displayFull}
+    on:focusout={deselectIfLeave}
+    bind:offsetHeight={height}
+    bind:this={editorElement}
+>
+    <div class="tag-header">
+        <TagOptionsButton
+            bind:badgeHeight
+            tagsSelected={anyTagsSelected}
+            on:tagselectall={selectAllTags}
+            on:tagcopy={copySelectedTags}
+            on:tagdelete={deleteSelectedTags}
+            on:tagappend={appendEmptyTag}
+            {keyCombination}
+            --icon-align="baseline"
+        />
+
+        <TagDisplayModeButton full={displayFull} on:displaymodechange --icon-align="baseline" />
+    </div>
 
     {#each tagTypes as tag, index (tag.id)}
         <div class="tag-relative" class:hide-tag={index === active}>
@@ -418,6 +462,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 tooltip={tag.name}
                 active={index === active}
                 shorten={shortenTags}
+                truncateMiddle={displayFull}
+                {editorWidth}
                 bind:flash={tag.flash}
                 bind:selected={tag.selected}
                 on:tagedit={() => {
@@ -516,6 +562,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             outline-offset: -1px;
             outline: 2px solid var(--border-focus);
         }
+
+        &.display-full {
+            max-height: 50vh;
+            overflow-y: auto;
+
+            .tag-header {
+                flex: 0 0 auto;
+            }
+
+            .tag-relative {
+                flex: 1 1 100%;
+            }
+        }
+    }
+
+    .tag-header {
+        display: flex;
+        align-items: center;
+        margin-right: 0.75rem;
     }
 
     .tag-relative {
