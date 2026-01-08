@@ -31,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {title}
     role="button"
     tabindex="-1"
+    on:mousedown|preventDefault
     on:click={toggle}
 >
     <IconConstrain>

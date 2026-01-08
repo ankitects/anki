@@ -493,7 +493,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <TagInput
                         id={tag.id}
-                        class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
+                        class="position-absolute start-0 end-0 top-0 bottom-0 ps-2 py-0"
                         disabled={autocompleteDisabled}
                         bind:name={activeName}
                         bind:input={activeInput}
@@ -573,6 +573,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             .tag-relative {
                 flex: 1 1 100%;
+                min-height: calc(var(--font-size, 15px) * 1.5 + 2px);
+            }
+
+            :global(.tag-spacer) {
+                flex: 1 1 100%;
+                min-height: calc(var(--font-size, 15px) * 1.5 + 2px);
+                margin-top: 0;
+            }
+
+            .hide-tag ~ :global(.tag-spacer) {
+                min-height: 0;
+                height: 0;
+                overflow: hidden;
             }
         }
     }
