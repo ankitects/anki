@@ -30,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let tags: Writable<string[]>;
     export let keyCombination: string = "Control+Shift+T";
     export let displayFull: boolean = false;
+    export let displayModeShortcut: string = "Control+.";
 
     const selectAllShortcut = "Control+A";
     const copyShortcut = "Control+C";
@@ -451,7 +452,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             --icon-align="baseline"
         />
 
-        <TagDisplayModeButton full={displayFull} on:displaymodechange --icon-align="baseline" />
+        <TagDisplayModeButton
+            full={displayFull}
+            keyCombination={displayModeShortcut}
+            on:displaymodechange
+            --icon-align="baseline"
+        />
     </div>
 
     {#each tagTypes as tag, index (tag.id)}
@@ -565,6 +571,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &.display-full {
             max-height: 50vh;
+            overflow-x: hidden;
             overflow-y: auto;
 
             .tag-header {

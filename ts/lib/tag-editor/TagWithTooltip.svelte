@@ -33,7 +33,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let cachedEllipsisWidth: number | undefined;
 
     const ELLIPSIS = "…";
-    const PADDING_PX = 60; // Account for padding, delete badge, etc.
+    // Space to the right of tag text: delete badge (~20px) + tag padding pe-1 (4px) + border (1px) + safety margin
+    const RIGHT_PADDING_PX = 51;
 
     // Canvas for text measurement - no DOM thrashing
     const canvas = document.createElement("canvas");
@@ -58,7 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         ctx.font = cachedFont;
 
-        const maxW = editorWidth - PADDING_PX;
+        const maxW = editorWidth - RIGHT_PADDING_PX;
         if (maxW <= 0) {
             displayName = ELLIPSIS;
             needsTooltip = true;

@@ -223,6 +223,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const tagDisplayFull = writable<boolean>(false);
+    const tagDisplayModeShortcut = "Control+.";
+
     export function setTagDisplayFull(full: boolean): void {
         $tagDisplayFull = full;
     }
@@ -813,7 +815,10 @@ the AddCards dialog) should be implemented in the user of this component.
                 updateTagsCollapsed(false);
             }}
         />
-        <Shortcut keyCombination="Control+." on:action={toggleTagDisplayMode} />
+        <Shortcut
+            keyCombination={tagDisplayModeShortcut}
+            on:action={toggleTagDisplayMode}
+        />
         <CollapseLabel
             collapsed={$tagsCollapsed}
             tooltip={$tagsCollapsed ? tr.editingExpand() : tr.editingCollapse()}
@@ -825,6 +830,7 @@ the AddCards dialog) should be implemented in the user of this component.
             <TagEditor
                 {tags}
                 displayFull={$tagDisplayFull}
+                displayModeShortcut={tagDisplayModeShortcut}
                 on:tagsupdate={saveTags}
                 on:displaymodechange={toggleTagDisplayMode}
             />
