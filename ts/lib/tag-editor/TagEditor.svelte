@@ -66,6 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeAfterBlur: number | null = null;
     let activeName = "";
     let activeInput: HTMLInputElement;
+    let newTagId: string | null = null; // ID of newly created empty tag
 
     let autocomplete: any;
     let autocompleteDisabled: boolean = false;
@@ -142,9 +143,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function appendTagAndFocusAt(index: number, name: string): void {
-        tagTypes.splice(index + 1, 0, attachId(name));
+        const newTag = attachId(name);
+        tagTypes.splice(index + 1, 0, newTag);
         tagTypes = tagTypes;
         setActiveAfterBlur(index + 1);
+        // Track new empty tags for spacer collapse logic
+        if (name.length === 0) {
+            newTagId = newTag.id;
+        }
     }
 
     function isActiveNameUniqueAt(index: number): boolean {
@@ -163,6 +169,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function splitTag(index: number, start: number, end: number): Promise<void> {
         const current = activeName.slice(0, start);
         const splitOff = activeName.slice(end);
+
+        // Don't create empty tags - if both parts are empty, just blur (blur handler deletes empty tags)
+        if (current.length === 0 && splitOff.length === 0) {
+            active = null;
+            activeInput.blur();
+            return;
+        }
 
         activeName = current;
         // await tag to update its name, so it can normalize correctly
@@ -211,6 +224,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
+        // If current tag is empty, move to previous (blur handler deletes empty tags)
+        if (activeName.length === 0) {
+            activeAfterBlur = index - 1;
+            active = null;
+            activeInput.blur();
+            return;
+        }
+
         const deleted = deleteTagAt(index - 1);
         activeName = deleted.name + activeName;
         active!--;
@@ -246,7 +267,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        activeAfterBlur = index + 1;
+        // Blur handler deletes empty tags, so next tag shifts to current index
+        activeAfterBlur = activeName.length === 0 ? index : index + 1;
         active = null;
         activeInput.blur();
 
@@ -393,6 +415,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: assumedRows = Math.floor(height / badgeHeight);
     $: shortenTags = displayFull ? false : shortenTags || assumedRows > 2;
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
+    // Spacer should collapse only when adding a new tag at the end
+    $: isAddingTagAtEnd =
+        active !== null &&
+        newTagId !== null &&
+        tagTypes[active]?.id === newTagId &&
+        active === tagTypes.length - 1;
 
     // Track editor width for tag truncation
     let editorElement: HTMLDivElement;
@@ -436,6 +464,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     class="tag-editor"
     class:display-full={displayFull}
+    class:adding-tag-at-end={isAddingTagAtEnd}
     on:focusout={deselectIfLeave}
     bind:offsetHeight={height}
     bind:this={editorElement}
@@ -474,6 +503,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 bind:selected={tag.selected}
                 on:tagedit={() => {
                     active = index;
+                    newTagId = null; // Clear when editing existing tag
                     deselect();
                 }}
                 on:tagselect={() => select(index)}
@@ -589,7 +619,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 margin-top: 0;
             }
 
-            .hide-tag ~ :global(.tag-spacer) {
+            // Only collapse spacer when adding a new tag, not when editing existing
+            &.adding-tag-at-end .hide-tag ~ :global(.tag-spacer) {
                 min-height: 0;
                 height: 0;
                 overflow: hidden;
