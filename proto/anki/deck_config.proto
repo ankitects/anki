@@ -69,6 +69,8 @@ message DeckConfig {
       // Notes are randomly picked from each deck in alphabetical order.
       // Siblings are consecutive, provided they have the same position.
       NEW_CARD_GATHER_PRIORITY_DECK_THEN_RANDOM_NOTES = 5;
+      // One card from each deck at a time, ascending position in each deck.
+      NEW_CARD_GATHER_PRIORITY_INTERLEAVED_DECKS = 6;
       // Ascending position.
       // Siblings are consecutive, provided they have the same position.
       NEW_CARD_GATHER_PRIORITY_LOWEST_POSITION = 1;

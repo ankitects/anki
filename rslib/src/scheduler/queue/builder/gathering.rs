@@ -69,6 +69,10 @@ impl QueueBuilder {
             NewCardGatherPriority::DeckThenRandomNotes => {
                 self.gather_new_cards_by_deck(col, NewCardSorting::RandomNotes(salt))
             }
+            NewCardGatherPriority::InterleavedDecks => {
+                // TODO: Actually implement the new gathering option
+                self.gather_new_cards_by_deck(col, NewCardSorting::RandomNotes(salt))
+            }
             NewCardGatherPriority::LowestPosition => {
                 self.gather_new_cards_sorted(col, NewCardSorting::LowestPosition)
             }

@@ -26,6 +26,10 @@ export function newGatherPriorityChoices(): Choice<DeckConfig_Config_NewCardGath
             value: DeckConfig_Config_NewCardGatherPriority.DECK_THEN_RANDOM_NOTES,
         },
         {
+            label: tr.deckConfigNewGatherPriorityInterleavedDecks(),
+            value: DeckConfig_Config_NewCardGatherPriority.INTERLEAVED_DECKS,
+        },
+        {
             label: tr.deckConfigNewGatherPriorityPositionLowestFirst(),
             value: DeckConfig_Config_NewCardGatherPriority.LOWEST_POSITION,
         },
