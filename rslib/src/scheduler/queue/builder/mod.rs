@@ -399,6 +399,19 @@ mod test {
         ];
         assert_eq!(col.queue_as_deck_and_template(parent.id), cards);
 
+        col.set_deck_gather_order(&mut parent, NewCardGatherPriority::InterleavedDecks);
+        let cards = vec![
+            (parent.id, 0),
+            (child.id, 0),
+            (grandchild.id, 0),
+            (child_2.id, 0),
+            (parent.id, 1),
+            (child.id, 1),
+            (grandchild.id, 1),
+            (child_2.id, 1),
+        ];
+        assert_eq!(col.queue_as_deck_and_template(parent.id), cards);
+
         // insertion order
         col.set_deck_gather_order(&mut parent, NewCardGatherPriority::LowestPosition);
         let cards = vec![
