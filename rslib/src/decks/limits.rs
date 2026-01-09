@@ -351,7 +351,7 @@ impl LimitTreeMap {
             .map(|node_id| self.get_node_limits(node_id))
     }
 
-    fn get_root_limits(&self) -> RemainingLimits {
+    pub(crate) fn get_root_limits(&self) -> RemainingLimits {
         self.get_node_limits(self.tree.root_node_id().unwrap())
     }
 
