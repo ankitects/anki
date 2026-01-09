@@ -413,7 +413,48 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // typically correct for rows < 7
     $: assumedRows = Math.floor(height / badgeHeight);
-    $: shortenTags = displayFull ? false : shortenTags || assumedRows > 2;
+    let shortenTags = false;
+    let prevDisplayFull = displayFull;
+    let recomputingShorten = false;
+    let shortenSeq = 0;
+
+    const afterPaint = () =>
+        new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        );
+
+    async function recomputeShortenForAuto(): Promise<void> {
+        const seq = ++shortenSeq;
+        recomputingShorten = true;
+        shortenTags = false;
+
+        await tick();
+        await afterPaint();
+
+        if (seq !== shortenSeq || displayFull || !editorElement || !badgeHeight) {
+            recomputingShorten = false;
+            return;
+        }
+
+        shortenTags = Math.floor(editorElement.offsetHeight / badgeHeight) > 2;
+        recomputingShorten = false;
+    }
+
+    $: if (displayFull !== prevDisplayFull) {
+        const leftFull = prevDisplayFull && !displayFull;
+        prevDisplayFull = displayFull;
+
+        if (displayFull) {
+            shortenSeq++; // cancel in-flight recompute
+            shortenTags = false;
+        } else if (leftFull) {
+            void recomputeShortenForAuto();
+        }
+    }
+
+    $: if (!displayFull && !recomputingShorten && !shortenTags && assumedRows > 2) {
+        shortenTags = true;
+    }
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
     // Spacer should collapse only when adding a new tag at the end
     $: isAddingTagAtEnd =
@@ -496,7 +537,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 name={index === active ? activeName : tag.name}
                 tooltip={tag.name}
                 active={index === active}
-                shorten={shortenTags}
+                shorten={!displayFull && shortenTags}
                 truncateMiddle={displayFull}
                 {editorWidth}
                 bind:flash={tag.flash}
