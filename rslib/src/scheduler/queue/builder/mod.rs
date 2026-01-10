@@ -407,7 +407,8 @@ mod test {
             (child_2.id, 0),
             (parent.id, 1),
             (child.id, 1),
-            (grandchild.id, 1),
+            // "(grandchild.id, 1)," should not appear here since
+            // "child" has been limited to 3.
             (child_2.id, 1),
         ];
         assert_eq!(col.queue_as_deck_and_template(parent.id), cards);

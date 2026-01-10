@@ -146,6 +146,11 @@ impl QueueBuilder {
         while do_continue {
             do_continue = false;
             let mut non_depleted_decks = 0;
+            // We attempt to predict how many cards that could be
+            // pulled, but there are complications because decks can
+            // limit decks under them in the hierarchy -- this is not
+            // accounted for.  It's not immediately clear how to
+            // accomplish such a thing.
             for deck_data in &mut decks {
                 if self
                     .limits
@@ -164,8 +169,6 @@ impl QueueBuilder {
             let mut sampled_deck_ids = HashSet::<DeckId>::new();
             let sampling = root_limit < non_depleted_decks;
             if sampling {
-                // switch to sampling
-
                 let mut deck_ids: Vec<DeckId> = vec![];
                 for deck_data in &decks {
                     if !deck_data.depleted {
@@ -188,6 +191,12 @@ impl QueueBuilder {
                     continue;
                 }
                 if deck_data.depleted {
+                    continue;
+                }
+                if self
+                    .limits
+                    .limit_reached(deck_data.deck_id, LimitKind::New)?
+                {
                     continue;
                 }
                 if let Some(card) = deck_data.cards.next() {
