@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Anki is a spaced repetition flashcard program with a sophisticated multi-layered architecture that combines TypeScript/Svelte for the web frontend, PyQt for the desktop GUI, Python for the application layer, and Rust for core business logic and performance-critical operations. The different layers communicate through Protocol Buffers (Protobuf), enabling type-safe cross-language RPC calls.
+Anki is a spaced repetition flashcard program with a sophisticated multi-layered architecture that combines TypeScript/Svelte for web frontend, PyQt for desktop GUI, Python for application layer, and Rust for core business logic and performance-critical operations. Different layers communicate through Protocol Buffers (Protobuf), enabling type-safe cross-language RPC calls.
 
 ---
 
