@@ -1,12 +1,81 @@
 # Anki Project Technical Documentation
 
-## Executive Summary
+## Table of Contents
+
+### Part 1: Core Architecture
+
+1. [Executive Summary](#executive-summary)
+2. [Architectural Overview](#architectural-overview)
+3. [Directory Structure](#directory-structure)
+4. [Architecture Layers](#architecture-layers)
+   - [Layer 1: TypeScript/Svelte Web Frontend](#layer-1-typescriptsvelte-web-frontend)
+   - [Layer 2: PyQt GUI](#layer-2-pyqt-gui)
+   - [Layer 3: Python Library](#layer-3-python-library)
+   - [Layer 4: Rust Core](#layer-4-rust-core)
+   - [Layer 5: Protocol Buffers](#layer-5-protocol-buffers)
+
+### Part 2: Core Systems
+
+5. [Import/Export System](#importexport-system)
+   - [Overview](#overview)
+   - [Supported Formats](#supported-formats)
+   - [Architecture Flow](#architecture-flow)
+   - [Protocol Buffer Definitions](#protocol-buffer-definitions)
+   - [Rust Implementation](#rust-implementation)
+   - [Python Implementation](#python-implementation)
+   - [PyQt GUI Implementation](#pyqt-gui-implementation)
+   - [TypeScript/Svelte UI](#typescriptsvelte-ui)
+   - [Anki Package Format](#anki-package-format)
+   - [CSV Import Flow](#csv-import-flow)
+   - [Anki Package Export Flow](#anki-package-export-flow)
+   - [Media Handling](#media-handling)
+   - [Import Response](#import-response)
+   - [Common Use Cases](#common-use-cases)
+   - [Performance Considerations](#performance-considerations)
+6. [Build System](#build-system)
+7. [Inter-Layer Communication](#inter-layer-communication)
+8. [Data Flow Examples](#data-flow-examples)
+
+### Part 3: Feature Systems
+
+9. [Internationalization (i18n)](#internationalization-i18n)
+10. [Synchronization Architecture](#synchronization-architecture)
+11. [Media Management](#media-management)
+12. [Scheduler Architecture (FSRS)](#scheduler-architecture-fsrs)
+13. [Database Schema](#database-schema)
+
+### Part 4: Extensibility & Configuration
+
+14. [Addon System](#addon-system)
+15. [Configuration Management](#configuration-management)
+
+### Part 5: Testing & Quality
+
+16. [Testing](#testing)
+17. [Performance Optimization](#performance-optimization)
+
+### Part 6: Development Tools
+
+18. [Platform-Specific Code](#platform-specific-code)
+19. [Security](#security)
+20. [Deployment](#deployment)
+21. [Key Development Patterns](#key-development-patterns)
+22. [Debugging and Logging](#debugging-and-logging)
+23. [Common Workflows](#common-workflows)
+
+24. [Conclusion](#conclusion)
+
+---
+
+# Part 1: Core Architecture
+
+## 1. Executive Summary
 
 Anki is a spaced repetition flashcard program with a sophisticated multi-layered architecture that combines TypeScript/Svelte for web frontend, PyQt for desktop GUI, Python for application layer, and Rust for core business logic and performance-critical operations. Different layers communicate through Protocol Buffers (Protobuf), enabling type-safe cross-language RPC calls.
 
 ---
 
-## Architectural Overview
+## 2. Architectural Overview
 
 Anki follows a **three-layer architecture** with unidirectional RPC flow:
 
@@ -37,11 +106,11 @@ graph TB
     PY_CORE -->|"backend RPC"| RUST_CORE
     RUST_CORE -->|"Read/Write"| STORAGE
     
-    style TS_CORE fill:#4fc3f7
-    style GUI_CORE fill:#ffb74d
-    style PY_CORE fill:#ba68c8
-    style RUST_CORE fill:#e57373
-    style STORAGE fill:#81c784
+    style TS_CORE fill:#000000,stroke:#000000,color:#ffffff
+    style GUI_CORE fill:#000000,stroke:#000000,color:#ffffff
+    style PY_CORE fill:#000000,stroke:#000000,color:#ffffff
+    style RUST_CORE fill:#000000,stroke:#000000,color:#ffffff
+    style STORAGE fill:#000000,stroke:#000000,color:#ffffff
 ```
 
 **Key Principles:**
@@ -52,7 +121,7 @@ graph TB
 
 ---
 
-## Directory Structure
+## 3. Directory Structure
 
 ### Root Level
 
@@ -80,7 +149,9 @@ anki/
 
 ---
 
-## Layer 1: TypeScript/Svelte Web Frontend (`ts/`)
+## 4. Architecture Layers
+
+### Layer 1: TypeScript/Svelte Web Frontend (`ts/`)
 
 ### Purpose
 Provides modern, responsive web-based UI components that are embedded in PyQt web views.
@@ -149,7 +220,7 @@ export async function postProto<T>(
 
 ---
 
-## Layer 2: PyQt GUI (`qt/aqt/`)
+### Layer 2: PyQt GUI (`qt/aqt/`)
 
 ### Purpose
 Desktop GUI wrapper that embeds web components, handles system integration, and provides native dialogs.
@@ -223,9 +294,7 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
     app.exec()
 ```
 
----
-
-## Layer 3: Python Library (`pylib/`)
+### Layer 3: Python Library (`pylib/`)
 
 ### Purpose
 Application logic layer that wraps the Rust backend, provides high-level Python API, and handles integration concerns.
@@ -304,7 +373,9 @@ def db_query(self, sql: str, args: Sequence[ValueForDB], first_row_only: bool):
 
 ---
 
-## Import/Export System
+# Part 2: Core Systems
+
+## 5. Import/Export System
 
 ### Overview
 
@@ -357,11 +428,11 @@ graph TB
     RUST -->|"Export Logic"| PKG
     RUST -->|"Import Logic"| PKG
     
-    style UI fill:#4fc3f7
-    style GUI fill:#ffb74d
-    style PY fill:#ba68c8
-    style RUST fill:#e57373
-    style PKG fill:#81c784
+    style UI fill:#000000,stroke:#000000,color:#ffffff
+    style GUI fill:#000000,stroke:#000000,color:#ffffff
+    style PY fill:#000000,stroke:#000000,color:#ffffff
+    style RUST fill:#000000,stroke:#000000,color:#ffffff
+    style PKG fill:#000000,stroke:#000000,color:#ffffff
 ```
 
 ### Protocol Buffer Definitions
@@ -918,7 +989,7 @@ message ImportResponse {
 
 ---
 
-## Layer 4: Rust Core (`rslib/`)
+### Layer 4: Rust Core (`rslib/`)
 
 ### Purpose
 Performance-critical business logic, storage, and core algorithms. The majority of Anki's functionality now lives here.
@@ -1044,14 +1115,12 @@ pub enum AnkiError {
 - States: `scheduler/states/`
 - Queues: `scheduler/queue/`
 - Features:
-  - Adaptive intervals
-  - Retention prediction
-  - Difficulty calculation
-  - Stability tracking
+   - Adaptive intervals
+   - Retention prediction
+   - Difficulty calculation
+   - Stability tracking
 
----
-
-## Layer 5: Protocol Buffers (`proto/`)
+### Layer 5: Protocol Buffers (`proto/`)
 
 ### Purpose
 Define the contract between layers, enabling type-safe cross-language communication.
@@ -1135,7 +1204,7 @@ message Deck {
 
 ---
 
-## Build System (`build/`)
+## 6. Build System (`build/`)
 
 ### Purpose
 Custom Ninja-based build system that orchestrates Rust, Python, and TypeScript builds.
@@ -1223,7 +1292,7 @@ out/
 
 ---
 
-## Inter-Layer Communication
+## 7. Inter-Layer Communication
 
 ### Python → Rust (Protobuf RPC)
 
@@ -1288,7 +1357,7 @@ globalThis.anki.deckOptionsPendingChanges = async () => {
 
 ---
 
-## Data Flow Examples
+## 8. Data Flow Examples
 
 ### Adding a New Card
 
@@ -1334,7 +1403,9 @@ globalThis.anki.deckOptionsPendingChanges = async () => {
 
 ---
 
-## Internationalization (i18n)
+# Part 3: Feature Systems
+
+## 9. Internationalization (i18n)
 
 ### Fluent-based Translation System
 
@@ -1385,7 +1456,7 @@ tr.browsingAddNotes({ count: 5 });
 
 ---
 
-## Synchronization Architecture
+## 10. Synchronization Architecture
 
 ### Components
 
@@ -1436,7 +1507,7 @@ anki --syncserver
 
 ---
 
-## Media Management
+## 11. Media Management
 
 ### Storage
 
@@ -1478,7 +1549,7 @@ class MediaManager:
 
 ---
 
-## Scheduler Architecture (FSRS)
+## 12. Scheduler Architecture (FSRS)
 
 ### Algorithm
 
@@ -1532,7 +1603,7 @@ class MediaManager:
 
 ---
 
-## Database Schema
+## 13. Database Schema
 
 ### Schema Version 11
 
@@ -1645,7 +1716,9 @@ CREATE INDEX idx_revlog_cid ON revlog (cid);
 
 ---
 
-## Addon System
+# Part 4: Extensibility & Configuration
+
+## 14. Addon System
 
 ### Location: `qt/aqt/addons/`
 
@@ -1697,7 +1770,7 @@ globalThis.anki = {
 
 ---
 
-## Configuration Management
+## 15. Configuration Management
 
 ### Locations
 
@@ -1730,7 +1803,9 @@ config = {
 
 ---
 
-## Testing
+# Part 5: Testing & Quality
+
+## 16. Testing
 
 ### Rust Tests
 
@@ -1758,7 +1833,9 @@ config = {
 
 ---
 
-## Performance Optimization
+---
+
+## 17. Performance Optimization
 
 ### Rust Optimizations
 
@@ -1786,7 +1863,9 @@ config = {
 
 ---
 
-## Platform-Specific Code
+# Part 6: Development Tools
+
+## 18. Platform-Specific Code
 
 ### Windows
 
@@ -1815,7 +1894,7 @@ config = {
 
 ---
 
-## Security
+## 19. Security
 
 ### Certificate Handling
 
@@ -1839,7 +1918,7 @@ config = {
 
 ---
 
-## Deployment
+## 20. Deployment
 
 ### Build Distribution
 
@@ -1870,7 +1949,7 @@ config = {
 
 ---
 
-## Key Development Patterns
+## 21. Key Development Patterns
 
 ### 1. Service Pattern (Rust)
 
@@ -1933,7 +2012,7 @@ pub struct OpChanges {
 
 ---
 
-## Debugging and Logging
+## 22. Debugging and Logging
 
 ### Rust Logging
 
@@ -1964,7 +2043,7 @@ RUST_LOG=anki=debug,anki::scheduler=trace
 
 ---
 
-## Common Workflows
+## 23. Common Workflows
 
 ### Adding a New Backend RPC
 
@@ -2068,7 +2147,7 @@ tr.myPluralString({ count: 5 });
 
 ---
 
-## Conclusion
+## 24. Conclusion
 
 Anki's architecture is a sophisticated multi-layered system designed for:
 
