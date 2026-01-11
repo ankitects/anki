@@ -12,36 +12,36 @@ Anki follows a **three-layer architecture** with unidirectional RPC flow:
 
 ```mermaid
 graph TB
-    subgraph "TypeScript/Svelte Layer"
-        TS[Web Frontend<br/>ts/]
+    subgraph TS["TypeScript/Svelte Layer"]
+        TS[Web Frontend ts/]
     end
     
-    subgraph "PyQt GUI Layer"
-        GUI[Desktop Interface<br/>qt/aqt/]
+    subgraph GUI["PyQt GUI Layer"]
+        GUI[Desktop Interface qt/aqt/]
     end
     
-    subgraph "Python Library Layer"
-        PY[Application Layer<br/>pylib/anki/]
+    subgraph PY["Python Library Layer"]
+        PY[Application Layer pylib/anki/]
     end
     
-    subgraph "Rust Core Layer"
-        RUST[Core Business Logic<br/>rslib/src/]
+    subgraph RUST["Rust Core Layer"]
+        RUST[Core Business Logic rslib/src/]
     end
     
-    subgraph "Storage"
-        DB[SQLite Database]
+    subgraph DB["Storage"]
+        STORAGE[SQLite Database]
     end
     
-    TS -->|"HTTP POST /_anki/*"| GUI
-    GUI -->|"Python calls +<br/>web.eval()"<br/>(bidirectional)| PY
-    PY -->|"_backend RPC calls"| RUST
-    RUST -->|Read/Write| DB
+    TS -->|"HTTP POST"| GUI
+    GUI -->|"Python calls + web.eval"| PY
+    PY -->|"backend RPC"| RUST
+    RUST -->|"Read/Write"| STORAGE
     
     style TS fill:#e1f5ff
     style GUI fill:#fff4e6
     style PY fill:#f3e5f5
     style RUST fill:#ffebee
-    style DB fill:#e8f5e9
+    style STORAGE fill:#e8f5e9
 ```
 
 **Key Principles:**
