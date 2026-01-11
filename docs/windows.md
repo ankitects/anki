@@ -1,57 +1,133 @@
-# Windows
+# Windows Quick Start Guide
 
-## Requirements
+> A simplified and beginner-friendly version of Anki’s official Windows documentation.
+> Ideal for first-time contributors building Anki on Windows.
 
-**Windows**:
+---
 
-You must be running 64 bit Windows 10, version 1703 or newer.
+## Minimum Requirements
 
-**Rustup**:
+- **64-bit Windows 10** (version 1703 or newer)
+- Administrator access to install software
 
-As mentioned in development.md, rustup must be installed. If you're on
-ARM Windows and install the ARM64 version of rust-up, from this project folder,
-run
+---
 
+## Step 1 – Install Rust (rustup)
+
+Anki uses the **Rust programming language** for parts of its codebase.
+
+1. Visit the official Rust website
+2. Download and install **rustup**
+3. During installation, accept the default options
+
+> **Windows ARM users**\
+> After installing rustup, run the following command in a terminal, inside the project folder:
+>
+> ```bash
+> rustup target add x86_64-pc-windows-msvc
+> ```
+
+---
+
+## Step 2 – Install Visual Studio
+
+1. Download **Visual Studio Community Edition**
+2. Open the installer
+3. Select:
+   - **Desktop Development with C++**
+4. Leave the advanced options unchanged
+
+> **Note**:
+> This step is required to compile native parts of the project.
+> On Windows, compiling native code requires Microsoft's MSVC toolchain and the Windows SDK
+> (system headers and libraries), which are typically installed via Visual Studio or
+> Visual Studio Build Tools.
+
+---
+
+## Step 3 – Install MSYS2
+
+1. Visit the [MSYS2](https://www.msys2.org/) website
+2. Install it in the default location
+3. After installation, open the MSYS2 terminal
+4. Run the following command:
+
+```bash
+pacman -S git rsync
 ```
-rustup target add x86_64-pc-windows-msvc
+
+---
+
+### Configure the PATH Environment Variable
+
+1. Open **Windows Environment Variables**
+2. Edit the **PATH** variable
+3. Add the following path:
+
+```text
+C:\msys64\usr\bin
 ```
 
-**Visual Studio**:
+4. Reboot your computer
 
-Install Visual Studio Community Edition from Microsoft. Once you've downloaded
-the installer, open it, and select "Desktop Development with C++" on the left,
-leaving the options shown on the right as is.
+> **Important note**\
+> If you already have native Windows apps relying on Git (for example, [posh-git](https://github.com/dahlbyk/posh-git) in PowerShell), they may conflict with the MSYS2 Git.
+>
+> - In that case, prefer using [Git for Windows](https://gitforwindows.org/) over msys2.
+> - Ensure that `rsync` is available some other way
 
-**MSYS**:
+---
 
-Install [msys2](https://www.msys2.org/) into the default folder location.
+## Step 4 – Choose a Good Source Code Location
 
-After installation completes, run msys2, and run the following command:
+To avoid build issues:
 
+- Avoid long directory paths
+- Avoid spaces in folder names
+
+**Recommended**:
+
+```text
+C:\anki
 ```
-$ pacman -S git rsync
+
+**Problematic**:
+
+```text
+C:\Users\Your Name\Documents\Projects\Anki Source Code
 ```
 
-Edit your PATH environmental variable and add c:\msys64\usr\bin to it, and
-reboot.
+---
 
-If you have native Windows apps relying on Git, e.g. the PowerShell extension
-[posh-git](https://github.com/dahlbyk/posh-git), you may want to install
-[Git for Windows](https://gitforwindows.org/) and put it on the path instead,
-as msys Git may cause issues with them. You'll need to make sure rsync is
-available some other way.
+## Audio Support (Optional)
 
-**Source folder**:
+To play and record audio during development, ensure the following executables are available in your **PATH**:
 
-Anki's source files do not need to be in a specific location, but it's best to
-avoid long paths, as they can cause problems. Spaces in the path may cause
-problems.
+- `mpv.exe`
+- `lame.exe`
 
-## Audio
+---
 
-To play and record audio during development, mpv.exe and lame.exe must be on the path.
+## Common Problems
 
-## More
+### Build errors
 
-For info on running tests, building wheels and so on, please see
-[Development](./development.md).
+- Make sure Visual Studio was installed with **Desktop Development with C++**
+
+### `git` command not found
+
+- Verify that the PATH variable is configured correctly
+
+### Issues caused by spaces in paths
+
+- Move the project to a shorter path, such as `C:\anki`
+
+---
+
+## Next Steps
+
+For advanced topics such as running tests or building wheels, see:
+
+- `development.md`
+
+---
