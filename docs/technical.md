@@ -37,11 +37,11 @@ graph TB
     PY_CORE -->|"backend RPC"| RUST_CORE
     RUST_CORE -->|"Read/Write"| STORAGE
     
-    style TS_CORE fill:#e1f5ff
-    style GUI_CORE fill:#fff4e6
-    style PY_CORE fill:#f3e5f5
-    style RUST_CORE fill:#ffebee
-    style STORAGE fill:#e8f5e9
+    style TS_CORE fill:#4fc3f7
+    style GUI_CORE fill:#ffb74d
+    style PY_CORE fill:#ba68c8
+    style RUST_CORE fill:#e57373
+    style STORAGE fill:#81c784
 ```
 
 **Key Principles:**
@@ -357,11 +357,11 @@ graph TB
     RUST -->|"Export Logic"| PKG
     RUST -->|"Import Logic"| PKG
     
-    style UI fill:#e1f5ff
-    style GUI fill:#fff4e6
-    style PY fill:#f3e5f5
-    style RUST fill:#ffebee
-    style PKG fill:#e8f5e9
+    style UI fill:#4fc3f7
+    style GUI fill:#ffb74d
+    style PY fill:#ba68c8
+    style RUST fill:#e57373
+    style PKG fill:#81c784
 ```
 
 ### Protocol Buffer Definitions
