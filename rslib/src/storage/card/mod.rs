@@ -341,6 +341,24 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn new_cards_in_deck(
+        &self,
+        deck: DeckId,
+        sort: NewCardSorting,
+    ) -> Result<Vec<NewCard>> {
+        let mut stmt = self.db.prepare_cached(&format!(
+            "{} ORDER BY {}",
+            include_str!("new_cards.sql"),
+            sort.write()
+        ))?;
+        let mut rows = stmt.query(params![deck])?;
+        let mut names = Vec::new();
+        while let Some(row) = rows.next()? {
+            names.push(row_to_new_card(row)?);
+        }
+        Ok(names)
+    }
+
     /// Call func() for each new card in the active decks, stopping when it
     /// returns false or no more cards found.
     pub(crate) fn for_each_new_card_in_active_decks<F>(

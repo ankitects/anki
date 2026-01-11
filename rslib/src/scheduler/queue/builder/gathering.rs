@@ -1,6 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashSet;
+
+use rand::rng;
+use rand::Rng;
+
 use super::DueCard;
 use super::NewCard;
 use super::QueueBuilder;
@@ -69,6 +74,9 @@ impl QueueBuilder {
             NewCardGatherPriority::DeckThenRandomNotes => {
                 self.gather_new_cards_by_deck(col, NewCardSorting::RandomNotes(salt))
             }
+            NewCardGatherPriority::InterleavedDecks => {
+                self.gather_new_cards_by_interleaved_decks(col, NewCardSorting::LowestPosition)
+            }
             NewCardGatherPriority::LowestPosition => {
                 self.gather_new_cards_sorted(col, NewCardSorting::LowestPosition)
             }
@@ -105,6 +113,100 @@ impl QueueBuilder {
                     }
                     Ok(!limit_reached)
                 })?;
+        }
+
+        Ok(())
+    }
+
+    fn gather_new_cards_by_interleaved_decks(
+        &mut self,
+        col: &mut Collection,
+        sort: NewCardSorting,
+    ) -> Result<()> {
+        struct InterleavedDeckData {
+            deck_id: DeckId,
+            depleted: bool,
+            cards: std::iter::Peekable<std::vec::IntoIter<NewCard>>,
+        }
+        let mut decks: Vec<InterleavedDeckData> = vec![];
+        for deck_id in col.storage.get_active_deck_ids_sorted()? {
+            let x: std::iter::Peekable<std::vec::IntoIter<NewCard>> = col
+                .storage
+                .new_cards_in_deck(deck_id, sort)?
+                .into_iter()
+                .peekable();
+            decks.push(InterleavedDeckData {
+                deck_id,
+                depleted: false,
+                cards: x,
+            });
+        }
+        let mut rng = rng();
+        let mut do_continue = true;
+        while do_continue {
+            do_continue = false;
+            let mut non_depleted_decks = 0;
+            // We attempt to predict how many cards that could be
+            // pulled, but there are complications because decks can
+            // limit decks under them in the hierarchy -- this is not
+            // accounted for.  It's not immediately clear how to
+            // accomplish such a thing.
+            for deck_data in &mut decks {
+                if self
+                    .limits
+                    .limit_reached(deck_data.deck_id, LimitKind::New)?
+                {
+                    deck_data.depleted = true;
+                    continue;
+                }
+                if deck_data.cards.peek().is_none() {
+                    deck_data.depleted = true;
+                } else {
+                    non_depleted_decks += 1;
+                }
+            }
+            let root_limit = self.limits.get_root_limits().get(LimitKind::New);
+            let mut sampled_deck_ids = HashSet::<DeckId>::new();
+            let sampling = root_limit < non_depleted_decks;
+            if sampling {
+                let mut deck_ids: Vec<DeckId> = vec![];
+                for deck_data in &decks {
+                    if !deck_data.depleted {
+                        deck_ids.push(deck_data.deck_id);
+                    }
+                }
+                for _i in 0..root_limit {
+                    let selected_index = rng.random_range(0..deck_ids.len());
+                    let selected_deck_id = deck_ids[selected_index];
+                    sampled_deck_ids.insert(selected_deck_id);
+                    deck_ids.swap_remove(selected_index);
+                }
+            }
+            for deck_data in &mut decks {
+                if self.limits.root_limit_reached(LimitKind::New) {
+                    do_continue = false;
+                    break;
+                }
+                if sampling && !sampled_deck_ids.contains(&deck_data.deck_id) {
+                    continue;
+                }
+                if deck_data.depleted {
+                    continue;
+                }
+                if self
+                    .limits
+                    .limit_reached(deck_data.deck_id, LimitKind::New)?
+                {
+                    continue;
+                }
+                if let Some(card) = deck_data.cards.next() {
+                    if self.add_new_card(card) {
+                        self.limits
+                            .decrement_deck_and_parent_limits(deck_data.deck_id, LimitKind::New)?;
+                        do_continue = true;
+                    }
+                }
+            }
         }
 
         Ok(())

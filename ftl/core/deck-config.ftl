@@ -142,6 +142,13 @@ deck-config-new-gather-priority-tooltip-2 =
     can stop before all subdecks have been checked. This order is fastest in large collections, and
     allows you to prioritize subdecks that are closer to the top.
     
+    `Interleaved Decks`: Gathers cards by taking one card at a time
+    from each deck in order. This allows new cards to be distributed
+    evenly across decks. Cards from each subdeck are gathered in
+    ascending position. If the number of decks are not equal to the
+    daily limit of the selected deck, the last round of cards will be
+    drawn from a random sample of decks.
+    
     `Ascending position`: Gathers cards by ascending position (due #), which is typically
     the oldest-added first.
     
@@ -197,6 +204,8 @@ deck-config-display-order-will-use-current-deck =
 deck-config-new-gather-priority-deck = Deck
 # Gather new cards ordered by deck, then ordered by random notes, ensuring all cards of the same note are grouped together.
 deck-config-new-gather-priority-deck-then-random-notes = Deck, then random notes
+# Gather new cards by interleaving decks, taking one card at a time from each deck in order.
+deck-config-new-gather-priority-interleaved-decks = Interleaved Decks
 # Gather new cards ordered by position number, ascending (lowest to highest).
 deck-config-new-gather-priority-position-lowest-first = Ascending position
 # Gather new cards ordered by position number, descending (highest to lowest).
