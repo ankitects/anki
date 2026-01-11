@@ -25,7 +25,7 @@ graph TB
     end
     
     subgraph RUST["Rust Core Layer"]
-        RUST[Core Business Logic rslib/src/]
+        RUST_CORE[Core Business Logic rslib/src/]
     end
     
     subgraph DB["Storage"]
@@ -34,13 +34,13 @@ graph TB
     
     TS -->|"HTTP POST"| GUI
     GUI -->|"Python calls + web.eval"| PY
-    PY -->|"backend RPC"| RUST
-    RUST -->|"Read/Write"| STORAGE
+    PY -->|"backend RPC"| RUST_CORE
+    RUST_CORE -->|"Read/Write"| STORAGE
     
     style TS fill:#e1f5ff
     style GUI fill:#fff4e6
     style PY fill:#f3e5f5
-    style RUST fill:#ffebee
+    style RUST_CORE fill:#ffebee
     style STORAGE fill:#e8f5e9
 ```
 
