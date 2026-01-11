@@ -317,7 +317,7 @@ The system is distributed across all layers, with Rust handling core processing,
 ### Supported Formats
 
 | Format | Extension | Export | Import | Description |
-|---------|------------|--------|-------------|
+|--------|-----------|--------|--------|-------------|
 | Anki Package (with media) | `.apkg` | ✅ | ✅ | Full deck export with cards, notes, media, scheduling |
 | Collection Package | `.colpkg` | ✅ | ✅ | Full collection backup (all decks) |
 | Note CSV | `.csv` | ✅ | ✅ | Tab-separated note data |
