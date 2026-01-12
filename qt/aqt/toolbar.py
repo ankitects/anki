@@ -12,7 +12,7 @@ from anki.sync import SyncStatus
 from aqt import gui_hooks, props
 from aqt.qt import *
 from aqt.sync import get_sync_status
-from aqt.theme import theme_manager
+from aqt.theme import Theme, theme_manager
 from aqt.utils import tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
@@ -391,6 +391,7 @@ class Toolbar:
     def _right_tray_content(self) -> str:
         right_tray_content: list[str] = []
         gui_hooks.top_toolbar_will_set_right_tray_content(right_tray_content, self)
+        right_tray_content.append(self._create_theme_toggle_link())
         return self._process_tray_content(right_tray_content)
 
     def _process_tray_content(self, content: list[str]) -> str:
@@ -409,6 +410,20 @@ class Toolbar:
 <a class=hitem tabindex="-1" aria-label="{name}" title="{title}" id="{label}" href=# onclick="return pycmd('{label}')"
 >{name}<img id=sync-spinner src='/_anki/imgs/refresh.svg'>
 </a>"""
+
+    def _create_theme_toggle_link(self) -> str:
+        label = (
+            tr.preferences_theme_light()
+            if theme_manager.night_mode
+            else tr.preferences_theme_dark()
+        )
+        return self.create_link(
+            "toggle_theme",
+            label,
+            self._themeToggleHandler,
+            tip="Toggle theme",
+            id="toggle-theme",
+        )
 
     def set_sync_active(self, active: bool) -> None:
         method = "add" if active else "remove"
@@ -452,6 +467,17 @@ class Toolbar:
 
     def _syncLinkHandler(self) -> None:
         self.mw.on_sync_button_clicked()
+
+    def _themeToggleHandler(self) -> None:
+        current = self.mw.pm.theme()
+        if current == Theme.LIGHT:
+            next_theme = Theme.DARK
+        elif current == Theme.DARK:
+            next_theme = Theme.LIGHT
+        else:
+            next_theme = Theme.LIGHT if theme_manager.night_mode else Theme.DARK
+        self.mw.set_theme(next_theme)
+        self.redraw()
 
     # HTML & CSS
     ######################################################################

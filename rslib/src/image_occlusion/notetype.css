@@ -11,6 +11,6 @@
     font-family: arial;
     font-size: 20px;
     text-align: center;
-    color: black;
-    background-color: white;
+    color: var(--fg);
+    background-color: var(--canvas);
 }
