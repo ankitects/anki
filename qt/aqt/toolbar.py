@@ -391,7 +391,6 @@ class Toolbar:
     def _right_tray_content(self) -> str:
         right_tray_content: list[str] = []
         gui_hooks.top_toolbar_will_set_right_tray_content(right_tray_content, self)
-        right_tray_content.append(self._create_theme_toggle_link())
         return self._process_tray_content(right_tray_content)
 
     def _process_tray_content(self, content: list[str]) -> str:

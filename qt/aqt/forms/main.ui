@@ -102,6 +102,16 @@
     </property>
     <addaction name="actionFullScreen"/>
     <addaction name="separator"/>
+    <widget class="QMenu" name="menuThemeMode">
+     <property name="title">
+      <string notr="true">Modo</string>
+     </property>
+     <addaction name="actionThemeLight"/>
+     <addaction name="actionThemeDark"/>
+     <addaction name="actionThemeSystem"/>
+    </widget>
+    <addaction name="menuThemeMode"/>
+    <addaction name="separator"/>
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
     <addaction name="actionResetZoom"/>
@@ -287,6 +297,30 @@
   <action name="action_upgrade_downgrade">
    <property name="text">
     <string>qt_accel_upgrade_downgrade</string>
+   </property>
+  </action>
+  <action name="actionThemeLight">
+   <property name="text">
+    <string>preferences_theme_light</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionThemeDark">
+   <property name="text">
+    <string>preferences_theme_dark</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionThemeSystem">
+   <property name="text">
+    <string>preferences_theme_follow_system</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
    </property>
   </action>
  </widget>

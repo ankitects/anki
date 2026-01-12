@@ -1166,6 +1166,16 @@ title="{}" {}>{}</button>""".format(
     def set_theme(self, theme: Theme) -> None:
         self.pm.set_theme(theme)
         self.setupStyle()
+        self.update_theme_menu_state()
+
+    def update_theme_menu_state(self) -> None:
+        """Update the checkstate of theme menu items based on current theme."""
+        m = self.form
+        current_theme = self.pm.theme()
+        
+        m.actionThemeLight.setChecked(current_theme == Theme.LIGHT)
+        m.actionThemeDark.setChecked(current_theme == Theme.DARK)
+        m.actionThemeSystem.setChecked(current_theme == Theme.FOLLOW_SYSTEM)
 
     # Key handling
     ##########################################################################
@@ -1446,6 +1456,12 @@ title="{}" {}>{}</button>""".format(
             QKeySequence("F11") if is_lin else QKeySequence.StandardKey.FullScreen
         )
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
+
+        # Theme
+        qconnect(m.actionThemeLight.triggered, lambda: self.set_theme(Theme.LIGHT))
+        qconnect(m.actionThemeDark.triggered, lambda: self.set_theme(Theme.DARK))
+        qconnect(m.actionThemeSystem.triggered, lambda: self.set_theme(Theme.FOLLOW_SYSTEM))
+        self.update_theme_menu_state()
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")
