@@ -458,7 +458,6 @@ class Reviewer:
 
     # Showing the answer
     ##########################################################################
-
     def _showAnswer(self) -> None:
         if self.mw.state != "review":
             # showing resetRequired screen; ignore space
@@ -484,6 +483,27 @@ class Reviewer:
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
         self._auto_advance_to_question_if_enabled()
+        # Exibir campo de anotações se existir
+        self._show_annotations_if_present()
+        
+    def _show_annotations_if_present(self) -> None:
+        """Mostra o campo de anotações após revelar a resposta, se presente."""
+        if not self.card:
+            return
+        
+        note = self.card.note()
+        
+        # Verificar se o campo "Anotações" existe
+        if "Anotações" in note:
+            annotations_content = note["Anotações"]
+            
+            # Se houver conteúdo nas anotações
+            if annotations_content and annotations_content.strip():
+                # Escapar conteúdo para segurança e compatibilidade JSON
+                escaped_annotations = json.dumps(annotations_content)
+                
+                # Chamar função JavaScript para exibir anotações
+                self.web.eval(f"if (typeof displayAnnotations === 'function') {{ displayAnnotations({escaped_annotations}); }}")
 
     def _auto_advance_to_question_if_enabled(self) -> None:
         self._clear_auto_advance_timers()

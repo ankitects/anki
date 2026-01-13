@@ -47,11 +47,17 @@ function showQuestion(txt: string, maxTime_: number): void {
             updateTime();
         }
     }, 1000);
+    
+    // NOVO: Esconder campo de anotações quando mostrar pergunta
+    hideAnnotations();
 }
 
 function showAnswer(txt: string, stopTimer = false): void {
     document.getElementById("middle").innerHTML = txt;
     timerStopped = stopTimer;
+    
+    // NOVO: Mostrar campo de anotações quando mostrar resposta
+    showAnnotations();
 }
 
 function selectedAnswerButton(): string {
@@ -60,4 +66,60 @@ function selectedAnswerButton(): string {
         return;
     }
     return node.dataset.ease;
+}
+
+// ==================== NOVO CÓDIGO ====================
+
+/**
+ * Mostra o campo de anotações após o usuário ver a resposta
+ */
+function showAnnotations(): void {
+    const annotationsField = document.getElementById("annotations-field");
+    if (annotationsField) {
+        annotationsField.style.display = "block";
+        // Animação suave
+        annotationsField.style.opacity = "0";
+        setTimeout(() => {
+            annotationsField.style.opacity = "1";
+        }, 10);
+    }
+}
+
+/**
+ * Esconde o campo de anotações quando mostrar nova pergunta
+ */
+function hideAnnotations(): void {
+    const annotationsField = document.getElementById("annotations-field");
+    if (annotationsField) {
+        annotationsField.style.display = "none";
+    }
+}
+
+/**
+ * Cria e injeta o campo de anotações no DOM
+ * Chamado pelo código Python quando há anotações disponíveis
+ */
+function displayAnnotations(annotationsHtml: string): void {
+    // Remove campo anterior se existir
+    const existingField = document.getElementById("annotations-field");
+    if (existingField) {
+        existingField.remove();
+    }
+    
+    // Cria novo campo de anotações
+    const annotationsContainer = document.createElement("div");
+    annotationsContainer.id = "annotations-field";
+    annotationsContainer.className = "annotations-container";
+    annotationsContainer.style.display = "none"; // Escondido inicialmente
+    
+    annotationsContainer.innerHTML = `
+        <div class="annotations-header">📝 Anotações</div>
+        <div class="annotations-content">${annotationsHtml}</div>
+    `;
+    
+    // Adiciona ao final do card
+    const middleElement = document.getElementById("middle");
+    if (middleElement) {
+        middleElement.appendChild(annotationsContainer);
+    }
 }

@@ -82,3 +82,61 @@ button {
         border-top-color: color(border-subtle);
     }
 }
+
+// ==================== NOVO CÓDIGO - CAMPO DE ANOTAÇÕES ====================
+
+.annotations-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: color(canvas-inset);
+    border-left: 4px solid color(accent-card);
+    border-radius: 5px;
+    transition: opacity 0.3s ease-in;
+    opacity: 1;
+}
+
+.annotations-header {
+    font-weight: bold;
+    color: color(fg);
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.annotations-content {
+    color: color(fg);
+    line-height: 1.6;
+}
+
+#annotations-field {
+    display: none;
+    opacity: 1;
+    transition: opacity 0.3s ease-in;
+}
+
+// Modo noturno
+.nightMode {
+    .annotations-container {
+        background-color: color(canvas-elevated);
+        border-left-color: color(accent-note);
+    }
+    
+    .annotations-header {
+        color: color(fg);
+    }
+    
+    .annotations-content {
+        color: color(fg-subtle);
+    }
+}
+
+// Responsividade para telas pequenas
+@media (max-width: 583px) {
+    .annotations-container {
+        margin-top: 15px;
+        padding: 12px;
+    }
+    
+    .annotations-header {
+        font-size: 1em;
+    }
+}
