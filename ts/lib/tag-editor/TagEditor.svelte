@@ -416,7 +416,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let shortenTags = false;
     let prevDisplayFull = displayFull;
     let recomputingShorten = false;
-    let shortenSeq = 0;
+    let shortenSeq = 0; // incremented to cancel in-flight recomputes
 
     const afterPaint = () =>
         new Promise<void>((resolve) =>
@@ -441,13 +441,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: if (displayFull !== prevDisplayFull) {
-        const leftFull = prevDisplayFull && !displayFull;
         prevDisplayFull = displayFull;
 
         if (displayFull) {
             shortenSeq++; // cancel in-flight recompute
             shortenTags = false;
-        } else if (leftFull) {
+        } else {
             void recomputeShortenForAuto();
         }
     }
