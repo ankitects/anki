@@ -24,6 +24,7 @@ import anki.notetypes.NotetypeNameIdUseCount
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.NoteTypeFieldEditor
+import com.ichi2.anki.exception.ReportableException
 import com.ichi2.anki.libanki.NoteTypeId
 import com.ichi2.anki.utils.Destination
 
@@ -56,16 +57,6 @@ data class ManageNoteTypesState(
         /** Message to inform that the last [Notetype] can't be removed */
         DeletingLastModel,
     }
-
-    /**
-     * Wrapper around an exception produced in [ManageNotetypes] with an extra flag about the
-     * exception being reportable or not.
-     */
-    data class ReportableException(
-        val source: Throwable,
-        /** true if this exception should be sent to [com.ichi2.anki.CrashReportService] */
-        val isReportable: Boolean = true,
-    )
 
     data class CardEditor(
         val ntid: NoteTypeId,

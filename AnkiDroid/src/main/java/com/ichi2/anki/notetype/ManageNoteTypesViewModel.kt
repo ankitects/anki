@@ -25,6 +25,7 @@ import anki.notetypes.Notetype
 import anki.notetypes.copy
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.exception.CombinedException
+import com.ichi2.anki.exception.ReportableException
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.NoteTypeId
 import com.ichi2.anki.libanki.getNotetype
@@ -33,7 +34,6 @@ import com.ichi2.anki.libanki.removeNotetype
 import com.ichi2.anki.libanki.updateNotetype
 import com.ichi2.anki.notetype.ManageNoteTypesState.CardEditor
 import com.ichi2.anki.notetype.ManageNoteTypesState.FieldsEditor
-import com.ichi2.anki.notetype.ManageNoteTypesState.ReportableException
 import com.ichi2.anki.notetype.ManageNoteTypesState.UserMessage
 import com.ichi2.anki.notetype.NoteTypeItemState.Companion.asModel
 import com.ichi2.anki.observability.undoableOp
