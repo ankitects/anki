@@ -19,7 +19,7 @@
         "@poppanator/sveltekit-svg": "^5.0.0",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
-        "@sveltejs/kit": "^2.22.2",
+        "@sveltejs/kit": "^2.49.5",
         "@sveltejs/vite-plugin-svelte": "5.1",
         "@types/bootstrap": "^5.0.12",
         "@types/codemirror": "^5.60.0",
