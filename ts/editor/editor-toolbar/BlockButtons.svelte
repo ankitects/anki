@@ -37,6 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
     import CommandIconButton from "./CommandIconButton.svelte";
+    import LineHeightButton from "./LineHeightButton.svelte";
 
     export let api = {};
 
@@ -218,6 +219,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </ButtonToolbar>
                 </Popover>
             </WithFloating>
+        </ButtonGroupItem>
+
+        <ButtonGroupItem>
+            <LineHeightButton {disabled} />
         </ButtonGroupItem>
     </DynamicallySlottable>
 </ButtonGroup>
