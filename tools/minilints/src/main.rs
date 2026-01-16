@@ -202,7 +202,8 @@ fn sveltekit_temp_file(path: &str) -> bool {
 }
 
 fn check_cargo_deny() -> Result<()> {
-    Command::run("cargo install cargo-deny@0.18.6")?;
+    // WARNING: make sure to update version in .buildekite/linux as well
+    Command::run("cargo install cargo-deny@0.19.0")?;
     Command::run("cargo deny check")?;
     Ok(())
 }
