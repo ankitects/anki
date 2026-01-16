@@ -262,6 +262,7 @@ class Preferences(QDialog):
                 self.update_login_status()
                 self.confirm_sync_after_login()
 
+        self.update_network()
         sync_login(self.mw, on_success)
 
     def sync_logout(self) -> None:
