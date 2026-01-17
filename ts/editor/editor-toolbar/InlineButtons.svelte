@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Item from "$lib/components/Item.svelte";
 
     import BoldButton from "./BoldButton.svelte";
+    import FontSizeButton from "./FontSizeButton.svelte";
     import HighlightColorButton from "./HighlightColorButton.svelte";
     import ItalicButton from "./ItalicButton.svelte";
     import RemoveFormatButton from "./RemoveFormatButton.svelte";
@@ -29,6 +30,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <DynamicallySlottable slotHost={Item} {api}>
+    <Item>
+        <FontSizeButton />
+    </Item>
+
     <Item>
         <ButtonGroup>
             <BoldButton --border-left-radius="5px" />
