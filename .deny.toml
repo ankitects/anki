@@ -7,6 +7,17 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 ignore = [
   # burn depends on an unmaintained package 'paste'
   "RUSTSEC-2024-0436",
+  # bincode is unmaintained (via burn). Alternatives: postcard, bitcode, rkyv, wincode
+  "RUSTSEC-2025-0141",
+  # rustls-pemfile is unmaintained. Alternative: use rustls-pki-types directly (PemObject trait)
+  "RUSTSEC-2025-0134",
+  # unic-* crates are unmaintained (used for Unicode category detection).
+  # Alternative: icu_properties
+  "RUSTSEC-2025-0081", # unic-char-property
+  "RUSTSEC-2025-0075", # unic-char-range (or use native Rust char ranges since 1.45.0)
+  "RUSTSEC-2025-0080", # unic-common
+  "RUSTSEC-2025-0094", # unic-ucd-category
+  "RUSTSEC-2025-0098", # unic-ucd-version
 ]
 
 [licenses]
