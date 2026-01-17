@@ -213,10 +213,9 @@ impl<P: Translations> I18n<P> {
     fn get_modules(langs: &[LanguageIdentifier], desired_modules: &[String]) -> Vec<String> {
         langs
             .iter()
-            .cloned()
             .map(|lang| {
                 let mut buf = String::new();
-                let lang_name = remapped_lang_name(&lang);
+                let lang_name = remapped_lang_name(lang);
                 if let Some(strings) = P::STRINGS.get(lang_name) {
                     if desired_modules.is_empty() {
                         // empty list, provide all modules

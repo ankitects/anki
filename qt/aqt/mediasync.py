@@ -93,6 +93,7 @@ class MediaSyncer:
         elif is_periodic_sync:
             print(str(exc))
         else:
+            self._update_progress(tr.sync_media_failed())
             show_info(str(exc), modality=Qt.WindowModality.NonModal)
 
     def abort(self) -> None:

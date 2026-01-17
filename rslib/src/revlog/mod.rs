@@ -161,7 +161,7 @@ impl Collection {
     ) -> Result<()> {
         let ease_factor = u32::from(
             card.memory_state
-                .map(|s| ((s.difficulty_shifted() * 1000.) as u16))
+                .map(|s| (s.difficulty_shifted() * 1000.) as u16)
                 .unwrap_or(card.ease_factor),
         );
         let entry = RevlogEntry {
