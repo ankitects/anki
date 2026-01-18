@@ -1,6 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::sync::Arc;
+
+use futures::stream;
+use futures::StreamExt;
+use tokio::sync::Semaphore;
 use tracing::debug;
 use version::sync_client_version;
 
@@ -28,6 +33,7 @@ use crate::sync::media::sanity::SanityCheckRequest;
 use crate::sync::media::upload::gather_zip_data_for_upload;
 use crate::sync::media::zip::zip_files_for_upload;
 use crate::sync::media::MAX_MEDIA_FILES_IN_ZIP;
+use crate::sync::media::SYNC_CONCURRENT_BATCHES;
 use crate::sync::request::IntoSyncRequest;
 use crate::version;
 
@@ -147,28 +153,79 @@ impl MediaSyncer {
             self.progress
                 .update(false, |p| p.downloaded_deletions += to_delete.len())?;
 
-            // file download
+            // file download - concurrent batches
             let mut downloaded = vec![];
-            let mut dl_fnames = to_download.as_slice();
-            while !dl_fnames.is_empty() {
-                let batch: Vec<_> = dl_fnames
-                    .iter()
-                    .take(*MAX_MEDIA_FILES_IN_ZIP)
-                    .map(ToOwned::to_owned)
-                    .collect();
-                let zip_data = self
-                    .client
-                    .download_files(DownloadFilesRequest { files: batch }.try_into_sync_request()?)
-                    .await?
-                    .data;
-                let download_batch =
-                    download::extract_into_media_folder(self.mgr.media_folder.as_path(), zip_data)?
-                        .into_iter();
-                let len = download_batch.len();
-                dl_fnames = &dl_fnames[len..];
-                downloaded.extend(download_batch);
+            if !to_download.is_empty() {
+                let concurrent_batches = *SYNC_CONCURRENT_BATCHES;
 
-                self.progress.update(false, |p| p.downloaded_files += len)?;
+                // When concurrent_batches is 1, maintain original serial behavior for compatibility
+                if concurrent_batches <= 1 {
+                    let mut dl_fnames = to_download.as_slice();
+                    while !dl_fnames.is_empty() {
+                        let batch: Vec<_> = dl_fnames
+                            .iter()
+                            .take(*MAX_MEDIA_FILES_IN_ZIP)
+                            .map(ToOwned::to_owned)
+                            .collect();
+                        let zip_data = self
+                            .client
+                            .download_files(
+                                DownloadFilesRequest { files: batch }.try_into_sync_request()?,
+                            )
+                            .await?
+                            .data;
+                        let download_batch = download::extract_into_media_folder(
+                            self.mgr.media_folder.as_path(),
+                            zip_data,
+                        )?;
+                        let len = download_batch.len();
+                        dl_fnames = &dl_fnames[len..];
+                        downloaded.extend(download_batch);
+                        self.progress.update(false, |p| p.downloaded_files += len)?;
+                    }
+                } else {
+                    // Concurrent download mode
+                    let batches: Vec<Vec<String>> = to_download
+                        .chunks(*MAX_MEDIA_FILES_IN_ZIP)
+                        .map(|chunk| chunk.to_vec())
+                        .collect();
+
+                    let semaphore = Arc::new(Semaphore::new(concurrent_batches));
+                    let client = self.client.clone();
+                    let media_folder = self.mgr.media_folder.clone();
+
+                    let results: Vec<Result<Vec<(String, String)>>> = stream::iter(batches)
+                        .map(|batch| {
+                            let sem = semaphore.clone();
+                            let client = client.clone();
+                            let media_folder = media_folder.clone();
+                            async move {
+                                let _permit =
+                                    sem.acquire().await.map_err(|_| AnkiError::Interrupted)?;
+                                let zip_data = client
+                                    .download_files(
+                                        DownloadFilesRequest { files: batch }
+                                            .try_into_sync_request()?,
+                                    )
+                                    .await?
+                                    .data;
+                                download::extract_into_media_folder(
+                                    media_folder.as_path(),
+                                    zip_data,
+                                )
+                            }
+                        })
+                        .buffer_unordered(concurrent_batches)
+                        .collect()
+                        .await;
+
+                    for result in results {
+                        let batch_downloaded = result?;
+                        let len = batch_downloaded.len();
+                        downloaded.extend(batch_downloaded);
+                        self.progress.update(false, |p| p.downloaded_files += len)?;
+                    }
+                }
             }
 
             // then update the DB
