@@ -11,11 +11,12 @@ export async function postProto<T>(
     input: { toBinary(): Uint8Array; getType(): { typeName: string } },
     outputType: { fromBinary(arr: Uint8Array): T },
     options: PostProtoOptions = {},
+    opChangesType = 0,
 ): Promise<T> {
     try {
         const inputBytes = input.toBinary();
         const path = `/_anki/${method}`;
-        const outputBytes = await postProtoInner(path, inputBytes);
+        const outputBytes = await postProtoInner(path, inputBytes, opChangesType);
         return outputType.fromBinary(outputBytes);
     } catch (err) {
         const { alertOnError = true } = options;
@@ -26,11 +27,12 @@ export async function postProto<T>(
     }
 }
 
-async function postProtoInner(url: string, body: Uint8Array): Promise<Uint8Array> {
+async function postProtoInner(url: string, body: Uint8Array, opChangesType: number): Promise<Uint8Array> {
     const result = await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/binary",
+            "Anki-Op-Changes": opChangesType.toString(),
         },
         body,
     });
