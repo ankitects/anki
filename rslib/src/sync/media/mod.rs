@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::env;
+use std::sync::LazyLock;
+
 pub mod begin;
 pub mod changes;
 pub mod database;
@@ -26,7 +29,32 @@ pub const MAX_MEDIA_FILENAME_LENGTH_SERVER: usize = 255;
 /// Media syncing does not support files over 100MiB.
 pub static MAX_INDIVIDUAL_MEDIA_FILE_SIZE: usize = 100 * 1024 * 1024;
 
-pub static MAX_MEDIA_FILES_IN_ZIP: usize = 25;
+pub static MAX_MEDIA_FILES_IN_ZIP: LazyLock<usize> = LazyLock::new(|| {
+    env::var("SYNC_MAX_FILES_PER_BATCH")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(25)
+});
 
 /// If reached, no further files are placed into the zip.
-pub static MEDIA_SYNC_TARGET_ZIP_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
+pub static MEDIA_SYNC_TARGET_ZIP_BYTES: LazyLock<usize> = LazyLock::new(|| {
+    env::var("SYNC_MAX_BATCH_SIZE_MB")
+        .ok()
+        .and_then(|v| v.parse::<f64>().ok())
+        .map(|mb| (mb * 1024.0 * 1024.0) as usize)
+        .unwrap_or((2.5 * 1024.0 * 1024.0) as usize)
+});
+
+pub static SYNC_CONCURRENT_BATCHES: LazyLock<usize> = LazyLock::new(|| {
+    env::var("SYNC_CONCURRENT_BATCHES")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(1)
+});
+
+pub static SYNC_DB_BUSY_TIMEOUT_SECS: LazyLock<u64> = LazyLock::new(|| {
+    env::var("SYNC_DB_BUSY_TIMEOUT_SECS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(5)
+});
