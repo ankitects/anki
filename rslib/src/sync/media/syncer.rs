@@ -13,6 +13,7 @@ use crate::error::AnkiError;
 use crate::error::Result;
 use crate::error::SyncErrorKind;
 use crate::media::files::mtime_as_i64;
+use crate::media::files::AddedFile;
 use crate::media::MediaManager;
 use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
@@ -194,7 +195,7 @@ impl MediaSyncer {
                     let client = self.client.clone();
                     let media_folder = self.mgr.media_folder.clone();
 
-                    let results: Vec<Result<Vec<(String, String)>>> = stream::iter(batches)
+                    let results: Vec<Result<Vec<AddedFile>>> = stream::iter(batches)
                         .map(|batch| {
                             let sem = semaphore.clone();
                             let client = client.clone();
