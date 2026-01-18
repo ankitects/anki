@@ -19,7 +19,7 @@ impl ServerMediaDatabase {
     /// the current sync protocol to signal that they should be skipped, so
     /// we abort with a conflict.
     pub fn get_entries_for_download(&self, files: &[String]) -> HttpResult<Vec<MediaEntry>> {
-        if files.len() > MAX_MEDIA_FILES_IN_ZIP {
+        if files.len() > *MAX_MEDIA_FILES_IN_ZIP {
             None.or_bad_request("too many files requested")?;
         }
 
@@ -35,7 +35,7 @@ impl ServerMediaDatabase {
 
             accumulated_size += entry.size;
             entries.push(entry);
-            if accumulated_size > MEDIA_SYNC_TARGET_ZIP_BYTES as u64 {
+            if accumulated_size > *MEDIA_SYNC_TARGET_ZIP_BYTES as u64 {
                 break;
             }
         }

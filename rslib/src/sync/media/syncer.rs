@@ -153,7 +153,7 @@ impl MediaSyncer {
             while !dl_fnames.is_empty() {
                 let batch: Vec<_> = dl_fnames
                     .iter()
-                    .take(MAX_MEDIA_FILES_IN_ZIP)
+                    .take(*MAX_MEDIA_FILES_IN_ZIP)
                     .map(ToOwned::to_owned)
                     .collect();
                 let zip_data = self
@@ -194,7 +194,7 @@ impl MediaSyncer {
             let pending: Vec<MediaEntry> = self
                 .mgr
                 .db
-                .get_pending_uploads(MAX_MEDIA_FILES_IN_ZIP as u32)?;
+                .get_pending_uploads(*MAX_MEDIA_FILES_IN_ZIP as u32)?;
             if pending.is_empty() {
                 break;
             }
