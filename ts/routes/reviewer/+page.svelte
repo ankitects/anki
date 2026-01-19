@@ -6,17 +6,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import "./index.scss";
 
     import { onMount } from "svelte";
-    import { ReviewerState, updateNightMode } from "./reviewer";
+    import { ReviewerState } from "./reviewer";
     import ReviewerBottom from "./reviewer-bottom/ReviewerBottom.svelte";
     import Reviewer from "./Reviewer.svelte";
     import { _blockDefaultDragDropBehavior } from "../../reviewer";
     import type { PageData } from "./$types";
+    import { checkNightMode } from "@tslib/nightmode";
 
     export let data: PageData;
     const state = new ReviewerState();
+    const nightMode = checkNightMode();
 
     onMount(() => {
-        updateNightMode();
         globalThis.anki ??= {};
         globalThis.anki.changeReceived = () => state.showQuestion(null);
         _blockDefaultDragDropBehavior();
@@ -25,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div>
-    <Reviewer {state}></Reviewer>
+    <Reviewer {state} {nightMode}></Reviewer>
     <ReviewerBottom {state}></ReviewerBottom>
 </div>
 

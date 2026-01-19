@@ -3,10 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { isNightMode, type ReviewerState } from "./reviewer";
+    import type { ReviewerState } from "./reviewer";
 
     let iframe: HTMLIFrameElement;
     export let state: ReviewerState;
+    export let nightMode = false;
 
     $: if (iframe) {
         state.registerIFrame(iframe);
@@ -20,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="iframe-container">
     <iframe
-        src={"/_anki/pages/reviewer-inner.html" + (isNightMode() ? "?nightMode" : "")}
+        src={"/_anki/pages/reviewer-inner.html" + (nightMode ? "#night" : "")}
         bind:this={iframe}
         title="card"
         frameborder="0"

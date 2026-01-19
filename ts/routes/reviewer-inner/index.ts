@@ -6,16 +6,17 @@ import "../../reviewer/reviewer.scss";
 
 import "../../mathjax";
 import "mathjax/es5/tex-chtml-full.js";
+import { checkNightMode } from "@tslib/nightmode";
 import { registerPackage } from "@tslib/runtime-require";
 import { _runHook, renderError } from "../../reviewer";
 import { addBrowserClasses } from "../../reviewer/browser_selector";
 import { preloadResources } from "../../reviewer/preload";
 import { imageOcclusionAPI } from "../image-occlusion/review";
-import { enableNightMode } from "../reviewer/reviewer";
 import type { ReviewerRequest } from "../reviewer/reviewerRequest";
 import type { InnerReviewerRequest } from "./innerReviewerRequest";
 
 addBrowserClasses();
+const nightMode = checkNightMode();
 
 export const imageOcclusion = imageOcclusionAPI;
 export const setupImageCloze = imageOcclusionAPI.setup; // deprecated
@@ -36,7 +37,6 @@ globalThis.onUpdateHook = onUpdateHook;
 globalThis.onShownHook = onShownHook;
 
 declare const MathJax: any;
-const urlParams = new URLSearchParams(location.search);
 const decoder = new TextDecoder();
 const style = document.createElement("style");
 document.head.appendChild(style);
@@ -59,9 +59,7 @@ addEventListener("message", async (e: MessageEvent<InnerReviewerRequest>) => {
             }
             if (e.data.bodyclass) {
                 document.body.className = e.data.bodyclass;
-                const theme = urlParams.get("nightMode");
-                if (theme !== null) {
-                    enableNightMode();
+                if (nightMode) {
                     document.body.classList.add("night_mode");
                     document.body.classList.add("nightMode");
                 }
