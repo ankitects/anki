@@ -235,6 +235,31 @@ export function _emulateMobile(enabled: boolean): void {
     document.documentElement.classList.toggle("mobile", enabled);
 }
 
+export function _announceContent(): void {
+    const qa = document.getElementById("qa");
+
+    if (!qa) {
+        return;
+    }
+
+    // Clone the qa element to filter out non-visible content
+    const clone = qa.cloneNode(true) as HTMLElement;
+
+    // Remove style tags, script tags, and other non-content elements
+    const tagsToRemove = clone.querySelectorAll("style, script, link");
+    tagsToRemove.forEach(tag => tag.remove());
+
+    // Get text content from the filtered clone
+    const text = (clone.innerText || clone.textContent || "").trim();
+
+    if (!text) {
+        return;
+    }
+
+    // Send to Python/Qt to announce via native accessibility API
+    bridgeCommand(`announce:${text}`);
+}
+
 // Block Qt's default drag & drop behavior by default
 export function _blockDefaultDragDropBehavior(): void {
     function handler(evt: DragEvent) {
