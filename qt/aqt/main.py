@@ -1184,6 +1184,22 @@ title="{}" {}>{}</button>""".format(
         self.applyShortcuts(globalShortcuts)
         self.stateShortcuts: list[QShortcut] = []
 
+    def _close_active_window(self) -> None:
+        window = (
+            QApplication.activeModalWidget()
+            or current_window()
+            or self.app.activeWindow()
+        )
+        if not window or window is self:
+            return
+        if window is getattr(self, "profileDiag", None):
+            # Do not allow closing of ProfileManager
+            return
+        if isinstance(window, QDialog):
+            window.reject()
+        else:
+            window.close()
+
     def _normalize_shortcuts(
         self, shortcuts: Sequence[tuple[str, Callable]]
     ) -> Sequence[tuple[QKeySequence, Callable]]:
