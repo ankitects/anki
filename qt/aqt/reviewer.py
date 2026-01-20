@@ -332,8 +332,8 @@ class Reviewer:
         if self.mw.pm.video_driver() == VideoDriver.Software:
             fade = "<script>qFade=0;</script>"
         return f"""
-<div id="_mark" hidden>&#x2605;</div>
-<div id="_flag" hidden>&#x2691;</div>
+<div id="_mark" hidden aria-hidden="true">&#x2605;</div>
+<div id="_flag" hidden aria-hidden="true">&#x2691;</div>
 {fade}
 <div id="qa"></div>
 {extra}
@@ -688,6 +688,10 @@ class Reviewer:
             self.mw.toolbarWeb.update_background_image()
         elif url == "statesMutated":
             self._states_mutated = True
+        elif url == "focusAnswerButton":
+            self.bottom.web.eval("document.getElementById('ansbut')?.focus();")
+        elif url == "focusDefaultEase":
+            self.bottom.web.eval("document.getElementById('defease')?.focus();")
         else:
             print("unrecognized anki link:", url)
 
@@ -864,6 +868,8 @@ timerStopped = false;
         self.bottom.web.eval(
             f"showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
         )
+        # Focus default ease button for screen reader users
+        self.bottom.web.eval("document.getElementById('defease')?.focus();")
 
     def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:

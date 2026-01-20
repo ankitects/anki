@@ -178,6 +178,9 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                 typeans = document.getElementById("typeans") as HTMLInputElement;
                 if (typeans) {
                     typeans.focus();
+                } else {
+                    // Focus show answer button for screen reader users
+                    bridgeCommand("focusAnswerButton");
                 }
                 // preload images
                 allImagesLoaded().then(() => preloadAnswerImages(a));
