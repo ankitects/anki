@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 "use-strict";
 import "../base.scss";
+import "../../../qt/aqt/data/web/css/webview.scss";
 import "../../reviewer/reviewer.scss";
 
 import "../../mathjax";
