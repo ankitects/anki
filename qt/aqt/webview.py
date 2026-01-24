@@ -12,14 +12,16 @@ from collections.abc import Callable, Sequence
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Type, cast
 
+from google.protobuf.json_format import MessageToDict
 from typing_extensions import TypedDict, Unpack
 
 import anki
 import anki.lang
 from anki._legacy import deprecated
 from anki.lang import is_rtl
-from anki.utils import hmr_mode, is_lin, is_mac, is_win
+from anki.utils import hmr_mode, is_lin, is_mac, is_win, to_json_bytes
 from aqt import colors, gui_hooks
+from aqt.operations import OpChanges
 from aqt.qt import *
 from aqt.qt import sip
 from aqt.theme import theme_manager
@@ -384,6 +386,7 @@ class AnkiWebView(QWebEngineView):
         self._filterSet = False
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.append(self.on_body_classes_need_update)
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
 
         qconnect(self.loadFinished, self._on_load_finished)
 
@@ -916,6 +919,7 @@ html {{ {font} }}
 
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
+        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         # defer page cleanup so that in-flight requests have a chance to complete first
         # https://forums.ankiweb.net/t/error-when-exiting-browsing-when-the-software-is-installed-in-the-path-c-program-files-anki/38363
         mw.progress.single_shot(5000, lambda: mw.mediaServer.clear_page_html(id(self)))
@@ -955,6 +959,17 @@ html {{ {font} }}
         )
         self.eval(
             f"""document.body.classList.toggle("reduce-motion", {json.dumps(mw.pm.reduce_motion())}); """
+        )
+
+    def on_operation_did_execute(
+        self, changes: OpChanges, handler: object | None
+    ) -> None:
+        if handler is self.parentWidget():
+            return
+
+        changes_json = to_json_bytes(MessageToDict(changes)).decode()
+        self.eval(
+            f"if(globalThis.anki && globalThis.anki.onOperationDidExecute) globalThis.anki.onOperationDidExecute({changes_json})"
         )
 
     @deprecated(info="use theme_manager.qcolor() instead")

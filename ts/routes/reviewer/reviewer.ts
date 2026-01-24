@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { AVTag } from "@generated/anki/card_rendering_pb";
-import type { UndoStatus } from "@generated/anki/collection_pb";
 import { DeckConfig_Config_AnswerAction, DeckConfig_Config_QuestionAction } from "@generated/anki/deck_config_pb";
 import { ReviewerActionRequest_ReviewerAction } from "@generated/anki/frontend_pb";
 import {
@@ -16,13 +15,11 @@ import {
     getConfigJson,
     nextCardData,
     playAvtags,
-    redo,
     removeNotes,
     removeNoteTags,
     reviewerAction,
     setConfigJson,
     setFlag,
-    undo,
 } from "@generated/backend";
 import * as tr from "@generated/ftl";
 import { derived, get, writable } from "svelte/store";
@@ -48,7 +45,6 @@ export class ReviewerState {
     readonly flag = writable(0);
     readonly marked = writable(false);
     readonly autoAdvance = writable(false);
-    undoStatus: UndoStatus | undefined = undefined;
     autoAdvanceQuestionTimeout: ReturnType<typeof setTimeout> | undefined;
     autoAdvanceAnswerTimeout: ReturnType<typeof setTimeout> | undefined;
     _answerShown = false;
@@ -205,10 +201,8 @@ export class ReviewerState {
             const noteIds = [this.currentCard.card.noteId];
             if (this._cardData.marked) {
                 await removeNoteTags({ noteIds, tags: "marked" });
-                this.setUndo(tr.actionsRemoveTag());
             } else {
                 await addNoteTags({ noteIds, tags: "marked" });
-                this.setUndo(tr.actionsUpdateTag());
             }
             this.marked.update($marked => !$marked);
             this._cardData.marked = !this._cardData.marked;
@@ -234,18 +228,6 @@ export class ReviewerState {
         }, TOOLTIP_TIMEOUT_MS);
     }
 
-    public setUndo(status: string) {
-        // For a list of statuses, see
-        // https://github.com/ankitects/anki/blob/acdf486b290bd47d13e2e880fbb1c14773899091/rslib/src/ops.rs#L57
-        if (this.undoStatus) { // Skip if "undoStatus" is disabled / not set
-            this.undoStatus.undo = status;
-        }
-    }
-
-    public setBuryOrSuspendUndo(suspend: boolean) {
-        this.setUndo(suspend ? tr.studyingSuspend() : tr.studyingBury());
-    }
-
     public async buryOrSuspendCurrentCard(suspend: boolean) {
         const mode = suspend ? BuryOrSuspendCardsRequest_Mode.SUSPEND : BuryOrSuspendCardsRequest_Mode.BURY_USER;
         if (this.currentCard?.card?.id) {
@@ -255,7 +237,6 @@ export class ReviewerState {
                 mode,
             });
             this.showTooltip(suspend ? tr.studyingCardSuspended() : tr.studyingCardsBuried({ count: 1 }));
-            this.setBuryOrSuspendUndo(suspend);
             this.refresh();
         }
     }
@@ -269,7 +250,6 @@ export class ReviewerState {
                 mode,
             });
             this.showTooltip(suspend ? tr.studyingNoteSuspended() : tr.studyingCardsBuried({ count: op.count }));
-            this.setBuryOrSuspendUndo(suspend);
             this.refresh();
         }
     }
@@ -278,12 +258,11 @@ export class ReviewerState {
         if (this.currentCard?.card?.noteId) {
             const op = await removeNotes({ noteIds: [this.currentCard.card.noteId], cardIds: [] });
             this.showTooltip(tr.browsingCardsDeleted({ count: op.count }));
-            this.setUndo(tr.studyingDeleteNote());
             this.refresh();
         }
     }
 
-    async handleKeyPress(key: string, ctrl: boolean, shift: boolean) {
+    async handleKeyPress(key: string, ctrl: boolean, _shift: boolean) {
         key = key.toLowerCase();
         switch (key) {
             case "1": {
@@ -308,23 +287,6 @@ export class ReviewerState {
                     this.showAnswer();
                 } else if (this._cardData?.acceptEnter ?? true) {
                     this.easeButtonPressed(2);
-                }
-                break;
-            }
-            case "z": {
-                if (ctrl) {
-                    if (shift && this.undoStatus?.redo) {
-                        const op = await redo({});
-                        this.showTooltip(tr.undoActionRedone({ action: op.operation }));
-                        this.undoStatus = op.newStatus;
-                    } else if (this.undoStatus?.undo) {
-                        const op = await undo({});
-                        this.showTooltip(tr.undoActionUndone({ action: op.operation }));
-                        this.undoStatus = op.newStatus;
-                    } else {
-                        this.showTooltip(shift ? tr.actionsNothingToRedo() : tr.actionsNothingToUndo());
-                    }
-                    this.refresh();
                 }
                 break;
             }
@@ -401,10 +363,6 @@ export class ReviewerState {
     }
 
     async showQuestion(answer: CardAnswer | null) {
-        if (answer !== null) {
-            this.setUndo(tr.actionsAnswerCard());
-        }
-
         this._answerShown = false;
         const resp = await nextCardData({
             answer: answer || undefined,
