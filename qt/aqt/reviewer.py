@@ -1262,6 +1262,7 @@ class SvelteReviewer(Reviewer):
         self.web.load_sveltekit_page("reviewer")
         # block default drag & drop behavior while allowing drop events to be received by JS handlers
         self.web.allow_drops = True
+        self.web.set_open_iframe_links_externally(True)
 
     def _shortcutKeys(self) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
         return []
