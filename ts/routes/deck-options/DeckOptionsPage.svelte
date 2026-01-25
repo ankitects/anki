@@ -132,7 +132,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "$lib/sass/breakpoints" as bp;
 
     .deck-options-page {
-        overflow-x: hidden;
+        overflow-x: auto;
 
         :global(.container-columns) {
             display: grid;
