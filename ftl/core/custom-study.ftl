@@ -3,7 +3,11 @@ custom-study-increase-todays-new-card-limit = Increase today's new card limit
 # increase limit by {amount} cards
 custom-study-increase-todays-new-card-limit-by = Increase today's new card limit by
 # the last word in the sentence "increase today's [new/review] card limit by {amount} cards"
-custom-study-cards = cards
+custom-study-cards = 
+    { $count ->
+        [one] card
+       *[other] cards
+    }
 custom-study-available-new-cards-2 = Available new cards: { $countString }
 custom-study-increase-todays-review-card-limit = Increase today's review card limit
 # increase limit by {amount} cards
@@ -11,6 +15,11 @@ custom-study-increase-todays-review-limit-by = Increase today's review limit by
 custom-study-available-review-cards-2 = Available review cards: { $countString }
 custom-study-review-forgotten-cards = Review forgotten cards
 custom-study-review-cards-forgotten-in-last = Review cards forgotten in the last
+custom-study-days =
+    { $count ->
+        [one] day
+       *[other] days
+    }
 custom-study-review-ahead = Review ahead
 custom-study-review-ahead-by = Review ahead by
 custom-study-preview-new-cards = Preview new cards
@@ -21,7 +30,11 @@ custom-study-study-by-card-state-or-tag = Study by card state or tag
 # verb, not noun. As in "Select {amount} cards from the deck"
 custom-study-select = Select
 # As in "select {amount} cards from the deck"
-custom-study-cards-from-the-deck = cards from the deck
+custom-study-cards-from-the-deck = 
+    { $count ->
+        [one] card from the deck
+       *[other] cards from the deck
+    }
 custom-study-new-cards-only = New cards only
 custom-study-due-cards-only = Due cards only
 custom-study-all-review-cards-in-random-order = All review cards in random order
