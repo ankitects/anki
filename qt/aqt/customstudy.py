@@ -175,7 +175,6 @@ class CustomStudy(QDialog):
             assert 0
         form.postSpin.setText(text_after_spinner)
 
-
     def accept(self) -> None:
         request = CustomStudyRequest(deck_id=self.deck_id)
         if self.radioIdx == RADIO_NEW:
