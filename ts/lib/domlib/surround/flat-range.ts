@@ -10,8 +10,8 @@ import { ascend } from "@tslib/node";
 export class FlatRange {
     private constructor(
         public parent: Node,
-        public startIndex: number,
-        public endIndex: number,
+        private start: Node,
+        private end: Node,
     ) {}
 
     /**
@@ -23,7 +23,14 @@ export class FlatRange {
      * Indices should be >= 0 and startIndex <= endIndex.
      */
     static make(node: Node, startIndex: number, endIndex = startIndex + 1): FlatRange {
-        return new FlatRange(node, startIndex, endIndex);
+        const start = node.childNodes[startIndex];
+        const end = node.childNodes[endIndex - 1];
+
+        if (!start || !end) {
+            throw new RangeError("FlatRange indices out of bounds");
+        }
+
+        return new FlatRange(node, start, end);
     }
 
     /**
@@ -31,7 +38,7 @@ export class FlatRange {
      * Must be sibling flat ranges.
      */
     static merge(before: FlatRange, after: FlatRange): FlatRange {
-        return FlatRange.make(before.parent, before.startIndex, after.endIndex);
+        return new FlatRange(before.parent, before.start, after.end);
     }
 
     /**
@@ -39,17 +46,37 @@ export class FlatRange {
      */
     static fromNode(node: Node): FlatRange {
         const parent = ascend(node);
-        const index = Array.prototype.indexOf.call(parent.childNodes, node);
+        return new FlatRange(parent, node, node);
+    }
 
-        return FlatRange.make(parent, index);
+    private boundaryChildFromAnchor(anchor: Node): ChildNode {
+        let node: Node = anchor;
+
+        while (node.parentNode && node.parentNode !== this.parent) {
+            node = node.parentNode;
+        }
+
+        if (node.parentNode !== this.parent) {
+            throw new Error("FlatRange anchor is no longer within parent");
+        }
+
+        return node as ChildNode;
     }
 
     get firstChild(): ChildNode {
-        return this.parent.childNodes[this.startIndex];
+        return this.boundaryChildFromAnchor(this.start);
     }
 
     get lastChild(): ChildNode {
-        return this.parent.childNodes[this.endIndex - 1];
+        return this.boundaryChildFromAnchor(this.end);
+    }
+
+    get startIndex(): number {
+        return Array.prototype.indexOf.call(this.parent.childNodes, this.firstChild);
+    }
+
+    get endIndex(): number {
+        return Array.prototype.indexOf.call(this.parent.childNodes, this.lastChild) + 1;
     }
 
     /**
@@ -57,8 +84,16 @@ export class FlatRange {
      */
     select(node: Node): void {
         this.parent = ascend(node);
-        this.startIndex = Array.prototype.indexOf.call(this.parent.childNodes, node);
-        this.endIndex = this.startIndex + 1;
+        this.start = node;
+        this.end = node;
+    }
+
+    rebaseIfParentIs(removedParent: Node, newParent: Node): void {
+        if (this.parent !== removedParent) {
+            return;
+        }
+
+        this.parent = newParent;
     }
 
     toDOMRange(): Range {
@@ -80,17 +115,18 @@ export class FlatRange {
     }
 
     [Symbol.iterator](): Iterator<ChildNode, null, unknown> {
-        const parent = this.parent;
-        const end = this.endIndex;
-        let step = this.startIndex;
+        const last = this.lastChild;
+        let current: ChildNode | null = this.firstChild;
 
         return {
             next(): IteratorResult<ChildNode, null> {
-                if (step >= end) {
+                if (!current) {
                     return { value: null, done: true };
                 }
 
-                return { value: parent.childNodes[step++], done: false };
+                const value = current;
+                current = value === last ? null : (value.nextSibling as ChildNode | null);
+                return { value, done: false };
             },
         };
     }
