@@ -154,6 +154,9 @@ impl SyncProtocol for Arc<SimpleServer> {
             let _ = req.json()?;
             let now = user.with_sync_state(req.skey()?, |col, _state| server_finish(col))?;
             user.sync_state = None;
+            // 同步完成后关闭 Collection，释放数据库锁
+            // 这样 anki-connect-server 才能访问数据库
+            user.col = None;
             SyncResponse::try_from_obj(now)
         })
         .await
@@ -172,7 +175,10 @@ impl SyncProtocol for Arc<SimpleServer> {
         self.with_authenticated_user(req, |user, req| {
             user.abort_stateful_sync_if_active();
             user.ensure_col_open()?;
-            handle_received_upload(&mut user.col, req.data).map(SyncResponse::from_upload_response)
+            let result = handle_received_upload(&mut user.col, req.data).map(SyncResponse::from_upload_response);
+            // 上传完成后关闭 Collection，释放数据库锁
+            user.col = None;
+            result
         })
         .await
     }
@@ -183,7 +189,10 @@ impl SyncProtocol for Arc<SimpleServer> {
             let _ = req.json()?;
             user.abort_stateful_sync_if_active();
             user.ensure_col_open()?;
-            server_download(&mut user.col, schema_version).map(SyncResponse::from_vec)
+            let result = server_download(&mut user.col, schema_version).map(SyncResponse::from_vec);
+            // 下载完成后关闭 Collection，释放数据库锁
+            user.col = None;
+            result
         })
         .await
     }

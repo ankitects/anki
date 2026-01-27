@@ -43,7 +43,7 @@ pub fn gather_zip_data_for_upload(
     let mut entries = vec![];
 
     for file in files {
-        if accumulated_size > MEDIA_SYNC_TARGET_ZIP_BYTES {
+        if accumulated_size > *MEDIA_SYNC_TARGET_ZIP_BYTES {
             break;
         }
 

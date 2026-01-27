@@ -15,6 +15,7 @@ use zip::ZipWriter;
 use crate::media::files::sha1_of_data;
 use crate::prelude::*;
 use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
+use crate::sync::media::MAX_MEDIA_FILES_IN_ZIP;
 use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH_SERVER;
 
 pub struct ZipFileMetadata {
@@ -99,7 +100,7 @@ pub fn unzip_and_validate_files(zip_data: &[u8]) -> Result<Vec<UploadedChange>> 
     // meta map first, limited to a reasonable size
     let meta_file = zip.by_name("_meta")?;
     let entries: Vec<UploadEntry> = serde_json::from_reader(meta_file.take(50 * 1024))?;
-    if entries.len() > 25 {
+    if entries.len() > *MAX_MEDIA_FILES_IN_ZIP {
         invalid_input!("too many files in zip");
     }
 
