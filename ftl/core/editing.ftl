@@ -71,6 +71,7 @@ editing-shrink-images = Shrink Images
 editing-close-html-tags = Auto-close HTML tags
 editing-from-clipboard = From Clipboard
 editing-alignment = Alignment
+editing-line-height = Line height
 editing-equations = Equations
 editing-no-image-found-on-clipboard = No image found on clipboard.
 editing-image-occlusion-mode = Image Occlusion Mode
