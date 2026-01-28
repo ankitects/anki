@@ -80,6 +80,7 @@ class CustomStudy(QDialog):
         qconnect(f.radioAhead.clicked, lambda: self.onRadioChange(RADIO_AHEAD))
         qconnect(f.radioPreview.clicked, lambda: self.onRadioChange(RADIO_PREVIEW))
         qconnect(f.radioCram.clicked, lambda: self.onRadioChange(RADIO_CRAM))
+        qconnect(f.spin.valueChanged, self.setTextAfterSpinner)
 
     def count_with_children(self, parent: int, children: int) -> str:
         if children:
@@ -88,11 +89,11 @@ class CustomStudy(QDialog):
             return str(parent)
 
     def onRadioChange(self, idx: int) -> None:
+        self.radioIdx = idx
         form = self.form
         min_spinner_value = 1
         max_spinner_value = DYN_MAX_SIZE
         current_spinner_value = 1
-        text_after_spinner = tr.custom_study_cards()
         title_text = ""
         show_cram_type = False
         enable_ok_button = self.card_count is not None and self.card_count > 0
@@ -122,18 +123,14 @@ class CustomStudy(QDialog):
             enable_ok_button = True
         elif idx == RADIO_FORGOT:
             text_before_spinner = tr.custom_study_review_cards_forgotten_in_last()
-            text_after_spinner = tr.scheduling_days()
             max_spinner_value = 30
         elif idx == RADIO_AHEAD:
             text_before_spinner = tr.custom_study_review_ahead_by()
-            text_after_spinner = tr.scheduling_days()
         elif idx == RADIO_PREVIEW:
             text_before_spinner = tr.custom_study_preview_new_cards_added_in_the()
-            text_after_spinner = tr.scheduling_days()
             current_spinner_value = 1
         elif idx == RADIO_CRAM:
             text_before_spinner = tr.custom_study_select()
-            text_after_spinner = tr.custom_study_cards_from_the_deck()
             ok = tr.custom_study_choose_tags()
             current_spinner_value = 100
             show_cram_type = True
@@ -152,14 +149,31 @@ class CustomStudy(QDialog):
             form.spin.setEnabled(False)
         form.spin.setValue(current_spinner_value)
         form.preSpin.setText(text_before_spinner)
-        form.postSpin.setText(text_after_spinner)
+        self.setTextAfterSpinner(current_spinner_value)
 
         ok_button = form.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
         assert ok_button is not None
         ok_button.setText(ok)
         ok_button.setEnabled(enable_ok_button)
 
-        self.radioIdx = idx
+    def setTextAfterSpinner(self, newSpinValue) -> None:
+        form = self.form
+        text_after_spinner = ""
+        if self.radioIdx == RADIO_NEW:
+            text_after_spinner = tr.custom_study_cards(count=newSpinValue)
+        elif self.radioIdx == RADIO_REV:
+            text_after_spinner = tr.custom_study_cards(count=newSpinValue)
+        elif self.radioIdx == RADIO_FORGOT:
+            text_after_spinner = tr.custom_study_days(count=newSpinValue)
+        elif self.radioIdx == RADIO_AHEAD:
+            text_after_spinner = tr.custom_study_days(count=newSpinValue)
+        elif self.radioIdx == RADIO_PREVIEW:
+            text_after_spinner = tr.custom_study_days(count=newSpinValue)
+        elif self.radioIdx == RADIO_CRAM:
+            text_after_spinner = tr.custom_study_cards_from_the_deck(count=newSpinValue)
+        else:
+            assert 0
+        form.postSpin.setText(text_after_spinner)
 
     def accept(self) -> None:
         request = CustomStudyRequest(deck_id=self.deck_id)
