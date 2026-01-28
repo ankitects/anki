@@ -25,6 +25,7 @@ pub(crate) fn schema11_config_as_string(creation_offset: Option<i32>) -> String 
         "schedVer": 2,
         "creationOffset": creation_offset,
         "sched2021": true,
+        "fsrs": true,
     });
     serde_json::to_string(&obj).unwrap()
 }
