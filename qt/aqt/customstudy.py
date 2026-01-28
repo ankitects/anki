@@ -158,7 +158,7 @@ class CustomStudy(QDialog):
 
     def setTextAfterSpinner(self, newSpinValue) -> None:
         form = self.form
-        text_after_spinner = "lol"
+        text_after_spinner = ""
         if self.radioIdx == RADIO_NEW:
             text_after_spinner = tr.custom_study_cards(count=newSpinValue)
         elif self.radioIdx == RADIO_REV:
