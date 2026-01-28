@@ -16,6 +16,7 @@ dependencies = [
   "pip-system-certs!=5.1",
   "pyqt6>=6.2",
   "pyqt6-webengine>=6.2",
+  "accessible-output2>=0.17",
   # anki dependency is added dynamically in hatch_build.py with exact version
 ]
 
