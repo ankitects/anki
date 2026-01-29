@@ -9,7 +9,9 @@ mod sorting;
 
 use std::collections::HashMap;
 use std::collections::VecDeque;
+use std::hash::Hasher;
 
+use fnv::FnvHasher;
 use intersperser::Intersperser;
 use sized_chain::SizedChain;
 
@@ -38,6 +40,7 @@ pub(crate) struct DueCard {
     pub current_deck_id: DeckId,
     pub original_deck_id: DeckId,
     pub kind: DueCardKind,
+    pub reps: u32,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -87,6 +90,7 @@ impl From<DueCard> for LearningQueueEntry {
             due: TimestampSecs(c.due as i64),
             id: c.id,
             mtime: c.mtime,
+            reps: c.reps,
         }
     }
 }
@@ -188,12 +192,8 @@ impl QueueBuilder {
         let intraday_learning = sort_learning(self.learning);
         let now = TimestampSecs::now();
         let cutoff = now.adding_secs(learn_ahead_secs);
-        let learn_count = intraday_learning
-            .iter()
-            .take_while(|e| e.due <= cutoff)
-            .count()
-            + self.day_learning.len();
-
+        let learn_count =
+            intraday_learning.iter().filter(|e| e.due <= cutoff).count() + self.day_learning.len();
         let review_count = self.review.len();
         let new_count = self.new.len();
 
@@ -274,9 +274,27 @@ fn merge_new(
     }
 }
 
-fn sort_learning(mut learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
-    learning.sort_unstable_by(|a, b| a.due.cmp(&b.due));
-    learning.into_iter().map(LearningQueueEntry::from).collect()
+fn sort_learning(learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
+    // Prioritize intraday learning cards that were previously attempted
+    // (reps > 0) before never-attempted cards (reps == 0). Sort previously
+    // attempted cards by due-time and never-attempted cards deterministically
+    // by an FNV hash of their id.
+    let (mut previously_attempted, mut never_attempted): (Vec<DueCard>, Vec<DueCard>) =
+        learning.into_iter().partition(|c| c.reps > 0);
+
+    previously_attempted.sort_unstable_by(|a, b| a.due.cmp(&b.due));
+
+    never_attempted.sort_unstable_by_key(|c| {
+        let mut hasher = FnvHasher::default();
+        hasher.write_i64(c.id.0);
+        hasher.finish()
+    });
+
+    previously_attempted
+        .into_iter()
+        .chain(never_attempted)
+        .map(LearningQueueEntry::from)
+        .collect()
 }
 
 impl Collection {
