@@ -178,6 +178,20 @@ $vars: (
                     dark: palette(blue, 5),
                 ),
             ),
+            answerCorrect: (
+                "Border color of answer buttons that show the answer was correct (hard, good, easy)",
+                (
+                    light: palette(green, 5),
+                    dark: palette(green, 5),
+                )
+            ),
+            answerIncorrect: (
+                "Border color of the answer button that shows that the answer was incorrect (again)",
+                (
+                    light: palette(red, 5),
+                    dark: palette(red, 5),
+                )
+            ),
         ),
         button: (
             bg: (
