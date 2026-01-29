@@ -181,10 +181,10 @@ import Bold_ from "bootstrap-icons/icons/type-bold.svg?component";
 import bold_ from "bootstrap-icons/icons/type-bold.svg?url";
 import Italic_ from "bootstrap-icons/icons/type-italic.svg?component";
 import italic_ from "bootstrap-icons/icons/type-italic.svg?url";
-import Underline_ from "bootstrap-icons/icons/type-underline.svg?component";
-import underline_ from "bootstrap-icons/icons/type-underline.svg?url";
 import Strikethrough_ from "bootstrap-icons/icons/type-strikethrough.svg?component";
 import strikethrough_ from "bootstrap-icons/icons/type-strikethrough.svg?url";
+import Underline_ from "bootstrap-icons/icons/type-underline.svg?component";
+import underline_ from "bootstrap-icons/icons/type-underline.svg?url";
 
 import IncrementCloze_ from "../../icons/contain-plus.svg?component";
 import incrementCloze_ from "../../icons/contain-plus.svg?url";
