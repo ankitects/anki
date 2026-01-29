@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HighlightColorButton from "./HighlightColorButton.svelte";
     import ItalicButton from "./ItalicButton.svelte";
     import RemoveFormatButton from "./RemoveFormatButton.svelte";
+    import StrikethroughButton from "./StrikethroughButton.svelte";
     import SubscriptButton from "./SubscriptButton.svelte";
     import SuperscriptButton from "./SuperscriptButton.svelte";
     import TextColorButton from "./TextColorButton.svelte";
@@ -33,7 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonGroup>
             <BoldButton --border-left-radius="5px" />
             <ItalicButton />
-            <UnderlineButton --border-right-radius="5px" />
+            <UnderlineButton />
+            <StrikethroughButton --border-right-radius="5px" />
         </ButtonGroup>
     </Item>
 
