@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {matcher}
     key="strikethrough"
     tooltip={tr.editingStrikethroughText()}
-    keyCombination="Control+Shift+S"
+    keyCombination="Control+Alt+X"
 >
     <Icon icon={strikethroughIcon} />
 </TextAttributeButton>
