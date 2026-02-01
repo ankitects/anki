@@ -13,6 +13,7 @@ use crate::run::run_command;
 pub struct PyenvArgs {
     uv_bin: String,
     pyenv_folder: String,
+    python: String,
     #[arg(trailing_var_arg = true)]
     extra_args: Vec<String>,
 }
@@ -45,6 +46,7 @@ pub fn setup_pyenv(args: PyenvArgs) {
         command
             .env("UV_PROJECT_ENVIRONMENT", args.pyenv_folder.clone())
             .args(["sync", "--locked", "--no-config"])
+            .args(["--python", &args.python])
             .args(args.extra_args),
     );
 
