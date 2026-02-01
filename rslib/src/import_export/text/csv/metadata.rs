@@ -291,11 +291,8 @@ impl CsvMetadataHelpers for CsvMetadata {
                 .map(|&i| (i > 0).then_some(i as usize))
                 .collect(),
             CsvNotetype::NotetypeColumn(_) => {
-                let meta_columns = self.meta_columns();
-                (1..self.column_labels.len() + 1)
-                    .filter(|idx| !meta_columns.contains(idx))
-                    .map(Some)
-                    .collect()
+                // each row's notetype could have varying number of fields
+                vec![]
             }
         })
     }
