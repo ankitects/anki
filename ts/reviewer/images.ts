@@ -27,9 +27,9 @@ function extractImageSrcs(fragment: DocumentFragment): string[] {
 
 function createImage(src: string): HTMLImageElement {
     const img = new Image();
-    img.src = src;
     img.decoding = "async";
-    img.decode();
+    img.src = src;
+    img.decode().catch(() => {});
     return img;
 }
 
