@@ -98,7 +98,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         right: 2px;
         overflow: auto;
         outline: none !important;
-        height: 90vh;
+        height: 88vh;
     }
 
     :global([dir="rtl"]) .editor-main {
