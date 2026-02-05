@@ -22,7 +22,7 @@ pub(crate) fn write_python_interface(services: &[BackendService]) -> Result<()> 
     write_header(&mut out)?;
 
     for service in services {
-        if service.name == "BackendAnkidroidService" {
+        if ["BackendAnkidroidService", "BackendFrontendService"].contains(&service.name.as_str()) {
             continue;
         }
         for method in service.all_methods() {

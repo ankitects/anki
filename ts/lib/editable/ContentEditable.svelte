@@ -20,6 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         preventBuiltinShortcuts,
         useFocusHandler,
     } from "./content-editable";
+    import { pageTheme } from "$lib/sveltelib/theme";
 
     export let resolve: (editable: HTMLElement) => void;
 
@@ -41,6 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <anki-editable
+    class:nightMode={$pageTheme.isDark}
     contenteditable="true"
     role="textbox"
     tabindex="0"

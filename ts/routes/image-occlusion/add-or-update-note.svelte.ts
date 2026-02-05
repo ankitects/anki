@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { OpChanges } from "@generated/anki/collection_pb";
 import { addImageOcclusionNote, updateImageOcclusionNote } from "@generated/backend";
 import * as tr from "@generated/ftl";
 import { get } from "svelte/store";
@@ -36,9 +35,11 @@ export const addOrUpdateNote = async function(
             backExtra,
             tags,
         });
-        showResult(mode.noteId, result, noteCount);
+        if (result.note) {
+            showResult(mode.noteId, noteCount);
+        }
     } else {
-        const result = await addImageOcclusionNote({
+        await addImageOcclusionNote({
             // IOCloningMode is not used on mobile
             notetypeId: BigInt((<IOAddingMode> mode).notetypeId),
             imagePath: (<IOAddingMode> mode).imagePath,
@@ -47,17 +48,13 @@ export const addOrUpdateNote = async function(
             backExtra,
             tags,
         });
-        showResult(null, result, noteCount);
+        showResult(null, noteCount);
     }
 };
 
 // show toast message
-const showResult = (noteId: bigint | null, result: OpChanges, count: number) => {
-    if (result.note) {
-        const msg = noteId ? tr.browsingCardsUpdated({ count: count }) : tr.importingCardsAdded({ count: count });
-        showToast(msg, "success");
-    } else {
-        const msg = tr.notetypesErrorGeneratingCloze();
-        showToast(msg, "error");
-    }
+const showResult = (noteId: bigint | null, count: number) => {
+    const message = noteId ? tr.browsingCardsUpdated({ count: count }) : tr.importingCardsAdded({ count: count });
+    const type = "success" as "error" | "success";
+    showToast(message, type);
 };

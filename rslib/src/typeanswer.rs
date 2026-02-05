@@ -58,7 +58,7 @@ trait DiffTrait {
         if self.get_typed() == self.get_expected() {
             format_typeans!(format!(
                 "<span class=typeGood>{}</span>",
-                self.get_expected_original()
+                htmlescape::encode_minimal(&self.get_expected_original())
             ))
         } else {
             let output = self.to_tokens();
@@ -389,6 +389,15 @@ mod test {
     fn empty_input_shows_as_code() {
         let ctx = compare_answer("<div>123</div>", "", true);
         assert_eq!(ctx, "<code id=typeans>123</code>");
+    }
+
+    #[test]
+    fn correct_input_is_escaped() {
+        let ctx = Diff::new("source <dir>/bin/activate", "source <dir>/bin/activate");
+        assert_eq!(
+            ctx.to_html(),
+            "<code id=typeans><span class=typeGood>source &lt;dir&gt;/bin/activate</span></code>"
+        );
     }
 
     #[test]

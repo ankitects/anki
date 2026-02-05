@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::env;
 use std::fmt::Write;
 use std::path::PathBuf;
 
@@ -21,7 +20,7 @@ pub fn write_py_interface(modules: &[Module]) -> Result<()> {
     render_methods(modules, &mut out);
     render_legacy_enum(modules, &mut out);
 
-    if let Ok(path) = env::var("STRINGS_PY") {
+    if let Some(path) = option_env!("STRINGS_PY") {
         let path = PathBuf::from(path);
         create_dir_all(path.parent().unwrap())?;
         write_file_if_changed(path, out)?;

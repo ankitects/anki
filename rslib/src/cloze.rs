@@ -260,7 +260,6 @@ fn reveal_cloze(
             image_occlusion_text,
             question,
             active,
-            cloze_ord,
             &cloze.ordinals,
         ));
         return;
@@ -332,10 +331,9 @@ fn render_image_occlusion(
     text: &str,
     question_side: bool,
     active: bool,
-    ordinal: u16,
     ordinals: &[u16],
 ) -> String {
-    if (question_side && active) || ordinal == 0 {
+    if (question_side && active) || ordinals.contains(&0) {
         format!(
             r#"<div class="cloze" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),

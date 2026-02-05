@@ -923,14 +923,6 @@ html {{ {font} }}
     def on_theme_did_change(self) -> None:
         # avoid flashes if page reloaded
         self.page().setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
-        if hasattr(QWebEngineSettings.WebAttribute, "ForceDarkMode"):
-            force_dark_mode = getattr(QWebEngineSettings.WebAttribute, "ForceDarkMode")
-            page_settings = self.page().settings()
-            if page_settings is not None:
-                page_settings.setAttribute(
-                    force_dark_mode,
-                    theme_manager.get_night_mode(),
-                )
         # update night-mode class, and legacy nightMode/night-mode body classes
         self.eval(
             f"""
