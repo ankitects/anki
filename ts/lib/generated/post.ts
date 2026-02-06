@@ -4,6 +4,8 @@
 export interface PostProtoOptions {
     /** True by default. Shows a dialog with the error message, then rethrows. */
     alertOnError?: boolean;
+    /** If this is set, the request can be canceled by calling abort() on the corresponding AbortController. */
+    signal?: AbortSignal;
 }
 
 export async function postProto<T>(
@@ -13,25 +15,33 @@ export async function postProto<T>(
     options: PostProtoOptions = {},
     opChangesType = 0,
 ): Promise<T> {
+    const { alertOnError = true, signal = undefined } = options;
     try {
         const inputBytes = input.toBinary();
         const path = `/_anki/${method}`;
-        const outputBytes = await postProtoInner(path, inputBytes, opChangesType);
+        const outputBytes = await postProtoInner(path, inputBytes, opChangesType, signal);
         return outputType.fromBinary(outputBytes);
     } catch (err) {
-        const { alertOnError = true } = options;
-        if (alertOnError && !(err instanceof Error && err.message === "500: Interrupted")) {
+        if (
+            alertOnError && !(err instanceof Error && (err.message === "500: Interrupted" || err.name === "AbortError"))
+        ) {
             alert(err);
         }
         throw err;
     }
 }
 
-async function postProtoInner(url: string, body: Uint8Array, opChangesType: number): Promise<Uint8Array> {
+async function postProtoInner(
+    url: string,
+    body: Uint8Array,
+    opChangesType: number,
+    signal?: AbortSignal,
+): Promise<Uint8Array> {
     const result = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/binary", "Anki-Op-Changes": opChangesType.toString() },
         body,
+        signal,
     });
     if (!result.ok) {
         let msg = "something went wrong";

@@ -99,9 +99,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import type { HistoryEntry, NotetypeIdAndModTime, SessionOptions } from "./types";
-    import { CooldownTimer } from "$lib/editable/cooldown-timer";
 
-    const loadDebouncer = new CooldownTimer(200);
+    let loadController: AbortController | null = null;
     let initialLoadArgs: Partial<LoadNoteArgs> | null = null;
     let contextMenu: ContextMenu;
     const [onContextMenu, contextMenuItems] = setupContextMenu();
@@ -979,17 +978,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    async function loadNoteInner({
-        nid,
-        notetypeId,
-        deckId,
-        focusTo,
-        originalNoteId,
-        reviewerCardId,
-        initial,
-        copyFromNote,
-        stickyFieldsFrom,
-    }: LoadNoteArgs) {
+    async function loadNoteInner(
+        {
+            nid,
+            notetypeId,
+            deckId,
+            focusTo,
+            originalNoteId,
+            reviewerCardId,
+            initial,
+            copyFromNote,
+            stickyFieldsFrom,
+        }: LoadNoteArgs,
+        signal: AbortSignal,
+    ) {
+        signal.throwIfAborted();
         // Convert values coming from Python
         if (nid) {
             nid = BigInt(nid);
@@ -1025,9 +1028,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     await defaultDeckForNotetype({ ntid: originalNote.notetypeId })
                 ).did;
             } else if (initial) {
-                const chooserDefaults = await defaultsForAdding({
-                    homeDeckOfCurrentReviewCard: homeDeckId,
-                });
+                const chooserDefaults = await defaultsForAdding(
+                    {
+                        homeDeckOfCurrentReviewCard: homeDeckId,
+                    },
+                    { signal },
+                );
                 selectedDeckId = chooserDefaults.deckId;
                 selectedNotetypeId = chooserDefaults.notetypeId;
             }
@@ -1050,15 +1056,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             notetypeChooser.select(selectedNotetypeId!);
         }
 
-        const notetype = await getNotetype({
-            ntid: selectedNotetypeId!,
-        });
+        const notetype = await getNotetype(
+            {
+                ntid: selectedNotetypeId!,
+            },
+            { signal },
+        );
         const fieldNames = (
-            await getFieldNames({
-                ntid: notetype.id,
-            })
+            await getFieldNames(
+                {
+                    ntid: notetype.id,
+                },
+                { signal },
+            )
         ).vals;
-        const clozeFieldOrds = (await getClozeFieldOrds({ ntid: notetype.id })).ords;
+        const clozeFieldOrds = (
+            await getClozeFieldOrds({ ntid: notetype.id }, { signal })
+        ).ords;
         const clozeFields = fieldNames.map((name, index) =>
             clozeFieldOrds.includes(index),
         );
@@ -1070,7 +1084,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {
                         nid: nid!,
                     },
-                    { alertOnError: false },
+                    { alertOnError: false, signal },
                 );
                 setNote(n);
             } catch {
@@ -1082,7 +1096,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             note!.fields = originalNote.fields;
             note!.tags = originalNote.tags;
         }
-
         if (copyFromNote) {
             const oldFieldNames = (
                 await getFieldNames({
@@ -1129,7 +1142,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
             note!.tags = copyFromNote.tags;
         }
-
         if (stickyFieldsFrom) {
             for (let i = 0; i < notetype.fields.length; i++) {
                 if (notetype.fields[i].config?.sticky && stickyFieldsFrom.fields[i]) {
@@ -1141,7 +1153,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const fieldValues = (
             await Promise.all(
-                note!.fields.map((field) => encodeIriPaths({ val: field })),
+                note!.fields.map((field) => encodeIriPaths({ val: field }, { signal })),
             )
         ).map((field) => field.val);
         const tags = note!.tags;
@@ -1220,16 +1232,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (typeof args.focusTo === "undefined") {
             args = { ...args, focusTo: focusedFieldIndex };
         }
-        loadDebouncer.schedule(async () => {
-            await loadNoteInner(
-                initialLoadArgs
-                    ? ({
-                          ...initialLoadArgs,
-                          ...args,
-                      } as LoadNoteArgs)
-                    : (args as LoadNoteArgs),
-            );
-        });
+        if (loadController) {
+            loadController.abort();
+        }
+        loadController = new AbortController();
+        await loadNoteInner(
+            initialLoadArgs
+                ? ({
+                      ...initialLoadArgs,
+                      ...args,
+                  } as LoadNoteArgs)
+                : (args as LoadNoteArgs),
+            loadController.signal,
+        );
     }
 
     async function reloadNote() {
