@@ -181,6 +181,8 @@ import Bold_ from "bootstrap-icons/icons/type-bold.svg?component";
 import bold_ from "bootstrap-icons/icons/type-bold.svg?url";
 import Italic_ from "bootstrap-icons/icons/type-italic.svg?component";
 import italic_ from "bootstrap-icons/icons/type-italic.svg?url";
+import Strikethrough_ from "bootstrap-icons/icons/type-strikethrough.svg?component";
+import strikethrough_ from "bootstrap-icons/icons/type-strikethrough.svg?url";
 import Underline_ from "bootstrap-icons/icons/type-underline.svg?component";
 import underline_ from "bootstrap-icons/icons/type-underline.svg?url";
 
@@ -248,6 +250,7 @@ export const justifyRightIcon = { url: justifyRight_, component: JustifyRight_ }
 export const boldIcon = { url: bold_, component: Bold_ };
 export const italicIcon = { url: italic_, component: Italic_ };
 export const underlineIcon = { url: underline_, component: Underline_ };
+export const strikethroughIcon = { url: strikethrough_, component: Strikethrough_ };
 export const deleteIcon = { url: delete_, component: Delete_ };
 export const inlineIcon = { url: inline_, component: Inline_ };
 export const blockIcon = { url: block_, component: Block_ };

@@ -46,6 +46,7 @@ editing-remove-formatting = Remove formatting
 editing-restore-original-size = Restore original size
 editing-select-remove-formatting = Select formatting to remove
 editing-show-duplicates = Show Duplicates
+editing-strikethrough-text = Strikethrough text
 editing-subscript = Subscript
 editing-superscript = Superscript
 editing-tags = Tags
