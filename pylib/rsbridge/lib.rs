@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki::api::ApiServer;
 use anki::backend::init_backend;
 use anki::backend::Backend as RustBackend;
 use anki::log::set_global_logger;
@@ -34,6 +35,14 @@ fn syncserver() -> PyResult<()> {
     set_global_logger(None).unwrap();
     let err = SimpleServer::run();
     Err(PyException::new_err(err.to_string()))
+}
+
+#[pyfunction]
+fn api_server(py: Python) -> PyResult<()> {
+    py.allow_threads(|| {
+        let err = ApiServer::run();
+        Err(PyException::new_err(err.to_string()))
+    })
 }
 
 #[pyfunction]
@@ -87,6 +96,7 @@ fn _rsbridge(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(open_backend)).unwrap();
     m.add_wrapped(wrap_pyfunction!(initialize_logging)).unwrap();
     m.add_wrapped(wrap_pyfunction!(syncserver)).unwrap();
+    m.add_wrapped(wrap_pyfunction!(api_server)).unwrap();
 
     Ok(())
 }

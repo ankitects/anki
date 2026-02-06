@@ -42,6 +42,13 @@ if "--syncserver" in sys.argv:
     # does not return
     run_sync_server()
 
+if "--apiserver" in sys.argv:
+    from anki.api_server import run_api_server
+    from anki.utils import is_mac
+
+    # does not return
+    run_api_server()
+
 if sys.platform == "win32":
     from win32com.shell import shell
 
@@ -454,6 +461,11 @@ def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     parser.add_argument(
         "--syncserver",
         help="skip GUI and start a local sync server",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--apiserver",
+        help="skip GUI and start an API server",
         action="store_true",
     )
     return parser.parse_known_args(argv[1:])

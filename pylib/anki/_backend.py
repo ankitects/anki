@@ -92,6 +92,10 @@ class RustBackend(RustBackendGenerated):
     def syncserver() -> None:
         _rsbridge.syncserver()
 
+    @staticmethod
+    def api_server() -> None:
+        _rsbridge.api_server()
+
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool
     ) -> list[DBRow]:
