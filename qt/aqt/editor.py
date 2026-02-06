@@ -433,7 +433,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
-        assert self.mw.pm.profile is not None
         load_args = dict(
             nid=self.nid,
             notetypeId=mid,
