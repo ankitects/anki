@@ -151,7 +151,9 @@ where
                 r#"
 .route("/{method_name}",
     axum::routing::post(async |{input_arg}| {{
-        axum::extract::Json(ResponseData({method_call}))
+        let result = {method_call};
+        let status = if result.is_err() {{axum::http::StatusCode::INTERNAL_SERVER_ERROR}} else {{axum::http::StatusCode::OK}};
+        (status, axum::extract::Json(ResponseData(result)))
     }})
 )"#
             )
