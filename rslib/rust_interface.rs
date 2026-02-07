@@ -17,8 +17,10 @@ use itertools::Itertools;
 use prost_reflect::DescriptorPool;
 
 pub fn write_rust_interface(pool: &DescriptorPool) -> Result<()> {
-    let mut buf = String::new();
-    buf.push_str("use crate::error::Result; use prost::Message;");
+    let mut backend_buf = String::new();
+    backend_buf.push_str("use crate::error::Result; use prost::Message;");
+
+    let mut routes_buf = String::new();
 
     let (col_services, backend_services) = get_services(pool);
     let col_services = col_services
@@ -30,15 +32,20 @@ pub fn write_rust_interface(pool: &DescriptorPool) -> Result<()> {
         .filter(|s| s.name != "BackendFrontendService")
         .collect_vec();
 
-    render_collection_services(&col_services, &mut buf)?;
-    render_backend_services(&backend_services, &mut buf)?;
+    render_collection_services(&col_services, &mut backend_buf)?;
+    render_backend_services(&backend_services, &mut backend_buf)?;
 
-    let buf = format_code(buf)?;
-    // println!("{}", &buf);
-    // panic!();
+    render_routes(&backend_services, &mut routes_buf)?;
+
+    let backend_buf = format_code(backend_buf)?;
+    let routes_buf = format_code(routes_buf)?;
+
     let out_dir = env::var("OUT_DIR").unwrap();
-    let path = PathBuf::from(out_dir).join("backend.rs");
-    write_file_if_changed(path, buf).context("write file")?;
+    let path = PathBuf::from(&out_dir).join("backend.rs");
+    write_file_if_changed(path, backend_buf).context("write file")?;
+    let path = PathBuf::from(&out_dir).join("api_routes.rs");
+    write_file_if_changed(path, routes_buf).context("write file")?;
+
     Ok(())
 }
 
@@ -70,6 +77,63 @@ fn render_backend_services(backend_services: &[BackendService], buf: &mut String
         buf,
     );
 
+    Ok(())
+}
+
+fn render_routes(backend_services: &[BackendService], buf: &mut String) -> Result<()> {
+    writeln!(buf, "pub fn add_routes<S: Clone + Send + Sync + 'static>(backend: &'static crate::backend::Backend, router: axum::Router<S>) -> axum::Router<S> {{").unwrap();
+    writeln!(buf, "router").unwrap();
+
+    for service in backend_services {
+        if ["BackendAnkidroidService", "BackendFrontendService"].contains(&service.name.as_str()) {
+            continue;
+        }
+        for method in service.all_methods() {
+            let method_name = &method.name;
+            let input_type = method.get_input_type();
+            let input_arg = if method.input_type().is_some() {
+                format!("axum::extract::Json(payload): axum::extract::Json<{input_type}>")
+            } else {
+                String::new()
+            };
+            let is_col_method = service
+                .delegating_methods
+                .iter()
+                .any(|m| m.name == method.name);
+            let object = if is_col_method { "col" } else { "backend" };
+            let service_name = format!(
+                "crate::services::{}",
+                if is_col_method {
+                    service.name.trim_start_matches("Backend")
+                } else {
+                    &service.name
+                }
+            );
+            let mut method_call = if method.input_type().is_some() {
+                format!("{service_name}::{method_name}({object}, payload)")
+            } else {
+                format!("{service_name}::{method_name}({object})")
+            };
+            method_call = if is_col_method {
+                format!("backend.with_col(|col| {method_call}).map_err(|e| e.into_protobuf(&backend.tr))")
+            } else {
+                format!("{method_call}.map_err(|e| e.into_protobuf(&backend.tr))")
+            };
+
+            writeln!(
+                buf,
+                r#"
+.route("/{method_name}",
+    axum::routing::post(async |{input_arg}| {{
+        axum::extract::Json({method_call})
+    }})
+)"#
+            )
+            .unwrap();
+        }
+    }
+
+    buf.push('}');
     Ok(())
 }
 
@@ -242,6 +306,7 @@ trait MethodHelpers {
     fn output_type(&self) -> Option<String>;
     fn text_if_input_not_empty(&self, text: impl Fn(&String) -> String) -> String;
     fn get_input_arg_with_label(&self) -> String;
+    fn get_input_type(&self) -> String;
     fn get_output_type(&self) -> String;
     fn text_if_output_not_empty(&self, text: impl Fn(&String) -> String) -> String;
 }
@@ -265,6 +330,11 @@ impl MethodHelpers for Method {
             .as_ref()
             .map(|t| format!("input: {t}"))
             .unwrap_or_default()
+    }
+
+    /// () if generic::Empty
+    fn get_input_type(&self) -> String {
+        self.input_type().as_deref().unwrap_or("()").into()
     }
 
     /// () if generic::Empty
