@@ -11,21 +11,27 @@ use axum::Router;
 use snafu::ResultExt;
 use snafu::Whatever;
 
+use crate::backend::Backend;
 use crate::error;
+
+mod routes;
 
 pub struct ApiServer {}
 
 pub type ServerFuture = Pin<Box<dyn Future<Output = error::Result<(), std::io::Error>> + Send>>;
 
 impl ApiServer {
-    pub async fn make_server() -> error::Result<(SocketAddr, ServerFuture), Whatever> {
-        let app = Router::new().route("/", get(|| async { "Hello, World!" }));
+    pub async fn make_server<'a: 'static>(
+        backend: &'a Backend,
+    ) -> error::Result<(SocketAddr, ServerFuture), Whatever> {
+        let router = Router::new().route("/", get(|| async { "Hello, World!" }));
+        let router = routes::add_routes(backend, router);
         let address = "0.0.0.0:8766";
         let listener = tokio::net::TcpListener::bind(address)
             .await
             .with_whatever_context(|_| format!("couldn't bind to {address}"))?;
         let addr = listener.local_addr().unwrap();
-        let future = axum::serve(listener, app)
+        let future = axum::serve(listener, router)
             .with_graceful_shutdown(async {
                 let _ = tokio::signal::ctrl_c().await;
             })
@@ -36,8 +42,8 @@ impl ApiServer {
 
     #[snafu::report]
     #[tokio::main]
-    pub async fn run() -> error::Result<(), Whatever> {
-        let (_addr, server_fut) = ApiServer::make_server().await?;
+    pub async fn run<'a: 'static>(backend: &'a Backend) -> error::Result<(), Whatever> {
+        let (_addr, server_fut) = ApiServer::make_server(backend).await?;
         server_fut.await.whatever_context("await server")?;
         Ok(())
     }

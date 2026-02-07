@@ -38,14 +38,6 @@ fn syncserver() -> PyResult<()> {
 }
 
 #[pyfunction]
-fn api_server(py: Python) -> PyResult<()> {
-    py.allow_threads(|| {
-        let err = ApiServer::run();
-        Err(PyException::new_err(err.to_string()))
-    })
-}
-
-#[pyfunction]
 fn open_backend(init_msg: &Bound<'_, PyBytes>) -> PyResult<Backend> {
     match init_backend(init_msg.as_bytes()) {
         Ok(backend) => Ok(Backend { backend }),
@@ -84,6 +76,14 @@ impl Backend {
         let out_obj = PyBytes::new(py, &out_bytes);
         Ok(out_obj.into())
     }
+
+    fn api_server(&self, py: Python) -> PyResult<()> {
+        let backend = Box::leak(Box::new(self.backend.clone()));
+        py.allow_threads(|| {
+            let err = ApiServer::run(backend);
+            Err(PyException::new_err(err.to_string()))
+        })
+    }
 }
 
 // Module definition
@@ -96,7 +96,6 @@ fn _rsbridge(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(open_backend)).unwrap();
     m.add_wrapped(wrap_pyfunction!(initialize_logging)).unwrap();
     m.add_wrapped(wrap_pyfunction!(syncserver)).unwrap();
-    m.add_wrapped(wrap_pyfunction!(api_server)).unwrap();
 
     Ok(())
 }
