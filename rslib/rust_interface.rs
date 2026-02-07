@@ -81,6 +81,32 @@ fn render_backend_services(backend_services: &[BackendService], buf: &mut String
 }
 
 fn render_routes(backend_services: &[BackendService], buf: &mut String) -> Result<()> {
+    writeln!(
+        buf,
+        r#"
+#[derive(serde::Serialize)]
+struct ResponseData<T: serde::Serialize> (
+    #[serde(serialize_with = "serialize_result_flat")]
+    Result<T, anki_proto::backend::BackendError>
+);
+
+fn serialize_result_flat<S, T, E>(
+    v: &Result<T, E>,
+    serializer: S,
+) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+    T: serde::Serialize,
+    E: serde::Serialize,
+{{
+    match v {{
+        Ok(value) => value.serialize(serializer),
+        Err(err) => err.serialize(serializer),
+    }}
+}}
+"#
+    )
+    .unwrap();
     writeln!(buf, "pub fn add_routes<S: Clone + Send + Sync + 'static>(backend: &'static crate::backend::Backend, router: axum::Router<S>) -> axum::Router<S> {{").unwrap();
     writeln!(buf, "router").unwrap();
 
@@ -125,7 +151,7 @@ fn render_routes(backend_services: &[BackendService], buf: &mut String) -> Resul
                 r#"
 .route("/{method_name}",
     axum::routing::post(async |{input_arg}| {{
-        axum::extract::Json({method_call})
+        axum::extract::Json(ResponseData({method_call}))
     }})
 )"#
             )
