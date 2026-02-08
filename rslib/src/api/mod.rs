@@ -32,15 +32,12 @@ impl ApiServer {
             .with_whatever_context(|_| format!("couldn't bind to {address}"))?;
         let addr = listener.local_addr().unwrap();
         let future = axum::serve(listener, router)
-            .with_graceful_shutdown(async {
-                let _ = tokio::signal::ctrl_c().await;
-            })
+            .with_graceful_shutdown(async { backend.wait_for_shutdown().await })
             .into_future();
 
         Ok((addr, Box::pin(future)))
     }
 
-    #[snafu::report]
     #[tokio::main]
     pub async fn run<'a: 'static>(backend: &'a Backend) -> error::Result<(), Whatever> {
         let (_addr, server_fut) = ApiServer::make_server(backend).await?;
