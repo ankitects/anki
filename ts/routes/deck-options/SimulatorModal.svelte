@@ -625,7 +625,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         --bs-modal-margin: 0;
     }
 
+
     .svg-container {
+        max-width: 800px;
+        margin: 0 auto;
         width: 100%;
         /* Account for modal header, controls, etc */
         max-height: max(calc(100vh - 400px), 200px);
