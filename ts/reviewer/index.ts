@@ -178,6 +178,9 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                 typeans = document.getElementById("typeans") as HTMLInputElement;
                 if (typeans) {
                     typeans.focus();
+                } else {
+                    // Focus show answer button for screen reader users
+                    bridgeCommand("focusAnswerButton");
                 }
                 // preload images
                 allImagesLoaded().then(() => preloadAnswerImages(a));
@@ -230,6 +233,31 @@ export function _typeAnsPress(): void {
 
 export function _emulateMobile(enabled: boolean): void {
     document.documentElement.classList.toggle("mobile", enabled);
+}
+
+export function _announceContent(): void {
+    const qa = document.getElementById("qa");
+
+    if (!qa) {
+        return;
+    }
+
+    // Clone the qa element to filter out non-visible content
+    const clone = qa.cloneNode(true) as HTMLElement;
+
+    // Remove style tags, script tags, and other non-content elements
+    const tagsToRemove = clone.querySelectorAll("style, script, link");
+    tagsToRemove.forEach(tag => tag.remove());
+
+    // Get text content from the filtered clone
+    const text = (clone.innerText || clone.textContent || "").trim();
+
+    if (!text) {
+        return;
+    }
+
+    // Send to Python/Qt to announce via native accessibility API
+    bridgeCommand(`announce:${text}`);
 }
 
 // Block Qt's default drag & drop behavior by default

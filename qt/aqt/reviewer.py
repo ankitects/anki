@@ -332,8 +332,8 @@ class Reviewer:
         if self.mw.pm.video_driver() == VideoDriver.Software:
             fade = "<script>qFade=0;</script>"
         return f"""
-<div id="_mark" hidden>&#x2605;</div>
-<div id="_flag" hidden>&#x2691;</div>
+<div id="_mark" hidden aria-hidden="true">&#x2605;</div>
+<div id="_flag" hidden aria-hidden="true">&#x2691;</div>
 {fade}
 <div id="qa"></div>
 {extra}
@@ -639,6 +639,7 @@ class Reviewer:
             ("6", self.on_seek_backward),
             ("7", self.on_seek_forward),
             ("Shift+A", self.toggle_auto_advance),
+            ("Shift+R", self.announce_card_content),
             *self.korean_shortcuts(),
         ]
 
@@ -655,6 +656,32 @@ class Reviewer:
     def on_seek_forward(self) -> None:
         av_player.seek_relative(self.seek_secs)
         gui_hooks.audio_did_seek_relative(self.web, self.seek_secs)
+
+    def announce_card_content(self) -> None:
+        """Re-announce card content for screen reader users."""
+        self.web.eval("_announceContent();")
+
+    def _announce_to_screen_reader(self, text: str) -> None:
+        """Announce text to screen reader using accessible_output2.
+
+        accessible_output2 is a cross-platform library that speaks to screen readers
+        on Windows (NVDA, JAWS, SAPI), macOS (VoiceOver), and Linux (Speech Dispatcher).
+        """
+        try:
+            # Import accessible_output2 on first use
+            if not hasattr(self, "_screen_reader"):
+                from accessible_output2.outputs.auto import Auto  # type: ignore
+
+                self._screen_reader = Auto()
+
+            # Speak the text through the active screen reader
+            self._screen_reader.speak(text, interrupt=True)
+
+        except Exception as e:
+            print(f"Failed to announce to screen reader: {e}")
+            import traceback
+
+            traceback.print_exc()
 
     def onEnterKey(self) -> None:
         if self.state == "question":
@@ -688,6 +715,13 @@ class Reviewer:
             self.mw.toolbarWeb.update_background_image()
         elif url == "statesMutated":
             self._states_mutated = True
+        elif url == "focusAnswerButton":
+            self.bottom.web.eval("document.getElementById('ansbut')?.focus();")
+        elif url == "focusDefaultEase":
+            self.bottom.web.eval("document.getElementById('defease')?.focus();")
+        elif url.startswith("announce:"):
+            text = url[9:]  # Remove "announce:" prefix
+            self._announce_to_screen_reader(text)
         else:
             print("unrecognized anki link:", url)
 
@@ -864,6 +898,8 @@ timerStopped = false;
         self.bottom.web.eval(
             f"showAnswer({json.dumps(middle)}, {json.dumps(conf['stopTimerOnAnswer'])});"
         )
+        # Focus default ease button for screen reader users
+        self.bottom.web.eval("document.getElementById('defease')?.focus();")
 
     def _remaining(self) -> str:
         if not self.mw.col.conf["dueCounts"]:
