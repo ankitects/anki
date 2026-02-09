@@ -121,7 +121,11 @@ impl<N: Deref<Target = Notetype>> CardGenContext<N> {
         note: &Note,
         extracted: &ExtractedCardInfo,
     ) -> Vec<CardToGenerate> {
-        let nonempty_fields = note.nonempty_fields(&self.notetype.fields);
+        let mut nonempty_fields = note.nonempty_fields(&self.notetype.fields);
+        // Include Tags as a nonempty field when note has tags to render {{#Tags}}
+        if !note.tags.is_empty() {
+            nonempty_fields.insert("Tags");
+        }
 
         self.cards
             .iter()
