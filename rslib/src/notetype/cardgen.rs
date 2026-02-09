@@ -374,7 +374,8 @@ mod test {
         assert_eq!(random_position(5001), 3731);
     }
 
-    /// Tests if a basic template generates one card if the Front field has content inside
+    /// Tests if a basic template generates one card if the Front field has
+    /// content inside
     #[test]
     fn new_cards_required_normal_basic() {
         // create a new temporary collection
@@ -413,17 +414,19 @@ mod test {
         let note_type = col.get_notetype_by_name("Cloze").unwrap().unwrap();
         let mut note = note_type.new_note();
         let context = CardGenContext::new(note_type, None, Usn(-1));
-        note.set_field(0, "{{c1::Rome}} is in {{c2::Italy}}").unwrap();
+        note.set_field(0, "{{c1::Rome}} is in {{c2::Italy}}")
+            .unwrap();
 
         let cards = context.new_cards_required(&note, &[], true);
         assert_eq!(cards.len(), 2);
-        // using a HashSet to check ordinals without assuming order since cloze cards can return in any order
+        // using a HashSet to check ordinals without assuming order since cloze
+        // cards can return in any order
         let ords: HashSet<u32> = cards.iter().map(|c| c.ord).collect();
         assert!(ords.contains(&0));
         assert!(ords.contains(&1));
     }
 
-    /// Tests if the {{#Tags}} conditional generates a card when the note has tags
+    /// Tests if the {{#Tags}} conditional generates a card if note has tags
     #[test]
     fn new_cards_required_normal_tags_conditional() {
         let mut col = CollectionBuilder::default().build().unwrap();
@@ -441,7 +444,8 @@ mod test {
         assert_eq!(cards[0].ord, 0);
     }
 
-    /// Tests if the {{#Tags}} conditional does not render when the note has no tags
+    /// Tests if the {{#Tags}} conditional does not render when the note has no
+    /// tags
     #[test]
     fn new_cards_required_normal_tags_empty() {
         let mut col = CollectionBuilder::default().build().unwrap();
@@ -459,11 +463,14 @@ mod test {
         assert_eq!(cards[0].ord, 0);
     }
 
-    /// Tests if card generation skips ordinals that already exist (duplication check)
+    /// Tests if card generation skips ordinals that already exist(duplication)
     #[test]
     fn new_cards_required_skip_existing_cards() {
         let mut col = CollectionBuilder::default().build().unwrap();
-        let note_type = col.get_notetype_by_name("Basic (and reversed card)").unwrap().unwrap();
+        let note_type = col
+            .get_notetype_by_name("Basic (and reversed card)")
+            .unwrap()
+            .unwrap();
         let mut note = note_type.new_note();
         let context = CardGenContext::new(note_type, None, Usn(-1));
         note.set_field(0, "Cat").unwrap();
@@ -483,4 +490,3 @@ mod test {
         assert_eq!(cards[0].ord, 1);
     }
 }
-
