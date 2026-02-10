@@ -364,6 +364,7 @@ fn random_position(highest_position: u32) -> u32 {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::collection::CollectionBuilder;
 
     #[test]
     fn random() {
@@ -371,5 +372,121 @@ mod test {
         assert_eq!(random_position(5), 180);
         assert_eq!(random_position(500), 13);
         assert_eq!(random_position(5001), 3731);
+    }
+
+    /// Tests if a basic template generates one card if the Front field has
+    /// content inside
+    #[test]
+    fn new_cards_required_normal_basic() {
+        // create a new temporary collection
+        let mut col = CollectionBuilder::default().build().unwrap();
+        let note_type = col.get_notetype_by_name("Basic").unwrap().unwrap();
+        // create a new note of the basic type
+        let mut note = note_type.new_note();
+        // create a new context for the card generation
+        let context = CardGenContext::new(note_type, None, Usn(-1));
+        // set the front field of the note to "Hello World"
+        note.set_field(0, "Hello World").unwrap();
+
+        let cards = context.new_cards_required(&note, &[], true);
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].ord, 0);
+    }
+
+    /// Tests if a cloze note with a single deletion generates one card
+    #[test]
+    fn new_cards_required_cloze_basic() {
+        let mut col = CollectionBuilder::default().build().unwrap();
+        let note_type = col.get_notetype_by_name("Cloze").unwrap().unwrap();
+        let mut note = note_type.new_note();
+        let context = CardGenContext::new(note_type, None, Usn(-1));
+        note.set_field(0, "Hello {{c1::World}}").unwrap();
+
+        let cards = context.new_cards_required(&note, &[], true);
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].ord, 0);
+    }
+
+    /// Tests if multiple cloze deletions generate multiple cards
+    #[test]
+    fn new_cards_required_cloze_multi() {
+        let mut col = CollectionBuilder::default().build().unwrap();
+        let note_type = col.get_notetype_by_name("Cloze").unwrap().unwrap();
+        let mut note = note_type.new_note();
+        let context = CardGenContext::new(note_type, None, Usn(-1));
+        note.set_field(0, "{{c1::Rome}} is in {{c2::Italy}}")
+            .unwrap();
+
+        let cards = context.new_cards_required(&note, &[], true);
+        assert_eq!(cards.len(), 2);
+        // using a HashSet to check ordinals without assuming order since cloze
+        // cards can return in any order
+        let ords: HashSet<u32> = cards.iter().map(|c| c.ord).collect();
+        assert!(ords.contains(&0));
+        assert!(ords.contains(&1));
+    }
+
+    /// Tests if the {{#Tags}} conditional generates a card if note has tags
+    #[test]
+    fn new_cards_required_normal_tags_conditional() {
+        let mut col = CollectionBuilder::default().build().unwrap();
+        // cloning the inner Notetype so we can modify the template
+        let arc_note_type = col.get_notetype_by_name("Basic").unwrap().unwrap();
+        let mut note_type = (*arc_note_type).clone();
+        note_type.templates[0].config.q_format = "{{#Tags}}{{Front}}{{/Tags}}".to_string();
+        let mut note = note_type.new_note();
+        let context = CardGenContext::new(&note_type, None, Usn(-1));
+        note.set_field(0, "Hello").unwrap();
+        note.tags = vec!["vocabolary".to_string(), "english".to_string()];
+
+        let cards = context.new_cards_required(&note, &[], true);
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].ord, 0);
+    }
+
+    /// Tests if the {{#Tags}} conditional does not render when the note has no
+    /// tags
+    #[test]
+    fn new_cards_required_normal_tags_empty() {
+        let mut col = CollectionBuilder::default().build().unwrap();
+        // cloning the inner Notetype so we can modify the template
+        let arc_note_type = col.get_notetype_by_name("Basic").unwrap().unwrap();
+        let mut note_type = (*arc_note_type).clone();
+        note_type.templates[0].config.q_format = "{{#Tags}}{{Front}}{{/Tags}}".to_string();
+        let mut note = note_type.new_note();
+        let context = CardGenContext::new(&note_type, None, Usn(-1));
+        note.set_field(0, "Hello").unwrap();
+        note.tags = vec![];
+
+        let cards = context.new_cards_required(&note, &[], true);
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].ord, 0);
+    }
+
+    /// Tests if card generation skips ordinals that already exist(duplication)
+    #[test]
+    fn new_cards_required_skip_existing_cards() {
+        let mut col = CollectionBuilder::default().build().unwrap();
+        let note_type = col
+            .get_notetype_by_name("Basic (and reversed card)")
+            .unwrap()
+            .unwrap();
+        let mut note = note_type.new_note();
+        let context = CardGenContext::new(note_type, None, Usn(-1));
+        note.set_field(0, "Cat").unwrap();
+        note.set_field(1, "Neko").unwrap();
+
+        // simulating that card 0 already exists in the database
+        let existing = vec![AlreadyGeneratedCardInfo {
+            id: CardId(1),
+            nid: NoteId(100),
+            ord: 0,
+            original_deck_id: DeckId(1),
+            position_if_new: None,
+        }];
+        let cards = context.new_cards_required(&note, &existing, true);
+
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].ord, 1);
     }
 }
