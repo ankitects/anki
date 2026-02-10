@@ -145,15 +145,14 @@ class DeckBrowser:
     ##########################################################################
 
     _body = """
-<center>
-<table cellspacing=0 cellpadding=3>
-%(tree)s
-</table>
-
-<br>
-%(stats)s
-</center>
-"""
+    <center>
+        <div class="deck-table fancy">
+        %(tree)s
+        </div>
+        <br>
+        %(stats)s
+    </center>
+    """
 
     def _renderPage(self, reuse: bool = False) -> None:
         if not reuse:
@@ -185,9 +184,12 @@ class DeckBrowser:
             stats=self._renderStats(),
         )
         gui_hooks.deck_browser_will_render_content(self, content)
-        self.web.stdHtml(
+        body = (
             self._v1_upgrade_message(data.sched_upgrade_required)
-            + self._body % content.__dict__,
+            + self._body % content.__dict__
+        )
+        self.web.stdHtml(
+            body,
             css=["css/deckbrowser.css"],
             js=[
                 "js/vendor/jquery.min.js",
@@ -205,22 +207,21 @@ class DeckBrowser:
         self.web.eval("window.scrollTo(0, %d, 'instant');" % offset)
 
     def _renderStats(self) -> str:
-        return '<div id="studiedToday"><span>{}</span></div>'.format(
-            self._render_data.studied_today
-        )
+        return f"<div id='studiedToday'><span>{self._render_data.studied_today}</span></div>"
+
+    def _getHeader(self) -> str:
+        return f"""
+        <div class="deck-row deck-header">
+            <div class="deck-title">{tr.decks_deck()}</div>
+            <div class="count">{tr.actions_new()}</div>
+            <div class="count">{tr.decks_learn_header()}</div>
+            <div class="count">{tr.decks_review_header()}</div>
+            <div class="optscol"></div>
+        </div>
+        """
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
-        buf = """
-<tr><th colspan=5 align=start>{}</th>
-<th class=count>{}</th>
-<th class=count>{}</th>
-<th class=count>{}</th>
-<th class=optscol></th></tr>""".format(
-            tr.decks_deck(),
-            tr.actions_new(),
-            tr.decks_learn_header(),
-            tr.decks_review_header(),
-        )
+        buf = self._getHeader()
         buf += self._topLevelDragRow()
 
         ctx = RenderDeckNodeContext(current_deck_id=self._render_data.current_deck_id)
@@ -239,19 +240,6 @@ class DeckBrowser:
         def indent() -> str:
             return "&nbsp;" * 6 * (node.level - 1)
 
-        if node.deck_id == ctx.current_deck_id:
-            klass = "deck current"
-        else:
-            klass = "deck"
-
-        buf = (
-            "<tr class='%s' id='%d' onclick='if(event.shiftKey) return pycmd(\"select:%d\")'>"
-            % (
-                klass,
-                node.deck_id,
-                node.deck_id,
-            )
-        )
         # deck link
         if node.children:
             collapse = (
@@ -259,21 +247,18 @@ class DeckBrowser:
                 % (node.deck_id, prefix)
             )
         else:
-            collapse = "<span class=collapse></span>"
-        if node.filtered:
-            extraclass = "filtered"
-        else:
-            extraclass = ""
-        buf += """
+            collapse = "<span class='collapse'></span>"
 
-        <td class=decktd colspan=5>%s%s<a class="deck %s"
-        href=# onclick="return pycmd('open:%d')">%s</a></td>""" % (
-            indent(),
-            collapse,
-            extraclass,
-            node.deck_id,
-            html.escape(node.name),
-        )
+        extraclass = "deck" + (" filtered" if node.filtered else "")
+        buf = f"""
+        <div class="deck-cell decktd">
+            {indent()}
+            {collapse}
+            <a class={extraclass} href="#" onclick="return pycmd('open:{node.deck_id}')">
+            {html.escape(node.name)}
+            </a>
+        </div>
+        """
 
         # due counts
         def nonzeroColour(cnt: int, klass: str) -> str:
@@ -281,27 +266,50 @@ class DeckBrowser:
                 klass = "zero-count"
             return f'<span class="{klass}">{cnt}</span>'
 
-        review = nonzeroColour(node.review_count, "review-count")
-        learn = nonzeroColour(node.learn_count, "learn-count")
+        buf += f"""
+        <div class="deck-cell">
+            {nonzeroColour(node.new_count, "new-count")}
+        </div>
 
-        buf += ("<td align=end>%s</td>" * 3) % (
-            nonzeroColour(node.new_count, "new-count"),
-            learn,
-            review,
-        )
+        <div class="deck-cell">
+            {nonzeroColour(node.learn_count, "learn-count")}
+        </div>
+
+        <div class="deck-cell">
+            {nonzeroColour(node.review_count, "review-count")}
+        </div>
+        """
         # options
-        buf += (
-            "<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
-            "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % node.deck_id
-        )
+        buf += f"""
+        <div class="deck-cell optscol opts">
+            <a onclick='return pycmd("opts:{node.deck_id}");'>
+                <img src="/_anki/imgs/gears.svg" class="gears">
+            </a>
+        </div>
+        """
+
+        klass = "deck current" if node.deck_id == ctx.current_deck_id else "deck"
+
+        row = f"""
+        <div class="deck-row {klass}"
+        id="{node.deck_id}"
+        onclick='if(event.shiftKey) return pycmd("select:{node.deck_id}")'>
+            {buf}
+        </div>
+        """
         # children
         if not node.collapsed:
             for child in node.children:
-                buf += self._render_deck_node(child, ctx)
-        return buf
+                row += self._render_deck_node(child, ctx)
+
+        return row
 
     def _topLevelDragRow(self) -> str:
-        return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
+        return """
+        <div class="deck-row top-level-drag-row">
+            <div class="deck-cell spacer" colspan="6">&nbsp;</div>
+        </div>
+        """
 
     # Options
     ##########################################################################
@@ -386,12 +394,13 @@ class DeckBrowser:
             if b[0]:
                 b[0] = tr.actions_shortcut_key(val=shortcut(b[0]))
             buf += """
-<button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(b)
-        self.bottom.draw(
-            buf=buf,
-            link_handler=self._linkHandler,
-            web_context=DeckBrowserBottomBar(self),
-        )
+            <button title='%s' onclick='pycmd(\"%s\");'>%s</button>
+            """ % tuple(b)
+            self.bottom.draw(
+                buf=buf,
+                link_handler=self._linkHandler,
+                web_context=DeckBrowserBottomBar(self),
+            )
 
     def _onShared(self) -> None:
         openLink(f"{aqt.appShared}decks/")
@@ -411,22 +420,22 @@ class DeckBrowser:
         update_required = tr.scheduling_update_required().replace("V2", "v3")
 
         return f"""
-<center>
-<div class=callout>
-    <div>
-      {update_required}
-    </div>
-    <div>
-      <button onclick='pycmd("v2upgrade")'>
-        {tr.scheduling_update_button()}
-      </button>
-      <button onclick='pycmd("v2upgradeinfo")'>
-        {tr.scheduling_update_more_info_button()}
-      </button>
-    </div>
-</div>
-</center>
-"""
+        <center>
+        <div class=callout>
+            <div>
+            {update_required}
+            </div>
+            <div>
+            <button onclick='pycmd("v2upgrade")'>
+                {tr.scheduling_update_button()}
+            </button>
+            <button onclick='pycmd("v2upgradeinfo")'>
+                {tr.scheduling_update_more_info_button()}
+            </button>
+            </div>
+        </div>
+        </center>
+        """
 
     def _confirm_upgrade(self) -> None:
         if self.mw.col.sched_ver() == 1:
