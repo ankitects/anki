@@ -7,16 +7,18 @@
 
 table {
     padding: 1rem;
+    border-collapse: separate;
+    border-spacing: 0 0.35rem;
 
     .fancy & {
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--border-radius-medium);
+        border: 1px solid color-mix(in srgb, var(--border-subtle) 60%, #d4dae3 40%);
+        border-radius: 14px;
 
         @include elevation(1, $opacity-boost: -0.08);
         &:hover {
             @include elevation(2);
         }
-        background: var(--canvas-glass);
+        background: color-mix(in srgb, var(--canvas-glass) 85%, #f6f8fb 15%);
     }
 }
 
@@ -42,7 +44,16 @@ tr.deck td {
 
     .fancy & {
         border: unset;
-        padding: 4px 12px;
+        padding: 8px 14px;
+        background: color-mix(in srgb, var(--canvas) 88%, #f6f8fb 12%);
+        &:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        &:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
     }
 }
 
@@ -66,7 +77,7 @@ body {
 .current,
 tr:hover:not(.top-level-drag-row) {
     td {
-        background: color(border-subtle);
+        background: color-mix(in srgb, color(border-subtle) 65%, #edf1f8 35%);
         &:first-child {
             border-top-left-radius: prop(border-radius-medium);
             border-bottom-left-radius: prop(border-radius-medium);
@@ -130,7 +141,7 @@ tr:hover:not(.top-level-drag-row) {
 .gears {
     width: 1em;
     height: 1em;
-    opacity: 0.5;
+    opacity: 0.65;
     padding-top: 0.2em;
     cursor: pointer;
     visibility: hidden;
@@ -153,5 +164,8 @@ tr:hover:not(.top-level-drag-row) {
 }
 
 #studiedToday {
-    margin: 2em 0;
+    margin: 1.3rem 0;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--canvas) 90%, #f3f6fb 10%);
 }

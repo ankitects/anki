@@ -5,6 +5,13 @@
 @use "../../../../../ts/lib/sass/scrollbar";
 @use "../../../../../ts/lib/sass/buttons";
 
+:root {
+    --modern-font: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
+    --modern-surface: color-mix(in srgb, var(--canvas) 92%, #f4f5f7 8%);
+    --modern-surface-elevated: color-mix(in srgb, var(--canvas) 86%, #eceef2 14%);
+    --modern-border: color-mix(in srgb, var(--border-subtle) 70%, #d5dbe5 30%);
+}
+
 * {
     // border-box would be better, but we need to
     // keep the old behaviour for now to avoid breaking
@@ -13,12 +20,19 @@
 }
 
 body {
+    font-family: var(--modern-font);
+    letter-spacing: 0.01em;
     color: var(--fg);
-    background: var(--canvas);
+    background: linear-gradient(
+        180deg,
+        var(--modern-surface-elevated) 0%,
+        var(--modern-surface) 55%,
+        var(--canvas) 100%
+    );
     &.fancy {
         transition: opacity var(--transition-medium) ease-out;
     }
-    margin: 2em;
+    margin: 1.25rem 1.5rem;
     overscroll-behavior: none;
     &:not(.isMac),
     &:not(.isMac) * {
@@ -32,8 +46,10 @@ body {
 a {
     color: var(--fg-link);
     text-decoration: none;
+    transition: color var(--transition);
 }
 
 h1 {
     margin-bottom: 0.2em;
+    letter-spacing: -0.01em;
 }

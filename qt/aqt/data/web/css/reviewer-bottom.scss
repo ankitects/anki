@@ -16,6 +16,7 @@
 body {
     margin: 0;
     padding: 0;
+    background: color-mix(in srgb, var(--canvas) 92%, #f2f5fa 8%);
 }
 
 #middle td[align="center"] {
@@ -24,10 +25,11 @@ body {
 }
 
 button {
-    min-width: 60px;
+    min-width: 68px;
     white-space: nowrap;
-    margin: 9px;
+    margin: 8px;
     position: relative;
+    border-radius: 999px;
 }
 
 .hitem {
@@ -35,7 +37,8 @@ button {
 }
 
 .stat {
-    padding-top: 10px;
+    padding-top: 8px;
+    color: color(fg-subtle);
 
     @media (max-width: 583px) {
         display: none;
@@ -43,7 +46,7 @@ button {
 }
 
 .stat2 {
-    padding-top: 10px;
+    padding-top: 8px;
     font-weight: normal;
 }
 
@@ -73,6 +76,7 @@ button {
 
 #outer {
     border-top: 1px solid color(border);
+    background: color-mix(in srgb, var(--canvas-elevated) 90%, #eff3f9 10%);
     /* Better compatibility with graphics pad/touchscreen */
     -webkit-user-select: none;
 }

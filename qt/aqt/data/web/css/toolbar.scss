@@ -42,12 +42,14 @@
 }
 
 .hitem {
-    font-weight: bold;
-    padding: 5px 12px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    letter-spacing: 0.01em;
+    padding: 6px 12px;
     color: color(fg);
     display: inline-block;
     &:hover {
-        text-decoration: underline;
+        text-decoration: none;
     }
 }
 
@@ -62,7 +64,7 @@ body {
     }
 
     &.fancy {
-        margin-bottom: 5px;
+        margin-bottom: 6px;
 
         &.hidden {
             transform: translateY(-100vh);
@@ -71,18 +73,19 @@ body {
 
         .toolbar {
             overflow: hidden;
-            border-bottom-left-radius: prop(border-radius-medium);
-            border-bottom-right-radius: prop(border-radius-medium);
+            border-bottom-left-radius: 14px;
+            border-bottom-right-radius: 14px;
+            border: 1px solid color-mix(in srgb, var(--border-subtle) 65%, #d4dbe6 35%);
             @include elevation(1, $opacity-boost: -0.1);
 
             // glass effect
-            background: var(--canvas-glass);
+            background: color-mix(in srgb, var(--canvas-glass) 88%, #f5f7fb 12%);
             backdrop-filter: blur(var(--blur));
         }
 
         // elevated state (deck browser, overview)
         &:not(.flat) .toolbar {
-            background: var(--canvas-elevated);
+            background: color-mix(in srgb, var(--canvas-elevated) 88%, #f2f5fa 12%);
             @include elevation(1);
             &:hover {
                 @include elevation(2);
@@ -91,24 +94,27 @@ body {
 
         &:not(.flat) .hitem {
             @include button.base($border: false, $with-hover: false);
-            background: var(--canvas-glass);
+            background: color-mix(in srgb, var(--canvas-glass) 75%, #eef2f8 25%);
             border: 1px solid transparent;
+            border-radius: 999px;
         }
         .hitem {
             text-decoration: none;
             border: 1px solid transparent;
+            border-radius: 999px;
+            margin: 5px 3px;
 
             &:hover {
-                border: 1px solid var(--border-subtle);
+                border: 1px solid color-mix(in srgb, var(--border-subtle) 70%, #ced6e2 30%);
             }
             &:active {
-                background: var(--canvas-inset);
+                background: color-mix(in srgb, var(--canvas-inset) 80%, #e7edf5 20%);
             }
             &:first-child {
-                padding-left: 18px;
+                padding-left: 14px;
             }
             &:last-child {
-                padding-right: 18px;
+                padding-right: 14px;
             }
         }
     }
