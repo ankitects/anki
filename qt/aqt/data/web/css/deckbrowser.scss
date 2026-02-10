@@ -5,8 +5,11 @@
 @use "../../../../../ts/lib/sass/card-counts";
 @use "../../../../../ts/lib/sass/elevation" as *;
 
-table {
+.deck-table {
     padding: 1rem;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
 
     .fancy & {
         border: 1px solid var(--border-subtle);
@@ -31,14 +34,28 @@ a.deck:hover {
     text-decoration: underline;
 }
 
-th {
+.deck-row {
+    display: grid;
+    grid-template-columns:
+        minmax(15em, 1fr)
+        4em
+        4em
+        4em
+        2em;
+
+    align-items: center;
+}
+
+.deck-header {
+    font-weight: bold;
     border-bottom: 1px solid color(border-subtle);
     padding-bottom: 5px;
 }
 
-tr.deck td {
+.deck-cell {
     padding: 1px 12px;
     border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
 
     .fancy & {
         border: unset;
@@ -46,26 +63,14 @@ tr.deck td {
     }
 }
 
-tr.top-level-drag-row td {
+.top-level-drag-row .deck-cell {
+    grid-column: 1 / -1;
     border-bottom: 1px solid transparent;
 }
 
-td {
-    white-space: nowrap;
-}
-
-tr.drag-hover td {
-    border-bottom: 1px solid color(border);
-}
-
-body {
-    margin: 2em 1em 1em 1em;
-    -webkit-user-select: none;
-}
-
 .current,
-tr:hover:not(.top-level-drag-row) {
-    td {
+.deck-row:hover:not(.top-level-drag-row) {
+    .deck-cell {
         background: color(border-subtle);
         &:first-child {
             border-top-left-radius: prop(border-radius-medium);
@@ -80,10 +85,11 @@ tr:hover:not(.top-level-drag-row) {
         }
     }
 }
+
 [dir="rtl"] {
     .current,
-    tr:hover:not(.top-level-drag-row) {
-        td {
+    .deck-row:hover:not(.top-level-drag-row) {
+        .deck-cell {
             background: color(canvas-inset);
             &:first-child {
                 border-top-left-radius: 0;
@@ -107,13 +113,18 @@ tr:hover:not(.top-level-drag-row) {
     overflow: hidden;
 }
 
+.deck-title,
+.decktd {
+    text-align: start;
+}
+
+
 .count {
-    min-width: 4em;
     text-align: right;
 }
 
 .optscol {
-    width: 2em;
+    text-align: center;
 }
 
 .collapse {
