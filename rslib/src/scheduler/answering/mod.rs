@@ -499,6 +499,9 @@ impl Collection {
             let params = config.fsrs_params();
             if params.len() >= 19 {
                 params[17] > 0.0 && params[18] > 0.0
+            } else if params.is_empty() {
+                // fallback to true when using default params
+                true
             } else {
                 false
             }
