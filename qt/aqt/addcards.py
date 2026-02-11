@@ -13,7 +13,6 @@ from aqt.addcards_legacy import *
 from aqt.qt import *
 from aqt.utils import (
     HelpPage,
-    add_close_shortcut,
     ask_user_dialog,
     openHelp,
     restoreGeom,
@@ -36,7 +35,6 @@ class NewAddCards(QMainWindow):
         self.setMinimumHeight(300)
         self.setMinimumWidth(400)
         self.setupEditor()
-        add_close_shortcut(self)
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
         if not is_mac:

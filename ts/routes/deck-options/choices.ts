@@ -69,7 +69,9 @@ export function newSortOrderChoices(): Choice<DeckConfig_Config_NewCardSortOrder
     ];
 }
 
-export function reviewOrderChoices(fsrs: boolean): Choice<DeckConfig_Config_ReviewCardOrder>[] {
+export function reviewOrderChoices(
+    fsrs: boolean,
+): Choice<DeckConfig_Config_ReviewCardOrder>[] {
     return [
         ...[
             {
@@ -94,14 +96,11 @@ export function reviewOrderChoices(fsrs: boolean): Choice<DeckConfig_Config_Revi
             },
         ],
         ...difficultyOrders(fsrs),
+        ...retrievabilityOrders(fsrs),
         ...[
             {
-                label: tr.deckConfigSortOrderRetrievabilityAscending(),
-                value: DeckConfig_Config_ReviewCardOrder.RETRIEVABILITY_ASCENDING,
-            },
-            {
-                label: tr.deckConfigSortOrderRetrievabilityDescending(),
-                value: DeckConfig_Config_ReviewCardOrder.RETRIEVABILITY_DESCENDING,
+                label: tr.decksRelativeOverdueness(),
+                value: DeckConfig_Config_ReviewCardOrder.RELATIVE_OVERDUENESS,
             },
             {
                 label: tr.deckConfigSortOrderRandom(),
@@ -202,11 +201,15 @@ export function questionActionChoices(): Choice<DeckConfig_Config_QuestionAction
 function difficultyOrders(fsrs: boolean): Choice<DeckConfig_Config_ReviewCardOrder>[] {
     const order = [
         {
-            label: fsrs ? tr.deckConfigSortOrderDescendingDifficulty() : tr.deckConfigSortOrderAscendingEase(),
+            label: fsrs
+                ? tr.deckConfigSortOrderDescendingDifficulty()
+                : tr.deckConfigSortOrderAscendingEase(),
             value: DeckConfig_Config_ReviewCardOrder.EASE_ASCENDING,
         },
         {
-            label: fsrs ? tr.deckConfigSortOrderAscendingDifficulty() : tr.deckConfigSortOrderDescendingEase(),
+            label: fsrs
+                ? tr.deckConfigSortOrderAscendingDifficulty()
+                : tr.deckConfigSortOrderDescendingEase(),
             value: DeckConfig_Config_ReviewCardOrder.EASE_DESCENDING,
         },
     ];
@@ -214,4 +217,22 @@ function difficultyOrders(fsrs: boolean): Choice<DeckConfig_Config_ReviewCardOrd
         order.reverse();
     }
     return order;
+}
+
+function retrievabilityOrders(
+    fsrs: boolean,
+): Choice<DeckConfig_Config_ReviewCardOrder>[] {
+    if (!fsrs) {
+        return [];
+    }
+    return [
+        {
+            label: tr.deckConfigSortOrderRetrievabilityAscending(),
+            value: DeckConfig_Config_ReviewCardOrder.RETRIEVABILITY_ASCENDING,
+        },
+        {
+            label: tr.deckConfigSortOrderRetrievabilityDescending(),
+            value: DeckConfig_Config_ReviewCardOrder.RETRIEVABILITY_DESCENDING,
+        },
+    ];
 }

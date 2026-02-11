@@ -409,6 +409,22 @@ class AnkiApp(QApplication):
     def eventFilter(self, src: Any, evt: QEvent | None) -> bool:
         assert evt is not None
 
+        # Handle Close shortcut here because modal dialogs disable main-window shortcuts
+        if (is_mac or is_lin) and evt.type() == QEvent.Type.KeyPress:
+            key_event = cast(QKeyEvent, evt)
+            if not key_event.isAutoRepeat():
+                mods = cast(int, key_event.modifiers().value)
+                seq = QKeySequence(mods | key_event.key())
+                if any(
+                    seq == binding
+                    for binding in QKeySequence.keyBindings(
+                        QKeySequence.StandardKey.Close
+                    )
+                ):
+                    if mw is not None:
+                        mw._close_active_window()
+                    return True
+
         pointer_classes = (
             QPushButton,
             QCheckBox,

@@ -17,7 +17,7 @@ impl GraphsContext {
             if let Some(state) = card.memory_state {
                 *difficulty
                     .eases
-                    .entry(percent_to_bin(state.difficulty() * 100.0))
+                    .entry(percent_to_bin(state.difficulty() * 100.0, 1))
                     .or_insert_with(Default::default) += 1;
                 difficulty_values.push(state.difficulty());
             } else if matches!(card.ctype, CardType::Review | CardType::Relearn) {
@@ -51,11 +51,11 @@ fn median(data: &mut [f32]) -> f32 {
 }
 
 /// Bins the number into a bin of 0, 5, .. 95
-pub(super) fn percent_to_bin(x: f32) -> u32 {
+pub(super) fn percent_to_bin(x: f32, bin_size: u32) -> u32 {
     if x == 100.0 {
-        95
+        100 - bin_size
     } else {
-        ((x / 5.0).floor() * 5.0) as u32
+        ((x / bin_size as f32).floor() * bin_size as f32) as u32
     }
 }
 
@@ -65,11 +65,11 @@ mod tests {
 
     #[test]
     fn bins() {
-        assert_eq!(percent_to_bin(0.0), 0);
-        assert_eq!(percent_to_bin(4.9), 0);
-        assert_eq!(percent_to_bin(5.0), 5);
-        assert_eq!(percent_to_bin(9.9), 5);
-        assert_eq!(percent_to_bin(99.9), 95);
-        assert_eq!(percent_to_bin(100.0), 95);
+        assert_eq!(percent_to_bin(0.0, 5), 0);
+        assert_eq!(percent_to_bin(4.9, 5), 0);
+        assert_eq!(percent_to_bin(5.0, 5), 5);
+        assert_eq!(percent_to_bin(9.9, 5), 5);
+        assert_eq!(percent_to_bin(99.9, 5), 95);
+        assert_eq!(percent_to_bin(100.0, 5), 95);
     }
 }

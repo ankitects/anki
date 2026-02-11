@@ -27,7 +27,6 @@ from aqt.operations import QueryOp
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
 from aqt.utils import (
-    add_close_shortcut,
     checkInvalidFilename,
     disable_help_button,
     getSaveFile,
@@ -54,7 +53,6 @@ class ExportDialog(QDialog):
         self.nids = nids
         disable_help_button(self)
         self.setup(did)
-        add_close_shortcut(self)
         self.open()
 
     def setup(self, did: DeckId | None) -> None:

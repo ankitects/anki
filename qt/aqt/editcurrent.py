@@ -6,7 +6,7 @@ from collections.abc import Callable
 
 from aqt.editcurrent_legacy import *
 from aqt.qt import *
-from aqt.utils import add_close_shortcut, restoreGeom, saveGeom, tr
+from aqt.utils import restoreGeom, saveGeom, tr
 
 
 class NewEditCurrent(QMainWindow):
@@ -30,7 +30,6 @@ class NewEditCurrent(QMainWindow):
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
-        add_close_shortcut(self)
         self.show()
 
     def cleanup(self) -> None:

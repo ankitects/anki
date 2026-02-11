@@ -55,6 +55,8 @@ decks-decreasing-intervals = Decreasing intervals
 decks-oldest-seen-first = Oldest seen first
 # Combobox entry: Sort the cards in random order
 decks-random = Random
-
-## NO NEED TO TRANSLATE - these strings are no longer used
+# Combobox entry: Sort the cards by relative overdueness, in descending order (most overdue to least overdue)
 decks-relative-overdueness = Relative overdueness
+
+## These strings are no longer used - you do not need to translate them if they
+## are not already translated.
