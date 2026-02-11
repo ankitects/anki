@@ -684,7 +684,7 @@
         "path": "node_modules/jsdom",
         "licenseFile": "node_modules/jsdom/LICENSE.txt"
     },
-    "lodash-es@4.17.21": {
+    "lodash-es@4.17.23": {
         "licenses": "MIT",
         "repository": "https://github.com/lodash/lodash",
         "publisher": "John-David Dalton",
