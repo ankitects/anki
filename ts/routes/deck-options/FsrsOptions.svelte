@@ -387,11 +387,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
-    <ParamsInputRow
-        bind:value={$config.fsrsParams6}
-        defaultValue={[]}
-        defaults={defaults.fsrsParams6}
-    >
+    <ParamsInputRow bind:value={$config.fsrsParams6} defaultValue={[]}>
         <SettingTitle on:click={() => openHelpModal("modelParams")}>
             {tr.deckConfigWeights()}
         </SettingTitle>

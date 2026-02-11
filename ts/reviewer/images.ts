@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import { noop } from "lodash-es";
 
 const template = document.createElement("template");
 
@@ -27,9 +28,9 @@ function extractImageSrcs(fragment: DocumentFragment): string[] {
 
 function createImage(src: string): HTMLImageElement {
     const img = new Image();
-    img.src = src;
     img.decoding = "async";
-    img.decode();
+    img.src = src;
+    img.decode().catch(noop);
     return img;
 }
 
