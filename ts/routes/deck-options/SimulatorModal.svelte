@@ -623,6 +623,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .modal {
         background-color: rgba(0, 0, 0, 0.5);
         --bs-modal-margin: 0;
+        --bs-modal-border-radius: 0;
     }
 
     .svg-container {

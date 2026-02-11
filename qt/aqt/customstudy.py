@@ -35,14 +35,17 @@ class CustomStudy(QDialog):
     def fetch_data_and_show(mw: aqt.AnkiQt) -> None:
         def fetch_data(
             col: Collection,
-        ) -> tuple[DeckId, CustomStudyDefaults]:
+        ) -> tuple[DeckId, CustomStudyDefaults, Any]:
             deck_id = mw.col.decks.get_current_id()
             defaults = col.sched.custom_study_defaults(deck_id)
-            return (deck_id, defaults)
+            card_count = col.decks.card_count(deck_id, True)
+            return (deck_id, defaults, card_count)
 
-        def show_dialog(data: tuple[DeckId, CustomStudyDefaults]) -> None:
-            deck_id, defaults = data
-            CustomStudy(mw=mw, deck_id=deck_id, defaults=defaults)
+        def show_dialog(data: tuple[DeckId, CustomStudyDefaults, Any]) -> None:
+            deck_id, defaults, card_count = data
+            CustomStudy(
+                mw=mw, deck_id=deck_id, card_count=card_count, defaults=defaults
+            )
 
         QueryOp(
             parent=mw, op=fetch_data, success=show_dialog
@@ -52,12 +55,14 @@ class CustomStudy(QDialog):
         self,
         mw: aqt.AnkiQt,
         deck_id: DeckId,
+        card_count: Any,
         defaults: CustomStudyDefaults,
     ) -> None:
         "Don't call this directly; use CustomStudy.fetch_data_and_show()."
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck_id = deck_id
+        self.card_count = card_count
         self.defaults = defaults
         self.form = aqt.forms.customstudy.Ui_Dialog()
         self.form.setupUi(self)
@@ -74,6 +79,7 @@ class CustomStudy(QDialog):
         qconnect(f.radioAhead.clicked, lambda: self.onRadioChange(RADIO_AHEAD))
         qconnect(f.radioPreview.clicked, lambda: self.onRadioChange(RADIO_PREVIEW))
         qconnect(f.radioCram.clicked, lambda: self.onRadioChange(RADIO_CRAM))
+        qconnect(f.spin.valueChanged, self.setTextAfterSpinner)
 
     def count_with_children(self, parent: int, children: int) -> str:
         if children:
@@ -82,13 +88,14 @@ class CustomStudy(QDialog):
             return str(parent)
 
     def onRadioChange(self, idx: int) -> None:
+        self.radioIdx = idx
         form = self.form
         min_spinner_value = 1
         max_spinner_value = DYN_MAX_SIZE
         current_spinner_value = 1
-        text_after_spinner = tr.custom_study_cards()
         title_text = ""
         show_cram_type = False
+        enable_ok_button = self.card_count is not None and self.card_count > 0
         ok = tr.custom_study_ok()
 
         if idx == RADIO_NEW:
@@ -101,6 +108,7 @@ class CustomStudy(QDialog):
             text_before_spinner = tr.custom_study_increase_todays_new_card_limit_by()
             current_spinner_value = self.defaults.extend_new
             min_spinner_value = -DYN_MAX_SIZE
+            enable_ok_button = True
         elif idx == RADIO_REV:
             title_text = tr.custom_study_available_review_cards_2(
                 count_string=self.count_with_children(
@@ -111,20 +119,17 @@ class CustomStudy(QDialog):
             text_before_spinner = tr.custom_study_increase_todays_review_limit_by()
             current_spinner_value = self.defaults.extend_review
             min_spinner_value = -DYN_MAX_SIZE
+            enable_ok_button = True
         elif idx == RADIO_FORGOT:
             text_before_spinner = tr.custom_study_review_cards_forgotten_in_last()
-            text_after_spinner = tr.scheduling_days()
             max_spinner_value = 30
         elif idx == RADIO_AHEAD:
             text_before_spinner = tr.custom_study_review_ahead_by()
-            text_after_spinner = tr.scheduling_days()
         elif idx == RADIO_PREVIEW:
             text_before_spinner = tr.custom_study_preview_new_cards_added_in_the()
-            text_after_spinner = tr.scheduling_days()
             current_spinner_value = 1
         elif idx == RADIO_CRAM:
             text_before_spinner = tr.custom_study_select()
-            text_after_spinner = tr.custom_study_cards_from_the_deck()
             ok = tr.custom_study_choose_tags()
             current_spinner_value = 100
             show_cram_type = True
@@ -143,13 +148,31 @@ class CustomStudy(QDialog):
             form.spin.setEnabled(False)
         form.spin.setValue(current_spinner_value)
         form.preSpin.setText(text_before_spinner)
-        form.postSpin.setText(text_after_spinner)
+        self.setTextAfterSpinner(current_spinner_value)
 
         ok_button = form.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
         assert ok_button is not None
         ok_button.setText(ok)
+        ok_button.setEnabled(enable_ok_button)
 
-        self.radioIdx = idx
+    def setTextAfterSpinner(self, newSpinValue) -> None:
+        form = self.form
+        text_after_spinner = ""
+        if self.radioIdx == RADIO_NEW:
+            text_after_spinner = tr.custom_study_cards(count=newSpinValue)
+        elif self.radioIdx == RADIO_REV:
+            text_after_spinner = tr.custom_study_cards(count=newSpinValue)
+        elif self.radioIdx == RADIO_FORGOT:
+            text_after_spinner = tr.custom_study_days(count=newSpinValue)
+        elif self.radioIdx == RADIO_AHEAD:
+            text_after_spinner = tr.custom_study_days(count=newSpinValue)
+        elif self.radioIdx == RADIO_PREVIEW:
+            text_after_spinner = tr.custom_study_days(count=newSpinValue)
+        elif self.radioIdx == RADIO_CRAM:
+            text_after_spinner = tr.custom_study_cards_from_the_deck(count=newSpinValue)
+        else:
+            assert 0
+        form.postSpin.setText(text_after_spinner)
 
     def accept(self) -> None:
         request = CustomStudyRequest(deck_id=self.deck_id)

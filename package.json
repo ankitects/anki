@@ -19,7 +19,7 @@
         "@poppanator/sveltekit-svg": "^5.0.0",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
-        "@sveltejs/kit": "^2.22.2",
+        "@sveltejs/kit": "^2.50.2",
         "@sveltejs/vite-plugin-svelte": "5.1",
         "@types/bootstrap": "^5.0.12",
         "@types/codemirror": "^5.60.0",
@@ -74,7 +74,7 @@
         "intl-pluralrules": "^2.0.0",
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
-        "lodash-es": "^4.17.21",
+        "lodash-es": "^4.17.23",
         "lru-cache": "^10.2.0",
         "marked": "^5.1.0",
         "mathjax": "^3.1.2"
@@ -82,8 +82,11 @@
     "resolutions": {
         "canvas": "npm:empty-npm-package@1.0.0",
         "cookie": "0.7.0",
-        "devalue": "^5.3.2",
-        "vite": "6"
+        "devalue": "^5.6.2",
+        "tar": "^7.5.7",
+        "vite": "6",
+        "js-yaml": "^4.1.1",
+        "glob": "^10.5.0"
     },
     "browserslist": [
         "defaults",
