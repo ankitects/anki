@@ -49,7 +49,17 @@ function getMessage(
     for (const bundle of bundles) {
         const msg = bundle.getMessage(key);
         if (msg && msg.value) {
-            return bundle.formatPattern(msg.value, formatArgs(args));
+            const errors = [];
+            const formatted = bundle.formatPattern(msg.value, formatArgs(args), errors);
+            if (errors.length) {
+                console.warn(
+                    `Found issues in translation string ${key} with locales ${bundle.locales}:`,
+                );
+                for (const error of errors) {
+                    console.error(error);
+                }
+            }
+            return formatted;
         }
     }
 
