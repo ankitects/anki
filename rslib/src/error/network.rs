@@ -68,9 +68,13 @@ impl AnkiError {
 impl From<&reqwest::Error> for AnkiError {
     fn from(err: &reqwest::Error) -> Self {
         let url = err.url().map(|url| url.as_str()).unwrap_or("");
+        let origin_url = err
+            .url()
+            .map(|url| url.origin().ascii_serialization())
+            .unwrap_or_default();
         let str_err = format!("{err}");
         // strip url from error to avoid exposing keys
-        let info = str_err.replace(url, "");
+        let info = str_err.replace(url, &origin_url);
 
         if err.is_timeout() {
             AnkiError::NetworkError {
