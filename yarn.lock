@@ -3021,10 +3021,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"devalue@npm:^5.3.2":
-  version: 5.3.2
-  resolution: "devalue@npm:5.3.2"
-  checksum: 10c0/2dab403779233224285afe4b30eaded038df10cb89b8f2c1e41dd855a8e6b634aa24175b87f64df665204bb9a6a6e7758d172682719b9c5cf3cef336ff9fa507
+"devalue@npm:^5.6.2":
+  version: 5.6.2
+  resolution: "devalue@npm:5.6.2"
+  checksum: 10c0/654f257ec525a2d3f35c941bfbb361148bc65ced060710969fbaa1c45abf1c9d7c4fcb77310bf8d2fb73c34cf60bad10710e7bf5b15643bbc082518ea04cb00b
   languageName: node
   linkType: hard
 

@@ -95,8 +95,8 @@
         "repository": "https://github.com/TooTallNate/node-agent-base",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "path": "node_modules/http-proxy-agent/node_modules/agent-base",
-        "licenseFile": "node_modules/http-proxy-agent/node_modules/agent-base/README.md"
+        "path": "node_modules/https-proxy-agent/node_modules/agent-base",
+        "licenseFile": "node_modules/https-proxy-agent/node_modules/agent-base/README.md"
     },
     "asynckit@0.4.0": {
         "licenses": "MIT",
