@@ -1133,15 +1133,16 @@ class Browser(QMainWindow):
             (4, tr.studying_easy()),
         ]:
             btn = QPushButton(label)
+
+            def cb(ease: int) -> None:
+                grade_now(
+                    parent=self, card_ids=self.selected_cards(), ease=ease
+                ).run_in_background()
+                dialog.accept()
+
             qconnect(
                 btn.clicked,
-                functools.partial(
-                    grade_now,
-                    parent=self,
-                    card_ids=self.selected_cards(),
-                    ease=ease,
-                    dialog=dialog,
-                ),
+                functools.partial(cb, ease=ease),
             )
             if key := aqt.mw.pm.get_answer_key(ease):
                 QShortcut(key, dialog, activated=btn.click)  # type: ignore
