@@ -64,7 +64,7 @@ function extractShapeFromRenderedCloze(cloze: HTMLDivElement): Shape | null {
         return null;
     }
     const props = {
-        occludeInactive: cloze.dataset.occludeinactive === "1",
+        occlusionMode: cloze.dataset.occludeinactive ? parseInt(cloze.dataset.occludeinactive) : undefined,
         ordinal: parseInt(cloze.dataset.ordinal!),
         left: cloze.dataset.left,
         top: cloze.dataset.top,
