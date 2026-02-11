@@ -8,24 +8,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { mdiClose } from "$lib/components/icons";
     import type { ToastProps } from "./types";
 
-    let { showToast, type, message, timeout }: ToastProps = $props();
+    let props: ToastProps = $props();
+    let shown = $state(false);
 
-    const closeToast = () => {
-        showToast = false;
-    };
+    export function hide() {
+        shown = false;
+    }
+
+    export function show() {
+        shown = true;
+    }
 
     $effect(() => {
-        if (timeout) {
-            setTimeout(closeToast, timeout);
+        if (props.timeout) {
+            setTimeout(hide, props.timeout);
         }
     });
 </script>
 
-{#if showToast}
+{#if shown}
     <div class="toast-container">
-        <div class="toast {type === 'success' ? 'success' : 'error'}">
-            {message}
-            <IconButton iconSize={96} on:click={closeToast} class="toast-icon">
+        <div class="toast {props.type === 'success' ? 'success' : 'error'}">
+            {props.message}
+            <IconButton iconSize={96} on:click={hide} class="toast-icon">
                 <Icon icon={mdiClose} />
             </IconButton>
         </div>

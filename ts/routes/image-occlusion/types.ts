@@ -13,6 +13,5 @@ export type ConstructorParams<T> = {
 export interface ToastProps {
     message: string;
     type: "success" | "error";
-    showToast: boolean;
     timeout?: number;
 }

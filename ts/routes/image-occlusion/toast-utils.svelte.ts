@@ -6,7 +6,6 @@ import Toast from "./Toast.svelte";
 import type { ToastProps } from "./types";
 
 const toastProps: ToastProps = $state({
-    showToast: false,
     type: "success",
     message: "",
 });
@@ -30,10 +29,10 @@ export function destroyToast() {
 export function showToast(message: string, type: "success" | "error", timeout?: number) {
     toastProps.message = message;
     toastProps.type = type;
-    toastProps.showToast = true;
     toastProps.timeout = timeout;
+    toast?.show();
 }
 
 export function hideToast() {
-    toastProps.showToast = false;
+    toast?.hide();
 }
