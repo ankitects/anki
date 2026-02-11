@@ -16,7 +16,7 @@ from anki.utils import is_mac
 from aqt import AnkiQt
 from aqt.ankihub import ankihub_login, ankihub_logout
 from aqt.operations.collection import set_preferences
-from aqt.profiles import VideoDriver
+from aqt.profiles import ReviewerType, VideoDriver
 from aqt.qt import *
 from aqt.sync import sync_login
 from aqt.theme import Theme
@@ -370,6 +370,32 @@ class Preferences(QDialog):
         self.form.styleComboBox.setVisible(not is_win)
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
+        # Reviewers: Default and Flexible
+        # Note: these names are set in ftl/core/preferences.ftl
+        reviewers = [
+            f"{tr.preferences_reviewer_type()}: {tr.preferences_reviewer_type_default()}",
+            f"{tr.preferences_reviewer_type()}: {tr.preferences_reviewer_type_flexible()}",
+        ]
+        self.form.reviewerTypeComboBox.addItems(reviewers)
+        self.form.reviewerTypeComboBox.setCurrentIndex(self.mw.pm.reviewer().value)
+        qconnect(
+            self.form.reviewerTypeComboBox.currentIndexChanged, self.on_reviewer_changed
+        )
+
+        # Show reps done today
+        self.form.reviewerShowRepsDoneToday.setChecked(
+            self.mw.pm.reviewer_show_reps_done_today()
+        )
+        qconnect(
+            self.form.reviewerShowRepsDoneToday.stateChanged,
+            self.mw.pm.set_reviewer_show_reps_done_today,
+        )
+        self.form.reviewerShowRepsDoneToday.setVisible(
+            self.mw.pm.reviewer() == ReviewerType.flexible
+        )
+
+        ##############
+
         self.setup_language()
         self.setup_video_driver()
 
@@ -392,6 +418,12 @@ class Preferences(QDialog):
 
     def on_theme_changed(self, index: int) -> None:
         self.mw.set_theme(Theme(index))
+
+    def on_reviewer_changed(self, index: int) -> None:
+        self.mw.set_reviewer(ReviewerType(index))
+        self.form.reviewerShowRepsDoneToday.setVisible(
+            self.mw.pm.reviewer() == ReviewerType.flexible
+        )
 
     def on_reset_window_sizes(self) -> None:
         assert self.prof is not None

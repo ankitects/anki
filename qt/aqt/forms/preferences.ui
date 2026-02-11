@@ -374,6 +374,26 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
+              <widget class="QComboBox" name="reviewerTypeComboBox">
+                <property name="currentText">
+                  <string/>
+                </property>
+              </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="reviewerShowRepsDoneToday">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>preferences_reviewer_show_reps_done_today</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="showPlayButtons">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1267,6 +1287,7 @@
   <tabstop>dayOffset</tabstop>
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>
+  <tabstop>reviewerTypeComboBox</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
   <tabstop>showProgress</tabstop>

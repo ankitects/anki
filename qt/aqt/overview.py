@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import functools
 import html
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
 from aqt.deckoptions import display_options_for_deck
+from aqt.flexible_grading_reviewer.widgets import FlexiblePushButton
 from aqt.operations import QueryOp
 from aqt.operations.scheduling import (
     empty_filtered_deck,
@@ -280,7 +282,10 @@ class Overview:
     # Bottom area
     ######################################################################
 
-    def _renderBottom(self) -> None:
+    def _make_bottom_links(self) -> list[list[str]]:
+        """
+        Create a list of lists, each holding [shortcut, pycmd, button text]
+        """
         links = [
             ["O", "opts", tr.actions_options()],
         ]
@@ -295,6 +300,10 @@ class Overview:
             links.append(["U", "unbury", tr.studying_unbury()])
         if not is_dyn:
             links.append(["", "description", tr.scheduling_description()])
+        return links
+
+    def _renderBottom(self) -> None:
+        links = self._make_bottom_links()
         link_handler = gui_hooks.overview_will_render_bottom(
             self._linkHandler,
             links,
@@ -320,3 +329,48 @@ class Overview:
         import aqt.customstudy
 
         aqt.customstudy.CustomStudy.fetch_data_and_show(self.mw)
+
+
+class FlexibleOverview(Overview):
+    """
+    Adds *Flexible Grading* features to Anki as a separate Reviewer.
+    The idea is that Anki can have many Reviewer classes, and the user can choose which they prefer.
+
+    Initially, Flexible Grading was implemented as an add-on.
+    However, add-ons require patching every time Anki introduces a change that breaks add-on compatibility.
+    Thus, it proves better to add new features directly to Anki.
+    """
+
+    def add_bottom_buttons(self) -> None:
+        self.mw.bottomWidget.left_bucket.reset(is_visible=False)
+        self.mw.bottomWidget.right_bucket.reset(is_visible=False)
+        self.mw.bottomWidget.middle_bucket.reset(is_visible=True)
+
+        links = self._make_bottom_links()
+        pycmds = {
+            "opts": lambda: display_options_for_deck(self.mw.col.decks.current()),
+            "refresh": lambda: self.rebuild_current_filtered_deck(),
+            "empty": lambda: self.empty_current_filtered_deck(),
+            "studymore": lambda: self.onStudyMore(),
+            "unbury": lambda: self.on_unbury(),
+            "description": lambda: self.edit_description(),
+        }
+        for keyboard_shortcut, pycmd, button_text in links:
+            if len(keyboard_shortcut) == 1:
+                # if shortcut is one letter
+                button_text += f"[{keyboard_shortcut}]"
+            button = self.mw.bottomWidget.middle_bucket.add_button(
+                FlexiblePushButton(text=button_text),
+                on_clicked=functools.partial(pycmds[pycmd]),
+            )
+            if keyboard_shortcut:
+                button.setToolTip(
+                    tr.actions_shortcut_key(val=shortcut(keyboard_shortcut))
+                )
+
+    def _clear_bottom_web(self) -> None:
+        self.bottom.web.setHtml("<style>body {margin:0;} html {height:0;}</style>")
+
+    def _renderBottom(self) -> None:
+        self._clear_bottom_web()
+        self.add_bottom_buttons()
