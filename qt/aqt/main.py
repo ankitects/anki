@@ -1184,6 +1184,22 @@ title="{}" {}>{}</button>""".format(
         self.applyShortcuts(globalShortcuts)
         self.stateShortcuts: list[QShortcut] = []
 
+    def _close_active_window(self) -> None:
+        window = (
+            QApplication.activeModalWidget()
+            or current_window()
+            or self.app.activeWindow()
+        )
+        if not window or window is self:
+            return
+        if window is getattr(self, "profileDiag", None):
+            # Do not allow closing of ProfileManager
+            return
+        if isinstance(window, QDialog):
+            window.reject()
+        else:
+            window.close()
+
     def _normalize_shortcuts(
         self, shortcuts: Sequence[tuple[str, Callable]]
     ) -> Sequence[tuple[QKeySequence, Callable]]:
@@ -1643,7 +1659,9 @@ title="{}" {}>{}</button>""".format(
         existed = os.path.exists(path)
         with open(path, "ab") as f:
             if not existed:
-                f.write(b"nid\tmid\tfields\n")
+                f.write(b"#guid column:1\n")
+                f.write(b"#notetype column:2\n")
+                f.write(b"#nid\tmid\tfields\n")
             for id, mid, flds in col.db.execute(
                 f"select id, mid, flds from notes where id in {ids2str(nids)}"
             ):
