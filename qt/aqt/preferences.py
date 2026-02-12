@@ -222,7 +222,9 @@ class Preferences(QDialog):
         self.form.check_for_updates.setChecked(self.mw.pm.check_for_updates())
         qconnect(self.form.check_for_updates.stateChanged, self.mw.pm.set_update_check)
 
-        self.form.check_for_addon_updates.setChecked(self.mw.pm.check_for_addon_updates())
+        self.form.check_for_addon_updates.setChecked(
+            self.mw.pm.check_for_addon_updates()
+        )
         qconnect(
             self.form.check_for_addon_updates.stateChanged,
             self.mw.pm.set_check_for_addon_updates,
