@@ -23,7 +23,7 @@ echo "--- Ensure libs importable"
 SKIP_RUN=1 ./run
 
 echo "--- Check Rust libs"
-cargo install cargo-deny --version 0.14.24
+cargo install cargo-deny@0.19.0
 cargo deny check
 
 echo "--- Cleanup"
