@@ -3433,6 +3433,14 @@
   },
   {
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
+    "description": "Serde traits only, with no support for derive -- use the `serde` crate instead",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "serde_core",
+    "repository": "https://github.com/serde-rs/serde"
+  },
+  {
+    "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "description": "Macros 1.1 implementation of #[derive(Serialize, Deserialize)]",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,

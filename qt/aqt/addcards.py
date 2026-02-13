@@ -21,7 +21,6 @@ from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
     HelpPage,
-    add_close_shortcut,
     ask_user_dialog,
     askUser,
     downArrow,
@@ -49,7 +48,6 @@ class AddCards(QMainWindow):
         self.setMinimumWidth(400)
         self.setup_choosers()
         self.setupEditor()
-        add_close_shortcut(self)
         self._load_new_note()
         self.setupButtons()
         self.history: list[NoteId] = []
