@@ -79,6 +79,8 @@ message DeckConfig {
       NEW_CARD_GATHER_PRIORITY_RANDOM_NOTES = 3;
       // Siblings are neither grouped nor ordered.
       NEW_CARD_GATHER_PRIORITY_RANDOM_CARDS = 4;
+      // Pick one card from random deck.
+      NEW_CARD_GATHER_PRIORITY_EACH_FROM_RANDOM_DECK = 6;
     }
     enum NewCardSortOrder {
       // Ascending card template ordinal.

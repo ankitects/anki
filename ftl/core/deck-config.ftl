@@ -142,6 +142,8 @@ deck-config-new-gather-priority-tooltip-2 =
     can stop before all subdecks have been checked. This order is fastest in large collections, and
     allows you to prioritize subdecks that are closer to the top.
     
+    `Each from random deck`: Repeatedly picks a random deck and takes the first card from it.
+
     `Ascending position`: Gathers cards by ascending position (due #), which is typically
     the oldest-added first.
     
@@ -151,6 +153,7 @@ deck-config-new-gather-priority-tooltip-2 =
     `Random notes`: Picks notes at random, then gathers all of its cards.
     
     `Random cards`: Gathers cards in a random order.
+deck-config-new-gather-priority-each-from-random-deck = Each from random deck
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip-2 =
     `Card type, then order gathered`: Shows cards in order of card type number.
