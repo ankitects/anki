@@ -4,9 +4,16 @@
 mod answering;
 mod states;
 
+use std::sync::LazyLock;
+
 use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
+use anki_proto::scheduler::next_card_data_response::AnswerButton;
+use anki_proto::scheduler::next_card_data_response::NextCardData;
+use anki_proto::scheduler::next_card_data_response::PartialTemplate;
+use anki_proto::scheduler::next_card_data_response::TimerPreferences;
+use anki_proto::scheduler::next_card_data_response::TypedAnswer;
 use anki_proto::scheduler::ComputeFsrsParamsResponse;
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use anki_proto::scheduler::ComputeOptimalRetentionResponse;
@@ -14,6 +21,8 @@ use anki_proto::scheduler::FsrsBenchmarkResponse;
 use anki_proto::scheduler::FuzzDeltaRequest;
 use anki_proto::scheduler::FuzzDeltaResponse;
 use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
+use anki_proto::scheduler::NextCardDataRequest;
+use anki_proto::scheduler::NextCardDataResponse;
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use anki_proto::scheduler::SimulateFsrsReviewResponse;
 use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
@@ -21,15 +30,20 @@ use fsrs::ComputeParametersInput;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::FSRS;
+use regex::Regex;
 
 use crate::backend::Backend;
+use crate::card_rendering::service::rendered_nodes_to_proto;
+use crate::cloze::extract_cloze_for_typing;
 use crate::prelude::*;
 use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::scheduler::new::NewCardDueOrder;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::SchedulingStates;
 use crate::search::SortMode;
+use crate::services::NotesService;
 use crate::stats::studied_today;
+use crate::template::RenderedNode;
 
 impl crate::services::SchedulerService for Collection {
     /// This behaves like _updateCutoff() in older code - it also unburies at
@@ -381,6 +395,145 @@ impl crate::services::SchedulerService for Collection {
         Ok(FuzzDeltaResponse {
             delta_days: self.get_fuzz_delta(input.card_id.into(), input.interval)?,
         })
+    }
+
+    fn next_card_data(&mut self, req: NextCardDataRequest) -> Result<NextCardDataResponse> {
+        if let Some(answer) = req.answer {
+            self.answer_card(&mut answer.into())?;
+        }
+        let mut queue = self.get_queued_cards(2, false)?;
+        let next_card = queue.cards.first();
+        if let Some(next_card) = next_card {
+            let cid = next_card.card.id;
+            let deck_config = self.deck_config_for_card(&next_card.card)?.inner;
+            let note = self.get_note(next_card.card.note_id.into())?;
+
+            let render = self.render_existing_card(cid, false, true)?;
+            let show_due = self.get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons);
+            let show_remaning = self.get_config_bool(BoolKey::ShowRemainingDueCountsInStudy);
+
+            let answer_buttons = self
+                .describe_next_states(&next_card.states)?
+                .into_iter()
+                .enumerate()
+                .map(|(i, due)| AnswerButton {
+                    rating: i as i32,
+                    due: if show_due {
+                        due
+                    } else {
+                        "\u{00A0}".to_string() /* &nbsp */
+                    },
+                })
+                .collect();
+
+            // Typed answer replacements
+            static ANSWER_REGEX: LazyLock<Regex> =
+                LazyLock::new(|| Regex::new(r"\[\[type:(.+?:)?(.+?)\]\]").unwrap());
+
+            const ANSWER_HTML: &str = "<center>
+<input type=text id=typeans onkeypress=\"_typeAnsPress();\"
+   style=\"font-family: '{self.typeFont}'; font-size: {self.typeSize}px;\">
+</center>";
+
+            let mut q_nodes = render.qnodes;
+            let typed_answer_parent_node = q_nodes.iter_mut().find_map(|node| {
+                if let RenderedNode::Text { text } = node {
+                    let mut out = None;
+                    *text = ANSWER_REGEX
+                        .replace(text, |cap: &regex::Captures<'_>| {
+                            out = Some((
+                                cap.get(1)
+                                    .map(|g| g.as_str().to_string())
+                                    .unwrap_or("".to_string()),
+                                cap[2].to_string(),
+                            ));
+                            ANSWER_HTML
+                        })
+                        .to_string();
+                    out
+                } else {
+                    None
+                }
+            });
+
+            let typed_answer = typed_answer_parent_node
+                .map(|field| -> Result<(String, String)> {
+                    let notetype = self
+                        .get_notetype(note.notetype_id.into())?
+                        .or_not_found(note.notetype_id)?;
+                    let field_ord = notetype.get_field_ord(&field.1).or_not_found(field.1)?;
+                    let mut correct = note.fields[field_ord].clone();
+                    if field.0.contains("cloze") {
+                        let card_ord = queue.cards[0].card.template_idx;
+                        correct = extract_cloze_for_typing(&correct, card_ord + 1).to_string()
+                    }
+                    Ok((field.0, correct))
+                })
+                .transpose()?;
+
+            let marked = note.tags.contains(&"marked".to_string());
+
+            if !show_remaning {
+                queue.learning_count = 0;
+                queue.review_count = 0;
+                queue.new_count = 0;
+            }
+
+            let timer = deck_config.show_timer.then_some(TimerPreferences {
+                max_time_ms: deck_config.cap_answer_time_to_secs * 1000,
+                stop_on_answer: deck_config.stop_timer_on_answer,
+            });
+
+            let preload = queue
+                .cards
+                .get(1)
+                .map(|after_card| -> Result<Vec<String>> {
+                    let after_note = self.get_note(after_card.card.note_id.into())?;
+                    Ok(after_note.fields)
+                })
+                .transpose()?
+                .unwrap_or(vec![])
+                .join("");
+
+            Ok(NextCardDataResponse {
+                next_card: Some(NextCardData {
+                    queue: Some(queue.into()),
+
+                    css: render.css.clone(),
+                    partial_template: Some(PartialTemplate {
+                        front: rendered_nodes_to_proto(q_nodes),
+                        back: rendered_nodes_to_proto(render.anodes),
+                    }),
+
+                    answer_buttons,
+                    autoplay: !deck_config.disable_autoplay,
+                    typed_answer: typed_answer.map(|answer| TypedAnswer {
+                        text: answer.1,
+                        args: answer.0,
+                    }),
+                    marked,
+                    timer,
+
+                    auto_advance_answer_seconds: deck_config.seconds_to_show_answer,
+                    auto_advance_question_seconds: deck_config.seconds_to_show_question,
+                    auto_advance_wait_for_audio: deck_config.wait_for_audio,
+
+                    auto_advance_answer_action: deck_config.answer_action,
+                    auto_advance_question_action: deck_config.question_action,
+
+                    // Filled by python
+                    accept_enter: true,
+                    front: "".to_string(),
+                    back: "".to_string(),
+                    body_class: "".to_string(),
+                    question_av_tags: vec![],
+                    answer_av_tags: vec![],
+                }),
+                preload,
+            })
+        } else {
+            Ok(NextCardDataResponse::default())
+        }
     }
 }
 

@@ -13,10 +13,12 @@ import "anki/decks.proto";
 import "anki/collection.proto";
 import "anki/config.proto";
 import "anki/deck_config.proto";
+import "anki/card_rendering.proto";
 
 service SchedulerService {
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
   rpc AnswerCard(CardAnswer) returns (collection.OpChanges);
+  rpc NextCardData(NextCardDataRequest) returns (NextCardDataResponse);
   rpc SchedTimingToday(generic.Empty) returns (SchedTimingTodayResponse);
   rpc StudiedToday(generic.Empty) returns (generic.String);
   rpc StudiedTodayMessage(StudiedTodayMessageRequest) returns (generic.String);
@@ -283,6 +285,66 @@ message CardAnswer {
   Rating rating = 4;
   int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
+}
+
+message NextCardDataRequest {
+  optional CardAnswer answer = 1;
+}
+
+message NextCardDataResponse {
+  message AnswerButton {
+    CardAnswer.Rating rating = 1;
+    string due = 2;
+  }
+
+  message TypedAnswer {
+    string text = 1;
+    string args = 2;
+  }
+
+  message TimerPreferences {
+    uint32 max_time_ms = 1;
+    bool stop_on_answer = 2;
+  }
+
+  message PartialTemplate {
+    repeated card_rendering.RenderedTemplateNode front = 1;
+    repeated card_rendering.RenderedTemplateNode back = 2;
+  }
+
+  message NextCardData {
+    QueuedCards queue = 1;
+    repeated AnswerButton answer_buttons = 2;
+
+    string front = 3;
+    string back = 4;
+    string css = 5;
+    string body_class = 6;
+    bool autoplay = 7;
+    bool marked = 13;
+    optional TypedAnswer typed_answer = 12;
+    optional TimerPreferences timer = 14;
+    // TODO: Is it worth setting up some sort of "ReviewerPreferences" endpoint
+    // akin to GetGraphPreferences Also should this reviewer setting be moved to
+    // a config bool rather than config.meta
+    bool accept_enter = 15;
+
+    repeated card_rendering.AVTag question_av_tags = 8;
+    repeated card_rendering.AVTag answer_av_tags = 9;
+
+    float autoAdvanceQuestionSeconds = 16;
+    float autoAdvanceAnswerSeconds = 17;
+    bool autoAdvanceWaitForAudio = 20;
+
+    deck_config.DeckConfig.Config.QuestionAction autoAdvanceQuestionAction = 18;
+    deck_config.DeckConfig.Config.AnswerAction autoAdvanceAnswerAction = 19;
+
+    optional PartialTemplate partialTemplate = 11;
+  }
+
+  optional NextCardData next_card = 1;
+  // For media pre-loading. The fields of the note after next_card.
+  string preload = 2;
 }
 
 message CustomStudyRequest {

@@ -180,7 +180,7 @@ impl crate::services::CardRenderingService for Collection {
     }
 }
 
-fn rendered_nodes_to_proto(
+pub(crate) fn rendered_nodes_to_proto(
     nodes: Vec<RenderedNode>,
 ) -> Vec<anki_proto::card_rendering::RenderedTemplateNode> {
     nodes
