@@ -7,9 +7,10 @@
 
 import type { GraphsResponse } from "@generated/anki/stats_pb";
 import * as tr from "@generated/ftl";
-import { localizedNumber } from "@tslib/i18n";
+import { localizedDate, localizedNumber } from "@tslib/i18n";
 import { dayLabel, timeSpan, TimespanUnit } from "@tslib/time";
 import type { Bin, ScaleSequential } from "d3";
+import { timeDay, timeHour } from "d3";
 import {
     area,
     axisBottom,
@@ -47,12 +48,17 @@ export interface GraphData {
     // indexed by day, where day is relative to today
     reviewCount: Map<number, Reviews>;
     reviewTime: Map<number, Reviews>;
+    rolloverHour: number;
 }
 
 type BinType = Bin<Map<number, Reviews[]>, number>;
 
 export function gatherData(data: GraphsResponse): GraphData {
-    return { reviewCount: numericMap(data.reviews!.count), reviewTime: numericMap(data.reviews!.time) };
+    return {
+        reviewCount: numericMap(data.reviews!.count),
+        reviewTime: numericMap(data.reviews!.time),
+        rolloverHour: data.rolloverHour,
+    };
 }
 
 enum BinIndex {
@@ -225,6 +231,36 @@ export function renderReviews(
     }
 
     function tooltipText(d: BinType, cumulative: number): string {
+        let dateStr: string;
+        const now = new Date();
+        if (d.x1! - d.x0! > 1) {
+            // range (year)
+            let startDate = timeDay.offset(now, Math.floor(d.x0!));
+            startDate = timeHour.offset(startDate, -sourceData.rolloverHour);
+            let endDate = timeDay.offset(now, Math.floor(d.x1!) - 1);
+            endDate = timeHour.offset(endDate, -sourceData.rolloverHour);
+            const startDateStr = localizedDate(startDate, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+            const endDateStr = localizedDate(endDate, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+            dateStr = startDateStr + " - " + endDateStr;
+        } else {
+            // 1 month, 3 months
+            let date = timeDay.offset(now, Math.floor(d.x0!));
+            date = timeHour.offset(date, -sourceData.rolloverHour);
+            dateStr = localizedDate(date, {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            });
+        }
         // Convert bin boundaries [x0, x1) for dayLabel
         // If bin ends at 0, treat it as crossing zero so day 0 is included
         // For the first (oldest) bin, use the original xMin to ensure labels match the intended range
@@ -234,7 +270,8 @@ export function renderReviews(
         const day = dayLabel(startDay, endDay);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
-        let buf = `<table><tr><td>${day}</td><td align=end>${dayTotal}</td></tr>`;
+        let buf =
+            `<table><tr><td colspan="2">${dateStr}<td></tr><tr><td>${day}</td><td align=end>${dayTotal}</td></tr>`;
         const lines: [BinIndex | null, string][] = [
             [BinIndex.Filtered, tr.statisticsCountsFilteredCards()],
             [BinIndex.Learn, tr.statisticsCountsLearningCards()],
