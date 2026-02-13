@@ -3,18 +3,18 @@
 
 export interface IOAddingMode {
     kind: "add";
-    notetypeId: number;
+    notetypeId: bigint;
     imagePath: string;
 }
 
 export interface IOCloningMode {
     kind: "add";
-    clonedNoteId: number;
+    clonedNoteId: bigint;
 }
 
 export interface IOEditingMode {
     kind: "edit";
-    noteId: number;
+    noteId: bigint;
 }
 
 export type IOMode = IOAddingMode | IOEditingMode | IOCloningMode;

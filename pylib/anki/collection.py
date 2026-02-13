@@ -35,6 +35,7 @@ Preferences = config_pb2.Preferences
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges
 OpChangesOnly = collection_pb2.OpChangesOnly
+NestedOpChanges = collection_pb2.NestedOpChanges
 OpChangesWithCount = collection_pb2.OpChangesWithCount
 OpChangesWithId = collection_pb2.OpChangesWithId
 OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo

@@ -50,10 +50,10 @@ export async function setupImageOcclusion(mode: IOMode, target = document.body):
 
 if (window.location.hash.startsWith("#test-")) {
     const imagePath = window.location.hash.replace("#test-", "");
-    setupImageOcclusion({ kind: "add", imagePath, notetypeId: 0 });
+    setupImageOcclusion({ kind: "add", imagePath, notetypeId: 0n });
 }
 
 if (window.location.hash.startsWith("#testforedit-")) {
-    const noteId = parseInt(window.location.hash.replace("#testforedit-", ""));
+    const noteId = BigInt(window.location.hash.replace("#testforedit-", ""));
     setupImageOcclusion({ kind: "edit", noteId });
 }

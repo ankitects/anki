@@ -42,6 +42,16 @@ if (!sourcemap) {
     ];
 }
 
+const ignoreCssUrlPlugin = {
+    name: "ignore-css-url",
+    setup(build) {
+        // This works around esbuild unconditionally resolving CSS imports that uses Vite's `?url` syntax in the editor
+        build.onResolve({ filter: /.*?\.scss\?url$/ }, (args) => {
+            return { path: args.path, external: true };
+        });
+    },
+};
+
 build({
     bundle: true,
     entryPoints: [entrypoint],
@@ -51,6 +61,7 @@ build({
     loader: { ".svg": "text" },
     preserveSymlinks: true,
     sourcemap: sourcemap ? "inline" : false,
+
     plugins: [
         sassPlugin({ loadPaths: ["node_modules"] }),
         sveltePlugin({
@@ -59,6 +70,7 @@ build({
             // let us focus on errors; we can see the warnings with svelte-check
             filterWarnings: (_warning) => false,
         }),
+        ignoreCssUrlPlugin,
     ],
     target,
     // logLevel: "info",

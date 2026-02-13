@@ -241,8 +241,8 @@ const fitCanvasVptScale = (canvas: fabric.Canvas) => {
 const getScaleRatio = (boundingBox: Size) => {
     const h1 = boundingBox.height!;
     const w1 = boundingBox.width!;
-    const w2 = innerWidth - 42;
-    let h2 = window.innerHeight;
+    const w2 = innerWidth;
+    let h2 = window.innerHeight * 0.9;
     h2 = isDesktop() ? h2 - 79 : h2 - 48;
     return Math.min(w2 / w1, h2 / h1);
 };

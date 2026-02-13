@@ -191,7 +191,12 @@ fn build_js(build: &mut Build) -> Result<()> {
         },
     )?;
     let files_from_ts = build.inputs_with_suffix(
-        inputs![":ts:editor", ":ts:reviewer:reviewer.js", ":ts:mathjax"],
+        inputs![
+            ":ts:editor",
+            ":ts:editable",
+            ":ts:reviewer:reviewer.js",
+            ":ts:mathjax"
+        ],
         ".js",
     );
     build.add_action(

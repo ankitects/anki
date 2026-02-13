@@ -78,6 +78,10 @@ message OpChangesOnly {
   collection.OpChanges changes = 1;
 }
 
+message NestedOpChanges {
+  OpChangesOnly changes = 1;
+}
+
 message OpChangesWithCount {
   OpChanges changes = 1;
   uint32 count = 2;

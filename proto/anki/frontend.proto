@@ -10,6 +10,9 @@ package anki.frontend;
 import "anki/scheduler.proto";
 import "anki/generic.proto";
 import "anki/search.proto";
+import "anki/notes.proto";
+import "anki/notetypes.proto";
+import "anki/links.proto";
 
 service FrontendService {
   // Returns values from the reviewer
@@ -28,6 +31,33 @@ service FrontendService {
   // Warns python that the deck option web view is ready to receive requests.
   rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
 
+  // Editor
+  rpc ConvertPastedImage(ConvertPastedImageRequest)
+      returns (ConvertPastedImageResponse);
+  rpc OpenFilePicker(openFilePickerRequest) returns (generic.String);
+  rpc OpenMedia(generic.String) returns (generic.Empty);
+  rpc ShowInMediaFolder(generic.String) returns (generic.Empty);
+  rpc RecordAudio(generic.Empty) returns (generic.String);
+  rpc CloseAddCards(generic.Bool) returns (generic.Empty);
+  rpc CloseEditCurrent(generic.Empty) returns (generic.Empty);
+  rpc OpenLink(generic.String) returns (generic.Empty);
+  rpc AskUser(AskUserRequest) returns (generic.Bool);
+  rpc ShowMessageBox(ShowMessageBoxRequest) returns (generic.Empty);
+  rpc OpenFieldsDialog(generic.Empty) returns (generic.Empty);
+  rpc OpenCardsDialog(generic.Empty) returns (generic.Empty);
+
+  // Profile config
+  rpc GetProfileConfigJson(generic.String) returns (generic.Json);
+  rpc SetProfileConfigJson(SetSettingJsonRequest) returns (generic.Empty);
+
+  // Metadata
+  rpc GetMetaJson(generic.String) returns (generic.Json);
+  rpc SetMetaJson(SetSettingJsonRequest) returns (generic.Empty);
+
+  // Clipboard
+  rpc ReadClipboard(ReadClipboardRequest) returns (ReadClipboardResponse);
+  rpc WriteClipboard(WriteClipboardRequest) returns (generic.Empty);
+
   // Save colour picker's custom colour palette
   rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
 }
@@ -42,4 +72,65 @@ message SchedulingStatesWithContext {
 message SetSchedulingStatesRequest {
   string key = 1;
   scheduler.SchedulingStates states = 2;
+}
+
+message ConvertPastedImageRequest {
+  bytes data = 1;
+  string ext = 2;
+}
+
+message ConvertPastedImageResponse {
+  bytes data = 1;
+}
+
+message SetSettingJsonRequest {
+  string key = 1;
+  bytes value_json = 2;
+}
+
+message openFilePickerRequest {
+  string title = 1;
+  string key = 2;
+  string filter_description = 3;
+  repeated string extensions = 4;
+}
+
+message ReadClipboardRequest {
+  repeated string types = 1;
+}
+
+message ReadClipboardResponse {
+  map<string, bytes> data = 1;
+}
+
+message WriteClipboardRequest {
+  map<string, bytes> data = 1;
+}
+
+message Help {
+  oneof value {
+    links.HelpPageLinkRequest.HelpPage help_page = 1;
+    string help_link = 2;
+  }
+}
+
+message AskUserRequest {
+  string text = 1;
+  optional Help help = 2;
+  optional string title = 4;
+  optional bool default_no = 5;
+}
+
+enum MessageBoxType {
+  INFO = 0;
+  WARNING = 1;
+  CRITICAL = 2;
+}
+
+message ShowMessageBoxRequest {
+  string text = 1;
+  MessageBoxType type = 2;
+  optional Help help = 3;
+  optional string title = 4;
+  optional string text_format = 5;
 }

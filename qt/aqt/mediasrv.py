@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import enum
 import logging
 import mimetypes
@@ -16,6 +17,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
+from typing import Any, Generic, cast
 
 import flask
 import flask_cors
@@ -27,18 +29,31 @@ from waitress.server import create_server
 import aqt
 import aqt.main
 import aqt.operations
-from anki import hooks
-from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
+from anki import frontend_pb2, generic_pb2, hooks
+from anki.collection import (
+    NestedOpChanges,
+    OpChanges,
+    OpChangesOnly,
+    Progress,
+    SearchNode,
+)
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
-from anki.utils import dev_mode
+from anki.utils import dev_mode, from_json_bytes, to_json_bytes
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import aqt_data_path, show_warning, tr
+from aqt.utils import (
+    aqt_data_path,
+    askUser,
+    openLink,
+    show_info,
+    show_warning,
+    tr,
+)
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
@@ -363,6 +378,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-csv",
         "import-page",
         "image-occlusion",
+        "editor",
     ]
 
 
@@ -552,36 +568,6 @@ def import_done() -> bytes:
     return b""
 
 
-def import_request(endpoint: str) -> bytes:
-    output = raw_backend_request(endpoint)()
-    response = OpChangesOnly()
-    response.ParseFromString(output)
-
-    def handle_on_main() -> None:
-        window = aqt.mw.app.activeModalWidget()
-        on_op_finished(aqt.mw, response, window)
-
-    aqt.mw.taskman.run_on_main(handle_on_main)
-
-    return output
-
-
-def import_csv() -> bytes:
-    return import_request("import_csv")
-
-
-def import_anki_package() -> bytes:
-    return import_request("import_anki_package")
-
-
-def import_json_file() -> bytes:
-    return import_request("import_json_file")
-
-
-def import_json_string() -> bytes:
-    return import_request("import_json_string")
-
-
 def search_in_browser() -> bytes:
     node = SearchNode()
     node.ParseFromString(request.data)
@@ -628,6 +614,300 @@ def deck_options_ready() -> bytes:
     return b""
 
 
+def get_setting_json(getter: Callable[[str], Any]) -> bytes:
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    value = getter(req.val)
+    output = generic_pb2.Json(json=to_json_bytes(value)).SerializeToString()
+    return output
+
+
+def set_setting_json(setter: Callable[[str, Any], Any]) -> bytes:
+    req = frontend_pb2.SetSettingJsonRequest()
+    req.ParseFromString(request.data)
+    setter(req.key, from_json_bytes(req.value_json))
+    return b""
+
+
+def get_profile_config_json() -> bytes:
+    assert aqt.mw.pm.profile is not None
+    return get_setting_json(aqt.mw.pm.profile.get)
+
+
+def set_profile_config_json() -> bytes:
+    assert aqt.mw.pm.profile is not None
+    return set_setting_json(aqt.mw.pm.profile.__setitem__)
+
+
+def get_meta_json() -> bytes:
+    return get_setting_json(aqt.mw.pm.meta.get)
+
+
+def set_meta_json() -> bytes:
+    return set_setting_json(aqt.mw.pm.meta.__setitem__)
+
+
+def get_config_json() -> bytes:
+    try:
+        return get_setting_json(aqt.mw.col.conf.get_immutable)
+    except KeyError:
+        return generic_pb2.Json(json=b"null").SerializeToString()
+
+
+def set_config_json() -> bytes:
+    return set_setting_json(aqt.mw.col.set_config)
+
+
+def convert_pasted_image() -> bytes:
+    req = frontend_pb2.ConvertPastedImageRequest()
+    req.ParseFromString(request.data)
+    image = QImage.fromData(req.data)
+    buffer = QBuffer()
+    buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+    if req.ext == "png":
+        quality = 50
+    else:
+        quality = 80
+    image.save(buffer, req.ext, quality)
+    buffer.reset()
+    data = bytes(cast(bytes, buffer.readAll()))
+    return frontend_pb2.ConvertPastedImageResponse(data=data).SerializeToString()
+
+
+AsyncRequestReturnType = TypeVar("AsyncRequestReturnType")
+
+
+class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
+    def __init__(self, callback: Callable[[AsyncRequestHandler], None]) -> None:
+        self.callback = callback
+        self.loop = asyncio.get_running_loop()
+        self.future = self.loop.create_future()
+
+    def run(self) -> None:
+        aqt.mw.taskman.run_on_main(lambda: self.callback(self))
+
+    def set_result(self, result: AsyncRequestReturnType) -> None:
+        self.loop.call_soon_threadsafe(self.future.set_result, result)
+
+    async def get_result(self) -> AsyncRequestReturnType:
+        return await self.future
+
+
+async def open_file_picker() -> bytes:
+    req = frontend_pb2.openFilePickerRequest()
+    req.ParseFromString(request.data)
+
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        from aqt.utils import getFile
+
+        def cb(filename: str | None) -> None:
+            request_handler.set_result(filename)
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        getFile(
+            parent=window,
+            title=req.title,
+            cb=cast(Callable[[Any], None], cb),
+            filter=f"{req.filter_description} ({' '.join(f'*.{ext}' for ext in req.extensions)})",
+            key=req.key,
+        )
+
+    request_handler: AsyncRequestHandler[str | None] = AsyncRequestHandler(callback)
+    request_handler.run()
+    filename = await request_handler.get_result()
+
+    return generic_pb2.String(val=filename if filename else "").SerializeToString()
+
+
+def open_media() -> bytes:
+    from aqt.utils import openFolder
+
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    path = os.path.join(aqt.mw.col.media.dir(), req.val)
+    aqt.mw.taskman.run_on_main(lambda: openFolder(path))
+
+    return b""
+
+
+def show_in_media_folder() -> bytes:
+    from aqt.utils import show_in_folder
+
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    path = os.path.join(aqt.mw.col.media.dir(), req.val)
+    aqt.mw.taskman.run_on_main(lambda: show_in_folder(path))
+
+    return b""
+
+
+async def record_audio() -> bytes:
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        from aqt.sound import record_audio
+
+        def cb(path: str | None) -> None:
+            request_handler.set_result(path)
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        record_audio(window, aqt.mw, True, cb)
+
+    request_handler: AsyncRequestHandler[str | None] = AsyncRequestHandler(callback)
+    request_handler.run()
+    path = await request_handler.get_result()
+
+    return generic_pb2.String(val=path if path else "").SerializeToString()
+
+
+def read_clipboard() -> bytes:
+    req = frontend_pb2.ReadClipboardRequest()
+    req.ParseFromString(request.data)
+    data = {}
+    clipboard = aqt.mw.app.clipboard()
+    assert clipboard is not None
+    mime_data = clipboard.mimeData(QClipboard.Mode.Clipboard)
+    assert mime_data is not None
+    for type in req.types:
+        data[type] = bytes(mime_data.data(type))  # type: ignore
+
+    return frontend_pb2.ReadClipboardResponse(data=data).SerializeToString()
+
+
+def write_clipboard() -> bytes:
+    req = frontend_pb2.WriteClipboardRequest()
+    req.ParseFromString(request.data)
+    clipboard = aqt.mw.app.clipboard()
+    assert clipboard is not None
+    mime_data = clipboard.mimeData(QClipboard.Mode.Clipboard)
+    assert mime_data is not None
+    for type, data in req.data.items():
+        mime_data.setData(type, data)
+    return b""
+
+
+def close_add_cards() -> bytes:
+    req = generic_pb2.Bool()
+    req.ParseFromString(request.data)
+
+    def handle_on_main() -> None:
+        from aqt.addcards import NewAddCards
+
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, NewAddCards):
+            window._close_if_user_wants_to_discard_changes(req.val)
+
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    return b""
+
+
+def close_edit_current() -> bytes:
+    def handle_on_main() -> None:
+        from aqt.editcurrent import NewEditCurrent
+
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, NewEditCurrent):
+            window.close()
+
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    return b""
+
+
+def open_link() -> bytes:
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    url = req.val
+    aqt.mw.taskman.run_on_main(lambda: openLink(url))
+    return b""
+
+
+async def ask_user() -> bytes:
+    req = frontend_pb2.AskUserRequest()
+    req.ParseFromString(request.data)
+
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        kwargs: dict[str, Any] = dict(text=req.text)
+        if req.HasField("help"):
+            help_arg: Any
+            if req.help.WhichOneof("value") == "help_page":
+                help_arg = req.help.help_page
+            else:
+                help_arg = req.help.help_link
+            kwargs["help"] = help_arg
+        if req.HasField("title"):
+            kwargs["title"] = req.title
+        if req.HasField("default_no"):
+            kwargs["defaultno"] = req.default_no
+        answer = askUser(**kwargs)
+        request_handler.set_result(answer)
+
+    request_handler: AsyncRequestHandler[bool] = AsyncRequestHandler(callback)
+    request_handler.run()
+    answer = await request_handler.get_result()
+
+    return generic_pb2.Bool(val=answer).SerializeToString()
+
+
+async def show_message_box() -> bytes:
+    req = frontend_pb2.ShowMessageBoxRequest()
+    req.ParseFromString(request.data)
+
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        kwargs: dict[str, Any] = dict(text=req.text)
+        if req.type == frontend_pb2.MessageBoxType.INFO:
+            icon = QMessageBox.Icon.Information
+        elif req.type == frontend_pb2.MessageBoxType.WARNING:
+            icon = QMessageBox.Icon.Warning
+        elif req.type == frontend_pb2.MessageBoxType.CRITICAL:
+            icon = QMessageBox.Icon.Critical
+        kwargs["icon"] = icon
+        if req.HasField("help"):
+            help_arg: Any
+            if req.help.WhichOneof("value") == "help_page":
+                help_arg = req.help.help_page
+            else:
+                help_arg = req.help.help_link
+            kwargs["help"] = help_arg
+        if req.HasField("title"):
+            kwargs["title"] = req.title
+        if req.HasField("text_format"):
+            kwargs["text_format"] = req.text_format
+        show_info(**kwargs)
+        request_handler.set_result(True)
+
+    request_handler: AsyncRequestHandler[bool] = AsyncRequestHandler(callback)
+    request_handler.run()
+    answer = await request_handler.get_result()
+
+    return generic_pb2.Bool(val=answer).SerializeToString()
+
+
+def open_fields_dialog() -> bytes:
+    def handle_on_main() -> None:
+        from aqt.editor import NewEditor
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
+            window.editor.onFields()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
+def open_cards_dialog() -> bytes:
+    def handle_on_main() -> None:
+        from aqt.editor import NewEditor
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
+            window.editor.onCardLayout()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
 def save_custom_colours() -> bytes:
     colors = [
         QColorDialog.customColor(i).name(QColor.NameFormat.HexRgb)
@@ -645,13 +925,28 @@ post_handler_list = [
     set_scheduling_states,
     change_notetype,
     import_done,
-    import_csv,
-    import_anki_package,
-    import_json_file,
-    import_json_string,
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
+    get_profile_config_json,
+    set_profile_config_json,
+    get_meta_json,
+    set_meta_json,
+    get_config_json,
+    convert_pasted_image,
+    open_file_picker,
+    open_media,
+    show_in_media_folder,
+    record_audio,
+    read_clipboard,
+    write_clipboard,
+    close_add_cards,
+    close_edit_current,
+    open_link,
+    ask_user,
+    show_message_box,
+    open_fields_dialog,
+    open_cards_dialog,
     save_custom_colours,
 ]
 
@@ -662,17 +957,31 @@ exposed_backend_list = [
     "get_custom_colours",
     # DeckService
     "get_deck_names",
+    "get_deck",
     # I18nService
     "i18n_resources",
     # ImportExportService
     "get_csv_metadata",
     "get_import_anki_package_presets",
+    "import_csv",
+    "import_anki_package",
+    "import_json_file",
+    "import_json_string",
     # NotesService
     "get_field_names",
     "get_note",
+    "new_note",
+    "note_fields_check",
+    "defaults_for_adding",
+    "default_deck_for_notetype",
+    "add_note",
+    "update_notes",
+    "update_notetype",
     # NotetypesService
+    "get_notetype",
     "get_notetype_names",
     "get_change_notetype_info",
+    "get_cloze_field_ords",
     # StatsService
     "card_stats",
     "get_review_logs",
@@ -698,6 +1007,21 @@ exposed_backend_list = [
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
+    # CardRenderingService
+    "encode_iri_paths",
+    "decode_iri_paths",
+    "html_to_text_line",
+    # ConfigService
+    "set_config_json",
+    "get_config_bool",
+    # MediaService
+    "add_media_file",
+    "add_media_from_path",
+    "add_media_from_url",
+    "get_absolute_media_path",
+    "extract_media_files",
+    # CardsService
+    "get_card",
 ]
 
 
@@ -707,7 +1031,29 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     assert hasattr(RustBackend, f"{endpoint}_raw")
 
-    return lambda: getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+    def wrapped() -> bytes:
+        output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+        op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
+        if op_changes_type:
+            op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
+            try:
+                response = op_message_types[op_changes_type - 1]()
+                response.ParseFromString(output)
+                changes: Any = response
+                for _ in range(op_changes_type - 1):
+                    changes = changes.changes
+            except IndexError:
+                raise ValueError(f"unhandled op changes level: {op_changes_type}")
+
+            def handle_on_main() -> None:
+                handler = aqt.mw.app.activeWindow()
+                on_op_finished(aqt.mw, changes, handler)
+
+            aqt.mw.taskman.run_on_main(handle_on_main)
+
+        return output
+
+    return wrapped
 
 
 # all methods in here require a collection
@@ -726,7 +1072,14 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
         # convert bytes/None into response
         def wrapped() -> Response:
             try:
-                if data := handler():
+                import inspect
+
+                if inspect.iscoroutinefunction(handler):
+                    data = asyncio.run(handler())
+                else:
+                    result = handler()
+                    data = result
+                if data:
                     response = flask.make_response(data)
                     response.headers["Content-Type"] = "application/binary"
                 else:
