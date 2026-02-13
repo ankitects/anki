@@ -27,6 +27,8 @@ use prost::Message;
 use reqwest::Client;
 use tokio::runtime;
 use tokio::runtime::Runtime;
+use tokio::sync::oneshot::Receiver;
+use tokio::sync::oneshot::Sender;
 
 use crate::backend::dbproxy::db_command_bytes;
 use crate::backend::sync::SyncState;
@@ -60,9 +62,10 @@ pub struct BackendInner {
     web_client: Mutex<Option<Client>>,
 }
 
-#[derive(Default)]
 struct BackendState {
     sync: SyncState,
+    shutdown_signal_sender: Option<Sender<()>>,
+    shutdown_signal_receiver: Option<Receiver<()>>,
 }
 
 pub fn init_backend(init_msg: &[u8]) -> result::Result<Backend, String> {
@@ -79,6 +82,7 @@ pub fn init_backend(init_msg: &[u8]) -> result::Result<Backend, String> {
 
 impl Backend {
     pub fn new(tr: I18n, server: bool) -> Backend {
+        let (shutdown_signal_sender, shutdown_signal_receiver) = tokio::sync::oneshot::channel();
         Backend(Arc::new(BackendInner {
             col: Mutex::new(None),
             tr,
@@ -89,7 +93,11 @@ impl Backend {
                 last_progress: None,
             })),
             runtime: OnceLock::new(),
-            state: Mutex::new(BackendState::default()),
+            state: Mutex::new(BackendState {
+                sync: SyncState::default(),
+                shutdown_signal_sender: Some(shutdown_signal_sender),
+                shutdown_signal_receiver: Some(shutdown_signal_receiver),
+            }),
             backup_task: Mutex::new(None),
             media_sync_task: Mutex::new(None),
             web_client: Mutex::new(None),
@@ -191,5 +199,24 @@ impl Backend {
         &self,
     ) -> ThrottlingProgressHandler<P> {
         ThrottlingProgressHandler::new(self.progress_state.clone())
+    }
+
+    pub fn set_shutdown_signal(&self) -> Result<(), String> {
+        if let Some(sender) = self.state.lock().unwrap().shutdown_signal_sender.take() {
+            sender
+                .send(())
+                .map_err(|_| "Failed to set shutdown signal")?;
+        }
+        Ok(())
+    }
+
+    pub async fn wait_for_shutdown(&self) {
+        let receiver_option = {
+            let mut guard = self.state.lock().unwrap();
+            guard.shutdown_signal_receiver.take()
+        };
+        if let Some(receiver) = receiver_option {
+            receiver.await.unwrap();
+        }
     }
 }

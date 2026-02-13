@@ -27,28 +27,10 @@ pub fn write_rust_protos(descriptors_path: PathBuf) -> Result<DescriptorPool> {
             "Deck.Filtered.SearchTerm.Order",
             "#[derive(strum::EnumIter)]",
         )
-        .type_attribute(
-            "Deck.Normal.DayLimit",
-            "#[derive(Eq, serde::Deserialize, serde::Serialize)]",
-        )
+        .type_attribute("Deck.Normal.DayLimit", "#[derive(Eq)]")
         .type_attribute("HelpPageLinkRequest.HelpPage", "#[derive(strum::EnumIter)]")
         .type_attribute("CsvMetadata.Delimiter", "#[derive(strum::EnumIter)]")
-        .type_attribute(
-            "Preferences.BackupLimits",
-            "#[derive(serde::Deserialize, serde::Serialize)]",
-        )
-        .type_attribute(
-            "CsvMetadata.DupeResolution",
-            "#[derive(serde::Deserialize, serde::Serialize)]",
-        )
-        .type_attribute(
-            "CsvMetadata.MatchScope",
-            "#[derive(serde::Deserialize, serde::Serialize)]",
-        )
-        .type_attribute(
-            "ImportAnkiPackageUpdateCondition",
-            "#[derive(serde::Deserialize, serde::Serialize)]",
-        )
+        .type_attribute(".", "#[derive(serde::Deserialize, serde::Serialize)]")
         .compile_protos(paths.as_slice(), &[proto_dir])
         .context("prost build")?;
 
