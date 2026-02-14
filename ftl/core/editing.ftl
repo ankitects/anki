@@ -25,6 +25,7 @@ editing-float-left = Float left
 editing-float-right = Float right
 editing-float-none = No float
 editing-indent = Increase indent
+editing-insert-table = Insert table
 editing-italic-text = Italic text
 editing-jump-to-tags-with-ctrlandshiftandt = Jump to tags with Ctrl+Shift+T
 editing-justify = Justify

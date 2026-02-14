@@ -125,6 +125,8 @@ import Square_ from "@mdi/svg/svg/square.svg?component";
 import square_ from "@mdi/svg/svg/square.svg?url";
 import TableRefresh_ from "@mdi/svg/svg/table-refresh.svg?component";
 import tableRefresh_ from "@mdi/svg/svg/table-refresh.svg?url";
+import Table_ from "@mdi/svg/svg/table.svg?component";
+import table_ from "@mdi/svg/svg/table.svg?url";
 import Tag_ from "@mdi/svg/svg/tag-outline.svg?component";
 import tag_ from "@mdi/svg/svg/tag-outline.svg?url";
 import AddTag_ from "@mdi/svg/svg/tag-plus-outline.svg?component";
@@ -284,4 +286,5 @@ export const mdiUnfoldMoreHorizontal = { url: unfoldMoreHorizontal_, component: 
 export const mdiUngroup = { url: ungroup_, component: Ungroup_ };
 export const mdiVectorPolygonVariant = { url: vectorPolygonVariant_, component: VectorPolygonVariant_ };
 export const incrementClozeIcon = { url: incrementCloze_, component: IncrementCloze_ };
+export const tableIcon = { url: table_, component: Table_ };
 export const mdiEarth = { url: earth_, component: Earth_ };
