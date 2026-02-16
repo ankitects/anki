@@ -28,9 +28,17 @@ the build products and runtime dependencies from the rest of your system.
 
 To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `24.11` and `<Dockerfile>` with the chosen Dockerfile (e.g., `Dockerfile` or `Dockerfile.distroless`)
 
+The platform option specifies which systems the image will be able to run on after it has been built.
+
+- `linux/amd64` is for x86 linux systems
+- `linux/arm64` is for ARM systems (eg: M series Macs)
+- `windows/amd64` is for x86 Windows systems
+
+If you are unsure of what platform your system is, just run the command as it is.
+
 ```bash
 # Execute this command from this directory
-docker build -f <Dockerfile> --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
+docker buildx build -f <Dockerfile> --platform linux/amd64,linux/arm64,windows/amd64 --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
 ```
 
 # Run container
