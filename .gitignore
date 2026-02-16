@@ -20,3 +20,8 @@ ts/.svelte-kit
 .yarn
 .claude/settings.local.json
 .claude/user.md
+docs/_build/
+docs/autoapi/
+docs/rust/*
+!docs/rust/.gitkeep
+/docs/_static/

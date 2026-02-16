@@ -165,16 +165,24 @@ See [this page](./build.md)
 
 ## Generating documentation
 
-For Rust:
+To build the Read the Docs-style site from `docs/`:
+
+```
+uv run --with-requirements docs/requirements.txt sphinx-build -b html docs out/docs/html
+open out/docs/html/index.html
+```
+
+To build the API docs used by Anki's existing Python Sphinx pipeline:
+
+```
+./ninja python:sphinx
+open out/python/sphinx/html/py-modindex.html
+```
+
+For Rust API docs:
 
 ```
 cargo doc --open
-```
-
-For Python:
-
-```
-./ninja python:sphinx && open out/python/sphinx/html/py-modindex.html
 ```
 
 ## Environmental Variables

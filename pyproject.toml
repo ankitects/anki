@@ -25,16 +25,19 @@ dev = [
   "types-waitress",
   "types-pywin32",
 ]
-
-[project.optional-dependencies]
-sphinx = [
+docs = [
   "sphinx",
-  "sphinx_rtd_theme",
+  "myst-parser",
+  "sphinx-book-theme",
   "sphinx-autoapi",
+  "sphinxcontrib-rust",
 ]
 
 [tool.uv.workspace]
 members = ["pylib", "qt"]
+
+[tool.uv.sources]
+sphinxcontrib-rust = { git = "https://gitlab.com/andrewasanchez/sphinxcontrib-rust.git", branch = "anki-support" }
 
 [[tool.uv.index]]
 name = "testpypi"
