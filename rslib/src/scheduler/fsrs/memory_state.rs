@@ -181,8 +181,8 @@ impl Collection {
                     let Some(last_review) = &last_info.last_reviewed_at else {
                         return Ok(());
                     };
-                    // the card isn't in (re)learning and suspended
-                    if card.ctype == CardType::Review && card.queue != CardQueue::Suspended {
+                    // the card is in relearning and it's not suspended
+                    if !(card.ctype == CardType::Review && card.queue != CardQueue::Suspended) {
                         return Ok(());
                     };
 
