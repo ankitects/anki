@@ -199,7 +199,7 @@ class Previewer(QDialog):
 
     def type_ans_preview_filter(self, txt: str, type: str = "q") -> str:
         return re.sub(r"\[\[type:[^]]+\]\]", "", txt)
-    
+
     def _render_scheduled(self) -> None:
         self.cancel_timer()
         self._last_render = time.time()
