@@ -197,6 +197,9 @@ class Previewer(QDialog):
             self._timer.stop()
             self._timer = None
 
+    def type_ans_preview_filter(self, txt: str, type: str = "q") -> str:
+        return re.sub(r"\[\[type:[^]]+\]\]", "", txt)
+    
     def _render_scheduled(self) -> None:
         self.cancel_timer()
         self._last_render = time.time()
@@ -229,7 +232,7 @@ class Previewer(QDialog):
             if self._state == "answer":
                 func = "_showAnswer"
                 txt = ans_txt
-            txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
+            txt = self.type_ans_preview_filter(txt, self._state[0])
 
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
