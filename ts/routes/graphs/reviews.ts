@@ -131,7 +131,6 @@ export function renderReviews(
             thresholds = x.ticks(desiredBars);
         }
     }
-    
     // When working with negative values, D3's bin generation is unintuitive. As a workaround,
     // shift thresholds forward by one day when we have grouped data (bins containing >1 day)
     const binSpacing = thresholds.length >= 2 ? thresholds[1] - thresholds[0] : 1;
