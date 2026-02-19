@@ -7,7 +7,7 @@ import json
 import re
 import time
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Literal
 
 import aqt.browser
 from anki.cards import Card
@@ -35,6 +35,7 @@ LastStateAndMod = tuple[str, int, int]
 
 
 class Previewer(QDialog):
+    _state: Literal["question", "answer"] = "question"
     _last_state: LastStateAndMod | None = None
     _card_changed = False
     _last_render: int | float = 0
@@ -197,7 +198,9 @@ class Previewer(QDialog):
             self._timer.stop()
             self._timer = None
 
-    def type_ans_preview_filter(self, txt: str, type: str = "q") -> str:
+    def type_ans_preview_filter(
+        self, txt: str, type: Literal["question", "answer"]
+    ) -> str:
         return re.sub(r"\[\[type:[^]]+\]\]", "", txt)
 
     def _render_scheduled(self) -> None:
@@ -232,7 +235,7 @@ class Previewer(QDialog):
             if self._state == "answer":
                 func = "_showAnswer"
                 txt = ans_txt
-            txt = self.type_ans_preview_filter(txt, self._state[0])
+            txt = self.type_ans_preview_filter(txt, self._state)
 
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
