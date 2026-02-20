@@ -10,11 +10,10 @@
 
     export let value: number[];
     export let defaultValue: number[];
-    export let defaults: number[];
 </script>
 
 <slot />
 <ConfigInput>
-    <ParamsInput bind:value {defaults} />
+    <ParamsInput bind:value />
     <RevertButton slot="revert" bind:value {defaultValue} />
 </ConfigInput>
