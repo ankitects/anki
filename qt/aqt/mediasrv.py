@@ -870,6 +870,8 @@ exposed_backend_list = [
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
+    # ConfigService
+    "get_config_string",
     # CardsService
     "set_flag",
     "compare_answer",

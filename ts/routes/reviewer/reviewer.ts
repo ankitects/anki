@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { AVTag } from "@generated/anki/card_rendering_pb";
+import { ConfigKey_String } from "@generated/anki/config_pb";
 import { DeckConfig_Config_AnswerAction, DeckConfig_Config_QuestionAction } from "@generated/anki/deck_config_pb";
-import { ReviewerActionRequest_ReviewerAction } from "@generated/anki/frontend_pb";
+import { ReviewerActionRequest_ReviewerAction, SchedulingStatesWithContext } from "@generated/anki/frontend_pb";
 import {
     BuryOrSuspendCardsRequest_Mode,
     CardAnswer,
@@ -13,6 +14,7 @@ import {
     buryOrSuspendCards,
     compareAnswer,
     getConfigJson,
+    getConfigString,
     nextCardData,
     playAvtags,
     removeNotes,
@@ -23,6 +25,7 @@ import {
 } from "@generated/backend";
 import * as tr from "@generated/ftl";
 import { derived, get, writable } from "svelte/store";
+import { applyStateTransform, type StateMutatorFn } from "../../reviewer/answering";
 import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
 import type { ReviewerRequest } from "./reviewerRequest";
 
@@ -48,6 +51,7 @@ export class ReviewerState {
     autoAdvanceQuestionTimeout: ReturnType<typeof setTimeout> | undefined;
     autoAdvanceAnswerTimeout: ReturnType<typeof setTimeout> | undefined;
     _answerShown = false;
+    mutateNextStates!: StateMutatorFn;
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -77,6 +81,12 @@ export class ReviewerState {
         const { json } = await getConfigJson({ val: "reviewerStorage" });
         this.sendInnerRequest({ type: "setstorage", json_buffer: json });
         this.showQuestion(null);
+        this.mutateNextStates = new Function(
+            "states",
+            "customData",
+            "ctx",
+            (await getConfigString({ key: ConfigKey_String.CARD_STATE_CUSTOMIZER })).val,
+        ) as any;
         addEventListener("message", this.onMessage.bind(this));
     }
 
@@ -371,6 +381,14 @@ export class ReviewerState {
         if (!resp.nextCard) {
             this.displayOverview();
             return;
+        }
+
+        if (resp.nextCard.queue) {
+            const sswc = new SchedulingStatesWithContext({
+                states: resp.nextCard.queue?.cards[0].states,
+                context: resp.nextCard.queue?.cards[0].context,
+            });
+            resp.nextCard.queue.cards[0].states = await applyStateTransform(sswc, this.mutateNextStates);
         }
 
         this._cardData = resp.nextCard;
