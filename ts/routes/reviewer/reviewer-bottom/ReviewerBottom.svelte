@@ -14,10 +14,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: ReviewerState;
 
-    const answerButtons = state.answerButtons;
+    const _answerButtons = state.answerButtons;
     const answerShown = state.answerShown;
+    $: answerButtons = $_answerButtons ?? [undefined, undefined, undefined, undefined];
 
-    $: buttonCount = $answerShown ? $answerButtons.length : 1;
+    $: buttonCount = $answerShown ? answerButtons.length : 1;
     $: cardData = state.cardData;
     $: remainingShown =
         ($cardData?.queue?.learningCount ?? 0) +
@@ -38,8 +39,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </button>
         </div>
         {#if $answerShown}
-            {#each $answerButtons as answerButton}
-                <AnswerButton {state} info={answerButton}></AnswerButton>
+            {#each answerButtons as answerButton, i}
+                <AnswerButton {state} due={answerButton} rating={i}></AnswerButton>
             {/each}
         {:else}
             {#if remainingShown}

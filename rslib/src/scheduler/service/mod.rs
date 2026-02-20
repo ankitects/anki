@@ -9,7 +9,6 @@ use std::sync::LazyLock;
 use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
-use anki_proto::scheduler::next_card_data_response::AnswerButton;
 use anki_proto::scheduler::next_card_data_response::NextCardData;
 use anki_proto::scheduler::next_card_data_response::PartialTemplate;
 use anki_proto::scheduler::next_card_data_response::TimerPreferences;
@@ -412,20 +411,6 @@ impl crate::services::SchedulerService for Collection {
             let show_due = self.get_config_bool(BoolKey::ShowIntervalsAboveAnswerButtons);
             let show_remaning = self.get_config_bool(BoolKey::ShowRemainingDueCountsInStudy);
 
-            let answer_buttons = self
-                .describe_next_states(&next_card.states)?
-                .into_iter()
-                .enumerate()
-                .map(|(i, due)| AnswerButton {
-                    rating: i as i32,
-                    due: if show_due {
-                        due
-                    } else {
-                        "\u{00A0}".to_string() /* &nbsp */
-                    },
-                })
-                .collect();
-
             // Typed answer replacements
             static ANSWER_REGEX: LazyLock<Regex> =
                 LazyLock::new(|| Regex::new(r"\[\[type:(.+?:)?(.+?)\]\]").unwrap());
@@ -505,7 +490,7 @@ impl crate::services::SchedulerService for Collection {
                         back: rendered_nodes_to_proto(render.anodes),
                     }),
 
-                    answer_buttons,
+                    show_due,
                     autoplay: !deck_config.disable_autoplay,
                     typed_answer: typed_answer.map(|answer| TypedAnswer {
                         text: answer.1,

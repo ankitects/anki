@@ -8,11 +8,14 @@ import {
     BuryOrSuspendCardsRequest_Mode,
     CardAnswer,
     type NextCardDataResponse_NextCardData,
+    type QueuedCards_QueuedCard,
+    type SchedulingStates,
 } from "@generated/anki/scheduler_pb";
 import {
     addNoteTags,
     buryOrSuspendCards,
     compareAnswer,
+    describeNextStates,
     getConfigJson,
     getConfigString,
     nextCardData,
@@ -24,7 +27,7 @@ import {
     setFlag,
 } from "@generated/backend";
 import * as tr from "@generated/ftl";
-import { derived, get, writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import { applyStateTransform, type StateMutatorFn } from "../../reviewer/answering";
 import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
 import type { ReviewerRequest } from "./reviewerRequest";
@@ -41,7 +44,8 @@ export class ReviewerState {
     readonly cardClass = writable("");
     readonly answerShown = writable(false);
     readonly cardData = writable<NextCardDataResponse_NextCardData | undefined>(undefined);
-    readonly answerButtons = derived(this.cardData, ($cardData) => $cardData?.answerButtons ?? []);
+    readonly answerButtons = writable<string[] | undefined>([]);
+    nextStates!: Promise<SchedulingStates>;
     tooltipMessageTimeout: ReturnType<typeof setTimeout> | undefined;
     readonly tooltipMessage = writable("");
     readonly tooltipShown = writable(false);
@@ -372,6 +376,21 @@ export class ReviewerState {
         }
     }
 
+    async updateNextStates(card: QueuedCards_QueuedCard, showDue: boolean) {
+        this.answerButtons.set(undefined);
+
+        const sswc = new SchedulingStatesWithContext({
+            states: card.states,
+            context: card.context,
+        });
+        const newStates = await applyStateTransform(sswc, this.mutateNextStates);
+
+        if (showDue) {
+            describeNextStates(newStates).then((descriptors) => this.answerButtons.set(descriptors.vals));
+        }
+        return newStates;
+    }
+
     async showQuestion(answer: CardAnswer | null) {
         this._answerShown = false;
         const resp = await nextCardData({
@@ -384,11 +403,7 @@ export class ReviewerState {
         }
 
         if (resp.nextCard.queue) {
-            const sswc = new SchedulingStatesWithContext({
-                states: resp.nextCard.queue?.cards[0].states,
-                context: resp.nextCard.queue?.cards[0].context,
-            });
-            resp.nextCard.queue.cards[0].states = await applyStateTransform(sswc, this.mutateNextStates);
+            this.nextStates = this.updateNextStates(resp.nextCard.queue.cards[0], resp.nextCard.showDue);
         }
 
         this._cardData = resp.nextCard;
@@ -436,12 +451,12 @@ export class ReviewerState {
         this.updateAutoAdvanceAnswer();
     }
 
-    public easeButtonPressed(rating: number) {
+    public async easeButtonPressed(rating: number) {
         if (!this._answerShown) {
             return;
         }
 
-        const states = this.currentCard!.states!;
+        const states = await this.nextStates;
 
         const newState = [
             states.again!,
