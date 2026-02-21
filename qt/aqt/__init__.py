@@ -563,6 +563,17 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
     elif driver == VideoDriver.Direct3D:
         QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Direct3D11)
 
+    if is_mac:
+        # Fix macOS memory leak: WebEngine's Metal compositing accumulates shader
+        # pipeline states in MTLCompilerFSCache indefinitely (~500ms/cycle at idle).
+        # Forcing CPU compositing stops this cache growth.
+        flag = "--disable-gpu-compositing"
+        env_key = "QTWEBENGINE_CHROMIUM_FLAGS"
+
+        existing = os.environ.get(env_key, "")
+        if flag not in existing.split():
+            os.environ[env_key] = f"{existing} {flag}".strip()
+
 
 PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
