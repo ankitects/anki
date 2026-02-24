@@ -207,7 +207,7 @@ impl Backend {
         ThrottlingProgressHandler::new(self.progress_state.clone())
     }
 
-    pub fn set_api_server_running(&mut self) {
+    pub fn set_api_server_running(&self) {
         let (api_shutdown_sender, api_shutdown_receiver) = tokio::sync::oneshot::channel();
         let mut guard = self.state.lock().unwrap();
         guard.api_server_shutdown_sender = Some(api_shutdown_sender);

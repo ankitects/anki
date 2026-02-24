@@ -107,7 +107,7 @@ fn result_to_response<T: Default + prost::Message + serde::Serialize>(
 "#
     )
     .unwrap();
-    writeln!(buf, "pub fn add_routes<S: Clone + Send + Sync + 'static>(backend: &'static crate::backend::Backend, router: axum::Router<S>) -> axum::Router<S> {{").unwrap();
+    writeln!(buf, "pub fn add_routes<S: Clone + Send + Sync + 'static>(backend: &crate::backend::Backend, router: axum::Router<S>) -> axum::Router<S> {{").unwrap();
     writeln!(buf, "router").unwrap();
 
     for service in backend_services {
@@ -122,7 +122,7 @@ fn result_to_response<T: Default + prost::Message + serde::Serialize>(
                 .delegating_methods
                 .iter()
                 .any(|m| m.name == method.name);
-            let object = if is_col_method { "col" } else { "backend" };
+            let object = if is_col_method { "col" } else { "&backend" };
             let service_name = format!(
                 "crate::services::{}",
                 if is_col_method {
@@ -146,11 +146,14 @@ fn result_to_response<T: Default + prost::Message + serde::Serialize>(
                 buf,
                 r#"
 .route("/{method_name}",
-    axum::routing::post(async |request: crate::api::extract::ApiRequest<{input_type}>| {{
-        request.data().map(|(content_type, _payload)| {{
-            let result = {method_call};
-            result_to_response(result, content_type)
-        }})
+    axum::routing::post({{
+        let backend = backend.clone();
+        async move |request: crate::api::extract::ApiRequest<{input_type}>| {{
+            request.data().map(|(content_type, _payload)| {{
+                let result = {method_call};
+                result_to_response(result, content_type)
+            }})
+        }}
     }})
 )"#
             )
