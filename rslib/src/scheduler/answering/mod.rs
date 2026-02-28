@@ -513,7 +513,7 @@ impl Collection {
             fuzz_seed: get_fuzz_seed(&card, false),
             card,
             deck,
-            home_deck,
+            original_deck: home_deck,
             config,
             timing,
             now: TimestampSecs::now(),
