@@ -163,7 +163,9 @@ val jvmVersion = Jvm.current().javaVersion?.majorVersion.parseIntOrDefault(defau
 val minSdk: String = libs.versions.minSdk.get()
 val jvmVersionLowerBound = 21
 val jvmVersionUpperBound = 25
-if (jvmVersion !in jvmVersionLowerBound..jvmVersionUpperBound) {
+// `updateDaemonJvm` aligns the daemon JVM, blocking it stops us from fixing the issue
+val aligningDaemon = gradle.startParameter.taskNames.any { it.substringAfterLast(':') == "updateDaemonJvm" }
+if (jvmVersion !in jvmVersionLowerBound..jvmVersionUpperBound && !aligningDaemon) {
     val message = buildString {
         appendLine("ERROR: AnkiDroid builds with JVM versions between $jvmVersionLowerBound and $jvmVersionUpperBound.")
         appendLine("  Incompatible major version detected: '$jvmVersion'")
@@ -172,7 +174,8 @@ if (jvmVersion !in jvmVersionLowerBound..jvmVersionUpperBound) {
             appendLine("  Edit the main build.gradle file, find this message in the file, and add support for the new version.")
             appendLine("  Please make sure the `jacocoTestReport` target works on an emulator with our minSdk (currently $minSdk).")
         } else {
-            appendLine("  Please update: Settings - Build, Execution, Deployment - Build Tools - Gradle - Gradle JDK")
+            appendLine("  The Gradle daemon is on an unsupported JVM (set by gradle/gradle-daemon-jvm.properties).")
+            appendLine("  Align it to a supported version: ./gradlew updateDaemonJvm --jvm-version=<version>")
         }
     }
     throw GradleException(message.trimEnd())

@@ -5,6 +5,9 @@ pluginManagement {
         mavenCentral()
     }
 }
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
 
 dependencyResolutionManagement {
     // TODO enforce repositories declared here, currently it clashes with robolectricDownloader.gradle
