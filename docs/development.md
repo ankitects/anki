@@ -168,7 +168,7 @@ See [this page](./build.md)
 To build the Read the Docs-style site from `docs/`:
 
 ```
-uv run --with-requirements docs/requirements.txt sphinx-build -b html docs out/docs/html
+uv run --group docs sphinx-build -b html docs out/docs/html
 open out/docs/html/index.html
 ```
 
