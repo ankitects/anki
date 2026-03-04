@@ -39,7 +39,7 @@ def main(aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
     shutil.copy("LICENSE", out_dir / "LICENSE")
     subprocess.check_call(
-        [get_python_path(), "-m", "briefcase", "package"], cwd=out_dir
+        [get_python_path(), "-m", "briefcase", "package", "--adhoc-sign"], cwd=out_dir
     )
 
 
