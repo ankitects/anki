@@ -161,7 +161,6 @@ dependencies = [
     { name = "flask" },
     { name = "flask-cors" },
     { name = "jsonschema" },
-    { name = "pip-system-certs" },
     { name = "pyqt6", version = "6.6.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt66' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
     { name = "pyqt6", version = "6.7.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-3-aqt-qt67' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
     { name = "pyqt6", version = "6.8.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra != 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68') or (extra != 'extra-3-aqt-qt' and extra != 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68')" },
@@ -173,6 +172,7 @@ dependencies = [
     { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
     { name = "requests" },
     { name = "send2trash" },
+    { name = "truststore" },
     { name = "waitress" },
 ]
 
@@ -217,7 +217,6 @@ requires-dist = [
     { name = "flask" },
     { name = "flask-cors" },
     { name = "jsonschema" },
-    { name = "pip-system-certs", specifier = "!=5.1" },
     { name = "pyqt6", specifier = ">=6.2" },
     { name = "pyqt6", marker = "extra == 'qt'", specifier = "==6.9.1" },
     { name = "pyqt6", marker = "extra == 'qt66'", specifier = "==6.6.1" },
@@ -243,6 +242,7 @@ requires-dist = [
     { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "requests" },
     { name = "send2trash" },
+    { name = "truststore", specifier = ">=0.10.4" },
     { name = "waitress", specifier = ">=2.0.0" },
 ]
 provides-extras = ["audio", "qt", "qt66", "qt67", "qt68"]
@@ -999,18 +999,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/48/83/0d7d4e9efe3344b8e2fe25d93be44f64b65364d3c8d7bc6dc90198d5422e/pip-26.0.1.tar.gz", hash = "sha256:c4037d8a277c89b320abe636d59f91e6d0922d08a05b60e85e53b296613346d8", size = 1812747, upload-time = "2026-02-05T02:20:18.702Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/f0/c81e05b613866b76d2d1066490adf1a3dbc4ee9d9c839961c3fc8a6997af/pip-26.0.1-py3-none-any.whl", hash = "sha256:bdb1b08f4274833d62c1aa29e20907365a2ceb950410df15fc9521bad440122b", size = 1787723, upload-time = "2026-02-05T02:20:16.416Z" },
-]
-
-[[package]]
-name = "pip-system-certs"
-version = "5.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pip" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/3d/0c/a338ae5d49192861cf54da4d5c2af0efe47edbaa0827995b284005366ca5/pip_system_certs-5.2.tar.gz", hash = "sha256:80b776b5cf17191bf99d313699b7fce2fdb84eb7bbb225fd134109a82706406f", size = 5408, upload-time = "2025-06-17T23:33:15.322Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/99/ce/608bbe82759363d6e752dd370daf066be3be8e7ffdb79838501ed6104173/pip_system_certs-5.2-py3-none-any.whl", hash = "sha256:e6ef3e106d4d02313e33955c2bcc4c2b143b2da07ef91e28a6805a0c1c512126", size = 5866, upload-time = "2025-06-17T23:33:14.554Z" },
 ]
 
 [[package]]
