@@ -1,7 +1,7 @@
 [project]
 name = "aqt"
 dynamic = ["version"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "AGPL-3.0-or-later"
 dependencies = [
   "beautifulsoup4",

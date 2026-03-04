@@ -2,7 +2,7 @@
 name = "anki-dev"
 version = "0.0.0"
 description = "Local-only environment"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = ["Private :: Do Not Upload"]
 
 [dependency-groups]
@@ -24,6 +24,8 @@ dev = [
   "types-markdown",
   "types-waitress",
   "types-pywin32",
+  "briefcase",
+  "jinja2",
 ]
 
 [project.optional-dependencies]
@@ -41,3 +43,6 @@ name = "testpypi"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true
+
+[tool.uv.sources]
+briefcase = {git = "https://github.com/beeware/briefcase", branch = "main"}

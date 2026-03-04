@@ -1,0 +1,131 @@
+[project]
+requires-python = ">=3.10"
+version = "{{ version }}"
+
+# This project was generated with 0.3.26 using template: https://github.com/beeware/briefcase-template @ v0.3.26
+[tool.briefcase]
+project_name = "Anki"
+bundle = "net.ankiweb"
+url = "https://apps.ankiweb.net"
+license.file = "LICENSE"
+author = "Damien Elmes"
+
+[tool.briefcase.app.anki]
+formal_name = "Anki"
+description = "A spaced repetition program"
+long_description = """Anki is a flashcard program that helps you spend more time on challenging material, and less on what you already know."""
+sources = [
+  "src/anki",
+]
+
+console_app = false
+use_full_install_path = false
+requires = ["{{ aqt_wheel }}[aqt,audio]", "{{ anki_wheel }}"]
+test_requires = [
+
+
+  # Add your cross-platform test requirements here
+]
+
+[tool.briefcase.app.anki.macOS]
+universal_build = true
+min_os_version = "12.0"
+requires = [
+
+
+  # Add your macOS-specific app requirements here
+]
+
+[tool.briefcase.app.anki.linux]
+requires = [
+
+
+  # Add your Linux-specific app requirements here
+]
+
+[tool.briefcase.app.anki.linux.system.debian]
+system_requires = [
+
+
+  # Add any system packages needed at build the app here
+]
+
+system_runtime_requires = [
+
+
+  # Add any system packages needed at runtime here
+]
+
+[tool.briefcase.app.anki.linux.system.rhel]
+system_requires = [
+
+
+  # Add any system packages needed at build the app here
+]
+
+system_runtime_requires = [
+
+
+  # Add any system packages needed at runtime here
+]
+
+[tool.briefcase.app.anki.linux.system.suse]
+system_requires = [
+
+
+  # Add any system packages needed at build the app here
+]
+
+system_runtime_requires = [
+
+
+  # Add any system packages needed at runtime here
+]
+
+[tool.briefcase.app.anki.linux.system.arch]
+system_requires = [
+
+
+  # Add any system packages needed at build the app here
+]
+
+system_runtime_requires = [
+
+
+  # Add any system packages needed at runtime here
+]
+
+[tool.briefcase.app.anki.linux.flatpak]
+flatpak_runtime = "org.freedesktop.Platform"
+flatpak_runtime_version = "25.08"
+flatpak_sdk = "org.freedesktop.Sdk"
+
+[tool.briefcase.app.anki.windows]
+requires = [
+
+
+  # Add your Windows-specific app requirements here
+]
+
+# Mobile deployments
+[tool.briefcase.app.anki.iOS]
+requires = [
+
+
+  # Add your iOS-specific app requirements here
+]
+
+[tool.briefcase.app.anki.android]
+requires = [
+
+
+  # Add your Android-specific app requirements here
+]
+
+# Web deployments
+[tool.briefcase.app.anki.web]
+requires = [
+
+
+  # Add your web-specific app requirements here
+]
