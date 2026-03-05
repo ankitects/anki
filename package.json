@@ -52,7 +52,7 @@
         "svelte-check": "^4.2.2",
         "svelte-preprocess": "^6.0.3",
         "svelte-preprocess-esbuild": "^3.0.1",
-        "svgo": "^3.2.0",
+        "svgo": "^3.3.3",
         "tslib": "^2.0.3",
         "tsx": "^4.8.1",
         "typescript": "^5.0.4",
