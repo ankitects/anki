@@ -107,25 +107,11 @@ requires = [
   # Add your Windows-specific app requirements here
 ]
 
-# Mobile deployments
 [tool.briefcase.app.anki.iOS]
-requires = [
-
-
-  # Add your iOS-specific app requirements here
-]
+supported = false
 
 [tool.briefcase.app.anki.android]
-requires = [
+supported = false
 
-
-  # Add your Android-specific app requirements here
-]
-
-# Web deployments
 [tool.briefcase.app.anki.web]
-requires = [
-
-
-  # Add your web-specific app requirements here
-]
+supported = false
