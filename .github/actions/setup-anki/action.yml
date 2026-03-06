@@ -50,6 +50,7 @@ runs:
       uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: "1.92.0"
+        components: clippy
 
     - name: Install uv
       uses: astral-sh/setup-uv@v7
