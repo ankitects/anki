@@ -48,6 +48,7 @@ runs:
 
     - name: Install rsync (Windows)
       if: runner.os == 'Windows'
+      shell: bash
       run: choco install rsync -y
 
     - name: Install Rust toolchain
