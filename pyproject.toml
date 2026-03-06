@@ -24,7 +24,7 @@ dev = [
   "types-markdown",
   "types-waitress",
   "types-pywin32",
-  "briefcase",
+  "briefcase>=0.4.0",
   "jinja2",
 ]
 
@@ -43,6 +43,3 @@ name = "testpypi"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true
-
-[tool.uv.sources]
-briefcase = { git = "https://github.com/beeware/briefcase", branch = "main" }

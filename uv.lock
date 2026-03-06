@@ -109,7 +109,7 @@ provides-extras = ["sphinx"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "briefcase", git = "https://github.com/beeware/briefcase?branch=main" },
+    { name = "briefcase", specifier = ">=0.4.0" },
     { name = "hatchling" },
     { name = "jinja2" },
     { name = "mock" },
@@ -326,8 +326,8 @@ wheels = [
 
 [[package]]
 name = "briefcase"
-version = "0.3.27.dev84+ge3c7cf08f"
-source = { git = "https://github.com/beeware/briefcase?branch=main#e3c7cf08f7b508c151341934395e1bd1803feb20" }
+version = "0.4.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "build" },
     { name = "chardet" },
@@ -346,6 +346,10 @@ dependencies = [
     { name = "tomli-w" },
     { name = "truststore" },
     { name = "wheel" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/68/26/f57ac0da1b24354cc744c153123a704803a0cbe45fe20206167bf3499604/briefcase-0.4.0.tar.gz", hash = "sha256:d11beb13324091d1e651ed6e81a15c68719262cbfb7b953a14297d2b900cda20", size = 2628661, upload-time = "2026-03-05T06:23:33.68Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/02/31/d92ed263f53ea2c60aea6ff05189d2312bb119179089d1e24e3cdeb1ec68/briefcase-0.4.0-py3-none-any.whl", hash = "sha256:a825916e6f2dd68bb9d1f317f9f173c2bf96dc619d35c528e48e9f6619b6c9f3", size = 270429, upload-time = "2026-03-05T06:23:31.513Z" },
 ]
 
 [[package]]
