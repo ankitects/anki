@@ -39,6 +39,8 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ~/.cargo/bin
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
           key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: cargo-${{ runner.os }}-
 

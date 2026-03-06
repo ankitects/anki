@@ -52,12 +52,15 @@ runs:
         toolchain: "1.92.0"
         components: clippy
 
-    - name: Install uv
+    # Install uv via setup-uv and point the build system at it via UV_BINARY so it skips downloading its own copy.
+    - name: Install uv (Linux)
+      if: runner.os == 'Linux'
       uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
 
     - name: Set UV_BINARY
+      if: runner.os == 'Linux'
       shell: bash
       run: echo "UV_BINARY=$(which uv)" >> "$GITHUB_ENV"
 
