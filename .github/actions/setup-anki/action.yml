@@ -61,8 +61,6 @@ runs:
         cache: false # ci.yml manages its own cargo cache
         rustflags: "" # don't inject -D warnings; the build system handles this
 
-    # Install uv via setup-uv and point the build system at it via UV_BINARY
-    # so it skips downloading its own copy (see build/ninja_gen/src/python.rs).
     - name: Install uv
       id: setup-uv
       uses: astral-sh/setup-uv@v7
@@ -70,7 +68,13 @@ runs:
         enable-cache: true
         prune-cache: ${{ runner.os != 'Windows' }} # Windows file-locking breaks cache pruning
 
-    - name: Set UV_BINARY
+    # UV_BINARY tells the build system to use our uv instead of downloading
+    # its own (see build/ninja_gen/src/python.rs). Linux-only because on
+    # macOS ARM the launcher needs the downloaded archive to build a universal
+    # binary via lipo (see build/configure/src/launcher.rs), and on Windows
+    # the build system manages its own download.
+    - name: Set UV_BINARY (Linux)
+      if: runner.os == 'Linux'
       shell: bash
       run: echo "UV_BINARY=${{ steps.setup-uv.outputs.uv-path }}" >> "$GITHUB_ENV"
 
