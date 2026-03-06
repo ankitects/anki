@@ -32,7 +32,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Restore cargo cache
         uses: actions/cache@v4
         with:
@@ -43,12 +42,17 @@ jobs:
           key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: cargo-${{ runner.os }}-
 
+      # Fallback order for new PRs:
+      #   1. build-{OS}-main  (seed from latest main cache)
+      #   2. build-{OS}-      (any prior cache for this OS)
       - name: Restore build output cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: out
-          key: build-${{ runner.os }}-${{ github.sha }}
-          restore-keys: build-${{ runner.os }}-
+          key: build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}
+          restore-keys: |
+            build-${{ runner.os }}-main
+            build-${{ runner.os }}-
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
@@ -89,3 +93,10 @@ jobs:
         run: |
           cargo install cargo-deny@0.19.0
           cargo deny check
+
+      - name: Save build output cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: out
+          key: build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}
