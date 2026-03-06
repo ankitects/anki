@@ -59,6 +59,7 @@ runs:
       with:
         components: clippy
         cache: false # ci.yml manages its own cargo cache
+        rustflags: "" # don't inject -D warnings; the build system handles this
 
     # Install uv via setup-uv and point the build system at it via UV_BINARY
     # so it skips downloading its own copy (see build/ninja_gen/src/python.rs).
