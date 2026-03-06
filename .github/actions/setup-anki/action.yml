@@ -46,6 +46,11 @@ runs:
           unzip \
           zstd
 
+    - name: Install Windows system dependencies
+      if: runner.os == 'Windows'
+      shell: bash
+      run: pacman -S --noconfirm rsync
+
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
       with:
