@@ -31,7 +31,12 @@ jobs:
     name: check (${{ matrix.platform }})
 
     steps:
+      # Check out the PR head commit (not the merge ref) so that
+      # check:minilints can verify the commit author is in CONTRIBUTORS.
+      # The default merge ref author is GitHub, not the PR author.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Restore cargo cache
         uses: actions/cache@v4
         with:
