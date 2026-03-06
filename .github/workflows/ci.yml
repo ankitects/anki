@@ -1,0 +1,91 @@
+name: CI
+
+# TODO: Remove this before merging.
+on: [push, pull_request]
+
+# TODO: Uncomment before merging
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            runner: ubuntu-24.04
+          - platform: macos
+            runner: macos-latest
+          - platform: windows
+            runner: windows-latest
+
+    runs-on: ${{ matrix.runner }}
+    name: check (${{ matrix.platform }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore cargo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: Restore build output cache
+        uses: actions/cache@v4
+        with:
+          path: out
+          key: build-${{ runner.os }}-${{ github.sha }}
+          restore-keys: build-${{ runner.os }}-
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Symlink node_modules (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          ln -sf out/node_modules .
+          rm -f out/build.ninja
+
+      - name: Symlink node_modules (macOS)
+        if: matrix.platform == 'macos'
+        run: ln -sf out/node_modules .
+
+      - name: Build and test (Linux)
+        if: matrix.platform == 'linux'
+        env:
+          ONLINE_TESTS: "1"
+        run: ./ninja pylib qt check
+
+      - name: Build and test (macOS)
+        if: matrix.platform == 'macos'
+        run: ./ninja pylib qt wheels check
+
+      - name: Build and test (Windows)
+        if: matrix.platform == 'windows'
+        shell: cmd
+        run: call tools\ninja build pylib qt check
+
+      - name: Ensure libs importable (Linux)
+        if: matrix.platform == 'linux'
+        env:
+          SKIP_RUN: "1"
+        run: ./run
+
+      - name: Check Rust dependencies (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          cargo install cargo-deny@0.19.0
+          cargo deny check

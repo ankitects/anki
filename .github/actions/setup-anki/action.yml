@@ -1,0 +1,62 @@
+name: Setup Anki Build Environment
+description: Install system dependencies, Rust toolchain, uv, and n2
+
+runs:
+  using: composite
+  steps:
+    - name: Install Linux system dependencies
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends \
+          autoconf \
+          bash \
+          curl \
+          findutils \
+          g++ \
+          gcc \
+          git \
+          grep \
+          libdbus-1-3 \
+          libegl1 \
+          libfontconfig1 \
+          libgl1 \
+          libgstreamer-gl1.0-0 \
+          libgstreamer-plugins-base1.0 \
+          libgstreamer1.0-0 \
+          libnss3 \
+          libpulse-mainloop-glib0 \
+          libssl-dev \
+          libxcomposite1 \
+          libxcursor1 \
+          libxdamage1 \
+          libxi6 \
+          libxkbcommon-x11-0 \
+          libxkbcommon0 \
+          libxkbfile1 \
+          libxrandr2 \
+          libxrender1 \
+          libxtst6 \
+          make \
+          pkg-config \
+          portaudio19-dev \
+          python3-dev \
+          rsync \
+          unzip \
+          zstd
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: "1.92.0"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+
+    - name: Install n2
+      shell: bash
+      run: |
+        if ! command -v n2 &>/dev/null; then
+          cargo install --git https://github.com/evmar/n2.git --rev 53ec691df749277104d1d4201a344fe4243d6d0a
+        fi
