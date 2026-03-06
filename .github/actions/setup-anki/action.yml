@@ -52,7 +52,13 @@ runs:
         toolchain: "1.92.0"
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v4
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+
+    - name: Set UV_BINARY
+      shell: bash
+      run: echo "UV_BINARY=$(which uv)" >> "$GITHUB_ENV"
 
     - name: Install n2
       shell: bash
