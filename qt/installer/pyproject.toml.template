@@ -20,7 +20,7 @@ sources = [
 
 console_app = false
 use_full_install_path = false
-requires = ["{{ aqt_wheel }}[aqt,audio]", "{{ anki_wheel }}"]
+requires = ["{{ aqt_wheel }}[qt,audio]", "{{ anki_wheel }}"]
 test_requires = [
 
 
