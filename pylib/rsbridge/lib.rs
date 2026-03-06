@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use anki::api::ApiServer;
 use anki::backend::init_backend;
 use anki::backend::Backend as RustBackend;
 use anki::log::set_global_logger;
@@ -74,6 +75,25 @@ impl Backend {
         let out_bytes = out_res?;
         let out_obj = PyBytes::new(py, &out_bytes);
         Ok(out_obj.into())
+    }
+
+    fn run_api_server(&self, py: Python) -> PyResult<()> {
+        let backend = self.backend.clone();
+        py.allow_threads(move || {
+            self.backend
+                .shutdown_api_server()
+                .map_err(|e| PyException::new_err(e.to_string()))?;
+            backend.set_api_server_running();
+            ApiServer::run(&backend).map_err(|e| PyException::new_err(e.to_string()))
+        })
+    }
+
+    fn shutdown_api_server(&self, py: Python) -> PyResult<()> {
+        py.allow_threads(|| {
+            self.backend
+                .shutdown_api_server()
+                .map_err(|e| PyException::new_err(e.to_string()))
+        })
     }
 }
 
