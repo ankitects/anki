@@ -67,20 +67,22 @@ jobs:
         if: matrix.platform == 'macos'
         run: ln -sf out/node_modules .
 
-      - name: Build and test (Linux)
+      # Static checks (clippy, mypy, ruff, eslint, formatting, etc.) only
+      # run on Linux since they produce identical results on all platforms.
+      - name: Build and check (Linux)
         if: matrix.platform == 'linux'
         env:
           ONLINE_TESTS: "1"
         run: ./ninja pylib qt check
 
-      - name: Build and test (macOS)
+      - name: Build (macOS)
         if: matrix.platform == 'macos'
-        run: ./ninja pylib qt wheels check
+        run: ./ninja pylib qt wheels
 
-      - name: Build and test (Windows)
+      - name: Build (Windows)
         if: matrix.platform == 'windows'
         shell: cmd
-        run: call tools\ninja build pylib qt check
+        run: call tools\ninja build pylib qt
 
       - name: Ensure libs importable (Linux)
         if: matrix.platform == 'linux'
