@@ -46,10 +46,9 @@ runs:
           unzip \
           zstd
 
-    - name: Install Windows system dependencies
+    - name: Install rsync (Windows)
       if: runner.os == 'Windows'
-      shell: bash
-      run: pacman -S --noconfirm rsync
+      run: choco install rsync -y
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
