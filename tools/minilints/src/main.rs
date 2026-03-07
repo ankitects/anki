@@ -139,18 +139,25 @@ impl LintContext {
                 .stdout,
         )?;
 
-        let all_contributors = String::from_utf8(
-            Command::new("git")
-                .args(["log", "--pretty=format:%ae", "CONTRIBUTORS"])
-                .output()?
-                .stdout,
-        )?;
-        let all_contributors = all_contributors.lines().collect::<HashSet<&str>>();
-
         if last_author == "49699333+dependabot[bot]@users.noreply.github.com" {
             println!("Dependabot whitelisted.");
             std::process::exit(0);
-        } else if all_contributors.contains(last_author.as_str()) {
+        }
+
+        // Parse emails directly from the CONTRIBUTORS file instead of
+        // relying on git history, which requires a full clone.
+        let contents = fs::read_to_string("CONTRIBUTORS")?;
+        let all_contributors: HashSet<&str> = contents
+            .lines()
+            .filter_map(|line| {
+                let start = line.find('<')?;
+                let end = line.find('>')?;
+                let inner = &line[start + 1..end];
+                inner.contains('@').then_some(inner)
+            })
+            .collect();
+
+        if all_contributors.contains(last_author.as_str()) {
             return Ok(());
         }
 
