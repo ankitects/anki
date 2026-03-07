@@ -1,10 +1,15 @@
 # Rust API
 
-The pages below are generated from Rust crates in `rslib/` and rendered as Sphinx pages.
+Anki's Rust API documentation is generated from doc comments in the `rslib/`
+crates using `cargo doc`.
 
-```{toctree}
-:maxdepth: 2
+To browse the docs locally:
 
-rust/anki/lib
-rust/anki_io/lib
 ```
+cargo doc --open
+```
+
+The main crates are:
+
+- **anki** (`rslib/`) - Core library
+- **anki_io** (`rslib/io/`) - I/O utilities

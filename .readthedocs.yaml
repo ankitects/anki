@@ -7,7 +7,6 @@ build:
   os: ubuntu-24.04
   tools:
     python: "3.13"
-    rust: "1.91"
   jobs:
     pre_create_environment:
       - asdf plugin add uv
@@ -17,5 +16,3 @@ build:
       - uv venv "$READTHEDOCS_VIRTUALENV_PATH"
     install:
       - UV_PROJECT_ENVIRONMENT="$READTHEDOCS_VIRTUALENV_PATH" uv sync --frozen --group docs
-    pre_build:
-      - git clone --depth 1 -b anki-support https://gitlab.com/andrewasanchez/sphinxcontrib-rust.git /tmp/sphinxcontrib-rust && cargo install --path /tmp/sphinxcontrib-rust/sphinx-rustdocgen --root "$READTHEDOCS_VIRTUALENV_PATH"

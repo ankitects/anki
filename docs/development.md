@@ -165,7 +165,7 @@ See [this page](./build.md)
 
 ## Generating documentation
 
-To build the Read the Docs-style site from `docs/`:
+To build the documentation site from `docs/`:
 
 ```
 uv run --group docs sphinx-build -b html docs out/docs/html

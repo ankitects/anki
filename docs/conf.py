@@ -9,7 +9,6 @@ ROOT = Path(__file__).resolve().parents[1]
 extensions = [
     "myst_parser",
     "sphinx.ext.intersphinx",
-    "sphinxcontrib_rust",
     "autoapi.extension",
 ]
 
@@ -41,15 +40,5 @@ autoapi_options = [
     "show-inheritance",
     "show-module-summary",
 ]
-
-rust_crates = {
-    "anki": str(ROOT / "rslib"),
-    "anki_io": str(ROOT / "rslib" / "io"),
-}
-rust_doc_dir = str(Path(__file__).resolve().parent / "rust")
-rust_generate_mode = "always"
-rust_visibility = "pub"
-rust_rustdoc_fmt = "rst"
-rust_strip_src = True
 
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
