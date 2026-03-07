@@ -831,7 +831,7 @@ the AddCards dialog) should be implemented in the user of this component.
     }
 
     :global(.image-occlusion .top-tool-bar-container) {
-        margin-left: 28px !important;
+        margin-inline-start: 28px !important;
     }
     :global(.top-tool-bar-container .icon-button) {
         height: 36px !important;
