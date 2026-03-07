@@ -25,11 +25,10 @@ dev = [
   "types-waitress",
   "types-pywin32",
 ]
-
-[project.optional-dependencies]
-sphinx = [
+docs = [
   "sphinx",
-  "sphinx_rtd_theme",
+  "myst-parser",
+  "sphinx-book-theme",
   "sphinx-autoapi",
 ]
 
