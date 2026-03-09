@@ -511,8 +511,8 @@ impl Collection {
         };
         let original_deck = self
             .storage
-            .get_deck(home_deck.DeckId)?
-            .or_not_found(home_deck.DeckId)?;
+            .get_deck(home_deck.id)?
+            .or_not_found(home_deck.id)?;
         Ok(CardStateUpdater {
             fuzz_seed: get_fuzz_seed(&card, false),
             card,
