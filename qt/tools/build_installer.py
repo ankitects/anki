@@ -58,6 +58,9 @@ def main(aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     generate_scaled_icons(out_dir)
     (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
     shutil.copy("LICENSE", out_dir / "LICENSE")
+    (out_dir / "CHANGELOG").write_text(
+        "Please see https://apps.ankiweb.net/", encoding="utf-8"
+    )
     subprocess.check_call(
         [get_python_path(), "-m", "briefcase", "package", "--adhoc-sign"], cwd=out_dir
     )
