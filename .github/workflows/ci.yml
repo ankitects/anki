@@ -77,20 +77,21 @@ jobs:
 
       # Static checks (clippy, mypy, ruff, eslint, formatting, etc.) only
       # run on Linux since they produce identical results on all platforms.
+      # Tests run on all platforms to catch platform-specific issues.
       - name: Build and check (Linux)
         if: matrix.platform == 'linux'
         env:
           ONLINE_TESTS: "1"
         run: ./ninja pylib qt check
 
-      - name: Build (macOS)
+      - name: Build and test (macOS)
         if: matrix.platform == 'macos'
-        run: ./ninja pylib qt wheels
+        run: ./ninja pylib qt wheels check:rust_test check:pytest:pylib check:pytest:aqt check:vitest
 
-      - name: Build (Windows)
+      - name: Build and test (Windows)
         if: matrix.platform == 'windows'
         shell: cmd
-        run: call tools\ninja build pylib qt
+        run: call tools\ninja build pylib qt check:rust_test check:pytest:pylib check:pytest:aqt check:vitest
 
       - name: Ensure libs importable (Linux)
         if: matrix.platform == 'linux'
