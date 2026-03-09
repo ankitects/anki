@@ -88,5 +88,5 @@ runs:
       shell: bash
       run: |
         if ! command -v n2 &>/dev/null; then
-          cargo install --git https://github.com/evmar/n2.git --rev 53ec691df749277104d1d4201a344fe4243d6d0a
+          tools/install-n2
         fi
