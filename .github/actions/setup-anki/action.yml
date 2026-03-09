@@ -68,11 +68,17 @@ runs:
         enable-cache: true
         prune-cache: ${{ runner.os != 'Windows' }} # Windows file-locking breaks cache pruning
 
+    # Set UV_CACHE_DIR so both setup-uv's binary and the build system's
+    # downloaded uv share the same dependency cache for faster builds.
+    - name: Configure uv cache
+      shell: bash
+      run: echo "UV_CACHE_DIR=${{ steps.setup-uv.outputs.cache-dir }}" >> "$GITHUB_ENV"
+
     # UV_BINARY tells the build system to use our uv instead of downloading
     # its own (see build/ninja_gen/src/python.rs). Linux-only because on
     # macOS ARM the launcher needs the downloaded archive to build a universal
-    # binary via lipo (see build/configure/src/launcher.rs), and on Windows
-    # the build system manages its own download.
+    # binary via lipo (see build/configure/src/launcher.rs).
+    # On macOS/Windows, the downloaded uv will still use the shared cache.
     - name: Set UV_BINARY (Linux)
       if: runner.os == 'Linux'
       shell: bash
