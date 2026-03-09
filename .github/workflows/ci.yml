@@ -41,8 +41,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cargo/registry
-            ~/.cargo/git
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
             ~/.cargo/bin
             ~/.cargo/.crates.toml
             ~/.cargo/.crates2.json
