@@ -67,7 +67,7 @@ impl CardAnswer {
 struct CardStateUpdater {
     card: Card,
     deck: Deck,
-    original_deck: Deck,
+    original_deck: &Deck,
     config: DeckConfig,
     timing: SchedTimingToday,
     now: TimestampSecs,
