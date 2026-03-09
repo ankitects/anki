@@ -17,7 +17,7 @@ long_description = """Anki is a flashcard program that helps you spend more time
 sources = [
   "src/anki",
 ]
-
+icon = "resources/anki"
 console_app = false
 use_full_install_path = false
 requires = ["{{ aqt_wheel }}[qt,audio]", "{{ anki_wheel }}"]
