@@ -67,7 +67,7 @@ impl CardAnswer {
 struct CardStateUpdater {
     card: Card,
     deck: Deck,
-    original_deck: &Deck,
+    original_deck: Deck,
     config: DeckConfig,
     timing: SchedTimingToday,
     now: TimestampSecs,
@@ -509,11 +509,15 @@ impl Collection {
         } else {
             false
         };
+        let original_deck = self
+            .storage
+            .get_deck(home_deck.DeckId)?
+            .or_not_found(home_deck.DeckId)?;
         Ok(CardStateUpdater {
             fuzz_seed: get_fuzz_seed(&card, false),
             card,
             deck,
-            original_deck: home_deck,
+            original_deck,
             config,
             timing,
             now: TimestampSecs::now(),
