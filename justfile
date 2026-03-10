@@ -6,14 +6,9 @@ default:
 test:
     {{ ninja }} check:rust_test check:pytest:pylib check:pytest:aqt check:vitest
 
-# Run static checks (linting, formatting, type checking)
-lint:
+# Run format checks only (fast, no build needed)
+fmt:
     {{ ninja }} \
-        check:clippy \
-        check:mypy \
-        check:ruff \
-        check:eslint \
-        check:svelte \
         check:format:rust \
         check:format:python:pylib \
         check:format:python:qt \
@@ -21,6 +16,15 @@ lint:
         check:format:dprint \
         check:format:prettier \
         check:format:sql
+
+# Run linting and type checking (requires build outputs)
+lint:
+    {{ ninja }} \
+        check:clippy \
+        check:mypy \
+        check:ruff \
+        check:eslint \
+        check:svelte
 
 # Run minilints (copyright, contributors, licenses)
 minilints:

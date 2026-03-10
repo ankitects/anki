@@ -15,6 +15,54 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  minilints:
+    runs-on: ubuntu-24.04
+    steps:
+      # Check out the PR head commit (not the merge ref) so that
+      # minilints can verify the commit author is in CONTRIBUTORS.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: false
+
+      - name: Run minilints
+        run: cargo run -p minilints -- check /tmp/minilints.stamp
+
+  # Lightweight formatting checks (no build outputs needed)
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install n2
+        run: tools/install-n2
+
+      - name: Install Node dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install just
+        uses: extractions/setup-just@v3
+
+      - name: Run format checks
+        run: just fmt
+
   check:
     strategy:
       fail-fast: false
@@ -78,14 +126,16 @@ jobs:
         if: matrix.platform == 'macos'
         run: ln -sf out/node_modules .
 
-      # Static checks (clippy, mypy, ruff, eslint, formatting, etc.) only
-      # run on Linux since they produce identical results on all platforms.
+      # Linting and type checking on Linux only (formatting is separate job).
       # Tests run on all platforms to catch platform-specific issues.
-      - name: Build and check (Linux)
+      - name: Build, lint, and test (Linux)
         if: matrix.platform == 'linux'
         env:
           ONLINE_TESTS: "1"
-        run: just check
+        run: |
+          just build
+          just lint
+          just test
 
       - name: Build and test (macOS)
         if: matrix.platform == 'macos'
