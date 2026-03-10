@@ -26,6 +26,7 @@ dev = [
   "types-pywin32",
   "briefcase>=0.4.0",
   "jinja2",
+  "pillow",
 ]
 
 [project.optional-dependencies]
