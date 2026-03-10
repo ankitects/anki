@@ -65,6 +65,9 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
+      - name: Install just
+        uses: extractions/setup-just@v3
+
       - name: Symlink node_modules (Linux)
         if: matrix.platform == 'linux'
         run: |
@@ -82,16 +85,20 @@ jobs:
         if: matrix.platform == 'linux'
         env:
           ONLINE_TESTS: "1"
-        run: ./ninja pylib qt check
+        run: just check
 
       - name: Build and test (macOS)
         if: matrix.platform == 'macos'
-        run: ./ninja pylib qt wheels check:rust_test check:pytest:pylib check:pytest:aqt check:vitest
+        run: |
+          just build
+          just wheels
+          just test
 
       - name: Build and test (Windows)
         if: matrix.platform == 'windows'
-        shell: cmd
-        run: call tools\ninja build pylib qt check:rust_test check:pytest:pylib check:pytest:aqt check:vitest
+        run: |
+          just build
+          just test
 
       - name: Ensure libs importable (Linux)
         if: matrix.platform == 'linux'
