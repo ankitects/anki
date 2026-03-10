@@ -30,6 +30,7 @@ universal_build = true
 min_os_version = "12.0"
 entitlement."com.apple.security.cs.disable-executable-page-protection" = true
 entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
+entitlement."com.apple.security.device.audio-input" = true
 
 [tool.briefcase.app.anki.linux]
 requires = [
