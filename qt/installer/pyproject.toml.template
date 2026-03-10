@@ -28,11 +28,8 @@ permission.camera = "Add-ons may access your camera."
 [tool.briefcase.app.anki.macOS]
 universal_build = true
 min_os_version = "12.0"
-requires = [
-
-
-  # Add your macOS-specific app requirements here
-]
+entitlement."com.apple.security.cs.disable-executable-page-protection" = true
+entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
 
 [tool.briefcase.app.anki.linux]
 requires = [
