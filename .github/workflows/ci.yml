@@ -56,12 +56,6 @@ jobs:
         env:
           RUSTFLAGS: "--cap-lints warn"
 
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Install Node dependencies
-        run: yarn install --immutable
-
       - name: Install just
         uses: extractions/setup-just@v3
 
