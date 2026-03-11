@@ -104,9 +104,10 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: out
-          key: build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}
+          key: build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
           restore-keys: |
-            build-${{ runner.os }}-main
+            build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}-
+            build-${{ runner.os }}-main-
             build-${{ runner.os }}-
 
       - name: Setup build environment
@@ -166,4 +167,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: out
-          key: build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}
+          key: build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
