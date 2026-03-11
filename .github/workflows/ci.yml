@@ -53,6 +53,8 @@ jobs:
 
       - name: Install n2
         run: tools/install-n2
+        env:
+          RUSTFLAGS: "--cap-lints warn"
 
       - name: Install Node dependencies
         run: yarn install --frozen-lockfile
