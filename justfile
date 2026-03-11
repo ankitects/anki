@@ -1,3 +1,5 @@
+set windows-shell := ["cmd.exe", "/c"]
+
 # Show available commands
 default:
     @just --list
