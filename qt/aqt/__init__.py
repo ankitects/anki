@@ -125,9 +125,11 @@ from aqt import stats, about, preferences, mediasync  # isort:skip
 class DialogManager:
     _dialogs: dict[str, list] = {
         "AddCards": [addcards.AddCards, None],
+        "NewAddCards": [addcards.NewAddCards, None],
         "AddonsDialog": [addons.AddonsDialog, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
+        "NewEditCurrent": [editcurrent.NewEditCurrent, None],
         "FilteredDeckConfigDialog": [filtered_deck.FilteredDeckConfigDialog, None],
         "DeckStats": [stats.DeckStats, None],
         "NewDeckStats": [stats.NewDeckStats, None],
