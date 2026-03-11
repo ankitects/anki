@@ -21,20 +21,16 @@ icon = "resources/anki"
 console_app = false
 use_full_install_path = false
 requires = ["{{ aqt_wheel }}[qt,audio]", "{{ anki_wheel }}"]
-test_requires = [
 
-
-  # Add your cross-platform test requirements here
-]
+permission.microphone = "The microphone will only be used when you tap the record button."
+permission.camera = "Add-ons may access your camera."
 
 [tool.briefcase.app.anki.macOS]
 universal_build = true
 min_os_version = "12.0"
-requires = [
-
-
-  # Add your macOS-specific app requirements here
-]
+entitlement."com.apple.security.cs.disable-executable-page-protection" = true
+entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
+entitlement."com.apple.security.device.audio-input" = true
 
 [tool.briefcase.app.anki.linux]
 requires = [
