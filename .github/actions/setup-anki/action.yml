@@ -72,7 +72,11 @@ runs:
     # downloaded uv share the same dependency cache for faster builds.
     - name: Configure uv cache
       shell: bash
-      run: echo "UV_CACHE_DIR=${{ steps.setup-uv.outputs.cache-dir }}" >> "$GITHUB_ENV"
+      run: |
+        CACHE_DIR="${{ steps.setup-uv.outputs.cache-dir }}"
+        if [ -n "$CACHE_DIR" ]; then
+          echo "UV_CACHE_DIR=$CACHE_DIR" >> "$GITHUB_ENV"
+        fi
 
     # UV_BINARY tells the build system to use our uv instead of downloading
     # its own (see build/ninja_gen/src/python.rs). Linux-only because on
