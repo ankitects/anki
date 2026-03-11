@@ -9,7 +9,7 @@ from pathlib import Path
 import jinja2
 from PIL import Image
 
-installer_dir = Path("qt/installer")
+installer_dir = Path("qt/installer/app")
 env = jinja2.Environment(loader=jinja2.FileSystemLoader(installer_dir))
 
 
