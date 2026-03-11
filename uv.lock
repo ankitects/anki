@@ -22,6 +22,18 @@ members = [
 ]
 
 [[package]]
+name = "accessible-pygments"
+version = "0.0.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pygments" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bc/c1/bbac6a50d02774f91572938964c582fff4270eee73ab822a4aeea4d8b11b/accessible_pygments-0.0.5.tar.gz", hash = "sha256:40918d3e6a2b619ad424cb91e556bd3bd8865443d9f22f1dcdf79e33c8046872", size = 1377899, upload-time = "2024-05-10T11:23:10.216Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8d/3f/95338030883d8c8b91223b4e21744b04d11b161a3ef117295d8241f50ab4/accessible_pygments-0.0.5-py3-none-any.whl", hash = "sha256:88ae3211e68a1d0b011504b2ffc1691feafce124b845bd072ab6f9f66f34d4b7", size = 1395903, upload-time = "2024-05-10T11:23:08.421Z" },
+]
+
+[[package]]
 name = "alabaster"
 version = "0.7.16"
 source = { registry = "https://pypi.org/simple" }
@@ -86,15 +98,6 @@ name = "anki-dev"
 version = "0.0.0"
 source = { virtual = "." }
 
-[package.optional-dependencies]
-sphinx = [
-    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
-    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
-    { name = "sphinx-autoapi" },
-    { name = "sphinx-rtd-theme" },
-]
-
 [package.dev-dependencies]
 dev = [
     { name = "hatchling" },
@@ -115,14 +118,17 @@ dev = [
     { name = "types-waitress" },
     { name = "wheel" },
 ]
+docs = [
+    { name = "myst-parser", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "myst-parser", version = "4.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "sphinx-autoapi" },
+    { name = "sphinx-book-theme" },
+]
 
 [package.metadata]
-requires-dist = [
-    { name = "sphinx", marker = "extra == 'sphinx'" },
-    { name = "sphinx-autoapi", marker = "extra == 'sphinx'" },
-    { name = "sphinx-rtd-theme", marker = "extra == 'sphinx'" },
-]
-provides-extras = ["sphinx"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -144,6 +150,12 @@ dev = [
     { name = "types-waitress" },
     { name = "wheel" },
 ]
+docs = [
+    { name = "myst-parser" },
+    { name = "sphinx" },
+    { name = "sphinx-autoapi" },
+    { name = "sphinx-book-theme" },
+]
 
 [[package]]
 name = "anki-mac-helper"
@@ -157,6 +169,7 @@ wheels = [
 name = "aqt"
 source = { editable = "qt" }
 dependencies = [
+    { name = "anki" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
     { name = "beautifulsoup4" },
     { name = "flask" },
@@ -213,6 +226,7 @@ qt68 = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anki", editable = "pylib" },
     { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.1.0" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin'", specifier = ">=0.1.1" },
     { name = "beautifulsoup4" },
@@ -612,6 +626,18 @@ wheels = [
 ]
 
 [[package]]
+name = "markdown-it-py"
+version = "3.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mdurl" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/38/71/3b932df36c1a044d397a1f92d1cf91ee0a503d91e470cbd670aa66b07ed0/markdown-it-py-3.0.0.tar.gz", hash = "sha256:e3f60a94fa066dc52ec76661e37c851cb232d92f9886b15cb560aaada2df8feb", size = 74596, upload-time = "2023-06-03T06:41:14.443Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/42/d7/1ec15b46af6af88f19b8e5ffea08fa375d433c998b8a7639e76935c14f1f/markdown_it_py-3.0.0-py3-none-any.whl", hash = "sha256:355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1", size = 87528, upload-time = "2023-06-03T06:41:11.019Z" },
+]
+
+[[package]]
 name = "markupsafe"
 version = "3.0.2"
 source = { registry = "https://pypi.org/simple" }
@@ -677,6 +703,47 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/17/d8/5811082f85bb88410ad7e452263af048d685669bbbfb7b595e8689152498/MarkupSafe-3.0.2-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:eb7972a85c54febfb25b5c4b4f3af4dcc731994c7da0d8a0b4a6eb0640e1d178", size = 20946, upload-time = "2024-10-18T15:21:50.441Z" },
     { url = "https://files.pythonhosted.org/packages/7c/31/bd635fb5989440d9365c5e3c47556cfea121c7803f5034ac843e8f37c2f2/MarkupSafe-3.0.2-cp39-cp39-win32.whl", hash = "sha256:8c4e8c3ce11e1f92f6536ff07154f9d49677ebaaafc32db9db4620bc11ed480f", size = 15063, upload-time = "2024-10-18T15:21:51.385Z" },
     { url = "https://files.pythonhosted.org/packages/b3/73/085399401383ce949f727afec55ec3abd76648d04b9f22e1c0e99cb4bec3/MarkupSafe-3.0.2-cp39-cp39-win_amd64.whl", hash = "sha256:6e296a513ca3d94054c2c881cc913116e90fd030ad1c656b3869762b754f5f8a", size = 15506, upload-time = "2024-10-18T15:21:52.974Z" },
+]
+
+[[package]]
+name = "mdit-py-plugins"
+version = "0.4.2"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.10'",
+]
+dependencies = [
+    { name = "markdown-it-py", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/19/03/a2ecab526543b152300717cf232bb4bb8605b6edb946c845016fa9c9c9fd/mdit_py_plugins-0.4.2.tar.gz", hash = "sha256:5f2cd1fdb606ddf152d37ec30e46101a60512bc0e5fa1a7002c36647b09e26b5", size = 43542, upload-time = "2024-09-09T20:27:49.564Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a7/f7/7782a043553ee469c1ff49cfa1cdace2d6bf99a1f333cf38676b3ddf30da/mdit_py_plugins-0.4.2-py3-none-any.whl", hash = "sha256:0c673c3f889399a33b95e88d2f0d111b4447bdfea7f237dab2d488f459835636", size = 55316, upload-time = "2024-09-09T20:27:48.397Z" },
+]
+
+[[package]]
+name = "mdit-py-plugins"
+version = "0.5.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+]
+dependencies = [
+    { name = "markdown-it-py", marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b2/fd/a756d36c0bfba5f6e39a1cdbdbfdd448dc02692467d83816dff4592a1ebc/mdit_py_plugins-0.5.0.tar.gz", hash = "sha256:f4918cb50119f50446560513a8e311d574ff6aaed72606ddae6d35716fe809c6", size = 44655, upload-time = "2025-08-11T07:25:49.083Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fb/86/dd6e5db36df29e76c7a7699123569a4a18c1623ce68d826ed96c62643cae/mdit_py_plugins-0.5.0-py3-none-any.whl", hash = "sha256:07a08422fc1936a5d26d146759e9155ea466e842f5ab2f7d2266dd084c8dab1f", size = 57205, upload-time = "2025-08-11T07:25:47.597Z" },
+]
+
+[[package]]
+name = "mdurl"
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba", size = 8729, upload-time = "2022-08-14T12:40:10.846Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979, upload-time = "2022-08-14T12:40:09.779Z" },
 ]
 
 [[package]]
@@ -753,6 +820,49 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/4d/6f/282d64d66bf48ce60e38a6560753f784e0f88ab245ac2fb5e93f701a36cd/mypy-protobuf-3.6.0.tar.gz", hash = "sha256:02f242eb3409f66889f2b1a3aa58356ec4d909cdd0f93115622e9e70366eca3c", size = 24445, upload-time = "2024-04-01T20:24:42.837Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e8/73/d6b999782ae22f16971cc05378b3b33f6a89ede3b9619e8366aa23484bca/mypy_protobuf-3.6.0-py3-none-any.whl", hash = "sha256:56176e4d569070e7350ea620262478b49b7efceba4103d468448f1d21492fd6c", size = 16434, upload-time = "2024-04-01T20:24:40.583Z" },
+]
+
+[[package]]
+name = "myst-parser"
+version = "3.0.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.10'",
+]
+dependencies = [
+    { name = "docutils", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "jinja2", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "markdown-it-py", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "mdit-py-plugins", version = "0.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "pyyaml", marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/49/64/e2f13dac02f599980798c01156393b781aec983b52a6e4057ee58f07c43a/myst_parser-3.0.1.tar.gz", hash = "sha256:88f0cb406cb363b077d176b51c476f62d60604d68a8dcdf4832e080441301a87", size = 92392, upload-time = "2024-04-28T20:22:42.116Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e2/de/21aa8394f16add8f7427f0a1326ccd2b3a2a8a3245c9252bc5ac034c6155/myst_parser-3.0.1-py3-none-any.whl", hash = "sha256:6457aaa33a5d474aca678b8ead9b3dc298e89c68e67012e73146ea6fd54babf1", size = 83163, upload-time = "2024-04-28T20:22:39.985Z" },
+]
+
+[[package]]
+name = "myst-parser"
+version = "4.0.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+]
+dependencies = [
+    { name = "docutils", marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "jinja2", marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "markdown-it-py", marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "mdit-py-plugins", version = "0.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "pyyaml", marker = "python_full_version >= '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/a5/9626ba4f73555b3735ad86247a8077d4603aa8628537687c839ab08bfe44/myst_parser-4.0.1.tar.gz", hash = "sha256:5cfea715e4f3574138aecbf7d54132296bfd72bb614d31168f48c477a830a7c4", size = 93985, upload-time = "2025-02-12T10:53:03.833Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5f/df/76d0321c3797b54b60fef9ec3bd6f4cfd124b9e422182156a1dd418722cf/myst_parser-4.0.1-py3-none-any.whl", hash = "sha256:9134e88959ec3b5780aedf8a99680ea242869d012e8821db3126d427edc9c95d", size = 84579, upload-time = "2025-02-12T10:53:02.078Z" },
 ]
 
 [[package]]
@@ -928,6 +1038,27 @@ dependencies = [
     { name = "websocket-client" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e0/04/572466be7e93af410d68cc0142850560cc139a254c659409765fd5a5547f/PyChromeDevTools-1.0.4.tar.gz", hash = "sha256:cc9e552f22032fce48ae3113ebb62e138ed5e1ea126011fd43262b7075970f0f", size = 8108, upload-time = "2025-05-29T09:24:23.841Z" }
+
+[[package]]
+name = "pydata-sphinx-theme"
+version = "0.15.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "accessible-pygments" },
+    { name = "babel" },
+    { name = "beautifulsoup4" },
+    { name = "docutils" },
+    { name = "packaging" },
+    { name = "pygments" },
+    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/67/ea/3ab478cccacc2e8ef69892c42c44ae547bae089f356c4b47caf61730958d/pydata_sphinx_theme-0.15.4.tar.gz", hash = "sha256:7762ec0ac59df3acecf49fd2f889e1b4565dbce8b88b2e29ee06fdd90645a06d", size = 2400673, upload-time = "2024-06-25T19:28:45.041Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e7/d3/c622950d87a2ffd1654208733b5bd1c5645930014abed8f4c0d74863988b/pydata_sphinx_theme-0.15.4-py3-none-any.whl", hash = "sha256:2136ad0e9500d0949f96167e63f3e298620040aea8f9c74621959eda5d4cf8e6", size = 4640157, upload-time = "2024-06-25T19:28:42.383Z" },
+]
 
 [[package]]
 name = "pygments"
@@ -1812,19 +1943,18 @@ wheels = [
 ]
 
 [[package]]
-name = "sphinx-rtd-theme"
-version = "3.0.2"
+name = "sphinx-book-theme"
+version = "1.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "docutils" },
+    { name = "pydata-sphinx-theme" },
     { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
-    { name = "sphinxcontrib-jquery" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/91/44/c97faec644d29a5ceddd3020ae2edffa69e7d00054a8c7a6021e82f20335/sphinx_rtd_theme-3.0.2.tar.gz", hash = "sha256:b7457bc25dda723b20b086a670b9953c859eab60a2a03ee8eb2bb23e176e5f85", size = 7620463, upload-time = "2024-11-13T11:06:04.545Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/45/19/d002ed96bdc7738c15847c730e1e88282d738263deac705d5713b4d8fa94/sphinx_book_theme-1.1.4.tar.gz", hash = "sha256:73efe28af871d0a89bd05856d300e61edce0d5b2fbb7984e84454be0fedfe9ed", size = 439188, upload-time = "2025-02-20T16:32:32.581Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/77/46e3bac77b82b4df5bb5b61f2de98637724f246b4966cfc34bc5895d852a/sphinx_rtd_theme-3.0.2-py2.py3-none-any.whl", hash = "sha256:422ccc750c3a3a311de4ae327e82affdaf59eb695ba4936538552f3b00f4ee13", size = 7655561, upload-time = "2024-11-13T11:06:02.094Z" },
+    { url = "https://files.pythonhosted.org/packages/51/9e/c41d68be04eef5b6202b468e0f90faf0c469f3a03353f2a218fd78279710/sphinx_book_theme-1.1.4-py3-none-any.whl", hash = "sha256:843b3f5c8684640f4a2d01abd298beb66452d1b2394cd9ef5be5ebd5640ea0e1", size = 433952, upload-time = "2025-02-20T16:32:31.009Z" },
 ]
 
 [[package]]
@@ -1852,20 +1982,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/43/93/983afd9aa001e5201eab16b5a444ed5b9b0a7a010541e0ddfbbfd0b2470c/sphinxcontrib_htmlhelp-2.1.0.tar.gz", hash = "sha256:c9e2916ace8aad64cc13a0d233ee22317f2b9025b9cf3295249fa985cc7082e9", size = 22617, upload-time = "2024-07-29T01:09:37.889Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0a/7b/18a8c0bcec9182c05a0b3ec2a776bba4ead82750a55ff798e8d406dae604/sphinxcontrib_htmlhelp-2.1.0-py3-none-any.whl", hash = "sha256:166759820b47002d22914d64a075ce08f4c46818e17cfc9470a9786b759b19f8", size = 98705, upload-time = "2024-07-29T01:09:36.407Z" },
-]
-
-[[package]]
-name = "sphinxcontrib-jquery"
-version = "4.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "sphinx", version = "7.4.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
-    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/de/f3/aa67467e051df70a6330fe7770894b3e4f09436dea6881ae0b4f3d87cad8/sphinxcontrib-jquery-4.1.tar.gz", hash = "sha256:1620739f04e36a2c779f1a131a2dfd49b2fd07351bf1968ced074365933abc7a", size = 122331, upload-time = "2023-03-14T15:01:01.944Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/76/85/749bd22d1a68db7291c89e2ebca53f4306c3f205853cf31e9de279034c3c/sphinxcontrib_jquery-4.1-py2.py3-none-any.whl", hash = "sha256:f936030d7d0147dd026a4f2b5a57343d233f1fc7b363f68b3d4f1cb0993878ae", size = 121104, upload-time = "2023-03-14T15:01:00.356Z" },
 ]
 
 [[package]]
