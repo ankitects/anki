@@ -5,16 +5,6 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@ampproject/remapping@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "@ampproject/remapping@npm:2.3.0"
-  dependencies:
-    "@jridgewell/gen-mapping": "npm:^0.3.5"
-    "@jridgewell/trace-mapping": "npm:^0.3.24"
-  checksum: 10c0/81d63cca5443e0f0c72ae18b544cc28c7c0ec2cea46e7cb888bb0e0f411a1191d0d6b7af798d54e30777d8d1488b2ec0732aac2be342d3d7d3ffd271c6f489ed
-  languageName: node
-  linkType: hard
-
 "@bufbuild/protobuf@npm:1.10.0, @bufbuild/protobuf@npm:^1.10.0, @bufbuild/protobuf@npm:^1.2.1":
   version: 1.10.0
   resolution: "@bufbuild/protobuf@npm:1.10.0"
@@ -587,6 +577,16 @@ __metadata:
     "@jridgewell/sourcemap-codec": "npm:^1.4.10"
     "@jridgewell/trace-mapping": "npm:^0.3.24"
   checksum: 10c0/1be4fd4a6b0f41337c4f5fdf4afc3bd19e39c3691924817108b82ffcb9c9e609c273f936932b9fba4b3a298ce2eb06d9bff4eb1cc3bd81c4f4ee1b4917e25feb
+  languageName: node
+  linkType: hard
+
+"@jridgewell/remapping@npm:^2.3.4":
+  version: 2.3.5
+  resolution: "@jridgewell/remapping@npm:2.3.5"
+  dependencies:
+    "@jridgewell/gen-mapping": "npm:^0.3.5"
+    "@jridgewell/trace-mapping": "npm:^0.3.24"
+  checksum: 10c0/3de494219ffeb2c5c38711d0d7bb128097edf91893090a2dbc8ee0b55d092bb7347b1fd0f478486c5eab010e855c73927b1666f2107516d472d24a73017d1194
   languageName: node
   linkType: hard
 
@@ -1572,6 +1572,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/trusted-types@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "@types/trusted-types@npm:2.0.7"
+  checksum: 10c0/4c4855f10de7c6c135e0d32ce462419d8abbbc33713b31d294596c0cc34ae1fa6112a2f9da729c8f7a20707782b0d69da3b1f8df6645b0366d08825ca1522e0c
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/eslint-plugin@npm:^5.60.1":
   version: 5.62.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.62.0"
@@ -1951,7 +1958,7 @@ __metadata:
     prettier: "npm:^3.4.2"
     prettier-plugin-svelte: "npm:^3.3.2"
     sass: "npm:<1.77"
-    svelte: "npm:^5.34.9"
+    svelte: "npm:^5.53.5"
     svelte-check: "npm:^4.2.2"
     svelte-preprocess: "npm:^6.0.3"
     svelte-preprocess-esbuild: "npm:^3.0.1"
@@ -2011,10 +2018,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aria-query@npm:^5.3.1":
-  version: 5.3.2
-  resolution: "aria-query@npm:5.3.2"
-  checksum: 10c0/003c7e3e2cff5540bf7a7893775fc614de82b0c5dde8ae823d47b7a28a9d4da1f7ed85f340bdb93d5649caa927755f0e31ecc7ab63edfdfc00c8ef07e505e03e
+"aria-query@npm:5.3.1":
+  version: 5.3.1
+  resolution: "aria-query@npm:5.3.1"
+  checksum: 10c0/2e9aca7d92d20b8539ee58fa1d29ba07e2269a68da8d27e9830d3cb816d49bb01648610ac3f2e365a8dedbf00168ac18c017ea49c512fbe2537a0b17184a458b
   languageName: node
   linkType: hard
 
@@ -3798,12 +3805,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esrap@npm:^1.4.8":
-  version: 1.4.9
-  resolution: "esrap@npm:1.4.9"
+"esrap@npm:^2.2.2":
+  version: 2.2.3
+  resolution: "esrap@npm:2.2.3"
   dependencies:
     "@jridgewell/sourcemap-codec": "npm:^1.4.15"
-  checksum: 10c0/21b4c58f358360ada596ea46b8dbf47771c6d7734277add55e7cd1d5655126dea25591788712452ed8575a99acd388eae756bf941bab31d7b9fb424620c10c40
+  checksum: 10c0/6eda59f9968e52b9b150dec0cb8acf2f42fef62b16918cefb64d25e5aeaa969cf44ca2a6260b14994cb7e5ac2e78ab8170158339901ab0e913c52f780891ab95
   languageName: node
   linkType: hard
 
@@ -6472,25 +6479,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte@npm:^5.34.9":
-  version: 5.34.9
-  resolution: "svelte@npm:5.34.9"
+"svelte@npm:^5.53.5":
+  version: 5.53.10
+  resolution: "svelte@npm:5.53.10"
   dependencies:
-    "@ampproject/remapping": "npm:^2.3.0"
+    "@jridgewell/remapping": "npm:^2.3.4"
     "@jridgewell/sourcemap-codec": "npm:^1.5.0"
     "@sveltejs/acorn-typescript": "npm:^1.0.5"
     "@types/estree": "npm:^1.0.5"
+    "@types/trusted-types": "npm:^2.0.7"
     acorn: "npm:^8.12.1"
-    aria-query: "npm:^5.3.1"
+    aria-query: "npm:5.3.1"
     axobject-query: "npm:^4.1.0"
     clsx: "npm:^2.1.1"
+    devalue: "npm:^5.6.3"
     esm-env: "npm:^1.2.1"
-    esrap: "npm:^1.4.8"
+    esrap: "npm:^2.2.2"
     is-reference: "npm:^3.0.3"
     locate-character: "npm:^3.0.0"
     magic-string: "npm:^0.30.11"
     zimmerframe: "npm:^1.1.2"
-  checksum: 10c0/e68fcc99905bf4d57dab2b03afd82c765e56ea2e052da6c515866ac05487397ea49e81fb46cdd0f589b60e1f374c8bf2d14393f8b581568f4d735f85998a318d
+  checksum: 10c0/dc2ae840c23c665f50d0f319e7cadf3f490103c4fd029dc414e692c4c1ed945b951ddc3c7b7bb0c5c44f35c802629630124f0937b8ca1bed3a122425c7eca278
   languageName: node
   linkType: hard
 
