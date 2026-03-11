@@ -45,4 +45,4 @@ check:
     {{ ninja }} pylib qt check
 
 # Helper to get the right ninja command for the platform
-ninja := if os() == "windows" { "tools/ninja" } else { "./ninja" }
+ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }
