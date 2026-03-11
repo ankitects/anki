@@ -21,8 +21,112 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let selected: boolean;
     export let active: boolean;
     export let shorten: boolean;
+    export let truncateMiddle: boolean = false;
+    export let editorWidth: number = 0;
 
     export let flash: () => void;
+
+    let displayName = name;
+    let needsTooltip = false;
+    let tagButton: HTMLButtonElement | null = null;
+    let cachedFont: string | undefined;
+    let cachedEllipsisWidth: number | undefined;
+
+    const ELLIPSIS = "…";
+    // Space to the right of tag text: delete badge (~20px) + tag padding pe-1 (4px) + border (1px) + safety margin
+    const RIGHT_PADDING_PX = 51;
+
+    // Canvas for text measurement - no DOM thrashing
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
+
+    function getTextWidth(text: string): number {
+        return ctx.measureText(text).width;
+    }
+
+    function fitText(): void {
+        if (!truncateMiddle || !tagButton || editorWidth <= 0) {
+            displayName = name;
+            needsTooltip = false;
+            return;
+        }
+
+        // Keep font correct (can change via theme/class/parent)
+        const font = getComputedStyle(tagButton).font;
+        if (cachedFont !== font) {
+            cachedFont = font;
+            cachedEllipsisWidth = undefined;
+        }
+        ctx.font = cachedFont;
+
+        const maxW = editorWidth - RIGHT_PADDING_PX;
+        if (maxW <= 0) {
+            displayName = ELLIPSIS;
+            needsTooltip = true;
+            return;
+        }
+
+        const fullWidth = getTextWidth(name);
+        if (fullWidth <= maxW) {
+            displayName = name;
+            needsTooltip = false;
+            return;
+        }
+
+        const ellipsisWidth =
+            cachedEllipsisWidth ?? (cachedEllipsisWidth = getTextWidth(ELLIPSIS));
+
+        if (ellipsisWidth > maxW) {
+            displayName = ELLIPSIS;
+            needsTooltip = true;
+            return;
+        }
+
+        const build = (k: number): string => {
+            const kk = Math.max(0, Math.min(k, name.length));
+            const head = Math.ceil(kk / 2);
+            const tail = kk - head;
+            return (
+                name.slice(0, head) +
+                ELLIPSIS +
+                (tail > 0 ? name.slice(name.length - tail) : "")
+            );
+        };
+
+        // Find maximum k such that build(k) fits in maxW
+        let lo = 0;
+        let hi = name.length;
+        let bestK = 0;
+
+        while (lo <= hi) {
+            const mid = (lo + hi) >> 1;
+            const candidate = build(mid);
+            if (getTextWidth(candidate) <= maxW) {
+                bestK = mid;
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+
+        displayName = build(bestK);
+        needsTooltip = true;
+    }
+
+    function onTagMount(event: CustomEvent<{ button: HTMLButtonElement }>): void {
+        tagButton = event.detail.button;
+        cachedFont = undefined; // Reset to get fresh font on mount
+        cachedEllipsisWidth = undefined;
+        fitText();
+    }
+
+    // Re-fit when name, truncateMiddle, or editorWidth changes
+    $: {
+        name;
+        truncateMiddle;
+        editorWidth;
+        fitText();
+    }
 
     const dispatch = createEventDispatcher();
 
@@ -94,6 +198,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <slot {selectMode} {hoverClass} />
             </Tag>
         </WithTooltip>
+    {:else if needsTooltip}
+        <WithTooltip tooltip={name} trigger="hover" placement="top" let:createTooltip>
+            <Tag
+                class={className}
+                tagName={name}
+                bind:flash
+                bind:selected
+                on:mousemove={setControlShift}
+                on:click={onClick}
+                on:mount={(event) => {
+                    createTooltip(event.detail.button);
+                    onTagMount(event);
+                }}
+            >
+                <span>{displayName}</span>
+                <slot {selectMode} {hoverClass} />
+            </Tag>
+        </WithTooltip>
     {:else}
         <Tag
             class={className}
@@ -102,8 +224,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:selected
             on:mousemove={setControlShift}
             on:click={onClick}
+            on:mount={onTagMount}
         >
-            <span>{name}</span>
+            <span>{displayName}</span>
             <slot {selectMode} {hoverClass} />
         </Tag>
     {/if}
