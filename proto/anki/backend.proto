@@ -47,6 +47,7 @@ message BackendError {
     OS_ERROR = 20;
     SCHEDULER_UPGRADE_REQUIRED = 21;
     INVALID_CERTIFICATE_FORMAT = 22;
+    API_SERVER_NOT_RUNNING = 24;
   }
 
   // error description, usually localized, suitable for displaying to the user

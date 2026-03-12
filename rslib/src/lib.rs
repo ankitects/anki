@@ -6,6 +6,7 @@
 pub mod adding;
 pub(crate) mod ankidroid;
 pub mod ankihub;
+pub mod api;
 pub mod backend;
 pub mod browser_table;
 pub mod card;
