@@ -134,30 +134,17 @@ jobs:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
-  # macOS and Windows run on pushes to main and on PRs with the
-  # corresponding label (check:macos or check:windows).
-  check-other-platforms:
+  # Runs on pushes to main or on PRs with the check:macos label.
+  check-macos:
     if: >-
       github.event_name == 'push'
-      || contains(github.event.pull_request.labels.*.name, matrix.label)
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: macos
-            runner: macos-latest
-            label: check:macos
-          - platform: windows
-            runner: windows-latest
-            label: check:windows
-
-    runs-on: ${{ matrix.runner }}
-    name: check (${{ matrix.platform }})
-
+      || contains(github.event.pull_request.labels.*.name, 'check:macos')
+    runs-on: macos-latest
+    name: check (macos)
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Restore cargo cache
         uses: actions/cache@v4
@@ -169,17 +156,17 @@ jobs:
             ~/.cargo/bin
             ~/.cargo/.crates.toml
             ~/.cargo/.crates2.json
-          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
-          restore-keys: cargo-${{ runner.os }}-
+          key: cargo-macOS-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-macOS-
 
       - name: Restore build output cache
         uses: actions/cache/restore@v4
         with:
           path: out
-          key: build-${{ runner.os }}-main-${{ github.run_id }}
+          key: build-macOS-main-${{ github.run_id }}
           restore-keys: |
-            build-${{ runner.os }}-main-
-            build-${{ runner.os }}-
+            build-macOS-main-
+            build-macOS-
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
@@ -187,19 +174,63 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v3
 
-      - name: Symlink node_modules (macOS)
-        if: matrix.platform == 'macos'
+      - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
-      - name: Build and test (macOS)
-        if: matrix.platform == 'macos'
+      - name: Build and test
         run: |
           just build
           just wheels
           just test
 
-      - name: Build and test (Windows)
-        if: matrix.platform == 'windows'
+      - name: Save build output cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: out
+          key: build-macOS-main-${{ github.run_id }}
+
+  # Runs on pushes to main or on PRs with the check:windows label.
+  check-windows:
+    if: >-
+      github.event_name == 'push'
+      || contains(github.event.pull_request.labels.*.name, 'check:windows')
+    runs-on: windows-latest
+    name: check (windows)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Restore cargo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            ~/.cargo/bin
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+          key: cargo-Windows-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-Windows-
+
+      - name: Restore build output cache
+        uses: actions/cache/restore@v4
+        with:
+          path: out
+          key: build-Windows-main-${{ github.run_id }}
+          restore-keys: |
+            build-Windows-main-
+            build-Windows-
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Install just
+        uses: extractions/setup-just@v3
+
+      - name: Build and test
         run: |
           just build
           just test
@@ -209,4 +240,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: out
-          key: build-${{ runner.os }}-main-${{ github.run_id }}
+          key: build-Windows-main-${{ github.run_id }}
