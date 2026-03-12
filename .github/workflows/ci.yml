@@ -1,7 +1,10 @@
 name: CI
 
 # TODO: Remove this before merging.
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 # TODO: Uncomment before merging
 # on:
@@ -9,6 +12,7 @@ on: [push, pull_request]
 #     branches: [main]
 #   pull_request:
 #     branches: [main]
+#     types: [opened, synchronize, reopened, labeled]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -62,28 +66,15 @@ jobs:
       - name: Run format checks
         run: just fmt
 
-  check:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: linux
-            runner: ubuntu-24.04
-          - platform: macos
-            runner: macos-latest
-          - platform: windows
-            runner: windows-latest
-
-    runs-on: ${{ matrix.runner }}
-    name: check (${{ matrix.platform }})
-
+  # Linux runs on every PR and push to main.
+  check-linux:
+    runs-on: ubuntu-24.04
+    name: check (linux)
     steps:
-      # Check out the PR head commit (not the merge ref) so that
-      # check:minilints can verify the commit author is in CONTRIBUTORS.
-      # The default merge ref author is GitHub, not the PR author.
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
       - name: Restore cargo cache
         uses: actions/cache@v4
         with:
@@ -97,16 +88,96 @@ jobs:
           key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: cargo-${{ runner.os }}-
 
-      # Fallback order for new PRs:
-      #   1. build-{OS}-main  (seed from latest main cache)
-      #   2. build-{OS}-      (any prior cache for this OS)
       - name: Restore build output cache
         uses: actions/cache/restore@v4
         with:
           path: out
-          key: build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
           restore-keys: |
-            build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}-
+            build-Linux-${{ github.event.pull_request.number || 'main' }}-
+            build-Linux-main-
+            build-Linux-
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Install just
+        uses: extractions/setup-just@v3
+
+      - name: Symlink node_modules
+        run: |
+          ln -sf out/node_modules .
+          rm -f out/build.ninja
+
+      - name: Build, lint, and test
+        env:
+          ONLINE_TESTS: "1"
+        run: |
+          just build
+          just lint
+          just test
+
+      - name: Ensure libs importable
+        env:
+          SKIP_RUN: "1"
+        run: ./run
+
+      - name: Check Rust dependencies
+        run: |
+          cargo install cargo-deny@0.19.0
+          cargo deny check
+
+      - name: Save build output cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: out
+          key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+
+  # macOS and Windows run on pushes to main and on PRs with the
+  # corresponding label (check:macos or check:windows).
+  check-other-platforms:
+    if: >-
+      github.event_name == 'push'
+      || contains(github.event.pull_request.labels.*.name, matrix.label)
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos
+            runner: macos-latest
+            label: check:macos
+          - platform: windows
+            runner: windows-latest
+            label: check:windows
+
+    runs-on: ${{ matrix.runner }}
+    name: check (${{ matrix.platform }})
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Restore cargo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            ~/.cargo/bin
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: Restore build output cache
+        uses: actions/cache/restore@v4
+        with:
+          path: out
+          key: build-${{ runner.os }}-main-${{ github.run_id }}
+          restore-keys: |
             build-${{ runner.os }}-main-
             build-${{ runner.os }}-
 
@@ -116,26 +187,9 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v3
 
-      - name: Symlink node_modules (Linux)
-        if: matrix.platform == 'linux'
-        run: |
-          ln -sf out/node_modules .
-          rm -f out/build.ninja
-
       - name: Symlink node_modules (macOS)
         if: matrix.platform == 'macos'
         run: ln -sf out/node_modules .
-
-      # Linting and type checking on Linux only (formatting is separate job).
-      # Tests run on all platforms to catch platform-specific issues.
-      - name: Build, lint, and test (Linux)
-        if: matrix.platform == 'linux'
-        env:
-          ONLINE_TESTS: "1"
-        run: |
-          just build
-          just lint
-          just test
 
       - name: Build and test (macOS)
         if: matrix.platform == 'macos'
@@ -150,21 +204,9 @@ jobs:
           just build
           just test
 
-      - name: Ensure libs importable (Linux)
-        if: matrix.platform == 'linux'
-        env:
-          SKIP_RUN: "1"
-        run: ./run
-
-      - name: Check Rust dependencies (Linux)
-        if: matrix.platform == 'linux'
-        run: |
-          cargo install cargo-deny@0.19.0
-          cargo deny check
-
       - name: Save build output cache
         if: always()
         uses: actions/cache/save@v4
         with:
           path: out
-          key: build-${{ runner.os }}-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          key: build-${{ runner.os }}-main-${{ github.run_id }}
