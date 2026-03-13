@@ -258,6 +258,10 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v3
 
+      - name: Copy node_modules
+        shell: bash
+        run: cp -r out/node_modules . 2>/dev/null || true
+
       - name: Build, lint, and test
         run: |
           just build
