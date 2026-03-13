@@ -212,21 +212,31 @@ jobs:
       || contains(github.event.pull_request.labels.*.name, 'check:windows')
     runs-on: windows-latest
     name: check (windows)
+    # Colocate CARGO_HOME and TEMP on D: to keep all I/O on the same fast
+    # local disk.
+    env:
+      CARGO_HOME: D:\cargo-home
+      TEMP: D:\tmp
+      TMP: D:\tmp
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      - name: Prepare D:\ directories
+        shell: bash
+        run: mkdir -p /d/cargo-home /d/tmp
+
       - name: Restore cargo cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git/db
-            ~/.cargo/bin
-            ~/.cargo/.crates.toml
-            ~/.cargo/.crates2.json
+            D:\cargo-home\registry\index
+            D:\cargo-home\registry\cache
+            D:\cargo-home\git\db
+            D:\cargo-home\bin
+            D:\cargo-home\.crates.toml
+            D:\cargo-home\.crates2.json
           key: cargo-Windows-${{ hashFiles('Cargo.lock') }}
           restore-keys: cargo-Windows-
 
