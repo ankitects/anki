@@ -89,6 +89,11 @@ runs:
       shell: bash
       run: echo "UV_BINARY=${{ steps.setup-uv.outputs.uv-path }}" >> "$GITHUB_ENV"
 
+    # Ensure cargo-installed tools like n2 are discoverable.
+    - name: Add CARGO_HOME/bin to PATH
+      shell: bash
+      run: echo "${CARGO_HOME:-$HOME/.cargo}/bin" >> "$GITHUB_PATH"
+
     - name: Install n2
       shell: bash
       run: |
