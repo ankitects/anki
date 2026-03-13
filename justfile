@@ -6,18 +6,11 @@ default:
 
 # Run all tests (Rust, Python, TypeScript)
 test:
-    {{ ninja }} check:rust_test check:pytest:pylib check:pytest:aqt check:vitest
+    {{ ninja }} check:rust_test check:pytest check:vitest
 
 # Run format checks only (fast, no build needed)
 fmt:
-    {{ ninja }} \
-        check:format:rust \
-        check:format:python:pylib \
-        check:format:python:qt \
-        check:format:python:tools \
-        check:format:dprint \
-        check:format:prettier \
-        check:format:sql
+    {{ ninja }} check:format
 
 # Run linting and type checking (requires build outputs)
 lint:
