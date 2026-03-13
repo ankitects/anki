@@ -100,11 +100,3 @@ runs:
         if ! command -v n2 &>/dev/null; then
           tools/install-n2
         fi
-
-    # Restore source file mtimes to their last-commit time so the n2
-    # build system can do incremental builds against the cached out/
-    # directory. Without this, a fresh clone sets every file's mtime
-    # to "now", making n2 think all targets are stale.
-    - name: Restore file timestamps
-      shell: bash
-      run: uvx git-restore-mtime --skip-missing
