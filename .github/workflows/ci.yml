@@ -268,7 +268,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          rm -rf out/pyenv
+          rm -rf out/pyenv out/node_modules
           rm -f out/build.ninja
 
       - name: Save build output cache
