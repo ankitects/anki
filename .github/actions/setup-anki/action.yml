@@ -105,6 +105,6 @@ runs:
     # build system can do incremental builds against the cached out/
     # directory. Without this, a fresh clone sets every file's mtime
     # to "now", making n2 think all targets are stale.
-    # Requires fetch-depth: 0 on the checkout step.
     - name: Restore file timestamps
-      uses: chetan/git-restore-mtime-action@v2
+      shell: bash
+      run: uvx git-restore-mtime --skip-missing
