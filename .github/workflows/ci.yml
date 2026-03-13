@@ -171,8 +171,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: out
-          key: build-macOS-main-${{ github.run_id }}
+          key: build-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
           restore-keys: |
+            build-macOS-${{ github.event.pull_request.number || 'main' }}-
             build-macOS-main-
             build-macOS-
 
@@ -204,7 +205,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: out
-          key: build-macOS-main-${{ github.run_id }}
+          key: build-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
   # Runs on pushes to main or on PRs with the check:windows label.
   check-windows:
@@ -245,8 +246,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: out
-          key: build-Windows-main-${{ github.run_id }}
+          key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
           restore-keys: |
+            build-Windows-${{ github.event.pull_request.number || 'main' }}-
             build-Windows-main-
             build-Windows-
 
@@ -275,4 +277,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: out
-          key: build-Windows-main-${{ github.run_id }}
+          key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
