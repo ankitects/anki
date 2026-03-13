@@ -151,9 +151,10 @@ Cargo, yarn and pip all cache downloads of dependencies in a shared cache that
 other builds on your system may use as well. If you wish to clear up those caches,
 they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`.
 
-If you invoke Rust outside of the build scripts (eg by running cargo, or
-with Rust Analyzer), output files will go into `target/` unless you have
-overriden the default output location.
+With previous versions, if you invoked Rust outside of the build scripts (e.g., by
+running cargo, or with Rust Analyzer), output files would go into `target/` unless
+you had overridden the default output location. If you are up-to-date with the
+current main branch, you may want to delete the `target/` folder.
 
 ## IDEs
 
