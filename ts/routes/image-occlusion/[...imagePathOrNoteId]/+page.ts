@@ -5,11 +5,11 @@ import { get } from "svelte/store";
 
 import { addOrUpdateNote } from "../add-or-update-note.svelte";
 import type { IOMode } from "../lib";
-import { hideAllGuessOne } from "../store";
+import { occlusionMode } from "../store";
 import type { PageLoad } from "./$types";
 
 async function save(): Promise<void> {
-    addOrUpdateNote(globalThis["anki"].imageOcclusion.mode, get(hideAllGuessOne));
+    addOrUpdateNote(globalThis["anki"].imageOcclusion.mode, get(occlusionMode));
 }
 
 export const load = (async ({ params }) => {
