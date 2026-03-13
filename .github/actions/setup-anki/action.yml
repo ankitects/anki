@@ -66,6 +66,7 @@ runs:
       uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
+        cache-python: true
         prune-cache: ${{ runner.os != 'Windows' }} # Windows file-locking breaks cache pruning
 
     # Set UV_CACHE_DIR so both setup-uv's binary and the build system's
