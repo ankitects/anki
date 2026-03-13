@@ -185,10 +185,11 @@ jobs:
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
-      - name: Build and test
+      - name: Build, lint, and test
         run: |
           just build
           just wheels
+          just lint
           just test
 
       - name: Clean non-cacheable state
@@ -256,8 +257,10 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Build and test
+      - name: Build, lint, and test
         run: |
           just build
+          just lint
           just test
 
       - name: Clean non-cacheable state
