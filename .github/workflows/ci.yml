@@ -258,7 +258,6 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v3
 
-      - name: Build and test
       - name: Build, lint, and test
         run: |
           just build
