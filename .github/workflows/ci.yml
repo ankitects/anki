@@ -22,8 +22,6 @@ jobs:
 
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          cache: false
 
       - name: Run minilints
         run: cargo run -p minilints -- check /tmp/minilints.stamp
@@ -39,8 +37,6 @@ jobs:
 
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          cache: false
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
