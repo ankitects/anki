@@ -1,18 +1,11 @@
 name: CI
 
-# TODO: Remove this before merging.
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
     types: [opened, synchronize, reopened, labeled]
-
-# TODO: Uncomment before merging
-# on:
-#   push:
-#     branches: [main]
-#   pull_request:
-#     branches: [main]
-#     types: [opened, synchronize, reopened, labeled]
 
 concurrency:
   group: ci-${{ github.ref }}
