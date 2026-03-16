@@ -35,6 +35,8 @@ jobs:
 
       - name: Run minilints
         run: cargo run -p minilints -- check /tmp/minilints.stamp
+        env:
+          CONTRIBUTORS_BYPASS_EMAILS: ${{ vars.CONTRIBUTORS_BYPASS_EMAILS }}
 
   # Lightweight formatting checks (no build outputs needed)
   format:

@@ -144,6 +144,13 @@ impl LintContext {
             std::process::exit(0);
         }
 
+        if let Ok(bypass) = std::env::var("CONTRIBUTORS_BYPASS_EMAILS") {
+            if bypass.split(',').any(|e| e.trim() == last_author) {
+                println!("Author allowlisted via CONTRIBUTORS_BYPASS_EMAILS.");
+                return Ok(());
+            }
+        }
+
         // Parse emails directly from the CONTRIBUTORS file instead of
         // relying on git history, which requires a full clone.
         let contents = fs::read_to_string("CONTRIBUTORS")?;
