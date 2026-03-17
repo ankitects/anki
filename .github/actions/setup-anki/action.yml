@@ -1,0 +1,102 @@
+name: Setup Anki Build Environment
+description: Install system dependencies, Rust toolchain, uv, and n2
+
+runs:
+  using: composite
+  steps:
+    - name: Install Linux system dependencies
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends \
+          autoconf \
+          bash \
+          curl \
+          findutils \
+          g++ \
+          gcc \
+          git \
+          grep \
+          libdbus-1-3 \
+          libegl1 \
+          libfontconfig1 \
+          libgl1 \
+          libgstreamer-gl1.0-0 \
+          libgstreamer-plugins-base1.0 \
+          libgstreamer1.0-0 \
+          libnss3 \
+          libpulse-mainloop-glib0 \
+          libssl-dev \
+          libxcomposite1 \
+          libxcursor1 \
+          libxdamage1 \
+          libxi6 \
+          libxkbcommon-x11-0 \
+          libxkbcommon0 \
+          libxkbfile1 \
+          libxrandr2 \
+          libxrender1 \
+          libxtst6 \
+          make \
+          pkg-config \
+          portaudio19-dev \
+          python3-dev \
+          rsync \
+          unzip \
+          zstd
+
+    - name: Install rsync (Windows)
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        /c/msys64/usr/bin/pacman.exe -Sy --noconfirm rsync
+        echo "C:\msys64\usr\bin" >> "$GITHUB_PATH"
+
+    # Reads toolchain version from rust-toolchain.toml automatically.
+    - name: Install Rust toolchain
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        components: clippy
+        cache: false # ci.yml manages its own cargo cache
+        rustflags: "" # don't inject -D warnings; the build system handles this
+
+    - name: Install uv
+      id: setup-uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+        cache-python: true
+        prune-cache: ${{ runner.os != 'Windows' }} # Windows file-locking breaks cache pruning
+
+    # Set UV_CACHE_DIR so both setup-uv's binary and the build system's
+    # downloaded uv share the same dependency cache for faster builds.
+    - name: Configure uv cache
+      shell: bash
+      run: |
+        CACHE_DIR="${{ steps.setup-uv.outputs.cache-dir }}"
+        if [ -n "$CACHE_DIR" ]; then
+          echo "UV_CACHE_DIR=$CACHE_DIR" >> "$GITHUB_ENV"
+        fi
+
+    # UV_BINARY tells the build system to use our uv instead of downloading
+    # its own (see build/ninja_gen/src/python.rs). Linux-only because on
+    # macOS ARM the launcher needs the downloaded archive to build a universal
+    # binary via lipo (see build/configure/src/launcher.rs).
+    # On macOS/Windows, the downloaded uv will still use the shared cache.
+    - name: Set UV_BINARY (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: echo "UV_BINARY=${{ steps.setup-uv.outputs.uv-path }}" >> "$GITHUB_ENV"
+
+    # Ensure cargo-installed tools like n2 are discoverable.
+    - name: Add CARGO_HOME/bin to PATH
+      shell: bash
+      run: echo "${CARGO_HOME:-$HOME/.cargo}/bin" >> "$GITHUB_PATH"
+
+    - name: Install n2
+      shell: bash
+      run: |
+        if ! command -v n2 &>/dev/null; then
+          tools/install-n2
+        fi
