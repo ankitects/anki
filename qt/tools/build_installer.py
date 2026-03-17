@@ -25,15 +25,6 @@ def normalize_wheel_path(out_dir: Path, path: str) -> str:
     return f"../{path}"
 
 
-def get_python_path() -> Path:
-    pyenv_dir = Path("out/pyenv")
-    if sys.platform == "win32":
-        python_path = pyenv_dir / "Scripts" / "python"
-    else:
-        python_path = pyenv_dir / "bin" / "python"
-    return python_path.absolute()
-
-
 ICON_SIZES = (16, 32, 48, 64, 128, 256, 512)
 
 
@@ -72,7 +63,7 @@ def main(aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
     subprocess.check_call(
         [
-            get_python_path(),
+            sys.executable,
             "-m",
             "briefcase",
             "package",
