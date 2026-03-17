@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import os
 import shutil
 import subprocess
 import sys
@@ -67,8 +68,18 @@ def main(aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     (out_dir / "CHANGELOG").write_text(
         "Please see https://apps.ankiweb.net/", encoding="utf-8"
     )
+    identity = os.environ.get("SIGN_IDENTITY")
+    identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
     subprocess.check_call(
-        [get_python_path(), "-m", "briefcase", "package", "--adhoc-sign"], cwd=out_dir
+        [
+            get_python_path(),
+            "-m",
+            "briefcase",
+            "package",
+            "--log",
+            *identity_args,
+        ],
+        cwd=out_dir,
     )
 
 
