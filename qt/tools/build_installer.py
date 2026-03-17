@@ -76,6 +76,7 @@ def main(aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
             "-m",
             "briefcase",
             "package",
+            "--log",
             *identity_args,
         ],
         cwd=out_dir,
