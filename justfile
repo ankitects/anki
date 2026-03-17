@@ -19,7 +19,8 @@ lint:
         check:mypy \
         check:ruff \
         check:eslint \
-        check:svelte
+        check:svelte \
+        check:typescript
 
 # Run minilints (copyright, contributors, licenses)
 minilints:
