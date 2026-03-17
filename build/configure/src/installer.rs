@@ -17,7 +17,7 @@ pub struct BuildInstaller {
 
 impl BuildAction for BuildInstaller {
     fn command(&self) -> &str {
-        "$pyenv_bin $script $version $aqt_wheel $anki_wheel $out"
+        "$pyenv_bin $script --version $version --aqt_wheel $aqt_wheel --anki_wheel $anki_wheel --out_dir $out"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {

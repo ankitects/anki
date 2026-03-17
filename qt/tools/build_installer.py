@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import argparse
 import os
 import shutil
 import subprocess
@@ -69,9 +70,19 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     )
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build the Briefcase installer.")
+    parser.add_argument("--version", help="Anki version")
+    parser.add_argument("--aqt_wheel", help="Path to the aqt wheel file")
+    parser.add_argument("--anki_wheel", help="Path to the anki wheel file")
+    parser.add_argument(
+        "--out_dir",
+        type=Path,
+        help="Output directory for the Briefcase app",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    version = sys.argv[1]
-    aqt_wheel = sys.argv[2]
-    anki_wheel = sys.argv[3]
-    out_dir = Path(sys.argv[4])
-    main(version, aqt_wheel, anki_wheel, out_dir)
+    args = parse_args()
+    main(args.version, args.aqt_wheel, args.anki_wheel, args.out_dir)
