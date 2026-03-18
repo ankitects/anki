@@ -44,13 +44,15 @@ pub fn build_installer(build: &mut Build) -> Result<()> {
             offline_build: false,
         },
     )?;
-    build.add_action(
-        "installer:universal_wheel",
-        BuildUniversalWheel {
-            name: "anki",
-            version: anki_version(),
-        },
-    )?;
+    if cfg!(target_os = "macos") {
+        build.add_action(
+            "installer:universal_wheel",
+            BuildUniversalWheel {
+                name: "anki",
+                version: anki_version(),
+            },
+        )?;
+    }
     build.add_action(
         "installer:dist",
         BuildInstaller {
