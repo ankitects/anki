@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import argparse
 import os
 import shutil
 import subprocess
@@ -15,23 +16,9 @@ app_dir = installer_dir / "app"
 env = jinja2.Environment(loader=jinja2.FileSystemLoader(app_dir))
 
 
-def read_version() -> str:
-    with open(".version", "r", encoding="utf-8") as f:
-        return f.read().strip()
-
-
 def normalize_wheel_path(out_dir: Path, path: str) -> str:
     path = Path(path).relative_to(out_dir.parent).as_posix()
     return f"../{path}"
-
-
-def get_python_path() -> Path:
-    pyenv_dir = Path("out/pyenv")
-    if sys.platform == "win32":
-        python_path = pyenv_dir / "Scripts" / "python"
-    else:
-        python_path = pyenv_dir / "bin" / "python"
-    return python_path.absolute()
 
 
 ICON_SIZES = (16, 32, 48, 64, 128, 256, 512)
@@ -49,7 +36,7 @@ def generate_scaled_icons(out_dir: Path) -> None:
             scaled.save(resources_dir / f"anki-{size}.png", "PNG")
 
 
-def main(aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
+def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
     anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
     win_template_path = (installer_dir / "windows-template").absolute().as_posix()
@@ -57,7 +44,7 @@ def main(aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     template = env.get_template("pyproject.toml.template").render(
         aqt_wheel=aqt_wheel,
         anki_wheel=anki_wheel,
-        version=read_version(),
+        version=version,
         template=template,
     )
     shutil.rmtree(out_dir, ignore_errors=True)
@@ -72,7 +59,7 @@ def main(aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
     subprocess.check_call(
         [
-            get_python_path(),
+            sys.executable,
             "-m",
             "briefcase",
             "package",
@@ -83,8 +70,19 @@ def main(aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     )
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build the Briefcase installer.")
+    parser.add_argument("--version", help="Anki version")
+    parser.add_argument("--aqt_wheel", help="Path to the aqt wheel file")
+    parser.add_argument("--anki_wheel", help="Path to the anki wheel file")
+    parser.add_argument(
+        "--out_dir",
+        type=Path,
+        help="Output directory for the Briefcase app",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    aqt_wheel = sys.argv[1]
-    anki_wheel = sys.argv[2]
-    out_dir = Path(sys.argv[3])
-    main(aqt_wheel, anki_wheel, out_dir)
+    args = parse_args()
+    main(args.version, args.aqt_wheel, args.anki_wheel, args.out_dir)

@@ -2,12 +2,39 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anyhow::Result;
-use ninja_gen::command::RunCommand;
+use ninja_gen::action::BuildAction;
+use ninja_gen::build::FilesHandle;
 use ninja_gen::git::SyncSubmodule;
 use ninja_gen::glob;
-use ninja_gen::hashmap;
 use ninja_gen::inputs;
 use ninja_gen::Build;
+
+use crate::anki_version;
+use crate::python::BuildUniversalWheel;
+
+pub struct BuildInstaller {
+    pub version: String,
+}
+
+impl BuildAction for BuildInstaller {
+    fn command(&self) -> &str {
+        "$pyenv_bin $script --version $version --aqt_wheel $aqt_wheel --anki_wheel $anki_wheel --out_dir $out"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
+        build.add_inputs("script", inputs!["qt/tools/build_installer.py"]);
+        build.add_variable("version", &self.version);
+        build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
+        if cfg!(target_os = "macos") {
+            build.add_inputs("anki_wheel", inputs![":installer:universal_wheel"]);
+        } else {
+            build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
+        }
+        build.add_inputs("", inputs![":installer:template", glob!["qt/installer/**"]]);
+        build.add_outputs("out", vec!["installer"]);
+    }
+}
 
 pub fn build_installer(build: &mut Build) -> Result<()> {
     build.add_action(
@@ -17,20 +44,19 @@ pub fn build_installer(build: &mut Build) -> Result<()> {
             offline_build: false,
         },
     )?;
+    if cfg!(target_os = "macos") {
+        build.add_action(
+            "installer:universal_wheel",
+            BuildUniversalWheel {
+                name: "anki",
+                version: anki_version(),
+            },
+        )?;
+    }
     build.add_action(
         "installer:dist",
-        RunCommand {
-            command: ":pyenv:bin",
-            args: "$script $aqt_wheel $anki_wheel $out",
-            inputs: hashmap! {
-                "script" => inputs!["qt/tools/build_installer.py"],
-                "aqt_wheel" => inputs![":wheels:aqt"],
-                "anki_wheel" => inputs![":wheels:anki"],
-                "" => inputs![":installer:template", glob!["qt/installer/**"]],
-            },
-            outputs: hashmap! {
-                "out" => vec!["installer"],
-            },
+        BuildInstaller {
+            version: anki_version(),
         },
     )?;
     Ok(())

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    ./tools/build-x64-mac
+fi
+
+RELEASE=2 ./ninja installer

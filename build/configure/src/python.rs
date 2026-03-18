@@ -154,7 +154,7 @@ impl BuildAction for BuildWheel {
                 Platform::WindowsX64 => "win_amd64",
                 Platform::WindowsArm => "win_arm64",
             };
-            format!("cp39-abi3-{platform_tag}")
+            format!("cp310-abi3-{platform_tag}")
         } else {
             "py3-none-any".into()
         };
@@ -168,6 +168,34 @@ impl BuildAction for BuildWheel {
         let normalized_version = normalize_version(&self.version);
 
         let wheel_path = format!("wheels/{name}-{normalized_version}-{tag}.whl");
+        build.add_outputs("out", vec![wheel_path]);
+    }
+}
+
+pub struct BuildUniversalWheel {
+    pub name: &'static str,
+    pub version: String,
+}
+
+impl BuildAction for BuildUniversalWheel {
+    fn command(&self) -> &str {
+        "$pyenv_bin $script --wheels $arm_wheel $x86_wheel --out_wheel $out"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        let name = self.name;
+        let normalized_version = normalize_version(&self.version);
+        build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
+        build.add_variable("script", "pylib/tools/build_universal_wheel.py");
+        build.add_inputs("arm_wheel", inputs![format!(":wheels:{name}")]);
+        build.add_inputs(
+            "x86_wheel",
+            inputs![format!(
+                "$builddir/wheels/{name}-{normalized_version}-cp310-abi3-macosx_12_0_x86_64.whl"
+            )],
+        );
+        let wheel_path =
+            format!("wheels/{name}-{normalized_version}-cp310-abi3-macosx_12_0_universal2.whl");
         build.add_outputs("out", vec![wheel_path]);
     }
 }
