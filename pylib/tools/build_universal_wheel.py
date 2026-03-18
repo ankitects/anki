@@ -8,7 +8,7 @@ from delocate.fuse import fuse_wheels
 
 
 def main(wheels: list[str], out_path: Path) -> None:
-    fuse_wheels(*wheels, out_path)
+    fuse_wheels(wheels[0], wheels[1], out_path)
 
 
 def parse_args() -> argparse.Namespace:
