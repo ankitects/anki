@@ -10,6 +10,7 @@ use ninja_gen::inputs;
 use ninja_gen::Build;
 
 use crate::anki_version;
+use crate::python::BuildUniversalWheel;
 
 pub struct BuildInstaller {
     pub version: String,
@@ -26,7 +27,7 @@ impl BuildAction for BuildInstaller {
         build.add_variable("version", &self.version);
         build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
         if cfg!(target_os = "macos") {
-            build.add_inputs("anki_wheel", inputs![":wheels:anki_mac_universal"]);
+            build.add_inputs("anki_wheel", inputs![":installer:universal_wheel"]);
         } else {
             build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
         }
@@ -41,6 +42,13 @@ pub fn build_installer(build: &mut Build) -> Result<()> {
         SyncSubmodule {
             path: "qt/installer/windows-template",
             offline_build: false,
+        },
+    )?;
+    build.add_action(
+        "installer:universal_wheel",
+        BuildUniversalWheel {
+            name: "anki",
+            version: anki_version(),
         },
     )?;
     build.add_action(
