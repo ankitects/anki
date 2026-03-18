@@ -25,7 +25,11 @@ impl BuildAction for BuildInstaller {
         build.add_inputs("script", inputs!["qt/tools/build_installer.py"]);
         build.add_variable("version", &self.version);
         build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
-        build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
+        if cfg!(target_os = "macos") {
+            build.add_inputs("anki_wheel", inputs![":wheels:anki_mac_universal"]);
+        } else {
+            build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
+        }
         build.add_inputs("", inputs![":installer:template", glob!["qt/installer/**"]]);
         build.add_outputs("out", vec!["installer"]);
     }

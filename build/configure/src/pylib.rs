@@ -15,6 +15,7 @@ use ninja_gen::Build;
 
 use crate::anki_version;
 use crate::platform::overriden_python_wheel_platform;
+use crate::python::BuildUniversalWheel;
 use crate::python::BuildWheel;
 use crate::python::GenPythonProto;
 
@@ -71,6 +72,13 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
                 "pylib/pyproject.toml",
                 "pylib/hatch_build.py"
             ],
+        },
+    )?;
+    build.add_action(
+        "wheels:anki_mac_universal",
+        BuildUniversalWheel {
+            name: "anki",
+            version: anki_version(),
         },
     )?;
     Ok(())

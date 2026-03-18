@@ -27,6 +27,7 @@ dev = [
   "briefcase>=0.4.0",
   "jinja2",
   "pillow",
+  "delocate>=0.13.0",
 ]
 
 [project.optional-dependencies]
