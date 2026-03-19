@@ -1,7 +1,7 @@
 [project]
 name = "aqt"
 dynamic = ["version"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "AGPL-3.0-or-later"
 dependencies = [
   "beautifulsoup4",
@@ -21,7 +21,8 @@ dependencies = [
 
 [project.optional-dependencies]
 audio = [
-  "anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'",
+  "anki-audio==0.1.0; sys.platform == 'win32' and platform_machine == 'x86_64' or sys.platform == 'darwin'",
+
 ]
 qt66 = [
   "pyqt6==6.6.1",
@@ -38,11 +39,11 @@ qt67 = [
   "pyqt6_sip==13.10.2",
 ]
 qt = [
-  "pyqt6==6.9.1",
-  "pyqt6-qt6==6.9.1",
-  "pyqt6-webengine==6.8.0",
-  "pyqt6-webengine-qt6==6.8.2",
-  "pyqt6_sip==13.10.2",
+  "pyqt6==6.10.2",
+  "pyqt6-qt6==6.10.2",
+  "pyqt6-webengine==6.10.0",
+  "pyqt6-webengine-qt6==6.10.0",
+  "pyqt6_sip==13.11.1",
 ]
 qt68 = [
   "pyqt6==6.8.0",
