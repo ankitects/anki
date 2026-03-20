@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import argparse
 import os
 import shutil
@@ -36,11 +38,21 @@ def generate_scaled_icons(out_dir: Path) -> None:
             scaled.save(resources_dir / f"anki-{size}.png", "PNG")
 
 
+def get_briefcase_template_path() -> Path | None:
+    if sys.platform == "win32":
+        return installer_dir / "windows-template"
+    elif sys.platform == "linux":
+        return installer_dir / "linux-template"
+    return None
+
+
 def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
     anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
-    win_template_path = (installer_dir / "windows-template").absolute().as_posix()
-    template = f'template = "{win_template_path}"' if sys.platform == "win32" else ""
+    template_path = get_briefcase_template_path()
+    if template_path:
+        template_path = template_path.absolute().as_posix()
+    template = f'template = "{template_path}"' if template_path else ""
     template = env.get_template("pyproject.toml.template").render(
         aqt_wheel=aqt_wheel,
         anki_wheel=anki_wheel,
