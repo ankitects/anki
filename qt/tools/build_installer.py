@@ -50,9 +50,9 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
     anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
     template_path = get_briefcase_template_path()
-    if template_path:
-        template_path = template_path.absolute().as_posix()
-    template = f'template = "{template_path}"' if template_path else ""
+    template = (
+        f'template = "{template_path.absolute().as_posix()}"' if template_path else ""
+    )
     template = env.get_template("pyproject.toml.template").render(
         aqt_wheel=aqt_wheel,
         anki_wheel=anki_wheel,
