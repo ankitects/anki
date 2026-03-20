@@ -12,7 +12,7 @@ author = "Damien Elmes"
 
 [tool.briefcase.app.anki]
 formal_name = "Anki"
-description = "A spaced repetition program"
+description = "An intelligent spaced-repetition learning system"
 long_description = """Anki is a flashcard program that helps you spend more time on challenging material, and less on what you already know."""
 sources = [
   "src/anki",
