@@ -158,7 +158,7 @@ jobs:
 
       - name: Build all
         # We use retries as the build fetches network resources and those may flake
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 90
           max_attempts: 3
