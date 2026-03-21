@@ -47,10 +47,7 @@ fn main() -> Result<()> {
     check_proto(build, inputs![glob!["proto/**/*.proto"]])?;
 
     if env::var("OFFLINE_BUILD").is_err() {
-        setup_uv(
-            build,
-            build.host_platform
-        )?;
+        setup_uv(build, build.host_platform)?;
     }
     setup_venv(build)?;
 
