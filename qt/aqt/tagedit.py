@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+from typing import cast
 
 from anki.collection import Collection
 from aqt import gui_hooks
@@ -140,7 +141,7 @@ class TagCompleter(QCompleter):
         matches = self.edit.col._backend.complete_tag(
             input=current_tag, match_limit=TAG_COMPLETIONS_LIMIT
         )
-        self.model().setStringList(list(matches))
+        cast(QStringListModel, self.model()).setStringList(list(matches))
         return [""]
 
     def pathFromIndex(self, idx: QModelIndex) -> str:
