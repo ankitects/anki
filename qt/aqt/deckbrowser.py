@@ -42,6 +42,7 @@ class RenderData:
     current_deck_id: DeckId
     studied_today: str
     sched_upgrade_required: bool
+    hide_parent_deck_new_review_counts: bool
 
 
 @dataclass
@@ -61,6 +62,18 @@ class DeckBrowserContent:
 @dataclass
 class RenderDeckNodeContext:
     current_deck_id: DeckId
+    hide_parent_deck_new_review_counts: bool
+
+
+def _deck_due_counts_for_display(
+    node: DeckTreeNode, hide_parent_deck_new_review_counts: bool
+) -> tuple[int | None, int | None, int | None]:
+    hide_parent_counts = hide_parent_deck_new_review_counts and bool(node.children)
+    return (
+        None if hide_parent_counts else node.new_count,
+        None if hide_parent_counts else node.learn_count,
+        None if hide_parent_counts else node.review_count,
+    )
 
 
 class DeckBrowser:
@@ -159,11 +172,13 @@ class DeckBrowser:
         if not reuse:
 
             def get_data(col: Collection) -> RenderData:
+                reviewing = col.get_preferences().reviewing
                 return RenderData(
                     tree=col.sched.deck_due_tree(),
                     current_deck_id=col.decks.get_current_id(),
                     studied_today=col.studied_today(),
                     sched_upgrade_required=not col.v3_scheduler(),
+                    hide_parent_deck_new_review_counts=reviewing.hide_parent_deck_new_review_counts,
                 )
 
             def success(output: RenderData) -> None:
@@ -223,7 +238,12 @@ class DeckBrowser:
         )
         buf += self._topLevelDragRow()
 
-        ctx = RenderDeckNodeContext(current_deck_id=self._render_data.current_deck_id)
+        ctx = RenderDeckNodeContext(
+            current_deck_id=self._render_data.current_deck_id,
+            hide_parent_deck_new_review_counts=(
+                self._render_data.hide_parent_deck_new_review_counts
+            ),
+        )
 
         for child in top.children:
             buf += self._render_deck_node(child, ctx)
@@ -276,16 +296,21 @@ class DeckBrowser:
         )
 
         # due counts
-        def nonzeroColour(cnt: int, klass: str) -> str:
+        def nonzeroColour(cnt: int | None, klass: str) -> str:
+            if cnt is None:
+                return ""
             if not cnt:
                 klass = "zero-count"
             return f'<span class="{klass}">{cnt}</span>'
 
-        review = nonzeroColour(node.review_count, "review-count")
-        learn = nonzeroColour(node.learn_count, "learn-count")
+        new_count, learn_count, review_count = _deck_due_counts_for_display(
+            node, ctx.hide_parent_deck_new_review_counts
+        )
+        review = nonzeroColour(review_count, "review-count")
+        learn = nonzeroColour(learn_count, "learn-count")
 
         buf += ("<td align=end>%s</td>" * 3) % (
-            nonzeroColour(node.new_count, "new-count"),
+            nonzeroColour(new_count, "new-count"),
             learn,
             review,
         )

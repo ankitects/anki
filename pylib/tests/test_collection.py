@@ -173,3 +173,16 @@ def test_db_named_args(capsys):
 
     # swallow the warning
     _ = capsys.readouterr()
+
+
+def test_reviewing_preferences_hide_parent_deck_new_review_counts():
+    col = getEmptyCol()
+
+    prefs = col.get_preferences()
+    assert prefs.reviewing.hide_parent_deck_new_review_counts is False
+
+    prefs.reviewing.hide_parent_deck_new_review_counts = True
+    col.set_preferences(prefs)
+
+    updated = col.get_preferences()
+    assert updated.reviewing.hide_parent_deck_new_review_counts is True

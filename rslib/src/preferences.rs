@@ -101,6 +101,8 @@ impl Collection {
             load_balancer_enabled: self.get_config_bool(BoolKey::LoadBalancerEnabled),
             fsrs_short_term_with_steps_enabled: self
                 .get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled),
+            hide_parent_deck_new_review_counts: self
+                .get_config_bool(BoolKey::HideParentDeckNewReviewCounts),
         })
     }
 
@@ -124,6 +126,10 @@ impl Collection {
         self.set_config_bool_inner(
             BoolKey::FsrsShortTermWithStepsEnabled,
             s.fsrs_short_term_with_steps_enabled,
+        )?;
+        self.set_config_bool_inner(
+            BoolKey::HideParentDeckNewReviewCounts,
+            s.hide_parent_deck_new_review_counts,
         )?;
         Ok(())
     }
