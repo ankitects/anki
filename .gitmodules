@@ -11,3 +11,8 @@
 	url = https://github.com/ankitects/briefcase-windows-app-template
 	branch = anki
 	shallow = true
+[submodule "briefcase-linux-template"]
+	path = qt/installer/linux-template
+	url = https://github.com/ankitects/briefcase-linux-system-template
+	branch = anki
+	shallow = true
