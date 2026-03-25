@@ -1,0 +1,232 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Release type"
+        required: true
+        type: choice
+        options:
+          - beta
+          - official
+      version:
+        description: "Version for official release (e.g. 25.10). Ignored for beta."
+        required: false
+        type: string
+      beta_number:
+        description: "Beta build number for same-day releases (default: 1)"
+        required: false
+        default: "1"
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      pep440_version: ${{ steps.compute.outputs.pep440_version }}
+      tag_name: ${{ steps.compute.outputs.tag_name }}
+      release_name: ${{ steps.compute.outputs.release_name }}
+      is_prerelease: ${{ steps.compute.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute versions and validate
+        id: compute
+        run: |
+          current_version=$(cat .version)
+          echo "Current .version: $current_version"
+
+          if [ "${{ inputs.release_type }}" = "official" ]; then
+            version="${{ inputs.version }}"
+            if [ -z "$version" ]; then
+              echo "::error::version input is required for official releases"
+              exit 1
+            fi
+
+            # Validate PEP 440 format (digits separated by dots)
+            if ! echo "$version" | grep -qE '^[0-9]+(\.[0-9]+)*$'; then
+              echo "::error::version '$version' is not valid PEP 440"
+              exit 1
+            fi
+
+            # Check version is greater than current
+            if python3 -c "
+          from packaging.version import Version
+          import sys
+          if Version('$version') <= Version('$current_version'):
+              print(f'::error::version $version must be greater than current $current_version')
+              sys.exit(1)
+          "; then
+              echo "Version check passed"
+            else
+              # Fall back to simple string comparison if packaging not available
+              echo "::warning::Could not use packaging library, skipping version comparison"
+            fi
+
+            pep440_version="$version"
+            tag_name="$version"
+            release_name="Anki $version"
+            is_prerelease="false"
+          else
+            beta_number="${{ inputs.beta_number }}"
+            if ! echo "$beta_number" | grep -qE '^[1-9][0-9]*$'; then
+              echo "::error::beta_number must be a positive integer, got '$beta_number'"
+              exit 1
+            fi
+
+            today=$(date -u +%Y%m%d)
+            today_dotted=$(date -u +%Y.%m.%d)
+            pep440_version="${current_version}.dev${today}"
+            tag_name="rc-${today_dotted}.${beta_number}"
+            release_name="Anki ${tag_name} (beta)"
+            is_prerelease="true"
+          fi
+
+          # Check for duplicate tag
+          if git rev-parse "refs/tags/${tag_name}" >/dev/null 2>&1; then
+            echo "::error::Tag '${tag_name}' already exists"
+            exit 1
+          fi
+
+          # Check for duplicate release
+          if gh release view "$tag_name" >/dev/null 2>&1; then
+            echo "::error::GitHub release '${tag_name}' already exists"
+            exit 1
+          fi
+
+          echo "pep440_version=${pep440_version}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
+          echo "release_name=${release_name}" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=${is_prerelease}" >> "$GITHUB_OUTPUT"
+
+          echo "Computed: pep440_version=$pep440_version tag=$tag_name release=$release_name prerelease=$is_prerelease"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  build-mac:
+    needs: prepare
+    runs-on: macos-14
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.92.0"
+          targets: x86_64-apple-darwin
+
+      - name: Write version
+        run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
+
+      - name: Build installer
+        run: ./tools/build-installer
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-macos
+          path: out/installer/dist/
+
+  build-windows:
+    needs: prepare
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.92.0"
+
+      - name: Write version
+        run: |
+          Set-Content -Path .version -Value '${{ needs.prepare.outputs.pep440_version }}' -NoNewline
+
+      - name: Build installer
+        run: tools\build-installer.bat
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-windows
+          path: out/installer/dist/
+
+  build-linux:
+    needs: prepare
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.92.0"
+
+      - name: Write version
+        run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
+
+      - name: Build installer
+        run: ./tools/build-installer
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-linux
+          path: out/installer/dist/
+
+  release:
+    needs: [prepare, build-mac, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Update version, commit, and tag (official)
+        if: inputs.release_type == 'official'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo '${{ needs.prepare.outputs.pep440_version }}' > .version
+          git add .version
+          git commit -m "Release ${{ needs.prepare.outputs.pep440_version }}"
+          git tag '${{ needs.prepare.outputs.tag_name }}'
+          git push origin HEAD '${{ needs.prepare.outputs.tag_name }}'
+
+      - name: Create and push tag (beta)
+        if: inputs.release_type == 'beta'
+        run: |
+          git tag '${{ needs.prepare.outputs.tag_name }}'
+          git push origin '${{ needs.prepare.outputs.tag_name }}'
+
+      - name: Create draft release
+        run: |
+          prerelease_flag=""
+          if [ "${{ needs.prepare.outputs.is_prerelease }}" = "true" ]; then
+            prerelease_flag="--prerelease"
+          fi
+
+          gh release create '${{ needs.prepare.outputs.tag_name }}' \
+            dist/* \
+            --draft \
+            --title '${{ needs.prepare.outputs.release_name }}' \
+            --generate-notes \
+            $prerelease_flag
+        env:
+          GH_TOKEN: ${{ github.token }}
