@@ -29,7 +29,7 @@ html_theme_options = {
 }
 
 autoapi_type = "python"
-autoapi_dirs = [str(ROOT / "pylib" / "anki")]
+autoapi_dirs = [str(ROOT / "pylib" / "anki"), str(ROOT / "qt" / "aqt")]
 autoapi_root = "autoapi"
 autoapi_keep_files = True
 autoapi_add_toctree_entry = False
