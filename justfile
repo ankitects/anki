@@ -38,5 +38,14 @@ wheels:
 check:
     {{ ninja }} pylib qt check
 
+# Build documentation site
+docs:
+    uv run --group docs sphinx-build -b html docs out/docs/html
+    @echo "Docs built at out/docs/html/index.html"
+
+# Build Rust API docs
+docs-rust:
+    cargo doc --open
+
 # Helper to get the right ninja command for the platform
 ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }
