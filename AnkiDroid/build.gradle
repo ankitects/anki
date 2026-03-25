@@ -110,6 +110,22 @@ android {
         testApplicationId = "com.ichi2.anki.tests"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = 'com.ichi2.testutils.NewCollectionPathTestRunner'
+
+        // GA4 Measurement Protocol api_secret. Sourced from `local.properties`
+        // (ANALYTICS_API_KEY) or the ANALYTICS_API_KEY env var; falls back to
+        // a dummy value so contributor builds still compile.
+        //
+        // The dummy key is rejected by GA's ingest, so analytics requests from
+        // unsigned/local builds go nowhere this means `setDevMode()` (100%
+        // sampling) has no observable effect on a build without the real key.
+        Properties properties = new Properties()
+        def localPropsFile = project.rootProject.file("local.properties")
+        if (localPropsFile.exists()) {
+            properties.load(localPropsFile.newDataInputStream())
+        }
+
+        def apiKey = properties.getProperty("ANALYTICS_API_KEY") ?: System.getenv("ANALYTICS_API_KEY") ?: "DUMMY_API_XXX"
+        buildConfigField "String", "ANALYTICS_API_KEY", "\"${apiKey}\""
     }
     signingConfigs {
         release {
