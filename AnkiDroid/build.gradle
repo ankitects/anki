@@ -409,6 +409,8 @@ dependencies {
     implementation project(":libanki")
     implementation project(":vbpd")
 
+    implementation(libs.google.analytics.kt)
+
     implementation libs.androidx.activity
     implementation libs.androidx.annotation
     implementation libs.androidx.appcompat

@@ -79,6 +79,8 @@ coroutines = '1.10.2'
 desugar-jdk-libs-nio = "2.1.5"
 drawer = "1.0.3"
 espresso = '3.7.0'
+# https://github.com/criticalAY/google-analytics-kt
+googleAnalyticsKt = "1.2.1"
 mikehardyGoogleAnalyticsJava7 = "2.0.13"
 hamcrest = "3.0"
 imageCropper = "4.7.0"
@@ -152,6 +154,7 @@ androidx-sqlite-framework = { module = "androidx.sqlite:sqlite-framework", versi
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidxRecyclerview" }
 auto-service = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
 auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoServiceAnnotations" }
+google-analytics-kt = { module = "io.github.criticalay:google-analytics-kt", version.ref = "googleAnalyticsKt" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
 skydoves-colorpickerview = { module = "com.github.skydoves:colorpickerview", version.ref = "colorPickerView" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
