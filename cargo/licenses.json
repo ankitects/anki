@@ -2664,6 +2664,14 @@
     "repository": "https://github.com/servo/rust-url/"
   },
   {
+    "authors": "Jeremy Salwen <jeremysalwen@gmail.com>",
+    "description": "Small utility for creating, manipulating, and applying permutations.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "permutation",
+    "repository": "https://github.com/jeremysalwen/rust-permutations"
+  },
+  {
     "authors": "bluss|mitchmindtree",
     "description": "Graph data structure library. Provides graph types and graph algorithms.",
     "license": "Apache-2.0 OR MIT",
