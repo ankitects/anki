@@ -74,7 +74,6 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
         anki_wheel=anki_wheel,
         version=version,
         template=template,
-        is_external=True,
     )
     shutil.rmtree(out_dir, ignore_errors=True)
     shutil.copytree(app_dir, out_dir)
