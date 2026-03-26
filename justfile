@@ -43,6 +43,10 @@ docs:
     uv run --group docs sphinx-build -b html docs out/docs/html
     @echo "Docs built at out/docs/html/index.html"
 
+# Build and serve documentation site
+docs-serve:
+    uv run --group docs sphinx-autobuild docs out/docs/html --host 0.0.0.0 --port 8000
+
 # Build Rust API docs
 docs-rust:
     cargo doc --open

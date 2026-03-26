@@ -30,6 +30,7 @@ docs = [
   "myst-parser",
   "sphinx-book-theme",
   "sphinx-autoapi",
+  "sphinx-autobuild>=2024.10.3",
 ]
 
 [tool.uv.workspace]
