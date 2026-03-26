@@ -30,6 +30,7 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,
+    windowed=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
@@ -44,4 +45,9 @@ coll = COLLECT(
     upx=True,
     upx_exclude=[],
     name='anki',
+)
+app = BUNDLE(coll,
+    name='Anki.app',
+    icon=None,
+    bundle_identifier=None,
 )
