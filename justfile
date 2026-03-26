@@ -65,7 +65,7 @@ docs:
 
 # Build and serve documentation site
 docs-serve:
-    uv run --group docs sphinx-autobuild docs out/docs/html --host 0.0.0.0 --port 8000
+    uv run --group docs sphinx-autobuild docs out/docs/html --host 127.0.0.1 --port 8000
 
 # Build Rust API docs
 docs-rust:
