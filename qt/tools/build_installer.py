@@ -73,6 +73,19 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
         [
             sys.executable,
             "-m",
+            "PyInstaller",
+            "-y",
+            out_dir / "pyinstaller.spec",
+            "--distpath",
+            out_dir / "pyinstaller/dist",
+            "--workpath",
+            out_dir / "pyinstaller/build",
+        ]
+    )
+    subprocess.check_call(
+        [
+            sys.executable,
+            "-m",
             "briefcase",
             "package",
             "--log",

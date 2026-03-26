@@ -28,6 +28,7 @@ dev = [
   "jinja2",
   "pillow",
   "delocate>=0.13.0",
+  "pyinstaller",
 ]
 
 [project.optional-dependencies]
