@@ -219,53 +219,7 @@ open class AnkiDroidApp :
 
         restoreRecurringAlarms(this)
 
-        registerActivityLifecycleCallbacks(
-            object : ActivityLifecycleCallbacks {
-                override fun onActivityCreated(
-                    activity: Activity,
-                    savedInstanceState: Bundle?,
-                ) {
-                    Timber.i(
-                        "${activity::class.simpleName}::onCreate, savedInstanceState: %s",
-                        savedInstanceState?.let { "${it.keySet().size} keys" },
-                    )
-                    (activity as? FragmentActivity)
-                        ?.supportFragmentManager
-                        ?.registerFragmentLifecycleCallbacks(
-                            FragmentLifecycleLogger(activity),
-                            true,
-                        )
-                }
-
-                override fun onActivityStarted(activity: Activity) {
-                    Timber.i("${activity::class.simpleName}::onStart")
-                }
-
-                override fun onActivityResumed(activity: Activity) {
-                    Timber.i("${activity::class.simpleName}::onResume")
-                }
-
-                override fun onActivityPaused(activity: Activity) {
-                    Timber.i("${activity::class.simpleName}::onPause")
-                }
-
-                override fun onActivityStopped(activity: Activity) {
-                    Timber.i("${activity::class.simpleName}::onStop")
-                }
-
-                override fun onActivitySaveInstanceState(
-                    activity: Activity,
-                    outState: Bundle,
-                ) {
-                    Timber.i("${activity::class.simpleName}::onSaveInstanceState")
-                }
-
-                override fun onActivityDestroyed(activity: Activity) {
-                    Timber.i("${activity::class.simpleName}::onDestroy")
-                }
-            },
-        )
-
+        setupLifecycleLogging()
         activityAgnosticDialogs = ActivityAgnosticDialogs.register(this)
         TtsVoices.launchBuildLocalesJob()
         // enable {{tts-voices:}} field filter
@@ -366,6 +320,56 @@ open class AnkiDroidApp :
             AnkiCardContextMenu.ensureConsistentStateWithPreferenceStatus(
                 this,
                 preferences.getBoolean(getString(R.string.anki_card_external_context_menu_key), true),
+            )
+        }
+
+    private fun setupLifecycleLogging() =
+        setup("setupLifecycleLogging") {
+            registerActivityLifecycleCallbacks(
+                object : ActivityLifecycleCallbacks {
+                    override fun onActivityCreated(
+                        activity: Activity,
+                        savedInstanceState: Bundle?,
+                    ) {
+                        Timber.i(
+                            "${activity::class.simpleName}::onCreate, savedInstanceState: %s",
+                            savedInstanceState?.let { "${it.keySet().size} keys" },
+                        )
+                        (activity as? FragmentActivity)
+                            ?.supportFragmentManager
+                            ?.registerFragmentLifecycleCallbacks(
+                                FragmentLifecycleLogger(activity),
+                                true,
+                            )
+                    }
+
+                    override fun onActivityStarted(activity: Activity) {
+                        Timber.i("${activity::class.simpleName}::onStart")
+                    }
+
+                    override fun onActivityResumed(activity: Activity) {
+                        Timber.i("${activity::class.simpleName}::onResume")
+                    }
+
+                    override fun onActivityPaused(activity: Activity) {
+                        Timber.i("${activity::class.simpleName}::onPause")
+                    }
+
+                    override fun onActivityStopped(activity: Activity) {
+                        Timber.i("${activity::class.simpleName}::onStop")
+                    }
+
+                    override fun onActivitySaveInstanceState(
+                        activity: Activity,
+                        outState: Bundle,
+                    ) {
+                        Timber.i("${activity::class.simpleName}::onSaveInstanceState")
+                    }
+
+                    override fun onActivityDestroyed(activity: Activity) {
+                        Timber.i("${activity::class.simpleName}::onDestroy")
+                    }
+                },
             )
         }
 
