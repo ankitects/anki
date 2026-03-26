@@ -1,6 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import pkgutil
+import os
+import sys
 from pathlib import Path
+
+# Include all standard library modules
+stdlib_path = os.path.dirname(os.__file__)
+stdlib_modules = []
+for _, modname, _ in pkgutil.walk_packages([stdlib_path]):
+    stdlib_modules.append(modname)
 
 root_dir = Path.cwd().absolute()
 
@@ -9,7 +18,7 @@ a = Analysis(
     pathex=[root_dir / 'out/pylib', root_dir / 'out/qt'],
     binaries=[],
     datas=[(root_dir / "out/qt/_aqt/data", "_aqt/data")],
-    hiddenimports=["anki.storage"],
+    hiddenimports=[*stdlib_modules, "anki.storage"],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
