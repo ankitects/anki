@@ -1,7 +1,5 @@
 # Anki Documentation
 
-## Prose
-
 ```{toctree}
 :maxdepth: 2
 
@@ -13,7 +11,7 @@ architecture
 protobuf
 ```
 
-## API
+## Auto-generated API References
 
 ```{toctree}
 :maxdepth: 2
