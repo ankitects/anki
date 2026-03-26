@@ -1,9 +1,14 @@
 # Anki Documentation
 
-```{toctree}
-:maxdepth: 2
+```{include} ../README.md
+```
 
-readme
+```{toctree}
+---
+maxdepth: 2
+hidden:
+---
+
 development
 build
 contributing
@@ -14,7 +19,10 @@ protobuf
 ## Auto-generated API References
 
 ```{toctree}
-:maxdepth: 2
+---
+maxdepth: 1
+hidden:
+---
 
 api-python
 api-rust

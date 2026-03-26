@@ -16,12 +16,11 @@ This repo contains the source code for the computer version of
 
 Want to contribute to Anki? Check out the [Contribution Guidelines](./docs/contributing.md).
 
+For more information on building and developing, please see [Development](./docs/development.md).
+
 #### Contributors
 The following people have contributed to Anki: [CONTRIBUTORS](./CONTRIBUTORS)
 
-### Developing
-
-For more information on building and developing, please see [Development](./docs/development.md).
 
 ### Anki Betas
 
