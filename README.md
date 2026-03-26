@@ -10,7 +10,6 @@ Anki is a spaced repetition program. Please see the [website](https://apps.ankiw
 This repo contains the source code for the computer version of
 [Anki](https://apps.ankiweb.net).
 
-
 ## Getting Started
 
 ### Contributing
@@ -20,14 +19,14 @@ Want to contribute to Anki? Check out the [Contribution Guidelines](./docs/contr
 For more information on building and developing, please see [Development](./docs/development.md).
 
 #### Contributors
-The following people have contributed to Anki: [CONTRIBUTORS](./CONTRIBUTORS)
 
+The following people have contributed to Anki: [CONTRIBUTORS](./CONTRIBUTORS)
 
 ### Anki Betas
 
 If you'd like to try development builds of Anki but don't feel comfortable
 building the code, please see [Anki betas](https://betas.ankiweb.net/)
 
-
 ## License
+
 Anki's license: [LICENSE](./LICENSE)

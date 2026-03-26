@@ -31,7 +31,6 @@ use rust::check_rust;
 use web::build_and_check_web;
 use web::check_sql;
 
-
 fn anki_version() -> String {
     std::fs::read_to_string(".version")
         .unwrap()
