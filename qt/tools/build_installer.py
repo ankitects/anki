@@ -77,11 +77,18 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
             "-y",
             out_dir / "pyinstaller.spec",
             "--distpath",
-            out_dir / "pyinstaller/dist",
+            out_dir / "pyinstaller" / "dist",
             "--workpath",
-            out_dir / "pyinstaller/build",
+            out_dir / "pyinstaller" / "build",
         ]
     )
+    if sys.platform == "linux":
+        pyinstaller_dist = out_dir / "pyinstaller" / "dist" / "anki"
+        share_path = pyinstaller_dist / "usr" / "local" / "share" / "anki"
+        share_path.mkdir(parents=True, exist_ok=True)
+        os.rename(pyinstaller_dist / "Anki", share_path / "anki")
+        shutil.move(pyinstaller_dist / "_internal", share_path)
+
     subprocess.check_call(
         [
             sys.executable,
