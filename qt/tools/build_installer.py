@@ -47,8 +47,10 @@ def get_briefcase_template_path() -> Path | None:
 
 
 def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
-    aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
-    anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
+    is_external = sys.platform == "linux"
+    if not is_external:
+        aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
+        anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
     template_path = get_briefcase_template_path()
     template = (
         f'template = "{template_path.absolute().as_posix()}"' if template_path else ""
@@ -58,7 +60,7 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
         anki_wheel=anki_wheel,
         version=version,
         template=template,
-        is_external=sys.platform == "linux",
+        is_external=is_external,
     )
     shutil.rmtree(out_dir, ignore_errors=True)
     shutil.copytree(app_dir, out_dir)
