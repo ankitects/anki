@@ -56,9 +56,9 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
                 "-y",
                 out_dir / "pyinstaller.spec",
                 "--distpath",
-                out_dir / "pyinstaller" / "dist",
+                out_dir / "dist",
                 "--workpath",
-                out_dir / "pyinstaller" / "build",
+                out_dir / "build",
             ]
         )
         return
