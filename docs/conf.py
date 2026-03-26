@@ -19,6 +19,10 @@ source_suffix = {
 
 myst_enable_extensions = ["colon_fence", "deflist"]
 html_theme = "sphinx_book_theme"
+html_logo = "_static/logo.png"
+html_favicon = "_static/favicon.svg"
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 html_theme_options = {
     "repository_url": "https://github.com/ankitects/anki",
     "use_repository_button": True,
@@ -26,6 +30,9 @@ html_theme_options = {
     "use_edit_page_button": True,
     "path_to_docs": "docs",
     "repository_branch": "main",
+    "logo": {
+        "text": "Anki",
+    },
 }
 
 autoapi_type = "python"
