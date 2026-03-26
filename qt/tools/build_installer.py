@@ -47,32 +47,6 @@ def get_briefcase_template_path() -> Path | None:
 
 
 def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
-    is_external = sys.platform == "linux"
-    if not is_external:
-        aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
-        anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
-    template_path = get_briefcase_template_path()
-    template = (
-        f'template = "{template_path.absolute().as_posix()}"' if template_path else ""
-    )
-    template = env.get_template("pyproject.toml.template").render(
-        aqt_wheel=aqt_wheel,
-        anki_wheel=anki_wheel,
-        version=version,
-        template=template,
-        is_external=is_external,
-    )
-    shutil.rmtree(out_dir, ignore_errors=True)
-    shutil.copytree(app_dir, out_dir)
-    generate_scaled_icons(out_dir)
-    (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
-    shutil.copy("LICENSE", out_dir / "LICENSE")
-    (out_dir / "CHANGELOG").write_text(
-        "Please see https://apps.ankiweb.net/", encoding="utf-8"
-    )
-    identity = os.environ.get("SIGN_IDENTITY")
-    identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
-
     if sys.platform == "linux":
         subprocess.check_call(
             [
@@ -87,12 +61,31 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
                 out_dir / "pyinstaller" / "build",
             ]
         )
-        pyinstaller_dist = out_dir / "pyinstaller" / "dist" / "anki"
-        share_path = pyinstaller_dist / "usr" / "local" / "share" / "anki"
-        share_path.mkdir(parents=True, exist_ok=True)
-        os.rename(pyinstaller_dist / "Anki", share_path / "anki")
-        shutil.move(pyinstaller_dist / "_internal", share_path)
+        return
 
+    aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
+    anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
+    template_path = get_briefcase_template_path()
+    template = (
+        f'template = "{template_path.absolute().as_posix()}"' if template_path else ""
+    )
+    template = env.get_template("pyproject.toml.template").render(
+        aqt_wheel=aqt_wheel,
+        anki_wheel=anki_wheel,
+        version=version,
+        template=template,
+        is_external=True,
+    )
+    shutil.rmtree(out_dir, ignore_errors=True)
+    shutil.copytree(app_dir, out_dir)
+    generate_scaled_icons(out_dir)
+    (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
+    shutil.copy("LICENSE", out_dir / "LICENSE")
+    (out_dir / "CHANGELOG").write_text(
+        "Please see https://apps.ankiweb.net/", encoding="utf-8"
+    )
+    identity = os.environ.get("SIGN_IDENTITY")
+    identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
     subprocess.check_call(
         [
             sys.executable,
