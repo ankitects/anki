@@ -1,5 +1,3 @@
-# Anki Documentation
-
 ```{include} ../README.md
 ```
 
