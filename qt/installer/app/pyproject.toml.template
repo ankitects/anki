@@ -14,20 +14,23 @@ author = "Damien Elmes"
 formal_name = "Anki"
 description = "An intelligent spaced-repetition learning system"
 long_description = """Anki is a flashcard program that helps you spend more time on challenging material, and less on what you already know."""
-#sources = [
-#  "src/anki",
-#]
+{% if not is_external %}
+sources = [
+  "src/anki",
+]
+{% endif %}
 icon = "resources/anki"
 console_app = false
 use_full_install_path = false
-#requires = ["{{ aqt_wheel }}[qt,audio]", "{{ anki_wheel }}"]
+{% if not is_external %}
+requires = ["{{ aqt_wheel }}[qt,audio]", "{{ anki_wheel }}"]
+{% endif %}
 {{ template }}
 
 permission.microphone = "The microphone will only be used when you tap the record button."
 permission.camera = "Add-ons may access your camera."
 
 [tool.briefcase.app.anki.macOS]
-external_package_path = "pyinstaller/dist/Anki.app"
 universal_build = true
 min_os_version = "12.0"
 entitlement."com.apple.security.cs.disable-executable-page-protection" = true
@@ -114,7 +117,6 @@ flatpak_runtime_version = "25.08"
 flatpak_sdk = "org.freedesktop.Sdk"
 
 [tool.briefcase.app.anki.windows]
-external_package_path = "pyinstaller/dist/anki"
 
 [tool.briefcase.app.anki.iOS]
 supported = false

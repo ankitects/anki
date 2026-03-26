@@ -55,8 +55,3 @@ coll = COLLECT(
     upx_exclude=[],
     name='anki',
 )
-app = BUNDLE(coll,
-    name='Anki.app',
-    icon=None,
-    bundle_identifier=None,
-)

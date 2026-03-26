@@ -58,6 +58,7 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
         anki_wheel=anki_wheel,
         version=version,
         template=template,
+        is_external=sys.platform == "linux",
     )
     shutil.rmtree(out_dir, ignore_errors=True)
     shutil.copytree(app_dir, out_dir)
@@ -69,20 +70,21 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     )
     identity = os.environ.get("SIGN_IDENTITY")
     identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
-    subprocess.check_call(
-        [
-            sys.executable,
-            "-m",
-            "PyInstaller",
-            "-y",
-            out_dir / "pyinstaller.spec",
-            "--distpath",
-            out_dir / "pyinstaller" / "dist",
-            "--workpath",
-            out_dir / "pyinstaller" / "build",
-        ]
-    )
+
     if sys.platform == "linux":
+        subprocess.check_call(
+            [
+                sys.executable,
+                "-m",
+                "PyInstaller",
+                "-y",
+                out_dir / "pyinstaller.spec",
+                "--distpath",
+                out_dir / "pyinstaller" / "dist",
+                "--workpath",
+                out_dir / "pyinstaller" / "build",
+            ]
+        )
         pyinstaller_dist = out_dir / "pyinstaller" / "dist" / "anki"
         share_path = pyinstaller_dist / "usr" / "local" / "share" / "anki"
         share_path.mkdir(parents=True, exist_ok=True)
