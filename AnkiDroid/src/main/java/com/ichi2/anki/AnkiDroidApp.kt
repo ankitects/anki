@@ -142,9 +142,6 @@ open class AnkiDroidApp :
         }
         instance = this
 
-        // Get preferences
-        val preferences = this.sharedPrefs()
-
         // Ensures any change is propagated to widgets
         ChangeManager.subscribe(this)
 
@@ -190,17 +187,7 @@ open class AnkiDroidApp :
 
         setWebContentsDebuggingEnabled(Prefs.isWebDebugEnabled)
 
-        CardBrowserContextMenu.ensureConsistentStateWithPreferenceStatus(
-            this,
-            preferences.getBoolean(
-                getString(R.string.card_browser_external_context_menu_key),
-                false,
-            ),
-        )
-        AnkiCardContextMenu.ensureConsistentStateWithPreferenceStatus(
-            this,
-            preferences.getBoolean(getString(R.string.anki_card_external_context_menu_key), true),
-        )
+        setupContextMenus()
         setupNotificationChannels(applicationContext)
 
         makeBackendUsable(this)
@@ -353,6 +340,34 @@ open class AnkiDroidApp :
             }
         }
     }
+
+    /**
+     * Sets up display of the context menus which appear when long pressing text on external apps,
+     * allowing it to be shared to this app.
+     *
+     * Example: 'Anki Card'
+     *
+     * @see Intent.ACTION_PROCESS_TEXT
+     */
+    private fun setupContextMenus() =
+        setup("setupContextMenus") {
+            val preferences = this.sharedPrefs()
+
+            // setup 'Card Browser'
+            CardBrowserContextMenu.ensureConsistentStateWithPreferenceStatus(
+                this,
+                preferences.getBoolean(
+                    getString(R.string.card_browser_external_context_menu_key),
+                    false,
+                ),
+            )
+
+            // Setup 'Anki Card'
+            AnkiCardContextMenu.ensureConsistentStateWithPreferenceStatus(
+                this,
+                preferences.getBoolean(getString(R.string.anki_card_external_context_menu_key), true),
+            )
+        }
 
     /**
      * @return the app version, OS version and device model, provided when syncing.
