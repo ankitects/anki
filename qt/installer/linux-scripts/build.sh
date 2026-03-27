@@ -24,5 +24,6 @@ TRANSFORM="s%^.%anki-$ANKI_VERSION-linux%S"
 TARBALL="$OUTPUT_DIR/anki-$ANKI_VERSION-linux-$HOST_ARCH.tar.zst"
 
 tar -I "$ZSTD" --transform "$TRANSFORM" -cf "$TARBALL" -C "$BUILD_DIR" .
+rm -rf "$BUILD_DIR"
 
 echo $TARBALL
