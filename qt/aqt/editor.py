@@ -501,6 +501,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             collapsed = collapsed_string == "true"
             self.setTagsCollapsed(collapsed)
 
+        elif cmd.startswith("setTagDisplayFull"):
+            (type, value) = cmd.split(":", 1)
+            self.mw.col.set_config("tagDisplayFull", value == "true")
+
         elif cmd.startswith("editorState"):
             (_, new_state_id, old_state_id) = cmd.split(":", 2)
             self.signal_state_change(
@@ -607,6 +611,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setMathjaxEnabled({json.dumps(self.mw.col.get_config("renderMathjax", True))});
             setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
+            setTagDisplayFull({json.dumps(self.mw.col.get_config("tagDisplayFull", False))});
             triggerChanges();
             """
 
