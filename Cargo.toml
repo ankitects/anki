@@ -127,7 +127,7 @@ sha2 = { version = "0.10.9" }
 snafu = { version = "0.8.6", features = ["rust_1_61"] }
 strum = { version = "0.27.1", features = ["derive"] }
 syn = { version = "2.0.103", features = ["parsing", "printing"] }
-tar = "0.4.44"
+tar = "0.4.45"
 tempfile = "3.20.0"
 termcolor = "1.4.1"
 tokio = { version = "1.45", features = ["fs", "rt-multi-thread", "macros", "signal"] }
