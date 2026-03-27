@@ -4,6 +4,10 @@ authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
 edition = "2021"
 license = "AGPL-3.0-or-later"
 rust-version = "1.80"
+repository = "https://github.com/ankitects/anki"
+homepage = "https://apps.ankiweb.net"
+documentation = "https://docs.rs/anki"
+readme = "README.md"
 
 [workspace]
 members = [
@@ -39,12 +43,12 @@ version = "5.2.0"
 
 [workspace.dependencies]
 # local
-anki = { path = "rslib" }
-anki_i18n = { path = "rslib/i18n" }
-anki_io = { path = "rslib/io" }
-anki_process = { path = "rslib/process" }
-anki_proto = { path = "rslib/proto" }
-anki_proto_gen = { path = "rslib/proto_gen" }
+anki = { path = "rslib", version = "0.0.0" }
+anki_i18n = { path = "rslib/i18n", version = "0.0.0" }
+anki_io = { path = "rslib/io", version = "0.0.0" }
+anki_process = { path = "rslib/process", version = "0.0.0" }
+anki_proto = { path = "rslib/proto", version = "0.0.0" }
+anki_proto_gen = { path = "rslib/proto_gen", version = "0.0.0" }
 ninja_gen = { "path" = "build/ninja_gen" }
 
 # pinned
