@@ -25,12 +25,18 @@ impl BuildAction for BuildInstaller {
         build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
         build.add_inputs("script", inputs!["qt/tools/build_installer.py"]);
         build.add_variable("version", &self.version);
-        build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
+        if cfg!(target_os = "linux") {
+            build.add_variable("aqt_wheel", "_");
+        } else {
+            build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
+        };
         if cfg!(target_os = "macos") {
             build.add_inputs("anki_wheel", inputs![":installer:universal_wheel"]);
+        } else if cfg!(target_os = "linux") {
+            build.add_variable("anki_wheel", "_");
         } else {
             build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
-        }
+        };
         build.add_inputs("", inputs![":installer:template", glob!["qt/installer/**"]]);
         build.add_outputs("out", vec!["installer"]);
     }
@@ -41,13 +47,6 @@ pub fn build_installer(build: &mut Build) -> Result<()> {
         "installer:template:win",
         SyncSubmodule {
             path: "qt/installer/windows-template",
-            offline_build: false,
-        },
-    )?;
-    build.add_action(
-        "installer:template:linux",
-        SyncSubmodule {
-            path: "qt/installer/linux-template",
             offline_build: false,
         },
     )?;

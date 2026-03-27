@@ -41,12 +41,29 @@ def generate_scaled_icons(out_dir: Path) -> None:
 def get_briefcase_template_path() -> Path | None:
     if sys.platform == "win32":
         return installer_dir / "windows-template"
-    elif sys.platform == "linux":
-        return installer_dir / "linux-template"
     return None
 
 
 def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
+    shutil.rmtree(out_dir, ignore_errors=True)
+    shutil.copytree(app_dir, out_dir)
+
+    if sys.platform == "linux":
+        subprocess.check_call(
+            [
+                sys.executable,
+                "-m",
+                "PyInstaller",
+                "-y",
+                out_dir / "pyinstaller.spec",
+                "--distpath",
+                out_dir / "dist",
+                "--workpath",
+                out_dir / "build",
+            ]
+        )
+        return
+
     aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
     anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
     template_path = get_briefcase_template_path()
@@ -59,8 +76,6 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
         version=version,
         template=template,
     )
-    shutil.rmtree(out_dir, ignore_errors=True)
-    shutil.copytree(app_dir, out_dir)
     generate_scaled_icons(out_dir)
     (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
     shutil.copy("LICENSE", out_dir / "LICENSE")
