@@ -62,6 +62,22 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
                 out_dir / "build",
             ]
         )
+        dist_dir = out_dir / "dist" / "anki"
+        scripts_dir = installer_dir / "linux-scripts"
+        for file in scripts_dir.iterdir():
+            if file.name == "build.sh":
+                continue
+            dest_file = dist_dir / file.name
+            shutil.copy2(file, dest_file)
+        subprocess.check_call(
+            [
+                "bash",
+                (scripts_dir / "build.sh").absolute().as_posix(),
+                version,
+                dist_dir.absolute().as_posix(),
+            ],
+            cwd=out_dir,
+        )
         return
 
     aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)

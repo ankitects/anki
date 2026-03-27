@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=Anki
+Comment=An intelligent spaced-repetition memory training program
+GenericName=Flashcards
+Exec=anki %f
+TryExec=anki
+Icon=anki
+Categories=Education;Languages;KDE;Qt;
+Terminal=false
+Type=Application
+Version=1.0
+MimeType=application/x-apkg;application/x-anki;application/x-ankiaddon;
+#should be removed eventually as it was upstreamed as to be an XDG specification called SingleMainWindow
+X-GNOME-SingleWindow=true
+SingleMainWindow=true
+StartupWMClass=anki
