@@ -90,7 +90,7 @@ url = "https://docs.ankiweb.net/exporting.html#collection-colpkg"
 macOS.CFBundleTypeRole = "Editor"
 
 [tool.briefcase.app.anki.document_type.ankiaddon]
-description = "Anki add-on"
+description = "Anki add-on package"
 extension = "ankiaddon"
 icon = "resources/anki"
 mime_type = "application/x-ankiaddon"
