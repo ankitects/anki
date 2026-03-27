@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import enum
 import logging
 import mimetypes
@@ -16,6 +17,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
+from typing import Generic
 
 import flask
 import flask_cors
@@ -637,6 +639,26 @@ def save_custom_colours() -> bytes:
     return b""
 
 
+AsyncRequestReturnType = TypeVar("AsyncRequestReturnType")
+
+
+class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
+    def __init__(self, callback: Callable[[AsyncRequestHandler], None]) -> None:
+        self.callback = callback
+        self.loop = asyncio.get_running_loop()
+        self.future = self.loop.create_future()
+
+    async def run(self) -> AsyncRequestReturnType:
+        aqt.mw.taskman.run_on_main(lambda: self.callback(self))
+        return await self.future
+
+    def set_result(self, result: AsyncRequestReturnType) -> None:
+        self.loop.call_soon_threadsafe(self.future.set_result, result)
+
+    async def get_result(self) -> AsyncRequestReturnType:
+        return await self.future
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -726,7 +748,13 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
         # convert bytes/None into response
         def wrapped() -> Response:
             try:
-                if data := handler():
+                import inspect
+
+                if inspect.iscoroutinefunction(handler):
+                    data = asyncio.run(handler())
+                else:
+                    data = handler()
+                if data:
                     response = flask.make_response(data)
                     response.headers["Content-Type"] = "application/binary"
                 else:
