@@ -383,6 +383,10 @@ deck-config-which-deck = Which deck would you like to display options for?
 
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
 deck-config-invalid-parameters = The provided FSRS parameters are invalid. Leave them blank to use the default values.
+deck-config-placeholder-parameters = 
+    Default parameters
+    (Press "{deck-config-optimize-button}" periodically to allow FSRS to better adjust to your memory)
+deck-config-manual-parameter-edit-warning = The parameters should only be modified using the optimize button. Manually editing them is heavily advised against.
 deck-config-not-enough-history = Insufficient review history to perform this operation.
 deck-config-must-have-400-reviews =
     { $count ->

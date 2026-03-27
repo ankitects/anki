@@ -29,17 +29,12 @@ impl UndoableOp {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Default)]
 enum UndoMode {
+    #[default]
     NormalOp,
     Undoing,
     Redoing,
-}
-
-impl Default for UndoMode {
-    fn default() -> Self {
-        Self::NormalOp
-    }
 }
 
 pub struct UndoStatus {
