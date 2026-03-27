@@ -69,6 +69,8 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
                 continue
             dest_file = dist_dir / file.name
             shutil.copy2(file, dest_file)
+
+        print("Building zip...", file=sys.stderr)
         subprocess.check_call(
             [
                 "bash",
