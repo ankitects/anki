@@ -5,6 +5,7 @@ mod adding;
 mod ankidroid;
 mod ankihub;
 mod ankiweb;
+mod api;
 mod card_rendering;
 mod collection;
 mod config;
@@ -15,6 +16,7 @@ mod import_export;
 mod ops;
 mod sync;
 
+use std::collections::HashMap;
 use std::ops::Deref;
 use std::result;
 use std::sync::Arc;
@@ -27,14 +29,17 @@ use prost::Message;
 use reqwest::Client;
 use tokio::runtime;
 use tokio::runtime::Runtime;
+use tokio::sync::oneshot::Receiver;
+use tokio::sync::oneshot::Sender;
 
+use crate::api::services::FrontendRequest;
+use crate::api::services::PendingFrontendRequest;
 use crate::backend::dbproxy::db_command_bytes;
 use crate::backend::sync::SyncState;
 use crate::prelude::*;
 use crate::progress::Progress;
 use crate::progress::ProgressState;
 use crate::progress::ThrottlingProgressHandler;
-
 #[derive(Clone)]
 #[repr(transparent)]
 pub struct Backend(Arc<BackendInner>);
@@ -58,11 +63,14 @@ pub struct BackendInner {
     backup_task: Mutex<Option<JoinHandle<Result<()>>>>,
     media_sync_task: Mutex<Option<JoinHandle<Result<()>>>>,
     web_client: Mutex<Option<Client>>,
+    pub(crate) api_routes: Arc<Mutex<Vec<String>>>,
+    pub(crate) pending_api_requests: Arc<Mutex<HashMap<u64, PendingFrontendRequest>>>,
 }
 
-#[derive(Default)]
 struct BackendState {
     sync: SyncState,
+    api_server_shutdown_sender: Option<Sender<()>>,
+    api_server_shutdown_receiver: Option<Receiver<()>>,
 }
 
 pub fn init_backend(init_msg: &[u8]) -> result::Result<Backend, String> {
@@ -89,10 +97,16 @@ impl Backend {
                 last_progress: None,
             })),
             runtime: OnceLock::new(),
-            state: Mutex::new(BackendState::default()),
+            state: Mutex::new(BackendState {
+                sync: SyncState::default(),
+                api_server_shutdown_sender: None,
+                api_server_shutdown_receiver: None,
+            }),
             backup_task: Mutex::new(None),
             media_sync_task: Mutex::new(None),
             web_client: Mutex::new(None),
+            api_routes: Arc::new(Mutex::new(vec!["foo".to_string()])),
+            pending_api_requests: Arc::new(Mutex::new(HashMap::new())),
         }))
     }
 
@@ -191,5 +205,52 @@ impl Backend {
         &self,
     ) -> ThrottlingProgressHandler<P> {
         ThrottlingProgressHandler::new(self.progress_state.clone())
+    }
+
+    pub fn set_api_server_running(&self) {
+        let (api_shutdown_sender, api_shutdown_receiver) = tokio::sync::oneshot::channel();
+        let mut guard = self.state.lock().unwrap();
+        guard.api_server_shutdown_sender = Some(api_shutdown_sender);
+        guard.api_server_shutdown_receiver = Some(api_shutdown_receiver);
+    }
+
+    pub fn shutdown_api_server(&self) -> Result<(), String> {
+        if let Some(sender) = self.state.lock().unwrap().api_server_shutdown_sender.take() {
+            sender
+                .send(())
+                .map_err(|_| "Failed to set shut down API server")?;
+        }
+        Ok(())
+    }
+
+    pub async fn wait_for_api_server_shutdown(&self) {
+        let receiver_option = {
+            let mut guard = self.state.lock().unwrap();
+            guard.api_server_shutdown_receiver.take()
+        };
+        if let Some(receiver) = receiver_option {
+            receiver.await.unwrap();
+        }
+    }
+
+    pub fn is_api_server_running(&self) -> bool {
+        self.state
+            .lock()
+            .unwrap()
+            .api_server_shutdown_sender
+            .is_some()
+    }
+
+    pub fn register_api_route(&self, route: String) {
+        self.api_routes.lock().unwrap().push(route);
+    }
+
+    pub fn get_pending_api_requests(&self) -> HashMap<u64, FrontendRequest> {
+        self.pending_api_requests
+            .lock()
+            .unwrap()
+            .iter_mut()
+            .filter_map(|(id, req)| req.0.take().map(|r| (*id, r)))
+            .collect()
     }
 }

@@ -9,6 +9,7 @@ use anki_proto::config::Preferences;
 
 use crate::collection::Collection;
 use crate::config::BoolKey;
+use crate::config::I32ConfigKey;
 use crate::config::StringKey;
 use crate::error::Result;
 use crate::prelude::*;
@@ -137,6 +138,8 @@ impl Collection {
             default_search_text: self.get_config_string(StringKey::DefaultSearchText),
             ignore_accents_in_search: self.get_config_bool(BoolKey::IgnoreAccentsInSearch),
             render_latex: self.get_config_bool(BoolKey::RenderLatex),
+            api_host: self.get_config_string(StringKey::ApiServerHost),
+            api_port: self.get_config_i32(I32ConfigKey::ApiServerPort),
         })
     }
 
@@ -151,6 +154,9 @@ impl Collection {
         self.set_config_string_inner(StringKey::DefaultSearchText, &s.default_search_text)?;
         self.set_config_bool_inner(BoolKey::IgnoreAccentsInSearch, s.ignore_accents_in_search)?;
         self.set_config_bool_inner(BoolKey::RenderLatex, s.render_latex)?;
+        self.set_config_string_inner(StringKey::ApiServerHost, &s.api_host)?;
+        self.set_config_i32_inner(I32ConfigKey::ApiServerPort, s.api_port)?;
+
         Ok(())
     }
 }

@@ -94,6 +94,12 @@ preferences-url-scheme-warning = Blocked attempt to open `{ $link }`, which may 
 preferences-url-scheme-allow-once = Allow Once
 preferences-url-scheme-always-allow = Always Allow
 
+
+## Related to external API access
+preferences-api-access = API Access
+preferences-api-host = Host
+preferences-api-port = Port
+
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 preferences-basic = Basic
