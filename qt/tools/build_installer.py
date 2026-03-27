@@ -45,6 +45,9 @@ def get_briefcase_template_path() -> Path | None:
 
 
 def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
+    shutil.rmtree(out_dir, ignore_errors=True)
+    shutil.copytree(app_dir, out_dir)
+
     if sys.platform == "linux":
         subprocess.check_call(
             [
@@ -73,8 +76,6 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
         version=version,
         template=template,
     )
-    shutil.rmtree(out_dir, ignore_errors=True)
-    shutil.copytree(app_dir, out_dir)
     generate_scaled_icons(out_dir)
     (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
     shutil.copy("LICENSE", out_dir / "LICENSE")
