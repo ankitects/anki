@@ -32,7 +32,7 @@ cat > pyproject.toml << EOF
 name = "anki-release"
 version = "$VERSION"
 description = "A package to lock Anki's dependencies"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
   "anki==$VERSION",
   "aqt==$VERSION",

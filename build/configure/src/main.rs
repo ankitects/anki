@@ -20,7 +20,6 @@ use ninja_gen::protobuf::check_proto;
 use ninja_gen::protobuf::setup_protoc;
 use ninja_gen::python::setup_uv;
 use ninja_gen::Build;
-use platform::overriden_python_venv_platform;
 use pylib::build_pylib;
 use pylib::check_pylib;
 use python::check_python;
@@ -48,10 +47,7 @@ fn main() -> Result<()> {
     check_proto(build, inputs![glob!["proto/**/*.proto"]])?;
 
     if env::var("OFFLINE_BUILD").is_err() {
-        setup_uv(
-            build,
-            overriden_python_venv_platform().unwrap_or(build.host_platform),
-        )?;
+        setup_uv(build, build.host_platform)?;
     }
     setup_venv(build)?;
 
