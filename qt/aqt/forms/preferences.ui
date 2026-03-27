@@ -462,6 +462,19 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="new_reviewer">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>preferences_use_new_reviewer</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="url_schemes">
               <property name="text">
                <string>preferences_url_schemes</string>
