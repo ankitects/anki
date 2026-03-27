@@ -348,6 +348,7 @@ mod test {
     use crate::media::files::sha1_of_data;
     use crate::media::MediaManager;
     use crate::sync::media::database::client::MediaEntry;
+    use crate::sync::media::MAX_MEDIA_FILES_IN_ZIP;
 
     #[test]
     fn database() -> Result<()> {
@@ -376,7 +377,10 @@ mod test {
             ctx.set_entry(&entry)?;
             assert_eq!(ctx.get_entry("test.mp3")?.unwrap(), entry);
 
-            assert_eq!(ctx.get_pending_uploads(25)?, vec![entry]);
+            assert_eq!(
+                ctx.get_pending_uploads(MAX_MEDIA_FILES_IN_ZIP as u32)?,
+                vec![entry]
+            );
 
             let mut meta = ctx.get_meta()?;
             assert_eq!(meta.folder_mtime, 0);
