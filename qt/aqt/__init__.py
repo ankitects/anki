@@ -17,10 +17,12 @@ if "ANKI_FIRST_RUN" in os.environ:
     first_run_setup()
 
 try:
-    import pip_system_certs.wrapt_requests
+    import truststore
+
+    truststore.inject_into_ssl()
 except ModuleNotFoundError:
     print(
-        "Python module pip_system_certs is not installed. System certificate store and custom SSL certificates may not work. See: https://github.com/ankitects/anki/issues/3016"
+        "Python module truststore is not installed. System certificate store and custom SSL certificates may not work. See: https://github.com/ankitects/anki/issues/3016"
     )
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:

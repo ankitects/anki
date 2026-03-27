@@ -1,7 +1,7 @@
 [project]
 name = "aqt"
 dynamic = ["version"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "AGPL-3.0-or-later"
 dependencies = [
   "beautifulsoup4",
@@ -13,7 +13,7 @@ dependencies = [
   "waitress>=2.0.0",
   "pywin32; sys.platform == 'win32'",
   "anki-mac-helper>=0.1.1; sys.platform == 'darwin'",
-  "pip-system-certs!=5.1",
+  "truststore>=0.10.4",
   "pyqt6>=6.2",
   "pyqt6-webengine>=6.2",
   # anki dependency is added dynamically in hatch_build.py with exact version
