@@ -423,6 +423,19 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="hideParentDeckNewReviewCounts">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>preferences_hide_new_and_review_counts_on_parent_decks</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="showEstimates">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1281,6 +1294,7 @@
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
   <tabstop>showProgress</tabstop>
+  <tabstop>hideParentDeckNewReviewCounts</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>spacebar_rates_card</tabstop>
   <tabstop>render_latex</tabstop>
