@@ -421,6 +421,34 @@ class AnkiWebView(QWebEngineView):
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
 
+        if is_mac and evt.type() == QEvent.Type.ShortcutOverride:
+            if isinstance(evt, QKeyEvent):
+                from aqt import mw
+
+                if mw is not None:
+                    mods = evt.modifiers()
+                    key = evt.key()
+                    if (
+                        mods == Qt.KeyboardModifier.ControlModifier
+                        and key == Qt.Key.Key_Z
+                        and mw.form.actionUndo.isEnabled()
+                    ):
+                        evt.accept()
+                        mw.undo()
+                        return True
+                    if (
+                        mods
+                        == (
+                            Qt.KeyboardModifier.ControlModifier
+                            | Qt.KeyboardModifier.ShiftModifier
+                        )
+                        and key == Qt.Key.Key_Z
+                        and mw.form.actionRedo.isEnabled()
+                    ):
+                        evt.accept()
+                        mw.redo()
+                        return True
+
         if (
             isinstance(evt, QMouseEvent)
             and evt.type() == QEvent.Type.MouseButtonRelease
