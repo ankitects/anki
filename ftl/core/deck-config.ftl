@@ -472,7 +472,7 @@ deck-config-compute-optimal-weights-tooltip2 =
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-workload-factor-change = Approximate workload: {$factor}x
     (compared to {$previousDR}% desired retention)
-deck-config-workload-factor-unchanged = The higher this value, the more frequently cards will be shown to you.
+deck-config-workload-factor-unchanged = The higher your desired retention, the more frequently cards will be shown to you.
 deck-config-desired-retention-too-low = Your desired retention is very low, which can lead to very long intervals.
 deck-config-desired-retention-too-high = Your desired retention is very high, which can lead to very short intervals.
 
