@@ -69,6 +69,12 @@ message GetImageOcclusionNoteResponse {
     uint32 ordinal = 2;
   }
 
+  enum OcclusionMode {
+    HIDE_ONE = 0;
+    HIDE_ALL = 1;
+    HIDE_ALL_BUT_ONE = 2;
+  }
+
   message ImageOcclusionNote {
     bytes image_data = 1;
     repeated ImageOcclusion occlusions = 2;
@@ -76,7 +82,7 @@ message GetImageOcclusionNoteResponse {
     string back_extra = 4;
     repeated string tags = 5;
     string image_file_name = 6;
-    bool occlude_inactive = 7;
+    OcclusionMode occlusion_mode = 7;
   }
 
   oneof value {
