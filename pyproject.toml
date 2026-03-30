@@ -2,7 +2,7 @@
 name = "anki-dev"
 version = "0.0.0"
 description = "Local-only environment"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = ["Private :: Do Not Upload"]
 
 [dependency-groups]

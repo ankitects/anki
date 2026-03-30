@@ -76,6 +76,14 @@ fn setup_directories(output_dir: &Path, launcher_exe_dir: &Path, nsis_dir: &Path
     Ok(())
 }
 
+const fn get_arch_triple() -> &'static str {
+    if cfg!(target_arch = "aarch64") {
+        "aarch64-pc-windows-msvc"
+    } else {
+        "x86_64-pc-windows-msvc"
+    }
+}
+
 fn build_launcher_binary() -> Result<()> {
     println!("Building launcher binary...");
 
@@ -88,7 +96,7 @@ fn build_launcher_binary() -> Result<()> {
             "launcher",
             "--release",
             "--target",
-            "x86_64-pc-windows-msvc",
+            get_arch_triple(),
         ])
         .ensure_success()?;
 
@@ -116,16 +124,16 @@ fn extract_nsis_plugins() -> Result<()> {
 
 fn copy_files(output_dir: &Path) -> Result<()> {
     println!("Copying binaries...");
-
+    let platform = get_arch_triple();
     // Copy launcher binary as anki.exe
     let launcher_src =
-        PathBuf::from(CARGO_TARGET_DIR).join("x86_64-pc-windows-msvc/release/launcher.exe");
+        PathBuf::from(CARGO_TARGET_DIR).join(format!("{platform}/release/launcher.exe"));
     let launcher_dst = output_dir.join("anki.exe");
     copy_file(&launcher_src, &launcher_dst)?;
 
     // Copy anki-console binary
     let console_src =
-        PathBuf::from(CARGO_TARGET_DIR).join("x86_64-pc-windows-msvc/release/anki-console.exe");
+        PathBuf::from(CARGO_TARGET_DIR).join(format!("{platform}/release/anki-console.exe"));
     let console_dst = output_dir.join("anki-console.exe");
     copy_file(&console_src, &console_dst)?;
 
