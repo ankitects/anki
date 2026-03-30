@@ -15,18 +15,16 @@ cargo doc --open
 - **anki** (`rslib/`) — core library
   - crates.io: https://crates.io/crates/anki
   - docs.rs: https://docs.rs/anki/
-- **anki_io** (`rslib/io/`) — I/O utilities
-  - crates.io: https://crates.io/crates/anki_io
-  - docs.rs: https://docs.rs/anki_io/
 
 ## Supporting crates (published as dependencies)
 
 The `anki` crate depends on additional workspace crates.
 
-When publishing to crates.io, a crate **cannot depend on your monorepo via local `path` dependencies**, because consumers downloading `anki` from crates.io will not have your repository checkout. As part of packaging, Cargo removes the `path = ...` parts and expects dependencies to be resolved from the registry by name + version.
-
 Because of that, these supporting crates need to be published as well (typically before publishing `anki`).
 
+- **anki_io** (`rslib/io/`) — I/O utilities
+  - crates.io: https://crates.io/crates/anki_io
+  - docs.rs: https://docs.rs/anki_io/
 - **anki_i18n** (`rslib/i18n/`) — i18n support
   - crates.io: https://crates.io/crates/anki_i18n
   - docs.rs: https://docs.rs/anki_i18n/
@@ -36,4 +34,3 @@ Because of that, these supporting crates need to be published as well (typically
 - **anki_proto_gen** (`rslib/proto_gen/`) — codegen helpers used at build time
   - crates.io: https://crates.io/crates/anki_proto_gen
   - docs.rs: https://docs.rs/anki_proto_gen/
-
