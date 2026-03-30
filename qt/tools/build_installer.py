@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import argparse
 import os
 import shutil
@@ -36,19 +38,44 @@ def generate_scaled_icons(out_dir: Path) -> None:
             scaled.save(resources_dir / f"anki-{size}.png", "PNG")
 
 
+def get_briefcase_template_path() -> Path | None:
+    if sys.platform == "win32":
+        return installer_dir / "windows-template"
+    return None
+
+
 def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
+    shutil.rmtree(out_dir, ignore_errors=True)
+    shutil.copytree(app_dir, out_dir)
+
+    if sys.platform == "linux":
+        subprocess.check_call(
+            [
+                sys.executable,
+                "-m",
+                "PyInstaller",
+                "-y",
+                out_dir / "pyinstaller.spec",
+                "--distpath",
+                out_dir / "dist",
+                "--workpath",
+                out_dir / "build",
+            ]
+        )
+        return
+
     aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
     anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
-    win_template_path = (installer_dir / "windows-template").absolute().as_posix()
-    template = f'template = "{win_template_path}"' if sys.platform == "win32" else ""
+    template_path = get_briefcase_template_path()
+    template = (
+        f'template = "{template_path.absolute().as_posix()}"' if template_path else ""
+    )
     template = env.get_template("pyproject.toml.template").render(
         aqt_wheel=aqt_wheel,
         anki_wheel=anki_wheel,
         version=version,
         template=template,
     )
-    shutil.rmtree(out_dir, ignore_errors=True)
-    shutil.copytree(app_dir, out_dir)
     generate_scaled_icons(out_dir)
     (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
     shutil.copy("LICENSE", out_dir / "LICENSE")

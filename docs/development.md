@@ -190,12 +190,24 @@ in the collection2.log file will also be printed on stdout.
 
 If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 
-# Installer/launcher
+## Installer/launcher
+
+### Briefcase/PyInstaller installer
+
+Run `tools/build-installer` to build the installer.
+
+Depending on your operating system, this produces a file under `out/installer/dist`:
+
+- An MSI installer on Windows.
+- A .dmg file on macOS.
+- A tarball on Linux.
+
+### UV-based launcher
 
 - The anki-release package is created/published with the scripts in qt/release.
 - The installer/launcher is created with the build scripts in qt/launcher/{platform}.
 
-## Building
+#### Building
 
 The steps to build the launcher vary slightly depending on your operating
 system. First, you have to navigate to the appropriate folder:
@@ -220,12 +232,12 @@ cd ./qt/launcher/lin/
 ./build.sh
 ```
 
-## Issues During Building
+#### Issues During Building
 
 If you are experiencing issues building the launcher, make sure that all dependencies
 are installed. See [Building from source](#building-from-source) for more info.
 
-## Running
+#### Running
 
 Once the launcher is built, you can find the executable under `out/launcher`
 (located in the project root). In that folder, you will find the binary file of
