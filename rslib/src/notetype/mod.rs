@@ -911,7 +911,6 @@ mod test {
             "{{#Text}}{{cloze:Text}}{{/Text}}",
         );
         nt_cloze.templates[0].ord = Some(0);
-        
         nt_cloze.templates[0].config.q_format_browser =
             "{{^Text}}{{cloze:Text}}{{/Text}}".to_owned();
         nt_cloze.templates[0].config.a_format_browser =
