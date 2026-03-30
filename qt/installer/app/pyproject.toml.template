@@ -34,19 +34,6 @@ entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
 entitlement."com.apple.security.device.audio-input" = true
 
 [tool.briefcase.app.anki.linux]
-requires = [
-
-
-  # Add your Linux-specific app requirements here
-]
-
-[tool.briefcase.app.anki.linux.system.debian]
-system_requires = [
-
-
-  # Add any system packages needed at build the app here
-]
-
 system_runtime_requires = [
   "libdbus-1-3",
   "libfontconfig1",
@@ -72,56 +59,10 @@ system_runtime_requires = [
   "libxtst6"
 ]
 
-[tool.briefcase.app.anki.linux.system.rhel]
-system_requires = [
-
-
-  # Add any system packages needed at build the app here
-]
-
-system_runtime_requires = [
-
-
-  # Add any system packages needed at runtime here
-]
-
-[tool.briefcase.app.anki.linux.system.suse]
-system_requires = [
-
-
-  # Add any system packages needed at build the app here
-]
-
-system_runtime_requires = [
-
-
-  # Add any system packages needed at runtime here
-]
-
-[tool.briefcase.app.anki.linux.system.arch]
-system_requires = [
-
-
-  # Add any system packages needed at build the app here
-]
-
-system_runtime_requires = [
-
-
-  # Add any system packages needed at runtime here
-]
-
 [tool.briefcase.app.anki.linux.flatpak]
-flatpak_runtime = "org.freedesktop.Platform"
-flatpak_runtime_version = "25.08"
-flatpak_sdk = "org.freedesktop.Sdk"
+supported = false
 
 [tool.briefcase.app.anki.windows]
-requires = [
-
-
-  # Add your Windows-specific app requirements here
-]
 
 [tool.briefcase.app.anki.iOS]
 supported = false
@@ -149,7 +90,7 @@ url = "https://docs.ankiweb.net/exporting.html#collection-colpkg"
 macOS.CFBundleTypeRole = "Editor"
 
 [tool.briefcase.app.anki.document_type.ankiaddon]
-description = "Anki add-on"
+description = "Anki add-on package"
 extension = "ankiaddon"
 icon = "resources/anki"
 mime_type = "application/x-ankiaddon"
