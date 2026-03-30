@@ -1,7 +1,7 @@
 name: Publish Rust crates
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # TODO: change this once we have a way to publish crates automatically
     inputs:
       dry_run:
         description: "Run cargo publish --dry-run only"
