@@ -1,7 +1,12 @@
 # Anki
 
-[![CI Status](https://github.com/ankitects/anki/actions/workflows/ci.yml/badge.svg)](https://github.com/ankitects/anki/actions/workflows/ci.yml)
+[![Build Status](https://github.com/ankitects/anki/actions/workflows/ci.yml/badge.svg)](https://github.com/ankitects/anki/actions/workflows/ci.yml)
 [![Documentation](https://img.shields.io/badge/docs-dev--docs.ankiweb.net-blue)](https://dev-docs.ankiweb.net)
+
+This repo contains the source code for the computer version of
+[Anki](https://apps.ankiweb.net).
+
+# About
 
 Anki is a spaced repetition program. Please see the [website](https://apps.ankiweb.net) to learn more.
 
