@@ -230,7 +230,6 @@
     <string name="pref_corrupt_fsrs_params">debug_corrupt_fsrs_params</string>
     <string name="new_congrats_screen_pref_key">new_congrats_screen</string>
     <string name="new_reviewer_options_key">newReviewerOptions</string>
-    <string name="pref_browser_find_replace">browserFindReplace</string>
     <string name="pref_new_review_reminders">newReviewReminders</string>
     <string name="developer_options_enabled_by_user_key">devOptionsEnabledByUser</string>
     <string name="pref_cat_wip_key">workInProgressDevOptions</string>

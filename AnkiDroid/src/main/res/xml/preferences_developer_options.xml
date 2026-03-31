@@ -112,11 +112,6 @@
             android:key="@string/dev_card_browser_search_view"
             android:defaultValue="false"/>
         <SwitchPreferenceCompat
-            android:title="Find and replace in browser"
-            android:summary="Caution, this can be very destructive for your collection!"
-            android:key="@string/pref_browser_find_replace"
-            android:defaultValue="false"/>
-        <SwitchPreferenceCompat
             android:title="Enable new notifications"
             android:key="@string/pref_new_review_reminders"
             android:defaultValue="false"/>

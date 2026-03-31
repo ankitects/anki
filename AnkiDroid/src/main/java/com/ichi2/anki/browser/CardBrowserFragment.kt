@@ -416,6 +416,8 @@ class CardBrowserFragment :
                     Timber.d("onCreateMenu()")
                     menuInflater.inflate(R.menu.card_browser, menu)
                     menu.findItem(R.id.action_search_by_flag).subMenu?.setupFlags()
+                    // note: this menu item is available with and without a selection of items
+                    menu.findItem(R.id.action_find_replace)?.title = TR.sentenceCase.findAndReplace
 
                     if (!useSearchView) {
                         searchItem = menu.findItem(R.id.action_search)
@@ -562,6 +564,10 @@ class CardBrowserFragment :
                             showFilteredDeckScreen()
                             return true
                         }
+                        R.id.action_find_replace -> {
+                            showFindAndReplaceDialog()
+                            return true
+                        }
                     }
 
                     return false
@@ -594,11 +600,8 @@ class CardBrowserFragment :
                     menu.findItem(R.id.action_reschedule_cards).title = TR.sentenceCase.setDueDate
                     menu.findItem(R.id.action_grade_now).title = TR.sentenceCase.gradeNow
 
-                    val isFindReplaceEnabled = sharedPrefs().getBoolean(getString(R.string.pref_browser_find_replace), false)
-                    menu.findItem(R.id.action_find_replace).apply {
-                        isVisible = isFindReplaceEnabled
-                        title = TR.browsingFindAndReplace().toSentenceCase(R.string.sentence_find_and_replace)
-                    }
+                    // note: this menu item is available with and without a selection of items
+                    menu.findItem(R.id.action_find_replace)?.title = TR.sentenceCase.findAndReplace
 
                     menu.findItem(R.id.action_undo).setupUndo()
 

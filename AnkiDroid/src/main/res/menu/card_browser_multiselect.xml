@@ -86,8 +86,9 @@
 
     <item
         android:id="@+id/action_find_replace"
-        android:visible="false"
-        app:showAsAction="never"/>
+        app:showAsAction="never"
+        tools:title="Find and replace"
+        />
 
     <!-- Delete should be last, if undo is not visible -->
     <item

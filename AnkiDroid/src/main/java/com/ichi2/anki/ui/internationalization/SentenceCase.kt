@@ -127,6 +127,9 @@ object SentenceCase {
 
     context(_: Fragment)
     val toggleSuspend get() = TR.browsingToggleSuspend().toSentenceCase(R.string.sentence_toggle_suspend)
+
+    context(_: Fragment)
+    val findAndReplace get() = TR.browsingFindAndReplace().toSentenceCase(R.string.sentence_find_and_replace)
 }
 
 /**
