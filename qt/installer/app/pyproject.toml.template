@@ -34,75 +34,35 @@ entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
 entitlement."com.apple.security.device.audio-input" = true
 
 [tool.briefcase.app.anki.linux]
-requires = [
-
-
-  # Add your Linux-specific app requirements here
-]
-
-[tool.briefcase.app.anki.linux.system.debian]
-system_requires = [
-
-
-  # Add any system packages needed at build the app here
-]
-
 system_runtime_requires = [
-
-
-  # Add any system packages needed at runtime here
-]
-
-[tool.briefcase.app.anki.linux.system.rhel]
-system_requires = [
-
-
-  # Add any system packages needed at build the app here
-]
-
-system_runtime_requires = [
-
-
-  # Add any system packages needed at runtime here
-]
-
-[tool.briefcase.app.anki.linux.system.suse]
-system_requires = [
-
-
-  # Add any system packages needed at build the app here
-]
-
-system_runtime_requires = [
-
-
-  # Add any system packages needed at runtime here
-]
-
-[tool.briefcase.app.anki.linux.system.arch]
-system_requires = [
-
-
-  # Add any system packages needed at build the app here
-]
-
-system_runtime_requires = [
-
-
-  # Add any system packages needed at runtime here
+  "libdbus-1-3",
+  "libfontconfig1",
+  "libfreetype6",
+  "libgl1",
+  "libglib2.0-0",
+  "libnss3",
+  "libxcb-icccm4",
+  "libxcb-image0",
+  "libxcb-keysyms1",
+  "libxcb-randr0",
+  "libxcb-render-util0",
+  "libxcb-shape0",
+  "libxcb-xinerama0",
+  "libxcb-xkb1",
+  "libxcomposite1",
+  "libxcursor1",
+  "libxi6",
+  "libxkbcommon0",
+  "libxkbcommon-x11-0",
+  "libxrandr2",
+  "libxrender1",
+  "libxtst6"
 ]
 
 [tool.briefcase.app.anki.linux.flatpak]
-flatpak_runtime = "org.freedesktop.Platform"
-flatpak_runtime_version = "25.08"
-flatpak_sdk = "org.freedesktop.Sdk"
+supported = false
 
 [tool.briefcase.app.anki.windows]
-requires = [
-
-
-  # Add your Windows-specific app requirements here
-]
 
 [tool.briefcase.app.anki.iOS]
 supported = false
@@ -130,7 +90,7 @@ url = "https://docs.ankiweb.net/exporting.html#collection-colpkg"
 macOS.CFBundleTypeRole = "Editor"
 
 [tool.briefcase.app.anki.document_type.ankiaddon]
-description = "Anki add-on"
+description = "Anki add-on package"
 extension = "ankiaddon"
 icon = "resources/anki"
 mime_type = "application/x-ankiaddon"

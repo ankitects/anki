@@ -1,6 +1,6 @@
 # Anki®
 
-[![Build status](https://github.com/ankitects/anki/actions/workflows/ci.yml/badge.svg)
+![Build status](https://github.com/ankitects/anki/actions/workflows/ci.yml/badge.svg)
 
 This repo contains the source code for the computer version of
 [Anki](https://apps.ankiweb.net).

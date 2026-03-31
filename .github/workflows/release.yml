@@ -43,6 +43,7 @@ jobs:
       - name: Compute versions and validate
         id: compute
         run: |
+          pip install packaging
           current_version=$(cat .version)
           echo "Current .version: $current_version"
 
@@ -60,18 +61,14 @@ jobs:
             fi
 
             # Check version is greater than current
-            if python3 -c "
+            python3 -c "
           from packaging.version import Version
           import sys
           if Version('$version') <= Version('$current_version'):
               print(f'::error::version $version must be greater than current $current_version')
               sys.exit(1)
-          "; then
-              echo "Version check passed"
-            else
-              # Fall back to simple string comparison if packaging not available
-              echo "::warning::Could not use packaging library, skipping version comparison"
-            fi
+          "
+            echo "Version check passed"
 
             pep440_version="$version"
             tag_name="$version"
@@ -122,10 +119,8 @@ jobs:
         with:
           submodules: true
 
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: "1.92.0"
-          targets: x86_64-apple-darwin
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
 
       - name: Write version
         run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
@@ -147,9 +142,8 @@ jobs:
         with:
           submodules: true
 
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: "1.92.0"
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
 
       - name: Write version
         run: |
@@ -170,9 +164,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: "1.92.0"
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
 
       - name: Write version
         run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
