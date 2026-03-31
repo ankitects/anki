@@ -119,10 +119,8 @@ jobs:
         with:
           submodules: true
 
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: "1.92.0"
-          targets: x86_64-apple-darwin
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
 
       - name: Write version
         run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
@@ -144,9 +142,8 @@ jobs:
         with:
           submodules: true
 
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: "1.92.0"
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
 
       - name: Write version
         run: |
@@ -167,9 +164,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: "1.92.0"
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
 
       - name: Write version
         run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
