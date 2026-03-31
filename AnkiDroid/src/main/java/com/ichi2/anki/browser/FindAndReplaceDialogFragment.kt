@@ -99,6 +99,8 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
             }
     }
 
+    // TODO maybe get rid of the html tags that come with the backend strings and handle the
+    //  sentence case for TR.browsingReplaceWith()
     private fun setupLabels() {
         binding.labelFind.text =
             HtmlCompat.fromHtml(TR.browsingFind(), HtmlCompat.FROM_HTML_MODE_LEGACY)
@@ -218,7 +220,10 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
         ): FindAndReplaceDialogFragment {
             val file = IdsFile(context.cacheDir, noteIds, "find-replace")
             return FindAndReplaceDialogFragment().apply {
-                arguments = bundleOf(ARG_IDS to file)
+                arguments =
+                    Bundle().apply {
+                        putParcelable(ARG_IDS, file)
+                    }
             }
         }
     }
