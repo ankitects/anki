@@ -96,6 +96,13 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
         ],
         cwd=out_dir,
     )
+    platform_suffix = ""
+    if sys.platform == "win32":
+        platform_suffix = "-windows"
+    elif sys.platform == "darwin":
+        platform_suffix = "-mac"
+    package_path = next((out_dir / "dist").iterdir())
+    package_path.rename(package_path.with_name(f"anki-{version}{platform_suffix}"))
 
 
 def parse_args() -> argparse.Namespace:
