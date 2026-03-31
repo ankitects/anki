@@ -88,7 +88,6 @@ sphinx = [
 [package.dev-dependencies]
 dev = [
     { name = "briefcase" },
-    { name = "delocate" },
     { name = "hatchling" },
     { name = "jinja2" },
     { name = "mock" },
@@ -121,7 +120,6 @@ provides-extras = ["sphinx"]
 [package.metadata.requires-dev]
 dev = [
     { name = "briefcase", specifier = ">=0.4.0" },
-    { name = "delocate", specifier = ">=0.13.0" },
     { name = "hatchling" },
     { name = "jinja2" },
     { name = "mock" },
@@ -507,20 +505,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/43/fa/6d96a0978d19e17b68d634497769987b16c8f4cd0a7a05048bec693caa6b/decorator-5.2.1.tar.gz", hash = "sha256:65f266143752f734b0a7cc83c46f4618af75b8c5911b00ccb61d0ac9b6da0360", size = 56711, upload-time = "2025-02-24T04:41:34.073Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4e/8c/f3147f5c4b73e7550fe5f9352eaa956ae838d5c51eb58e7a25b9f3e2643b/decorator-5.2.1-py3-none-any.whl", hash = "sha256:d316bb415a2d9e2d2b3abcc4084c6502fc09240e292cd76a76afc106a1c8e04a", size = 9190, upload-time = "2025-02-24T04:41:32.565Z" },
-]
-
-[[package]]
-name = "delocate"
-version = "0.13.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "macholib" },
-    { name = "packaging" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/2d/21/f1679803b2582632e7b9fdd83e675d5fc661513433c0f661938414978bc7/delocate-0.13.0.tar.gz", hash = "sha256:a93e67a9f56ee01a3f7096a042231d4ac37fecac873cd5ea34ea2b4f43a8fa13", size = 240774, upload-time = "2025-01-30T06:43:43.632Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/dd/437e601fa9d2b6bf8507256daf52196a226c3b340261f4cde8fac8e853ea/delocate-0.13.0-py3-none-any.whl", hash = "sha256:11f7596f88984c33f76b27fe2eea7637d1ce369a9e0b6737bbc706b6426e862c", size = 238040, upload-time = "2025-01-30T06:43:41.113Z" },
 ]
 
 [[package]]
