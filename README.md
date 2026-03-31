@@ -1,6 +1,7 @@
-# Anki®
+# Anki
 
-[![Build status](https://badge.buildkite.com/c9edf020a4aec976f9835e54751cc5409d843adbb66d043bd3.svg?branch=main)](https://buildkite.com/ankitects/anki-ci)
+[![Build Status](https://github.com/ankitects/anki/actions/workflows/ci.yml/badge.svg)](https://github.com/ankitects/anki/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-dev--docs.ankiweb.net-blue)](https://dev-docs.ankiweb.net)
 
 This repo contains the source code for the computer version of
 [Anki](https://apps.ankiweb.net).
@@ -9,25 +10,26 @@ This repo contains the source code for the computer version of
 
 Anki is a spaced repetition program. Please see the [website](https://apps.ankiweb.net) to learn more.
 
-# Getting Started
+This repo contains the source code for the computer version of
+[Anki](https://apps.ankiweb.net).
+
+## Getting Started
+
+### Contributing
+
+Want to contribute to Anki? Check out the [Contribution Guidelines](./docs/contributing.md).
+
+For more information on building and developing, please see [Development](./docs/development.md).
+
+#### Contributors
+
+The following people have contributed to Anki: [CONTRIBUTORS](./CONTRIBUTORS)
 
 ### Anki Betas
 
 If you'd like to try development builds of Anki but don't feel comfortable
 building the code, please see [Anki betas](https://betas.ankiweb.net/)
 
-### Developing
-
-For more information on building and developing, please see [Development](./docs/development.md).
-
-### Contributing
-
-Want to contribute to Anki? Check out the [Contribution Guidelines](./docs/contributing.md).
-
-### Anki Contributors
-
-[CONTRIBUTORS](./CONTRIBUTORS)
-
-# License
+## License
 
 Anki's license: [LICENSE](./LICENSE)
