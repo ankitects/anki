@@ -26,12 +26,9 @@ impl BuildAction for BuildInstaller {
         build.add_variable("version", &self.version);
         if cfg!(target_os = "linux") {
             build.add_variable("aqt_wheel", "_");
-        } else {
-            build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
-        };
-        if cfg!(target_os = "linux") {
             build.add_variable("anki_wheel", "_");
         } else {
+            build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
             build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
         };
         build.add_inputs("", inputs![":installer:template", glob!["qt/installer/**"]]);
