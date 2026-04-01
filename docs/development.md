@@ -39,6 +39,11 @@ On all platforms, you will need to install:
   or `bash tools\install-n2` on Windows. If you want to use Ninja, it can be downloaded
   from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   placed on your path, or from your distro/homebrew if it's 1.10+.
+- (Optional) [just](https://just.systems/man/en/packages.html) command runner.
+  Install with `brew install just` or `uv tool install just`.
+  We are experimenting with `just` as the official tool for running
+  Anki-specific commands, and it will likely become the source of truth
+  in the future.
 
 Platform-specific requirements:
 
@@ -165,16 +170,16 @@ See [this page](./build.md)
 
 ## Generating documentation
 
-For Rust:
+Build and view the documentation site:
 
 ```
-cargo doc --open
+just docs
 ```
 
-For Python:
+For Rust API docs:
 
 ```
-./ninja python:sphinx && open out/python/sphinx/html/py-modindex.html
+just docs-rust
 ```
 
 ## Environmental Variables
