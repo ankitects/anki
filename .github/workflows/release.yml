@@ -133,6 +133,29 @@ jobs:
           name: installer-macos
           path: out/installer/dist/
 
+  build-mac-intel:
+    needs: prepare
+    runs-on: macos-15-intel
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Write version
+        run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
+
+      - name: Build installer
+        run: ./tools/build-installer
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-macos-intel
+          path: out/installer/dist/
+
   build-windows:
     needs: prepare
     runs-on: windows-latest
@@ -179,7 +202,7 @@ jobs:
           path: out/installer/dist/
 
   release:
-    needs: [prepare, build-mac, build-windows, build-linux]
+    needs: [prepare, build-mac build-mac-intel, build-windows, build-linux]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
