@@ -10,7 +10,6 @@ use ninja_gen::inputs;
 use ninja_gen::Build;
 
 use crate::anki_version;
-use crate::python::BuildUniversalWheel;
 
 pub struct BuildInstaller {
     pub version: String,
@@ -27,14 +26,9 @@ impl BuildAction for BuildInstaller {
         build.add_variable("version", &self.version);
         if cfg!(target_os = "linux") {
             build.add_variable("aqt_wheel", "_");
-        } else {
-            build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
-        };
-        if cfg!(target_os = "macos") {
-            build.add_inputs("anki_wheel", inputs![":installer:universal_wheel"]);
-        } else if cfg!(target_os = "linux") {
             build.add_variable("anki_wheel", "_");
         } else {
+            build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
             build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
         };
         build.add_inputs(
@@ -58,15 +52,6 @@ pub fn build_installer(build: &mut Build) -> Result<()> {
             offline_build: false,
         },
     )?;
-    if cfg!(target_os = "macos") {
-        build.add_action(
-            "installer:universal_wheel",
-            BuildUniversalWheel {
-                name: "anki",
-                version: anki_version(),
-            },
-        )?;
-    }
     build.add_action(
         "installer:dist",
         BuildInstaller {

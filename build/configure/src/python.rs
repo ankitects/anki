@@ -172,34 +172,6 @@ impl BuildAction for BuildWheel {
     }
 }
 
-pub struct BuildUniversalWheel {
-    pub name: &'static str,
-    pub version: String,
-}
-
-impl BuildAction for BuildUniversalWheel {
-    fn command(&self) -> &str {
-        "$pyenv_bin $script --wheels $arm_wheel $x86_wheel --out_wheel $out"
-    }
-
-    fn files(&mut self, build: &mut impl FilesHandle) {
-        let name = self.name;
-        let normalized_version = normalize_version(&self.version);
-        build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
-        build.add_variable("script", "pylib/tools/build_universal_wheel.py");
-        build.add_inputs("arm_wheel", inputs![format!(":wheels:{name}")]);
-        build.add_inputs(
-            "x86_wheel",
-            inputs![format!(
-                "$builddir/wheels/{name}-{normalized_version}-cp310-abi3-macosx_12_0_x86_64.whl"
-            )],
-        );
-        let wheel_path =
-            format!("wheels/{name}-{normalized_version}-cp310-abi3-macosx_12_0_universal2.whl");
-        build.add_outputs("out", vec![wheel_path]);
-    }
-}
-
 pub fn check_python(build: &mut Build) -> Result<()> {
     python_format(build, "tools", inputs![glob!("tools/**/*.py")])?;
 
