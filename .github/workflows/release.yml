@@ -223,7 +223,7 @@ jobs:
           path: out/installer/dist/
 
   release:
-    needs: [prepare, build-mac build-mac-intel, build-windows, build-linux, build-linux-arm]
+    needs: [prepare, build-mac, build-mac-intel, build-windows, build-linux, build-linux-arm]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
