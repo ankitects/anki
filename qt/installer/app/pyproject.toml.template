@@ -27,7 +27,7 @@ permission.microphone = "The microphone will only be used when you tap the recor
 permission.camera = "Add-ons may access your camera."
 
 [tool.briefcase.app.anki.macOS]
-universal_build = true
+universal_build = false
 min_os_version = "12.0"
 entitlement."com.apple.security.cs.disable-executable-page-protection" = true
 entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
