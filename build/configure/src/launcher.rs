@@ -11,7 +11,7 @@ use ninja_gen::inputs;
 use ninja_gen::Build;
 
 pub fn setup_uv_universal(build: &mut Build) -> Result<()> {
-    if !cfg!(target_arch = "aarch64") {
+    if !(cfg!(target_os = "macos") && cfg!(target_arch = "aarch64")) {
         return Ok(());
     }
 
