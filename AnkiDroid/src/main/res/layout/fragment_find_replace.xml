@@ -22,14 +22,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
+
+        <TextView
+            android:id="@+id/label_warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_warning"
+            android:drawablePadding="4dp"
+            android:layout_marginHorizontal="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/warning_find_and_replace"
+            android:textStyle="italic"
+            />
+
         <TextView
             android:id="@+id/label_find"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_warning"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginHorizontal="8dp"
+            android:layout_marginTop="8dp"
             tools:text="Find:"/>
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_search_layout"
