@@ -151,43 +151,21 @@ impl LintContext {
             }
         }
 
-        // Parse identifiers from the CONTRIBUTORS file instead of relying
-        // on git history, which requires a full clone. Entries may contain an
-        // email (user@example.com) or a GitHub profile URL (github.com/user).
         let contents = fs::read_to_string("CONTRIBUTORS")?;
-        let all_contributors: HashSet<&str> = contents
-            .lines()
-            .filter_map(|line| {
-                let start = line.find('<')?;
-                let end = line.find('>')?;
-                Some(&line[start + 1..end])
-            })
-            .collect();
 
-        if all_contributors.contains(last_author.as_str()) {
+        if contributor_email_matches(&last_author, &contents) {
             return Ok(());
         }
 
-        // Match GitHub noreply emails (ID+user@users.noreply.github.com)
-        // against CONTRIBUTORS entries like github.com/user or
-        // https://github.com/user.
-        if let Some(username) = last_author
-            .strip_suffix("@users.noreply.github.com")
-            .and_then(|s| s.rsplit_once('+'))
-            .map(|(_, user)| user)
-        {
-            let gh_entry = format!("github.com/{username}");
-            if all_contributors.iter().any(|c| {
-                let normalized = c
-                    .trim_end_matches('/')
-                    .trim_start_matches("https://")
-                    .trim_start_matches("http://");
-                normalized.eq_ignore_ascii_case(&gh_entry)
-            }) {
+        if let Ok(login) = std::env::var("PR_AUTHOR_LOGIN") {
+            let login = login.trim();
+            if github_login_matches(login, &contents) {
+                println!("Author matched via PR_AUTHOR_LOGIN ({login}).");
                 return Ok(());
             }
         }
 
+        let all_contributors: HashSet<&str> = parse_contributor_identifiers(&contents);
         println!("All contributors:");
         println!("{}", {
             let mut contribs: Vec<_> = all_contributors
@@ -289,6 +267,73 @@ fn check_for_unstaged_changes() {
     }
 }
 
+/// Parse the `<identifier>` part from each CONTRIBUTORS entry.
+/// Entries may use an email address or a GitHub profile URL.
+fn parse_contributor_identifiers(contents: &str) -> HashSet<&str> {
+    contents
+        .lines()
+        .filter_map(|line| {
+            let start = line.find('<')?;
+            let end = line.find('>')?;
+            Some(&line[start + 1..end])
+        })
+        .collect()
+}
+
+/// Return true when `email` belongs to a listed contributor.
+///
+/// Recognised patterns in CONTRIBUTORS:
+/// - Direct email: `user@example.com`
+/// - GitHub noreply with numeric ID: `12345+user@users.noreply.github.com`
+/// - GitHub noreply without ID:       `user@users.noreply.github.com`
+///
+/// All three are matched against entries of the forms:
+///   `github.com/user`, `https://github.com/user`, `http://github.com/user`
+/// (trailing slash is ignored, comparison is case-insensitive).
+fn contributor_email_matches(email: &str, contributors_content: &str) -> bool {
+    let all_contributors = parse_contributor_identifiers(contributors_content);
+
+    // Direct match (plain email or exact noreply address stored in file).
+    if all_contributors.contains(email) {
+        return true;
+    }
+
+    // Match GitHub noreply emails against `github.com/<user>` entries.
+    // Handles both `ID+user@users.noreply.github.com` and
+    // `user@users.noreply.github.com` (commits made via the GitHub UI).
+    if let Some(stripped) = email.strip_suffix("@users.noreply.github.com") {
+        // If there's a `+`, the part after it is the username; otherwise the
+        // whole prefix is the username.
+        let username = stripped.rsplit_once('+').map_or(stripped, |(_, u)| u);
+        let gh_entry = format!("github.com/{username}");
+        if all_contributors.iter().any(|c| {
+            let normalized = c
+                .trim_end_matches('/')
+                .trim_start_matches("https://")
+                .trim_start_matches("http://");
+            normalized.eq_ignore_ascii_case(&gh_entry)
+        }) {
+            return true;
+        }
+    }
+
+    false
+}
+
+/// Return true when `login` (a GitHub username) matches a CONTRIBUTORS entry
+/// of the form `github.com/<login>` or `https://github.com/<login>`.
+fn github_login_matches(login: &str, contributors_content: &str) -> bool {
+    let all_contributors = parse_contributor_identifiers(contributors_content);
+    let gh_entry = format!("github.com/{login}");
+    all_contributors.iter().any(|c| {
+        let normalized = c
+            .trim_end_matches('/')
+            .trim_start_matches("https://")
+            .trim_start_matches("http://");
+        normalized.eq_ignore_ascii_case(&gh_entry)
+    })
+}
+
 fn generate_licences() -> Result<String> {
     Command::run("cargo install cargo-license@0.7.0")?;
     let output = Command::run_with_output([
@@ -313,4 +358,182 @@ fn generate_licences() -> Result<String> {
         .collect();
 
     Ok(serde_json::to_string_pretty(&filtered)?)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_contributors(entries: &[&str]) -> String {
+        entries
+            .iter()
+            .map(|e| format!("Some Name <{e}>\n"))
+            .collect()
+    }
+
+    // --- direct email matches ---
+
+    #[test]
+    fn direct_email_match() {
+        let c = make_contributors(&["spaghetti-monster@example.com"]);
+        assert!(contributor_email_matches("spaghetti-monster@example.com", &c));
+    }
+
+    #[test]
+    fn direct_email_no_match() {
+        let c = make_contributors(&["spaghetti-monster@example.com"]);
+        assert!(!contributor_email_matches("pippin@example.com", &c));
+    }
+
+    // --- noreply emails stored verbatim ---
+
+    #[test]
+    fn verbatim_noreply_email() {
+        let c = make_contributors(&["424242+spaghetti-monster@users.noreply.github.com"]);
+        assert!(contributor_email_matches(
+            "424242+spaghetti-monster@users.noreply.github.com",
+            &c
+        ));
+    }
+
+    // --- github.com/user entries ---
+
+    #[test]
+    fn github_url_plain() {
+        let c = make_contributors(&["github.com/pippin"]);
+        assert!(contributor_email_matches(
+            "424242+pippin@users.noreply.github.com",
+            &c
+        ));
+    }
+
+    #[test]
+    fn github_url_https() {
+        let c = make_contributors(&["https://github.com/pippin"]);
+        assert!(contributor_email_matches(
+            "424242+pippin@users.noreply.github.com",
+            &c
+        ));
+    }
+
+    #[test]
+    fn github_url_https_trailing_slash() {
+        let c = make_contributors(&["https://github.com/pippin/"]);
+        assert!(contributor_email_matches(
+            "424242+pippin@users.noreply.github.com",
+            &c
+        ));
+    }
+
+    #[test]
+    fn github_url_http() {
+        let c = make_contributors(&["http://github.com/pippin"]);
+        assert!(contributor_email_matches(
+            "424242+pippin@users.noreply.github.com",
+            &c
+        ));
+    }
+
+    #[test]
+    fn github_url_case_insensitive() {
+        let c = make_contributors(&["https://github.com/Pippin"]);
+        assert!(contributor_email_matches(
+            "424242+pippin@users.noreply.github.com",
+            &c
+        ));
+    }
+
+    // --- noreply without numeric ID (commits made through GitHub UI) ---
+
+    #[test]
+    fn noreply_without_id_prefix_github_url() {
+        // GitHub UI commits sometimes produce `user@users.noreply.github.com`
+        // with no numeric ID prefix.
+        let c = make_contributors(&["https://github.com/pippin"]);
+        assert!(contributor_email_matches(
+            "pippin@users.noreply.github.com",
+            &c
+        ));
+    }
+
+    #[test]
+    fn noreply_without_id_prefix_plain_github_url() {
+        let c = make_contributors(&["github.com/pippin"]);
+        assert!(contributor_email_matches(
+            "pippin@users.noreply.github.com",
+            &c
+        ));
+    }
+
+    // --- github_login_matches (PR_AUTHOR_LOGIN fallback) ---
+
+    #[test]
+    fn login_matches_https_github_url() {
+        let c = make_contributors(&["https://github.com/pippin"]);
+        assert!(github_login_matches("pippin", &c));
+    }
+
+    #[test]
+    fn login_matches_plain_github_url() {
+        let c = make_contributors(&["github.com/pippin"]);
+        assert!(github_login_matches("pippin", &c));
+    }
+
+    #[test]
+    fn login_matches_case_insensitive() {
+        let c = make_contributors(&["https://github.com/Pippin"]);
+        assert!(github_login_matches("pippin", &c));
+    }
+
+    #[test]
+    fn login_no_match_for_plain_email_entry() {
+        // A plain email entry does not satisfy a login lookup.
+        let c = make_contributors(&["spaghetti-monster@example.com"]);
+        assert!(!github_login_matches("spaghetti-monster", &c));
+    }
+
+    #[test]
+    fn login_unknown_rejected() {
+        let c = make_contributors(&["https://github.com/pippin"]);
+        assert!(!github_login_matches("spaghetti-monster", &c));
+    }
+
+    // --- unknown author ---
+
+    #[test]
+    fn unknown_author_rejected() {
+        let c = make_contributors(&[
+            "spaghetti-monster@example.com",
+            "github.com/spaghetti-monster",
+        ]);
+        assert!(!contributor_email_matches("pippin@example.com", &c));
+        assert!(!contributor_email_matches(
+            "99+pippin@users.noreply.github.com",
+            &c
+        ));
+    }
+
+    // --- parse_contributor_identifiers edge cases ---
+
+    #[test]
+    fn entries_without_angle_brackets_ignored() {
+        // Entries like "Ijgnd" or "jariji" have no <>, so they contribute
+        // nothing to the identifier set (and can't be matched).
+        let c = "Spaghetti Monster\nPippin\n";
+        assert!(parse_contributor_identifiers(c).is_empty());
+    }
+
+    #[test]
+    fn multiple_entries_parsed() {
+        let c = make_contributors(&[
+            "a@example.com",
+            "github.com/b",
+            "https://github.com/c",
+        ]);
+        let ids = parse_contributor_identifiers(&c);
+        assert_eq!(ids.len(), 3);
+        assert!(ids.contains("a@example.com"));
+        assert!(ids.contains("github.com/b"));
+        assert!(ids.contains("https://github.com/c"));
+    }
 }

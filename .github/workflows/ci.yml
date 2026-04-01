@@ -27,6 +27,7 @@ jobs:
         run: cargo run -p minilints -- check /tmp/minilints.stamp
         env:
           CONTRIBUTORS_BYPASS_EMAILS: ${{ vars.CONTRIBUTORS_BYPASS_EMAILS }}
+          PR_AUTHOR_LOGIN: ${{ github.event.pull_request.user.login }}
 
   # Lightweight formatting checks (no build outputs needed).
   # Uses individual tool installs instead of setup-anki to stay fast.
