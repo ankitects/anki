@@ -201,8 +201,29 @@ jobs:
           name: installer-linux
           path: out/installer/dist/
 
+  build-linux-arm:
+    needs: prepare
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Write version
+        run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
+
+      - name: Build installer
+        run: ./tools/build-installer
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-linux-arm
+          path: out/installer/dist/
+
   release:
-    needs: [prepare, build-mac build-mac-intel, build-windows, build-linux]
+    needs: [prepare, build-mac build-mac-intel, build-windows, build-linux, build-linux-arm]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
