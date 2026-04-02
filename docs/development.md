@@ -135,7 +135,7 @@ To build wheels on Mac/Linux:
 ./tools/build
 ```
 
-(on Windows, `\tools\build.bat`)
+(on Windows, `.\tools\build.bat`)
 
 The generated wheels are in out/wheels. You can then install them by copying the paths into a pip install command.
 Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
