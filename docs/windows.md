@@ -1,9 +1,4 @@
-# Windows Quick Start Guide
-
-> A simplified and beginner-friendly version of Anki’s official Windows documentation.
-> Ideal for first-time contributors building Anki on Windows.
-
----
+# Windows
 
 ## Minimum Requirements
 
@@ -12,40 +7,27 @@
 
 ---
 
-## Step 1 – Install Rust (rustup)
+## Install Rust
 
-Anki uses the **Rust programming language** for parts of its codebase.
-
-1. Visit the official Rust website
+1. Visit the official Rust website (https://rustup.rs/)
 2. Download and install **rustup**
 3. During installation, accept the default options
 
-> **Windows ARM users**\
-> After installing rustup, run the following command in a terminal, inside the project folder:
+> [!IMPORTANT]
+> **Windows ARM users**: After installing rustup, run the following command in a terminal, inside the project folder:
 >
 > ```bash
 > rustup target add x86_64-pc-windows-msvc
 > ```
 
----
-
-## Step 2 – Install Visual Studio
+## Install Visual Studio
 
 1. Download **Visual Studio Community Edition**
 2. Open the installer
-3. Select:
-   - **Desktop Development with C++**
-4. Leave the advanced options unchanged
+3. Select **Desktop Development with C++** on the left
+4. Leave the advanced options on the right unchanged
 
-> **Note**:
-> This step is required to compile native parts of the project.
-> On Windows, compiling native code requires Microsoft's MSVC toolchain and the Windows SDK
-> (system headers and libraries), which are typically installed via Visual Studio or
-> Visual Studio Build Tools.
-
----
-
-## Step 3 – Install MSYS2
+## Install MSYS2
 
 1. Visit the [MSYS2](https://www.msys2.org/) website
 2. Install it in the default location
@@ -58,46 +40,25 @@ pacman -S git rsync
 
 ---
 
-### Configure the PATH Environment Variable
+### Configure the PATH environment variable
 
-1. Open **Windows Environment Variables**
-2. Edit the **PATH** variable
-3. Add the following path:
+1. Search for and open **Edit the system environment variables** in the Start menu
+2. Click **Environment Variables**
+3. Edit the **Path** variable under **System Variables**
+4. Add the following path then reboot your computer: `C:\msys64\usr\bin`
 
-```text
-C:\msys64\usr\bin
-```
+> [!NOTE]
+> If you have native Windows apps relying on Git, e.g. the PowerShell extension
+> [posh-git](https://github.com/dahlbyk/posh-git), you may want to install
+> [Git for Windows](https://gitforwindows.org/) and put it on the path instead,
+> as msys Git may cause issues with them. You'll need to make sure rsync is
+> available some other way.
 
-4. Reboot your computer
+## Choose a good source code location
 
-> **Important note**\
-> If you already have native Windows apps relying on Git (for example, [posh-git](https://github.com/dahlbyk/posh-git) in PowerShell), they may conflict with the MSYS2 Git.
->
-> - In that case, prefer using [Git for Windows](https://gitforwindows.org/) over msys2.
-> - Ensure that `rsync` is available some other way
-
----
-
-## Step 4 – Choose a Good Source Code Location
-
-To avoid build issues:
-
-- Avoid long directory paths
-- Avoid spaces in folder names
-
-**Recommended**:
-
-```text
-C:\anki
-```
-
-**Problematic**:
-
-```text
-C:\Users\Your Name\Documents\Projects\Anki Source Code
-```
-
----
+Anki's source files do not need to be in a specific location, but it's best to
+avoid long paths, as they can cause problems. Spaces in the path may cause
+problems.
 
 ## Audio Support (Optional)
 
@@ -106,28 +67,7 @@ To play and record audio during development, ensure the following executables ar
 - `mpv.exe`
 - `lame.exe`
 
----
+## More
 
-## Common Problems
-
-### Build errors
-
-- Make sure Visual Studio was installed with **Desktop Development with C++**
-
-### `git` command not found
-
-- Verify that the PATH variable is configured correctly
-
-### Issues caused by spaces in paths
-
-- Move the project to a shorter path, such as `C:\anki`
-
----
-
-## Next Steps
-
-For advanced topics such as running tests or building wheels, see:
-
-- `development.md`
-
----
+For info on running tests, building wheels and so on, please see
+[Development](./development.md).
