@@ -24,7 +24,6 @@ preferences-show-next-review-time-above-answer = Show next review time above ans
 preferences-spacebar-rates-card = Spacebar (or enter) also answers card
 preferences-show-play-buttons-on-cards-with = Show play buttons on cards with audio
 preferences-show-remaining-card-count = Show remaining card count
-preferences-hide-new-and-review-counts-on-parent-decks = Hide New, Learn, and Review counts on parent decks
 preferences-some-settings-will-take-effect-after = Some settings will take effect after you restart Anki.
 preferences-tab-synchronisation = Synchronization
 preferences-synchronize-audio-and-images-too = Synchronize audio and images too
