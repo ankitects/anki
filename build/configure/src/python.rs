@@ -5,7 +5,6 @@ use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::archives::Platform;
 use ninja_gen::build::FilesHandle;
-use ninja_gen::copy::CopyFiles;
 use ninja_gen::glob;
 use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
@@ -218,62 +217,6 @@ pub fn check_python(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    Ok(())
-}
-
-struct Sphinx {
-    deps: BuildInput,
-}
-
-impl BuildAction for Sphinx {
-    fn command(&self) -> &str {
-        if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
-            "$python python/sphinx/build.py"
-        } else {
-            "$uv sync --extra sphinx && $python python/sphinx/build.py"
-        }
-    }
-
-    fn files(&mut self, build: &mut impl FilesHandle) {
-        if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
-            let uv_path =
-                std::env::var("UV_BINARY").expect("UV_BINARY must be set in OFFLINE_BUILD mode");
-            build.add_inputs("uv", inputs![uv_path]);
-        } else {
-            build.add_inputs("uv", inputs![":uv_binary"]);
-            // Set environment variable to use the existing pyenv
-            build.add_variable("pyenv_path", "$builddir/pyenv");
-            build.add_env_var("UV_PROJECT_ENVIRONMENT", "$pyenv_path");
-        }
-        build.add_inputs("python", inputs![":pyenv:bin"]);
-        build.add_inputs("", &self.deps);
-        build.add_output_stamp("python/sphinx/stamp");
-    }
-
-    fn hide_success(&self) -> bool {
-        false
-    }
-}
-
-pub(crate) fn setup_sphinx(build: &mut Build) -> Result<()> {
-    build.add_action(
-        "python:sphinx:copy_conf",
-        CopyFiles {
-            inputs: inputs![glob!("python/sphinx/{conf.py,index.rst}")],
-            output_folder: "python/sphinx",
-        },
-    )?;
-    build.add_action(
-        "python:sphinx",
-        Sphinx {
-            deps: inputs![
-                ":pylib",
-                ":qt",
-                ":python:sphinx:copy_conf",
-                "pyproject.toml"
-            ],
-        },
-    )?;
     Ok(())
 }
 

@@ -4697,22 +4697,6 @@
   },
   {
     "authors": "Microsoft",
-    "description": "Rust for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows-sys",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import libs for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows-targets",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
     "description": "Import libs for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -4756,14 +4740,6 @@
     "description": "Import lib for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "name": "windows_aarch64_gnullvm",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
     "name": "windows_aarch64_msvc",
     "repository": "https://github.com/microsoft/windows-rs"
   },
@@ -4773,22 +4749,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "windows_aarch64_msvc",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_aarch64_msvc",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_i686_gnu",
     "repository": "https://github.com/microsoft/windows-rs"
   },
   {
@@ -4820,22 +4780,6 @@
     "description": "Import lib for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "name": "windows_i686_gnullvm",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_i686_msvc",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
     "name": "windows_i686_msvc",
     "repository": "https://github.com/microsoft/windows-rs"
   },
@@ -4868,14 +4812,6 @@
     "description": "Import lib for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "name": "windows_x86_64_gnu",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
     "name": "windows_x86_64_gnullvm",
     "repository": "https://github.com/microsoft/windows-rs"
   },
@@ -4885,22 +4821,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "windows_x86_64_gnullvm",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_x86_64_gnullvm",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_x86_64_msvc",
     "repository": "https://github.com/microsoft/windows-rs"
   },
   {
