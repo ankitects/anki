@@ -9,9 +9,9 @@ on:
         type: choice
         options:
           - beta
-          - official
+          - stable
       version:
-        description: "Version for official release (e.g. 25.10). Ignored for beta."
+        description: "Version for stable release (e.g. 25.10). Ignored for beta."
         required: false
         type: string
       beta_number:
@@ -47,10 +47,10 @@ jobs:
           current_version=$(cat .version)
           echo "Current .version: $current_version"
 
-          if [ "${{ inputs.release_type }}" = "official" ]; then
+          if [ "${{ inputs.release_type }}" = "stable" ]; then
             version="${{ inputs.version }}"
             if [ -z "$version" ]; then
-              echo "::error::version input is required for official releases"
+              echo "::error::version input is required for stable releases"
               exit 1
             fi
 
@@ -233,8 +233,8 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Update version, commit, and tag (official)
-        if: inputs.release_type == 'official'
+      - name: Update version, commit, and tag (stable)
+        if: inputs.release_type == 'stable'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
