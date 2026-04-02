@@ -3,9 +3,12 @@
 
 """Validate a PEP 440 version string and compare to the current version."""
 
+import re
 import sys
 
 from packaging.version import InvalidVersion, Version
+
+VERSION_RE = re.compile(r"^\d+\.\d{2}(\.\d+)?(a\d+|b\d+|rc\d+)?$")
 
 
 def main() -> None:
@@ -14,6 +17,13 @@ def main() -> None:
         sys.exit(1)
 
     version, current_version = sys.argv[1], sys.argv[2]
+
+    if not VERSION_RE.match(version):
+        print(
+            f"::error::version '{version}' must be year.month(.patch) with zero-padded month (e.g. 26.04, 26.04b1, 26.04.1rc2)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     try:
         v = Version(version)
