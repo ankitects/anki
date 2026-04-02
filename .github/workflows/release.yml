@@ -66,6 +66,26 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      - name: Check status of the last run of the test workflow
+        run: |
+          conclusion=$(gh run list \
+            --workflow=ci.yml \
+            -b main \
+            -e push \
+            --limit 1 \
+            --json conclusion \
+            --jq ".[0].conclusion")
+
+          if [[ -z "$conclusion" ]]; then
+            echo "Could not determine the status of the most recent test run on the main branch. Aborting..."
+            exit 1
+          elif [[ "$conclusion" != "success" ]]; then
+            echo "The last run of the test workflow on the main branch was not successful. Aborting..."
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
   build-mac:
     needs: prepare
     runs-on: macos-14
