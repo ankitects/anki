@@ -81,11 +81,9 @@ jobs:
               exit 1
             fi
 
-            today=$(date -u +%Y%m%d)
-            today_dotted=$(date -u +%Y.%m.%d)
-            pep440_version="${current_version}.dev${today}"
-            tag_name="rc-${today_dotted}.${beta_number}"
-            release_name="Anki ${tag_name} (beta)"
+            pep440_version="${current_version}b${beta_number}"
+            tag_name="${pep440_version}"
+            release_name="Anki ${pep440_version}"
             is_prerelease="true"
           fi
 
