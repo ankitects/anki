@@ -13,19 +13,28 @@
 2. Download and install **rustup**
 3. During installation, accept the default options
 
+> [!NOTE]
+> The Rust installer will offer to automatically download and install the required
+> MSVC build tools. If you prefer a minimal install without the full Visual
+> Studio IDE, do the following before installing Rust:
+>
+> 1. Install **Visual Studio Build Tools** via winget:
+>    ```
+>    winget install Microsoft.VisualStudio.BuildTools
+>    ```
+> 2. Open the **Visual Studio Installer**, select **Build Tools**, click
+>    **Modify**, then under **Individual components**, install:
+>    - **MSVC Build Tools for x64/x86 (Latest)**
+>    - **Windows 11 SDK** (or Windows 10 SDK if you're on Windows 10)
+>
+> Then proceed with the Rust installation above.
+
 > [!IMPORTANT]
 > **Windows ARM users**: After installing rustup, run the following command in a terminal, inside the project folder:
 >
 > ```bash
 > rustup target add x86_64-pc-windows-msvc
 > ```
-
-## Install Visual Studio
-
-1. Download **Visual Studio Community Edition**
-2. Open the installer
-3. Select **Desktop Development with C++** on the left
-4. Leave the advanced options on the right unchanged
 
 ## Install MSYS2
 
