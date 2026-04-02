@@ -154,6 +154,13 @@ impl LintContext {
             return Ok(());
         }
 
+        if let Ok(bypass) = std::env::var("CONTRIBUTORS_BYPASS_EMAILS") {
+            if bypass.split(',').any(|e| e.trim() == last_author) {
+                println!("Author allowlisted via CONTRIBUTORS_BYPASS_EMAILS.");
+                return Ok(());
+            }
+        }
+
         println!("All contributors:");
         println!("{}", {
             let mut contribs: Vec<_> = all_contributors
@@ -202,7 +209,7 @@ fn sveltekit_temp_file(path: &str) -> bool {
 }
 
 fn check_cargo_deny() -> Result<()> {
-    // WARNING: make sure to update version in .buildekite/linux as well
+    // Used by `fix:minilints` locally. CI uses EmbarkStudios/cargo-deny-action.
     Command::run("cargo install cargo-deny@0.19.0")?;
     Command::run("cargo deny check")?;
     Ok(())
