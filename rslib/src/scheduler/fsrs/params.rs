@@ -606,8 +606,6 @@ pub(crate) mod tests {
         };
     }
 
-    pub(crate) use fsrs_items;
-
     #[test]
     fn delta_t_is_correct() -> Result<()> {
         assert_eq!(

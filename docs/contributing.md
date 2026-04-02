@@ -1,7 +1,7 @@
 # Contributing Code
 
 For info on contributing things other than code, such as translations, decks
-and add-ons, please see https://docs.ankiweb.net/contrib
+and add-ons, please see [the contribution guide](https://docs.ankiweb.net/contrib).
 
 ## Help wanted
 
@@ -97,7 +97,7 @@ new hook.
 ## Translations
 
 For information on adding new translatable strings to Anki, please see
-https://translating.ankiweb.net/anki/developers
+[the translation guide](https://translating.ankiweb.net/anki/developers).
 
 ## Tests Must Pass
 
@@ -132,4 +132,4 @@ requests instead.
 
 ## License
 
-Please add yourself to the CONTRIBUTORS file in your first pull request.
+Please add yourself to the [CONTRIBUTORS](./CONTRIBUTORS) file in your first pull request.
