@@ -69,13 +69,6 @@ Anki's source files do not need to be in a specific location, but it's best to
 avoid long paths, as they can cause problems. Spaces in the path may cause
 problems.
 
-## Audio Support (Optional)
-
-To play and record audio during development, ensure the following executables are available in your **PATH**:
-
-- `mpv.exe`
-- `lame.exe`
-
 ## More
 
 For info on running tests, building wheels and so on, please see
