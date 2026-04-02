@@ -40,7 +40,7 @@
 
 1. Visit the [MSYS2](https://www.msys2.org/) website
 2. Install it in the default location
-3. After installation, open the MSYS2 terminal
+3. After installation, open the MSYS2 UCRT64 terminal
 4. Run the following command:
 
 ```bash
