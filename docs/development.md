@@ -155,7 +155,8 @@ to free space.
 
 Cargo, yarn and pip all cache downloads of dependencies in a shared cache that
 other builds on your system may use as well. If you wish to clear up those caches,
-they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`.
+they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`. On
+Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
 with Rust Analyzer), output files will go into `target/` unless you have
