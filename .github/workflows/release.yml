@@ -34,7 +34,7 @@ jobs:
       pep440_version: ${{ steps.compute.outputs.pep440_version }}
       tag_name: ${{ steps.compute.outputs.tag_name }}
       release_name: ${{ steps.compute.outputs.release_name }}
-      is_prerelease: ${{ steps.compute.outputs.is_prerelease }}
+      is_beta: ${{ steps.compute.outputs.is_beta }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -73,7 +73,7 @@ jobs:
             pep440_version="$version"
             tag_name="$version"
             release_name="Anki $version"
-            is_prerelease="false"
+            is_beta="false"
           else
             beta_number="${{ inputs.beta_number }}"
             if ! echo "$beta_number" | grep -qE '^[1-9][0-9]*$'; then
@@ -84,7 +84,7 @@ jobs:
             pep440_version="${current_version}b${beta_number}"
             tag_name="${pep440_version}"
             release_name="Anki ${pep440_version}"
-            is_prerelease="true"
+            is_beta="true"
           fi
 
           # Check for duplicate tag
@@ -102,9 +102,9 @@ jobs:
           echo "pep440_version=${pep440_version}" >> "$GITHUB_OUTPUT"
           echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
           echo "release_name=${release_name}" >> "$GITHUB_OUTPUT"
-          echo "is_prerelease=${is_prerelease}" >> "$GITHUB_OUTPUT"
+          echo "is_beta=${is_beta}" >> "$GITHUB_OUTPUT"
 
-          echo "Computed: pep440_version=$pep440_version tag=$tag_name release=$release_name prerelease=$is_prerelease"
+          echo "Computed: pep440_version=$pep440_version tag=$tag_name release=$release_name beta=$is_beta"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -252,9 +252,9 @@ jobs:
 
       - name: Create draft release
         run: |
-          prerelease_flag=""
-          if [ "${{ needs.prepare.outputs.is_prerelease }}" = "true" ]; then
-            prerelease_flag="--prerelease"
+          beta_flag=""
+          if [ "${{ needs.prepare.outputs.is_beta }}" = "true" ]; then
+            beta_flag="--prerelease"
           fi
 
           gh release create '${{ needs.prepare.outputs.tag_name }}' \
@@ -262,6 +262,6 @@ jobs:
             --draft \
             --title '${{ needs.prepare.outputs.release_name }}' \
             --generate-notes \
-            $prerelease_flag
+            $beta_flag
         env:
           GH_TOKEN: ${{ github.token }}
