@@ -1,5 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import { noop } from "lodash-es";
 
 const template = document.createElement("template");
 
@@ -10,9 +11,6 @@ export function allImagesLoaded(): Promise<void[]> {
 }
 
 function imageLoaded(img: HTMLImageElement): Promise<void> {
-    if (!img.getAttribute("decoding")) {
-        img.decoding = "async";
-    }
     return img.complete
         ? Promise.resolve()
         : new Promise((resolve) => {
@@ -30,7 +28,9 @@ function extractImageSrcs(fragment: DocumentFragment): string[] {
 
 function createImage(src: string): HTMLImageElement {
     const img = new Image();
+    img.decoding = "async";
     img.src = src;
+    img.decode().catch(noop);
     return img;
 }
 

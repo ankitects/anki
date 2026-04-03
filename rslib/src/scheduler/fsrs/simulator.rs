@@ -117,7 +117,7 @@ fn create_review_priority_fn(
         }
 
         // Not implemented yet
-        Added | ReverseAdded => None,
+        Added | ReverseAdded | RelativeOverdueness => None,
     }
 }
 

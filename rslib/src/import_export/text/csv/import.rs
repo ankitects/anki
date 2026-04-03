@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashSet;
 use std::io::BufRead;
 use std::io::BufReader;
 use std::io::Read;
@@ -106,6 +107,8 @@ struct ColumnContext {
     notetype_column: Option<usize>,
     /// Source column indices for the fields of a notetype
     field_source_columns: FieldSourceColumns,
+    /// Metadata column indices (1-based)
+    meta_columns: HashSet<usize>,
     /// How fields are converted to strings. Used for escaping HTML if
     /// appropriate.
     stringify: fn(&str) -> String,
@@ -119,6 +122,7 @@ impl ColumnContext {
             deck_column: metadata.deck()?.column(),
             notetype_column: metadata.notetype()?.column(),
             field_source_columns: metadata.field_source_columns()?,
+            meta_columns: metadata.meta_columns(),
             stringify: stringify_fn(metadata.is_html),
         })
     }
@@ -166,11 +170,19 @@ impl ColumnContext {
     }
 
     fn gather_note_fields(&self, record: &csv::StringRecord) -> Vec<Option<String>> {
-        let stringify = self.stringify;
-        self.field_source_columns
-            .iter()
-            .map(|opt| opt.and_then(|idx| record.get(idx - 1)).map(stringify))
-            .collect()
+        let op = |i| record.get(i - 1).map(self.stringify);
+        if !self.field_source_columns.is_empty() {
+            self.field_source_columns
+                .iter()
+                .map(|opt| opt.and_then(op))
+                .collect()
+        } else {
+            // notetype column provided, assume all non-metadata columns are notetype fields
+            (1..=record.len())
+                .filter(|i| !self.meta_columns.contains(i))
+                .map(op)
+                .collect()
+        }
     }
 }
 
