@@ -88,7 +88,7 @@ jobs:
 
       - name: Build wheels
         run: |
-          ./ninja wheels:anki
+          ./tools/ninja wheels:anki
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
