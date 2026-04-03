@@ -1,0 +1,119 @@
+name: Publish PyPI Packages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-linux-x64:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build wheels
+        run: |
+          ./ninja wheels
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-x64
+          # Upload both anki and aqt wheels from this platform;
+          # the pure-Python aqt wheel is the same on all platforms
+          path: out/wheels/*.whl
+
+  build-linux-arm64:
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build wheels
+        run: |
+          ./ninja wheels:anki
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-arm64
+          path: out/wheels/anki-*.whl
+
+  build-macos-x64:
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build wheels
+        run: |
+          ./ninja wheels:anki
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-x64
+          path: out/wheels/anki-*.whl
+
+  build-macos-arm64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build wheels
+        run: |
+          ./ninja wheels:anki
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-arm64
+          path: out/wheels/anki-*.whl
+
+  build-windows-x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build wheels
+        run: |
+          ./ninja wheels:anki
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-x64
+          path: out/wheels/anki-*.whl
+
+  publish:
+    needs:
+      - build-linux-x64
+      - build-linux-arm64
+      - build-macos-x64
+      - build-macos-arm64
+      - build-windows-x64
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
