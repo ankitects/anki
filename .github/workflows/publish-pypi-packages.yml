@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-linux-x64:
+  build-linux:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -15,52 +15,20 @@ jobs:
       - name: Build wheels
         run: |
           ./ninja wheels
+          sudo apt-get install --yes --no-install-recommends libc6-dev-arm64-cross gcc-aarch64-linux-gnu
+          ./tools/build-arm-lin
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-x64
+          name: wheels-linux
           # Upload both anki and aqt wheels from this platform;
           # the pure-Python aqt wheel is the same on all platforms
           path: out/wheels/*.whl
+    env:
+      RELEASE: 2
 
-  build-linux-arm64:
-    runs-on: ubuntu-22.04-arm
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup build environment
-        uses: ./.github/actions/setup-anki
-
-      - name: Build wheels
-        run: |
-          ./ninja wheels:anki
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-linux-arm64
-          path: out/wheels/anki-*.whl
-
-  build-macos-x64:
-    runs-on: macos-15-intel
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup build environment
-        uses: ./.github/actions/setup-anki
-
-      - name: Build wheels
-        run: |
-          ./ninja wheels:anki
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-macos-x64
-          path: out/wheels/anki-*.whl
-
-  build-macos-arm64:
+  build-macos:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
@@ -71,14 +39,18 @@ jobs:
       - name: Build wheels
         run: |
           ./ninja wheels:anki
+          ./tools/build-x64-mac
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-macos-arm64
+          name: wheels-macos
           path: out/wheels/anki-*.whl
+    env:
+      RELEASE: 2
 
-  build-windows-x64:
+
+  build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -93,16 +65,16 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-windows-x64
+          name: wheels-windows
           path: out/wheels/anki-*.whl
+    env:
+      RELEASE: 2
 
   publish:
     needs:
-      - build-linux-x64
-      - build-linux-arm64
-      - build-macos-x64
-      - build-macos-arm64
-      - build-windows-x64
+      - build-linux
+      - build-macos
+      - build-windows
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
