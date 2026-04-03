@@ -517,7 +517,7 @@ deck-config-save-options-to-preset-confirm = Overwrite the options in your curre
 # to show the total number of cards that can be recalled or retrieved on a
 # specific date.
 deck-config-fsrs-simulator-radio-memorized = Memorized
-deck-config-fsrs-simulator-radio-ratio2 = Memorized / Time Ratio
+deck-config-fsrs-simulator-radio-efficiency = Efficiency
 deck-config-fsrs-simulator-ratio-tooltip2 = { $time } memorized cards per hour
 
 ## Messages related to the FSRS scheduler’s health check. The health check determines whether the correlation between FSRS predictions and your memory is good or bad. It can be optionally triggered as part of the "Optimize" function.
