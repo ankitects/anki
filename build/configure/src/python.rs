@@ -153,7 +153,7 @@ impl BuildAction for BuildWheel {
                 Platform::WindowsX64 => "win_amd64",
                 Platform::WindowsArm => "win_arm64",
             };
-            format!("cp39-abi3-{platform_tag}")
+            format!("cp310-abi3-{platform_tag}")
         } else {
             "py3-none-any".into()
         };

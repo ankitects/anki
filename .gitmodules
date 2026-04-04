@@ -6,3 +6,8 @@
 	path = ftl/qt-repo
 	url = https://github.com/ankitects/anki-desktop-ftl.git
 	shallow = true
+[submodule "briefcase-windows-template"]
+	path = qt/installer/windows-template
+	url = https://github.com/ankitects/briefcase-windows-app-template
+	branch = anki
+	shallow = true
