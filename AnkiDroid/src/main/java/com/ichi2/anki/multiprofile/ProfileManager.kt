@@ -297,6 +297,230 @@ class ProfileManager private constructor(
     }
 
     /**
+     * Permanently deletes a profile, removing its registry entry and associated data
+     * across both internal and external storage.
+     *
+     * - Internal storage: app-private. We own these directories, so bulk deletion is safe.
+     *   For non-default profiles: the profile's data directory and every
+     *   `profile_<id>_*.xml` SharedPreferences file. For the default profile:
+     *   the legacy root folders (`files`, `cache`, `databases`, ...).
+     * - Collection directory: user-visible under `Android/data/.../files/` and
+     *   relocatable by the user to any path via [PREF_COLLECTION_PATH] (e.g. `/Pictures/`).
+     *   We therefore resolve the stored path, and only delete known AnkiDroid artifacts
+     *   inside it - never `deleteRecursively()`.
+     */
+    fun deleteProfile(profileId: ProfileId) {
+        /*
+         * File-system data is removed before the registry entry. If deletion fails
+         * or is interrupted, the registry entry remains so the user can retry.
+         *
+         * TODO: COULD_BE_BETTER: this method is not synchronized. Two concurrent calls from
+         * different threads/coroutines could both pass the require() checks below and
+         * race, eventually leaving the registry with zero profiles. Wrap the body in a
+         * Mutex (or move to a single-thread dispatcher) once delete is exposed through
+         * the UI. Not a concern today: the only entry points are tests and the (yet to
+         * land) settings screen, which is single-threaded.
+         */
+        require(profileRegistry.getLastActiveProfileId() != profileId) {
+            "Cannot delete the currently active profile ($profileId). Switch first."
+        }
+        // the check above should catch it (deleting the only profile
+        // means deleting the active one), but guard explicitly against a corrupted
+        // last-active pointer leaving the registry with zero profiles.
+        require(getAllProfiles().size > 1) {
+            "Cannot delete the only remaining profile ($profileId)."
+        }
+
+        Timber.i("deleteProfile: starting deletion of %s", profileId)
+
+        val appDataRoot = ContextCompat.getDataDir(appContext)
+
+        if (profileId.isDefault()) {
+            Timber.d("deleteProfile: wiping legacy default-profile data under %s", appDataRoot)
+            deleteDefaultProfileDataOnly(appDataRoot)
+        } else {
+            val profileDir = resolveProfileDirectory(profileId).file
+            if (profileDir.exists()) {
+                val removed = profileDir.deleteRecursively()
+                Timber.d("deleteProfile: removed profile dir %s (success=%b)", profileDir, removed)
+            } else {
+                Timber.d("deleteProfile: profile dir %s did not exist; skipping", profileDir)
+            }
+            deleteNamespacedSharedPreferences(appDataRoot, profileId)
+        }
+
+        val collectionDir = resolveStoredCollectionDir(profileId)
+        if (collectionDir != null) {
+            Timber.d("deleteProfile: cleaning collection dir %s", collectionDir)
+            deleteCollectionArtifactsSafely(collectionDir)
+        } else {
+            Timber.d("deleteProfile: no on-disk collection dir to clean for %s", profileId)
+        }
+
+        profileRegistry.removeProfile(profileId)
+        Timber.i("deleteProfile: completed deletion of %s", profileId)
+    }
+
+    /**
+     * Deletes every `profile_<id>_*.xml` file inside the app's `shared_prefs` directory.
+     * No-op if [appDataRoot] is null or the `shared_prefs` dir doesn't exist.
+     */
+    private fun deleteNamespacedSharedPreferences(
+        appDataRoot: File?,
+        profileId: ProfileId,
+    ) {
+        if (appDataRoot == null) return
+        val sharedPrefsDir = File(appDataRoot, "shared_prefs")
+        if (!sharedPrefsDir.exists() || !sharedPrefsDir.isDirectory) return
+
+        val prefix = "profile_${profileId.value}_"
+        val deletedCount =
+            sharedPrefsDir
+                .listFiles()
+                ?.filter { it.name.startsWith(prefix) }
+                ?.count { it.delete() }
+                ?: 0
+        Timber.d("deleteNamespacedSharedPreferences: removed %d prefs file(s) for %s", deletedCount, profileId)
+    }
+
+    /**
+     * Returns the collection directory for [profileId], honouring any user relocation via
+     * [PREF_COLLECTION_PATH], and only if it currently exists on disk a non-null result
+     * is guaranteed to refer to an existing directory. Falls back to the default location if
+     * the preference is unset; returns null if neither path resolves to an existing directory
+     *
+     * Default profile: `<external>/AnkiDroid/` (the historical layout).
+     * Non-default profile: `<external>/<profileId>/`.
+     */
+    private fun resolveStoredCollectionDir(profileId: ProfileId): File? {
+        val candidate: File =
+            readStoredCollectionPath(profileId)?.let(::File)
+                ?: defaultCollectionDirFor(profileId)
+                ?: return null
+
+        return candidate.takeIf { it.exists() && it.isDirectory }
+    }
+
+    /**
+     * The default-location fallback used when the profile has never written `PREF_COLLECTION_PATH`.
+     *
+     * TODO: consolidate with the profile-creation path this should delegate to
+     * `CollectionHelper.getDefaultAnkiDroidDirectory(appContext, directoryName = ...)`
+     * that gives us legacy-storage handling and `SystemStorageException`-on-null for free, and keeps
+     * the "where does a profile collection live" decision in a single place shared with
+     * `ensureProfileCollectionPath`.
+     */
+    private fun defaultCollectionDirFor(profileId: ProfileId): File? {
+        val externalFilesDir = appContext.getExternalFilesDir(null) ?: return null
+        return if (profileId.isDefault()) {
+            File(externalFilesDir, "AnkiDroid")
+        } else {
+            File(externalFilesDir, profileId.value)
+        }
+    }
+
+    /**
+     * Reads [PREF_COLLECTION_PATH] from the profile's namespaced default SharedPreferences
+     * by filename, so we don't need to instantiate a [ProfileContextWrapper] (which has
+     * mkdir side effects we don't want in the delete flow).
+     *
+     * The filename format must stay in sync with [ProfileContextWrapper.getSharedPreferences]
+     * and with `deleteNamespacedSharedPreferences`'s `profile_<id>_` prefix.
+     *
+     * TODO: extract a `ProfilePreferences` accessor (e.g. `prefsForProfile(profileId).collectionPath`)
+     */
+    private fun readStoredCollectionPath(profileId: ProfileId): String? {
+        val defaultPrefsName = "${appContext.packageName}_preferences"
+        val prefsName =
+            if (profileId.isDefault()) defaultPrefsName else "profile_${profileId.value}_$defaultPrefsName"
+        return appContext
+            .getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+            .getString(PREF_COLLECTION_PATH, null)
+    }
+
+    /**
+     * Deletes only known AnkiDroid collection artifacts inside [collectionDir].
+     *
+     * AnkiDroid lets the user point the collection path at any directory — including ones
+     * they also use for unrelated data, e.g. `/Pictures/`. We therefore never
+     * `deleteRecursively()` this directory. Files and subdirectories we don't recognize are
+     * left untouched.
+     *
+     * If [collectionDir] is empty after the sweep, it is also removed. If anything remains,
+     * we send a silent crash report
+     */
+    private fun deleteCollectionArtifactsSafely(collectionDir: File) {
+        if (!collectionDir.exists() || !collectionDir.isDirectory) return
+
+        collectionDir.listFiles()?.forEach { entry ->
+            when {
+                entry.isFile && entry.name in COLLECTION_ARTIFACT_FILES -> entry.delete()
+                entry.isDirectory && entry.name in COLLECTION_ARTIFACT_DIRS -> entry.deleteRecursively()
+                else -> {
+                    val entryType = if (entry.isDirectory) "Directory" else "File"
+                    Timber.w("deleteProfile: leaving unknown entry untouched: <$entryType>")
+                }
+            }
+        }
+
+        // `File.delete()` on a directory succeeds iff it's empty, so a successful delete
+        // here means we removed every entry we knew about and nothing else was there.
+        if (collectionDir.delete()) return
+
+        val remaining = collectionDir.listFiles() ?: return
+        val fileCount = remaining.count { it.isFile }
+        val dirCount = remaining.count { it.isDirectory }
+
+        val message =
+            "deleteCollectionArtifactsSafely left ${remaining.size} unknown entries in collection dir (Files: $fileCount, Dirs: $dirCount)"
+
+        val silent = IllegalStateException(message)
+        CrashReportService.sendExceptionReport(
+            silent,
+            "ProfileManager::deleteCollectionArtifactsSafely",
+        )
+        Timber.w(silent, message)
+    }
+
+    /**
+     * Wipes the Default profile's legacy data from the root directories
+     * while protecting the subdirectories belonging to other profiles.
+     */
+    private fun deleteDefaultProfileDataOnly(appDataRoot: File?) {
+        if (appDataRoot == null) return
+
+        val defaultFolders =
+            listOf(
+                "app_webview",
+                "databases",
+                "files",
+                "cache",
+                "code_cache",
+                "no_backup",
+            )
+
+        defaultFolders.forEach { folderName ->
+            val folder = File(appDataRoot, folderName)
+            if (folder.exists()) {
+                folder.deleteRecursively()
+            }
+        }
+
+        val sharedPrefsDir = File(appDataRoot, "shared_prefs")
+        if (sharedPrefsDir.exists() && sharedPrefsDir.isDirectory) {
+            sharedPrefsDir.listFiles()?.forEach { file ->
+                val fileName = file.name
+                val isRegistry = fileName == "$PROFILE_REGISTRY_FILENAME.xml"
+                val isOtherProfile = fileName.startsWith("profile_")
+
+                if (!isRegistry && !isOtherProfile) {
+                    file.delete()
+                }
+            }
+        }
+    }
+
+    /**
      * Holds the meta-data for a profile.
      * Converted to JSON for storage to allow future extensibility (e.g. avatars, themes).
      */
@@ -394,6 +618,18 @@ class ProfileManager private constructor(
             return result
         }
 
+        /**
+         * Removes a profile entry from the registry.
+         *
+         * Does **not** delete the profile's data directory on disk.
+         * Callers are responsible for cleaning up file-system resources.
+         *
+         * @param id The [ProfileId] of the profile to remove.
+         */
+        fun removeProfile(id: ProfileId) {
+            globalPrefs.edit { remove(id.value) }
+        }
+
         fun contains(id: ProfileId): Boolean = globalPrefs.contains(id.value)
     }
 
@@ -414,6 +650,29 @@ class ProfileManager private constructor(
         const val KEY_LAST_ACTIVE_PROFILE_ID = "last_active_profile_id"
 
         const val DEFAULT_PROFILE_DISPLAY_NAME = "Default"
+
+        /** Files AnkiDroid creates directly inside the collection directory. */
+        private val COLLECTION_ARTIFACT_FILES =
+            setOf(
+                "collection.anki2",
+                "collection.anki2-journal",
+                "collection.anki2-wal",
+                "collection.anki2-shm",
+                "collection.media.db",
+                "collection.media.db-journal",
+                "collection.media.db-wal",
+                "collection.media.db-shm",
+                ".nomedia",
+            )
+
+        /** Subdirectories AnkiDroid creates inside the collection directory. */
+        private val COLLECTION_ARTIFACT_DIRS =
+            setOf(
+                "collection.media",
+                "media.trash",
+                "backup",
+                "broken",
+            )
 
         /**
          * Factory method to safely create and initialize the ProfileManager.
