@@ -1,6 +1,7 @@
 # Rust API
 
-Anki's Rust API is distributed as crates on [crates.io](https://crates.io/), and the public documentation (when published) is generated automatically on [docs.rs](https://docs.rs/).
+Anki's Rust API documentation is generated from doc comments in the `rslib/` crates using `cargo doc`.
+It is distributed as crates on [crates.io](https://crates.io/), and the public documentation (when published) is generated automatically on [docs.rs](https://docs.rs/).
 
 ## Browsing locally
 

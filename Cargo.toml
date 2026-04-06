@@ -1,13 +1,13 @@
 [workspace.package]
 version = "0.0.0"
 authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
-edition = "2021"
-license = "AGPL-3.0-or-later"
-rust-version = "1.80"
-repository = "https://github.com/ankitects/anki"
-homepage = "https://apps.ankiweb.net"
 documentation = "https://docs.rs/anki"
+edition = "2021"
+homepage = "https://apps.ankiweb.net"
+license = "AGPL-3.0-or-later"
 readme = "README.md"
+repository = "https://github.com/ankitects/anki"
+rust-version = "1.80"
 
 [workspace]
 members = [

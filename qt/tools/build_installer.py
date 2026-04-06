@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -96,6 +97,14 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
         ],
         cwd=out_dir,
     )
+    platform_suffix = ""
+    if sys.platform == "win32":
+        platform_suffix = "-windows"
+    elif sys.platform == "darwin":
+        arch = "apple" if platform.machine() == "arm64" else "intel"
+        platform_suffix = f"-mac-{arch}"
+    package_path = next((out_dir / "dist").iterdir())
+    package_path.rename(package_path.with_stem(f"anki-{version}{platform_suffix}"))
 
 
 def parse_args() -> argparse.Namespace:

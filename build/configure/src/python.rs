@@ -5,7 +5,6 @@ use anyhow::Result;
 use ninja_gen::action::BuildAction;
 use ninja_gen::archives::Platform;
 use ninja_gen::build::FilesHandle;
-use ninja_gen::copy::CopyFiles;
 use ninja_gen::glob;
 use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
@@ -172,34 +171,6 @@ impl BuildAction for BuildWheel {
     }
 }
 
-pub struct BuildUniversalWheel {
-    pub name: &'static str,
-    pub version: String,
-}
-
-impl BuildAction for BuildUniversalWheel {
-    fn command(&self) -> &str {
-        "$pyenv_bin $script --wheels $arm_wheel $x86_wheel --out_wheel $out"
-    }
-
-    fn files(&mut self, build: &mut impl FilesHandle) {
-        let name = self.name;
-        let normalized_version = normalize_version(&self.version);
-        build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
-        build.add_variable("script", "pylib/tools/build_universal_wheel.py");
-        build.add_inputs("arm_wheel", inputs![format!(":wheels:{name}")]);
-        build.add_inputs(
-            "x86_wheel",
-            inputs![format!(
-                "$builddir/wheels/{name}-{normalized_version}-cp310-abi3-macosx_12_0_x86_64.whl"
-            )],
-        );
-        let wheel_path =
-            format!("wheels/{name}-{normalized_version}-cp310-abi3-macosx_12_0_universal2.whl");
-        build.add_outputs("out", vec![wheel_path]);
-    }
-}
-
 pub fn check_python(build: &mut Build) -> Result<()> {
     python_format(build, "tools", inputs![glob!("tools/**/*.py")])?;
 
@@ -246,62 +217,6 @@ pub fn check_python(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    Ok(())
-}
-
-struct Sphinx {
-    deps: BuildInput,
-}
-
-impl BuildAction for Sphinx {
-    fn command(&self) -> &str {
-        if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
-            "$python python/sphinx/build.py"
-        } else {
-            "$uv sync --extra sphinx && $python python/sphinx/build.py"
-        }
-    }
-
-    fn files(&mut self, build: &mut impl FilesHandle) {
-        if std::env::var("OFFLINE_BUILD").ok().as_deref() == Some("1") {
-            let uv_path =
-                std::env::var("UV_BINARY").expect("UV_BINARY must be set in OFFLINE_BUILD mode");
-            build.add_inputs("uv", inputs![uv_path]);
-        } else {
-            build.add_inputs("uv", inputs![":uv_binary"]);
-            // Set environment variable to use the existing pyenv
-            build.add_variable("pyenv_path", "$builddir/pyenv");
-            build.add_env_var("UV_PROJECT_ENVIRONMENT", "$pyenv_path");
-        }
-        build.add_inputs("python", inputs![":pyenv:bin"]);
-        build.add_inputs("", &self.deps);
-        build.add_output_stamp("python/sphinx/stamp");
-    }
-
-    fn hide_success(&self) -> bool {
-        false
-    }
-}
-
-pub(crate) fn setup_sphinx(build: &mut Build) -> Result<()> {
-    build.add_action(
-        "python:sphinx:copy_conf",
-        CopyFiles {
-            inputs: inputs![glob!("python/sphinx/{conf.py,index.rst}")],
-            output_folder: "python/sphinx",
-        },
-    )?;
-    build.add_action(
-        "python:sphinx",
-        Sphinx {
-            deps: inputs![
-                ":pylib",
-                ":qt",
-                ":python:sphinx:copy_conf",
-                "pyproject.toml"
-            ],
-        },
-    )?;
     Ok(())
 }
 

@@ -2,16 +2,16 @@
 name = "anki"
 version.workspace = true
 authors.workspace = true
+documentation.workspace = true
 edition.workspace = true
+homepage.workspace = true
 license.workspace = true
 publish = true
+readme.workspace = true
+repository.workspace = true
 rust-version.workspace = true
 workspace = ".."
 description = "Anki's Rust library code"
-repository.workspace = true
-homepage.workspace = true
-readme.workspace = true
-documentation.workspace = true
 
 [features]
 bench = ["criterion"]
