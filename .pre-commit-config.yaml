@@ -5,7 +5,7 @@ repos:
       hooks:
           - id: ninja-check
             name: ninja check
-            entry: ./ninja check
+            entry: bash -c 'if [ "$OS" = "Windows_NT" ]; then ./tools/ninja.bat check; else ./ninja check; fi'
             language: system
             pass_filenames: false
             always_run: true
