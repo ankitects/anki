@@ -86,8 +86,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-  build-mac:
+  ftl-sync:
     needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Sync translations
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          python3 .github/workflows/sync_translations.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  build-mac:
+    needs: [prepare, ftl-sync]
     runs-on: macos-14
     timeout-minutes: 90
     steps:
@@ -110,7 +127,7 @@ jobs:
           path: out/installer/dist/
 
   build-mac-intel:
-    needs: prepare
+    needs: [prepare, ftl-sync]
     runs-on: macos-15-intel
     timeout-minutes: 90
     steps:
@@ -133,7 +150,7 @@ jobs:
           path: out/installer/dist/
 
   build-windows:
-    needs: prepare
+    needs: [prepare, ftl-sync]
     runs-on: windows-latest
     timeout-minutes: 90
     steps:
@@ -157,7 +174,7 @@ jobs:
           path: out/installer/dist/
 
   build-linux:
-    needs: prepare
+    needs: [prepare, ftl-sync]
     runs-on: ubuntu-22.04
     timeout-minutes: 90
     steps:
@@ -178,7 +195,7 @@ jobs:
           path: out/installer/dist/
 
   build-linux-arm:
-    needs: prepare
+    needs: [prepare, ftl-sync]
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
     steps:
