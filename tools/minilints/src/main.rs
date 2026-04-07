@@ -36,6 +36,7 @@ const IGNORED_FOLDERS: &[&str] = &[
     ".mypy_cache",
     "./extra",
     "./ts/.svelte-kit",
+    "./.venv",
 ];
 
 fn main() -> Result<()> {
