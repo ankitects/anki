@@ -11,3 +11,8 @@
 	url = https://github.com/ankitects/briefcase-windows-app-template
 	branch = anki
 	shallow = true
+[submodule "briefcase-mac-template"]
+	path = qt/installer/mac-template
+	url = https://github.com/ankitects/briefcase-macOS-app-template
+	branch = anki
+	shallow = true
