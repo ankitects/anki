@@ -215,9 +215,51 @@ jobs:
           name: installer-linux-arm
           path: out/installer/dist/
 
+  sign-windows:
+    needs: build-windows
+    runs-on: windows-2022
+    environment: release
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: installer-windows
+          path: dist/
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sign Windows installer
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files-folder: dist/
+          files-folder-filter: exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Re-upload signed artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-windows
+          path: dist/
+          overwrite: true
+
   release:
-    needs: [prepare, build-mac, build-mac-intel, build-windows, build-linux, build-linux-arm]
+    needs: [prepare, build-mac, build-mac-intel, sign-windows, build-linux, build-linux-arm]
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - uses: actions/checkout@v4
         with:
