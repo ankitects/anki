@@ -12,6 +12,9 @@ if [ "$PREFIX" = "" ]; then
 fi
 PREFIX=$(realpath -m "$PREFIX")
 
+if [ -f "$PREFIX"/share/anki/uninstall.sh ]; then
+	bash "$PREFIX"/share/anki/uninstall.sh
+fi
 rm -rf "$PREFIX"/share/anki "$PREFIX"/bin/anki
 mkdir -p "$PREFIX"/share/anki
 cp -av --no-preserve=owner,context -- _internal anki anki.1 anki.desktop anki.png anki.xml anki.xpm uninstall.sh README.md "$PREFIX"/share/anki/
