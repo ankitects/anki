@@ -10,6 +10,7 @@ extensions = [
     "myst_parser",
     "sphinx.ext.intersphinx",
     "autoapi.extension",
+    "click_extra.sphinx",
 ]
 
 source_suffix = {

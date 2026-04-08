@@ -2,7 +2,7 @@
 name = "anki-dev"
 version = "0.0.0"
 description = "Local-only environment"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 classifiers = ["Private :: Do Not Upload"]
 
 [dependency-groups]
@@ -32,6 +32,7 @@ docs = [
   "sphinx-book-theme",
   "sphinx-autoapi",
   "sphinx-autobuild>=2024.10.3",
+  "click-extra[sphinx]", # for GitHub alerts
 ]
 
 [tool.uv.workspace]
