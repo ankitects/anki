@@ -1,0 +1,35 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+import "anki/generic.proto";
+
+package anki.api;
+
+service ApiService {}
+
+service BackendApiService {
+  rpc RegisterApiRoute(generic.String) returns (generic.Empty);
+  rpc GetPendingApiRequests(generic.Empty) returns (ApiRequests);
+  rpc SendApiResponse(ApiResponse) returns (generic.Empty);
+}
+
+message ApiRequest {
+  uint64 id = 1;
+  string method = 2;
+  string path = 3;
+  bytes body = 4;
+}
+
+message ApiRequests {
+  repeated ApiRequest requests = 1;
+}
+
+message ApiResponse {
+  uint64 id = 1;
+  string path = 2;
+  bytes body = 3;
+}

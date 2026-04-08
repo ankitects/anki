@@ -629,6 +629,60 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="browserGroupBox">
+         <property name="title">
+          <string>preferences_api_access</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLabel" name="api_host_label">
+              <property name="text">
+               <string>preferences_api_host</string>
+              </property>
+              <property name="buddy">
+               <cstring>api_host</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="api_host">
+              <property name="placeholderText">
+                <string notr="true">127.0.0.1</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QLabel" name="api_port_label">
+              <property name="text">
+               <string>preferences_api_port</string>
+              </property>
+              <property name="buddy">
+               <cstring>api_port</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="api_port">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>65535</number>
+              </property>
+             </widget>
+            </item>
+            </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Orientation::Vertical</enum>
