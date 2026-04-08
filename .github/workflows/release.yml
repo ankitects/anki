@@ -244,7 +244,7 @@ jobs:
           signing-account-name: anki-signing
           certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
           files-folder: dist/
-          files-folder-filter: exe
+          files-folder-filter: msi
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
