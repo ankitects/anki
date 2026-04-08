@@ -7,6 +7,11 @@ on:
         description: "Version (e.g. 26.04 for stable, 26.04b1 or 26.04rc1 for pre-release)"
         required: true
         type: string
+      dry_run:
+        description: "Create a test release; avoid pushing commits (tag is still pushed)"
+        default: false
+        required: false
+        type: boolean
 
 permissions:
   contents: write
@@ -45,16 +50,18 @@ jobs:
           tag_name="$version"
           release_name="Anki $version"
 
-          # Check for duplicate tag
-          if git rev-parse "refs/tags/${tag_name}" >/dev/null 2>&1; then
-            echo "::error::Tag '${tag_name}' already exists"
-            exit 1
-          fi
+          if [ "${{ inputs.dry_run }}" != "true" ]; then
+            # Check for duplicate tag
+            if git rev-parse "refs/tags/${tag_name}" >/dev/null 2>&1; then
+              echo "::error::Tag '${tag_name}' already exists"
+              exit 1
+            fi
 
-          # Check for duplicate release
-          if gh release view "$tag_name" >/dev/null 2>&1; then
-            echo "::error::GitHub release '${tag_name}' already exists"
-            exit 1
+            # Check for duplicate release
+            if gh release view "$tag_name" >/dev/null 2>&1; then
+              echo "::error::GitHub release '${tag_name}' already exists"
+              exit 1
+            fi
           fi
 
           echo "pep440_version=${pep440_version}" >> "$GITHUB_OUTPUT"
@@ -102,6 +109,7 @@ jobs:
           python3 .github/workflows/sync_translations.py
         env:
           GH_TOKEN: ${{ github.token }}
+          ANKI_NO_GIT_PUSH: ${{ inputs.dry_run && '1' || '0' }}
 
   build-mac:
     needs: [prepare, ftl-sync]
@@ -271,7 +279,7 @@ jobs:
           merge-multiple: true
 
       - name: Update version, commit, and tag (stable)
-        if: needs.prepare.outputs.is_prerelease == 'false'
+        if: needs.prepare.outputs.is_prerelease == 'false' && !inputs.dry_run
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -281,8 +289,8 @@ jobs:
           git tag '${{ needs.prepare.outputs.tag_name }}'
           git push origin HEAD '${{ needs.prepare.outputs.tag_name }}'
 
-      - name: Create and push tag (pre-release)
-        if: needs.prepare.outputs.is_prerelease == 'true'
+      - name: Create and push tag (pre-release or dry run)
+        if: needs.prepare.outputs.is_prerelease == 'true' || inputs.dry_run
         run: |
           git tag '${{ needs.prepare.outputs.tag_name }}'
           git push origin '${{ needs.prepare.outputs.tag_name }}'

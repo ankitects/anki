@@ -8,6 +8,7 @@ and copy source files to the translation repos.
 Rewritten based on `./ninja ftl-sync` for CI.
 """
 
+import os
 import subprocess
 from dataclasses import dataclass
 
@@ -64,7 +65,10 @@ def push_new_templates(module: Module) -> None:
 
 
 def push(repo: str) -> None:
-    subprocess.check_call(["git", "push", "origin", "main"], cwd=repo)
+    if os.environ.get("ANKI_NO_GIT_PUSH", "0") == "1":
+        print("Skipping git push")
+    else:
+        subprocess.check_call(["git", "push", "origin", "main"], cwd=repo)
 
 
 def commit(folder: str, message: str) -> None:
