@@ -11,8 +11,7 @@ following command:
 
 To install system wide, run 'sudo ./install.sh'
 
-To remove in the future, run 'sudo /usr/local/share/anki/uninstall.sh'. You should
-do this before installing a newer version.
+To remove in the future, run 'sudo /usr/local/share/anki/uninstall.sh'.
 
 ## Audio
 
