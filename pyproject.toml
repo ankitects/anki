@@ -7,6 +7,7 @@ classifiers = ["Private :: Do Not Upload"]
 
 [dependency-groups]
 dev = [
+  "pre-commit",
   "mypy",
   "mypy-protobuf",
   "ruff",
@@ -25,12 +26,12 @@ dev = [
   "types-waitress",
   "types-pywin32",
 ]
-
-[project.optional-dependencies]
-sphinx = [
+docs = [
   "sphinx",
-  "sphinx_rtd_theme",
+  "myst-parser",
+  "sphinx-book-theme",
   "sphinx-autoapi",
+  "sphinx-autobuild>=2024.10.3",
 ]
 
 [tool.uv.workspace]
