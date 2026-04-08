@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from typing import cast
 
 from anki.collection import Collection
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.qt import sip
+
+TAG_COMPLETIONS_LIMIT = 500
 
 
 class TagEdit(QLineEdit):
@@ -29,18 +31,16 @@ class TagEdit(QLineEdit):
             self._completer = QCompleter(self.model, parent)
         self._completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
         self._completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self._completer.setFilterMode(Qt.MatchFlag.MatchContains)
         self.setCompleter(self._completer)
 
     def setCol(self, col: Collection) -> None:
         "Set the current col, updating list of available tags."
         self.col = col
-        l: Iterable[str]
         if self.type == 0:
-            l = self.col.tags.all()
+            pass
         else:
-            l = (d.name for d in self.col.decks.all_names_and_ids())
-        self.model.setStringList(l)
+            l = list(d.name for d in self.col.decks.all_names_and_ids())
+            self.model.setStringList(l)
 
     def focusInEvent(self, evt: QFocusEvent | None) -> None:
         QLineEdit.focusInEvent(self, evt)
@@ -137,7 +137,12 @@ class TagCompleter(QCompleter):
             self.cursor = len(self.tags) - 1
         else:
             self.cursor = stripped_tags.count(" ", 0, p)
-        return [self.tags[self.cursor]]
+        current_tag = self.tags[self.cursor]
+        matches = self.edit.col._backend.complete_tag(
+            input=current_tag, match_limit=TAG_COMPLETIONS_LIMIT
+        )
+        cast(QStringListModel, self.model()).setStringList(list(matches))
+        return [""]
 
     def pathFromIndex(self, idx: QModelIndex) -> str:
         if self.cursor is None:
