@@ -25,7 +25,7 @@ ln -sf "$PREFIX"/share/anki/anki "$PREFIX"/bin/anki
 mkdir -p "$PREFIX"/share/pixmaps
 mkdir -p "$PREFIX"/share/applications
 mkdir -p "$PREFIX"/share/man/man1
-cd "$PREFIX"/share/anki && (\
+(cd "$PREFIX"/share/anki && \
 mv -Z anki.xpm anki.png "$PREFIX"/share/pixmaps/;\
 mv -Z anki.desktop "$PREFIX"/share/applications/;\
 mv -Z anki.1 "$PREFIX"/share/man/man1/)
