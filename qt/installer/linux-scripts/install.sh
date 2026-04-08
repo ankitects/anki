@@ -10,6 +10,7 @@ fi
 if [ "$PREFIX" = "" ]; then
 	PREFIX=/usr/local
 fi
+PREFIX=$(realpath -m "$PREFIX")
 
 rm -rf "$PREFIX"/share/anki "$PREFIX"/bin/anki
 mkdir -p "$PREFIX"/share/anki
