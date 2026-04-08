@@ -2,9 +2,13 @@
 name = "anki_io"
 version.workspace = true
 authors.workspace = true
+documentation = "https://docs.rs/anki_io"
 edition.workspace = true
+homepage.workspace = true
 license.workspace = true
-publish = false
+publish = true
+readme.workspace = true
+repository.workspace = true
 rust-version.workspace = true
 description = "Utils for better I/O error reporting"
 
