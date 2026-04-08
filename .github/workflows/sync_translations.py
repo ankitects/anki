@@ -68,7 +68,17 @@ def push(repo: str) -> None:
 
 
 def commit(folder: str, message: str) -> None:
-    subprocess.check_call(["git", "commit", "-a", "-m", message], cwd=folder)
+    try:
+        subprocess.run(
+            ["git", "commit", "-a", "-m", message],
+            cwd=folder,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        print(f"::warning::git commit failed: {exc.stdout}")
 
 
 if __name__ == "__main__":
