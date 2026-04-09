@@ -919,22 +919,42 @@ timerStopped = false;
                 extra = """id="defease" """
             else:
                 extra = ""
+
+            if i == 1:
+                button_class = "answerIncorrect"
+            else:
+                button_class = "answerCorrect"
+
             due = self._buttonTime(i, v3_labels=labels)
             key = (
                 tr.actions_shortcut_key(val=aqt.mw.pm.get_answer_key(i))
                 if aqt.mw.pm.get_answer_key(i)
                 else ""
             )
-            return """
+
+            if not self.mw.col.get_config_bool(Config.Bool.SHOW_COLORED_BUTTONS):
+                return """
 <td align=center><button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s%s</button></td>""" % (
-                extra,
-                key,
-                i,
-                i,
-                label,
-                due,
-            )
+                    extra,
+                    key,
+                    i,
+                    i,
+                    label,
+                    due,
+                )
+            else:
+                return """
+<td align=center><button %s class="answerButton %s" title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+%s%s</button></td>""" % (
+                    extra,
+                    button_class,
+                    key,
+                    i,
+                    i,
+                    label,
+                    due,
+                )
 
         buf = "<center><table cellpadding=0 cellspacing=0><tr>"
         for ease, label in self._answerButtonList():
