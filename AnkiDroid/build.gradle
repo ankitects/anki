@@ -4,6 +4,7 @@ plugins {
     // TODO: migrate to .kts & replace the next 2 id lines with id("ankidroid.android.app")
     id 'com.android.application'
     id 'org.jetbrains.kotlin.plugin.parcelize'
+    alias(libs.plugins.androidx.baselineprofile)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.keeper)
     alias(libs.plugins.roborazzi)
@@ -21,6 +22,14 @@ keeper {
         // Silence missing definitions
         arguments.set(["--map-diagnostics:MissingDefinitionsDiagnostic", "error", "none"])
     }
+}
+
+baselineProfile {
+    // Write generated profiles to `src/main/baselineProfiles/` instead of the
+    // default per-variant `src/playRelease/generated/baselineProfiles/`. This
+    // ensures the profile is consumed by ALL variants (play, amazon, full) and
+    // ALL buildTypes (release, benchmark), not just `playRelease`.
+    mergeIntoMain = true
 }
 
 idea {
@@ -194,6 +203,13 @@ android {
 
             resValue 'color', 'anki_foreground_icon_color_0', "#FF29B6F6"
             resValue 'color', 'anki_foreground_icon_color_1', "#FF0288D1"
+        }
+
+        create('benchmark') {
+            initWith release
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+            debuggable false
         }
     }
 
@@ -441,6 +457,7 @@ dependencies {
     implementation project(":compat")
     implementation project(":libanki")
     implementation project(":vbpd")
+    "baselineProfile" project(":baselineprofile")
 
     implementation(libs.google.analytics.kt)
 
@@ -454,6 +471,7 @@ dependencies {
     implementation libs.androidx.fragment.ktx
     implementation libs.androidx.lifecycle.process
     implementation libs.androidx.preference.ktx
+    implementation libs.androidx.profileinstaller
     implementation libs.androidx.recyclerview
     implementation libs.androidx.sqlite.framework
     implementation libs.androidx.swiperefreshlayout
