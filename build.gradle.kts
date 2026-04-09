@@ -21,9 +21,12 @@ plugins {
     // Use `id` to avoid classpath conflicts. Versions are pinned by buildSrc/.
     id("com.android.application") apply false
     id("com.android.library") apply false
+    id("com.android.test") apply false
     id("org.jetbrains.kotlin.android") apply false
     id("org.jetbrains.kotlin.plugin.parcelize") apply false
     id("org.jetbrains.kotlin.jvm") apply false
+    // Separate AndroidX artifact, not pinned by AGP version comes from the catalog.
+    alias(libs.plugins.androidx.baselineprofile) apply false
     // Serialization is a separate artifact, not pinned transitively by AGP.
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktlint.gradle.plugin) apply false
