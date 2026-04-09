@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       dry_run:
-        description: "Create a test release; avoid pushing commits (tag is still pushed)"
+        description: "Only build artifacts"
         default: false
         required: false
         type: boolean
@@ -265,6 +265,7 @@ jobs:
           overwrite: true
 
   release:
+    if: ${{ inputs.dry_run == 'false' }}
     needs: [prepare, build-mac, build-mac-intel, sign-windows, build-linux, build-linux-arm]
     runs-on: ubuntu-latest
     environment: release
@@ -279,7 +280,7 @@ jobs:
           merge-multiple: true
 
       - name: Update version, commit, and tag (stable)
-        if: needs.prepare.outputs.is_prerelease == 'false' && !inputs.dry_run
+        if: needs.prepare.outputs.is_prerelease == 'false'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -290,7 +291,7 @@ jobs:
           git push origin HEAD '${{ needs.prepare.outputs.tag_name }}'
 
       - name: Create and push tag (pre-release or dry run)
-        if: needs.prepare.outputs.is_prerelease == 'true' || inputs.dry_run
+        if: needs.prepare.outputs.is_prerelease == 'true'
         run: |
           git tag '${{ needs.prepare.outputs.tag_name }}'
           git push origin '${{ needs.prepare.outputs.tag_name }}'
