@@ -7,7 +7,8 @@ version = "{{ version }}"
 project_name = "Anki"
 bundle = "net.ankiweb"
 url = "https://apps.ankiweb.net"
-license.file = "LICENSE"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
 author = "Damien Elmes"
 
 [tool.briefcase.app.anki]

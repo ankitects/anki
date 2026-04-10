@@ -44,3 +44,6 @@ name = "testpypi"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true
+
+[tool.uv.sources]
+briefcase = { git = "https://github.com/ankitects/briefcase", branch = "windows-arm" }
