@@ -45,6 +45,13 @@ pub fn build_installer(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_action(
+        "installer:template:visualstudio",
+        SyncSubmodule {
+            path: "qt/installer/visualstudio-template",
+            offline_build: false,
+        },
+    )?;
+    build.add_action(
         "installer:dist",
         BuildInstaller {
             version: anki_version(),

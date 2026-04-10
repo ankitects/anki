@@ -22,6 +22,8 @@ def normalize_wheel_path(out_dir: Path, path: str) -> str:
     path = Path(path).relative_to(out_dir.parent).as_posix()
     return f"../{path}"
 
+def is_win_arm() -> bool:
+    return sys.platform == "win32" and platform.machine() == "ARM64"
 
 def get_briefcase_template_path() -> Path | None:
     if sys.platform == "win32":
@@ -78,6 +80,7 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
         anki_wheel=anki_wheel,
         version=version,
         template=template,
+        qt_extra="qt_win_arm" if is_win_arm() else "qt",
     )
     (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
     shutil.copy("LICENSE", out_dir / "LICENSE")

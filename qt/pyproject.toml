@@ -21,7 +21,7 @@ dependencies = [
 
 [project.optional-dependencies]
 audio = [
-  "anki-audio==0.1.0; sys.platform == 'win32' or sys.platform == 'darwin'",
+  "anki-audio==0.1.0; sys.platform == 'win32' and platform_machine == 'x86_64' or sys.platform == 'darwin'",
 ]
 qt66 = [
   "pyqt6==6.6.1",
@@ -51,6 +51,13 @@ qt68 = [
   "pyqt6-webengine-qt6==6.8.1",
   "pyqt6_sip==13.10.2",
 ]
+qt_win_arm = [
+  "pyqt6==6.10.2",
+  "pyqt6-qt6==6.10.2",
+  "pyqt6-webengine==6.10.0",
+  "pyqt6-webengine-qt6==6.10.0",
+  "pyqt6_sip==13.11.1",
+]
 
 [tool.uv]
 conflicts = [
@@ -59,6 +66,7 @@ conflicts = [
     { extra = "qt66" },
     { extra = "qt67" },
     { extra = "qt68" },
+    { extra = "qt_win_arm"},
   ],
 ]
 

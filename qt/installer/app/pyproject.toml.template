@@ -21,7 +21,7 @@ sources = [
 icon = "resources/anki"
 console_app = false
 use_full_install_path = false
-requires = ["{{ aqt_wheel }}[qt,audio]", "{{ anki_wheel }}"]
+requires = ["{{ aqt_wheel }}[{{ qt_extra }},audio]", "{{ anki_wheel }}"]
 {{ template }}
 
 permission.microphone = "The microphone will only be used when you tap the record button."
