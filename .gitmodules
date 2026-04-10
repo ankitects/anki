@@ -11,3 +11,8 @@
 	url = https://github.com/ankitects/briefcase-windows-app-template
 	branch = anki
 	shallow = true
+[submodule "briefcase-visualstudio-template"]
+	path = qt/installer/visualstudio-template
+	url = https://github.com/ankitects/briefcase-windows-VisualStudio-template
+	branch = anki
+	shallow = true
