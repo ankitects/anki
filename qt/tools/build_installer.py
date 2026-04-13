@@ -26,6 +26,8 @@ def normalize_wheel_path(out_dir: Path, path: str) -> str:
 def get_briefcase_template_path() -> Path | None:
     if sys.platform == "win32":
         return installer_dir / "windows-template"
+    elif sys.platform == "darwin":
+        return installer_dir / "mac-template"
     return None
 
 
