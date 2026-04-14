@@ -40,7 +40,7 @@ def check_clean() -> None:
 
 def fetch_new_translations(module: Module) -> None:
     subprocess.check_call(["git", "checkout", "main"], cwd=module.translation_repo)
-    subprocess.check_call(["git", "pull", "origin"], cwd=module.translation_repo)
+    subprocess.check_call(["git", "pull", "origin", "main"], cwd=module.translation_repo)
 
 
 def push_new_templates(module: Module) -> None:
