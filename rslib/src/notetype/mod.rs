@@ -895,4 +895,56 @@ mod test {
         assert_eq!(nt_cloze.templates[0].config.q_format, "front {{cloze:foo}}");
         assert_eq!(nt_cloze.templates[0].config.a_format, "back {{cloze:foo}}");
     }
+
+    #[test]
+    fn renaming_field_in_cloze_conditional_does_not_duplicate_replacement() {
+        let mut nt_cloze = Notetype {
+            config: Notetype::new_cloze_config(),
+            ..Default::default()
+        };
+        nt_cloze.add_field("NewText");
+        nt_cloze.fields[0].ord = Some(0);
+
+        nt_cloze.add_template(
+            "Card 1",
+            "{{#Text}}{{cloze:Text}}{{/Text}}",
+            "{{#Text}}{{cloze:Text}}{{/Text}}",
+        );
+        nt_cloze.templates[0].ord = Some(0);
+
+        nt_cloze.templates[0].config.q_format_browser =
+            "{{^Text}}{{cloze:Text}}{{/Text}}".to_owned();
+        nt_cloze.templates[0].config.a_format_browser =
+            "{{^Text}}{{cloze:Text}}{{/Text}}".to_owned();
+
+        let mut parsed = nt_cloze.parsed_templates();
+        let mut parsed_browser = nt_cloze.parsed_browser_templates();
+
+        let mut field_map: HashMap<String, Option<String>> = HashMap::new();
+        field_map.insert("Text".to_owned(), Some("NewText".to_owned()));
+
+        nt_cloze.update_templates_for_renamed_and_removed_fields(
+            field_map,
+            &mut parsed,
+            &mut parsed_browser,
+        );
+
+        assert_eq!(
+            nt_cloze.templates[0].config.q_format,
+            "{{#NewText}}{{cloze:NewText}}{{/NewText}}"
+        );
+        assert_eq!(
+            nt_cloze.templates[0].config.a_format,
+            "{{#NewText}}{{cloze:NewText}}{{/NewText}}"
+        );
+
+        assert_eq!(
+            nt_cloze.templates[0].config.q_format_browser,
+            "{{^NewText}}{{cloze:NewText}}{{/NewText}}"
+        );
+        assert_eq!(
+            nt_cloze.templates[0].config.a_format_browser,
+            "{{^NewText}}{{cloze:NewText}}{{/NewText}}"
+        );
+    }
 }
