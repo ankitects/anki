@@ -43,7 +43,7 @@ jobs:
           version="${{ inputs.version }}"
 
           # Validate PEP 440 format, check version order, detect stable vs pre-release
-          is_prerelease=$(python3 .github/workflows/validate_version.py "$version" "$current_version")
+          is_prerelease=$(python3 .github/scripts/validate_version.py "$version" "$current_version")
           echo "Version check passed"
 
           pep440_version="$version"
@@ -106,7 +106,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          python3 .github/workflows/sync_translations.py
+          python3 .github/scripts/sync_translations.py
         env:
           GH_TOKEN: ${{ github.token }}
           ANKI_NO_GIT_PUSH: ${{ inputs.dry_run && '1' || '0' }}
