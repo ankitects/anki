@@ -1,7 +1,7 @@
 # Contributing Code
 
 For info on contributing things other than code, such as translations, decks
-and add-ons, please see https://docs.ankiweb.net/contrib
+and add-ons, please see [the contribution guide](https://docs.ankiweb.net/contrib).
 
 ## Help wanted
 
@@ -97,22 +97,35 @@ new hook.
 ## Translations
 
 For information on adding new translatable strings to Anki, please see
-https://translating.ankiweb.net/anki/developers
+[the translation guide](https://translating.ankiweb.net/anki/developers).
 
 ## Tests Must Pass
 
 Please make sure 'ninja check' completes successfully before submitting code.
-You can do this automatically by adding the following into
-.git/hooks/pre-commit or .git/hooks/pre-push and making it executable.
 
-```sh
-#!/bin/bash
-./ninja check
+[pre-commit](https://pre-commit.com/) is used to run that check from a Git hook.
+It is configured in `.pre-commit-config.yaml` at the repository root. After
+installing the dev dependencies (for example `uv sync --group dev`), run one of:
+
+```
+uv run pre-commit install --hook-type pre-push
 ```
 
-You may want to explicitly set PATH to your normal shell PATH in that script,
-as pre-commit does not use a login shell, and if your path differs Bazel will
-end up recompiling things unnecessarily.
+```
+python3 -m pre_commit install --hook-type pre-push
+```
+
+(`pre-commit` alone only works if that executable is on your `PATH`, for example
+after `pip install --user pre-commit` or with your virtual environment activated.)
+
+The bundled hook runs `./ninja check` on **pre-push** (not on every commit),
+because the full check suite can take a long time. You can still run
+`./ninja check` manually at any time.
+
+You may need to ensure your usual shell `PATH` is visible to the hook (for
+example if tools such as `ninja` are installed outside standard locations),
+because pre-commit does not use a login shell and a different path can cause
+extra rebuilds.
 
 If your change is non-trivial and not covered by the existing unit tests, please
 consider adding a unit test at the same time.
@@ -132,4 +145,4 @@ requests instead.
 
 ## License
 
-Please add yourself to the CONTRIBUTORS file in your first pull request.
+Please add yourself to the [CONTRIBUTORS](./CONTRIBUTORS) file in your first pull request.

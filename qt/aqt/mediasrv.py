@@ -235,7 +235,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
     fullpath = os.path.abspath(os.path.join(directory, path))
 
     # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
-    if not fullpath.startswith(directory):
+    if not fullpath.startswith(directory + os.sep):
         return _text_response(
             HTTPStatus.FORBIDDEN, f"Path for '{directory} - {path}' is a security leak!"
         )
