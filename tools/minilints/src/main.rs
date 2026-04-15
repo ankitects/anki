@@ -211,7 +211,7 @@ fn sveltekit_temp_file(path: &str) -> bool {
 
 fn check_cargo_deny() -> Result<()> {
     // Used by `fix:minilints` locally. CI uses EmbarkStudios/cargo-deny-action.
-    Command::run("cargo install cargo-deny@0.19.0")?;
+    Command::run("cargo install cargo-deny@0.19.2")?;
     Command::run("cargo deny check")?;
     Ok(())
 }
