@@ -117,7 +117,7 @@ fn create_review_priority_fn(
         }
 
         // Not implemented yet
-        Added | ReverseAdded => None,
+        Added | ReverseAdded | RelativeOverdueness => None,
     }
 }
 
@@ -300,7 +300,11 @@ impl Collection {
                 ))
             })
             .collect::<Result<HashMap<_, _>>>()?;
+        let reviewless_end_memorized = cards.iter().fold(0., |p, c| {
+            p + c.retention_on(&req.params, req.days_to_simulate as f32)
+        });
         Ok(SimulateFsrsWorkloadResponse {
+            reviewless_end_memorized,
             memorized: dr_workload.iter().map(|(k, v)| (*k, v.0)).collect(),
             cost: dr_workload.iter().map(|(k, v)| (*k, v.1)).collect(),
             review_count: dr_workload.iter().map(|(k, v)| (*k, v.2)).collect(),

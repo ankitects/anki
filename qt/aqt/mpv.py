@@ -133,7 +133,7 @@ class MPVBase:
         self._proc = subprocess.Popen(self.argv, env=self.popenEnv)
         if is_win:
             # Ensure mpv gets terminated if Anki closes abruptly.
-            self._job = win32job.CreateJobObject(None, "")
+            self._job = win32job.CreateJobObject(None, f"AnkiJob_{os.getpid()}")
             extended_info = win32job.QueryInformationJobObject(
                 self._job, win32job.JobObjectExtendedLimitInformation
             )

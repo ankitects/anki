@@ -24,7 +24,7 @@ from anki.scheduler.v3 import CardAnswer
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from aqt.operations import CollectionOp
 from aqt.qt import *
-from aqt.utils import add_close_shortcut, disable_help_button, getText, tooltip, tr
+from aqt.utils import disable_help_button, getText, tooltip, tr
 
 
 def set_due_date_dialog(
@@ -70,8 +70,7 @@ def grade_now(
     parent: QWidget,
     card_ids: Sequence[CardId],
     ease: int,
-    dialog: QDialog,
-) -> None:
+) -> CollectionOp[OpChanges]:
     if ease == 1:
         rating = CardAnswer.AGAIN
     elif ease == 2:
@@ -80,7 +79,7 @@ def grade_now(
         rating = CardAnswer.GOOD
     else:
         rating = CardAnswer.EASY
-    CollectionOp(
+    return CollectionOp(
         parent,
         lambda col: col._backend.grade_now(
             card_ids=card_ids,
@@ -90,8 +89,7 @@ def grade_now(
         lambda _: tooltip(
             tr.scheduling_graded_cards_done(cards=len(card_ids)), parent=parent
         )
-    ).run_in_background()
-    dialog.accept()
+    )
 
 
 def forget_cards(
@@ -104,7 +102,6 @@ def forget_cards(
 
     dialog = QDialog(parent)
     disable_help_button(dialog)
-    add_close_shortcut(dialog)
     form = aqt.forms.forget.Ui_Dialog()
     form.setupUi(dialog)
 
@@ -154,7 +151,6 @@ def reposition_new_cards_dialog(
 
     dialog = QDialog(parent)
     disable_help_button(dialog)
-    add_close_shortcut(dialog)
     dialog.setWindowModality(Qt.WindowModality.WindowModal)
     form = aqt.forms.reposition.Ui_Dialog()
     form.setupUi(dialog)

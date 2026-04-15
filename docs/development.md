@@ -39,6 +39,12 @@ On all platforms, you will need to install:
   or `bash tools\install-n2` on Windows. If you want to use Ninja, it can be downloaded
   from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   placed on your path, or from your distro/homebrew if it's 1.10+.
+  - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
+- (Optional) [just](https://just.systems/man/en/packages.html) command runner.
+  Install with `brew install just` or `uv tool install just`.
+  We are experimenting with `just` as the official tool for running
+  Anki-specific commands, and it will likely become the source of truth
+  in the future.
 
 Platform-specific requirements:
 
@@ -129,7 +135,7 @@ To build wheels on Mac/Linux:
 ./tools/build
 ```
 
-(on Windows, `\tools\build.bat`)
+(on Windows, `.\tools\build.bat`)
 
 The generated wheels are in out/wheels. You can then install them by copying the paths into a pip install command.
 Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
@@ -149,7 +155,8 @@ to free space.
 
 Cargo, yarn and pip all cache downloads of dependencies in a shared cache that
 other builds on your system may use as well. If you wish to clear up those caches,
-they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`.
+they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`. On
+Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
 with Rust Analyzer), output files will go into `target/` unless you have
@@ -165,16 +172,16 @@ See [this page](./build.md)
 
 ## Generating documentation
 
-For Rust:
+Build and view the documentation site:
 
 ```
-cargo doc --open
+just docs
 ```
 
-For Python:
+For Rust API docs:
 
 ```
-./ninja python:sphinx && open out/python/sphinx/html/py-modindex.html
+just docs-rust
 ```
 
 ## Environmental Variables
@@ -195,7 +202,53 @@ If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 - The anki-release package is created/published with the scripts in qt/release.
 - The installer/launcher is created with the build scripts in qt/launcher/{platform}.
 
-## Mixing development and study
+## Building
+
+The steps to build the launcher vary slightly depending on your operating
+system. First, you have to navigate to the appropriate folder:
+
+| Operating System | Path               | Env variables |
+| ---------------- | ------------------ | ------------- |
+| Linux            | ./qt/launcher/lin/ | -             |
+| MacOS            | ./qt/launcher/mac/ | `NODMG=1`     |
+| Windows          | .\qt\launcher\win\ | `NOCOMP=1`    |
+
+If you are on Windows or MacOS, you will now have to set the environment
+variables as outlined in the table above. `NOCOMP=1` skips code signing
+and compression, whereas `NODMG=1` skips the slow bundling / code signing.
+
+Next, run the `build.sh` script (on Linux and MacOS) or the `build.bat` script
+(on Windows).
+
+For example, on Linux, you can build the launcher by following these steps:
+
+```
+cd ./qt/launcher/lin/
+./build.sh
+```
+
+## Issues During Building
+
+If you are experiencing issues building the launcher, make sure that all dependencies
+are installed. See [Building from source](#building-from-source) for more info.
+
+## Running
+
+Once the launcher is built, you can find the executable under `out/launcher`
+(located in the project root). In that folder, you will find the binary file of
+the launcher.
+
+On linux, you will find a `launcher.amd64` and a `launcher.arm64` binary file.
+Select the one matching your architecture and run it to test your changes.
+
+For example, on Linux, after following the build steps above, you can run the
+amd64 launcher via this command:
+
+```
+../../../out/launcher/anki-launcher-25.09.2-linux/launcher.amd64
+```
+
+# Mixing development and study
 
 You may wish to create a separate profile with File>Switch Profile for use
 during development. You can pass the arguments "-p [profile name]" when starting

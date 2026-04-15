@@ -212,6 +212,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         x: parseInt(dr),
                         timeCost: resp!.cost[dr],
                         memorized: v,
+                        reviewless_end_memorized: resp!.reviewlessEndMemorized,
                         count: resp!.reviewCount[dr],
                         label: simulationNumber,
                         learnSpan: simulateFsrsRequest.daysToSimulate,
@@ -570,7 +571,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                         value={SimulateWorkloadSubgraph.ratio}
                                         bind:group={simulateWorkloadSubgraph}
                                     />
-                                    {tr.deckConfigFsrsSimulatorRadioRatio()}
+                                    {tr.deckConfigFsrsSimulatorRadioEfficiency()}
                                 </label>
                                 <label>
                                     <input
@@ -623,6 +624,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .modal {
         background-color: rgba(0, 0, 0, 0.5);
         --bs-modal-margin: 0;
+        --bs-modal-border-radius: 0;
     }
 
     .svg-container {

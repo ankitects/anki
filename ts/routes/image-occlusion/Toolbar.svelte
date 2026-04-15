@@ -507,13 +507,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         overflow-y: scroll;
         z-index: 99;
-        margin-left: 106px;
+        margin-inline-start: 106px;
         margin-top: 2px;
-    }
-
-    :global([dir="rtl"] .top-tool-bar-container) {
-        margin-left: unset;
-        margin-right: 28px;
     }
 
     .undo-redo-button {
