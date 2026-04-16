@@ -221,6 +221,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $tagsCollapsed = collapsed;
     }
 
+    const tagDisplayFull = writable<boolean>(false);
+    const tagDisplayModeShortcut = "Control+.";
+
+    export function setTagDisplayFull(full: boolean): void {
+        $tagDisplayFull = full;
+    }
+
+    function toggleTagDisplayMode(): void {
+        $tagDisplayFull = !$tagDisplayFull;
+        bridgeCommand(`setTagDisplayFull:${$tagDisplayFull}`);
+    }
+
     function updateTagsCollapsed(collapsed: boolean) {
         $tagsCollapsed = collapsed;
         bridgeCommand(`setTagsCollapsed:${$tagsCollapsed}`);
@@ -591,6 +603,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setMathjaxEnabled,
             setShrinkImages,
             setCloseHTMLTags,
+            setTagDisplayFull,
             triggerChanges,
             setIsImageOcclusion,
             setupMaskEditor,
@@ -797,6 +810,10 @@ the AddCards dialog) should be implemented in the user of this component.
                 updateTagsCollapsed(false);
             }}
         />
+        <Shortcut
+            keyCombination={tagDisplayModeShortcut}
+            on:action={toggleTagDisplayMode}
+        />
         <CollapseLabel
             collapsed={$tagsCollapsed}
             tooltip={$tagsCollapsed ? tr.editingExpand() : tr.editingCollapse()}
@@ -805,7 +822,13 @@ the AddCards dialog) should be implemented in the user of this component.
             {@html `${tagAmount > 0 ? tagAmount : ""} ${tr.editingTags()}`}
         </CollapseLabel>
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
-            <TagEditor {tags} on:tagsupdate={saveTags} />
+            <TagEditor
+                {tags}
+                displayFull={$tagDisplayFull}
+                displayModeShortcut={tagDisplayModeShortcut}
+                on:tagsupdate={saveTags}
+                on:displaymodechange={toggleTagDisplayMode}
+            />
         </Collapsible>
     {/if}
 </div>
