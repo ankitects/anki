@@ -3,7 +3,6 @@
 
 pub mod action;
 pub mod archives;
-pub mod audio;
 pub mod build;
 pub mod cargo;
 pub mod command;
