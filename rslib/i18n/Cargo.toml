@@ -2,9 +2,13 @@
 name = "anki_i18n"
 version.workspace = true
 authors.workspace = true
+documentation = "https://docs.rs/anki_i18n"
 edition.workspace = true
+homepage.workspace = true
 license.workspace = true
-publish = false
+publish = true
+readme.workspace = true
+repository.workspace = true
 rust-version.workspace = true
 description = "Anki's Rust library i18n code"
 
