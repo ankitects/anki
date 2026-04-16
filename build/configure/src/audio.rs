@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anyhow::Result;
+use ninja_gen::action::BuildAction;
 use ninja_gen::archives::download_and_extract;
 use ninja_gen::archives::empty_manifest;
 use ninja_gen::archives::OnlineArchive;
@@ -9,6 +10,7 @@ use ninja_gen::archives::Platform;
 use ninja_gen::glob;
 use ninja_gen::inputs;
 use ninja_gen::Build;
+use ninja_gen::copy::CopyFiles;
 
 use crate::platform::overriden_python_wheel_platform;
 use crate::python::BuildWheel;
@@ -37,8 +39,6 @@ fn mpv_archive(platform: Platform) -> OnlineArchive {
 
 fn lame_archive(platform: Platform) -> OnlineArchive {
     match platform {
-        Platform::MacX64 => todo!(),
-        Platform::MacArm => todo!(),
         Platform::WindowsX64 => OnlineArchive {
             url: "https://www.rarewares.org/files/mp3/lame3.100-64-20200409.zip",
             sha256: "59ea16ac74afb04f8ed9f33f75618e4e7e5b3e1ea53f5d751e3834e99f58ba6d",
@@ -68,12 +68,17 @@ pub fn build_audio(build: &mut Build) -> Result<()> {
         mpv_archive(build.host_platform),
         empty_manifest(),
     )?;
-    download_and_extract(
-        build,
-        "lame",
-        lame_archive(build.host_platform),
-        empty_manifest(),
-    )?;
+    if cfg!(target_os = "macos") {
+        build.add_action("extract:lame", CopyFiles {inputs: inputs!["/opt/homebrew/bin/lame"], output_folder: "extracted/lame"})?;
+    }
+    else {
+        download_and_extract(
+            build,
+            "lame",
+            lame_archive(build.host_platform),
+            empty_manifest(),
+        )?;
+    }
     build.add_action(
         "audio_wheel",
         BuildWheel {

@@ -30,7 +30,7 @@ class CustomBuildHook(BuildHookInterface):
         system = platform.system()
         if system == "Darwin":
             mpv_dir = extraction_folder / "mpv" / "mpv.app" / "Contents" / "MacOS"
-            lame_dir = extraction_folder / "lame" / "lame.app" / "Contents" / "MacOS"
+            lame_dir = extraction_folder / "lame"
             binary_files = [mpv_dir / "mpv", lame_dir / "lame"]
             # Check for both 'lib' and 'libs' directories
             lib_files = []
