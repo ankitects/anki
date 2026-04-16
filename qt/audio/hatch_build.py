@@ -35,7 +35,9 @@ class CustomBuildHook(BuildHookInterface):
             # Check for both 'lib' and 'libs' directories
             lib_files = []
             for src_dir in (mpv_dir, lame_dir):
-                lib_dir = src_dir / "libs" if (src_dir / "libs").exists() else src_dir / "lib"
+                lib_dir = (
+                    src_dir / "libs" if (src_dir / "libs").exists() else src_dir / "lib"
+                )
                 if lib_dir.exists():
                     lib_files.extend(list(lib_dir.glob("*.dylib")))
         elif system == "Windows":

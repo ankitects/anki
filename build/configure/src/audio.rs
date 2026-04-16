@@ -7,10 +7,10 @@ use ninja_gen::archives::download_and_extract;
 use ninja_gen::archives::empty_manifest;
 use ninja_gen::archives::OnlineArchive;
 use ninja_gen::archives::Platform;
+use ninja_gen::copy::CopyFiles;
 use ninja_gen::glob;
 use ninja_gen::inputs;
 use ninja_gen::Build;
-use ninja_gen::copy::CopyFiles;
 
 use crate::platform::overriden_python_wheel_platform;
 use crate::python::BuildWheel;
@@ -69,9 +69,14 @@ pub fn build_audio(build: &mut Build) -> Result<()> {
         empty_manifest(),
     )?;
     if cfg!(target_os = "macos") {
-        build.add_action("extract:lame", CopyFiles {inputs: inputs!["/opt/homebrew/bin/lame"], output_folder: "extracted/lame"})?;
-    }
-    else {
+        build.add_action(
+            "extract:lame",
+            CopyFiles {
+                inputs: inputs!["/opt/homebrew/bin/lame"],
+                output_folder: "extracted/lame",
+            },
+        )?;
+    } else {
         download_and_extract(
             build,
             "lame",
