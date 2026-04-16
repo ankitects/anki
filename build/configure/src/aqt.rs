@@ -348,6 +348,7 @@ fn build_wheel(build: &mut Build) -> Result<()> {
                 "qt/pyproject.toml",
                 "qt/hatch_build.py"
             ],
+            project_dir: "qt",
         },
     )
 }
