@@ -31,7 +31,7 @@ fn mpv_archive(platform: Platform) -> OnlineArchive {
             url: "https://github.com/mpv-player/mpv/releases/download/v0.41.0/mpv-v0.41.0-aarch64-pc-windows-msvc.zip",
             sha256: "a822abeffd0ac88951f4084f3425f949842aa17d616f880637ebe9041e482e97",
         },
-        _ => panic!("audio wheel is not supported on {}", platform.as_rust_triple()),
+        _ => unreachable!(),
     }
 }
 
@@ -47,10 +47,7 @@ fn lame_archive(platform: Platform) -> OnlineArchive {
             url: "https://www.rarewares.org/files/mp3/lame-3.100-ARM64.zip",
             sha256: "b1868219b9c9f38f83834b2e6a69c616cabfe6658f5d05c26ac371f39afdac5d",
         },
-        _ => panic!(
-            "audio whee is not supported on {}",
-            platform.as_rust_triple()
-        ),
+        _ => unreachable!(),
     }
 }
 
@@ -62,6 +59,9 @@ fn read_version() -> String {
 }
 
 pub fn build_audio(build: &mut Build) -> Result<()> {
+    if cfg!(target_os = "linux") {
+        return Ok(());
+    }
     download_and_extract(
         build,
         "mpv",
