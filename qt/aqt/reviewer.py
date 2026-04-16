@@ -172,9 +172,7 @@ class Reviewer:
         gui_hooks.av_player_did_end_playing.append(self._on_av_player_did_end_playing)
 
     def show(self) -> None:
-        if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():
-            self.mw.moveToState("deckBrowser")
-            show_warning(tr.scheduling_update_required().replace("V2", "v3"))
+        if not self._scheduler_version_check():
             return
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
@@ -183,6 +181,13 @@ class Reviewer:
         self._reps = None
         self._refresh_needed = RefreshNeeded.QUEUES
         self.refresh_if_needed()
+
+    def _scheduler_version_check(self):
+        if self.mw.col.sched_ver() == 1 or not self.mw.col.v3_scheduler():
+            self.mw.moveToState("deckBrowser")
+            show_warning(tr.scheduling_update_required().replace("V2", "v3"))
+            return False
+        return True
 
     # this is only used by add-ons
     def lastCard(self) -> Card | None:
@@ -444,7 +449,6 @@ class Reviewer:
             tooltip(tr.studying_question_time_elapsed())
 
     def autoplay(self, card: Card) -> bool:
-        print("use card.autoplay() instead of reviewer.autoplay(card)")
         return card.autoplay()
 
     def _update_flag_icon(self) -> None:
@@ -1231,6 +1235,37 @@ timerStopped = false;
     onDelete = delete_current_note
     onMark = toggle_mark_on_current_note
     setFlag = set_flag_on_current_card
+
+
+class SvelteReviewer(Reviewer):
+    def refresh_if_needed(self):
+        if self._refresh_needed:
+            self.mw.fade_in_webview()
+            self.web.eval("if (anki) {anki.changeReceived()}")
+            self._refresh_needed = None
+
+    def show(self) -> None:
+        if not self._scheduler_version_check():
+            return
+        self._initWeb()
+        # Prevents the shortcuts selecting the toolbar buttons for the next time enter is pressed
+        self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
+
+    def _linkHandler(self, url: str) -> None:
+        pass
+
+    def _initWeb(self) -> None:
+        self._reps = 0
+        # hide the bottom bar
+        self.bottom.web.setHtml("<style>body {margin:0;} html {height:0;}</style>")
+        # main window
+        self.web.load_sveltekit_page("reviewer")
+        # block default drag & drop behavior while allowing drop events to be received by JS handlers
+        self.web.allow_drops = True
+        self.web.set_open_iframe_links_externally(True)
+
+    def _shortcutKeys(self) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
+        return []
 
 
 # if the last element is a comment, then the RUN_STATE_MUTATION code
