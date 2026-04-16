@@ -35,6 +35,7 @@ class CustomBuildHook(BuildHookInterface):
         elif system == "Windows":
             binary_files = [
                 extraction_folder / "mpv" / "mpv.exe",
+                extraction_folder / "mpv" / "vulkan-1.dll",
                 extraction_folder / "lame" / "lame.exe",
                 extraction_folder / "lame" / "lame_enc.dll",
             ]
