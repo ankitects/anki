@@ -75,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const editor = (await codeMirror.editor) as any;
         editor.display.input.blur();
 
-        focus();
+        editor.getInputField().focus({ preventScroll: true });
         moveCaretToEnd();
     }
 
