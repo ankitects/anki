@@ -20,7 +20,7 @@ fn read_version() -> String {
 pub fn build_audio(build: &mut Build) -> Result<()> {
     extract_audio(build)?;
     build.add_action(
-        "wheels:audio",
+        "audio_wheel",
         BuildWheel {
             name: "anki-audio",
             version: read_version(),
