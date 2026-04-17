@@ -114,6 +114,7 @@ pub struct BuildWheel {
     pub version: String,
     pub platform: Option<Platform>,
     pub deps: BuildInput,
+    pub project_dir: &'static str,
 }
 
 impl BuildAction for BuildWheel {
@@ -132,9 +133,7 @@ impl BuildAction for BuildWheel {
 
         build.add_inputs("", &self.deps);
 
-        // Set the project directory based on which package we're building
-        let project_dir = if self.name == "anki" { "pylib" } else { "qt" };
-        build.add_variable("project_dir", project_dir);
+        build.add_variable("project_dir", self.project_dir);
 
         // Set environment variable for uv to use our pyenv
         build.add_variable("pyenv_path", "$builddir/pyenv");
