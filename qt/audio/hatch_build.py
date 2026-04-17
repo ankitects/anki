@@ -23,29 +23,25 @@ class CustomBuildHook(BuildHookInterface):
         build_data.setdefault("tag", platform_tag)
         build_data["pure_python"] = False
 
-        project_root = Path(self.root).parent.parent
-        extraction_folder = project_root / "out" / "extracted"
+        dist_dir = Path(self.root).parent.parent / "out" / "extracted"
 
         # Assumes platform_tag matches host system
         system = platform.system()
         if system == "Darwin":
-            mpv_dir = extraction_folder / "mpv" / "mpv.app" / "Contents" / "MacOS"
-            lame_dir = extraction_folder / "lame"
-            binary_files = [mpv_dir / "mpv", lame_dir / "lame"]
+            binary_files = [dist_dir / "mpv" / "mpv", dist_dir / "lame" / "lame"]
             # Check for both 'lib' and 'libs' directories
             lib_files = []
-            for src_dir in (mpv_dir, lame_dir):
-                lib_dir = (
-                    src_dir / "libs" if (src_dir / "libs").exists() else src_dir / "lib"
-                )
-                if lib_dir.exists():
-                    lib_files.extend(list(lib_dir.glob("*.dylib")))
+            lib_dir = (
+                dist_dir / "libs" if (dist_dir / "libs").exists() else dist_dir / "lib"
+            )
+            if lib_dir.exists():
+                lib_files.extend(list(lib_dir.glob("*.dylib")))
         elif system == "Windows":
             binary_files = [
-                extraction_folder / "mpv" / "mpv.exe",
-                extraction_folder / "mpv" / "vulkan-1.dll",
-                extraction_folder / "lame" / "lame.exe",
-                extraction_folder / "lame" / "lame_enc.dll",
+                dist_dir / "mpv" / "mpv.exe",
+                dist_dir / "mpv" / "vulkan-1.dll",
+                dist_dir / "lame" / "lame.exe",
+                dist_dir / "lame" / "lame_enc.dll",
             ]
             lib_files = []
         else:
