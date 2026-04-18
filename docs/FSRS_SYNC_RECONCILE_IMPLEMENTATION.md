@@ -366,7 +366,7 @@ Why this is necessary:
 - The guard conditions prevent the reconcile pass from inventing schedule changes for cards that should not be rescheduled at all.
 - The logic uses merged review timing and the recomputed memory state, so the resulting interval is based on the final post-sync view rather than either stale pre-sync row.
 
-## 10. The Test Covers The Real Failure Shape
+## 10. The Tests Cover The Reconciliation Matrix
 
 File:
 
@@ -422,20 +422,126 @@ async fn fsrs_stale_card_state_is_reconciled_during_sync() -> Result<()> {
 
 Why this is necessary:
 
-- This is the actual bug shape we care about:
+- The original stale-state case is still the core failure shape:
   - device A reviews
   - device B recomputes stale FSRS state without that review
   - sync must converge onto the merged truth
-- The test does not only check `cards.data`; it also checks `last_review_time`, `interval`, and `due`, because stale FSRS state can surface in multiple stored fields.
-- Using the real sync harness is important here because the ordering of merge and upload phases is exactly what the implementation relies on.
+- The coverage was then expanded to protect the other non-obvious branches in the implementation:
+  - metadata-only conflicts that must not reschedule
+  - itemless reconciliation
+  - per-preset grouping
+  - filtered-deck reconciliation via `original_or_current_deck_id()`
+  - deck-level desired retention overrides within one preset batch
+  - mixed batches where one card needs schedule reconciliation and another only needs metadata reconciliation
+  - same-card reviews on both devices before sync, which must rebuild memory state from the merged review history
+- Using the real sync harness is important because the ordering of merge and upload phases is exactly what the implementation relies on.
+
+Code:
+
+```rust
+#[tokio::test]
+async fn fsrs_state_is_recomputed_from_reviews_on_both_devices() -> Result<()> {
+    // ...
+    col1.answer_good();
+    // ...
+    col2.answer_easy();
+
+    let out = ctx.normal_sync(&mut col1).await;
+    assert_eq!(out.required, SyncActionRequired::NoChanges);
+    let out = ctx.normal_sync(&mut col2).await;
+    assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+    let merged_card = col2.storage.get_card(card_id)?.unwrap();
+    let pre_converged_card = col1.storage.get_card(card_id)?.unwrap();
+    assert_eq!(col2.storage.get_revlog_entries_for_card(card_id)?.len(), 3);
+    assert_eq!(col1.storage.get_revlog_entries_for_card(card_id)?.len(), 2);
+    assert!(
+        merged_card.memory_state != pre_converged_card.memory_state
+            || merged_card.last_review_time != pre_converged_card.last_review_time
+            || merged_card.interval != pre_converged_card.interval
+            || merged_card.due != pre_converged_card.due
+    );
+
+    let out = ctx.normal_sync(&mut col1).await;
+    assert_eq!(out.required, SyncActionRequired::NoChanges);
+    // both sides now converge onto the merged-history state
+}
+```
+
+Why this is necessary:
+
+- This is the strongest remaining correctness case for the reconciliation design.
+- It proves the implementation is not only repairing stale `card.data`; it is also handling the case where both devices independently add new reviews to the same card before syncing.
+- The intermediate assertion intentionally checks that the second syncing device moves to merged-history state before the first device has caught up.
+
+## 11. Add Minimal Debug Logging For Operability
+
+Files:
+
+- `rslib/src/sync/collection/normal.rs`
+- `rslib/src/scheduler/fsrs/memory_state.rs`
+
+Code:
+
+```rust
+debug!(
+    cards = cards_needing_fsrs_reconcile.len(),
+    schedule_cards = cards_needing_fsrs_reconcile
+        .values()
+        .filter(|&&needs_schedule_reconcile| needs_schedule_reconcile)
+        .count(),
+    "reconciling fsrs state"
+);
+```
+
+```rust
+debug!(
+    config_id = config_id.0,
+    cards = card_ids.len(),
+    cards_with_items = items.len(),
+    itemless_cards = cards_without_items.len(),
+    schedule_cards = schedule_reconcile_cards.len(),
+    "recomputing fsrs state after sync"
+);
+```
+
+Why this is necessary:
+
+- The sync path is hard to reason about from user reports alone.
+- These logs give just enough signal to answer:
+  - was FSRS reconciliation triggered at all?
+  - how many cards needed full schedule repair?
+  - how were the cards split by config and itemless/itemful paths?
+- The logging stays intentionally aggregate-only. It avoids per-card noise and does not add new behavior.
 
 ## Verified Commands
 
 These are the targeted checks that were run after the change:
 
 ```bash
-cargo test -p anki fsrs_stale_card_state -- --nocapture
-cargo test -p anki sync_roundtrip -- --nocapture
+cargo test -p anki fsrs_ -- --nocapture
 cargo test -p anki sync::collection::tests -- --nocapture
 cargo fmt --all
 ```
+
+## Test Matrix
+
+The current sync reconciliation coverage is:
+
+| Test | What it proves |
+| --- | --- |
+| `fsrs_stale_card_state_is_reconciled_during_sync` | One device reviews, the other recomputes stale FSRS state, and sync converges to merged truth. |
+| `fsrs_metadata_conflict_is_reconciled_without_rescheduling` | FSRS-only metadata conflicts are repaired without changing `due` or `interval`. |
+| `fsrs_itemless_card_state_is_cleared_during_sync` | Itemless reconciliation clears stale FSRS fields and refreshes retention/decay metadata. |
+| `fsrs_conflicts_are_reconciled_per_preset` | Cards from different presets/configs are reconciled with the correct config grouping. |
+| `fsrs_reconciliation_uses_original_deck_for_filtered_cards` | Filtered-deck metadata reconciliation resolves through `original_or_current_deck_id()`. |
+| `fsrs_reconciliation_respects_deck_overrides_within_one_preset` | Two decks sharing one preset still get their own deck-level desired retention override in the same batch. |
+| `fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively` | In one preset batch, one card can be rescheduled while another only gets metadata repair. |
+| `fsrs_filtered_card_schedule_conflict_uses_original_deck` | Filtered-deck schedule reconciliation uses the home deck and updates the home-deck schedule through `original_due`. |
+| `fsrs_state_is_recomputed_from_reviews_on_both_devices` | The same card reviewed on both devices before sync is recomputed from the merged review history. |
+
+Related base FSRS behavior already covered outside sync:
+
+| Test | What it proves |
+| --- | --- |
+| `no_req_clears_fsrs_data` | The memory-state update path clears FSRS data when no FSRS request is provided. |

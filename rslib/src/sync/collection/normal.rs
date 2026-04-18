@@ -134,6 +134,10 @@ impl NormalSyncer<'_> {
             .await?;
         debug!(
             cards = cards_needing_fsrs_reconcile.len(),
+            schedule_cards = cards_needing_fsrs_reconcile
+                .values()
+                .filter(|&&needs_schedule_reconcile| needs_schedule_reconcile)
+                .count(),
             "reconciling fsrs state"
         );
         self.col
