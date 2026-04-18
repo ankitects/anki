@@ -24,6 +24,7 @@ use wiremock::MockServer;
 use wiremock::ResponseTemplate;
 
 use crate::card::CardQueue;
+use crate::card::FsrsMemoryState;
 use crate::collection::CollectionBuilder;
 use crate::config::BoolKey;
 use crate::deckconfig::DeckConfig;
@@ -35,6 +36,9 @@ use crate::notetype::all_stock_notetypes;
 use crate::ops::Op;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
+use crate::revlog::RevlogId;
+use crate::revlog::RevlogReviewKind;
+use crate::scheduler::fsrs::memory_state::get_decay_from_params;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
@@ -396,6 +400,176 @@ async fn fsrs_stale_card_state_is_reconciled_during_sync() -> Result<()> {
 }
 
 #[tokio::test]
+async fn fsrs_metadata_conflict_is_reconciled_without_rescheduling() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "fsrs-metadata")?;
+        col1.add_note(&mut note, DeckId(1))?;
+        let card_id = col1.answer_easy().card_id;
+
+        sync_fsrs_collections(&ctx, col1).await?;
+
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        // Recompute FSRS metadata on col1 with a different desired retention,
+        // but without rescheduling. This gives us a conflict where only
+        // FSRS-derived card fields should be reconciled.
+        let mut deck = (*col1.get_deck(DeckId(1))?.unwrap()).clone();
+        deck.normal_mut().unwrap().desired_retention = Some(0.83);
+        col1.add_or_update_deck(&mut deck)?;
+
+        let config = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
+        let request = UpdateMemoryStateRequest {
+            params: config.fsrs_params().clone(),
+            preset_desired_retention: config.inner.desired_retention,
+            historical_retention: config.inner.historical_retention,
+            max_interval: config.inner.maximum_review_interval,
+            reschedule: false,
+            deck_desired_retention: HashMap::from([(DeckId(1), 0.83)]),
+        };
+        col1.transact(Op::UpdateDeckConfig, |col| {
+            col.update_memory_state(vec![UpdateMemoryStateEntry {
+                req: Some(request),
+                search: SearchNode::CardIds(card_id.to_string()),
+                ignore_before,
+            }])?;
+            Ok(())
+        })?;
+
+        // Simulate the other device holding stale FSRS data while the
+        // scheduling fields still match the current review history.
+        let stale_card = col2.get_and_update_card(card_id, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.0,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.desired_retention = Some(0.97);
+            card.decay = Some(0.12);
+            Ok(())
+        })?;
+        let updated_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_eq!(stale_card.interval, updated_card.interval);
+        assert_eq!(stale_card.due, updated_card.due);
+        assert_ne!(stale_card.memory_state, updated_card.memory_state);
+        assert_ne!(stale_card.desired_retention, updated_card.desired_retention);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let reconciled_card = col2.storage.get_card(card_id)?.unwrap();
+        let synced_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_eq!(reconciled_card.memory_state, synced_card.memory_state);
+        assert_eq!(
+            reconciled_card.desired_retention,
+            synced_card.desired_retention
+        );
+        assert_eq!(reconciled_card.decay, synced_card.decay);
+        assert_eq!(
+            reconciled_card.last_review_time,
+            synced_card.last_review_time
+        );
+        // Because only FSRS metadata diverged, reconciliation should not
+        // rewrite the schedule.
+        assert_eq!(reconciled_card.interval, stale_card.interval);
+        assert_eq!(reconciled_card.due, stale_card.due);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_itemless_card_state_is_cleared_during_sync() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "fsrs-itemless")?;
+        col1.add_note(&mut note, DeckId(1))?;
+        let card_id = col1.search_cards(note.id, SortMode::NoOrder)?[0];
+
+        sync_fsrs_collections(&ctx, col1).await?;
+
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        // A manual-only revlog makes the card show up in the merged history
+        // while still producing no FSRS item, which exercises the itemless
+        // reconciliation path.
+        col1.get_and_update_card(card_id, |card| {
+            card.due += 7;
+            Ok(())
+        })?;
+        col1.storage.add_revlog_entry(
+            &RevlogEntry {
+                id: RevlogId::new(),
+                cid: card_id,
+                usn: col1.usn()?,
+                button_chosen: 0,
+                interval: 0,
+                last_interval: 0,
+                ease_factor: 2500,
+                taken_millis: 0,
+                review_kind: RevlogReviewKind::Manual,
+            },
+            true,
+        )?;
+        col2.get_and_update_card(card_id, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: 7.0,
+                difficulty: 4.0,
+            });
+            card.desired_retention = Some(0.72);
+            card.decay = Some(0.34);
+            card.last_review_time = Some(TimestampSecs(123));
+            Ok(())
+        })?;
+
+        // Confirm the local side really carries stale FSRS state before sync.
+        let stale_card = col2.storage.get_card(card_id)?.unwrap();
+        assert!(stale_card.memory_state.is_some());
+        assert!(stale_card.last_review_time.is_some());
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let reconciled_card = col2.storage.get_card(card_id)?.unwrap();
+        let config = col2.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        assert_eq!(reconciled_card.memory_state, None);
+        assert_eq!(reconciled_card.last_review_time, None);
+        assert_eq!(
+            reconciled_card.desired_retention,
+            Some(config.inner.desired_retention)
+        );
+        assert!(
+            (reconciled_card.decay.unwrap() - get_decay_from_params(config.fsrs_params())).abs()
+                < 0.001
+        );
+        // Itemless reconciliation clears FSRS-derived fields, but it does not
+        // reschedule the card.
+        assert_eq!(reconciled_card.due, stale_card.due);
+        assert_eq!(reconciled_card.interval, stale_card.interval);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
 async fn sanity_check_should_roll_back_and_force_full_sync() -> Result<()> {
     with_active_server(|client| async move {
         let ctx = SyncTestContext::new(client);
@@ -677,6 +851,28 @@ async fn upload_download(ctx: &SyncTestContext) -> Result<()> {
     );
 
     // fetch so we're in sync
+    ctx.full_download(col2).await;
+
+    Ok(())
+}
+
+async fn sync_fsrs_collections(ctx: &SyncTestContext, mut col1: Collection) -> Result<()> {
+    let out = ctx.normal_sync(&mut col1).await;
+    assert!(matches!(
+        out.required,
+        SyncActionRequired::FullSyncRequired { .. }
+    ));
+    ctx.full_upload(col1).await;
+
+    let mut col2 = ctx.col2();
+    let out = ctx.normal_sync(&mut col2).await;
+    assert_eq!(
+        out.required,
+        SyncActionRequired::FullSyncRequired {
+            upload_ok: false,
+            download_ok: true,
+        }
+    );
     ctx.full_download(col2).await;
 
     Ok(())
