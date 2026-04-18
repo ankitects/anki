@@ -12,6 +12,7 @@ use fsrs::FSRS5_DEFAULT_DECAY;
 use fsrs::FSRS6_DEFAULT_DECAY;
 use itertools::Either;
 use itertools::Itertools;
+use tracing::debug;
 
 use super::params::ignore_revlogs_before_ms_from_config;
 use super::rescheduler::Rescheduler;
@@ -332,6 +333,14 @@ impl Collection {
                         .unwrap_or_default()
                 })
                 .collect();
+            debug!(
+                config_id = config_id.0,
+                cards = card_ids.len(),
+                cards_with_items = items.len(),
+                itemless_cards = cards_without_items.len(),
+                schedule_cards = schedule_reconcile_cards.len(),
+                "recomputing fsrs state after sync"
+            );
 
             self.reconcile_itemless_cards_after_sync(
                 cards_without_items,

@@ -1120,6 +1120,84 @@ async fn fsrs_filtered_card_schedule_conflict_uses_original_deck() -> Result<()>
 }
 
 #[tokio::test]
+async fn fsrs_state_is_recomputed_from_reviews_on_both_devices() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "fsrs-dual-review")?;
+        col1.add_note(&mut note, DeckId(1))?;
+        let card_id = col1.answer_easy().card_id;
+
+        sync_fsrs_collections(&ctx, col1).await?;
+
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        col1.storage
+            .db
+            .execute("update cards set due = 0 where id = ?", [card_id])?;
+        col1.clear_study_queues();
+        col1.answer_good();
+
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        col2.storage
+            .db
+            .execute("update cards set due = 0 where id = ?", [card_id])?;
+        col2.clear_study_queues();
+        col2.answer_easy();
+
+        let local_card1 = col1.storage.get_card(card_id)?.unwrap();
+        let local_card2 = col2.storage.get_card(card_id)?.unwrap();
+        assert!(
+            local_card1.memory_state != local_card2.memory_state
+                || local_card1.last_review_time != local_card2.last_review_time
+                || local_card1.interval != local_card2.interval
+                || local_card1.due != local_card2.due
+        );
+        assert_eq!(col1.storage.get_revlog_entries_for_card(card_id)?.len(), 2);
+        assert_eq!(col2.storage.get_revlog_entries_for_card(card_id)?.len(), 2);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let merged_card = col2.storage.get_card(card_id)?.unwrap();
+        let pre_converged_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_eq!(col2.storage.get_revlog_entries_for_card(card_id)?.len(), 3);
+        assert_eq!(col1.storage.get_revlog_entries_for_card(card_id)?.len(), 2);
+        // After device 2 syncs, it has seen both review streams and should no
+        // longer match device 1's still-local-only card state.
+        assert!(
+            merged_card.memory_state != pre_converged_card.memory_state
+                || merged_card.last_review_time != pre_converged_card.last_review_time
+                || merged_card.interval != pre_converged_card.interval
+                || merged_card.due != pre_converged_card.due
+        );
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card1 = col1.storage.get_card(card_id)?.unwrap();
+        let synced_card2 = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(col1.storage.get_revlog_entries_for_card(card_id)?.len(), 3);
+        assert_eq!(col2.storage.get_revlog_entries_for_card(card_id)?.len(), 3);
+        assert_eq!(synced_card1.memory_state, synced_card2.memory_state);
+        assert_eq!(synced_card1.last_review_time, synced_card2.last_review_time);
+        assert_eq!(synced_card1.interval, synced_card2.interval);
+        assert_eq!(synced_card1.due, synced_card2.due);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
 async fn sanity_check_should_roll_back_and_force_full_sync() -> Result<()> {
     with_active_server(|client| async move {
         let ctx = SyncTestContext::new(client);
