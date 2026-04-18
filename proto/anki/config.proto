@@ -128,6 +128,8 @@ message Preferences {
     string default_search_text = 4;
     bool ignore_accents_in_search = 5;
     bool render_latex = 6;
+    string api_host = 7;
+    sint32 api_port = 8;
   }
   message BackupLimits {
     uint32 daily = 1;
