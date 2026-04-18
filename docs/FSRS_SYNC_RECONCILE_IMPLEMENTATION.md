@@ -529,7 +529,7 @@ cargo fmt --all
 The current sync reconciliation coverage is:
 
 | Test                                                               | What it proves                                                                                                      |
-|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
 | `fsrs_stale_card_state_is_reconciled_during_sync`                  | One device reviews, the other recomputes stale FSRS state, and sync converges to merged truth.                      |
 | `fsrs_metadata_conflict_is_reconciled_without_rescheduling`        | FSRS-only metadata conflicts are repaired without changing `due` or `interval`.                                     |
 | `fsrs_itemless_card_state_is_cleared_during_sync`                  | Itemless reconciliation clears stale FSRS fields and refreshes retention/decay metadata.                            |
