@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use reqwest::Client;
 use std::collections::HashMap;
+
+use reqwest::Client;
 use tracing::debug;
 
 use crate::collection::Collection;

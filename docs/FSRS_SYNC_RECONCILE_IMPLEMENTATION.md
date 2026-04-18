@@ -528,20 +528,20 @@ cargo fmt --all
 
 The current sync reconciliation coverage is:
 
-| Test                                                             | What it proves                                                                                                     |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `fsrs_stale_card_state_is_reconciled_during_sync`                | One device reviews, the other recomputes stale FSRS state, and sync converges to merged truth.                    |
-| `fsrs_metadata_conflict_is_reconciled_without_rescheduling`      | FSRS-only metadata conflicts are repaired without changing `due` or `interval`.                                   |
-| `fsrs_itemless_card_state_is_cleared_during_sync`                | Itemless reconciliation clears stale FSRS fields and refreshes retention/decay metadata.                          |
-| `fsrs_conflicts_are_reconciled_per_preset`                       | Cards from different presets/configs are reconciled with the correct config grouping.                              |
-| `fsrs_reconciliation_uses_original_deck_for_filtered_cards`      | Filtered-deck metadata reconciliation resolves through `original_or_current_deck_id()`.                           |
-| `fsrs_reconciliation_respects_deck_overrides_within_one_preset`  | Two decks sharing one preset still get their own deck-level desired retention override in the same batch.         |
-| `fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively` | In one preset batch, one card can be rescheduled while another only gets metadata repair.                       |
-| `fsrs_filtered_card_schedule_conflict_uses_original_deck`        | Filtered-deck schedule reconciliation uses the home deck and updates the home-deck schedule through `original_due`. |
-| `fsrs_state_is_recomputed_from_reviews_on_both_devices`          | The same card reviewed on both devices before sync is recomputed from the merged review history.                  |
+| Test                                                               | What it proves                                                                                                      |
+|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `fsrs_stale_card_state_is_reconciled_during_sync`                  | One device reviews, the other recomputes stale FSRS state, and sync converges to merged truth.                      |
+| `fsrs_metadata_conflict_is_reconciled_without_rescheduling`        | FSRS-only metadata conflicts are repaired without changing `due` or `interval`.                                     |
+| `fsrs_itemless_card_state_is_cleared_during_sync`                  | Itemless reconciliation clears stale FSRS fields and refreshes retention/decay metadata.                            |
+| `fsrs_conflicts_are_reconciled_per_preset`                         | Cards from different presets/configs are reconciled with the correct config grouping.                               |
+| `fsrs_reconciliation_uses_original_deck_for_filtered_cards`        | Filtered-deck metadata reconciliation resolves through `original_or_current_deck_id()`.                             |
+| `fsrs_reconciliation_respects_deck_overrides_within_one_preset`    | Two decks sharing one preset still get their own deck-level desired retention override in the same batch.           |
+| `fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively` | In one preset batch, one card can be rescheduled while another only gets metadata repair.                           |
+| `fsrs_filtered_card_schedule_conflict_uses_original_deck`          | Filtered-deck schedule reconciliation uses the home deck and updates the home-deck schedule through `original_due`. |
+| `fsrs_state_is_recomputed_from_reviews_on_both_devices`            | The same card reviewed on both devices before sync is recomputed from the merged review history.                    |
 
 Related base FSRS behavior already covered outside sync:
 
-| Test                       | What it proves                                                                    |
-| -------------------------- | --------------------------------------------------------------------------------- |
-| `no_req_clears_fsrs_data`  | The memory-state update path clears FSRS data when no FSRS request is provided.   |
+| Test                      | What it proves                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| `no_req_clears_fsrs_data` | The memory-state update path clears FSRS data when no FSRS request is provided. |

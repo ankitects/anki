@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use itertools::Itertools;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_tuple::Serialize_tuple;
-use std::collections::HashMap;
 use tracing::debug;
 
 use crate::card::Card;
