@@ -155,7 +155,7 @@ class ReminderTroubleshootingFragment : Fragment(R.layout.fragment_reminder_trou
  * Shared factory for [ReminderTroubleshootingViewModel].
  *
  * Lives outside the ViewModel itself to keep the ViewModel free of `Context`. Both
- * [ScheduleReminders] and [ReminderTroubleshootingFragment] use this with
+ * [ScheduleRemindersFragment] and [ReminderTroubleshootingFragment] use this with
  * `by activityViewModels { … }` so they observe a single VM + repository instance.
  */
 internal fun reminderTroubleshootingViewModelFactory(context: Context): ViewModelProvider.Factory {

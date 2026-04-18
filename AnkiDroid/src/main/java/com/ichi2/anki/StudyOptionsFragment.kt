@@ -50,7 +50,7 @@ import com.ichi2.anki.libanki.Decks
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.reviewreminders.ReviewReminderScope
-import com.ichi2.anki.reviewreminders.ScheduleReminders
+import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.showDialogFragment
@@ -218,7 +218,7 @@ class StudyOptionsFragment :
             R.id.action_schedule_reminders -> {
                 Timber.i("StudyOptionsFragment:: schedule reminders button pressed")
                 val intent =
-                    ScheduleReminders.getIntent(
+                    ScheduleRemindersFragment.getIntent(
                         requireContext(),
                         ReviewReminderScope.DeckSpecific(col!!.decks.current().id),
                     )

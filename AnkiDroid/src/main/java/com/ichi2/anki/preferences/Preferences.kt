@@ -45,7 +45,7 @@ import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.preferences.HeaderFragment.Companion.getHeaderKeyForFragment
 import com.ichi2.anki.reviewreminders.ReviewReminderScope
-import com.ichi2.anki.reviewreminders.ScheduleReminders
+import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.utils.ext.sharedPrefs
 import com.ichi2.anki.utils.isWindowCompact
 import com.ichi2.themes.Themes
@@ -123,7 +123,7 @@ class PreferencesFragment :
     override fun onSearchResultClicked(result: SearchPreferenceResult) {
         if (result.key == getString(R.string.pref_review_reminders_screen_key)) {
             Timber.i("Preferences:: edit review reminders button pressed")
-            val intent = ScheduleReminders.getIntent(requireContext(), ReviewReminderScope.Global)
+            val intent = ScheduleRemindersFragment.getIntent(requireContext(), ReviewReminderScope.Global)
             startActivity(intent)
             return
         }

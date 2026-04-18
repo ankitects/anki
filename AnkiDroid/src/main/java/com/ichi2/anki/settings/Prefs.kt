@@ -326,9 +326,9 @@ open class PrefsRepository(
      * when in reality notification permissions have not been requested for the device. This is most prominently
      * an issue for the review reminders feature, so to ensure the user is able to receive review reminder notifications after
      * a data restore / migration, a Snackbar noting that notification permissions are missing will be shown
-     * on the [com.ichi2.anki.reviewreminders.ScheduleReminders] fragment if notification permissions are not granted.
+     * on the [com.ichi2.anki.reviewreminders.ScheduleRemindersFragment] fragment if notification permissions are not granted.
      *
-     * @see com.ichi2.anki.reviewreminders.ScheduleReminders.checkForNotificationPermissions
+     * @see com.ichi2.anki.reviewreminders.ScheduleRemindersFragment.checkForNotificationPermissions
      */
     var notificationsPermissionRequested by booleanPref(R.string.notifications_permission_requested_key, false)
 

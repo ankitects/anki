@@ -25,7 +25,7 @@ class ScheduleRemindersDestination(
     private val did: DeckId,
 ) : Destination {
     override fun toIntent(context: Context): Intent =
-        ScheduleReminders.getIntent(
+        ScheduleRemindersFragment.getIntent(
             context,
             ReviewReminderScope.DeckSpecific(did),
         )

@@ -61,7 +61,7 @@ import timber.log.Timber
 /**
  * Fragment for creating, viewing, editing, and deleting review reminders.
  */
-class ScheduleReminders :
+class ScheduleRemindersFragment :
     Fragment(R.layout.fragment_schedule_reminders),
     BaseSnackbarBuilderProvider {
     /**
@@ -455,7 +455,7 @@ class ScheduleReminders :
     /**
      * [AddEditReminderDialog] requires to catch changes from [DeckSelectionDialog]. However,
      * [AddEditReminderDialog] is removed from the fragment stack when the [DeckSelectionDialog]
-     * appears, so we set [ScheduleReminders] as the receiver and forward data to
+     * appears, so we set [ScheduleRemindersFragment] as the receiver and forward data to
      * [AddEditReminderDialog] when a deck is selected.
      */
     private fun onDeckSelected(deck: SelectableDeck?) {
@@ -469,7 +469,7 @@ class ScheduleReminders :
     }
 
     /**
-     * Trigger a RecyclerView UI update for ScheduleReminders.
+     * Trigger a RecyclerView UI update for this fragment.
      * If there are no reminders to display, show the "No Reminders" placeholder icon and text.
      */
     private fun triggerUIUpdate() {
@@ -524,9 +524,9 @@ class ScheduleReminders :
             }
 
         /**
-         * Creates an intent to start the ScheduleReminders fragment.
+         * Creates an intent to launch this fragment in a [SingleFragmentActivity].
          * @param context
-         * @param scope The editing scope of the ScheduleReminders fragment.
+         * @param scope The editing scope of this fragment.
          * @return The new intent.
          */
         fun getIntent(
@@ -536,12 +536,12 @@ class ScheduleReminders :
             SingleFragmentActivity
                 .getIntent(
                     context,
-                    ScheduleReminders::class,
+                    ScheduleRemindersFragment::class,
                     Bundle().apply {
                         putParcelable(EXTRAS_SCOPE_KEY, scope)
                     },
                 ).apply {
-                    Timber.i("launching ScheduleReminders for %s scope", scope)
+                    Timber.i("launching ScheduleRemindersFragment for %s scope", scope)
                 }
     }
 }

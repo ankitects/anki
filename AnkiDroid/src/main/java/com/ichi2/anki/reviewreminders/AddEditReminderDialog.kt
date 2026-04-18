@@ -71,7 +71,7 @@ class AddEditReminderDialog : DialogFragment() {
     @Parcelize
     sealed class DialogMode : Parcelable {
         /**
-         * Adding a new review reminder. Requires the editing scope of [ScheduleReminders] as an argument so that the dialog can
+         * Adding a new review reminder. Requires the editing scope of [ScheduleRemindersFragment] as an argument so that the dialog can
          * pick a default deck to add to (or, if the scope is global, so that the dialog can
          * show that the review reminder will default to being a global reminder).
          */
@@ -140,13 +140,13 @@ class AddEditReminderDialog : DialogFragment() {
         setUpCardThresholdInput()
         setUpOnlyNotifyIfNoReviewsCheckbox()
 
-        // For getting the result of the deck selection sub-dialog from ScheduleReminders
-        // See ScheduleReminders.onDeckSelected for more information
-        setFragmentResultListener(ScheduleReminders.DECK_SELECTION_RESULT_REQUEST_KEY) { _, bundle ->
+        // For getting the result of the deck selection sub-dialog from ScheduleRemindersFragment
+        // See ScheduleRemindersFragment.onDeckSelected for more information
+        setFragmentResultListener(ScheduleRemindersFragment.DECK_SELECTION_RESULT_REQUEST_KEY) { _, bundle ->
             val selectedDeck =
                 BundleCompat.getParcelable(
                     bundle,
-                    ScheduleReminders.DECK_SELECTION_RESULT_REQUEST_KEY,
+                    ScheduleRemindersFragment.DECK_SELECTION_RESULT_REQUEST_KEY,
                     SelectableDeck::class.java,
                 )
             Timber.d("Received result from deck selection sub-dialog: %s", selectedDeck)
@@ -330,9 +330,9 @@ class AddEditReminderDialog : DialogFragment() {
         val reminderToBeReturned = viewModel.outputStateAsReminder()
         Timber.d("Reminder to be returned: %s", reminderToBeReturned)
         setFragmentResult(
-            ScheduleReminders.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY,
+            ScheduleRemindersFragment.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY,
             Bundle().apply {
-                putParcelable(ScheduleReminders.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY, reminderToBeReturned)
+                putParcelable(ScheduleRemindersFragment.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY, reminderToBeReturned)
             },
         )
 
@@ -356,9 +356,9 @@ class AddEditReminderDialog : DialogFragment() {
         )
         confirmationDialog.setConfirm {
             setFragmentResult(
-                ScheduleReminders.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY,
+                ScheduleRemindersFragment.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY,
                 Bundle().apply {
-                    putParcelable(ScheduleReminders.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY, null)
+                    putParcelable(ScheduleRemindersFragment.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY, null)
                 },
             )
             dismiss()

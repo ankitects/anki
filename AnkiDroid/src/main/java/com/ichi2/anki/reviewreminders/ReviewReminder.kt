@@ -111,11 +111,11 @@ value class ReviewReminderCardTriggerThreshold(
 
 /**
  * An indicator of whether a review reminders feature is associated with every deck in the user's
- * collection or if it is associated with a single deck. For example, the [ScheduleReminders] fragment
+ * collection or if it is associated with a single deck. For example, the [ScheduleRemindersFragment] fragment
  * can be triggered in either global or deck-specific editing mode. A [ReviewReminder] can be associated
  * with either all decks or a specific deck.
  *
- * This class is marked with @Parcelize so that it can be passed into [ScheduleReminders.getIntent].
+ * This class is marked with @Parcelize so that it can be passed into [ScheduleRemindersFragment.getIntent].
  * This class is marked with @Serializable so that it can be a field of [ReviewReminder]s, which are stored as JSON strings.
  */
 @Serializable
