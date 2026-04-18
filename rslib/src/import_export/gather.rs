@@ -60,7 +60,9 @@ impl ExchangeData {
         };
 
         if with_deck_configs {
-            self.deck_configs = guard.col.gather_deck_configs(&self.decks)?;
+            self.deck_configs = guard
+                .col
+                .gather_deck_configs(&self.decks, with_scheduling)?;
         }
         self.reset_decks(!with_deck_configs, !with_scheduling, allow_filtered);
 
@@ -307,15 +309,26 @@ impl Collection {
         self.storage.get_revlog_entries_for_searched_cards()
     }
 
-    fn gather_deck_configs(&mut self, decks: &[Deck]) -> Result<Vec<DeckConfig>> {
+    fn gather_deck_configs(
+        &mut self,
+        decks: &[Deck],
+        with_scheduling: bool,
+    ) -> Result<Vec<DeckConfig>> {
         decks
             .iter()
             .filter_map(|deck| deck.config_id())
             .unique()
             .map(|config_id| {
-                self.storage
+                let mut config = self
+                    .storage
                     .get_deck_config(config_id)?
-                    .or_not_found(config_id)
+                    .or_not_found(config_id)?;
+                if !with_scheduling {
+                    config.inner.fsrs_params_4.clear();
+                    config.inner.fsrs_params_5.clear();
+                    config.inner.fsrs_params_6.clear();
+                }
+                Ok(config)
             })
             .collect()
     }
