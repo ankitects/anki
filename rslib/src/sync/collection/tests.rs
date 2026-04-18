@@ -8,6 +8,7 @@ use std::future::Future;
 use std::sync::LazyLock;
 
 use axum::http::StatusCode;
+use fsrs::DEFAULT_PARAMETERS;
 use reqwest::Client;
 use reqwest::Url;
 use serde_json::json;
@@ -29,6 +30,7 @@ use crate::collection::CollectionBuilder;
 use crate::config::BoolKey;
 use crate::deckconfig::DeckConfig;
 use crate::decks::DeckKind;
+use crate::decks::NativeDeckName;
 use crate::error::SyncError;
 use crate::error::SyncErrorKind;
 use crate::log::set_global_logger;
@@ -563,6 +565,554 @@ async fn fsrs_itemless_card_state_is_cleared_during_sync() -> Result<()> {
         // reschedule the card.
         assert_eq!(reconciled_card.due, stale_card.due);
         assert_eq!(reconciled_card.interval, stale_card.interval);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_conflicts_are_reconciled_per_preset() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let mut config1 = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config1.inner.desired_retention = 0.81;
+        config1.inner.fsrs_params_6 = DEFAULT_PARAMETERS.into();
+        col1.add_or_update_deck_config(&mut config1)?;
+
+        let mut config2 = DeckConfig {
+            name: "fsrs second config".into(),
+            ..Default::default()
+        };
+        config2.inner.desired_retention = 0.93;
+        config2.inner.fsrs_params_6 = DEFAULT_PARAMETERS.into();
+        config2.inner.fsrs_params_6[20] = 0.21;
+        col1.add_or_update_deck_config(&mut config2)?;
+
+        let mut deck2 = col1.get_or_create_normal_deck("fsrs second deck")?;
+        if let DeckKind::Normal(deck) = &mut deck2.kind {
+            deck.config_id = config2.id.0;
+        }
+        col1.add_or_update_deck(&mut deck2)?;
+
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note1 = nt.new_note();
+        note1.set_field(0, "fsrs-preset-1")?;
+        col1.add_note(&mut note1, DeckId(1))?;
+        col1.set_current_deck(DeckId(1))?;
+        let card1 = col1.answer_easy().card_id;
+
+        let mut note2 = nt.new_note();
+        note2.set_field(0, "fsrs-preset-2")?;
+        col1.add_note(&mut note2, deck2.id)?;
+        col1.set_current_deck(deck2.id)?;
+        let card2 = col1.answer_easy().card_id;
+
+        sync_fsrs_collections(&ctx, col1).await?;
+
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        // Recompute both cards on the source side using different presets so
+        // reconciliation has to group by config instead of treating all cards
+        // as if they shared one FSRS setup.
+        let config1 = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        let config2 = col1.get_deck_config(config2.id, false)?.unwrap();
+        let ignore_before1 = ignore_revlogs_before_ms_from_config(&config1)?;
+        let ignore_before2 = ignore_revlogs_before_ms_from_config(&config2)?;
+        col1.transact(Op::UpdateDeckConfig, |col| {
+            col.update_memory_state(vec![
+                UpdateMemoryStateEntry {
+                    req: Some(UpdateMemoryStateRequest {
+                        params: config1.fsrs_params().clone(),
+                        preset_desired_retention: config1.inner.desired_retention,
+                        historical_retention: config1.inner.historical_retention,
+                        max_interval: config1.inner.maximum_review_interval,
+                        reschedule: false,
+                        deck_desired_retention: HashMap::new(),
+                    }),
+                    search: SearchNode::CardIds(card1.to_string()),
+                    ignore_before: ignore_before1,
+                },
+                UpdateMemoryStateEntry {
+                    req: Some(UpdateMemoryStateRequest {
+                        params: config2.fsrs_params().clone(),
+                        preset_desired_retention: config2.inner.desired_retention,
+                        historical_retention: config2.inner.historical_retention,
+                        max_interval: config2.inner.maximum_review_interval,
+                        reschedule: false,
+                        deck_desired_retention: HashMap::new(),
+                    }),
+                    search: SearchNode::CardIds(card2.to_string()),
+                    ignore_before: ignore_before2,
+                },
+            ])?;
+            Ok(())
+        })?;
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        // Make the destination side newer so the stale cards stay local and
+        // must be repaired by the post-sync reconciliation pass.
+        col2.get_and_update_card(card1, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.0,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.desired_retention = Some(0.99);
+            card.decay = Some(0.11);
+            Ok(())
+        })?;
+        col2.get_and_update_card(card2, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 2.0,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.desired_retention = Some(0.77);
+            card.decay = Some(0.31);
+            Ok(())
+        })?;
+
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card1 = col1.storage.get_card(card1)?.unwrap();
+        let synced_card2 = col1.storage.get_card(card2)?.unwrap();
+        let reconciled_card1 = col2.storage.get_card(card1)?.unwrap();
+        let reconciled_card2 = col2.storage.get_card(card2)?.unwrap();
+        assert_eq!(reconciled_card1.memory_state, synced_card1.memory_state);
+        assert_eq!(reconciled_card2.memory_state, synced_card2.memory_state);
+        assert_eq!(
+            reconciled_card1.desired_retention,
+            Some(config1.inner.desired_retention)
+        );
+        assert_eq!(
+            reconciled_card2.desired_retention,
+            Some(config2.inner.desired_retention)
+        );
+        assert!(
+            (reconciled_card1.decay.unwrap() - get_decay_from_params(config1.fsrs_params())).abs()
+                < 0.001
+        );
+        assert!(
+            (reconciled_card2.decay.unwrap() - get_decay_from_params(config2.fsrs_params())).abs()
+                < 0.001
+        );
+        assert_ne!(
+            reconciled_card1.desired_retention,
+            reconciled_card2.desired_retention
+        );
+        assert_ne!(reconciled_card1.decay, reconciled_card2.decay);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_reconciliation_uses_original_deck_for_filtered_cards() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let mut home_deck = col1.get_or_create_normal_deck("fsrs home deck")?;
+        home_deck.normal_mut().unwrap().desired_retention = Some(0.84);
+        col1.add_or_update_deck(&mut home_deck)?;
+
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "fsrs-filtered-home")?;
+        col1.add_note(&mut note, home_deck.id)?;
+        col1.set_current_deck(home_deck.id)?;
+        let card_id = col1.answer_easy().card_id;
+
+        sync_fsrs_collections(&ctx, col1).await?;
+
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        // Refresh the source card so the server has a pending card change,
+        // then create a newer local filtered-deck variant on the other side.
+        let config = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
+        col1.transact(Op::UpdateDeckConfig, |col| {
+            col.update_memory_state(vec![UpdateMemoryStateEntry {
+                req: Some(UpdateMemoryStateRequest {
+                    params: config.fsrs_params().clone(),
+                    preset_desired_retention: config.inner.desired_retention,
+                    historical_retention: config.inner.historical_retention,
+                    max_interval: config.inner.maximum_review_interval,
+                    reschedule: false,
+                    deck_desired_retention: HashMap::from([(home_deck.id, 0.84)]),
+                }),
+                search: SearchNode::CardIds(card_id.to_string()),
+                ignore_before,
+            }])?;
+            Ok(())
+        })?;
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let mut filtered_deck = Deck::new_filtered();
+        filtered_deck.name = NativeDeckName::from_native_str("fsrs filtered");
+        {
+            let filtered = filtered_deck.filtered_mut()?;
+            filtered.reschedule = false;
+            filtered.search_terms[0].search = format!("cid:{}", card_id.0);
+        }
+        col2.add_or_update_deck(&mut filtered_deck)?;
+        assert_eq!(col2.rebuild_filtered_deck(filtered_deck.id)?.output, 1);
+        let stale_card = col2.get_and_update_card(card_id, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.5,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.desired_retention = Some(0.99);
+            card.decay = Some(0.12);
+            Ok(())
+        })?;
+        assert_eq!(stale_card.deck_id, filtered_deck.id);
+        assert_eq!(stale_card.original_deck_id, home_deck.id);
+
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let reconciled_card = col2.storage.get_card(card_id)?.unwrap();
+        let synced_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_eq!(reconciled_card.deck_id, filtered_deck.id);
+        assert_eq!(reconciled_card.original_deck_id, home_deck.id);
+        assert_eq!(reconciled_card.memory_state, synced_card.memory_state);
+        assert_eq!(reconciled_card.desired_retention, Some(0.84));
+        assert_eq!(
+            reconciled_card.last_review_time,
+            synced_card.last_review_time
+        );
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_reconciliation_respects_deck_overrides_within_one_preset() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let mut shared_config = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        shared_config.inner.desired_retention = 0.89;
+        shared_config.inner.fsrs_params_6 = DEFAULT_PARAMETERS.into();
+        col1.add_or_update_deck_config(&mut shared_config)?;
+
+        let mut deck1 = col1.get_or_create_normal_deck("fsrs override deck 1")?;
+        deck1.normal_mut().unwrap().desired_retention = Some(0.82);
+        col1.add_or_update_deck(&mut deck1)?;
+
+        let mut deck2 = col1.get_or_create_normal_deck("fsrs override deck 2")?;
+        deck2.normal_mut().unwrap().desired_retention = Some(0.95);
+        col1.add_or_update_deck(&mut deck2)?;
+
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note1 = nt.new_note();
+        note1.set_field(0, "fsrs-override-1")?;
+        col1.add_note(&mut note1, deck1.id)?;
+        col1.set_current_deck(deck1.id)?;
+        let card1 = col1.answer_easy().card_id;
+
+        let mut note2 = nt.new_note();
+        note2.set_field(0, "fsrs-override-2")?;
+        col1.add_note(&mut note2, deck2.id)?;
+        col1.set_current_deck(deck2.id)?;
+        let card2 = col1.answer_easy().card_id;
+
+        sync_fsrs_collections(&ctx, col1).await?;
+
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        let config = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
+        // Both cards share the same preset, so reconciliation will process
+        // them together and must still apply the deck-level desired retention
+        // override for each home deck.
+        col1.transact(Op::UpdateDeckConfig, |col| {
+            col.update_memory_state(vec![UpdateMemoryStateEntry {
+                req: Some(UpdateMemoryStateRequest {
+                    params: config.fsrs_params().clone(),
+                    preset_desired_retention: config.inner.desired_retention,
+                    historical_retention: config.inner.historical_retention,
+                    max_interval: config.inner.maximum_review_interval,
+                    reschedule: false,
+                    deck_desired_retention: HashMap::from([(deck1.id, 0.82), (deck2.id, 0.95)]),
+                }),
+                search: SearchNode::CardIds(format!("{},{}", card1.0, card2.0)),
+                ignore_before,
+            }])?;
+            Ok(())
+        })?;
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        col2.get_and_update_card(card1, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.0,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.desired_retention = Some(0.99);
+            card.decay = Some(0.11);
+            Ok(())
+        })?;
+        col2.get_and_update_card(card2, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.5,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.desired_retention = Some(0.77);
+            card.decay = Some(0.31);
+            Ok(())
+        })?;
+
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let reconciled_card1 = col2.storage.get_card(card1)?.unwrap();
+        let reconciled_card2 = col2.storage.get_card(card2)?.unwrap();
+        let synced_card1 = col1.storage.get_card(card1)?.unwrap();
+        let synced_card2 = col1.storage.get_card(card2)?.unwrap();
+        assert_eq!(reconciled_card1.memory_state, synced_card1.memory_state);
+        assert_eq!(reconciled_card2.memory_state, synced_card2.memory_state);
+        assert_eq!(reconciled_card1.desired_retention, Some(0.82));
+        assert_eq!(reconciled_card2.desired_retention, Some(0.95));
+        assert_ne!(
+            reconciled_card1.desired_retention,
+            reconciled_card2.desired_retention
+        );
+        assert!(
+            (reconciled_card1.decay.unwrap() - get_decay_from_params(config.fsrs_params())).abs()
+                < 0.001
+        );
+        assert!(
+            (reconciled_card2.decay.unwrap() - get_decay_from_params(config.fsrs_params())).abs()
+                < 0.001
+        );
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let mut metadata_deck = col1.get_or_create_normal_deck("fsrs metadata deck")?;
+        metadata_deck.normal_mut().unwrap().desired_retention = Some(0.83);
+        col1.add_or_update_deck(&mut metadata_deck)?;
+
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note1 = nt.new_note();
+        note1.set_field(0, "fsrs-mixed-schedule")?;
+        col1.add_note(&mut note1, DeckId(1))?;
+        col1.set_current_deck(DeckId(1))?;
+        let card1 = col1.answer_easy().card_id;
+
+        let mut note2 = nt.new_note();
+        note2.set_field(0, "fsrs-mixed-metadata")?;
+        col1.add_note(&mut note2, metadata_deck.id)?;
+        col1.set_current_deck(metadata_deck.id)?;
+        let card2 = col1.answer_easy().card_id;
+
+        sync_fsrs_collections(&ctx, col1).await?;
+
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+
+        // Card 1 gets a new review on the source side, so its schedule needs
+        // to be recomputed from merged history. Card 2 only gets a metadata
+        // refresh using the same preset and should keep its existing schedule.
+        col1.storage
+            .db
+            .execute("update cards set due = 0 where id = ?", [card1])?;
+        col1.set_current_deck(DeckId(1))?;
+        col1.clear_study_queues();
+        col1.answer_good();
+
+        let config = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
+        col1.transact(Op::UpdateDeckConfig, |col| {
+            col.update_memory_state(vec![UpdateMemoryStateEntry {
+                req: Some(UpdateMemoryStateRequest {
+                    params: config.fsrs_params().clone(),
+                    preset_desired_retention: config.inner.desired_retention,
+                    historical_retention: config.inner.historical_retention,
+                    max_interval: config.inner.maximum_review_interval,
+                    reschedule: false,
+                    deck_desired_retention: HashMap::from([(metadata_deck.id, 0.83)]),
+                }),
+                search: SearchNode::CardIds(card2.to_string()),
+                ignore_before,
+            }])?;
+            Ok(())
+        })?;
+
+        let stale_card1 = col2.get_and_update_card(card1, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.0,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.interval += 1;
+            card.due += 1;
+            card.desired_retention = Some(0.99);
+            card.decay = Some(0.11);
+            Ok(())
+        })?;
+        let stale_card2 = col2.get_and_update_card(card2, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.5,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.desired_retention = Some(0.97);
+            card.decay = Some(0.12);
+            Ok(())
+        })?;
+
+        let reviewed_card = col1.storage.get_card(card1)?.unwrap();
+        let refreshed_card = col1.storage.get_card(card2)?.unwrap();
+        assert!(
+            stale_card1.interval != reviewed_card.interval || stale_card1.due != reviewed_card.due
+        );
+        assert_eq!(stale_card2.interval, refreshed_card.interval);
+        assert_eq!(stale_card2.due, refreshed_card.due);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let reconciled_card1 = col2.storage.get_card(card1)?.unwrap();
+        let reconciled_card2 = col2.storage.get_card(card2)?.unwrap();
+        let synced_card1 = col1.storage.get_card(card1)?.unwrap();
+        let synced_card2 = col1.storage.get_card(card2)?.unwrap();
+        assert_eq!(reconciled_card1.memory_state, synced_card1.memory_state);
+        assert_eq!(
+            reconciled_card1.last_review_time,
+            synced_card1.last_review_time
+        );
+        assert_eq!(reconciled_card1.interval, synced_card1.interval);
+        assert_eq!(reconciled_card1.due, synced_card1.due);
+
+        assert_eq!(reconciled_card2.memory_state, synced_card2.memory_state);
+        assert_eq!(
+            reconciled_card2.desired_retention,
+            synced_card2.desired_retention
+        );
+        assert_eq!(
+            reconciled_card2.last_review_time,
+            synced_card2.last_review_time
+        );
+        // Card 2 was only marked for metadata reconciliation, so its schedule
+        // should remain untouched even though it was processed in the same
+        // preset batch as card 1.
+        assert_eq!(reconciled_card2.interval, stale_card2.interval);
+        assert_eq!(reconciled_card2.due, stale_card2.due);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_filtered_card_schedule_conflict_uses_original_deck() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let mut home_deck = col1.get_or_create_normal_deck("fsrs filtered schedule home")?;
+        home_deck.normal_mut().unwrap().desired_retention = Some(0.84);
+        col1.add_or_update_deck(&mut home_deck)?;
+
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "fsrs-filtered-schedule")?;
+        col1.add_note(&mut note, home_deck.id)?;
+        col1.set_current_deck(home_deck.id)?;
+        let card_id = col1.answer_easy().card_id;
+
+        sync_fsrs_collections(&ctx, col1).await?;
+
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+
+        col1.storage
+            .db
+            .execute("update cards set due = 0 where id = ?", [card_id])?;
+        col1.set_current_deck(home_deck.id)?;
+        col1.clear_study_queues();
+        col1.answer_good();
+
+        let mut filtered_deck = Deck::new_filtered();
+        filtered_deck.name = NativeDeckName::from_native_str("fsrs filtered schedule");
+        {
+            let filtered = filtered_deck.filtered_mut()?;
+            filtered.reschedule = false;
+            filtered.search_terms[0].search = format!("cid:{}", card_id.0);
+        }
+        col2.add_or_update_deck(&mut filtered_deck)?;
+        assert_eq!(col2.rebuild_filtered_deck(filtered_deck.id)?.output, 1);
+        let stale_card = col2.get_and_update_card(card_id, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.5,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.interval += 1;
+            card.original_due += 1;
+            card.desired_retention = Some(0.99);
+            card.decay = Some(0.12);
+            Ok(())
+        })?;
+        assert_eq!(stale_card.deck_id, filtered_deck.id);
+        assert_eq!(stale_card.original_deck_id, home_deck.id);
+
+        let reviewed_card = col1.storage.get_card(card_id)?.unwrap();
+        assert!(
+            stale_card.interval != reviewed_card.interval
+                || stale_card.original_due != reviewed_card.due
+        );
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let reconciled_card = col2.storage.get_card(card_id)?.unwrap();
+        let synced_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_eq!(reconciled_card.deck_id, filtered_deck.id);
+        assert_eq!(reconciled_card.original_deck_id, home_deck.id);
+        assert_eq!(reconciled_card.memory_state, synced_card.memory_state);
+        assert_eq!(reconciled_card.desired_retention, Some(0.84));
+        assert_eq!(reconciled_card.interval, synced_card.interval);
+        assert_eq!(reconciled_card.original_due, synced_card.due);
+        // The filtered deck position should remain local to the filtered deck;
+        // only the home-deck schedule is updated through original_due.
+        assert_eq!(reconciled_card.due, stale_card.due);
 
         Ok(())
     })
