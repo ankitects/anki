@@ -3,6 +3,7 @@
 
 #![cfg(test)]
 
+use std::collections::HashMap;
 use std::future::Future;
 use std::sync::LazyLock;
 
@@ -24,14 +25,20 @@ use wiremock::ResponseTemplate;
 
 use crate::card::CardQueue;
 use crate::collection::CollectionBuilder;
+use crate::config::BoolKey;
 use crate::deckconfig::DeckConfig;
 use crate::decks::DeckKind;
 use crate::error::SyncError;
 use crate::error::SyncErrorKind;
 use crate::log::set_global_logger;
 use crate::notetype::all_stock_notetypes;
+use crate::ops::Op;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
+use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
+use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
+use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
+use crate::search::SearchNode;
 use crate::search::SortMode;
 use crate::sync::collection::graves::ApplyGravesRequest;
 use crate::sync::collection::meta::MetaRequest;
@@ -281,6 +288,108 @@ async fn sync_roundtrip() -> Result<()> {
         let ctx = SyncTestContext::new(client);
         upload_download(&ctx).await?;
         regular_sync(&ctx).await?;
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_stale_card_state_is_reconciled_during_sync() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "fsrs")?;
+        col1.add_note(&mut note, DeckId(1))?;
+        let card_id = col1.answer_easy().card_id;
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert!(matches!(
+            out.required,
+            SyncActionRequired::FullSyncRequired { .. }
+        ));
+        ctx.full_upload(col1).await;
+
+        let mut col2 = ctx.col2();
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(
+            out.required,
+            SyncActionRequired::FullSyncRequired {
+                upload_ok: false,
+                download_ok: true,
+            }
+        );
+        ctx.full_download(col2).await;
+
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        col1.storage
+            .db
+            .execute("update cards set due = 0 where id = ?", [card_id])?;
+        col1.clear_study_queues();
+        col1.answer_good();
+
+        std::thread::sleep(std::time::Duration::from_millis(1));
+
+        let config = col2.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
+        let request = UpdateMemoryStateRequest {
+            params: config.fsrs_params().clone(),
+            preset_desired_retention: config.inner.desired_retention,
+            historical_retention: config.inner.historical_retention,
+            max_interval: config.inner.maximum_review_interval,
+            reschedule: false,
+            deck_desired_retention: HashMap::new(),
+        };
+        col2.transact(Op::UpdateDeckConfig, |col| {
+            col.update_memory_state(vec![UpdateMemoryStateEntry {
+                req: Some(request),
+                search: SearchNode::CardIds(card_id.to_string()),
+                ignore_before,
+            }])?;
+            Ok(())
+        })?;
+
+        let stale_card = col2.storage.get_card(card_id)?.unwrap();
+        let reviewed_card = col1.storage.get_card(card_id)?.unwrap();
+        assert!(
+            stale_card.memory_state != reviewed_card.memory_state
+                || stale_card.last_review_time != reviewed_card.last_review_time
+                || stale_card.interval != reviewed_card.interval
+                || stale_card.due != reviewed_card.due
+        );
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let reconciled_card = col2.storage.get_card(card_id)?.unwrap();
+        let reviewed_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_eq!(reconciled_card.memory_state, reviewed_card.memory_state);
+        assert_eq!(
+            reconciled_card.last_review_time,
+            reviewed_card.last_review_time
+        );
+        assert_eq!(reconciled_card.interval, reviewed_card.interval);
+        assert_eq!(reconciled_card.due, reviewed_card.due);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let synced_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_eq!(synced_card.memory_state, reconciled_card.memory_state);
+        assert_eq!(
+            synced_card.last_review_time,
+            reconciled_card.last_review_time
+        );
+        assert_eq!(synced_card.interval, reconciled_card.interval);
+        assert_eq!(synced_card.due, reconciled_card.due);
+
         Ok(())
     })
     .await
