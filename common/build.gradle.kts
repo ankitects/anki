@@ -1,20 +1,6 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    // Use `id` to avoid classpath conflicts. Versions are pinned by buildSrc/.
-    id("org.jetbrains.kotlin.jvm")
+    id("ankidroid.jvm.library")
     `java-test-fixtures`
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
-    }
 }
 
 dependencies {

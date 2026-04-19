@@ -1,19 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    id("kotlin")
-}
-
-tasks.withType(JavaCompile::class).configureEach {
-    sourceCompatibility = JavaVersion.VERSION_17.toString()
-    targetCompatibility = JavaVersion.VERSION_17.toString()
-}
-
-tasks.withType(KotlinCompile::class).all {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
-    }
+    id("ankidroid.jvm.library")
 }
 
 dependencies {
