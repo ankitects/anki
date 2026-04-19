@@ -39,7 +39,6 @@ configure<LibraryExtension> {
     }
 }
 
-apply(from = "../../lint.gradle")
 apply(from = "../../jacocoSupport.gradle")
 
 dependencies {

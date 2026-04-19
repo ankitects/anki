@@ -13,8 +13,6 @@ configure<LibraryExtension> {
     }
 }
 
-apply(from = "../lint.gradle")
-
 dependencies {
     implementation(project(":common"))
     implementation(libs.androidx.core.ktx)

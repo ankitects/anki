@@ -11,7 +11,6 @@ configure<LibraryExtension> {
     testFixtures.enable = true
 }
 
-apply(from = "../lint.gradle")
 apply(from = "../jacocoSupport.gradle")
 
 dependencies {

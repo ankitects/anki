@@ -1,4 +1,5 @@
 // see .editorconfig for ktlint-related rules
+// TODO: move to buildSrc when api/ has a convention plugin and AnkiDroid/build.gradle is converted to .kts
 
 android {
     lint {

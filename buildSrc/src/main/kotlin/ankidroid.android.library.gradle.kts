@@ -46,3 +46,6 @@ extensions.configure<LibraryExtension> {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
+// Shared project-wide lint configuration.
+apply(from = "${rootDir}/lint.gradle")
