@@ -7,10 +7,6 @@ plugins {
 configure<LibraryExtension> {
     namespace = "com.ichi2.anki.compat"
     testFixtures.enable = true
-
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
-    }
 }
 
 dependencies {

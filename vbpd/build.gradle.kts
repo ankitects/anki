@@ -11,10 +11,6 @@ configure<LibraryExtension> {
         viewBinding = true
     }
 
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
