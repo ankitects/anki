@@ -22,16 +22,6 @@ plugins {
 
 configure<LibraryExtension> {
     namespace = "com.ichi2.anki.common.android"
-
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-        }
-    }
 }
 
 apply(from = "../../jacocoSupport.gradle")
