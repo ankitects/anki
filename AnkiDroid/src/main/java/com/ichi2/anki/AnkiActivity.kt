@@ -23,6 +23,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.ProgressBar
 import androidx.activity.result.ActivityResult
@@ -47,6 +48,7 @@ import androidx.core.app.ShareCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -139,7 +141,6 @@ open class AnkiActivity(
             }
         }
 
-    @Suppress("deprecation") // #9332: UI Visibility -> Insets
     override fun onCreate(savedInstanceState: Bundle?) {
         // The hardware buttons should control the music volume
         volumeControlStream = AudioManager.STREAM_MUSIC
@@ -147,14 +148,8 @@ open class AnkiActivity(
         Themes.setTheme(this)
         Themes.disableXiaomiForceDarkMode(this)
         super.onCreate(savedInstanceState)
-        // Disable the notifications bar if running under the test monkey.
-        if (AdaptionUtil.isUserATestClient) {
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            )
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            @Suppress("deprecation")
             window.navigationBarColor = getColor(R.color.transparent)
         }
         supportFragmentManager.setFragmentResultListener(REQUEST_EXPORT_SAVE, this) { _, bundle ->
@@ -183,6 +178,14 @@ open class AnkiActivity(
 
     override fun onStart() {
         super.onStart()
+        // Disable the notifications bar if running under the test monkey.
+        // This is a work-around for an issue with the monkey feature of adb - when the
+        // monkey runs on a physical device, it can pull the status bar down, and escape the app
+        // under test.
+        if (AdaptionUtil.isUserATestClient && window != null) {
+            // Note: this is run in `onStart`, since it appears the decorView can be null in `onCreate`
+            CompatHelper.compat.hideStatusBar(window)
+        }
         customTabActivityHelper.bindCustomTabsService(this)
     }
 

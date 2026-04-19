@@ -43,6 +43,7 @@ class CompatHelper private constructor() {
             sdkVersion >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> CompatV34()
             sdkVersion >= Build.VERSION_CODES.TIRAMISU -> CompatV33()
             sdkVersion >= Build.VERSION_CODES.S -> CompatV31()
+            sdkVersion >= Build.VERSION_CODES.R -> CompatV30()
             sdkVersion >= Build.VERSION_CODES.Q -> CompatV29()
             sdkVersion >= Build.VERSION_CODES.O -> CompatV26()
             else -> BaseCompat()

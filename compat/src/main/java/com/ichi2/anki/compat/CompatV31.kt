@@ -13,7 +13,7 @@ import kotlin.time.Duration
 
 /** Implementation of [Compat] for SDK level 31  */
 @RequiresApi(31)
-open class CompatV31 : CompatV29() {
+open class CompatV31 : CompatV30() {
     override fun vibrate(
         context: Context,
         duration: Duration,
