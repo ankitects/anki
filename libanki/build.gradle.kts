@@ -11,8 +11,6 @@ configure<LibraryExtension> {
     testFixtures.enable = true
 }
 
-apply(from = "../jacocoSupport.gradle")
-
 dependencies {
     // Project dependencies
     implementation(project(":common"))

@@ -24,8 +24,6 @@ configure<LibraryExtension> {
     namespace = "com.ichi2.anki.common.android"
 }
 
-apply(from = "../../jacocoSupport.gradle")
-
 dependencies {
     implementation(project(":common"))
 

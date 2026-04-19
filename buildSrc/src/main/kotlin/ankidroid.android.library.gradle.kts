@@ -49,3 +49,7 @@ extensions.configure<LibraryExtension> {
 
 // Shared project-wide lint configuration.
 apply(from = "${rootDir}/lint.gradle")
+
+// Apply jacoco so module unit tests produce .exec files that
+// AnkiDroid's jacocoUnitTestReport aggregates across modules.
+apply(from = "${rootDir}/jacocoSupport.gradle")
