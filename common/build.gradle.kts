@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    // Use `id` to avoid classpath conflicts. Versions are pinned by buildSrc/.
+    id("org.jetbrains.kotlin.jvm")
     `java-test-fixtures`
 }
 

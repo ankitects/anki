@@ -17,21 +17,13 @@
 import com.android.build.api.dsl.LibraryExtension
 
 plugins {
-    alias(libs.plugins.android.library)
+    id("ankidroid.android.library")
 }
 
 configure<LibraryExtension> {
     namespace = "com.ichi2.anki.common.android"
-    compileSdk =
-        libs.versions.compileSdk
-            .get()
-            .toInt()
 
     defaultConfig {
-        minSdk =
-            libs.versions.minSdk
-                .get()
-                .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -44,11 +36,6 @@ configure<LibraryExtension> {
                 "proguard-rules.pro",
             )
         }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 

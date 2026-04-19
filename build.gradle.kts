@@ -15,11 +15,13 @@ import kotlin.system.exitProcess
 
 // Top-level build file where you can add configuration options common to all subprojects/modules.
 plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.kotlin.parcelize) apply false
-    alias(libs.plugins.kotlin.jvm) apply false
+    // Use `id` to avoid classpath conflicts. Versions are pinned by buildSrc/.
+    id("com.android.application") apply false
+    id("com.android.library") apply false
+    id("org.jetbrains.kotlin.android") apply false
+    id("org.jetbrains.kotlin.plugin.parcelize") apply false
+    id("org.jetbrains.kotlin.jvm") apply false
+    // Serialization is a separate artifact, not pinned transitively by AGP.
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktlint.gradle.plugin) apply false
     alias(libs.plugins.keeper) apply false

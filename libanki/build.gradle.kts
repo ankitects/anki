@@ -1,31 +1,14 @@
 import com.android.build.api.dsl.LibraryExtension
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.library)
+    id("ankidroid.android.library")
     alias(libs.plugins.kotlin.serialization)
 }
 
 configure<LibraryExtension> {
     namespace = "com.ichi2.anki.libanki"
     testFixtures.enable = true
-    compileSdk =
-        libs.versions.compileSdk
-            .get()
-            .toInt()
-
-    defaultConfig {
-        minSdk =
-            libs.versions.minSdk
-                .get()
-                .toInt()
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
 }
 
 apply(from = "../lint.gradle")

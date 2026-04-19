@@ -2,7 +2,8 @@ import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 
 plugins {
-    alias(libs.plugins.android.library)
+    // Use `id` to avoid classpath conflicts. Versions are pinned by buildSrc/.
+    id("com.android.library")
     id("maven-publish")
 }
 

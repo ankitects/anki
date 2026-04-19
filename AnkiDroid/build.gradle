@@ -1,8 +1,9 @@
 plugins {
     // Gradle plugin portal
     alias(libs.plugins.tripletPlay)
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.parcelize)
+    // TODO: migrate to .kts & replace the next 2 id lines with id("ankidroid.android.app")
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.plugin.parcelize'
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.keeper)
     alias(libs.plugins.roborazzi)
