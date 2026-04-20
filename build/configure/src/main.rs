@@ -31,8 +31,6 @@ use rust::check_rust;
 use web::build_and_check_web;
 use web::check_sql;
 
-use crate::python::setup_sphinx;
-
 fn anki_version() -> String {
     std::fs::read_to_string(".version")
         .unwrap()
@@ -63,8 +61,6 @@ fn main() -> Result<()> {
     if env::var("OFFLINE_BUILD").is_err() {
         build_launcher(build)?;
     }
-
-    setup_sphinx(build)?;
 
     check_rust(build)?;
     check_pylib(build)?;

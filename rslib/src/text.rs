@@ -154,11 +154,6 @@ static AV_TAGS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?xs)
             \[sound:(.+?)\]     # 1 - the filename in a sound tag
-            |
-            \[anki:tts\]
-                \[(.*?)\]       # 2 - arguments to tts call
-                (.*?)           # 3 - field text
-            \[/anki:tts\]
             ",
     )
     .unwrap()

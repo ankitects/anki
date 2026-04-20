@@ -14,7 +14,7 @@ official releases.
 **Ensure some basic tools are installed**:
 
 ```
-$ sudo apt install bash grep findutils curl gcc g++ make git rsync
+$ sudo apt install bash grep findutils curl gcc gcc-12 g++ make git rsync
 ```
 
 - The 'find' utility is 'findutils' on Debian.
@@ -31,10 +31,16 @@ for example:
 
 ```
 sudo apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
-  libxcb-randr0 libxcb-render-util0
+  libxcb-randr0 libxcb-render-util0 libxkbfile1
 ```
 
-On some distros such as Arch Linux and Fedora, you may need to install the
+The libraries that might be required on Arch Linux:
+
+```
+sudo pacman -S nss libxkbfile
+```
+
+On some distros such as Fedora, you may need to install the
 `libxcrypt-compat` package if you get an error like this:
 
 ```

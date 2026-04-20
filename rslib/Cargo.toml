@@ -76,6 +76,7 @@ num_enum.workspace = true
 once_cell.workspace = true
 pbkdf2.workspace = true
 percent-encoding-iri.workspace = true
+permutation.workspace = true
 phf.workspace = true
 pin-project.workspace = true
 prost.workspace = true
