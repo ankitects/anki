@@ -23,10 +23,6 @@ plugins {
 configure<LibraryExtension> {
     namespace = "com.ichi2.anki.common.android"
 
-    defaultConfig {
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
