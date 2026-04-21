@@ -219,4 +219,44 @@ class ProfileContextWrapperTest {
         assertEquals(baseContext.filesDir.absolutePath, result.absolutePath)
         assertNotEquals(File(profileBaseDir, "files").absolutePath, result.absolutePath)
     }
+
+    @Test
+    fun `all profile internal directories sit under profileBaseDir`() {
+        val wrapper = ProfileContextWrapper.create(baseContext, profileId, profileBaseDir)
+        val rootPrefix = profileBaseDir.absolutePath + File.separator
+
+        assertTrue("filesDir", wrapper.filesDir.absolutePath.startsWith(rootPrefix))
+        assertTrue("cacheDir", wrapper.cacheDir.absolutePath.startsWith(rootPrefix))
+        assertTrue("codeCacheDir", wrapper.codeCacheDir.absolutePath.startsWith(rootPrefix))
+        assertTrue("noBackupFilesDir", wrapper.noBackupFilesDir.absolutePath.startsWith(rootPrefix))
+        assertTrue(
+            "databasePath",
+            wrapper.getDatabasePath("collection.anki2").absolutePath.startsWith(rootPrefix),
+        )
+        assertTrue(
+            "getDir",
+            wrapper.getDir("acra", Context.MODE_PRIVATE).absolutePath.startsWith(rootPrefix),
+        )
+    }
+
+    @Test
+    fun `two non-default profiles have disjoint internal directory trees`() {
+        val appDataRoot = baseContext.filesDir.parentFile!!
+        val profileA = ProfileId("p_alpha")
+        val profileB = ProfileId("p_bravo")
+        val baseA = File(appDataRoot, profileA.value).apply { deleteRecursively() }
+        val baseB = File(appDataRoot, profileB.value).apply { deleteRecursively() }
+
+        val wrapperA = ProfileContextWrapper.create(baseContext, profileA, baseA)
+        val wrapperB = ProfileContextWrapper.create(baseContext, profileB, baseB)
+
+        assertNotEquals(wrapperA.filesDir.absolutePath, wrapperB.filesDir.absolutePath)
+        assertNotEquals(wrapperA.cacheDir.absolutePath, wrapperB.cacheDir.absolutePath)
+        assertNotEquals(wrapperA.codeCacheDir.absolutePath, wrapperB.codeCacheDir.absolutePath)
+        assertNotEquals(wrapperA.noBackupFilesDir.absolutePath, wrapperB.noBackupFilesDir.absolutePath)
+        assertNotEquals(
+            wrapperA.getDatabasePath("collection.anki2").absolutePath,
+            wrapperB.getDatabasePath("collection.anki2").absolutePath,
+        )
+    }
 }

@@ -26,15 +26,15 @@ import android.webkit.WebView
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
-import com.ichi2.anki.IntentHandler
+import com.ichi2.anki.CollectionHelper.PREF_COLLECTION_PATH
+import com.ichi2.anki.CollectionHelper.getDefaultAnkiDroidDirectory
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.time.getTimestamp
-import org.acra.ACRA
+import com.ichi2.anki.preferences.sharedPrefs
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
-import java.util.UUID
 
 /**
  * Manages the creation, loading, and switching of user profiles.
@@ -169,18 +169,48 @@ class ProfileManager private constructor(
         val profileBaseDir = resolveProfileDirectory(profileId)
 
         try {
-            activeProfileContext =
+            val wrapper =
                 ProfileContextWrapper.create(
                     context = appContext,
                     profileId = profileId,
                     profileBaseDir = profileBaseDir.file,
                 )
+            activeProfileContext = wrapper
+            ensureProfileCollectionPath(wrapper)
         } catch (e: Exception) {
             Timber.w(e, "Failed to load profile context for $profileId")
             throw RuntimeException("Failed to load profile environment", e)
         }
 
         Timber.d("Profile loaded: $profileId at ${profileBaseDir.file.absolutePath}")
+    }
+
+    /**
+     * Ensures that a valid collection path is initialized and stored in the profile's shared preferences.
+     *
+     * For non-default profiles, this method mirrors the standard AnkiDroid directory structure
+     * by creating a profile-specific subdirectory within the external files directory.
+     *
+     * @param wrapper  The [ProfileContextWrapper] providing access to the profile-namespace SharedPreferences.
+     *
+     * @throws com.ichi2.anki.exception.SystemStorageException
+     *   if the app's external storage is unavailable (surfaced by
+     *   [getDefaultAnkiDroidDirectory]). The profile cannot be loaded without writable
+     *   external storage.
+     *
+     * @see PREF_COLLECTION_PATH
+     */
+    private fun ensureProfileCollectionPath(wrapper: ProfileContextWrapper) {
+        val profileId = wrapper.profileId
+        if (profileId.isDefault()) return
+
+        val prefs = wrapper.sharedPrefs()
+        if (prefs.getString(PREF_COLLECTION_PATH, null) != null) return
+
+        val profileCollectionDir =
+            getDefaultAnkiDroidDirectory(appContext, directoryName = profileId.value).apply { mkdirs() }
+
+        prefs.edit { putString(PREF_COLLECTION_PATH, profileCollectionDir.absolutePath) }
     }
 
     private fun configureWebView(profileId: ProfileId) {

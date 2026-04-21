@@ -25,8 +25,10 @@ import android.webkit.WebView
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CollectionHelper.PREF_COLLECTION_PATH
 import com.ichi2.anki.multiprofile.ProfileManager.Companion.KEY_LAST_ACTIVE_PROFILE_ID
 import com.ichi2.anki.multiprofile.ProfileManager.Companion.PROFILE_REGISTRY_FILENAME
+import com.ichi2.anki.preferences.sharedPrefs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -238,6 +240,31 @@ class ProfileManagerTest {
     }
 
     @Test
+    fun `loading a non-default profile sets deckPath to the profile-specific external dir`() {
+        val manager = ProfileManager.create(context)
+        val ashishId = manager.createNewProfile(ProfileName.fromTrustedSource("Ashish"))
+        with(ProfileManager.ProfileSwitchContext) { manager.switchActiveProfile(ashishId) }
+
+        val reloaded = ProfileManager.create(context)
+        val deckPath = reloaded.activeProfileContext.sharedPrefs().getString(PREF_COLLECTION_PATH, null)
+
+        val expected = File(context.getExternalFilesDir(null), ashishId.value).absolutePath
+        assertEquals(expected, deckPath)
+    }
+
+    @Test
+    fun `loading a non-default profile creates the deckPath directory on disk`() {
+        val manager = ProfileManager.create(context)
+        val ashishId = manager.createNewProfile(ProfileName.fromTrustedSource("Ashish"))
+        with(ProfileManager.ProfileSwitchContext) { manager.switchActiveProfile(ashishId) }
+
+        val reloaded = ProfileManager.create(context)
+        val deckPath = reloaded.activeProfileContext.sharedPrefs().getString(PREF_COLLECTION_PATH, null)!!
+
+        assertTrue("deckPath directory must exist after profile load", File(deckPath).isDirectory)
+    }
+
+    @Test
     fun `renameProfile does not write to disk if name is identical`() {
         val manager = ProfileManager.create(context)
         val name = ProfileName.fromTrustedSource("No Change")
@@ -262,5 +289,25 @@ class ProfileManagerTest {
             }
 
         assertTrue(exception.message!!.contains("not found"))
+    }
+
+    @Test
+    fun `reloading an existing profile does not overwrite a pre-existing deckPath`() {
+        val manager = ProfileManager.create(context)
+        val newId = manager.createNewProfile(ProfileName.fromTrustedSource("Work"))
+        with(ProfileManager.ProfileSwitchContext) { manager.switchActiveProfile(newId) }
+
+        // First load materializes deckPath. Then the user "relocates" their collection.
+        val firstLoad = ProfileManager.create(context)
+        val userChosenPath = File(context.filesDir, "user_relocated").apply { mkdirs() }.absolutePath
+        firstLoad.activeProfileContext.sharedPrefs().edit(commit = true) {
+            putString(PREF_COLLECTION_PATH, userChosenPath)
+        }
+
+        // Simulate app restart - ProfileManager.create runs again.
+        val reloaded = ProfileManager.create(context)
+        val deckPath = reloaded.activeProfileContext.sharedPrefs().getString(PREF_COLLECTION_PATH, null)
+
+        assertEquals("User-relocated deckPath must not be overwritten on reload", userChosenPath, deckPath)
     }
 }
