@@ -39,6 +39,12 @@ On all platforms, you will need to install:
   or `bash tools\install-n2` on Windows. If you want to use Ninja, it can be downloaded
   from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   placed on your path, or from your distro/homebrew if it's 1.10+.
+  - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
+- (Optional) [just](https://just.systems/man/en/packages.html) command runner.
+  Install with `brew install just` or `uv tool install just`.
+  We are experimenting with `just` as the official tool for running
+  Anki-specific commands, and it will likely become the source of truth
+  in the future.
 
 Platform-specific requirements:
 
@@ -129,7 +135,7 @@ To build wheels on Mac/Linux:
 ./tools/build
 ```
 
-(on Windows, `\tools\build.bat`)
+(on Windows, `.\tools\build.bat`)
 
 The generated wheels are in out/wheels. You can then install them by copying the paths into a pip install command.
 Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
@@ -149,7 +155,8 @@ to free space.
 
 Cargo, yarn and pip all cache downloads of dependencies in a shared cache that
 other builds on your system may use as well. If you wish to clear up those caches,
-they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`.
+they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`. On
+Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
 with Rust Analyzer), output files will go into `target/` unless you have
@@ -165,16 +172,16 @@ See [this page](./build.md)
 
 ## Generating documentation
 
-For Rust:
+Build and view the documentation site:
 
 ```
-cargo doc --open
+just docs
 ```
 
-For Python:
+For Rust API docs:
 
 ```
-./ninja python:sphinx && open out/python/sphinx/html/py-modindex.html
+just docs-rust
 ```
 
 ## Environmental Variables

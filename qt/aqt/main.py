@@ -1022,6 +1022,11 @@ title="{}" {}>{}</button>""".format(
     def maybe_check_for_addon_updates(
         self, on_done: Callable[[list[DownloadLogEntry]], None] | None = None
     ) -> None:
+        if not self.pm.check_for_addon_updates():
+            if on_done:
+                on_done([])
+            return
+
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
 
