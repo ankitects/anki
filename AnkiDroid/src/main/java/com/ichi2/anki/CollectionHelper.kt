@@ -174,18 +174,24 @@ object CollectionHelper {
      * like Samsung may refer to external emulated storage as internal storage, even though for developers, they mean
      * very different things as explained above.
      *
+     * @param directoryName  The leaf folder name to use at the end of the returned path.
+     *                       Defaults to `"AnkiDroid"` (the historical default-profile folder name).
+     *                       Callers wanting a profile-specific layout can pass e.g. the profile id.
      * @return Absolute Path to the default location starting location for the AnkiDroid directory
      *
      * @throws SystemStorageException if `getExternalFilesDir` returns null
      */
     // TODO Tracked in https://github.com/ankidroid/Anki-Android/issues/5304
     @CheckResult
-    fun getDefaultAnkiDroidDirectory(context: Context): File {
+    fun getDefaultAnkiDroidDirectory(
+        context: Context,
+        directoryName: String = "AnkiDroid",
+    ): File {
         val legacyStorage = selectAnkiDroidFolder(context) != AppPrivateFolder
-        return if (!legacyStorage) {
-            File(getAppSpecificExternalAnkiDroidDirectory(context), "AnkiDroid")
+        return if (legacyStorage) {
+            legacyAnkiDroidDirectory(directoryName)
         } else {
-            legacyAnkiDroidDirectory
+            File(getAppSpecificExternalAnkiDroidDirectory(context), directoryName)
         }
     }
 
@@ -193,13 +199,13 @@ object CollectionHelper {
      * Returns the absolute path to the AnkiDroid directory under the primary/shared external storage directory.
      * This directory may be in emulated external storage, or can be an SD Card directory.
      *
-     *
-     * The path returned will no longer be accessible to AnkiDroid once targetSdk > 29
-     *
+     * @param directoryName  The folder name to use at the end of the returned path. Defaults to
+     *                       `"AnkiDroid"`. Non-default profiles can pass `ProfileId` here to get a
+     *                       profile-specific layout.
      * @return Absolute path to the AnkiDroid directory in primary shared/external storage
      */
-    private val legacyAnkiDroidDirectory: File
-        get() = File(Environment.getExternalStorageDirectory(), "AnkiDroid")
+    private fun legacyAnkiDroidDirectory(directoryName: String = "AnkiDroid"): File =
+        File(Environment.getExternalStorageDirectory(), directoryName)
 
     /**
      * Returns the absolute path to the AnkiDroid directory under the app-specific, primary/shared external storage
