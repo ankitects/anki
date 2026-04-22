@@ -63,7 +63,7 @@ def check_for_update() -> None:
     ).without_collection().run_in_background()
 
 
-def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
+def prompt_to_update(mw: aqt.AnkiQt, ver: str, by_user: bool = False) -> None:
     msg = (
         tr.qt_misc_anki_updatedanki_has_been_released(val=ver)
         + tr.qt_misc_would_you_like_to_download_it()
@@ -77,7 +77,8 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
     msgbox.setText(msg)
 
     button = QPushButton(tr.qt_misc_ignore_this_update())
-    msgbox.addButton(button, QMessageBox.ButtonRole.RejectRole)
+    if not by_user:
+        msgbox.addButton(button, QMessageBox.ButtonRole.RejectRole)
     msgbox.setDefaultButton(QMessageBox.StandardButton.Yes)
     ret = msgbox.exec()
 
