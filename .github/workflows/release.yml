@@ -116,6 +116,7 @@ jobs:
     needs: [prepare, ftl-sync]
     runs-on: macos-14
     timeout-minutes: 90
+    environment: release
     steps:
       - uses: actions/checkout@v4
         with:
@@ -127,8 +128,29 @@ jobs:
       - name: Write version
         run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
 
+      - name: Set up Apple code signing
+        if: ${{ inputs.dry_run != true }}
+        run: .github/scripts/setup_apple_signing.sh
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
+          APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          APPLE_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
+
       - name: Build installer
         run: ./tools/build-installer
+        env:
+          SIGN_IDENTITY: ${{ inputs.dry_run != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+
+      - name: Clean up signing credentials
+        if: always()
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -139,6 +161,7 @@ jobs:
     needs: [prepare, ftl-sync]
     runs-on: macos-15-intel
     timeout-minutes: 90
+    environment: release
     steps:
       - uses: actions/checkout@v4
         with:
@@ -150,8 +173,29 @@ jobs:
       - name: Write version
         run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
 
+      - name: Set up Apple code signing
+        if: ${{ inputs.dry_run != true }}
+        run: .github/scripts/setup_apple_signing.sh
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
+          APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          APPLE_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
+
       - name: Build installer
         run: ./tools/build-installer
+        env:
+          SIGN_IDENTITY: ${{ inputs.dry_run != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+
+      - name: Clean up signing credentials
+        if: always()
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -225,6 +269,7 @@ jobs:
           path: out/installer/dist/
 
   sign-windows:
+    if: ${{ inputs.dry_run != true }}
     needs: build-windows
     runs-on: windows-2022
     environment: release
