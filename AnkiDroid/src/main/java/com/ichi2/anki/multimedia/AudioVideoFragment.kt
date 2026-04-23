@@ -67,9 +67,7 @@ class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
             when {
                 result.resultCode != Activity.RESULT_OK || result.data == null -> {
                     Timber.d("Uri is empty or Result not OK")
-                    if (viewModel.currentMultimediaUri.value == null) {
-                        setMultimediaResultAndFinish(MultimediaResult.Cancelled(indexValue))
-                    }
+                    cancelIfEmpty()
                 }
                 else -> {
                     executeSafe(requireContext(), "pickMediaLauncher:unhandled") {
@@ -192,9 +190,7 @@ class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
                 Timber.d("Audio or Video length is not valid")
                 return@setOnClickListener
             }
-            field.mediaFile = viewModel.currentMultimediaPath.value
-            field.hasTemporaryMedia = true
-            setMultimediaResultAndFinish(MultimediaResult.Success(indexValue, field))
+            finishWithMedia()
         }
     }
 

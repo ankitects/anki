@@ -104,9 +104,7 @@ class AudioRecordingFragment : MultimediaFragment(R.layout.fragment_audio_record
                 return@setOnClickListener
             }
 
-            field.mediaFile = viewModel.currentMultimediaPath.value
-            field.hasTemporaryMedia = true
-            setMultimediaResultAndFinish(MultimediaResult.Success(indexValue, field))
+            finishWithMedia()
         }
     }
 

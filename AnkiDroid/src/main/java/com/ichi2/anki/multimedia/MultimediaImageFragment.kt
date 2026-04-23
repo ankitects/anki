@@ -96,9 +96,7 @@ class MultimediaImageFragment : MultimediaFragment(R.layout.fragment_multimedia_
             hasStartedImageSelection = false
             when (result.resultCode) {
                 Activity.RESULT_CANCELED -> {
-                    if (viewModel.currentMultimediaUri.value == null) {
-                        setMultimediaResultAndFinish(MultimediaResult.Cancelled(indexValue))
-                    }
+                    cancelIfEmpty()
                 }
 
                 Activity.RESULT_OK -> {
@@ -123,9 +121,7 @@ class MultimediaImageFragment : MultimediaFragment(R.layout.fragment_multimedia_
             when (result.resultCode) {
                 Activity.RESULT_CANCELED -> {
                     // If user didn't draw, return the indexValue as a result and finish the activity
-                    if (viewModel.currentMultimediaUri.value == null) {
-                        setMultimediaResultAndFinish(MultimediaResult.Cancelled(indexValue))
-                    }
+                    cancelIfEmpty()
                 }
 
                 Activity.RESULT_OK -> {
@@ -146,7 +142,7 @@ class MultimediaImageFragment : MultimediaFragment(R.layout.fragment_multimedia_
             hasStartedImageSelection = false
             when {
                 !isPictureTaken && viewModel.currentMultimediaUri.value == null -> {
-                    setMultimediaResultAndFinish(MultimediaResult.Cancelled(indexValue))
+                    cancelIfEmpty()
                 }
 
                 isPictureTaken -> {
@@ -325,9 +321,7 @@ class MultimediaImageFragment : MultimediaFragment(R.layout.fragment_multimedia_
     }
 
     private fun finishAddingImage() {
-        field.mediaFile = viewModel.currentMultimediaPath.value
-        field.hasTemporaryMedia = true
-        setMultimediaResultAndFinish(MultimediaResult.Success(indexValue, field))
+        finishWithMedia()
     }
 
     private fun openGallery() {
