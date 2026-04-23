@@ -417,7 +417,7 @@ class NoteEditorFragment :
                 lifecycleScope.launch {
                     try {
                         val pasteAsPng = shouldPasteAsPng()
-                        onPaste(view as EditText, uri, description, pasteAsPng)
+                        multimediaController.onPaste(view as EditText, uri, description, pasteAsPng)
                     } catch (e: Exception) {
                         Timber.w(e)
                         CrashReportService.sendExceptionReport(e, "NoteEditor::onReceiveContent")
@@ -1830,7 +1830,7 @@ class NoteEditorFragment :
             lifecycleScope.launch {
                 val pasteAsPng = shouldPasteAsPng()
                 newEditText.setPasteListener { editText: EditText?, uri: Uri?, description: ClipDescription? ->
-                    onPaste(
+                    multimediaController.onPaste(
                         editText!!,
                         uri!!,
                         description!!,
@@ -1941,25 +1941,6 @@ class NoteEditorFragment :
                 onForceAdd()
             }
         }
-    }
-
-    private fun onPaste(
-        editText: EditText,
-        uri: Uri,
-        description: ClipDescription,
-        pasteAsPng: Boolean,
-    ): Boolean {
-        val mediaTag =
-            MediaRegistration.onPaste(
-                requireContext(),
-                uri,
-                description,
-                pasteAsPng,
-                showError = { type -> showSnackbar(type.toHumanReadableString(requireContext())) },
-            ) ?: return false
-
-        insertStringInField(editText, mediaTag)
-        return true
     }
 
     @NeedsTest("If a field is sticky after synchronization, the toggleStickyButton should be activated.")

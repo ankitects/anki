@@ -3,13 +3,16 @@
 
 package com.ichi2.anki.noteeditor
 
+import android.content.ClipDescription
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.EditText
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.os.BundleCompat
 import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.CollectionManager.withCol
+import com.ichi2.anki.MediaRegistration
 import com.ichi2.anki.NoteEditorFragment
 import com.ichi2.anki.R
 import com.ichi2.anki.common.annotations.NeedsTest
@@ -186,6 +189,30 @@ internal class NoteEditorMultimediaController(
         pastedImageCache =
             state.getSerializableCompat<HashMap<String, String>>(STATE_KEY_IMAGE_CACHE)
                 ?: HashMap()
+    }
+
+    /**
+     * Handles clipboard/drag-and-drop paste of a media [uri] into [editText].
+     * Returns `true` if the paste produced a media tag, `false` otherwise.
+     */
+    fun onPaste(
+        editText: EditText,
+        uri: Uri,
+        description: ClipDescription,
+        pasteAsPng: Boolean,
+    ): Boolean {
+        val context = fragment.requireContext()
+        val mediaTag =
+            MediaRegistration.onPaste(
+                context,
+                uri,
+                description,
+                pasteAsPng,
+                showError = { type -> fragment.showSnackbar(type.toHumanReadableString(context)) },
+            ) ?: return false
+
+        fragment.insertStringInField(editText, mediaTag)
+        return true
     }
 
     /** Imports the captured media into the collection if the result carries any. */
