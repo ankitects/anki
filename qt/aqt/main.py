@@ -16,8 +16,6 @@ from collections.abc import Callable, Sequence
 from concurrent.futures import Future
 from typing import Any, Literal, TypeVar, cast
 
-from packaging.version import Version
-
 import anki
 import anki.cards
 import anki.sound
@@ -34,7 +32,6 @@ import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
 from anki._legacy import deprecated
-from anki.buildinfo import version as version_str
 from anki.collection import Collection, Config, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
@@ -1338,14 +1335,10 @@ title="{}" {}>{}</button>""".format(
         update_and_restart()
 
     def on_check_for_updates(self) -> None:
-        from aqt.update import prompt_to_update
+        from aqt.update import _fetch_new_github_release, prompt_to_update
 
-        version = Version(version_str)
-        release = self.backend.get_latest_release(
-            include_prerelease=version.is_prerelease
-        )
-        if release.tag_name != version_str:
-            prompt_to_update(self, release.tag_name, by_user=True)
+        if tag_name := _fetch_new_github_release(self):
+            prompt_to_update(self, tag_name, by_user=True)
         else:
             tooltip(tr.addons_no_updates_available(), parent=self)
 

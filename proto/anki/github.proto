@@ -12,10 +12,11 @@ import "anki/generic.proto";
 service GithubService {}
 
 service BackendGithubService {
-  rpc GetLatestRelease(GetLatestReleaseRequest) returns (GithubRelease);
+  rpc GetLatestRelease(LatestReleaseRequest) returns (GithubRelease);
+  rpc DownloadLatestRelease(LatestReleaseRequest) returns (generic.String);
 }
 
-message GetLatestReleaseRequest {
+message LatestReleaseRequest {
   bool include_prerelease = 1;
 }
 
@@ -23,4 +24,5 @@ message GithubRelease {
   string tag_name = 1;
   string filename = 2;
   string url = 3;
+  string checksum = 4;
 }

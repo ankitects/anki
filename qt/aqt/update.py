@@ -3,11 +3,17 @@
 
 from __future__ import annotations
 
+from packaging.version import Version
+
 import aqt
 from anki.buildinfo import buildhash
+from anki.buildinfo import version as version_str
 from anki.collection import CheckForUpdateResponse, Collection
 from anki.utils import dev_mode, int_time, int_version, plat_desc
 from aqt.operations import QueryOp
+from aqt.package import (
+    download_update_and_install as _download_update_and_install,
+)
 from aqt.package import (
     launcher_executable as _launcher_executable,
 )
@@ -15,7 +21,7 @@ from aqt.package import (
     update_and_restart as _update_and_restart,
 )
 from aqt.qt import *
-from aqt.utils import openLink, show_warning, showText, tr
+from aqt.utils import show_warning, showText, tr
 
 
 def check_for_update() -> None:
@@ -89,4 +95,12 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str, by_user: bool = False) -> None:
         if _launcher_executable():
             _update_and_restart()
         else:
-            openLink(aqt.appWebsiteDownloadSection)
+            _download_update_and_install()
+
+
+def _fetch_new_github_release(mw: aqt.AnkiQt) -> str | None:
+    version = Version(version_str)
+    release = mw.backend.get_latest_release(include_prerelease=version.is_prerelease)
+    if release.tag_name != version_str:
+        return release.tag_name
+    return None

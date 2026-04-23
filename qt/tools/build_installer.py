@@ -86,6 +86,7 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
     (out_dir / "CHANGELOG").write_text(
         "Please see https://apps.ankiweb.net/", encoding="utf-8"
     )
+
     identity = os.environ.get("SIGN_IDENTITY")
     identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
     subprocess.check_call(

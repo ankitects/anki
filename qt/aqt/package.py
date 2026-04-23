@@ -11,7 +11,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+from packaging.version import Version
+
+from anki.buildinfo import version as version_str
+from anki.collection import Progress
 from anki.utils import is_mac, is_win
+from aqt.operations import QueryOp
+from aqt.progress import ProgressUpdate
 
 
 # ruff: noqa: F401
@@ -171,3 +177,49 @@ def update_and_restart() -> None:
         )
 
     mw.app.quit()
+
+
+def download_update_and_install() -> None:
+    from aqt import mw
+
+    version = Version(version_str)
+
+    def on_success(output_path: str) -> None:
+        with contextlib.suppress(ResourceWarning):
+            creationflags = 0
+            if sys.platform == "win32":
+                creationflags = (
+                    subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+                )
+
+            args = []
+            if output_path.endswith(".msi"):
+                args = ["msiexec", "/i", output_path]
+            # TODO: other platforms
+            subprocess.Popen(
+                args,
+                start_new_session=True,
+                creationflags=creationflags,
+            )
+
+        mw.app.quit()
+
+    def update_progress(progress: Progress, update: ProgressUpdate) -> None:
+        if not progress.HasField("download_update"):
+            return
+        download_update = progress.download_update
+        update.label = (
+            f"{download_update.downloaded_bytes} / {download_update.total_bytes}"
+        )
+        update.value = download_update.downloaded_bytes
+        update.max = download_update.total_bytes
+        if update.user_wants_abort:
+            update.abort = True
+
+    QueryOp(
+        parent=mw,
+        op=lambda col: col._backend.download_latest_release(
+            include_prerelease=version.is_prerelease
+        ),
+        success=on_success,
+    ).with_backend_progress(update_progress).run_in_background()
