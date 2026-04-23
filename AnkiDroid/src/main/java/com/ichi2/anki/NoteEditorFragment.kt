@@ -104,7 +104,6 @@ import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.tags.TagsDialog
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
-import com.ichi2.anki.exception.MediaSizeLimitExceededException
 import com.ichi2.anki.exception.toBytesShortString
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardId
@@ -132,8 +131,6 @@ import com.ichi2.anki.multimedia.MultimediaResultContract
 import com.ichi2.anki.multimedia.MultimediaUtils.createImageFile
 import com.ichi2.anki.multimedia.MultimediaViewModel
 import com.ichi2.anki.multimediacard.IMultimediaEditableNote
-import com.ichi2.anki.multimediacard.fields.EFieldType
-import com.ichi2.anki.multimediacard.fields.IField
 import com.ichi2.anki.multimediacard.impl.MultimediaEditableNote
 import com.ichi2.anki.noteeditor.CustomToolbarButton
 import com.ichi2.anki.noteeditor.FieldState
@@ -141,6 +138,7 @@ import com.ichi2.anki.noteeditor.FieldState.FieldChangeType
 import com.ichi2.anki.noteeditor.FieldState.Type
 import com.ichi2.anki.noteeditor.NoteEditorFragmentDelegate
 import com.ichi2.anki.noteeditor.NoteEditorLauncher
+import com.ichi2.anki.noteeditor.NoteEditorMultimediaController
 import com.ichi2.anki.noteeditor.Toolbar
 import com.ichi2.anki.noteeditor.Toolbar.TextFormatListener
 import com.ichi2.anki.noteeditor.Toolbar.TextWrapper
@@ -187,8 +185,6 @@ import com.ichi2.utils.openInputStreamSafe
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
 import com.ichi2.utils.title
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.ankiweb.rsdroid.Backend
 import org.json.JSONArray
@@ -228,7 +224,6 @@ class NoteEditorFragment :
     private var isTagsEdited = false
     private var isFieldEdited = false
     private var addNoteJob = RunOnlyOnce(scope = lifecycleScope)
-    private var multimediaActionJob: Job? = null
 
     private val getColUnsafe: Collection
         get() = CollectionManager.getColUnsafe()
@@ -258,7 +253,7 @@ class NoteEditorFragment :
     var editorNote: Note? = null
         private set
 
-    private val multimediaViewModel: MultimediaViewModel by activityViewModels()
+    internal val multimediaViewModel: MultimediaViewModel by activityViewModels()
 
     private var currentImageOccPath: String? = null
 
@@ -330,15 +325,19 @@ class NoteEditorFragment :
             when (result) {
                 is MultimediaResult.Cancelled -> {
                     Timber.d("Multimedia result canceled")
-                    handleMultimediaActions(result.fieldIndex)
+                    multimediaController.handleActions(result.fieldIndex)
                 }
                 is MultimediaResult.Success -> {
                     Timber.d("Getting multimedia result")
-                    handleMultimediaResult(result)
+                    multimediaController.handleResult(result)
                 }
                 null -> Timber.d("Multimedia launcher returned no result")
             }
         }
+
+    private val multimediaController: NoteEditorMultimediaController by lazy {
+        NoteEditorMultimediaController(this, multimediaFragmentLauncher)
+    }
 
     private val requestTemplateEditLauncher =
         registerForActivityResult(
@@ -1862,12 +1861,20 @@ class NoteEditorFragment :
         insertStringInField(getFieldForTest(fieldIndex), newString)
     }
 
-    private suspend fun getCurrentMultimediaEditableNote(): MultimediaEditableNote {
+    internal suspend fun getCurrentMultimediaEditableNote(): MultimediaEditableNote {
         val note = NoteService.createEmptyNote(editorNote!!.notetype)
         val fields = currentFieldStrings.requireNoNulls()
         withCol { NoteService.updateMultimediaNoteFromFields(this@withCol, fields, editorNote!!.noteTypeId, note) }
 
         return note
+    }
+
+    /** Returns the edit-field [FieldEditText] at [index] if present. */
+    internal fun editFieldAt(index: Int): FieldEditText? = editFields?.getOrNull(index)
+
+    /** Records that a multimedia capture has modified the note. */
+    internal fun markMultimediaChanged() {
+        changed = true
     }
 
     /** Determines whether pasted images should be handled as PNG format. **/
@@ -1964,7 +1971,7 @@ class NoteEditorFragment :
             mediaButton.setBackgroundResource(R.drawable.ic_attachment)
             mediaButton.setOnClickListener {
                 showMultimediaBottomSheet()
-                handleMultimediaActions(i)
+                multimediaController.handleActions(i)
             }
             if (addNote) {
                 // toggle sticky button
@@ -2012,99 +2019,7 @@ class NoteEditorFragment :
         multimediaBottomSheet.show(parentFragmentManager, "MultimediaBottomSheet")
     }
 
-    /**
-     * Handles user interactions with the multimedia options for a specific field in a note.
-     *
-     * This method is called when the user interacts with a option that allows them to add multimedia
-     * content to a field in a note being edited. It presents a `MultimediaBottomSheet`
-     * fragment to the user, which provides options for selecting different multimedia types.
-     *
-     * @param fieldIndex the index of the field in the note where the multimedia content should be added
-     */
-    private fun handleMultimediaActions(fieldIndex: Int) {
-        // Cancel any existing subscription to avoid duplicate listeners
-        multimediaActionJob?.cancel()
-
-        // Based on the type of multimedia action received, perform the corresponding operation
-        multimediaActionJob =
-            lifecycleScope.launch {
-                val note: MultimediaEditableNote = getCurrentMultimediaEditableNote()
-                if (note.isEmpty) return@launch
-
-                multimediaViewModel.multimediaAction.first { action ->
-                    Timber.i("Selected multimedia action: %s", action)
-                    val handler = MultimediaActionHandler.forAction(action)
-                    val field = handler.createField().also { note.setField(fieldIndex, it) }
-                    val intent =
-                        handler.buildIntent(
-                            requireContext(),
-                            MultimediaActivityExtra(fieldIndex, field, note),
-                        )
-                    multimediaFragmentLauncher.launch(intent)
-                    true
-                }
-            }
-    }
-
-    private fun handleMultimediaResult(result: MultimediaResult.Success) {
-        val field = result.field
-        // Process successful result only if field has data
-        if (field.type != EFieldType.TEXT || field.mediaFile != null) {
-            performAddMedia(result.fieldIndex, field, skipSizeCheck = false)
-        } else {
-            Timber.i("field imagePath and audioPath are both null")
-        }
-    }
-
-    /**
-     * Adds a media file to a specific field within the currently edited multimedia note.
-     *
-     * @param index The index of the field within the note to update.
-     * @param field The `IField` object representing the media file and its details.
-     * @param skipSizeCheck Whether to bypass the AnkiWeb media size limit check.
-     */
-
-    private fun performAddMedia(
-        index: Int,
-        field: IField,
-        skipSizeCheck: Boolean,
-    ) {
-        launchCatchingTask {
-            // Import field media
-            // This goes before setting formattedValue to update
-            // media paths with the checksum when they have the same name
-            try {
-                withCol {
-                    NoteService.importMediaToDirectory(this, field, skipSizeCheck = skipSizeCheck)
-                }
-
-                // Update UI
-                val fieldEditText = editFields!![index]
-                // Completely replace text for text fields (because current text was passed in)
-                val formattedValue = field.formattedValue
-                if (field.type === EFieldType.TEXT) {
-                    fieldEditText.setText(formattedValue)
-                } else if (fieldEditText.text != null) {
-                    insertStringInField(fieldEditText, formattedValue)
-                }
-                changed = true
-            } catch (e: MediaSizeLimitExceededException) {
-                showLargeMediaFileWarning(
-                    e.fileName,
-                    e.fileSize,
-                    onForceAdd = {
-                        // Recursive call to bypass the size check if the user wants to add anyway
-                        performAddMedia(index, field, skipSizeCheck = true)
-                    },
-                )
-            } catch (oomError: OutOfMemoryError) {
-                // TODO: a 'retry' flow would be possible here
-                throw Exception(oomError)
-            }
-        }
-    }
-
-    private fun showLargeMediaFileWarning(
+    internal fun showLargeMediaFileWarning(
         fileName: String,
         fileSize: Long,
         onForceAdd: () -> Unit,
