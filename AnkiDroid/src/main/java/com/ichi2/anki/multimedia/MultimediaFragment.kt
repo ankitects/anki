@@ -185,4 +185,25 @@ abstract class MultimediaFragment(
             }
         }
     }
+
+    /**
+     * Finishes the activity with a [MultimediaResult.Cancelled] result when no media
+     * has been captured yet. Call from child-launcher cancel branches to propagate
+     * the cancellation without losing partial captures.
+     */
+    protected fun cancelIfEmpty() {
+        if (viewModel.currentMultimediaUri.value == null) {
+            setMultimediaResultAndFinish(MultimediaResult.Cancelled(indexValue))
+        }
+    }
+
+    /**
+     * Attaches the currently captured media to [field] and finishes the activity
+     * with a [MultimediaResult.Success]. Call from confirm/done actions.
+     */
+    protected fun finishWithMedia() {
+        field.mediaFile = viewModel.currentMultimediaPath.value
+        field.hasTemporaryMedia = true
+        setMultimediaResultAndFinish(MultimediaResult.Success(indexValue, field))
+    }
 }
