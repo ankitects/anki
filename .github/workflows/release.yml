@@ -16,6 +16,9 @@ on:
 permissions:
   contents: write
 
+env:
+  RELEASE: 2
+
 concurrency:
   group: release
   cancel-in-progress: false
@@ -159,8 +162,6 @@ jobs:
 
       - name: Build wheels
         run: ./ninja wheels:anki
-        env:
-          RELEASE: 2
 
       - uses: actions/upload-artifact@v4
         with:
@@ -214,8 +215,6 @@ jobs:
 
       - name: Build wheels
         run: ./ninja wheels:anki
-        env:
-          RELEASE: 2
 
       - uses: actions/upload-artifact@v4
         with:
@@ -248,8 +247,6 @@ jobs:
 
       - name: Build wheels
         run: ./tools/ninja wheels:anki
-        env:
-          RELEASE: 2
 
       - uses: actions/upload-artifact@v4
         with:
@@ -279,8 +276,6 @@ jobs:
 
       - name: Build wheels
         run: ./ninja wheels
-        env:
-          RELEASE: 2
 
       - uses: actions/upload-artifact@v4
         with:
@@ -311,8 +306,6 @@ jobs:
 
       - name: Build wheels
         run: ./ninja wheels:anki
-        env:
-          RELEASE: 2
 
       - uses: actions/upload-artifact@v4
         with:
