@@ -167,7 +167,6 @@ import com.ichi2.utils.ClipboardUtil
 import com.ichi2.utils.ClipboardUtil.MEDIA_MIME_TYPES
 import com.ichi2.utils.ClipboardUtil.hasMedia
 import com.ichi2.utils.ClipboardUtil.items
-import com.ichi2.utils.ContentResolverUtil
 import com.ichi2.utils.HashUtil
 import com.ichi2.utils.ImportUtils
 import com.ichi2.utils.IntentUtil.resolveMimeType
@@ -179,7 +178,6 @@ import com.ichi2.utils.iconAttr
 import com.ichi2.utils.message
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.neutralButton
-import com.ichi2.utils.openInputStreamSafe
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
 import com.ichi2.utils.title
@@ -596,80 +594,6 @@ class NoteEditorFragment :
      *
      * @param data the Intent containing the image information from the user's share action
      */
-    @NeedsTest("Test when the user directly passes image to the edit note field")
-    private suspend fun handleImageIntent(data: Intent) {
-        val imageUri =
-            if (data.action == Intent.ACTION_SEND) {
-                BundleCompat.getParcelable(requireArguments(), Intent.EXTRA_STREAM, Uri::class.java)
-            } else {
-                data.data
-            }
-
-        if (imageUri == null) {
-            Timber.d("NoteEditor:: Image Uri is null")
-            showSnackbar(R.string.something_wrong)
-            return
-        }
-
-        try {
-            requireContext().contentResolver.takePersistableUriPermission(imageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            Timber.d("Persisted URI permission for $imageUri")
-        } catch (e: SecurityException) {
-            Timber.w(e, "Unable to persist URI permission")
-        }
-
-        val cachedImagePath = copyUriToInternalCache(imageUri)
-        if (cachedImagePath == null) {
-            Timber.w("Failed to cache image")
-            showSnackbar(R.string.something_wrong)
-            return
-        }
-        val cachedUri = Uri.fromFile(File(requireContext().cacheDir, cachedImagePath))
-        multimediaController.launchImagePaste(cachedUri)
-    }
-
-    /**
-     * Copies a given [Uri] to the app's internal cache directory.
-     *
-     * This is necessary because URIs provided by other apps (e.g., WhatsApp, gallery apps) via
-     * `Intent` are usually content URIs with temporary permissions that are only valid
-     * in the originating context (like an Activity). Once passed to other components (like Fragments),
-     * these permissions may be lost, resulting in a SecurityException.
-     *
-     * By caching the file in internal storage and referencing it via a file URI,
-     * we ensure persistent access to the image without relying on external content providers.
-     *
-     * @param uri The [Uri] pointing to the external image content.
-     * @return The name of the cached file, or `null` if the operation failed.
-     */
-    private fun copyUriToInternalCache(uri: Uri): String? {
-        return try {
-            val inputStream = requireContext().contentResolver.openInputStreamSafe(uri) ?: return null
-
-            val fileName = ContentResolverUtil.getFileName(requireContext().contentResolver, uri)
-            val cacheDir = requireContext().cacheDir
-            val destFile = File(cacheDir, fileName)
-
-            val canonicalCacheDir = cacheDir.canonicalFile
-            val canonicalDestFile = destFile.canonicalFile
-
-            if (!canonicalDestFile.path.startsWith(canonicalCacheDir.path)) {
-                Timber.w("Rejected path due to directory traversal risk: $fileName")
-                return null
-            }
-
-            destFile.outputStream().use { output ->
-                inputStream.copyTo(output)
-            }
-
-            Timber.d("copyUriToInternalCache() copied to ${destFile.absolutePath}")
-            destFile.name
-        } catch (e: Exception) {
-            Timber.w(e, "Failed to copy URI to internal cache")
-            null
-        }
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         addInstanceStateToBundle(outState)
         super.onSaveInstanceState(outState)
@@ -894,7 +818,7 @@ class NoteEditorFragment :
             contents?.let { setEditFieldTexts(it) }
             tags?.let { setTags(it) }
             // If the activity was called to handle an image addition, launch a coroutine to process the image intent.
-            if (caller == NoteEditorCaller.ADD_IMAGE) lifecycleScope.launch { handleImageIntent(intent) }
+            if (caller == NoteEditorCaller.ADD_IMAGE) lifecycleScope.launch { multimediaController.handleImageIntent(intent) }
         } else {
             // Intercept spinner clicks to launch ChangeNoteTypeDialog instead of spinner dropdown
             noteTypeSpinner!!.setOnTouchListener { _, event ->
