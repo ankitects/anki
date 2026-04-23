@@ -127,7 +127,6 @@ import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.multimedia.MultimediaActionHandler
 import com.ichi2.anki.multimedia.MultimediaActivityExtra
 import com.ichi2.anki.multimedia.MultimediaBottomSheet
-import com.ichi2.anki.multimedia.MultimediaImageFragment
 import com.ichi2.anki.multimedia.MultimediaResult
 import com.ichi2.anki.multimedia.MultimediaResultContract
 import com.ichi2.anki.multimedia.MultimediaUtils.createImageFile
@@ -135,7 +134,6 @@ import com.ichi2.anki.multimedia.MultimediaViewModel
 import com.ichi2.anki.multimediacard.IMultimediaEditableNote
 import com.ichi2.anki.multimediacard.fields.EFieldType
 import com.ichi2.anki.multimediacard.fields.IField
-import com.ichi2.anki.multimediacard.fields.ImageField
 import com.ichi2.anki.multimediacard.impl.MultimediaEditableNote
 import com.ichi2.anki.noteeditor.CustomToolbarButton
 import com.ichi2.anki.noteeditor.FieldState
@@ -640,12 +638,15 @@ class NoteEditorFragment :
             Timber.w("Note is null, returning")
             return
         }
-        openMultimediaImageFragment(
-            fieldIndex = 0,
-            field = ImageField(),
-            multimediaNote = note,
-            imageUri = cachedUri,
-        )
+        val handler = MultimediaActionHandler.ImageFile
+        val extra =
+            MultimediaActivityExtra(
+                index = 0,
+                field = handler.createField(),
+                note = note,
+                imageUri = cachedUri.toString(),
+            )
+        multimediaFragmentLauncher.launch(handler.buildIntent(requireContext(), extra))
     }
 
     /**
@@ -2043,24 +2044,6 @@ class NoteEditorFragment :
                     true
                 }
             }
-    }
-
-    private fun openMultimediaImageFragment(
-        fieldIndex: Int,
-        field: IField,
-        multimediaNote: IMultimediaEditableNote,
-        imageUri: Uri? = null,
-    ) {
-        val multimediaExtra = MultimediaActivityExtra(fieldIndex, field, multimediaNote, imageUri?.toString())
-
-        val imageIntent =
-            MultimediaImageFragment.getIntent(
-                requireContext(),
-                multimediaExtra,
-                MultimediaImageFragment.ImageOptions.GALLERY,
-            )
-
-        multimediaFragmentLauncher.launch(imageIntent)
     }
 
     private fun handleMultimediaResult(result: MultimediaResult.Success) {
