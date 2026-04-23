@@ -502,6 +502,10 @@ class MpvManager(MPV, SoundOrVideoPlayer):
 
             mw.taskman.run_on_main(self._on_done)
 
+    def on_property_eof_reached(self, value: Union[bool, None] = None) -> None:
+        if value is True:
+            return self.on_property_idle_active(True)
+
     def shutdown(self) -> None:
         self.close()
 
