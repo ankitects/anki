@@ -123,8 +123,6 @@ import com.ichi2.anki.libanki.Utils
 import com.ichi2.anki.libanki.clozeNumbersInNote
 import com.ichi2.anki.model.CardStateFilter
 import com.ichi2.anki.model.SelectableDeck
-import com.ichi2.anki.multimedia.MultimediaActionHandler
-import com.ichi2.anki.multimedia.MultimediaActivityExtra
 import com.ichi2.anki.multimedia.MultimediaBottomSheet
 import com.ichi2.anki.multimedia.MultimediaResult
 import com.ichi2.anki.multimedia.MultimediaResultContract
@@ -281,9 +279,6 @@ class NoteEditorFragment :
     private var sourceText: Array<String?>? = null
     private val fieldState = FieldState.fromEditor(this)
     private lateinit var toolbar: Toolbar
-
-    // Use the same HTML if the same image is pasted multiple times.
-    private var pastedImageCache: HashMap<String, String> = HashMap()
 
     // save field index as key and text as value when toggle sticky clicked in Field Edit Text
     @VisibleForTesting
@@ -522,8 +517,7 @@ class NoteEditorFragment :
             deckId = savedInstanceState.getLong("did")
             selectedTags = savedInstanceState.getStringArrayList("tags")
             reloadRequired = savedInstanceState.getBoolean(RELOAD_REQUIRED_EXTRA_KEY)
-            pastedImageCache =
-                savedInstanceState.getSerializableCompat<HashMap<String, String>>("imageCache")!!
+            multimediaController.onRestoreInstanceState(savedInstanceState)
             toggleStickyText =
                 savedInstanceState.getSerializableCompat<HashMap<Int, String?>>("toggleSticky")!!
             changed = savedInstanceState.getBoolean(NOTE_CHANGED_EXTRA_KEY)
@@ -631,21 +625,7 @@ class NoteEditorFragment :
             return
         }
         val cachedUri = Uri.fromFile(File(requireContext().cacheDir, cachedImagePath))
-
-        val note = getCurrentMultimediaEditableNote()
-        if (note.isEmpty) {
-            Timber.w("Note is null, returning")
-            return
-        }
-        val handler = MultimediaActionHandler.ImageFile
-        val extra =
-            MultimediaActivityExtra(
-                index = 0,
-                field = handler.createField(),
-                note = note,
-                imageUri = cachedUri.toString(),
-            )
-        multimediaFragmentLauncher.launch(handler.buildIntent(requireContext(), extra))
+        multimediaController.launchImagePaste(cachedUri)
     }
 
     /**
@@ -703,7 +683,7 @@ class NoteEditorFragment :
         savedInstanceState.putBoolean(NOTE_CHANGED_EXTRA_KEY, changed)
         savedInstanceState.putBoolean(RELOAD_REQUIRED_EXTRA_KEY, reloadRequired)
         savedInstanceState.putIntegerArrayList("customViewIds", customViewIds)
-        savedInstanceState.putSerializable("imageCache", pastedImageCache)
+        multimediaController.onSaveInstanceState(savedInstanceState)
         savedInstanceState.putSerializable("toggleSticky", toggleStickyText)
         if (selectedTags == null) {
             selectedTags = ArrayList(0)

@@ -4,10 +4,13 @@
 package com.ichi2.anki.noteeditor
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.NoteEditorFragment
+import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.exception.MediaSizeLimitExceededException
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.multimedia.MultimediaActionHandler
@@ -34,6 +37,9 @@ internal class NoteEditorMultimediaController(
 ) {
     private var actionJob: Job? = null
 
+    // Use the same HTML if the same image is pasted multiple times.
+    private var pastedImageCache: HashMap<String, String> = HashMap()
+
     /**
      * Subscribes to the next [MultimediaActionHandler] emitted by the bottom sheet
      * and launches its capture screen against [fieldIndex]. Cancels any previously
@@ -59,6 +65,37 @@ internal class NoteEditorMultimediaController(
                     true
                 }
             }
+    }
+
+    /**
+     * Launches the image-picker screen pre-seeded with [imageUri], used by the
+     * share/paste path when an image is delivered from another app.
+     */
+    suspend fun launchImagePaste(imageUri: Uri) {
+        val note = fragment.getCurrentMultimediaEditableNote()
+        if (note.isEmpty) {
+            Timber.w("Note is null, returning")
+            return
+        }
+        val handler = MultimediaActionHandler.ImageFile
+        val extra =
+            MultimediaActivityExtra(
+                index = 0,
+                field = handler.createField(),
+                note = note,
+                imageUri = imageUri.toString(),
+            )
+        launcher.launch(handler.buildIntent(fragment.requireContext(), extra))
+    }
+
+    fun onSaveInstanceState(outState: Bundle) {
+        outState.putSerializable(STATE_KEY_IMAGE_CACHE, pastedImageCache)
+    }
+
+    fun onRestoreInstanceState(state: Bundle) {
+        pastedImageCache =
+            state.getSerializableCompat<HashMap<String, String>>(STATE_KEY_IMAGE_CACHE)
+                ?: HashMap()
     }
 
     /** Imports the captured media into the collection if the result carries any. */
@@ -110,5 +147,9 @@ internal class NoteEditorMultimediaController(
                 throw Exception(oomError)
             }
         }
+    }
+
+    private companion object {
+        const val STATE_KEY_IMAGE_CACHE = "imageCache"
     }
 }
