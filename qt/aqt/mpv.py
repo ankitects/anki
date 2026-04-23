@@ -87,9 +87,9 @@ class MPVBase:
         "--force-window=no",
         "--ontop",
         "--audio-display=no",
-        "--keep-open=no",
+        "--keep-open=yes",
         "--autoload-files=no",
-        "--gapless-audio=no",
+        "--gapless-audio=yes",
     ]
 
     if is_win:
