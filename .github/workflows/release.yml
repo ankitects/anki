@@ -157,6 +157,16 @@ jobs:
           name: installer-macos
           path: out/installer/dist/
 
+      - name: Build wheels
+        run: ./ninja wheels:anki
+        env:
+          RELEASE: 2
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos
+          path: out/wheels/anki-*.whl
+
   build-mac-intel:
     needs: [prepare, ftl-sync]
     runs-on: macos-15-intel
@@ -202,6 +212,16 @@ jobs:
           name: installer-macos-intel
           path: out/installer/dist/
 
+      - name: Build wheels
+        run: ./ninja wheels:anki
+        env:
+          RELEASE: 2
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-intel
+          path: out/wheels/anki-*.whl
+
   build-windows:
     needs: [prepare, ftl-sync]
     runs-on: windows-latest
@@ -226,6 +246,16 @@ jobs:
           name: installer-windows
           path: out/installer/dist/
 
+      - name: Build wheels
+        run: ./tools/ninja wheels:anki
+        env:
+          RELEASE: 2
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows
+          path: out/wheels/anki-*.whl
+
   build-linux:
     needs: [prepare, ftl-sync]
     runs-on: ubuntu-22.04
@@ -247,6 +277,17 @@ jobs:
           name: installer-linux
           path: out/installer/dist/
 
+      - name: Build wheels
+        run: ./ninja wheels
+        env:
+          RELEASE: 2
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux
+          # Upload both anki and aqt wheels; the pure-Python aqt wheel is the same on all platforms
+          path: out/wheels/*.whl
+
   build-linux-arm:
     needs: [prepare, ftl-sync]
     runs-on: ubuntu-24.04-arm
@@ -267,6 +308,16 @@ jobs:
         with:
           name: installer-linux-arm
           path: out/installer/dist/
+
+      - name: Build wheels
+        run: ./ninja wheels:anki
+        env:
+          RELEASE: 2
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-arm
+          path: out/wheels/anki-*.whl
 
   sign-windows:
     if: ${{ inputs.dry_run != true }}
@@ -315,6 +366,9 @@ jobs:
     needs: [prepare, build-mac, build-mac-intel, sign-windows, build-linux, build-linux-arm]
     runs-on: ubuntu-latest
     environment: release
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -323,6 +377,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
+          pattern: installer-*
           path: dist
           merge-multiple: true
 
@@ -358,3 +413,14 @@ jobs:
             $prerelease_flag
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: wheels
+          merge-multiple: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheels/
