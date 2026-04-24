@@ -5,6 +5,8 @@ use std::io::Read;
 use std::time::Duration;
 
 use anki_io::open_file;
+use anki_io::read_dir_files;
+use anki_io::remove_file;
 use anki_proto::github::GithubRelease;
 use anki_proto::github::LatestReleaseRequest;
 use serde_json::Value;
@@ -15,6 +17,7 @@ use crate::prelude::*;
 use crate::services::BackendGithubService;
 use crate::updates::download_file;
 use crate::updates::release_path;
+use crate::updates::updates_dir;
 use crate::updates::DownloadUpdateProgress;
 use crate::version::version;
 
@@ -147,11 +150,20 @@ impl BackendGithubService for Backend {
             })?;
         }
 
-        let output_path = release_path(&release.filename)?
+        // Remove old downloads
+        let output_dir = updates_dir()?;
+        let output_path = release_path(&release.filename)?;
+        for file in read_dir_files(output_dir)? {
+            let path = file?.path();
+            if path != output_path {
+                let _ = remove_file(path);
+            }
+        }
+
+        let output_path = output_path
             .to_str()
             .or_invalid("non-unicode filename")?
             .to_string();
-
         Ok(output_path.into())
     }
 }
