@@ -631,6 +631,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mathjax/mathjax-newcm-font@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "@mathjax/mathjax-newcm-font@npm:4.1.1"
+  checksum: 10c0/8fcddc81757b90f3141d1994222b92a04b44ad9ceb83c28638e59d31d5cfaf73e1cb26e4101cce15aee870036f8b68f10fab919e0db0e25eff8a39f249e688f2
+  languageName: node
+  linkType: hard
+
 "@mdi/svg@npm:^7.0.96":
   version: 7.4.47
   resolution: "@mdi/svg@npm:7.4.47"
@@ -1988,7 +1995,7 @@ __metadata:
     lodash-es: "npm:^4.17.23"
     lru-cache: "npm:^10.2.0"
     marked: "npm:^5.1.0"
-    mathjax: "npm:^3.1.2"
+    mathjax: "npm:^4.1.1"
     prettier: "npm:^3.4.2"
     prettier-plugin-svelte: "npm:^3.3.2"
     sass: "npm:<1.77"
@@ -5030,10 +5037,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mathjax@npm:^3.1.2":
-  version: 3.2.2
-  resolution: "mathjax@npm:3.2.2"
-  checksum: 10c0/26c8557f948d1ef76ce2b0bc1ad66128c9a78a7e4f3d96587f90b23dd25cfbf14c9b58a1c75a7d8d35f92b72bab054eab61873443babe646b7bfd6b40bb717e6
+"mathjax@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "mathjax@npm:4.1.1"
+  dependencies:
+    "@mathjax/mathjax-newcm-font": "npm:^4.1.1"
+  checksum: 10c0/e2a861803d8a3ed3ae6ebf40f08c41bcdd1e9110392f43c94fea3f508cd647d9c8eb80b72dcc0653757d666e94b5fdc4aac74121f0f193f8bdd262106404822a
   languageName: node
   linkType: hard
 
