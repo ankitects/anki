@@ -8,8 +8,13 @@ on:
         required: true
         type: string
       dry_run:
-        description: "Only build artifacts"
+        description: "Only build artifacts (skip code signing)"
         default: false
+        required: false
+        type: boolean
+      release:
+        description: "Create a GitHub release and publish to PyPI"
+        default: true
         required: false
         type: boolean
 
@@ -53,7 +58,7 @@ jobs:
           tag_name="$version"
           release_name="Anki $version"
 
-          if [ "${{ inputs.dry_run }}" != "true" ]; then
+          if [ "${{ inputs.release }}" = "true" ]; then
             # Check for duplicate tag
             if git rev-parse "refs/tags/${tag_name}" >/dev/null 2>&1; then
               echo "::error::Tag '${tag_name}' already exists"
@@ -113,7 +118,7 @@ jobs:
           python3 .github/scripts/sync_translations.py
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          ANKI_NO_GIT_PUSH: ${{ inputs.dry_run && '1' || '0' }}
+          ANKI_NO_GIT_PUSH: ${{ inputs.release && '0' || '1' }}
 
   build-mac:
     needs: [prepare, ftl-sync]
@@ -355,7 +360,7 @@ jobs:
           overwrite: true
 
   release:
-    if: ${{ inputs.dry_run == 'false' }}
+    if: ${{ inputs.release == true }}
     needs: [prepare, build-mac, build-mac-intel, sign-windows, build-linux, build-linux-arm]
     runs-on: ubuntu-latest
     environment: release
@@ -405,7 +410,7 @@ jobs:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
   publish-pypi:
-    if: ${{ inputs.dry_run == 'false' }}
+    if: ${{ inputs.release == true }}
     needs: release
     runs-on: ubuntu-latest
     environment: release
