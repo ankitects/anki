@@ -41,7 +41,7 @@
         "esbuild-sass-plugin": "^3.3.1",
         "esbuild-svelte": "^0.9.2",
         "eslint": "^8.44.0",
-        "eslint-plugin-compat": "^4.1.4",
+        "eslint-plugin-compat": "^7.0.1",
         "eslint-plugin-import": "^2.25.4",
         "eslint-plugin-svelte": "^2",
         "license-checker-rseidelsohn": "=4.3.0",
