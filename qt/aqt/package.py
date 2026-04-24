@@ -195,6 +195,8 @@ def download_update_and_install() -> None:
             args = []
             if output_path.endswith(".msi"):
                 args = ["msiexec", "/i", output_path]
+            elif output_path.endswith(".dmg"):
+                args = ["open", output_path]
             # TODO: other platforms
             subprocess.Popen(
                 args,
