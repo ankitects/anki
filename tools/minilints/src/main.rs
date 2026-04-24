@@ -37,6 +37,8 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./extra",
     "./ts/.svelte-kit",
     "./.venv",
+    "./qt/installer/windows-template",
+    "./qt/installer/mac-template",
 ];
 
 fn main() -> Result<()> {
