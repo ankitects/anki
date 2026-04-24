@@ -137,6 +137,7 @@ object PreferenceUpgradeService {
                     yield(UpgradeToggleBacksideOnlyControl())
                     yield(UpgradeThemes())
                     yield(UpgradeAnswerControls())
+                    yield(RemoveDeveloperFindReplace())
                 }
 
             /** Returns a list of preference upgrade classes which have not been applied */
@@ -897,6 +898,14 @@ object PreferenceUpgradeService {
                 }
                 preferences.edit {
                     putString("binding_SHOW_ANSWER", showAnswerBindings.toPreferenceString())
+                }
+            }
+        }
+
+        internal class RemoveDeveloperFindReplace : PreferenceUpgrade(28) {
+            override fun upgrade(preferences: SharedPreferences) {
+                preferences.edit {
+                    remove("browserFindReplace")
                 }
             }
         }
