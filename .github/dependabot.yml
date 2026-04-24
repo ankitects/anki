@@ -5,6 +5,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    open-pull-requests-limit: 3
     groups:
       rust-minor-patch:
         applies-to: version-updates
@@ -17,6 +18,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    open-pull-requests-limit: 3
     groups:
       js-minor-patch:
         applies-to: version-updates
@@ -29,6 +31,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    open-pull-requests-limit: 3
     groups:
       python-minor-patch:
         applies-to: version-updates
@@ -41,6 +44,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    open-pull-requests-limit: 3
     groups:
       actions:
         applies-to: version-updates
