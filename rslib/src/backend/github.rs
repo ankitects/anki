@@ -89,33 +89,27 @@ impl BackendGithubService for Backend {
             let release_info: Value;
             if input.include_prerelease {
                 let json: Value = response.json().await?;
-                let releases = json.as_array().ok_or_else(|| AnkiError::JsonError {
-                    info: "expected an array".into(),
-                })?;
+                let releases = json.as_array().or_invalid("expected an array")?;
                 release_info = releases
                     .first()
-                    .ok_or_else(|| AnkiError::JsonError {
-                        info: "no releases found".into(),
-                    })?
+                    .or_invalid("no releases found")?
                     .clone();
             } else {
                 release_info = response.json().await?;
             }
-            let tag_name = release_info["tag_name"].as_str().unwrap();
+            let tag_name = release_info["tag_name"].as_str().or_invalid("release tag not found")?;
             let assets = release_info["assets"]
                 .as_array()
-                .ok_or_else(|| AnkiError::JsonError {
-                    info: "assets should be an array".into(),
-                })?;
+                .or_invalid("assets should be an array")?;
             let mut release: Option<GithubRelease> = None;
             for asset in assets {
-                let filename = asset["name"].as_str().unwrap_or("");
-                let url = asset["browser_download_url"].as_str().unwrap();
+                let filename = asset["name"].as_str().or_invalid("release name not found")?;
+                let url = asset["browser_download_url"].as_str().or_invalid("download URL not found")?;
                 let checksum = asset["digest"]
                     .as_str()
-                    .unwrap()
+                    .or_invalid("release digest not found")?
                     .split_once("sha256:")
-                    .unwrap()
+                    .or_invalid("sha256 suffix not found")?
                     .1;
                 if filename.contains(platform_suffix) {
                     release = Some(GithubRelease {
