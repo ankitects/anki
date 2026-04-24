@@ -15,9 +15,10 @@ from packaging.version import Version
 
 from anki.buildinfo import version as version_str
 from anki.collection import Progress
-from anki.utils import is_mac, is_win
+from anki.utils import is_lin, is_mac, is_win
 from aqt.operations import QueryOp
 from aqt.progress import ProgressUpdate
+from aqt.utils import openLink
 
 
 # ruff: noqa: F401
@@ -184,6 +185,13 @@ def download_update_and_install() -> None:
 
     version = Version(version_str)
 
+    if is_lin:
+        release = mw.col._backend.get_latest_release(
+            include_prerelease=version.is_prerelease
+        )
+        openLink(release.url)
+        return
+
     def on_success(output_path: str) -> None:
         with contextlib.suppress(ResourceWarning):
             creationflags = 0
@@ -197,7 +205,6 @@ def download_update_and_install() -> None:
                 args = ["msiexec", "/i", output_path]
             elif output_path.endswith(".dmg"):
                 args = ["open", output_path]
-            # TODO: other platforms
             subprocess.Popen(
                 args,
                 start_new_session=True,
