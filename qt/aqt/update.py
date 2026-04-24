@@ -5,11 +5,8 @@ from __future__ import annotations
 
 from typing import Callable
 
-from packaging.version import Version
-
 import aqt
 from anki.buildinfo import buildhash
-from anki.buildinfo import version as version_str
 from anki.collection import CheckForUpdateResponse, Collection, GithubRelease
 from anki.utils import dev_mode, int_time, int_version, plat_desc
 from aqt.operations import QueryOp

@@ -222,7 +222,7 @@ def download_update_and_install() -> None:
         download_update = progress.download_update
         if download_update.total_bytes:
             update.label = tr.qt_misc_downloading_update(
-                downloaded=download_update.downloaded_bytes // (1024 * 1024),
+                count=download_update.downloaded_bytes // (1024 * 1024),
                 total=download_update.total_bytes // (1024 * 1024),
             )
             update.value = download_update.downloaded_bytes
