@@ -12,6 +12,7 @@ from anki import (
     collection_pb2,
     config_pb2,
     generic_pb2,
+    github_pb2,
     image_occlusion_pb2,
     import_export_pb2,
     links_pb2,
@@ -58,6 +59,7 @@ CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
 MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
 FsrsItem = scheduler_pb2.FsrsItem
 FsrsReview = scheduler_pb2.FsrsReview
+GithubRelease = github_pb2.GithubRelease
 
 import os
 import sys
@@ -1200,6 +1202,10 @@ class Collection(DeprecatedNamesMixin):
     def fuzz_delta(self, card_id: CardId, interval: int) -> int:
         "The delta days of fuzz applied if reviewing the card in v3."
         return self._backend.fuzz_delta(card_id=card_id, interval=interval)
+
+    def get_latest_release(self, include_prerelease: bool) -> GithubRelease:
+        "Get latest GitHub release for the current platform."
+        return self._backend.get_latest_release(include_prerelease=include_prerelease)
 
     # Timeboxing
     ##########################################################################

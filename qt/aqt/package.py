@@ -14,7 +14,7 @@ from pathlib import Path
 from packaging.version import Version
 
 from anki.buildinfo import version as version_str
-from anki.collection import Progress
+from anki.collection import GithubRelease, Progress
 from anki.utils import is_lin, is_mac, is_win
 from aqt.operations import QueryOp
 from aqt.progress import ProgressUpdate
@@ -186,10 +186,13 @@ def download_update_and_install() -> None:
     version = Version(version_str)
 
     if is_lin:
-        release = mw.col._backend.get_latest_release(
-            include_prerelease=version.is_prerelease
-        )
-        openLink(release.url)
+        from aqt.update import get_latest_release_op
+
+        get_latest_release_op(
+            parent=mw,
+            include_prerelease=version.is_prerelease,
+            on_success=lambda r: openLink(r.url),
+        ).with_progress().run_in_background()
         return
 
     def on_success(output_path: str) -> None:

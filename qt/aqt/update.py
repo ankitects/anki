@@ -3,12 +3,14 @@
 
 from __future__ import annotations
 
+from typing import Callable
+
 from packaging.version import Version
 
 import aqt
 from anki.buildinfo import buildhash
 from anki.buildinfo import version as version_str
-from anki.collection import CheckForUpdateResponse, Collection
+from anki.collection import CheckForUpdateResponse, Collection, GithubRelease
 from anki.utils import dev_mode, int_time, int_version, plat_desc
 from aqt.operations import QueryOp
 from aqt.package import (
@@ -98,9 +100,15 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str, by_user: bool = False) -> None:
             _download_update_and_install()
 
 
-def _fetch_new_github_release(mw: aqt.AnkiQt) -> str | None:
-    version = Version(version_str)
-    release = mw.backend.get_latest_release(include_prerelease=version.is_prerelease)
-    if release.tag_name != version_str:
-        return release.tag_name
-    return None
+def get_latest_release_op(
+    parent: QWidget,
+    include_prerelease: bool,
+    on_success: Callable[[GithubRelease], None],
+) -> QueryOp:
+    return QueryOp(
+        parent=parent,
+        op=lambda col: col._backend.get_latest_release(
+            include_prerelease=include_prerelease
+        ),
+        success=on_success,
+    )
