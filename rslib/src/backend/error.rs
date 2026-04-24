@@ -50,7 +50,7 @@ impl AnkiError {
             AnkiError::SchedulerUpgradeRequired => Kind::SchedulerUpgradeRequired,
             AnkiError::FsrsInsufficientReviews { .. } => Kind::InvalidInput,
             AnkiError::InvalidCertificateFormat => Kind::InvalidCertificateFormat,
-            AnkiError::InvalidChecksum => Kind::InvalidChecksum,
+            AnkiError::InvalidChecksum { .. } => Kind::InvalidChecksum,
         };
 
         anki_proto::backend::BackendError {

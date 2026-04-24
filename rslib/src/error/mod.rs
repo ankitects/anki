@@ -123,7 +123,9 @@ pub enum AnkiError {
     FsrsUnableToDetermineDesiredRetention,
     SchedulerUpgradeRequired,
     InvalidCertificateFormat,
-    InvalidChecksum,
+    InvalidChecksum {
+        info: String,
+    },
 }
 
 // error helpers
@@ -173,8 +175,7 @@ impl AnkiError {
             | AnkiError::InvalidServiceIndex
             | AnkiError::InvalidMethodIndex
             | AnkiError::UndoEmpty
-            | AnkiError::InvalidCertificateFormat
-            | AnkiError::InvalidChecksum => format!("{self:?}"),
+            | AnkiError::InvalidCertificateFormat => format!("{self:?}"),
             AnkiError::FileIoError { source } => source.message(),
             AnkiError::InvalidInput { source } => source.message(),
             AnkiError::NotFound { source } => source.message(tr),
@@ -191,6 +192,7 @@ impl AnkiError {
             AnkiError::FsrsUnableToDetermineDesiredRetention => tr
                 .deck_config_unable_to_determine_desired_retention()
                 .into(),
+            AnkiError::InvalidChecksum {info} => info.into(),
         }
     }
 
