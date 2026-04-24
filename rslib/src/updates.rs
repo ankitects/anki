@@ -67,7 +67,9 @@ pub async fn download_file(
     file.flush().await?;
     let actual_checksum = format!("{:x}", digest.finalize());
     if actual_checksum != checksum {
-        return Err(AnkiError::InvalidChecksum {info: "Invalid checksum".into()});
+        return Err(AnkiError::InvalidChecksum {
+            info: "Invalid checksum".into(),
+        });
     }
 
     Ok(output_path)

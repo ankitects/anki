@@ -90,21 +90,24 @@ impl BackendGithubService for Backend {
             if input.include_prerelease {
                 let json: Value = response.json().await?;
                 let releases = json.as_array().or_invalid("expected an array")?;
-                release_info = releases
-                    .first()
-                    .or_invalid("no releases found")?
-                    .clone();
+                release_info = releases.first().or_invalid("no releases found")?.clone();
             } else {
                 release_info = response.json().await?;
             }
-            let tag_name = release_info["tag_name"].as_str().or_invalid("release tag not found")?;
+            let tag_name = release_info["tag_name"]
+                .as_str()
+                .or_invalid("release tag not found")?;
             let assets = release_info["assets"]
                 .as_array()
                 .or_invalid("assets should be an array")?;
             let mut release: Option<GithubRelease> = None;
             for asset in assets {
-                let filename = asset["name"].as_str().or_invalid("release name not found")?;
-                let url = asset["browser_download_url"].as_str().or_invalid("download URL not found")?;
+                let filename = asset["name"]
+                    .as_str()
+                    .or_invalid("release name not found")?;
+                let url = asset["browser_download_url"]
+                    .as_str()
+                    .or_invalid("download URL not found")?;
                 let checksum = asset["digest"]
                     .as_str()
                     .or_invalid("release digest not found")?
