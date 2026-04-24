@@ -18,7 +18,7 @@ from anki.collection import GithubRelease, Progress
 from anki.utils import is_lin, is_mac, is_win
 from aqt.operations import QueryOp
 from aqt.progress import ProgressUpdate
-from aqt.utils import openLink
+from aqt.utils import openLink, tr
 
 
 # ruff: noqa: F401
@@ -220,11 +220,13 @@ def download_update_and_install() -> None:
         if not progress.HasField("download_update"):
             return
         download_update = progress.download_update
-        update.label = (
-            f"{download_update.downloaded_bytes} / {download_update.total_bytes}"
-        )
-        update.value = download_update.downloaded_bytes
-        update.max = download_update.total_bytes
+        if download_update.total_bytes:
+            update.label = tr.qt_misc_downloading_update(
+                downloaded=download_update.downloaded_bytes // (1024 * 1024),
+                total=download_update.total_bytes // (1024 * 1024),
+            )
+            update.value = download_update.downloaded_bytes
+            update.max = download_update.total_bytes
         if update.user_wants_abort:
             update.abort = True
 
