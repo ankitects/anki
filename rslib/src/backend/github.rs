@@ -70,14 +70,14 @@ fn release_is_downloaded(filename: &str, checksum: &str) -> Result<bool> {
 
 impl BackendGithubService for Backend {
     fn get_latest_release(&self, input: LatestReleaseRequest) -> Result<GithubRelease> {
-        let error_message = "No updates available for your platform";
-        let platform_suffix = get_platform_suffix().or_invalid(error_message)?;
+        let no_updates_msg = self.tr.addons_no_updates_available();
+        let platform_suffix = get_platform_suffix().or_invalid(no_updates_msg.clone())?;
         let url = if input.include_prerelease {
             ALL_RELEASES_URL
         } else {
             LATEST_RELEASE_URL
         };
-        self.runtime_handle().block_on(async move {
+        self.runtime_handle().block_on(async {
             let response = self
                 .web_client()
                 .get(url)
@@ -121,7 +121,7 @@ impl BackendGithubService for Backend {
                     break;
                 }
             }
-            release.or_invalid(error_message)
+            release.or_invalid(no_updates_msg)
         })
     }
 
