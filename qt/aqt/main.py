@@ -76,7 +76,7 @@ from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
 from aqt.toolbar import BottomWebView, Toolbar, TopWebView
 from aqt.undo import UndoActionsInfo
-from aqt.update import get_latest_release_op, prompt_to_update
+from aqt.update import get_latest_release_op, prompt_and_install_github_update
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
@@ -1343,7 +1343,7 @@ title="{}" {}>{}</button>""".format(
 
         def on_success(release: GithubRelease) -> None:
             if release.tag_name != version_str:
-                prompt_to_update(self, release.tag_name, by_user=True)
+                prompt_and_install_github_update(self, release)
             else:
                 tooltip(tr.addons_no_updates_available(), parent=self)
 

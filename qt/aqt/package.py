@@ -11,9 +11,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-from packaging.version import Version
-
-from anki.buildinfo import version as version_str
 from anki.collection import GithubRelease, Progress
 from anki.utils import is_lin, is_mac, is_win
 from aqt.operations import QueryOp
@@ -180,19 +177,11 @@ def update_and_restart() -> None:
     mw.app.quit()
 
 
-def download_update_and_install() -> None:
+def download_github_update_and_install(release: GithubRelease) -> None:
     from aqt import mw
 
-    version = Version(version_str)
-
     if is_lin:
-        from aqt.update import get_latest_release_op
-
-        get_latest_release_op(
-            parent=mw,
-            include_prerelease=version.is_prerelease,
-            on_success=lambda r: openLink(r.url),
-        ).with_progress().run_in_background()
+        openLink(release.url)
         return
 
     def on_success(output_path: str) -> None:
@@ -232,8 +221,6 @@ def download_update_and_install() -> None:
 
     QueryOp(
         parent=mw,
-        op=lambda col: col._backend.download_latest_release(
-            include_prerelease=version.is_prerelease
-        ),
+        op=lambda col: col._backend.download_release(release),
         success=on_success,
     ).with_backend_progress(update_progress).run_in_background()

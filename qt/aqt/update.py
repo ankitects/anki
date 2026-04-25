@@ -11,7 +11,7 @@ from anki.collection import CheckForUpdateResponse, Collection, GithubRelease
 from anki.utils import dev_mode, int_time, int_version, plat_desc
 from aqt.operations import QueryOp
 from aqt.package import (
-    download_update_and_install as _download_update_and_install,
+    download_github_update_and_install as _download_github_update_and_install,
 )
 from aqt.package import (
     launcher_executable as _launcher_executable,
@@ -20,7 +20,7 @@ from aqt.package import (
     update_and_restart as _update_and_restart,
 )
 from aqt.qt import *
-from aqt.utils import show_warning, showText, tr
+from aqt.utils import openLink, show_warning, showText, tr
 
 
 def check_for_update() -> None:
@@ -68,7 +68,7 @@ def check_for_update() -> None:
     ).without_collection().run_in_background()
 
 
-def prompt_to_update(mw: aqt.AnkiQt, ver: str, by_user: bool = False) -> None:
+def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
     msg = (
         tr.qt_misc_anki_updatedanki_has_been_released(val=ver)
         + tr.qt_misc_would_you_like_to_download_it()
@@ -82,8 +82,7 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str, by_user: bool = False) -> None:
     msgbox.setText(msg)
 
     button = QPushButton(tr.qt_misc_ignore_this_update())
-    if not by_user:
-        msgbox.addButton(button, QMessageBox.ButtonRole.RejectRole)
+    msgbox.addButton(button, QMessageBox.ButtonRole.RejectRole)
     msgbox.setDefaultButton(QMessageBox.StandardButton.Yes)
     ret = msgbox.exec()
 
@@ -94,7 +93,30 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str, by_user: bool = False) -> None:
         if _launcher_executable():
             _update_and_restart()
         else:
-            _download_update_and_install()
+            openLink(aqt.appWebsiteDownloadSection)
+
+
+def prompt_and_install_github_update(mw: aqt.AnkiQt, release: GithubRelease) -> None:
+    msg = (
+        tr.qt_misc_anki_updatedanki_has_been_released(val=release.tag_name)
+        + tr.qt_misc_would_you_like_to_download_it()
+    )
+
+    msgbox = QMessageBox(mw)
+    msgbox.setStandardButtons(
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+    )
+    msgbox.setIcon(QMessageBox.Icon.Information)
+    msgbox.setText(msg)
+
+    msgbox.setDefaultButton(QMessageBox.StandardButton.Yes)
+    ret = msgbox.exec()
+
+    if ret == QMessageBox.StandardButton.Yes:
+        if _launcher_executable():
+            _update_and_restart()
+        else:
+            _download_github_update_and_install(release)
 
 
 def get_latest_release_op(

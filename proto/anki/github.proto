@@ -13,7 +13,7 @@ service GithubService {}
 
 service BackendGithubService {
   rpc GetLatestRelease(LatestReleaseRequest) returns (GithubRelease);
-  rpc DownloadLatestRelease(LatestReleaseRequest) returns (generic.String);
+  rpc DownloadRelease(GithubRelease) returns (generic.String);
 }
 
 message LatestReleaseRequest {

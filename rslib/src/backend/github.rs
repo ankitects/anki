@@ -131,12 +131,8 @@ impl BackendGithubService for Backend {
         })
     }
 
-    fn download_latest_release(
-        &self,
-        input: LatestReleaseRequest,
-    ) -> Result<anki_proto::generic::String> {
+    fn download_release(&self, release: GithubRelease) -> Result<anki_proto::generic::String> {
         let mut progress = self.new_progress_handler::<DownloadUpdateProgress>();
-        let release = self.get_latest_release(input)?;
         let already_downloaded = release_is_downloaded(&release.filename, &release.checksum)?;
         if !already_downloaded {
             self.runtime_handle().block_on(async {
