@@ -59,6 +59,11 @@ jobs:
           release_name="Anki $version"
 
           if [ "${{ inputs.release }}" = "true" ]; then
+            if [ "${{ github.ref_type }}" != "branch" ] || [ "${{ github.ref_name }}" != "main" ]; then
+              echo "::error::Public releases must be dispatched from main. Got ${{ github.ref }}."
+              exit 1
+            fi
+
             # Check for duplicate tag
             if git rev-parse "refs/tags/${tag_name}" >/dev/null 2>&1; then
               echo "::error::Tag '${tag_name}' already exists"
