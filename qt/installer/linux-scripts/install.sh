@@ -10,10 +10,14 @@ fi
 if [ "$PREFIX" = "" ]; then
 	PREFIX=/usr/local
 fi
+PREFIX=$(realpath -m "$PREFIX")
 
+if [ -f "$PREFIX"/share/anki/uninstall.sh ]; then
+	bash "$PREFIX"/share/anki/uninstall.sh
+fi
 rm -rf "$PREFIX"/share/anki "$PREFIX"/bin/anki
 mkdir -p "$PREFIX"/share/anki
-cp -av --no-preserve=owner,context -- * "$PREFIX"/share/anki/
+cp -av --no-preserve=owner,context -- _internal anki anki.1 anki.desktop anki.png anki.xml anki.xpm uninstall.sh README.md "$PREFIX"/share/anki/
 mkdir -p "$PREFIX"/bin
 ln -sf "$PREFIX"/share/anki/anki "$PREFIX"/bin/anki
 # fix a previous packaging issue where we created this as a file
@@ -21,7 +25,7 @@ ln -sf "$PREFIX"/share/anki/anki "$PREFIX"/bin/anki
 mkdir -p "$PREFIX"/share/pixmaps
 mkdir -p "$PREFIX"/share/applications
 mkdir -p "$PREFIX"/share/man/man1
-cd "$PREFIX"/share/anki && (\
+(cd "$PREFIX"/share/anki && \
 mv -Z anki.xpm anki.png "$PREFIX"/share/pixmaps/;\
 mv -Z anki.desktop "$PREFIX"/share/applications/;\
 mv -Z anki.1 "$PREFIX"/share/man/man1/)

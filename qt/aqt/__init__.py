@@ -292,7 +292,7 @@ def setupLangAndBackend(
 class NativeEventFilter(QAbstractNativeEventFilter):
     def nativeEventFilter(
         self, eventType: Any, message: Any
-    ) -> tuple[bool, Any | None]:
+    ) -> tuple[bool, sip.voidptr]:
         if eventType == "windows_generic_MSG":
             import ctypes.wintypes
 
@@ -302,8 +302,8 @@ class NativeEventFilter(QAbstractNativeEventFilter):
                 if mw.can_auto_sync():
                     mw.app._set_windows_shutdown_block_reason(tr.sync_syncing())
                     mw.progress.single_shot(100, mw.unloadProfileAndExit)
-                    return (True, 0)
-        return (False, 0)
+                    return (True, sip.voidptr(0))
+        return (False, sip.voidptr(0))
 
 
 class AnkiApp(QApplication):

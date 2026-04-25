@@ -53,6 +53,13 @@ pub fn build_installer(build: &mut Build) -> Result<()> {
         },
     )?;
     build.add_action(
+        "installer:template:mac",
+        SyncSubmodule {
+            path: "qt/installer/mac-template",
+            offline_build: false,
+        },
+    )?;
+    build.add_action(
         "installer:dist",
         BuildInstaller {
             version: anki_version(),
