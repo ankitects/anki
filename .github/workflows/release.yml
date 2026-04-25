@@ -384,13 +384,18 @@ jobs:
       - name: Update version, commit, and tag (stable)
         if: needs.prepare.outputs.is_prerelease == 'false'
         run: |
+          if [ "${{ github.ref_type }}" != "branch" ] || [ "${{ github.ref_name }}" != "main" ]; then
+            echo "Stable public releases must be dispatched from main. Got ${{ github.ref }}."
+            exit 1
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           echo '${{ needs.prepare.outputs.pep440_version }}' > .version
           git add .version
           git commit -m "Release ${{ needs.prepare.outputs.pep440_version }}"
           git tag '${{ needs.prepare.outputs.tag_name }}'
-          git push origin HEAD '${{ needs.prepare.outputs.tag_name }}'
+          git push origin "HEAD:refs/heads/main" '${{ needs.prepare.outputs.tag_name }}'
 
       - name: Create and push tag (pre-release or dry run)
         if: needs.prepare.outputs.is_prerelease == 'true'
