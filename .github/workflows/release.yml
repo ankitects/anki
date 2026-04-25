@@ -22,6 +22,7 @@ permissions:
   contents: write
 
 env:
+  # Build profile: 1 = Release, 2 = ReleaseWithLto (see build/ninja_gen/src/build.rs)
   RELEASE: 2
 
 concurrency:
