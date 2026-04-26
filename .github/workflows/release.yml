@@ -58,7 +58,7 @@ jobs:
       - name: Validate version and compute metadata
         id: validate
         run: |
-          pip install packaging
+          pip install 'packaging>=24,<26'
           file_version=$(cat .version)
 
           if [ "$PUBLISH" = "release" ] && [ "$file_version" != "$INPUT_VERSION" ]; then
