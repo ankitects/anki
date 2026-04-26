@@ -289,6 +289,22 @@ releases), a `skip-signing` boolean (builds unsigned artifacts), and a `publish`
 choice (`none`, `testpypi`, or `release`). Non-release runs use the `.version`
 already in the repo, so builds work without a prepare step.
 
+### Environment gates
+
+The release workflow uses GitHub
+[environments](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
+as manual approval gates. Jobs that access signing credentials or publish
+artifacts require a reviewer to approve the deployment before they run:
+
+- **`release`** — Required by the macOS signing jobs, Windows signing job,
+  the GitHub release job, and PyPI publishing. Protects code-signing secrets
+  and prevents accidental public releases.
+- **`testpypi`** — Required by the TestPyPI publishing job. Allows test
+  uploads to be gated separately from production releases.
+
+When `skip-signing` is enabled, the macOS build jobs run without the `release`
+environment so they do not require approval (and cannot access signing secrets).
+
 ### Important notes
 
 - The release workflow builds the exact commit at `github.sha`. It does not
