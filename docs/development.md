@@ -258,6 +258,48 @@ amd64 launcher via this command:
 ../../../out/launcher/anki-launcher-25.09.2-linux/launcher.amd64
 ```
 
+## Releasing
+
+Releases are managed by two GitHub Actions workflows under `.github/workflows/`:
+
+1. **`prepare-release.yml`** — Run first. Validates the version, checks that CI
+   passed on main, syncs translations, updates `.version`, and pushes everything
+   to main in a single commit. Normal CI then runs on the resulting commit.
+
+2. **`release.yml`** — Run after CI passes on the prepared commit. Builds
+   installers and wheels for all platforms (Linux x86/ARM, macOS Intel/ARM,
+   Windows), signs them, creates a draft GitHub release, and publishes wheels to
+   PyPI.
+
+Both workflows are `workflow_dispatch` and share a `release` concurrency group so
+they cannot run simultaneously.
+
+### Version format
+
+Versions follow calendar versioning with PEP 440: `YY.MM` for stable releases
+(e.g. `26.04`), with optional `.patch` (e.g. `26.04.1`) and pre-release
+suffixes (`b1`, `rc1`, `a1`). Months must be zero-padded.
+
+### Workflow inputs
+
+**prepare-release:** takes a `version` string.
+
+**release:** takes a `version` (must match `.version` on main for public
+releases), a `skip-signing` boolean (builds unsigned artifacts), and a `publish`
+choice (`none`, `testpypi`, or `release`). Non-release runs use the `.version`
+already in the repo, so builds work without a prepare step.
+
+### Important notes
+
+- The release workflow builds the exact commit at `github.sha`. It does not
+  write `.version` — that is done by the prepare workflow. If you dispatch
+  release before prepare's commit has propagated, the build will use whatever
+  `.version` was HEAD at dispatch time.
+- `publish=release` with `skip-signing` is rejected — unsigned artifacts cannot
+  be published.
+- Wheels are published to TestPyPI first, then to PyPI after the GitHub release
+  succeeds.
+
 # Mixing development and study
 
 You may wish to create a separate profile with File>Switch Profile for use
