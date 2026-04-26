@@ -384,7 +384,7 @@ jobs:
             --target "$RELEASE_SHA" \
             --title "$RELEASE_NAME" \
             --generate-notes \
-            $prerelease_flag
+            ${prerelease_flag:+"$prerelease_flag"}
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           TAG_NAME: ${{ needs.prepare.outputs.tag_name }}
