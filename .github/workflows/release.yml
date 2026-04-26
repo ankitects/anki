@@ -258,7 +258,7 @@ jobs:
           path: out/installer/dist/
 
       - name: Build wheels
-        run: ./tools/ninja wheels:anki
+        run: tools\ninja wheels:anki
 
       - uses: actions/upload-artifact@v4
         with:
