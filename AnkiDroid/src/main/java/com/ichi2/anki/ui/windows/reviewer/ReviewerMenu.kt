@@ -118,4 +118,29 @@ fun ReviewerMenuView.setup(
             }
         }
     }
+    findItem(ViewerAction.RECORD_VOICE.menuId)?.let { recordVoiceItem ->
+        val recordVoiceFlow = viewModel.voiceRecorderEnabledFlow.flowWithLifecycle(lifecycle)
+        recordVoiceFlow.collectLatestIn(lifecycle.coroutineScope) { isEnabled ->
+            val iconRes =
+                if (isEnabled) {
+                    R.drawable.ic_action_mic
+                } else {
+                    R.drawable.ic_mic_outlined
+                }
+            recordVoiceItem.setPaddedIcon(context, iconRes)
+        }
+    }
+
+    findItem(ViewerAction.TOGGLE_WHITEBOARD.menuId)?.let { toggleWhiteboardItem ->
+        val toggleWhiteboardFlow = viewModel.whiteboardEnabledFlow.flowWithLifecycle(lifecycle)
+        toggleWhiteboardFlow.collectLatestIn(lifecycle.coroutineScope) { isEnabled ->
+            val iconRes =
+                if (isEnabled) {
+                    R.drawable.ic_draw_filled
+                } else {
+                    R.drawable.ic_enable_whiteboard
+                }
+            toggleWhiteboardItem.setPaddedIcon(context, iconRes)
+        }
+    }
 }
