@@ -34,7 +34,7 @@ def sync() -> None:
 
 
 def check_clean() -> None:
-    out = subprocess.check_output(["git", "diff"])
+    out = subprocess.check_output(["git", "status", "--porcelain"])
     if out:
         raise Exception("please commit any outstanding changes first")
 
