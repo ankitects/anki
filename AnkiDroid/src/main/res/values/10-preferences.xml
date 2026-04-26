@@ -260,6 +260,10 @@
     <string name="user_action_8" maxLength="28">User action 8</string>
     <string name="user_action_9" maxLength="28">User action 9</string>
     <string name="toggle_auto_advance" maxLength="28">Toggle auto advance</string>
+    <string name="enable_auto_advance" maxLength="28">Enable auto advance</string>
+    <string name="disable_auto_advance" maxLength="28">Disable auto advance</string>
+    <string name="enable_voice_recording" maxLength="28">Enable voice recording</string>
+    <string name="disable_voice_recording" maxLength="28">Disable voice recording</string>
 
     <!-- Select card side -->
     <string name="card_side_selection_title">Select card side</string>
