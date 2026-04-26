@@ -133,6 +133,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG_NAME: ${{ steps.validate.outputs.tag_name }}
 
+  # macOS ARM and Intel are kept as separate jobs rather than a matrix because
+  # they are likely to diverge (signing quirks, Xcode versions, cross-compilation
+  # flags, Rosetta workarounds), and the conditional environment expression is
+  # already complex enough without adding matrix dimensions.
   build-and-sign-mac:
     needs: prepare
     runs-on: macos-14
