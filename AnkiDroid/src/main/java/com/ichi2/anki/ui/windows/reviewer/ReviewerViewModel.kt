@@ -149,6 +149,7 @@ class ReviewerViewModel(
      */
     private var mutationSignal = CompletableDeferred(Unit)
 
+    val isAutoAdvanceEnabledFlow = MutableStateFlow(autoAdvance.isEnabled)
     val answerButtonsNextTimeFlow: MutableStateFlow<AnswerButtonsNextTime?> = MutableStateFlow(null)
     private val shouldShowNextTimes = asyncIO { repository.getShouldShowNextTimes() }
 
@@ -424,6 +425,7 @@ class ReviewerViewModel(
     private suspend fun toggleAutoAdvance() {
         Timber.v("ReviewerViewModel::toggleAutoAdvance")
         autoAdvance.isEnabled = !autoAdvance.isEnabled
+        isAutoAdvanceEnabledFlow.value = autoAdvance.isEnabled
         val message =
             if (autoAdvance.isEnabled) {
                 TR.actionsAutoAdvanceActivated()

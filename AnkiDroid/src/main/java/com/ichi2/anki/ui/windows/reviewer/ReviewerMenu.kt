@@ -143,4 +143,17 @@ fun ReviewerMenuView.setup(
             toggleWhiteboardItem.setPaddedIcon(context, iconRes)
         }
     }
+
+    findItem(ViewerAction.TOGGLE_AUTO_ADVANCE.menuId)?.let { autoAdvanceItem ->
+        val isAutoAdvancedEnabledFlow = viewModel.isAutoAdvanceEnabledFlow.flowWithLifecycle(lifecycle)
+        isAutoAdvancedEnabledFlow.collectLatestIn(lifecycle.coroutineScope) { isEnabled ->
+            val iconRes =
+                if (isEnabled) {
+                    R.drawable.ic_fast_forward
+                } else {
+                    R.drawable.ic_fast_forward_outlined
+                }
+            autoAdvanceItem.setPaddedIcon(context, iconRes)
+        }
+    }
 }
