@@ -274,6 +274,65 @@ Releases are managed by two GitHub Actions workflows under `.github/workflows/`:
 Both workflows are `workflow_dispatch` and share a `release` concurrency group so
 they cannot run simultaneously.
 
+### Release process overview
+
+```mermaid
+flowchart LR
+    A["<b>prepare-release.yml</b><br/>validate version<br/>check CI ✓<br/>check duplicate tag<br/>sync translations<br/>update .version<br/>push to main"] --> B["<b>CI (ci.yml)</b><br/>runs automatically<br/>on the new commit"]
+    B --> C["<b>release.yml</b><br/>build &amp; sign all platforms<br/>create draft GitHub release<br/>publish to TestPyPI<br/>publish to PyPI"]
+
+    style A fill:#2d333b,stroke:#539bf5,color:#adbac7
+    style B fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style C fill:#2d333b,stroke:#7ee787,color:#adbac7
+```
+
+### Release workflow jobs
+
+```mermaid
+flowchart TD
+    prepare[prepare<br/><i>validate version,<br/>check CI, check duplicates</i>]
+
+    prepare --> mac["build-and-sign-mac<br/>🍎 ARM"]
+    prepare --> macint["build-and-sign-mac-intel<br/>🍎 Intel"]
+    prepare --> win[build-windows<br/>🪟]
+    prepare --> lin[build-linux<br/>🐧 x86]
+    prepare --> linarm[build-linux-arm<br/>🐧 ARM]
+
+    win --> signwin["sign-windows<br/>🔏 Azure"]
+
+    mac --> release
+    macint --> release
+    signwin --> release
+    lin --> release
+    linarm --> release
+
+    release["release<br/>📦 draft GitHub release"]
+
+    mac --> testpypi
+    macint --> testpypi
+    win --> testpypi
+    lin --> testpypi
+    linarm --> testpypi
+
+    testpypi["publish-testpypi<br/>🧪 TestPyPI"]
+
+    release --> pypi
+    testpypi --> pypi
+
+    pypi["publish-pypi<br/>🚀 PyPI"]
+
+    style prepare fill:#2d333b,stroke:#539bf5,color:#adbac7
+    style mac fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style macint fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style win fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style lin fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style linarm fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style signwin fill:#2d333b,stroke:#c678dd,color:#adbac7
+    style release fill:#2d333b,stroke:#7ee787,color:#adbac7
+    style testpypi fill:#2d333b,stroke:#7ee787,color:#adbac7
+    style pypi fill:#2d333b,stroke:#7ee787,color:#adbac7
+```
+
 ### Version format
 
 Versions follow calendar versioning with PEP 440: `YY.MM` for stable releases
