@@ -20,8 +20,8 @@ def validate_version(version: str, current_version: str) -> bool:
 
     try:
         v = Version(version)
-    except InvalidVersion:
-        raise ValueError(f"version '{version}' is not valid PEP 440")
+    except InvalidVersion as exc:
+        raise ValueError(f"version '{version}' is not valid PEP 440") from exc
 
     if v <= Version(current_version):
         raise ValueError(
