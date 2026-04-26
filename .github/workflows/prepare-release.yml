@@ -37,7 +37,7 @@ jobs:
 
       - name: Validate version
         run: |
-          pip install 'packaging>=24,<26'
+          pip install --break-system-packages 'packaging>=24,<26'
           current_version=$(cat .version)
           echo "Current .version: $current_version"
           python3 .github/scripts/validate_version.py "$INPUT_VERSION" "$current_version"
