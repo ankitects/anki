@@ -263,7 +263,19 @@ jobs:
 
   build-linux:
     needs: prepare
-    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            arch: x86
+            wheel-target: wheels
+            # Upload both anki and aqt wheels; the pure-Python aqt wheel is the same on all platforms
+            wheel-glob: "out/wheels/*.whl"
+          - runner: ubuntu-24.04-arm
+            arch: arm
+            wheel-target: wheels:anki
+            wheel-glob: "out/wheels/anki-*.whl"
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -278,45 +290,16 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: installer-linux
+          name: installer-linux-${{ matrix.arch }}
           path: out/installer/dist/
 
       - name: Build wheels
-        run: ./ninja wheels
+        run: ./ninja ${{ matrix.wheel-target }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux
-          # Upload both anki and aqt wheels; the pure-Python aqt wheel is the same on all platforms
-          path: out/wheels/*.whl
-
-  build-linux-arm:
-    needs: prepare
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-
-      - name: Setup build environment
-        uses: ./.github/actions/setup-anki
-
-      - name: Build installer
-        run: ./tools/build-installer
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: installer-linux-arm
-          path: out/installer/dist/
-
-      - name: Build wheels
-        run: ./ninja wheels:anki
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels-linux-arm
-          path: out/wheels/anki-*.whl
+          name: wheels-linux-${{ matrix.arch }}
+          path: ${{ matrix.wheel-glob }}
 
   sign-windows:
     if: inputs['skip-signing'] != true
@@ -361,7 +344,7 @@ jobs:
           overwrite: true
 
   release:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, sign-windows, build-linux, build-linux-arm]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, sign-windows, build-linux]
     if: >-
       ${{ always()
       && inputs.publish == 'release'
@@ -369,7 +352,6 @@ jobs:
       && needs.build-and-sign-mac.result == 'success'
       && needs.build-and-sign-mac-intel.result == 'success'
       && needs.build-linux.result == 'success'
-      && needs.build-linux-arm.result == 'success'
       && needs.sign-windows.result == 'success'
       }}
     runs-on: ubuntu-latest
@@ -407,7 +389,7 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
 
   publish-testpypi:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-windows, build-linux, build-linux-arm]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-windows, build-linux]
     if: >-
       ${{ always()
       && inputs.publish != 'none'
@@ -416,7 +398,6 @@ jobs:
       && needs.build-and-sign-mac-intel.result == 'success'
       && needs.build-windows.result == 'success'
       && needs.build-linux.result == 'success'
-      && needs.build-linux-arm.result == 'success'
       }}
     runs-on: ubuntu-latest
     environment: testpypi
