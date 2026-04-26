@@ -66,6 +66,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           COMMIT_SHA: ${{ github.sha }}
 
+      - name: Check for duplicate tag or release
+        run: |
+          git fetch --tags origin
+          if git rev-parse "refs/tags/$INPUT_VERSION" >/dev/null 2>&1; then
+            echo "::error::Tag '$INPUT_VERSION' already exists"
+            exit 1
+          fi
+
+          if gh release view "$INPUT_VERSION" >/dev/null 2>&1; then
+            echo "::error::GitHub release '$INPUT_VERSION' already exists"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_VERSION: ${{ inputs.version }}
+
       - name: Sync translations
         run: |
           git config user.name "github-actions[bot]"
