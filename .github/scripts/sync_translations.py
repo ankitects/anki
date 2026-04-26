@@ -73,17 +73,19 @@ def push(repo: str) -> None:
 
 
 def commit(folder: str, message: str) -> None:
-    try:
-        subprocess.run(
-            ["git", "commit", "-a", "-m", message],
-            cwd=folder,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            check=True,
-        )
-    except subprocess.CalledProcessError as exc:
-        print(f"::warning::git commit failed: {exc.stdout}")
+    result = subprocess.run(
+        ["git", "commit", "-a", "-m", message],
+        cwd=folder,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    if result.returncode == 0:
+        return
+    if "nothing to commit" in result.stdout:
+        print(f"::notice::No changes to commit in {folder}")
+    else:
+        raise Exception(f"git commit failed in {folder}: {result.stdout}")
 
 
 if __name__ == "__main__":
