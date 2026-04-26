@@ -1,0 +1,87 @@
+name: Prepare Release
+run-name: "Prepare release ${{ inputs.version }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version (e.g. 26.04 for stable, 26.04b1 or 26.04rc1 for pre-release)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Require dispatch from main
+        if: github.ref_name != 'main'
+        run: |
+          echo "::error::Must be dispatched from main. Got ref $REF_NAME."
+          exit 1
+        env:
+          REF_NAME: ${{ github.ref_name }}
+
+      - name: Validate version
+        run: |
+          pip install packaging
+          current_version=$(cat .version)
+          echo "Current .version: $current_version"
+          python3 .github/scripts/validate_version.py "$INPUT_VERSION" "$current_version"
+          echo "Version check passed"
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+
+      - name: Check CI passed on main
+        run: |
+          conclusion=$(gh run list \
+            --workflow=ci.yml \
+            -e push \
+            --commit "$COMMIT_SHA" \
+            --limit 1 \
+            --json conclusion \
+            --jq ".[0].conclusion")
+
+          if [[ -z "$conclusion" ]]; then
+            echo "::error::Could not determine CI status for commit $COMMIT_SHA"
+            exit 1
+          elif [[ "$conclusion" != "success" ]]; then
+            echo "::error::CI for commit $COMMIT_SHA concluded with '$conclusion'"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT_SHA: ${{ github.sha }}
+
+      - name: Sync translations
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          python3 .github/scripts/sync_translations.py
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          ANKI_NO_GIT_PUSH: "1"
+
+      - name: Update .version and commit
+        run: |
+          printf '%s' "$INPUT_VERSION" > .version
+          git add .version
+          git commit -m "Prepare release $INPUT_VERSION"
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+
+      - name: Push to main
+        run: git push origin HEAD:refs/heads/main
