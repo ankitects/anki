@@ -134,13 +134,13 @@ fun ReviewerMenuView.setup(
     findItem(ViewerAction.TOGGLE_WHITEBOARD.menuId)?.let { toggleWhiteboardItem ->
         val toggleWhiteboardFlow = viewModel.whiteboardEnabledFlow.flowWithLifecycle(lifecycle)
         toggleWhiteboardFlow.collectLatestIn(lifecycle.coroutineScope) { isEnabled ->
-            val iconRes =
-                if (isEnabled) {
-                    R.drawable.ic_draw_filled
-                } else {
-                    R.drawable.ic_enable_whiteboard
-                }
-            toggleWhiteboardItem.setPaddedIcon(context, iconRes)
+            if (isEnabled) {
+                toggleWhiteboardItem.setPaddedIcon(context, R.drawable.ic_draw_filled)
+                toggleWhiteboardItem.setTitle(R.string.disable_whiteboard)
+            } else {
+                toggleWhiteboardItem.setPaddedIcon(context, R.drawable.ic_enable_whiteboard)
+                toggleWhiteboardItem.setTitle(R.string.enable_whiteboard)
+            }
         }
     }
 
