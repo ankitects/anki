@@ -1,25 +1,31 @@
 name: Release
+run-name: "Release ${{ inputs.version }} (${{ inputs.publish }})"
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version (e.g. 26.04 for stable, 26.04b1 or 26.04rc1 for pre-release)"
+        description: "Version to release (must match .version on main)"
         required: true
         type: string
-      dry_run:
-        description: "Only build artifacts (skip code signing)"
+      skip-signing:
+        description: "Skip code signing (builds unsigned artifacts)"
         default: false
         required: false
         type: boolean
-      release:
-        description: "Create a GitHub release and publish to PyPI"
-        default: true
-        required: false
-        type: boolean
+      publish:
+        description: "Publishing target"
+        default: "none"
+        required: true
+        type: choice
+        options:
+          - none
+          - testpypi
+          - release
 
 permissions:
   contents: write
+  actions: read
 
 env:
   # Build profile: 1 = Release, 2 = ReleaseWithLto (see build/ninja_gen/src/build.rs)
@@ -33,117 +39,114 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      pep440_version: ${{ steps.compute.outputs.pep440_version }}
-      tag_name: ${{ steps.compute.outputs.tag_name }}
-      release_name: ${{ steps.compute.outputs.release_name }}
-      is_prerelease: ${{ steps.compute.outputs.is_prerelease }}
+      pep440_version: ${{ steps.validate.outputs.pep440_version }}
+      tag_name: ${{ steps.validate.outputs.tag_name }}
+      release_name: ${{ steps.validate.outputs.release_name }}
+      is_prerelease: ${{ steps.validate.outputs.is_prerelease }}
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
-      - name: Compute versions and validate
-        id: compute
+      - name: Reject incompatible inputs
+        if: inputs.publish == 'release' && inputs['skip-signing'] == true
+        run: |
+          echo "::error::Cannot publish a release with skip-signing enabled"
+          exit 1
+
+      - name: Validate version and compute metadata
+        id: validate
         run: |
           pip install packaging
-          current_version=$(cat .version)
-          echo "Current .version: $current_version"
+          file_version=$(cat .version)
 
-          version="${{ inputs.version }}"
-
-          # Validate PEP 440 format, check version order, detect stable vs pre-release
-          is_prerelease=$(python3 .github/scripts/validate_version.py "$version" "$current_version")
-          echo "Version check passed"
-
-          pep440_version="$version"
-          tag_name="$version"
-          release_name="Anki $version"
-
-          if [ "${{ inputs.release }}" = "true" ]; then
-            if [ "${{ github.ref_type }}" != "branch" ] || [ "${{ github.ref_name }}" != "main" ]; then
-              echo "::error::Public releases must be dispatched from main. Got ${{ github.ref }}."
-              exit 1
-            fi
-
-            # Check for duplicate tag
-            if git rev-parse "refs/tags/${tag_name}" >/dev/null 2>&1; then
-              echo "::error::Tag '${tag_name}' already exists"
-              exit 1
-            fi
-
-            # Check for duplicate release
-            if gh release view "$tag_name" >/dev/null 2>&1; then
-              echo "::error::GitHub release '${tag_name}' already exists"
-              exit 1
-            fi
+          if [ "$PUBLISH" = "release" ] && [ "$file_version" != "$INPUT_VERSION" ]; then
+            echo "::error::Input version '$INPUT_VERSION' does not match .version '$file_version'"
+            exit 1
           fi
 
-          echo "pep440_version=${pep440_version}" >> "$GITHUB_OUTPUT"
-          echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
-          echo "release_name=${release_name}" >> "$GITHUB_OUTPUT"
-          echo "is_prerelease=${is_prerelease}" >> "$GITHUB_OUTPUT"
+          # Use .version for non-release runs so builds work without a prepare step
+          version="$INPUT_VERSION"
+          if [ "$PUBLISH" != "release" ]; then
+            version="$file_version"
+          fi
 
-          echo "Computed: pep440_version=$pep440_version tag=$tag_name release=$release_name prerelease=$is_prerelease"
+          is_prerelease=$(python3 .github/scripts/validate_version.py "$version" "0.0")
+          echo "Version check passed: $version (prerelease=$is_prerelease)"
+
+          echo "pep440_version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag_name=$version" >> "$GITHUB_OUTPUT"
+          echo "release_name=Anki $version" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
         env:
-          GH_TOKEN: ${{ github.token }}
+          INPUT_VERSION: ${{ inputs.version }}
+          PUBLISH: ${{ inputs.publish }}
 
-      - name: Check status of the test workflow for this commit
+      - name: Require dispatch from main
+        if: inputs.publish == 'release'
+        run: |
+          if [ "$REF_NAME" != "main" ]; then
+            echo "::error::Releases must be dispatched from main. Got $REF_NAME."
+            exit 1
+          fi
+        env:
+          REF_NAME: ${{ github.ref_name }}
+
+      - name: Check CI passed on main
+        if: inputs.publish == 'release'
         run: |
           conclusion=$(gh run list \
             --workflow=ci.yml \
             -e push \
-            --commit "${{ github.sha }}" \
+            --commit "$COMMIT_SHA" \
             --limit 1 \
             --json conclusion \
             --jq ".[0].conclusion")
 
           if [[ -z "$conclusion" ]]; then
-            echo "Could not determine the status of the test workflow for commit ${{ github.sha }}. Aborting..."
+            echo "::error::Could not determine CI status for commit $COMMIT_SHA"
             exit 1
           elif [[ "$conclusion" != "success" ]]; then
-            echo "The test workflow for commit ${{ github.sha }} concluded with '$conclusion'. Aborting..."
+            echo "::error::CI for commit $COMMIT_SHA concluded with '$conclusion'"
             exit 1
           fi
         env:
           GH_TOKEN: ${{ github.token }}
+          COMMIT_SHA: ${{ github.sha }}
 
-  ftl-sync:
-    needs: prepare
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 0
-          token: ${{ secrets.RELEASE_TOKEN }}
-
-      - name: Sync translations
+      - name: Check for duplicate tag or release
+        if: inputs.publish == 'release'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          python3 .github/scripts/sync_translations.py
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          ANKI_NO_GIT_PUSH: ${{ inputs.release && '0' || '1' }}
+          git fetch --tags origin
+          if git rev-parse "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::Tag '$TAG_NAME' already exists"
+            exit 1
+          fi
 
-  build-mac:
-    needs: [prepare, ftl-sync]
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::GitHub release '$TAG_NAME' already exists"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.validate.outputs.tag_name }}
+
+  build-and-sign-mac:
+    needs: prepare
     runs-on: macos-14
     timeout-minutes: 90
-    environment: release
+    environment: ${{ inputs['skip-signing'] != true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.RELEASE_TOKEN }}
+          ref: ${{ github.sha }}
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
-      - name: Write version
-        run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
-
       - name: Set up Apple code signing
-        if: ${{ inputs.dry_run != true }}
+        if: inputs['skip-signing'] != true
         run: .github/scripts/setup_apple_signing.sh
         env:
           APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
@@ -157,7 +160,7 @@ jobs:
       - name: Build installer
         run: ./tools/build-installer
         env:
-          SIGN_IDENTITY: ${{ inputs.dry_run != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          SIGN_IDENTITY: ${{ inputs['skip-signing'] != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
 
       - name: Clean up signing credentials
         if: always()
@@ -179,24 +182,21 @@ jobs:
           name: wheels-macos
           path: out/wheels/anki-*.whl
 
-  build-mac-intel:
-    needs: [prepare, ftl-sync]
+  build-and-sign-mac-intel:
+    needs: prepare
     runs-on: macos-15-intel
     timeout-minutes: 90
-    environment: release
+    environment: ${{ inputs['skip-signing'] != true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.RELEASE_TOKEN }}
+          ref: ${{ github.sha }}
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
-      - name: Write version
-        run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
-
       - name: Set up Apple code signing
-        if: ${{ inputs.dry_run != true }}
+        if: inputs['skip-signing'] != true
         run: .github/scripts/setup_apple_signing.sh
         env:
           APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
@@ -210,7 +210,7 @@ jobs:
       - name: Build installer
         run: ./tools/build-installer
         env:
-          SIGN_IDENTITY: ${{ inputs.dry_run != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          SIGN_IDENTITY: ${{ inputs['skip-signing'] != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
 
       - name: Clean up signing credentials
         if: always()
@@ -233,20 +233,16 @@ jobs:
           path: out/wheels/anki-*.whl
 
   build-windows:
-    needs: [prepare, ftl-sync]
+    needs: prepare
     runs-on: windows-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.RELEASE_TOKEN }}
+          ref: ${{ github.sha }}
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
-
-      - name: Write version
-        run: |
-          Set-Content -Path .version -Value '${{ needs.prepare.outputs.pep440_version }}' -NoNewline
 
       - name: Build installer
         run: tools\build-installer.bat
@@ -265,17 +261,16 @@ jobs:
           path: out/wheels/anki-*.whl
 
   build-linux:
-    needs: [prepare, ftl-sync]
+    needs: prepare
     runs-on: ubuntu-22.04
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
-
-      - name: Write version
-        run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
 
       - name: Build installer
         run: ./tools/build-installer
@@ -295,17 +290,16 @@ jobs:
           path: out/wheels/*.whl
 
   build-linux-arm:
-    needs: [prepare, ftl-sync]
+    needs: prepare
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
-
-      - name: Write version
-        run: echo '${{ needs.prepare.outputs.pep440_version }}' > .version
 
       - name: Build installer
         run: ./tools/build-installer
@@ -324,7 +318,7 @@ jobs:
           path: out/wheels/anki-*.whl
 
   sign-windows:
-    if: ${{ inputs.dry_run != true }}
+    if: inputs['skip-signing'] != true
     needs: build-windows
     runs-on: windows-2022
     environment: release
@@ -366,15 +360,23 @@ jobs:
           overwrite: true
 
   release:
-    if: ${{ inputs.release == true }}
-    needs: [prepare, build-mac, build-mac-intel, sign-windows, build-linux, build-linux-arm]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, sign-windows, build-linux, build-linux-arm]
+    if: >-
+      ${{ always()
+      && inputs.publish == 'release'
+      && needs.prepare.result == 'success'
+      && needs.build-and-sign-mac.result == 'success'
+      && needs.build-and-sign-mac-intel.result == 'success'
+      && needs.build-linux.result == 'success'
+      && needs.build-linux-arm.result == 'success'
+      && needs.sign-windows.result == 'success'
+      }}
     runs-on: ubuntu-latest
     environment: release
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          token: ${{ secrets.RELEASE_TOKEN }}
+          ref: ${{ github.sha }}
 
       - uses: actions/download-artifact@v4
         with:
@@ -382,47 +384,65 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Update version, commit, and tag (stable)
-        if: needs.prepare.outputs.is_prerelease == 'false'
-        run: |
-          if [ "${{ github.ref_type }}" != "branch" ] || [ "${{ github.ref_name }}" != "main" ]; then
-            echo "Stable public releases must be dispatched from main. Got ${{ github.ref }}."
-            exit 1
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          echo '${{ needs.prepare.outputs.pep440_version }}' > .version
-          git add .version
-          git commit -m "Release ${{ needs.prepare.outputs.pep440_version }}"
-          git tag '${{ needs.prepare.outputs.tag_name }}'
-          git push origin "HEAD:refs/heads/main" '${{ needs.prepare.outputs.tag_name }}'
-
-      - name: Create and push tag (pre-release or dry run)
-        if: needs.prepare.outputs.is_prerelease == 'true'
-        run: |
-          git tag '${{ needs.prepare.outputs.tag_name }}'
-          git push origin '${{ needs.prepare.outputs.tag_name }}'
-
       - name: Create draft release
         run: |
           prerelease_flag=""
-          if [ "${{ needs.prepare.outputs.is_prerelease }}" = "true" ]; then
+          if [ "$IS_PRERELEASE" = "true" ]; then
             prerelease_flag="--prerelease"
           fi
 
-          gh release create '${{ needs.prepare.outputs.tag_name }}' \
+          gh release create "$TAG_NAME" \
             dist/* \
             --draft \
-            --title '${{ needs.prepare.outputs.release_name }}' \
+            --target "$RELEASE_SHA" \
+            --title "$RELEASE_NAME" \
             --generate-notes \
             $prerelease_flag
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          TAG_NAME: ${{ needs.prepare.outputs.tag_name }}
+          RELEASE_NAME: ${{ needs.prepare.outputs.release_name }}
+          IS_PRERELEASE: ${{ needs.prepare.outputs.is_prerelease }}
+          RELEASE_SHA: ${{ github.sha }}
+
+  publish-testpypi:
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-windows, build-linux, build-linux-arm]
+    if: >-
+      ${{ always()
+      && inputs.publish != 'none'
+      && needs.prepare.result == 'success'
+      && needs.build-and-sign-mac.result == 'success'
+      && needs.build-and-sign-mac-intel.result == 'success'
+      && needs.build-windows.result == 'success'
+      && needs.build-linux.result == 'success'
+      && needs.build-linux-arm.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    environment: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: wheels
+          merge-multiple: true
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheels/
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
 
   publish-pypi:
-    if: ${{ inputs.release == true }}
-    needs: release
+    needs: [release, publish-testpypi]
+    if: >-
+      ${{ always()
+      && inputs.publish == 'release'
+      && needs.release.result == 'success'
+      && needs.publish-testpypi.result == 'success'
+      }}
     runs-on: ubuntu-latest
     environment: release
     permissions:
