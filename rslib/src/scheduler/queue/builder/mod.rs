@@ -195,6 +195,12 @@ impl QueueBuilder {
         let review_count = self.review.len();
         let new_count = self.new.len();
 
+        let today = self.context.timing.days_elapsed;
+        let (new_done_today, reviews_done_today) = self.context.root_deck.new_rev_counts(today);
+        // Counts can be negative when limits are extended; clamp to 0.
+        let reviews_done_today = reviews_done_today.max(0) as usize;
+        let new_done_today = new_done_today.max(0) as usize;
+
         // merge interday and new cards into main
         let with_interday_learn = merge_day_learning(
             self.review,
@@ -205,6 +211,8 @@ impl QueueBuilder {
             with_interday_learn,
             self.new,
             self.context.sort_options.new_review_mix,
+            reviews_done_today,
+            new_done_today,
         );
 
         CardQueues {
@@ -254,7 +262,9 @@ fn merge_day_learning(
     match mode {
         ReviewMix::AfterReviews => Box::new(SizedChain::new(reviews_iter, day_learning_iter)),
         ReviewMix::BeforeReviews => Box::new(SizedChain::new(day_learning_iter, reviews_iter)),
-        ReviewMix::MixWithReviews => Box::new(Intersperser::new(reviews_iter, day_learning_iter)),
+        ReviewMix::MixWithReviews => {
+            Box::new(Intersperser::new(reviews_iter, day_learning_iter, 0, 0))
+        }
     }
 }
 
@@ -262,13 +272,20 @@ fn merge_new(
     review_iter: impl ExactSizeIterator<Item = MainQueueEntry> + 'static,
     new: Vec<NewCard>,
     mode: ReviewMix,
+    reviews_done_today: usize,
+    new_done_today: usize,
 ) -> Box<dyn ExactSizeIterator<Item = MainQueueEntry>> {
     let new_iter = new.into_iter().map(Into::into);
 
     match mode {
         ReviewMix::BeforeReviews => Box::new(SizedChain::new(new_iter, review_iter)),
         ReviewMix::AfterReviews => Box::new(SizedChain::new(review_iter, new_iter)),
-        ReviewMix::MixWithReviews => Box::new(Intersperser::new(review_iter, new_iter)),
+        ReviewMix::MixWithReviews => Box::new(Intersperser::new(
+            review_iter,
+            new_iter,
+            reviews_done_today,
+            new_done_today,
+        )),
     }
 }
 
