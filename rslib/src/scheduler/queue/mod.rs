@@ -181,14 +181,18 @@ impl CardQueues {
     }
 
     /// Return the current due counts. If there are no due cards, the learning
-    /// cutoff is updated to the current time first, and any newly-due learning
-    /// cards are added to the counts.
+    /// cutoff is updated to the current time first. Otherwise, any newly-due
+    /// learning cards are added to the counts without updating the cutoff.
     pub(crate) fn counts(&mut self) -> Counts {
         if self.counts.all_zero() {
             // we discard the returned undo information in this case
             self.update_learning_cutoff_and_count();
+            self.counts
+        } else {
+            let mut counts = self.counts;
+            counts.learning += self.newly_due_learning_count(TimestampSecs::now());
+            counts
         }
-        self.counts
     }
 
     fn is_stale(&self, current_day: u32) -> bool {
