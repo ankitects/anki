@@ -1421,10 +1421,9 @@ class CardBrowserFragment :
 
     fun updateFlagForSelectedRows(flag: Flag) =
         launchCatchingTask {
-            // list of cards with updated flags
-            val updatedCardIds = withProgress { activityViewModel.updateSelectedCardsFlag(flag) }
-
-            ankiActivity.onCardsUpdated(updatedCardIds)
+            // TODO: Use the return value to update only the affected rows
+            withProgress { activityViewModel.updateSelectedCardsFlag(flag) }
+            ankiActivity.onCardsUpdated()
         }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)

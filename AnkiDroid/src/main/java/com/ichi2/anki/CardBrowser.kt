@@ -76,7 +76,6 @@ import com.ichi2.anki.dialogs.registerSaveSearchHandler
 import com.ichi2.anki.dialogs.registerSavedSearchActionHandler
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
-import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.SortOrder
@@ -751,10 +750,8 @@ open class CardBrowser :
         }
     }
 
-    fun onCardsUpdated(cardIds: List<CardId>) {
-        // TODO: try to offload the cards processing in updateCardsInList() on a background thread,
-        // otherwise it could hang the main thread
-        updateCardsInList(cardIds)
+    fun onCardsUpdated() {
+        updateList()
         invalidateOptionsMenu()
     }
 
@@ -827,7 +824,6 @@ open class CardBrowser :
             if (searchView == null || searchView!!.isIconified) {
                 return@launchCatchingTask
             }
-            updateList()
             if (viewModel.hasSelectedAllDecks()) {
                 showSnackbar(numberOfCardsOrNoteShown, Snackbar.LENGTH_SHORT)
             } else {
@@ -842,7 +838,6 @@ open class CardBrowser :
                     setAction(R.string.card_browser_search_all_decks) { searchAllDecks() }
                 }
             }
-            invalidateOptionsMenu()
             // HACK: required now we use MenuProvider for searches
             // this causes a very brief flicker, as we call `setQuery` to restore the menu state
             searchView?.post {
@@ -857,7 +852,6 @@ open class CardBrowser :
         Timber.d("updateList")
         updateAppBarInfo(viewModel.deckId)
         onSelectionChanged()
-        invalidateOptionsMenu()
     }
 
     private fun onSelectionChanged() {
@@ -888,16 +882,6 @@ open class CardBrowser :
         stateFilter: CardStateFilter,
     ) {
         cardBrowserFragment.onSelectedTags(selectedTags, indeterminateTags, stateFilter)
-    }
-
-    /**
-     * Loads/Reloads (Updates the Q, A & etc) of cards in the [cardIds] list
-     * @param cardIds Card IDs that were changed
-     */
-    private fun updateCardsInList(
-        @Suppress("UNUSED_PARAMETER") cardIds: List<CardId>,
-    ) {
-        updateList()
     }
 
     private fun refreshBrowserUI() {
