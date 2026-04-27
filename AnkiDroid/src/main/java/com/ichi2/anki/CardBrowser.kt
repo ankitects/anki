@@ -52,6 +52,7 @@ import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode
 import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode.SingleSelectCause
 import com.ichi2.anki.browser.CardBrowserViewModel.ChangeNoteTypeResponse
+import com.ichi2.anki.browser.CardBrowserViewModel.NoteEditorCommand
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState.Initializing
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState.Searching
@@ -432,27 +433,6 @@ open class CardBrowser :
     val fragment: NoteEditorFragment?
         get() = supportFragmentManager.findFragmentById(R.id.note_editor_frame) as? NoteEditorFragment
 
-    /**
-     * Loads the NoteEditor fragment in container if the view is x-large.
-     *
-     * TODO: this should be a ViewModel concern.
-     */
-    suspend fun loadNoteEditorFragmentIfFragmented() {
-        if (!fragmented) {
-            return
-        }
-        // Show note editor frame
-        binding.noteEditorFrame!!.isVisible = true
-
-        val launcher = viewModel.editNoteLauncher() ?: return
-        // If there are unsaved changes in NoteEditor then show dialog for confirmation
-        if (fragment?.hasUnsavedChanges() == true) {
-            showSaveChangesDialog(launcher)
-        } else {
-            loadNoteEditorFragment(launcher)
-        }
-    }
-
     @Suppress("UNUSED_PARAMETER")
     private fun setupFlows() {
         // provides a name for each flow receiver to improve stack traces
@@ -531,32 +511,24 @@ open class CardBrowser :
             }
         }
 
-        fun onSelectedCardUpdated(unit: Unit) {
+        fun onNoteEditorCommand(command: NoteEditorCommand) {
             launchCatchingTask {
-                if (fragmented) {
-                    loadNoteEditorFragmentIfFragmented()
-                } else {
-                    viewModel.editNoteLauncher()?.let {
-                        startActivity(it.toIntent(this@CardBrowser))
-                    }
-                }
-            }
-        }
-
-        fun onNoteEditorPaneStateChanged(state: CardBrowserViewModel.NoteEditorPaneState) {
-            launchCatchingTask {
-                if (state.visible) {
-                    binding.noteEditorFrame?.isVisible = true
-                    state.launcher?.let { launcher ->
+                when (command) {
+                    is NoteEditorCommand.LoadInPane -> {
+                        binding.noteEditorFrame?.isVisible = true
                         if (fragment?.hasUnsavedChanges() == true) {
-                            showSaveChangesDialog(launcher)
+                            showSaveChangesDialog(command.launcher)
                         } else {
-                            loadNoteEditorFragment(launcher)
+                            loadNoteEditorFragment(command.launcher)
                         }
                     }
-                } else {
-                    binding.noteEditorFrame?.isVisible = false
-                    invalidateOptionsMenu()
+                    is NoteEditorCommand.LaunchActivity -> {
+                        startActivity(command.launcher.toIntent(this@CardBrowser))
+                    }
+                    NoteEditorCommand.HidePane -> {
+                        binding.noteEditorFrame?.isVisible = false
+                        invalidateOptionsMenu()
+                    }
                 }
             }
         }
@@ -587,8 +559,7 @@ open class CardBrowser :
         viewModel.flowOfDeckId.launchCollectionInLifecycleScope(::onDeckIdChanged)
         viewModel.flowOfMultiSelectModeChanged.launchCollectionInLifecycleScope(::onMultiSelectModeChanged)
         viewModel.flowOfSearchState.launchCollectionInLifecycleScope(::searchStateChanged)
-        viewModel.flowOfNoteEditorPaneState.launchCollectionInLifecycleScope(::onNoteEditorPaneStateChanged)
-        viewModel.cardSelectionEventFlow.launchCollectionInLifecycleScope(::onSelectedCardUpdated)
+        viewModel.flowOfNoteEditorCommand.launchCollectionInLifecycleScope(::onNoteEditorCommand)
         viewModel.flowOfSaveSearchNamePrompt.launchCollectionInLifecycleScope(::onSaveSearchNamePrompt)
         viewModel.flowOfChangeNoteType.launchCollectionInLifecycleScope(::onChangeNoteType)
     }

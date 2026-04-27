@@ -162,19 +162,27 @@ class CardBrowserViewModel(
     val flowOfSearchState = MutableSharedFlow<SearchState>()
 
     /**
-     * When the visibility of the note editor pane changes.
-     * @see NoteEditorPaneState
+     * Commands to drive the note editor either in a fragment or a standalone activity
+     * @see NoteEditorCommand
      */
-    val flowOfNoteEditorPaneState = MutableSharedFlow<NoteEditorPaneState>()
+    val flowOfNoteEditorCommand = MutableSharedFlow<NoteEditorCommand>()
 
-    /**
-     * @param visible whether the pane should be visible
-     * @param launcher proposed note to edit (if an unsaved note is not retained)
-     */
-    data class NoteEditorPaneState(
-        val visible: Boolean,
-        val launcher: NoteEditorLauncher?,
-    )
+    sealed interface NoteEditorCommand {
+        /** Tablet pane: show pane and load the editor with [launcher]. */
+        data class LoadInPane(
+            val launcher: NoteEditorLauncher,
+        ) : NoteEditorCommand
+
+        /** Phone: launch the standalone NoteEditor activity with [launcher]. */
+        data class LaunchActivity(
+            val launcher: NoteEditorLauncher,
+        ) : NoteEditorCommand
+
+        /** Tablet pane: hide the pane (no row available). */
+        data object HidePane : NoteEditorCommand
+
+        companion object
+    }
 
     /** Result of a completed search, used to drive a snackbar in the UI */
     sealed interface SearchResultMessage {
@@ -300,8 +308,6 @@ class CardBrowserViewModel(
                 started = SharingStarted.Lazily,
                 initialValue = SELECT_NONE,
             )
-
-    val cardSelectionEventFlow = MutableSharedFlow<Unit>()
 
     /**
      * If cards are marked or flagged
@@ -665,7 +671,7 @@ class CardBrowserViewModel(
                 // when in mutliselect, only deselecting should cause a change in focus
                 if (wasSelected && isFragmented) {
                     focusedRow = id
-                    cardSelectionEventFlow.emit(Unit)
+                    editNoteLauncher()?.let { flowOfNoteEditorCommand.emit(NoteEditorCommand.LoadInPane(it)) }
                 }
             } else {
                 setNoteEditorRow(id)
@@ -710,7 +716,10 @@ class CardBrowserViewModel(
             if (!isFragmented) {
                 endMultiSelectMode(SingleSelectCause.OpenNoteEditorActivity)
             }
-            cardSelectionEventFlow.emit(Unit)
+            val launcher = editNoteLauncher() ?: return@launch
+            flowOfNoteEditorCommand.emit(
+                if (isFragmented) NoteEditorCommand.LoadInPane(launcher) else NoteEditorCommand.LaunchActivity(launcher),
+            )
         }
 
     /**
@@ -1392,13 +1401,7 @@ class CardBrowserViewModel(
                     ensureActive()
                     this@CardBrowserViewModel.cards.replaceWith(cardsOrNotes, cards)
                     ensureFocusedRowValid()
-                    val panelVisible = isFragmented && this@CardBrowserViewModel.cards.isNotEmpty()
-                    flowOfNoteEditorPaneState.emit(
-                        NoteEditorPaneState(
-                            visible = panelVisible,
-                            launcher = if (panelVisible) editNoteLauncher() else null,
-                        ),
-                    )
+                    if (isFragmented) flowOfNoteEditorCommand.emit(NoteEditorCommand.fromCurrentSearchState())
                     flowOfSearchState.emit(SearchState.Completed.fromCurrentState())
                     selectUnvalidatedRowIds(cardOrNoteIdsToSelect)
                 }
@@ -1519,6 +1522,10 @@ class CardBrowserViewModel(
                     else -> SearchResultMessage.CardCount(includeSearchAllDecksAction = true)
                 },
         )
+
+    /** Builds the post-search trailing-pane command from current ViewModel state (tablet only). */
+    private suspend fun NoteEditorCommand.Companion.fromCurrentSearchState(): NoteEditorCommand =
+        editNoteLauncher()?.let { NoteEditorCommand.LoadInPane(it) } ?: NoteEditorCommand.HidePane
 
     companion object {
         /** Intent extra carrying the [DeckId] the browser should open scoped to. */

@@ -1443,9 +1443,12 @@ class CardBrowserViewModelTest : JvmTest() {
     @Test
     fun `onTap outside multi-select opens note editor`() =
         runViewModelTest(notes = 2) {
-            cardSelectionEventFlow.test {
+            flowOfNoteEditorCommand.test {
                 onTap(getRowAtPosition(1).toRowSelection()).join()
-                awaitItem()
+                assertInstanceOf<CardBrowserViewModel.NoteEditorCommand.LaunchActivity>(
+                    awaitItem(),
+                    "phone tap launches a standalone NoteEditor activity",
+                )
                 assertThat("focusedRow set to tapped row", focusedRow, equalTo(getRowAtPosition(1)))
                 assertThat("not in multi-select after tap", isInMultiSelectMode, equalTo(false))
             }
@@ -1456,7 +1459,7 @@ class CardBrowserViewModelTest : JvmTest() {
         runViewModelTest(notes = 2) {
             selectRowAtPosition(0)
             assertThat("in multi-select before tap", isInMultiSelectMode, equalTo(true))
-            cardSelectionEventFlow.test {
+            flowOfNoteEditorCommand.test {
                 onTap(getRowAtPosition(1).toRowSelection()).join()
                 expectNoEvents()
                 assertThat("tapped row is selected", getRowAtPosition(1) in selectedRows, equalTo(true))
@@ -1477,7 +1480,7 @@ class CardBrowserViewModelTest : JvmTest() {
         runViewModelTest(notes = 2, isFragmented = false) {
             selectRowAtPosition(0)
             selectRowAtPosition(1)
-            cardSelectionEventFlow.test {
+            flowOfNoteEditorCommand.test {
                 onTap(getRowAtPosition(0).toRowSelection()).join()
                 expectNoEvents()
             }
@@ -1489,9 +1492,12 @@ class CardBrowserViewModelTest : JvmTest() {
             selectRowAtPosition(0)
             selectRowAtPosition(1)
             val deselectedId = getRowAtPosition(0)
-            cardSelectionEventFlow.test {
+            flowOfNoteEditorCommand.test {
                 onTap(deselectedId.toRowSelection()).join()
-                awaitItem()
+                assertInstanceOf<CardBrowserViewModel.NoteEditorCommand.LoadInPane>(
+                    awaitItem(),
+                    "tablet deselect loads the editor in the trailing pane",
+                )
                 assertThat("focusedRow points at deselected row", focusedRow, equalTo(deselectedId))
             }
         }
@@ -1504,7 +1510,7 @@ class CardBrowserViewModelTest : JvmTest() {
             assertThat("initial focus on row 1", focusedRow, equalTo(getRowAtPosition(1)))
 
             // tap row 2 to ADD it to the selection — focus must stay on row 1
-            cardSelectionEventFlow.test {
+            flowOfNoteEditorCommand.test {
                 onTap(getRowAtPosition(2).toRowSelection()).join()
                 expectNoEvents() // no editor reload
                 assertThat("focus unchanged after add-to-multi-select", focusedRow, equalTo(getRowAtPosition(1)))
@@ -1571,6 +1577,44 @@ class CardBrowserViewModelTest : JvmTest() {
                     awaitSearchCompleted().resultMessage,
                     equalTo(CardBrowserViewModel.SearchResultMessage.NoCardsInSelectedDeck),
                 )
+            }
+        }
+
+    @Test
+    fun `search completion - tablet with rows emits LoadInPane`() =
+        runViewModelTest(notes = 2, isFragmented = true) {
+            flowOfNoteEditorCommand.test {
+                launchSearchForCards()
+                searchJob?.join()
+                assertInstanceOf<CardBrowserViewModel.NoteEditorCommand.LoadInPane>(
+                    awaitItem(),
+                    "tablet with rows loads the editor in the trailing pane",
+                )
+            }
+        }
+
+    @Test
+    fun `search completion - tablet with empty deck emits HidePane`() =
+        runViewModelTest(isFragmented = true) {
+            val deck = addDeck("Empty")
+            flowOfNoteEditorCommand.test {
+                setSelectedDeck(deck)
+                searchJob?.join()
+                assertThat(
+                    "empty deck → trailing pane hidden",
+                    awaitItem(),
+                    equalTo(CardBrowserViewModel.NoteEditorCommand.HidePane),
+                )
+            }
+        }
+
+    @Test
+    fun `search completion - phone does not emit a NoteEditorCommand`() =
+        runViewModelTest(notes = 2, isFragmented = false) {
+            flowOfNoteEditorCommand.test {
+                launchSearchForCards()
+                searchJob?.join()
+                expectNoEvents()
             }
         }
 
