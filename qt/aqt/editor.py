@@ -97,7 +97,6 @@ class NewEditor:
         self.setupWeb()
         self.setupShortcuts()
         self.setupColourPalette()
-        gui_hooks.editor_did_init(self)
 
     # Initial setup
     ############################################################
