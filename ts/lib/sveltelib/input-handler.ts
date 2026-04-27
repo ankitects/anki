@@ -46,6 +46,41 @@ export interface InputHandlerAPI {
     readonly specialKey: HandlerList<SpecialKeyParams>;
 }
 
+function elementHasOnlyLineBreak(element: Element): boolean {
+    return element.childNodes.length === 1
+        && element.firstChild instanceof HTMLBRElement
+        && element.textContent?.length === 0;
+}
+
+function resetSelectionToStart(element: Element): void {
+    const selection = getSelection(element);
+
+    if (!selection) {
+        return;
+    }
+
+    const range = new Range();
+    range.setStart(element, 0);
+    range.collapse(true);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+function clearTypingStyleAfterDelete(element: Element, event: Event): void {
+    if (
+        !(event instanceof InputEvent)
+        || !event.inputType.startsWith("delete")
+        || !elementHasOnlyLineBreak(element)
+    ) {
+        return;
+    }
+
+    // Chromium keeps the last inline typing style after deleting the final
+    // formatted character. Resetting the caret clears that hidden state.
+    resetSelectionToStart(element);
+}
+
 /**
  * An interface that allows Svelte components to attach event listeners via triggers.
  * They will be attached to the component(s) that install the manager.
@@ -91,6 +126,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     }
 
     async function onInput(this: Element, event: Event): Promise<void> {
+        clearTypingStyleAfterDelete(this, event);
         await afterInput.dispatch({ event });
     }
 
