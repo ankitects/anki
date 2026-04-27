@@ -572,21 +572,6 @@ open class CardBrowser :
                     Timber.i("Ctrl+E: Add Note")
                     launchCatchingTask { addNoteFromCardBrowser() }
                     return true
-                } else if (searchView?.isIconified == true) {
-                    Timber.i("E: Edit note")
-                    // search box is not available so treat the event as a shortcut
-                    // Disable 'E' edit shortcut in split mode as the integrated NoteEditor
-                    // is already available in the split view, making the shortcut redundant
-                    if (fragmented) {
-                        Timber.i("E: Ignored in split mode")
-                        return true
-                    }
-                    openNoteEditorForCurrentlySelectedRow()
-                    return true
-                } else {
-                    Timber.i("E: Character added")
-                    // search box might be available and receiving input so treat this as usual text
-                    return false
                 }
             }
             KeyEvent.KEYCODE_F -> {
@@ -598,17 +583,6 @@ open class CardBrowser :
             }
         }
         return super.onKeyUp(keyCode, event)
-    }
-
-    /**
-     * @see CardBrowserViewModel.openNoteEditorForCurrentlySelectedRow
-     */
-    @NeedsTest("note edits are saved")
-    @NeedsTest("I/O edits are saved")
-    fun openNoteEditorForCurrentlySelectedRow() {
-        if (!viewModel.openNoteEditorForCurrentlySelectedRow()) {
-            showSnackbar(R.string.no_note_to_edit)
-        }
     }
 
     override fun onPause() {
