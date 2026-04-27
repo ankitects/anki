@@ -203,10 +203,11 @@ const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: stri
 };
 
 function containerSize(): Size {
-    const container = document.querySelector(".editor-main")!;
+    const container = document.querySelector<HTMLElement>(".editor-main")!;
+    const rect = container.getBoundingClientRect();
     return {
         width: container.clientWidth,
-        height: container.clientHeight,
+        height: window.innerHeight - rect.top,
     };
 }
 

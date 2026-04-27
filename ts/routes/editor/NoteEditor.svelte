@@ -1453,7 +1453,10 @@ components and functionality for general note editing.
     {/if}
 
     {#if imageOcclusionMode && ($ioMaskEditorVisible || imageOcclusionMode?.kind === "add")}
-        <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'};">
+        <div
+            class="io-page-wrapper"
+            style="display: {$ioMaskEditorVisible ? 'block' : 'none'};"
+        >
             <ImageOcclusionPage
                 mode={imageOcclusionMode}
                 on:save={saveOcclusions}
@@ -1649,20 +1652,18 @@ components and functionality for general note editing.
         height: 100%;
     }
 
+    .io-page-wrapper {
+        flex: 1;
+        min-height: 0;
+    }
+
     :global(.image-occlusion .tab-buttons) {
         display: none !important;
     }
 
-    :global(.image-occlusion .top-tool-bar-container) {
-        margin-left: 28px !important;
-    }
     :global(.top-tool-bar-container .icon-button) {
         height: 36px !important;
         line-height: 1;
-    }
-    :global(.image-occlusion .tool-bar-container) {
-        top: unset !important;
-        margin-top: 2px !important;
     }
     :global(.image-occlusion .sticky-footer) {
         display: none;
