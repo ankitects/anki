@@ -33,6 +33,7 @@ import anki.collection.OpChanges
 import anki.collection.OpChangesWithCount
 import anki.search.BrowserColumns
 import anki.search.BrowserRow
+import com.ichi2.anim.ActivityTransitionAnimation
 import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager
@@ -73,6 +74,7 @@ import com.ichi2.anki.model.CardsOrNotes.NOTES
 import com.ichi2.anki.model.LegacySortType
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.model.SortType
+import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.pages.CardInfoDestination
@@ -159,6 +161,21 @@ class CardBrowserViewModel(
 
     val flowOfSearchState = MutableSharedFlow<SearchState>()
 
+    /**
+     * When the visibility of the note editor pane changes.
+     * @see NoteEditorPaneState
+     */
+    val flowOfNoteEditorPaneState = MutableSharedFlow<NoteEditorPaneState>()
+
+    /**
+     * @param visible whether the pane should be visible
+     * @param launcher proposed note to edit (if an unsaved note is not retained)
+     */
+    data class NoteEditorPaneState(
+        val visible: Boolean,
+        val launcher: NoteEditorLauncher?,
+    )
+
     /** text in the search box (potentially unsubmitted) */
     // this does not currently bind to the value in the UI and is only used for posting
     val flowOfFilterQuery = MutableSharedFlow<String>()
@@ -171,18 +188,16 @@ class CardBrowserViewModel(
     val cardsOrNotes get() = flowOfCardsOrNotes.value
 
     /**
-     * Resolves the focused row to a card id, falling back to the first row if no row is focused.
-     * Updates [focusedRow] to the fallback row when one is used, so subsequent reads stay in sync.
-     *
-     * TODO: remove this from redrawAfterSearch and set the new row in the ViewModel
+     * Ensures [focusedRow] points to a row in the current [cards] list, falling back to the
+     * first row when [focusedRow] no longer visible.
      */
-    suspend fun resolveFocusedCardId(): CardId? {
-        if (cards.isEmpty()) {
-            focusedRow = null
-            return null
-        }
-        if (focusedRow == null) focusedRow = cards.first()
-        return focusedRow?.toCardId(cardsOrNotes)
+    private fun ensureFocusedRowValid() {
+        focusedRow =
+            when {
+                cards.isEmpty() -> null
+                focusedRow == null || focusedRow !in cards -> cards.first()
+                else -> focusedRow
+            }
     }
 
     var cardIdToBeScrolledTo: CardId? = null
@@ -323,6 +338,20 @@ class CardBrowserViewModel(
                 listOf(cardId)
             }
         }
+    }
+
+    /** Builds a [NoteEditorLauncher] for the current selection, or `null` if there's nothing to edit. */
+    suspend fun editNoteLauncher(): NoteEditorLauncher? {
+        val cardIds = getCardIdsForNoteEditor()
+        if (cardIds.isEmpty()) {
+            Timber.w("EditSelection skipped: card list is empty")
+            return null
+        }
+        return NoteEditorLauncher.EditSelection(
+            cardIds = cardIds,
+            animation = ActivityTransitionAnimation.Direction.DEFAULT,
+            inCardBrowserActivity = isFragmented,
+        )
     }
 
     fun requestChangeNoteType() =
@@ -1351,6 +1380,14 @@ class CardBrowserViewModel(
 
                     ensureActive()
                     this@CardBrowserViewModel.cards.replaceWith(cardsOrNotes, cards)
+                    ensureFocusedRowValid()
+                    val panelVisible = isFragmented && this@CardBrowserViewModel.cards.isNotEmpty()
+                    flowOfNoteEditorPaneState.emit(
+                        NoteEditorPaneState(
+                            visible = panelVisible,
+                            launcher = if (panelVisible) editNoteLauncher() else null,
+                        ),
+                    )
                     flowOfSearchState.emit(SearchState.Completed)
                     selectUnvalidatedRowIds(cardOrNoteIdsToSelect)
                 }

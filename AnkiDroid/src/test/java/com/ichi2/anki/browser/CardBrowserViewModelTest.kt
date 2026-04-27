@@ -1512,6 +1512,26 @@ class CardBrowserViewModelTest : JvmTest() {
         }
 
     @Test
+    fun `stale focusedRow falls back to first card after search`() =
+        runViewModelTest {
+            val deckOne = addDeck("One")
+            val deckTwo = addDeck("Two")
+            addNoteToDeck(deckOne)
+            addNoteToDeck(deckTwo)
+
+            setSelectedDeck(deckTwo)
+            searchJob?.join()
+            val deckTwoRow = cards.first()
+            handleRowLongPress(deckTwoRow.toRowSelection()).join()
+            assertThat("initial focus is on the deckTwo row", focusedRow, equalTo(deckTwoRow))
+
+            setSelectedDeck(deckOne)
+            searchJob?.join()
+            assertThat("focusedRow no longer points to filtered-out row", focusedRow, not(equalTo(deckTwoRow)))
+            assertThat("focusedRow falls back to first row of new search", focusedRow, equalTo(cards.first()))
+        }
+
+    @Test
     fun `multiselect toggle state is restored`() {
         val handle = SavedStateHandle()
         runViewModelTest(savedStateHandle = handle, notes = 1) {

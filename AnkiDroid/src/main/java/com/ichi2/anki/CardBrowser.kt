@@ -43,7 +43,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import anki.collection.OpChanges
 import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anim.ActivityTransitionAnimation.Direction
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.browser.BrowserRowCollection
@@ -116,25 +115,6 @@ open class CardBrowser :
     @get:VisibleForTesting
     val addNoteLauncher: NoteEditorLauncher
         get() = createAddNoteLauncher(viewModel)
-
-    /**
-     * Provides an instance of NoteEditorLauncher for editing the current selection.
-     */
-    private suspend fun editNoteLauncher(): NoteEditorLauncher? {
-        val cardIds = viewModel.getCardIdsForNoteEditor()
-
-        if (cardIds.isEmpty()) {
-            Timber.w("EditSelection skipped: card list is empty")
-            return null
-        }
-
-        return NoteEditorLauncher
-            .EditSelection(
-                cardIds = cardIds,
-                animation = Direction.DEFAULT,
-                inCardBrowserActivity = fragmented,
-            )
-    }
 
     fun onDeckSelected(deck: SelectableDeck?) {
         deck?.let { deck -> viewModel.setSelectedDeck(deck) }
@@ -455,6 +435,8 @@ open class CardBrowser :
 
     /**
      * Loads the NoteEditor fragment in container if the view is x-large.
+     *
+     * TODO: this should be a ViewModel concern.
      */
     suspend fun loadNoteEditorFragmentIfFragmented() {
         if (!fragmented) {
@@ -463,7 +445,7 @@ open class CardBrowser :
         // Show note editor frame
         binding.noteEditorFrame!!.isVisible = true
 
-        val launcher = editNoteLauncher() ?: return
+        val launcher = viewModel.editNoteLauncher() ?: return
         // If there are unsaved changes in NoteEditor then show dialog for confirmation
         if (fragment?.hasUnsavedChanges() == true) {
             showSaveChangesDialog(launcher)
@@ -542,9 +524,27 @@ open class CardBrowser :
                 if (fragmented) {
                     loadNoteEditorFragmentIfFragmented()
                 } else {
-                    editNoteLauncher()?.let {
+                    viewModel.editNoteLauncher()?.let {
                         startActivity(it.toIntent(this@CardBrowser))
                     }
+                }
+            }
+        }
+
+        fun onNoteEditorPaneStateChanged(state: CardBrowserViewModel.NoteEditorPaneState) {
+            launchCatchingTask {
+                if (state.visible) {
+                    binding.noteEditorFrame?.isVisible = true
+                    state.launcher?.let { launcher ->
+                        if (fragment?.hasUnsavedChanges() == true) {
+                            showSaveChangesDialog(launcher)
+                        } else {
+                            loadNoteEditorFragment(launcher)
+                        }
+                    }
+                } else {
+                    binding.noteEditorFrame?.isVisible = false
+                    invalidateOptionsMenu()
                 }
             }
         }
@@ -575,6 +575,7 @@ open class CardBrowser :
         viewModel.flowOfDeckId.launchCollectionInLifecycleScope(::onDeckIdChanged)
         viewModel.flowOfMultiSelectModeChanged.launchCollectionInLifecycleScope(::onMultiSelectModeChanged)
         viewModel.flowOfSearchState.launchCollectionInLifecycleScope(::searchStateChanged)
+        viewModel.flowOfNoteEditorPaneState.launchCollectionInLifecycleScope(::onNoteEditorPaneStateChanged)
         viewModel.cardSelectionEventFlow.launchCollectionInLifecycleScope(::onSelectedCardUpdated)
         viewModel.flowOfSaveSearchNamePrompt.launchCollectionInLifecycleScope(::onSaveSearchNamePrompt)
         viewModel.flowOfChangeNoteType.launchCollectionInLifecycleScope(::onChangeNoteType)
@@ -822,18 +823,6 @@ open class CardBrowser :
         launchCatchingTask {
             Timber.i("CardBrowser:: Completed searchCards() Successfully")
             updateList()
-            // Check whether deck is empty or not
-            val isDeckEmpty = viewModel.rowCount == 0
-            val focusedCardId = viewModel.resolveFocusedCardId()
-            // Hide note editor frame if deck is empty and fragmented
-            binding.noteEditorFrame?.visibility =
-                if (fragmented && !isDeckEmpty && focusedCardId != null) {
-                    loadNoteEditorFragmentIfFragmented()
-                    View.VISIBLE
-                } else {
-                    invalidateOptionsMenu()
-                    View.GONE
-                }
             // check whether mSearchView is initialized as it is lateinit property.
             if (searchView == null || searchView!!.isIconified) {
                 return@launchCatchingTask
