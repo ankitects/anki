@@ -366,6 +366,27 @@ artifacts require a reviewer to approve the deployment before they run:
 When `skip-signing` is enabled, the macOS build jobs run without the `release`
 environment so they do not require approval (and cannot access signing secrets).
 
+### Testing the release workflow from a feature branch
+
+`release.yml` can be dispatched from any branch for testing — the `main`
+branch requirement only applies when `publish=release`. To run a test build:
+
+1. Dispatch `release.yml` from your branch with `publish=none` and
+   `skip-signing=true`.
+2. The workflow reads `.version` from the branch as-is (the version input is
+   ignored for non-release runs), so no prepare step is needed.
+3. All release guards (main-branch check, CI check, duplicate tag check) are
+   skipped.
+4. Artifacts are uploaded to the workflow run but nothing is published or tagged.
+
+`prepare-release.yml` cannot be tested from a non-main branch — it
+unconditionally requires `main`. To validate its scripts locally, run:
+
+```
+pip install 'packaging>=24,<26'
+python3 .github/scripts/validate_version.py <version> <current_version>
+```
+
 ### Important notes
 
 - The release workflow builds the exact commit at `github.sha`. It does not
