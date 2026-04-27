@@ -172,6 +172,7 @@ class CardBrowserViewModel(
 
     // card that was clicked (not marked)
     var currentCardId: CardId? = null
+        private set
 
     /**
      * Computes and stores the current card ID used by the note editor.
@@ -295,7 +296,7 @@ class CardBrowserViewModel(
     val flowOfSaveSearchNamePrompt = MutableSharedFlow<String>()
 
     var focusedRow: CardOrNoteId? = null
-        set(value) {
+        private set(value) {
             if (!isFragmented) return
             field = value
         }
@@ -606,6 +607,38 @@ class CardBrowserViewModel(
         flowOfInitCompleted.update { true }
         Timber.d("manualInit")
     }
+
+    /**
+     * Handles a tap on a row.
+     *
+     * Outside multi-select: opens the note editor for the tapped row.
+     *
+     * In multi-select: toggles the row's selection.
+     *
+     * When deselecting a row in fragmented mode, the trailing pane is updated:
+     *
+     * - CARDS - selects another selected row
+     * - NOTES - selection is unchanged (bug?)
+     */
+    fun onTap(rowSelection: RowSelection) =
+        launchCatchingIO(errorMessageHandler = { /* only log */ }) {
+            val id = rowSelection.rowId
+            focusedRow = id
+            if (isInMultiSelectMode) {
+                val wasSelected = id in selectedRows
+                toggleRowSelection(rowSelection)
+                if (wasSelected) {
+                    currentCardId = id.toCardId(cardsOrNotes)
+                    // load the trailing pane only when fragmented; on phones, multi-select tap
+                    // just toggles selection and must not navigate away
+                    if (isFragmented) {
+                        cardSelectionEventFlow.emit(Unit)
+                    }
+                }
+            } else {
+                setNoteEditorCard(queryDataForCardEdit(id))
+            }
+        }
 
     fun handleRowLongPress(rowSelection: RowSelection) =
         viewModelScope.launch {

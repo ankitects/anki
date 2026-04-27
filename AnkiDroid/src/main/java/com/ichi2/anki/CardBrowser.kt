@@ -162,11 +162,8 @@ open class CardBrowser :
     private val mySearchesItem: MenuItem? get() = cardBrowserFragment.mySearchesItem
 
     // card that was clicked (not marked)
-    override var currentCardId
+    override val currentCardId: CardId?
         get() = viewModel.currentCardId
-        set(value) {
-            viewModel.currentCardId = value
-        }
 
     // Dev option for Issue 18709
     // TODO: Broken currently; needs R.layout.activity_card_browser_searchview

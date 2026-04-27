@@ -1440,6 +1440,63 @@ class CardBrowserViewModelTest : JvmTest() {
     }
 
     @Test
+    fun `onTap outside multi-select opens note editor`() =
+        runViewModelTest(notes = 2) {
+            cardSelectionEventFlow.test {
+                onTap(getRowAtPosition(1).toRowSelection()).join()
+                awaitItem()
+                assertThat("currentCardId set to tapped row", currentCardId, equalTo(getRowAtPosition(1).toCardId(cardsOrNotes)))
+                assertThat("not in multi-select after tap", isInMultiSelectMode, equalTo(false))
+            }
+        }
+
+    @Test
+    fun `onTap in multi-select toggles selection without emitting`() =
+        runViewModelTest(notes = 2) {
+            selectRowAtPosition(0)
+            assertThat("in multi-select before tap", isInMultiSelectMode, equalTo(true))
+            cardSelectionEventFlow.test {
+                onTap(getRowAtPosition(1).toRowSelection()).join()
+                expectNoEvents()
+                assertThat("tapped row is selected", getRowAtPosition(1) in selectedRows, equalTo(true))
+            }
+        }
+
+    @Test
+    fun `onTap deselects already-selected row in multi-select`() =
+        runViewModelTest(notes = 2) {
+            selectRowAtPosition(0)
+            selectRowAtPosition(1)
+            onTap(getRowAtPosition(0).toRowSelection()).join()
+            assertThat("tapped row no longer selected", getRowAtPosition(0) in selectedRows, equalTo(false))
+        }
+
+    @Test
+    fun `onTap deselect on phone does not emit selection event`() =
+        runViewModelTest(notes = 2, isFragmented = false) {
+            selectRowAtPosition(0)
+            selectRowAtPosition(1)
+            cardSelectionEventFlow.test {
+                onTap(getRowAtPosition(0).toRowSelection()).join()
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `onTap deselect on tablet emits selection event with focused id`() =
+        runViewModelTest(notes = 2, isFragmented = true) {
+            selectRowAtPosition(0)
+            selectRowAtPosition(1)
+            val deselectedId = getRowAtPosition(0)
+            cardSelectionEventFlow.test {
+                onTap(deselectedId.toRowSelection()).join()
+                awaitItem()
+                assertThat("currentCardId points at deselected row", currentCardId, equalTo(deselectedId.toCardId(cardsOrNotes)))
+                assertThat("focusedRow points at deselected row", focusedRow, equalTo(deselectedId))
+            }
+        }
+
+    @Test
     fun `multiselect toggle state is restored`() {
         val handle = SavedStateHandle()
         runViewModelTest(savedStateHandle = handle, notes = 1) {
@@ -1749,6 +1806,7 @@ class CardBrowserViewModelTest : JvmTest() {
         initMode: InitMode = InitMode.AUTOMATIC,
         savedStateHandle: SavedStateHandle = SavedStateHandle(),
         options: CardBrowserLaunchOptions? = null,
+        isFragmented: Boolean = false,
         testBody: suspend CardBrowserViewModel.() -> Unit,
     ) = runTest {
         repeat(notes) {
@@ -1761,7 +1819,7 @@ class CardBrowserViewModelTest : JvmTest() {
                 cacheDir = createTransientDirectory(),
                 options = options,
                 preferences = AnkiDroidApp.sharedPreferencesProvider,
-                isFragmented = false,
+                isFragmented = isFragmented,
                 manualInit = initMode == InitMode.MANUAL || initMode == InitMode.AUTOMATIC,
                 savedStateHandle = savedStateHandle,
             )
