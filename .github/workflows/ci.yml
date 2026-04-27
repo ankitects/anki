@@ -15,10 +15,10 @@ jobs:
   minilints:
     runs-on: ubuntu-24.04
     steps:
-      # Check out PR head commit so minilints can verify the author is in CONTRIBUTORS.
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1

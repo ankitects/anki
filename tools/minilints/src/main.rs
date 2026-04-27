@@ -36,6 +36,7 @@ const IGNORED_FOLDERS: &[&str] = &[
     ".mypy_cache",
     "./extra",
     "./ts/.svelte-kit",
+    "./.venv",
 ];
 
 fn main() -> Result<()> {
@@ -139,51 +140,24 @@ impl LintContext {
                 .stdout,
         )?;
 
+        let all_contributors = String::from_utf8(
+            Command::new("git")
+                .args(["log", "--pretty=format:%ae", "CONTRIBUTORS"])
+                .output()?
+                .stdout,
+        )?;
+        let all_contributors = all_contributors.lines().collect::<HashSet<&str>>();
+
         if last_author == "49699333+dependabot[bot]@users.noreply.github.com" {
             println!("Dependabot whitelisted.");
             std::process::exit(0);
+        } else if all_contributors.contains(last_author.as_str()) {
+            return Ok(());
         }
 
         if let Ok(bypass) = std::env::var("CONTRIBUTORS_BYPASS_EMAILS") {
             if bypass.split(',').any(|e| e.trim() == last_author) {
                 println!("Author allowlisted via CONTRIBUTORS_BYPASS_EMAILS.");
-                return Ok(());
-            }
-        }
-
-        // Parse identifiers from the CONTRIBUTORS file instead of relying
-        // on git history, which requires a full clone. Entries may contain an
-        // email (user@example.com) or a GitHub profile URL (github.com/user).
-        let contents = fs::read_to_string("CONTRIBUTORS")?;
-        let all_contributors: HashSet<&str> = contents
-            .lines()
-            .filter_map(|line| {
-                let start = line.find('<')?;
-                let end = line.find('>')?;
-                Some(&line[start + 1..end])
-            })
-            .collect();
-
-        if all_contributors.contains(last_author.as_str()) {
-            return Ok(());
-        }
-
-        // Match GitHub noreply emails (ID+user@users.noreply.github.com)
-        // against CONTRIBUTORS entries like github.com/user or
-        // https://github.com/user.
-        if let Some(username) = last_author
-            .strip_suffix("@users.noreply.github.com")
-            .and_then(|s| s.rsplit_once('+'))
-            .map(|(_, user)| user)
-        {
-            let gh_entry = format!("github.com/{username}");
-            if all_contributors.iter().any(|c| {
-                let normalized = c
-                    .trim_end_matches('/')
-                    .trim_start_matches("https://")
-                    .trim_start_matches("http://");
-                normalized.eq_ignore_ascii_case(&gh_entry)
-            }) {
                 return Ok(());
             }
         }
@@ -237,7 +211,7 @@ fn sveltekit_temp_file(path: &str) -> bool {
 
 fn check_cargo_deny() -> Result<()> {
     // Used by `fix:minilints` locally. CI uses EmbarkStudios/cargo-deny-action.
-    Command::run("cargo install cargo-deny@0.19.0")?;
+    Command::run("cargo install cargo-deny@0.19.2")?;
     Command::run("cargo deny check")?;
     Ok(())
 }
