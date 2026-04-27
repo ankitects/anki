@@ -1301,7 +1301,9 @@ title="{}" {}>{}</button>""".format(
     # Other menu operations
     ##########################################################################
 
-    def _open_new_or_legacy_dialog(self, name: str, default_to_new: bool = False, *args: Any, **kwargs: Any) -> Any:
+    def _open_new_or_legacy_dialog(
+        self, name: str, default_to_new: bool = False, *args: Any, **kwargs: Any
+    ) -> Any:
         shift = KeyboardModifiersPressed().shift
         want_new = (default_to_new and not shift) or (not default_to_new and shift)
         if want_new:

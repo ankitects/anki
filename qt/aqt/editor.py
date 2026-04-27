@@ -37,6 +37,7 @@ def on_editor_ready(func: Callable) -> Callable:
 
     return decorated
 
+
 @dataclass
 class NoteInfo:
     "Used to hold partial note info fetched from the webview"
