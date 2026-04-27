@@ -818,7 +818,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setupMaskEditorForExistingNote(filename);
         }
     }
-    async function setupMaskEditorInner(options: { html: string; mode: IOMode }) {
+    async function setupMaskEditorWithOptions(options: { html: string; mode: IOMode }) {
         imageOcclusionMode = undefined;
         await tick();
         imageOcclusionMode = options.mode;
@@ -852,7 +852,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ).val,
         );
         $lastIOImagePath = await extractImagePathFromHtml(imageFieldHtml);
-        setupMaskEditorInner({
+        setupMaskEditorWithOptions({
             html: imageFieldHtml,
             mode: {
                 kind: "add",
@@ -875,7 +875,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             resetIOImage(imagePath, () => {});
             setImageField(imageFieldHtml);
         }
-        setupMaskEditorInner({
+        setupMaskEditorWithOptions({
             html: note!.fields[ioFields.image],
             mode: {
                 kind: "edit",
@@ -1196,7 +1196,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             const imageField = note!.fields[ioFields.image];
             $lastIOImagePath = await extractImagePathFromHtml(imageField);
             if (mode !== "add") {
-                setupMaskEditorInner({
+                setupMaskEditorWithOptions({
                     html: imageField,
                     mode: {
                         kind: "edit",
@@ -1204,7 +1204,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     },
                 });
             } else if (originalNoteId) {
-                setupMaskEditorInner({
+                setupMaskEditorWithOptions({
                     html: imageField,
                     mode: {
                         kind: "add",
@@ -1336,6 +1336,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             triggerChanges,
             setIsImageOcclusion,
             setupMaskEditor,
+            setupMaskEditorWithOptions,
             setupMaskEditorForNewNote,
             setupMaskEditorForExistingNote,
             setImageField,

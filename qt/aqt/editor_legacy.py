@@ -677,11 +677,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
             if self.editorMode is not EditorMode.ADD_CARDS:
                 io_options = self._create_edit_io_options(note_id=self.note.id)
-                js += " setupMaskEditor(%s);" % json.dumps(io_options)
+                js += " setupMaskEditorWithOptions(%s);" % json.dumps(io_options)
             elif orig_note_id := self.orig_note_id:
                 self.orig_note_id = None
                 io_options = self._create_clone_io_options(orig_note_id)
-                js += " setupMaskEditor(%s);" % json.dumps(io_options)
+                js += " setupMaskEditorWithOptions(%s);" % json.dumps(io_options)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
@@ -1251,7 +1251,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def _setup_mask_editor(self, io_options: dict):
         self.web.eval(
             'require("anki/ui").loaded.then(() =>'
-            f"setupMaskEditor({json.dumps(io_options)})"
+            f"setupMaskEditorWithOptions({json.dumps(io_options)})"
             "); "
         )
 
