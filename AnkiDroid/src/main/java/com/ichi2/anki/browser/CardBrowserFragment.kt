@@ -761,7 +761,7 @@ class CardBrowserFragment :
                             return true
                         }
                         R.id.action_edit_note -> {
-                            requireCardBrowserActivity().openNoteEditorForCurrentlySelectedNote()
+                            requireCardBrowserActivity().openNoteEditorForCurrentlySelectedRow()
                             return true
                         }
                         R.id.action_view_card_info -> {

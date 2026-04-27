@@ -684,6 +684,19 @@ class CardBrowserViewModel(
         }
     }
 
+    /**
+     * Opens the note editor for the first selected row (if multi-selecting), else the first row.
+     *
+     * @return `false` if there are no rows to edit
+     */
+    suspend fun openNoteEditorForCurrentlySelectedRow(): Boolean {
+        if (cards.isEmpty()) return false
+        val row = if (isInMultiSelectMode) selectedRows.firstOrNull() else cards.firstOrNull()
+        val cardId = row?.toCardId(cardsOrNotes) ?: return false
+        setNoteEditorCard(cardId)
+        return true
+    }
+
     /** Whether any rows are selected */
     fun hasSelectedAnyRows(): Boolean = selectedRows.isNotEmpty()
 

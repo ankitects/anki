@@ -628,7 +628,7 @@ open class CardBrowser :
                         Timber.i("E: Ignored in split mode")
                         return true
                     }
-                    openNoteEditorForCurrentlySelectedNote()
+                    openNoteEditorForCurrentlySelectedRow()
                     return true
                 } else {
                     Timber.i("E: Character added")
@@ -721,43 +721,14 @@ open class CardBrowser :
     }
 
     /**
-     * Opens the note editor for the given card.
-     *
-     * @param cardId The ID of the card to open in the note editor.
-     * Passing `null` indicates that no card is selected and will close the note editor
+     * @see CardBrowserViewModel.openNoteEditorForCurrentlySelectedRow
      */
     @NeedsTest("note edits are saved")
     @NeedsTest("I/O edits are saved")
-    fun setNoteEditorCard(cardId: CardId?) {
-        viewModel.setNoteEditorCard(cardId)
-    }
-
-    /**
-     * In case of selection, the first card that was selected, otherwise the first card of the list.
-     */
-    private suspend fun getCardIdForNoteEditor(): CardId? {
-        // Just select the first one if there's a multiselect occurring.
-        return if (viewModel.isInMultiSelectMode) {
-            viewModel.querySelectedCardIdAtPosition(0)
-        } else {
-            viewModel.getRowAtPosition(0).toCardId(viewModel.cardsOrNotes)
-        }
-    }
-
-    fun openNoteEditorForCurrentlySelectedNote() =
+    fun openNoteEditorForCurrentlySelectedRow() =
         launchCatchingTask {
-            // Check whether the deck is empty
-            if (viewModel.rowCount == 0) {
+            if (!viewModel.openNoteEditorForCurrentlySelectedRow()) {
                 showSnackbar(R.string.no_note_to_edit)
-                return@launchCatchingTask
-            }
-
-            try {
-                val cardId = getCardIdForNoteEditor()
-                setNoteEditorCard(cardId)
-            } catch (e: Exception) {
-                Timber.w(e, "Error Opening Note Editor")
-                showSnackbar(R.string.multimedia_editor_something_wrong)
             }
         }
 
