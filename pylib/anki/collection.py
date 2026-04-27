@@ -1203,10 +1203,6 @@ class Collection(DeprecatedNamesMixin):
         "The delta days of fuzz applied if reviewing the card in v3."
         return self._backend.fuzz_delta(card_id=card_id, interval=interval)
 
-    def get_latest_release(self, include_prerelease: bool) -> GithubRelease:
-        "Get latest GitHub release for the current platform."
-        return self._backend.get_latest_release(include_prerelease=include_prerelease)
-
     # Timeboxing
     ##########################################################################
     # fixme: there doesn't seem to be a good reason why this code is in main.py
