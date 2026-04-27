@@ -113,10 +113,7 @@ def prompt_and_install_github_update(mw: aqt.AnkiQt, release: GithubRelease) -> 
     ret = msgbox.exec()
 
     if ret == QMessageBox.StandardButton.Yes:
-        if _launcher_executable():
-            _update_and_restart()
-        else:
-            _download_github_update_and_install(release)
+        _download_github_update_and_install(release)
 
 
 def get_latest_release_op(
