@@ -589,18 +589,6 @@ open class CardBrowser :
                     return false
                 }
             }
-            KeyEvent.KEYCODE_FORWARD_DEL, KeyEvent.KEYCODE_DEL -> {
-                if (searchView?.isIconified == false) {
-                    Timber.i("Delete pressed - Search active, deleting character")
-                    // the search box is available and could potentially receive input so handle the
-                    // DEL as a simple text deletion and not as a keyboard shortcut
-                    return false
-                } else {
-                    Timber.i("Delete pressed - Delete Selected Note")
-                    cardBrowserFragment.deleteSelectedNotes()
-                    return true
-                }
-            }
             KeyEvent.KEYCODE_F -> {
                 if (event.isCtrlPressed) {
                     Timber.i("Ctrl+F - Find notes")
