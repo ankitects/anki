@@ -2,7 +2,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import pytest
-
 from validate_version import validate_version
 
 
@@ -36,6 +35,7 @@ def test_valid_versions(version: str, current: str, expected: bool) -> None:
         ("not-a-version", "26.03", "zero-padded month"),
         ("26.04.dev1", "26.03", "zero-padded month"),
         ("26.04.post1", "26.03", "zero-padded month"),
+        ("26.13", "26.12", "zero-padded month"),
     ],
 )
 def test_invalid_versions(version: str, current: str, match: str) -> None:

@@ -8,11 +8,13 @@ import sys
 
 from packaging.version import InvalidVersion, Version
 
-VERSION_RE = re.compile(r"^\d+\.\d{2}(\.\d+)?(a\d+|b\d+|rc\d+)?$")
+VERSION_RE = re.compile(r"^\d+\.(\d{2})(\.\d+)?(a\d+|b\d+|rc\d+)?$")
 
 
 def validate_version(version: str, current_version: str) -> bool:
-    if not VERSION_RE.match(version):
+    match = VERSION_RE.match(version)
+    month = int(match.group(1)) if match else 0
+    if not match or month > 12:
         raise ValueError(
             f"version '{version}' must be year.month(.patch) with zero-padded month"
             " (e.g. 26.04, 26.04b1, 26.04.1rc2)"
