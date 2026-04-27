@@ -31,6 +31,9 @@ impl BuildAction for BuildInstaller {
             build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
             build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
         };
+        // The wheel inputs already pull in :pylib and :qt on macOS/Windows.
+        // Linux installers do not use wheels, so keep these explicit inputs to
+        // ensure the Python and Qt build outputs are available there as well.
         build.add_inputs(
             "",
             inputs![

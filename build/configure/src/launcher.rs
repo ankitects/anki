@@ -11,6 +11,7 @@ use ninja_gen::inputs;
 use ninja_gen::Build;
 
 pub fn setup_uv_universal(build: &mut Build) -> Result<()> {
+    // check is needed to prevent build errors on Linux/Windows ARM.
     if !(cfg!(target_os = "macos") && cfg!(target_arch = "aarch64")) {
         return Ok(());
     }
