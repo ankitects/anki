@@ -90,12 +90,14 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
         deck_id: DeckId,
         new_delta: int = 0,
         review_delta: int = 0,
+        interday_learning_delta: int = 0,
         milliseconds_delta: int = 0,
     ) -> None:
         self.col._backend.update_stats(
             deck_id=deck_id,
             new_delta=new_delta,
             review_delta=review_delta,
+            interday_learning_delta=interday_learning_delta,
             millisecond_delta=milliseconds_delta,
         )
 

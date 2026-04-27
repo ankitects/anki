@@ -28,6 +28,7 @@ impl Collection {
         let did = input.deck_id.into();
         let mutator = |c: &mut DeckCommon| {
             c.new_studied += input.new_delta;
+            c.learning_studied += input.interday_learning_delta;
             c.review_studied += input.review_delta;
             c.milliseconds_studied += input.millisecond_delta;
         };
