@@ -28,6 +28,7 @@ from aqt.browser.sidebar.model import SidebarModel
 from aqt.browser.sidebar.searchbar import SidebarSearchBar
 from aqt.browser.sidebar.toolbar import SidebarTool, SidebarToolbar
 from aqt.clayout import CardLayout
+from aqt.errors import show_exception
 from aqt.fields import FieldDialog
 from aqt.models import Models
 from aqt.operations import CollectionOp, QueryOp
@@ -1146,11 +1147,16 @@ class SidebarTreeView(QTreeView):
                 item.name = old_name
                 showInfo(tr.browsing_tag_rename_warning_empty(), parent=self)
 
+        def failure(exc: Exception) -> None:
+            item.full_name = old_full_name
+            item.name = old_name
+            show_exception(parent=self.browser, exception=exc)
+
         rename_tag(
             parent=self.browser,
             current_name=old_full_name,
             new_name=new_full_name,
-        ).success(success).run_in_background()
+        ).success(success).failure(failure).run_in_background()
 
     def add_tags_to_selected_notes(self) -> None:
         tags = " ".join(item.full_name for item in self._selected_items())
