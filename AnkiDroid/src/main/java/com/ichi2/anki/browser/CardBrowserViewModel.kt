@@ -180,8 +180,6 @@ class CardBrowserViewModel(
     sealed interface SearchResultMessage {
         /** "X cards/notes shown | Search all decks" */
         data class CardCount(
-            val count: Int,
-            val cardsOrNotes: CardsOrNotes,
             val includeSearchAllDecksAction: Boolean,
         ) : SearchResultMessage
 
@@ -1511,12 +1509,14 @@ class CardBrowserViewModel(
     /** Builds a [SearchState.Completed] event reflecting the current ViewModel state. */
     private fun SearchState.Completed.Companion.fromCurrentState(): SearchState.Completed =
         SearchState.Completed(
+            rowCount = rowCount,
+            cardsOrNotes = cardsOrNotes,
             resultMessage =
                 when {
                     // TODO: better message if rowCount == 0 AND hasSelectedAllDecks
-                    hasSelectedAllDecks() -> SearchResultMessage.CardCount(rowCount, cardsOrNotes, includeSearchAllDecksAction = false)
+                    hasSelectedAllDecks() -> SearchResultMessage.CardCount(includeSearchAllDecksAction = false)
                     rowCount == 0 -> SearchResultMessage.NoCardsInSelectedDeck
-                    else -> SearchResultMessage.CardCount(rowCount, cardsOrNotes, includeSearchAllDecksAction = true)
+                    else -> SearchResultMessage.CardCount(includeSearchAllDecksAction = true)
                 },
         )
 
@@ -1637,6 +1637,8 @@ class CardBrowserViewModel(
 
         /** A search has been completed */
         data class Completed(
+            val rowCount: Int,
+            val cardsOrNotes: CardsOrNotes,
             val resultMessage: SearchResultMessage,
         ) : SearchState {
             companion object

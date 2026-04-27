@@ -1538,10 +1538,10 @@ class CardBrowserViewModelTest : JvmTest() {
             flowOfSearchState.test {
                 ignoreEventsDuringViewModelInit()
                 setSelectedDeck(SelectableDeck.AllDecks)
-                val message = awaitSearchCompleted().resultMessage
-                val card = message as CardBrowserViewModel.SearchResultMessage.CardCount
-                assertThat("count", card.count, equalTo(3))
-                assertThat("cardsOrNotes", card.cardsOrNotes, equalTo(CardsOrNotes.CARDS))
+                val completed = awaitSearchCompleted()
+                val card = completed.resultMessage as CardBrowserViewModel.SearchResultMessage.CardCount
+                assertThat("count", completed.rowCount, equalTo(3))
+                assertThat("cardsOrNotes", completed.cardsOrNotes, equalTo(CardsOrNotes.CARDS))
                 assertThat("no all-decks action when already on all decks", card.includeSearchAllDecksAction, equalTo(false))
             }
         }

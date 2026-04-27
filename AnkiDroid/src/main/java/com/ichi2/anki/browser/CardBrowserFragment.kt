@@ -115,6 +115,7 @@ import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
 import com.ichi2.anki.export.ExportDialogFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
+import com.ichi2.anki.formatCardCount
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.undoAvailable
@@ -859,7 +860,7 @@ class CardBrowserFragment :
             }
         }
 
-        fun onSearchResultMessage(result: SearchResultMessage) {
+        fun onSearchCompleted(state: SearchState.Completed) {
             val activity = requireCardBrowserActivity()
 
             // #3592: show the number of cards found the number of cards is not visible in the menu
@@ -879,10 +880,10 @@ class CardBrowserFragment :
                 }
             }
 
-            when (result) {
+            when (val result = state.resultMessage) {
                 is SearchResultMessage.CardCount ->
                     showSnackbar(
-                        message = activity.formatCardCount(result.count, result.cardsOrNotes),
+                        message = state.formatCardCount(resources),
                         searchAllDecks = result.includeSearchAllDecksAction,
                     )
                 SearchResultMessage.NoCardsInSelectedDeck ->
@@ -897,7 +898,7 @@ class CardBrowserFragment :
             cardsAdapter.notifyDataSetChanged()
             progressIndicator.isVisible = searchState == Initializing || searchState == Searching
             if (searchState is SearchState.Completed) {
-                onSearchResultMessage(searchState.resultMessage)
+                onSearchCompleted(searchState)
                 invalidateMenu()
             }
         }

@@ -520,9 +520,7 @@ open class CardBrowser :
                     }
                 }
                 is SearchState.Completed -> {
-                    Timber.i("CardBrowser:: Completed searchCards() Successfully")
-                    // TODO: obtain these values from 'Completed'
-                    findViewById<TextView>(R.id.subtitle)?.text = formatCardCount(viewModel.rowCount, viewModel.cardsOrNotes)
+                    findViewById<TextView>(R.id.subtitle)?.text = searchState.formatCardCount(resources)
                     // HACK: required now we use MenuProvider for searches
                     // this causes a very brief flicker, as we call `setQuery` to restore the menu state
                     searchView?.post { searchView?.clearFocus() }
@@ -823,19 +821,6 @@ open class CardBrowser :
         }
     }
 
-    fun formatCardCount(
-        count: Int,
-        cardsOrNotes: CardsOrNotes,
-    ): String {
-        @androidx.annotation.StringRes val subtitleId =
-            if (cardsOrNotes == CARDS) {
-                R.plurals.card_browser_subtitle
-            } else {
-                R.plurals.card_browser_subtitle_notes_mode
-            }
-        return resources.getQuantityString(subtitleId, count, count)
-    }
-
     @RustCleanup("this isn't how Desktop Anki does it")
     override fun onSelectedTags(
         selectedTags: List<String>,
@@ -991,3 +976,11 @@ suspend fun searchForRows(
     }.let { ids ->
         BrowserRowCollection(cardsOrNotes, ids.map { CardOrNoteId(it) }.toMutableList())
     }
+
+/** Renders the row count for [this] event as a localized "X cards/notes" string. */
+fun SearchState.Completed.formatCardCount(resources: android.content.res.Resources): String =
+    resources.getQuantityString(
+        if (cardsOrNotes == CARDS) R.plurals.card_browser_subtitle else R.plurals.card_browser_subtitle_notes_mode,
+        rowCount,
+        rowCount,
+    )
