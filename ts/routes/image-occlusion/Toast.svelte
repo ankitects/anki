@@ -17,13 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function show() {
         shown = true;
-    }
-
-    $effect(() => {
         if (props.timeout) {
             setTimeout(hide, props.timeout);
         }
-    });
+    }
 </script>
 
 {#if shown}
