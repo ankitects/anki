@@ -18,8 +18,8 @@ use crate::services::BackendGithubService;
 use crate::updates::download_file;
 use crate::updates::release_path;
 use crate::updates::updates_dir;
+use crate::updates::user_agent;
 use crate::updates::DownloadUpdateProgress;
-use crate::version::version;
 
 const ALL_RELEASES_URL: &str = "https://api.github.com/repos/ankitects/anki/releases";
 const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/ankitects/anki/releases/latest";
@@ -84,7 +84,7 @@ impl BackendGithubService for Backend {
             let response = self
                 .web_client()
                 .get(url)
-                .header("User-Agent", format!("Anki {}", version()))
+                .header("User-Agent", user_agent())
                 .timeout(Duration::from_secs(60))
                 .send()
                 .await?
@@ -137,6 +137,7 @@ impl BackendGithubService for Backend {
         if !already_downloaded {
             self.runtime_handle().block_on(async {
                 download_file(
+                    &self.web_client(),
                     &mut progress,
                     &release.filename,
                     &release.url,

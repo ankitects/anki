@@ -12,6 +12,7 @@ use crate::error::AnkiError;
 use crate::error::OrInvalid;
 use crate::error::Result;
 use crate::progress::ThrottlingProgressHandler;
+use crate::version::version;
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct DownloadUpdateProgress {
@@ -37,13 +38,23 @@ pub fn release_path(filename: &str) -> Result<PathBuf> {
     Ok(dir.join(filename))
 }
 
+pub fn user_agent() -> String {
+    format!("Anki {}", version())
+}
+
 pub async fn download_file(
+    client: &reqwest::Client,
     progress: &mut ThrottlingProgressHandler<DownloadUpdateProgress>,
     filename: &str,
     url: &str,
     checksum: &str,
 ) -> Result<PathBuf> {
-    let response = reqwest::get(url).await?.error_for_status()?;
+    let response = client
+        .get(url)
+        .header("User-Agent", user_agent())
+        .send()
+        .await?
+        .error_for_status()?;
     let content_length = response.content_length().unwrap_or_default();
     let output_path = release_path(filename)?;
     let mut stream = response.bytes_stream();
