@@ -1342,7 +1342,7 @@ title="{}" {}>{}</button>""".format(
         version = Version(version_str)
 
         def on_success(release: GithubRelease) -> None:
-            if release.tag_name != version_str:
+            if Version(release.tag_name) > version:
                 prompt_and_install_github_update(self, release)
             else:
                 tooltip(tr.addons_no_updates_available(), parent=self)
