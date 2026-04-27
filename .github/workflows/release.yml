@@ -311,7 +311,6 @@ jobs:
     runs-on: windows-2022
     environment: release
     permissions:
-      id-token: write
       contents: read
     steps:
       - name: Download Windows artifact
