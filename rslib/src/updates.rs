@@ -3,7 +3,7 @@
 
 use std::path::PathBuf;
 
-use anki_io::create_dir;
+use anki_io::create_dir_all;
 use futures::StreamExt;
 use sha2::Digest;
 use tokio::io::AsyncWriteExt;
@@ -25,7 +25,7 @@ pub fn updates_dir() -> Result<PathBuf> {
         .join("AnkiProgramFiles")
         .join("updates");
     if !dir.exists() {
-        create_dir(&dir)?;
+        create_dir_all(&dir)?;
     }
 
     Ok(dir)
