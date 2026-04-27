@@ -69,7 +69,6 @@ import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.databinding.ActivityCardBrowserBinding
 import com.ichi2.anki.dialogs.ChangeNoteTypeDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
-import com.ichi2.anki.dialogs.GradeNowDialog
 import com.ichi2.anki.dialogs.SaveBrowserSearchDialogFragment
 import com.ichi2.anki.dialogs.SavedBrowserSearchesDialogFragment
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
@@ -616,13 +615,6 @@ open class CardBrowser :
                     return false
                 }
             }
-            KeyEvent.KEYCODE_G -> {
-                if (event.isCtrlPressed && event.isShiftPressed) {
-                    Timber.i("Ctrl+Shift+G - Grade Now")
-                    openGradeNow()
-                    return true
-                }
-            }
             KeyEvent.KEYCODE_FORWARD_DEL, KeyEvent.KEYCODE_DEL -> {
                 if (searchView?.isIconified == false) {
                     Timber.i("Delete pressed - Search active, deleting character")
@@ -729,12 +721,6 @@ open class CardBrowser :
             showDialogFragment(dialog)
         }
     }
-
-    fun openGradeNow() =
-        launchCatchingTask {
-            val cardIds = viewModel.queryAllSelectedCardIds()
-            GradeNowDialog.showDialog(this@CardBrowser, cardIds)
-        }
 
     fun addNoteFromCardBrowser() {
         onAddNoteActivityResult.launch(addNoteLauncher.toIntent(this))

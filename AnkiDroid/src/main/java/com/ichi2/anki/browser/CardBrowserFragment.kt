@@ -106,6 +106,7 @@ import com.ichi2.anki.dialogs.BrowserOptionsDialog
 import com.ichi2.anki.dialogs.CardBrowserOrderDialog
 import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.ARG_SELECTED_DECK
+import com.ichi2.anki.dialogs.GradeNowDialog
 import com.ichi2.anki.dialogs.SimpleMessageDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.startDeckSelection
@@ -771,7 +772,7 @@ class CardBrowserFragment :
                         }
                         R.id.action_grade_now -> {
                             Timber.i("CardBrowser:: Grade now button pressed")
-                            requireCardBrowserActivity().openGradeNow()
+                            openGradeNow()
                             return true
                         }
                     }
@@ -1232,6 +1233,13 @@ class CardBrowserFragment :
                     return true
                 }
             }
+            KeyEvent.KEYCODE_G -> {
+                if (event.isCtrlPressed && event.isShiftPressed) {
+                    Timber.i("Ctrl+Shift+G - Grade Now")
+                    openGradeNow()
+                    return true
+                }
+            }
             KeyEvent.KEYCODE_I -> {
                 if (event.isCtrlPressed && event.isShiftPressed) {
                     Timber.i("Ctrl+Shift+I: Card info")
@@ -1303,6 +1311,12 @@ class CardBrowserFragment :
             activityViewModel.queryCardInfoDestination()?.let { destination ->
                 startActivity(destination.toIntent(requireContext()))
             }
+        }
+
+    fun openGradeNow() =
+        launchCatchingTask {
+            val cardIds = activityViewModel.queryAllSelectedCardIds()
+            GradeNowDialog.showDialog(requireAnkiActivity(), cardIds)
         }
 
     /** All the notes of the selected cards will be marked
