@@ -468,7 +468,7 @@ open class CardBrowser :
             }
         }
 
-        fun onSelectedRowsChanged(rows: Set<Any>) = onSelectionChanged()
+        fun onSelectedRowsChanged(rows: Set<Any>) = invalidateOptionsMenu()
 
         fun onFilterQueryChanged(filterQuery: String) {
             // setQuery before expand does not set the view's value
@@ -511,7 +511,13 @@ open class CardBrowser :
                         searchItem!!.expandActionView()
                     }
                 }
-                is SearchState.Completed -> redrawAfterSearch()
+                is SearchState.Completed -> {
+                    Timber.i("CardBrowser:: Completed searchCards() Successfully")
+                    updateAppBarInfo(viewModel.deckId)
+                    // HACK: required now we use MenuProvider for searches
+                    // this causes a very brief flicker, as we call `setQuery` to restore the menu state
+                    searchView?.post { searchView?.clearFocus() }
+                }
                 is SearchState.Error -> {
                     showError(searchState.error, crashReportData = null)
                 }
@@ -750,11 +756,6 @@ open class CardBrowser :
         }
     }
 
-    fun onCardsUpdated() {
-        updateList()
-        invalidateOptionsMenu()
-    }
-
     fun showSavedSearches() {
         launchCatchingTask {
             val dialog =
@@ -812,30 +813,6 @@ open class CardBrowser :
         } else {
             viewModel.launchSearchForCards()
         }
-    }
-
-    @MainThread
-    private fun redrawAfterSearch() {
-        Timber.i("CardBrowser:: Completed searchCards() Successfully")
-        updateList()
-        // HACK: required now we use MenuProvider for searches
-        // this causes a very brief flicker, as we call `setQuery` to restore the menu state
-        searchView?.post {
-            searchView?.clearFocus()
-        }
-    }
-
-    @MainThread
-    private fun updateList() {
-        if (!colIsOpenUnsafe()) return
-        Timber.d("updateList")
-        updateAppBarInfo(viewModel.deckId)
-        onSelectionChanged()
-    }
-
-    private fun onSelectionChanged() {
-        Timber.d("onSelectionChanged")
-        invalidateOptionsMenu()
     }
 
     /**

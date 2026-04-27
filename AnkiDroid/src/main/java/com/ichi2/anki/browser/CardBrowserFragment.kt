@@ -898,6 +898,7 @@ class CardBrowserFragment :
             progressIndicator.isVisible = searchState == Initializing || searchState == Searching
             if (searchState is SearchState.Completed) {
                 onSearchResultMessage(searchState.resultMessage)
+                invalidateMenu()
             }
         }
 
@@ -913,6 +914,7 @@ class CardBrowserFragment :
         }
 
         fun onCardsMarkedEvent(unit: Unit) {
+            // PERF: Add a parameter to update only the affected rows
             cardsAdapter.notifyDataSetChanged()
         }
 
@@ -1459,9 +1461,7 @@ class CardBrowserFragment :
 
     fun updateFlagForSelectedRows(flag: Flag) =
         launchCatchingTask {
-            // TODO: Use the return value to update only the affected rows
             withProgress { activityViewModel.updateSelectedCardsFlag(flag) }
-            ankiActivity.onCardsUpdated()
         }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
