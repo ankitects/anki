@@ -127,7 +127,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     plainTextsHidden,
                     plainTextDefaults,
                 },
-                modTimeOfNotetype: notetypeMeta.modTime,
             };
         }
     }
@@ -173,7 +172,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function setPlainTexts(defaultPlainTexts: boolean[]): void {
         const states = sessionOptions[notetypeMeta!.id?.toString()]?.fieldStates;
-        if (states) {
+        if (states && states.richTextsHidden.length === defaultPlainTexts.length) {
             richTextsHidden = states.richTextsHidden;
             plainTextsHidden = states.plainTextsHidden;
             plainTextDefaults = states.plainTextDefaults;
@@ -331,13 +330,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let notetypeMeta: NotetypeIdAndModTime | null = null;
     function setNotetypeMeta(notetype: Notetype): void {
         notetypeMeta = { id: notetype.id, modTime: notetype.mtimeSecs };
-        // Discard the saved state of the fields if the notetype has been modified.
-        if (
-            sessionOptions[notetype.id.toString()]?.modTimeOfNotetype !==
-            notetype.mtimeSecs
-        ) {
-            delete sessionOptions[notetype.id.toString()];
-        }
         if (isImageOcclusion) {
             getImageOcclusionFields({
                 notetypeId: BigInt(notetype.id),

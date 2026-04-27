@@ -28,9 +28,32 @@ the build products and runtime dependencies from the rest of your system.
 
 To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `24.11` and `<Dockerfile>` with the chosen Dockerfile (e.g., `Dockerfile` or `Dockerfile.distroless`)
 
+The `--platform` option specifies which systems the image will be able to run on after it has been built. This is helpful in scenarios where you are building the image on one architecture (eg: an M series Mac) but running the image on another architecture (eg: x86 Linux server).
+
+- `linux/amd64` is for x86 linux systems (Images built with this option will work on Windows as well through WSL2 which is included with Docker Desktop)
+- `linux/arm64` is for ARM systems (eg: M series Macs)
+
+On Linux systems, you will have to configure a custom builder which supports ARM builds first as shown below. You can then run the Mac build command in the next step.
+
+```bash
+# Configuring multiplatform builder and activating it
+docker buildx create --name multiplatform-builder --driver docker-container --driver-opt default-load=true --bootstrap --use
+```
+
+On M-series Macs running Docker Desktop, you can build for both platforms using the default builder by running the command below:
+
 ```bash
 # Execute this command from this directory
-docker build -f <Dockerfile> --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
+docker buildx build -f <Dockerfile> --platform linux/amd64,linux/arm64 --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
+```
+
+If the build fails with `Resource Exhausted:.... cannot allocate memory`, go to Docker Desktop > Settings > Resources and increase the memory limit.
+
+If you are unsure of what platform your system is, just run the command below without the platform option.
+
+```bash
+# Execute this command from this directory
+docker buildx build -f <Dockerfile> --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
 ```
 
 # Run container
