@@ -1,0 +1,445 @@
+name: Release
+run-name: "Release ${{ inputs.version }} (${{ inputs.publish }})"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (must match .version on main)"
+        required: true
+        type: string
+      skip-signing:
+        description: "Skip code signing (builds unsigned artifacts)"
+        default: false
+        required: false
+        type: boolean
+      publish:
+        description: "Publishing target"
+        default: "none"
+        required: true
+        type: choice
+        options:
+          - none
+          - testpypi
+          - release
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  # Build profile: 1 = Release, 2 = ReleaseWithLto (see build/ninja_gen/src/build.rs)
+  RELEASE: 2
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      pep440_version: ${{ steps.validate.outputs.pep440_version }}
+      tag_name: ${{ steps.validate.outputs.tag_name }}
+      release_name: ${{ steps.validate.outputs.release_name }}
+      is_prerelease: ${{ steps.validate.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Reject incompatible inputs
+        if: inputs.publish == 'release' && inputs['skip-signing'] == true
+        run: |
+          echo "::error::Cannot publish a release with skip-signing enabled"
+          exit 1
+
+      - name: Validate version and compute metadata
+        id: validate
+        run: |
+          pip install --break-system-packages 'packaging>=24,<26'
+          file_version=$(cat .version)
+
+          if [ "$PUBLISH" = "release" ] && [ "$file_version" != "$INPUT_VERSION" ]; then
+            echo "::error::Input version '$INPUT_VERSION' does not match .version '$file_version'"
+            exit 1
+          fi
+
+          # Use .version for non-release runs so builds work without a prepare step
+          version="$INPUT_VERSION"
+          if [ "$PUBLISH" != "release" ]; then
+            version="$file_version"
+          fi
+
+          # "0.0" skips the ordering check — non-release builds only need format validation
+          is_prerelease=$(python3 .github/scripts/validate_version.py "$version" "0.0")
+          echo "Version check passed: $version (prerelease=$is_prerelease)"
+
+          echo "pep440_version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag_name=$version" >> "$GITHUB_OUTPUT"
+          echo "release_name=Anki $version" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          PUBLISH: ${{ inputs.publish }}
+
+      - name: Require dispatch from main
+        if: inputs.publish == 'release'
+        run: |
+          if [ "$REF_NAME" != "main" ]; then
+            echo "::error::Releases must be dispatched from main. Got $REF_NAME."
+            exit 1
+          fi
+        env:
+          REF_NAME: ${{ github.ref_name }}
+
+      - name: Check CI passed on main
+        if: inputs.publish == 'release'
+        run: |
+          conclusion=$(gh run list \
+            --workflow=ci.yml \
+            -e push \
+            --commit "$COMMIT_SHA" \
+            --limit 1 \
+            --json conclusion \
+            --jq ".[0].conclusion")
+
+          if [[ -z "$conclusion" ]]; then
+            echo "::error::Could not determine CI status for commit $COMMIT_SHA"
+            exit 1
+          elif [[ "$conclusion" != "success" ]]; then
+            echo "::error::CI for commit $COMMIT_SHA concluded with '$conclusion'"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT_SHA: ${{ github.sha }}
+
+      - name: Check for duplicate tag or release
+        if: inputs.publish == 'release'
+        run: |
+          git fetch --tags origin
+          if git rev-parse "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::Tag '$TAG_NAME' already exists"
+            exit 1
+          fi
+
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::GitHub release '$TAG_NAME' already exists"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.validate.outputs.tag_name }}
+
+  # macOS ARM and Intel are kept as separate jobs rather than a matrix because
+  # they are likely to diverge (signing quirks, Xcode versions, cross-compilation
+  # flags, Rosetta workarounds), and the conditional environment expression is
+  # already complex enough without adding matrix dimensions.
+  build-and-sign-mac:
+    needs: prepare
+    runs-on: macos-14
+    timeout-minutes: 90
+    environment: ${{ inputs['skip-signing'] != true && 'release' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Set up Apple code signing
+        if: inputs['skip-signing'] != true
+        run: .github/scripts/setup_apple_signing.sh
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
+          APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          APPLE_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
+
+      - name: Build installer
+        run: ./tools/build-installer
+        env:
+          SIGN_IDENTITY: ${{ inputs['skip-signing'] != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+
+      - name: Clean up signing credentials
+        if: always()
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-macos
+          path: out/installer/dist/
+
+      - name: Build wheels
+        run: ./ninja wheels:anki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos
+          path: out/wheels/anki-*.whl
+
+  build-and-sign-mac-intel:
+    needs: prepare
+    runs-on: macos-15-intel
+    timeout-minutes: 90
+    environment: ${{ inputs['skip-signing'] != true && 'release' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Set up Apple code signing
+        if: inputs['skip-signing'] != true
+        run: .github/scripts/setup_apple_signing.sh
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
+          APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          APPLE_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
+
+      - name: Build installer
+        run: ./tools/build-installer
+        env:
+          SIGN_IDENTITY: ${{ inputs['skip-signing'] != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+
+      - name: Clean up signing credentials
+        if: always()
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-macos-intel
+          path: out/installer/dist/
+
+      - name: Build wheels
+        run: ./ninja wheels:anki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-intel
+          path: out/wheels/anki-*.whl
+
+  build-windows:
+    needs: prepare
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build installer
+        run: tools\build-installer.bat
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-windows
+          path: out/installer/dist/
+
+      - name: Build wheels
+        run: tools\ninja wheels:anki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows
+          path: out/wheels/anki-*.whl
+
+  build-linux:
+    needs: prepare
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            arch: x86
+            wheel-target: wheels
+            # Upload both anki and aqt wheels; the pure-Python aqt wheel is the same on all platforms
+            wheel-glob: "out/wheels/*.whl"
+          - runner: ubuntu-24.04-arm
+            arch: arm
+            wheel-target: wheels:anki
+            wheel-glob: "out/wheels/anki-*.whl"
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build installer
+        run: ./tools/build-installer
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-linux-${{ matrix.arch }}
+          path: out/installer/dist/
+
+      - name: Build wheels
+        run: ./ninja ${{ matrix.wheel-target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-${{ matrix.arch }}
+          path: ${{ matrix.wheel-glob }}
+
+  sign-windows:
+    if: inputs['skip-signing'] != true
+    needs: build-windows
+    runs-on: windows-2022
+    environment: release
+    permissions:
+      contents: read
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: installer-windows
+          path: dist/
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sign Windows installer
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files-folder: dist/
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Re-upload signed artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-windows
+          path: dist/
+          overwrite: true
+
+  release:
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, sign-windows, build-linux]
+    if: >-
+      ${{ always()
+      && inputs.publish == 'release'
+      && needs.prepare.result == 'success'
+      && needs.build-and-sign-mac.result == 'success'
+      && needs.build-and-sign-mac-intel.result == 'success'
+      && needs.build-linux.result == 'success'
+      && needs.sign-windows.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: installer-*
+          path: dist
+          merge-multiple: true
+
+      - name: Create draft release
+        run: |
+          prerelease_flag=""
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            prerelease_flag="--prerelease"
+          fi
+
+          gh release create "$TAG_NAME" \
+            dist/* \
+            --draft \
+            --target "$RELEASE_SHA" \
+            --title "$RELEASE_NAME" \
+            --generate-notes \
+            ${prerelease_flag:+"$prerelease_flag"}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          TAG_NAME: ${{ needs.prepare.outputs.tag_name }}
+          RELEASE_NAME: ${{ needs.prepare.outputs.release_name }}
+          IS_PRERELEASE: ${{ needs.prepare.outputs.is_prerelease }}
+          RELEASE_SHA: ${{ github.sha }}
+
+  publish-testpypi:
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-windows, build-linux]
+    if: >-
+      ${{ always()
+      && inputs.publish != 'none'
+      && needs.prepare.result == 'success'
+      && needs.build-and-sign-mac.result == 'success'
+      && needs.build-and-sign-mac-intel.result == 'success'
+      && needs.build-windows.result == 'success'
+      && needs.build-linux.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    environment: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: wheels
+          merge-multiple: true
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheels/
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+
+  publish-pypi:
+    needs: [release, publish-testpypi]
+    if: >-
+      ${{ always()
+      && inputs.publish == 'release'
+      && needs.release.result == 'success'
+      && needs.publish-testpypi.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: wheels
+          merge-multiple: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheels/
