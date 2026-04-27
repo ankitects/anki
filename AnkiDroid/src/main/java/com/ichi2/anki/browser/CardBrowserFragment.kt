@@ -81,6 +81,7 @@ import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode
 import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode.MultiSelectCause
 import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode.SingleSelectCause
 import com.ichi2.anki.browser.CardBrowserViewModel.RowSelection
+import com.ichi2.anki.browser.CardBrowserViewModel.SearchResultMessage
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState.Initializing
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState.Searching
@@ -858,9 +859,46 @@ class CardBrowserFragment :
             }
         }
 
+        fun onSearchResultMessage(result: SearchResultMessage) {
+            val activity = requireCardBrowserActivity()
+
+            // #3592: show the number of cards found the number of cards is not visible in the menu
+            val isMenuSubtitleVisible = legacySearchView != null && legacySearchView!!.isIconified
+
+            fun showSnackbar(
+                message: String,
+                searchAllDecks: Boolean,
+            ) {
+                // Don't show a snackbar if the results are visible in the header.
+                // But do show the snackbar if an action is available
+                if (isMenuSubtitleVisible && !searchAllDecks) return
+
+                showSnackbar(message, Snackbar.LENGTH_SHORT) {
+                    if (!searchAllDecks) return@showSnackbar
+                    setAction(R.string.card_browser_search_all_decks) { activity.searchAllDecks() }
+                }
+            }
+
+            when (result) {
+                is SearchResultMessage.CardCount ->
+                    showSnackbar(
+                        message = activity.formatCardCount(result.count, result.cardsOrNotes),
+                        searchAllDecks = result.includeSearchAllDecksAction,
+                    )
+                SearchResultMessage.NoCardsInSelectedDeck ->
+                    showSnackbar(
+                        getString(R.string.card_browser_no_cards_in_deck, activity.selectedDeckNameForUi),
+                        searchAllDecks = true,
+                    )
+            }
+        }
+
         fun searchStateChanged(searchState: SearchState) {
             cardsAdapter.notifyDataSetChanged()
             progressIndicator.isVisible = searchState == Initializing || searchState == Searching
+            if (searchState is SearchState.Completed) {
+                onSearchResultMessage(searchState.resultMessage)
+            }
         }
 
         fun onSelectedRowsChanged(rows: Set<Any>) = cardsAdapter.notifyDataSetChanged()

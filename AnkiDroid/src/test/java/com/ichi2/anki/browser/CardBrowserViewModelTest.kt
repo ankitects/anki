@@ -55,6 +55,7 @@ import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode.SingleS
 import com.ichi2.anki.browser.CardBrowserViewModel.ChangeNoteTypeResponse
 import com.ichi2.anki.browser.CardBrowserViewModel.Companion.STATE_MULTISELECT_VALUES
 import com.ichi2.anki.browser.CardBrowserViewModel.RowSelection
+import com.ichi2.anki.browser.CardBrowserViewModel.SearchState
 import com.ichi2.anki.browser.CardBrowserViewModel.ToggleSelectionState.SELECT_ALL
 import com.ichi2.anki.browser.CardBrowserViewModel.ToggleSelectionState.SELECT_NONE
 import com.ichi2.anki.browser.RepositionCardsRequest.NoRepositionableCardsError
@@ -1532,6 +1533,48 @@ class CardBrowserViewModelTest : JvmTest() {
         }
 
     @Test
+    fun `searchResultMessage - all decks selected, with rows`() =
+        runViewModelTest(notes = 3) {
+            flowOfSearchState.test {
+                ignoreEventsDuringViewModelInit()
+                setSelectedDeck(SelectableDeck.AllDecks)
+                val message = awaitSearchCompleted().resultMessage
+                val card = message as CardBrowserViewModel.SearchResultMessage.CardCount
+                assertThat("count", card.count, equalTo(3))
+                assertThat("cardsOrNotes", card.cardsOrNotes, equalTo(CardsOrNotes.CARDS))
+                assertThat("no all-decks action when already on all decks", card.includeSearchAllDecksAction, equalTo(false))
+            }
+        }
+
+    @Test
+    fun `searchResultMessage - specific deck with cards has all-decks action`() =
+        runViewModelTest {
+            val deck = addDeck("Specific")
+            addNoteToDeck(deck)
+            flowOfSearchState.test {
+                ignoreEventsDuringViewModelInit()
+                setSelectedDeck(deck)
+                val card = awaitSearchCompleted().resultMessage as CardBrowserViewModel.SearchResultMessage.CardCount
+                assertThat("includes all-decks action", card.includeSearchAllDecksAction, equalTo(true))
+            }
+        }
+
+    @Test
+    fun `searchResultMessage - specific deck with no cards`() =
+        runViewModelTest {
+            val deck = addDeck("Empty")
+            flowOfSearchState.test {
+                ignoreEventsDuringViewModelInit()
+                setSelectedDeck(deck)
+                assertThat(
+                    "empty deck → no-cards-in-selected-deck",
+                    awaitSearchCompleted().resultMessage,
+                    equalTo(CardBrowserViewModel.SearchResultMessage.NoCardsInSelectedDeck),
+                )
+            }
+        }
+
+    @Test
     fun `multiselect toggle state is restored`() {
         val handle = SavedStateHandle()
         runViewModelTest(savedStateHandle = handle, notes = 1) {
@@ -1915,6 +1958,14 @@ class CardBrowserViewModelTest : JvmTest() {
 private fun CardBrowserViewModel.selectRowsWithPositions(vararg positions: Int) {
     for (pos in positions) {
         selectRowAtPosition(pos)
+    }
+}
+
+/** Skip non-Completed [CardBrowserViewModel.SearchState] emissions and return the next [SearchState.Completed]. */
+private suspend fun TurbineTestContext<SearchState>.awaitSearchCompleted(): SearchState.Completed {
+    while (true) {
+        val item = awaitItem()
+        if (item is SearchState.Completed) return item
     }
 }
 

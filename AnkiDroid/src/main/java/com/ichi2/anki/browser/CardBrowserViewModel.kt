@@ -176,6 +176,19 @@ class CardBrowserViewModel(
         val launcher: NoteEditorLauncher?,
     )
 
+    /** Result of a completed search, used to drive a snackbar in the UI */
+    sealed interface SearchResultMessage {
+        /** "X cards/notes shown | Search all decks" */
+        data class CardCount(
+            val count: Int,
+            val cardsOrNotes: CardsOrNotes,
+            val includeSearchAllDecksAction: Boolean,
+        ) : SearchResultMessage
+
+        /** "No cards in deck X" message; always paired with a "search all decks" action. */
+        data object NoCardsInSelectedDeck : SearchResultMessage
+    }
+
     /** text in the search box (potentially unsubmitted) */
     // this does not currently bind to the value in the UI and is only used for posting
     val flowOfFilterQuery = MutableSharedFlow<String>()
@@ -957,7 +970,7 @@ class CardBrowserViewModel(
             ChangeCardOrder.DirectionChange -> {
                 reverseDirectionFlow.update { ReverseDirection(orderAsc = !orderAsc) }
                 cards.reverse()
-                viewModelScope.launch { flowOfSearchState.emit(SearchState.Completed) }
+                viewModelScope.launch { flowOfSearchState.emit(SearchState.Completed.fromCurrentState()) }
             }
         }
     }
@@ -1388,7 +1401,7 @@ class CardBrowserViewModel(
                             launcher = if (panelVisible) editNoteLauncher() else null,
                         ),
                     )
-                    flowOfSearchState.emit(SearchState.Completed)
+                    flowOfSearchState.emit(SearchState.Completed.fromCurrentState())
                     selectUnvalidatedRowIds(cardOrNoteIdsToSelect)
                 }
 
@@ -1494,6 +1507,18 @@ class CardBrowserViewModel(
         }
 
     suspend fun getAvailableDecks(): List<SelectableDeck.Deck> = SelectableDeck.fromCollection(includeFiltered = false)
+
+    /** Builds a [SearchState.Completed] event reflecting the current ViewModel state. */
+    private fun SearchState.Completed.Companion.fromCurrentState(): SearchState.Completed =
+        SearchState.Completed(
+            resultMessage =
+                when {
+                    // TODO: better message if rowCount == 0 AND hasSelectedAllDecks
+                    hasSelectedAllDecks() -> SearchResultMessage.CardCount(rowCount, cardsOrNotes, includeSearchAllDecksAction = false)
+                    rowCount == 0 -> SearchResultMessage.NoCardsInSelectedDeck
+                    else -> SearchResultMessage.CardCount(rowCount, cardsOrNotes, includeSearchAllDecksAction = true)
+                },
+        )
 
     companion object {
         /** Intent extra carrying the [DeckId] the browser should open scoped to. */
@@ -1611,7 +1636,11 @@ class CardBrowserViewModel(
         data object Searching : SearchState
 
         /** A search has been completed */
-        data object Completed : SearchState
+        data class Completed(
+            val resultMessage: SearchResultMessage,
+        ) : SearchState {
+            companion object
+        }
 
         /**
          * A search error, for instance:

@@ -511,7 +511,7 @@ open class CardBrowser :
                         searchItem!!.expandActionView()
                     }
                 }
-                SearchState.Completed -> redrawAfterSearch()
+                is SearchState.Completed -> redrawAfterSearch()
                 is SearchState.Error -> {
                     showError(searchState.error, crashReportData = null)
                 }
@@ -814,35 +814,14 @@ open class CardBrowser :
         }
     }
 
-    @NeedsTest("searchView == null -> return early & ensure no snackbar when the screen is opened")
     @MainThread
     private fun redrawAfterSearch() {
-        launchCatchingTask {
-            Timber.i("CardBrowser:: Completed searchCards() Successfully")
-            updateList()
-            // check whether mSearchView is initialized as it is lateinit property.
-            if (searchView == null || searchView!!.isIconified) {
-                return@launchCatchingTask
-            }
-            if (viewModel.hasSelectedAllDecks()) {
-                showSnackbar(numberOfCardsOrNoteShown, Snackbar.LENGTH_SHORT)
-            } else {
-                // If we haven't selected all decks, allow the user the option to search all decks.
-                val message =
-                    if (viewModel.rowCount == 0) {
-                        getString(R.string.card_browser_no_cards_in_deck, selectedDeckNameForUi)
-                    } else {
-                        numberOfCardsOrNoteShown
-                    }
-                showSnackbar(message, Snackbar.LENGTH_SHORT) {
-                    setAction(R.string.card_browser_search_all_decks) { searchAllDecks() }
-                }
-            }
-            // HACK: required now we use MenuProvider for searches
-            // this causes a very brief flicker, as we call `setQuery` to restore the menu state
-            searchView?.post {
-                searchView?.clearFocus()
-            }
+        Timber.i("CardBrowser:: Completed searchCards() Successfully")
+        updateList()
+        // HACK: required now we use MenuProvider for searches
+        // this causes a very brief flicker, as we call `setQuery` to restore the menu state
+        searchView?.post {
+            searchView?.clearFocus()
         }
     }
 
@@ -863,17 +842,20 @@ open class CardBrowser :
      * @return A message stating the number of cards/notes shown by the browser.
      */
     val numberOfCardsOrNoteShown: String
-        get() {
-            val count = viewModel.rowCount
+        get() = formatCardCount(viewModel.rowCount, viewModel.cardsOrNotes)
 
-            @androidx.annotation.StringRes val subtitleId =
-                if (viewModel.cardsOrNotes == CARDS) {
-                    R.plurals.card_browser_subtitle
-                } else {
-                    R.plurals.card_browser_subtitle_notes_mode
-                }
-            return resources.getQuantityString(subtitleId, count, count)
-        }
+    fun formatCardCount(
+        count: Int,
+        cardsOrNotes: CardsOrNotes,
+    ): String {
+        @androidx.annotation.StringRes val subtitleId =
+            if (cardsOrNotes == CARDS) {
+                R.plurals.card_browser_subtitle
+            } else {
+                R.plurals.card_browser_subtitle_notes_mode
+            }
+        return resources.getQuantityString(subtitleId, count, count)
+    }
 
     @RustCleanup("this isn't how Desktop Anki does it")
     override fun onSelectedTags(
