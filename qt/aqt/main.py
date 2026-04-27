@@ -1296,9 +1296,10 @@ title="{}" {}>{}</button>""".format(
     # Other menu operations
     ##########################################################################
 
-    def _open_new_or_legacy_dialog(self, name: str, *args: Any, **kwargs: Any) -> Any:
-        want_old = KeyboardModifiersPressed().shift
-        if not want_old:
+    def _open_new_or_legacy_dialog(self, name: str, default_to_new: bool = False, *args: Any, **kwargs: Any) -> Any:
+        shift = KeyboardModifiersPressed().shift
+        want_new = (default_to_new and not shift) or (not default_to_new and shift)
+        if want_new:
             name = f"New{name}"
         return aqt.dialogs.open(name, self, *args, **kwargs)
 
@@ -1322,7 +1323,7 @@ title="{}" {}>{}</button>""".format(
         deck = self._selectedDeck()
         if not deck:
             return
-        self._open_new_or_legacy_dialog("DeckStats", self)
+        self._open_new_or_legacy_dialog("DeckStats", True, self)
 
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)

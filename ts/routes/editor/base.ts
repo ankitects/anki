@@ -59,7 +59,7 @@ export { editorToolbar } from "./editor-toolbar";
 
 export async function setupEditor(mode: EditorMode, isLegacy = false) {
     if (!["add", "browser", "current"].includes(mode)) {
-        alert("unexpected editor type");
+        alert(`unexpected editor type: ${mode}`);
         return;
     }
     const context = new Map();

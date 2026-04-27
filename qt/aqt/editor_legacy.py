@@ -173,7 +173,7 @@ class Editor:
         if self.editorMode == EditorMode.ADD_CARDS:
             mode = "add"
         elif self.editorMode == EditorMode.BROWSER:
-            mode = "browse"
+            mode = "browser"
         else:
             mode = "review"
 

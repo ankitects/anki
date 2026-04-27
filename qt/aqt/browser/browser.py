@@ -600,7 +600,12 @@ class Browser(QMainWindow):
             gui_hooks.editor_did_init.remove(add_preview_button)
 
         gui_hooks.editor_did_init.append(add_preview_button)
-        self.editor = aqt.editor.NewEditor(
+        editor_class: type[aqt.editor.Editor | aqt.editor.NewEditor]
+        if KeyboardModifiersPressed().shift:
+            editor_class = aqt.editor.NewEditor
+        else:
+            editor_class = aqt.editor.Editor
+        self.editor = editor_class(
             self.mw,
             self.form.fieldsArea,
             self,
