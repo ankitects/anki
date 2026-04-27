@@ -751,7 +751,7 @@ class CardBrowserTest : RobolectricTest() {
                 equalTo("2"),
             )
 
-            b.onUndo()
+            b.cardBrowserFragment.onUndo()
 
             assertThat(
                 "Position of checked card after undo should be reset",

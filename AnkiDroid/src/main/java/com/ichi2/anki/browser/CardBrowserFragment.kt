@@ -543,7 +543,7 @@ class CardBrowserFragment :
                         }
                         R.id.action_undo -> {
                             Timber.w("CardBrowser:: Undo pressed")
-                            requireCardBrowserActivity().onUndo()
+                            onUndo()
                             return true
                         }
                         R.id.action_preview_many -> {
@@ -754,7 +754,7 @@ class CardBrowserFragment :
                         }
                         R.id.action_undo -> {
                             Timber.w("CardBrowser:: Undo pressed")
-                            requireCardBrowserActivity().onUndo()
+                            onUndo()
                             return true
                         }
                         R.id.action_preview_many -> {
@@ -1232,6 +1232,13 @@ class CardBrowserFragment :
                     return true
                 }
             }
+            KeyEvent.KEYCODE_Z -> {
+                if (event.isCtrlPressed) {
+                    Timber.i("Ctrl+Z: Undo")
+                    onUndo()
+                    return true
+                }
+            }
             KeyEvent.KEYCODE_ESCAPE -> {
                 Timber.i("ESC: Select none")
                 activityViewModel.selectNone()
@@ -1277,6 +1284,12 @@ class CardBrowserFragment :
             requestKey = REQUEST_DECK_SELECTION_CHANGE_DECK,
         )
     }
+
+    @VisibleForTesting
+    fun onUndo() =
+        launchCatchingTask {
+            undoAndShowSnackbar()
+        }
 
     /** All the notes of the selected cards will be marked
      * If one or more card is unmarked, all will be marked,

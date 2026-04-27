@@ -668,13 +668,6 @@ open class CardBrowser :
                     return true
                 }
             }
-            KeyEvent.KEYCODE_Z -> {
-                if (event.isCtrlPressed) {
-                    Timber.i("Ctrl+Z: Undo")
-                    onUndo()
-                    return true
-                }
-            }
             in KeyEvent.KEYCODE_1..KeyEvent.KEYCODE_7 -> {
                 if (event.isCtrlPressed) {
                     Timber.i("Update flag")
@@ -757,13 +750,6 @@ open class CardBrowser :
                 val intent: Intent = destination.toIntent(this@CardBrowser)
                 startActivity(intent)
             }
-        }
-    }
-
-    @VisibleForTesting
-    fun onUndo() {
-        launchCatchingTask {
-            undoAndShowSnackbar()
         }
     }
 
