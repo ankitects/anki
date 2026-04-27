@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 from anki.collection import GithubRelease, Progress
-from anki.utils import is_lin, is_mac, is_win
+from anki.utils import is_mac, is_win
 from aqt.operations import QueryOp
 from aqt.progress import ProgressUpdate
 from aqt.utils import openLink, tr
@@ -180,7 +180,11 @@ def update_and_restart() -> None:
 def download_github_update_and_install(release: GithubRelease) -> None:
     from aqt import mw
 
-    if is_lin:
+    if release.filename.endswith(".msi"):
+        args = ["msiexec", "/i"]
+    elif release.filename.endswith(".dmg"):
+        args = ["open"]
+    else:
         openLink(release.url)
         return
 
@@ -191,12 +195,7 @@ def download_github_update_and_install(release: GithubRelease) -> None:
                 creationflags = (
                     subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
                 )
-
-            args = []
-            if output_path.endswith(".msi"):
-                args = ["msiexec", "/i", output_path]
-            elif output_path.endswith(".dmg"):
-                args = ["open", output_path]
+            args.append(output_path)
             subprocess.Popen(
                 args,
                 start_new_session=True,
