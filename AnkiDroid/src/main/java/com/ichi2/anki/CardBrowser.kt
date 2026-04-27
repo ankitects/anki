@@ -477,7 +477,15 @@ open class CardBrowser :
         }
 
         fun onDeckIdChanged(deckId: DeckId?) {
-            updateAppBarInfo(deckId)
+            if (useSearchView) return
+            launchCatchingTask {
+                findViewById<TextView>(R.id.deck_name)?.text =
+                    when (deckId) {
+                        null -> getString(R.string.card_browser_all_decks)
+                        ALL_DECKS_ID -> getString(R.string.card_browser_all_decks)
+                        else -> withCol { decks.getLegacy(deckId)?.name }
+                    }
+            }
         }
 
         fun onMultiSelectModeChanged(modeChange: ChangeMultiSelectMode) {
@@ -513,7 +521,8 @@ open class CardBrowser :
                 }
                 is SearchState.Completed -> {
                     Timber.i("CardBrowser:: Completed searchCards() Successfully")
-                    updateAppBarInfo(viewModel.deckId)
+                    // TODO: obtain these values from 'Completed'
+                    findViewById<TextView>(R.id.subtitle)?.text = formatCardCount(viewModel.rowCount, viewModel.cardsOrNotes)
                     // HACK: required now we use MenuProvider for searches
                     // this causes a very brief flicker, as we call `setQuery` to restore the menu state
                     searchView?.post { searchView?.clearFocus() }
@@ -601,7 +610,6 @@ open class CardBrowser :
         registerReceiver()
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-        updateAppBarInfo(viewModel.deckId)
     }
 
     override fun onKeyUp(
@@ -815,12 +823,6 @@ open class CardBrowser :
         }
     }
 
-    /**
-     * @return A message stating the number of cards/notes shown by the browser.
-     */
-    val numberOfCardsOrNoteShown: String
-        get() = formatCardCount(viewModel.rowCount, viewModel.cardsOrNotes)
-
     fun formatCardCount(
         count: Int,
         cardsOrNotes: CardsOrNotes,
@@ -914,23 +916,6 @@ open class CardBrowser :
 
     override val shortcuts
         get() = cardBrowserFragment.shortcuts
-
-    /**
-     * Sets the selected deck name and current selection count based on [numberOfCardsOrNoteShown]
-     */
-    private fun updateAppBarInfo(deckId: DeckId?) {
-        if (useSearchView) return
-        findViewById<TextView>(R.id.subtitle)?.text = numberOfCardsOrNoteShown
-        launchCatchingTask {
-            val deckName =
-                when (deckId) {
-                    null -> getString(R.string.card_browser_all_decks)
-                    ALL_DECKS_ID -> getString(R.string.card_browser_all_decks)
-                    else -> withCol { decks.getLegacy(deckId)?.name }
-                }
-            findViewById<TextView>(R.id.deck_name)?.text = deckName
-        }
-    }
 
     // region MenuHost delegation
 
