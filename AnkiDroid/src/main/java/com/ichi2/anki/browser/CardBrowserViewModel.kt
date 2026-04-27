@@ -170,23 +170,19 @@ class CardBrowserViewModel(
     private val flowOfCardsOrNotes = MutableStateFlow(CARDS)
     val cardsOrNotes get() = flowOfCardsOrNotes.value
 
-    // card that was clicked (not marked)
-    var currentCardId: CardId? = null
-        private set
-
     /**
-     * Computes and stores the current card ID used by the note editor.
+     * Resolves the focused row to a card id, falling back to the first row if no row is focused.
+     * Updates [focusedRow] to the fallback row when one is used, so subsequent reads stay in sync.
+     *
+     * TODO: remove this from redrawAfterSearch and set the new row in the ViewModel
      */
-    suspend fun updateCurrentCardId(): CardId? {
-        currentCardId =
-            // Early return if no cards available
-            if (cards.isEmpty()) {
-                null
-            } else {
-                focusedRow?.toCardId(cardsOrNotes)
-                    ?: cards.firstOrNull()?.toCardId(cardsOrNotes)
-            }
-        return currentCardId
+    suspend fun resolveFocusedCardId(): CardId? {
+        if (cards.isEmpty()) {
+            focusedRow = null
+            return null
+        }
+        if (focusedRow == null) focusedRow = cards.first()
+        return focusedRow?.toCardId(cardsOrNotes)
     }
 
     var cardIdToBeScrolledTo: CardId? = null
@@ -295,10 +291,12 @@ class CardBrowserViewModel(
      */
     val flowOfSaveSearchNamePrompt = MutableSharedFlow<String>()
 
-    var focusedRow: CardOrNoteId? = null
+    val flowOfFocusedRow: StateFlow<CardOrNoteId?>
+        field = MutableStateFlow<CardOrNoteId?>(null)
+    var focusedRow: CardOrNoteId?
+        get() = flowOfFocusedRow.value
         private set(value) {
-            if (!isFragmented) return
-            field = value
+            flowOfFocusedRow.value = value
         }
 
     suspend fun queryAllSelectedCardIds() = selectedRows.queryCardIds(this.cardsOrNotes)
@@ -312,7 +310,7 @@ class CardBrowserViewModel(
      * In 'Cards' mode, this returns only the selected cards.
      */
     suspend fun getCardIdsForNoteEditor(): List<CardId> {
-        val cardId = currentCardId ?: return emptyList()
+        val cardId = focusedRow?.toCardId(cardsOrNotes) ?: return emptyList()
 
         return if (cardsOrNotes == NOTES) {
             withCol {
@@ -392,8 +390,6 @@ class CardBrowserViewModel(
         val firstSelectedCard = selectedRows.firstOrNull()?.toCardId(cardsOrNotes) ?: return null
         return CardInfoDestination(firstSelectedCard, TR.currentCardBrowse())
     }
-
-    suspend fun queryDataForCardEdit(id: CardOrNoteId): CardId? = id.toCardId(cardsOrNotes)
 
     private suspend fun getInitialDeck(): SelectableDeck {
         suspend fun consumeIntentDeck(): SelectableDeck.Deck? {
@@ -623,27 +619,22 @@ class CardBrowserViewModel(
     fun onTap(rowSelection: RowSelection) =
         launchCatchingIO(errorMessageHandler = { /* only log */ }) {
             val id = rowSelection.rowId
-            focusedRow = id
             if (isInMultiSelectMode) {
                 val wasSelected = id in selectedRows
                 toggleRowSelection(rowSelection)
-                if (wasSelected) {
-                    currentCardId = id.toCardId(cardsOrNotes)
-                    // load the trailing pane only when fragmented; on phones, multi-select tap
-                    // just toggles selection and must not navigate away
-                    if (isFragmented) {
-                        cardSelectionEventFlow.emit(Unit)
-                    }
+                // when in mutliselect, only deselecting should cause a change in focus
+                if (wasSelected && isFragmented) {
+                    focusedRow = id
+                    cardSelectionEventFlow.emit(Unit)
                 }
             } else {
-                setNoteEditorCard(queryDataForCardEdit(id))
+                setNoteEditorRow(id)
             }
         }
 
     fun handleRowLongPress(rowSelection: RowSelection) =
         viewModelScope.launch {
             val id = rowSelection.rowId
-            currentCardId = id.toCardId(cardsOrNotes)
             if (isInMultiSelectMode && lastSelectedId != null) {
                 selectRowsBetween(lastSelectedId!!, id)
             } else {
@@ -658,7 +649,6 @@ class CardBrowserViewModel(
     fun handleRightClick(rowSelection: RowSelection) {
         viewModelScope.launch {
             val id = rowSelection.rowId
-            currentCardId = id.toCardId(cardsOrNotes)
             if (isInMultiSelectMode && lastSelectedId != null) {
                 selectRowsBetween(lastSelectedId!!, id)
             } else {
@@ -669,31 +659,29 @@ class CardBrowserViewModel(
     }
 
     /**
-     * Opens the note editor for the given card.
+     * Opens the note editor for the given row.
      *
-     * @param cardId The ID of the card to open in the note editor.
-     * Passing `null` indicates that no card is selected and will close the note editor
+     * @param row The row to focus and open in the note editor.
+     * Passing `null` indicates that no row is selected and will close the note editor.
      */
-    fun setNoteEditorCard(cardId: CardId?) {
-        currentCardId = cardId
-        if (!isFragmented) {
-            endMultiSelectMode(SingleSelectCause.OpenNoteEditorActivity)
-        }
+    private fun setNoteEditorRow(row: CardOrNoteId?) =
         viewModelScope.launch {
+            focusedRow = row
+            if (!isFragmented) {
+                endMultiSelectMode(SingleSelectCause.OpenNoteEditorActivity)
+            }
             cardSelectionEventFlow.emit(Unit)
         }
-    }
 
     /**
      * Opens the note editor for the first selected row (if multi-selecting), else the first row.
      *
      * @return `false` if there are no rows to edit
      */
-    suspend fun openNoteEditorForCurrentlySelectedRow(): Boolean {
+    fun openNoteEditorForCurrentlySelectedRow(): Boolean {
         if (cards.isEmpty()) return false
-        val row = if (isInMultiSelectMode) selectedRows.firstOrNull() else cards.firstOrNull()
-        val cardId = row?.toCardId(cardsOrNotes) ?: return false
-        setNoteEditorCard(cardId)
+        val row = (if (isInMultiSelectMode) selectedRows.firstOrNull() else cards.firstOrNull()) ?: return false
+        setNoteEditorRow(row)
         return true
     }
 
@@ -1391,8 +1379,6 @@ class CardBrowserViewModel(
     }
 
     suspend fun queryCardIdAtPosition(index: Int): CardId = cards.queryCardIdsAt(index).first()
-
-    suspend fun querySelectedCardIdAtPosition(index: Int): CardId? = selectedRows.toList()[index].toCardId(cardsOrNotes)
 
     /**
      * Obtains two lists of column headings with preview data

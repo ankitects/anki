@@ -197,6 +197,9 @@ class CardBrowserFragment :
 
     private var undoSnackbar: Snackbar? = null
 
+    /** The focused row, should only be used for efficient `notifyItemChanged` calls */
+    private var focusedRow: CardOrNoteId? = null
+
     // Dev option for Issue 18709
     private val useSearchView: Boolean
         get() = requireCardBrowserActivity().useSearchView
@@ -862,6 +865,15 @@ class CardBrowserFragment :
 
         fun onSelectedRowsChanged(rows: Set<Any>) = cardsAdapter.notifyDataSetChanged()
 
+        fun onFocusedRowChanged(newFocused: CardOrNoteId?) {
+            val previous = focusedRow
+            focusedRow = newFocused
+            listOfNotNull(previous, newFocused)
+                .distinct()
+                .mapNotNull { activityViewModel.getPositionOfId(it) }
+                .forEach { cardsAdapter.notifyItemChanged(it) }
+        }
+
         fun onCardsMarkedEvent(unit: Unit) {
             cardsAdapter.notifyDataSetChanged()
         }
@@ -1024,6 +1036,7 @@ class CardBrowserFragment :
         activityViewModel.reverseDirectionFlow.launchCollectionInLifecycleScope(::reverseDirectionChanged)
         activityViewModel.flowOfIsTruncated.launchCollectionInLifecycleScope(::onIsTruncatedChanged)
         activityViewModel.flowOfSelectedRows.launchCollectionInLifecycleScope(::onSelectedRowsChanged)
+        activityViewModel.flowOfFocusedRow.launchCollectionInLifecycleScope(::onFocusedRowChanged)
         activityViewModel.flowOfActiveColumns.launchCollectionInLifecycleScope(::onColumnsChanged)
         activityViewModel.flowOfCardsUpdated.launchCollectionInLifecycleScope(::cardsUpdatedChanged)
         activityViewModel.flowOfMultiSelectModeChanged.launchCollectionInLifecycleScope(::onMultiSelectModeChanged)

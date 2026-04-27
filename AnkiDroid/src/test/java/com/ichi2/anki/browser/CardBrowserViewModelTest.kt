@@ -1445,7 +1445,7 @@ class CardBrowserViewModelTest : JvmTest() {
             cardSelectionEventFlow.test {
                 onTap(getRowAtPosition(1).toRowSelection()).join()
                 awaitItem()
-                assertThat("currentCardId set to tapped row", currentCardId, equalTo(getRowAtPosition(1).toCardId(cardsOrNotes)))
+                assertThat("focusedRow set to tapped row", focusedRow, equalTo(getRowAtPosition(1)))
                 assertThat("not in multi-select after tap", isInMultiSelectMode, equalTo(false))
             }
         }
@@ -1491,8 +1491,23 @@ class CardBrowserViewModelTest : JvmTest() {
             cardSelectionEventFlow.test {
                 onTap(deselectedId.toRowSelection()).join()
                 awaitItem()
-                assertThat("currentCardId points at deselected row", currentCardId, equalTo(deselectedId.toCardId(cardsOrNotes)))
                 assertThat("focusedRow points at deselected row", focusedRow, equalTo(deselectedId))
+            }
+        }
+
+    @Test
+    fun `onTap add-to-multi-select on tablet does not move focus`() =
+        runViewModelTest(notes = 3, isFragmented = true) {
+            // long-press row 1 to enter multi-select; focus and selection both land on row 1
+            handleRowLongPress(getRowAtPosition(1).toRowSelection()).join()
+            assertThat("initial focus on row 1", focusedRow, equalTo(getRowAtPosition(1)))
+
+            // tap row 2 to ADD it to the selection — focus must stay on row 1
+            cardSelectionEventFlow.test {
+                onTap(getRowAtPosition(2).toRowSelection()).join()
+                expectNoEvents() // no editor reload
+                assertThat("focus unchanged after add-to-multi-select", focusedRow, equalTo(getRowAtPosition(1)))
+                assertThat("row 2 was added to selection", getRowAtPosition(2) in selectedRows, equalTo(true))
             }
         }
 

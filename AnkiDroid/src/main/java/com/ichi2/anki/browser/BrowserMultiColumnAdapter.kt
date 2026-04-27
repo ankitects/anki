@@ -265,7 +265,7 @@ class BrowserMultiColumnAdapter(
             }
             holder.setIsSelected(isSelected)
             val rowColor =
-                if (viewModel.focusedRow == id) {
+                if (viewModel.isFragmented && viewModel.focusedRow == id) {
                     ThemeUtils.getThemeAttrColor(context, R.attr.focusedRowBackgroundColor)
                 } else {
                     backendColorToColor(row.color)

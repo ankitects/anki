@@ -161,10 +161,6 @@ open class CardBrowser :
     private val searchItem: MenuItem? get() = cardBrowserFragment.searchItem
     private val mySearchesItem: MenuItem? get() = cardBrowserFragment.mySearchesItem
 
-    // card that was clicked (not marked)
-    override val currentCardId: CardId?
-        get() = viewModel.currentCardId
-
     // Dev option for Issue 18709
     // TODO: Broken currently; needs R.layout.activity_card_browser_searchview
     val useSearchView: Boolean
@@ -725,12 +721,11 @@ open class CardBrowser :
      */
     @NeedsTest("note edits are saved")
     @NeedsTest("I/O edits are saved")
-    fun openNoteEditorForCurrentlySelectedRow() =
-        launchCatchingTask {
-            if (!viewModel.openNoteEditorForCurrentlySelectedRow()) {
-                showSnackbar(R.string.no_note_to_edit)
-            }
+    fun openNoteEditorForCurrentlySelectedRow() {
+        if (!viewModel.openNoteEditorForCurrentlySelectedRow()) {
+            showSnackbar(R.string.no_note_to_edit)
         }
+    }
 
     override fun onPause() {
         super.onPause()
@@ -829,10 +824,10 @@ open class CardBrowser :
             updateList()
             // Check whether deck is empty or not
             val isDeckEmpty = viewModel.rowCount == 0
-            val currentCardId = viewModel.updateCurrentCardId()
+            val focusedCardId = viewModel.resolveFocusedCardId()
             // Hide note editor frame if deck is empty and fragmented
             binding.noteEditorFrame?.visibility =
-                if (fragmented && !isDeckEmpty && currentCardId != null) {
+                if (fragmented && !isDeckEmpty && focusedCardId != null) {
                     loadNoteEditorFragmentIfFragmented()
                     View.VISIBLE
                 } else {
