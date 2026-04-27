@@ -67,7 +67,6 @@ import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.databinding.ActivityCardBrowserBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
-import com.ichi2.anki.dialogs.SaveBrowserSearchDialogFragment
 import com.ichi2.anki.dialogs.SavedBrowserSearchesDialogFragment
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.registerSaveSearchHandler
@@ -92,7 +91,6 @@ import com.ichi2.anki.ui.ResizablePaneManager
 import com.ichi2.anki.utils.ext.addPrepareMenuProvider
 import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
 import com.ichi2.anki.utils.ext.onAllFragmentsLoaded
-import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.ui.CardBrowserSearchView
 import com.ichi2.utils.AndroidUiUtils.hideKeyboard
 import com.ichi2.utils.LanguageUtil
@@ -531,13 +529,6 @@ open class CardBrowser :
             }
         }
 
-        fun onSaveSearchNamePrompt(searchTerms: String) {
-            Timber.i("opening 'save search' name input dialog")
-            val dialog =
-                SaveBrowserSearchDialogFragment.newInstance(searchQuery = searchTerms)
-            showDialogFragment(dialog)
-        }
-
         viewModel.flowOfSearchQueryExpanded.launchCollectionInLifecycleScope(::onSearchQueryExpanded)
         viewModel.flowOfSelectedRows.launchCollectionInLifecycleScope(::onSelectedRowsChanged)
         viewModel.flowOfFilterQuery.launchCollectionInLifecycleScope(::onFilterQueryChanged)
@@ -545,7 +536,6 @@ open class CardBrowser :
         viewModel.flowOfMultiSelectModeChanged.launchCollectionInLifecycleScope(::onMultiSelectModeChanged)
         viewModel.flowOfSearchState.launchCollectionInLifecycleScope(::searchStateChanged)
         viewModel.flowOfNoteEditorCommand.launchCollectionInLifecycleScope(::onNoteEditorCommand)
-        viewModel.flowOfSaveSearchNamePrompt.launchCollectionInLifecycleScope(::onSaveSearchNamePrompt)
     }
 
     private fun hideKeyboard() {
@@ -618,17 +608,6 @@ open class CardBrowser :
                     return true
                 }
             }
-            KeyEvent.KEYCODE_S -> {
-                if (event.isCtrlPressed && event.isAltPressed) {
-                    Timber.i("Ctrl+Alt+S: Show saved searches")
-                    showSavedSearches()
-                    return true
-                } else if (event.isCtrlPressed) {
-                    Timber.i("Ctrl+S: Save search")
-                    viewModel.saveCurrentSearch()
-                    return true
-                }
-            }
             in KeyEvent.KEYCODE_1..KeyEvent.KEYCODE_7 -> {
                 if (event.isCtrlPressed) {
                     Timber.i("Update flag")
@@ -686,16 +665,6 @@ open class CardBrowser :
             viewModel.endMultiSelectMode(SingleSelectCause.NavigateBack)
         } else {
             super.onNavigationPressed()
-        }
-    }
-
-    fun showSavedSearches() {
-        launchCatchingTask {
-            val dialog =
-                SavedBrowserSearchesDialogFragment.newInstance(
-                    viewModel.savedSearches(),
-                )
-            showDialogFragment(dialog)
         }
     }
 
