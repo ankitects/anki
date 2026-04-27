@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::io;
 use std::io::Read;
 use std::time::Duration;
 
@@ -57,7 +58,7 @@ fn release_is_downloaded(filename: &str, checksum: &str) -> Result<bool> {
         loop {
             let count = match file.read(&mut buf) {
                 Ok(0) => break,
-                Err(e) if e.kind() == tokio::io::ErrorKind::Interrupted => continue,
+                Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
                 result => result?,
             };
             digest.update(&buf[..count]);
