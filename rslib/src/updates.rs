@@ -4,6 +4,7 @@
 use std::path::PathBuf;
 
 use anki_io::create_dir_all;
+use anki_io::remove_file;
 use futures::StreamExt;
 use sha2::Digest;
 use tokio::io::AsyncWriteExt;
@@ -78,6 +79,7 @@ pub async fn download_file(
     file.flush().await?;
     let actual_checksum = format!("{:x}", digest.finalize());
     if actual_checksum != checksum {
+        let _ = remove_file(output_path);
         return Err(AnkiError::InvalidChecksum {
             info: "Invalid checksum".into(),
         });
