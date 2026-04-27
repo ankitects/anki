@@ -6,6 +6,8 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
     groups:
       rust-minor-patch:
         applies-to: version-updates
@@ -19,6 +21,8 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
     groups:
       js-minor-patch:
         applies-to: version-updates
@@ -32,6 +36,8 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
     groups:
       python-minor-patch:
         applies-to: version-updates
@@ -45,6 +51,8 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
     groups:
       actions:
         applies-to: version-updates
