@@ -10,6 +10,9 @@ if __name__ == "__main__":
 
     try:
         sys.path.remove(str(Path(__file__).parent.parent))
+        if sys.platform == "win32":
+            sys.stdout = sys.stderr = open("CONOUT$", "w")
+            sys.stdin = open("CONIN$", "r")
     except Exception:
         pass
     sys.modules.pop("anki")
