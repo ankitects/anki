@@ -144,6 +144,7 @@ dependencies = [
  "serde_repr",
  "serde_tuple",
  "sha1",
+ "sha2 0.11.0",
  "snafu",
  "strum 0.27.2",
  "syn 2.0.106",

@@ -16,6 +16,7 @@ dependencies = [
   "truststore>=0.10.4",
   "pyqt6>=6.2",
   "pyqt6-webengine>=6.2",
+  "packaging",
   # anki dependency is added dynamically in hatch_build.py with exact version
 ]
 

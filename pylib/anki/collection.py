@@ -12,6 +12,7 @@ from anki import (
     collection_pb2,
     config_pb2,
     generic_pb2,
+    github_pb2,
     image_occlusion_pb2,
     import_export_pb2,
     links_pb2,
@@ -58,6 +59,7 @@ CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
 MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
 FsrsItem = scheduler_pb2.FsrsItem
 FsrsReview = scheduler_pb2.FsrsReview
+GithubRelease = github_pb2.GithubRelease
 
 import os
 import sys
