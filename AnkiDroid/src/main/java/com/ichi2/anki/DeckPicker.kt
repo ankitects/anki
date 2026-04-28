@@ -214,7 +214,7 @@ import java.io.File
  *
  * Responsibilities:
  * * Setup/upgrades of the application: [handleStartup]
- * * Error handling [handleDbError] [handleDbLocked]
+ * * Error handling [handleDbLocked]
  * * Displaying a tree of decks, some of which may be collapsible: [deckListAdapter]
  *   * Allows users to study the decks
  *   * Displays deck progress
@@ -403,9 +403,6 @@ open class DeckPicker :
         override fun onActivityResult(result: ActivityResult) {
             if (result.resultCode == RESULT_MEDIA_EJECTED) {
                 onSdCardNotMounted()
-                return
-            } else if (result.resultCode == RESULT_DB_ERROR) {
-                handleDbError()
                 return
             }
             callback(result)
@@ -1797,11 +1794,6 @@ open class DeckPicker :
         showMediaCheckDialog()
     }
 
-    open fun handleDbError() {
-        Timber.i("Displaying Database Error")
-        showDatabaseErrorDialog(DatabaseErrorDialogType.DIALOG_LOAD_FAILED)
-    }
-
     open fun handleDbLocked() {
         Timber.i("Displaying Database Locked")
         showDatabaseErrorDialog(DatabaseErrorDialogType.DIALOG_DB_LOCKED)
@@ -2166,7 +2158,6 @@ open class DeckPicker :
          * Result codes from other activities
          */
         const val RESULT_MEDIA_EJECTED = 202
-        const val RESULT_DB_ERROR = 203
 
         /**
          * If passed into the intent, the user should have been logged in and DeckPicker

@@ -352,9 +352,6 @@ abstract class AbstractFlashcardViewer :
         private val callback: (result: ActivityResult, reloadRequired: Boolean) -> Unit = { _, _ -> },
     ) : ActivityResultCallback<ActivityResult> {
         override fun onActivityResult(result: ActivityResult) {
-            if (result.resultCode == DeckPicker.RESULT_DB_ERROR) {
-                closeReviewer(DeckPicker.RESULT_DB_ERROR)
-            }
             if (result.resultCode == DeckPicker.RESULT_MEDIA_EJECTED) {
                 finishNoStorageAvailable()
             }

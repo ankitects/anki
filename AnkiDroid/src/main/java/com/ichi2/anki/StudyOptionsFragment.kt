@@ -330,7 +330,7 @@ class StudyOptionsFragment :
                 result.resultCode,
             )
             activity?.invalidateMenu()
-            if (result.resultCode == DeckPicker.RESULT_DB_ERROR || result.resultCode == DeckPicker.RESULT_MEDIA_EJECTED) {
+            if (result.resultCode == DeckPicker.RESULT_MEDIA_EJECTED) {
                 closeStudyOptions(result.resultCode)
                 return@registerForActivityResult
             }

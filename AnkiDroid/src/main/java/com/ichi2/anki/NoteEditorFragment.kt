@@ -437,14 +437,11 @@ class NoteEditorFragment :
             return@OnReceiveContentListener remaining
         }
 
-    private inner class NoteEditorActivityResultCallback(
+    private class NoteEditorActivityResultCallback(
         private val callback: (result: ActivityResult) -> Unit,
     ) : ActivityResultCallback<ActivityResult> {
         override fun onActivityResult(result: ActivityResult) {
             Timber.d("onActivityResult() with result: %s", result.resultCode)
-            if (result.resultCode == DeckPicker.RESULT_DB_ERROR) {
-                closeNoteEditor(DeckPicker.RESULT_DB_ERROR, null)
-            }
             callback(result)
         }
     }

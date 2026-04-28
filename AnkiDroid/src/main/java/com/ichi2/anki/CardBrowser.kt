@@ -196,10 +196,6 @@ open class CardBrowser :
     private var onEditCardActivityResult =
         registerForActivityResult(StartActivityForResult()) { result: ActivityResult ->
             Timber.i("onEditCardActivityResult: resultCode=%d", result.resultCode)
-            if (result.resultCode == DeckPicker.RESULT_DB_ERROR) {
-                closeCardBrowser(DeckPicker.RESULT_DB_ERROR)
-                return@registerForActivityResult
-            }
 
             // handle template edits
 
@@ -223,9 +219,6 @@ open class CardBrowser :
     private var onAddNoteActivityResult =
         registerForActivityResult(StartActivityForResult()) { result: ActivityResult ->
             Timber.d("onAddNoteActivityResult: resultCode=%d", result.resultCode)
-            if (result.resultCode == DeckPicker.RESULT_DB_ERROR) {
-                closeCardBrowser(DeckPicker.RESULT_DB_ERROR)
-            }
             if (result.resultCode == RESULT_OK) {
                 forceRefreshSearch(useSearchTextValue = true)
             }
@@ -234,9 +227,6 @@ open class CardBrowser :
     private var onPreviewCardsActivityResult =
         registerForActivityResult(StartActivityForResult()) { result: ActivityResult ->
             Timber.d("onPreviewCardsActivityResult: resultCode=%d", result.resultCode)
-            if (result.resultCode == DeckPicker.RESULT_DB_ERROR) {
-                closeCardBrowser(DeckPicker.RESULT_DB_ERROR)
-            }
             // Previewing can now perform an "edit", so it can pass on a reloadRequired
             val data = result.data
             if (data != null &&
@@ -1049,15 +1039,6 @@ open class CardBrowser :
                 Timber.w(e, "Unable to get selected deck name")
                 getString(R.string.card_browser_unknown_deck_name)
             }
-
-    private fun closeCardBrowser(
-        result: Int,
-        data: Intent? = null,
-    ) {
-        // Set result and finish
-        setResult(result, data)
-        finish()
-    }
 
     /**
      * Implementation of `by viewModels()` for use in [onCreate]
