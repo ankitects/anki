@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import html
-from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -61,6 +60,10 @@ class DeckBrowserContent:
 @dataclass
 class RenderDeckNodeContext:
     current_deck_id: DeckId
+
+
+def _deck_due_counts_are_deemphasized(node: DeckTreeNode) -> bool:
+    return bool(node.children) and not node.collapsed
 
 
 class DeckBrowser:
@@ -276,10 +279,13 @@ class DeckBrowser:
         )
 
         # due counts
+        deemphasized = _deck_due_counts_are_deemphasized(node)
+
         def nonzeroColour(cnt: int, klass: str) -> str:
-            if not cnt:
-                klass = "zero-count"
-            return f'<span class="{klass}">{cnt}</span>'
+            classes = ["zero-count" if not cnt else klass]
+            if deemphasized:
+                classes.append("parent-count")
+            return f'<span class="{" ".join(classes)}">{cnt}</span>'
 
         review = nonzeroColour(node.review_count, "review-count")
         learn = nonzeroColour(node.learn_count, "learn-count")
@@ -381,12 +387,16 @@ class DeckBrowser:
 
     def _drawButtons(self) -> None:
         buf = ""
-        drawLinks = deepcopy(self.drawLinks)
+        drawLinks = [row[:] for row in self.drawLinks]
         for b in drawLinks:
             if b[0]:
                 b[0] = tr.actions_shortcut_key(val=shortcut(b[0]))
             buf += """
-<button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(b)
+<button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % (
+                b[0],
+                b[1],
+                b[2],
+            )
         self.bottom.draw(
             buf=buf,
             link_handler=self._linkHandler,
