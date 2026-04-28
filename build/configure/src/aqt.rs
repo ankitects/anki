@@ -354,7 +354,11 @@ fn build_wheel(build: &mut Build) -> Result<()> {
 }
 
 fn check_python(build: &mut Build) -> Result<()> {
-    python_format(build, "qt", inputs![glob!("qt/**/*.py")])?;
+    python_format(
+        build,
+        "qt",
+        inputs![glob!("qt/**/*.py", "qt/installer/*-template/**")],
+    )?;
 
     build.add_action(
         "check:pytest:aqt",
