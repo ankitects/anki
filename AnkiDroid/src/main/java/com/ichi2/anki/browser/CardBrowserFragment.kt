@@ -16,6 +16,7 @@
 
 package com.ichi2.anki.browser
 
+import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
@@ -122,6 +123,7 @@ import com.ichi2.anki.model.LegacySortType
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
+import com.ichi2.anki.previewer.PreviewerFragment
 import com.ichi2.anki.requireAnkiActivity
 import com.ichi2.anki.requireNavigationDrawerActivity
 import com.ichi2.anki.scheduling.ForgetCardsDialog
@@ -533,7 +535,7 @@ class CardBrowserFragment :
                             return true
                         }
                         R.id.action_preview_many -> {
-                            requireCardBrowserActivity().onPreview()
+                            onPreview()
                             return true
                         }
                         R.id.action_sort_by_size -> {
@@ -743,7 +745,7 @@ class CardBrowserFragment :
                             return true
                         }
                         R.id.action_preview_many -> {
-                            requireCardBrowserActivity().onPreview()
+                            onPreview()
                             return true
                         }
                         R.id.action_edit_note -> {
@@ -1161,6 +1163,13 @@ class CardBrowserFragment :
                     return true
                 }
             }
+            KeyEvent.KEYCODE_P -> {
+                if (event.isCtrlPressed && event.isShiftPressed) {
+                    Timber.i("Ctrl+Shift+P - Preview")
+                    onPreview()
+                    return true
+                }
+            }
             KeyEvent.KEYCODE_M -> {
                 if (event.isCtrlPressed) {
                     Timber.i("Ctrl+M: Search marked notes")
@@ -1257,6 +1266,13 @@ class CardBrowserFragment :
                 }
             showUndoSnackbar(message)
         }
+
+    fun onPreview() {
+        launchCatchingTask {
+            val intent = activityViewModel.queryPreviewIntentData().toIntent(requireContext())
+            startActivity(intent)
+        }
+    }
 
     fun rescheduleSelectedCards() {
         if (!activityViewModel.hasSelectedAnyRows()) {
@@ -1625,6 +1641,7 @@ class CardBrowserFragment :
                 shortcut("Ctrl+J", Translations::browsingToggleSuspend),
                 shortcut("Ctrl+Shift+I", Translations::actionsCardInfo),
                 shortcut("Ctrl+O", R.string.show_order_dialog),
+                shortcut("Ctrl+Shift+P", R.string.card_editor_preview_card),
                 shortcut("Ctrl+M", R.string.card_browser_show_marked),
                 shortcut("Esc", R.string.card_browser_select_none),
                 shortcut("Ctrl+1", R.string.gesture_flag_red),
@@ -1652,6 +1669,14 @@ class CardBrowserFragment :
         private const val CHANGE_DECK_KEY = "CHANGE_DECK"
     }
 }
+
+class PreviewerDestination(
+    val currentIndex: Int,
+    val idsFile: IdsFile,
+)
+
+@CheckResult
+fun PreviewerDestination.toIntent(context: Context) = PreviewerFragment.getIntent(context, idsFile, currentIndex)
 
 /**
  * Updates the content of the [SearchView] to a provided fragment, retaining state.

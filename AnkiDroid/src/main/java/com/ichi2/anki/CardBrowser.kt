@@ -18,7 +18,6 @@
 
 package com.ichi2.anki
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
@@ -32,7 +31,6 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.annotation.CheckResult
 import androidx.annotation.LayoutRes
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
@@ -59,7 +57,6 @@ import com.ichi2.anki.browser.CardBrowserViewModel.SearchState
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState.Initializing
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState.Searching
 import com.ichi2.anki.browser.CardOrNoteId
-import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.browser.SaveSearchResult
 import com.ichi2.anki.browser.SharedPreferencesLastDeckIdRepository
 import com.ichi2.anki.browser.registerFindReplaceHandler
@@ -91,7 +88,6 @@ import com.ichi2.anki.model.CardsOrNotes.NOTES
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.observability.ChangeManager
-import com.ichi2.anki.previewer.PreviewerFragment
 import com.ichi2.anki.scheduling.registerOnForgetHandler
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
@@ -694,13 +690,6 @@ open class CardBrowser :
                     return true
                 }
             }
-            KeyEvent.KEYCODE_P -> {
-                if (event.isShiftPressed && event.isCtrlPressed) {
-                    Timber.i("Ctrl+Shift+P - Preview")
-                    onPreview()
-                    return true
-                }
-            }
             KeyEvent.KEYCODE_S -> {
                 if (event.isCtrlPressed && event.isAltPressed) {
                     Timber.i("Ctrl+Alt+S: Show saved searches")
@@ -859,13 +848,6 @@ open class CardBrowser :
     fun onUndo() {
         launchCatchingTask {
             undoAndShowSnackbar()
-        }
-    }
-
-    fun onPreview() {
-        launchCatchingTask {
-            val intent = viewModel.queryPreviewIntentData().toIntent(this@CardBrowser)
-            startActivity(intent)
         }
     }
 
@@ -1154,11 +1136,3 @@ suspend fun searchForRows(
     }.let { ids ->
         BrowserRowCollection(cardsOrNotes, ids.map { CardOrNoteId(it) }.toMutableList())
     }
-
-class PreviewerDestination(
-    val currentIndex: Int,
-    val idsFile: IdsFile,
-)
-
-@CheckResult
-fun PreviewerDestination.toIntent(context: Context) = PreviewerFragment.getIntent(context, idsFile, currentIndex)
