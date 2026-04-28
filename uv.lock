@@ -9,7 +9,7 @@ conflicts = [[
 ]]
 
 [options]
-exclude-newer = "2026-04-21T16:02:46.500505Z"
+exclude-newer = "2026-04-21T18:56:50.16994Z"
 exclude-newer-span = "P7D"
 
 [manifest]
@@ -166,7 +166,6 @@ wheels = [
 name = "aqt"
 source = { editable = "qt" }
 dependencies = [
-    { name = "anki" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt66') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt67') or (extra == 'extra-3-aqt-qt66' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt67' and extra == 'extra-3-aqt-qt68')" },
     { name = "beautifulsoup4" },
     { name = "flask" },
@@ -222,7 +221,6 @@ qt68 = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anki", editable = "pylib" },
     { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.1.0" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin'", specifier = ">=0.1.1" },
     { name = "beautifulsoup4" },
