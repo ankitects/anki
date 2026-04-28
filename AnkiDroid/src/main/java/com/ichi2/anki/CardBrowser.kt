@@ -224,21 +224,6 @@ open class CardBrowser :
             }
             invalidateOptionsMenu() // maybe the availability of undo changed
         }
-    private var onPreviewCardsActivityResult =
-        registerForActivityResult(StartActivityForResult()) { result: ActivityResult ->
-            Timber.d("onPreviewCardsActivityResult: resultCode=%d", result.resultCode)
-            // Previewing can now perform an "edit", so it can pass on a reloadRequired
-            val data = result.data
-            if (data != null &&
-                (
-                    data.getBooleanExtra(NoteEditorFragment.RELOAD_REQUIRED_EXTRA_KEY, false) ||
-                        data.getBooleanExtra(NoteEditorFragment.NOTE_CHANGED_EXTRA_KEY, false)
-                )
-            ) {
-                forceRefreshSearch()
-            }
-            invalidateOptionsMenu() // maybe the availability of undo changed
-        }
 
     init {
         ChangeManager.subscribe(this)
@@ -879,15 +864,10 @@ open class CardBrowser :
 
     fun onPreview() {
         launchCatchingTask {
-            val intentData = viewModel.queryPreviewIntentData()
-            onPreviewCardsActivityResult.launch(getPreviewIntent(intentData.currentIndex, intentData.idsFile))
+            val intent = viewModel.queryPreviewIntentData().toIntent(this@CardBrowser)
+            startActivity(intent)
         }
     }
-
-    private fun getPreviewIntent(
-        index: Int,
-        idsFile: IdsFile,
-    ): Intent = PreviewerDestination(index, idsFile).toIntent(this)
 
     fun addNoteFromCardBrowser() {
         onAddNoteActivityResult.launch(addNoteLauncher.toIntent(this))
