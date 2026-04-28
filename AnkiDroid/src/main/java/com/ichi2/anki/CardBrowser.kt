@@ -195,7 +195,6 @@ open class CardBrowser :
             if (result.resultCode == RESULT_OK) {
                 forceRefreshSearch(useSearchTextValue = true)
             }
-            invalidateOptionsMenu() // maybe the availability of undo changed
         }
 
     init {
