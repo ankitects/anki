@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator, Iterable, Sequence
+from collections.abc import Generator, Sequence
 from typing import Any, Literal, Union, cast
 
 from anki import (
@@ -534,7 +534,7 @@ class Collection(DeprecatedNamesMixin):
         note.id = NoteId(out.note_id)
         return out.changes
 
-    def add_notes(self, requests: Iterable[AddNoteRequest]) -> OpChanges:
+    def add_notes(self, requests: Sequence[AddNoteRequest]) -> OpChanges:
         for request in requests:
             hooks.note_will_be_added(self, request.note, request.deck_id)
         out = self._backend.add_notes(
