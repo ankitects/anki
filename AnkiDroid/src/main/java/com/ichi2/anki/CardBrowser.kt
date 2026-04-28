@@ -189,29 +189,6 @@ open class CardBrowser :
     private val layout: Int
         get() = if (useSearchView) R.layout.activity_card_browser_searchview else R.layout.activity_card_browser
 
-    private var onEditCardActivityResult =
-        registerForActivityResult(StartActivityForResult()) { result: ActivityResult ->
-            Timber.i("onEditCardActivityResult: resultCode=%d", result.resultCode)
-
-            // handle template edits
-
-            // in use by reviewer?
-            result.data?.let {
-                if (
-                    it.getBooleanExtra(NoteEditorFragment.RELOAD_REQUIRED_EXTRA_KEY, false) ||
-                    it.getBooleanExtra(NoteEditorFragment.NOTE_CHANGED_EXTRA_KEY, false)
-                ) {
-                    forceRefreshSearch()
-                }
-            }
-
-            invalidateOptionsMenu() // maybe the availability of undo changed
-
-            // handle card edits
-            if (result.resultCode == RESULT_OK) {
-                viewModel.onCurrentNoteEdited()
-            }
-        }
     private var onAddNoteActivityResult =
         registerForActivityResult(StartActivityForResult()) { result: ActivityResult ->
             Timber.d("onAddNoteActivityResult: resultCode=%d", result.resultCode)
@@ -575,7 +552,7 @@ open class CardBrowser :
                     loadNoteEditorFragmentIfFragmented()
                 } else {
                     editNoteLauncher()?.let {
-                        onEditCardActivityResult.launch(it.toIntent(this@CardBrowser))
+                        startActivity(it.toIntent(this@CardBrowser))
                     }
                 }
             }

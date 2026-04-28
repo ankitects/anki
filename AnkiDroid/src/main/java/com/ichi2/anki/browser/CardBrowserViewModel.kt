@@ -1403,12 +1403,6 @@ class CardBrowserViewModel(
         updateActiveColumns(replacements, cardsOrNotes)
     }
 
-    // TODO: Do a selective update, and accept a noteId as parameter
-    fun onCurrentNoteEdited() {
-        Timber.i("Reloading search due to note edit")
-        launchSearchForCards()
-    }
-
     /** Opens the UI to save the current [tempSearchQuery] as a saved search */
     fun saveCurrentSearch() =
         viewModelScope.launch {
