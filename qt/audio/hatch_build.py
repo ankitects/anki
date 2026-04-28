@@ -24,24 +24,26 @@ class CustomBuildHook(BuildHookInterface):
         build_data["pure_python"] = False
 
         dist_dir = Path(self.root).parent.parent / "out" / "extracted"
-
+        mpv_dir = dist_dir / "mpv"
+        lame_dir = dist_dir / "lame"
         # Assumes platform_tag matches host system
         system = platform.system()
         if system == "Darwin":
-            binary_files = [dist_dir / "mpv" / "mpv", dist_dir / "lame" / "lame"]
+            binary_files = [mpv_dir / "mpv", lame_dir / "lame"]
             # Check for both 'lib' and 'libs' directories
             lib_files = []
-            lib_dir = (
-                dist_dir / "libs" if (dist_dir / "libs").exists() else dist_dir / "lib"
-            )
-            if lib_dir.exists():
-                lib_files.extend(list(lib_dir.glob("*.dylib")))
+            for bin_dir in (mpv_dir, lame_dir):
+                lib_dir = (
+                    bin_dir / "libs" if (bin_dir / "libs").exists() else bin_dir / "lib"
+                )
+                if lib_dir.exists():
+                    lib_files.extend(list(lib_dir.glob("*.dylib")))
         elif system == "Windows":
             binary_files = [
-                dist_dir / "mpv" / "mpv.exe",
-                dist_dir / "mpv" / "vulkan-1.dll",
-                dist_dir / "lame" / "lame.exe",
-                dist_dir / "lame" / "lame_enc.dll",
+                mpv_dir / "mpv.exe",
+                mpv_dir / "vulkan-1.dll",
+                lame_dir/ "lame.exe",
+                lame_dir / "lame_enc.dll",
             ]
             lib_files = []
         else:
