@@ -135,3 +135,9 @@ python3 .github/scripts/validate_version.py <version> <current_version>
   be published.
 - Wheels are published to TestPyPI first, then to PyPI after the GitHub release
   succeeds.
+
+## Announcements
+
+- Once a GitHub release draft is created, modify the generated changelog if necessary then click **Publish release**.
+- Create a forum topic on the [Beta Testing](https://forums.ankiweb.net/c/anki/beta-testing/13) category. For stable releases, lock the topic and ask users to report issues on a new topic.
+- For stable releases, update the version in [ankitects/anki-landing-page](https://github.com/ankitects/anki-landing-page) (See [example](https://github.com/ankitects/anki-landing-page/commit/2362eb2202f174df2aad1dc5336e1b5195a7af85)).
