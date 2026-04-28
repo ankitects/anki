@@ -29,6 +29,6 @@ popd
 
 rm -rf "$OUTPUT_DIR/lame"
 mkdir -p "$OUTPUT_DIR/lame"
-cp /opt/homebrew/bin/lame "$OUTPUT_DIR/lame/"
+cp /opt/homebrew/bin/lame "$OUTPUT_DIR/lame/" && chmod u+w "$OUTPUT_DIR/lame/lame"
 
 ./ninja audio_wheel
