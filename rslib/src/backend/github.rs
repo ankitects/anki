@@ -63,8 +63,7 @@ fn release_is_downloaded(filename: &str, checksum: &str) -> Result<bool> {
             };
             digest.update(&buf[..count]);
         }
-        let result = digest.finalize();
-        let actual_checksum = format!("{result:x}");
+        let actual_checksum = hex::encode(digest.finalize());
 
         Ok(actual_checksum == checksum)
     } else {

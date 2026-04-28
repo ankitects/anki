@@ -77,7 +77,7 @@ pub async fn download_file(
         })?;
     }
     file.flush().await?;
-    let actual_checksum = format!("{:x}", digest.finalize());
+    let actual_checksum = hex::encode(digest.finalize());
     if actual_checksum != checksum {
         let _ = remove_file(output_path);
         return Err(AnkiError::InvalidChecksum {
