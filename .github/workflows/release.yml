@@ -266,7 +266,7 @@ jobs:
           path: out/wheels/anki-*.whl
 
   # Linux x86 and ARM are kept as separate jobs rather than a matrix because the ARM
-  # build requires different runners for wheels vs installer: ubuntu-22.04-arm
+  # build requires different runners for wheels vs installer: ubuntu-22.04
   # for wheels (to target glibc 2.35) and ubuntu-24.04-arm for the installer (the Qt wheels require it).
   build-linux-x86:
     needs: prepare
