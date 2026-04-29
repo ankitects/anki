@@ -968,12 +968,14 @@ def setup_audio(taskman: TaskManager, base_folder: str, media_folder: str) -> No
 
         av_player.players.append(WindowsTTSPlayer(taskman))
 
-        if platform.release() == "10":
+        if (
+            # If Windows 10, ensure it's October 2018 update or later
+            platform.release() == "10"
+            and int(platform.version().split(".")[-1]) >= 17763
+        ) or platform.release() == "11":
             from aqt.tts import WindowsRTTTSFilePlayer
 
-            # If Windows 10, ensure it's October 2018 update or later
-            if int(platform.version().split(".")[-1]) >= 17763:
-                av_player.players.append(WindowsRTTTSFilePlayer(taskman))
+            av_player.players.append(WindowsRTTTSFilePlayer(taskman))
 
 
 def cleanup_audio() -> None:

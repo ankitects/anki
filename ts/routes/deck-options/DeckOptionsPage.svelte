@@ -60,7 +60,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const advancedOptions = {};
     export const easyDays = {};
 
-    let onPresetChange: () => void;
+    let dailyLimitsComponent: DailyLimits | undefined;
+    let fsrsOptionsOuterComponent: FsrsOptionsOuter | undefined;
+
+    function onPresetChange() {
+        if (dailyLimitsComponent) {
+            dailyLimitsComponent.onPresetChange();
+        }
+        if (fsrsOptionsOuterComponent) {
+            fsrsOptionsOuterComponent.onPresetChange();
+        }
+    }
 </script>
 
 <ConfigSelector {state} on:presetchange={onPresetChange} />
@@ -74,7 +84,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         <div>
             <Row class="row-columns">
-                <DailyLimits {state} api={dailyLimits} bind:onPresetChange />
+                <DailyLimits
+                    {state}
+                    api={dailyLimits}
+                    bind:this={dailyLimitsComponent}
+                />
             </Row>
 
             <Row class="row-columns">
@@ -90,7 +104,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Row>
 
             <Row class="row-columns">
-                <FsrsOptionsOuter {state} api={{}} bind:onPresetChange />
+                <FsrsOptionsOuter
+                    {state}
+                    api={{}}
+                    bind:this={fsrsOptionsOuterComponent}
+                />
             </Row>
         </div>
 
@@ -132,7 +150,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "$lib/sass/breakpoints" as bp;
 
     .deck-options-page {
-        overflow-x: auto;
+        overflow-x: hidden;
+        word-break: break-word;
 
         :global(.container-columns) {
             display: grid;
