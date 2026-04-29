@@ -88,27 +88,21 @@ jobs:
           cd ./tools/localization
           yarn start update
         
-      - name: Commit changes
-        run: |
-          git add docs/marketing/localized_description AnkiDroid/src/main/res
-          git commit -am 'Updated strings from Crowdin'
-          git push --set-upstream origin +i18n_sync
-          echo "The results of the sync are on the i18n_sync branch, PR them from there for merge."
-          echo "https://github.com/ankidroid/Anki-Android/compare/i18n_sync?expand=1"
-
-      - name: Check if there are strings changes
+      - name: Check for changes and handle results
         id: tr_check
         run: |
-          git checkout i18n_sync
-          COMMITS_COUNT=`git rev-list --count HEAD ^main`
-          if [ "$COMMITS_COUNT" -gt 0 ]; then
-            echo "HAS_CHANGES=true" >> $GITHUB_OUTPUT
-          else
+          git add docs/marketing/localized_description AnkiDroid/src/main/res
+          if git diff --cached --quiet; then
             echo "HAS_CHANGES=false" >> $GITHUB_OUTPUT
+            echo "Translation Sync Result: No new translation found on Crowdin. No Pull Request necessary" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "HAS_CHANGES=true" >> $GITHUB_OUTPUT
+            git commit -m 'Updated strings from Crowdin'
+            git push --set-upstream origin +i18n_sync
           fi
 
       - name: Create PR for strings changes if needed
-        if: ${{ steps.tr_check.outputs.HAS_CHANGES }}
+        if: steps.tr_check.outputs.HAS_CHANGES == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.MACHINE_ACCOUNT_PAT }}
