@@ -99,6 +99,8 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
             "Please see https://apps.ankiweb.net/", encoding="utf-8"
         )
 
+    win_exe_path = out_dir / "build" / "anki" / "windows" / "app" / "src" / "Anki.exe"
+
     if stop_before_package:
         subprocess.check_call(
             [sys.executable, "-m", "briefcase", "create", "--log"],
@@ -108,17 +110,15 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
             [sys.executable, "-m", "briefcase", "build", "--log"],
             cwd=out_dir,
         )
-        exe_path = out_dir / "build" / "anki" / "windows" / "app" / "src" / "Anki.exe"
-        if not exe_path.exists():
-            raise SystemExit(f"Build did not produce expected binary: {exe_path}")
+        if not win_exe_path.exists():
+            raise SystemExit(f"Build did not produce expected binary: {win_exe_path}")
         return
 
     if package_only:
-        exe_path = out_dir / "build" / "anki" / "windows" / "app" / "src" / "Anki.exe"
-        if not exe_path.exists():
-            raise SystemExit(f"Expected signed binary not found: {exe_path}")
-
-    if package_only:
+        if not win_exe_path.exists():
+            raise SystemExit(f"Expected signed binary not found: {win_exe_path}")
+        # CI signs the exe externally then calls package-only; briefcase's own
+        # signing is not needed, so use --adhoc-sign to skip it.
         identity_args = ["--adhoc-sign"]
     else:
         identity = os.environ.get("SIGN_IDENTITY")
