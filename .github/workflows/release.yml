@@ -237,10 +237,11 @@ jobs:
           name: wheels-macos-intel
           path: out/wheels/anki-*.whl
 
-  build-windows:
+  build-and-sign-windows:
     needs: prepare
     runs-on: windows-latest
     timeout-minutes: 90
+    environment: ${{ inputs['skip-signing'] != true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -249,9 +250,78 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
-      - name: Build installer
+      # --- Signed path (4 phases) ---
+
+      # Phase 1: Create + Build via ninja (no package yet)
+      - name: Build app
+        if: inputs['skip-signing'] != true
+        run: tools\build-installer.bat
+        env:
+          BRIEFCASE_STOP_BEFORE_PACKAGE: "1"
+
+      # Phase 2: Sign the exe via Azure Trusted Signing
+      - name: Azure login
+        if: inputs['skip-signing'] != true
+        uses: azure/login@v3
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Sign app binary
+        if: inputs['skip-signing'] != true
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files: ${{ github.workspace }}\out\installer\build\anki\windows\app\src\Anki.exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Verify app binary signature
+        if: inputs['skip-signing'] != true
+        shell: pwsh
+        run: |
+          $sig = Get-AuthenticodeSignature "out\installer\build\anki\windows\app\src\Anki.exe"
+          if ($sig.Status -ne "Valid") {
+            Write-Error "Anki.exe signature status: $($sig.Status)"
+            exit 1
+          }
+          Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
+
+      # Phase 3: Package the signed binary into MSI (bypass ninja)
+      - name: Package signed installer
+        if: inputs['skip-signing'] != true
+        shell: pwsh
+        run: >
+          .\out\pyenv\scripts\python.exe qt\tools\build_installer.py
+          --version ${{ needs.prepare.outputs.pep440_version }}
+          --aqt_wheel _
+          --anki_wheel _
+          --out_dir out\installer
+        env:
+          BRIEFCASE_PACKAGE_ONLY: "1"
+
+      # Phase 4: Sign the MSI
+      - name: Sign MSI
+        if: inputs['skip-signing'] != true
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files-folder: out/installer/dist/
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      # --- Unsigned fallback ---
+      - name: Build unsigned installer
+        if: inputs['skip-signing'] == true
         run: tools\build-installer.bat
 
+      # --- Artifacts (both paths) ---
       - uses: actions/upload-artifact@v4
         with:
           name: installer-windows
@@ -339,46 +409,8 @@ jobs:
           name: installer-linux-arm
           path: out/installer/dist/
 
-  sign-windows:
-    if: inputs['skip-signing'] != true
-    needs: build-windows
-    runs-on: windows-2022
-    environment: release
-    permissions:
-      contents: read
-    steps:
-      - name: Download Windows artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: installer-windows
-          path: dist/
-
-      - name: Azure login
-        uses: azure/login@v3
-        with:
-          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
-
-      - name: Sign Windows installer
-        uses: azure/artifact-signing-action@v1
-        with:
-          endpoint: https://eus.codesigning.azure.net/
-          signing-account-name: anki-signing
-          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
-          files-folder: dist/
-          files-folder-filter: msi
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
-
-      - name: Re-upload signed artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: installer-windows
-          path: dist/
-          overwrite: true
-
   release:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, sign-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
     if: >-
       ${{ always()
       && inputs.publish == 'release'
@@ -388,7 +420,7 @@ jobs:
       && needs.build-linux-x86.result == 'success'
       && needs.build-linux-arm-wheels.result == 'success'
       && needs.build-linux-arm-installer.result == 'success'
-      && needs.sign-windows.result == 'success'
+      && needs.build-and-sign-windows.result == 'success'
       }}
     runs-on: ubuntu-latest
     environment: release
@@ -425,14 +457,14 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
 
   publish-testpypi:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
     if: >-
       ${{ always()
       && inputs.publish != 'none'
       && needs.prepare.result == 'success'
       && needs.build-and-sign-mac.result == 'success'
       && needs.build-and-sign-mac-intel.result == 'success'
-      && needs.build-windows.result == 'success'
+      && needs.build-and-sign-windows.result == 'success'
       && needs.build-linux-x86.result == 'success'
       && needs.build-linux-arm-wheels.result == 'success'
       && needs.build-linux-arm-installer.result == 'success'
