@@ -299,7 +299,7 @@ jobs:
 
   build-linux-arm-wheels:
     needs: prepare
-    runs-on: ubuntu-22.04-arm
+    runs-on: ubuntu-22.04
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -310,7 +310,9 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Build wheels
-        run: ./ninja wheels:anki
+        run: |
+          sudo apt-get install --yes --no-install-recommends libc6-dev-arm64-cross gcc-aarch64-linux-gnu
+          ./tools/build-arm-lin
 
       - uses: actions/upload-artifact@v4
         with:
