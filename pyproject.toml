@@ -38,7 +38,7 @@ docs = [
 # Local resolution guard; keep in sync with Dependabot cooldown.
 [tool.uv]
 exclude-newer = "7 days"
-required-version = ">=0.9.17"
+required-version = ">=0.9.25"
 
 [tool.uv.workspace]
 members = ["pylib", "qt"]
