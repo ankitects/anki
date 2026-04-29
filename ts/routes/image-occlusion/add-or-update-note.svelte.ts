@@ -9,14 +9,14 @@ import { get } from "svelte/store";
 import { mount } from "svelte";
 import type { IOAddingMode, IOMode } from "./lib";
 import { exportShapesToClozeDeletions } from "./shapes/to-cloze";
-import { notesDataStore, tagsWritable } from "./store";
+import { notesDataStore, OcclusionMode, tagsWritable } from "./store";
 import Toast from "./Toast.svelte";
 
 export const addOrUpdateNote = async function(
     mode: IOMode,
-    occludeInactive: boolean,
+    occlusionMode: OcclusionMode,
 ): Promise<void> {
-    const { clozes: occlusionCloze, noteCount } = exportShapesToClozeDeletions(occludeInactive);
+    const { clozes: occlusionCloze, noteCount } = exportShapesToClozeDeletions(occlusionMode);
     if (noteCount === 0) {
         return;
     }

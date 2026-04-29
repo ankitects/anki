@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Icon from "$lib/components/Icon.svelte";
     import IconButton from "$lib/components/IconButton.svelte";
     import {
+        mdiCheckboxBlankOutline,
         mdiEye,
         mdiFormatAlignCenter,
         mdiSquare,
@@ -26,11 +27,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithFloating from "$lib/components/WithFloating.svelte";
 
     import {
-        hideAllGuessOne,
         ioMaskEditorVisible,
-        textEditingState,
-        saveNeededStore,
+        OcclusionMode,
+        occlusionMode,
         opacityStateStore,
+        saveNeededStore,
+        textEditingState,
     } from "./store";
     import { get } from "svelte/store";
     import { drawEllipse, drawPolygon, drawRectangle, drawText } from "./tools/index";
@@ -228,8 +230,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         disablePan(canvas);
     };
 
-    function changeOcclusionType(occlusionType: "all" | "one"): void {
-        $hideAllGuessOne = occlusionType === "all";
+    function changeOcclusionType(mode: OcclusionMode): void {
+        $occlusionMode = mode;
         saveNeededStore.set(true);
     }
 
@@ -312,21 +314,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {iconSize}
                 on:click={() => (showFloating = !showFloating)}
             >
-                <Icon icon={$hideAllGuessOne ? mdiViewDashboard : mdiSquare} />
+                <Icon
+                    icon={$occlusionMode === OcclusionMode.HideAll
+                        ? mdiViewDashboard
+                        : $occlusionMode === OcclusionMode.HideAllButOne
+                          ? mdiCheckboxBlankOutline
+                          : mdiSquare}
+                />
             </IconButton>
 
             <Popover slot="floating">
                 <DropdownItem
-                    active={$hideAllGuessOne}
-                    on:click={() => changeOcclusionType("all")}
+                    active={$occlusionMode === OcclusionMode.HideAll}
+                    on:click={() => changeOcclusionType(OcclusionMode.HideAll)}
                 >
                     <span>{tr.notetypesHideAllGuessOne()}</span>
                 </DropdownItem>
                 <DropdownItem
-                    active={!$hideAllGuessOne}
-                    on:click={() => changeOcclusionType("one")}
+                    active={$occlusionMode === OcclusionMode.HideOne}
+                    on:click={() => changeOcclusionType(OcclusionMode.HideOne)}
                 >
                     <span>{tr.notetypesHideOneGuessOne()}</span>
+                </DropdownItem>
+                <DropdownItem
+                    active={$occlusionMode === OcclusionMode.HideAllButOne}
+                    on:click={() => changeOcclusionType(OcclusionMode.HideAllButOne)}
+                >
+                    <span>{tr.notetypesHideAllButOne()}</span>
                 </DropdownItem>
             </Popover>
         </WithFloating>
