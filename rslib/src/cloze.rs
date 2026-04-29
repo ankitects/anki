@@ -711,6 +711,32 @@ mod test {
     }
 
     #[test]
+    fn cloze_with_mathjax_square_brackets() {
+        let text = r"{{c1:: \[ \frac{1}{\sqrt{\pi}} \] }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \[ \frac{1}{\sqrt{\pi}} \] "
+        );
+    }
+
+    #[test]
+    fn cloze_with_multiple_mathjax_expressions() {
+        let text = r"{{c1:: \(\pi\) and \(\sqrt{2}\) }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \(\pi\) and \(\sqrt{2}\) "
+        );
+    }
+
+    #[test]
     fn non_latin() {
         assert!(cloze_numbers_in_string("öaöaöööaö").is_empty());
     }
