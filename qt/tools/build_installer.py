@@ -32,62 +32,98 @@ def get_briefcase_template_path() -> Path | None:
 
 
 def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
-    shutil.rmtree(out_dir, ignore_errors=True)
-    shutil.copytree(app_dir, out_dir)
+    package_only = os.environ.get("BRIEFCASE_PACKAGE_ONLY") == "1"
+    stop_before_package = os.environ.get("BRIEFCASE_STOP_BEFORE_PACKAGE") == "1"
 
-    if sys.platform == "linux":
-        subprocess.check_call(
-            [
-                sys.executable,
-                "-m",
-                "PyInstaller",
-                "-y",
-                out_dir / "pyinstaller.spec",
-                "--distpath",
-                out_dir / "dist",
-                "--workpath",
-                out_dir / "build",
-            ]
+    if package_only and stop_before_package:
+        raise SystemExit(
+            "BRIEFCASE_PACKAGE_ONLY and BRIEFCASE_STOP_BEFORE_PACKAGE "
+            "are mutually exclusive"
         )
-        dist_dir = out_dir / "dist" / "anki"
-        scripts_dir = installer_dir / "linux-scripts"
-        for file in scripts_dir.iterdir():
-            if file.name == "build.sh":
-                continue
-            dest_file = dist_dir / file.name
-            shutil.copy2(file, dest_file)
 
-        print("Building zip...", file=sys.stderr)
+    if not package_only:
+        shutil.rmtree(out_dir, ignore_errors=True)
+        shutil.copytree(app_dir, out_dir)
+
+        if sys.platform == "linux":
+            subprocess.check_call(
+                [
+                    sys.executable,
+                    "-m",
+                    "PyInstaller",
+                    "-y",
+                    out_dir / "pyinstaller.spec",
+                    "--distpath",
+                    out_dir / "dist",
+                    "--workpath",
+                    out_dir / "build",
+                ]
+            )
+            dist_dir = out_dir / "dist" / "anki"
+            scripts_dir = installer_dir / "linux-scripts"
+            for file in scripts_dir.iterdir():
+                if file.name == "build.sh":
+                    continue
+                dest_file = dist_dir / file.name
+                shutil.copy2(file, dest_file)
+
+            print("Building zip...", file=sys.stderr)
+            subprocess.check_call(
+                [
+                    "bash",
+                    (scripts_dir / "build.sh").absolute().as_posix(),
+                    version,
+                    dist_dir.absolute().as_posix(),
+                ],
+                cwd=out_dir,
+            )
+            return
+
+        aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
+        anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
+        template_path = get_briefcase_template_path()
+        template = (
+            f'template = "{template_path.absolute().as_posix()}"'
+            if template_path
+            else ""
+        )
+        template = env.get_template("pyproject.toml.template").render(
+            aqt_wheel=aqt_wheel,
+            anki_wheel=anki_wheel,
+            version=version,
+            template=template,
+        )
+        (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
+        shutil.copy("LICENSE", out_dir / "LICENSE")
+        (out_dir / "CHANGELOG").write_text(
+            "Please see https://apps.ankiweb.net/", encoding="utf-8"
+        )
+
+    if stop_before_package:
         subprocess.check_call(
-            [
-                "bash",
-                (scripts_dir / "build.sh").absolute().as_posix(),
-                version,
-                dist_dir.absolute().as_posix(),
-            ],
+            [sys.executable, "-m", "briefcase", "create", "--log"],
             cwd=out_dir,
         )
+        subprocess.check_call(
+            [sys.executable, "-m", "briefcase", "build", "--log"],
+            cwd=out_dir,
+        )
+        exe_path = out_dir / "build" / "anki" / "windows" / "app" / "src" / "Anki.exe"
+        if not exe_path.exists():
+            raise SystemExit(f"Build did not produce expected binary: {exe_path}")
         return
 
-    aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
-    anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
-    template_path = get_briefcase_template_path()
-    template = (
-        f'template = "{template_path.absolute().as_posix()}"' if template_path else ""
-    )
-    template = env.get_template("pyproject.toml.template").render(
-        aqt_wheel=aqt_wheel,
-        anki_wheel=anki_wheel,
-        version=version,
-        template=template,
-    )
-    (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
-    shutil.copy("LICENSE", out_dir / "LICENSE")
-    (out_dir / "CHANGELOG").write_text(
-        "Please see https://apps.ankiweb.net/", encoding="utf-8"
-    )
-    identity = os.environ.get("SIGN_IDENTITY")
-    identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
+    if package_only:
+        exe_path = out_dir / "build" / "anki" / "windows" / "app" / "src" / "Anki.exe"
+        if not exe_path.exists():
+            raise SystemExit(f"Expected signed binary not found: {exe_path}")
+
+    if package_only:
+        identity_args = ["--adhoc-sign"]
+    else:
+        identity = os.environ.get("SIGN_IDENTITY")
+        identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
+
     subprocess.check_call(
         [
             sys.executable,
