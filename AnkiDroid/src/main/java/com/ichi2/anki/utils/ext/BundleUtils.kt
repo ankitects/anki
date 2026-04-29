@@ -121,3 +121,10 @@ inline fun <reified T> Bundle.requireParcelable(key: String): T {
  * @throws IllegalArgumentException When a value is not a supported type of [Bundle].
  */
 fun bundleOfNotNull(vararg pairs: Pair<String, Any>?): Bundle = bundleOf(*pairs.mapNotNull { it }.toTypedArray())
+
+/**
+ * Identical behavior with [BundleCompat.getParcelable] but simplifies the call sites which are
+ * verbose due to the formatter.
+ * @see BundleCompat.getParcelable
+ */
+inline fun <reified T> Bundle.getParcelableCompat(key: String): T? = BundleCompat.getParcelable(this, key, T::class.java)
