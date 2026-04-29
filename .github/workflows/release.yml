@@ -265,21 +265,12 @@ jobs:
           name: wheels-windows
           path: out/wheels/anki-*.whl
 
-  build-linux:
+  # Linux x86 and ARM are kept as separate jobs rather than a matrix because the ARM
+  # build requires different runners for wheels vs installer: ubuntu-22.04-arm
+  # for wheels (to target glibc 2.35) and ubuntu-24.04-arm for the installer (the Qt wheels require it).
+  build-linux-x86:
     needs: prepare
-    strategy:
-      matrix:
-        include:
-          - runner: ubuntu-22.04
-            arch: x86
-            wheel-target: wheels
-            # Upload both anki and aqt wheels; the pure-Python aqt wheel is the same on all platforms
-            wheel-glob: "out/wheels/*.whl"
-          - runner: ubuntu-24.04-arm
-            arch: arm
-            wheel-target: wheels:anki
-            wheel-glob: "out/wheels/anki-*.whl"
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-22.04
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -294,16 +285,57 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: installer-linux-${{ matrix.arch }}
+          name: installer-linux-x86
           path: out/installer/dist/
 
+      # Upload both anki and aqt wheels; the pure-Python aqt wheel is the same on all platforms
       - name: Build wheels
-        run: ./ninja ${{ matrix.wheel-target }}
+        run: ./ninja wheels
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-${{ matrix.arch }}
-          path: ${{ matrix.wheel-glob }}
+          name: wheels-linux-x86
+          path: out/wheels/*.whl
+
+  build-linux-arm-wheels:
+    needs: prepare
+    runs-on: ubuntu-22.04-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build wheels
+        run: ./ninja wheels:anki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-arm
+          path: out/wheels/anki-*.whl
+
+  build-linux-arm-installer:
+    needs: prepare
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build installer
+        run: ./tools/build-installer
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-linux-arm
+          path: out/installer/dist/
 
   sign-windows:
     if: inputs['skip-signing'] != true
@@ -344,14 +376,16 @@ jobs:
           overwrite: true
 
   release:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, sign-windows, build-linux]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, sign-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
     if: >-
       ${{ always()
       && inputs.publish == 'release'
       && needs.prepare.result == 'success'
       && needs.build-and-sign-mac.result == 'success'
       && needs.build-and-sign-mac-intel.result == 'success'
-      && needs.build-linux.result == 'success'
+      && needs.build-linux-x86.result == 'success'
+      && needs.build-linux-arm-wheels.result == 'success'
+      && needs.build-linux-arm-installer.result == 'success'
       && needs.sign-windows.result == 'success'
       }}
     runs-on: ubuntu-latest
@@ -389,7 +423,7 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
 
   publish-testpypi:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-windows, build-linux]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
     if: >-
       ${{ always()
       && inputs.publish != 'none'
@@ -397,7 +431,9 @@ jobs:
       && needs.build-and-sign-mac.result == 'success'
       && needs.build-and-sign-mac-intel.result == 'success'
       && needs.build-windows.result == 'success'
-      && needs.build-linux.result == 'success'
+      && needs.build-linux-x86.result == 'success'
+      && needs.build-linux-arm-wheels.result == 'success'
+      && needs.build-linux-arm-installer.result == 'success'
       }}
     runs-on: ubuntu-latest
     environment: testpypi
