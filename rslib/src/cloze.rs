@@ -106,26 +106,30 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token<'_>> {
                 index = i;
                 break;
             }
-            // Enter MathJax when not already inside it.
-            if mathjax_end.is_none() {
-                if rest.starts_with(r"\(") {
-                    mathjax_end = Some(r"\)");
-                    i += 2;
-                    continue;
+            match mathjax_end {
+                None => {
+                    // Enter MathJax when not already inside it.
+                    if rest.starts_with(r"\(") {
+                        mathjax_end = Some(r"\)");
+                        i += 2;
+                        continue;
+                    }
+                    if rest.starts_with(r"\[") {
+                        mathjax_end = Some(r"\]");
+                        i += 2;
+                        continue;
+                    }
                 }
-                if rest.starts_with(r"\[") {
-                    mathjax_end = Some(r"\]");
-                    i += 2;
-                    continue;
-                }
-            } else if let Some(end) = mathjax_end {
-                // Exit MathJax when we hit the matching delimiter.
-                if rest.starts_with(end) {
-                    mathjax_end = None;
-                    i += 2;
-                    continue;
+                Some(end) => {
+                    // Exit MathJax when we hit the matching delimiter.
+                    if rest.starts_with(end) {
+                        mathjax_end = None;
+                        i += 2;
+                        continue;
+                    }
                 }
             }
+
             i += rest.chars().next().unwrap().len_utf8();
         }
         Ok((&text[index..], Token::Text(&text[..index])))
