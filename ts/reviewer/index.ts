@@ -86,6 +86,18 @@ function replaceScript(oldScript: HTMLScriptElement): Promise<void> {
     });
 }
 
+function stripInlineColors(element: Element): void {
+    for (const el of element.querySelectorAll("[style]")) {
+        const style = (el as HTMLElement).style;
+        if (style.color) {
+            style.removeProperty("color");
+        }
+        if (style.backgroundColor) {
+            style.removeProperty("background-color");
+        }
+    }
+}
+
 async function setInnerHTML(element: Element, html: string): Promise<void> {
     for (const oldVideo of element.getElementsByTagName("video")) {
         oldVideo.pause();
@@ -98,6 +110,10 @@ async function setInnerHTML(element: Element, html: string): Promise<void> {
     }
 
     element.innerHTML = html;
+
+    if (document.body.classList.contains("nightMode")) {
+        stripInlineColors(element);
+    }
 
     for (const oldScript of element.getElementsByTagName("script")) {
         await replaceScript(oldScript);
