@@ -16,7 +16,6 @@ import jinja2
 installer_dir = Path("qt/installer")
 app_dir = installer_dir / "app"
 out_dir = Path("out/installer")
-out_dir.mkdir(exist_ok=True)
 env = jinja2.Environment(loader=jinja2.FileSystemLoader(app_dir))
 
 
@@ -161,4 +160,5 @@ def parse_args() -> argparse.Namespace:
 
 if __name__ == "__main__":
     args = parse_args()
+    out_dir.mkdir(exist_ok=True)
     args.func(args)
