@@ -34,15 +34,13 @@ flowchart TD
 
     prepare --> mac["build-and-sign-mac<br/>🍎 ARM"]
     prepare --> macint["build-and-sign-mac-intel<br/>🍎 Intel"]
-    prepare --> win[build-windows<br/>🪟]
+    prepare --> win["build-and-sign-windows<br/>🪟🔏 Azure"]
     prepare --> lin[build-linux<br/>🐧 x86]
     prepare --> linarm[build-linux-arm<br/>🐧 ARM]
 
-    win --> signwin["sign-windows<br/>🔏 Azure"]
-
     mac --> release
     macint --> release
-    signwin --> release
+    win --> release
     lin --> release
     linarm --> release
 
@@ -67,7 +65,6 @@ flowchart TD
     style win fill:#2d333b,stroke:#e5c07b,color:#adbac7
     style lin fill:#2d333b,stroke:#e5c07b,color:#adbac7
     style linarm fill:#2d333b,stroke:#e5c07b,color:#adbac7
-    style signwin fill:#2d333b,stroke:#c678dd,color:#adbac7
     style release fill:#2d333b,stroke:#7ee787,color:#adbac7
     style testpypi fill:#2d333b,stroke:#7ee787,color:#adbac7
     style pypi fill:#2d333b,stroke:#7ee787,color:#adbac7
@@ -95,9 +92,9 @@ The release workflow uses GitHub
 as manual approval gates. Jobs that access signing credentials or publish
 artifacts require a reviewer to approve the deployment before they run:
 
-- **`release`** — Required by the macOS signing jobs, Windows signing job,
-  the GitHub release job, and PyPI publishing. Protects code-signing secrets
-  and prevents accidental public releases.
+- **`release`** — Required by the macOS signing jobs, Windows build-and-sign
+  job, the GitHub release job, and PyPI publishing. Protects code-signing
+  secrets and prevents accidental public releases.
 - **`testpypi`** — Required by the TestPyPI publishing job. Allows test
   uploads to be gated separately from production releases.
 

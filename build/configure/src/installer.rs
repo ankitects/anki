@@ -11,13 +11,13 @@ use ninja_gen::Build;
 
 use crate::anki_version;
 
-pub struct BuildInstaller {
-    pub version: String,
+struct BuildCommand {
+    version: String,
 }
 
-impl BuildAction for BuildInstaller {
+impl BuildAction for BuildCommand {
     fn command(&self) -> &str {
-        "$pyenv_bin $script --version $version --aqt_wheel $aqt_wheel --anki_wheel $anki_wheel --out_dir $out"
+        "$pyenv_bin $script --version $version build --aqt_wheel $aqt_wheel --anki_wheel $anki_wheel"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
@@ -43,7 +43,25 @@ impl BuildAction for BuildInstaller {
                 glob!["qt/installer/**"]
             ],
         );
-        build.add_outputs("out", vec!["installer"]);
+        build.add_output_stamp("installer/briefcase.build.stamp");
+    }
+}
+
+struct PackageCommand {
+    version: String,
+}
+
+impl BuildAction for PackageCommand {
+    fn command(&self) -> &str {
+        "$pyenv_bin $script --version $version package"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
+        build.add_inputs("script", inputs!["qt/tools/build_installer.py"]);
+        build.add_variable("version", &self.version);
+        build.add_inputs("", inputs![":installer:build",]);
+        build.add_output_stamp("installer/briefcase.package.stamp");
     }
 }
 
@@ -62,11 +80,14 @@ pub fn build_installer(build: &mut Build) -> Result<()> {
             offline_build: false,
         },
     )?;
+    let version = anki_version();
     build.add_action(
-        "installer:dist",
-        BuildInstaller {
-            version: anki_version(),
+        "installer:build",
+        BuildCommand {
+            version: version.clone(),
         },
     )?;
+    build.add_action("installer:package", PackageCommand { version })?;
+
     Ok(())
 }
