@@ -300,6 +300,18 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
+      - name: Verify MSI signature
+        if: inputs['skip-signing'] != true
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem "out/installer/dist/*.msi" | Select-Object -First 1
+          $sig = Get-AuthenticodeSignature $msi.FullName
+          if ($sig.Status -ne "Valid") {
+            Write-Error "MSI signature status: $($sig.Status)"
+            exit 1
+          }
+          Write-Host "MSI signed successfully: $($sig.SignerCertificate.Subject)"
+
       - uses: actions/upload-artifact@v4
         with:
           name: installer-windows
