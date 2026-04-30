@@ -142,6 +142,26 @@ impl SqlWriter<'_> {
             SearchNode::SingleField { field, text, mode } => {
                 self.write_field(&norm(field), &self.norm_note(text), *mode)?
             }
+            SearchNode::NumericField {
+                field,
+                operator,
+                value,
+            } => {
+                let comparisons = [(operator.as_str(), *value)];
+                self.write_numeric_field(&norm(field), &comparisons)?
+            }
+            SearchNode::NumericFieldRange {
+                field,
+                min,
+                max,
+                min_inclusive,
+                max_inclusive,
+            } => {
+                let min_op = if *min_inclusive { ">=" } else { ">" };
+                let max_op = if *max_inclusive { "<=" } else { "<" };
+                let comparisons = [(min_op, *min), (max_op, *max)];
+                self.write_numeric_field(&norm(field), &comparisons)?
+            }
             SearchNode::Duplicates { notetype_id, text } => {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
@@ -729,6 +749,40 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
+    fn write_numeric_field(&mut self, field_name: &str, comparisons: &[(&str, f64)]) -> Result<()> {
+        let field_indices_by_notetype = self.fields_indices_by_notetype(field_name)?;
+        if field_indices_by_notetype.is_empty() {
+            write!(self.sql, "false").unwrap();
+            return Ok(());
+        }
+
+        self.args
+            .push(r"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$".into());
+        let arg_idx = self.args.len();
+
+        let all_notetype_clauses = field_indices_by_notetype
+            .iter()
+            .map(|(mid, field_indices)| {
+                let field_clauses = field_indices
+                    .iter()
+                    .map(|idx| {
+                        let field = format!("trim(field_at_index(n.flds, {idx}))");
+                        let comparisons = comparisons
+                            .iter()
+                            .map(|(op, value)| format!("cast({field} as real) {op} {value}"))
+                            .join(" and ");
+                        format!("({field} regexp ?{arg_idx} and {comparisons})")
+                    })
+                    .join(" or ");
+                format!("(n.mid = {mid} and ({field_clauses}))")
+            })
+            .join(" or ");
+
+        write!(self.sql, "({all_notetype_clauses})").unwrap();
+
+        Ok(())
+    }
+
     fn num_fields_and_fields_indices_by_notetype(
         &mut self,
         field_name: &str,
@@ -1095,6 +1149,8 @@ impl SearchNode {
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,
+            SearchNode::NumericField { .. } => RequiredTable::Notes,
+            SearchNode::NumericFieldRange { .. } => RequiredTable::Notes,
             SearchNode::Tag { .. } => RequiredTable::Notes,
             SearchNode::Duplicates { .. } => RequiredTable::Notes,
             SearchNode::Regex(_) => RequiredTable::Notes,

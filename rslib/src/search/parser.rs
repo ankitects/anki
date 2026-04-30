@@ -75,6 +75,18 @@ pub enum SearchNode {
         text: String,
         mode: FieldSearchMode,
     },
+    NumericField {
+        field: String,
+        operator: String,
+        value: f64,
+    },
+    NumericFieldRange {
+        field: String,
+        min: f64,
+        max: f64,
+        min_inclusive: bool,
+        max_inclusive: bool,
+    },
     AddedInDays(u32),
     EditedInDays(u32),
     CardTemplate(TemplateKind),
@@ -346,10 +358,34 @@ fn search_node_for_text(s: &str) -> ParseResult<'_, SearchNode> {
     .parse(s)
     .map_err(|_: nom::Err<ParseError>| parse_failure(s, FailKind::MissingKey))?;
     if tail.is_empty() {
-        Ok(SearchNode::UnqualifiedText(unescape(head)?))
+        if let Some(node) = parse_numeric_field_comparison(head)? {
+            Ok(node)
+        } else {
+            Ok(SearchNode::UnqualifiedText(unescape(head)?))
+        }
     } else {
         search_node_for_text_with_argument(head, &tail[1..])
     }
+}
+
+fn parse_numeric_field_comparison(s: &str) -> ParseResult<'_, Option<SearchNode>> {
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(.+?)(<=|>=|<|>)(.+)$").unwrap());
+    let Some(caps) = RE.captures(s) else {
+        return Ok(None);
+    };
+
+    let field = caps.get(1).unwrap().as_str();
+    let operator = caps.get(2).unwrap().as_str();
+    let value = match caps.get(3).unwrap().as_str().parse::<f64>() {
+        Ok(value) if value.is_finite() => value,
+        _ => return Ok(None),
+    };
+
+    Ok(Some(SearchNode::NumericField {
+        field: unescape(field)?,
+        operator: operator.into(),
+        value,
+    }))
 }
 
 /// Convert a colon-separated key/val pair into the relevant search type.
@@ -382,8 +418,45 @@ fn search_node_for_text_with_argument<'a>(
         "has-cd" => SearchNode::CustomData(unescape(val)?),
         "preset" => SearchNode::Preset(val.into()),
         // anything else is a field search
-        _ => parse_single_field(key, val)?,
+        _ => parse_numeric_field_range(key, val)?.unwrap_or(parse_single_field(key, val)?),
     })
+}
+
+fn parse_numeric_field_range<'a>(
+    key: &'a str,
+    val: &'a str,
+) -> ParseResult<'a, Option<SearchNode>> {
+    let Some(left_bracket) = val.as_bytes().first() else {
+        return Ok(None);
+    };
+    let Some(right_bracket) = val.as_bytes().last() else {
+        return Ok(None);
+    };
+    if !matches!(left_bracket, b'[' | b']') || !matches!(right_bracket, b'[' | b']') {
+        return Ok(None);
+    }
+
+    let inner = &val[1..val.len() - 1];
+    let Some((min, max)) = inner.split_once(',') else {
+        return Ok(None);
+    };
+    let Ok(min) = min.trim().parse::<f64>() else {
+        return Ok(None);
+    };
+    let Ok(max) = max.trim().parse::<f64>() else {
+        return Ok(None);
+    };
+    if !min.is_finite() || !max.is_finite() {
+        return Ok(None);
+    }
+
+    Ok(Some(SearchNode::NumericFieldRange {
+        field: unescape(key)?,
+        min,
+        max,
+        min_inclusive: *left_bracket == b'[',
+        max_inclusive: *right_bracket == b']',
+    }))
 }
 
 fn parse_tag(s: &str) -> ParseResult<'_, SearchNode> {
@@ -857,6 +930,42 @@ mod test {
                 field: "foo".into(),
                 text: "bar".into(),
                 mode: FieldSearchMode::NoCombining,
+            })]
+        );
+        assert_eq!(
+            parse("Frequency>500 Frequency<1500")?,
+            vec![
+                Search(NumericField {
+                    field: "Frequency".into(),
+                    operator: ">".into(),
+                    value: 500.0,
+                }),
+                And,
+                Search(NumericField {
+                    field: "Frequency".into(),
+                    operator: "<".into(),
+                    value: 1500.0,
+                })
+            ]
+        );
+        assert_eq!(
+            parse("Frequency:[500,600[")?,
+            vec![Search(NumericFieldRange {
+                field: "Frequency".into(),
+                min: 500.0,
+                max: 600.0,
+                min_inclusive: true,
+                max_inclusive: false,
+            })]
+        );
+        assert_eq!(
+            parse("Frequency:]500,600]")?,
+            vec![Search(NumericFieldRange {
+                field: "Frequency".into(),
+                min: 500.0,
+                max: 600.0,
+                min_inclusive: false,
+                max_inclusive: true,
             })]
         );
 

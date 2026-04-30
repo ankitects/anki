@@ -71,6 +71,25 @@ fn write_search_node(node: &SearchNode) -> String {
     match node {
         UnqualifiedText(s) => maybe_quote(&s.replace(':', "\\:")),
         SingleField { field, text, mode } => write_single_field(field, text, *mode),
+        NumericField {
+            field,
+            operator,
+            value,
+        } => maybe_quote(&format!("{}{operator}{value}", field.replace(':', "\\:"))),
+        NumericFieldRange {
+            field,
+            min,
+            max,
+            min_inclusive,
+            max_inclusive,
+        } => {
+            let left = if *min_inclusive { "[" } else { "]" };
+            let right = if *max_inclusive { "]" } else { "[" };
+            maybe_quote(&format!(
+                "{}:{left}{min},{max}{right}",
+                field.replace(':', "\\:")
+            ))
+        }
         AddedInDays(u) => format!("added:{u}"),
         EditedInDays(u) => format!("edited:{u}"),
         IntroducedInDays(u) => format!("introduced:{u}"),
@@ -240,6 +259,15 @@ mod test {
         assert_eq!(r#""aNd" "oR""#, normalize_search(r#""aNd" "oR""#).unwrap());
         // normalize numbers
         assert_eq!("prop:ease>1", normalize_search("prop:ease>1.0").unwrap());
+        assert_eq!(
+            "Frequency>500",
+            normalize_search("Frequency>500.0").unwrap()
+        );
+        assert_eq!(
+            "Frequency:[500,600[",
+            normalize_search("Frequency:[500.0,600.0[").unwrap()
+        );
+        assert_eq!(r"foo\:bar>5", normalize_search(r"foo\:bar>5").unwrap());
     }
 
     #[test]
