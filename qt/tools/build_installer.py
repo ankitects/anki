@@ -15,7 +15,7 @@ import jinja2
 
 installer_dir = Path("qt/installer")
 app_dir = installer_dir / "app"
-out_dir = Path("out/installer").absolute()
+out_dir = Path("out/installer").resolve()
 env = jinja2.Environment(loader=jinja2.FileSystemLoader(app_dir))
 
 
