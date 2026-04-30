@@ -5,10 +5,17 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@bufbuild/protobuf@npm:1.10.0, @bufbuild/protobuf@npm:^1.10.0, @bufbuild/protobuf@npm:^1.2.1":
+"@bufbuild/protobuf@npm:1.10.0, @bufbuild/protobuf@npm:^1.10.0":
   version: 1.10.0
   resolution: "@bufbuild/protobuf@npm:1.10.0"
   checksum: 10c0/5487b9c2e63846d0e3bde4d025cc77ae44a22166a5d6c184df0da5581e1ab6d66dd115af0ccad814576dcd011bb1b93989fb0ac1eb4ae452979bb8b186693ba0
+  languageName: node
+  linkType: hard
+
+"@bufbuild/protobuf@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "@bufbuild/protobuf@npm:2.12.0"
+  checksum: 10c0/28959e371fd2e7c8d67d52af9e3c8f8e6770e2e116dcc5508f469ca736afa6905e216bc76183835898a5f3deb8aa2e7db47d4a0e706fba76115e9a1996893191
   languageName: node
   linkType: hard
 
@@ -1941,7 +1948,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "anki@workspace:."
   dependencies:
-    "@bufbuild/protobuf": "npm:^1.2.1"
+    "@bufbuild/protobuf": "npm:^2.12.0"
     "@bufbuild/protoc-gen-es": "npm:^1.8.0"
     "@floating-ui/dom": "npm:^1.4.3"
     "@fluent/bundle": "npm:^0.18.0"
