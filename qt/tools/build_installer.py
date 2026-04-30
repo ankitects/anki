@@ -24,7 +24,7 @@ def use_briefcase() -> bool:
 
 
 def normalize_wheel_path(out_dir: Path, path: str) -> str:
-    path = Path(path).relative_to(out_dir.parent).as_posix()
+    path = Path(path).absolute().relative_to(out_dir.parent).as_posix()
     return f"../{path}"
 
 
