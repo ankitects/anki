@@ -15,7 +15,13 @@ import jinja2
 
 installer_dir = Path("qt/installer")
 app_dir = installer_dir / "app"
+out_dir = Path("out/installer")
+out_dir.mkdir(exist_ok=True)
 env = jinja2.Environment(loader=jinja2.FileSystemLoader(app_dir))
+
+
+def use_briefcase() -> bool:
+    return sys.platform in ("win32", "darwin")
 
 
 def normalize_wheel_path(out_dir: Path, path: str) -> str:
@@ -31,99 +37,93 @@ def get_briefcase_template_path() -> Path | None:
     return None
 
 
-def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
-    package_only = os.environ.get("BRIEFCASE_PACKAGE_ONLY") == "1"
-    stop_before_package = os.environ.get("BRIEFCASE_STOP_BEFORE_PACKAGE") == "1"
+def build_pyinstaller() -> None:
+    subprocess.check_call(
+        [
+            sys.executable,
+            "-m",
+            "PyInstaller",
+            "-y",
+            out_dir / "pyinstaller.spec",
+            "--distpath",
+            out_dir / "dist",
+            "--workpath",
+            out_dir / "build",
+        ]
+    )
 
-    if package_only and stop_before_package:
-        raise SystemExit(
-            "BRIEFCASE_PACKAGE_ONLY and BRIEFCASE_STOP_BEFORE_PACKAGE "
-            "are mutually exclusive"
-        )
 
-    if not package_only:
-        shutil.rmtree(out_dir, ignore_errors=True)
-        shutil.copytree(app_dir, out_dir)
+def package_pyinstaller(version: str) -> None:
+    dist_dir = out_dir / "dist" / "anki"
+    scripts_dir = installer_dir / "linux-scripts"
+    for file in scripts_dir.iterdir():
+        if file.name == "build.sh":
+            continue
+        dest_file = dist_dir / file.name
+        shutil.copy2(file, dest_file)
 
-        if sys.platform == "linux":
-            subprocess.check_call(
-                [
-                    sys.executable,
-                    "-m",
-                    "PyInstaller",
-                    "-y",
-                    out_dir / "pyinstaller.spec",
-                    "--distpath",
-                    out_dir / "dist",
-                    "--workpath",
-                    out_dir / "build",
-                ]
-            )
-            dist_dir = out_dir / "dist" / "anki"
-            scripts_dir = installer_dir / "linux-scripts"
-            for file in scripts_dir.iterdir():
-                if file.name == "build.sh":
-                    continue
-                dest_file = dist_dir / file.name
-                shutil.copy2(file, dest_file)
+    print("Building zip...", file=sys.stderr)
+    subprocess.check_call(
+        [
+            "bash",
+            (scripts_dir / "build.sh").absolute().as_posix(),
+            version,
+            dist_dir.absolute().as_posix(),
+        ],
+        cwd=out_dir,
+    )
 
-            print("Building zip...", file=sys.stderr)
-            subprocess.check_call(
-                [
-                    "bash",
-                    (scripts_dir / "build.sh").absolute().as_posix(),
-                    version,
-                    dist_dir.absolute().as_posix(),
-                ],
-                cwd=out_dir,
-            )
-            return
 
-        aqt_wheel = normalize_wheel_path(out_dir, aqt_wheel)
-        anki_wheel = normalize_wheel_path(out_dir, anki_wheel)
-        template_path = get_briefcase_template_path()
-        template = (
-            f'template = "{template_path.absolute().as_posix()}"'
-            if template_path
-            else ""
-        )
-        template = env.get_template("pyproject.toml.template").render(
-            aqt_wheel=aqt_wheel,
-            anki_wheel=anki_wheel,
-            version=version,
-            template=template,
-        )
-        (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
-        shutil.copy("LICENSE", out_dir / "LICENSE")
-        (out_dir / "CHANGELOG").write_text(
-            "Please see https://apps.ankiweb.net/", encoding="utf-8"
-        )
+def build(args: argparse.Namespace) -> None:
+    version = args.version
+    shutil.copytree(app_dir, out_dir, dirs_exist_ok=True)
 
-    win_exe_path = out_dir / "build" / "anki" / "windows" / "app" / "src" / "Anki.exe"
-
-    if stop_before_package:
-        subprocess.check_call(
-            [sys.executable, "-m", "briefcase", "create", "--log"],
-            cwd=out_dir,
-        )
-        subprocess.check_call(
-            [sys.executable, "-m", "briefcase", "build", "--log"],
-            cwd=out_dir,
-        )
-        if not win_exe_path.exists():
-            raise SystemExit(f"Build did not produce expected binary: {win_exe_path}")
+    if not use_briefcase():
+        build_pyinstaller()
         return
 
-    if package_only:
-        if not win_exe_path.exists():
-            raise SystemExit(f"Expected signed binary not found: {win_exe_path}")
-        # CI signs the exe externally then calls package-only; briefcase's own
-        # signing is not needed, so use --adhoc-sign to skip it.
-        identity_args = ["--adhoc-sign"]
-    else:
-        identity = os.environ.get("SIGN_IDENTITY")
-        identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
+    aqt_wheel = normalize_wheel_path(out_dir, args.aqt_wheel)
+    anki_wheel = normalize_wheel_path(out_dir, args.anki_wheel)
+    template_path = get_briefcase_template_path()
+    template = (
+        f'template = "{template_path.absolute().as_posix()}"' if template_path else ""
+    )
+    template = env.get_template("pyproject.toml.template").render(
+        aqt_wheel=aqt_wheel,
+        anki_wheel=anki_wheel,
+        version=version,
+        template=template,
+    )
+    (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
+    shutil.copy("LICENSE", out_dir / "LICENSE")
+    (out_dir / "CHANGELOG").write_text(
+        "Please see https://apps.ankiweb.net/", encoding="utf-8"
+    )
+    subprocess.check_call(
+        [
+            sys.executable,
+            "-m",
+            "briefcase",
+            "build",
+            "--update",
+            "--update-requirements",
+            "--update-resources",
+            "--update-support",
+            "--log",
+        ],
+        cwd=out_dir,
+    )
 
+
+def package(args: argparse.Namespace) -> None:
+    version = args.version
+
+    if not use_briefcase():
+        package_pyinstaller(version)
+        return
+
+    identity = os.environ.get("SIGN_IDENTITY")
+    identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
     subprocess.check_call(
         [
             sys.executable,
@@ -148,16 +148,17 @@ def main(version: str, aqt_wheel: str, anki_wheel: str, out_dir: Path) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build the Briefcase installer.")
     parser.add_argument("--version", help="Anki version")
-    parser.add_argument("--aqt_wheel", help="Path to the aqt wheel file")
-    parser.add_argument("--anki_wheel", help="Path to the anki wheel file")
-    parser.add_argument(
-        "--out_dir",
-        type=Path,
-        help="Output directory for the Briefcase app",
-    )
+    subparsers = parser.add_subparsers(help="Briefcase command (build/package)")
+    build_parser = subparsers.add_parser("build", help="Compile/build app")
+    build_parser.add_argument("--aqt_wheel", help="Path to the aqt wheel file")
+    build_parser.add_argument("--anki_wheel", help="Path to the anki wheel file")
+    build_parser.set_defaults(func=build)
+    package_parser = subparsers.add_parser("package", help="Package installer")
+    package_parser.set_defaults(func=package)
+
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args.version, args.aqt_wheel, args.anki_wheel, args.out_dir)
+    args.func(args)

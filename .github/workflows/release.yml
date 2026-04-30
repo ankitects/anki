@@ -250,16 +250,9 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
-      # --- Signed path (4 phases) ---
-
-      # Phase 1: Create + Build via ninja (no package yet)
       - name: Build app
-        if: inputs['skip-signing'] != true
-        run: tools\build-installer.bat
-        env:
-          BRIEFCASE_STOP_BEFORE_PACKAGE: "1"
+        run: tools\ninja installer:build
 
-      # Phase 2: Sign the exe via Azure Trusted Signing
       - name: Azure login
         if: inputs['skip-signing'] != true
         uses: azure/login@v3
@@ -289,20 +282,9 @@ jobs:
           }
           Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
 
-      # Phase 3: Package the signed binary into MSI (bypass ninja)
-      - name: Package signed installer
-        if: inputs['skip-signing'] != true
-        shell: pwsh
-        run: >
-          .\out\pyenv\scripts\python.exe qt\tools\build_installer.py
-          --version ${{ needs.prepare.outputs.pep440_version }}
-          --aqt_wheel _
-          --anki_wheel _
-          --out_dir out\installer
-        env:
-          BRIEFCASE_PACKAGE_ONLY: "1"
+      - name: Package installer
+        run: tools\ninja installer:package
 
-      # Phase 4: Sign the MSI
       - name: Sign MSI
         if: inputs['skip-signing'] != true
         uses: azure/artifact-signing-action@v1
@@ -316,12 +298,6 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
-      # --- Unsigned fallback ---
-      - name: Build unsigned installer
-        if: inputs['skip-signing'] == true
-        run: tools\build-installer.bat
-
-      # --- Artifacts (both paths) ---
       - uses: actions/upload-artifact@v4
         with:
           name: installer-windows
