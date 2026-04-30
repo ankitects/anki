@@ -121,6 +121,7 @@ def package(args: argparse.Namespace) -> None:
         package_pyinstaller(version)
         return
 
+    shutil.rmtree(out_dir / "dist", ignore_errors=True)
     identity = os.environ.get("SIGN_IDENTITY")
     identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
     subprocess.check_call(
