@@ -21,13 +21,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.format.DateFormat
-import android.view.View
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
 import androidx.core.os.BundleCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
@@ -35,14 +29,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.checkbox.MaterialCheckBox
-import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
+import com.ichi2.anki.databinding.DialogAddEditReminderBinding
 import com.ichi2.anki.dialogs.ConfirmationDialog
 import com.ichi2.anki.isDefaultDeckEmpty
 import com.ichi2.anki.launchCatchingTask
@@ -90,7 +82,7 @@ class AddEditReminderDialog : DialogFragment() {
 
     private val viewModel: AddEditReminderDialogViewModel by viewModels()
 
-    private lateinit var contentView: View
+    private lateinit var binding: DialogAddEditReminderBinding
 
     /**
      * The mode of this dialog, retrieved from arguments and set by [getInstance].
@@ -106,12 +98,12 @@ class AddEditReminderDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
-        contentView = layoutInflater.inflate(R.layout.dialog_add_edit_reminder, null)
+        binding = DialogAddEditReminderBinding.inflate(layoutInflater)
         Timber.d("dialog mode: %s", dialogMode.toString())
 
         val dialogBuilder =
             AlertDialog.Builder(requireActivity()).apply {
-                customView(contentView)
+                customView(binding.root)
                 positiveButton(R.string.dialog_ok)
                 neutralButton(R.string.dialog_cancel)
 
@@ -157,8 +149,7 @@ class AddEditReminderDialog : DialogFragment() {
                     else -> Consts.DEFAULT_DECK_ID
                 }
             viewModel.setDeckSelected(selectedDeckId)
-            this.dialog?.findViewById<TextView>(R.id.add_edit_reminder_deck_name)?.text =
-                selectedDeck?.getDisplayName(requireContext())
+            binding.addEditReminderDeckName.text = selectedDeck?.getDisplayName(requireContext())
         }
 
         dialog.window?.let { resizeWhenSoftInputShown(it) }
@@ -166,8 +157,7 @@ class AddEditReminderDialog : DialogFragment() {
     }
 
     private fun setUpToolbar() {
-        val toolbar = contentView.findViewById<Toolbar>(R.id.add_edit_reminder_toolbar)
-        toolbar.title =
+        binding.addEditReminderToolbar.title =
             getString(
                 when (dialogMode) {
                     is DialogMode.Add -> R.string.add_review_reminder
@@ -177,25 +167,23 @@ class AddEditReminderDialog : DialogFragment() {
     }
 
     private fun setUpTimeButton() {
-        val timeButton = contentView.findViewById<MaterialButton>(R.id.add_edit_reminder_time_button)
-        timeButton.setOnClickListener {
+        binding.addEditReminderTimeButton.setOnClickListener {
             Timber.i("Time button clicked")
             val time = viewModel.time.value ?: ReviewReminderTime.getCurrentTime()
             showTimePickerDialog(time.hour, time.minute)
         }
         viewModel.time.observe(this) { time ->
-            timeButton.text = time.toFormattedString(requireContext())
+            binding.addEditReminderTimeButton.text = time.toFormattedString(requireContext())
         }
     }
 
     private fun setInitialDeckSelection() {
-        val deckName = contentView.findViewById<TextView>(R.id.add_edit_reminder_deck_name)
-        deckName.setOnClickListener { startDeckSelection(all = true, filtered = true) }
+        binding.addEditReminderDeckName.setOnClickListener { startDeckSelection(all = true, filtered = true) }
         launchCatchingTask {
             Timber.d("Setting up deck name view")
             val (selectedDeckId, selectedDeckName) = getValidDeckSelection()
             Timber.d("Initial selection of deck %s(id=%d)", selectedDeckName, selectedDeckId)
-            deckName.text = selectedDeckName
+            binding.addEditReminderDeckName.text = selectedDeckName
             viewModel.setDeckSelected(selectedDeckId)
         }
     }
@@ -231,34 +219,28 @@ class AddEditReminderDialog : DialogFragment() {
     }
 
     private fun setUpAdvancedDropdown() {
-        val advancedDropdown = contentView.findViewById<LinearLayout>(R.id.add_edit_reminder_advanced_dropdown)
-        val advancedDropdownIcon = contentView.findViewById<ImageView>(R.id.add_edit_reminder_advanced_dropdown_icon)
-        val advancedContent = contentView.findViewById<LinearLayout>(R.id.add_edit_reminder_advanced_content)
-
-        advancedDropdown.setOnClickListener {
+        binding.addEditReminderAdvancedDropdown.setOnClickListener {
             viewModel.toggleAdvancedSettingsOpen()
         }
         viewModel.advancedSettingsOpen.observe(this) { advancedSettingsOpen ->
             when (advancedSettingsOpen) {
                 true -> {
-                    advancedContent.isVisible = true
-                    advancedDropdownIcon.setBackgroundResource(DROPDOWN_EXPANDED_CHEVRON)
+                    binding.addEditReminderAdvancedContent.isVisible = true
+                    binding.addEditReminderAdvancedDropdownIcon.setBackgroundResource(DROPDOWN_EXPANDED_CHEVRON)
                 }
                 false -> {
-                    advancedContent.isVisible = false
-                    advancedDropdownIcon.setBackgroundResource(DROPDOWN_COLLAPSED_CHEVRON)
+                    binding.addEditReminderAdvancedContent.isVisible = false
+                    binding.addEditReminderAdvancedDropdownIcon.setBackgroundResource(DROPDOWN_COLLAPSED_CHEVRON)
                 }
             }
         }
     }
 
     private fun setUpCardThresholdInput() {
-        val cardThresholdInputWrapper = contentView.findViewById<TextInputLayout>(R.id.add_edit_reminder_card_threshold_input_wrapper)
-        val cardThresholdInput = contentView.findViewById<EditText>(R.id.add_edit_reminder_card_threshold_input)
-        cardThresholdInput.setText(viewModel.cardTriggerThreshold.value.toString())
-        cardThresholdInput.doOnTextChanged { text, _, _, _ ->
+        binding.addEditReminderCardThresholdInput.setText(viewModel.cardTriggerThreshold.value.toString())
+        binding.addEditReminderCardThresholdInput.doOnTextChanged { text, _, _, _ ->
             val value: Int? = text.toString().toIntOrNull()
-            cardThresholdInputWrapper.error =
+            binding.addEditReminderCardThresholdInputWrapper.error =
                 when {
                     (value == null) -> "Please enter a whole number of cards"
                     (value < 0) -> "The threshold must be at least 0"
@@ -269,16 +251,14 @@ class AddEditReminderDialog : DialogFragment() {
     }
 
     private fun setUpOnlyNotifyIfNoReviewsCheckbox() {
-        val contentSection = contentView.findViewById<LinearLayout>(R.id.add_edit_reminder_only_notify_if_no_reviews_section)
-        val checkbox = contentView.findViewById<MaterialCheckBox>(R.id.add_edit_reminder_only_notify_if_no_reviews_checkbox)
-        contentSection.setOnClickListener {
+        binding.addEditReminderOnlyNotifyIfNoReviewsSection.setOnClickListener {
             viewModel.toggleOnlyNotifyIfNoReviews()
         }
-        checkbox.setOnClickListener {
+        binding.addEditReminderOnlyNotifyIfNoReviewsCheckbox.setOnClickListener {
             viewModel.toggleOnlyNotifyIfNoReviews()
         }
         viewModel.onlyNotifyIfNoReviews.observe(this) { onlyNotifyIfNoReviews ->
-            checkbox.isChecked = onlyNotifyIfNoReviews
+            binding.addEditReminderOnlyNotifyIfNoReviewsCheckbox.isChecked = onlyNotifyIfNoReviews
         }
     }
 
@@ -321,9 +301,8 @@ class AddEditReminderDialog : DialogFragment() {
     private fun onSubmit() {
         Timber.i("Submitted dialog")
         // Do nothing if numerical fields are invalid
-        val cardThresholdInputWrapper = contentView.findViewById<TextInputLayout>(R.id.add_edit_reminder_card_threshold_input_wrapper)
-        cardThresholdInputWrapper.error?.let {
-            contentView.showSnackbar(R.string.something_wrong)
+        binding.addEditReminderCardThresholdInputWrapper.error?.let {
+            binding.root.showSnackbar(R.string.something_wrong)
             return
         }
 
