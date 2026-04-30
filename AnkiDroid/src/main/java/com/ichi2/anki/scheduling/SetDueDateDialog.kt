@@ -69,6 +69,7 @@ import com.ichi2.utils.negativeButton
 import com.ichi2.utils.neutralButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.title
+import com.ichi2.utils.titleWithHelpIcon
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
@@ -140,18 +141,17 @@ class SetDueDateDialog : DialogFragment() {
         binding = DialogSetDueDateBinding.inflate(layoutInflater)
         return MaterialAlertDialogBuilder(requireContext())
             .create {
+                titleWithHelpIcon(
+                    text = TR.sentenceCase.setDueDate,
+                ) {
+                    openUrl(R.string.link_set_due_date_help)
+                }
                 title(text = TR.sentenceCase.setDueDate)
                 positiveButton(R.string.dialog_ok) { launchUpdateDueDate() }
                 negativeButton(R.string.dialog_cancel)
-                neutralButton(R.string.help)
                 setView(binding.root)
             }.apply {
                 show()
-
-                // This onClickListener stops the dialog from closing when the button is clicked.
-                getButton(Dialog.BUTTON_NEUTRAL).setOnClickListener {
-                    openUrl(R.string.link_set_due_date_help)
-                }
 
                 lifecycleScope.launch {
                     viewModel.isValidFlow.collect { isValid -> positiveButton.isEnabled = isValid }
@@ -166,6 +166,7 @@ class SetDueDateDialog : DialogFragment() {
                         .first { it.position == position }
                         .let { selectedTab ->
                             tab.setIcon(selectedTab.icon)
+                            tab.setText(selectedTab.text)
                         }
                 }.attach()
                 binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0))

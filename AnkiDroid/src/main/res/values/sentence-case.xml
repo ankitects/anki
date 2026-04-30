@@ -29,6 +29,7 @@ undoActionUndone()
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
     <string name="sentence_toggle_suspend">Toggle suspend</string>
     <string name="sentence_toggle_bury">Toggle bury</string>
+    <string name="sentence_toggle_cards_notes">Toggle cards/notes</string>
     <string name="sentence_set_due_date">Set due date</string>
     <string name="sentence_gesture_flag_red">Toggle red flag</string>
     <string name="sentence_gesture_flag_orange">Toggle orange flag</string>

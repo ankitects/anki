@@ -387,7 +387,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.deckConfigQuestionActionShowAnswer()
                 "Suspend card", // R.string.menu_suspend_card | TR.actionsSuspendCard()
                 "Suspend note", // R.string.menu_suspend_note | TR.studyingSuspendNote()
-                "Toggle cards/notes", // R.string.toggle_cards_notes | TR.browsingToggleShowingCardsNotes()
             )
     }
 }

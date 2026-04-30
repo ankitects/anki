@@ -208,12 +208,13 @@ class SetDueDateViewModel : ViewModel() {
     enum class Tab(
         val position: Int,
         @DrawableRes val icon: Int,
+        val text: Int,
     ) {
         /** Set the due date to a single day */
-        SINGLE_DAY(0, R.drawable.calendar_single_day),
+        SINGLE_DAY(0, R.drawable.calendar_single_day, R.string.set_due_date_day),
 
         /** Sets the due date randomly between a range of days */
-        DATE_RANGE(1, R.drawable.calendar_date_range),
+        DATE_RANGE(1, R.drawable.calendar_date_range, R.string.set_due_date_date_range),
     }
 
     class DateRange(

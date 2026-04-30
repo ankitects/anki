@@ -16,9 +16,10 @@
         android:layout_margin="8dp">
 
             <TextView
+            android:id="@+id/toggle_cards_notes_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/toggle_cards_notes"
+            tools:text="Toggle Cards/Notes"
             android:textStyle="bold"
             android:layout_marginHorizontal="16dp" />
 

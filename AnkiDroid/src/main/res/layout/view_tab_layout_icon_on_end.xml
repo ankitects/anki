@@ -23,13 +23,16 @@
     tools:layout_width="match_parent"
     >
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tab_text"
+        style="?attr/textAppearanceLabelLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Fields"
+        android:textAllCaps="false"
+        android:singleLine="true"
+        android:ellipsize="end"
         android:layout_marginStart="12dp"
-        />
+        tools:text="Fields"/>
 
     <ImageView
         android:id="@+id/tab_icon"

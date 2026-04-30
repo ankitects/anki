@@ -126,6 +126,9 @@ object SentenceCase {
     val toggleBury get() = TR.browsingToggleBury().toSentenceCase(R.string.sentence_toggle_bury)
 
     context(_: Fragment)
+    val toggleCardsNotes get() = TR.browsingToggleShowingCardsNotes().toSentenceCase(R.string.sentence_toggle_cards_notes)
+
+    context(_: Fragment)
     val toggleSuspend get() = TR.browsingToggleSuspend().toSentenceCase(R.string.sentence_toggle_suspend)
 
     context(_: Fragment)

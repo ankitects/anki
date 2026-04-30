@@ -1614,7 +1614,7 @@ class CardBrowserFragment :
                 shortcut("Ctrl+Alt+R", Translations::browsingReschedule),
                 shortcut("DEL", R.string.delete_card_title),
                 shortcut("Ctrl+Alt+N", R.string.reset_card_dialog_title),
-                shortcut("Ctrl+Alt+T", R.string.toggle_cards_notes),
+                shortcut("Ctrl+Alt+T") { sentenceCase.toggleCardsNotes },
                 shortcut("Ctrl+T", R.string.card_browser_search_by_tag),
                 shortcut("Ctrl+Shift+S", Translations::actionsReposition),
                 shortcut("Ctrl+Alt+S", R.string.card_browser_list_my_searches),

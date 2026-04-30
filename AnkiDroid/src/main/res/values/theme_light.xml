@@ -162,9 +162,10 @@
 
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
 
-        <!-- HTML 'blue' -->
-        <item name="clozeColor">#0000FF</item>
 
+        <item name="clozeColor">#0277BD</item>
+
+        <item name="incrementerButtonBackground">@color/white</item>
         <item name="incrementerButtonBackground">@color/material_light_blue_500</item>
 
         <!-- Reminder troubleshooting - check contrast before changing -->

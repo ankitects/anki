@@ -129,6 +129,7 @@
         <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
         <item name="android:dialogCornerRadius" tools:targetApi="p">@dimen/dialog_corner_radius</item>
         <item name="textAllCaps">false</item>
+        <item name="clozeColor">#1976D2</item>
         <!--Custom Tabs colors-->
         <item name="customTabNavBarColor">@color/material_grey_800</item>
         <item name="popupBackgroundColor">@color/popup_background_theme_dark</item>
