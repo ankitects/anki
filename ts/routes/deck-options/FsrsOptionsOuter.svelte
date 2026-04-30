@@ -22,7 +22,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
-    export let onPresetChange: () => void;
+
+    let fsrsOptionsComponent: FsrsOptions | undefined;
+    export function onPresetChange() {
+        if (fsrsOptionsComponent) {
+            fsrsOptionsComponent.onPresetChange();
+        }
+    }
 
     const fsrs = state.fsrs;
     let newlyEnabled = false;
@@ -108,6 +114,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         {#if $fsrs}
             <FsrsOptions
+                bind:this={fsrsOptionsComponent}
                 {state}
                 {newlyEnabled}
                 openHelpModal={(key) =>
