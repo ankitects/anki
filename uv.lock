@@ -21,6 +21,7 @@ members = [
     "anki",
     "anki-dev",
     "aqt",
+    "briefcase-plugins",
 ]
 
 [[package]]
@@ -397,6 +398,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/fe/ae/59bc57a89a19a736a
 wheels = [
     { url = "https://files.pythonhosted.org/packages/85/c5/acce3f462a48c736dede5c2d0f119ca28633a915a6b8585f6a69dc50fb11/briefcase-0.4.1-py3-none-any.whl", hash = "sha256:e302b088cc0c3c3bb73f9e200f60c82bbc5a820970a74a8f2d9cabc62c8d6540", size = 270442, upload-time = "2026-03-09T04:31:44.459Z" },
 ]
+
+[[package]]
+name = "briefcase-plugins"
+version = "0.0.1"
+source = { editable = "qt/installer/briefcase_plugins" }
 
 [[package]]
 name = "build"
