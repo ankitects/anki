@@ -158,7 +158,7 @@ impl LintContext {
         }
 
         if let Ok(bypass) = std::env::var("CONTRIBUTORS_BYPASS_EMAILS") {
-            if bypass.split(',').any(|e| e.trim() == last_author) {
+            if bypass.split(',').any(|e| noreply_aware_match(e.trim(), &last_author)) {
                 println!("Author allowlisted via CONTRIBUTORS_BYPASS_EMAILS.");
                 return Ok(());
             }
@@ -204,6 +204,21 @@ impl LintContext {
         }
         Ok(())
     }
+}
+
+fn noreply_aware_match(bypass_email: &str, commit_email: &str) -> bool {
+    normalize_email(bypass_email) == normalize_email(commit_email)
+}
+
+/// GitHub noreply emails come in two forms:
+/// - `user@users.noreply.github.com`
+/// - `12345+user@users.noreply.github.com`
+/// Normalize to just the username so both forms match.
+fn normalize_email(email: &str) -> &str {
+    email
+        .strip_suffix("@users.noreply.github.com")
+        .map(|local| local.split('+').last().unwrap_or(local))
+        .unwrap_or(email)
 }
 
 /// Annoyingly, sveltekit writes temp files into ts/ folder when it's running.
