@@ -85,6 +85,7 @@ jobs:
           # Use .version for non-release runs so builds work without a prepare step
           version="$INPUT_VERSION"
           if [ "$public_release" != "true" ]; then
+            echo "::notice::Non-release run — ignoring version input '$INPUT_VERSION', using .version='$file_version'"
             version="$file_version"
           fi
 
@@ -401,6 +402,10 @@ jobs:
 
   build-linux-arm-installer:
     needs: prepare
+    # Ubuntu 24.04 (glibc 2.39) is required because the Qt wheels only
+    # provide ARM packages for 24.04+. Since PyInstaller does not bundle
+    # glibc, the resulting installer requires glibc 2.39+ at runtime —
+    # higher than the x86 installer (built on 22.04, glibc 2.35).
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
     steps:
