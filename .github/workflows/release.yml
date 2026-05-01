@@ -472,7 +472,7 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
 
   publish-testpypi:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels]
     if: >-
       ${{ always()
       && (inputs['publish-testpypi'] == true || inputs['publish-pypi'] == true)
@@ -482,7 +482,6 @@ jobs:
       && needs.build-and-sign-windows.result == 'success'
       && needs.build-linux-x86.result == 'success'
       && needs.build-linux-arm-wheels.result == 'success'
-      && needs.build-linux-arm-installer.result == 'success'
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
