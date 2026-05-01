@@ -1,27 +1,33 @@
 name: Release
-run-name: "Release ${{ inputs.version }} (${{ inputs.publish }})"
+run-name: "Release ${{ inputs.version }} (sign=${{ inputs.sign }}, draft=${{ inputs['draft-release'] }}, testpypi=${{ inputs['publish-testpypi'] }}, pypi=${{ inputs['publish-pypi'] }})"
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to release (must match .version on main)"
+        description: "Version for draft release/PyPI (must match .version on main)"
         required: true
         type: string
-      skip-signing:
-        description: "Skip code signing (builds unsigned artifacts)"
+      sign:
+        description: "Sign macOS and Windows artifacts (requires release environment)"
         default: false
         required: false
         type: boolean
-      publish:
-        description: "Publishing target"
-        default: "none"
-        required: true
-        type: choice
-        options:
-          - none
-          - testpypi
-          - release
+      draft-release:
+        description: "Create a draft GitHub release (requires sign)"
+        default: false
+        required: false
+        type: boolean
+      publish-testpypi:
+        description: "Publish wheels to TestPyPI"
+        default: false
+        required: false
+        type: boolean
+      publish-pypi:
+        description: "Publish wheels to PyPI after TestPyPI"
+        default: false
+        required: false
+        type: boolean
 
 permissions:
   contents: write
@@ -39,6 +45,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
+      public_release: ${{ steps.validate.outputs.public_release }}
       pep440_version: ${{ steps.validate.outputs.pep440_version }}
       tag_name: ${{ steps.validate.outputs.tag_name }}
       release_name: ${{ steps.validate.outputs.release_name }}
@@ -50,10 +57,14 @@ jobs:
           fetch-depth: 0
 
       - name: Reject incompatible inputs
-        if: inputs.publish == 'release' && inputs['skip-signing'] == true
         run: |
-          echo "::error::Cannot publish a release with skip-signing enabled"
-          exit 1
+          if [ "$DRAFT_RELEASE" = "true" ] && [ "$SIGN" != "true" ]; then
+            echo "::error::Draft releases must be signed"
+            exit 1
+          fi
+        env:
+          DRAFT_RELEASE: ${{ inputs['draft-release'] }}
+          SIGN: ${{ inputs.sign }}
 
       - name: Validate version and compute metadata
         id: validate
@@ -61,14 +72,19 @@ jobs:
           pip install --break-system-packages 'packaging>=24,<26'
           file_version=$(cat .version)
 
-          if [ "$PUBLISH" = "release" ] && [ "$file_version" != "$INPUT_VERSION" ]; then
+          public_release=false
+          if [ "$DRAFT_RELEASE" = "true" ] || [ "$PUBLISH_PYPI" = "true" ]; then
+            public_release=true
+          fi
+
+          if [ "$public_release" = "true" ] && [ "$file_version" != "$INPUT_VERSION" ]; then
             echo "::error::Input version '$INPUT_VERSION' does not match .version '$file_version'"
             exit 1
           fi
 
           # Use .version for non-release runs so builds work without a prepare step
           version="$INPUT_VERSION"
-          if [ "$PUBLISH" != "release" ]; then
+          if [ "$public_release" != "true" ]; then
             version="$file_version"
           fi
 
@@ -79,13 +95,15 @@ jobs:
           echo "pep440_version=$version" >> "$GITHUB_OUTPUT"
           echo "tag_name=$version" >> "$GITHUB_OUTPUT"
           echo "release_name=Anki $version" >> "$GITHUB_OUTPUT"
+          echo "public_release=$public_release" >> "$GITHUB_OUTPUT"
           echo "is_prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
         env:
           INPUT_VERSION: ${{ inputs.version }}
-          PUBLISH: ${{ inputs.publish }}
+          DRAFT_RELEASE: ${{ inputs['draft-release'] }}
+          PUBLISH_PYPI: ${{ inputs['publish-pypi'] }}
 
       - name: Require dispatch from main
-        if: inputs.publish == 'release'
+        if: ${{ steps.validate.outputs.public_release == 'true' }}
         run: |
           if [ "$REF_NAME" != "main" ]; then
             echo "::error::Releases must be dispatched from main. Got $REF_NAME."
@@ -95,7 +113,7 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
 
       - name: Check CI passed on main
-        if: inputs.publish == 'release'
+        if: ${{ steps.validate.outputs.public_release == 'true' }}
         run: |
           conclusion=$(gh run list \
             --workflow=ci.yml \
@@ -117,7 +135,7 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
 
       - name: Check for duplicate tag or release
-        if: inputs.publish == 'release'
+        if: ${{ inputs['draft-release'] == true }}
         run: |
           git fetch --tags origin
           if git rev-parse "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
@@ -141,7 +159,7 @@ jobs:
     needs: prepare
     runs-on: macos-14
     timeout-minutes: 90
-    environment: ${{ inputs['skip-signing'] != true && 'release' || '' }}
+    environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -151,7 +169,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Set up Apple code signing
-        if: inputs['skip-signing'] != true
+        if: inputs.sign == true
         run: .github/scripts/setup_apple_signing.sh
         env:
           APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
@@ -165,7 +183,7 @@ jobs:
       - name: Build installer
         run: ./tools/build-installer
         env:
-          SIGN_IDENTITY: ${{ inputs['skip-signing'] != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          SIGN_IDENTITY: ${{ inputs.sign == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
 
       - name: Clean up signing credentials
         if: always()
@@ -191,7 +209,7 @@ jobs:
     needs: prepare
     runs-on: macos-15-intel
     timeout-minutes: 90
-    environment: ${{ inputs['skip-signing'] != true && 'release' || '' }}
+    environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -201,7 +219,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Set up Apple code signing
-        if: inputs['skip-signing'] != true
+        if: inputs.sign == true
         run: .github/scripts/setup_apple_signing.sh
         env:
           APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
@@ -215,7 +233,7 @@ jobs:
       - name: Build installer
         run: ./tools/build-installer
         env:
-          SIGN_IDENTITY: ${{ inputs['skip-signing'] != true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          SIGN_IDENTITY: ${{ inputs.sign == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
 
       - name: Clean up signing credentials
         if: always()
@@ -241,7 +259,7 @@ jobs:
     needs: prepare
     runs-on: windows-latest
     timeout-minutes: 90
-    environment: ${{ inputs['skip-signing'] != true && 'release' || '' }}
+    environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -254,13 +272,13 @@ jobs:
         run: tools\ninja installer:build
 
       - name: Azure login
-        if: inputs['skip-signing'] != true
+        if: inputs.sign == true
         uses: azure/login@v3
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
       - name: Sign app binary
-        if: inputs['skip-signing'] != true
+        if: inputs.sign == true
         uses: azure/artifact-signing-action@v1
         with:
           endpoint: https://eus.codesigning.azure.net/
@@ -274,7 +292,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Verify app binary signature
-        if: inputs['skip-signing'] != true
+        if: inputs.sign == true
         shell: pwsh
         run: |
           $sig = Get-AuthenticodeSignature "out\installer\build\anki\windows\app\src\Anki.exe"
@@ -288,7 +306,7 @@ jobs:
         run: tools\ninja installer:package
 
       - name: Sign MSI
-        if: inputs['skip-signing'] != true
+        if: inputs.sign == true
         uses: azure/artifact-signing-action@v1
         with:
           endpoint: https://eus.codesigning.azure.net/
@@ -301,7 +319,7 @@ jobs:
           timestamp-digest: SHA256
 
       - name: Verify MSI signature
-        if: inputs['skip-signing'] != true
+        if: inputs.sign == true
         shell: pwsh
         run: |
           $msi = Get-ChildItem "out/installer/dist/*.msi" | Select-Object -First 1
@@ -403,7 +421,7 @@ jobs:
     needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
     if: >-
       ${{ always()
-      && inputs.publish == 'release'
+      && inputs['draft-release'] == true
       && needs.prepare.result == 'success'
       && needs.build-and-sign-mac.result == 'success'
       && needs.build-and-sign-mac-intel.result == 'success'
@@ -450,7 +468,7 @@ jobs:
     needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
     if: >-
       ${{ always()
-      && inputs.publish != 'none'
+      && (inputs['publish-testpypi'] == true || inputs['publish-pypi'] == true)
       && needs.prepare.result == 'success'
       && needs.build-and-sign-mac.result == 'success'
       && needs.build-and-sign-mac-intel.result == 'success'
@@ -478,12 +496,13 @@ jobs:
           skip-existing: true
 
   publish-pypi:
-    needs: [release, publish-testpypi]
+    needs: [prepare, release, publish-testpypi]
     if: >-
       ${{ always()
-      && inputs.publish == 'release'
-      && needs.release.result == 'success'
+      && inputs['publish-pypi'] == true
+      && needs.prepare.result == 'success'
       && needs.publish-testpypi.result == 'success'
+      && (inputs['draft-release'] != true || needs.release.result == 'success')
       }}
     runs-on: ubuntu-latest
     environment: release
