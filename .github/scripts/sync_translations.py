@@ -73,8 +73,9 @@ def push(repo: str) -> None:
 
 
 def commit(folder: str, message: str) -> None:
+    subprocess.check_call(["git", "add", "ftl/"], cwd=folder)
     result = subprocess.run(
-        ["git", "commit", "-a", "-m", message],
+        ["git", "commit", "-m", message],
         cwd=folder,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
