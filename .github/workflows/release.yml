@@ -480,6 +480,7 @@ jobs:
       && needs.build-linux-arm-installer.result == 'success'
       }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment: testpypi
     permissions:
       id-token: write
@@ -507,6 +508,7 @@ jobs:
       && (inputs['draft-release'] != true || needs.release.result == 'success')
       }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment: release
     permissions:
       id-token: write
