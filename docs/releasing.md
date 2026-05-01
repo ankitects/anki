@@ -160,6 +160,23 @@ flowchart TD
     style guards2 fill:#2d333b,stroke:#539bf5,color:#adbac7
 ```
 
+## Dispatching with just
+
+Release workflows can be dispatched via `just` using the `release` module
+defined in `release.just`. All recipes read the version from `.version`
+automatically.
+
+| Command | Description |
+|---------|-------------|
+| `just release::build` | Build-only from HEAD (all booleans false) |
+| `just release::build <ref>` | Build-only from a specific branch |
+| `just release::sign` | Build and sign from HEAD |
+| `just release::sign <ref>` | Build and sign from a specific branch |
+| `just release::public` | Full release from main (sign, draft, testpypi, pypi) |
+| `just release::custom <ref> sign=true publish-testpypi=true` | Mix and match flags |
+
+Run `just --list --list-submodules` to see all available recipes.
+
 ## Testing the release workflow from a feature branch
 
 `release.yml` can be dispatched from any branch for testing. The `main` branch
@@ -167,8 +184,9 @@ requirement only applies when `draft-release` or `publish-pypi` is enabled. To
 run a test build:
 
 1. Dispatch `release.yml` from your branch with all boolean inputs left false:
-   `sign=false`, `draft-release=false`, `publish-testpypi=false`, and
-   `publish-pypi=false`.
+   ```
+   just release::build <your-branch>
+   ```
 2. The workflow reads `.version` from the branch as-is (the version input is
    ignored for non-release runs), so no prepare step is needed.
 3. All release guards (main-branch check, CI check, duplicate tag check) are
@@ -183,12 +201,7 @@ To test the signing flow from a feature branch:
    branch to the allowed deployment branches.
 2. Dispatch the workflow:
    ```
-   gh workflow run release.yml --ref <your-branch> \
-     -f version="$(cat .version)" \
-     -f sign=true \
-     -f draft-release=false \
-     -f publish-testpypi=false \
-     -f publish-pypi=false
+   just release::sign <your-branch>
    ```
 3. Approve the environment deployment when prompted.
 4. After testing, remove your branch from the environment's allowed branches.
