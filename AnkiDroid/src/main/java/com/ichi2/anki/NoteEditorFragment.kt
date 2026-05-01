@@ -328,7 +328,8 @@ class NoteEditorFragment :
             }
         }
 
-    private val multimediaController: NoteEditorMultimediaController by lazy {
+    @VisibleForTesting
+    internal val multimediaController: NoteEditorMultimediaController by lazy {
         NoteEditorMultimediaController(this, multimediaFragmentLauncher)
     }
 

@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.EditText
 import androidx.activity.result.ActivityResultLauncher
+import androidx.annotation.VisibleForTesting
 import androidx.core.os.BundleCompat
 import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.CollectionManager.withCol
@@ -266,7 +267,8 @@ internal class NoteEditorMultimediaController(
         }
     }
 
-    private companion object {
+    companion object {
+        @VisibleForTesting
         const val STATE_KEY_IMAGE_CACHE = "imageCache"
     }
 }

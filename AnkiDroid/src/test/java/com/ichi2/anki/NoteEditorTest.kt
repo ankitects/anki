@@ -45,6 +45,8 @@ import com.ichi2.anki.libanki.NotetypeJson
 import com.ichi2.anki.libanki.testutils.AnkiTest
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.noteeditor.NoteEditorLauncher
+import com.ichi2.anki.noteeditor.getNoteEditorFragment
+import com.ichi2.anki.noteeditor.openNoteEditorWithArgs
 import com.ichi2.testutils.getString
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
@@ -847,18 +849,6 @@ class NoteEditorTest : RobolectricTest() {
         return openNoteEditorWithArgs(bundle)
     }
 
-    fun openNoteEditorWithArgs(
-        arguments: Bundle,
-        action: String? = null,
-    ): NoteEditorFragment {
-        val activity =
-            startActivityNormallyOpenCollectionWithIntent(
-                NoteEditorActivity::class.java,
-                NoteEditorLauncher.PassArguments(arguments).toIntent(targetContext, action),
-            )
-        return activity.getNoteEditorFragment()
-    }
-
     @DuplicatedCode("NoteEditor in androidTest")
     @Throws(Throwable::class)
     fun ActivityScenario<NoteEditorActivity>.onNoteEditor(block: (NoteEditorFragment) -> Unit) {
@@ -873,10 +863,6 @@ class NoteEditorTest : RobolectricTest() {
         }
         wrapped.get()?.let { throw it }
     }
-
-    @DuplicatedCode("NoteEditor in androidTest")
-    fun NoteEditorActivity.getNoteEditorFragment(): NoteEditorFragment =
-        supportFragmentManager.findFragmentById(R.id.note_editor_fragment_frame) as NoteEditorFragment
 
     private enum class FromScreen {
         DECK_LIST,

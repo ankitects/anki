@@ -25,6 +25,7 @@ import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.libanki.testutils.ext.addNote
 import com.ichi2.anki.libanki.testutils.ext.createBasicTypingNoteType
 import com.ichi2.anki.libanki.testutils.ext.newNote
+import com.ichi2.anki.noteeditor.openNoteEditorWithArgs
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.AutomaticAnswer
@@ -218,7 +219,7 @@ class AbstractFlashcardViewerTest : RobolectricTest() {
                     NoteEditorFragment.EXTRA_CARD_ID to viewer.currentCard!!.id,
                     FINISH_ANIMATION_EXTRA to animation as Parcelable,
                 )
-            val noteEditor = NoteEditorTest().openNoteEditorWithArgs(bundle)
+            val noteEditor = openNoteEditorWithArgs(bundle)
             val actualInverseAnimation =
                 BundleCompat.getParcelable(
                     noteEditor.requireArguments(),
