@@ -92,11 +92,13 @@ jobs:
           is_prerelease=$(python3 .github/scripts/validate_version.py "$version" "0.0")
           echo "Version check passed: $version (prerelease=$is_prerelease)"
 
-          echo "pep440_version=$version" >> "$GITHUB_OUTPUT"
-          echo "tag_name=$version" >> "$GITHUB_OUTPUT"
-          echo "release_name=Anki $version" >> "$GITHUB_OUTPUT"
-          echo "public_release=$public_release" >> "$GITHUB_OUTPUT"
-          echo "is_prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
+          {
+            echo "pep440_version=$version"
+            echo "tag_name=$version"
+            echo "release_name=Anki $version"
+            echo "public_release=$public_release"
+            echo "is_prerelease=$is_prerelease"
+          } >> "$GITHUB_OUTPUT"
         env:
           INPUT_VERSION: ${{ inputs.version }}
           DRAFT_RELEASE: ${{ inputs['draft-release'] }}
