@@ -114,8 +114,6 @@ class StandardSearchFragment :
                 val dialog =
                     DeckSelectionDialog.newInstance(
                         title = getString(R.string.search_deck),
-                        summaryMessage = null,
-                        keepRestoreDefaultButton = false,
                         decks = decks,
                     )
                 dialog.show(childFragmentManager, "selectDeck")

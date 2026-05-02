@@ -1263,7 +1263,7 @@ open class CardTemplateEditor :
                 // https://forums.ankiweb.net/t/minor-bug-deck-override-to-filtered-deck/1493
                 val decks = SelectableDeck.fromCollection(includeFiltered = false)
                 val title = getString(R.string.card_template_editor_deck_override)
-                val dialog = DeckSelectionDialog.newInstance(title, explanation, true, decks)
+                val dialog = DeckSelectionDialog.newInstance(title = title, templateEditorMessage = explanation, decks = decks)
                 activity.showDialogFragment(dialog)
             }
 

@@ -73,18 +73,20 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
     private lateinit var binding: DialogDeckPickerBinding
     private lateinit var decksAdapter: DecksArrayAdapter
     private lateinit var decksRoot: DeckNode
+    private val title: String
+        get() =
+            requireArguments().getString(ARG_TITLE, null)
+                ?: getString(R.string.select_deck_title)
+    private val templateEditorMessage: String?
+        get() = requireArguments().getString(ARG_TEMPLATE_EDITOR_MESSAGE, null)
+    private val allowMultipleSelection: Boolean
+        get() = requireArguments().getBoolean(ARG_ALLOW_MULTIPLE_SELECTION, false)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         isCancelable = true
         binding = DialogDeckPickerBinding.inflate(LayoutInflater.from(context))
-        val summary = binding.templateEditorMessage
-        val arguments = requireArguments()
-        if (getSummaryMessage(arguments) == null) {
-            summary.visibility = View.GONE
-        } else {
-            summary.visibility = View.VISIBLE
-            summary.text = getSummaryMessage(arguments)
-        }
+        binding.templateEditorMessage.isVisible = templateEditorMessage != null
+        binding.templateEditorMessage.text = templateEditorMessage
         binding.decks.requestFocus()
         val dividerItemDecoration =
             DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
@@ -96,7 +98,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         return AlertDialog.Builder(requireActivity()).create {
             negativeButton(R.string.dialog_cancel)
             customView(view = binding.root)
-            if (arguments.getBoolean(KEEP_RESTORE_DEFAULT_BUTTON)) {
+            if (templateEditorMessage != null) {
                 positiveButton(R.string.restore_default) {
                     onDeckSelected(null)
                 }
@@ -112,12 +114,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         )
     }
 
-    private fun getSummaryMessage(arguments: Bundle): String? = arguments.getString(SUMMARY_MESSAGE)
-
     private fun getDeckNames(): ArrayList<SelectableDeck> = requireNotNull(requireArguments().getParcelableCompat(DECK_NAMES))
-
-    private val title: String
-        get() = requireArguments().getString(TITLE)!!
 
     private fun setupMenu() {
         val toolbar: Toolbar = binding.toolbar
@@ -205,9 +202,6 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
             throw IllegalStateException("Neither activity or any fragment in the activity were a selection listener")
         }
 
-    private val isMultiSelect: Boolean
-        get() = requireArguments().getBoolean(MULTI_SELECT)
-
     /**
      * Same action as pressing on the deck in the list. I.e. send the deck to listener and close the
      * dialog. When multiple selection is enabled, the dialog stays open and removes the selected
@@ -216,7 +210,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
     private fun selectDeckAndClose(deck: SelectableDeck) {
         Timber.d("selected deck '%s'", deck)
         onDeckSelected(deck)
-        if (isMultiSelect) {
+        if (allowMultipleSelection) {
             if (deck is SelectableDeck.Deck) {
                 decksAdapter.removeDeck(deck.deckId)
             }
@@ -433,31 +427,35 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
 
     companion object {
         const val TAG = "DeckSelectionDialog"
-        private const val SUMMARY_MESSAGE = "summaryMessage"
-        private const val TITLE = "title"
-        private const val KEEP_RESTORE_DEFAULT_BUTTON = "keepRestoreDefaultButton"
+        const val ARG_ALLOW_ALL = "arg_allow_all"
+        const val ARG_ALLOW_FILTERED = "arg_allow_filtered"
+        const val ARG_SKIP_EMPTY_DEFAULT = "arg_skip_empty_default"
+        private const val ARG_TITLE = "arg_title"
+        private const val ARG_TEMPLATE_EDITOR_MESSAGE = "arg_template_editor_message"
         private const val DECK_NAMES = "deckNames"
-        private const val MULTI_SELECT = "multiSelect"
+        private const val ARG_ALLOW_MULTIPLE_SELECTION = "arg_allow_multiple_selection"
 
-        /**
-         * A dialog which handles selecting a deck
-         */
+        /** Creates a new instance of [DeckSelectionDialog]. */
         fun newInstance(
-            title: String,
-            summaryMessage: String?,
-            keepRestoreDefaultButton: Boolean,
+            title: String? = null,
+            templateEditorMessage: String? = null,
             decks: List<SelectableDeck>,
-            isMultiSelect: Boolean = false,
-        ): DeckSelectionDialog {
-            val f = DeckSelectionDialog()
-            val args = Bundle()
-            args.putString(SUMMARY_MESSAGE, summaryMessage)
-            args.putString(TITLE, title)
-            args.putBoolean(KEEP_RESTORE_DEFAULT_BUTTON, keepRestoreDefaultButton)
-            args.putParcelableArrayList(DECK_NAMES, ArrayList(decks))
-            args.putBoolean(MULTI_SELECT, isMultiSelect)
-            f.arguments = args
-            return f
-        }
+            allowMultipleSelection: Boolean = false,
+            allowAll: Boolean = true,
+            allowFiltered: Boolean = true,
+            skipEmptyDefault: Boolean = false,
+        ): DeckSelectionDialog =
+            DeckSelectionDialog().apply {
+                arguments =
+                    Bundle().apply {
+                        putString(ARG_TEMPLATE_EDITOR_MESSAGE, templateEditorMessage)
+                        putString(ARG_TITLE, title)
+                        putParcelableArrayList(DECK_NAMES, ArrayList(decks))
+                        putBoolean(ARG_ALLOW_MULTIPLE_SELECTION, allowMultipleSelection)
+                        putBoolean(ARG_ALLOW_ALL, allowAll)
+                        putBoolean(ARG_ALLOW_FILTERED, allowFiltered)
+                        putBoolean(ARG_SKIP_EMPTY_DEFAULT, skipEmptyDefault)
+                    }
+            }
     }
 }

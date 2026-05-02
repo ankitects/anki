@@ -72,10 +72,8 @@ fun Fragment.startDeckSelection(
             }
             val dialog =
                 DeckSelectionDialog.newInstance(
-                    getString(R.string.select_deck),
-                    null,
-                    false,
-                    decks,
+                    title = getString(R.string.select_deck),
+                    decks = decks,
                 )
             if (!parentFragmentManager.isStateSaved) {
                 dialog.show(parentFragmentManager, "DeckSelectionDialog")
@@ -109,10 +107,8 @@ fun AnkiActivity.startDeckSelection(
             }
             val dialog =
                 DeckSelectionDialog.newInstance(
-                    getString(R.string.select_deck),
-                    null,
-                    false,
-                    decks,
+                    title = getString(R.string.select_deck),
+                    decks = decks,
                 )
             dialog.show(supportFragmentManager, "DeckSelectionDialog")
         }

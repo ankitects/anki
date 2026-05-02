@@ -902,8 +902,6 @@ class CardBrowserFragment :
             val dialog =
                 DeckSelectionDialog.newInstance(
                     title = getString(R.string.search_deck),
-                    summaryMessage = null,
-                    keepRestoreDefaultButton = false,
                     decks = decks,
                 )
             showDialogFragmentImpl(childFragmentManager, dialog)
@@ -1499,10 +1497,8 @@ class CardBrowserFragment :
     internal fun getChangeDeckDialog(selectableDecks: List<SelectableDeck>?): DeckSelectionDialog {
         val dialog =
             DeckSelectionDialog.newInstance(
-                getString(R.string.move_all_to_deck),
-                null,
-                false,
-                selectableDecks!!,
+                title = getString(R.string.move_all_to_deck),
+                decks = selectableDecks!!,
             )
         // Add change deck argument so the dialog can be dismissed
         // after activity recreation, since the selected cards will be gone with it

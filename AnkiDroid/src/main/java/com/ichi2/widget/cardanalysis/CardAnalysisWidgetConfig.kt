@@ -165,8 +165,6 @@ class CardAnalysisWidgetConfig :
         val dialog =
             DeckSelectionDialog.newInstance(
                 title = getString(R.string.select_deck_title),
-                summaryMessage = null,
-                keepRestoreDefaultButton = false,
                 decks = decks,
             )
         if (!supportFragmentManager.isStateSaved) {

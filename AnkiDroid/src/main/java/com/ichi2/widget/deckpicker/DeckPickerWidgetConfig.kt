@@ -319,10 +319,8 @@ class DeckPickerWidgetConfig :
         val dialog =
             DeckSelectionDialog.newInstance(
                 title = getString(R.string.select_decks_title),
-                summaryMessage = null,
-                keepRestoreDefaultButton = false,
                 decks = decks,
-                isMultiSelect = true,
+                allowMultipleSelection = true,
             )
         dialog.show(supportFragmentManager, DECK_SELECTION_DIALOG_TAG)
     }
