@@ -43,6 +43,7 @@ import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.ManageSavedSearchAction
 import com.ichi2.anki.dialogs.SaveBrowserSearchDialogFragment
 import com.ichi2.anki.dialogs.SavedBrowserSearchesDialogFragment
+import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.registerSaveSearchHandler
 import com.ichi2.anki.dialogs.registerSavedSearchActionHandler
 import com.ichi2.anki.dialogs.tags.TagsDialog
@@ -62,7 +63,6 @@ import timber.log.Timber
 
 class StandardSearchFragment :
     Fragment(R.layout.fragment_standard_search),
-    DeckSelectionDialog.DeckSelectionListener,
     TagsDialogListener {
     @VisibleForTesting
     val binding by viewBinding(FragmentStandardSearchBinding::bind)
@@ -99,6 +99,8 @@ class StandardSearchFragment :
         super.onViewCreated(view, savedInstanceState)
 
         binding.toggleAdvancedSearch.setOnClickListener { viewModel.toggleAdvancedSearch() }
+
+        registerDeckSelectedHandler(action = ::onDeckSelected)
 
         setupChips()
         setupSearchHistory()
@@ -183,7 +185,7 @@ class StandardSearchFragment :
         }
     }
 
-    override fun onDeckSelected(deck: SelectableDeck?) {
+    private fun onDeckSelected(deck: SelectableDeck?) {
         viewModel.setDecksFilter(deck?.toDeckNameIdList() ?: return)
     }
 

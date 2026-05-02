@@ -18,6 +18,7 @@ package com.ichi2.anki
 import androidx.fragment.app.Fragment
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.dialogs.DeckSelectionDialog
+import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.REQUEST_SELECT_DECK
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.Deck
 import com.ichi2.anki.libanki.DeckId
@@ -59,6 +60,7 @@ fun Fragment.startDeckSelection(
     all: Boolean = true,
     filtered: Boolean = true,
     skipEmptyDefault: Boolean = true,
+    requestKey: String = REQUEST_SELECT_DECK,
 ) {
     requireActivity().launchCatchingTask {
         withProgress {
@@ -74,6 +76,7 @@ fun Fragment.startDeckSelection(
                 DeckSelectionDialog.newInstance(
                     title = getString(R.string.select_deck),
                     decks = decks,
+                    requestKey = requestKey,
                 )
             if (!parentFragmentManager.isStateSaved) {
                 dialog.show(parentFragmentManager, "DeckSelectionDialog")

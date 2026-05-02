@@ -16,7 +16,6 @@
  */
 package com.ichi2.anki.dialogs
 
-import android.app.Activity
 import android.app.Dialog
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -33,6 +32,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.getDrawableOrThrow
 import androidx.core.content.res.use
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import anki.decks.deckTreeNode
@@ -42,15 +44,17 @@ import com.ichi2.anki.OnContextAndLongClickListener.Companion.setOnContextAndLon
 import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.databinding.DialogDeckPickerBinding
 import com.ichi2.anki.databinding.ItemDeckPickerDialogBinding
 import com.ichi2.anki.deckpicker.DeckFilters
+import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.ARG_SELECTED_DECK
+import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.REQUEST_SELECT_DECK
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.utils.ext.getParcelableCompat
+import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.ui.AccessibleSearchView
 import com.ichi2.utils.TypedFilter
 import com.ichi2.utils.create
@@ -173,34 +177,14 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
     }
 
     private fun onDeckSelected(deck: SelectableDeck?) {
-        deckSelectionListener!!.onDeckSelected(deck)
+        val requestKey = requireArguments().getString(ARG_REQUEST_KEY) ?: REQUEST_SELECT_DECK
+        parentFragmentManager.setFragmentResult(
+            requestKey,
+            Bundle().apply {
+                putParcelable(ARG_SELECTED_DECK, deck)
+            },
+        )
     }
-
-    @KotlinCleanup("Use a factory here")
-    var deckSelectionListener: DeckSelectionListener? = null
-        get() {
-            if (field != null) {
-                return field
-            }
-            val parentFragment = parentFragment
-            if (parentFragment is DeckSelectionListener) {
-                return parentFragment
-            }
-            val activity: Activity = requireActivity()
-            if (activity is DeckSelectionListener) {
-                return activity
-            }
-            // try to find inside the activity an active fragment that is a DeckSelectionListener
-            val foundAvailableFragments =
-                parentFragmentManager.fragments.filter {
-                    it.isResumed && it is DeckSelectionListener
-                }
-            if (foundAvailableFragments.isNotEmpty()) {
-                // if we found at least one resumed candidate fragment use it
-                return foundAvailableFragments[0] as DeckSelectionListener
-            }
-            throw IllegalStateException("Neither activity or any fragment in the activity were a selection listener")
-        }
 
     /**
      * Same action as pressing on the deck in the list. I.e. send the deck to listener and close the
@@ -421,12 +405,11 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
 
     // TODO: allow filtering to SelectableDeck.Deck, excluding 'AllDecks'
 
-    fun interface DeckSelectionListener {
-        fun onDeckSelected(deck: SelectableDeck?)
-    }
-
     companion object {
         const val TAG = "DeckSelectionDialog"
+        const val REQUEST_SELECT_DECK = "request_select_deck"
+        const val ARG_SELECTED_DECK = "arg_selected_deck"
+        const val ARG_REQUEST_KEY = "arg_request_key"
         const val ARG_ALLOW_ALL = "arg_allow_all"
         const val ARG_ALLOW_FILTERED = "arg_allow_filtered"
         const val ARG_SKIP_EMPTY_DEFAULT = "arg_skip_empty_default"
@@ -440,6 +423,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
             title: String? = null,
             templateEditorMessage: String? = null,
             decks: List<SelectableDeck>,
+            requestKey: String = REQUEST_SELECT_DECK,
             allowMultipleSelection: Boolean = false,
             allowAll: Boolean = true,
             allowFiltered: Boolean = true,
@@ -451,11 +435,45 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
                         putString(ARG_TEMPLATE_EDITOR_MESSAGE, templateEditorMessage)
                         putString(ARG_TITLE, title)
                         putParcelableArrayList(DECK_NAMES, ArrayList(decks))
+                        putString(ARG_REQUEST_KEY, requestKey)
                         putBoolean(ARG_ALLOW_MULTIPLE_SELECTION, allowMultipleSelection)
                         putBoolean(ARG_ALLOW_ALL, allowAll)
                         putBoolean(ARG_ALLOW_FILTERED, allowFiltered)
                         putBoolean(ARG_SKIP_EMPTY_DEFAULT, skipEmptyDefault)
                     }
             }
+    }
+}
+
+/**
+ * Register a fragment result listener to listen for a deck selection.
+ * @param requestKey usually [REQUEST_SELECT_DECK], but can be changed to handle situations when
+ * there are multiple listeners for this event that do different things in response
+ * @param action a lambda that provides the user selected deck
+ */
+fun FragmentActivity.registerDeckSelectedHandler(
+    requestKey: String = REQUEST_SELECT_DECK,
+    action: (deck: SelectableDeck?) -> Unit,
+) {
+    setFragmentResultListener(requestKey) { _, bundle ->
+        val selectedDeck = bundle.getParcelableCompat<SelectableDeck?>(ARG_SELECTED_DECK)
+        action(selectedDeck)
+    }
+}
+
+/**
+ * Register a fragment result listener to listen for a deck selection.
+ * Note: the fragment result listener is set on [Fragment.getParentFragmentManager]
+ * @param requestKey usually [REQUEST_SELECT_DECK], but can be changed to handle situations when
+ * there are multiple listeners for this event that do different things in response
+ * @param action a lambda that provides the user selected deck
+ */
+fun Fragment.registerDeckSelectedHandler(
+    requestKey: String = REQUEST_SELECT_DECK,
+    action: (deck: SelectableDeck?) -> Unit,
+) {
+    setFragmentResultListener(requestKey) { _, bundle ->
+        val selectedDeck = bundle.getParcelableCompat<SelectableDeck?>(ARG_SELECTED_DECK)
+        action(selectedDeck)
     }
 }

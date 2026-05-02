@@ -27,7 +27,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.time.getTimestamp
 import com.ichi2.anki.databinding.PageStatisticsBinding
-import com.ichi2.anki.dialogs.DeckSelectionDialog
+import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.snackbar.showSnackbar
@@ -36,9 +36,7 @@ import com.ichi2.anki.withProgress
 import dev.androidbroadcast.vbpd.viewBinding
 import timber.log.Timber
 
-class Statistics :
-    PageFragment(R.layout.page_statistics),
-    DeckSelectionDialog.DeckSelectionListener {
+class Statistics : PageFragment(R.layout.page_statistics) {
     override val pagePath: String = "graphs"
     private val binding by viewBinding(PageStatisticsBinding::bind)
 
@@ -68,6 +66,7 @@ class Statistics :
                 true
             }
         }
+        registerDeckSelectedHandler(action = ::onDeckSelected)
         requireActivity().launchCatchingTask {
             withProgress {
                 val deckName =
@@ -99,7 +98,7 @@ class Statistics :
             )
     }
 
-    override fun onDeckSelected(deck: SelectableDeck?) {
+    private fun onDeckSelected(deck: SelectableDeck?) {
         if (deck == null) return
         require(deck is SelectableDeck.Deck)
         changeDeck(deck.name)

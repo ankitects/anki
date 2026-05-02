@@ -72,10 +72,10 @@ import com.ichi2.anki.databinding.IncludeCardTemplateEditorMainBinding
 import com.ichi2.anki.databinding.IncludeCardTemplateEditorTopBinding
 import com.ichi2.anki.dialogs.ConfirmationDialog
 import com.ichi2.anki.dialogs.DeckSelectionDialog
-import com.ichi2.anki.dialogs.DeckSelectionDialog.DeckSelectionListener
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.InsertFieldDialog
 import com.ichi2.anki.dialogs.InsertFieldMetadata
+import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.libanki.CardOrdinal
 import com.ichi2.anki.libanki.CardTemplates
 import com.ichi2.anki.libanki.Collection
@@ -128,9 +128,7 @@ private typealias BackendCardTemplate = com.ichi2.anki.libanki.CardTemplate
  * Allows the user to view the template for the current note type
  */
 @KotlinCleanup("lateinit wherever possible")
-open class CardTemplateEditor :
-    AnkiActivity(R.layout.activity_card_template_editor),
-    DeckSelectionListener {
+open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_editor) {
     private val binding by viewBinding(ActivityCardTemplateEditorBinding::bind)
 
     @VisibleForTesting
@@ -247,6 +245,8 @@ open class CardTemplateEditor :
             Timber.i("selected card index: %s", tab.position)
             loadTemplatePreviewerFragmentIfFragmented(tab.position)
         }
+
+        registerDeckSelectedHandler(action = ::onDeckSelected)
     }
 
     /**
@@ -380,7 +380,7 @@ open class CardTemplateEditor :
         }
 
     /** When a deck is selected via Deck Override  */
-    override fun onDeckSelected(deck: SelectableDeck?) {
+    fun onDeckSelected(deck: SelectableDeck?) {
         require(deck is SelectableDeck.Deck?)
         if (tempNoteType!!.notetype.isCloze) {
             Timber.w("Attempted to set deck for cloze note type")

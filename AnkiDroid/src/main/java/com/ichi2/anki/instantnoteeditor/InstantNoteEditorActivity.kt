@@ -47,8 +47,8 @@ import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.databinding.ActivityInstantNoteEditorBinding
 import com.ichi2.anki.databinding.DialogInstantEditorBinding
 import com.ichi2.anki.databinding.ViewInstantEditorFieldBinding
-import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
+import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.NotetypeJson
 import com.ichi2.anki.model.SelectableDeck
@@ -77,9 +77,7 @@ import timber.log.Timber
  * Single instance Activity for instantly editing and adding cloze card/s without actually opening the app,
  * uses a custom dialog layout and a transparent activity theme to achieve the functionality.
  **/
-class InstantNoteEditorActivity :
-    AnkiActivity(R.layout.activity_instant_note_editor),
-    DeckSelectionDialog.DeckSelectionListener {
+class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_editor) {
     private val viewModel: InstantEditorViewModel by viewModels()
 
     /**
@@ -136,6 +134,8 @@ class InstantNoteEditorActivity :
 
         setupErrorListeners()
         prepareEditorDialog()
+
+        registerDeckSelectedHandler(action = ::onDeckSelected)
     }
 
     override fun onDestroy() {
@@ -541,7 +541,7 @@ class InstantNoteEditorActivity :
         }
     }
 
-    override fun onDeckSelected(deck: SelectableDeck?) {
+    private fun onDeckSelected(deck: SelectableDeck?) {
         if (deck == null) {
             return
         }

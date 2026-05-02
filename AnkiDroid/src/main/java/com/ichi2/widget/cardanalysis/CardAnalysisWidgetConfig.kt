@@ -29,7 +29,7 @@ import com.ichi2.anki.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.utils.ext.unregisterReceiverSilently
 import com.ichi2.anki.databinding.ActivityCardAnalysisWidgetConfigBinding
 import com.ichi2.anki.dialogs.DeckSelectionDialog
-import com.ichi2.anki.dialogs.DeckSelectionDialog.DeckSelectionListener
+import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.isCollectionEmpty
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.model.SelectableDeck
@@ -58,9 +58,7 @@ import timber.log.Timber
  * @see CardAnalysisWidget
  * @see CardAnalysisWidgetPreferences
  */
-class CardAnalysisWidgetConfig :
-    AnkiActivity(R.layout.activity_card_analysis_widget_config),
-    DeckSelectionListener {
+class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_widget_config) {
     private val binding by viewBinding(ActivityCardAnalysisWidgetConfigBinding::bind)
 
     private var appWidgetId = INVALID_APPWIDGET_ID
@@ -105,6 +103,7 @@ class CardAnalysisWidgetConfig :
             widgetRemovedReceiver,
             IntentFilter(AppWidgetManager.ACTION_APPWIDGET_DELETED),
         )
+        registerDeckSelectedHandler(action = ::onDeckSelected)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -117,7 +116,7 @@ class CardAnalysisWidgetConfig :
         unregisterReceiverSilently(widgetRemovedReceiver)
     }
 
-    override fun onDeckSelected(deck: SelectableDeck?) {
+    private fun onDeckSelected(deck: SelectableDeck?) {
         if (deck == null || deck !is SelectableDeck.Deck?) {
             showThemedToast(this, R.string.something_wrong, false)
             setResult(RESULT_CANCELED)

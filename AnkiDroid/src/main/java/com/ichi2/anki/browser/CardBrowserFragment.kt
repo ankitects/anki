@@ -106,8 +106,9 @@ import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.dialogs.BrowserOptionsDialog
 import com.ichi2.anki.dialogs.CardBrowserOrderDialog
 import com.ichi2.anki.dialogs.DeckSelectionDialog
-import com.ichi2.anki.dialogs.DeckSelectionDialog.DeckSelectionListener
+import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.ARG_SELECTED_DECK
 import com.ichi2.anki.dialogs.SimpleMessageDialog
+import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.tags.TagsDialog
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
@@ -134,7 +135,7 @@ import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.internationalization.toSentenceCase
 import com.ichi2.anki.undoAndShowSnackbar
 import com.ichi2.anki.utils.ext.addPrepareMenuProvider
-import com.ichi2.anki.utils.ext.getCurrentDialogFragment
+import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.hasCheckedBackground
 import com.ichi2.anki.utils.ext.ifNotZero
 import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
@@ -242,13 +243,22 @@ class CardBrowserFragment :
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Selected cards aren't restored on activity recreation,
-        // so it is necessary to dismiss the change deck dialog
-        getCurrentDialogFragment<DeckSelectionDialog>()?.let { dialogFragment ->
-            if (dialogFragment.requireArguments().getBoolean(CHANGE_DECK_KEY, false)) {
-                Timber.d("onCreate(): Change deck dialog dismissed")
-                dialogFragment.dismiss()
-            }
+        if (savedInstanceState != null) {
+            // Selected cards aren't restored on activity recreation,
+            // so it is necessary to dismiss the change deck dialog
+            (parentFragmentManager.findFragmentByTag(DeckSelectionDialog.TAG) as? DeckSelectionDialog)?.dismiss()
+        }
+
+        // onSearchForDecks starts deck selection using childFragmentManager
+        childFragmentManager.setFragmentResultListener(DeckSelectionDialog.REQUEST_SELECT_DECK, this) { _, bundle ->
+            val selectedDeck = bundle.getParcelableCompat<SelectableDeck>(ARG_SELECTED_DECK)
+            require(selectedDeck is SelectableDeck.Deck) { "Expected non-null deck" }
+            activityViewModel.setSelectedDeck(selectedDeck)
+        }
+
+        registerDeckSelectedHandler(REQUEST_DECK_SELECTION_CHANGE_DECK) { selectedDeck ->
+            require(selectedDeck is SelectableDeck.Deck) { "Expected non-null deck" }
+            moveSelectedCardsToDeck(selectedDeck.deckId)
         }
 
         cardsListView =
@@ -1499,15 +1509,8 @@ class CardBrowserFragment :
             DeckSelectionDialog.newInstance(
                 title = getString(R.string.move_all_to_deck),
                 decks = selectableDecks!!,
+                requestKey = REQUEST_DECK_SELECTION_CHANGE_DECK,
             )
-        // Add change deck argument so the dialog can be dismissed
-        // after activity recreation, since the selected cards will be gone with it
-        dialog.requireArguments().putBoolean(CHANGE_DECK_KEY, true)
-        dialog.deckSelectionListener =
-            DeckSelectionListener { deck: SelectableDeck? ->
-                require(deck is SelectableDeck.Deck) { "Expected non-null deck" }
-                moveSelectedCardsToDeck(deck.deckId)
-            }
         return dialog
     }
 
@@ -1663,11 +1666,10 @@ class CardBrowserFragment :
 
     companion object {
         /**
-         * Argument key to add on change deck dialog,
-         * so it can be dismissed on activity recreation,
-         * since the cards are unselected when this happens
+         * Request key that identifies requests to select a deck for the browser note change decks
+         * dialog.
          */
-        private const val CHANGE_DECK_KEY = "CHANGE_DECK"
+        const val REQUEST_DECK_SELECTION_CHANGE_DECK = "request_deck_selection_change_deck"
     }
 }
 

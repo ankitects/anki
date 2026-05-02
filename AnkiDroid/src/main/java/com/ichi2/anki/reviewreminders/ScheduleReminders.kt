@@ -44,6 +44,7 @@ import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.canUserAccessDeck
 import com.ichi2.anki.databinding.FragmentScheduleRemindersBinding
 import com.ichi2.anki.dialogs.DeckSelectionDialog
+import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.model.SelectableDeck
@@ -62,7 +63,6 @@ import timber.log.Timber
  */
 class ScheduleReminders :
     Fragment(R.layout.fragment_schedule_reminders),
-    DeckSelectionDialog.DeckSelectionListener,
     BaseSnackbarBuilderProvider {
     /**
      * Whether this fragment has been opened to edit all review reminders or just a specific deck's reminders.
@@ -185,6 +185,7 @@ class ScheduleReminders :
         // Retrieve reminders based on the editing scope
         launchCatchingTask { loadDatabaseRemindersIntoUI() }
 
+        registerDeckSelectedHandler(action = ::onDeckSelected)
         // If the user creates or edits a review reminder, the dialog for doing so opens
         // Once their changes are complete, the dialog closes and this fragment is reloaded
         // Hence, we check for any fragment results here and update the database accordingly
@@ -452,12 +453,12 @@ class ScheduleReminders :
     }
 
     /**
-     * [AddEditReminderDialog] requires a [DeckSelectionDialog.DeckSelectionListener] to catch changes to
-     * the [DeckSelectionDialog]. However, [AddEditReminderDialog] is removed from the
-     * fragment stack when the [DeckSelectionDialog] appears, so we set [ScheduleReminders] as the listener
-     * and forward data to [AddEditReminderDialog] when a deck is selected.
+     * [AddEditReminderDialog] requires to catch changes from [DeckSelectionDialog]. However,
+     * [AddEditReminderDialog] is removed from the fragment stack when the [DeckSelectionDialog]
+     * appears, so we set [ScheduleReminders] as the receiver and forward data to
+     * [AddEditReminderDialog] when a deck is selected.
      */
-    override fun onDeckSelected(deck: SelectableDeck?) {
+    private fun onDeckSelected(deck: SelectableDeck?) {
         Timber.d("Deck selected in deck spinner: %s", deck)
         setFragmentResult(
             DECK_SELECTION_RESULT_REQUEST_KEY,

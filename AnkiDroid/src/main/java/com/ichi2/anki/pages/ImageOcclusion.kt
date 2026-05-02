@@ -31,8 +31,8 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
+import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.pages.viewmodel.ImageOcclusionArgs
 import com.ichi2.anki.pages.viewmodel.ImageOcclusionViewModel
@@ -57,9 +57,7 @@ import timber.log.Timber
  * @see ImageOcclusionViewModel
  * @see ImageOcclusion.getIntent
  */
-class ImageOcclusion :
-    PageFragment(R.layout.page_image_occlusion),
-    DeckSelectionDialog.DeckSelectionListener {
+class ImageOcclusion : PageFragment(R.layout.page_image_occlusion) {
     private val viewModel: ImageOcclusionViewModel by viewModels()
     private lateinit var deckNameView: TextView
 
@@ -99,7 +97,7 @@ class ImageOcclusion :
             }
             return@setOnMenuItemClickListener true
         }
-
+        registerDeckSelectedHandler(action = ::onDeckSelected)
         setupFlows()
     }
 
@@ -118,7 +116,7 @@ class ImageOcclusion :
             }
         }
 
-    override fun onDeckSelected(deck: SelectableDeck?) {
+    private fun onDeckSelected(deck: SelectableDeck?) {
         if (deck == null) return
         require(deck is SelectableDeck.Deck)
         viewModel.handleDeckSelection(deck.deckId)
