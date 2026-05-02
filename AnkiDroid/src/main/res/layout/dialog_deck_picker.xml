@@ -35,22 +35,23 @@
         tools:menu="@menu/deck_picker_dialog_menu">
     </androidx.appcompat.widget.Toolbar>
 
-    <com.ichi2.ui.FixedTextView android:id="@+id/summary"
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/template_editor_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:textSize="18sp"
         android:padding="8dp"
-        android:gravity="center"
         android:textIsSelectable="false"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
         android:layout_below="@id/toolbar"
         tools:text="optional summary for 'deck override' picker"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
+        android:id="@+id/decks"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/summary"
+        android:layout_below="@id/template_editor_message"
         android:scrollbars="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_deck_picker_dialog" />
 </RelativeLayout>

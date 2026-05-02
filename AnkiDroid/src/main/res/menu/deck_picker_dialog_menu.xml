@@ -18,14 +18,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ankidroid="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/deck_picker_dialog_action_filter"
+        android:id="@+id/action_filter"
         android:icon="@drawable/ic_search_white"
         android:title="@string/deck_picker_dialog_filter_decks"
         ankidroid:actionViewClass="com.ichi2.ui.AccessibleSearchView"
-        ankidroid:showAsAction="always|collapseActionView"/>
+        ankidroid:showAsAction="always|collapseActionView"
+        />
     <item
-        android:id="@+id/deck_picker_dialog_action_add_deck"
+        android:id="@+id/action_add_deck"
         android:icon="@drawable/ic_add"
         android:title="@string/menu_add"
-        ankidroid:showAsAction="always" />
+        ankidroid:showAsAction="always"
+        />
 </menu>
