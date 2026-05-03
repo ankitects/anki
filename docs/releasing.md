@@ -120,13 +120,13 @@ secrets.
 The `release.yml` workflow uses independent boolean inputs to control what gets
 signed and published:
 
-| Input | Effect |
-|-------|--------|
-| `sign` | Signs macOS and Windows artifacts. Requires the `release` environment. When false, those jobs upload unsigned artifacts and do not access signing secrets. |
-| `draft-release` | Creates a draft GitHub release with generated release notes and installer artifacts. Requires `sign=true`, the `release` environment, main branch, passing CI, no duplicate tag/release, and `version` matching `.version`. |
-| `publish-testpypi` | Publishes wheels to TestPyPI. Requires the `testpypi` environment. |
-| `publish-pypi` | Publishes wheels to PyPI. Requires the `release` environment, main branch, passing CI, and `version` matching `.version`. It also runs and waits for the TestPyPI publish job first. It does not require signing unless `draft-release=true`. |
-| `version` | For `draft-release` or `publish-pypi`: must match `.version` on main. For build-only, signed-only, or TestPyPI-only runs: ignored (`.version` from the branch is used automatically). |
+| Input              | Effect                                                                                                                                                                                                                                        |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sign`             | Signs macOS and Windows artifacts. Requires the `release` environment. When false, those jobs upload unsigned artifacts and do not access signing secrets.                                                                                    |
+| `draft-release`    | Creates a draft GitHub release with generated release notes and installer artifacts. Requires `sign=true`, the `release` environment, main branch, passing CI, no duplicate tag/release, and `version` matching `.version`.                   |
+| `publish-testpypi` | Publishes wheels to TestPyPI. Requires the `testpypi` environment.                                                                                                                                                                            |
+| `publish-pypi`     | Publishes wheels to PyPI. Requires the `release` environment, main branch, passing CI, and `version` matching `.version`. It also runs and waits for the TestPyPI publish job first. It does not require signing unless `draft-release=true`. |
+| `version`          | For `draft-release` or `publish-pypi`: must match `.version` on main. For build-only, signed-only, or TestPyPI-only runs: ignored (`.version` from the branch is used automatically).                                                         |
 
 ```mermaid
 flowchart TD
@@ -166,14 +166,14 @@ Release workflows can be dispatched via `just` using the `release` module
 defined in `release.just`. All recipes read the version from `.version`
 automatically.
 
-| Command | Description |
-|---------|-------------|
-| `just release::build` | Build-only from HEAD (all booleans false) |
-| `just release::build <ref>` | Build-only from a specific branch |
-| `just release::sign` | Build and sign from HEAD |
-| `just release::sign <ref>` | Build and sign from a specific branch |
-| `just release::public` | Full release from main (sign, draft, testpypi, pypi) |
-| `just release::custom <ref> sign=true publish-testpypi=true` | Mix and match flags |
+| Command                                                      | Description                                          |
+| ------------------------------------------------------------ | ---------------------------------------------------- |
+| `just release::build`                                        | Build-only from HEAD (all booleans false)            |
+| `just release::build <ref>`                                  | Build-only from a specific branch                    |
+| `just release::sign`                                         | Build and sign from HEAD                             |
+| `just release::sign <ref>`                                   | Build and sign from a specific branch                |
+| `just release::public`                                       | Full release from main (sign, draft, testpypi, pypi) |
+| `just release::custom <ref> sign=true publish-testpypi=true` | Mix and match flags                                  |
 
 Run `just --list --list-submodules` to see all available recipes.
 
