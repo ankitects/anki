@@ -317,55 +317,6 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    /// Call func() for each review/interday-learning card in a single stream,
-    /// stopping when it returns false or no more cards found.
-    pub(crate) fn for_each_due_non_new_card_in_active_decks<F>(
-        &self,
-        timing: SchedTimingToday,
-        order: ReviewCardOrder,
-        fsrs: bool,
-        mut func: F,
-    ) -> Result<()>
-    where
-        F: FnMut(DueCard) -> Result<bool>,
-    {
-        let order_clause = review_order_sql(order, timing, fsrs);
-        let mut stmt = self.db.prepare_cached(&format!(
-            "SELECT id, nid, due, cast(ivl AS integer), cast(mod AS integer), did, odid, reps, queue \
-             FROM cards \
-             WHERE did IN (SELECT id FROM active_decks) \
-             AND queue IN (?, ?) \
-             AND due <= ? \
-             ORDER BY {order_clause}"
-        ))?;
-        let mut rows = stmt.query(params![
-            CardQueue::DayLearn as i8,
-            CardQueue::Review as i8,
-            timing.days_elapsed
-        ])?;
-        while let Some(row) = rows.next()? {
-            let kind = match row.get::<_, i8>(8)? {
-                x if x == CardQueue::DayLearn as i8 => DueCardKind::Learning,
-                x if x == CardQueue::Review as i8 => DueCardKind::Review,
-                _ => continue,
-            };
-            if !func(DueCard {
-                id: row.get(0)?,
-                note_id: row.get(1)?,
-                due: row.get(2).ok().unwrap_or_default(),
-                mtime: row.get(4)?,
-                current_deck_id: row.get(5)?,
-                original_deck_id: row.get(6)?,
-                reps: row.get(7)?,
-                kind,
-            })? {
-                break;
-            }
-        }
-
-        Ok(())
-    }
-
     /// Call func() for each new card in the provided deck, stopping when it
     /// returns or no more cards found.
     pub(crate) fn for_each_new_card_in_deck<F>(

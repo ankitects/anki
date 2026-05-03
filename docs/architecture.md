@@ -48,7 +48,7 @@ type alias, so callers outside pylib should never need to import a generated
 ## Scheduler: FSRS Retrievability Ordering
 
 When review order is set to `RetrievabilityAscending` or
-`RetrievabilityDescending`, review and interday-learning cards are gathered in
-one shared retrievability-ordered stream before review limits are applied. This
-avoids filtered-deck position effects deciding which cards consume review
-limits first.
+`RetrievabilityDescending`, review-card limit admission is applied after
+retrievability ordering of review cards, so filtered-deck due positions do not
+decide which reviews consume the limit first. Learning/relearning gathering
+remains unchanged.
