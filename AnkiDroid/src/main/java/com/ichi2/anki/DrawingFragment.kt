@@ -23,8 +23,10 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.time.getTimestamp
 import com.ichi2.anki.compat.CompatHelper
@@ -34,6 +36,8 @@ import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardView
 import com.ichi2.themes.Themes
 import dev.androidbroadcast.vbpd.viewBinding
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class DrawingFragment : Fragment(R.layout.fragment_drawing) {
     private val binding by viewBinding(FragmentDrawingBinding::bind)
@@ -47,15 +51,7 @@ class DrawingFragment : Fragment(R.layout.fragment_drawing) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.apply {
             setNavigationOnClickListener {
-                // avoid showing the discard changes dialog only if the user hasn't drawn anything,
-                // even if is is erased or undone, since they may want to undo/redo something.
-                if (whiteboardFragment?.isEmpty() == true) {
-                    requireActivity().onBackPressedDispatcher.onBackPressed()
-                } else {
-                    DiscardChangesDialog.showDialog(requireContext()) {
-                        requireActivity().onBackPressedDispatcher.onBackPressed()
-                    }
-                }
+                requireActivity().onBackPressedDispatcher.onBackPressed()
             }
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
@@ -64,6 +60,45 @@ class DrawingFragment : Fragment(R.layout.fragment_drawing) {
                 }
                 true
             }
+        }
+        setupBackPressHandling()
+    }
+
+    /**
+     * Wires the discard-dialog back-press flow and tells the child WhiteboardFragment
+     * to suppress its "go back again to exit" snackbar.
+     *
+     * Deferred via `view.post` so it runs after the child's `onViewCreated`, ensuring
+     * our [OnBackPressedCallback] is added to the dispatcher *after* the child's and
+     * wins LIFO. The relative order of parent vs child `onViewCreated` differs
+     * across platforms (Robolectric runs the child first; real devices have shown
+     * the opposite), so the post normalizes it.
+     */
+    private fun setupBackPressHandling() {
+        requireView().post {
+            if (!isAdded) return@post
+            val whiteboard = whiteboardFragment ?: return@post
+
+            whiteboard.setDrawingMode(true)
+
+            // Standard isEnabled pattern: only intercept the back press when there's
+            // content to discard. When empty, the callback stays disabled so the
+            // press falls through to the activity finishing and predictive back
+            // shows its system exit animation.
+            val backCallback =
+                object : OnBackPressedCallback(enabled = false) {
+                    override fun handleOnBackPressed() {
+                        DiscardChangesDialog.showDialog(requireContext()) {
+                            isEnabled = false
+                            requireActivity().onBackPressedDispatcher.onBackPressed()
+                        }
+                    }
+                }
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backCallback)
+
+            whiteboard.isEmptyFlow
+                .onEach { isEmpty -> backCallback.isEnabled = !isEmpty }
+                .launchIn(viewLifecycleOwner.lifecycleScope)
         }
     }
 

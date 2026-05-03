@@ -56,6 +56,7 @@ import com.ichi2.utils.dp
 import com.ichi2.utils.increaseHorizontalPaddingOfMenuIcons
 import com.ichi2.utils.toRGBAHex
 import dev.androidbroadcast.vbpd.viewBinding
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -103,23 +104,38 @@ class WhiteboardFragment :
     }
 
     private fun setupDoubleBackPress() {
-        val isUsingGesturesNavigation = context?.let { compat.isUsingSystemGestureNavigation(it) } == true
         doubleBackCallback =
             doubleBackPressCallback(
-                enabled = !isHidden && isUsingGesturesNavigation,
+                enabled = computeDoubleBackEnabled(),
                 onFirstBack = { showSnackbar(R.string.back_pressed_once, Snackbar.LENGTH_SHORT) },
-                shouldReEnable = {
-                    !isHidden && isUsingGesturesNavigation
-                },
+                shouldReEnable = { computeDoubleBackEnabled() },
             ).also {
                 requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, it)
             }
+        // Keep the callback in sync as the inputs change (host toggling drawing mode,
+        // hidden state changes from the reviewer's show/hide transactions).
+        viewModel.isDrawing
+            .onEach { doubleBackCallback?.isEnabled = computeDoubleBackEnabled() }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun computeDoubleBackEnabled(): Boolean {
+        val isUsingGesturesNavigation = context?.let { compat.isUsingSystemGestureNavigation(it) } == true
+        return !viewModel.isDrawing.value && !isHidden && isUsingGesturesNavigation
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        val isUsingGesturesNavigation = context?.let { compat.isUsingSystemGestureNavigation(it) } == true
-        doubleBackCallback?.isEnabled = !hidden && isUsingGesturesNavigation
+        doubleBackCallback?.isEnabled = computeDoubleBackEnabled()
+    }
+
+    /**
+     * Switches the whiteboard into "drawing" mode, where the host owns back
+     * navigation (e.g. a discard-changes dialog) and the reviewer's "go back again
+     * to exit" snackbar is suppressed.
+     */
+    fun setDrawingMode(drawing: Boolean) {
+        viewModel.isDrawing.value = drawing
     }
 
     private fun setupUI() {
@@ -476,4 +492,15 @@ class WhiteboardFragment :
      * @return whether the whiteboard is completely empty, including the undo and redo stacks.
      */
     fun isEmpty(): Boolean = !viewModel.canUndo.value && !viewModel.canRedo.value
+
+    /**
+     * Emits `true` when the whiteboard is empty (cannot undo or redo) and `false` otherwise.
+     * Useful for hosts that need to react to content changes, e.g. to toggle a back-press
+     * callback's `isEnabled`.
+     */
+    val isEmptyFlow: Flow<Boolean>
+        get() =
+            combine(viewModel.canUndo, viewModel.canRedo) { canUndo, canRedo ->
+                !canUndo && !canRedo
+            }
 }

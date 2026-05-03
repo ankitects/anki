@@ -105,6 +105,13 @@ class WhiteboardViewModel(
     val toolbarAlignment = MutableStateFlow(ToolbarAlignment.BOTTOM)
     val isToolbarShown = MutableStateFlow(true)
 
+    /**
+     * Whether the whiteboard is hosted in a "drawing" flow (e.g. multimedia drawing
+     * capture) rather than the reviewer. In drawing mode the host owns the back
+     * navigation, so the "go back again to exit" snackbar is suppressed.
+     */
+    val isDrawing = MutableStateFlow(false)
+
     val eraserDisplayWidth =
         combine(eraserMode, inkEraserStrokeWidth, strokeEraserStrokeWidth) { mode, inkWidth, strokeWidth ->
             if (mode == EraserMode.INK) inkWidth else strokeWidth
