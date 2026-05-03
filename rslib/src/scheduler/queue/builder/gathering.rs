@@ -5,6 +5,7 @@ use super::DueCard;
 use super::NewCard;
 use super::QueueBuilder;
 use crate::deckconfig::NewCardGatherPriority;
+use crate::deckconfig::ReviewCardOrder;
 use crate::decks::limits::LimitKind;
 use crate::prelude::*;
 use crate::scheduler::queue::DueCardKind;
@@ -13,11 +14,45 @@ use crate::storage::card::NewCardSorting;
 impl QueueBuilder {
     pub(super) fn gather_cards(&mut self, col: &mut Collection) -> Result<()> {
         self.gather_intraday_learning_cards(col)?;
-        self.gather_due_cards(col, DueCardKind::Learning)?;
-        self.gather_due_cards(col, DueCardKind::Review)?;
+        if self.context.sort_options.review_order == ReviewCardOrder::RetrievabilityAscending {
+            self.gather_due_non_new_cards_with_retrievability_order(col)?;
+        } else {
+            self.gather_due_cards(col, DueCardKind::Learning)?;
+            self.gather_due_cards(col, DueCardKind::Review)?;
+        }
         self.gather_new_cards(col)?;
 
         Ok(())
+    }
+
+    fn gather_due_non_new_cards_with_retrievability_order(
+        &mut self,
+        col: &mut Collection,
+    ) -> Result<()> {
+        if self.limits.root_limit_reached(LimitKind::Review) {
+            return Ok(());
+        }
+        col.storage.for_each_due_non_new_card_in_active_decks(
+            self.context.timing,
+            self.context.sort_options.review_order,
+            self.context.fsrs,
+            |card| {
+                if self.limits.root_limit_reached(LimitKind::Review) {
+                    return Ok(false);
+                }
+                if !self
+                    .limits
+                    .limit_reached(card.current_deck_id, LimitKind::Review)?
+                    && self.add_due_card(card)
+                {
+                    self.limits.decrement_deck_and_parent_limits(
+                        card.current_deck_id,
+                        LimitKind::Review,
+                    )?;
+                }
+                Ok(true)
+            },
+        )
     }
 
     fn gather_intraday_learning_cards(&mut self, col: &mut Collection) -> Result<()> {

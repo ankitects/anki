@@ -301,6 +301,7 @@ mod test {
     use super::*;
     use crate::card::CardQueue;
     use crate::card::CardType;
+    use crate::card::FsrsMemoryState;
 
     impl Collection {
         fn set_deck_gather_order(&mut self, deck: &mut Deck, order: NewCardGatherPriority) {
@@ -354,6 +355,14 @@ mod test {
                     let card = self.storage.get_card(entry.card_id()).unwrap().unwrap();
                     (card.due, card.interval)
                 })
+                .collect()
+        }
+
+        fn queue_as_ids(&mut self, deck_id: DeckId) -> Vec<CardId> {
+            self.build_queues(deck_id)
+                .unwrap()
+                .iter()
+                .map(|entry| entry.card_id())
                 .collect()
         }
     }
@@ -472,6 +481,67 @@ mod test {
         col.set_deck_review_order(&mut deck, ReviewCardOrder::RelativeOverdueness);
         assert_eq!(col.queue_as_due_and_ivl(deck.id), expected_queue);
 
+        Ok(())
+    }
+
+    fn add_memory_state_card(
+        col: &mut Collection,
+        deck_id: DeckId,
+        due: i32,
+        elapsed_secs: i64,
+        stability: f32,
+    ) -> Result<CardId> {
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "foo")?;
+        col.add_note(&mut note, deck_id)?;
+        let mut card = col.storage.get_card_by_ordinal(note.id, 0)?.unwrap();
+        card.ctype = CardType::Review;
+        card.queue = CardQueue::Review;
+        card.due = due;
+        card.interval = 1;
+        card.memory_state = Some(FsrsMemoryState {
+            stability,
+            difficulty: 5.0,
+        });
+        card.desired_retention = Some(0.9);
+        card.last_review_time = Some(TimestampSecs::now().adding_secs(-elapsed_secs));
+        col.storage.update_card(&card)?;
+        Ok(card.id)
+    }
+
+    #[test]
+    fn fsrs_retrievability_order_applies_limits_after_sorting_filtered_child_cards() -> Result<()> {
+        let mut col = Collection::new();
+        col.set_config_bool(BoolKey::Fsrs, true, true)?;
+
+        let mut parent = DeckAdder::new("Parent").add(&mut col);
+        let study = DeckAdder::new("Parent::Study").add(&mut col);
+        let filtered = DeckAdder::new("Parent::Filtered")
+            .filtered(true)
+            .add(&mut col);
+        col.set_deck_review_order(&mut parent, ReviewCardOrder::RetrievabilityAscending);
+        col.set_deck_review_limit(parent.id, 1);
+
+        let timing = col.timing_today()?;
+        let lower_retrievability_card = add_memory_state_card(
+            &mut col,
+            study.id,
+            timing.days_elapsed as i32,
+            20 * 86_400,
+            30.0,
+        )?;
+        let filtered_card =
+            add_memory_state_card(&mut col, study.id, timing.days_elapsed as i32, 86_400, 30.0)?;
+
+        let mut card = col.storage.get_card(filtered_card)?.unwrap();
+        card.original_deck_id = card.deck_id;
+        card.deck_id = filtered.id;
+        card.original_due = card.due;
+        card.due = -100_000;
+        col.storage.update_card(&card)?;
+
+        assert_eq!(col.queue_as_ids(parent.id), vec![lower_retrievability_card]);
         Ok(())
     }
 
