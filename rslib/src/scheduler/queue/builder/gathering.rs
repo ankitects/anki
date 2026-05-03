@@ -21,37 +21,14 @@ impl QueueBuilder {
         Ok(())
     }
 
-    fn gather_review_cards_with_retrievability_order(
-        &mut self,
-        col: &mut Collection,
-    ) -> Result<()> {
-        if self.limits.root_limit_reached(LimitKind::Review) {
-            return Ok(());
-        }
-        let mut cards = Vec::new();
-        col.storage.for_each_due_card_in_active_decks(
-            self.context.timing,
-            self.context.sort_options.review_order,
-            DueCardKind::Review,
-            self.context.fsrs,
+    fn gather_intraday_learning_cards(&mut self, col: &mut Collection) -> Result<()> {
+        col.storage.for_each_intraday_card_in_active_decks(
+            self.context.timing.next_day_at,
             |card| {
-                cards.push(card);
-                Ok(true)
+                self.get_and_update_bury_mode_for_note(card.into());
+                self.learning.push(card);
             },
         )?;
-        for card in cards {
-            if self.limits.root_limit_reached(LimitKind::Review) {
-                break;
-            }
-            if !self
-                .limits
-                .limit_reached(card.current_deck_id, LimitKind::Review)?
-                && self.add_due_card(card)
-            {
-                self.limits
-                    .decrement_deck_and_parent_limits(card.current_deck_id, LimitKind::Review)?;
-            }
-        }
 
         Ok(())
     }
@@ -93,14 +70,37 @@ impl QueueBuilder {
         )
     }
 
-    fn gather_intraday_learning_cards(&mut self, col: &mut Collection) -> Result<()> {
-        col.storage.for_each_intraday_card_in_active_decks(
-            self.context.timing.next_day_at,
+    fn gather_review_cards_with_retrievability_order(
+        &mut self,
+        col: &mut Collection,
+    ) -> Result<()> {
+        if self.limits.root_limit_reached(LimitKind::Review) {
+            return Ok(());
+        }
+        let mut cards = Vec::new();
+        col.storage.for_each_due_card_in_active_decks(
+            self.context.timing,
+            self.context.sort_options.review_order,
+            DueCardKind::Review,
+            self.context.fsrs,
             |card| {
-                self.get_and_update_bury_mode_for_note(card.into());
-                self.learning.push(card);
+                cards.push(card);
+                Ok(true)
             },
         )?;
+        for card in cards {
+            if self.limits.root_limit_reached(LimitKind::Review) {
+                break;
+            }
+            if !self
+                .limits
+                .limit_reached(card.current_deck_id, LimitKind::Review)?
+                && self.add_due_card(card)
+            {
+                self.limits
+                    .decrement_deck_and_parent_limits(card.current_deck_id, LimitKind::Review)?;
+            }
+        }
 
         Ok(())
     }
