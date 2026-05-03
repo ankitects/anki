@@ -44,11 +44,3 @@ At the moment, the protobuf is not considered public API. Some pylib methods
 expose a protobuf object directly to callers, but when they do so, they use a
 type alias, so callers outside pylib should never need to import a generated
 \_pb2.py file.
-
-## Scheduler: FSRS Retrievability Ordering
-
-When review order is set to `RetrievabilityAscending` or
-`RetrievabilityDescending`, review-card limit admission is applied after
-retrievability ordering of review cards, so filtered-deck due positions do not
-decide which reviews consume the limit first. Learning/relearning gathering
-remains unchanged.
