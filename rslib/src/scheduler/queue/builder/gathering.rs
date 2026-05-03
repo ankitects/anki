@@ -14,7 +14,10 @@ use crate::storage::card::NewCardSorting;
 impl QueueBuilder {
     pub(super) fn gather_cards(&mut self, col: &mut Collection) -> Result<()> {
         self.gather_intraday_learning_cards(col)?;
-        if self.context.sort_options.review_order == ReviewCardOrder::RetrievabilityAscending {
+        if matches!(
+            self.context.sort_options.review_order,
+            ReviewCardOrder::RetrievabilityAscending | ReviewCardOrder::RetrievabilityDescending
+        ) {
             self.gather_due_non_new_cards_with_retrievability_order(col)?;
         } else {
             self.gather_due_cards(col, DueCardKind::Learning)?;
