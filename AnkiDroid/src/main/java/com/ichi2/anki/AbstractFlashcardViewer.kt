@@ -29,7 +29,6 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.hardware.SensorManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -87,6 +86,7 @@ import com.ichi2.anim.ActivityTransitionAnimation
 import com.ichi2.anki.AbstractFlashcardViewer.Signal.Companion.toSignal
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
+import com.ichi2.anki.android.AnkiShakeDetector
 import com.ichi2.anki.android.back.exitViaDoubleTapBackCallback
 import com.ichi2.anki.backend.stripHTMLAndSpecialFields
 import com.ichi2.anki.cardviewer.AndroidCardRenderContext
@@ -2172,7 +2172,7 @@ abstract class AbstractFlashcardViewer :
     internal inner class LinkDetectingGestureDetector :
         MyGestureDetector(),
         ShakeDetector.Listener {
-        private var shakeDetector: ShakeDetector? = null
+        private var shakeDetector: AnkiShakeDetector? = null
 
         init {
             initShakeDetector()
@@ -2181,11 +2181,14 @@ abstract class AbstractFlashcardViewer :
         private fun initShakeDetector() {
             Timber.d("Initializing shake detector")
             if (gestureProcessor.isBound(Gesture.SHAKE)) {
-                val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
                 shakeDetector =
-                    ShakeDetector(this).apply {
-                        start(sensorManager, SensorManager.SENSOR_DELAY_UI)
-                    }
+                    AnkiShakeDetector
+                        .createInstance(
+                            context = this@AbstractFlashcardViewer,
+                            listener = this@LinkDetectingGestureDetector,
+                        )?.apply {
+                            start()
+                        }
             }
         }
 
@@ -2207,7 +2210,6 @@ abstract class AbstractFlashcardViewer :
         private val dispatchedTouchEvents = hashSetInit<MotionEvent>(2)
 
         override fun hearShake() {
-            Timber.d("Shake detected!")
             gestureProcessor.onShake()
         }
 

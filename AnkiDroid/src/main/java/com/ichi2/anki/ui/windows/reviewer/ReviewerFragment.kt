@@ -17,7 +17,6 @@ package com.ichi2.anki.ui.windows.reviewer
 
 import android.content.Context
 import android.content.Intent
-import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
@@ -53,6 +52,8 @@ import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.DispatchKeyEventListener
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
+import com.ichi2.anki.android.AnkiShakeDetector
+import com.ichi2.anki.android.back.doubleBackPressCallback
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.utils.android.isRobolectric
@@ -116,8 +117,7 @@ class ReviewerFragment :
 
     override val webViewLayout: SafeWebViewLayout get() = binding.webViewLayout
     private lateinit var bindingMap: BindingMap<ReviewerBinding, ViewerAction>
-    private var shakeDetector: ShakeDetector? = null
-    private val sensorManager get() = ContextCompat.getSystemService(requireContext(), SensorManager::class.java)
+    private var shakeDetector: AnkiShakeDetector? = null
     private val whiteboardFragment get() = childFragmentManager.findFragmentByTag(WhiteboardFragment::class.jvmName) as? WhiteboardFragment
     private val isBigScreen: Boolean get() = resources.configuration.smallestScreenWidthDp >= 720
 
@@ -143,7 +143,7 @@ class ReviewerFragment :
     override fun onStart() {
         super.onStart()
         if (!requireActivity().isChangingConfigurations) {
-            shakeDetector?.start(sensorManager, SensorManager.SENSOR_DELAY_UI)
+            shakeDetector?.start()
         }
     }
 
@@ -354,8 +354,8 @@ class ReviewerFragment :
             bindingMap.onGenericMotionEvent(event)
         }
         if (bindingMap.isBound(Gesture.SHAKE)) {
-            shakeDetector = ShakeDetector(this)
-            shakeDetector?.start(sensorManager, SensorManager.SENSOR_DELAY_UI)
+            shakeDetector = AnkiShakeDetector.createInstance(requireContext(), this)
+            shakeDetector?.start()
         }
     }
 
