@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 conflicts = [[
     { package = "aqt", extra = "qt" },
@@ -7,6 +7,14 @@ conflicts = [[
     { package = "aqt", extra = "qt68" },
     { package = "aqt", extra = "qt69" },
 ]]
+
+[options]
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
+exclude-newer-span = "P7D"
+
+[options.exclude-newer-package]
+anki-mac-helper = false
+anki-audio = false
 
 [manifest]
 members = [
