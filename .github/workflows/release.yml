@@ -403,7 +403,7 @@ jobs:
   build-linux-arm-installer:
     needs: prepare
     # Ubuntu 24.04 (glibc 2.39) is required because the Qt wheels only
-    # provide ARM packages for 24.04+. Since PyInstaller does not bundle
+    # provide ARM packages for 24.04+. Since Briefcase does not bundle
     # glibc, the resulting installer requires glibc 2.39+ at runtime —
     # higher than the x86 installer (built on 22.04, glibc 2.35).
     runs-on: ubuntu-24.04-arm
