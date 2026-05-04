@@ -33,6 +33,11 @@ def get_briefcase_template_path() -> Path | None:
         return installer_dir / "linux-template"
     return None
 
+def get_briefcase_output_format() -> list[str]:
+    if sys.platform == "linux":
+        return ["linux", "zip"]
+    # Use default format for platform
+    return []
 
 def build(args: argparse.Namespace) -> None:
     version = args.version
@@ -60,8 +65,7 @@ def build(args: argparse.Namespace) -> None:
             "-m",
             "briefcase",
             "build",
-            "linux",
-            "zip",
+            *get_briefcase_output_format(),
             "--update",
             "--update-requirements",
             "--update-resources",
@@ -82,8 +86,7 @@ def package(args: argparse.Namespace) -> None:
             sys.executable,
             "-m",
             "briefcase",
-            "package",
-            "linux",
+            *get_briefcase_output_format(),
             "zip",
             "--log",
             *identity_args,
