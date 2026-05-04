@@ -306,7 +306,8 @@ jobs:
           Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
 
       - name: Package installer
-        run: tools\ninja installer:package
+        # NOTE: we can't use "tools\ninja installer:package" because `installer:build` will be re-run and the Anki.exe signature will be removed
+        run: out\pyenv\scripts\python.exe qt\tools\build_installer.py --version ${{ needs.prepare.outputs.pep440_version }} package
 
       - name: Sign MSI
         if: inputs.sign == true
