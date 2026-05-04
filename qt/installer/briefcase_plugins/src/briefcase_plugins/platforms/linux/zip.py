@@ -65,7 +65,7 @@ class LinuxZipMixin(LinuxMixin):
         self.console.verbose(
             "Finalizing application configuration...", prefix=app.app_name
         )
-
+        app = cast(LinuxZipAppConfig, app)
         app.python_version_tag = self.app_python_version_tag(app)
 
         self.console.verbose(f"Targeting Python{app.python_version_tag}")
