@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import copy
 import functools
 import re
 from collections.abc import Callable
@@ -122,6 +123,7 @@ class Preferences(QDialog):
 
     def setup_collection(self) -> None:
         self.prefs = self.mw.col.get_preferences()
+        self.old_prefs = copy.deepcopy(self.prefs)
 
         form = self.form
 
@@ -146,6 +148,8 @@ class Preferences(QDialog):
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.render_latex.setChecked(editing.render_latex)
         form.default_search_text.setText(editing.default_search_text)
+        form.api_host.setText(editing.api_host)
+        form.api_port.setValue(editing.api_port)
 
         form.backup_explanation.setText(
             anki.lang.with_collapsed_whitespace(tr.preferences_backup_explanation())
@@ -181,6 +185,8 @@ class Preferences(QDialog):
         editing.ignore_accents_in_search = (
             self.form.ignore_accents_in_search.isChecked()
         )
+        editing.api_host = self.form.api_host.text()
+        editing.api_port = self.form.api_port.value()
 
         self.prefs.backups.daily = form.daily_backups.value()
         self.prefs.backups.weekly = form.weekly_backups.value()
@@ -392,6 +398,14 @@ class Preferences(QDialog):
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)
             restart_required = True
+
+        if (
+            self.old_prefs.editing.api_host != self.form.api_host.text()
+            or self.old_prefs.editing.api_port != self.form.api_port.value()
+        ):
+            from aqt.api_server import run_api_server_in_background
+
+            run_api_server_in_background(self.mw)
 
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())

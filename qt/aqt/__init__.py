@@ -783,6 +783,7 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
     import aqt.main
 
     mw = aqt.main.AnkiQt(app, pm, backend, opts, args)
+
     if exec:
         print("Starting main loop...")
         app.exec()
