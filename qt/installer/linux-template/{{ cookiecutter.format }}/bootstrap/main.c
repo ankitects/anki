@@ -1,7 +1,9 @@
 //
 //  main.c
 //  A main module for starting Python projects on Linux.
-//
+// Copied from briefcase-linux-system-template with changes to use the embedded
+// Python build.
+
 #include <stdio.h>
 #include <libgen.h>
 #include <limits.h>
