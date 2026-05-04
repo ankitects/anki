@@ -34,6 +34,7 @@ class LinuxZipAppConfig(AppConfig):
 class LinuxZipMixin(LinuxMixin):
     output_format = "zip"
     supported_host_os: Collection[str] = {"Linux"}
+    supported_host_os_reason = "Linux zip projects can only be built on Linux,"
     supports_external_packaging = True
 
     def project_path(self, app):
@@ -70,11 +71,6 @@ class LinuxZipMixin(LinuxMixin):
 
         self.console.verbose(f"Targeting Python{app.python_version_tag}")
 
-
-class LinuxZipMixin(LinuxZipMixin):
-    supported_host_os: Collection[str] = {"Linux"}
-    supported_host_os_reason = "Linux zip projects can only be built on Linux,"
-
     def verify_app_tools(self, app: AppConfig):
         """Verify App environment is prepared and available.
 
@@ -84,7 +80,6 @@ class LinuxZipMixin(LinuxZipMixin):
         NativeAppContext.verify(tools=self.tools, app=app)
 
         super().verify_app_tools(app)
-
 
 class LinuxZipCreateCommand(LinuxZipMixin, LocalRequirementsMixin, CreateCommand):
     description = "Create and populate a Linux zip project."
