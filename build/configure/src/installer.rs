@@ -24,25 +24,9 @@ impl BuildAction for BuildCommand {
         build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
         build.add_inputs("script", inputs!["qt/tools/build_installer.py"]);
         build.add_variable("version", &self.version);
-        if cfg!(target_os = "linux") {
-            build.add_variable("aqt_wheel", "_");
-            build.add_variable("anki_wheel", "_");
-        } else {
-            build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
-            build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
-        };
-        // The wheel inputs already pull in :pylib and :qt on macOS/Windows.
-        // Linux installers do not use wheels, so keep these explicit inputs to
-        // ensure the Python and Qt build outputs are available there as well.
-        build.add_inputs(
-            "",
-            inputs![
-                ":installer:template",
-                ":pylib",
-                ":qt",
-                glob!["qt/installer/**"]
-            ],
-        );
+        build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
+        build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
+        build.add_inputs("", inputs![":installer:template", glob!["qt/installer/**"]]);
         build.add_output_stamp("installer/briefcase.build.stamp");
     }
 }

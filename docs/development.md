@@ -199,7 +199,7 @@ If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 
 ## Installer/launcher
 
-### Briefcase/PyInstaller installer
+### Briefcase installer
 
 Run `tools/build-installer` to build the installer.
 

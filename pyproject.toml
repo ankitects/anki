@@ -27,7 +27,6 @@ dev = [
   "types-pywin32",
   "briefcase>=0.4.0",
   "jinja2",
-  "pyinstaller",
 ]
 docs = [
   "sphinx",
@@ -45,7 +44,7 @@ exclude-newer-package = { anki-mac-helper = false, anki-audio = false }
 required-version = ">=0.9.25"
 
 [tool.uv.workspace]
-members = ["pylib", "qt"]
+members = ["pylib", "qt", "qt/installer/briefcase_plugins"]
 
 [[tool.uv.index]]
 name = "testpypi"
