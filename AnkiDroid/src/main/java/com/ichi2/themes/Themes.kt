@@ -18,11 +18,14 @@
 
 package com.ichi2.themes
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.util.TypedValue
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.WindowInsetsControllerCompat
@@ -34,6 +37,7 @@ import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.settings.enums.Theme
+import com.ichi2.themes.Themes.currentTheme
 
 /**
  * Helper methods to configure things related to AnkiDroid's themes
@@ -48,6 +52,25 @@ object Themes {
     fun setTheme(context: Context) {
         updateCurrentTheme(context)
         context.setTheme(currentTheme.styleResId)
+    }
+
+    fun setTheme(activity: Activity) {
+        val tv = TypedValue()
+        activity.theme.resolveAttribute(android.R.attr.windowBackground, tv, true)
+        val hadLauncherSplash = tv.resourceId == R.drawable.launch_screen
+
+        setTheme(activity as Context)
+
+        if (hadLauncherSplash) {
+            activity.theme.resolveAttribute(android.R.attr.windowBackground, tv, true)
+            val replacement =
+                if (tv.type in TypedValue.TYPE_FIRST_COLOR_INT..TypedValue.TYPE_LAST_COLOR_INT) {
+                    tv.data.toDrawable()
+                } else {
+                    AppCompatResources.getDrawable(activity, tv.resourceId)
+                }
+            activity.window.setBackgroundDrawable(replacement)
+        }
     }
 
     fun setLegacyActionBar(context: Context) {
