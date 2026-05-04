@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO: Handle the case where regressions are fixed
+
 name: "🛠️ Screenshots: Comment"
 
 on:
@@ -37,8 +39,7 @@ jobs:
     timeout-minutes: 2
 
     permissions:
-      actions: read # for downloading artifacts
-      contents: write # for pushing screenshot-diff to companion branch
+      actions: read # for downloading artifacts and reading the run id
       pull-requests: write # for creating a comment on pull requests
 
     runs-on: ubuntu-latest
@@ -54,19 +55,6 @@ jobs:
         shell: bash
         run: |
           echo "pull_request_number=$(cat NR)" >> "$GITHUB_OUTPUT"
-      - name: main checkout
-        id: checkout-main
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0].base.ref || github.event.repository.default_branch }}
-      - id: switch-companion-branch
-        env:
-          BRANCH_NAME: companion_${{ github.event.workflow_run.head_branch }}
-        run: |
-          # orphan means it will create no history branch
-          git branch -D "$BRANCH_NAME" || true
-          git checkout --orphan "$BRANCH_NAME"
-          git rm -rf .
       - name: Download screenshot diff artifact
         uses: dawidd6/action-download-artifact@09f2f74827fd3a8607589e5ad7f9398816f540fe # v3.1.4
         with:
@@ -77,63 +65,77 @@ jobs:
         name: Check if there are valid files
         shell: bash
         run: |
-          # Find all the files ending with _compare.png
-          mapfile -t files_to_add < <(find . -type f -name "*_compare.png")
-          
-          # Check for invalid file names and add only valid ones
-          exist_valid_files="false"
-          for file in "${files_to_add[@]}"; do
-            if [[ $file =~ ^[a-zA-Z0-9_./-]+$ ]]; then
-              exist_valid_files="true"
-              break
-            fi
-          done
+          # Find roborazzi diff PNGs in the downloaded artifact.
+          mapfile -t files_to_add < <(find . -path '*/roborazzi/*' -name "*_compare.png" -type f)
+          if [ ${#files_to_add[@]} -gt 0 ]; then
+            exist_valid_files="true"
+          else
+            exist_valid_files="false"
+          fi
           echo "exist_valid_files=$exist_valid_files" >> "$GITHUB_OUTPUT"
-      - id: push-screenshot-diff
-        shell: bash
-        if: steps.check-if-there-are-valid-files.outputs.exist_valid_files == 'true'
-        env:
-          BRANCH_NAME: companion_${{ github.event.workflow_run.head_branch }}
-        run: |
-          # Find all the files ending with _compare.png
-          files_to_add=$(find . -type f -name "*_compare.png")
-          
-          # Check for invalid file names and add only valid ones
-          for file in $files_to_add; do
-            if [[ "$file" =~ ^[a-zA-Z0-9_./-]+$ ]]; then
-              git add "$file"
-            fi
-          done
-          git config --global user.name ScreenshotBot
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m "Add screenshot diff"
-          git push origin HEAD:"$BRANCH_NAME" -f
       - id: generate-diff-reports
         name: Generate diff reports
         if: steps.check-if-there-are-valid-files.outputs.exist_valid_files == 'true'
         env:
-          BRANCH_NAME: companion_${{ github.event.workflow_run.head_branch }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          BASE_REF: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0].base.ref || github.event.repository.default_branch }}
         shell: bash
         run: |
-          # Find all the files ending with _compare.png in roborazzi folder
-          files=$(find . -type f -name "*_compare.png" | grep "roborazzi/" | grep -E "^[a-zA-Z0-9_./-]+$")
+          # Find roborazzi diff PNGs to mention in the comment.
+          mapfile -t files < <(find . -path '*/roborazzi/*' -name "*_compare.png" -type f | sort)
+          total=${#files[@]}
+          # Cap the full list so we remain within GitHub's comment limit
+          max_details=100
+
+          # Group by test class — the directory immediately under roborazzi/.
+          declare -A class_counts class_files
+          for file in "${files[@]}"; do
+            rest="${file#*/roborazzi/}"
+            class="${rest%%/*}"
+            class_counts[$class]=$(( ${class_counts[$class]:-0} + 1 ))
+            class_files[$class]+="$(basename "$file")"$'\n'
+          done
+          mapfile -t classes < <(printf '%s\n' "${!class_counts[@]}" | sort)
+
+          # Resolve the artifact ID so we can deep-link to its download page.
+          artifact_id=$(gh api "repos/$REPO/actions/runs/$RUN_ID/artifacts" \
+            --jq '.artifacts[] | select(.name=="screenshot-diff") | .id')
+          artifact_url="${{ github.server_url }}/$REPO/actions/runs/$RUN_ID/artifacts/$artifact_id"
+
+          # delimiter for multi-line output to GITHUB_OUTPUT
           delimiter="$(openssl rand -hex 8)"
           {
             echo "reports<<${delimiter}"
-          
-            # Create markdown table header
-            echo "Snapshot diff report vs base branch: ${{ github.event.workflow_run.event  == 'pull_request' && github.event.workflow_run.pull_requests[0].base.ref || github.event.repository.default_branch }}"
-            echo "| File name | Image |"
-            echo "|-------|-------|"
+            echo "Snapshot diff report vs \`$BASE_REF\`. Open [\`screenshot-diff\`]($artifact_url) for diffs."
+            echo ""
+            for class in "${classes[@]}"; do
+              count=${class_counts[$class]}
+              noun=$([ "$count" -eq 1 ] && echo change || echo changes)
+              echo "- **$class**: $count $noun"
+            done
+            echo ""
+            echo "<details><summary>All $total changed screenshots</summary>"
+            echo ""
+            remaining=$max_details
+            for class in "${classes[@]}"; do
+              (( remaining > 0 )) || break
+              echo "**$class**"
+              while IFS= read -r name; do
+                [ -z "$name" ] && continue
+                (( remaining > 0 )) || break
+                echo "- \`$name\`"
+                remaining=$(( remaining - 1 ))
+              done <<< "${class_files[$class]}"
+              echo ""
+            done
+            if (( total > max_details )); then
+              echo "_…and $((total - max_details)) more not shown._"
+            fi
+            echo "</details>"
+            echo "${delimiter}"
           } >> "$GITHUB_OUTPUT"
-          
-          # Iterate over the files and create table rows
-          for file in $files; do
-            # Get the file name and insert newlines every 20 characters
-            fileName=$(basename "$file" | sed -r 's/(.{20})/\1<br>/g')
-            echo "| [$fileName](https://github.com/${{ github.repository }}/blob/$BRANCH_NAME/$file) | ![](https://github.com/${{ github.repository }}/blob/$BRANCH_NAME/$file?raw=true) |" >> "$GITHUB_OUTPUT"
-          done
-          echo "${delimiter}" >> "$GITHUB_OUTPUT"
       - name: Find Comment
         uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
         id: fc
@@ -151,16 +153,3 @@ jobs:
           issue-number: ${{ steps.get-pull-request-number.outputs.pull_request_number }}
           body: ${{ steps.generate-diff-reports.outputs.reports }}
           edit-mode: replace
-
-      - name: Cleanup outdated companion branches
-        run: |
-          # Find outdated companion branches with last commit date
-          git branch -r --format="%(refname:lstrip=3)" | grep companion_ | while read -r branch; do
-            last_commit_date_timestamp=$(git log -1 --format=%ct "origin/$branch")
-            now_timestamp=$(date +%s)
-            # Delete branch if it's older than 1 month
-            if [ $((now_timestamp - last_commit_date_timestamp)) -gt 2592000 ]; then
-              echo "Deleting $branch"
-              git push origin --delete "$branch"
-            fi
-          done
