@@ -11,6 +11,10 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
+
 jobs:
   minilints:
     runs-on: ubuntu-24.04

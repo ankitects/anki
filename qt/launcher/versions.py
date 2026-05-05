@@ -4,10 +4,10 @@
 import json
 import sys
 
-import pip_system_certs.wrapt_requests
 import requests
+import truststore
 
-pip_system_certs.wrapt_requests.inject_truststore()
+truststore.inject_into_ssl()
 
 
 def main():

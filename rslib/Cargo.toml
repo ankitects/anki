@@ -94,6 +94,7 @@ serde_json.workspace = true
 serde_repr.workspace = true
 serde_tuple.workspace = true
 sha1.workspace = true
+sha2.workspace = true
 snafu.workspace = true
 strum.workspace = true
 tempfile.workspace = true

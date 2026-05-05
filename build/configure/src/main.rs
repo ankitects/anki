@@ -2,6 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod aqt;
+mod audio;
+mod installer;
 mod launcher;
 mod platform;
 mod pylib;
@@ -13,6 +15,8 @@ use std::env;
 
 use anyhow::Result;
 use aqt::build_and_check_aqt;
+use audio::build_audio;
+use installer::build_installer;
 use launcher::build_launcher;
 use ninja_gen::glob;
 use ninja_gen::inputs;
@@ -60,6 +64,8 @@ fn main() -> Result<()> {
 
     if env::var("OFFLINE_BUILD").is_err() {
         build_launcher(build)?;
+        build_installer(build)?;
+        build_audio(build)?;
     }
 
     check_rust(build)?;
