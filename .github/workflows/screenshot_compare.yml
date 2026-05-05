@@ -67,13 +67,27 @@ jobs:
         run: |
           ./gradlew compareRoborazziPlayDebug -Pscreenshot --stacktrace
 
+      - name: Stage screenshot diffs
+        if: ${{ always() }}
+        env:
+          # Folder name inside the artifact (e.g. "screenshot-diff-pr-12345" on PRs, "screenshot-diff-main" on push)
+          SUBDIR: ${{ github.event_name == 'pull_request' && format('screenshot-diff-pr-{0}', github.event.number) || format('screenshot-diff-{0}', github.ref_name) }}
+        run: |
+          # Trim 'AnkiDroid/build/outputs/roborazzi' from the artifact
+          # Only keep diagnostic content for failing cases: each <class>/diffs/ becomes <class>/
+          mkdir -p "screenshot-diff/$SUBDIR"
+          shopt -s nullglob
+          for diffs_dir in AnkiDroid/build/outputs/roborazzi/*/diffs; do
+            class_name="$(basename "$(dirname "$diffs_dir")")"
+            mv "$diffs_dir" "screenshot-diff/$SUBDIR/$class_name"
+          done
+
       - name: Upload screenshot diffs
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: screenshot-diff  # referenced by screenshot_comment.yml
-          path: |
-            **/build/outputs/roborazzi
+          path: screenshot-diff
           retention-days: 30
 
       - name: Upload screenshot diff reports
