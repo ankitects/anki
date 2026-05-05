@@ -272,11 +272,15 @@ impl BuildStatement<'_> {
             stmt.rule_variables.push(("pool".into(), pool.into()));
         }
         if have_n2 {
-            if action.hide_success() {
+            if action.hide_success()
+                && std::env::var("N2_OUTPUT_SUCCESS").ok().as_deref() != Some("1")
+            {
                 stmt.rule_variables
                     .push(("hide_success".into(), "1".into()));
             }
-            if action.hide_progress() {
+            if action.hide_progress()
+                && std::env::var("N2_OUTPUT_PROGRESS").ok().as_deref() != Some("1")
+            {
                 stmt.rule_variables
                     .push(("hide_progress".into(), "1".into()));
             }
