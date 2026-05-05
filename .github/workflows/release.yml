@@ -198,6 +198,12 @@ jobs:
           rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
 
       - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-macos
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
         with:
           name: installer-macos
           path: out/installer/dist/
@@ -248,6 +254,12 @@ jobs:
           rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
 
       - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-macos-intel
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
         with:
           name: installer-macos-intel
           path: out/installer/dist/
@@ -275,6 +287,12 @@ jobs:
 
       - name: Build app
         run: tools\ninja installer:build
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-windows
+          path: out/installer/logs/
 
       - name: Azure login
         if: inputs.sign == true
@@ -369,6 +387,12 @@ jobs:
         run: ./tools/build-installer
 
       - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-linux-x86
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
         with:
           name: installer-linux-x86
           path: out/installer/dist/
@@ -422,6 +446,12 @@ jobs:
 
       - name: Build installer
         run: ./tools/build-installer
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-linux-arm
+          path: out/installer/logs/
 
       - uses: actions/upload-artifact@v4
         with:
