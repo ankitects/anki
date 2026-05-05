@@ -10,6 +10,9 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.media.MediaRecorder
 import android.media.ThumbnailUtils
 import android.net.Uri
@@ -295,6 +298,10 @@ open class BaseCompat : Compat {
         context: Context,
         defaultValue: Boolean,
     ): Boolean = false
+
+    override fun setDstOutBlend(paint: Paint) {
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OUT)
+    }
 }
 
 typealias CompatV24 = BaseCompat

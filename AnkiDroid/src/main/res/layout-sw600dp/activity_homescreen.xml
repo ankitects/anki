@@ -8,7 +8,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <include layout="@layout/include_toolbar" />
+        <FrameLayout
+            android:id="@+id/toolbar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/appBarColor">
+
+            <include layout="@layout/include_toolbar" />
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/deckpicker_xl_view"

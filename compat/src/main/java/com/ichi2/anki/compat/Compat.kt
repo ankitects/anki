@@ -13,6 +13,8 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat
+import android.graphics.BlendMode
+import android.graphics.Paint
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Bundle
@@ -289,4 +291,7 @@ interface Compat {
         context: Context,
         defaultValue: Boolean = false,
     ): Boolean
+
+    /** Configures [paint] to use [BlendMode.DST_OUT]. */
+    fun setDstOutBlend(paint: Paint)
 }

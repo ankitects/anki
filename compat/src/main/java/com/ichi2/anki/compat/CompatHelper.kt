@@ -12,6 +12,8 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ResolveInfo
+import android.graphics.BlendMode
+import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyCharacterMap.deviceHasKey
@@ -210,3 +212,6 @@ inline fun <reified T : Serializable> Bundle.requireSerializableCompat(key: Stri
     requireNotNull(compat.getSerializable(this, key, T::class.java)) {
         "key: '$key' not found or null"
     }
+
+/** Configures this [Paint] to use [BlendMode.DST_OUT]. */
+fun Paint.setDstOutBlendCompat() = compat.setDstOutBlend(this)
