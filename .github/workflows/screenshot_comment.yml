@@ -1,0 +1,166 @@
+# Adapted from https://github.com/takahirom/roborazzi/blob/4be7f304fa23f2f00fad67ab612aec2035ac9db2/.github/workflows/CompareScreenshotComment.yml
+#
+# Copyright 2023 takahirom
+# Copyright 2019 Square, Inc.
+# Copyright The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: "🛠️ Screenshots: Comment"
+
+on:
+  workflow_run:
+    workflows:
+      - "🛠️ Screenshots: Compare"
+    types:
+      - completed
+
+permissions: { }
+
+jobs:
+  Comment-CompareScreenshot:
+    name: comment
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+
+    timeout-minutes: 2
+
+    permissions:
+      actions: read # for downloading artifacts
+      contents: write # for pushing screenshot-diff to companion branch
+      pull-requests: write # for creating a comment on pull requests
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download PR number artifact
+        uses: dawidd6/action-download-artifact@09f2f74827fd3a8607589e5ad7f9398816f540fe # v3.1.4
+        with:
+          name: pr
+          run_id: ${{ github.event.workflow_run.id }}
+      - id: get-pull-request-number
+        name: Get pull request number
+        shell: bash
+        run: |
+          echo "pull_request_number=$(cat NR)" >> "$GITHUB_OUTPUT"
+      - name: main checkout
+        id: checkout-main
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0].base.ref || github.event.repository.default_branch }}
+      - id: switch-companion-branch
+        env:
+          BRANCH_NAME: companion_${{ github.event.workflow_run.head_branch }}
+        run: |
+          # orphan means it will create no history branch
+          git branch -D "$BRANCH_NAME" || true
+          git checkout --orphan "$BRANCH_NAME"
+          git rm -rf .
+      - name: Download screenshot diff artifact
+        uses: dawidd6/action-download-artifact@09f2f74827fd3a8607589e5ad7f9398816f540fe # v3.1.4
+        with:
+          run_id: ${{ github.event.workflow_run.id }}
+          name: screenshot-diff
+          path: screenshot-diff
+      - id: check-if-there-are-valid-files
+        name: Check if there are valid files
+        shell: bash
+        run: |
+          # Find all the files ending with _compare.png
+          mapfile -t files_to_add < <(find . -type f -name "*_compare.png")
+          
+          # Check for invalid file names and add only valid ones
+          exist_valid_files="false"
+          for file in "${files_to_add[@]}"; do
+            if [[ $file =~ ^[a-zA-Z0-9_./-]+$ ]]; then
+              exist_valid_files="true"
+              break
+            fi
+          done
+          echo "exist_valid_files=$exist_valid_files" >> "$GITHUB_OUTPUT"
+      - id: push-screenshot-diff
+        shell: bash
+        if: steps.check-if-there-are-valid-files.outputs.exist_valid_files == 'true'
+        env:
+          BRANCH_NAME: companion_${{ github.event.workflow_run.head_branch }}
+        run: |
+          # Find all the files ending with _compare.png
+          files_to_add=$(find . -type f -name "*_compare.png")
+          
+          # Check for invalid file names and add only valid ones
+          for file in $files_to_add; do
+            if [[ "$file" =~ ^[a-zA-Z0-9_./-]+$ ]]; then
+              git add "$file"
+            fi
+          done
+          git config --global user.name ScreenshotBot
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "Add screenshot diff"
+          git push origin HEAD:"$BRANCH_NAME" -f
+      - id: generate-diff-reports
+        name: Generate diff reports
+        if: steps.check-if-there-are-valid-files.outputs.exist_valid_files == 'true'
+        env:
+          BRANCH_NAME: companion_${{ github.event.workflow_run.head_branch }}
+        shell: bash
+        run: |
+          # Find all the files ending with _compare.png in roborazzi folder
+          files=$(find . -type f -name "*_compare.png" | grep "roborazzi/" | grep -E "^[a-zA-Z0-9_./-]+$")
+          delimiter="$(openssl rand -hex 8)"
+          {
+            echo "reports<<${delimiter}"
+          
+            # Create markdown table header
+            echo "Snapshot diff report vs base branch: ${{ github.event.workflow_run.event  == 'pull_request' && github.event.workflow_run.pull_requests[0].base.ref || github.event.repository.default_branch }}"
+            echo "| File name | Image |"
+            echo "|-------|-------|"
+          } >> "$GITHUB_OUTPUT"
+          
+          # Iterate over the files and create table rows
+          for file in $files; do
+            # Get the file name and insert newlines every 20 characters
+            fileName=$(basename "$file" | sed -r 's/(.{20})/\1<br>/g')
+            echo "| [$fileName](https://github.com/${{ github.repository }}/blob/$BRANCH_NAME/$file) | ![](https://github.com/${{ github.repository }}/blob/$BRANCH_NAME/$file?raw=true) |" >> "$GITHUB_OUTPUT"
+          done
+          echo "${delimiter}" >> "$GITHUB_OUTPUT"
+      - name: Find Comment
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
+        id: fc
+        if: steps.generate-diff-reports.outputs.reports != ''
+        with:
+          issue-number: ${{ steps.get-pull-request-number.outputs.pull_request_number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Snapshot diff report
+
+      - name: Add or update comment on PR
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        if: steps.generate-diff-reports.outputs.reports != ''
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ steps.get-pull-request-number.outputs.pull_request_number }}
+          body: ${{ steps.generate-diff-reports.outputs.reports }}
+          edit-mode: replace
+
+      - name: Cleanup outdated companion branches
+        run: |
+          # Find outdated companion branches with last commit date
+          git branch -r --format="%(refname:lstrip=3)" | grep companion_ | while read -r branch; do
+            last_commit_date_timestamp=$(git log -1 --format=%ct "origin/$branch")
+            now_timestamp=$(date +%s)
+            # Delete branch if it's older than 1 month
+            if [ $((now_timestamp - last_commit_date_timestamp)) -gt 2592000 ]; then
+              echo "Deleting $branch"
+              git push origin --delete "$branch"
+            fi
+          done

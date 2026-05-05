@@ -1,0 +1,106 @@
+# Adapted from https://github.com/takahirom/roborazzi/blob/4be7f304fa23f2f00fad67ab612aec2035ac9db2/.github/workflows/CompareScreenshot.yml
+# Modified from the original: adapted to AnkiDroid CI conventions.
+#
+# Copyright 2023 takahirom
+# Copyright 2019 Square, Inc.
+# Copyright The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: "🛠️ Screenshots: Compare"  # do not rename - referenced by screenshot_comment.yml
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions: {}
+
+jobs:
+  compare-screenshot-test:
+    name: compare
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: read # for clone
+      actions: write # for upload-artifact
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configure JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          # Use open source provider: https://github.com/gradle/actions/blob/main/docs/setup-gradle.md#basic-caching
+          cache-provider: basic
+          gradle-version: wrapper
+
+      - name: Download base branch screenshots
+        uses: dawidd6/action-download-artifact@v3
+        continue-on-error: true
+        with:
+          name: screenshot
+          workflow: screenshot_store.yml
+          branch: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.event.repository.default_branch }}
+
+      - name: Compare screenshots
+        id: compare-screenshot-test
+        run: |
+          ./gradlew compareRoborazziPlayDebug -Pscreenshot --stacktrace
+
+      - name: Upload screenshot diffs
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: screenshot-diff  # referenced by screenshot_comment.yml
+          path: |
+            **/build/outputs/roborazzi
+          retention-days: 30
+
+      - name: Upload screenshot diff reports
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: screenshot-diff-reports
+          path: |
+            **/build/reports
+          retention-days: 30
+
+      - name: Upload screenshot diff test results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: screenshot-diff-test-results
+          path: |
+            **/build/test-results
+          retention-days: 30
+
+      - name: Save PR number
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          mkdir -p ./pr
+          echo ${{ github.event.number }} > ./pr/NR
+      - name: Persist PR number
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr  # downloaded by screenshot_comment.yml
+          path: pr/
