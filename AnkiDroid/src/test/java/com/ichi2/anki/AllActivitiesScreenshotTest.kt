@@ -133,7 +133,8 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
  *
  * WARN: Does not match reality. There are issues with element placement and scrolling lists. [FAB in Deck Picker]
  */
-private fun Activity.simulateEdgeToEdge() {
+// TODO: Move to testFixtures after #20989
+fun Activity.simulateEdgeToEdge() {
     val insets =
         WindowInsetsCompat
             .Builder()
