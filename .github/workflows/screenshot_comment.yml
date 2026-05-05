@@ -16,8 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# TODO: Handle the case where regressions are fixed
-
 name: "🛠️ Screenshots: Comment"
 
 on:
@@ -136,10 +134,10 @@ jobs:
             echo "</details>"
             echo "${delimiter}"
           } >> "$GITHUB_OUTPUT"
+      # Run unconditionally so we can clear a stale comment when regressions are fixed.
       - name: Find Comment
         uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
         id: fc
-        if: steps.generate-diff-reports.outputs.reports != ''
         with:
           issue-number: ${{ steps.get-pull-request-number.outputs.pull_request_number }}
           comment-author: 'github-actions[bot]'
@@ -152,4 +150,16 @@ jobs:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ steps.get-pull-request-number.outputs.pull_request_number }}
           body: ${{ steps.generate-diff-reports.outputs.reports }}
+          edit-mode: replace
+
+      # If a previous run posted a diff comment but this run has none, the regressions are fixed.
+      - name: Mark previous regressions as resolved
+        if: >
+          steps.check-if-there-are-valid-files.outputs.exist_valid_files == 'false' &&
+          steps.fc.outputs.comment-id != ''
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          body: |
+            Snapshot diff report: Previous regressions were resolved by the latest commit.
           edit-mode: replace
