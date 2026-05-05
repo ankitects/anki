@@ -1827,9 +1827,11 @@ abstract class AbstractFlashcardViewer :
     }
 
     override val baseSnackbarBuilder: SnackbarBuilder = {
-        // Configure the snackbar to avoid the bottom answer buttons
+        // Configure the snackbar to avoid the bottom answer buttons.
+        // The answer buttons are animated to GONE in fullscreen mode (see Reviewer.hideViewWithAnimation),
+        // so check visibility to avoid anchoring the snackbar to a hidden view (#20946).
         if (answerButtonsPosition == "bottom") {
-            anchorView = findViewById(R.id.answer_options_layout)
+            anchorView = findViewById<View>(R.id.answer_options_layout)?.takeIf { it.isVisible }
         }
     }
 

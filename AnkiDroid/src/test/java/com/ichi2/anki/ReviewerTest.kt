@@ -18,6 +18,7 @@ package com.ichi2.anki
 import android.app.Application
 import android.content.Intent
 import android.view.Menu
+import android.view.View
 import androidx.annotation.CheckResult
 import androidx.core.content.edit
 import androidx.core.os.BundleCompat
@@ -52,6 +53,7 @@ import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.preferences.PreferenceTestUtils
 import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.ActionButtonStatus
+import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.testutils.common.Flaky
 import com.ichi2.testutils.common.OS
 import junit.framework.TestCase.assertEquals
@@ -62,6 +64,7 @@ import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
+import org.hamcrest.Matchers.nullValue
 import org.json.JSONArray
 import org.junit.Assume.assumeTrue
 import org.junit.Ignore
@@ -152,6 +155,38 @@ class ReviewerTest : RobolectricTest() {
             )
 
         assertEquals("Animation from swipe should be inverse to the finishing one", expectedAnimation, actualAnimation)
+    }
+
+    @Test
+    fun `baseSnackbarBuilder has no anchor when answer buttons are hidden`() {
+        addBasicNote()
+        val reviewer = startReviewer()
+        val answerButtons = reviewer.findViewById<View>(R.id.answer_options_layout)
+        answerButtons.visibility = View.GONE
+
+        val snackbar = reviewer.showSnackbar("test")
+
+        assertThat(
+            "anchorView must be null when answer buttons layout is not visible",
+            snackbar?.anchorView,
+            nullValue(),
+        )
+    }
+
+    @Test
+    fun `baseSnackbarBuilder anchors to answer buttons when visible`() {
+        addBasicNote()
+        val reviewer = startReviewer()
+        val answerButtons = reviewer.findViewById<View>(R.id.answer_options_layout)
+        answerButtons.visibility = View.VISIBLE
+
+        val snackbar = reviewer.showSnackbar("test")
+
+        assertThat(
+            "anchorView is the answer buttons layout when visible",
+            snackbar?.anchorView,
+            equalTo(answerButtons),
+        )
     }
 
     @Test
