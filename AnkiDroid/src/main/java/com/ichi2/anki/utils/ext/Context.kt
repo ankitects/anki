@@ -15,7 +15,6 @@
  */
 package com.ichi2.anki.utils.ext
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Bitmap
@@ -24,7 +23,6 @@ import android.util.AttributeSet
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import com.ichi2.anki.CollectionHelper
-import timber.log.Timber
 import java.io.File
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -49,21 +47,6 @@ inline fun <T> Context.usingStyledAttributes(
 
     val typedArray = obtainStyledAttributes(set, attrs, defStyleAttr, defStyleRes)
     return typedArray.block().also { typedArray.recycle() }
-}
-
-/**
- * Unregisters a [BroadcastReceiver] from [Context] without throwing an [IllegalArgumentException]
- * if the receiver wasn't registered.
- *
- * @param receiver [BroadcastReceiver] to unregister
- * @see Context.unregisterReceiver
- */
-fun Context.unregisterReceiverSilently(receiver: BroadcastReceiver) {
-    try {
-        unregisterReceiver(receiver)
-    } catch (e: IllegalArgumentException) {
-        Timber.d(e, "BroadcastReceiver was not previously registered")
-    }
 }
 
 /**
