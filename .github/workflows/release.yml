@@ -36,6 +36,8 @@ permissions:
 env:
   # Build profile: 1 = Release, 2 = ReleaseWithLto (see build/ninja_gen/src/build.rs)
   RELEASE: 2
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
 
 concurrency:
   group: release

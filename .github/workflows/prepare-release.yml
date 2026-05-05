@@ -17,6 +17,10 @@ concurrency:
   group: release
   cancel-in-progress: false
 
+env:
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
