@@ -26,13 +26,22 @@ on:
   push:
     branches:
       - main
+  # On PRs, only run this when structural changes occur, to be sure 'main' can still store baselines
   pull_request:
+    paths:
+      - '.github/workflows/screenshot_*.yml'
+      - 'gradle/libs.versions.toml'
+      - 'AnkiDroid/build.gradle'
+      - 'AnkiDroid/build.gradle.kts' # future-proof
+      - '**/ScreenshotTest.kt'
+      - 'tools/compare-screenshot-test.sh'
 
 permissions: {}
 
 jobs:
   store-screenshot-test:
-    name: store
+    # On PRs, this verifies the workflow runs on `main`, it's not a store
+    name: ${{ github.ref == 'refs/heads/main' && 'store' || 'test' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
