@@ -325,7 +325,7 @@ def handle_request(pathin: str) -> Response:
     if os.environ.get("ANKI_API_HOST") != "0.0.0.0":
         host = request.headers.get("Host", "").lower()
         origin = request.headers.get("Origin", "").lower()
-        allowed_hosts = tuple(f"{host}:" for host in _LOCALHOST_HOSTS)
+        allowed_hosts = tuple(f"{h}:" for h in _LOCALHOST_HOSTS)
         if not any(host.startswith(h) for h in allowed_hosts):
             logger.warning("denied non-local host: %s", host)
             abort(403)
