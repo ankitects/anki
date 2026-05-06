@@ -16,6 +16,16 @@ issue tracker, please reach out on the forums before you begin work, so we can l
 you know whether they're likely to be accepted or not. When you spent a bunch of time
 on a PR that ends up getting rejected, it's no fun for either you or us.
 
+## Consider an Add-on First
+
+Before submitting a PR for a new feature, please consider whether it could be
+implemented as an add-on instead. We aim to keep the core Anki codebase lean
+and maintainable. Many great ideas are better served as add-ons, where they
+can iterate faster and serve specific user needs without affecting all users.
+
+See the [Add-on API documentation](https://addon-docs.ankiweb.net/) for
+guidance on building add-ons.
+
 ## Refactoring
 
 Please avoid PRs that focus on refactoring. Every PR has a cost to review, and a chance
