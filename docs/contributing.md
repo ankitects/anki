@@ -143,6 +143,17 @@ Please don't make a pull request for a bunch of unrelated changes, as they are
 difficult to review and will be rejected - split them up into separate
 requests instead.
 
+## AI-Assisted Contributions
+
+Using AI tools to help write or review code is permitted. However, you must
+understand every change you submit. If you cannot explain what your changes
+do and how they interact with the rest of the system, your PR will be closed.
+
+Please review AI-generated code carefully before submitting. PRs that appear
+to have been submitted without human review — e.g., irrelevant code, duplicate
+logic, or comments that don't match the implementation — may be closed without
+further discussion.
+
 ## License
 
 Please add yourself to the [CONTRIBUTORS](./CONTRIBUTORS) file in your first pull request.
