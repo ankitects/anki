@@ -78,17 +78,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           INPUT_VERSION: ${{ inputs.version }}
 
-      - name: Sync translations
+      - name: Update .version and commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          python3 .github/scripts/sync_translations.py
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          ANKI_NO_GIT_PUSH: "1"
-
-      - name: Update .version and commit
-        run: |
           printf '%s' "$INPUT_VERSION" > .version
           git add .version
           git commit -m "Prepare release $INPUT_VERSION"
