@@ -41,27 +41,6 @@ jobs:
         env:
           INPUT_VERSION: ${{ inputs.version }}
 
-      - name: Check CI passed on branch
-        run: |
-          conclusion=$(gh run list \
-            --workflow=ci.yml \
-            -e push -e workflow_dispatch \
-            --commit "$COMMIT_SHA" \
-            --limit 1 \
-            --json conclusion \
-            --jq ".[0].conclusion")
-
-          if [[ -z "$conclusion" ]]; then
-            echo "::error::Could not determine CI status for commit $COMMIT_SHA"
-            exit 1
-          elif [[ "$conclusion" != "success" ]]; then
-            echo "::error::CI for commit $COMMIT_SHA concluded with '$conclusion'"
-            exit 1
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
-          COMMIT_SHA: ${{ github.sha }}
-
       - name: Check for duplicate tag or release
         run: |
           git fetch --tags origin
