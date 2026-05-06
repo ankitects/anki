@@ -300,7 +300,6 @@ jobs:
       && inputs['publish-pypi'] == true
       && needs.prepare.result == 'success'
       && needs.publish-testpypi.result == 'success'
-      && (inputs['draft-release'] != true || needs.release.result == 'success')
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
