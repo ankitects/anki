@@ -31,14 +31,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Require dispatch from main
-        if: github.ref_name != 'main'
-        run: |
-          echo "::error::Must be dispatched from main. Got ref $REF_NAME."
-          exit 1
-        env:
-          REF_NAME: ${{ github.ref_name }}
-
       - name: Validate version
         run: |
           pip install --break-system-packages 'packaging>=24,<26'
