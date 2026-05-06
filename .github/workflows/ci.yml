@@ -147,6 +147,7 @@ jobs:
   check-macos:
     if: >-
       github.event_name == 'push'
+      || github.event_name == 'workflow_dispatch'
       || contains(github.event.pull_request.labels.*.name, 'check:macos')
     runs-on: macos-latest
     name: check (macos)
@@ -210,6 +211,7 @@ jobs:
   check-windows:
     if: >-
       github.event_name == 'push'
+      || github.event_name == 'workflow_dispatch'
       || contains(github.event.pull_request.labels.*.name, 'check:windows')
     runs-on: windows-latest
     name: check (windows)
