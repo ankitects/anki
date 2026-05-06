@@ -40,6 +40,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import anki.decks.deckTreeNode
 import com.ichi2.anki.ALL_DECKS_ID
+import com.ichi2.anki.AnkiActivity
+import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.OnContextAndLongClickListener.Companion.setOnContextAndLongClickListener
 import com.ichi2.anki.R
@@ -56,6 +58,7 @@ import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.setFragmentResultListener
+import com.ichi2.anki.withProgress
 import com.ichi2.ui.AccessibleSearchView
 import com.ichi2.utils.TypedFilter
 import com.ichi2.utils.create
@@ -477,5 +480,120 @@ fun Fragment.registerDeckSelectedHandler(
     setFragmentResultListener(requestKey) { _, bundle ->
         val selectedDeck = bundle.getParcelableCompat<SelectableDeck?>(ARG_SELECTED_DECK)
         action(selectedDeck)
+    }
+}
+
+/**
+ * Displays a [DeckSelectionDialog] for the user to select a deck. Using the default parameters will
+ * result in all possible decks('All Decks', normal, filtered and the 'Default' deck) being shown.
+ *
+ * @param title the title for the selection dialog, uses [R.string.select_decks_title] if not provided
+ * @param asChild if true [DeckSelectionDialog] will start as a child of [Fragment]([Fragment.getChildFragmentManager]
+ * will be used to start it). If false, the [FragmentActivity.getSupportFragmentManager] will be used
+ * instead to start [DeckSelectionDialog]
+ * @param templateEditorMessage an optional message shown only when used by [CardTemplateEditor]
+ * @param requestKey specifies the request key to be used for this request
+ * @param allowMultipleSelection if selection of multiple decks is permitted
+ * @param allowAll shows 'All decks' option if true
+ * @param allowFiltered shows filtered decks if true
+ * @param skipEmptyDefault if true, hides the 'Default' deck if it's empty
+ */
+fun Fragment.startDeckSelection(
+    title: String? = null,
+    asChild: Boolean = false,
+    templateEditorMessage: String? = null,
+    requestKey: String = REQUEST_SELECT_DECK,
+    allowMultipleSelection: Boolean = false,
+    allowAll: Boolean = true,
+    allowFiltered: Boolean = true,
+    skipEmptyDefault: Boolean = false,
+) {
+    requireActivity().launchCatchingTask {
+        val decks =
+            withProgress {
+                val backendDecks =
+                    withCol {
+                        decks.allNamesAndIds(
+                            includeFiltered = allowFiltered,
+                            skipEmptyDefault = skipEmptyDefault,
+                        )
+                    }
+                val decks: MutableList<SelectableDeck> =
+                    backendDecks.map { SelectableDeck.Deck(it) }.toMutableList()
+                if (allowAll) {
+                    decks.add(0, SelectableDeck.AllDecks)
+                }
+                decks
+            }
+        val dialog =
+            DeckSelectionDialog.newInstance(
+                decks = decks,
+                title = title,
+                templateEditorMessage = templateEditorMessage,
+                requestKey = requestKey,
+                allowMultipleSelection = allowMultipleSelection,
+                allowAll = allowAll,
+                allowFiltered = allowFiltered,
+                skipEmptyDefault = skipEmptyDefault,
+            )
+        val targetManager = if (asChild) childFragmentManager else parentFragmentManager
+        if (!targetManager.isStateSaved) {
+            dialog.show(targetManager, DeckSelectionDialog.TAG)
+        }
+    }
+}
+
+/**
+ * Displays a [DeckSelectionDialog] for the user to select a deck. Using the default parameters will
+ * result in all possible decks('All Decks', normal, filtered and the 'Default' deck) being shown.
+ *
+ * @param title the title for the selection dialog, uses [R.string.select_decks_title] if not provided
+ * @param templateEditorMessage an optional message shown only when used by [CardTemplateEditor]
+ * @param requestKey specifies the request key to be used for this request
+ * @param allowMultipleSelection if selection of multiple decks is permitted
+ * @param allowAll shows 'All decks' option if true
+ * @param allowFiltered shows filtered decks if true
+ * @param skipEmptyDefault if true, hides the 'Default' if it's empty
+ */
+fun AnkiActivity.startDeckSelection(
+    title: String? = null,
+    templateEditorMessage: String? = null,
+    requestKey: String = REQUEST_SELECT_DECK,
+    allowMultipleSelection: Boolean = false,
+    allowAll: Boolean = true,
+    allowFiltered: Boolean = true,
+    skipEmptyDefault: Boolean = false,
+) {
+    launchCatchingTask {
+        val decks =
+            withProgress {
+                val backendDecks =
+                    withCol {
+                        decks.allNamesAndIds(
+                            includeFiltered = allowFiltered,
+                            skipEmptyDefault = skipEmptyDefault,
+                        )
+                    }
+                val decks: MutableList<SelectableDeck> =
+                    backendDecks.map { SelectableDeck.Deck(it) }.toMutableList()
+                if (allowAll) {
+                    decks.add(0, SelectableDeck.AllDecks)
+                }
+                decks
+            }
+        val dialog =
+            DeckSelectionDialog.newInstance(
+                decks = decks,
+                title = title,
+                templateEditorMessage = templateEditorMessage,
+                requestKey = requestKey,
+                allowMultipleSelection = allowMultipleSelection,
+                allowAll = allowAll,
+                allowFiltered = allowFiltered,
+                skipEmptyDefault = skipEmptyDefault,
+            )
+        if (!supportFragmentManager.isStateSaved) {
+            dialog.show(supportFragmentManager, DeckSelectionDialog.TAG)
+        }
     }
 }

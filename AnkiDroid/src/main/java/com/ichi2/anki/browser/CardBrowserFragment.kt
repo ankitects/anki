@@ -103,13 +103,13 @@ import com.ichi2.anki.browser.search.formatChipDescription
 import com.ichi2.anki.browser.search.iconRes
 import com.ichi2.anki.browser.search.savedFilters
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.dialogs.BrowserOptionsDialog
 import com.ichi2.anki.dialogs.CardBrowserOrderDialog
 import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.ARG_SELECTED_DECK
 import com.ichi2.anki.dialogs.SimpleMessageDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
+import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.dialogs.tags.TagsDialog
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
@@ -146,7 +146,6 @@ import com.ichi2.anki.utils.ext.sharedPrefs
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.ext.visibleItemPositions
 import com.ichi2.anki.utils.hideKeyboard
-import com.ichi2.anki.utils.showDialogFragmentImpl
 import com.ichi2.anki.withProgress
 import com.ichi2.ui.CardBrowserSearchView
 import com.ichi2.utils.TagsUtil.getUpdatedTags
@@ -964,13 +963,8 @@ class CardBrowserFragment :
                 )
         }
 
-        fun onSearchForDecks(decks: List<SelectableDeck>) {
-            val dialog =
-                DeckSelectionDialog.newInstance(
-                    title = getString(R.string.search_deck),
-                    decks = decks,
-                )
-            showDialogFragmentImpl(childFragmentManager, dialog)
+        fun onSearchForDecks(unit: Unit) {
+            startDeckSelection(title = getString(R.string.search_deck), asChild = true, skipEmptyDefault = true)
         }
 
         fun advancedSearchChanged(inAdvancedSearch: Boolean) {
@@ -1275,18 +1269,18 @@ class CardBrowserFragment :
     }
 
     // TODO: This dialog should survive activity recreation
-    fun showChangeDeckDialog() =
-        launchCatchingTask {
-            if (!activityViewModel.hasSelectedAnyRows()) {
-                Timber.i("Not showing Change Deck - No Cards")
-                return@launchCatchingTask
-            }
-            val selectableDecks =
-                activityViewModel
-                    .getAvailableDecks()
-            val dialog = getChangeDeckDialog(selectableDecks)
-            showDialogFragment(dialog)
+    fun showChangeDeckDialog() {
+        if (!activityViewModel.hasSelectedAnyRows()) {
+            Timber.i("Not showing Change Deck - No Cards")
+            return
         }
+        startDeckSelection(
+            title = getString(R.string.move_all_to_deck),
+            allowAll = false,
+            allowFiltered = false,
+            requestKey = REQUEST_DECK_SELECTION_CHANGE_DECK,
+        )
+    }
 
     /** All the notes of the selected cards will be marked
      * If one or more card is unmarked, all will be marked,
@@ -1535,18 +1529,6 @@ class CardBrowserFragment :
                 fragment.show(parentFragmentManager, FindAndReplaceDialogFragment.TAG)
             }
         }
-    }
-
-    @KotlinCleanup("DeckSelectionListener is almost certainly a bug - deck!!")
-    @VisibleForTesting
-    internal fun getChangeDeckDialog(selectableDecks: List<SelectableDeck>?): DeckSelectionDialog {
-        val dialog =
-            DeckSelectionDialog.newInstance(
-                title = getString(R.string.move_all_to_deck),
-                decks = selectableDecks!!,
-                requestKey = REQUEST_DECK_SELECTION_CHANGE_DECK,
-            )
-        return dialog
     }
 
     /**

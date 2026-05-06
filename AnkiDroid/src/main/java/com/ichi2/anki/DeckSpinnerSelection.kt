@@ -15,19 +15,13 @@
  */
 package com.ichi2.anki
 
-import androidx.fragment.app.Fragment
-import com.ichi2.anki.CollectionManager.withCol
-import com.ichi2.anki.dialogs.DeckSelectionDialog
-import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.REQUEST_SELECT_DECK
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.Deck
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.model.SelectableDeck
 
 // TODO left for this class:
 //  - extract the TextView used as the deck name into own layout for easier reuse(note:
 //    NoteEditorFragment usage looks slightly different)
-//  - remove duplication in *.startDeckSelection() methods code
 //  - rename(probably DeckSelection.kt or DeckSelectionUtil.kt) and move this class to a more
 //    suitable package(probably com.ichi2.anki.utils)
 
@@ -45,75 +39,5 @@ fun Collection.selectedDeckIfNotFiltered(): Deck {
         decks.getDefault()
     } else {
         selectedDeck
-    }
-}
-
-/**
- * Displays a [DeckSelectionDialog] for the user to select a deck, with the list of displayed decks
- * filtered based on the parameters of this method.
- * @param all true if 'All Decks' should be shown, false otherwise
- * @param filtered true if filtered decks should be shown, false otherwise
- * @param skipEmptyDefault true to hide the 'Default' deck if it doesn't have any cards, false to
- * show it anyway
- */
-fun Fragment.startDeckSelection(
-    all: Boolean = true,
-    filtered: Boolean = true,
-    skipEmptyDefault: Boolean = true,
-    requestKey: String = REQUEST_SELECT_DECK,
-) {
-    requireActivity().launchCatchingTask {
-        withProgress {
-            val backendDecks =
-                withCol {
-                    decks.allNamesAndIds(includeFiltered = filtered, skipEmptyDefault = skipEmptyDefault)
-                }
-            val decks: MutableList<SelectableDeck> = backendDecks.map { SelectableDeck.Deck(it) }.toMutableList()
-            if (all) {
-                decks.add(0, SelectableDeck.AllDecks)
-            }
-            val dialog =
-                DeckSelectionDialog.newInstance(
-                    title = getString(R.string.select_deck),
-                    decks = decks,
-                    requestKey = requestKey,
-                )
-            if (!parentFragmentManager.isStateSaved) {
-                dialog.show(parentFragmentManager, "DeckSelectionDialog")
-            }
-        }
-    }
-}
-
-/**
- * Displays a [DeckSelectionDialog] for the user to select a deck, with the list of displayed decks
- * filtered based on the parameters of this method.
- * @param all true if 'All Decks' should be shown, false otherwise
- * @param filtered true if filtered decks should be shown, false otherwise
- * @param skipEmptyDefault true to hide the 'Default' deck if it doesn't have any cards, false to
- * show it anyway
- */
-fun AnkiActivity.startDeckSelection(
-    all: Boolean = true,
-    filtered: Boolean = true,
-    skipEmptyDefault: Boolean = true,
-) {
-    launchCatchingTask {
-        withProgress {
-            val backendDecks =
-                withCol {
-                    decks.allNamesAndIds(includeFiltered = filtered, skipEmptyDefault = skipEmptyDefault)
-                }
-            val decks: MutableList<SelectableDeck> = backendDecks.map { SelectableDeck.Deck(it) }.toMutableList()
-            if (all) {
-                decks.add(0, SelectableDeck.AllDecks)
-            }
-            val dialog =
-                DeckSelectionDialog.newInstance(
-                    title = getString(R.string.select_deck),
-                    decks = decks,
-                )
-            dialog.show(supportFragmentManager, "DeckSelectionDialog")
-        }
     }
 }

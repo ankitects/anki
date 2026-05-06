@@ -57,19 +57,6 @@ fun FragmentActivity.dismissAllDialogFragments() {
 }
 
 /**
- * @return The last fragment added by [showDialogFragment], only  if it is the provided type.
- * `null` if the type does not match, or if a dialog has not been shown
- */
-inline fun <reified T : DialogFragment> FragmentActivity.getCurrentDialogFragment(): T? =
-    supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as? T?
-
-/**
- * @return The last fragment added by [showDialogFragment], only  if it is the provided type.
- * `null` if the type does not match, or if a dialog has not been shown
- */
-inline fun <reified T : DialogFragment> Fragment.getCurrentDialogFragment(): T? = requireActivity().getCurrentDialogFragment()
-
-/**
  * Executes [block] after all fragments have executed `onViewCreated`
  */
 fun FragmentActivity.onAllFragmentsLoaded(block: () -> Unit) {

@@ -81,6 +81,7 @@ import com.ichi2.anki.browser.setSelectedDeck
 import com.ichi2.anki.browser.toRowSelection
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.isRunningAsUnitTest
+import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.libanki.BrowserConfig
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.CardType
@@ -99,8 +100,6 @@ import com.ichi2.anki.servicelayer.PreferenceUpgradeService.PreferenceUpgrade.Up
 import com.ichi2.anki.servicelayer.PreferenceUpgradeService.PreferenceUpgrade.UpgradeBrowserColumns.Companion.LEGACY_COLUMN2_KEYS
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.toSentenceCase
-import com.ichi2.anki.utils.ext.getCurrentDialogFragment
-import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.testutils.IntentAssert
 import com.ichi2.testutils.common.Flaky
 import com.ichi2.testutils.common.OS
@@ -763,17 +762,18 @@ class CardBrowserTest : RobolectricTest() {
 
     @Test
     fun change_deck_dialog_is_dismissed_on_activity_recreation() {
-        val cardBrowser = browserWithNoNewCards
-
-        val dialog = cardBrowser.cardBrowserFragment.getChangeDeckDialog(listOf())
-        cardBrowser.showDialogFragment(dialog)
-
-        val shownDialog: Fragment? = cardBrowser.getCurrentDialogFragment()
+        val cardBrowser = browserWithMultipleNotes
+        cardBrowser.viewModel.selectRowAtPosition(0)
+        cardBrowser.cardBrowserFragment.showChangeDeckDialog()
+        advanceRobolectricLooper()
+        val shownDialog: Fragment? =
+            cardBrowser.supportFragmentManager.findFragmentByTag(DeckSelectionDialog.TAG)
         assertNotNull(shownDialog)
 
         ActivityCompat.recreate(cardBrowser)
         advanceRobolectricLooper()
-        val dialogAfterRecreate: Fragment? = cardBrowser.getCurrentDialogFragment()
+        val dialogAfterRecreate: Fragment? =
+            cardBrowser.supportFragmentManager.findFragmentByTag(DeckSelectionDialog.TAG)
         assertNull(dialogAfterRecreate)
     }
 

@@ -19,17 +19,15 @@ package com.ichi2.anki.browser
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.model.SelectableDeck
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 class CardBrowserFragmentViewModel : ViewModel() {
-    val flowOfSearchForDecks = MutableSharedFlow<List<SelectableDeck>>()
+    val flowOfSearchForDecks = MutableSharedFlow<Unit>()
 
     @NeedsTest("default usage")
     fun openDeckSelectionDialog() =
         viewModelScope.launch {
-            val decks = listOf(SelectableDeck.AllDecks) + SelectableDeck.fromCollection(includeFiltered = true)
-            flowOfSearchForDecks.emit(decks)
+            flowOfSearchForDecks.emit(Unit)
         }
 }

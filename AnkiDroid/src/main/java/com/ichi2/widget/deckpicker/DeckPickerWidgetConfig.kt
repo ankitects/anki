@@ -40,6 +40,7 @@ import com.ichi2.anki.databinding.WidgetDeckPickerConfigBinding
 import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
+import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.isCollectionEmpty
 import com.ichi2.anki.isDefaultDeckEmpty
 import com.ichi2.anki.model.SelectableDeck
@@ -136,7 +137,7 @@ class DeckPickerWidgetConfig :
 
     private fun initializeUIComponents() {
         deckAdapter =
-            WidgetConfigScreenAdapter { deck, position ->
+            WidgetConfigScreenAdapter { deck, _ ->
                 deckAdapter.removeDeck(deck.deckId)
                 showSnackbar(R.string.deck_removed_from_widget)
                 updateViewVisibility()
@@ -156,7 +157,13 @@ class DeckPickerWidgetConfig :
         setupDoneButton()
 
         binding.fabWidgetDeckPicker.setOnClickListener {
-            showDeckSelectionDialog()
+            // TODO previous code filtered the already selected decks, we guard against this for now
+            startDeckSelection(
+                title = getString(R.string.select_decks_title),
+                allowAll = false,
+                skipEmptyDefault = true,
+                allowMultipleSelection = true,
+            )
         }
 
         lifecycleScope.launch { updateViewWithSavedPreferences() }
@@ -301,30 +308,11 @@ class DeckPickerWidgetConfig :
         }
     }
 
-    /** Displays the deck selection dialog, filtering out already-selected decks. */
-    private fun showDeckSelectionDialog() {
-        lifecycleScope.launch {
-            val decks = fetchDecks().filter { it.deckId !in deckAdapter.deckIds }
-            displayDeckSelectionDialog(decks)
-        }
-    }
-
     /** Returns the list of standard deck. */
     private suspend fun fetchDecks(): List<SelectableDeck.Deck> =
         withContext(Dispatchers.IO) {
             SelectableDeck.fromCollection(includeFiltered = true)
         }
-
-    /** Displays the deck selection dialog with the provided list of decks. */
-    private fun displayDeckSelectionDialog(decks: List<SelectableDeck>) {
-        val dialog =
-            DeckSelectionDialog.newInstance(
-                title = getString(R.string.select_decks_title),
-                decks = decks,
-                allowMultipleSelection = true,
-            )
-        dialog.show(supportFragmentManager, DECK_SELECTION_DIALOG_TAG)
-    }
 
     private fun dismissDeckSelectionDialog() {
         (supportFragmentManager.findFragmentByTag(DECK_SELECTION_DIALOG_TAG) as? DeckSelectionDialog)?.dismiss()

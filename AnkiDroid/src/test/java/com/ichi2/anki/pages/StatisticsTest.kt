@@ -29,15 +29,13 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.SingleFragmentActivity
-import com.ichi2.anki.startDeckSelection
-import io.mockk.every
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
-import io.mockk.verify
+import com.ichi2.anki.dialogs.DeckSelectionDialog
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.jupiter.api.assertNotNull
 import org.junit.runner.RunWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class StatisticsTest : RobolectricTest() {
@@ -79,31 +77,22 @@ class StatisticsTest : RobolectricTest() {
     @Test
     fun `uses expected constraints for decks list selection dialog`() =
         runTest {
-            // the statistics screen doesn't allow the selection of 'All Decks', 'Default'(if empty)
-            // and filtered decks
-            mockkStatic("com.ichi2.anki.DeckSpinnerSelectionKt")
+            // the statistics screen doesn't allow the selection of 'All Decks' and filtered decks,
+            // also 'Default' deck should be enabled no matter its status(empty/not empty)
             ActivityScenario
                 .launch<SingleFragmentActivity>(StatisticsDestination().toIntent(targetContext))
                 .onActivity { activity ->
                     val statisticsFragment =
                         activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
                     assertNotNull(statisticsFragment)
-                    every {
-                        statisticsFragment.startDeckSelection(
-                            all = false,
-                            filtered = false,
-                            skipEmptyDefault = true,
-                        )
-                    } returns Unit
                     onView(withId(R.id.deck_name)).perform(click())
-                    verify(exactly = 1) {
-                        statisticsFragment.startDeckSelection(
-                            all = false,
-                            filtered = false,
-                            skipEmptyDefault = true,
-                        )
-                    }
+                    advanceRobolectricLooper()
+                    val deckSelectionDialog =
+                        activity.supportFragmentManager.findFragmentByTag(DeckSelectionDialog.TAG)
+                    assertNotNull(deckSelectionDialog)
+                    assertFalse(deckSelectionDialog.requireArguments().getBoolean(DeckSelectionDialog.ARG_ALLOW_ALL, true))
+                    assertFalse(deckSelectionDialog.requireArguments().getBoolean(DeckSelectionDialog.ARG_ALLOW_FILTERED, true))
+                    assertTrue(deckSelectionDialog.requireArguments().getBoolean(DeckSelectionDialog.ARG_SKIP_EMPTY_DEFAULT, false))
                 }
-            unmockkStatic("com.ichi2.anki.DeckSpinnerSelectionKt")
         }
 }

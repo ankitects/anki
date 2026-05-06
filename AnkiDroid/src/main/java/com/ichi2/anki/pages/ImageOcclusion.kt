@@ -33,11 +33,11 @@ import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
+import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.pages.viewmodel.ImageOcclusionArgs
 import com.ichi2.anki.pages.viewmodel.ImageOcclusionViewModel
 import com.ichi2.anki.pages.viewmodel.ImageOcclusionViewModel.Companion.IO_ARGS_KEY
-import com.ichi2.anki.startDeckSelection
 import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
 import timber.log.Timber
 
@@ -87,7 +87,7 @@ class ImageOcclusion : PageFragment(R.layout.page_image_occlusion) {
         }
 
         deckNameView = view.findViewById(R.id.deck_name)
-        deckNameView.setOnClickListener { startDeckSelection(all = false, filtered = false, skipEmptyDefault = false) }
+        deckNameView.setOnClickListener { startDeckSelection(allowAll = false, allowFiltered = false) }
 
         @NeedsTest("#17393 verify that the added image occlusion cards are put in the correct deck")
         view.findViewById<MaterialToolbar>(R.id.toolbar).setOnMenuItemClickListener {

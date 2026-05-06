@@ -50,12 +50,12 @@ import com.ichi2.anki.databinding.DialogInstantEditorBinding
 import com.ichi2.anki.databinding.ViewInstantEditorFieldBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
+import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.NotetypeJson
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.servicelayer.NoteService
-import com.ichi2.anki.startDeckSelection
 import com.ichi2.anki.withProgress
 import com.ichi2.themes.setTransparentBackground
 import com.ichi2.utils.AndroidUiUtils.hideKeyboard
@@ -222,7 +222,7 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
                 setCancelable(false)
                 setFinishOnTouchOutside(false)
                 dialogBinding.spinnerLayout.setOnClickListener {
-                    startDeckSelection(all = false, filtered = false)
+                    startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true)
                 }
                 dialogBinding.actionSaveNote.setOnClickListener {
                     Timber.d("Save note button pressed")

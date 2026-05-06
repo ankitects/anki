@@ -37,6 +37,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.databinding.DialogAddEditReminderBinding
 import com.ichi2.anki.dialogs.ConfirmationDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
+import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.isDefaultDeckEmpty
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.Consts
@@ -45,7 +46,6 @@ import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.reviewreminders.AddEditReminderDialog.Companion.getInstance
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.startDeckSelection
 import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.utils.DisplayUtils.resizeWhenSoftInputShown
@@ -162,7 +162,7 @@ class AddEditReminderDialog : DialogFragment() {
     }
 
     private fun setInitialDeckSelection() {
-        binding.addEditReminderDeckName.setOnClickListener { startDeckSelection(all = true, filtered = true) }
+        binding.addEditReminderDeckName.setOnClickListener { startDeckSelection(allowAll = true, allowFiltered = true) }
         launchCatchingTask {
             Timber.d("Setting up deck name view")
             val (selectedDeckId, selectedDeckName) = getValidDeckSelection()

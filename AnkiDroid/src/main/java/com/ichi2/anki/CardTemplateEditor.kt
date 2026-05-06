@@ -72,11 +72,11 @@ import com.ichi2.anki.databinding.FragmentCardTemplateEditorTemplateBinding
 import com.ichi2.anki.databinding.IncludeCardTemplateEditorMainBinding
 import com.ichi2.anki.databinding.IncludeCardTemplateEditorTopBinding
 import com.ichi2.anki.dialogs.ConfirmationDialog
-import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.InsertFieldDialog
 import com.ichi2.anki.dialogs.InsertFieldMetadata
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
+import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.libanki.CardOrdinal
 import com.ichi2.anki.libanki.CardTemplates
 import com.ichi2.anki.libanki.Collection
@@ -1260,13 +1260,11 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
                     return@launchCatchingTask
                 }
                 val name = getCurrentTemplateName(tempModel)
+                val title = getString(R.string.card_template_editor_deck_override)
                 val explanation = getString(R.string.deck_override_explanation, name)
                 // Anki Desktop allows Dynamic decks, have reported this as a bug:
                 // https://forums.ankiweb.net/t/minor-bug-deck-override-to-filtered-deck/1493
-                val decks = SelectableDeck.fromCollection(includeFiltered = false)
-                val title = getString(R.string.card_template_editor_deck_override)
-                val dialog = DeckSelectionDialog.newInstance(title = title, templateEditorMessage = explanation, decks = decks)
-                activity.showDialogFragment(dialog)
+                startDeckSelection(title = title, templateEditorMessage = explanation, allowAll = false, allowFiltered = false)
             }
 
         private fun getCurrentTemplateName(tempModel: CardTemplateNotetype): String =
