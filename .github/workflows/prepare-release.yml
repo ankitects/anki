@@ -41,7 +41,7 @@ jobs:
         env:
           INPUT_VERSION: ${{ inputs.version }}
 
-      - name: Check CI passed on main
+      - name: Check CI passed on branch
         run: |
           conclusion=$(gh run list \
             --workflow=ci.yml \
@@ -88,5 +88,5 @@ jobs:
         env:
           INPUT_VERSION: ${{ inputs.version }}
 
-      - name: Push to main
-        run: git push origin HEAD:refs/heads/main
+      - name: Push to branch
+        run: git push origin HEAD:refs/heads/${{ github.ref_name }}
