@@ -7,6 +7,36 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 ignore = [
   # burn depends on an unmaintained package 'paste'
   "RUSTSEC-2024-0436",
+  # ammonia: SVG/MathML mutation XSS
+  "RUSTSEC-2025-0071",
+  # bincode: unmaintained
+  "RUSTSEC-2025-0141",
+  # bytes: integer overflow in BytesMut::reserve
+  "RUSTSEC-2026-0007",
+  # rand: unsound with custom logger
+  "RUSTSEC-2026-0097",
+  # rustls-pemfile: unmaintained
+  "RUSTSEC-2025-0134",
+  # rustls-webpki: CRL distribution point matching
+  "RUSTSEC-2026-0049",
+  # rustls-webpki: URI name constraints
+  "RUSTSEC-2026-0098",
+  # rustls-webpki: wildcard name constraints
+  "RUSTSEC-2026-0099",
+  # rustls-webpki: panic in CRL parsing
+  "RUSTSEC-2026-0104",
+  # tar: symlink chmod
+  "RUSTSEC-2026-0067",
+  # tar: PAX size header ignored
+  "RUSTSEC-2026-0068",
+  # time: stack exhaustion DoS via RFC 2822 parsing
+  "RUSTSEC-2026-0009",
+  # unic-*: unmaintained
+  "RUSTSEC-2025-0081",
+  "RUSTSEC-2025-0075",
+  "RUSTSEC-2025-0080",
+  "RUSTSEC-2025-0094",
+  "RUSTSEC-2025-0098",
 ]
 
 [licenses]
