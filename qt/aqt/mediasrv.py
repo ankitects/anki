@@ -19,7 +19,6 @@ from http import HTTPStatus
 from pathlib import Path
 
 import flask
-import flask_cors
 import stringcase
 import waitress.wasyncore
 from flask import Response, abort, request
@@ -46,7 +45,6 @@ waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROT
 
 logger = logging.getLogger(__name__)
 app = flask.Flask(__name__, root_path="/fake")
-flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
 
 
 @dataclass
