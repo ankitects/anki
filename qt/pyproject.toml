@@ -6,7 +6,6 @@ license = "AGPL-3.0-or-later"
 dependencies = [
   "beautifulsoup4",
   "flask",
-  "flask_cors",
   "jsonschema",
   "requests",
   "send2trash",

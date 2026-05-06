@@ -19,7 +19,6 @@ from http import HTTPStatus
 from pathlib import Path
 
 import flask
-import flask_cors
 import stringcase
 import waitress.wasyncore
 from flask import Response, abort, request
@@ -46,7 +45,6 @@ waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROT
 
 logger = logging.getLogger(__name__)
 app = flask.Flask(__name__, root_path="/fake")
-flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
 
 
 @dataclass
@@ -306,13 +304,16 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def handle_request(pathin: str) -> Response:
-    host = request.headers.get("Host", "").lower()
-    allowed_prefixes = ("127.0.0.1:", "localhost:", "[::1]:")
-    if not any(host.startswith(prefix) for prefix in allowed_prefixes):
-        # while we only bind to localhost, this request may have come from a local browser
-        # via a DNS rebinding attack; deny it unless we're doing non-local testing
-        if os.environ.get("ANKI_API_HOST") != "0.0.0.0":
-            print("deny non-local host", host)
+    if os.environ.get("ANKI_API_HOST") != "0.0.0.0":
+        # Reject non-localhost requests
+        host = request.headers.get("Host", "").lower()
+        origin = request.headers.get("Origin", "").lower()
+        allowed_prefixes = ("127.0.0.1:", "localhost:", "[::1]:")
+        if not any(host.startswith(p) for p in allowed_prefixes):
+            abort(403)
+        if origin and not any(
+            origin.startswith(f"http://{p}") for p in allowed_prefixes
+        ):
             abort(403)
 
     req = _extract_request(pathin)
