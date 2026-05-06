@@ -206,6 +206,24 @@ def ensure_safe_path(base_dir: str | Path, path: str | Path) -> str:
     return fullpath
 
 
+_LOCALHOST_HOSTS = ("127.0.0.1", "localhost", "[::1]")
+
+_ALLOWED_ORIGIN_PREFIXES = tuple(
+    f"{scheme}{host}" for scheme in ("http://", "https://") for host in _LOCALHOST_HOSTS
+)
+
+
+def is_localhost_origin(origin: str) -> bool:
+    for prefix in _ALLOWED_ORIGIN_PREFIXES:
+        if (
+            origin == prefix
+            or origin.startswith(prefix + ":")
+            or origin.startswith(prefix + "/")
+        ):
+            return True
+    return False
+
+
 def _handle_local_file_request(request: LocalFileRequest) -> Response:
     directory = request.root
     path = request.path
@@ -305,15 +323,14 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def handle_request(pathin: str) -> Response:
     if os.environ.get("ANKI_API_HOST") != "0.0.0.0":
-        # Reject non-localhost requests
         host = request.headers.get("Host", "").lower()
         origin = request.headers.get("Origin", "").lower()
-        allowed_prefixes = ("127.0.0.1:", "localhost:", "[::1]:")
-        if not any(host.startswith(p) for p in allowed_prefixes):
+        allowed_hosts = tuple(f"{host}:" for host in _LOCALHOST_HOSTS)
+        if not any(host.startswith(h) for h in allowed_hosts):
+            logger.warning("denied non-local host: %s", host)
             abort(403)
-        if origin and not any(
-            origin.startswith(f"http://{p}") for p in allowed_prefixes
-        ):
+        if origin and not is_localhost_origin(origin):
+            logger.warning("denied non-local origin: %s", origin)
             abort(403)
 
     req = _extract_request(pathin)

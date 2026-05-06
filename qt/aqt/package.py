@@ -47,7 +47,6 @@ def first_run_setup() -> None:
 
     import bs4
     import flask
-
     import markdown
     import PyQt6.QtCore
     import PyQt6.QtGui
