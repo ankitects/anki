@@ -112,7 +112,7 @@ jobs:
         run: |
           conclusion=$(gh run list \
             --workflow=ci.yml \
-            -e push \
+            -e push -e workflow_dispatch \
             --commit "$COMMIT_SHA" \
             --limit 1 \
             --json conclusion \
