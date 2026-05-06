@@ -26,6 +26,15 @@ can iterate faster and serve specific user needs without affecting all users.
 See the [Add-on API documentation](https://addon-docs.ankiweb.net/) for
 guidance on building add-ons.
 
+## Linked Issues
+
+Every pull request, except hotfixes and dependency updates, must be linked
+to an existing open issue. If no issue exists, please open one to describe
+the problem before submitting a PR. This helps us ensure we're solving the
+right problems and prevents wasted effort on both sides.
+
+PRs without a linked issue may be automatically closed after a short period.
+
 ## Refactoring
 
 Please avoid PRs that focus on refactoring. Every PR has a cost to review, and a chance
