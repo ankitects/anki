@@ -232,6 +232,9 @@ jobs:
       - name: Build wheels
         run: ./ninja wheels
 
+      - name: Build anki-release wheel
+        run: cd qt/release && bash build.sh
+
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-x86
