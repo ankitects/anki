@@ -16,6 +16,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
+from pathlib import Path
 
 import flask
 import flask_cors
@@ -191,6 +192,22 @@ def _text_response(code: HTTPStatus, text: str) -> Response:
     return resp
 
 
+class UnsafePathException(Exception):
+    def __init__(self, path: str):
+        super().__init__(f"Invalid path: {path}")
+
+
+def ensure_safe_path(base_dir: str | Path, path: str | Path) -> str:
+    base_dir = os.path.realpath(base_dir)
+    path = os.path.normpath(path)
+    fullpath = os.path.abspath(os.path.join(base_dir, path))
+
+    # protect against directory traversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
+    if not fullpath.startswith(base_dir + os.sep):
+        raise UnsafePathException(path)
+    return fullpath
+
+
 def _handle_local_file_request(request: LocalFileRequest) -> Response:
     directory = request.root
     path = request.path
@@ -201,15 +218,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
             HTTPStatus.BAD_REQUEST, f"Path for '{directory} - {path}' is too long!"
         )
 
-    directory = os.path.realpath(directory)
-    path = os.path.normpath(path)
-    fullpath = os.path.abspath(os.path.join(directory, path))
-
-    # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
-    if not fullpath.startswith(directory):
-        return _text_response(
-            HTTPStatus.FORBIDDEN, f"Path for '{directory} - {path}' is a security leak!"
-        )
+    fullpath = ensure_safe_path(directory, path)
 
     if isdir:
         return _text_response(
@@ -254,10 +263,10 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
 
 
 def _builtin_data(path: str) -> bytes:
-    """Return data from file in aqt/data folder.
-    Path must use forward slash separators."""
-    full_path = aqt_data_path() / ".." / path
-    return full_path.read_bytes()
+    """Return data from file in aqt/data folder."""
+    full_path = ensure_safe_path(aqt_data_path().parent, path)
+    with open(full_path, "rb") as f:
+        return f.read()
 
 
 def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
@@ -309,17 +318,20 @@ def handle_request(pathin: str) -> Response:
     req = _extract_request(pathin)
     logger.debug("%s /%s", flask.request.method, pathin)
 
-    if isinstance(req, NotFound):
-        print(req.message)
-        return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {pathin}")
-    elif callable(req):
-        return _handle_dynamic_request(req)
-    elif isinstance(req, BundledFileRequest):
-        return _handle_builtin_file_request(req)
-    elif isinstance(req, LocalFileRequest):
-        return _handle_local_file_request(req)
-    else:
-        return _text_response(HTTPStatus.FORBIDDEN, f"unexpected request: {pathin}")
+    try:
+        if isinstance(req, NotFound):
+            print(req.message)
+            return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {pathin}")
+        elif callable(req):
+            return _handle_dynamic_request(req)
+        elif isinstance(req, BundledFileRequest):
+            return _handle_builtin_file_request(req)
+        elif isinstance(req, LocalFileRequest):
+            return _handle_local_file_request(req)
+        else:
+            return _text_response(HTTPStatus.FORBIDDEN, f"unexpected request: {pathin}")
+    except UnsafePathException as exc:
+        return _text_response(HTTPStatus.FORBIDDEN, str(exc))
 
 
 def is_sveltekit_page(path: str) -> bool:
