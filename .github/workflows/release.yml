@@ -163,41 +163,6 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
-      - name: Set up Apple code signing
-        if: inputs.sign == true
-        run: .github/scripts/setup_apple_signing.sh
-        env:
-          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
-          APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
-          APPLE_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
-
-      - name: Build installer
-        run: ./tools/build-installer
-        env:
-          SIGN_IDENTITY: ${{ inputs.sign == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
-
-      - name: Clean up signing credentials
-        if: always()
-        run: |
-          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
-          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
-          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: logs-installer-macos
-          path: out/installer/logs/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: installer-macos
-          path: out/installer/dist/
-
       - name: Build wheels
         run: ./ninja wheels:anki
 
@@ -219,41 +184,6 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
-      - name: Set up Apple code signing
-        if: inputs.sign == true
-        run: .github/scripts/setup_apple_signing.sh
-        env:
-          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
-          APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
-          APPLE_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
-
-      - name: Build installer
-        run: ./tools/build-installer
-        env:
-          SIGN_IDENTITY: ${{ inputs.sign == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
-
-      - name: Clean up signing credentials
-        if: always()
-        run: |
-          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
-          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
-          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: logs-installer-macos-intel
-          path: out/installer/logs/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: installer-macos-intel
-          path: out/installer/dist/
-
       - name: Build wheels
         run: ./ninja wheels:anki
 
@@ -274,81 +204,6 @@ jobs:
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
-
-      - name: Build app
-        run: tools\ninja installer:build
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: logs-installer-windows
-          path: out/installer/logs/
-
-      - name: Azure login
-        if: inputs.sign == true
-        uses: azure/login@v3
-        with:
-          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
-
-      - name: Sign app binary
-        if: inputs.sign == true
-        uses: azure/artifact-signing-action@v1
-        with:
-          endpoint: https://eus.codesigning.azure.net/
-          signing-account-name: anki-signing
-          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
-          # Path derived from Briefcase conventions + qt/installer/app/pyproject.toml.template:
-          # {out_dir}/build/{app_name}/{platform}/{output_format}/{packaging_root}/{formal_name}.exe
-          files: ${{ github.workspace }}\out\installer\build\anki\windows\app\src\Anki.exe
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
-
-      - name: Verify app binary signature
-        if: inputs.sign == true
-        shell: pwsh
-        run: |
-          $sig = Get-AuthenticodeSignature "out\installer\build\anki\windows\app\src\Anki.exe"
-          if ($sig.Status -ne "Valid") {
-            Write-Error "Anki.exe signature status: $($sig.Status)"
-            exit 1
-          }
-          Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
-
-      - name: Package installer
-        # NOTE: we bypass the build system here to ensure installer:build is not run again (e.g. due to submodule clones),
-        # which will remove the Anki.exe signature
-        run: out\pyenv\scripts\python.exe qt\tools\build_installer.py --version ${{ needs.prepare.outputs.pep440_version }} package
-
-      - name: Sign MSI
-        if: inputs.sign == true
-        uses: azure/artifact-signing-action@v1
-        with:
-          endpoint: https://eus.codesigning.azure.net/
-          signing-account-name: anki-signing
-          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
-          files-folder: out/installer/dist/
-          files-folder-filter: msi
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
-
-      - name: Verify MSI signature
-        if: inputs.sign == true
-        shell: pwsh
-        run: |
-          $msi = Get-ChildItem "out/installer/dist/*.msi" | Select-Object -First 1
-          $sig = Get-AuthenticodeSignature $msi.FullName
-          if ($sig.Status -ne "Valid") {
-            Write-Error "MSI signature status: $($sig.Status)"
-            exit 1
-          }
-          Write-Host "MSI signed successfully: $($sig.SignerCertificate.Subject)"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: installer-windows
-          path: out/installer/dist/
 
       - name: Build wheels
         run: tools\ninja wheels:anki
@@ -372,20 +227,6 @@ jobs:
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
-
-      - name: Build installer
-        run: ./tools/build-installer
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: logs-installer-linux-x86
-          path: out/installer/logs/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: installer-linux-x86
-          path: out/installer/dist/
 
       # Upload both anki and aqt wheels; the pure-Python aqt wheel is the same on all platforms
       - name: Build wheels
@@ -417,83 +258,6 @@ jobs:
         with:
           name: wheels-linux-arm
           path: out/wheels/anki-*.whl
-
-  build-linux-arm-installer:
-    needs: prepare
-    # Ubuntu 24.04 (glibc 2.39) is required because the Qt wheels only
-    # provide ARM packages for 24.04+. Since Briefcase does not bundle
-    # glibc, the resulting installer requires glibc 2.39+ at runtime —
-    # higher than the x86 installer (built on 22.04, glibc 2.35).
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-
-      - name: Setup build environment
-        uses: ./.github/actions/setup-anki
-
-      - name: Build installer
-        run: ./tools/build-installer
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: logs-installer-linux-arm
-          path: out/installer/logs/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: installer-linux-arm
-          path: out/installer/dist/
-
-  release:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
-    if: >-
-      ${{ always()
-      && inputs['draft-release'] == true
-      && needs.prepare.result == 'success'
-      && needs.build-and-sign-mac.result == 'success'
-      && needs.build-and-sign-mac-intel.result == 'success'
-      && needs.build-linux-x86.result == 'success'
-      && needs.build-linux-arm-wheels.result == 'success'
-      && needs.build-linux-arm-installer.result == 'success'
-      && needs.build-and-sign-windows.result == 'success'
-      }}
-    runs-on: ubuntu-latest
-    environment: release
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: installer-*
-          path: dist
-          merge-multiple: true
-
-      - name: Create draft release
-        run: |
-          prerelease_flag=""
-          if [ "$IS_PRERELEASE" = "true" ]; then
-            prerelease_flag="--prerelease"
-          fi
-
-          gh release create "$TAG_NAME" \
-            dist/* \
-            --draft \
-            --target "$RELEASE_SHA" \
-            --title "$RELEASE_NAME" \
-            --generate-notes \
-            ${prerelease_flag:+"$prerelease_flag"}
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          TAG_NAME: ${{ needs.prepare.outputs.tag_name }}
-          RELEASE_NAME: ${{ needs.prepare.outputs.release_name }}
-          IS_PRERELEASE: ${{ needs.prepare.outputs.is_prerelease }}
-          RELEASE_SHA: ${{ github.sha }}
 
   publish-testpypi:
     needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels]
@@ -527,7 +291,7 @@ jobs:
           skip-existing: true
 
   publish-pypi:
-    needs: [prepare, release, publish-testpypi]
+    needs: [prepare, publish-testpypi]
     if: >-
       ${{ always()
       && inputs['publish-pypi'] == true
