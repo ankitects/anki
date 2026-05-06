@@ -45,6 +45,10 @@ class TestEnsureSafePath:
         with pytest.raises(UnsafePathException):
             ensure_safe_path(self.tmpdir, ".")
 
+    def test_rejects_empty_path(self) -> None:
+        with pytest.raises(UnsafePathException):
+            ensure_safe_path(self.tmpdir, "")
+
     def test_accepts_pathlib_args(self) -> None:
         result = ensure_safe_path(Path(self.tmpdir), Path("sub/file.txt"))
         assert result.endswith(os.path.join("sub", "file.txt"))
