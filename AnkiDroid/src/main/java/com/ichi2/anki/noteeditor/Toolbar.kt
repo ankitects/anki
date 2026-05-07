@@ -48,7 +48,6 @@ import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.ichi2.anki.AnkiDroidApp
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.NoteEditorFragment
 import com.ichi2.anki.R
 import com.ichi2.anki.compat.CompatHelper
@@ -322,22 +321,11 @@ class Toolbar : FrameLayout {
      * Displays a dialog that allows the user to insert a MathJax equation in different formats.
      */
     private fun displayInsertMathJaxEquationsDialog() {
-        data class MathJaxOption(
-            val label: String,
-            val prefix: String,
-            val suffix: String,
-        ) {
-            fun toTextWrapper() = TextWrapper(prefix = this.prefix, suffix = this.suffix)
-        }
-
-        val mathjaxOptions =
-            arrayOf(
-                MathJaxOption(TR.editingMathjaxBlock(), prefix = "\\[", suffix = "\\]"),
-                MathJaxOption(TR.editingMathjaxChemistry(), prefix = "\\( \\ce{", suffix = "} \\)"),
-            )
+        val options = MathJaxFormat.entries
+        val labels = options.map { it.label() }.toTypedArray()
         AlertDialog.Builder(context).show {
-            setItems(mathjaxOptions.map(MathJaxOption::label).toTypedArray()) { _, index ->
-                onFormat(mathjaxOptions[index].toTextWrapper())
+            setItems(labels) { _, index ->
+                onFormat(options[index].toTextWrapper())
             }
             title(R.string.insert_mathjax)
         }
