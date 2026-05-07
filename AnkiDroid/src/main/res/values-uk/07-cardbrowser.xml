@@ -77,7 +77,7 @@
     <string name="card_browser_list_my_searches_new_search_error_empty_name">Не можна зберегти пошуковий запит без назви</string>
     <string name="card_browser_list_my_searches_new_search_error_dup">Така назва вже існує</string>
     <string name="card_browser_list_my_searches_successful_save">Пошук збережено</string>
-    <string name="card_browser_list_my_searches_successful_deleted">Search deleted</string>
+    <string name="card_browser_list_my_searches_successful_deleted">Пошук видалено</string>
     <string name="no_note_to_edit">Немає записів для редагування</string>
     <string name="card_browser_list_my_searches_remove_content">Видалити «%1$s»?</string>
     <string name="card_browser_change_display_order" maxLength="28">Сортувати за</string>
@@ -138,6 +138,6 @@
     <string name="save_changes_message">Будь ласка, спочатку збережіть ваші зміни</string>
     <string name="browser_find_replace_loading_fields">Пошук назв полів&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">Показати більше</string>
+    <string name="card_browser_see_less">Показати менше</string>
 </resources>

@@ -109,7 +109,7 @@
     <string name="menu_flag" maxLength="41">Flag</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">Flag card</string>
-    <string name="menu_edit_tags" maxLength="28">Edit tags</string>
+    <string name="menu_edit_tags" maxLength="28">Palitan ang tag</string>
     <string name="delete_note_message">Burahin tagala ang paalalang ito at lahat ng baraha nito?\n%s</string>
     <string name="menu_search" maxLength="28">Hanapin sa %1$s</string>
     <string name="menu_mark_note" maxLength="28">Markahan ang paalala</string>
@@ -185,9 +185,9 @@ Burahin ang “%2$s” uri ng baraha, at ang %1$d mga baraha?</item>
     <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">AnkiDroid</string>
     <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
     <string name="sync_conflict_remote_confirm_new">Replace your collection on AnkiDroid with your collection from AnkiWeb?</string>
-    <string name="sync_conflict_local_confirm_new">Replace your collection on AnkiWeb with your collection from AnkiDroid?</string>
-    <string name="sync_conflict_title_new">Select collection to keep</string>
-    <string name="sync_conflict_replace_title">Replace collection</string>
+    <string name="sync_conflict_local_confirm_new">Palitan ba ang iyong koleksyon sa AnkiWeb gamit ang koleksyon mula sa AnkiDroid?</string>
+    <string name="sync_conflict_title_new">Piliin ang koleksyon na nais itago</string>
+    <string name="sync_conflict_replace_title">Palitan ang koleksyon</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">Cannot write to or create file %s</string>
     <string name="directory_inaccessible_after_uninstall" comment="Dialog title if AnkiDroid can\'t access the collection once the app is installed">Inaccessible collection</string>

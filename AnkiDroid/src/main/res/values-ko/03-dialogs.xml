@@ -80,8 +80,8 @@
     <string name="restore_backup_choose_another">다른 항목 선택하기</string>
     <string name="dialog_cancel">취소</string>
     <string name="dialog_ok">확인</string>
-    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">Add</string>
-    <string name="restore">Restore</string>
+    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">추가</string>
+    <string name="restore">복원</string>
     <string name="dialog_confirm" tools:ignore="UnusedResources">확인</string>
     <string name="dialog_no">아니요</string>
     <string name="dialog_yes">예</string>
@@ -250,17 +250,17 @@
     <string name="import_error_resolution_copy_to_device">Copy the file to your device and try again with the local file</string>
     <string name="import_error_resolution_select_file">Open the file using your device’s file browser app</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Login successful</string>
+    <string name="login_successful">로그인 성공</string>
     <string name="sync_now">Sync now?</string>
     <!--Change Note Type Dialog Fragment-->
     <string name="card_numbers_unchanged">Card numbers will remain unchanged</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
     <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
     <string name="different_note_types_selected">Please select notes from only one notetype.</string>
-    <string name="error_no_changes_to_save">No changes to save</string>
-    <string name="choose_color">Choose color</string>
+    <string name="error_no_changes_to_save">저장할 변경 사항이 없습니다</string>
+    <string name="choose_color">색상 선택</string>
     <!-- Special Fields -->
-    <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Fields</string>
+    <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">필드</string>
     <string name="special_fields_tab_header" comment="Tab header for inserting special fields: {{Deck}}">Special</string>
     <string name="special_field_example_suffix"><![CDATA[: ‘<b>%1$s</b>’]]></string>
     <string name="special_field_front_side_help">The front template content. Audio is not automatically played</string>

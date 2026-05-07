@@ -274,7 +274,7 @@
     <string name="note_editor_audio_too_large">المِلَفّ الصوتي كبير جدًا، يرجى إدخال الصوت يدويًا</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">يتم نسخ أندرويد الإحتياطي. من فضلك حاول مجددًا</string>
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">قد تحتاج إلى استخدام «iManager» للسماح لآنكي درويد بإضافة اختصارات</string>
-    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
+    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">اسمح لـ«إختصارات الشاشة الرئيسية» في إعدادات النظام ليتمكن %s من إنشاء الاختصارات</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">لا تسمح شاشتك الرئيسة لآنكي درويد بإضافة اختصارات</string>
     <string name="create_shortcut_error">خلل في إضافة الاختصار: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">ضع الجمل في حروف كبيرة</string>
@@ -418,5 +418,5 @@
     <!-- Other errors -->
     <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
     <string name="error_name_exists">الاِسم موجود</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">قيد الإجراء</string>
 </resources>

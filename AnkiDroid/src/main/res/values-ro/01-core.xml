@@ -91,7 +91,7 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">Anulare</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">Refacere</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Undo stroke</string>
+    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Anulare trăsătura</string>
     <string name="move_all_to_deck">Mută totul pe punte</string>
     <string name="unbury" maxLength="28">Dezgroapă</string>
     <string name="rename_deck" maxLength="28">Redenumește puntea</string>
@@ -128,11 +128,11 @@
     grant AnkiDroid the \'Storage\' permission. This needs to be a fairly generic message as implementations
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">Vă rugăm să acordați AnkiDroid permisiunea de „Stocare” pentru a continua</string>
-    <string name="rebuild_filtered_deck">Rebuilding filtered deck&#8230;</string>
+    <string name="rebuild_filtered_deck">Se reconstruiește pachetul filtrat&#8230;</string>
     <string name="rebuild_cram_label" maxLength="28">Reconstruieste</string>
     <string name="empty_cram_label" maxLength="28">Goleste</string>
     <string name="create_subdeck">Creați sub-pachet</string>
-    <string name="empty_filtered_deck">Emptying filtered deck&#8230;</string>
+    <string name="empty_filtered_deck">Se golește pachetul filtrat&#8230;</string>
     <string name="search_deck" comment="Deck search for selecting it">Căutare pachet</string>
     <string name="empty_deck">Acest pachet este gol</string>
     <string name="invalid_deck_name">Nume pachet invalid</string>
@@ -154,7 +154,7 @@
     <string name="card_template_editor_back">Șablon spate</string>
     <string name="card_template_editor_styling" maxLength="28">Stilizare</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Aspect browser de cărți</string>
-    <string name="card_template_editor_deck_override" maxLength="28">Deck override</string>
+    <string name="card_template_editor_deck_override" maxLength="28">Suprascriere pachet</string>
     <string name="card_template_editor_insert_field" maxLength="28">Adaugă câmp</string>
     <string name="card_template_editor_select_field">Selectează câmpul</string>
     <string name="card_template_editor_cant_delete">Este necesar cel puțin un tip de cartonaș</string>
@@ -209,7 +209,7 @@
     <string name="image_occlusion">Ocluzie imagine</string>
     <string name="microphone" comment="Title of the microphone permission in the permissions explanation screen.">Microfon</string>
     <string name="microphone_permission_explanation" comment="Description explaining why AnkiDroid needs the microphone permission, shown on the permissions explanation screen.">Vă permite să adăugați sunete la cărți și să activați redarea vocală în timpul revizuirii</string>
-    <string name="notifications_permission_explanation" comment="Description explaining why AnkiDroid needs the notification permission.">Enables background media syncing and allows you to create review reminders</string>
+    <string name="notifications_permission_explanation" comment="Description explaining why AnkiDroid needs the notification permission.">Activează sincronizarea media în fundal și îți permite să creezi memento-uri de recapitulare</string>
     <string name="heading_required_permissions" comment="Heading for the section of required permissions that the app needs to function, shown in the permissions explanation screen.">Necesar</string>
     <string name="heading_optional_permissions" comment="Heading for the section of optional permissions that the app needs to function, shown in the permissions explanation screen.">Opțional</string>
     <string name="manually_grant_permissions" comment="Pop-up message that is shown to the user when they want to grant an app permission that must be granted via the OS settings screen.">Această permisiune trebuie acordată manual din Setări</string>
@@ -220,7 +220,7 @@
     <!-- Internet Permissions -->
     <string name="internet_access_title" comment="used for notifying user to unable internet access">Internet</string>
     <string name="permission_access_summary">Necesar pentru ca aplicația să funcționeze</string>
-    <string name="permission_required_message">Please grant AnkiDroid the ‘%s’ permission to continue</string>
+    <string name="permission_required_message">Vă rugăm să acordați AnkiDroid permisiunea \'%s\' pentru a continua</string>
     <!-- Multiple profile -->
     <string name="add_profile">Adăugare profil</string>
 </resources>

@@ -126,6 +126,6 @@
     <string name="save_changes_message">Garda primeiro os teus cambios</string>
     <string name="browser_find_replace_loading_fields">Recuperando os nomes dos campos&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">Ver máis</string>
+    <string name="card_browser_see_less">Ver menos</string>
 </resources>

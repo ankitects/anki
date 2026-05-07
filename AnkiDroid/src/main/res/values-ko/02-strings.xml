@@ -55,7 +55,7 @@
     <string name="CardEditorTags">태그: %1$s</string>
     <string name="CardEditorCards">카드: %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
-    <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
+    <string name="paste_from_clipboard" maxLength="28">클립보드에서 붙여넣기</string>
     <string name="add_new_filter_tags">태그 추가/필터링</string>
     <string name="add_tag" maxLength="28">태그 추가</string>
     <string name="check_all_tags" maxLength="28">모든 태그 선택/취소</string>
@@ -66,16 +66,16 @@
     <string name="save_whiteboard" maxLength="28">화이트보드 저장하기</string>
     <string name="enable_stylus" maxLength="28">스타일러스 쓰기 켜기</string>
     <string name="disable_stylus">스타일러스 쓰기 끄기</string>
-    <string name="eraser" maxLength="28">Eraser</string>
-    <string name="add_brush" maxLength="28">Add brush</string>
-    <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Left</string>
-    <string name="whiteboard_align_bottom" comment="Option to align the whiteboard toolbar on the bottom" maxLength="28">Bottom</string>
-    <string name="whiteboard_align_right" comment="Option to align the whiteboard toolbar on the right" maxLength="28">Right</string>
-    <string name="whiteboard_more_options" comment="Tooltip of the whiteboard \'More\' button" maxLength="28">More options</string>
-    <string name="whiteboard_remove_brush_message">Are you sure you want to remove this brush from your palette?</string>
+    <string name="eraser" maxLength="28">지우개</string>
+    <string name="add_brush" maxLength="28">브러시 추가</string>
+    <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">왼쪽</string>
+    <string name="whiteboard_align_bottom" comment="Option to align the whiteboard toolbar on the bottom" maxLength="28">하단</string>
+    <string name="whiteboard_align_right" comment="Option to align the whiteboard toolbar on the right" maxLength="28">오른쪽</string>
+    <string name="whiteboard_more_options" comment="Tooltip of the whiteboard \'More\' button" maxLength="28">옵션 더 보기</string>
+    <string name="whiteboard_remove_brush_message">팔레트에서 이 브러시를 삭제하시겠습니까?</string>
     <string name="whiteboard_ink_eraser" comment="Title of the whiteboard Ink eraser">Ink</string>
     <string name="whiteboard_stroke_eraser" comment="Title of the whiteboard Stroke eraser">Stroke</string>
-    <string name="stylus_mode" comment="Title of the menu item that toggles the whiteboard stylus mode" maxLength="28">Stylus mode</string>
+    <string name="stylus_mode" comment="Title of the menu item that toggles the whiteboard stylus mode" maxLength="28">펜 전용 모드</string>
     <string name="cannot_remove_last_brush_message">The last brush may not be removed</string>
     <string name="enable_whiteboard" maxLength="28">화이트보드 활성화하기</string>
     <string name="disable_whiteboard">화이트보드 비활성화하기</string>
@@ -84,7 +84,7 @@
     <string name="disable_eraser" maxLength="28">지우개 비활성화</string>
     <string name="hide_whiteboard" maxLength="28">화이트 보드 숨기기</string>
     <string name="clear_whiteboard" maxLength="28">화이트 보드 지우기</string>
-    <string name="hide_toolbar" maxLength="28">Hide toolbar</string>
+    <string name="hide_toolbar" maxLength="28">도구 모음 숨기기</string>
     <string name="replay_media" maxLength="28">미디어 다시 재생</string>
     <string name="leech_suspend_notification">카드에 leech 태그를 붙이고 비활성 시키기</string>
     <string name="leech_notification">카드에 leech 태그를 붙임</string>
@@ -254,7 +254,7 @@ Context | Request Context    [1]</string>
     <string name="before_text">HTML before selection</string>
     <string name="after_text">HTML after selection</string>
     <string name="add_toolbar_item">Create toolbar item</string>
-    <string name="edit_toolbar_item">Edit toolbar item</string>
+    <string name="edit_toolbar_item">도구 모음 항목 편집</string>
     <string name="toolbar_item_explain_edit_or_remove">선택된 텍스트 앞뒤로 삽입할 HTML을 입력해주십시오\n\n도구 모음 항목을 길게 눌러 편집 또는 제거합니다.</string>
     <string name="remove_toolbar_item">Remove toolbar item?</string>
     <string name="note_editor_image_too_large">이미지가 너무 큽니다. 수동으로 넣어 주세요.</string>

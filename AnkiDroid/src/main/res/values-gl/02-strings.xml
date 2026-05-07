@@ -262,7 +262,7 @@
     <string name="note_editor_audio_too_large">O ficheiro de son é moi grande. Insire o son manualmente</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Copia de seguranza do Android en progreso. Téntao de novo</string>
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">Usa iManager para permitir que AnkiDroid engada atallos</string>
-    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
+    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Permitir «Atallos na pantalla de inicio» nas configuracións do sistema para que %s poida engadir atallos</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">A túa pantalla de inicio non permite que AnkiDroid engada atallos</string>
     <string name="create_shortcut_error">Erro ao engadir atallo: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Comezar frases con maiúscula</string>
@@ -394,5 +394,5 @@
     <!-- Other errors -->
     <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
     <string name="error_name_exists">O nome xa existe</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">Xa en progreso</string>
 </resources>

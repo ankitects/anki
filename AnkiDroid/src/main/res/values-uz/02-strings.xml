@@ -394,5 +394,5 @@
     <!-- Other errors -->
     <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
     <string name="error_name_exists">Ushbu nom allaqachon mavjud</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">Bajarilmoqda</string>
 </resources>

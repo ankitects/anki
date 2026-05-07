@@ -126,6 +126,6 @@
     <string name="save_changes_message">Lütfen önce değişikliklerinizi kaydedin</string>
     <string name="browser_find_replace_loading_fields">Alan adları okunuyor&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">Daha fazla gör</string>
+    <string name="card_browser_see_less">Daha az göster</string>
 </resources>

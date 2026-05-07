@@ -120,6 +120,6 @@
     <string name="save_changes_message">请先保存您的更改</string>
     <string name="browser_find_replace_loading_fields">正在获取字段名&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">查看更多</string>
+    <string name="card_browser_see_less">查看较少</string>
 </resources>

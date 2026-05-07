@@ -397,5 +397,5 @@
     <string name="flip_and_answer" maxLength="41" comment="Configuration of the \'Answer\' commands to answer the card if on the answer side, and flip it if on the question side">قلب وإجابة</string>
     <!--Keyboard shortcuts dialog-->
     <string name="open_settings" comment="Description of the shortcut that opens the app settings">فتح الإعدادات</string>
-    <string name="related_settings_title" comment="Title of the section for related settings">Related settings</string>
+    <string name="related_settings_title" comment="Title of the section for related settings">الإعدادات المرتبطة</string>
 </resources>

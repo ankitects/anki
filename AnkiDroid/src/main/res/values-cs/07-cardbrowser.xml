@@ -138,6 +138,6 @@
     <string name="save_changes_message">Nejprve prosím uložte změny</string>
     <string name="browser_find_replace_loading_fields">Načítání jmen polí&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">Zobrazit více</string>
+    <string name="card_browser_see_less">Zobrazit méně</string>
 </resources>

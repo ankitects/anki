@@ -60,8 +60,8 @@
     <string name="model_field_editor_changing">Mise à jour des champs</string>
     <string name="model_field_editor_sort_field">Trier par ce champ</string>
     <!-- Card type -->
-    <string name="delete_card_type" maxLength="28">Delete card type</string>
-    <string name="add_card_type" maxLength="28">Add card type</string>
+    <string name="delete_card_type" maxLength="28">Supprimer un type de carte</string>
+    <string name="add_card_type" maxLength="28">Ajouter un type de carte</string>
     <!--Warnings-->
     <string name="model_delete_warning">Voulez-vous vraiment effacer ce type de note ?</string>
     <!--

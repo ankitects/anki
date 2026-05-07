@@ -78,7 +78,7 @@
     <string name="hide_answer" comment="In the previewer, when the answer side is displayed. This is the label of the button that sends back to the question side.">정답 숨기기</string>
     <string name="ease_button_again" maxLength="41" comment="In the reviewer, in the answer side. Label of the button that request the card to be shown again soon.">다시</string>
     <string name="ease_button_hard" maxLength="41" comment="In the reviewer, in the answer side. Label of the button that used by the user to state finding the correct answer was hard.">어려움</string>
-    <string name="ease_button_good" maxLength="41" comment="In the reviewer, in the answer side. Label of the button that used by the user to state their answer was good.">괜찮음</string>
+    <string name="ease_button_good" maxLength="41" comment="In the reviewer, in the answer side. Label of the button that used by the user to state their answer was good.">알맞음</string>
     <string name="ease_button_easy" maxLength="41" comment="In the reviewer, in the answer side. Label of the button that used by the user to state that finding the answer to the question was easy.">쉬움</string>
     <string name="show_answer_hint_long_press" comment="In the reviewer, hint is shown when touching the show answer button and the user has the long-press accessibility setting enabled">%s 활성화됨</string>
     <!-- General -->
@@ -144,8 +144,8 @@
     <string name="export_collection">컬렉션 내보내기</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">카드 유형</string>
-    <string name="card_template_editor_front">앞장 템플릿</string>
-    <string name="card_template_editor_back">뒷장 템플릿</string>
+    <string name="card_template_editor_front">앞면 템플릿</string>
+    <string name="card_template_editor_back">뒷면 템플릿</string>
     <string name="card_template_editor_styling" maxLength="28">꾸미기</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">카드 모양 설정</string>
     <string name="card_template_editor_deck_override" maxLength="28">덱 덮어쓰기</string>

@@ -26,6 +26,6 @@
  
 <resources>
     <!--Fields-->
-    <string name="front_field_name" maxLength="28">앞장</string>
-    <string name="back_field_name" maxLength="28" comment="Name of the back field of a card">뒷장</string>
+    <string name="front_field_name" maxLength="28">앞면</string>
+    <string name="back_field_name" maxLength="28" comment="Name of the back field of a card">뒷면</string>
 </resources>

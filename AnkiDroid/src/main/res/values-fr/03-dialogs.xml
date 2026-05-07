@@ -263,7 +263,7 @@
     <!--Change Note Type Dialog Fragment-->
     <string name="card_numbers_unchanged">Les numéros de carte ne changeront pas</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
+    <string name="extra_cloze_deletions_removed">Si vous passez à un type de note ordinaire et qu\'il y a plus de texte à trous que de modèles de cartes disponibles, toutes les cartes supplémentaires seront supprimées.</string>
     <string name="different_note_types_selected">Veuillez sélectionner des notes d\'un seul type de notes.</string>
     <string name="error_no_changes_to_save">Aucune modification à enregistrer</string>
     <string name="choose_color">Choisir une couleur</string>

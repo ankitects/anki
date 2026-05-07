@@ -268,7 +268,7 @@
     <string name="note_editor_audio_too_large">Аудіофайл завеликий, будь ласка, вставте аудіо вручну</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Виконується резервне копіювання Android. Будь ласка, спробуйте ще раз</string>
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">Використовуйте iManager, щоб дозволити AnkiDroid додавати ярлики</string>
-    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
+    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Дозвольте «ярлики на головному екрані» в системних налаштуваннях для %s, щоб додавати ярлики</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">Ваш головний екран не дозволяє AnkiDroid додати ярлики</string>
     <string name="create_shortcut_error">Помилка при створенні ярлика: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Підняти регістр речень</string>
@@ -285,7 +285,7 @@
     <!-- Used for credential empty warning message -->
     <string name="invalid_email">Введіть правильну адресу електронної пошти</string>
     <string name="password_empty">Поле «Пароль» обов\'язкове до заповнення</string>
-    <string name="back_pressed_once">Go back again to exit</string>
+    <string name="back_pressed_once">Перейдіть «Назад» знову, щоб вийти</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
     <string name="percentage">%s%%</string>
     <string name="download_deck">Завантажити колоду</string>
@@ -406,5 +406,5 @@
     <!-- Other errors -->
     <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
     <string name="error_name_exists">Назва вже існує</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">Уже в процесі</string>
 </resources>

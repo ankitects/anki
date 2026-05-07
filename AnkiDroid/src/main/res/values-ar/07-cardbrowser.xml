@@ -150,6 +150,6 @@
     <string name="save_changes_message">رجاءًا احفظ تعديلاتك أولًا</string>
     <string name="browser_find_replace_loading_fields">يتم استرجاع أسماء الحقول&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">عرض المزيد</string>
+    <string name="card_browser_see_less">عرض القليل</string>
 </resources>
