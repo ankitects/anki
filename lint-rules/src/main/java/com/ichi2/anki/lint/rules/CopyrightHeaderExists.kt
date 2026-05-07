@@ -48,6 +48,20 @@ class CopyrightHeaderExists :
         private val COPYRIGHT_PATTERN = Pattern.compile("version 3 of the License, or \\(at")
 
         /**
+         * Matches SPDX-style headers
+         *
+         * - `GPL-3.0-or-later`
+         * - `LGPL-3.0-or-later`
+         *
+         *  e.g. `// SPDX-License-Identifier: GPL-3.0-or-later`.
+         *
+         * See https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/
+         *
+         * TODO: extend this to allow for other patterns, once these patterns are agreed on
+         */
+        private val SPDX_PATTERN = Pattern.compile("SPDX-License-Identifier:\\s*L?GPL-3\\.0-or-later")
+
+        /**
          * &#64;SuppressWarnings doesn't work as it's the first statement, so allow suppression via:
          * `//noinspection MissingCopyrightHeader <reason>`
          */
@@ -59,17 +73,22 @@ class CopyrightHeaderExists :
         @VisibleForTesting
         const val DESCRIPTION = "All files in AnkiDroid must contain a GPLv3-compatible copyright header"
         private const val EXPLANATION =
-            "All files in AnkiDroid must contain a " +
-                "GPLv3-compatible copyright header" +
+            "All files in AnkiDroid must start with a " +
+                "GPLv3-compatible copyright header: \n" +
+                "```" +
+                $$"// SPDX-FileCopyrightText: $today.year Your Name <email@example.com> // name + email optional\n" +
+                "// SPDX-License-Identifier: GPL-3.0-or-later" +
+                "```\n" +
                 "The copyright header can be set in " +
-                "Settings - Editor - Copyright - Copyright Profiles - Add Profile - AnkiDroid. " +
-                "Or search in Settings for 'Copyright'" +
-                "A GPLv3 template is available:\n" +
-                "https://github.com/ankidroid/Anki-Android/issues/8211#issuecomment-825269673 \n\n" +
-                "If the file is under a GPL-Compatible License (https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses) " +
-                "then this warning may be suppressed either via adding a GPL header added alongside the license: " +
-                "https://softwarefreedom.org/resources/2007/gpl-non-gpl-collaboration.html#x1-40002.2 + or " +
-                "\"//noinspection MissingCopyrightHeader <reason>\" may be added as the first line of the file."
+                "`Settings - Editor - Copyright - Copyright Profiles - Add Profile - AnkiDroid`" +
+                "or search in Settings for 'Copyright'. " +
+                "A long-form header may also be used: " +
+                "https://github.com/ankidroid/Anki-Android/issues/8211#issuecomment-825269673\n\n" +
+                "If the file is under a GPL-Compatible License " +
+                "(https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses) " +
+                "then this warning may be suppressed either by adding a GPL header alongside the license " +
+                "(https://softwarefreedom.org/resources/2007/gpl-non-gpl-collaboration.html#x1-40002.2) or by " +
+                "adding \"//noinspection MissingCopyrightHeader <reason>\" as the first line of the file."
         private val implementation = Implementation(CopyrightHeaderExists::class.java, EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES))
         val ISSUE: Issue =
             Issue.create(
@@ -89,6 +108,7 @@ class CopyrightHeaderExists :
         val contents = context.getContents()
         if (contents == null ||
             COPYRIGHT_PATTERN.matcher(contents).find() ||
+            SPDX_PATTERN.matcher(contents).find() ||
             IGNORE_CHECK_PATTERN.matcher(contents).find()
         ) {
             return
