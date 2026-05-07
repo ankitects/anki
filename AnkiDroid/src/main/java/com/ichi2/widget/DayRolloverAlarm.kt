@@ -134,7 +134,8 @@ private fun AlarmManager.setWindowSafe(
 ) = try {
     setWindow(type, windowStartMillis, windowLengthMillis, operation)
     val delta = (windowStartMillis - TimeManager.time.intTimeMS()).milliseconds
-    Timber.i("scheduled day rollover alarm at %s (in %s)", Date(windowStartMillis), delta)
+    Timber.i("scheduled day rollover")
+    Timber.d("rollover alarm scheduled for %s (in %s)", Date(windowStartMillis), delta)
 } catch (e: SecurityException) {
     // #6332 - Too Many Alarms on Samsung Devices
     Timber.w(e, "too many alarms — could not schedule alarm")
