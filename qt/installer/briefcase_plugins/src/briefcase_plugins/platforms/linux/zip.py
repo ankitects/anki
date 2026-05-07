@@ -13,7 +13,7 @@ from briefcase.commands import (
     PackageCommand,
     UpdateCommand,
 )
-from briefcase.config import AppConfig
+from briefcase.config import DraftAppConfig, FinalizedAppConfig
 from briefcase.exceptions import BriefcaseCommandError
 from briefcase.integrations.subprocess import NativeAppContext
 from briefcase.platforms.linux import (
@@ -22,8 +22,8 @@ from briefcase.platforms.linux import (
 )
 
 
-class LinuxZipAppConfig(AppConfig):
-    """An AppConfig with Linux zip packaging attributes.
+class LinuxZipAppConfig(FinalizedAppConfig):
+    """A FinalizedAppConfig with Linux zip packaging attributes.
 
     Set during ``finalize_app_config()`` on ``LinuxZipMixin``.
     """
@@ -43,22 +43,22 @@ class LinuxZipMixin(LinuxMixin):
     def binary_path(self, app):
         return self.project_path(app) / app.app_name
 
-    def distribution_filename(self, app: AppConfig) -> str:
+    def distribution_filename(self, app: FinalizedAppConfig) -> str:
         app = cast(LinuxZipAppConfig, app)
         return f"{app.bundle_name}_{app.version}-{getattr(app, 'revision', 1)}.tar.zst"
 
-    def distribution_path(self, app: AppConfig):
+    def distribution_path(self, app: FinalizedAppConfig):
         return self.dist_path / self.distribution_filename(app)
 
-    def app_python_version_tag(self, app: AppConfig):
+    def app_python_version_tag(self, app: FinalizedAppConfig):
         # Use the version of Python that was used to run Briefcase.
         return self.python_version_tag
 
     def finalize_app_config(
         self,
-        app: AppConfig,
+        app: DraftAppConfig,
         **kwargs,
-    ):
+    ) -> LinuxZipAppConfig:
         """Finalize app configuration.
 
         :param app: The app configuration to finalize.
@@ -71,7 +71,9 @@ class LinuxZipMixin(LinuxMixin):
 
         self.console.verbose(f"Targeting Python{app.python_version_tag}")
 
-    def verify_app_tools(self, app: AppConfig):
+        return LinuxZipAppConfig(super().finalize_app_config(app, **kwargs))
+
+    def verify_app_tools(self, app: FinalizedAppConfig):
         """Verify App environment is prepared and available.
 
         :param app: The application being built
@@ -85,7 +87,7 @@ class LinuxZipMixin(LinuxMixin):
 class LinuxZipCreateCommand(LinuxZipMixin, LocalRequirementsMixin, CreateCommand):
     description = "Create and populate a Linux zip project."
 
-    def output_format_template_context(self, app: AppConfig):
+    def output_format_template_context(self, app: FinalizedAppConfig):
         app = cast(LinuxZipAppConfig, app)
         context = super().output_format_template_context(app)
         context["python_version"] = app.python_version_tag
@@ -100,7 +102,7 @@ class LinuxZipUpdateCommand(LinuxZipCreateCommand, UpdateCommand):
 class LinuxZipBuildCommand(LinuxZipMixin, BuildCommand):
     description = "Build a Linux zip project."
 
-    def build_app(self, app: AppConfig, **kwargs):
+    def build_app(self, app: FinalizedAppConfig, **kwargs):
         """Build an application.
 
         :param app: The application to build
@@ -126,41 +128,24 @@ class LinuxZipBuildCommand(LinuxZipMixin, BuildCommand):
                     f"Error building bootstrap binary for {app.app_name}."
                 ) from e
 
-        with self.console.wait_bar("Installing license..."):
-            if license_file := app.license.get("file"):
-                license_file = self.base_path / license_file
-                if license_file.is_file():
-                    self.tools.shutil.copy(
-                        license_file, self.project_path(app) / "LICENSE"
+        if app.license_files:
+            with self.console.wait_bar("Installing license..."):
+                separator = "-" * 75
+                parts = []
+                for license_path_str in app.license_files:
+                    parts.append(
+                        (self.base_path / license_path_str).read_text(encoding="utf-8")
                     )
-                else:
-                    _relative_license_path = license_file.relative_to(self.base_path)
-                    raise BriefcaseCommandError(f"""\
-Your `pyproject.toml` specifies a license file of {str(_relative_license_path)!r}.
-However, this file does not exist.
-
-Ensure you have correctly spelled the filename in your `license.file` setting.
-
-""")
-            elif license_text := app.license.get("text"):
                 (self.project_path(app) / "LICENSE").write_text(
-                    license_text, encoding="utf-8"
+                    f"\n{separator}\n".join(parts), encoding="utf-8"
                 )
-                if len(license_text.splitlines()) <= 1:
-                    self.console.warning("""
-Your app specifies a license using `license.text`, but the value doesn't appear to be a
-full license. Briefcase will generate a `copyright` file for your project; you should
-ensure that the contents of this file is adequate.
-""")
-            else:
-                raise BriefcaseCommandError("""\
-Your project does not contain a LICENSE definition.
+        else:
+            raise BriefcaseCommandError("""\
+Your project does not include any license files.
 
-Create a file named `LICENSE` in the same directory as your `pyproject.toml`
-with your app's licensing terms, and set `license.file = 'LICENSE'` in your
-app's configuration.
-""")
-
+Ensure your `pyproject.toml` is in PEP 639 format and specifies at least
+one file in the `license-files` setting.
+ """)
         with self.console.wait_bar("Stripping binary..."):
             self.tools.subprocess.check_output(["strip", self.binary_path(app)])
 
@@ -168,7 +153,7 @@ app's configuration.
 class LinuxZipPackageCommand(LinuxZipMixin, PackageCommand):
     description = "Package a Linux zip project."
 
-    def package_app(self, app: AppConfig, **kwargs):
+    def package_app(self, app: FinalizedAppConfig, **kwargs):
         app = cast(LinuxZipAppConfig, app)
         self.console.info("Build zip package...")
         with self.console.wait_bar("Building zip package..."):
