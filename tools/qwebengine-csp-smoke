@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+if [[ ! -x out/pyenv/bin/python ]]; then
+    echo "out/pyenv/bin/python was not found. Run ./ninja check:pytest:aqt first." >&2
+    exit 1
+fi
+
+export PYTHONPATH="qt:pylib:out/pylib:out/qt${PYTHONPATH:+:$PYTHONPATH}"
+exec out/pyenv/bin/python qt/tests/qwebengine_csp_smoke.py "$@"
