@@ -12,8 +12,10 @@ from pathlib import Path
 import pytest
 
 from aqt.mediasrv import (
+    UNTRUSTED_MEDIA_CSP,
     LocalFileRequest,
     UnsafePathException,
+    _editor_content_security_policy,
     _handle_local_file_request,
     ensure_safe_path,
     is_localhost_origin,
@@ -111,6 +113,14 @@ def _get_csp(response) -> str | None:
     return response.headers.get("Content-Security-Policy")
 
 
+def _csp_directives(csp: str) -> dict[str, str]:
+    directives = {}
+    for part in csp.split(";"):
+        name, _, value = part.strip().partition(" ")
+        directives[name] = value
+    return directives
+
+
 class TestMediaFileCSP:
     """CSP headers on media file responses should block script execution."""
 
@@ -118,7 +128,7 @@ class TestMediaFileCSP:
     def test_doc_has_csp_header(self, doctype: str) -> None:
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
             fname = _make_media_file(
-                tmpdir, doctype, f"<{doctype}></{doctype}>".encode()
+                tmpdir, f"test.{doctype}", f"<{doctype}></{doctype}>".encode()
             )
             req = LocalFileRequest(root=tmpdir, path=fname)
             from aqt.mediasrv import app
@@ -155,3 +165,51 @@ class TestMediaFileCSP:
             assert "'self'" not in csp, (
                 f"CSP must not allow 'self' connections (enables local API access): {csp}"
             )
+
+    def test_untrusted_media_is_sandboxed(self) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
+            fname = _make_media_file(tmpdir, "test.svg", b"<svg></svg>")
+            req = LocalFileRequest(root=tmpdir, path=fname)
+            from aqt.mediasrv import app
+
+            with app.test_request_context():
+                resp = _handle_local_file_request(req)
+            csp = _get_csp(resp)
+            assert csp == UNTRUSTED_MEDIA_CSP
+
+            directives = _csp_directives(csp)
+            assert directives["default-src"] == "'none'"
+            assert directives["script-src"] == "'none'"
+            assert directives["connect-src"] == "'none'"
+            assert directives["object-src"] == "'none'"
+            assert directives["frame-src"] == "'none'"
+            assert directives["child-src"] == "'none'"
+            assert directives["base-uri"] == "'none'"
+            assert directives["form-action"] == "'none'"
+            assert directives["sandbox"] == ""
+            assert "frame-ancestors" not in directives
+
+    def test_trusted_local_file_does_not_get_untrusted_media_csp(self) -> None:
+        """Add-on exports use LocalFileRequest too, but should not be sandboxed."""
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
+            fname = _make_media_file(tmpdir, "addon.html", b"<html></html>")
+            req = LocalFileRequest(root=tmpdir, path=fname, untrusted=False)
+            from aqt.mediasrv import app
+
+            with app.test_request_context():
+                resp = _handle_local_file_request(req)
+            assert _get_csp(resp) is None
+
+
+class TestEditorPageCSP:
+    def test_editor_csp_does_not_block_user_embeds(self) -> None:
+        csp = _editor_content_security_policy(port=12345)
+        directives = _csp_directives(csp)
+
+        assert directives["script-src"] == (
+            "http://127.0.0.1:12345/_anki/ http://127.0.0.1:12345/_addons/"
+        )
+        assert "object-src" not in directives
+        assert "frame-src" not in directives
+        assert "child-src" not in directives
+        assert "img-src" not in directives
