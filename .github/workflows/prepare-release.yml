@@ -8,6 +8,11 @@ on:
         description: "Version (e.g. 26.04 for stable, 26.04b1 or 26.04rc1 for pre-release)"
         required: true
         type: string
+      skip-ci-check:
+        description: "Skip the CI status check (for hotfix releases from non-main branches)"
+        default: false
+        required: false
+        type: boolean
 
 permissions:
   contents: write
@@ -31,14 +36,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Require dispatch from main
-        if: github.ref_name != 'main'
-        run: |
-          echo "::error::Must be dispatched from main. Got ref $REF_NAME."
-          exit 1
-        env:
-          REF_NAME: ${{ github.ref_name }}
-
       - name: Validate version
         run: |
           pip install --break-system-packages 'packaging>=24,<26'
@@ -49,11 +46,12 @@ jobs:
         env:
           INPUT_VERSION: ${{ inputs.version }}
 
-      - name: Check CI passed on main
+      - name: Check CI passed
+        if: inputs.skip-ci-check != true
         run: |
           conclusion=$(gh run list \
             --workflow=ci.yml \
-            -e push \
+            -e push -e workflow_dispatch \
             --commit "$COMMIT_SHA" \
             --limit 1 \
             --json conclusion \
@@ -103,5 +101,5 @@ jobs:
         env:
           INPUT_VERSION: ${{ inputs.version }}
 
-      - name: Push to main
-        run: git push origin HEAD:refs/heads/main
+      - name: Push to branch
+        run: git push origin HEAD:refs/heads/${{ github.ref_name }}
