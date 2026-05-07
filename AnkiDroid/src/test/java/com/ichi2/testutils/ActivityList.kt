@@ -113,7 +113,9 @@ object ActivityList {
 
         fun build(context: Context): ActivityController<out Activity> =
             Robolectric
-                .buildActivity(activity, intentBuilder.apply(context))
+                .buildActivity(activity, buildIntent(context))
+
+        fun buildIntent(context: Context): Intent = intentBuilder.apply(context)
 
         val className: String = activity.name
 

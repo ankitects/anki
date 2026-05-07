@@ -16,10 +16,12 @@
 package com.ichi2.anki
 
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
+import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import com.github.takahirom.roborazzi.provideRoborazziContext
 import org.junit.experimental.categories.Category
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
@@ -31,6 +33,16 @@ interface ScreenshotTestCategory
 @Category(ScreenshotTestCategory::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 abstract class ScreenshotTest : RobolectricTest() {
+    /** Pixel-class phone in portrait, light theme. */
+    protected fun setPhoneQualifiers() {
+        RuntimeEnvironment.setQualifiers(RobolectricDeviceQualifiers.MediumPhone)
+    }
+
+    /** Required for [DeckPicker.fragmented] to be true. */
+    protected fun setTabletQualifiers() {
+        RuntimeEnvironment.setQualifiers(RobolectricDeviceQualifiers.MediumTablet)
+    }
+
     /**
      * Captures a screenshot to `build/outputs/roborazzi/<TestClass>/<name>.png`.
      *

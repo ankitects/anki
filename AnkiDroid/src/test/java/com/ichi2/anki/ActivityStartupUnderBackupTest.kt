@@ -21,11 +21,11 @@ import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.testutils.ActivityList
 import com.ichi2.testutils.ActivityList.ActivityLaunchParam
+import com.ichi2.testutils.skipTest
 import com.ichi2.utils.ExceptionUtil.getFullStackTrace
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Assert
-import org.junit.Assume.assumeThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -110,7 +110,7 @@ $stackTrace""",
         reason: String,
     ) {
         if (launcher!!.simpleName == activityName) {
-            assumeThat("$activityName $reason", true, equalTo(false))
+            skipTest("$activityName $reason")
         }
     }
 

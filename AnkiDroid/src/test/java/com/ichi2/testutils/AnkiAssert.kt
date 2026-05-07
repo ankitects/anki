@@ -15,6 +15,7 @@
  */
 package com.ichi2.testutils
 
+import org.junit.AssumptionViolatedException
 import kotlin.test.junit5.JUnit5Asserter
 
 /** Asserts that the expression is `false` with an optional [message]. */
@@ -27,3 +28,6 @@ fun assertFalse(
     // JUnitAsserter doesn't contain it, so we add it in
     JUnit5Asserter.assertTrue(message, !actual)
 }
+
+/** Unconditionally skips the current test with [reason] reported as the skip message. */
+fun skipTest(reason: String): Nothing = throw AssumptionViolatedException(reason)
