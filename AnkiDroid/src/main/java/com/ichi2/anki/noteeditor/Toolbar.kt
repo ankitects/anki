@@ -429,8 +429,8 @@ class Toolbar : FrameLayout {
 
     /**
      * A [TextFormatter] which wraps the selected string with [prefix] and [suffix]
-     * If there's no selected, the cursor is in the middle of the prefix and suffix
-     * If there is text selected, the whole string is selected
+     * If there's no selection, the cursor is placed in the middle of the prefix and suffix
+     * If text is selected and wrapped, the whole string is selected
      */
     class TextWrapper(
         private val prefix: String,
