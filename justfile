@@ -73,9 +73,9 @@ docs-serve:
 docs-rust:
     cargo doc --open
 
-# Dispatch CI workflow on a given ref
-ci ref="HEAD":
-    gh workflow run ci.yml --ref {{ ref }}
+# Dispatch CI workflow on a given branch or tag
+ci branch:
+    gh workflow run ci.yml --ref {{ branch }}
 
 # Helper to get the right ninja command for the platform
 ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }
