@@ -1,6 +1,5 @@
 [project]
 requires-python = ">=3.10"
-version = "{{ version }}"
 
 # This project was generated with 0.3.26 using template: https://github.com/beeware/briefcase-template @ v0.3.26
 [tool.briefcase]
@@ -22,8 +21,6 @@ icon = "resources/anki"
 cleanup_paths = ["anki-*.ico", "**/anki-*.icns"]
 console_app = false
 use_full_install_path = false
-requires = ["{{ aqt_wheel }}[qt,audio]", "{{ anki_wheel }}"]
-{{ template }}
 
 permission.microphone = "The microphone will only be used when you tap the record button."
 permission.camera = "Add-ons may access your camera."
@@ -59,7 +56,7 @@ system_runtime_requires = [
   "libxkbcommon-x11-0",
   "libxrandr2",
   "libxrender1",
-  "libxtst6"
+  "libxtst6",
 ]
 
 [tool.briefcase.app.anki.linux.flatpak]

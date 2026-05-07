@@ -11,12 +11,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-import jinja2
-
 installer_dir = Path("qt/installer")
 app_dir = installer_dir / "app"
 out_dir = Path("out/installer").resolve()
-env = jinja2.Environment(loader=jinja2.FileSystemLoader(app_dir))
 
 
 def normalize_wheel_path(out_dir: Path, path: str) -> str:
@@ -41,22 +38,30 @@ def get_briefcase_output_format() -> list[str]:
     return []
 
 
-def build(args: argparse.Namespace) -> None:
+def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
     version = args.version
-    shutil.copytree(app_dir, out_dir, dirs_exist_ok=True)
-    aqt_wheel = normalize_wheel_path(out_dir, args.aqt_wheel)
-    anki_wheel = normalize_wheel_path(out_dir, args.anki_wheel)
+    if aqt_wheel := getattr(args, "aqt_wheel", None):
+        aqt_wheel = normalize_wheel_path(out_dir, args.aqt_wheel)
+    if anki_wheel := getattr(args, "aqt_wheel", None):
+        anki_wheel = normalize_wheel_path(out_dir, args.anki_wheel)
     template_path = get_briefcase_template_path()
-    template = (
-        f'template = "{template_path.absolute().as_posix()}"' if template_path else ""
-    )
-    template = env.get_template("pyproject.toml.template").render(
-        aqt_wheel=aqt_wheel,
-        anki_wheel=anki_wheel,
-        version=version,
-        template=template,
-    )
-    (out_dir / "pyproject.toml").write_text(template, encoding="utf-8")
+    config_args = [
+        "-C",
+        f'version="{version}"',
+    ]
+    if aqt_wheel:
+        config_args.extend(
+            ["-C", f'requires=["{aqt_wheel}[qt,audio]", "{anki_wheel}"]']
+        )
+    if template_path:
+        config_args.extend(["-C", f'template="{template_path.absolute().as_posix()}"'])
+
+    return config_args
+
+
+def build(args: argparse.Namespace) -> None:
+    shutil.copytree(app_dir, out_dir, dirs_exist_ok=True)
+    config_args = get_briefcase_config_args(args)
     shutil.copy("LICENSE", out_dir / "LICENSE")
     (out_dir / "CHANGELOG").write_text(
         "Please see https://apps.ankiweb.net/", encoding="utf-8"
@@ -66,7 +71,20 @@ def build(args: argparse.Namespace) -> None:
             sys.executable,
             "-m",
             "briefcase",
+            "create",
+            *config_args,
+            "--no-input",
+            "--log",
+        ],
+        cwd=out_dir,
+    )
+    subprocess.check_call(
+        [
+            sys.executable,
+            "-m",
+            "briefcase",
             "build",
+            *config_args,
             *get_briefcase_output_format(),
             "--update",
             "--update-requirements",
@@ -80,6 +98,7 @@ def build(args: argparse.Namespace) -> None:
 
 def package(args: argparse.Namespace) -> None:
     version = args.version
+    config_args = get_briefcase_config_args(args)
     shutil.rmtree(out_dir / "dist", ignore_errors=True)
     identity = os.environ.get("SIGN_IDENTITY")
     identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
@@ -90,6 +109,7 @@ def package(args: argparse.Namespace) -> None:
             "briefcase",
             "package",
             *get_briefcase_output_format(),
+            *config_args,
             "--log",
             *identity_args,
         ],

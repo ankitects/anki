@@ -89,7 +89,6 @@ source = { virtual = "." }
 dev = [
     { name = "briefcase" },
     { name = "hatchling" },
-    { name = "jinja2" },
     { name = "mock" },
     { name = "mypy" },
     { name = "mypy-protobuf" },
@@ -123,7 +122,6 @@ docs = [
 dev = [
     { name = "briefcase", specifier = ">=0.4.2" },
     { name = "hatchling" },
-    { name = "jinja2" },
     { name = "mock" },
     { name = "mypy" },
     { name = "mypy-protobuf" },
