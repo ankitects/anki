@@ -111,11 +111,9 @@ The release workflow uses GitHub
 as manual approval gates. Jobs that access signing credentials or publish
 artifacts require a reviewer to approve the deployment before they run:
 
-- **`release`** — Required when `sign`, `draft-release`, or `publish-pypi` is
-  enabled. Protects code-signing secrets, the release token, and PyPI trusted
-  publishing/OIDC.
-- **`release`** — Also required by the TestPyPI publishing job (both TestPyPI
-  and PyPI use the same `release` environment).
+- **`release`** — Required when `sign`, `draft-release`, `publish-testpypi`, or
+  `publish-pypi` is enabled. Protects code-signing secrets, the release token,
+  and PyPI/TestPyPI trusted publishing/OIDC.
 
 When `sign` is disabled, the macOS and Windows build jobs run without the
 `release` environment so they do not require approval and cannot access signing
