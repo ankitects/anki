@@ -117,11 +117,10 @@ jobs:
         run: |
           conclusion=$(gh run list \
             --workflow=ci.yml \
-            -e push -e workflow_dispatch \
             --commit "$COMMIT_SHA" \
-            --limit 1 \
-            --json conclusion \
-            --jq ".[0].conclusion")
+            --limit 5 \
+            --json conclusion,event \
+            --jq '[.[] | select(.event == "push" or .event == "workflow_dispatch")][0].conclusion')
 
           if [[ -z "$conclusion" ]]; then
             echo "::error::Could not determine CI status for commit $COMMIT_SHA"
