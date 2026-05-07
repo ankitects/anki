@@ -5,9 +5,14 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version for draft release/PyPI (must match .version on main)"
+        description: "Version for draft release/PyPI (must match .version)"
         required: true
         type: string
+      skip-ci-check:
+        description: "Skip the CI status check (for hotfix releases from non-main branches)"
+        default: false
+        required: false
+        type: boolean
       sign:
         description: "Sign macOS and Windows artifacts (requires release environment)"
         default: false
@@ -107,22 +112,12 @@ jobs:
           DRAFT_RELEASE: ${{ inputs['draft-release'] }}
           PUBLISH_PYPI: ${{ inputs['publish-pypi'] }}
 
-      - name: Require dispatch from main
-        if: ${{ steps.validate.outputs.public_release == 'true' }}
-        run: |
-          if [ "$REF_NAME" != "main" ]; then
-            echo "::error::Releases must be dispatched from main. Got $REF_NAME."
-            exit 1
-          fi
-        env:
-          REF_NAME: ${{ github.ref_name }}
-
-      - name: Check CI passed on main
-        if: ${{ steps.validate.outputs.public_release == 'true' }}
+      - name: Check CI passed
+        if: ${{ steps.validate.outputs.public_release == 'true' && inputs.skip-ci-check != true }}
         run: |
           conclusion=$(gh run list \
             --workflow=ci.yml \
-            -e push \
+            -e push -e workflow_dispatch \
             --commit "$COMMIT_SHA" \
             --limit 1 \
             --json conclusion \
@@ -401,6 +396,9 @@ jobs:
       - name: Build wheels
         run: ./ninja wheels
 
+      - name: Build anki-release wheel
+        run: cd qt/release && bash build.sh
+
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-x86
@@ -519,7 +517,7 @@ jobs:
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: testpypi
+    environment: release
     permissions:
       id-token: write
     steps:
