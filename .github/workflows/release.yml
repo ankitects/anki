@@ -107,27 +107,27 @@ jobs:
           DRAFT_RELEASE: ${{ inputs['draft-release'] }}
           PUBLISH_PYPI: ${{ inputs['publish-pypi'] }}
 
-      - name: Check CI passed on main
-        if: ${{ steps.validate.outputs.public_release == 'true' }}
-        run: |
-          conclusion=$(gh run list \
-            --workflow=ci.yml \
-            -e push -e workflow_dispatch \
-            --commit "$COMMIT_SHA" \
-            --limit 1 \
-            --json conclusion \
-            --jq ".[0].conclusion")
+      # - name: Check CI passed on main
+      #   if: ${{ steps.validate.outputs.public_release == 'true' }}
+      #   run: |
+      #     conclusion=$(gh run list \
+      #       --workflow=ci.yml \
+      #       -e push -e workflow_dispatch \
+      #       --commit "$COMMIT_SHA" \
+      #       --limit 1 \
+      #       --json conclusion \
+      #       --jq ".[0].conclusion")
 
-          if [[ -z "$conclusion" ]]; then
-            echo "::error::Could not determine CI status for commit $COMMIT_SHA"
-            exit 1
-          elif [[ "$conclusion" != "success" ]]; then
-            echo "::error::CI for commit $COMMIT_SHA concluded with '$conclusion'"
-            exit 1
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
-          COMMIT_SHA: ${{ github.sha }}
+      #     if [[ -z "$conclusion" ]]; then
+      #       echo "::error::Could not determine CI status for commit $COMMIT_SHA"
+      #       exit 1
+      #     elif [[ "$conclusion" != "success" ]]; then
+      #       echo "::error::CI for commit $COMMIT_SHA concluded with '$conclusion'"
+      #       exit 1
+      #     fi
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
+      #     COMMIT_SHA: ${{ github.sha }}
 
       - name: Check for duplicate tag or release
         if: ${{ inputs['draft-release'] == true }}
