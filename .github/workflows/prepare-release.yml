@@ -8,6 +8,11 @@ on:
         description: "Version (e.g. 26.04 for stable, 26.04b1 or 26.04rc1 for pre-release)"
         required: true
         type: string
+      skip-ci-check:
+        description: "Skip the CI status check (for hotfix releases from non-main branches)"
+        default: false
+        required: false
+        type: boolean
 
 permissions:
   contents: write
@@ -31,14 +36,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Require dispatch from main
-        if: github.ref_name != 'main'
-        run: |
-          echo "::error::Must be dispatched from main. Got ref $REF_NAME."
-          exit 1
-        env:
-          REF_NAME: ${{ github.ref_name }}
-
       - name: Validate version
         run: |
           pip install --break-system-packages 'packaging>=24,<26'
@@ -49,15 +46,15 @@ jobs:
         env:
           INPUT_VERSION: ${{ inputs.version }}
 
-      - name: Check CI passed on main
+      - name: Check CI passed
+        if: inputs.skip-ci-check != true
         run: |
           conclusion=$(gh run list \
             --workflow=ci.yml \
-            -e push \
             --commit "$COMMIT_SHA" \
-            --limit 1 \
-            --json conclusion \
-            --jq ".[0].conclusion")
+            --limit 5 \
+            --json conclusion,event \
+            --jq '[.[] | select(.event == "push" or .event == "workflow_dispatch")][0].conclusion')
 
           if [[ -z "$conclusion" ]]; then
             echo "::error::Could not determine CI status for commit $COMMIT_SHA"
@@ -103,5 +100,7 @@ jobs:
         env:
           INPUT_VERSION: ${{ inputs.version }}
 
-      - name: Push to main
-        run: git push origin HEAD:refs/heads/main
+      - name: Push to branch
+        run: git push origin HEAD:refs/heads/$BRANCH
+        env:
+          BRANCH: ${{ github.ref_name }}
