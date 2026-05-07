@@ -17,15 +17,18 @@
 package com.ichi2.anki.cardviewer
 
 import android.content.Context
-import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import androidx.annotation.CheckResult
+import androidx.annotation.OptIn
 import androidx.annotation.VisibleForTesting
 import androidx.core.net.toUri
-import androidx.media.AudioFocusRequestCompat
-import androidx.media.AudioManagerCompat
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C.AUDIO_CONTENT_TYPE_MUSIC
+import androidx.media3.common.audio.AudioFocusRequestCompat
+import androidx.media3.common.audio.AudioManagerCompat
+import androidx.media3.common.util.UnstableApi
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.common.annotations.NeedsTest
@@ -39,6 +42,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /** Player for (`[sound:...]`): [SoundOrVideoTag]  */
+@OptIn(UnstableApi::class)
 @NeedsTest("CardSoundConfig.autoplay should mean that video also isn't played automatically")
 class SoundTagPlayer(
     private val soundUriBase: String,
@@ -49,7 +53,7 @@ class SoundTagPlayer(
     private val music =
         AudioAttributes
             .Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .setContentType(AUDIO_CONTENT_TYPE_MUSIC)
             .build()
 
     /**
@@ -118,7 +122,7 @@ class SoundTagPlayer(
                 } else {
                     (soundUriBase + Uri.encode(tag.filename)).toUri()
                 }
-            setAudioAttributes(music)
+            setAudioAttributes(music.platformAudioAttributes)
             setOnErrorListener { mp, what, extra ->
                 Timber.w("Media error %d", what)
                 abandonAudioFocus()

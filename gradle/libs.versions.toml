@@ -43,8 +43,6 @@ androidxExifinterface = "1.4.2"
 androidxFragmentKtx = "1.8.9"
 # https://developer.android.com/jetpack/androidx/releases/lifecycle
 androidxLifecycleProcess = "2.10.0"
-# https://developer.android.com/jetpack/androidx/releases/media
-androidxMedia = "1.7.1"
 # https://developer.android.com/jetpack/androidx/releases/media3
 androidxMedia3 = "1.10.0"
 # https://developer.android.com/jetpack/androidx/releases/preference
@@ -146,7 +144,6 @@ androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "andr
 androidx-media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "androidxMedia3" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "androidxMedia3" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "androidxPreferenceKtx" }
-androidx-media = { module = "androidx.media:media", version.ref = "androidxMedia" }
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidxTestUiAutomator" }
 androidx-webkit = { module = "androidx.webkit:webkit", version.ref = "androidxWebkit" }
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "androidxViewpager2" }

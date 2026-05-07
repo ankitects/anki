@@ -418,7 +418,6 @@ dependencies {
     implementation libs.androidx.exifinterface
     implementation libs.androidx.fragment.ktx
     implementation libs.androidx.lifecycle.process
-    implementation libs.androidx.media
     implementation libs.androidx.preference.ktx
     implementation libs.androidx.recyclerview
     implementation libs.androidx.sqlite.framework
