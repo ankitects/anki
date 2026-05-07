@@ -604,7 +604,7 @@ impl RowContext {
             "".into()
         } else {
             time_span(
-                (intervals.iter().sum::<f32>() * 86400.0 / (intervals.len() as f32)) as f32,
+                intervals.iter().sum::<f32>() * 86400.0 / (intervals.len() as f32),
                 &self.tr,
                 false,
             )

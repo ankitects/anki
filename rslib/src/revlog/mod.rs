@@ -80,7 +80,7 @@ impl RevlogEntry {
         if self.interval > 0 {
             self.interval as f32 * 86_400.0
         } else {
-            self.interval as f32 * -1.0
+            -(self.interval as f32)
         }
     }
 
@@ -88,7 +88,7 @@ impl RevlogEntry {
         if self.last_interval > 0 {
             self.last_interval as f32 * 86_400.0
         } else {
-            self.last_interval as f32 * -1.0
+            -(self.last_interval as f32)
         }
     }
 
