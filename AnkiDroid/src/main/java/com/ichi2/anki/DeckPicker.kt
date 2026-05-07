@@ -207,6 +207,8 @@ import kotlinx.coroutines.withContext
 import net.ankiweb.rsdroid.Translations
 import timber.log.Timber
 import java.io.File
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * The current entry point for AnkiDroid. Displays decks, allowing users to study. Many other functions.
@@ -1408,10 +1410,8 @@ open class DeckPicker :
             }
         }
 
-        fun syncIntervalPassed(): Boolean {
-            val automaticSyncIntervalInMS = AUTOMATIC_SYNC_MINIMAL_INTERVAL_IN_MINUTES * 60 * 1000
-            return TimeManager.time.intTimeMS() - Prefs.lastSyncTime > automaticSyncIntervalInMS
-        }
+        fun syncIntervalPassed(): Boolean =
+            (TimeManager.time.intTimeMS() - Prefs.lastSyncTime) > AUTOMATIC_SYNC_MINIMAL_INTERVAL.inWholeMilliseconds
 
         when {
             !Prefs.isAutoSyncEnabled -> Timber.d("autoSync: not enabled")
@@ -2173,9 +2173,12 @@ open class DeckPicker :
         @VisibleForTesting
         const val REQUEST_STORAGE_PERMISSION = 0
 
-        // For automatic syncing
-        // 10 minutes in milliseconds..
-        private const val AUTOMATIC_SYNC_MINIMAL_INTERVAL_IN_MINUTES: Long = 10
+        /**
+         * Minimum delay between automatic syncs.
+         *
+         * Skips the automatic sync if this time has not elapsed.
+         */
+        private val AUTOMATIC_SYNC_MINIMAL_INTERVAL: Duration = 10.minutes
         private const val SWIPE_TO_SYNC_TRIGGER_DISTANCE = 400
 
         private const val PREF_DECK_PICKER_PANE_WEIGHT = "deckPickerPaneWeight"
