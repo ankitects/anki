@@ -1612,6 +1612,21 @@ class IdsFile(
     }
 }
 
+/** Attempt to delete the associated [IdsFile] and logs the result */
+fun IdsFile.removeSafely(owner: String) {
+    runCatching { delete() }
+        .onFailure { throwable ->
+            Timber.w(
+                throwable,
+                "Exception when removing IdsFile of $owner",
+            )
+        }.onSuccess { status ->
+            Timber.i(
+                "$owner associated IdsFile was deleted: $status",
+            )
+        }
+}
+
 /**
  * Determines if a card can be repositioned.
  *

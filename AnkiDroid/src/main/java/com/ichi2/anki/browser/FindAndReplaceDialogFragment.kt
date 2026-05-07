@@ -180,15 +180,7 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
 
     /** Attempt to delete the associated [IdsFile] and logs the result */
     private fun removeIdsFile() {
-        runCatching { idsFile.delete() }
-            .onFailure { throwable ->
-                Timber.w(
-                    throwable,
-                    "Exception when removing IdsFile of FindAndReplaceDialogFragment",
-                )
-            }.onSuccess { status ->
-                Timber.i("FindAndReplaceDialogFragment associated IdsFile was deleted: $status")
-            }
+        idsFile.removeSafely(TAG)
     }
 
     companion object {
