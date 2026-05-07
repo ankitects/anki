@@ -194,6 +194,7 @@
     <string name="tag_editor_add_feedback">Αγγίξτε το “%2$s” για να επιβεβαιώσετε την προσθήκη “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Επιλέχθηκε η υπάρχουσα ετικέτα “%1$s”</string>
     <string name="tag_already_exists">Tag already exists</string>
+    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Σφάλμα κοινής χρήσης αρχείου apkg</string>

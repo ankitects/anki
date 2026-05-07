@@ -194,6 +194,7 @@
     <string name="tag_editor_add_feedback">“%1$s”ஐச் சேர்ப்பதை உறுதிசெய்ய “%2$s”ஐத் தொடவும்</string>
     <string name="tag_editor_add_feedback_existing">ஏற்கனவே உள்ள \"%1$s\" குறி தேர்ந்தெடுக்கப்பட்டது</string>
     <string name="tag_already_exists">Tag already exists</string>
+    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">apkg கோப்பைப் பகிர்வதில் பிழை</string>

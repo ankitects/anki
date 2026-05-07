@@ -194,6 +194,7 @@
     <string name="tag_editor_add_feedback">Pindutin ang \"%2$s\" para kumpirmahin ang pagdaragdag ng \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">Napili ang umiiral na tag na \"%1$s\"</string>
     <string name="tag_already_exists">Tag already exists</string>
+    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Mali sa pagbabahagi ng apkg file</string>

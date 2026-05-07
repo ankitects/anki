@@ -194,6 +194,7 @@
     <string name="tag_editor_add_feedback">Raak \"%2$s\" aan om \"%1$s\" by te voeg</string>
     <string name="tag_editor_add_feedback_existing">Bestaande etiket “%1$s” gekies</string>
     <string name="tag_already_exists">Tag already exists</string>
+    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Fout met die deel van apkg-lêer</string>

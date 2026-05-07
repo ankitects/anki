@@ -194,6 +194,7 @@
     <string name="tag_editor_add_feedback">\"%2$s\" 𐌰𐍄𐍄𐌴𐌺𐌰𐌽 𐌳𐌿 𐌲𐌰𐍄𐌿𐌻𐌲𐌾𐌰𐌽 𐌱𐌹𐌰𐌿𐌺𐌰𐌽 \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">𐍅𐌹𐍃𐌰𐌽𐌳𐍉 𐍃𐍉𐌺𐌽𐌹𐍅𐌰𐌿𐍂𐌳 \"%1$s\" 𐌲𐌰𐍅𐌰𐌻𐌹𐌸</string>
     <string name="tag_already_exists">Tag already exists</string>
+    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">𐌰𐌹𐍂𐌶𐌴𐌹 𐍅𐌰𐍂𐌸 𐌳𐌰𐌹𐌻𐌾𐌰𐌽 apkg 𐍆𐌰𐌾𐌻</string>

@@ -200,6 +200,7 @@
     <string name="tag_editor_add_feedback">לחץ \"%2$s\" לאישור הוספת \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">תגית קיימת \"%1$s\" נבחרה</string>
     <string name="tag_already_exists">Tag already exists</string>
+    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">שגיאה בשיתוף קובץ apkg</string>

@@ -194,6 +194,7 @@
     <string name="tag_editor_add_feedback">\"%1$s\" जोडण्याची पुष्टी करण्यासाठी \"%2$s\" ला स्पर्श करा</string>
     <string name="tag_editor_add_feedback_existing">\"%1$s\" विद्यमान टॅग निवडला.</string>
     <string name="tag_already_exists">Tag already exists</string>
+    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">apkg फाइल शेअर करताना त्रुटी</string>

@@ -197,6 +197,7 @@
     <string name="tag_editor_add_feedback">Pritisnite “%2$s” da potvrdite dodavanje “%1$s</string>
     <string name="tag_editor_add_feedback_existing">Odabrana postojeća oznaka “%1$s”</string>
     <string name="tag_already_exists">Tag already exists</string>
+    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Greška pri dijeljenju apkg datoteke</string>
