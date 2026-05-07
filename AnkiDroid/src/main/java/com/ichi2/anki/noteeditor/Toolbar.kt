@@ -332,7 +332,7 @@ class Toolbar : FrameLayout {
 
         val mathjaxOptions =
             arrayOf(
-                MathJaxOption(TR.editingMathjaxBlock(), prefix = "\\[\\", suffix = "\\]"),
+                MathJaxOption(TR.editingMathjaxBlock(), prefix = "\\[", suffix = "\\]"),
                 MathJaxOption(TR.editingMathjaxChemistry(), prefix = "\\( \\ce{", suffix = "} \\)"),
             )
         AlertDialog.Builder(context).show {
