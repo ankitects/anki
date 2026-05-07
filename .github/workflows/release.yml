@@ -276,7 +276,7 @@ jobs:
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: testpypi
+    environment: release
     permissions:
       id-token: write
     steps:
