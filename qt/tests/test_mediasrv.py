@@ -12,7 +12,9 @@ from pathlib import Path
 import pytest
 
 from aqt.mediasrv import (
+    LocalFileRequest,
     UnsafePathException,
+    _handle_local_file_request,
     ensure_safe_path,
     is_localhost_origin,
 )
@@ -96,3 +98,60 @@ class TestIsLocalhostOrigin:
     )
     def test_rejected_origins(self, origin: str) -> None:
         assert is_localhost_origin(origin) is False
+
+
+def _make_media_file(tmpdir: str, filename: str, content: bytes = b"test") -> str:
+    path = os.path.join(tmpdir, filename)
+    with open(path, "wb") as f:
+        f.write(content)
+    return filename
+
+
+def _get_csp(response) -> str | None:
+    return response.headers.get("Content-Security-Policy")
+
+
+class TestMediaFileCSP:
+    """CSP headers on media file responses should block script execution."""
+
+    @pytest.mark.parametrize("doctype", ["html", "svg"])
+    def test_doc_has_csp_header(self, doctype: str) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
+            fname = _make_media_file(
+                tmpdir, doctype, f"<{doctype}></{doctype}>".encode()
+            )
+            req = LocalFileRequest(root=tmpdir, path=fname)
+            from aqt.mediasrv import app
+
+            with app.test_request_context():
+                resp = _handle_local_file_request(req)
+            csp = _get_csp(resp)
+            assert csp is not None, f"{doctype} response must have CSP header"
+
+    def test_csp_blocks_connect_to_local_api(self) -> None:
+        """Scripts must not be able to fetch() the local /_anki/ API.
+
+        Even if script-src somehow gets relaxed in the future, connect-src
+        should not allow http: (which includes http://127.0.0.1).
+        """
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
+            fname = _make_media_file(tmpdir, "test.svg", b"<svg></svg>")
+            req = LocalFileRequest(root=tmpdir, path=fname)
+            from aqt.mediasrv import app
+
+            with app.test_request_context():
+                resp = _handle_local_file_request(req)
+            csp = _get_csp(resp)
+            assert csp is not None
+
+            # default-src 'none' implies connect-src 'none', which is sufficient
+            if "default-src 'none'" in csp:
+                return
+
+            # Otherwise connect-src must not include http: or 'self'
+            assert "http:" not in csp, (
+                f"CSP must not allow http: connections (enables local API access): {csp}"
+            )
+            assert "'self'" not in csp, (
+                f"CSP must not allow 'self' connections (enables local API access): {csp}"
+            )
