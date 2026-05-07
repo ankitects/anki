@@ -59,7 +59,7 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/background_image_title" >
         <Preference
-            android:defaultValue="0"
+            android:defaultValue="false"
             android:key="@string/pref_deck_picker_background_key"
             android:shouldDisableView="true"
             android:icon="@drawable/wallpaper_icon"

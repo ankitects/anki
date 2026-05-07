@@ -21,6 +21,7 @@ import com.github.ivanshafran.sharedpreferencesmock.SPMockBuilder
 import com.ichi2.anki.EmptyApplicationCategory
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.libanki.utils.append
+import com.ichi2.anki.preferences.HeaderFragment
 import com.ichi2.anki.preferences.PreferenceTestUtils
 import com.ichi2.anki.preferences.PreferenceTestUtils.getAttrsFromXml
 import com.ichi2.anki.preferences.PreferenceTestUtils.resValue
@@ -54,14 +55,18 @@ import kotlin.test.assertEquals
 class PrefsRobolectricTest : RobolectricTest() {
     private fun getKeysAndDefaultValues(): MutableMap<String, Any?> {
         val sharedPrefsSpy = spy(SPMockBuilder().createSharedPreferences())
-        val mockResources = mockk<Resources>()
-        every { mockResources.getString(any()) } answers { invocation.args[0].toString() }
-        val prefs = PrefsRepository(sharedPrefsSpy, mockResources)
+        val prefs = PrefsRepository(sharedPrefsSpy, targetContext.resources)
 
         val keysAndDefaultValues: MutableMap<String, Any?> = mutableMapOf()
         doAnswer { invocation ->
             val key = invocation.arguments[0] as String
-            keysAndDefaultValues[key] = invocation.arguments[1]
+            val value = invocation.arguments[1]
+            keysAndDefaultValues[key] =
+                if (value is String) {
+                    value.resValue(targetContext)
+                } else {
+                    value
+                }
             invocation.callRealMethod()
         }.run {
             whenever(sharedPrefsSpy).getBoolean(any(), any())
@@ -85,11 +90,12 @@ class PrefsRobolectricTest : RobolectricTest() {
             PreferenceTestUtils
                 .getAllPreferencesFragments(targetContext)
                 .asSequence()
+                .filter { it !is HeaderFragment }
                 .filterIsInstance<SettingsFragment>()
                 .map { it.preferenceResource }
                 .flatMap { getAttrsFromXml(targetContext, it, listOf("defaultValue", "key")) }
                 .filter { it["key"] != null }
-                .associate { it["key"]!!.resValue(targetContext) to it["defaultValue"] }
+                .associate { it["key"]!!.resValue(targetContext) to it["defaultValue"]?.resValue(targetContext).toString() }
 
         for ((key, defaultValue) in keysAndDefaultValues.entries) {
             if (key !in prefs || key in developerOptionsKeys) continue
