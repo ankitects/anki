@@ -23,6 +23,7 @@ import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.libanki.utils.append
 import com.ichi2.anki.preferences.PreferenceTestUtils
 import com.ichi2.anki.preferences.PreferenceTestUtils.getAttrsFromXml
+import com.ichi2.anki.preferences.PreferenceTestUtils.resValue
 import com.ichi2.anki.preferences.SettingsFragment
 import com.ichi2.anki.settings.enums.PrefEnum
 import com.ichi2.testutils.EmptyApplication
@@ -88,7 +89,7 @@ class PrefsRobolectricTest : RobolectricTest() {
                 .map { it.preferenceResource }
                 .flatMap { getAttrsFromXml(targetContext, it, listOf("defaultValue", "key")) }
                 .filter { it["key"] != null }
-                .associate { PreferenceTestUtils.attrValueToString(it["key"]!!, targetContext) to it["defaultValue"] }
+                .associate { it["key"]!!.resValue(targetContext) to it["defaultValue"] }
 
         for ((key, defaultValue) in keysAndDefaultValues.entries) {
             if (key !in prefs || key in developerOptionsKeys) continue
@@ -105,7 +106,7 @@ class PrefsRobolectricTest : RobolectricTest() {
         val keys = mutableListOf<String>()
 
         doAnswer { invocation ->
-            val key = PreferenceTestUtils.attrValueToString("@${invocation.arguments[0]}", targetContext)
+            val key = "@${invocation.arguments[0]}".resValue(targetContext)
             keys.append(key)
             invocation.callRealMethod()
         }.run {
@@ -148,7 +149,7 @@ class PrefsRobolectricTest : RobolectricTest() {
                 .flatMap { getAttrsFromXml(targetContext, it, listOf("key", "entryValues")) }
                 .filter { it["entryValues"] != null }
                 .associate {
-                    PreferenceTestUtils.attrValueToString(it["key"]!!, targetContext) to
+                    it["key"]!!.resValue(targetContext) to
                         PreferenceTestUtils.attrToStringArray(it["entryValues"]!!, targetContext).toList()
                 }
 

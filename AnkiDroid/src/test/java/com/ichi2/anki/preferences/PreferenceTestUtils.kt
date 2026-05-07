@@ -106,14 +106,11 @@ object PreferenceTestUtils {
         return fragments.distinctBy { it::class } // and remove any repeated fragments
     }
 
-    fun attrValueToString(
-        value: String,
-        context: Context,
-    ): String =
-        if (value.startsWith("@")) {
-            context.getString(value.substring(1).toInt())
+    fun String.resValue(context: Context): String =
+        if (this.startsWith("@")) {
+            context.getString(this.substring(1).toInt())
         } else {
-            value
+            this
         }
 
     fun attrToStringArray(
@@ -133,7 +130,7 @@ object PreferenceTestUtils {
                 emptySet()
             }
         return getAttrFromXml(context, xml, "key", excludeTags = exclusions)
-            .map { attrValueToString(it, context) }
+            .map { it.resValue(context) }
     }
 
     fun getAllPreferenceKeys(context: Context): Set<String> =
