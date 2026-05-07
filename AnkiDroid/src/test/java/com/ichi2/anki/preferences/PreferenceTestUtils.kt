@@ -20,6 +20,7 @@ import androidx.annotation.XmlRes
 import androidx.fragment.app.Fragment
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.R
+import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.testutils.getInstanceFromClassName
 import org.xmlpull.v1.XmlPullParser
@@ -105,6 +106,9 @@ object PreferenceTestUtils {
         val fragments = getFragmentsFromXmlRecursively(context, R.xml.preference_headers) + HeaderFragment()
         return fragments.distinctBy { it::class } // and remove any repeated fragments
     }
+
+    context(test: RobolectricTest)
+    fun String.resValue(): String = resValue(test.targetContext)
 
     fun String.resValue(context: Context): String =
         if (this.startsWith("@")) {

@@ -63,7 +63,7 @@ class PrefsRobolectricTest : RobolectricTest() {
             val value = invocation.arguments[1]
             keysAndDefaultValues[key] =
                 if (value is String) {
-                    value.resValue(targetContext)
+                    value.resValue()
                 } else {
                     value
                 }
@@ -95,7 +95,7 @@ class PrefsRobolectricTest : RobolectricTest() {
                 .map { it.preferenceResource }
                 .flatMap { getAttrsFromXml(targetContext, it, listOf("defaultValue", "key")) }
                 .filter { it["key"] != null }
-                .associate { it["key"]!!.resValue(targetContext) to it["defaultValue"]?.resValue(targetContext).toString() }
+                .associate { it["key"]!!.resValue() to it["defaultValue"]?.resValue().toString() }
 
         for ((key, defaultValue) in keysAndDefaultValues.entries) {
             if (key !in prefs || key in developerOptionsKeys) continue
@@ -112,7 +112,7 @@ class PrefsRobolectricTest : RobolectricTest() {
         val keys = mutableListOf<String>()
 
         doAnswer { invocation ->
-            val key = "@${invocation.arguments[0]}".resValue(targetContext)
+            val key = "@${invocation.arguments[0]}".resValue()
             keys.append(key)
             invocation.callRealMethod()
         }.run {
@@ -155,7 +155,7 @@ class PrefsRobolectricTest : RobolectricTest() {
                 .flatMap { getAttrsFromXml(targetContext, it, listOf("key", "entryValues")) }
                 .filter { it["entryValues"] != null }
                 .associate {
-                    it["key"]!!.resValue(targetContext) to
+                    it["key"]!!.resValue() to
                         PreferenceTestUtils.attrToStringArray(it["entryValues"]!!, targetContext).toList()
                 }
 
