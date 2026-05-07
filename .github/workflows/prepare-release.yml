@@ -101,4 +101,6 @@ jobs:
           INPUT_VERSION: ${{ inputs.version }}
 
       - name: Push to branch
-        run: git push origin HEAD:refs/heads/${{ github.ref_name }}
+        run: git push origin HEAD:refs/heads/$BRANCH
+        env:
+          BRANCH: ${{ github.ref_name }}
