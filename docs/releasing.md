@@ -124,14 +124,14 @@ secrets.
 The `release.yml` workflow uses independent boolean inputs to control what gets
 signed and published:
 
-| Input              | Effect                                                                                                                                                                                                                                        |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sign`             | Signs macOS and Windows artifacts. Requires the `release` environment. When false, those jobs upload unsigned artifacts and do not access signing secrets.                                                                                    |
-| `draft-release`    | Creates a draft GitHub release with generated release notes and installer artifacts. Requires `sign=true`, the `release` environment, passing CI (unless skipped), no duplicate tag/release, and `version` matching `.version`.                |
-| `publish-testpypi` | Publishes wheels to TestPyPI. Requires the `release` environment.                                                                                                                                                                             |
+| Input              | Effect                                                                                                                                                                                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sign`             | Signs macOS and Windows artifacts. Requires the `release` environment. When false, those jobs upload unsigned artifacts and do not access signing secrets.                                                                                        |
+| `draft-release`    | Creates a draft GitHub release with generated release notes and installer artifacts. Requires `sign=true`, the `release` environment, passing CI (unless skipped), no duplicate tag/release, and `version` matching `.version`.                   |
+| `publish-testpypi` | Publishes wheels to TestPyPI. Requires the `release` environment.                                                                                                                                                                                 |
 | `publish-pypi`     | Publishes wheels to PyPI. Requires the `release` environment, passing CI (unless skipped), and `version` matching `.version`. It also runs and waits for the TestPyPI publish job first. It does not require signing unless `draft-release=true`. |
-| `skip-ci-check`    | Skips the CI status check. Useful for hotfix releases from non-main branches where CI was run via `workflow_dispatch`.                                                                                                                        |
-| `version`          | For `draft-release` or `publish-pypi`: must match `.version`. For build-only, signed-only, or TestPyPI-only runs: ignored (`.version` from the branch is used automatically).                                                                 |
+| `skip-ci-check`    | Skips the CI status check. Useful for hotfix releases from non-main branches where CI was run via `workflow_dispatch`.                                                                                                                            |
+| `version`          | For `draft-release` or `publish-pypi`: must match `.version`. For build-only, signed-only, or TestPyPI-only runs: ignored (`.version` from the branch is used automatically).                                                                     |
 
 ```mermaid
 flowchart TD
