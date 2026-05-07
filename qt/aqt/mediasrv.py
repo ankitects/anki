@@ -283,13 +283,18 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
                 max_age = 0
             else:
                 max_age = 60 * 60
-            return flask.send_file(
+            response = flask.send_file(
                 fullpath,
                 mimetype=mimetype,
                 conditional=True,
                 max_age=max_age,
                 download_name="foo",  # type: ignore[call-arg]
             )
+            # Prevent iframes from accessing our internal API
+            response.headers["Content-Security-Policy"] = (
+                "connect-src https: wss: blob: data:"
+            )
+            return response
         else:
             print(f"Not found: {path}")
             return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {path}")
