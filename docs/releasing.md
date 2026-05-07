@@ -3,8 +3,10 @@
 Releases are managed by two GitHub Actions workflows under `.github/workflows/`:
 
 1. **`prepare-release.yml`** — Run first. Validates the version, checks that CI
-   passed on main, syncs translations, updates `.version`, and pushes everything
-   to main in a single commit. Normal CI then runs on the resulting commit.
+   passed, syncs translations, updates `.version`, and pushes everything
+   to the dispatching branch in a single commit. Normal CI then runs on the
+   resulting commit. Can be dispatched from any branch (not just main) for
+   hotfix/security releases. The CI check can be skipped with `skip-ci-check`.
 
 2. **`release.yml`** — Run after CI passes on the prepared commit. Builds
    installers and wheels for all platforms (Linux x86/ARM, macOS Intel/ARM,
@@ -18,7 +20,7 @@ they cannot run simultaneously.
 
 ```mermaid
 flowchart LR
-    A["<b>prepare-release.yml</b><br/>validate version<br/>check CI ✓<br/>check duplicate tag<br/>sync translations<br/>update .version<br/>push to main"] --> B["<b>CI (ci.yml)</b><br/>runs automatically<br/>on the new commit"]
+    A["<b>prepare-release.yml</b><br/>validate version<br/>check CI ✓<br/>check duplicate tag<br/>sync translations<br/>update .version<br/>push to branch"] --> B["<b>CI (ci.yml)</b><br/>runs automatically<br/>on the new commit"]
     B --> C["<b>release.yml</b><br/>build all platforms<br/>optionally sign macOS/Windows<br/>optionally create draft GitHub release<br/>optionally publish to TestPyPI/PyPI"]
 
     style A fill:#2d333b,stroke:#539bf5,color:#adbac7
@@ -82,20 +84,24 @@ suffixes (`b1`, `rc1`, `a1`). Months must be zero-padded.
 
 ## Workflow inputs
 
-**prepare-release:** takes a `version` string.
+**prepare-release:** takes a `version` string and an optional `skip-ci-check`
+boolean (default `false`). Set `skip-ci-check=true` for hotfix releases from
+non-main branches where CI was triggered via `workflow_dispatch` or hasn't run
+on the branch yet.
 
-**release:** takes a `version` (must match `.version` on main for public
-release operations) and four boolean inputs:
+**release:** takes a `version` (must match `.version` for public release
+operations) and five boolean inputs:
 
 - `sign` signs macOS and Windows artifacts.
 - `draft-release` creates the draft GitHub release.
 - `publish-testpypi` publishes wheels to TestPyPI.
 - `publish-pypi` publishes wheels to PyPI.
+- `skip-ci-check` skips the CI status check (for hotfix releases).
 
-All four booleans default to `false`. Non-release runs use the `.version`
+All booleans default to `false`. Non-release runs use the `.version`
 already in the repo, so builds work without a prepare step.
 
-For a normal public release, enable all four booleans: `sign=true`,
+For a normal public release, enable the first four booleans: `sign=true`,
 `draft-release=true`, `publish-testpypi=true`, and `publish-pypi=true`.
 
 ## Environment gates
@@ -108,8 +114,8 @@ artifacts require a reviewer to approve the deployment before they run:
 - **`release`** — Required when `sign`, `draft-release`, or `publish-pypi` is
   enabled. Protects code-signing secrets, the release token, and PyPI trusted
   publishing/OIDC.
-- **`testpypi`** — Required by the TestPyPI publishing job. Allows test
-  uploads to be gated separately from production releases.
+- **`release`** — Also required by the TestPyPI publishing job (both TestPyPI
+  and PyPI use the same `release` environment).
 
 When `sign` is disabled, the macOS and Windows build jobs run without the
 `release` environment so they do not require approval and cannot access signing
@@ -123,10 +129,11 @@ signed and published:
 | Input              | Effect                                                                                                                                                                                                                                        |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sign`             | Signs macOS and Windows artifacts. Requires the `release` environment. When false, those jobs upload unsigned artifacts and do not access signing secrets.                                                                                    |
-| `draft-release`    | Creates a draft GitHub release with generated release notes and installer artifacts. Requires `sign=true`, the `release` environment, main branch, passing CI, no duplicate tag/release, and `version` matching `.version`.                   |
-| `publish-testpypi` | Publishes wheels to TestPyPI. Requires the `testpypi` environment.                                                                                                                                                                            |
-| `publish-pypi`     | Publishes wheels to PyPI. Requires the `release` environment, main branch, passing CI, and `version` matching `.version`. It also runs and waits for the TestPyPI publish job first. It does not require signing unless `draft-release=true`. |
-| `version`          | For `draft-release` or `publish-pypi`: must match `.version` on main. For build-only, signed-only, or TestPyPI-only runs: ignored (`.version` from the branch is used automatically).                                                         |
+| `draft-release`    | Creates a draft GitHub release with generated release notes and installer artifacts. Requires `sign=true`, the `release` environment, passing CI (unless skipped), no duplicate tag/release, and `version` matching `.version`.                |
+| `publish-testpypi` | Publishes wheels to TestPyPI. Requires the `release` environment.                                                                                                                                                                             |
+| `publish-pypi`     | Publishes wheels to PyPI. Requires the `release` environment, passing CI (unless skipped), and `version` matching `.version`. It also runs and waits for the TestPyPI publish job first. It does not require signing unless `draft-release=true`. |
+| `skip-ci-check`    | Skips the CI status check. Useful for hotfix releases from non-main branches where CI was run via `workflow_dispatch`.                                                                                                                        |
+| `version`          | For `draft-release` or `publish-pypi`: must match `.version`. For build-only, signed-only, or TestPyPI-only runs: ignored (`.version` from the branch is used automatically).                                                                 |
 
 ```mermaid
 flowchart TD
@@ -144,14 +151,14 @@ flowchart TD
     unsigned --> artifacts
 
     artifacts --> draft{"draft-release?"}
-    draft -- Yes --> guards1["Release guards\n<i>main, CI, duplicate check,\nversion matches .version</i>"]
+    draft -- Yes --> guards1["Release guards\n<i>CI (unless skipped), duplicate check,\nversion matches .version</i>"]
     guards1 --> ghrel["Create draft GitHub release\n<i>requires release env</i>"]
 
     artifacts --> testpypi{"publish-testpypi\nor publish-pypi?"}
-    testpypi -- Yes --> tpypi["Publish to TestPyPI\n<i>requires testpypi env</i>"]
+    testpypi -- Yes --> tpypi["Publish to TestPyPI\n<i>requires release env</i>"]
 
     tpypi --> pypi{"publish-pypi?"}
-    pypi -- Yes --> guards2["Release guards\n<i>main, CI,\nversion matches .version</i>"]
+    pypi -- Yes --> guards2["Release guards\n<i>CI (unless skipped),\nversion matches .version</i>"]
     ghrel --> pypi
     guards2 --> realpypi["Publish to PyPI\n<i>requires release env</i>"]
 
@@ -166,16 +173,8 @@ Release workflows can be dispatched via `just` using the `release` module
 defined in `release.just`. All recipes read the version from `.version`
 automatically.
 
-| Command                                                      | Description                                          |
-| ------------------------------------------------------------ | ---------------------------------------------------- |
-| `just release::build`                                        | Build-only from HEAD (all booleans false)            |
-| `just release::build <ref>`                                  | Build-only from a specific branch                    |
-| `just release::sign`                                         | Build and sign from HEAD                             |
-| `just release::sign <ref>`                                   | Build and sign from a specific branch                |
-| `just release::public`                                       | Full release from main (sign, draft, testpypi, pypi) |
-| `just release::custom <ref> sign=true publish-testpypi=true` | Mix and match flags                                  |
-
-Run `just --list --list-submodules` to see all available recipes.
+Run `just --list --list-submodules` to see all available recipes and their
+arguments.
 
 ## Testing the release workflow from a feature branch
 
@@ -211,13 +210,27 @@ To test the signing flow from a feature branch:
 > modified on your branch, use `gh workflow run` to trigger it — the UI
 > dropdown won't show it until it's merged to main.
 
-`prepare-release.yml` cannot be tested from a non-main branch — it
-unconditionally requires `main`. To validate its scripts locally, run:
+### Hotfix / security releases from non-main branches
 
-```
-pip install 'packaging>=24,<26'
-python3 .github/scripts/validate_version.py <version> <current_version>
-```
+Both `prepare-release.yml` and `release.yml` can be dispatched from any branch.
+For a hotfix release (e.g. from a `25.09.3` branch):
+
+1. Trigger CI on the branch:
+   ```
+   just ci 25.09.3
+   ```
+2. Prepare the release (skip CI check if CI was triggered via `workflow_dispatch`):
+   ```
+   just release::prepare 25.09.3 skip-ci-check=true
+   ```
+3. Run the release workflow:
+   ```
+   just release::public 25.09.3
+   ```
+   Or with `skip-ci-check`:
+   ```
+   just release::custom 25.09.3 sign=true draft-release=true publish-testpypi=true publish-pypi=true skip-ci-check=true
+   ```
 
 ## Important notes
 
