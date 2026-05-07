@@ -36,7 +36,10 @@ impl Card {
     ) {
         let new_due = (today + days_from_today) as i32;
         let new_interval = if fsrs_enabled {
-            if self.queue == CardQueue::New {
+            // Don't set the interval if the card is new or if the card has an interval of 0
+            // (to prevent the interval changing if set due date is used several times in a
+            // row on a new card.)
+            if self.queue == CardQueue::New || self.interval == 0 {
                 0
             } else if let Some(last_review_time) = self.last_review_time {
                 let elapsed_days =
