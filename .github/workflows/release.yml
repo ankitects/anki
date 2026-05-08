@@ -362,6 +362,162 @@ jobs:
           name: wheels-windows
           path: out/wheels/anki-*.whl
 
+  # Windows ARM uses a 4-job chain because azure/artifact-signing-action does not
+  # support ARM runners: build on ARM → sign EXE on x64 → package MSI on ARM → sign MSI on x64.
+  build-windows-arm:
+    needs: prepare
+    runs-on: windows-11-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build app
+        run: tools\ninja installer:build
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-windows-arm
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-windows-arm
+          path: |
+            out/installer/
+            !out/installer/logs/
+
+      - name: Build wheels
+        run: tools\ninja wheels:anki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-arm
+          path: out/wheels/anki-*.whl
+
+  sign-exe-windows-arm:
+    needs: [prepare, build-windows-arm]
+    runs-on: windows-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.sign == true && 'release' || '' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-windows-arm
+          path: out/installer/
+
+      - name: Azure login
+        if: inputs.sign == true
+        uses: azure/login@v3
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Sign app binary
+        if: inputs.sign == true
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files: ${{ github.workspace }}\out\installer\build\anki\windows\app\src\Anki.exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Verify app binary signature
+        if: inputs.sign == true
+        shell: pwsh
+        run: |
+          $sig = Get-AuthenticodeSignature "out\installer\build\anki\windows\app\src\Anki.exe"
+          if ($sig.Status -ne "Valid") {
+            Write-Error "Anki.exe signature status: $($sig.Status)"
+            exit 1
+          }
+          Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signed-build-windows-arm
+          path: out/installer/
+
+  package-windows-arm:
+    needs: [prepare, build-windows-arm, sign-exe-windows-arm]
+    runs-on: windows-11-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: signed-build-windows-arm
+          path: out/installer/
+
+      - name: Package installer
+        run: |
+          tools\ninja pyenv
+          out\pyenv\scripts\python.exe qt\tools\build_installer.py --version ${{ needs.prepare.outputs.pep440_version }} package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-installer-windows-arm
+          path: out/installer/dist/
+
+  sign-msi-windows-arm:
+    needs: [prepare, package-windows-arm]
+    runs-on: windows-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.sign == true && 'release' || '' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: unsigned-installer-windows-arm
+          path: dist/
+
+      - name: Azure login
+        if: inputs.sign == true
+        uses: azure/login@v3
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Sign MSI
+        if: inputs.sign == true
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files-folder: dist/
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Verify MSI signature
+        if: inputs.sign == true
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem "dist/*.msi" | Select-Object -First 1
+          $sig = Get-AuthenticodeSignature $msi.FullName
+          if ($sig.Status -ne "Valid") {
+            Write-Error "MSI signature status: $($sig.Status)"
+            exit 1
+          }
+          Write-Host "MSI signed successfully: $($sig.SignerCertificate.Subject)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-windows-arm
+          path: dist/
+
   # Linux x86 and ARM are kept as separate jobs rather than a matrix because the ARM
   # build requires different runners for wheels vs installer: ubuntu-22.04
   # for wheels (to target glibc 2.35) and ubuntu-24.04-arm for the installer (the Qt wheels require it).
@@ -456,7 +612,7 @@ jobs:
           path: out/installer/dist/
 
   release:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, sign-msi-windows-arm, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
     if: >-
       ${{ always()
       && inputs['draft-release'] == true
@@ -467,6 +623,7 @@ jobs:
       && needs.build-linux-arm-wheels.result == 'success'
       && needs.build-linux-arm-installer.result == 'success'
       && needs.build-and-sign-windows.result == 'success'
+      && needs.sign-msi-windows-arm.result == 'success'
       }}
     runs-on: ubuntu-latest
     environment: release
@@ -503,7 +660,7 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
 
   publish-testpypi:
-    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-linux-x86, build-linux-arm-wheels]
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-windows-arm, build-linux-x86, build-linux-arm-wheels]
     if: >-
       ${{ always()
       && (inputs['publish-testpypi'] == true || inputs['publish-pypi'] == true)
@@ -511,6 +668,7 @@ jobs:
       && needs.build-and-sign-mac.result == 'success'
       && needs.build-and-sign-mac-intel.result == 'success'
       && needs.build-and-sign-windows.result == 'success'
+      && needs.build-windows-arm.result == 'success'
       && needs.build-linux-x86.result == 'success'
       && needs.build-linux-arm-wheels.result == 'success'
       }}
