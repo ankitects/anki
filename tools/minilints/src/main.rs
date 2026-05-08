@@ -36,6 +36,9 @@ const IGNORED_FOLDERS: &[&str] = &[
     ".mypy_cache",
     "./extra",
     "./ts/.svelte-kit",
+    "./.venv",
+    "./qt/installer/windows-template",
+    "./qt/installer/mac-template",
 ];
 
 fn main() -> Result<()> {
@@ -154,6 +157,16 @@ impl LintContext {
             return Ok(());
         }
 
+        if let Ok(bypass) = std::env::var("CONTRIBUTORS_BYPASS_EMAILS") {
+            if bypass
+                .split(',')
+                .any(|e| noreply_aware_match(e.trim(), &last_author))
+            {
+                println!("Author allowlisted via CONTRIBUTORS_BYPASS_EMAILS.");
+                return Ok(());
+            }
+        }
+
         println!("All contributors:");
         println!("{}", {
             let mut contribs: Vec<_> = all_contributors
@@ -196,13 +209,30 @@ impl LintContext {
     }
 }
 
+fn noreply_aware_match(bypass_email: &str, commit_email: &str) -> bool {
+    normalize_email(bypass_email) == normalize_email(commit_email)
+}
+
+/// GitHub noreply emails come in two forms:
+/// - `user@users.noreply.github.com`
+/// - `12345+user@users.noreply.github.com`
+///
+/// Normalize to just the username so both forms match.
+fn normalize_email(email: &str) -> &str {
+    email
+        .strip_suffix("@users.noreply.github.com")
+        .map(|local| local.split('+').next_back().unwrap_or(local))
+        .unwrap_or(email)
+}
+
 /// Annoyingly, sveltekit writes temp files into ts/ folder when it's running.
 fn sveltekit_temp_file(path: &str) -> bool {
     path.contains("vite.config.ts.timestamp")
 }
 
 fn check_cargo_deny() -> Result<()> {
-    Command::run("cargo install cargo-deny@0.18.3")?;
+    // Used by `fix:minilints` locally. CI uses EmbarkStudios/cargo-deny-action.
+    Command::run("cargo install cargo-deny@0.19.2")?;
     Command::run("cargo deny check")?;
     Ok(())
 }
@@ -255,9 +285,7 @@ fn check_for_unstaged_changes() {
 }
 
 fn generate_licences() -> Result<String> {
-    if which::which("cargo-license").is_err() {
-        Command::run("cargo install cargo-license@0.5.1")?;
-    }
+    Command::run("cargo install cargo-license@0.7.0")?;
     let output = Command::run_with_output([
         "cargo-license",
         "--features",
