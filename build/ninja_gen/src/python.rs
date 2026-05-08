@@ -153,7 +153,14 @@ impl BuildAction for PythonEnvironment {
                     read_file(".python-version").expect("No .python-version in cwd");
                 let python_version_str =
                     String::from_utf8(python_version).expect("Invalid UTF-8 in .python-version");
-                python_version_str.trim().to_string()
+                let version = python_version_str.trim();
+                // On Windows ARM64, uv defaults to x64 interpreters
+                // (astral-sh/uv#12906), so request the native build explicitly.
+                if cfg!(all(windows, target_arch = "aarch64")) {
+                    format!("cpython-{version}-windows-aarch64-none")
+                } else {
+                    version.to_string()
+                }
             });
             build.add_variable("python", python);
             build.add_variable("extra_args", self.extra_args);
