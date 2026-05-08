@@ -532,6 +532,7 @@ jobs:
     needs: prepare
     runs-on: ubuntu-22.04
     timeout-minutes: 90
+    environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -570,6 +571,7 @@ jobs:
     needs: prepare
     runs-on: ubuntu-22.04
     timeout-minutes: 90
+    environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
