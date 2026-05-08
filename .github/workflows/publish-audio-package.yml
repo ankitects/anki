@@ -22,6 +22,8 @@ on:
 
 env:
   RELEASE: 2
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
 
 jobs:
   prepare:
