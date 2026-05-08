@@ -88,12 +88,12 @@ class IntentHandler : AbstractIntentHandler() {
         when (launchType) {
             LaunchType.FILE_IMPORT ->
                 runIfStoragePermissions {
-                    handleFileImport(fileIntent, reloadIntent, action)
+                    handleFileImport(intent, reloadIntent, action)
                     finish()
                 }
             LaunchType.TEXT_IMPORT ->
                 runIfStoragePermissions {
-                    onSelectedCsvForImport(fileIntent)
+                    onSelectedCsvForImport(intent)
                     finish()
                 }
             LaunchType.IMAGE_IMPORT ->
@@ -127,15 +127,6 @@ class IntentHandler : AbstractIntentHandler() {
             failureMessageId = R.string.about_ankidroid_error_copy_debug_info,
         )
     }
-
-    private val fileIntent: Intent
-        get() {
-            return if (intent.action == Intent.ACTION_SEND) {
-                IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Intent::class.java) ?: intent
-            } else {
-                intent
-            }
-        }
 
     /**
      * Execute the runnable if one of the two following conditions are satisfied:
