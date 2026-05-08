@@ -49,10 +49,11 @@ runs:
 
     - name: Install rsync (Windows)
       if: runner.os == 'Windows'
-      shell: bash
-      run: |
-        /c/msys64/usr/bin/pacman.exe -Sy --noconfirm rsync
-        echo "C:\msys64\usr\bin" >> "$GITHUB_PATH"
+      uses: msys2/setup-msys2@v2
+      with:
+        update: false
+        install: rsync
+        path-type: minimal
 
     # Reads toolchain version from rust-toolchain.toml automatically.
     - name: Install Rust toolchain
