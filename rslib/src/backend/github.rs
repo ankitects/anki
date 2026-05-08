@@ -25,9 +25,16 @@ use crate::updates::DownloadUpdateProgress;
 const ALL_RELEASES_URL: &str = "https://api.github.com/repos/ankitects/anki/releases";
 const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/ankitects/anki/releases/latest";
 
+// NOTE: must match platform suffixes in build_installer.py
 fn get_platform_suffix() -> Option<&'static str> {
     if cfg!(target_os = "windows") {
-        Some("-windows")
+        if cfg!(target_arch = "aarch64") {
+            Some("-win-arm64")
+        } else if cfg!(target_arch = "x86_64") {
+            Some("-win-x64")
+        } else {
+            None
+        }
     } else if cfg!(target_os = "macos") {
         if cfg!(target_arch = "aarch64") {
             Some("-mac-apple")
