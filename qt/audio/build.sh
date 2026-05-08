@@ -31,4 +31,11 @@ rm -rf "$OUTPUT_DIR/lame"
 mkdir -p "$OUTPUT_DIR/lame"
 cp /opt/homebrew/bin/lame "$OUTPUT_DIR/lame/" && chmod u+w "$OUTPUT_DIR/lame/lame"
 
+if [ -n "${SIGN_IDENTITY:-}" ]; then
+    find "$OUTPUT_DIR/mpv/libs" -name "*.dylib" -exec \
+        codesign --sign "$SIGN_IDENTITY" --force --options runtime --timestamp {} \;
+    codesign --sign "$SIGN_IDENTITY" --force --options runtime --timestamp "$OUTPUT_DIR/mpv/mpv"
+    codesign --sign "$SIGN_IDENTITY" --force --options runtime --timestamp "$OUTPUT_DIR/lame/lame"
+fi
+
 ./ninja audio_wheel
