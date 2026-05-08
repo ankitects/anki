@@ -71,18 +71,6 @@ def build(args: argparse.Namespace) -> None:
             sys.executable,
             "-m",
             "briefcase",
-            "create",
-            *config_args,
-            "--no-input",
-            "--log",
-        ],
-        cwd=out_dir,
-    )
-    subprocess.check_call(
-        [
-            sys.executable,
-            "-m",
-            "briefcase",
             "build",
             *config_args,
             *get_briefcase_output_format(),
