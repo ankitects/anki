@@ -1,22 +1,44 @@
 name: Publish anki-audio to PyPI
+run-name: "Publish anki-audio (sign=${{ inputs.sign }}, testpypi=${{ inputs['publish-testpypi'] }}, pypi=${{ inputs['publish-pypi'] }})"
 
 on:
   workflow_dispatch:
     inputs:
-      publish:
-        description: "Publishing target"
-        default: "testpypi"
-        required: true
-        type: choice
-        options:
-          - testpypi
-          - release
+      sign:
+        description: "Sign macOS artifacts (requires release environment)"
+        default: false
+        required: false
+        type: boolean
+      publish-testpypi:
+        description: "Publish wheels to TestPyPI"
+        default: false
+        required: false
+        type: boolean
+      publish-pypi:
+        description: "Publish wheels to PyPI after TestPyPI"
+        default: false
+        required: false
+        type: boolean
 
 env:
   RELEASE: 2
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject incompatible inputs
+        run: |
+          if [ "$PUBLISH_PYPI" = "true" ] && [ "$SIGN" != "true" ]; then
+            echo "::error::PyPI releases must be signed"
+            exit 1
+          fi
+        env:
+          PUBLISH_PYPI: ${{ inputs['publish-pypi'] }}
+          SIGN: ${{ inputs.sign }}
+
   build:
+    needs: prepare
     strategy:
       matrix:
         include:
@@ -37,7 +59,7 @@ jobs:
             build_cmd: ./ninja audio_wheel
             needs_signing: false
     runs-on: ${{ matrix.runner }}
-    environment: ${{ matrix.needs_signing && inputs.publish == 'release' && 'release' || '' }}
+    environment: ${{ matrix.needs_signing && inputs.sign == true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -45,7 +67,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Set up Apple code signing
-        if: matrix.needs_signing && inputs.publish == 'release'
+        if: matrix.needs_signing && inputs.sign == true
         run: .github/scripts/setup_apple_signing.sh
         env:
           APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
@@ -59,10 +81,10 @@ jobs:
       - name: Build wheel
         run: ${{ matrix.build_cmd }}
         env:
-          SIGN_IDENTITY: ${{ matrix.needs_signing && inputs.publish == 'release' && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          SIGN_IDENTITY: ${{ matrix.needs_signing && inputs.sign == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
 
       - name: Clean up signing credentials
-        if: always() && matrix.needs_signing && inputs.publish == 'release'
+        if: always() && matrix.needs_signing && inputs.sign == true
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
           security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
@@ -75,7 +97,13 @@ jobs:
           path: out/wheels/anki_audio-*.whl
 
   publish-testpypi:
-    needs: build
+    needs: [prepare, build]
+    if: >-
+      ${{ always()
+      && (inputs['publish-testpypi'] == true || inputs['publish-pypi'] == true)
+      && needs.prepare.result == 'success'
+      && needs.build.result == 'success'
+      }}
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -97,7 +125,11 @@ jobs:
 
   publish-pypi:
     needs: publish-testpypi
-    if: inputs.publish == 'release'
+    if: >-
+      ${{ always()
+      && inputs['publish-pypi'] == true
+      && needs.publish-testpypi.result == 'success'
+      }}
     runs-on: ubuntu-latest
     environment: release
     permissions:
