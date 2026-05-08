@@ -66,7 +66,6 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.AnkiActivityProvider
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
@@ -102,6 +101,7 @@ import com.ichi2.anki.browser.search.StandardSearchFragment
 import com.ichi2.anki.browser.search.formatChipDescription
 import com.ichi2.anki.browser.search.iconRes
 import com.ichi2.anki.browser.search.savedFilters
+import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.dialogs.BrowserOptionsDialog
 import com.ichi2.anki.dialogs.CardBrowserOrderDialog

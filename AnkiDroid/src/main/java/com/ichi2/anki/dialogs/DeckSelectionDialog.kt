@@ -39,13 +39,13 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import anki.decks.deckTreeNode
-import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.OnContextAndLongClickListener.Companion.setOnContextAndLongClickListener
 import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
+import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.databinding.DialogDeckPickerBinding
 import com.ichi2.anki.databinding.ItemDeckPickerDialogBinding

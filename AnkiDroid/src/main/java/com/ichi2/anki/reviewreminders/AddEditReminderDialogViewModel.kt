@@ -20,7 +20,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.ichi2.anki.ALL_DECKS_ID
+import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.libanki.DeckId
 import timber.log.Timber

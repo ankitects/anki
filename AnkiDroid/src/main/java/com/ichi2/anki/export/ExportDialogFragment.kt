@@ -34,13 +34,13 @@ import anki.generic.Empty
 import anki.import_export.ExportLimit
 import anki.import_export.exportLimit
 import anki.notes.noteIds
-import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.browser.removeSafely
+import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.time.getTimestamp
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat

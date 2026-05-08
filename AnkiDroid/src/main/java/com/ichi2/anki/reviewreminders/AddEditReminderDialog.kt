@@ -31,9 +31,9 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
+import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.databinding.DialogAddEditReminderBinding
 import com.ichi2.anki.dialogs.ConfirmationDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler

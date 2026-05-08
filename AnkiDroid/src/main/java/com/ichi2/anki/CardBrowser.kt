@@ -64,6 +64,7 @@ import com.ichi2.anki.browser.search.SearchString
 import com.ichi2.anki.browser.search.findCards
 import com.ichi2.anki.browser.search.findNotes
 import com.ichi2.anki.browser.toCardBrowserLaunchOptions
+import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.databinding.ActivityCardBrowserBinding

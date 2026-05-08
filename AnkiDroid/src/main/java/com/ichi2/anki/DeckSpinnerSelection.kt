@@ -17,18 +17,12 @@ package com.ichi2.anki
 
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.Deck
-import com.ichi2.anki.libanki.DeckId
 
 // TODO left for this class:
 //  - extract the TextView used as the deck name into own layout for easier reuse(note:
 //    NoteEditorFragment usage looks slightly different)
 //  - rename(probably DeckSelection.kt or DeckSelectionUtil.kt) and move this class to a more
 //    suitable package(probably com.ichi2.anki.utils)
-
-/**
- * [DeckId] constant to represent "All decks" in screens that need it(ex. browser).
- */
-const val ALL_DECKS_ID = 0L
 
 /**
  * Returns the current selected deck only if it's not filtered otherwise returns the 'Default' deck.

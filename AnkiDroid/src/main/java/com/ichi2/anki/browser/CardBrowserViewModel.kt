@@ -34,7 +34,6 @@ import anki.collection.OpChangesWithCount
 import anki.search.BrowserColumns
 import anki.search.BrowserRow
 import com.ichi2.anim.ActivityTransitionAnimation
-import com.ichi2.anki.ALL_DECKS_ID
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
@@ -52,6 +51,7 @@ import com.ichi2.anki.browser.search.SavedSearches
 import com.ichi2.anki.browser.search.SearchFilters
 import com.ichi2.anki.browser.search.SearchRequest
 import com.ichi2.anki.browser.search.SearchString
+import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.utils.ext.indexOfOrNull
