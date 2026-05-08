@@ -3,7 +3,7 @@ set windows-shell := ["cmd.exe", "/c"]
 version := `cat .version`
 
 # Prepare a release: validate version, check CI, sync translations, update .version
-prepare ref="HEAD" skip-ci-check="false":
+prepare version ref="HEAD" skip-ci-check="false":
     gh workflow run prepare-release.yml --ref {{ ref }} \
         -f version="{{ version }}" \
         -f skip-ci-check={{ skip-ci-check }}
