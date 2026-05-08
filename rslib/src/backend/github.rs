@@ -25,27 +25,16 @@ use crate::updates::DownloadUpdateProgress;
 const ALL_RELEASES_URL: &str = "https://api.github.com/repos/ankitects/anki/releases";
 const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/ankitects/anki/releases/latest";
 
+// NOTE: must match platform suffixes in build_installer.py
 fn get_platform_suffix() -> Option<&'static str> {
-    if cfg!(target_os = "windows") {
-        Some("-windows")
-    } else if cfg!(target_os = "macos") {
-        if cfg!(target_arch = "aarch64") {
-            Some("-mac-apple")
-        } else if cfg!(target_arch = "x86_64") {
-            Some("-mac-intel")
-        } else {
-            None
-        }
-    } else if cfg!(target_os = "linux") {
-        if cfg!(target_arch = "aarch64") {
-            Some("-linux-aarch64")
-        } else if cfg!(target_arch = "x86_64") {
-            Some("-linux-x86_64")
-        } else {
-            None
-        }
-    } else {
-        None
+    match (std::env::consts::OS, std::env::consts::ARCH) {
+        ("windows", "x86_64") => Some("-win-x64"),
+        ("windows", "aarch64") => Some("-win-arm64"),
+        ("macos", "x86_64") => Some("-mac-intel"),
+        ("macos", "aarch64") => Some("-mac-apple"),
+        ("linux", "x86_64") => Some("-linux-x86_64"),
+        ("linux", "aarch64") => Some("-linux-aarch64"),
+        _ => None,
     }
 }
 
