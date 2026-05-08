@@ -18,4 +18,4 @@ package com.ichi2.anki.libanki.exception
 
 class InvalidSearchException(
     e: Exception,
-) : IllegalArgumentException(e)
+) : IllegalArgumentException(e.message, e)

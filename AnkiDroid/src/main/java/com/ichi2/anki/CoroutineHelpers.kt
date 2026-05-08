@@ -47,6 +47,7 @@ import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.dialogs.DatabaseErrorDialog
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType
 import com.ichi2.anki.exception.StorageAccessException
+import com.ichi2.anki.libanki.exception.InvalidSearchException
 import com.ichi2.anki.pages.DeckOptionsDestination
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.openUrl
@@ -115,13 +116,14 @@ fun CoroutineScope.launchCatching(
         } catch (cancellationException: CancellationException) {
             // CancellationException should be re-thrown to propagate it to the parent coroutine
             throw cancellationException
-        } catch (backendException: BackendException) {
-            Timber.w(backendException)
-            val message = backendException.localizedMessage ?: backendException.toString()
-            errorMessageHandler.invoke(message)
         } catch (exception: Exception) {
             Timber.w(exception)
-            errorMessageHandler.invoke(exception.toString())
+            val message =
+                when (exception) {
+                    is BackendException, is InvalidSearchException -> exception.localizedMessage
+                    else -> null
+                } ?: exception.toString()
+            errorMessageHandler.invoke(message)
         }
     }
 
