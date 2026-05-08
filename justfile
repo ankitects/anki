@@ -74,6 +74,7 @@ docs-rust:
     cargo doc --open
 
 # Dispatch CI workflow on a given branch or tag
+[arg("branch", long)]
 ci branch:
     gh workflow run ci.yml --ref {{ branch }}
 
