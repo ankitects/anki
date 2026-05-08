@@ -90,7 +90,7 @@ fun AnkiActivity.exportSelectedNotes(
                 )
             }
         }
-        showAsyncDialogFragment(ExportReadyDialog.newInstance(exportPath))
+        showAsyncDialogFragment(ExportReadyDialog.newInstance(exportPath, asText = true))
     }
 }
 
@@ -110,7 +110,7 @@ fun AnkiActivity.exportSelectedCards(
                 exportCardsCsv(exportPath, withHtml, limit)
             }
         }
-        showAsyncDialogFragment(ExportReadyDialog.newInstance(exportPath))
+        showAsyncDialogFragment(ExportReadyDialog.newInstance(exportPath, asText = true))
     }
 }
 

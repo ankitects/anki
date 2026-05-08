@@ -29,6 +29,8 @@ import com.ichi2.utils.positiveButton
 class ExportReadyDialog : AsyncDialogFragment() {
     private val exportPath
         get() = requireArguments().getString(KEY_EXPORT_PATH) ?: error("Missing required argument: exportPath!")
+    private val asText: Boolean
+        get() = requireArguments().getBoolean(ARG_SHARE_AS_TEXT, false)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
         val dialog = AlertDialog.Builder(requireActivity())
@@ -43,7 +45,10 @@ class ExportReadyDialog : AsyncDialogFragment() {
             }.negativeButton(R.string.export_choice_share) {
                 parentFragmentManager.setFragmentResult(
                     REQUEST_EXPORT_SHARE,
-                    bundleOf(KEY_EXPORT_PATH to exportPath),
+                    Bundle().apply {
+                        putString(KEY_EXPORT_PATH, exportPath)
+                        putBoolean(ARG_SHARE_AS_TEXT, asText)
+                    },
                 )
             }
 
@@ -90,10 +95,17 @@ class ExportReadyDialog : AsyncDialogFragment() {
         const val REQUEST_EXPORT_SAVE = "request_export_save"
         const val REQUEST_EXPORT_SHARE = "request_export_share"
         const val KEY_EXPORT_PATH = "key_export_path"
+        const val ARG_SHARE_AS_TEXT = "arg_share_as_text"
 
-        fun newInstance(exportPath: String) =
-            ExportReadyDialog().apply {
-                arguments = bundleOf(KEY_EXPORT_PATH to exportPath)
-            }
+        fun newInstance(
+            exportPath: String,
+            asText: Boolean = false,
+        ) = ExportReadyDialog().apply {
+            arguments =
+                Bundle().apply {
+                    putString(KEY_EXPORT_PATH, exportPath)
+                    putBoolean(ARG_SHARE_AS_TEXT, asText)
+                }
+        }
     }
 }
