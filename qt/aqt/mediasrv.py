@@ -73,6 +73,9 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
 
 
 def _editor_content_security_policy(port: int) -> str:
+    # Only script-src is restricted here. Adding frame-src, object-src, img-src
+    # etc. would break existing user content: YouTube embeds, dictionary iframes,
+    # remote images, and SVG object tags.
     csp_paths = (
         f"http://127.0.0.1:{port}/_anki/",
         f"http://127.0.0.1:{port}/_addons/",
