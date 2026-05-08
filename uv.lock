@@ -197,7 +197,7 @@ dependencies = [
 
 [package.optional-dependencies]
 audio = [
-    { name = "anki-audio", marker = "sys_platform == 'darwin' or sys_platform == 'win32' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt610') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt68' and extra == 'extra-3-aqt-qt69')" },
+    { name = "anki-audio", marker = "(platform_machine == 'x86_64' and sys_platform == 'win32') or (platform_machine != 'x86_64' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt610') or (platform_machine != 'x86_64' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (platform_machine != 'x86_64' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (platform_machine != 'x86_64' and extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt68') or (platform_machine != 'x86_64' and extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt69') or (platform_machine != 'x86_64' and extra == 'extra-3-aqt-qt68' and extra == 'extra-3-aqt-qt69') or sys_platform == 'darwin' or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt610') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt68') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt69') or (sys_platform != 'win32' and extra == 'extra-3-aqt-qt68' and extra == 'extra-3-aqt-qt69')" },
 ]
 qt = [
     { name = "pyqt6", version = "6.11.0", source = { registry = "https://pypi.org/simple" } },
@@ -230,7 +230,7 @@ qt69 = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.1.0" },
+    { name = "anki-audio", marker = "(platform_machine == 'x86_64' and sys_platform == 'win32' and extra == 'audio') or (sys_platform == 'darwin' and extra == 'audio')", specifier = "==0.1.0" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin'", specifier = ">=0.1.1" },
     { name = "beautifulsoup4" },
     { name = "flask" },
