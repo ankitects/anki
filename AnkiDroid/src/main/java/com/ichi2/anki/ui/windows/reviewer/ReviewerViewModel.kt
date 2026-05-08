@@ -785,12 +785,12 @@ class ReviewerViewModel(
 
     override suspend fun onAutoAdvanceAction(action: AutoAdvanceAction) {
         when (action) {
-            QuestionAction.SHOW_ANSWER -> showAnswerInternal()
+            QuestionAction.SHOW_ANSWER -> executeAction(ViewerAction.SHOW_ANSWER)
             QuestionAction.SHOW_REMINDER -> actionFeedbackFlow.emit(TR.studyingQuestionTimeElapsed())
-            AnswerAction.BURY_CARD -> buryCard()
-            AnswerAction.ANSWER_AGAIN -> answerCardInternal(Rating.AGAIN)
-            AnswerAction.ANSWER_GOOD -> answerCardInternal(Rating.GOOD)
-            AnswerAction.ANSWER_HARD -> answerCardInternal(Rating.HARD)
+            AnswerAction.BURY_CARD -> executeAction(ViewerAction.BURY_CARD)
+            AnswerAction.ANSWER_AGAIN -> executeAction(ViewerAction.ANSWER_AGAIN)
+            AnswerAction.ANSWER_GOOD -> executeAction(ViewerAction.ANSWER_GOOD)
+            AnswerAction.ANSWER_HARD -> executeAction(ViewerAction.ANSWER_HARD)
             AnswerAction.SHOW_REMINDER -> actionFeedbackFlow.emit(TR.studyingAnswerTimeElapsed())
         }
     }
