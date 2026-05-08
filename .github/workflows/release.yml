@@ -321,3 +321,38 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: wheels/
+
+  release:
+    needs: [prepare, publish-pypi]
+    if: >-
+      ${{ always()
+      && inputs['draft-release'] == true
+      && needs.prepare.result == 'success'
+      && needs.publish-pypi.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Create draft release
+        run: |
+          prerelease_flag=""
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            prerelease_flag="--prerelease"
+          fi
+
+          gh release create "$TAG_NAME" \
+            --draft \
+            --target "$RELEASE_SHA" \
+            --title "$RELEASE_NAME" \
+            --generate-notes \
+            ${prerelease_flag:+"$prerelease_flag"}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          TAG_NAME: ${{ needs.prepare.outputs.tag_name }}
+          RELEASE_NAME: ${{ needs.prepare.outputs.release_name }}
+          IS_PRERELEASE: ${{ needs.prepare.outputs.is_prerelease }}
+          RELEASE_SHA: ${{ github.sha }}
