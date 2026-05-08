@@ -411,7 +411,9 @@ def _assert_expectations(snapshot: SmokeSnapshot, page: SmokePage) -> None:
         "benign-svg-object",
         "remote-iframe",
     }
-    missing_loads = expected_loads - load_events - set(done_results)
+    done_loads = {k for k, v in done_results.items() if v == "load"}
+    done_errors = {k for k, v in done_results.items() if v == "error"}
+    missing_loads = expected_loads - load_events - done_loads
     expected_media_requests = {
         "/media/malicious.html",
         "/media/malicious.svg",
@@ -433,6 +435,8 @@ def _assert_expectations(snapshot: SmokeSnapshot, page: SmokePage) -> None:
         )
     if not snapshot.done:
         errors.append("editor smoke script did not report completion")
+    if done_errors:
+        errors.append(f"expected elements fired error instead of load: {sorted(done_errors)}")
     if missing_loads:
         errors.append(f"missing expected load events: {sorted(missing_loads)}")
     if missing_media_requests:
