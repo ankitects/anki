@@ -33,12 +33,10 @@ import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.Note
 import com.ichi2.anki.libanki.NotetypeJson
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.selectedDeckIfNotFiltered
 import com.ichi2.anki.utils.ext.getAllClozeTextFields
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.math.max
@@ -98,8 +96,17 @@ class InstantEditorViewModel :
 
     init {
         viewModelScope.launch {
-            // setup the deck Id
-            val selectedDeck = withCol { selectedDeckIfNotFiltered() }
+            // get the current selected deck unless it's a filtered deck in which case use the
+            // 'Default' deck
+            val selectedDeck =
+                withCol {
+                    val selectedDeck = decks.getLegacy(decks.selected())
+                    if (selectedDeck == null || selectedDeck.isFiltered) {
+                        decks.getDefault()
+                    } else {
+                        selectedDeck
+                    }
+                }
             deckId = selectedDeck.id
 
             // setup the note type
