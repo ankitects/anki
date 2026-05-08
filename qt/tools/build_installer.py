@@ -105,7 +105,7 @@ def package(args: argparse.Namespace) -> None:
     )
     platform_suffix = ""
     if sys.platform == "win32":
-        arch ="arm64" if platform.machine() == "ARM64" else "x64"
+        arch = "arm64" if platform.machine() == "ARM64" else "x64"
         platform_suffix = f"-win-{arch}"
     elif sys.platform == "darwin":
         arch = "apple" if platform.machine() == "arm64" else "intel"
