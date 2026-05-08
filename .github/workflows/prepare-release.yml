@@ -8,6 +8,11 @@ on:
         description: "Version (e.g. 26.04 for stable, 26.04b1 or 26.04rc1 for pre-release)"
         required: true
         type: string
+      skip-ci-check:
+        description: "Skip the CI status check (for hotfix releases from non-main branches)"
+        default: false
+        required: false
+        type: boolean
 
 permissions:
   contents: write
@@ -40,6 +45,27 @@ jobs:
           echo "Version check passed"
         env:
           INPUT_VERSION: ${{ inputs.version }}
+
+      - name: Check CI passed
+        if: inputs.skip-ci-check != true
+        run: |
+          conclusion=$(gh run list \
+            --workflow=ci.yml \
+            --commit "$COMMIT_SHA" \
+            --limit 5 \
+            --json conclusion,event \
+            --jq '[.[] | select(.event == "push" or .event == "workflow_dispatch")][0].conclusion')
+
+          if [[ -z "$conclusion" ]]; then
+            echo "::error::Could not determine CI status for commit $COMMIT_SHA"
+            exit 1
+          elif [[ "$conclusion" != "success" ]]; then
+            echo "::error::CI for commit $COMMIT_SHA concluded with '$conclusion'"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT_SHA: ${{ github.sha }}
 
       - name: Check for duplicate tag or release
         run: |
