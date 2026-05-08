@@ -382,7 +382,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: logs-installer-windows-arm
+          name: logs-installer-windows-arm-build
           path: out/installer/logs/
 
       - uses: actions/upload-artifact@v4
@@ -466,6 +466,13 @@ jobs:
         run: |
           tools\ninja pyenv
           out\pyenv\scripts\python.exe qt\tools\build_installer.py --version ${{ needs.prepare.outputs.pep440_version }} package
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-windows-arm-package
+          path: out/installer/logs/
+
       - uses: actions/upload-artifact@v4
         with:
           name: unsigned-installer-windows-arm
