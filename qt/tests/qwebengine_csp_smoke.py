@@ -436,7 +436,9 @@ def _assert_expectations(snapshot: SmokeSnapshot, page: SmokePage) -> None:
     if not snapshot.done:
         errors.append("editor smoke script did not report completion")
     if done_errors:
-        errors.append(f"expected elements fired error instead of load: {sorted(done_errors)}")
+        errors.append(
+            f"expected elements fired error instead of load: {sorted(done_errors)}"
+        )
     if missing_loads:
         errors.append(f"missing expected load events: {sorted(missing_loads)}")
     if missing_media_requests:
