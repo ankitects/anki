@@ -1,10 +1,10 @@
 name: Publish anki-audio to PyPI
-run-name: "Publish anki-audio (sign=${{ inputs.sign }}, testpypi=${{ inputs['publish-testpypi'] }}, pypi=${{ inputs['publish-pypi'] }})"
+run-name: "Publish anki-audio (sign-macos=${{ inputs.sign-macos }}, testpypi=${{ inputs['publish-testpypi'] }}, pypi=${{ inputs['publish-pypi'] }})"
 
 on:
   workflow_dispatch:
     inputs:
-      sign:
+      sign-macos:
         description: "Sign macOS artifacts (requires release environment)"
         default: false
         required: false
@@ -30,12 +30,12 @@ jobs:
       - name: Reject incompatible inputs
         run: |
           if [ "$PUBLISH_PYPI" = "true" ] && [ "$SIGN" != "true" ]; then
-            echo "::error::PyPI releases must be signed"
+            echo "::error::macOS binaries must be signed"
             exit 1
           fi
         env:
           PUBLISH_PYPI: ${{ inputs['publish-pypi'] }}
-          SIGN: ${{ inputs.sign }}
+          SIGN: ${{ inputs.sign-macos }}
 
   build:
     needs: prepare
@@ -59,7 +59,7 @@ jobs:
             build_cmd: ./ninja audio_wheel
             needs_signing: false
     runs-on: ${{ matrix.runner }}
-    environment: ${{ matrix.needs_signing && inputs.sign == true && 'release' || '' }}
+    environment: ${{ matrix.needs_signing && inputs.sign-macos == true && 'release' || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -67,7 +67,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Set up Apple code signing
-        if: matrix.needs_signing && inputs.sign == true
+        if: matrix.needs_signing && inputs.sign-macos == true
         run: .github/scripts/setup_apple_signing.sh
         env:
           APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
@@ -81,10 +81,10 @@ jobs:
       - name: Build wheel
         run: ${{ matrix.build_cmd }}
         env:
-          SIGN_IDENTITY: ${{ matrix.needs_signing && inputs.sign == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          SIGN_IDENTITY: ${{ matrix.needs_signing && inputs.sign-macos == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
 
       - name: Clean up signing credentials
-        if: always() && matrix.needs_signing && inputs.sign == true
+        if: always() && matrix.needs_signing && inputs.sign-macos == true
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
           security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
