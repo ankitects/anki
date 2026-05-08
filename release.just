@@ -35,7 +35,25 @@ public ref="main":
         -f publish-testpypi=true \
         -f publish-pypi=true
 
-# Custom release with explicit flags
+# Publish Python packages to TestPyPI only
+testpypi ref="HEAD":
+    gh workflow run release.yml --ref {{ ref }} \
+        -f version="{{ version }}" \
+        -f sign=false \
+        -f draft-release=false \
+        -f publish-testpypi=true \
+        -f publish-pypi=false
+
+# Publish Python packages to TestPyPI and PyPI
+pypi ref="HEAD":
+    gh workflow run release.yml --ref {{ ref }} \
+        -f version="{{ version }}" \
+        -f sign=false \
+        -f draft-release=false \
+        -f publish-testpypi=true \
+        -f publish-pypi=true
+
+# Manual release with explicit flags
 custom ref="HEAD" sign="false" draft-release="false" publish-testpypi="false" publish-pypi="false" skip-ci-check="false":
     gh workflow run release.yml --ref {{ ref }} \
         -f version="{{ version }}" \
