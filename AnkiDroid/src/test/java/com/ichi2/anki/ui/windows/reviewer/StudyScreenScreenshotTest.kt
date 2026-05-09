@@ -24,7 +24,6 @@ import com.ichi2.anki.settings.enums.ToolbarPosition
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class StudyScreenScreenshotTest(
@@ -35,7 +34,6 @@ class StudyScreenScreenshotTest(
         Prefs.toolbarPosition = config.toolbarPosition
         Prefs.showAnswerButtons = config.showAnswerButtons
         Prefs.frameStyle = config.frameStyle
-        RuntimeEnvironment.setQualifiers(config.qualifier.toString())
     }
 
     @Test
@@ -64,27 +62,17 @@ class StudyScreenScreenshotTest(
             val styles = FrameStyle.entries
             // val styles = listOf(FrameStyle.BOX)
 
-            val devices =
-                listOf(
-                    Qualifier("Phone", 411, 914, "420dpi"),
-                    Qualifier("Tablet", 1280, 800, "xhdpi"),
-                )
-            // val devices = listOf(Qualifier("Phone", 411, 914, "420dpi"))
-
             val configs = mutableListOf<Array<TestConfig>>()
             for (pos in positions) {
                 for (btn in buttonStates) {
                     for (style in styles) {
-                        for (dev in devices) {
-                            val config =
-                                TestConfig(
-                                    pos,
-                                    btn,
-                                    style,
-                                    dev,
-                                )
-                            configs.add(arrayOf(config))
-                        }
+                        val config =
+                            TestConfig(
+                                pos,
+                                btn,
+                                style,
+                            )
+                        configs.add(arrayOf(config))
                     }
                 }
             }
@@ -100,23 +88,9 @@ class StudyScreenScreenshotTest(
         val toolbarPosition: ToolbarPosition,
         val showAnswerButtons: Boolean,
         val frameStyle: FrameStyle,
-        val qualifier: Qualifier,
     ) {
         override fun toString(): String =
-            "${qualifier.name}_toolbar=${toolbarPosition.name}_" +
+            "toolbar=${toolbarPosition.name}_" +
                 "frameStyle=${frameStyle.name}_buttons=$showAnswerButtons"
-    }
-}
-
-data class Qualifier(
-    val name: String,
-    val widthDp: Int,
-    val heightDp: Int,
-    val dpi: String,
-    val nightMode: Boolean = false,
-) {
-    override fun toString(): String {
-        val nightString = if (nightMode) "night" else "notnight"
-        return "w${widthDp}dp-h${heightDp}dp-$nightString-$dpi"
     }
 }

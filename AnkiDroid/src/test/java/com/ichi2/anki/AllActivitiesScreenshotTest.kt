@@ -40,10 +40,6 @@ import org.robolectric.ParameterizedRobolectricTestRunner
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class AllActivitiesScreenshotTest : ScreenshotTest() {
-    init {
-        setPhoneQualifiers()
-    }
-
     @ParameterizedRobolectricTestRunner.Parameter
     @JvmField
     var launcher: ActivityLaunchParam? = null

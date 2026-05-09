@@ -276,6 +276,11 @@ android {
                     // ./gradlew testFullDebugUnitTest -Pscreenshot
                     if (project.hasProperty("screenshot")) {
                         includeTags "com.ichi2.anki.ScreenshotTestCategory"
+
+                        // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Ptheme=dark
+                        systemProperty "screenshot.theme", project.findProperty("theme") ?: "light"
+                        // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Pdevice=tablet
+                        systemProperty "screenshot.device", project.findProperty("device") ?: "phone"
                     } else {
                         excludeTags "com.ichi2.anki.ScreenshotTestCategory"
                     }

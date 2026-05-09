@@ -20,6 +20,9 @@ import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import com.github.takahirom.roborazzi.provideRoborazziContext
+import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.settings.enums.AppTheme
+import org.junit.Before
 import org.junit.experimental.categories.Category
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.GraphicsMode
@@ -33,6 +36,31 @@ interface ScreenshotTestCategory
 @Category(ScreenshotTestCategory::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 abstract class ScreenshotTest : RobolectricTest() {
+    var fileNamePrefix = ""
+
+    @Before
+    open fun applyGlobalConfig() {
+        applyDeviceConfig()
+        applyThemeConfig()
+    }
+
+    protected open fun applyDeviceConfig() {
+        if (System.getProperty("screenshot.device") == "tablet") {
+            setTabletQualifiers()
+            fileNamePrefix += "tablet_"
+        } else {
+            setPhoneQualifiers()
+        }
+    }
+
+    protected open fun applyThemeConfig() {
+        if (System.getProperty("screenshot.theme") == "dark") {
+            RuntimeEnvironment.setQualifiers("+night")
+            Prefs.appTheme = AppTheme.NIGHT
+            fileNamePrefix += "dark_"
+        }
+    }
+
     /** Pixel-class phone in portrait, light theme. */
     protected fun setPhoneQualifiers() {
         RuntimeEnvironment.setQualifiers(RobolectricDeviceQualifiers.MediumPhone)
@@ -54,7 +82,8 @@ abstract class ScreenshotTest : RobolectricTest() {
         val classDir = "build/outputs/roborazzi/${this.javaClass.simpleName}"
         val diffDir = File("$classDir/diffs")
         // baseline is always in the root for the class, copied to /diffs/ if a change occurred
-        val baseline = File("$classDir/$name.png")
+        val fileName = "$fileNamePrefix$name.png"
+        val baseline = File(classDir, fileName)
         captureScreenRoboImage(
             filePath = baseline.path,
             roborazziOptions = provideRoborazziContext().options.withCompareOutputDir(diffDir.path),
