@@ -252,7 +252,7 @@ class PreferencesActivity :
     companion object {
         fun getIntent(
             context: Context,
-            initialFragment: KClass<out SettingsFragment>? = null,
+            initialFragment: KClass<out Fragment>? = null,
         ): Intent {
             val arguments = bundleOf(INITIAL_FRAGMENT_EXTRA to initialFragment?.jvmName)
             return Intent(context, PreferencesActivity::class.java).apply {
