@@ -1,12 +1,16 @@
 [package]
 name = "anki_proto_gen"
-publish = false
+publish = true
 description = "Helpers for interface code generation"
 
 version.workspace = true
 authors.workspace = true
+documentation = "https://docs.rs/anki_proto_gen"
 edition.workspace = true
+homepage.workspace = true
 license.workspace = true
+readme.workspace = true
+repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
