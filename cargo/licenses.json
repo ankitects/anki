@@ -2597,7 +2597,7 @@
     "license": "Apache-2.0",
     "license_file": null,
     "name": "openssl",
-    "repository": "https://github.com/sfackler/rust-openssl"
+    "repository": "https://github.com/rust-openssl/rust-openssl"
   },
   {
     "authors": null,
@@ -2621,7 +2621,7 @@
     "license": "MIT",
     "license_file": null,
     "name": "openssl-sys",
-    "repository": "https://github.com/sfackler/rust-openssl"
+    "repository": "https://github.com/rust-openssl/rust-openssl"
   },
   {
     "authors": "Simon Ochsenreither <simon@ochsenreither.de>",
