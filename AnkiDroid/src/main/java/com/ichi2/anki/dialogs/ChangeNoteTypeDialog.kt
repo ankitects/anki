@@ -70,6 +70,7 @@ import com.ichi2.anki.sync.launchCatchingRequiringOneWaySync
 import com.ichi2.anki.ui.BasicItemSelectedListener
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.InitStatus
+import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
 import com.ichi2.anki.withProgress
 import com.ichi2.utils.LanguageUtil
 import com.ichi2.utils.boldList
@@ -156,6 +157,15 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
         Timber.d("setting up dialog")
         setupNoteTypeSpinner(binding)
         setupViewPagerAndTabs(binding)
+        bindSaveButtonState(binding)
+    }
+
+    private fun bindSaveButtonState(binding: DialogChangeNoteTypeBinding) {
+        // disabled by default until hasChangesFlow emits true
+        binding.btnSave.isEnabled = false
+        viewModel.hasChangesFlow.launchCollectionInLifecycleScope {
+            binding.btnSave.isEnabled = it
+        }
     }
 
     private fun setupNoteTypeSpinner(binding: DialogChangeNoteTypeBinding) {
