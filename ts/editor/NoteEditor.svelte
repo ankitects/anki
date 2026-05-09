@@ -5,7 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
-    import Collapsible from "../components/Collapsible.svelte";
+    import Collapsible from "$lib/components/Collapsible.svelte";
+
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
@@ -23,8 +24,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerPackage } from "@tslib/runtime-require";
 
-    import contextProperty from "../sveltelib/context-property";
-    import lifecycleHooks from "../sveltelib/lifecycle-hooks";
+    import contextProperty from "$lib/sveltelib/context-property";
+    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
 
     const key = Symbol("noteEditor");
     const [context, setContextProperty] = contextProperty<NoteEditorAPI>(key);
@@ -40,24 +41,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import * as tr from "@tslib/ftl";
-    import { resetIOImage } from "image-occlusion/mask-editor";
     import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
+    import { nodeIsCommonElement } from "@tslib/dom";
 
-    import Absolute from "../components/Absolute.svelte";
-    import Badge from "../components/Badge.svelte";
-    import { TagEditor } from "../tag-editor";
-    import { commitTagEdits } from "../tag-editor/TagInput.svelte";
-    import { ChangeTimer } from "./change-timer";
+    import Absolute from "$lib/components/Absolute.svelte";
+    import Badge from "$lib/components/Badge.svelte";
+    import Icon from "$lib/components/Icon.svelte";
+    import { alertIcon } from "$lib/components/icons";
+    import { TagEditor } from "$lib/tag-editor";
+    import { commitTagEdits } from "$lib/tag-editor/TagInput.svelte";
+
+    import {
+        type ImageLoadedEvent,
+        resetIOImage,
+    } from "../routes/image-occlusion/mask-editor";
+    import { ChangeTimer } from "../editable/change-timer";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
     import EditorToolbar from "./editor-toolbar";
     import type { FieldData } from "./EditorField.svelte";
     import EditorField from "./EditorField.svelte";
     import Fields from "./Fields.svelte";
-    import { alertIcon } from "./icons";
     import ImageOverlay from "./image-overlay";
     import { shrinkImagesByDefault } from "./image-overlay/ImageOverlay.svelte";
     import MathjaxOverlay from "./mathjax-overlay";
@@ -69,6 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput, { editingInputIsRichText } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
     import type { NotetypeIdAndModTime, SessionOptions } from "./types";
+    import { EditorState } from "./types";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -91,7 +99,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     plainTextsHidden,
                     plainTextDefaults,
                 },
-                modTimeOfNotetype: notetypeMeta.modTime,
             };
         }
     }
@@ -136,6 +143,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldsCollapsed =
             sessionOptions[notetypeMeta?.id]?.fieldsCollapsed ?? defaultCollapsed;
     }
+    let clozeFields: boolean[] = [];
+    export function setClozeFields(defaultClozeFields: boolean[]): void {
+        clozeFields = defaultClozeFields;
+    }
 
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
@@ -143,7 +154,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function setPlainTexts(defaultPlainTexts: boolean[]): void {
         const states = sessionOptions[notetypeMeta?.id]?.fieldStates;
-        if (states) {
+        if (states && states.richTextsHidden.length === defaultPlainTexts.length) {
             richTextsHidden = states.richTextsHidden;
             plainTextsHidden = states.plainTextsHidden;
             plainTextDefaults = states.plainTextDefaults;
@@ -228,9 +239,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let notetypeMeta: NotetypeIdAndModTime;
     function setNotetypeMeta({ id, modTime }: NotetypeIdAndModTime): void {
         notetypeMeta = { id, modTime };
-        // Discard the saved state of the fields if the notetype has been modified.
-        if (sessionOptions[id]?.modTimeOfNotetype !== modTime) {
-            delete sessionOptions[id];
+        if (isImageOcclusion) {
+            getImageOcclusionFields({
+                notetypeId: BigInt(notetypeMeta.id),
+            }).then((r) => (ioFields = r.fields!));
         }
     }
 
@@ -242,11 +254,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function setIsImageOcclusion(val: boolean) {
         isImageOcclusion = val;
         $ioMaskEditorVisible = val;
-    }
-
-    let isEditMode = false;
-    function setIsEditMode(val: boolean) {
-        isEditMode = val;
     }
 
     let cols: ("dupe" | "")[] = [];
@@ -267,11 +274,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fontSize: fonts[index][1],
         direction: fonts[index][2] ? "rtl" : "ltr",
         collapsed: fieldsCollapsed[index],
-        hidden: hideFieldInOcclusionType(index),
+        hidden: hideFieldInOcclusionType(index, ioFields),
+        isClozeField: clozeFields[index],
     })) as FieldData[];
 
+    let lastSavedTags: string[] | null = null;
     function saveTags({ detail }: CustomEvent): void {
         tagAmount = detail.tags.filter((tag: string) => tag != "").length;
+        lastSavedTags = detail.tags;
         bridgeCommand(`saveTags:${JSON.stringify(detail.tags)}`);
     }
 
@@ -302,7 +312,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         closeMathjaxEditor?.();
         $commitTagEdits();
         saveFieldNow();
-        imageOcclusionMode = undefined;
     }
 
     export function saveOnPageHide() {
@@ -314,15 +323,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function focusIfField(x: number, y: number): boolean {
         const elements = document.elementsFromPoint(x, y);
-        const first = elements[0];
+        const first = elements[0].closest(".field-container");
 
-        if (first.shadowRoot) {
-            const richTextInput = first.shadowRoot.lastElementChild! as HTMLElement;
-            richTextInput.focus();
-            return true;
+        if (!first || !nodeIsCommonElement(first)) {
+            return false;
         }
 
-        return false;
+        const index = parseInt(first.dataset?.index ?? "");
+
+        if (Number.isNaN(index) || !fields[index] || fieldsCollapsed[index]) {
+            return false;
+        }
+
+        if (richTextsHidden[index]) {
+            toggleRichTextInput(index);
+        } else {
+            richTextInputs[index].api.refocus();
+        }
+
+        return true;
     }
 
     let richTextInputs: RichTextInput[] = [];
@@ -380,40 +399,66 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
      * Enable/Disable add-on buttons that do not have the `perm` class
      */
     function setAddonButtonsDisabled(disabled: boolean): void {
-        document.querySelectorAll("button.linkb:not(.perm)").forEach((button) => {
-            (button as HTMLButtonElement).disabled = disabled;
-        });
+        document
+            .querySelectorAll<HTMLButtonElement>("button.linkb:not(.perm)")
+            .forEach((button) => {
+                button.disabled = disabled;
+            });
     }
 
+    import { ImageOcclusionFieldIndexes } from "@generated/anki/image_occlusion_pb";
+    import { getImageOcclusionFields } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
-    import LabelButton from "components/LabelButton.svelte";
-    import Shortcut from "components/Shortcut.svelte";
-    import ImageOcclusionPage from "image-occlusion/ImageOcclusionPage.svelte";
-    import type { IOMode } from "image-occlusion/lib";
-    import { exportShapesToClozeDeletions } from "image-occlusion/shapes/to-cloze";
-    import { hideAllGuessOne, ioMaskEditorVisible } from "image-occlusion/store";
 
-    import { mathjaxConfig } from "../editable/mathjax-element";
+    import Shortcut from "$lib/components/Shortcut.svelte";
+
+    import { mathjaxConfig } from "../editable/mathjax-element.svelte";
+    import ImageOcclusionPage from "../routes/image-occlusion/ImageOcclusionPage.svelte";
+    import ImageOcclusionPicker from "../routes/image-occlusion/ImageOcclusionPicker.svelte";
+    import type { IOMode } from "../routes/image-occlusion/lib";
+    import { exportShapesToClozeDeletions } from "../routes/image-occlusion/shapes/to-cloze";
+    import {
+        hideAllGuessOne,
+        ioImageLoadedStore,
+        ioMaskEditorVisible,
+    } from "../routes/image-occlusion/store";
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
-    let isIOImageLoaded = false;
+    $: isIOImageLoaded = false;
+    $: ioImageLoadedStore.set(isIOImageLoaded);
     let imageOcclusionMode: IOMode | undefined;
+    let ioFields = new ImageOcclusionFieldIndexes({});
+
+    function pickIOImage() {
+        imageOcclusionMode = undefined;
+        bridgeCommand("addImageForOcclusion");
+    }
+
+    function pickIOImageFromClipboard() {
+        imageOcclusionMode = undefined;
+        bridgeCommand("addImageForOcclusionFromClipboard");
+    }
+
     async function setupMaskEditor(options: { html: string; mode: IOMode }) {
+        imageOcclusionMode = undefined;
+        await tick();
         imageOcclusionMode = options.mode;
-        if (options.mode.kind === "add") {
-            fieldStores[1].set(options.html);
+        if (options.mode.kind === "add" && !("clonedNoteId" in options.mode)) {
+            fieldStores[ioFields.image].set(options.html);
+            // the image field is set programmatically and does not need debouncing
+            // commit immediately to avoid a race condition with the occlusions field
+            saveFieldNow();
 
             // new image is being added
             if (isIOImageLoaded) {
-                resetIOImage(options.mode.imagePath);
-            }
-        } else {
-            const clozeNote = get(fieldStores[0]);
-            if (clozeNote.includes("oi=1")) {
-                $hideAllGuessOne = true;
-            } else {
-                $hideAllGuessOne = false;
+                resetIOImage(options.mode.imagePath, (event: ImageLoadedEvent) =>
+                    onImageLoaded(
+                        new CustomEvent("image-loaded", {
+                            detail: event,
+                        }),
+                    ),
+                );
             }
         }
 
@@ -421,35 +466,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function setImageField(html) {
-        fieldStores[1].set(html);
+        fieldStores[ioFields.image].set(html);
     }
     globalThis.setImageField = setImageField;
 
-    // update cloze deletions and set occlusion fields, it call in saveNow to update cloze deletions
-    function updateIONoteInEditMode() {
-        if (isEditMode) {
-            const clozeNote = get(fieldStores[0]);
-            if (clozeNote.includes("oi=1")) {
-                setOcclusionField(true);
-            } else {
-                setOcclusionField(false);
-            }
-        }
-    }
-
-    function setOcclusionFieldInner() {
-        if (isImageOcclusion) {
+    function saveOcclusions(): void {
+        if (isImageOcclusion && globalThis.canvas) {
             const occlusionsData = exportShapesToClozeDeletions($hideAllGuessOne);
-            fieldStores[0].set(occlusionsData.clozes);
+            fieldStores[ioFields.occlusions].set(occlusionsData.clozes);
         }
     }
-    // global for calling this method in desktop note editor
-    globalThis.setOcclusionFieldInner = setOcclusionFieldInner;
 
     // reset for new occlusion in add mode
     function resetIOImageLoaded() {
         isIOImageLoaded = false;
         globalThis.canvas.clear();
+        globalThis.canvas = undefined;
+        if (imageOcclusionMode?.kind === "add") {
+            // canvas.clear indirectly calls saveOcclusions
+            saveFieldNow();
+            fieldStores[ioFields.image].set("");
+        }
         const page = document.querySelector(".image-occlusion");
         if (page) {
             page.remove();
@@ -457,22 +494,68 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
     globalThis.resetIOImageLoaded = resetIOImageLoaded;
 
-    function setOcclusionField(occludeInactive: boolean) {
-        // set fields data for occlusion and image fields for io notes type
+    /** hide occlusions and image */
+    function hideFieldInOcclusionType(
+        index: number,
+        ioFields: ImageOcclusionFieldIndexes,
+    ) {
         if (isImageOcclusion) {
-            const occlusionsData = exportShapesToClozeDeletions(occludeInactive);
-            fieldStores[0].set(occlusionsData.clozes);
-        }
-    }
-
-    // hide first two fields for occlusion type, first contains occlusion data and second contains image
-    function hideFieldInOcclusionType(index: number) {
-        if (isImageOcclusion) {
-            if (index == 0 || index == 1) {
+            if (index === ioFields.occlusions || index === ioFields.image) {
                 return true;
             }
         }
         return false;
+    }
+
+    // Signal image occlusion image loading to Python
+    function onImageLoaded(event: CustomEvent<ImageLoadedEvent>) {
+        const detail = event.detail;
+        bridgeCommand(
+            `ioImageLoaded:${JSON.stringify(detail.path || detail.noteId?.toString())}`,
+        );
+    }
+
+    // Signal editor UI state changes to add-ons
+
+    let editorState: EditorState = EditorState.Initial;
+    let lastEditorState: EditorState = editorState;
+
+    function getEditorState(
+        ioMaskEditorVisible: boolean,
+        isImageOcclusion: boolean,
+        isIOImageLoaded: boolean,
+        imageOcclusionMode: IOMode | undefined,
+    ): EditorState {
+        if (isImageOcclusion && ioMaskEditorVisible && !isIOImageLoaded) {
+            return EditorState.ImageOcclusionPicker;
+        } else if (imageOcclusionMode && ioMaskEditorVisible) {
+            return EditorState.ImageOcclusionMasks;
+        } else if (!ioMaskEditorVisible && isImageOcclusion) {
+            return EditorState.ImageOcclusionFields;
+        }
+        return EditorState.Fields;
+    }
+
+    function signalEditorState(newState: EditorState) {
+        tick().then(() => {
+            globalThis.editorState = newState;
+            bridgeCommand(`editorState:${newState}:${lastEditorState}`);
+            lastEditorState = newState;
+        });
+    }
+
+    $: signalEditorState(editorState);
+
+    $: editorState = getEditorState(
+        $ioMaskEditorVisible,
+        isImageOcclusion,
+        isIOImageLoaded,
+        imageOcclusionMode,
+    );
+
+    $: if (isImageOcclusion && $ioMaskEditorVisible && lastSavedTags) {
+        setTags(lastSavedTags);
+        lastSavedTags = null;
     }
 
     onMount(() => {
@@ -490,6 +573,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             saveSession,
             setFields,
             setCollapsed,
+            setClozeFields,
             setPlainTexts,
             setDescriptions,
             setFonts,
@@ -509,12 +593,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setCloseHTMLTags,
             triggerChanges,
             setIsImageOcclusion,
-            setIsEditMode,
             setupMaskEditor,
-            setOcclusionField,
-            setOcclusionFieldInner,
+            saveOcclusions,
             ...oldEditorAdapter,
         });
+
+        editorState = getEditorState(
+            $ioMaskEditorVisible,
+            isImageOcclusion,
+            isIOImageLoaded,
+            imageOcclusionMode,
+        );
 
         document.addEventListener("visibilitychange", saveOnPageHide);
         return () => document.removeEventListener("visibilitychange", saveOnPageHide);
@@ -559,36 +648,28 @@ the AddCards dialog) should be implemented in the user of this component.
         <Absolute bottom right --margin="10px">
             <Notification>
                 <Badge --badge-color="tomato" --icon-align="top">
-                    {@html alertIcon}
+                    <Icon icon={alertIcon} />
                 </Badge>
                 <span>{@html hint}</span>
             </Notification>
         </Absolute>
     {/if}
 
-    {#if imageOcclusionMode}
-        <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'}">
+    {#if imageOcclusionMode && ($ioMaskEditorVisible || imageOcclusionMode?.kind === "add")}
+        <div style="display: {$ioMaskEditorVisible ? 'block' : 'none'};">
             <ImageOcclusionPage
                 mode={imageOcclusionMode}
-                on:change={updateIONoteInEditMode}
+                on:save={saveOcclusions}
+                on:image-loaded={onImageLoaded}
             />
         </div>
     {/if}
 
     {#if $ioMaskEditorVisible && isImageOcclusion && !isIOImageLoaded}
-        <div id="io-select-image-div" style="padding-top: 60px; text-align: center;">
-            <LabelButton
-                --border-left-radius="5px"
-                --border-right-radius="5px"
-                class="io-select-image-btn"
-                on:click={() => {
-                    imageOcclusionMode = undefined;
-                    bridgeCommand("addImageForOcclusion");
-                }}
-            >
-                {tr.notetypesIoSelectImage()}
-            </LabelButton>
-        </div>
+        <ImageOcclusionPicker
+            onPickImage={pickIOImage}
+            onPickImageFromClipboard={pickIOImageFromClipboard}
+        />
     {/if}
 
     {#if !$ioMaskEditorVisible}
@@ -599,6 +680,7 @@ the AddCards dialog) should be implemented in the user of this component.
                 <EditorField
                     {field}
                     {content}
+                    {index}
                     flipInputs={plainTextDefaults[index]}
                     api={fields[index]}
                     on:focusin={() => {
@@ -641,6 +723,13 @@ the AddCards dialog) should be implemented in the user of this component.
                                 {#if cols[index] === "dupe"}
                                     <DuplicateLink />
                                 {/if}
+                                <slot
+                                    name="field-state"
+                                    {field}
+                                    {index}
+                                    show={fields[index] === $hoveredField ||
+                                        fields[index] === $focusedField}
+                                />
                                 {#if plainTextDefaults[index]}
                                     <RichTextBadge
                                         show={!fieldsCollapsed[index] &&
@@ -658,13 +747,6 @@ the AddCards dialog) should be implemented in the user of this component.
                                         on:toggle={() => togglePlainTextInput(index)}
                                     />
                                 {/if}
-                                <slot
-                                    name="field-state"
-                                    {field}
-                                    {index}
-                                    show={fields[index] === $hoveredField ||
-                                        fields[index] === $focusedField}
-                                />
                             </FieldState>
                         </LabelContainer>
                     </svelte:fragment>
@@ -681,6 +763,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                     $focusedInput = null;
                                 }}
                                 bind:this={richTextInputs[index]}
+                                isClozeField={field.isClozeField}
                             />
                         </Collapsible>
                     </svelte:fragment>
@@ -692,6 +775,7 @@ the AddCards dialog) should be implemented in the user of this component.
                         >
                             <PlainTextInput
                                 {hidden}
+                                fieldCollapsed={fieldsCollapsed[index]}
                                 on:focusout={() => {
                                     saveFieldNow();
                                     $focusedInput = null;
@@ -742,21 +826,16 @@ the AddCards dialog) should be implemented in the user of this component.
     }
 
     :global(.image-occlusion .top-tool-bar-container) {
-        margin-left: 28px !important;
+        margin-inline-start: 28px !important;
     }
     :global(.top-tool-bar-container .icon-button) {
         height: 36px !important;
+        line-height: 1;
     }
     :global(.image-occlusion .tool-bar-container) {
         top: unset !important;
         margin-top: 2px !important;
     }
-
-    :global(.io-select-image-btn) {
-        margin: auto;
-        padding: 0px 8px 0px 8px !important;
-    }
-
     :global(.image-occlusion .sticky-footer) {
         display: none;
     }

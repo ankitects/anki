@@ -67,13 +67,30 @@ fn additional_template_folder(dst_folder: &Utf8Path) -> Option<Utf8PathBuf> {
 
 fn all_langs(lang_folder: &Utf8Path) -> Result<Vec<Utf8PathBuf>> {
     std::fs::read_dir(lang_folder)
-        .with_context(|| format!("reading {:?}", lang_folder))?
+        .with_context(|| format!("reading {lang_folder:?}"))?
         .filter_map(Result::ok)
         .map(|e| Ok(e.path().utf8()?))
         .collect()
 }
 
 fn ftl_file_from_key(old_key: &str) -> String {
+    for prefix in [
+        "card-stats",
+        "card-template-rendering",
+        "card-templates",
+        "change-notetype",
+        "custom-study",
+        "database-check",
+        "deck-config",
+        "empty-cards",
+        "media-check",
+        "qt-misc",
+    ] {
+        if old_key.starts_with(&format!("{prefix}-")) {
+            return format!("{prefix}.ftl");
+        }
+    }
+
     format!("{}.ftl", old_key.split('-').next().unwrap())
 }
 

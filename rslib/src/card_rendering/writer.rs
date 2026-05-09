@@ -12,7 +12,7 @@ use crate::prelude::*;
 use crate::text::decode_entities;
 use crate::text::strip_html_for_tts;
 
-impl<'a> CardNodes<'a> {
+impl CardNodes<'_> {
     pub(super) fn write_without_av_tags(&self) -> String {
         AvStripper::new().write(self)
     }
@@ -52,7 +52,7 @@ trait Write {
     }
 
     fn write_sound(&mut self, buf: &mut String, resource: &str) {
-        write!(buf, "[sound:{}]", resource).unwrap();
+        write!(buf, "[sound:{resource}]").unwrap();
     }
 
     fn write_directive(&mut self, buf: &mut String, directive: &Directive) {
@@ -94,9 +94,9 @@ trait Write {
 
     fn write_directive_option(&mut self, buf: &mut String, key: &str, val: &str) {
         if val.contains([']', ' ', '\t', '\r', '\n']) {
-            write!(buf, " {}=\"{}\"", key, val).unwrap();
+            write!(buf, " {key}=\"{val}\"").unwrap();
         } else {
-            write!(buf, " {}={}", key, val).unwrap();
+            write!(buf, " {key}={val}").unwrap();
         }
     }
 
@@ -158,7 +158,7 @@ impl Write for AvExtractor<'_> {
 
     fn write_tts_directive(&mut self, buf: &mut String, directive: &TtsDirective) {
         if let Some(error) = directive.error(self.tr) {
-            write!(buf, "[{}]", error).unwrap();
+            write!(buf, "[{error}]").unwrap();
             return;
         }
 
@@ -173,7 +173,7 @@ impl Write for AvExtractor<'_> {
                     other_args: directive
                         .options
                         .iter()
-                        .map(|(key, val)| format!("{}={}", key, val))
+                        .map(|(key, val)| format!("{key}={val}"))
                         .collect(),
                 },
             )),
@@ -204,7 +204,7 @@ impl AvPrettifier {
 
 impl Write for AvPrettifier {
     fn write_sound(&mut self, buf: &mut String, resource: &str) {
-        write!(buf, "🔉{}🔉", resource).unwrap();
+        write!(buf, "🔉{resource}🔉").unwrap();
     }
 
     fn write_tts_directive(&mut self, buf: &mut String, directive: &TtsDirective) {

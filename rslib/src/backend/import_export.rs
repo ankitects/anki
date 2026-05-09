@@ -18,9 +18,7 @@ impl BackendImportExportService for Backend {
         let mut guard = self.lock_open_collection()?;
 
         let col_inner = guard.take().unwrap();
-        col_inner
-            .export_colpkg(input.out_path, input.include_media, input.legacy)
-            .map(Into::into)
+        col_inner.export_colpkg(input.out_path, input.include_media, input.legacy)
     }
 
     fn import_collection_package(
@@ -36,6 +34,5 @@ impl BackendImportExportService for Backend {
             Path::new(&input.media_db),
             self.new_progress_handler(),
         )
-        .map(Into::into)
     }
 }

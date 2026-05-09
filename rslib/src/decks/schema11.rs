@@ -135,6 +135,8 @@ pub struct NormalDeckSchema11 {
     review_limit_today: Option<DayLimit>,
     #[serde(default, deserialize_with = "default_on_invalid")]
     new_limit_today: Option<DayLimit>,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    desired_retention: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -154,10 +156,17 @@ pub struct FilteredDeckSchema11 {
     // old scheduler
     #[serde(default, deserialize_with = "default_on_invalid")]
     delays: Option<Vec<f32>>,
+    // old scheduler
+    #[serde(default)]
+    preview_delay: u32,
 
     // new scheduler
     #[serde(default)]
-    preview_delay: u32,
+    preview_again_secs: u32,
+    #[serde(default)]
+    preview_hard_secs: u32,
+    #[serde(default)]
+    preview_good_secs: u32,
 }
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Default, Clone)]
 pub struct DeckTodaySchema11 {
@@ -242,6 +251,7 @@ impl Default for NormalDeckSchema11 {
             new_limit: None,
             review_limit_today: None,
             new_limit_today: None,
+            desired_retention: None,
         }
     }
 }
@@ -318,6 +328,7 @@ impl From<NormalDeckSchema11> for NormalDeck {
             new_limit: deck.new_limit,
             review_limit_today: deck.review_limit_today,
             new_limit_today: deck.new_limit_today,
+            desired_retention: deck.desired_retention.map(|v| v as f32 / 100.0),
         }
     }
 }
@@ -329,6 +340,9 @@ impl From<FilteredDeckSchema11> for FilteredDeck {
             search_terms: deck.terms.into_iter().map(Into::into).collect(),
             delays: deck.delays.unwrap_or_default(),
             preview_delay: deck.preview_delay,
+            preview_again_secs: deck.preview_again_secs,
+            preview_hard_secs: deck.preview_hard_secs,
+            preview_good_secs: deck.preview_good_secs,
         }
     }
 }
@@ -356,6 +370,7 @@ impl From<Deck> for DeckSchema11 {
                 new_limit: norm.new_limit,
                 review_limit_today: norm.review_limit_today,
                 new_limit_today: norm.new_limit_today,
+                desired_retention: norm.desired_retention.map(|v| (v * 100.0) as u32),
                 common: deck.into(),
             }),
             DeckKind::Filtered(ref filt) => DeckSchema11::Filtered(FilteredDeckSchema11 {
@@ -368,6 +383,9 @@ impl From<Deck> for DeckSchema11 {
                     Some(filt.delays.clone())
                 },
                 preview_delay: filt.preview_delay,
+                preview_again_secs: filt.preview_again_secs,
+                preview_hard_secs: filt.preview_hard_secs,
+                preview_good_secs: filt.preview_good_secs,
                 common: deck.into(),
             }),
         }
@@ -417,7 +435,8 @@ static RESERVED_DECK_KEYS: Set<&'static str> = phf_set! {
     "browserCollapsed",
     "extendRev",
     "id",
-    "collapsed"
+    "collapsed",
+    "desiredRetention",
 };
 
 impl From<&Deck> for DeckTodaySchema11 {

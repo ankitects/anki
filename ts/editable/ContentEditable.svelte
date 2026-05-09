@@ -9,16 +9,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Writable } from "svelte/store";
 
-    import { updateAllState } from "../components/WithState.svelte";
-    import actionList from "../sveltelib/action-list";
-    import type { MirrorAction } from "../sveltelib/dom-mirror";
-    import type { SetupInputHandlerAction } from "../sveltelib/input-handler";
+    import { updateAllState } from "$lib/components/WithState.svelte";
+    import actionList from "$lib/sveltelib/action-list";
+    import type { MirrorAction } from "$lib/sveltelib/dom-mirror";
+    import type { SetupInputHandlerAction } from "$lib/sveltelib/input-handler";
+
     import type { ContentEditableAPI } from "./content-editable";
     import {
         fixRTLKeyboardNav,
         preventBuiltinShortcuts,
         useFocusHandler,
     } from "./content-editable";
+    import { pageTheme } from "$lib/sveltelib/theme";
 
     export let resolve: (editable: HTMLElement) => void;
 
@@ -40,6 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <anki-editable
+    class:nightMode={$pageTheme.isDark}
     contenteditable="true"
     role="textbox"
     tabindex="0"
@@ -53,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:blur
     on:click={updateAllState}
     on:keyup={updateAllState}
-/>
+></anki-editable>
 
 <style lang="scss">
     anki-editable {
@@ -68,6 +71,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus {
             outline: none;
         }
+
+        min-height: 1.5em;
     }
 
     /* editable-base.scss contains styling targeting user HTML */

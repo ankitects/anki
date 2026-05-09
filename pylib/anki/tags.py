@@ -13,9 +13,10 @@ from __future__ import annotations
 
 import pprint
 import re
-from typing import Collection, Match, Sequence
+from collections.abc import Collection, Sequence
+from typing import Match
 
-import anki  # pylint: disable=unused-import
+import anki
 import anki.collection
 from anki import tags_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated

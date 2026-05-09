@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
-use lazy_static::lazy_static;
 use percent_encoding_iri::percent_decode_str;
 use percent_encoding_iri::utf8_percent_encode;
 use percent_encoding_iri::AsciiSet;
@@ -78,17 +78,18 @@ pub enum AvTag {
     },
 }
 
-lazy_static! {
-    static ref HTML: Regex = Regex::new(concat!(
+static HTML: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(concat!(
         "(?si)",
         // wrapped text
         r"(<!--.*?-->)|(<style.*?>.*?</style>)|(<script.*?>.*?</script>)",
         // html tags
         r"|(<.*?>)",
     ))
-    .unwrap();
-
-    static ref HTML_LINEBREAK_TAGS: Regex = Regex::new(
+    .unwrap()
+});
+static HTML_LINEBREAK_TAGS: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r#"(?xsi)
             </?
             (?:
@@ -98,13 +99,28 @@ lazy_static! {
                 |output|p|pre|section|table|tfoot|ul|video
             )
             >
-        "#
-    ).unwrap();
+        "#,
+    )
+    .unwrap()
+});
 
-    pub static ref HTML_MEDIA_TAGS: Regex = Regex::new(
+pub static HTML_MEDIA_TAGS: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r#"(?xsi)
-            # the start of the image, audio, or object tag
-            <\b(?:img|audio|object)\b[^>]+\b(?:src|data)\b=
+            # the start of the image, audio, object, or source tag
+            <\b(?:img|audio|video|object|source)\b
+
+            # any non-`>`, except inside `"` or `'`
+            (?:
+                [^>]
+            |
+                "[^"]+?"
+            |
+                '[^']+?'
+            )+?
+
+            # capture `src` or `data` attribute
+            \b(?:src|data)\b=
             (?:
                     # 1: double-quoted filename
                     "
@@ -128,27 +144,31 @@ lazy_static! {
                         >
                     )
             )
-            "#
-    ).unwrap();
+            "#,
+    )
+    .unwrap()
+});
 
-    // videos are also in sound tags
-    static ref AV_TAGS: Regex = Regex::new(
+// videos are also in sound tags
+static AV_TAGS: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r"(?xs)
             \[sound:(.+?)\]     # 1 - the filename in a sound tag
-            |
-            \[anki:tts\]
-                \[(.*?)\]       # 2 - arguments to tts call
-                (.*?)           # 3 - field text
-            \[/anki:tts\]
-            ").unwrap();
+            ",
+    )
+    .unwrap()
+});
 
-    static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r"(?i)<br\s*/?>|<div>|\n").unwrap();
+static PERSISTENT_HTML_SPACERS: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)<br\s*/?>|<div>|\n").unwrap());
 
-    static ref TYPE_TAG: Regex = Regex::new(r"\[\[type:[^]]+\]\]").unwrap();
-    pub(crate) static ref SOUND_TAG: Regex = Regex::new(r"\[sound:([^]]+)\]").unwrap();
+static TYPE_TAG: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\[\[type:[^]]+\]\]").unwrap());
+pub(crate) static SOUND_TAG: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\[sound:([^]]+)\]").unwrap());
 
-    /// Files included in CSS with a leading underscore.
-    static ref UNDERSCORED_CSS_IMPORTS: Regex = Regex::new(
+/// Files included in CSS with a leading underscore.
+static UNDERSCORED_CSS_IMPORTS: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r#"(?xi)
             (?:@import\s+           # import statement with a bare
                 "(_[^"]*.css)"      # double quoted
@@ -161,12 +181,16 @@ lazy_static! {
                 |                   # or
                 '(_[^']+)'          # single quoted
                 |                   # or
-                (_.+)               # unquoted filename
+                (_.+?)              # unquoted filename
             \s*\))
-    "#).unwrap();
+    "#,
+    )
+    .unwrap()
+});
 
-    /// Strings, src and data attributes with a leading underscore.
-    static ref UNDERSCORED_REFERENCES: Regex = Regex::new(
+/// Strings, src and data attributes with a leading underscore.
+static UNDERSCORED_REFERENCES: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r#"(?x)
                 \[sound:(_[^]]+)\]  # a filename in an Anki sound tag
             |                       # or
@@ -177,15 +201,17 @@ lazy_static! {
                 \b(?:src|data)      # a 'src' or 'data' attribute
                 =                   # followed by
                 (_[^ >]+)           # an unquoted value
-    "#).unwrap();
-}
+    "#,
+    )
+    .unwrap()
+});
 
 pub fn is_html(text: impl AsRef<str>) -> bool {
     HTML.is_match(text.as_ref())
 }
 
-pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<str> {
-    let (html_stripper, sound_rep): (fn(&str) -> Cow<str>, _) = if preserve_media_filenames {
+pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<'_, str> {
+    let (html_stripper, sound_rep): (fn(&str) -> Cow<'_, str>, _) = if preserve_media_filenames {
         (strip_html_preserving_media_filenames, "$1")
     } else {
         (strip_html, "")
@@ -198,15 +224,15 @@ pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<str>
         .trim()
 }
 
-pub fn strip_html(html: &str) -> Cow<str> {
+pub fn strip_html(html: &str) -> Cow<'_, str> {
     strip_html_preserving_entities(html).map_cow(decode_entities)
 }
 
-pub fn strip_html_preserving_entities(html: &str) -> Cow<str> {
+pub fn strip_html_preserving_entities(html: &str) -> Cow<'_, str> {
     HTML.replace_all(html, "")
 }
 
-pub fn decode_entities(html: &str) -> Cow<str> {
+pub fn decode_entities(html: &str) -> Cow<'_, str> {
     if html.contains('&') {
         match htmlescape::decode_html(html) {
             Ok(text) => text.replace('\u{a0}', " ").into(),
@@ -218,7 +244,7 @@ pub fn decode_entities(html: &str) -> Cow<str> {
     }
 }
 
-pub(crate) fn newlines_to_spaces(text: &str) -> Cow<str> {
+pub(crate) fn newlines_to_spaces(text: &str) -> Cow<'_, str> {
     if text.contains('\n') {
         text.replace('\n', " ").into()
     } else {
@@ -226,7 +252,7 @@ pub(crate) fn newlines_to_spaces(text: &str) -> Cow<str> {
     }
 }
 
-pub fn strip_html_for_tts(html: &str) -> Cow<str> {
+pub fn strip_html_for_tts(html: &str) -> Cow<'_, str> {
     HTML_LINEBREAK_TAGS
         .replace_all(html, " ")
         .map_cow(strip_html)
@@ -251,7 +277,7 @@ pub(crate) struct MediaRef<'a> {
     pub fname_decoded: Cow<'a, str>,
 }
 
-pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
+pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef<'_>> {
     let mut out = vec![];
 
     for caps in HTML_MEDIA_TAGS.captures_iter(text) {
@@ -328,11 +354,11 @@ pub(crate) fn extract_underscored_references(text: &str) -> Vec<&str> {
 /// Returns the first matching group as a str. This is intended for regexes
 /// where exactly one group matches, and will panic for matches without matching
 /// groups.
-fn extract_match(caps: Captures) -> &str {
+fn extract_match(caps: Captures<'_>) -> &str {
     caps.iter().skip(1).find_map(|g| g).unwrap().as_str()
 }
 
-pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
+pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<'_, str> {
     HTML_MEDIA_TAGS
         .replace_all(html, r" ${1}${2}${3} ")
         .map_cow(strip_html)
@@ -354,11 +380,10 @@ pub(crate) fn sanitize_html_no_images(html: &str) -> String {
         .to_string()
 }
 
-pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
-    if !is_nfc(s) {
-        s.chars().nfc().collect::<String>().into()
-    } else {
-        s.into()
+pub(crate) fn normalize_to_nfc(s: &str) -> Cow<'_, str> {
+    match is_nfc(s) {
+        false => s.chars().nfc().collect::<String>().into(),
+        true => s.into(),
     }
 }
 
@@ -368,57 +393,93 @@ pub(crate) fn ensure_string_in_nfc(s: &mut String) {
     }
 }
 
+static EXTRA_NO_COMBINING_REPLACEMENTS: phf::Map<char, &str> = phf::phf_map! {
+'€'  =>  "E",
+'Æ'  =>  "AE",
+'Ð'  =>  "D",
+'Ø'  =>  "O",
+'Þ'  =>  "TH",
+'ß'  =>  "s",
+'æ'  =>  "ae",
+'ð'  =>  "d",
+'ø'  =>  "o",
+'þ'  =>  "th",
+'Đ'  =>  "D",
+'đ'  =>  "d",
+'Ħ'  =>  "H",
+'ħ'  =>  "h",
+'ı'  =>  "i",
+'ĸ'  =>  "k",
+'Ł'  =>  "L",
+'ł'  =>  "l",
+'Ŋ'  =>  "N",
+'ŋ'  =>  "n",
+'Œ'  =>  "OE",
+'œ'  =>  "oe",
+'Ŧ'  =>  "T",
+'ŧ'  =>  "t",
+'Ə'  =>  "E",
+'ǝ'  =>  "e",
+'ɑ'  =>  "a",
+};
+
 /// Convert provided string to NFKD form and strip combining characters.
-pub(crate) fn without_combining(s: &str) -> Cow<str> {
+pub(crate) fn without_combining(s: &str) -> Cow<'_, str> {
     // if the string is already normalized
     if matches!(is_nfkd_quick(s.chars()), IsNormalized::Yes) {
         // and no combining characters found, return unchanged
-        if !s.chars().any(is_combining_mark) {
+        if !s
+            .chars()
+            .any(|c| is_combining_mark(c) || EXTRA_NO_COMBINING_REPLACEMENTS.contains_key(&c))
+        {
             return s.into();
         }
     }
 
     // we need to create a new string without the combining marks
-    s.chars()
-        .nfkd()
-        .filter(|c| !is_combining_mark(*c))
-        .collect::<String>()
-        .into()
+    let mut out = String::with_capacity(s.len());
+    for chr in s.chars().nfkd().filter(|c| !is_combining_mark(*c)) {
+        if let Some(repl) = EXTRA_NO_COMBINING_REPLACEMENTS.get(&chr) {
+            out.push_str(repl);
+        } else {
+            out.push(chr);
+        }
+    }
+
+    out.into()
 }
 
 /// Check if string contains an unescaped wildcard.
 pub(crate) fn is_glob(txt: &str) -> bool {
     // even number of \s followed by a wildcard
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(
             r"(?x)
             (?:^|[^\\])     # not a backslash
             (?:\\\\)*       # even number of backslashes
             [*_]            # wildcard
-            "
+            ",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
 
     RE.is_match(txt)
 }
 
 /// Convert to a RegEx respecting Anki wildcards.
-pub(crate) fn to_re(txt: &str) -> Cow<str> {
+pub(crate) fn to_re(txt: &str) -> Cow<'_, str> {
     to_custom_re(txt, ".")
 }
 
 /// Convert Anki style to RegEx using the provided wildcard.
 pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"\\?.").unwrap();
-    }
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\?.").unwrap());
     RE.replace_all(txt, |caps: &Captures| {
         let s = &caps[0];
         match s {
             r"\\" | r"\*" => s.to_string(),
             r"\_" => "_".to_string(),
-            "*" => format!("{}*", wildcard),
+            "*" => format!("{wildcard}*"),
             "_" => wildcard.to_string(),
             s => regex::escape(s),
         }
@@ -426,11 +487,9 @@ pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
 }
 
 /// Convert to SQL respecting Anki wildcards.
-pub(crate) fn to_sql(txt: &str) -> Cow<str> {
+pub(crate) fn to_sql(txt: &str) -> Cow<'_, str> {
     // escape sequences and unescaped special characters which need conversion
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"\\[\\*]|[*%]").unwrap();
-    }
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\[\\*]|[*%]").unwrap());
     RE.replace_all(txt, |caps: &Captures| {
         let s = &caps[0];
         match s {
@@ -444,18 +503,14 @@ pub(crate) fn to_sql(txt: &str) -> Cow<str> {
 }
 
 /// Unescape everything.
-pub(crate) fn to_text(txt: &str) -> Cow<str> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"\\(.)").unwrap();
-    }
+pub(crate) fn to_text(txt: &str) -> Cow<'_, str> {
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\(.)").unwrap());
     RE.replace_all(txt, "$1")
 }
 
 /// Escape Anki wildcards and the backslash for escaping them: \*_
 pub(crate) fn escape_anki_wildcards(txt: &str) -> String {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"[\\*_]").unwrap();
-    }
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[\\*_]").unwrap());
     RE.replace_all(txt, r"\$0").into()
 }
 
@@ -488,9 +543,8 @@ pub(crate) fn glob_matcher(search: &str) -> impl Fn(&str) -> bool + '_ {
     }
 }
 
-lazy_static! {
-    pub(crate) static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
-}
+pub(crate) static REMOTE_FILENAME: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new("(?i)^https?://").unwrap());
 
 /// https://url.spec.whatwg.org/#fragment-percent-encode-set
 const FRAGMENT_QUERY_UNION: &AsciiSet = &CONTROLS
@@ -502,14 +556,14 @@ const FRAGMENT_QUERY_UNION: &AsciiSet = &CONTROLS
     .add(b'#');
 
 /// IRI-encode unescaped local paths in HTML fragment.
-pub(crate) fn encode_iri_paths(unescaped_html: &str) -> Cow<str> {
+pub(crate) fn encode_iri_paths(unescaped_html: &str) -> Cow<'_, str> {
     transform_html_paths(unescaped_html, |fname| {
         utf8_percent_encode(fname, FRAGMENT_QUERY_UNION).into()
     })
 }
 
 /// URI-decode escaped local paths in HTML fragment.
-pub(crate) fn decode_iri_paths(escaped_html: &str) -> Cow<str> {
+pub(crate) fn decode_iri_paths(escaped_html: &str) -> Cow<'_, str> {
     transform_html_paths(escaped_html, |fname| {
         percent_decode_str(fname).decode_utf8_lossy()
     })
@@ -518,9 +572,9 @@ pub(crate) fn decode_iri_paths(escaped_html: &str) -> Cow<str> {
 /// Apply a transform to local filename references in tags like IMG.
 /// Required at display time, as Anki unfortunately stores the references
 /// in unencoded form in the database.
-fn transform_html_paths<F>(html: &str, transform: F) -> Cow<str>
+fn transform_html_paths<F>(html: &str, transform: F) -> Cow<'_, str>
 where
-    F: Fn(&str) -> Cow<str>,
+    F: Fn(&str) -> Cow<'_, str>,
 {
     HTML_MEDIA_TAGS.replace_all(html, |caps: &Captures| {
         let fname = caps
@@ -590,8 +644,17 @@ mod test {
                 "URL(\"_bar.css\")\n",
                 "@import url('_baz.css')\n",
                 "url('nope.css')\n",
+                "url(_foo.woff2) format('woff2')",
             )),
-            vec!["_foo.css", "_bar.css", "_baz.css", "_foo.css", "_bar.css", "_baz.css",]
+            vec![
+                "_foo.css",
+                "_bar.css",
+                "_baz.css",
+                "_foo.css",
+                "_bar.css",
+                "_baz.css",
+                "_foo.woff2"
+            ]
         );
         assert_eq!(
             extract_underscored_references(concat!(

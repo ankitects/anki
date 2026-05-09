@@ -21,14 +21,11 @@ pub fn check(lang_map: &TranslationsByLang) {
 fn check_content(lang: &str, fname: &str, content: &str) {
     let lang_id: LanguageIdentifier = "en-US".parse().unwrap();
     let resource = FluentResource::try_new(content.into()).unwrap_or_else(|e| {
-        panic!("{}\nUnable to parse {}/{}: {:?}", content, lang, fname, e);
+        panic!("{content}\nUnable to parse {lang}/{fname}: {e:?}");
     });
 
     let mut bundle: FluentBundle<FluentResource> = FluentBundle::new(vec![lang_id]);
     bundle.add_resource(resource).unwrap_or_else(|e| {
-        panic!(
-            "{}\nUnable to bundle - duplicate key? {}/{}: {:?}",
-            content, lang, fname, e
-        );
+        panic!("{content}\nUnable to bundle - duplicate key? {lang}/{fname}: {e:?}");
     });
 }

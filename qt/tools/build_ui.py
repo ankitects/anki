@@ -6,16 +6,10 @@ from __future__ import annotations
 import io
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
-try:
-    from PyQt6.uic import compileUi
-except ImportError:
-    # ARM64 Linux builds may not have access to PyQt6, and may have aliased
-    # it to PyQt5. We allow fallback, but the _qt6.py files will not be valid.
-    from PyQt5.uic import compileUi  # type: ignore
-
-from dataclasses import dataclass
+from PyQt6.uic import compileUi
 
 
 def compile(ui_file: str | Path) -> str:
@@ -53,21 +47,9 @@ def with_fixes_for_qt6(code: str) -> str:
     return "\n".join(outlines)
 
 
-def with_fixes_for_qt5(code: str) -> str:
-    code = code.replace(
-        "from PyQt5 import QtCore, QtGui, QtWidgets",
-        "from PyQt5 import QtCore, QtGui, QtWidgets\nfrom aqt.utils import tr\n",
-    )
-    code = code.replace("Qt6", "Qt5")
-    code = code.replace("QtGui.QAction", "QtWidgets.QAction")
-    code = code.replace("import icons_rc", "")
-    return code
-
-
 @dataclass
 class UiFileAndOutputs:
     ui_file: Path
-    qt5_file: str
     qt6_file: str
 
 
@@ -82,7 +64,6 @@ def get_files() -> list[UiFileAndOutputs]:
             out.append(
                 UiFileAndOutputs(
                     ui_file=path,
-                    qt5_file=outpath.replace(".ui", "_qt5.py"),
                     qt6_file=outpath.replace(".ui", "_qt6.py"),
                 )
             )
@@ -93,8 +74,5 @@ if __name__ == "__main__":
     for entry in get_files():
         stock = compile(entry.ui_file)
         for_qt6 = with_fixes_for_qt6(stock)
-        for_qt5 = with_fixes_for_qt5(for_qt6)
-        with open(entry.qt5_file, "w") as file:
-            file.write(for_qt5)
         with open(entry.qt6_file, "w") as file:
             file.write(for_qt6)

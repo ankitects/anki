@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="21" height="21" viewBox="0 0 21 21" version="1.1"
+     xmlns="http://www.w3.org/2000/svg">
+  <g id="Layer-1" transform="translate(0.5,0.5)">
+    <rect x="0" y="0" width="20" height="20" fill="none"/>
+    <g transform="translate(14.8974,6.3648)">
+      <path d="M0,0C0,3.403 -2.042,6.161 -4.56,6.161C-7.078,6.161 -9.12,3.403 -9.12,0C-9.12,-3.403 -7.078,-6.161 -4.56,-6.161C-2.042,-6.161 0,-3.403 0,0"
+            fill="black" fill-rule="nonzero"/>
+    </g>
+    <g transform="matrix(0,-1,-1,0,10.3374,1.8048)">
+      <ellipse cx="-4.56" cy="0" rx="6.161" ry="4.56"
+               fill="none" stroke="black" stroke-width="0.25"/>
+    </g>
+    <g transform="translate(3.1987,14.4958)">
+      <path d="M0,-9.484C-0.76,-4.212 3.287,0 7.12,-0.046C10.864,-0.09 14.742,-4.199 14.076,-9.343"
+            fill="none" stroke="black" stroke-width="2" fill-rule="nonzero"/>
+    </g>
+    <g transform="matrix(-1,0,0,1,20.573,18.613)">
+      <rect x="5.387" y="0.601" width="9.799" height="0.185"
+            fill="none" stroke="black" stroke-width="2"/>
+    </g>
+    <g transform="matrix(-1,0,0,1,20.741,13.51)">
+      <rect x="9.899" y="1.163" width="0.943" height="4.164"
+            fill="none" stroke="black" stroke-width="2"/>
+    </g>
+  </g>
+</svg>

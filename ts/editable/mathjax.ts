@@ -7,7 +7,7 @@
 
 import "mathjax/es5/tex-svg-full";
 
-import { mathIcon } from "./icons";
+import mathIcon from "@mdi/svg/svg/math-integral-box.svg?src";
 
 const parser = new DOMParser();
 
@@ -18,7 +18,7 @@ function getCSS(nightMode: boolean, fontSize: number): string {
 }
 
 function getStyle(css: string): HTMLStyleElement {
-    const style = document.createElement("style") as HTMLStyleElement;
+    const style = document.createElement("style");
     style.appendChild(document.createTextNode(css));
     return style;
 }

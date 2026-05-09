@@ -8,10 +8,15 @@ import gc
 import os
 import re
 import signal
+import sys
+import traceback
 import weakref
 from argparse import Namespace
+from collections.abc import Callable, Sequence
 from concurrent.futures import Future
-from typing import Any, Literal, Sequence, TypeVar, cast
+from typing import Any, Literal, TypeVar, cast
+
+from packaging.version import Version
 
 import anki
 import anki.cards
@@ -28,7 +33,9 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
-from anki.collection import Collection, Config, OpChanges, UndoStatus
+from anki._legacy import deprecated
+from anki.buildinfo import version as version_str
+from anki.collection import Collection, Config, GithubRelease, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
@@ -37,10 +44,10 @@ from anki.utils import (
     dev_mode,
     ids2str,
     int_time,
+    int_version,
     is_lin,
     is_mac,
     is_win,
-    point_version,
     split_fields,
 )
 from aqt import gui_hooks
@@ -69,6 +76,7 @@ from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
 from aqt.toolbar import BottomWebView, Toolbar, TopWebView
 from aqt.undo import UndoActionsInfo
+from aqt.update import get_latest_release_op, prompt_and_install_github_update
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
@@ -143,17 +151,27 @@ class MainWebView(AnkiWebView):
             return
 
     # Main webview specific event handling
-    def eventFilter(self, obj, evt):
+    def eventFilter(self, obj: QObject | None, evt: QEvent | None) -> bool:
         if handled := super().eventFilter(obj, evt):
             return handled
 
         if evt.type() == QEvent.Type.Leave:
+            handled_leave = False
+
+            # Show menubar when mouse moves outside main webview in fullscreen
+            if self.mw.fullscreen:
+                self.mw.show_menubar()
+                handled_leave = True
+
             # Show toolbar when mouse moves outside main webview
             # and automatically hide it with delay after mouse has entered again
+            # The toolbar's hide timer will also trigger menubar hiding when in fullscreen mode
             if self.mw.pm.hide_top_bar() or self.mw.pm.hide_bottom_bar():
                 self.mw.toolbarWeb.show()
                 self.mw.bottomWeb.show()
-                return True
+                handled_leave = True
+
+            return handled_leave
 
         if evt.type() == QEvent.Type.Enter:
             self.mw.toolbarWeb.hide_timer.start()
@@ -197,7 +215,7 @@ class AnkiQt(QMainWindow):
             self.setupUI()
             self.setupAddons(args)
             self.finish_ui_setup()
-        except:
+        except Exception:
             showInfo(tr.qt_misc_error_during_startup(val=traceback.format_exc()))
             sys.exit(1)
         # must call this after ui set up
@@ -348,7 +366,7 @@ class AnkiQt(QMainWindow):
         f.profiles.addItems(profs)
         try:
             idx = profs.index(self.pm.name)
-        except:
+        except Exception:
             idx = 0
         f.profiles.setCurrentRow(idx)
 
@@ -362,7 +380,6 @@ class AnkiQt(QMainWindow):
     def openProfile(self) -> None:
         name = self.pm.profiles()[self.profileForm.profiles.currentRow()]
         self.pm.load(name)
-        return
 
     def onOpenProfile(self, *, callback: Callable[[], None] | None = None) -> None:
         def on_done() -> None:
@@ -411,7 +428,7 @@ class AnkiQt(QMainWindow):
             return
         # sure?
         if not askUser(
-            tr.qt_misc_all_cards_notes_and_media_for(),
+            tr.qt_misc_all_cards_notes_and_media_for2(name=self.pm.name),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
@@ -419,32 +436,58 @@ class AnkiQt(QMainWindow):
         self.pm.remove(self.pm.name)
         self.refreshProfilesList()
 
-    def onOpenBackup(self) -> None:
-        if not askUser(
-            tr.qt_misc_replace_your_collection_with_an_earlier(),
-            msgfunc=QMessageBox.warning,
-            defaultno=True,
-        ):
-            return
+    def _handle_load_backup_success(self) -> None:
+        """
+        Actions that occur when profile backup has been loaded successfully
+        """
+        if self.state == "profileManager":
+            self.profileDiag.closeWithoutQuitting()
 
-        def doOpen(path: str) -> None:
-            self._openBackup(path)
+        self.loadProfile()
+
+    def _handle_load_backup_failure(self, error: Exception) -> None:
+        """
+        Actions that occur when a profile has loaded unsuccessfully
+        """
+        showWarning(str(error))
+        if self.state != "profileManager":
+            self.loadProfile()
+
+    def onOpenBackup(self) -> None:
+        def do_open(path: str) -> None:
+            if not askUser(
+                tr.qt_misc_replace_your_collection_with_an_earlier2(
+                    os.path.basename(path)
+                ),
+                msgfunc=QMessageBox.warning,
+                defaultno=True,
+            ):
+                return
+
+            showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
+
+            # Collection is still loaded if called from main window, so we unload. This is already
+            # unloaded if called from the ProfileManager window.
+            if self.col:
+                self.unloadProfile(lambda: self._start_restore_backup(path))
+                return
+
+            self._start_restore_backup(path)
 
         getFile(
-            self.profileDiag,
+            self.profileDiag if self.state == "profileManager" else self,
             tr.qt_misc_revert_to_backup(),
-            cb=doOpen,  # type: ignore
+            cb=do_open,  # type: ignore
             filter="*.colpkg",
             dir=self.pm.backupFolder(),
         )
 
-    def _openBackup(self, path: str) -> None:
+    def _start_restore_backup(self, path: str):
         self.restoring_backup = True
-        showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
 
         import_collection_package_op(
-            self, path, success=self.onOpenProfile
-        ).run_in_background()
+            self, path, success=self._handle_load_backup_success
+        ).failure(self._handle_load_backup_failure).run_in_background()
 
     def _on_downgrade(self) -> None:
         self.progress.start()
@@ -492,15 +535,41 @@ class AnkiQt(QMainWindow):
             else:
                 self.handleImport(self.pendingImport)
             self.pendingImport = None
-        gui_hooks.profile_did_open()
 
-        def _onsuccess() -> None:
-            self._refresh_after_sync()
+        def _onsuccess(synced: bool) -> None:
+            if synced:
+                self._refresh_after_sync()
             if onsuccess:
                 onsuccess()
             if not self.safeMode:
-                self.maybe_check_for_addon_updates(self.setupAutoUpdate)
+                self.maybe_check_for_addon_updates(self.setup_auto_update)
 
+        last_day_cutoff = self.col.sched.day_cutoff
+
+        def refresh_reviewer_on_day_rollover_change():
+            from aqt.reviewer import RefreshNeeded
+
+            # need to refresh?
+            nonlocal last_day_cutoff
+            current_cutoff = self.col.sched.day_cutoff
+            if self.state == "review" and last_day_cutoff != current_cutoff:
+                last_day_cutoff = self.col.sched.day_cutoff
+                self.reviewer._refresh_needed = RefreshNeeded.QUEUES
+                self.reviewer.refresh_if_needed()
+            if last_day_cutoff != current_cutoff:
+                gui_hooks.day_did_change()
+
+            # schedule another check
+            secs_until_cutoff = current_cutoff - int_time()
+            self._reviewer_refresh_timer = self.progress.timer(
+                secs_until_cutoff * 1000,
+                refresh_reviewer_on_day_rollover_change,
+                repeat=False,
+                parent=self,
+            )
+
+        refresh_reviewer_on_day_rollover_change()
+        gui_hooks.profile_did_open()
         self.maybe_auto_sync_on_open_close(_onsuccess)
 
     def unloadProfile(self, onsuccess: Callable) -> None:
@@ -522,6 +591,7 @@ class AnkiQt(QMainWindow):
 
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
+        self._reviewer_refresh_timer.deleteLater()
 
     def _checkForUnclosedWidgets(self) -> None:
         for w in self.app.topLevelWidgets():
@@ -545,6 +615,7 @@ class AnkiQt(QMainWindow):
         self.backend.await_backup_completion()
         self.deleteLater()
         app = self.app
+        app._unset_windows_shutdown_block_reason()
 
         def exit():
             # try to ensure Qt objects are deleted in a logical order,
@@ -608,7 +679,7 @@ class AnkiQt(QMainWindow):
             gui_hooks.collection_did_load(self.col)
             self.apply_collection_options()
             self.moveToState("deckBrowser")
-        except Exception as e:
+        except Exception:
             # dump error to stderr so it gets picked up by errors.py
             traceback.print_exc()
 
@@ -628,7 +699,7 @@ class AnkiQt(QMainWindow):
             self._unloadCollection()
             onsuccess()
 
-        def after_sync() -> None:
+        def after_sync(synced: bool) -> None:
             self.media_syncer.show_diag_until_finished(after_media_sync)
 
         def before_sync() -> None:
@@ -652,7 +723,7 @@ class AnkiQt(QMainWindow):
             self.maybeOptimize()
             if not dev_mode:
                 corrupt = self.col.db.scalar("pragma quick_check") != "ok"
-        except:
+        except Exception:
             corrupt = True
 
         try:
@@ -664,7 +735,7 @@ class AnkiQt(QMainWindow):
                         force=False,
                         wait_for_completion=False,
                     )
-                except:
+                except Exception:
                     print("backup on close failed")
             self.col.close(downgrade=False)
         except Exception as e:
@@ -705,7 +776,6 @@ class AnkiQt(QMainWindow):
         oldState = self.state
         cleanup = getattr(self, f"_{oldState}Cleanup", None)
         if cleanup:
-            # pylint: disable=not-callable
             cleanup(state)
         self.clearStateShortcuts()
         self.state = state
@@ -733,18 +803,27 @@ class AnkiQt(QMainWindow):
     def _reviewState(self, oldState: MainWindowState) -> None:
         self.reviewer.show()
 
+        fullscreen_was_checked = False
+
         if self.pm.hide_top_bar():
             self.toolbarWeb.hide_timer.setInterval(500)
             self.toolbarWeb.hide_timer.start()
+
+            # check the `hide_if_allowed` method in `qt/aqt/toolbar.py`
+            fullscreen_was_checked = True
         else:
             self.toolbarWeb.flatten()
+
+        if not fullscreen_was_checked and self.fullscreen:
+            self.hide_menubar()
 
         if self.pm.hide_bottom_bar():
             self.bottomWeb.hide_timer.setInterval(500)
             self.bottomWeb.hide_timer.start()
 
     def _reviewCleanup(self, newState: MainWindowState) -> None:
-        if newState != "resetRequired" and newState != "review":
+        if newState not in {"resetRequired", "review"}:
+            self.reviewer.auto_advance_enabled = False
             self.reviewer.cleanup()
             self.toolbarWeb.elevate()
             self.toolbarWeb.show()
@@ -794,6 +873,9 @@ class AnkiQt(QMainWindow):
         if changes.mtime:
             self.toolbar.update_sync_status()
 
+        if changes.notetype:
+            self.col.models._clear_cache()
+
     def on_focus_did_change(
         self, new_focus: QWidget | None, _old: QWidget | None
     ) -> None:
@@ -830,8 +912,8 @@ class AnkiQt(QMainWindow):
     def requireReset(
         self,
         modal: bool = False,
-        reason: Any = None,
-        context: Any = None,
+        reason: Any | None = None,
+        context: Any | None = None,
     ) -> None:
         traceback.print_stack(file=sys.stdout)
         print("requireReset() is obsolete; please use CollectionOp()")
@@ -917,9 +999,7 @@ title="{}" {}>{}</button>""".format(
         signal.signal(signal.SIGTERM, self.onUnixSignal)
 
     def onUnixSignal(self, signum: Any, frame: Any) -> None:
-        # schedule a rollback & quit
         def quit() -> None:
-            self.col.db.rollback()
             self.close()
 
         self.progress.single_shot(100, quit)
@@ -944,26 +1024,38 @@ title="{}" {}>{}</button>""".format(
             self.addonManager.loadAddons()
 
     def maybe_check_for_addon_updates(
-        self, on_done: Callable[[], None] | None = None
+        self, on_done: Callable[[list[DownloadLogEntry]], None] | None = None
     ) -> None:
+        if not self.pm.check_for_addon_updates():
+            if on_done:
+                on_done([])
+            return
+
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
 
+        if elap > 86_400 or self.pm.last_run_version != int_version():
+            self.check_for_addon_updates(by_user=False, on_done=on_done)
+        elif on_done:
+            on_done([])
+
+    def check_for_addon_updates(
+        self,
+        by_user: bool,
+        on_done: Callable[[list[DownloadLogEntry]], None] | None = None,
+    ) -> None:
         def wrap_on_updates_installed(log: list[DownloadLogEntry]) -> None:
             self.on_updates_installed(log)
-            if on_done:
-                on_done()
-
-        if elap > 86_400 or self.pm.last_run_version != point_version():
-            check_and_prompt_for_updates(
-                self,
-                self.addonManager,
-                wrap_on_updates_installed,
-                requested_by_user=False,
-            )
             self.pm.set_last_addon_update_check(int_time())
-        elif on_done:
-            on_done()
+            if on_done:
+                on_done(log)
+
+        check_and_prompt_for_updates(
+            self,
+            self.addonManager,
+            wrap_on_updates_installed,
+            requested_by_user=by_user,
+        )
 
     def on_updates_installed(self, log: list[DownloadLogEntry]) -> None:
         if log:
@@ -1018,12 +1110,8 @@ title="{}" {}>{}</button>""".format(
 
     def _sync_collection_and_media(self, after_sync: Callable[[], None]) -> None:
         "Caller should ensure auth available."
-        # start media sync if not already running
-        if not self.media_syncer.is_syncing():
-            self.media_syncer.start()
 
         def on_collection_sync_finished() -> None:
-            self.col.clear_python_undo()
             self.col.models._clear_cache()
             gui_hooks.sync_did_finish()
             self.reset()
@@ -1033,23 +1121,20 @@ title="{}" {}>{}</button>""".format(
         gui_hooks.sync_will_start()
         sync_collection(self, on_done=on_collection_sync_finished)
 
-    def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:
+    def maybe_auto_sync_on_open_close(self, after_sync: Callable[[bool], None]) -> None:
         "If disabled, after_sync() is called immediately."
         if self.can_auto_sync():
-            self._sync_collection_and_media(after_sync)
+            self._sync_collection_and_media(lambda: after_sync(True))
         else:
-            after_sync()
-
-    def maybe_auto_sync_media(self) -> None:
-        if self.can_auto_sync():
-            return
-        # media_syncer takes care of media syncing preference check
-        self.media_syncer.start()
+            after_sync(False)
 
     def can_auto_sync(self) -> bool:
+        "True if syncing on startup/shutdown enabled."
+        return self._can_sync_unattended() and self.pm.auto_syncing_enabled()
+
+    def _can_sync_unattended(self) -> bool:
         return (
-            self.pm.auto_syncing_enabled()
-            and bool(self.pm.sync_auth())
+            bool(self.pm.sync_auth())
             and not self.safeMode
             and not self.restoring_backup
         )
@@ -1107,6 +1192,22 @@ title="{}" {}>{}</button>""".format(
         ]
         self.applyShortcuts(globalShortcuts)
         self.stateShortcuts: list[QShortcut] = []
+
+    def _close_active_window(self) -> None:
+        window = (
+            QApplication.activeModalWidget()
+            or current_window()
+            or self.app.activeWindow()
+        )
+        if not window or window is self:
+            return
+        if window is getattr(self, "profileDiag", None):
+            # Do not allow closing of ProfileManager
+            return
+        if isinstance(window, QDialog):
+            window.reject()
+        else:
+            window.close()
 
     def _normalize_shortcuts(
         self, shortcuts: Sequence[tuple[str, Callable]]
@@ -1191,15 +1292,14 @@ title="{}" {}>{}</button>""".format(
         self.form.actionRedo.setVisible(info.show_redo)
         gui_hooks.undo_state_did_change(info)
 
+    @deprecated(info="checkpoints are no longer supported")
     def checkpoint(self, name: str) -> None:
-        self.col.save(name)
-        self.update_undo_actions()
+        pass
 
+    @deprecated(info="saving is automatic")
     def autosave(self) -> None:
-        self.col.autosave()
-        self.update_undo_actions()
+        pass
 
-    maybeEnableUndo = update_undo_actions
     onUndo = undo
 
     # Other menu operations
@@ -1215,7 +1315,6 @@ title="{}" {}>{}</button>""".format(
         aqt.dialogs.open("EditCurrent", self)
 
     def onOverview(self) -> None:
-        self.col.reset()
         self.moveToState("overview")
 
     def onStats(self) -> None:
@@ -1230,6 +1329,27 @@ title="{}" {}>{}</button>""".format(
 
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)
+
+    def on_upgrade_downgrade(self) -> None:
+        if not askUser(tr.qt_misc_open_anki_launcher()):
+            return
+
+        from aqt.package import update_and_restart
+
+        update_and_restart()
+
+    def on_check_for_updates(self) -> None:
+        version = Version(version_str)
+
+        def on_success(release: GithubRelease) -> None:
+            if Version(release.tag_name) > version:
+                prompt_and_install_github_update(self, release)
+            else:
+                tooltip(tr.addons_no_updates_available(), parent=self)
+
+        get_latest_release_op(
+            parent=self, include_prerelease=version.is_prerelease, on_success=on_success
+        ).with_progress().run_in_background()
 
     def onNoteTypes(self) -> None:
         import aqt.models
@@ -1312,6 +1432,8 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupMenus(self) -> None:
+        from aqt.package import launcher_executable
+
         m = self.form
 
         # File
@@ -1321,12 +1443,14 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionImport.triggered, self.onImport)
         qconnect(m.actionExport.triggered, self.onExport)
         qconnect(m.action_create_backup.triggered, self.on_create_backup_now)
+        qconnect(m.action_open_backup.triggered, self.onOpenBackup)
         qconnect(m.actionExit.triggered, self.close)
 
         # Help
         qconnect(m.actionDocumentation.triggered, self.onDocumentation)
         qconnect(m.actionDonate.triggered, self.onDonate)
         qconnect(m.actionAbout.triggered, self.onAbout)
+        m.actionAbout.setText(tr.qt_accel_about_mac())
 
         # Edit
         qconnect(m.actionUndo.triggered, self.undo)
@@ -1339,6 +1463,12 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
+        qconnect(m.action_upgrade_downgrade.triggered, self.on_upgrade_downgrade)
+        qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
+        if launcher_executable():
+            m.action_check_for_updates.setVisible(False)
+        else:
+            m.action_upgrade_downgrade.setVisible(False)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
         # View
@@ -1367,7 +1497,7 @@ title="{}" {}>{}</button>""".format(
     def on_toggle_full_screen(self) -> None:
         if disallow_full_screen():
             showWarning(
-                tr.actions_currently_unsupported(),
+                tr.actions_fullscreen_unsupported(),
                 parent=self,
                 help=HelpPage.FULL_SCREEN_ISSUE,
             )
@@ -1400,30 +1530,11 @@ title="{}" {}>{}</button>""".format(
     # Auto update
     ##########################################################################
 
-    def setupAutoUpdate(self) -> None:
-        import aqt.update
+    def setup_auto_update(self, _log: list[DownloadLogEntry]) -> None:
+        from aqt.update import check_for_update
 
-        self.autoUpdate = aqt.update.LatestVersionFinder(self)
-        qconnect(self.autoUpdate.newVerAvail, self.newVerAvail)
-        qconnect(self.autoUpdate.newMsg, self.newMsg)
-        qconnect(self.autoUpdate.clockIsOff, self.clockIsOff)
-        self.autoUpdate.start()
-
-    def newVerAvail(self, ver: str) -> None:
-        if self.pm.meta.get("suppressUpdate", None) != ver:
-            aqt.update.askAndUpdate(self, ver)
-
-    def newMsg(self, data: dict) -> None:
-        aqt.update.showMessages(self, data)
-
-    def clockIsOff(self, diff: int) -> None:
-        if dev_mode:
-            print("clock is off; ignoring")
-            return
-        diffText = tr.qt_misc_second(count=diff)
-        warn = tr.qt_misc_in_order_to_ensure_your_collection(val="%s") % diffText
-        showWarning(warn)
-        self.app.closeAllWindows()
+        if aqt.mw.pm.check_for_updates():
+            check_for_update()
 
     # Timers
     ##########################################################################
@@ -1432,7 +1543,9 @@ title="{}" {}>{}</button>""".format(
         # refresh decks every 10 minutes
         self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True, parent=self)
         # check media sync every 5 minutes
-        self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True, parent=self)
+        self.progress.timer(
+            5 * 60 * 1000, self.on_periodic_sync_timer, True, parent=self
+        )
         # periodic garbage collection
         self.progress.timer(
             15 * 60 * 1000, self.garbage_collect_now, True, False, parent=self
@@ -1454,13 +1567,16 @@ title="{}" {}>{}</button>""".format(
         elif self.state == "overview":
             self.overview.refresh()
 
-    def on_autosync_timer(self) -> None:
+    def on_periodic_sync_timer(self) -> None:
         elap = self.media_syncer.seconds_since_last_sync()
-        minutes = self.pm.auto_sync_media_minutes()
+        minutes = self.pm.periodic_sync_media_minutes()
         if not minutes:
             return
         if elap > minutes * 60:
-            self.maybe_auto_sync_media()
+            if not self._can_sync_unattended():
+                return
+            # media_syncer takes care of media syncing preference check
+            self.media_syncer.start(True)
 
     # Backups
     ##########################################################################
@@ -1483,10 +1599,6 @@ title="{}" {}>{}</button>""".format(
         )
 
     def _create_backup_with_progress(self, user_initiated: bool) -> None:
-        # if there's a legacy undo op, try again later
-        if not user_initiated and self.col.legacy_checkpoint_pending():
-            return
-
         # The initial copy will display a progress window if it takes too long
         def backup(col: Collection) -> bool:
             return col.create_backup(
@@ -1505,7 +1617,6 @@ title="{}" {}>{}</button>""".format(
             )
 
         def after_backup_started(created: bool) -> None:
-            # Legacy checkpoint may have expired.
             self.update_undo_actions()
 
             if user_initiated and not created:
@@ -1519,7 +1630,7 @@ title="{}" {}>{}</button>""".format(
                 parent=self,
                 op=lambda col: col.await_backup_completion(),
                 success=on_success,
-            ).failure(on_failure).run_in_background()
+            ).failure(on_failure).without_collection().run_in_background()
 
         QueryOp(parent=self, op=backup, success=after_backup_started).failure(
             on_failure
@@ -1573,7 +1684,9 @@ title="{}" {}>{}</button>""".format(
         existed = os.path.exists(path)
         with open(path, "ab") as f:
             if not existed:
-                f.write(b"nid\tmid\tfields\n")
+                f.write(b"#guid column:1\n")
+                f.write(b"#notetype column:2\n")
+                f.write(b"#nid\tmid\tfields\n")
             for id, mid, flds in col.db.execute(
                 f"select id, mid, flds from notes where id in {ids2str(nids)}"
             ):
@@ -1649,11 +1762,37 @@ title="{}" {}>{}</button>""".format(
             self.maybeHideAccelerators()
             self.hideStatusTips()
         elif is_win:
-            # make sure ctypes is bundled
-            from ctypes import windll, wintypes  # type: ignore
+            self._setupWin32()
 
-            _dummy1 = windll
-            _dummy2 = wintypes
+    def _setupWin32(self):
+        """Fix taskbar display/pinning"""
+        if sys.platform != "win32":
+            return
+
+        launcher_path = os.environ.get("ANKI_LAUNCHER")
+        if not launcher_path:
+            return
+
+        from win32com.propsys import propsys, pscon
+        from win32com.propsys.propsys import PROPVARIANTType
+
+        hwnd = int(self.winId())
+        prop_store = propsys.SHGetPropertyStoreForWindow(hwnd)  # type: ignore[call-arg]
+        prop_store.SetValue(
+            pscon.PKEY_AppUserModel_ID, PROPVARIANTType("Ankitects.Anki")
+        )
+        prop_store.SetValue(
+            pscon.PKEY_AppUserModel_RelaunchCommand,
+            PROPVARIANTType(f'"{launcher_path}"'),
+        )
+        prop_store.SetValue(
+            pscon.PKEY_AppUserModel_RelaunchDisplayNameResource, PROPVARIANTType("Anki")
+        )
+        prop_store.SetValue(
+            pscon.PKEY_AppUserModel_RelaunchIconResource,
+            PROPVARIANTType(f"{launcher_path},0"),
+        )
+        prop_store.Commit()
 
     def maybeHideAccelerators(self, tgt: Any | None = None) -> None:
         if not self.hideMenuAccels:

@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::cell::LazyCell;
+use std::collections::BTreeMap;
 use std::collections::HashSet;
 use std::env;
 use std::fs;
@@ -16,21 +18,13 @@ use anki_process::CommandExt;
 use anyhow::Context;
 use anyhow::Result;
 use camino::Utf8Path;
-use once_cell::unsync::Lazy;
 use walkdir::WalkDir;
 
 const NONSTANDARD_HEADER: &[&str] = &[
     "./pylib/anki/_vendor/stringcase.py",
-    "./pylib/anki/importing/pauker.py",
-    "./pylib/anki/importing/supermemo_xml.py",
     "./pylib/anki/statsbg.py",
-    "./pylib/tools/protoc-gen-mypy.py",
-    "./python/pyqt/install.py",
-    "./python/write_wheel.py",
     "./qt/aqt/mpv.py",
     "./qt/aqt/winpaths.py",
-    "./qt/bundle/build.rs",
-    "./qt/bundle/src/main.rs",
 ];
 
 const IGNORED_FOLDERS: &[&str] = &[
@@ -38,10 +32,13 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./node_modules",
     "./qt/aqt/forms",
     "./tools/workspace-hack",
-    "./qt/bundle/PyOxidizer",
     "./target",
     ".mypy_cache",
     "./extra",
+    "./ts/.svelte-kit",
+    "./.venv",
+    "./qt/installer/windows-template",
+    "./qt/installer/mac-template",
 ];
 
 fn main() -> Result<()> {
@@ -62,7 +59,7 @@ fn main() -> Result<()> {
 
 struct LintContext {
     want_fix: bool,
-    unstaged_changes: Lazy<()>,
+    unstaged_changes: LazyCell<()>,
     found_problems: bool,
     nonstandard_headers: HashSet<&'static Utf8Path>,
 }
@@ -71,7 +68,7 @@ impl LintContext {
     pub fn new(want_fix: bool) -> Self {
         Self {
             want_fix,
-            unstaged_changes: Lazy::new(check_for_unstaged_changes),
+            unstaged_changes: LazyCell::new(check_for_unstaged_changes),
             found_problems: false,
             nonstandard_headers: NONSTANDARD_HEADER.iter().map(Utf8Path::new).collect(),
         }
@@ -90,7 +87,7 @@ impl LintContext {
                 .into_iter()
                 .map(Some)
                 .collect();
-            if exts.contains(&path.extension()) {
+            if exts.contains(&path.extension()) && !sveltekit_temp_file(path.as_str()) {
                 self.check_copyright(path)?;
                 self.check_triple_slash(path)?;
             }
@@ -112,10 +109,10 @@ impl LintContext {
         let missing = !head.contains("Ankitects Pty Ltd and contributors");
         if missing {
             if self.want_fix {
-                Lazy::force(&self.unstaged_changes);
+                LazyCell::force(&self.unstaged_changes);
                 fix_copyright(path)?;
             } else {
-                println!("missing standard copyright header: {:?}", path);
+                println!("missing standard copyright header: {path:?}");
                 self.found_problems = true;
             }
         }
@@ -155,9 +152,19 @@ impl LintContext {
 
         if last_author == "49699333+dependabot[bot]@users.noreply.github.com" {
             println!("Dependabot whitelisted.");
-            return Ok(());
+            std::process::exit(0);
         } else if all_contributors.contains(last_author.as_str()) {
             return Ok(());
+        }
+
+        if let Ok(bypass) = std::env::var("CONTRIBUTORS_BYPASS_EMAILS") {
+            if bypass
+                .split(',')
+                .any(|e| noreply_aware_match(e.trim(), &last_author))
+            {
+                println!("Author allowlisted via CONTRIBUTORS_BYPASS_EMAILS.");
+                return Ok(());
+            }
         }
 
         println!("All contributors:");
@@ -202,9 +209,31 @@ impl LintContext {
     }
 }
 
+fn noreply_aware_match(bypass_email: &str, commit_email: &str) -> bool {
+    normalize_email(bypass_email) == normalize_email(commit_email)
+}
+
+/// GitHub noreply emails come in two forms:
+/// - `user@users.noreply.github.com`
+/// - `12345+user@users.noreply.github.com`
+///
+/// Normalize to just the username so both forms match.
+fn normalize_email(email: &str) -> &str {
+    email
+        .strip_suffix("@users.noreply.github.com")
+        .map(|local| local.split('+').next_back().unwrap_or(local))
+        .unwrap_or(email)
+}
+
+/// Annoyingly, sveltekit writes temp files into ts/ folder when it's running.
+fn sveltekit_temp_file(path: &str) -> bool {
+    path.contains("vite.config.ts.timestamp")
+}
+
 fn check_cargo_deny() -> Result<()> {
-    Command::run("cargo install cargo-deny@0.13.5")?;
-    Command::run("cargo deny check -A duplicate")?;
+    // Used by `fix:minilints` locally. CI uses EmbarkStudios/cargo-deny-action.
+    Command::run("cargo install cargo-deny@0.19.2")?;
+    Command::run("cargo deny check")?;
     Ok(())
 }
 
@@ -243,7 +272,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         .write(true)
         .open(path)
         .with_context(|| format!("opening {path}"))?;
-    write!(file, "{}{}", header, data).with_context(|| format!("writing {path}"))?;
+    write!(file, "{header}{data}").with_context(|| format!("writing {path}"))?;
     Ok(())
 }
 
@@ -256,9 +285,7 @@ fn check_for_unstaged_changes() {
 }
 
 fn generate_licences() -> Result<String> {
-    if which::which("cargo-license").is_err() {
-        Command::run("cargo install cargo-license@0.5.1")?;
-    }
+    Command::run("cargo install cargo-license@0.7.0")?;
     let output = Command::run_with_output([
         "cargo-license",
         "--features",
@@ -269,5 +296,16 @@ fn generate_licences() -> Result<String> {
         "--manifest-path",
         "rslib/Cargo.toml",
     ])?;
-    Ok(output.stdout)
+
+    let licenses: Vec<BTreeMap<String, serde_json::Value>> = serde_json::from_str(&output.stdout)?;
+
+    let filtered: Vec<BTreeMap<String, serde_json::Value>> = licenses
+        .into_iter()
+        .map(|mut entry| {
+            entry.remove("version");
+            entry
+        })
+        .collect();
+
+    Ok(serde_json::to_string_pretty(&filtered)?)
 }

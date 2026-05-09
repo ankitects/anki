@@ -8,6 +8,8 @@ mod eases;
 mod future_due;
 mod hours;
 mod intervals;
+mod retention;
+mod retrievability;
 mod reviews;
 mod today;
 
@@ -60,17 +62,23 @@ impl Collection {
             next_day_start: timing.next_day_at,
             local_offset_secs,
         };
+        let (eases, difficulty) = ctx.eases();
         let resp = anki_proto::stats::GraphsResponse {
             added: Some(ctx.added_days()),
             reviews: Some(ctx.review_counts_and_times()),
+            true_retention: Some(ctx.calculate_true_retention()),
             future_due: Some(ctx.future_due()),
             intervals: Some(ctx.intervals()),
-            eases: Some(ctx.eases()),
+            stability: Some(ctx.stability()),
+            eases: Some(eases),
+            difficulty: Some(difficulty),
             today: Some(ctx.today()),
             hours: Some(ctx.hours()),
             buttons: Some(ctx.buttons()),
             card_counts: Some(ctx.card_counts()),
             rollover_hour: self.rollover_for_current_scheduler()? as u32,
+            retrievability: Some(ctx.retrievability()),
+            fsrs: self.get_config_bool(BoolKey::Fsrs),
         };
         Ok(resp)
     }

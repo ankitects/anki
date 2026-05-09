@@ -38,7 +38,7 @@ for line in re.split(r"[;\{\}]|\*\/", data):
     if not m:
         if (
             line != "}"
-            and not ":root" in line
+            and ":root" not in line
             and "Copyright" not in line
             and "License" not in line
             and "color-scheme" not in line
@@ -55,13 +55,13 @@ for line in re.split(r"[;\{\}]|\*\/", data):
         # remove trailing ms from time props
         val = re.sub(r"^(\d+)ms$", r"\1", val)
 
-        if not var in props:
+        if var not in props:
             props.setdefault(var, {})["comment"] = comment
             props[var]["light"] = val
         else:
             props[var]["dark"] = val
     else:
-        if not var in colors:
+        if var not in colors:
             colors.setdefault(var, {})["comment"] = comment
             colors[var]["light"] = val
         else:
@@ -80,7 +80,7 @@ with open(colors_py, "w") as buf:
     buf.write("# This file was automatically generated from _root-vars.scss\n")
 
     for color, val in colors.items():
-        if not "dark" in val:
+        if "dark" not in val:
             val["dark"] = val["light"]
 
         buf.write(re.sub(r"\"\n", '",\n', f"{color} = {json.dumps(val, indent=4)}\n"))
@@ -91,7 +91,7 @@ with open(props_py, "w") as buf:
     buf.write("# This file was automatically generated from _root-vars.scss\n")
 
     for prop, val in props.items():
-        if not "dark" in val:
+        if "dark" not in val:
             val["dark"] = val["light"]
 
         buf.write(re.sub(r"\"\n", '",\n', f"{prop} = {json.dumps(val, indent=4)}\n"))

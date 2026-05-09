@@ -24,6 +24,10 @@ use crate::serde::default_on_invalid;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
+fn wait_for_audio_default() -> bool {
+    true
+}
+
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct DeckConfSchema11 {
@@ -65,8 +69,58 @@ pub struct DeckConfSchema11 {
     #[serde(default)]
     bury_interday_learning: bool,
 
+    #[serde(default, rename = "fsrsWeights")]
+    fsrs_params_4: Vec<f32>,
+    #[serde(default)]
+    fsrs_params_5: Vec<f32>,
+    #[serde(default)]
+    fsrs_params_6: Vec<f32>,
+    #[serde(default)]
+    desired_retention: f32,
+    #[serde(default)]
+    ignore_revlogs_before_date: String,
+    #[serde(default)]
+    easy_days_percentages: Vec<f32>,
+    #[serde(default)]
+    stop_timer_on_answer: bool,
+    #[serde(default)]
+    seconds_to_show_question: f32,
+    #[serde(default)]
+    seconds_to_show_answer: f32,
+    #[serde(default)]
+    question_action: QuestionAction,
+    #[serde(default)]
+    answer_action: AnswerAction,
+    #[serde(default = "wait_for_audio_default")]
+    wait_for_audio: bool,
+    #[serde(default)]
+    /// historical retention
+    sm2_retention: f32,
+    #[serde(default, rename = "weightSearch")]
+    param_search: String,
+
     #[serde(flatten)]
     other: HashMap<String, Value>,
+}
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
+#[repr(u8)]
+#[derive(Default)]
+pub enum QuestionAction {
+    #[default]
+    ShowAnswer = 0,
+    ShowReminder = 1,
+}
+
+#[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
+#[repr(u8)]
+#[derive(Default)]
+pub enum AnswerAction {
+    #[default]
+    BuryCard = 0,
+    AnswerAgain = 1,
+    AnswerGood = 2,
+    AnswerHard = 3,
+    ShowReminder = 4,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -130,15 +184,11 @@ where
 
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum NewCardOrderSchema11 {
     Random = 0,
+    #[default]
     Due = 1,
-}
-
-impl Default for NewCardOrderSchema11 {
-    fn default() -> Self {
-        Self::Due
-    }
 }
 
 fn hard_factor_default() -> f32 {
@@ -237,6 +287,12 @@ impl Default for DeckConfSchema11 {
             max_taken: 60,
             autoplay: true,
             timer: 0,
+            stop_timer_on_answer: false,
+            seconds_to_show_question: 0.0,
+            seconds_to_show_answer: 0.0,
+            question_action: QuestionAction::ShowAnswer,
+            answer_action: AnswerAction::BuryCard,
+            wait_for_audio: true,
             replayq: true,
             dynamic: false,
             new: Default::default(),
@@ -250,6 +306,14 @@ impl Default for DeckConfSchema11 {
             new_sort_order: 0,
             new_gather_priority: 0,
             bury_interday_learning: false,
+            fsrs_params_4: vec![],
+            fsrs_params_5: vec![],
+            fsrs_params_6: vec![],
+            desired_retention: 0.9,
+            sm2_retention: 0.9,
+            param_search: "".to_string(),
+            ignore_revlogs_before_date: "".to_string(),
+            easy_days_percentages: vec![1.0; 7],
         }
     }
 }
@@ -314,10 +378,24 @@ impl From<DeckConfSchema11> for DeckConfig {
                 disable_autoplay: !c.autoplay,
                 cap_answer_time_to_secs: c.max_taken.max(0) as u32,
                 show_timer: c.timer != 0,
+                stop_timer_on_answer: c.stop_timer_on_answer,
+                seconds_to_show_question: c.seconds_to_show_question,
+                seconds_to_show_answer: c.seconds_to_show_answer,
+                question_action: c.question_action as i32,
+                answer_action: c.answer_action as i32,
+                wait_for_audio: c.wait_for_audio,
                 skip_question_when_replaying_answer: !c.replayq,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
                 bury_interday_learning: c.bury_interday_learning,
+                fsrs_params_4: c.fsrs_params_4,
+                fsrs_params_5: c.fsrs_params_5,
+                fsrs_params_6: c.fsrs_params_6,
+                ignore_revlogs_before_date: c.ignore_revlogs_before_date,
+                easy_days_percentages: c.easy_days_percentages,
+                desired_retention: c.desired_retention,
+                historical_retention: c.sm2_retention,
+                param_search: c.param_search,
                 other: other_bytes,
             },
         }
@@ -363,6 +441,21 @@ impl From<DeckConfig> for DeckConfSchema11 {
             max_taken: i.cap_answer_time_to_secs as i32,
             autoplay: !i.disable_autoplay,
             timer: i.show_timer.into(),
+            stop_timer_on_answer: i.stop_timer_on_answer,
+            seconds_to_show_question: i.seconds_to_show_question,
+            seconds_to_show_answer: i.seconds_to_show_answer,
+            answer_action: match i.answer_action {
+                1 => AnswerAction::AnswerAgain,
+                2 => AnswerAction::AnswerGood,
+                3 => AnswerAction::AnswerHard,
+                4 => AnswerAction::ShowReminder,
+                _ => AnswerAction::BuryCard,
+            },
+            question_action: match i.question_action {
+                1 => QuestionAction::ShowReminder,
+                _ => QuestionAction::ShowAnswer,
+            },
+            wait_for_audio: i.wait_for_audio,
             replayq: !i.skip_question_when_replaying_answer,
             dynamic: false,
             new: NewConfSchema11 {
@@ -409,6 +502,14 @@ impl From<DeckConfig> for DeckConfSchema11 {
             new_sort_order: i.new_card_sort_order,
             new_gather_priority: i.new_card_gather_priority,
             bury_interday_learning: i.bury_interday_learning,
+            fsrs_params_4: i.fsrs_params_4,
+            fsrs_params_5: i.fsrs_params_5,
+            fsrs_params_6: i.fsrs_params_6,
+            desired_retention: i.desired_retention,
+            sm2_retention: i.historical_retention,
+            param_search: i.param_search,
+            ignore_revlogs_before_date: i.ignore_revlogs_before_date,
+            easy_days_percentages: i.easy_days_percentages,
         }
     }
 }
@@ -429,7 +530,21 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "timer",
     "name",
     "interdayLearningMix",
-    "newGatherPriority"
+    "newGatherPriority",
+    "fsrsWeights",
+    "fsrsParams5",
+    "fsrsParams6",
+    "desiredRetention",
+    "stopTimerOnAnswer",
+    "secondsToShowQuestion",
+    "secondsToShowAnswer",
+    "questionAction",
+    "answerAction",
+    "waitForAudio",
+    "sm2Retention",
+    "weightSearch",
+    "ignoreRevlogsBeforeDate",
+    "easyDaysPercentages",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {

@@ -4,9 +4,10 @@
 #![cfg(test)]
 
 use std::future::Future;
+use std::sync::LazyLock;
 
 use axum::http::StatusCode;
-use once_cell::sync::Lazy;
+use reqwest::Client;
 use reqwest::Url;
 use serde_json::json;
 use tempfile::tempdir;
@@ -56,7 +57,7 @@ struct TestAuth {
     host_key: String,
 }
 
-static AUTH: Lazy<TestAuth> = Lazy::new(|| {
+static AUTH: LazyLock<TestAuth> = LazyLock::new(|| {
     if let Ok(auth) = std::env::var("TEST_AUTH") {
         let mut auth = auth.split(':');
         TestAuth {
@@ -88,17 +89,18 @@ where
         base_folder: base_folder.path().into(),
         ip_header: default_ip_header(),
     })
+    .await
     .unwrap();
     tokio::spawn(server_fut.instrument(Span::current()));
     // when not using ephemeral servers, tests need to be serialized
-    static LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+    static LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
     let _lock: MutexGuard<()>;
     // setup client to connect to it
     let endpoint = if let Ok(endpoint) = std::env::var("TEST_ENDPOINT") {
         _lock = LOCK.lock().await;
         endpoint
     } else {
-        format!("http://{}/", addr)
+        format!("http://{addr}/")
     };
     let endpoint = Url::try_from(endpoint.as_str()).unwrap();
     let auth = SyncAuth {
@@ -106,7 +108,7 @@ where
         endpoint: Some(endpoint),
         io_timeout_secs: None,
     };
-    let client = HttpSyncClient::new(auth);
+    let client = HttpSyncClient::new(auth, Client::new());
     op(client).await
 }
 
@@ -732,7 +734,7 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
     for table in &["cards", "notes", "decks"] {
         assert_eq!(
             col1.storage
-                .db_scalar::<u8>(&format!("select count() from {}", table))?,
+                .db_scalar::<u8>(&format!("select count() from {table}"))?,
             2
         );
     }
@@ -752,7 +754,7 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
     for table in &["cards", "notes", "decks"] {
         assert_eq!(
             col2.storage
-                .db_scalar::<u8>(&format!("select count() from {}", table))?,
+                .db_scalar::<u8>(&format!("select count() from {table}"))?,
             1
         );
     }

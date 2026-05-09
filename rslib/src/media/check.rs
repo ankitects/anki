@@ -6,11 +6,11 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs;
 use std::io;
+use std::sync::LazyLock;
 
 use anki_i18n::without_unicode_isolation;
 use anki_io::write_file;
 use data_encoding::BASE64;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use tracing::debug;
 use tracing::info;
@@ -214,6 +214,10 @@ impl MediaChecker<'_> {
                 None => continue,
             };
 
+            if fname_os == ".DS_Store" {
+                continue;
+            }
+
             // skip folders
             if dentry.file_type()?.is_dir() {
                 out.dirs.push(disk_fname.to_string());
@@ -350,9 +354,12 @@ impl MediaChecker<'_> {
         for nid in nids {
             self.increment_progress()?;
             let mut note = self.col.storage.get_note(nid)?.unwrap();
-            let nt = notetypes.get(&note.notetype_id).ok_or_else(|| {
-                AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
-            })?;
+            let nt = notetypes
+                .iter()
+                .find(|nt| nt.id == note.notetype_id)
+                .ok_or_else(|| {
+                    AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
+                })?;
             let mut tracker = |fname| {
                 referenced_files
                     .entry(fname)
@@ -452,7 +459,7 @@ impl MediaChecker<'_> {
     }
 
     fn maybe_extract_inline_image<'a>(&mut self, fname_decoded: &'a str) -> Result<Cow<'a, str>> {
-        static BASE64_IMG: Lazy<Regex> = Lazy::new(|| {
+        static BASE64_IMG: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new("(?i)^data:image/(jpg|jpeg|png|gif|webp|avif);base64,(.+)$").unwrap()
         });
 
@@ -539,11 +546,14 @@ pub(crate) mod test {
     use anki_io::create_dir;
     use anki_io::read_to_string;
     use anki_io::write_file;
+    use anki_io::write_file_and_flush;
     use tempfile::tempdir;
     use tempfile::TempDir;
 
     use super::*;
     use crate::collection::CollectionBuilder;
+    use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
+    use crate::tests::NoteAdder;
 
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;
@@ -572,6 +582,7 @@ pub(crate) mod test {
         write_file(mgr.media_folder.join("foo[.jpg"), "foo")?;
         write_file(mgr.media_folder.join("_under.jpg"), "foo")?;
         write_file(mgr.media_folder.join("unused.jpg"), "foo")?;
+        write_file(mgr.media_folder.join(".DS_Store"), ".DS_Store")?;
 
         let (output, report) = {
             let mut checker = col.media_checker()?;
@@ -688,7 +699,7 @@ Unused: unused.jpg
     fn unicode_normalization() -> Result<()> {
         let (_dir, mgr, mut col) = common_setup()?;
 
-        write_file(mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
+        write_file_and_flush(mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
         let mut output = {
             let mut checker = col.media_checker()?;
@@ -789,6 +800,101 @@ Unused: unused.jpg
             )?,
             "foo"
         );
+        Ok(())
+    }
+
+    #[test]
+    fn html_chevron_in_non_source_attribute() -> Result<()> {
+        let (_dir, _mgr, mut col) = common_setup()?;
+        let mut checker = col.media_checker()?;
+
+        let field = "<img alt=\"alt>\" src=\"foo.jpg\">";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo.jpg"));
+
+        let field = "<img alt='>a>l>t>' src='bar.jpg'>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("bar.jpg"));
+
+        let field = "<img alt='\"alt>\"' src='double-in-single.jpg'>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("double-in-single.jpg"));
+
+        let field = "<img alt='alt'> src='illegal.jpg'>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(!seen.contains("illegal.jpg"));
+
+        Ok(())
+    }
+    #[test]
+    fn multiple_images() -> Result<()> {
+        let (_dir, _mgr, mut col) = common_setup()?;
+        let mut checker = col.media_checker()?;
+
+        let field = "<img alt='foo' src='foo-ss.jpg'><img alt='bar' src='bar-ss.jpg'>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-ss.jpg"));
+        assert!(seen.contains("bar-ss.jpg"));
+
+        let field = "<img alt=\"foo\" src=\"foo-dd.jpg\"><img alt=\"bar\" src=\"bar-dd.jpg\">";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-dd.jpg"));
+        assert!(seen.contains("bar-dd.jpg"));
+
+        let field = "<img alt='foo' src='foo-sd.jpg'><img alt=\"bar\" src=\"bar-sd.jpg\">";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-sd.jpg"));
+        assert!(seen.contains("bar-sd.jpg"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn source_tags() -> Result<()> {
+        let (_dir, _mgr, mut col) = common_setup()?;
+        let mut checker = col.media_checker()?;
+
+        let field = "<audio controls><source src='foo-ss.mp3' /><source type='audio/ogg' src='bar-ss.ogg' /></audio>";
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-ss.mp3"));
+        assert!(seen.contains("bar-ss.ogg"));
+
+        let field = r#"
+            <picture>
+                <source src="foo-dd.webp" media="(orientation: portrait)" />
+                <img src="bar-dd.gif" alt="fancy jif" />
+            </picture>
+        "#;
+        let seen = normalize_and_maybe_rename_files_helper(&mut checker, field);
+        assert!(seen.contains("foo-dd.webp"));
+        assert!(seen.contains("bar-dd.gif"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn long_filename_rename_not_reported_as_unused() -> Result<()> {
+        let (_dir, mgr, mut col) = common_setup()?;
+
+        let long_filename = format!("{}.mp3", "a".repeat(MAX_MEDIA_FILENAME_LENGTH + 1));
+
+        NoteAdder::basic(&mut col)
+            .fields(&["test", &format!("[sound:{}]", long_filename)])
+            .add(&mut col);
+
+        write_file(mgr.media_folder.join(&long_filename), "audio data")?;
+
+        let output = {
+            let mut checker = col.media_checker()?;
+            checker.check()?
+        };
+
+        assert!(output.renamed.contains_key(&long_filename));
+        let new_filename = output.renamed.get(&long_filename).unwrap();
+        assert!(new_filename.len() <= MAX_MEDIA_FILENAME_LENGTH);
+        assert!(!output.unused.contains(new_filename));
+        assert!(!output.missing.contains(new_filename));
+
         Ok(())
     }
 }

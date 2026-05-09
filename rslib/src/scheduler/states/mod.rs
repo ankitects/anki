@@ -5,6 +5,7 @@ pub(crate) mod filtered;
 pub(crate) mod fuzz;
 pub(crate) mod interval_kind;
 pub(crate) mod learning;
+pub(crate) mod load_balancer;
 pub(crate) mod new;
 pub(crate) mod normal;
 pub(crate) mod preview_filter;
@@ -14,8 +15,10 @@ pub(crate) mod review;
 pub(crate) mod steps;
 
 pub use filtered::FilteredState;
+use fsrs::NextStates;
 pub(crate) use interval_kind::IntervalKind;
 pub use learning::LearnState;
+use load_balancer::LoadBalancerContext;
 pub use new::NewState;
 pub use normal::NormalState;
 pub use preview_filter::PreviewState;
@@ -25,6 +28,7 @@ pub use review::ReviewState;
 
 use self::steps::LearningSteps;
 use crate::revlog::RevlogReviewKind;
+use crate::scheduler::answering::PreviewDelays;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CardState {
@@ -83,7 +87,9 @@ pub(crate) struct StateContext<'a> {
     /// In range `0.0..1.0`. Used to pick the final interval from the fuzz
     /// range.
     pub fuzz_factor: Option<f32>,
-
+    pub fsrs_next_states: Option<NextStates>,
+    pub fsrs_short_term_with_steps_enabled: bool,
+    pub fsrs_allow_short_term: bool,
     // learning
     pub steps: LearningSteps<'a>,
     pub graduating_interval_good: u32,
@@ -96,6 +102,7 @@ pub(crate) struct StateContext<'a> {
     pub interval_multiplier: f32,
     pub maximum_review_interval: u32,
     pub leech_threshold: u32,
+    pub load_balancer_ctx: Option<LoadBalancerContext<'a>>,
 
     // relearning
     pub relearn_steps: LearningSteps<'a>,
@@ -104,10 +111,10 @@ pub(crate) struct StateContext<'a> {
 
     // filtered
     pub in_filtered_deck: bool,
-    pub preview_step: u32,
+    pub preview_delays: PreviewDelays,
 }
 
-impl<'a> StateContext<'a> {
+impl StateContext<'_> {
     /// Return the minimum and maximum review intervals.
     /// - `maximum` is `self.maximum_review_interval`, but at least 1.
     /// - `minimum` is as passed, but at least 1, and at most `maximum`.
@@ -130,11 +137,19 @@ impl<'a> StateContext<'a> {
             interval_multiplier: 1.0,
             maximum_review_interval: 36500,
             leech_threshold: 8,
+            load_balancer_ctx: None,
             relearn_steps: LearningSteps::new(&[10.0]),
             lapse_multiplier: 0.0,
             minimum_lapse_interval: 1,
             in_filtered_deck: false,
-            preview_step: 10,
+            preview_delays: PreviewDelays {
+                again: 1,
+                hard: 10,
+                good: 0,
+            },
+            fsrs_next_states: None,
+            fsrs_short_term_with_steps_enabled: false,
+            fsrs_allow_short_term: false,
         }
     }
 }

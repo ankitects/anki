@@ -22,7 +22,8 @@ impl Deck {
             limit: 20,
             order: FilteredSearchOrder::Due as i32,
         });
-        filt.preview_delay = 10;
+        filt.preview_again_secs = 60;
+        filt.preview_hard_secs = 600;
         filt.reschedule = true;
         Deck {
             id: DeckId(0),
@@ -59,7 +60,13 @@ fn search_order_label(order: FilteredSearchOrder, tr: &I18n) -> String {
         FilteredSearchOrder::Added => tr.decks_order_added(),
         FilteredSearchOrder::Due => tr.decks_order_due(),
         FilteredSearchOrder::ReverseAdded => tr.decks_latest_added_first(),
-        FilteredSearchOrder::DuePriority => tr.decks_relative_overdueness(),
+        FilteredSearchOrder::RetrievabilityAscending => {
+            tr.deck_config_sort_order_retrievability_ascending()
+        }
+        FilteredSearchOrder::RetrievabilityDescending => {
+            tr.deck_config_sort_order_retrievability_descending()
+        }
+        FilteredSearchOrder::RelativeOverdueness => tr.decks_relative_overdueness(),
     }
     .into()
 }

@@ -13,7 +13,6 @@ def test_delete():
     note["Back"] = "2"
     col.addNote(note)
     cid = note.cards()[0].id
-    col.reset()
     col.sched.answerCard(col.sched.getCard(), 2)
     col.remove_cards_and_orphaned_notes([cid])
     assert col.card_count() == 0

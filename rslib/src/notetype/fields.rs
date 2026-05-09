@@ -38,6 +38,7 @@ impl NoteField {
             ord: None,
             name: name.into(),
             config: NoteFieldConfig {
+                id: Some(rand::random()),
                 sticky: false,
                 rtl: false,
                 plain_text: false,
@@ -46,6 +47,8 @@ impl NoteField {
                 description: "".into(),
                 collapsed: false,
                 exclude_from_search: false,
+                tag: None,
+                prevent_deletion: false,
                 other: vec![],
             },
         }

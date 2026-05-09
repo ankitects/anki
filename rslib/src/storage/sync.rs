@@ -54,7 +54,7 @@ impl SqliteStorage {
         if let Some(new_usn) = server_usn_if_client {
             let mut stmt = self
                 .db
-                .prepare_cached(&format!("update {} set usn=? where id=?", table))?;
+                .prepare_cached(&format!("update {table} set usn=? where id=?"))?;
             for id in ids {
                 stmt.execute(params![new_usn, id])?;
             }

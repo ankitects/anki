@@ -4,9 +4,9 @@
 use std::borrow::Cow;
 use std::fmt::Write;
 use std::ops::Deref;
+use std::sync::LazyLock;
 
 use anki_i18n::without_unicode_isolation;
-use lazy_static::lazy_static;
 use regex::Captures;
 use regex::Match;
 use regex::Regex;
@@ -24,14 +24,12 @@ struct Template<'a> {
     front: bool,
 }
 
-lazy_static! {
-    static ref FIELD_REPLACEMENT: Regex = Regex::new(r"\{\{.+\}\}").unwrap();
-}
+static FIELD_REPLACEMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{\{.+\}\}").unwrap());
 
 impl Collection {
     pub fn report_media_field_referencing_templates(&mut self, buf: &mut String) -> Result<()> {
         let notetypes = self.get_all_notetypes()?;
-        let templates = media_field_referencing_templates(notetypes.values().map(Deref::deref));
+        let templates = media_field_referencing_templates(notetypes.iter().map(Deref::deref));
         write_template_report(buf, &templates, &self.tr);
         Ok(())
     }
@@ -43,10 +41,11 @@ fn media_field_referencing_templates<'a>(
     notetypes
         .flat_map(|notetype| {
             notetype.templates.iter().flat_map(|card_type| {
-                card_type.sides().into_iter().filter_map(|(format, front)| {
-                    references_media_field(format)
-                        .then(|| Template::new(&notetype.name, &card_type.name, front))
-                })
+                card_type
+                    .sides()
+                    .into_iter()
+                    .filter(|&(format, _front)| references_media_field(format))
+                    .map(|(_format, front)| Template::new(&notetype.name, &card_type.name, front))
             })
         })
         .collect()
@@ -67,7 +66,7 @@ fn references_media_field(format: &str) -> bool {
 fn captures_contain_field_replacement(caps: Captures) -> bool {
     caps.iter()
         .skip(1)
-        .any(|opt| opt.map_or(false, match_contains_field_replacement))
+        .any(|opt| opt.is_some_and(match_contains_field_replacement))
 }
 
 fn match_contains_field_replacement(m: Match) -> bool {

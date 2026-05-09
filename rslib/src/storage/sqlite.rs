@@ -4,14 +4,19 @@
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashSet;
+use std::fmt::Display;
 use std::hash::Hasher;
 use std::path::Path;
 use std::sync::Arc;
 
+use bitflags::bitflags;
 use fnv::FnvHasher;
+use fsrs::FSRS;
+use fsrs::FSRS5_DEFAULT_DECAY;
 use regex::Regex;
 use rusqlite::functions::FunctionFlags;
 use rusqlite::params;
+use rusqlite::trace::TraceEvent;
 use rusqlite::Connection;
 use serde_json::Value;
 use unicase::UniCase;
@@ -20,6 +25,7 @@ use super::upgrades::SCHEMA_MAX_VERSION;
 use super::upgrades::SCHEMA_MIN_VERSION;
 use super::upgrades::SCHEMA_STARTING_VERSION;
 use super::SchemaVersion;
+use crate::cloze::strip_clozes;
 use crate::config::schema11::schema11_config_as_string;
 use crate::error::DbErrorKind;
 use crate::prelude::*;
@@ -27,6 +33,7 @@ use crate::scheduler::timing::local_minutes_west_for_stamp;
 use crate::scheduler::timing::v1_creation_date;
 use crate::storage::card::data::CardData;
 use crate::text::without_combining;
+use crate::text::CowMapping;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))
@@ -44,10 +51,13 @@ pub struct SqliteStorage {
 }
 
 fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
-    let mut db = Connection::open(path)?;
+    let db = Connection::open(path)?;
 
     if std::env::var("TRACESQL").is_ok() {
-        db.trace(Some(trace));
+        db.trace_v2(
+            rusqlite::trace::TraceEventCodes::SQLITE_TRACE_STMT,
+            Some(trace),
+        );
     }
 
     db.busy_timeout(std::time::Duration::from_secs(0))?;
@@ -67,9 +77,13 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_regexp_function(&db)?;
     add_regexp_fields_function(&db)?;
     add_regexp_tags_function(&db)?;
-    add_without_combining_function(&db)?;
+    add_process_text_function(&db)?;
     add_fnvhash_function(&db)?;
+    add_extract_original_position_function(&db)?;
     add_extract_custom_data_function(&db)?;
+    add_extract_fsrs_variable(&db)?;
+    add_extract_fsrs_retrievability(&db)?;
+    add_extract_fsrs_relative_retrievability(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -100,17 +114,28 @@ fn add_field_index_function(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
-fn add_without_combining_function(db: &Connection) -> rusqlite::Result<()> {
+bitflags! {
+    pub(crate) struct ProcessTextFlags: u8 {
+        const NoCombining = 1;
+        const StripClozes = 1 << 1;
+    }
+}
+
+fn add_process_text_function(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
-        "without_combining",
-        1,
+        "process_text",
+        2,
         FunctionFlags::SQLITE_DETERMINISTIC,
         |ctx| {
-            let text = ctx.get_raw(0).as_str()?;
-            Ok(match without_combining(text) {
-                Cow::Borrowed(_) => None,
-                Cow::Owned(o) => Some(o),
-            })
+            let mut text = Cow::from(ctx.get_raw(0).as_str()?);
+            let opt = ProcessTextFlags::from_bits_truncate(ctx.get_raw(1).as_i64()? as u8);
+            if opt.contains(ProcessTextFlags::StripClozes) {
+                text = text.map_cow(strip_clozes);
+            }
+            if opt.contains(ProcessTextFlags::NoCombining) {
+                text = text.map_cow(without_combining);
+            }
+            Ok(text.get_owned())
         },
     )
 }
@@ -201,6 +226,29 @@ fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
+/// eg. extract_original_position(c.data) -> number | null
+/// Parse original card position from c.data (this is only populated after card
+/// has been reviewed)
+fn add_extract_original_position_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_original_position",
+        1,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 1, "called with unexpected number of arguments");
+
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+
+            match &CardData::from_str(card_data).original_position {
+                Some(position) => Ok(Some(*position as i64)),
+                None => Ok(None),
+            }
+        },
+    )
+}
+
 /// eg. extract_custom_data(card.data, 'r') -> string | null
 fn add_extract_custom_data_function(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
@@ -232,6 +280,179 @@ fn add_extract_custom_data_function(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
+/// eg. extract_fsrs_variable(card.data, 's' | 'd' | 'dr') -> float | null
+fn add_extract_fsrs_variable(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_fsrs_variable",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+            if card_data.is_empty() {
+                return Ok(None);
+            }
+            let Ok(key) = ctx.get_raw(1).as_str() else {
+                return Ok(None);
+            };
+            let card_data = &CardData::from_str(card_data);
+            Ok(match key {
+                "s" => card_data.fsrs_stability,
+                "d" => card_data.fsrs_difficulty,
+                "dr" => card_data.fsrs_desired_retention,
+                _ => panic!("invalid key: {key}"),
+            })
+        },
+    )
+}
+
+/// eg. extract_fsrs_retrievability(card.data, card.due, card.ivl,
+/// timing.days_elapsed, timing.next_day_at, timing.now) -> float | null
+fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_fsrs_retrievability",
+        6,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 6, "called with unexpected number of arguments");
+            let Ok(card_data) = ctx.get_raw(0).as_str() else {
+                return Ok(None);
+            };
+            if card_data.is_empty() {
+                return Ok(None);
+            }
+            let card_data = &CardData::from_str(card_data);
+            let Ok(due) = ctx.get_raw(1).as_i64() else {
+                return Ok(None);
+            };
+            let Ok(now) = ctx.get_raw(5).as_i64() else {
+                return Ok(None);
+            };
+            let seconds_elapsed = if let Some(last_review_time) = card_data.last_review_time {
+                // This and any following
+                // (x as u32).saturating_sub(y as u32)
+                // must not be changed to
+                // x.saturating_sub(y) as u32
+                // as x and y are i64's and saturating_sub will therfore allow negative numbers
+                // before converting to u32 in the latter example.
+                (now as u32).saturating_sub(last_review_time.0 as u32)
+            } else if due > 365_000 {
+                // (re)learning card in seconds
+                let Ok(ivl) = ctx.get_raw(2).as_i64() else {
+                    return Ok(None);
+                };
+                let last_review_time = (due as u32).saturating_sub(ivl as u32);
+                (now as u32).saturating_sub(last_review_time)
+            } else {
+                let Ok(ivl) = ctx.get_raw(2).as_i64() else {
+                    return Ok(None);
+                };
+                // timing.days_elapsed
+                let Ok(today) = ctx.get_raw(3).as_i64() else {
+                    return Ok(None);
+                };
+                let review_day = (due as u32).saturating_sub(ivl as u32);
+                (today as u32).saturating_sub(review_day) * 86_400
+            };
+            let decay = card_data.decay.unwrap_or(FSRS5_DEFAULT_DECAY);
+            let retrievability = card_data.memory_state().map(|state| {
+                FSRS::new(None).unwrap().current_retrievability_seconds(
+                    state.into(),
+                    seconds_elapsed,
+                    decay,
+                )
+            });
+            Ok(retrievability)
+        },
+    )
+}
+
+/// eg. extract_fsrs_relative_retrievability(card.data, card.due,
+/// card.ivl, timing.days_elapsed, timing.next_day_at, timing.now) -> float |
+/// null. The higher the number, the higher the card's retrievability relative
+/// to the configured desired retention.
+fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "extract_fsrs_relative_retrievability",
+        6,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 6, "called with unexpected number of arguments");
+
+            let Ok(due) = ctx.get_raw(1).as_i64() else {
+                return Ok(None);
+            };
+            let Ok(interval) = ctx.get_raw(2).as_i64() else {
+                return Ok(None);
+            };
+            /*
+            // Unused
+            let Ok(next_day_at) = ctx.get_raw(4).as_i64() else {
+                return Ok(None);
+            };
+            */
+            let Ok(now) = ctx.get_raw(5).as_i64() else {
+                return Ok(None);
+            };
+            let secs_elapsed = if due > 365_000 {
+                // (re)learning card with due in seconds
+
+                // Don't change this to now.subtracting_sub(due) as u32
+                // for the same reasons listed in the comment
+                // in add_extract_fsrs_retrievability
+                (now as u32).saturating_sub(due as u32)
+            } else {
+                // timing.days_elapsed
+                let Ok(today) = ctx.get_raw(3).as_i64() else {
+                    return Ok(None);
+                };
+                let review_day = due.saturating_sub(interval);
+                (today as u32).saturating_sub(review_day as u32) * 86_400
+            };
+            if let Ok(card_data) = ctx.get_raw(0).as_str() {
+                if !card_data.is_empty() {
+                    let card_data = &CardData::from_str(card_data);
+                    if let (Some(state), Some(mut desired_retrievability)) =
+                        (card_data.memory_state(), card_data.fsrs_desired_retention)
+                    {
+                        // avoid div by zero
+                        desired_retrievability = desired_retrievability.max(0.0001);
+                        let decay = card_data.decay.unwrap_or(FSRS5_DEFAULT_DECAY);
+
+                        let seconds_elapsed =
+                            if let Some(last_review_time) = card_data.last_review_time {
+                                // Don't change this to now.subtracting_sub(due) as u32
+                                // for the same reasons listed in the comment
+                                // in add_extract_fsrs_retrievability
+                                (now as u32).saturating_sub(last_review_time.0 as u32)
+                            } else {
+                                secs_elapsed
+                            };
+
+                        let current_retrievability = FSRS::new(None)
+                            .unwrap()
+                            .current_retrievability_seconds(state.into(), seconds_elapsed, decay)
+                            .max(0.0001);
+
+                        return Ok(Some(
+                            -(current_retrievability.powf(-1.0 / decay) - 1.)
+                                / (desired_retrievability.powf(-1.0 / decay) - 1.),
+                        ));
+                    }
+                }
+            }
+            let days_elapsed = secs_elapsed / 86_400;
+            // FSRS data missing; fall back to SM2 ordering
+            Ok(Some(
+                -((days_elapsed as f32) + 0.001) / (interval as f32).max(1.0),
+            ))
+        },
+    )
+}
+
 /// Fetch schema version from database.
 /// Return (must_create, version)
 fn schema_version(db: &Connection) -> Result<(bool, u8)> {
@@ -244,12 +465,14 @@ fn schema_version(db: &Connection) -> Result<(bool, u8)> {
 
     Ok((
         false,
-        db.query_row("select ver from col", [], |r| r.get(0).map_err(Into::into))?,
+        db.query_row("select ver from col", [], |r| r.get(0))?,
     ))
 }
 
-fn trace(s: &str) {
-    println!("sql: {}", s.trim().replace('\n', " "));
+fn trace(event: TraceEvent) {
+    if let TraceEvent::Stmt(_, sql) = event {
+        println!("sql: {}", sql.trim().replace('\n', " "));
+    }
 }
 
 impl SqliteStorage {
@@ -258,7 +481,6 @@ impl SqliteStorage {
         tr: &I18n,
         server: bool,
         check_integrity: bool,
-        force_schema11: bool,
     ) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
         let (create, ver) = schema_version(&db)?;
@@ -310,13 +532,6 @@ impl SqliteStorage {
         }
 
         let storage = Self { db };
-
-        if force_schema11 {
-            if create || upgrade {
-                storage.commit_trx()?;
-            }
-            return storage_with_schema11(storage, ver);
-        }
 
         if create || upgrade {
             storage.upgrade_to_latest_schema(ver, server)?;
@@ -422,7 +637,7 @@ impl SqliteStorage {
         }) {
             Ok(corrupt) => corrupt,
             Err(e) => {
-                println!("error: {:?}", e);
+                println!("error: {e:?}");
                 true
             }
         }
@@ -439,19 +654,53 @@ impl SqliteStorage {
     }
 }
 
-fn storage_with_schema11(storage: SqliteStorage, ver: u8) -> Result<SqliteStorage> {
-    if ver != 11 {
-        if ver != SCHEMA_MAX_VERSION {
-            // partially upgraded; need to fully upgrade before downgrading
-            storage.begin_trx()?;
-            storage.upgrade_to_latest_schema(ver, false)?;
-            storage.commit_trx()?;
-        }
-        storage.downgrade_to(SchemaVersion::V11)?;
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum SqlSortOrder {
+    Ascending,
+    Descending,
+}
+
+impl Display for SqlSortOrder {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                SqlSortOrder::Ascending => "asc",
+                SqlSortOrder::Descending => "desc",
+            }
+        )
     }
-    // Requery uses "TRUNCATE" by default if WAL is not enabled.
-    // We copy this behaviour here. See https://github.com/ankidroid/Anki-Android/pull/7977 for
-    // analysis. We may be able to enable WAL at a later time.
-    storage.db.pragma_update(None, "journal_mode", "TRUNCATE")?;
-    Ok(storage)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::scheduler::answering::test::v3_test_collection;
+    use crate::storage::card::ReviewOrderSubclause;
+
+    #[test]
+    fn missing_memory_state_falls_back_to_sm2() -> Result<()> {
+        let (mut col, _cids) = v3_test_collection(1)?;
+        col.set_config_bool(BoolKey::Fsrs, true, true)?;
+        col.answer_easy();
+
+        let timing = col.timing_today()?;
+        let sql_func = ReviewOrderSubclause::RelativeOverdueness { fsrs: true, timing }
+            .to_string()
+            .replace(" asc", "");
+        let sql = format!("select {sql_func} from cards");
+
+        // value from fsrs
+        let mut pos: Option<f64>;
+        pos = col.storage.db_scalar(&sql).unwrap();
+        assert_eq!(pos, Some(0.0));
+        // erasing the memory state should not result in None output
+        col.storage.db.execute("update cards set data=''", [])?;
+        pos = col.storage.db_scalar(&sql).unwrap();
+        assert!(pos.is_some());
+        // but it won't match the fsrs value
+        assert!(pos.unwrap() < -0.0);
+        Ok(())
+    }
 }

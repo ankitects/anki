@@ -26,22 +26,21 @@ pub enum Platform {
     MacX64,
     MacArm,
     WindowsX64,
+    WindowsArm,
 }
 
 impl Platform {
     pub fn current() -> Self {
-        if cfg!(windows) {
-            Self::WindowsX64
-        } else {
-            let os = std::env::consts::OS;
-            let arch = std::env::consts::ARCH;
-            match (os, arch) {
-                ("linux", "x86_64") => Self::LinuxX64,
-                ("linux", "aarch64") => Self::LinuxArm,
-                ("macos", "x86_64") => Self::MacX64,
-                ("macos", "aarch64") => Self::MacArm,
-                _ => panic!("unsupported os/arch {os} {arch} - PR welcome!"),
-            }
+        let os = std::env::consts::OS;
+        let arch = std::env::consts::ARCH;
+        match (os, arch) {
+            ("linux", "x86_64") => Self::LinuxX64,
+            ("linux", "aarch64") => Self::LinuxArm,
+            ("macos", "x86_64") => Self::MacX64,
+            ("macos", "aarch64") => Self::MacArm,
+            ("windows", "x86_64") => Self::WindowsX64,
+            ("windows", "aarch64") => Self::WindowsArm,
+            _ => panic!("unsupported os/arch {os} {arch} - PR welcome!"),
         }
     }
 
@@ -62,12 +61,13 @@ impl Platform {
             Platform::MacX64 => "x86_64-apple-darwin",
             Platform::MacArm => "aarch64-apple-darwin",
             Platform::WindowsX64 => "x86_64-pc-windows-msvc",
+            Platform::WindowsArm => "aarch64-pc-windows-msvc",
         }
     }
 }
 
 /// Append .exe to path if on Windows.
-pub fn with_exe(path: &str) -> Cow<str> {
+pub fn with_exe(path: &str) -> Cow<'_, str> {
     if cfg!(windows) {
         format!("{path}.exe").into()
     } else {

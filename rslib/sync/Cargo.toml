@@ -13,4 +13,9 @@ path = "main.rs"
 name = "anki-sync-server"
 
 [dependencies]
-anki.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+anki = { workspace = true, features = ["native-tls"] }
+
+[target.'cfg(not(windows))'.dependencies]
+anki = { workspace = true, features = ["rustls"] }

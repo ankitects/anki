@@ -1,5 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from __future__ import annotations
+
 from typing import cast
 
 from aqt import colors, props
@@ -19,9 +21,9 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
-        left_color: dict[str, str] = colors.ACCENT_CARD | {},
-        right_color: dict[str, str] = colors.ACCENT_NOTE | {},
-        parent: QWidget = None,
+        left_color: dict[str, str] | None = None,
+        right_color: dict[str, str] | None = None,
+        parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent=parent)
         self.setCheckable(True)
@@ -29,8 +31,8 @@ class Switch(QAbstractButton):
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._left_label = left_label
         self._right_label = right_label
-        self._left_color = left_color
-        self._right_color = right_color
+        self._left_color = left_color if left_color else colors.ACCENT_CARD
+        self._right_color = right_color if right_color else colors.ACCENT_NOTE
         self._path_radius = radius
         self._knob_radius = radius - 2
         self._label_padding = 4
@@ -101,7 +103,7 @@ class Switch(QAbstractButton):
         self._position = self.end_position
         self.update()
 
-    def paintEvent(self, _event: QPaintEvent) -> None:
+    def paintEvent(self, _event: QPaintEvent | None) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setPen(Qt.PenStyle.NoPen)
@@ -120,9 +122,11 @@ class Switch(QAbstractButton):
 
     def _current_label_rectangle(self) -> QRectF:
         return QRectF(
-            self._left_label_position
-            if self.isChecked()
-            else self._right_label_position,
+            (
+                self._left_label_position
+                if self.isChecked()
+                else self._right_label_position
+            ),
             0,
             self.label_width,
             self.height(),
@@ -158,12 +162,13 @@ class Switch(QAbstractButton):
             self._current_label_rectangle(), Qt.AlignmentFlag.AlignCenter, self.label
         )
 
-    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+    def mouseReleaseEvent(self, event: QMouseEvent | None) -> None:
         super().mouseReleaseEvent(event)
+        assert event is not None
         if event.button() == Qt.MouseButton.LeftButton:
             self._animate_toggle()
 
-    def enterEvent(self, event: QEnterEvent) -> None:
+    def enterEvent(self, event: QEnterEvent | None) -> None:
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         super().enterEvent(event)
 

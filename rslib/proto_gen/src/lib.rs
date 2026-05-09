@@ -7,6 +7,7 @@
 use std::collections::HashMap;
 use std::env;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use anki_io::read_to_string;
 use anki_io::write_file_if_changed;
@@ -16,7 +17,6 @@ use camino::Utf8Path;
 use inflections::Inflect;
 use itertools::Either;
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use prost_reflect::DescriptorPool;
 use prost_reflect::MessageDescriptor;
 use prost_reflect::MethodDescriptor;
@@ -29,12 +29,12 @@ use walkdir::WalkDir;
 /// expected to exist (but may be empty).
 ///
 /// - If a method is listed in BackendExampleService and not in ExampleService,
-/// that method is only available with a Backend.
+///   that method is only available with a Backend.
 /// - If a method is listed in both services, you can provide separate
-/// implementations for each of the traits.
+///   implementations for each of the traits.
 /// - If a method is listed only in ExampleService, a forwarding method on
-/// Backend is automatically implemented. This bypasses the trait and implements
-/// directly on Backend.
+///   Backend is automatically implemented. This bypasses the trait and
+///   implements directly on Backend.
 ///
 /// It's important that service and method indices are the same for
 /// client-generated code, so the client code should use the .index fields
@@ -238,8 +238,8 @@ pub fn add_must_use_annotations_to_file<E>(path: &Utf8Path, is_empty: E) -> Resu
 where
     E: Fn(&Utf8Path, &str) -> bool,
 {
-    static MESSAGE_OR_ENUM_RE: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"pub (struct|enum) ([[:alnum:]]+?)\s").unwrap());
+    static MESSAGE_OR_ENUM_RE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"pub (struct|enum) ([[:alnum:]]+?)\s").unwrap());
     let contents = read_to_string(path)?;
     let contents = MESSAGE_OR_ENUM_RE.replace_all(&contents, |caps: &Captures| {
         let is_enum = caps.get(1).unwrap().as_str() == "enum";

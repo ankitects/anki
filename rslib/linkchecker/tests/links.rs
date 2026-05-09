@@ -6,13 +6,14 @@
 use std::borrow::Cow;
 use std::env;
 use std::iter;
+use std::sync::LazyLock;
+use std::time::Duration;
 
 use anki::links::help_page_link_suffix;
 use anki::links::help_page_to_link;
 use anki::links::HelpPage;
 use futures::StreamExt;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use linkcheck::validation::check_web;
 use linkcheck::validation::Context;
 use linkcheck::validation::Reason;
@@ -21,11 +22,14 @@ use regex::Regex;
 use reqwest::Url;
 use strum::IntoEnumIterator;
 
+const WEB_TIMEOUT: Duration = Duration::from_secs(60);
+
 /// Aggregates [`Outcome`]s by collecting the error messages of the invalid
 /// ones.
 #[derive(Default)]
 struct Outcomes(Vec<String>);
 
+#[derive(Debug)]
 enum Outcome {
     Valid,
     Invalid(String),
@@ -38,17 +42,17 @@ enum CheckableUrl {
 }
 
 impl CheckableUrl {
-    fn url(&self) -> Cow<str> {
+    fn url(&self) -> Cow<'_, str> {
         match *self {
             Self::HelpPage(page) => help_page_to_link(page).into(),
             Self::String(s) => s.into(),
         }
     }
 
-    fn anchor(&self) -> Cow<str> {
+    fn anchor(&self) -> Cow<'_, str> {
         match *self {
             Self::HelpPage(page) => help_page_link_suffix(page).into(),
-            Self::String(s) => s.split('#').last().unwrap_or_default().into(),
+            Self::String(s) => s.split('#').next_back().unwrap_or_default().into(),
         }
     }
 }
@@ -66,11 +70,10 @@ impl From<&'static str> for CheckableUrl {
 }
 
 fn ts_help_pages() -> impl Iterator<Item = &'static str> {
-    lazy_static! {
-        static ref QUOTED_URL: Regex = Regex::new("\"(http.+)\"").unwrap();
-    }
+    static QUOTED_URL: LazyLock<Regex> = LazyLock::new(|| Regex::new("\"(http.+)\"").unwrap());
+
     QUOTED_URL
-        .captures_iter(include_str!("../../../ts/lib/help-page.ts"))
+        .captures_iter(include_str!("../../../ts/lib/tslib/help-page.ts"))
         .map(|caps| caps.get(1).unwrap().as_str())
 }
 
@@ -98,23 +101,23 @@ async fn check_links() {
 async fn check_url(page: CheckableUrl, ctx: &BasicContext) -> Outcome {
     let link = page.url();
     match Url::parse(&link) {
-        Ok(url) => {
-            if url.as_str() == link {
-                match check_web(&url, ctx).await {
-                    Ok(()) => Outcome::Valid,
-                    Err(Reason::Dom) => Outcome::Invalid(format!(
-                        "'#{}' not found on '{}{}'",
-                        url.fragment().unwrap(),
-                        url.domain().unwrap(),
-                        url.path(),
-                    )),
-                    Err(Reason::Web(err)) => Outcome::Invalid(err.to_string()),
-                    _ => unreachable!(),
-                }
-            } else {
-                Outcome::Invalid(format!("'{}' is not a valid URL part", page.anchor(),))
+        Ok(url) if url.as_str() == link => {
+            let future = check_web(&url, ctx);
+            let timeout = tokio::time::timeout(WEB_TIMEOUT, future);
+            match timeout.await {
+                Err(_) => Outcome::Invalid(format!("Timed out: {link}")),
+                Ok(Ok(())) => Outcome::Valid,
+                Ok(Err(Reason::Dom)) => Outcome::Invalid(format!(
+                    "'#{}' not found on '{}{}'",
+                    url.fragment().unwrap(),
+                    url.domain().unwrap(),
+                    url.path(),
+                )),
+                Ok(Err(Reason::Web(err))) => Outcome::Invalid(err.to_string()),
+                _ => unreachable!(),
             }
         }
+        Ok(_) => Outcome::Invalid(format!("'{}' is not a valid URL part", page.anchor(),)),
         Err(err) => Outcome::Invalid(err.to_string()),
     }
 }

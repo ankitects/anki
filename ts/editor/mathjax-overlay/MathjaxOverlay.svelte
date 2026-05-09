@@ -11,15 +11,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type CodeMirrorLib from "codemirror";
     import { tick } from "svelte";
     import { writable } from "svelte/store";
-    import { isComposing } from "sveltelib/composition";
 
-    import Popover from "../../components/Popover.svelte";
-    import Shortcut from "../../components/Shortcut.svelte";
-    import WithFloating from "../../components/WithFloating.svelte";
-    import WithOverlay from "../../components/WithOverlay.svelte";
-    import { placeCaretAfter } from "../../domlib/place-caret";
+    import Popover from "$lib/components/Popover.svelte";
+    import Shortcut from "$lib/components/Shortcut.svelte";
+    import WithFloating from "$lib/components/WithFloating.svelte";
+    import WithOverlay from "$lib/components/WithOverlay.svelte";
+    import { placeCaretAfter } from "$lib/domlib/place-caret";
+    import { isComposing } from "$lib/sveltelib/composition";
+
     import { escapeSomeEntities, unescapeSomeEntities } from "../../editable/mathjax";
-    import { Mathjax } from "../../editable/mathjax-element";
+    import { Mathjax } from "../../editable/mathjax-element.svelte";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import { context } from "../NoteEditor.svelte";
@@ -33,6 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let cleanup: Callback;
     let richTextInput: RichTextInputAPI | null = null;
     let allowPromise = Promise.resolve();
+    // Whether the last focused input field corresponds to a cloze field.
+    let isClozeField: boolean = true;
 
     async function initialize(input: EditingInputAPI | null): Promise<void> {
         cleanup?.();
@@ -49,6 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 on(container, "movecaretafter" as any, showOnAutofocus),
                 on(container, "selectall" as any, showSelectAll),
             );
+            isClozeField = input.isClozeField;
         }
 
         // Wait if the mathjax overlay is still active
@@ -228,7 +232,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             placeHandle(true);
                             resetHandle();
                         }}
-                        on:close={resetHandle}
+                        on:close={() => {
+                            placeHandle(true);
+                            resetHandle();
+                        }}
                         let:editor={mathjaxEditor}
                     >
                         <Shortcut
@@ -241,6 +248,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                         <MathjaxButtons
                             {isBlock}
+                            {isClozeField}
                             on:setinline={async () => {
                                 isBlock = false;
                                 await updateBlockAttribute();

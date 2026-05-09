@@ -14,6 +14,7 @@ use crate::collection::CollectionBuilder;
 use crate::import_export::gather::ExchangeData;
 use crate::import_export::package::colpkg::export::export_collection;
 use crate::import_export::package::media::MediaIter;
+use crate::import_export::package::ExportAnkiPackageOptions;
 use crate::import_export::package::Meta;
 use crate::import_export::ExportProgress;
 use crate::prelude::*;
@@ -21,14 +22,11 @@ use crate::progress::ThrottlingProgressHandler;
 
 impl Collection {
     /// Returns number of exported notes.
-    #[allow(clippy::too_many_arguments)]
     pub fn export_apkg(
         &mut self,
         out_path: impl AsRef<Path>,
+        options: ExportAnkiPackageOptions,
         search: impl TryIntoSearch,
-        with_scheduling: bool,
-        with_media: bool,
-        legacy: bool,
         media_fn: Option<Box<dyn FnOnce(HashSet<String>) -> MediaIter>>,
     ) -> Result<usize> {
         let mut progress = self.new_progress_handler();
@@ -38,19 +36,13 @@ impl Collection {
             .path()
             .to_str()
             .or_invalid("non-unicode filename")?;
-        let meta = if legacy {
+        let meta = if options.legacy {
             Meta::new_legacy()
         } else {
             Meta::new()
         };
-        let data = self.export_into_collection_file(
-            &meta,
-            temp_col_path,
-            search,
-            &mut progress,
-            with_scheduling,
-            with_media,
-        )?;
+        let data =
+            self.export_into_collection_file(&meta, temp_col_path, options, search, &mut progress)?;
 
         progress.set(ExportProgress::File)?;
         let media = if let Some(media_fn) = media_fn {
@@ -77,15 +69,19 @@ impl Collection {
         &mut self,
         meta: &Meta,
         path: &str,
+        options: ExportAnkiPackageOptions,
         search: impl TryIntoSearch,
         progress: &mut ThrottlingProgressHandler<ExportProgress>,
-        with_scheduling: bool,
-        with_media: bool,
     ) -> Result<ExchangeData> {
         let mut data = ExchangeData::default();
         progress.set(ExportProgress::Gathering)?;
-        data.gather_data(self, search, with_scheduling)?;
-        if with_media {
+        data.gather_data(
+            self,
+            search,
+            options.with_scheduling,
+            options.with_deck_configs,
+        )?;
+        if options.with_media {
             data.gather_media_names(progress)?;
         }
 

@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::ffi::OsStr;
+use std::iter::once;
 use std::process::Command;
 use std::string::FromUtf8Error;
 
@@ -10,6 +11,24 @@ use snafu::ensure;
 use snafu::ResultExt;
 use snafu::Snafu;
 
+#[derive(Debug)]
+pub struct CodeDisplay(Option<i32>);
+
+impl std::fmt::Display for CodeDisplay {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.0 {
+            Some(code) => write!(f, "{code}"),
+            None => write!(f, "?"),
+        }
+    }
+}
+
+impl From<Option<i32>> for CodeDisplay {
+    fn from(code: Option<i32>) -> Self {
+        CodeDisplay(code)
+    }
+}
+
 #[derive(Debug, Snafu)]
 pub enum Error {
     #[snafu(display("Failed to execute: {cmdline}"))]
@@ -17,8 +36,15 @@ pub enum Error {
         cmdline: String,
         source: std::io::Error,
     },
-    #[snafu(display("Fail with code {code:?}: {cmdline}"))]
-    ReturnedError { cmdline: String, code: Option<i32> },
+    #[snafu(display("Failed to run ({code}): {cmdline}"))]
+    ReturnedError { cmdline: String, code: CodeDisplay },
+    #[snafu(display("Failed to run ({code}): {cmdline}: {stdout}{stderr}"))]
+    ReturnedWithOutputError {
+        cmdline: String,
+        code: CodeDisplay,
+        stdout: String,
+        stderr: String,
+    },
     #[snafu(display("Couldn't decode stdout/stderr as utf8"))]
     InvalidUtf8 {
         cmdline: String,
@@ -56,6 +82,9 @@ pub trait CommandExt {
 
     fn ensure_success(&mut self) -> Result<&mut Self>;
     fn utf8_output(&mut self) -> Result<Utf8Output>;
+    fn ensure_spawn(&mut self) -> Result<std::process::Child>;
+    #[cfg(unix)]
+    fn ensure_exec(&mut self) -> Result<()>;
 }
 
 impl CommandExt for Command {
@@ -67,37 +96,58 @@ impl CommandExt for Command {
             status.success(),
             ReturnedSnafu {
                 cmdline: get_cmdline(self),
-                code: status.code(),
+                code: CodeDisplay::from(status.code()),
             }
         );
         Ok(self)
     }
 
     fn utf8_output(&mut self) -> Result<Utf8Output> {
+        let cmdline = get_cmdline(self);
         let output = self.output().with_context(|_| DidNotExecuteSnafu {
-            cmdline: get_cmdline(self),
+            cmdline: cmdline.clone(),
         })?;
+
+        let stdout = String::from_utf8(output.stdout).with_context(|_| InvalidUtf8Snafu {
+            cmdline: cmdline.clone(),
+        })?;
+        let stderr = String::from_utf8(output.stderr).with_context(|_| InvalidUtf8Snafu {
+            cmdline: cmdline.clone(),
+        })?;
+
         ensure!(
             output.status.success(),
-            ReturnedSnafu {
-                cmdline: get_cmdline(self),
-                code: output.status.code(),
+            ReturnedWithOutputSnafu {
+                cmdline,
+                code: CodeDisplay::from(output.status.code()),
+                stdout: stdout.clone(),
+                stderr: stderr.clone(),
             }
         );
-        Ok(Utf8Output {
-            stdout: String::from_utf8(output.stdout).with_context(|_| InvalidUtf8Snafu {
-                cmdline: get_cmdline(self),
-            })?,
-            stderr: String::from_utf8(output.stderr).with_context(|_| InvalidUtf8Snafu {
-                cmdline: get_cmdline(self),
-            })?,
+
+        Ok(Utf8Output { stdout, stderr })
+    }
+
+    fn ensure_spawn(&mut self) -> Result<std::process::Child> {
+        self.spawn().with_context(|_| DidNotExecuteSnafu {
+            cmdline: get_cmdline(self),
+        })
+    }
+
+    #[cfg(unix)]
+    fn ensure_exec(&mut self) -> Result<()> {
+        use std::os::unix::process::CommandExt as UnixCommandExt;
+        let cmdline = get_cmdline(self);
+        let error = self.exec();
+        Err(Error::DidNotExecute {
+            cmdline,
+            source: error,
         })
     }
 }
 
 fn get_cmdline(arg: &mut Command) -> String {
-    [arg.get_program().to_string_lossy()]
-        .into_iter()
+    once(arg.get_program().to_string_lossy())
         .chain(arg.get_args().map(|arg| arg.to_string_lossy()))
         .join(" ")
 }
@@ -115,7 +165,10 @@ mod test {
         #[cfg(not(windows))]
         assert!(matches!(
             Command::new("false").ensure_success(),
-            Err(Error::ReturnedError { code: Some(1), .. })
+            Err(Error::ReturnedError {
+                code: CodeDisplay(_),
+                ..
+            })
         ));
     }
 }

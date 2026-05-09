@@ -1,3 +1,9 @@
+ProtoBuf is a format used both to save data in storage and transmit
+data between services. You can think of it as similar to JSON with
+schemas, given that you can use basic types, list and records. Except
+that it's usually transmitted and saved in an efficient byteform and
+not in a human readable way.
+
 # Protocol Buffers
 
 Anki uses [different implementations of Protocol Buffers](./architecture.md#protobuf)
@@ -91,12 +97,6 @@ should preferably be assigned a number between 1 and 15. If a message contains
 ### Python
 
 Protobuf has an official Python implementation with an extensive [reference](https://developers.google.com/protocol-buffers/docs/reference/python-generated).
-
-- Every message used in aqt or pylib must be added to the respective `.pylintrc`
-  to avoid failing type checks. The unqualified protobuf message's name must be
-  used, not an alias from `collection.py` for example. This should be taken into
-  account when choosing a message name in order to prevent skipping typechecking
-  a Python class of the same name.
 
 ### Typescript
 

@@ -28,8 +28,10 @@ template_legacy.py file, using the legacy addHook() system.
 
 from __future__ import annotations
 
+import os.path
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Sequence, Union
+from typing import Any, Union
 
 import anki
 import anki.cards
@@ -41,10 +43,6 @@ from anki.errors import TemplateError
 from anki.models import NotetypeDict
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.utils import to_json_bytes
-
-CARD_BLANK_HELP = (
-    "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank"
-)
 
 
 @dataclass
@@ -63,6 +61,7 @@ class PartiallyRenderedCard:
     anodes: TemplateReplacementList
     css: str
     latex_svg: bool
+    is_empty: bool
 
     @classmethod
     def from_proto(
@@ -71,7 +70,9 @@ class PartiallyRenderedCard:
         qnodes = cls.nodes_from_proto(out.question_nodes)
         anodes = cls.nodes_from_proto(out.answer_nodes)
 
-        return PartiallyRenderedCard(qnodes, anodes, out.css, out.latex_svg)
+        return PartiallyRenderedCard(
+            qnodes, anodes, out.css, out.latex_svg, out.is_empty
+        )
 
     @staticmethod
     def nodes_from_proto(
@@ -95,7 +96,7 @@ class PartiallyRenderedCard:
 def av_tag_to_native(tag: card_rendering_pb2.AVTag) -> AVTag:
     val = tag.WhichOneof("value")
     if val == "sound_or_video":
-        return SoundOrVideoTag(filename=tag.sound_or_video)
+        return SoundOrVideoTag(filename=os.path.basename(tag.sound_or_video))
     else:
         return TTSTag(
             field_text=tag.tts.field_text,
@@ -146,7 +147,7 @@ class TemplateRenderContext:
         card: anki.cards.Card,
         note: anki.notes.Note,
         browser: bool = False,
-        notetype: NotetypeDict = None,
+        notetype: NotetypeDict | None = None,
         template: dict | None = None,
         fill_empty: bool = False,
     ) -> None:
@@ -278,6 +279,7 @@ class TemplateRenderContext:
 @dataclass
 class TemplateRenderOutput:
     "Stores the rendered templates and extracted AV tags."
+
     question_text: str
     answer_text: str
     question_av_tags: list[AVTag]

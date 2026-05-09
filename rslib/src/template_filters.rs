@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
+use std::sync::LazyLock;
 
 use blake3::Hasher;
-use lazy_static::lazy_static;
 use regex::Captures;
 use regex::Regex;
 
@@ -30,11 +30,13 @@ pub(crate) fn apply_filters<'a>(
 ) -> (Cow<'a, str>, Vec<String>) {
     let mut text: Cow<str> = text.into();
 
-    // type:cloze is handled specially
-    let filters = if filters == ["cloze", "type"] {
-        &["type-cloze"]
-    } else {
-        filters
+    // type:cloze & type:nc are handled specially
+    // other type: are passed as the default one
+    let filters = match filters {
+        ["cloze", "type"] => &["type-cloze"],
+        ["nc", "type"] => &["type-nc"],
+        [.., "type"] => &["type"],
+        _ => filters,
     };
 
     for (idx, &filter_name) in filters.iter().enumerate() {
@@ -80,6 +82,7 @@ fn apply_filter(
         "kana" => kana_filter(text),
         "type" => type_filter(field_name),
         "type-cloze" => type_cloze_filter(field_name),
+        "type-nc" => type_nc_filter(field_name),
         "hint" => hint_filter(text, field_name),
         "cloze" => cloze_filter(text, context),
         "cloze-only" => cloze_only_filter(text, context),
@@ -107,16 +110,14 @@ fn apply_filter(
 // Ruby filters
 //----------------------------------------
 
-lazy_static! {
-    static ref FURIGANA: Regex = Regex::new(r" ?([^ >]+?)\[(.+?)\]").unwrap();
-}
+static FURIGANA: LazyLock<Regex> = LazyLock::new(|| Regex::new(r" ?([^ >]+?)\[(.+?)\]").unwrap());
 
 /// Did furigana regex match a sound tag?
 fn captured_sound(caps: &Captures) -> bool {
     caps.get(2).unwrap().as_str().starts_with("sound:")
 }
 
-fn kana_filter(text: &str) -> Cow<str> {
+fn kana_filter(text: &str) -> Cow<'_, str> {
     FURIGANA
         .replace_all(&text.replace("&nbsp;", " "), |caps: &Captures| {
             if captured_sound(caps) {
@@ -129,7 +130,7 @@ fn kana_filter(text: &str) -> Cow<str> {
         .into()
 }
 
-fn kanji_filter(text: &str) -> Cow<str> {
+fn kanji_filter(text: &str) -> Cow<'_, str> {
     FURIGANA
         .replace_all(&text.replace("&nbsp;", " "), |caps: &Captures| {
             if captured_sound(caps) {
@@ -142,7 +143,7 @@ fn kanji_filter(text: &str) -> Cow<str> {
         .into()
 }
 
-fn furigana_filter(text: &str) -> Cow<str> {
+fn furigana_filter(text: &str) -> Cow<'_, str> {
     FURIGANA
         .replace_all(&text.replace("&nbsp;", " "), |caps: &Captures| {
             if captured_sound(caps) {
@@ -164,11 +165,15 @@ fn furigana_filter(text: &str) -> Cow<str> {
 
 /// convert to [[type:...]] for the gui code to process
 fn type_filter<'a>(field_name: &str) -> Cow<'a, str> {
-    format!("[[type:{}]]", field_name).into()
+    format!("[[type:{field_name}]]").into()
 }
 
 fn type_cloze_filter<'a>(field_name: &str) -> Cow<'a, str> {
-    format!("[[type:cloze:{}]]", field_name).into()
+    format!("[[type:cloze:{field_name}]]").into()
+}
+
+fn type_nc_filter<'a>(field_name: &str) -> Cow<'a, str> {
+    format!("[[type:nc:{field_name}]]").into()
 }
 
 fn hint_filter<'a>(text: &'a str, field_name: &str) -> Cow<'a, str> {
@@ -186,18 +191,17 @@ fn hint_filter<'a>(text: &'a str, field_name: &str) -> Cow<'a, str> {
         r##"
 <a class=hint href="#"
 onclick="this.style.display='none';
-document.getElementById('hint{}').style.display='block';
-return false;">
-{}</a>
-<div id="hint{}" class=hint style="display: none">{}</div>
-"##,
-        id, field_name, id, text
+document.getElementById('hint{id}').style.display='block';
+return false;" draggable=false>
+{field_name}</a>
+<div id="hint{id}" class=hint style="display: none">{text}</div>
+"##
     )
     .into()
 }
 
 fn tts_filter(options: &str, text: &str) -> String {
-    format!("[anki:tts lang={}]{}[/anki:tts]", options, text)
+    format!("[anki:tts lang={options}]{text}[/anki:tts]")
 }
 
 // Tests
@@ -227,7 +231,7 @@ mod test {
 <a class=hint href="#"
 onclick="this.style.display='none';
 document.getElementById('hint83fe48607f0f3a66').style.display='block';
-return false;">
+return false;" draggable=false>
 field</a>
 <div id="hint83fe48607f0f3a66" class=hint style="display: none">foo</div>
 "##
@@ -238,6 +242,7 @@ field</a>
     fn typing() {
         assert_eq!(type_filter("Front"), "[[type:Front]]");
         assert_eq!(type_cloze_filter("Front"), "[[type:cloze:Front]]");
+        assert_eq!(type_nc_filter("Front"), "[[type:nc:Front]]");
         let ctx = RenderContext {
             fields: &Default::default(),
             nonempty_fields: &Default::default(),
@@ -248,6 +253,14 @@ field</a>
         assert_eq!(
             apply_filters("ignored", &["cloze", "type"], "Text", &ctx),
             ("[[type:cloze:Text]]".into(), vec![])
+        );
+        assert_eq!(
+            apply_filters("ignored", &["nc", "type"], "Text", &ctx),
+            ("[[type:nc:Text]]".into(), vec![])
+        );
+        assert_eq!(
+            apply_filters("ignored", &["some", "unknown", "type"], "Text", &ctx),
+            ("[[type:Text]]".into(), vec![])
         );
     }
 

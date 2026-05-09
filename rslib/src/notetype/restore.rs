@@ -28,6 +28,7 @@ impl Collection {
                 Kind::BasicOptionalReversed => OriginalStockKind::BasicOptionalReversed,
                 Kind::BasicTyping => OriginalStockKind::BasicTyping,
                 Kind::Cloze => OriginalStockKind::Cloze,
+                Kind::ImageOcclusion => OriginalStockKind::ImageOcclusion,
             },
             (stock, _) => stock,
         };

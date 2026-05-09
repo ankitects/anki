@@ -19,6 +19,7 @@ mod upgrades;
 
 use std::fmt::Write;
 
+pub(crate) use sqlite::ProcessTextFlags;
 pub(crate) use sqlite::SqliteStorage;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -52,7 +53,7 @@ where
 {
     let mut trailing_sep = false;
     for id in ids {
-        write!(buf, "{},", id).unwrap();
+        write!(buf, "{id},").unwrap();
         trailing_sep = true;
     }
     if trailing_sep {

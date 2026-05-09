@@ -23,6 +23,7 @@ impl CardStateUpdater {
         if let Some(position) = current.new_position() {
             self.card.original_position = Some(position)
         }
+        self.card.memory_state = next.learning.memory_state;
 
         let interval = next
             .interval_kind()
@@ -41,7 +42,10 @@ impl CardStateUpdater {
         RevlogEntryPartial::new(
             current,
             next.into(),
-            next.review.ease_factor,
+            self.card
+                .memory_state
+                .map(|d| d.difficulty_shifted())
+                .unwrap_or(next.review.ease_factor),
             self.secs_until_rollover(),
         )
     }

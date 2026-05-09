@@ -2,12 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
-use lazy_static::lazy_static;
-use rand::distributions::Distribution;
-use rand::distributions::Uniform;
+use rand::distr::Distribution;
+use rand::distr::Uniform;
 use regex::Regex;
 
+use super::answering::CardAnswer;
 use crate::card::Card;
 use crate::card::CardId;
 use crate::card::CardQueue;
@@ -16,6 +17,7 @@ use crate::collection::Collection;
 use crate::config::StringKey;
 use crate::error::Result;
 use crate::prelude::*;
+use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Card {
     /// Make card due in `days_from_today`.
@@ -26,17 +28,34 @@ impl Card {
     fn set_due_date(
         &mut self,
         today: u32,
+        next_day_start: i64,
         days_from_today: u32,
         ease_factor: f32,
         force_reset: bool,
     ) {
         let new_due = (today + days_from_today) as i32;
-        let new_interval =
-            if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
-                days_from_today
+        let fsrs_enabled = self.memory_state.is_some();
+        let new_interval = if fsrs_enabled {
+            if let Some(last_review_time) = self.last_review_time {
+                let elapsed_days =
+                    TimestampSecs(next_day_start).elapsed_days_since(last_review_time);
+                elapsed_days as u32 + days_from_today
             } else {
-                self.interval
-            };
+                let due = self.original_or_current_due();
+                let due_diff = if is_unix_epoch_timestamp(due) {
+                    let offset = (due as i64 - next_day_start) / 86_400;
+                    let due = (today as i64 + offset) as i32;
+                    new_due - due
+                } else {
+                    new_due - due
+                };
+                self.interval.saturating_add_signed(due_diff)
+            }
+        } else if force_reset || !matches!(self.ctype, CardType::Review | CardType::Relearn) {
+            days_from_today.max(1)
+        } else {
+            self.interval.max(1)
+        };
         let ease_factor = (ease_factor * 1000.0).round() as u16;
 
         self.schedule_as_review(new_interval, new_due, ease_factor);
@@ -45,7 +64,7 @@ impl Card {
     fn schedule_as_review(&mut self, interval: u32, due: i32, ease_factor: u16) {
         self.original_position = self.last_position();
         self.remove_from_filtered_deck_before_reschedule();
-        self.interval = interval.max(1);
+        self.interval = interval;
         self.due = due;
         self.ctype = CardType::Review;
         self.queue = CardQueue::Review;
@@ -65,8 +84,8 @@ pub struct DueDateSpecifier {
 }
 
 pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(
             r"(?x)^
             # a number
             (?P<min>\d+)
@@ -78,10 +97,10 @@ pub fn parse_due_date_str(s: &str) -> Result<DueDateSpecifier> {
             # optional exclamation mark
             (?P<bang>!)?
             $
-        "
+        ",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     let caps = RE.captures(s).or_invalid(s)?;
     let min: u32 = caps.name("min").unwrap().as_str().parse()?;
     let max = if let Some(max) = caps.name("max") {
@@ -110,8 +129,9 @@ impl Collection {
         let spec = parse_due_date_str(days)?;
         let usn = self.usn()?;
         let today = self.timing_today()?.days_elapsed;
-        let mut rng = rand::thread_rng();
-        let distribution = Uniform::from(spec.min..=spec.max);
+        let next_day_start = self.timing_today()?.next_day_at.0;
+        let mut rng = rand::rng();
+        let distribution = Uniform::new_inclusive(spec.min, spec.max).unwrap();
         let mut decks_initial_ease: HashMap<DeckId, f32> = HashMap::new();
         self.transact(Op::SetDueDate, |col| {
             for mut card in col.all_cards_for_ids(cids, false)? {
@@ -133,12 +153,46 @@ impl Collection {
                 };
                 let original = card.clone();
                 let days_from_today = distribution.sample(&mut rng);
-                card.set_due_date(today, days_from_today, ease_factor, spec.force_reset);
-                col.log_manually_scheduled_review(&card, &original, usn)?;
+                card.set_due_date(
+                    today,
+                    next_day_start,
+                    days_from_today,
+                    ease_factor,
+                    spec.force_reset,
+                );
+                col.log_manually_scheduled_review(&card, original.interval, usn)?;
                 col.update_card_inner(&mut card, original, usn)?;
             }
             if let Some(key) = context {
                 col.set_config_string_inner(key, days)?;
+            }
+            Ok(())
+        })
+    }
+
+    pub fn grade_now(&mut self, cids: &[CardId], rating: i32) -> Result<OpOutput<()>> {
+        self.transact(Op::GradeNow, |col| {
+            for &card_id in cids {
+                let states = col.get_scheduling_states(card_id)?;
+                let new_state = match rating {
+                    0 => states.again,
+                    1 => states.hard,
+                    2 => states.good,
+                    3 => states.easy,
+                    _ => invalid_input!("invalid rating"),
+                };
+                let mut answer: CardAnswer = anki_proto::scheduler::CardAnswer {
+                    card_id: card_id.into(),
+                    current_state: Some(states.current.into()),
+                    new_state: Some(new_state.into()),
+                    rating,
+                    milliseconds_taken: 0,
+                    answered_at_millis: TimestampMillis::now().into(),
+                }
+                .into();
+                // Process the card without updating queues yet
+                answer.from_queue = false;
+                col.answer_card_inner(&mut answer)?;
             }
             Ok(())
         })
@@ -196,26 +250,26 @@ mod test {
         let mut c = Card::new(NoteId(0), 0, DeckId(0), 0);
 
         // setting the due date of a new card will convert it
-        c.set_due_date(5, 2, 1.8, false);
+        c.set_due_date(5, 0, 2, 1.8, false);
         assert_eq!(c.ctype, CardType::Review);
         assert_eq!(c.due, 7);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 1800);
 
         // reschedule it again the next day, shifting it from day 7 to day 9
-        c.set_due_date(6, 3, 2.5, false);
+        c.set_due_date(6, 0, 3, 2.5, false);
         assert_eq!(c.due, 9);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 1800); // interval doesn't change
 
         // we can bring cards forward too - return it to its original due date
-        c.set_due_date(6, 1, 2.4, false);
+        c.set_due_date(6, 0, 1, 2.4, false);
         assert_eq!(c.due, 7);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 1800); // interval doesn't change
 
         // we can force the interval to be reset instead of shifted
-        c.set_due_date(6, 3, 2.3, true);
+        c.set_due_date(6, 0, 3, 2.3, true);
         assert_eq!(c.due, 9);
         assert_eq!(c.interval, 3);
         assert_eq!(c.ease_factor, 1800); // interval doesn't change
@@ -227,7 +281,7 @@ mod test {
         c.original_deck_id = DeckId(1);
         c.due = -10000;
         c.queue = CardQueue::New;
-        c.set_due_date(6, 1, 2.2, false);
+        c.set_due_date(6, 0, 1, 2.2, false);
         assert_eq!(c.due, 7);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 2200);
@@ -239,7 +293,7 @@ mod test {
         c.ctype = CardType::Relearn;
         c.original_due = c.due;
         c.due = 12345678;
-        c.set_due_date(6, 10, 2.1, false);
+        c.set_due_date(6, 0, 10, 2.1, false);
         assert_eq!(c.due, 16);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 2200); // interval doesn't change

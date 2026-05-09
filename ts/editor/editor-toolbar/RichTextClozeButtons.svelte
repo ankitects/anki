@@ -14,6 +14,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: richTextAPI = $focusedInput as RichTextInputAPI;
 
     async function onSurround({ detail }): Promise<void> {
+        if (!richTextAPI.isClozeField) {
+            return;
+        }
         const richText = await richTextAPI.element;
         const { prefix, suffix } = detail;
 

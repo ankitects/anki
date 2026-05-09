@@ -6,19 +6,17 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt::Write;
 use std::iter;
+use std::sync::LazyLock;
 
 use anki_i18n::I18n;
-use lazy_static::lazy_static;
-use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_until;
 use nom::combinator::map;
-use nom::combinator::rest;
-use nom::combinator::verify;
 use nom::sequence::delimited;
+use nom::Parser;
 use regex::Regex;
 
-use crate::cloze::add_cloze_numbers_in_string;
+use crate::cloze::cloze_number_in_fields;
 use crate::error::AnkiError;
 use crate::error::Result;
 use crate::error::TemplateError;
@@ -29,11 +27,86 @@ pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
 
 static TEMPLATE_ERROR_LINK: &str =
-    "https://anki.tenderapp.com/kb/problems/card-template-has-a-problem";
+    "https://docs.ankiweb.net/templates/errors.html#template-syntax-error";
 static TEMPLATE_BLANK_LINK: &str =
-    "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank";
+    "https://docs.ankiweb.net/templates/errors.html#front-of-card-is-blank";
 static TEMPLATE_BLANK_CLOZE_LINK: &str =
-    "https://anki.tenderapp.com/kb/problems/no-cloze-found-on-card";
+    "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-note-type";
+
+// Template comment delimiters
+static COMMENT_START: &str = "<!--";
+static COMMENT_END: &str = "-->";
+
+static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TemplateMode {
+    Standard,
+    LegacyAltSyntax,
+}
+
+impl TemplateMode {
+    fn start_tag(&self) -> &'static str {
+        match self {
+            TemplateMode::Standard => "{{",
+            TemplateMode::LegacyAltSyntax => "<%",
+        }
+    }
+
+    fn end_tag(&self) -> &'static str {
+        match self {
+            TemplateMode::Standard => "}}",
+            TemplateMode::LegacyAltSyntax => "%>",
+        }
+    }
+
+    fn handlebar_token<'b>(&self, s: &'b str) -> nom::IResult<&'b str, Token<'b>> {
+        map(
+            delimited(
+                tag(self.start_tag()),
+                take_until(self.end_tag()),
+                tag(self.end_tag()),
+            ),
+            |out| classify_handle(out),
+        )
+        .parse(s)
+    }
+
+    /// Return the next handlebar, comment or text token.
+    fn next_token<'b>(&self, input: &'b str) -> Option<(&'b str, Token<'b>)> {
+        if input.is_empty() {
+            return None;
+        }
+
+        // Loop, starting from the first character
+        for (i, _) in input.char_indices() {
+            let remaining = &input[i..];
+
+            // Valid handlebar clause?
+            if let Ok((after_handlebar, token)) = self.handlebar_token(remaining) {
+                // Found at the start of string, so that's the next token
+                return Some(if i == 0 {
+                    (after_handlebar, token)
+                } else {
+                    // There was some text prior to this, so return it instead
+                    (remaining, Token::Text(&input[..i]))
+                });
+            }
+
+            // Check comments too
+            if let Ok((after_comment, token)) = comment_token(remaining) {
+                return Some(if i == 0 {
+                    (after_comment, token)
+                } else {
+                    (remaining, Token::Text(&input[..i]))
+                });
+            }
+        }
+
+        // If no matches, return the entire input as text, with nothing remaining
+        Some(("", Token::Text(input)))
+    }
+}
 
 // Lexing
 //----------------------------------------
@@ -41,60 +114,44 @@ static TEMPLATE_BLANK_CLOZE_LINK: &str =
 #[derive(Debug)]
 pub enum Token<'a> {
     Text(&'a str),
+    Comment(&'a str),
     Replacement(&'a str),
     OpenConditional(&'a str),
     OpenNegated(&'a str),
     CloseConditional(&'a str),
 }
 
-/// text outside handlebars
-fn text_token(s: &str) -> nom::IResult<&str, Token> {
+fn comment_token(s: &str) -> nom::IResult<&str, Token<'_>> {
     map(
-        verify(alt((take_until("{{"), rest)), |out: &str| !out.is_empty()),
-        Token::Text,
-    )(s)
+        delimited(
+            tag(COMMENT_START),
+            take_until(COMMENT_END),
+            tag(COMMENT_END),
+        ),
+        Token::Comment,
+    )
+    .parse(s)
 }
 
-/// text wrapped in handlebars
-fn handlebar_token(s: &str) -> nom::IResult<&str, Token> {
-    map(delimited(tag("{{"), take_until("}}"), tag("}}")), |out| {
-        classify_handle(out)
-    })(s)
-}
+fn tokens(mut template: &str) -> impl Iterator<Item = TemplateResult<Token<'_>>> {
+    let mode = if template.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
+        template = template
+            .trim_start()
+            .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE);
 
-fn next_token(input: &str) -> nom::IResult<&str, Token> {
-    alt((handlebar_token, text_token))(input)
-}
-
-fn tokens<'a>(template: &'a str) -> Box<dyn Iterator<Item = TemplateResult<Token>> + 'a> {
-    if template.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
-        Box::new(legacy_tokens(
-            template
-                .trim_start()
-                .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE),
-        ))
+        TemplateMode::LegacyAltSyntax
     } else {
-        Box::new(new_tokens(template))
-    }
-}
-
-fn new_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
+        TemplateMode::Standard
+    };
     iter::from_fn(move || {
-        if data.is_empty() {
-            return None;
-        }
-        match next_token(data) {
-            Ok((i, o)) => {
-                data = i;
-                Some(Ok(o))
-            }
-            Err(_e) => Some(Err(TemplateError::NoClosingBrackets(data.to_string()))),
-        }
+        let token;
+        (template, token) = mode.next_token(template)?;
+        Some(Ok(token))
     })
 }
 
 /// classify handle based on leading character
-fn classify_handle(s: &str) -> Token {
+fn classify_handle(s: &str) -> Token<'_> {
     let start = s.trim_start_matches('{').trim();
     if start.len() < 2 {
         return Token::Replacement(start);
@@ -110,75 +167,13 @@ fn classify_handle(s: &str) -> Token {
     }
 }
 
-// Legacy support
-//----------------------------------------
-
-static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
-
-fn legacy_text_token(s: &str) -> nom::IResult<&str, Token> {
-    if s.is_empty() {
-        return Err(nom::Err::Error(nom::error::make_error(
-            s,
-            nom::error::ErrorKind::TakeUntil,
-        )));
-    }
-    // if we locate a starting normal or alternate handlebar, use
-    // whichever one we found first
-    let normal_result: nom::IResult<&str, &str> = take_until("{{")(s);
-    let (normal_remaining, normal_span) = normal_result.unwrap_or(("", s));
-    let alt_result: nom::IResult<&str, &str> = take_until("<%")(s);
-    let (alt_remaining, alt_span) = alt_result.unwrap_or(("", s));
-    match (normal_span.len(), alt_span.len()) {
-        (0, 0) => {
-            // neither handlebar kind found
-            map(rest, Token::Text)(s)
-        }
-        (n, a) => {
-            if n < a {
-                Ok((normal_remaining, Token::Text(normal_span)))
-            } else {
-                Ok((alt_remaining, Token::Text(alt_span)))
-            }
-        }
-    }
-}
-
-fn legacy_next_token(input: &str) -> nom::IResult<&str, Token> {
-    alt((
-        handlebar_token,
-        alternate_handlebar_token,
-        legacy_text_token,
-    ))(input)
-}
-
-/// text wrapped in <% %>
-fn alternate_handlebar_token(s: &str) -> nom::IResult<&str, Token> {
-    map(delimited(tag("<%"), take_until("%>"), tag("%>")), |out| {
-        classify_handle(out)
-    })(s)
-}
-
-fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
-    iter::from_fn(move || {
-        if data.is_empty() {
-            return None;
-        }
-        match legacy_next_token(data) {
-            Ok((i, o)) => {
-                data = i;
-                Some(Ok(o))
-            }
-            Err(_e) => Some(Err(TemplateError::NoClosingBrackets(data.to_string()))),
-        }
-    })
-}
-
 // Parsing
 //----------------------------------------
 
 #[derive(Debug, PartialEq, Eq)]
 enum ParsedNode {
     Text(String),
+    Comment(String),
     Replacement {
         key: String,
         filters: Vec<String>,
@@ -214,6 +209,7 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
         use Token::*;
         nodes.push(match token? {
             Text(t) => ParsedNode::Text(t.into()),
+            Comment(t) => ParsedNode::Comment(t.into()),
             Replacement(t) => {
                 let mut it = t.rsplit(':');
                 ParsedNode::Replacement {
@@ -269,10 +265,8 @@ fn template_error_to_anki_error(
     };
     let details = htmlescape::encode_minimal(&localized_template_error(tr, err));
     let more_info = tr.card_template_rendering_more_info();
-    let source = format!(
-        "{}<br>{}<br><a href='{}'>{}</a>",
-        header, details, TEMPLATE_ERROR_LINK, more_info
-    );
+    let source =
+        format!("{header}<br>{details}<br><a href='{TEMPLATE_ERROR_LINK}'>{more_info}</a>");
 
     AnkiError::TemplateError { info: source }
 }
@@ -283,32 +277,29 @@ fn localized_template_error(tr: &I18n, err: TemplateError) -> String {
             .card_template_rendering_no_closing_brackets("}}", tag)
             .into(),
         TemplateError::ConditionalNotClosed(tag) => tr
-            .card_template_rendering_conditional_not_closed(format!("{{{{/{}}}}}", tag))
+            .card_template_rendering_conditional_not_closed(format!("{{{{/{tag}}}}}"))
             .into(),
         TemplateError::ConditionalNotOpen {
             closed,
             currently_open,
         } => if let Some(open) = currently_open {
             tr.card_template_rendering_wrong_conditional_closed(
-                format!("{{{{/{}}}}}", closed),
-                format!("{{{{/{}}}}}", open),
+                format!("{{{{/{closed}}}}}"),
+                format!("{{{{/{open}}}}}"),
             )
         } else {
             tr.card_template_rendering_conditional_not_open(
-                format!("{{{{/{}}}}}", closed),
-                format!("{{{{#{}}}}}", closed),
-                format!("{{{{^{}}}}}", closed),
+                format!("{{{{/{closed}}}}}"),
+                format!("{{{{#{closed}}}}}"),
+                format!("{{{{^{closed}}}}}"),
             )
         }
         .into(),
         TemplateError::FieldNotFound { field, filters } => tr
-            .card_template_rendering_no_such_field(format!("{{{{{}{}}}}}", filters, field), field)
+            .card_template_rendering_no_such_field(format!("{{{{{filters}{field}}}}}"), field)
             .into(),
         TemplateError::NoSuchConditional(condition) => tr
-            .card_template_rendering_no_such_field(
-                format!("{{{{{}}}}}", condition),
-                &condition[1..],
-            )
+            .card_template_rendering_no_such_field(format!("{{{{{condition}}}}}"), &condition[1..])
             .into(),
     }
 }
@@ -339,7 +330,7 @@ fn template_is_empty(
     for node in nodes {
         match node {
             // ignore normal text
-            Text(_) => (),
+            Text(_) | Comment(_) => (),
             Replacement { key, .. } => {
                 if nonempty_fields.contains(key.as_str()) {
                     // a single replacement is enough
@@ -423,6 +414,11 @@ fn render_into(
         match node {
             Text(text) => {
                 append_str_to_nodes(rendered_nodes, text);
+            }
+            Comment(comment) => {
+                append_str_to_nodes(rendered_nodes, COMMENT_START);
+                append_str_to_nodes(rendered_nodes, comment);
+                append_str_to_nodes(rendered_nodes, COMMENT_END);
             }
             Replacement { key, .. } if key == "FrontSide" => {
                 let frontside = context.frontside.as_ref().copied().unwrap_or_default();
@@ -514,7 +510,7 @@ fn render_into(
     Ok(())
 }
 
-impl<'a> RenderContext<'a> {
+impl RenderContext<'_> {
     fn evaluate_conditional(&self, key: &str, negated: bool) -> TemplateResult<bool> {
         if self.nonempty_fields.contains(key) {
             Ok(true ^ negated)
@@ -522,10 +518,7 @@ impl<'a> RenderContext<'a> {
             Ok(false ^ negated)
         } else {
             let prefix = if negated { "^" } else { "#" };
-            Err(TemplateError::NoSuchConditional(format!(
-                "{}{}",
-                prefix, key
-            )))
+            Err(TemplateError::NoSuchConditional(format!("{prefix}{key}")))
         }
     }
 }
@@ -548,18 +541,18 @@ fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
 
 /// True if provided text contains only whitespace and/or empty BR/DIV tags.
 pub(crate) fn field_is_empty(text: &str) -> bool {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(
             r"(?xsi)
             ^(?:
             [[:space:]]
             |
             </?(?:br|div)\ ?/?>
             )*$
-        "
+        ",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     RE.is_match(text)
 }
 
@@ -594,6 +587,13 @@ pub struct RenderCardRequest<'a> {
     pub partial_render: bool,
 }
 
+pub struct RenderCardResponse {
+    pub qnodes: Vec<RenderedNode>,
+    pub anodes: Vec<RenderedNode>,
+    pub is_empty: bool,
+}
+
+/// Returns `(qnodes, anodes, is_empty)`
 pub fn render_card(
     RenderCardRequest {
         qfmt,
@@ -605,7 +605,7 @@ pub fn render_card(
         tr,
         partial_render: partial_for_python,
     }: RenderCardRequest<'_>,
-) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
+) -> Result<RenderCardResponse> {
     // prepare context
     let mut context = RenderContext {
         fields: field_map,
@@ -628,7 +628,7 @@ pub fn render_card(
             TEMPLATE_BLANK_CLOZE_LINK,
             tr.card_template_rendering_more_info()
         ))
-    } else if !is_cloze && !qtmpl.renders_with_fields(context.nonempty_fields) {
+    } else if !is_cloze && !browser && !qtmpl.renders_with_fields(context.nonempty_fields) {
         Some(format!(
             "<div>{}<br><a href='{}'>{}</a></div>",
             tr.card_template_rendering_empty_front(),
@@ -640,14 +640,18 @@ pub fn render_card(
     };
     if let Some(text) = empty_message {
         qnodes.push(RenderedNode::Text { text: text.clone() });
-        return Ok((qnodes, vec![RenderedNode::Text { text }]));
+        return Ok(RenderCardResponse {
+            qnodes,
+            anodes: vec![RenderedNode::Text { text }],
+            is_empty: true,
+        });
     }
 
     // answer side
     context.frontside = if context.partial_for_python {
         Some("")
     } else {
-        let Some(RenderedNode::Text { text }) = &qnodes.get(0) else {
+        let Some(RenderedNode::Text { text }) = &qnodes.first() else {
             invalid_input!("should not happen: first node not text");
         };
         Some(text)
@@ -656,15 +660,15 @@ pub fn render_card(
         .and_then(|tmpl| tmpl.render(&context, tr))
         .map_err(|e| template_error_to_anki_error(e, false, browser, tr))?;
 
-    Ok((qnodes, anodes))
+    Ok(RenderCardResponse {
+        qnodes,
+        anodes,
+        is_empty: false,
+    })
 }
 
 fn cloze_is_empty(field_map: &HashMap<&str, Cow<str>>, card_ord: u16) -> bool {
-    let mut set = HashSet::with_capacity(4);
-    for field in field_map.values() {
-        add_cloze_numbers_in_string(field.as_ref(), &mut set);
-    }
-    !set.contains(&(card_ord + 1))
+    !cloze_number_in_fields(field_map.values()).contains(&(card_ord + 1))
 }
 
 // Field requirements
@@ -730,6 +734,25 @@ impl ParsedTemplate {
         let old_nodes = std::mem::take(&mut self.0);
         self.0 = rename_and_remove_fields(old_nodes, fields);
     }
+
+    pub(crate) fn contains_cloze_replacement(&self) -> bool {
+        !self.all_referenced_cloze_field_names().is_empty()
+    }
+
+    pub(crate) fn contains_field_replacement(&self) -> bool {
+        let mut set = HashSet::new();
+        find_field_references(&self.0, &mut set, false, false);
+        !set.is_empty()
+    }
+
+    pub(crate) fn add_missing_field_replacement(&mut self, field_name: &str, is_cloze: bool) {
+        let key = String::from(field_name);
+        let filters = match is_cloze {
+            true => vec![String::from("cloze")],
+            false => Vec::new(),
+        };
+        self.0.push(ParsedNode::Replacement { key, filters });
+    }
 }
 
 fn rename_and_remove_fields(
@@ -740,6 +763,7 @@ fn rename_and_remove_fields(
     for node in nodes {
         match node {
             ParsedNode::Text(text) => out.push(ParsedNode::Text(text)),
+            ParsedNode::Comment(text) => out.push(ParsedNode::Comment(text)),
             ParsedNode::Replacement { key, filters } => {
                 match fields.get(&key) {
                     // delete the field
@@ -801,6 +825,11 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
     for node in nodes {
         match node {
             ParsedNode::Text(text) => buf.push_str(text),
+            ParsedNode::Comment(text) => {
+                buf.push_str(COMMENT_START);
+                buf.push_str(text);
+                buf.push_str(COMMENT_END);
+            }
             ParsedNode::Replacement { key, filters } => {
                 write!(
                     buf,
@@ -816,14 +845,14 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
                 .unwrap();
             }
             ParsedNode::Conditional { key, children } => {
-                write!(buf, "{{{{#{}}}}}", key).unwrap();
+                write!(buf, "{{{{#{key}}}}}").unwrap();
                 nodes_to_string(buf, children);
-                write!(buf, "{{{{/{}}}}}", key).unwrap();
+                write!(buf, "{{{{/{key}}}}}").unwrap();
             }
             ParsedNode::NegatedConditional { key, children } => {
-                write!(buf, "{{{{^{}}}}}", key).unwrap();
+                write!(buf, "{{{{^{key}}}}}").unwrap();
                 nodes_to_string(buf, children);
-                write!(buf, "{{{{/{}}}}}", key).unwrap();
+                write!(buf, "{{{{/{key}}}}}").unwrap();
             }
         }
     }
@@ -857,6 +886,7 @@ fn find_field_references<'a>(
     for node in nodes {
         match node {
             ParsedNode::Text(_) => {}
+            ParsedNode::Comment(_) => {}
             ParsedNode::Replacement { key, filters } => {
                 if !cloze_only || filters.iter().any(|f| f == "cloze") {
                     fields.insert(key);
@@ -875,7 +905,7 @@ fn find_field_references<'a>(
 
 fn is_cloze_conditional(key: &str) -> bool {
     key.strip_prefix('c')
-        .map_or(false, |s| s.parse::<u32>().is_ok())
+        .is_some_and(|s| s.parse::<u32>().is_ok())
 }
 
 // Tests
@@ -896,6 +926,8 @@ mod test {
     use crate::template::FieldRequirements;
     use crate::template::RenderCardRequest;
     use crate::template::RenderContext;
+    use crate::template::COMMENT_END;
+    use crate::template::COMMENT_START;
 
     #[test]
     fn field_empty() {
@@ -910,6 +942,11 @@ mod test {
 
     #[test]
     fn parsing() {
+        let orig = "";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(tmpl.0, vec![]);
+        assert_eq!(orig, &tmpl.template_to_string());
+
         let orig = "foo {{bar}} {{#baz}} quux {{/baz}}";
         let tmpl = PT::from_text(orig).unwrap();
         assert_eq!(
@@ -929,6 +966,38 @@ mod test {
         );
         assert_eq!(orig, &tmpl.template_to_string());
 
+        // Hardcode comment delimiters into tests to keep them concise
+        assert_eq!(COMMENT_START, "<!--");
+        assert_eq!(COMMENT_END, "-->");
+
+        let orig = "foo <!--{{bar }} --> {{#baz}} --> <!-- <!-- {{#def}} --> \u{123}-->\u{456}<!-- 2 --><!----> <!-- quux {{/baz}} <!-- {{nc:abc}}";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(
+            tmpl.0,
+            vec![
+                Text("foo ".into()),
+                Comment("{{bar }} ".into()),
+                Text(" ".into()),
+                Conditional {
+                    key: "baz".into(),
+                    children: vec![
+                        Text(" --> ".into()),
+                        Comment(" <!-- {{#def}} ".into()),
+                        Text(" \u{123}-->\u{456}".into()),
+                        Comment(" 2 ".into()),
+                        Comment("".into()),
+                        Text(" <!-- quux ".into()),
+                    ]
+                },
+                Text(" <!-- ".into()),
+                Replacement {
+                    key: "abc".into(),
+                    filters: vec!["nc".into()]
+                }
+            ]
+        );
+        assert_eq!(orig, &tmpl.template_to_string());
+
         let tmpl = PT::from_text("{{^baz}}{{/baz}}").unwrap();
         assert_eq!(
             tmpl.0,
@@ -941,6 +1010,10 @@ mod test {
         PT::from_text("{{#mis}}{{/matched}}").unwrap_err();
         PT::from_text("{{/matched}}").unwrap_err();
         PT::from_text("{{#mis}}").unwrap_err();
+        PT::from_text("{{#mis}}<!--{{/matched}}-->").unwrap_err();
+        PT::from_text("<!--{{#mis}}{{/matched}}-->").unwrap();
+        PT::from_text("<!--{{foo}}").unwrap();
+        PT::from_text("{{foo}}-->").unwrap();
 
         // whitespace
         assert_eq!(
@@ -957,12 +1030,13 @@ mod test {
             vec![Text("text }} more".into())]
         );
 
-        PT::from_text("{{").unwrap_err();
-        PT::from_text(" {{").unwrap_err();
-        PT::from_text(" {{ ").unwrap_err();
-
         // make sure filters and so on are round-tripped correctly
         let orig = "foo {{one:two}} {{one:two:three}} {{^baz}} {{/baz}} {{foo:}}";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(orig, &tmpl.template_to_string());
+
+        let orig =
+            "foo {{one:two}} <!--<!--abc {{^def}}-->--> {{one:two:three}} {{^baz}} <!-- {{/baz}} 🙂 --> {{/baz}} {{foo:}}";
         let tmpl = PT::from_text(orig).unwrap();
         assert_eq!(orig, &tmpl.template_to_string());
     }
@@ -1039,9 +1113,32 @@ mod test {
         )
         .unwrap();
 
+        // Hardcode comment delimiters into tests to keep them concise
+        assert_eq!(COMMENT_START, "<!--");
+        assert_eq!(COMMENT_END, "-->");
+
         assert_eq!(
             tmpl.requirements(&field_map),
             FieldRequirements::Any(vec![0, 1].into_iter().collect())
+        );
+
+        tmpl = PT::from_text(
+            r#"
+<!--{{^a}}-->
+    {{b}}
+<!--{{/a}}-->
+{{#c}}
+    <!--{{a}}-->
+    {{b}}
+    <!--{{c}}-->
+{{/c}}
+"#,
+        )
+        .unwrap();
+
+        assert_eq!(
+            tmpl.requirements(&field_map),
+            FieldRequirements::Any(vec![1].into_iter().collect())
         );
     }
 
@@ -1076,19 +1173,12 @@ mod test {
         assert_eq!(
             PT::from_text(input).unwrap().0,
             vec![
-                Text("\n".into()),
-                Conditional {
-                    key: "foo".into(),
-                    children: vec![
-                        Text("\n".into()),
-                        Replacement {
-                            key: "Front".into(),
-                            filters: vec![]
-                        },
-                        Text("\n".into())
-                    ]
+                Text("\n{{#foo}}\n".into()),
+                Replacement {
+                    key: "Front".into(),
+                    filters: vec![]
                 },
-                Text("\n".into())
+                Text("\n{{/foo}}\n".into())
             ]
         );
     }
@@ -1135,6 +1225,24 @@ mod test {
             tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Text {
                 text: "12f".to_owned()
+            },]
+        );
+
+        // Hardcode comment delimiters into tests to keep them concise
+        assert_eq!(COMMENT_START, "<!--");
+        assert_eq!(COMMENT_END, "-->");
+
+        // commented
+        tmpl = PT::from_text(
+            "{{^E}}1<!--{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}-->\u{123}<!-- this is a comment -->{{/E}}\u{456}",
+        )
+        .unwrap();
+        assert_eq!(
+            tmpl.render(&ctx, &tr).unwrap(),
+            vec![FN::Text {
+                text:
+                    "1<!--{{#F}}2{{#B}}{{F}}{{/B}}{{/F}}-->\u{123}<!-- this is a comment -->\u{456}"
+                        .to_owned()
             },]
         );
 
@@ -1231,14 +1339,15 @@ mod test {
             tr: &tr,
             partial_render: true,
         };
-        let qnodes = super::render_card(req.clone()).unwrap().0;
+        let response = super::render_card(req.clone()).unwrap();
         assert_eq!(
-            qnodes[0],
+            response.qnodes[0],
             FN::Text {
                 text: "test".into()
             }
         );
-        if let FN::Text { ref text } = qnodes[1] {
+        assert!(response.is_empty);
+        if let FN::Text { ref text } = response.qnodes[1] {
             assert!(text.contains("card is blank"));
         } else {
             unreachable!();
@@ -1247,9 +1356,9 @@ mod test {
         // a popular card template expects {{FrontSide}} to resolve to an empty
         // string on the front side :-(
         req.qfmt = "{{FrontSide}}{{N}}";
-        let qnodes = super::render_card(req.clone()).unwrap().0;
+        let response = super::render_card(req.clone()).unwrap();
         assert_eq!(
-            &qnodes,
+            &response.qnodes,
             &[
                 FN::Replacement {
                     field_name: "FrontSide".into(),
@@ -1259,8 +1368,10 @@ mod test {
                 FN::Text { text: "N".into() }
             ]
         );
+        assert!(!response.is_empty);
         req.partial_render = false;
-        let qnodes = super::render_card(req.clone()).unwrap().0;
-        assert_eq!(&qnodes, &[FN::Text { text: "N".into() }]);
+        let response = super::render_card(req.clone()).unwrap();
+        assert_eq!(&response.qnodes, &[FN::Text { text: "N".into() }]);
+        assert!(!response.is_empty);
     }
 }

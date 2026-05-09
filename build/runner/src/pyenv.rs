@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::fs;
 use std::process::Command;
 
 use camino::Utf8Path;
@@ -10,12 +11,11 @@ use crate::run::run_command;
 
 #[derive(Args)]
 pub struct PyenvArgs {
-    python_bin: String,
+    uv_bin: String,
     pyenv_folder: String,
-    initial_reqs: String,
-    reqs: Vec<String>,
-    #[arg(long, allow_hyphen_values(true))]
-    venv_args: Vec<String>,
+    python: String,
+    #[arg(trailing_var_arg = true)]
+    extra_args: Vec<String>,
 }
 
 /// Set up a venv if one doesn't already exist, and then sync packages with
@@ -23,35 +23,36 @@ pub struct PyenvArgs {
 pub fn setup_pyenv(args: PyenvArgs) {
     let pyenv_folder = Utf8Path::new(&args.pyenv_folder);
 
-    let pyenv_bin_folder = pyenv_folder.join(if cfg!(windows) { "scripts" } else { "bin" });
-    let pyenv_python = pyenv_bin_folder.join("python");
-    let pip_sync = pyenv_bin_folder.join("pip-sync");
-
-    if !pyenv_python.exists() {
-        run_command(
-            Command::new(&args.python_bin)
-                .args(["-m", "venv"])
-                .args(args.venv_args)
-                .arg(pyenv_folder),
-        );
-
-        if cfg!(windows) {
-            // the first install on Windows throws an error the first time pip is upgraded,
-            // so we install it twice and swallow the first error
-            let _output = Command::new(&pyenv_python)
-                .args(["-m", "pip", "install", "-r", &args.initial_reqs])
-                .output()
-                .unwrap();
+    // On first run, ninja creates an empty bin/ folder which breaks the initial
+    // install. But we don't want to indiscriminately remove the folder, or
+    // macOS Gatekeeper needs to rescan the files each time.
+    if pyenv_folder.exists() {
+        let cache_tag = pyenv_folder.join("CACHEDIR.TAG");
+        if !cache_tag.exists() {
+            fs::remove_dir_all(pyenv_folder).expect("Failed to remove existing pyenv folder");
         }
-
-        run_command(Command::new(pyenv_python).args([
-            "-m",
-            "pip",
-            "install",
-            "-r",
-            &args.initial_reqs,
-        ]));
     }
 
-    run_command(Command::new(pip_sync).args(&args.reqs));
+    let mut command = Command::new(args.uv_bin);
+
+    // remove UV_* environment variables to avoid interference
+    for (key, _) in std::env::vars() {
+        if key.starts_with("UV_") || key == "VIRTUAL_ENV" {
+            command.env_remove(key);
+        }
+    }
+
+    // Never use `--no-config` here: `[tool.uv] exclude-newer` must be read so the
+    // lockfile cutoff matches `uv sync --locked`. UV_* env vars are cleared
+    // above for isolation.
+    run_command(
+        command
+            .env("UV_PROJECT_ENVIRONMENT", args.pyenv_folder.clone())
+            .args(["sync", "--locked"])
+            .args(["--python", &args.python])
+            .args(args.extra_args),
+    );
+
+    // Write empty stamp file
+    fs::write(pyenv_folder.join(".stamp"), "").expect("Failed to write stamp file");
 }

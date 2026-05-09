@@ -9,6 +9,7 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::result;
 
+use anki_proto::stats::CardEntry;
 use rusqlite::named_params;
 use rusqlite::params;
 use rusqlite::types::FromSql;
@@ -19,6 +20,7 @@ use rusqlite::Row;
 
 use self::data::CardData;
 use super::ids_to_string;
+use super::sqlite::SqlSortOrder;
 use crate::card::Card;
 use crate::card::CardId;
 use crate::card::CardQueue;
@@ -31,13 +33,22 @@ use crate::decks::DeckKind;
 use crate::error::Result;
 use crate::notes::NoteId;
 use crate::scheduler::congrats::CongratsInfo;
+use crate::scheduler::fsrs::memory_state::get_last_revlog_info;
 use crate::scheduler::queue::BuryMode;
 use crate::scheduler::queue::DueCard;
 use crate::scheduler::queue::DueCardKind;
 use crate::scheduler::queue::NewCard;
+use crate::scheduler::timing::SchedTimingToday;
 use crate::timestamp::TimestampMillis;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct CardFixStats {
+    pub new_cards_fixed: usize,
+    pub other_cards_fixed: usize,
+    pub last_review_time_fixed: usize,
+}
 
 impl FromSql for CardType {
     fn column_result(value: ValueRef<'_>) -> result::Result<Self, FromSqlError> {
@@ -80,7 +91,19 @@ fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
         original_deck_id: row.get(15)?,
         flags: row.get(16)?,
         original_position: data.original_position,
+        memory_state: data.memory_state(),
+        desired_retention: data.fsrs_desired_retention,
+        decay: data.decay,
+        last_review_time: data.last_review_time,
         custom_data: data.custom_data,
+    })
+}
+
+fn row_to_card_entry(row: &Row) -> Result<CardEntry> {
+    Ok(CardEntry {
+        id: row.get(0)?,
+        note_id: row.get(1)?,
+        deck_id: row.get(2)?,
     })
 }
 
@@ -105,6 +128,13 @@ impl super::SqliteStorage {
             .map_err(Into::into)
     }
 
+    pub(crate) fn get_all_card_entries(&self) -> Result<Vec<CardEntry>> {
+        self.db
+            .prepare_cached(include_str!("get_card_entry.sql"))?
+            .query_and_then([], row_to_card_entry)?
+            .collect()
+    }
+
     pub(crate) fn update_card(&self, card: &Card) -> Result<()> {
         let mut stmt = self.db.prepare_cached(include_str!("update_card.sql"))?;
         stmt.execute(params![
@@ -124,7 +154,7 @@ impl super::SqliteStorage {
             card.original_due,
             card.original_deck_id,
             card.flags,
-            CardData::from_card(card),
+            CardData::from_card(card).convert_to_json()?,
             card.id,
         ])?;
         Ok(())
@@ -151,7 +181,7 @@ impl super::SqliteStorage {
             card.original_due,
             card.original_deck_id,
             card.flags,
-            CardData::from_card(card),
+            CardData::from_card(card).convert_to_json()?,
         ])?;
         card.id = CardId(self.db.last_insert_rowid());
         Ok(())
@@ -179,7 +209,7 @@ impl super::SqliteStorage {
                 card.original_due,
                 card.original_deck_id,
                 card.flags,
-                CardData::from_card(card),
+                CardData::from_card(card).convert_to_json()?,
             ])
             .map(|n_rows| n_rows == 1)
             .map_err(Into::into)
@@ -206,7 +236,7 @@ impl super::SqliteStorage {
             card.original_due,
             card.original_deck_id,
             card.flags,
-            CardData::from_card(card),
+            CardData::from_card(card).convert_to_json()?,
         ])?;
 
         Ok(())
@@ -237,6 +267,7 @@ impl super::SqliteStorage {
                 mtime: row.get(3)?,
                 current_deck_id: row.get(4)?,
                 original_deck_id: row.get(5)?,
+                reps: row.get(6)?,
                 kind: DueCardKind::Learning,
             })
         }
@@ -248,15 +279,16 @@ impl super::SqliteStorage {
     /// when it returns false or no more cards found.
     pub(crate) fn for_each_due_card_in_active_decks<F>(
         &self,
-        day_cutoff: u32,
+        timing: SchedTimingToday,
         order: ReviewCardOrder,
         kind: DueCardKind,
+        fsrs: bool,
         mut func: F,
     ) -> Result<()>
     where
         F: FnMut(DueCard) -> Result<bool>,
     {
-        let order_clause = review_order_sql(order, day_cutoff);
+        let order_clause = review_order_sql(order, timing, fsrs);
         let mut stmt = self.db.prepare_cached(&format!(
             "{} order by {}",
             include_str!("due_cards.sql"),
@@ -266,7 +298,7 @@ impl super::SqliteStorage {
             DueCardKind::Review => CardQueue::Review,
             DueCardKind::Learning => CardQueue::DayLearn,
         };
-        let mut rows = stmt.query(params![queue as i8, day_cutoff])?;
+        let mut rows = stmt.query(params![queue as i8, timing.days_elapsed])?;
         while let Some(row) = rows.next()? {
             if !func(DueCard {
                 id: row.get(0)?,
@@ -275,6 +307,7 @@ impl super::SqliteStorage {
                 mtime: row.get(4)?,
                 current_deck_id: row.get(5)?,
                 original_deck_id: row.get(6)?,
+                reps: row.get(7)?,
                 kind,
             })? {
                 break;
@@ -286,13 +319,19 @@ impl super::SqliteStorage {
 
     /// Call func() for each new card in the provided deck, stopping when it
     /// returns or no more cards found.
-    pub(crate) fn for_each_new_card_in_deck<F>(&self, deck: DeckId, mut func: F) -> Result<()>
+    pub(crate) fn for_each_new_card_in_deck<F>(
+        &self,
+        deck: DeckId,
+        sort: NewCardSorting,
+        mut func: F,
+    ) -> Result<()>
     where
         F: FnMut(NewCard) -> Result<bool>,
     {
         let mut stmt = self.db.prepare_cached(&format!(
-            "{} ORDER BY due, ord ASC",
-            include_str!("new_cards.sql")
+            "{} ORDER BY {}",
+            include_str!("new_cards.sql"),
+            sort.write()
         ))?;
         let mut rows = stmt.query(params![deck])?;
         while let Some(row) = rows.next()? {
@@ -336,7 +375,7 @@ impl super::SqliteStorage {
         mtime: TimestampSecs,
         usn: Usn,
         v1_sched: bool,
-    ) -> Result<(usize, usize)> {
+    ) -> Result<CardFixStats> {
         let new_cnt = self
             .db
             .prepare(include_str!("fix_due_new.sql"))?
@@ -361,7 +400,26 @@ impl super::SqliteStorage {
             .db
             .prepare(include_str!("fix_ordinal.sql"))?
             .execute(params![mtime, usn])?;
-        Ok((new_cnt, other_cnt))
+        let mut last_review_time_cnt = 0;
+        let revlog = self.get_all_revlog_entries_in_card_order()?;
+        let last_revlog_info = get_last_revlog_info(&revlog);
+        for (card_id, last_revlog_info) in last_revlog_info {
+            let card = self.get_card(card_id)?;
+            if last_revlog_info.last_reviewed_at.is_none() {
+                continue;
+            } else if let Some(mut card) = card {
+                if card.ctype != CardType::New && card.last_review_time.is_none() {
+                    card.last_review_time = last_revlog_info.last_reviewed_at;
+                    self.update_card(&card)?;
+                    last_review_time_cnt += 1;
+                }
+            }
+        }
+        Ok(CardFixStats {
+            new_cards_fixed: new_cnt,
+            other_cards_fixed: other_cnt,
+            last_review_time_fixed: last_review_time_cnt,
+        })
     }
 
     pub(crate) fn delete_orphaned_cards(&self) -> Result<usize> {
@@ -571,9 +629,44 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn get_all_cards_due_in_range(
+        &self,
+        min_day: u32,
+        max_day: u32,
+    ) -> Result<Vec<Vec<(CardId, NoteId, DeckId)>>> {
+        Ok(self
+            .db
+            .prepare_cached("select id, nid, did, due from cards where due >= ?1 and due < ?2 ")?
+            .query_and_then([min_day, max_day], |row: &Row| {
+                Ok::<_, rusqlite::Error>((
+                    row.get::<_, CardId>(0)?,
+                    row.get::<_, NoteId>(1)?,
+                    row.get::<_, DeckId>(2)?,
+                    row.get::<_, i32>(3)?,
+                ))
+            })?
+            .flatten()
+            .fold(
+                vec![Vec::new(); (max_day - min_day) as usize],
+                |mut acc, (card_id, note_id, deck_id, due)| {
+                    acc[due as usize - min_day as usize].push((card_id, note_id, deck_id));
+                    acc
+                },
+            ))
+    }
+
+    pub(crate) fn get_deck_due_counts(&self) -> Result<Vec<(DeckId, i32, usize)>> {
+        self.db
+            .prepare(include_str!("deck_due_counts.sql"))?
+            .query_and_then([], |row| -> Result<_> {
+                Ok((DeckId(row.get(0)?), row.get(1)?, row.get(2)?))
+            })?
+            .collect()
+    }
+
     pub(crate) fn congrats_info(&self, current: &Deck, today: u32) -> Result<CongratsInfo> {
-        // FIXME: when v1/v2 are dropped, this line will become obsolete, as it's run
-        // on queue build by v3
+        // NOTE: this line is obsolete in v3 as it's run on queue build, but kept to
+        // prevent errors for v1/v2 users before they upgrade
         self.update_active_decks(current)?;
         self.db
             .prepare(include_str!("congrats.sql"))?
@@ -670,6 +763,20 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn get_card_count_with_ignore_before(
+        &self,
+        ignore_before: TimestampMillis,
+    ) -> Result<u64> {
+        Ok(self
+            .db
+            .prepare(include_str!("get_ignored_before_count.sql"))?
+            .query(params![ignore_before.0])?
+            .next()
+            .unwrap()
+            .unwrap()
+            .get(0)?)
+    }
+
     #[cfg(test)]
     pub(crate) fn get_all_cards(&self) -> Vec<Card> {
         self.db
@@ -683,7 +790,7 @@ impl super::SqliteStorage {
 }
 
 #[derive(Clone, Copy)]
-enum ReviewOrderSubclause {
+pub(crate) enum ReviewOrderSubclause {
     Day,
     Deck,
     Random,
@@ -691,7 +798,20 @@ enum ReviewOrderSubclause {
     IntervalsDescending,
     EaseAscending,
     EaseDescending,
-    RelativeOverdueness { today: u32 },
+    /// FSRS
+    DifficultyAscending,
+    /// FSRS
+    DifficultyDescending,
+    RetrievabilityFsrs {
+        timing: SchedTimingToday,
+        order: SqlSortOrder,
+    },
+    RelativeOverdueness {
+        fsrs: bool,
+        timing: SchedTimingToday,
+    },
+    Added,
+    ReverseAdded,
 }
 
 impl fmt::Display for ReviewOrderSubclause {
@@ -705,28 +825,74 @@ impl fmt::Display for ReviewOrderSubclause {
             ReviewOrderSubclause::IntervalsDescending => "ivl desc",
             ReviewOrderSubclause::EaseAscending => "factor asc",
             ReviewOrderSubclause::EaseDescending => "factor desc",
-            ReviewOrderSubclause::RelativeOverdueness { today } => {
-                temp_string = format!("ivl / cast({today}-due+0.001 as real)", today = today);
+            ReviewOrderSubclause::DifficultyAscending => "extract_fsrs_variable(data, 'd') asc",
+            ReviewOrderSubclause::DifficultyDescending => "extract_fsrs_variable(data, 'd') desc",
+            ReviewOrderSubclause::RetrievabilityFsrs { timing, order } => {
+                let today = timing.days_elapsed;
+                let next_day_at = timing.next_day_at.0;
+                let now = timing.now.0;
+                temp_string =
+                    format!("extract_fsrs_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) {order}");
                 &temp_string
             }
+            ReviewOrderSubclause::RelativeOverdueness { fsrs, timing } => {
+                let today = timing.days_elapsed;
+                let next_day_at = timing.next_day_at.0;
+                let now = timing.now.0;
+                temp_string = if *fsrs {
+                    format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) asc")
+                } else {
+                    format!(
+                        // - (elapsed days+0.001)/(scheduled interval)
+                        "-(1 + cast({today}-due+0.001 as real)/ivl) asc"
+                    )
+                };
+                &temp_string
+            }
+            ReviewOrderSubclause::Added => "nid asc, ord asc",
+            ReviewOrderSubclause::ReverseAdded => "nid desc, ord asc",
         };
-        write!(f, "{}", clause)
+        write!(f, "{clause}")
     }
 }
 
-fn review_order_sql(order: ReviewCardOrder, today: u32) -> String {
+fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool) -> String {
     let mut subclauses = match order {
         ReviewCardOrder::Day => vec![ReviewOrderSubclause::Day],
         ReviewCardOrder::DayThenDeck => vec![ReviewOrderSubclause::Day, ReviewOrderSubclause::Deck],
         ReviewCardOrder::DeckThenDay => vec![ReviewOrderSubclause::Deck, ReviewOrderSubclause::Day],
         ReviewCardOrder::IntervalsAscending => vec![ReviewOrderSubclause::IntervalsAscending],
         ReviewCardOrder::IntervalsDescending => vec![ReviewOrderSubclause::IntervalsDescending],
-        ReviewCardOrder::EaseAscending => vec![ReviewOrderSubclause::EaseAscending],
-        ReviewCardOrder::EaseDescending => vec![ReviewOrderSubclause::EaseDescending],
+        ReviewCardOrder::EaseAscending => {
+            vec![if fsrs {
+                ReviewOrderSubclause::DifficultyDescending
+            } else {
+                ReviewOrderSubclause::EaseAscending
+            }]
+        }
+        ReviewCardOrder::EaseDescending => vec![if fsrs {
+            ReviewOrderSubclause::DifficultyAscending
+        } else {
+            ReviewOrderSubclause::EaseDescending
+        }],
+        ReviewCardOrder::RetrievabilityAscending => {
+            vec![ReviewOrderSubclause::RetrievabilityFsrs {
+                timing,
+                order: SqlSortOrder::Ascending,
+            }]
+        }
+        ReviewCardOrder::RetrievabilityDescending => {
+            vec![ReviewOrderSubclause::RetrievabilityFsrs {
+                timing,
+                order: SqlSortOrder::Descending,
+            }]
+        }
         ReviewCardOrder::RelativeOverdueness => {
-            vec![ReviewOrderSubclause::RelativeOverdueness { today }]
+            vec![ReviewOrderSubclause::RelativeOverdueness { fsrs, timing }]
         }
         ReviewCardOrder::Random => vec![],
+        ReviewCardOrder::Added => vec![ReviewOrderSubclause::Added],
+        ReviewCardOrder::ReverseAdded => vec![ReviewOrderSubclause::ReverseAdded],
     };
     subclauses.push(ReviewOrderSubclause::Random);
 
@@ -777,7 +943,7 @@ mod test {
     fn add_card() {
         let tr = I18n::template_only();
         let storage =
-            SqliteStorage::open_or_create(Path::new(":memory:"), &tr, false, false, false).unwrap();
+            SqliteStorage::open_or_create(Path::new(":memory:"), &tr, false, false).unwrap();
         let mut card = Card::default();
         storage.add_card(&mut card).unwrap();
         let id1 = card.id;

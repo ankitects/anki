@@ -19,7 +19,6 @@ impl BackendCollectionService for Backend {
 
         let mut builder = CollectionBuilder::new(input.collection_path);
         builder
-            .set_force_schema11(input.force_schema11)
             .set_media_paths(input.media_folder_path, input.media_db_path)
             .set_server(self.server)
             .set_tr(self.tr.clone())
@@ -95,7 +94,7 @@ impl BackendCollectionService for Backend {
 }
 
 impl Backend {
-    pub(super) fn lock_open_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+    pub(super) fn lock_open_collection(&self) -> Result<MutexGuard<'_, Option<Collection>>> {
         let guard = self.col.lock().unwrap();
         guard
             .is_some()
@@ -103,7 +102,7 @@ impl Backend {
             .ok_or(AnkiError::CollectionNotOpen)
     }
 
-    pub(super) fn lock_closed_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+    pub(super) fn lock_closed_collection(&self) -> Result<MutexGuard<'_, Option<Collection>>> {
         let guard = self.col.lock().unwrap();
         guard
             .is_none()

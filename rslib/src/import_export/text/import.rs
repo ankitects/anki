@@ -6,6 +6,8 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::Arc;
 
+use unicase::UniCase;
+
 use super::NameOrId;
 use crate::card::CardQueue;
 use crate::card::CardType;
@@ -26,6 +28,7 @@ use crate::notetype::CardTemplate;
 use crate::notetype::NoteField;
 use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
+use crate::scheduler::timing::SchedTimingToday;
 use crate::text::strip_html_preserving_media_filenames;
 
 impl ForeignData {
@@ -73,7 +76,7 @@ struct Context<'a> {
     deck_ids: DeckIdsByNameOrId,
     usn: Usn,
     normalize_notes: bool,
-    today: u32,
+    timing: SchedTimingToday,
     dupe_resolution: DupeResolution,
     card_gen_ctxs: HashMap<(NotetypeId, DeckId), CardGenContext<Arc<Notetype>>>,
     existing_checksums: ExistingChecksums,
@@ -82,7 +85,7 @@ struct Context<'a> {
 
 struct DeckIdsByNameOrId {
     ids: HashSet<DeckId>,
-    names: HashMap<String, DeckId>,
+    names: HashMap<UniCase<String>, DeckId>,
     default: Option<DeckId>,
 }
 
@@ -144,11 +147,11 @@ impl Duplicate {
 }
 
 impl DeckIdsByNameOrId {
-    fn new(col: &mut Collection, default: &NameOrId) -> Result<Self> {
-        let names: HashMap<String, DeckId> = col
+    fn new(col: &mut Collection, default: &NameOrId, usn: Usn) -> Result<Self> {
+        let names: HashMap<UniCase<String>, DeckId> = col
             .get_all_normal_deck_names(false)?
             .into_iter()
-            .map(|(id, name)| (name, id))
+            .map(|(id, name)| (UniCase::new(name), id))
             .collect();
         let ids = names.values().copied().collect();
         let mut new = Self {
@@ -157,6 +160,13 @@ impl DeckIdsByNameOrId {
             default: None,
         };
         new.default = new.get(default);
+        if new.default.is_none() && *default != NameOrId::default() {
+            let mut deck = Deck::new_normal();
+            deck.name = NativeDeckName::from_human_name(default.to_string());
+            col.add_deck_inner(&mut deck, usn)?;
+            new.insert(deck.id, deck.human_name());
+            new.default = Some(deck.id);
+        }
 
         Ok(new)
     }
@@ -164,14 +174,19 @@ impl DeckIdsByNameOrId {
     fn get(&self, name_or_id: &NameOrId) -> Option<DeckId> {
         match name_or_id {
             _ if *name_or_id == NameOrId::default() => self.default,
-            NameOrId::Id(id) => self.ids.get(&DeckId(*id)).copied(),
-            NameOrId::Name(name) => self.names.get(name).copied(),
+            NameOrId::Id(id) => self
+                .ids
+                .get(&DeckId(*id))
+                // try treating it as a numeric deck name
+                .or_else(|| self.names.get(&UniCase::new(id.to_string())))
+                .copied(),
+            NameOrId::Name(name) => self.names.get(&UniCase::new(name.to_string())).copied(),
         }
     }
 
     fn insert(&mut self, deck_id: DeckId, name: String) {
         self.ids.insert(deck_id);
-        self.names.insert(name, deck_id);
+        self.names.insert(UniCase::new(name), deck_id);
     }
 }
 
@@ -179,13 +194,13 @@ impl<'a> Context<'a> {
     fn new(data: &ForeignData, col: &'a mut Collection) -> Result<Self> {
         let usn = col.usn()?;
         let normalize_notes = col.get_config_bool(BoolKey::NormalizeNoteText);
-        let today = col.timing_today()?.days_elapsed;
+        let timing = col.timing_today()?;
         let mut notetypes = HashMap::new();
         notetypes.insert(
             NameOrId::default(),
             col.notetype_by_name_or_id(&data.default_notetype)?,
         );
-        let deck_ids = DeckIdsByNameOrId::new(col, &data.default_deck)?;
+        let deck_ids = DeckIdsByNameOrId::new(col, &data.default_deck, usn)?;
         let existing_checksums = ExistingChecksums::new(col, data.match_scope)?;
         let existing_guids = col.storage.all_notes_by_guid()?;
 
@@ -193,7 +208,7 @@ impl<'a> Context<'a> {
             col,
             usn,
             normalize_notes,
-            today,
+            timing,
             dupe_resolution: data.dupe_resolution,
             notetypes,
             deck_ids,
@@ -266,6 +281,9 @@ impl<'a> Context<'a> {
             deck.name = NativeDeckName::from_human_name(name);
             self.col.add_deck_inner(&mut deck, self.usn)?;
             self.deck_ids.insert(deck.id, deck.human_name());
+            if name.is_empty() {
+                self.deck_ids.default = Some(deck.id);
+            }
             Some(deck.id)
         } else {
             None
@@ -335,16 +353,18 @@ impl<'a> Context<'a> {
 
     fn import_note(&mut self, ctx: NoteContext, log: &mut NoteLog) -> Result<()> {
         match self.dupe_resolution {
-            _ if !ctx.is_dupe() => self.add_note(ctx, log)?,
-            DupeResolution::Duplicate if ctx.is_guid_dupe() => {
-                log.duplicate.push(ctx.note.into_log_note())
-            }
+            _ if ctx.dupes.is_empty() => self.add_note(ctx, log)?,
+            DupeResolution::Duplicate if ctx.is_guid_dupe() => log
+                .duplicate
+                .push(ctx.dupes.into_iter().next().unwrap().note.into_log_note()),
             DupeResolution::Duplicate if !ctx.has_first_field() => {
                 log.empty_first_field.push(ctx.note.into_log_note())
             }
             DupeResolution::Duplicate => self.add_note(ctx, log)?,
             DupeResolution::Update => self.update_with_note(ctx, log)?,
-            DupeResolution::Preserve => log.first_field_match.push(ctx.note.into_log_note()),
+            DupeResolution::Preserve => log
+                .first_field_match
+                .push(ctx.dupes.into_iter().next().unwrap().note.into_log_note()),
         }
         Ok(())
     }
@@ -353,7 +373,7 @@ impl<'a> Context<'a> {
         let mut note = Note::new(&ctx.notetype);
         let mut cards = ctx
             .note
-            .into_native(&mut note, ctx.deck_id, self.today, ctx.global_tags);
+            .into_native(&mut note, ctx.deck_id, &self.timing, ctx.global_tags);
         self.prepare_note(&mut note, &ctx.notetype)?;
         self.col.add_note_only_undoable(&mut note)?;
         self.add_cards(&mut cards, &note, ctx.deck_id, ctx.notetype)?;
@@ -390,7 +410,7 @@ impl<'a> Context<'a> {
             let mut cards = ctx.note.clone().into_native(
                 &mut note,
                 ctx.deck_id,
-                self.today,
+                &self.timing,
                 ctx.global_tags.iter().chain(ctx.updated_tags.iter()),
             );
 
@@ -479,14 +499,10 @@ impl DuplicateUpdateResult {
 }
 
 impl NoteContext<'_> {
-    fn is_dupe(&self) -> bool {
-        !self.dupes.is_empty()
-    }
-
     fn is_guid_dupe(&self) -> bool {
         self.dupes
-            .get(0)
-            .map_or(false, |d| d.note.guid == self.note.guid)
+            .first()
+            .is_some_and(|d| d.note.guid == self.note.guid)
     }
 
     fn has_first_field(&self) -> bool {
@@ -495,7 +511,7 @@ impl NoteContext<'_> {
 }
 
 impl Note {
-    fn first_field_stripped(&self) -> Cow<str> {
+    fn first_field_stripped(&self) -> Cow<'_, str> {
         strip_html_preserving_media_filenames(&self.fields()[0])
     }
 }
@@ -503,7 +519,13 @@ impl Note {
 impl Collection {
     pub(super) fn deck_id_by_name_or_id(&mut self, deck: &NameOrId) -> Result<Option<DeckId>> {
         match deck {
-            NameOrId::Id(id) => Ok(self.get_deck(DeckId(*id))?.map(|_| DeckId(*id))),
+            NameOrId::Id(id) => Ok({
+                match self.get_deck(DeckId(*id))?.map(|d| d.id) {
+                    did @ Some(_) => did,
+                    // try treating it as a numeric deck name
+                    _ => self.get_deck_id(&id.to_string())?,
+                }
+            }),
             NameOrId::Name(name) => self.get_deck_id(name),
         }
     }
@@ -513,7 +535,13 @@ impl Collection {
         notetype: &NameOrId,
     ) -> Result<Option<Arc<Notetype>>> {
         match notetype {
-            NameOrId::Id(id) => self.get_notetype(NotetypeId(*id)),
+            NameOrId::Id(id) => Ok({
+                match self.get_notetype(NotetypeId(*id))? {
+                    nt @ Some(_) => nt,
+                    // try treating it as a numeric notetype name
+                    _ => self.get_notetype_by_name(&id.to_string())?,
+                }
+            }),
             NameOrId::Name(name) => self.get_notetype_by_name(name),
         }
     }
@@ -545,7 +573,7 @@ impl ForeignNote {
         self,
         note: &mut Note,
         deck_id: DeckId,
-        today: u32,
+        timing: &SchedTimingToday,
         extra_tags: impl IntoIterator<Item = &'tags String>,
     ) -> Vec<Card> {
         // TODO: Handle new and learning cards
@@ -567,16 +595,16 @@ impl ForeignNote {
         self.cards
             .into_iter()
             .enumerate()
-            .map(|(idx, c)| c.into_native(NoteId(0), idx as u16, deck_id, today))
+            .map(|(idx, c)| c.into_native(NoteId(0), idx as u16, deck_id, timing))
             .collect()
     }
 
     fn first_field_is_the_empty_string(&self) -> bool {
-        matches!(self.fields.get(0), Some(Some(s)) if s.is_empty())
+        matches!(self.fields.first(), Some(Some(s)) if s.is_empty())
     }
 
     fn first_field_is_unempty(&self) -> bool {
-        matches!(self.fields.get(0), Some(Some(s)) if !s.is_empty())
+        matches!(self.fields.first(), Some(Some(s)) if !s.is_empty())
     }
 
     fn normalize_fields(&mut self, normalize_text: bool) {
@@ -595,9 +623,9 @@ impl ForeignNote {
                 .all(|(opt, field)| opt.as_ref().map(|s| s == field).unwrap_or(true))
     }
 
-    fn first_field_stripped(&self) -> Option<Cow<str>> {
+    fn first_field_stripped(&self) -> Option<Cow<'_, str>> {
         self.fields
-            .get(0)
+            .first()
             .and_then(|s| s.as_ref())
             .map(|field| strip_html_preserving_media_filenames(field.as_str()))
     }
@@ -611,12 +639,18 @@ impl ForeignNote {
 }
 
 impl ForeignCard {
-    fn into_native(self, note_id: NoteId, template_idx: u16, deck_id: DeckId, today: u32) -> Card {
+    fn into_native(
+        self,
+        note_id: NoteId,
+        template_idx: u16,
+        deck_id: DeckId,
+        timing: &SchedTimingToday,
+    ) -> Card {
         Card {
             note_id,
             template_idx,
             deck_id,
-            due: self.native_due(today),
+            due: self.native_due(timing),
             interval: self.interval,
             ease_factor: (self.ease_factor * 1000.).round() as u16,
             reps: self.reps,
@@ -627,10 +661,10 @@ impl ForeignCard {
         }
     }
 
-    fn native_due(self, today: u32) -> i32 {
-        let remaining_secs = self.interval as i64 - TimestampSecs::now().0;
-        let remaining_days = remaining_secs / (60 * 60 * 24);
-        0.max(remaining_days as i32 + today as i32)
+    fn native_due(self, timing: &SchedTimingToday) -> i32 {
+        let day_start = timing.next_day_at.0 - 86_400;
+        let due_delta = (self.due - day_start) / 86_400;
+        due_delta as i32 + timing.days_elapsed as i32
     }
 }
 

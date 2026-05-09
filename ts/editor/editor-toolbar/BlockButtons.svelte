@@ -3,27 +3,22 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { getListItem } from "@tslib/dom";
     import { preventDefault } from "@tslib/events";
-    import * as tr from "@tslib/ftl";
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
     import { onMount } from "svelte";
 
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
-    } from "../../components/ButtonGroupItem.svelte";
-    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
-    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
-    import IconButton from "../../components/IconButton.svelte";
-    import Popover from "../../components/Popover.svelte";
-    import WithFloating from "../../components/WithFloating.svelte";
-    import { execCommand } from "../../domlib";
-    import { context } from "../NoteEditor.svelte";
-    import { editingInputIsRichText } from "../rich-text-input";
-    import CommandIconButton from "./CommandIconButton.svelte";
+    } from "$lib/components/ButtonGroupItem.svelte";
+    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
+    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
+    import Icon from "$lib/components/Icon.svelte";
+    import IconButton from "$lib/components/IconButton.svelte";
     import {
         indentIcon,
         justifyCenterIcon,
@@ -34,7 +29,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         olIcon,
         outdentIcon,
         ulIcon,
-    } from "./icons";
+    } from "$lib/components/icons";
+    import Popover from "$lib/components/Popover.svelte";
+    import WithFloating from "$lib/components/WithFloating.svelte";
+    import { execCommand } from "$lib/domlib";
+
+    import { context } from "../NoteEditor.svelte";
+    import { editingInputIsRichText } from "../rich-text-input";
+    import CommandIconButton from "./CommandIconButton.svelte";
 
     export let api = {};
 
@@ -75,6 +77,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (disabled) {
         showFloating = false;
     }
+
+    const rtl = window.getComputedStyle(document.body).direction === "rtl";
+
+    const justificationKeys = [
+        "justifyLeft",
+        "justifyCenter",
+        "justifyRight",
+        "justifyFull",
+    ];
+
+    const listKeys = ["insertUnorderedList", "insertOrderedList"];
 </script>
 
 <ButtonGroup>
@@ -90,8 +103,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 key="insertUnorderedList"
                 tooltip={tr.editingUnorderedList()}
                 shortcut="Control+,"
+                modeVariantKeys={listKeys}
             >
-                {@html ulIcon}
+                <Icon icon={ulIcon} />
             </CommandIconButton>
         </ButtonGroupItem>
 
@@ -100,8 +114,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 key="insertOrderedList"
                 tooltip={tr.editingOrderedList()}
                 shortcut="Control+."
+                modeVariantKeys={listKeys}
             >
-                {@html olIcon}
+                <Icon icon={olIcon} />
             </CommandIconButton>
         </ButtonGroupItem>
 
@@ -118,43 +133,60 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {disabled}
                         on:click={() => (showFloating = !showFloating)}
                     >
-                        {@html listOptionsIcon}
+                        <Icon icon={listOptionsIcon} />
                     </IconButton>
                 </span>
 
                 <Popover slot="floating" --popover-padding-inline="0">
                     <ButtonToolbar wrap={false}>
                         <ButtonGroup>
-                            <CommandIconButton
-                                key="justifyLeft"
-                                tooltip={tr.editingAlignLeft()}
-                                --border-left-radius="5px"
-                                --border-right-radius="0px"
+                            <DynamicallySlottable
+                                slotHost={ButtonGroupItem}
+                                {createProps}
+                                {updatePropsList}
+                                {setSlotHostContext}
+                                {api}
                             >
-                                {@html justifyLeftIcon}
-                            </CommandIconButton>
+                                <ButtonGroupItem>
+                                    <CommandIconButton
+                                        key="justifyLeft"
+                                        tooltip={tr.editingAlignLeft()}
+                                        modeVariantKeys={justificationKeys}
+                                    >
+                                        <Icon icon={justifyLeftIcon} />
+                                    </CommandIconButton>
+                                </ButtonGroupItem>
 
-                            <CommandIconButton
-                                key="justifyCenter"
-                                tooltip={tr.editingCenter()}
-                            >
-                                {@html justifyCenterIcon}
-                            </CommandIconButton>
+                                <ButtonGroupItem>
+                                    <CommandIconButton
+                                        key="justifyCenter"
+                                        tooltip={tr.editingCenter()}
+                                        modeVariantKeys={justificationKeys}
+                                    >
+                                        <Icon icon={justifyCenterIcon} />
+                                    </CommandIconButton>
+                                </ButtonGroupItem>
 
-                            <CommandIconButton
-                                key="justifyRight"
-                                tooltip={tr.editingAlignRight()}
-                            >
-                                {@html justifyRightIcon}
-                            </CommandIconButton>
+                                <ButtonGroupItem>
+                                    <CommandIconButton
+                                        key="justifyRight"
+                                        tooltip={tr.editingAlignRight()}
+                                        modeVariantKeys={justificationKeys}
+                                    >
+                                        <Icon icon={justifyRightIcon} />
+                                    </CommandIconButton>
+                                </ButtonGroupItem>
 
-                            <CommandIconButton
-                                key="justifyFull"
-                                tooltip={tr.editingJustify()}
-                                --border-right-radius="5px"
-                            >
-                                {@html justifyFullIcon}
-                            </CommandIconButton>
+                                <ButtonGroupItem>
+                                    <CommandIconButton
+                                        key="justifyFull"
+                                        tooltip={tr.editingJustify()}
+                                        modeVariantKeys={justificationKeys}
+                                    >
+                                        <Icon icon={justifyFullIcon} />
+                                    </CommandIconButton>
+                                </ButtonGroupItem>
+                            </DynamicallySlottable>
                         </ButtonGroup>
 
                         <ButtonGroup>
@@ -163,11 +195,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     outdentKeyCombination,
                                 )})"
                                 {disabled}
+                                flipX={rtl}
                                 on:click={outdentListItem}
                                 --border-left-radius="5px"
                                 --border-right-radius="0px"
                             >
-                                {@html outdentIcon}
+                                <Icon icon={outdentIcon} />
                             </IconButton>
 
                             <IconButton
@@ -175,10 +208,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     indentKeyCombination,
                                 )})"
                                 {disabled}
+                                flipX={rtl}
                                 on:click={indentListItem}
                                 --border-right-radius="5px"
                             >
-                                {@html indentIcon}
+                                <Icon icon={indentIcon} />
                             </IconButton>
                         </ButtonGroup>
                     </ButtonToolbar>

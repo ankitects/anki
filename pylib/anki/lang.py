@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import locale
 import re
+import warnings
 import weakref
 from typing import TYPE_CHECKING, Any
 
@@ -17,7 +18,7 @@ from anki._legacy import DeprecatedNamesMixinForModule
 TR = anki._fluent.LegacyTranslationEnum
 FormatTimeSpan = _pb.FormatTimespanRequest
 
-
+# When adding new languages here, check lang_to_disk_lang() below
 langs = sorted(
     [
         ("Afrikaans", "af_ZA"),
@@ -37,6 +38,7 @@ langs = sorted(
         ("Italiano", "it_IT"),
         ("lo jbobau", "jbo_EN"),
         ("Lenga d'òc", "oc_FR"),
+        ("Қазақша", "kk_KZ"),
         ("Magyar", "hu_HU"),
         ("Nederlands", "nl_NL"),
         ("Norsk", "nb_NO"),
@@ -60,9 +62,10 @@ langs = sorted(
         ("Монгол хэл", "mn_MN"),
         ("Pусский язык", "ru_RU"),
         ("Српски", "sr_SP"),
-        ("Yкраїнська мова", "uk_UA"),
+        ("Українська мова", "uk_UA"),
         ("Հայերեն", "hy_AM"),
         ("עִבְרִית", "he_IL"),
+        ("ייִדיש", "yi"),
         ("العربية", "ar_SA"),
         ("فارسی", "fa_IR"),
         ("ภาษาไทย", "th_TH"),
@@ -71,6 +74,8 @@ langs = sorted(
         ("Беларуская мова", "be_BY"),
         ("ଓଡ଼ିଆ", "or_OR"),
         ("Filipino", "tl"),
+        ("ئۇيغۇر", "ug"),
+        ("Oʻzbekcha", "uz_UZ"),
     ]
 )
 
@@ -78,6 +83,7 @@ langs = sorted(
 compatMap = {
     "af": "af_ZA",
     "ar": "ar_SA",
+    "be": "be_BY",
     "bg": "bg_BG",
     "ca": "ca_ES",
     "cs": "cs_CZ",
@@ -99,13 +105,17 @@ compatMap = {
     "hy": "hy_AM",
     "it": "it_IT",
     "ja": "ja_JP",
+    "jbo": "jbo_EN",
+    "kk": "kk_KZ",
     "ko": "ko_KR",
+    "la": "la_LA",
     "mn": "mn_MN",
     "ms": "ms_MY",
     "nl": "nl_NL",
     "nb": "nb_NL",
     "no": "nb_NL",
     "oc": "oc_FR",
+    "or": "or_OR",
     "pl": "pl_PL",
     "pt": "pt_PT",
     "ro": "ro_RO",
@@ -117,7 +127,9 @@ compatMap = {
     "th": "th_TH",
     "tr": "tr_TR",
     "uk": "uk_UA",
+    "uz": "uz_UZ",
     "vi": "vi_VN",
+    "yi": "yi",
 }
 
 
@@ -151,13 +163,13 @@ def lang_to_disk_lang(lang: str) -> str:
 
 
 # the currently set interface language
-current_lang = "en"  # pylint: disable=invalid-name
+current_lang = "en"
 
 # the current Fluent translation instance. Code in pylib/ should
 # not reference this, and should use col.tr instead. The global
 # instance exists for legacy reasons, and as a convenience for the
 # Qt code.
-current_i18n: anki._backend.RustBackend | None = None  # pylint: disable=invalid-name
+current_i18n: anki._backend.RustBackend | None = None
 tr_legacyglobal = anki._backend.Translations(None)
 
 
@@ -172,44 +184,60 @@ def ngettext(single: str, plural: str, num: int) -> str:
 
 
 def set_lang(lang: str) -> None:
-    global current_lang, current_i18n  # pylint: disable=invalid-name
+    global current_lang, current_i18n
     current_lang = lang
     current_i18n = anki._backend.RustBackend(langs=[lang])
     tr_legacyglobal.backend = weakref.ref(current_i18n)
 
 
-def get_def_lang(lang: str | None = None) -> tuple[int, str]:
-    """Return lang converted to name used on disk and its index, defaulting to system language
+def get_def_lang(user_lang: str | None = None) -> tuple[int, str]:
+    """Return user_lang converted to name used on disk and its index, defaulting to system language
     or English if not available."""
+
+    def get_index_of_language(wanted_locale: str) -> int | None:
+        for i, (_, locale_) in enumerate(langs):
+            if locale_ == wanted_locale:
+                return i
+        return None
+
     try:
-        (sys_lang, enc) = locale.getdefaultlocale()
-    except:
+        # getdefaultlocale() is deprecated since Python 3.11, but we need to keep using it as getlocale() behaves differently: https://bugs.python.org/issue38805
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            (sys_lang, enc) = locale.getdefaultlocale()
+    except AttributeError:
+        # this will return a different format on Windows (e.g. Italian_Italy), resulting in us falling back to en_US
+        # further below
+        (sys_lang, enc) = locale.getlocale()
+    except Exception:
         # fails on osx
         sys_lang = "en_US"
-    user_lang = lang
     if user_lang in compatMap:
         user_lang = compatMap[user_lang]
+
     idx = None
     lang = None
-    en_idx = None
     for preferred_lang in (user_lang, sys_lang):
-        for lang_idx, (name, code) in enumerate(langs):
-            if code == "en_US":
-                en_idx = lang_idx
-            if code == preferred_lang:
-                idx = lang_idx
-                lang = preferred_lang
-        if idx is not None:
+        idx = get_index_of_language(preferred_lang)
+        is_language_supported = idx is not None
+        if is_language_supported:
+            assert preferred_lang is not None
+            lang = preferred_lang
             break
     # if the specified language and the system language aren't available, revert to english
-    if idx is None:
-        idx = en_idx
+    is_preferred_language_supported = idx is not None
+    if not is_preferred_language_supported:
         lang = "en_US"
+        idx = get_index_of_language(lang)
+        is_english_supported = idx is not None
+        if not is_english_supported:
+            raise AssertionError("English is supposed to be a supported language.")
+    assert idx is not None and lang is not None
     return (idx, lang)
 
 
 def is_rtl(lang: str) -> bool:
-    return lang in ("he", "ar", "fa")
+    return lang in ("he", "ar", "fa", "ug", "yi")
 
 
 # strip off unicode isolation markers from a translated string

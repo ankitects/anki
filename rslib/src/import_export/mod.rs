@@ -62,9 +62,14 @@ impl Note {
 pub enum ImportError {
     Corrupt,
     TooNew,
-    MediaImportFailed { info: String },
+    MediaImportFailed {
+        info: String,
+    },
     NoFieldColumn,
     EmptyFile,
+    /// Two notetypes could not be merged because one was a regular one and the
+    /// other one a cloze notetype.
+    NotetypeKindMergeConflict,
 }
 
 impl ImportError {
@@ -77,6 +82,9 @@ impl ImportError {
             }
             ImportError::NoFieldColumn => tr.importing_file_must_contain_field_column(),
             ImportError::EmptyFile => tr.importing_file_empty(),
+            ImportError::NotetypeKindMergeConflict => {
+                tr.importing_cannot_merge_notetypes_of_different_kinds()
+            }
         }
         .into()
     }

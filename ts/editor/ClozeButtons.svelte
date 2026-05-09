@@ -3,16 +3,18 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "@tslib/ftl";
-    import { isApplePlatform } from "@tslib/platform";
+    import * as tr from "@generated/ftl";
+    import { chromiumVersion, isApplePlatform } from "@tslib/platform";
     import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
 
-    import ButtonGroup from "../components/ButtonGroup.svelte";
-    import IconButton from "../components/IconButton.svelte";
-    import Shortcut from "../components/Shortcut.svelte";
-    import { clozeIcon, incrementClozeIcon } from "./icons";
+    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import Icon from "$lib/components/Icon.svelte";
+    import IconButton from "$lib/components/IconButton.svelte";
+    import { clozeIcon, incrementClozeIcon } from "$lib/components/icons";
+    import Shortcut from "$lib/components/Shortcut.svelte";
+
     import { context as noteEditorContext } from "./NoteEditor.svelte";
     import { editingInputIsRichText } from "./rich-text-input";
 
@@ -20,9 +22,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { focusedInput, fields } = noteEditorContext.get();
 
-    // Workaround for Cmd+Option+Shift+C not working on macOS. The keyup approach works
-    // on Linux as well, but fails on Windows.
-    const event = isApplePlatform() ? "keyup" : "keydown";
+    // Workaround for Cmd+Option+Shift+C not working on macOS on older Chromium
+    // versions.
+    const chromiumVer = chromiumVersion();
+    const event =
+        isApplePlatform() && chromiumVer != null && chromiumVer <= 112
+            ? "keyup"
+            : "keydown";
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
@@ -69,8 +75,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    $: disabled =
-        !alwaysEnabled && (!$focusedInput || !editingInputIsRichText($focusedInput));
+    $: enabled =
+        alwaysEnabled ||
+        ($focusedInput &&
+            editingInputIsRichText($focusedInput) &&
+            $focusedInput.isClozeField);
+    $: disabled = !enabled;
 
     const incrementKeyCombination = "Control+Shift+C";
     const sameKeyCombination = "Control+Alt+Shift+C";
@@ -85,7 +95,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={onIncrementCloze}
         --border-left-radius="5px"
     >
-        {@html incrementClozeIcon}
+        <Icon icon={incrementClozeIcon} />
     </IconButton>
 
     <Shortcut
@@ -102,7 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={onSameCloze}
         --border-right-radius="5px"
     >
-        {@html clozeIcon}
+        <Icon icon={clozeIcon} />
     </IconButton>
 
     <Shortcut keyCombination={sameKeyCombination} {event} on:action={onSameCloze} />

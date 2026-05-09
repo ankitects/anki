@@ -20,7 +20,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, getContext, onMount } from "svelte";
     import type { Writable } from "svelte/store";
 
-    import { pageTheme } from "../sveltelib/theme";
+    import { pageTheme } from "$lib/sveltelib/theme";
+
     import {
         darkTheme,
         lightTheme,
@@ -94,7 +95,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             resolve,
             hidden,
         }}
-    />
+    ></textarea>
 </div>
 
 <style lang="scss">
@@ -103,6 +104,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(.CodeMirror) {
             height: auto;
+            font-family: Consolas, monospace;
         }
 
         :global(.CodeMirror-wrap pre) {

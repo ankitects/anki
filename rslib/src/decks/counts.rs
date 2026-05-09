@@ -35,8 +35,7 @@ impl Collection {
         days_elapsed: u32,
         learn_cutoff: u32,
     ) -> Result<HashMap<DeckId, DueCounts>> {
-        self.storage
-            .due_counts(self.scheduler_version(), days_elapsed, learn_cutoff)
+        self.storage.due_counts(days_elapsed, learn_cutoff)
     }
 
     pub(crate) fn counts_for_deck_today(

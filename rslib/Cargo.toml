@@ -33,6 +33,7 @@ syn.workspace = true
 
 [dev-dependencies]
 async-stream.workspace = true
+reqwest = { workspace = true, features = ["native-tls"] }
 wiremock.workspace = true
 
 [dependencies]
@@ -46,6 +47,8 @@ async-compression.workspace = true
 async-trait.workspace = true
 axum.workspace = true
 axum-client-ip.workspace = true
+axum-extra.workspace = true
+bitflags.workspace = true
 blake3.workspace = true
 bytes.workspace = true
 chrono.workspace = true
@@ -60,26 +63,30 @@ flate2.workspace = true
 fluent.workspace = true
 fluent-bundle.workspace = true
 fnv.workspace = true
+fsrs.workspace = true
 futures.workspace = true
 hex.workspace = true
 htmlescape.workspace = true
 hyper.workspace = true
 id_tree.workspace = true
 itertools.workspace = true
-lazy_static.workspace = true
 nom.workspace = true
 num_cpus.workspace = true
 num_enum.workspace = true
 once_cell.workspace = true
+pbkdf2.workspace = true
 percent-encoding-iri.workspace = true
+permutation.workspace = true
 phf.workspace = true
 pin-project.workspace = true
 prost.workspace = true
 pulldown-cmark.workspace = true
 rand.workspace = true
+rayon.workspace = true
 regex.workspace = true
 reqwest.workspace = true
 rusqlite.workspace = true
+rustls-pemfile.workspace = true
 scopeguard.workspace = true
 serde.workspace = true
 serde-aux.workspace = true
@@ -87,6 +94,7 @@ serde_json.workspace = true
 serde_repr.workspace = true
 serde_tuple.workspace = true
 sha1.workspace = true
+sha2.workspace = true
 snafu.workspace = true
 strum.workspace = true
 tempfile.workspace = true
@@ -99,10 +107,8 @@ tracing-subscriber.workspace = true
 unic-ucd-category.workspace = true
 unicase.workspace = true
 unicode-normalization.workspace = true
-utime.workspace = true
 zip.workspace = true
 zstd.workspace = true
 
-[target.'cfg(windows)'.dependencies.windows]
-version = "0.48.0"
-features = ["Media_SpeechSynthesis", "Foundation_Collections", "Storage_Streams"]
+[target.'cfg(windows)'.dependencies]
+windows.workspace = true

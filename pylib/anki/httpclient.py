@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import io
 import os
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import requests
 from requests import Response
@@ -56,7 +57,7 @@ class HttpClient(DeprecatedNamesMixin):
             verify=self.verify,
         )  # pytype: disable=wrong-arg-types
 
-    def get(self, url: str, headers: dict[str, str] = None) -> Response:
+    def get(self, url: str, headers: dict[str, str] | None = None) -> Response:
         if headers is None:
             headers = {}
         headers["User-Agent"] = self._agent_name()

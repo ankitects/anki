@@ -7,8 +7,8 @@ import enum
 import os
 import re
 import subprocess
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List, Tuple
 
 import anki.lang
 import aqt
@@ -21,6 +21,7 @@ from aqt.qt import (
     QPainter,
     QPalette,
     QPixmap,
+    QStyle,
     QStyleFactory,
     Qt,
     qtmajor,
@@ -62,6 +63,7 @@ class ThemeManager:
     _dark_mode_available: bool | None = None
     _default_style: str | None = None
     _current_widget_style: WidgetStyle | None = None
+    _default_button_layout: int | None = None
 
     def rtl(self) -> bool:
         return is_rtl(anki.lang.current_lang)
@@ -113,7 +115,7 @@ class ThemeManager:
         # Workaround for Qt bug. First attempt was percent-escaping the chars,
         # but Qt can't handle that.
         # https://forum.qt.io/topic/55274/solved-qss-with-special-characters/11
-        path = re.sub(r"([\u00A1-\u00FF])", r"\\\1", path)
+        path = re.sub(r"(['\u00A1-\u00FF])", r"\\\1", path)
         return path
 
     def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:
@@ -185,7 +187,7 @@ class ThemeManager:
         self, card_ord: int, night_mode: bool | None = None
     ) -> str:
         "Returns body classes used when showing a card."
-        return f"card card{card_ord+1} {self.body_class(night_mode, reviewer=True)}"
+        return f"card card{card_ord + 1} {self.body_class(night_mode, reviewer=True)}"
 
     def var(self, vars: dict[str, str]) -> str:
         """Given day/night colors/props, return the correct one for the current theme."""
@@ -211,13 +213,12 @@ class ThemeManager:
             return False
         elif theme == Theme.DARK:
             return True
+        elif is_win:
+            return get_windows_dark_mode()
+        elif is_mac:
+            return get_macos_dark_mode()
         else:
-            if is_win:
-                return get_windows_dark_mode()
-            elif is_mac:
-                return get_macos_dark_mode()
-            else:
-                return get_linux_dark_mode()
+            return get_linux_dark_mode()
 
     def apply_style(self) -> None:
         "Apply currently configured style."
@@ -231,7 +232,12 @@ class ThemeManager:
         self._current_widget_style = new_widget_style
         app = aqt.mw.app
         if not self._default_style:
-            self._default_style = app.style().objectName()
+            style = app.style()
+            assert style is not None
+            self._default_style = style.objectName()
+            self._default_button_layout = style.styleHint(
+                QStyle.StyleHint.SH_DialogButtonLayout
+            )
         self._apply_palette(app)
         self._apply_style(app)
         gui_hooks.theme_did_change()
@@ -333,7 +339,7 @@ def get_windows_dark_mode() -> bool:
     if not is_win:
         return False
 
-    from winreg import (  # type: ignore[attr-defined] # pylint: disable=import-error
+    from winreg import (  # type: ignore[attr-defined]
         HKEY_CURRENT_USER,
         OpenKey,
         QueryValueEx,
@@ -345,7 +351,7 @@ def get_windows_dark_mode() -> bool:
             r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
         )
         return not QueryValueEx(key, "AppsUseLightTheme")[0]
-    except Exception as err:
+    except Exception:
         # key reportedly missing or set to wrong type on some systems
         return False
 
@@ -386,7 +392,7 @@ def get_linux_dark_mode() -> bool:
 
         return dbus_response[-1] == PREFER_DARK
 
-    dark_mode_detection_strategies: List[Tuple[str, Callable[[str], bool]]] = [
+    dark_mode_detection_strategies: list[tuple[str, Callable[[str], bool]]] = [
         (
             "dbus-send --session --print-reply=literal --reply-timeout=1000 "
             "--dest=org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop "
@@ -409,12 +415,12 @@ def get_linux_dark_mode() -> bool:
                 capture_output=True,
                 encoding="utf8",
             )
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             # detection strategy failed, missing program
             # print(e)
             continue
 
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             # detection strategy failed, command returned error
             # print(e)
             continue

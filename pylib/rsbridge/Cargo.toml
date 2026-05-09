@@ -12,6 +12,7 @@ description = "Anki's Rust library code Python bindings"
 name = "rsbridge"
 crate-type = ["cdylib"]
 path = "lib.rs"
+test = false
 
 [dependencies]
 anki.workspace = true

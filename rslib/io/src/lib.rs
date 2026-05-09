@@ -4,8 +4,11 @@
 mod error;
 
 use std::fs::File;
+use std::fs::FileTimes;
+use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Seek;
+use std::io::Write;
 use std::path::Component;
 use std::path::Path;
 use std::path::PathBuf;
@@ -37,6 +40,13 @@ pub fn open_file(path: impl AsRef<Path>) -> Result<File> {
     })
 }
 
+pub fn open_file_ext(path: impl AsRef<Path>, options: OpenOptions) -> Result<File> {
+    options.open(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Open,
+    })
+}
+
 /// See [std::fs::write].
 pub fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<()> {
     std::fs::write(&path, contents).context(FileIoSnafu {
@@ -45,10 +55,58 @@ pub fn write_file(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> Result<
     })
 }
 
+pub fn write_file_and_flush(
+    path: impl AsRef<Path> + Clone,
+    contents: impl AsRef<[u8]>,
+) -> Result<()> {
+    let mut file = create_file(path.clone())?;
+    file.write_all(contents.as_ref()).context(FileIoSnafu {
+        path: path.clone().as_ref(),
+        op: FileOp::Write,
+    })?;
+    file.sync_all().context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Sync,
+    })
+}
+
+/// See [File::set_times].
+pub fn set_file_times(path: impl AsRef<Path>, times: FileTimes) -> Result<()> {
+    #[cfg(not(windows))]
+    let file = open_file(&path)?;
+
+    #[cfg(windows)]
+    let file = {
+        use std::os::windows::fs::OpenOptionsExt;
+        open_file_ext(
+            &path,
+            OpenOptions::new()
+                .write(true)
+                // It's required to modify the time attributes of a directory in windows system.
+                .custom_flags(0x02000000) // FILE_FLAG_BACKUP_SEMANTICS
+                .to_owned(),
+        )?
+    };
+
+    file.set_times(times).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::SetFileTimes,
+    })
+}
+
 /// See [std::fs::remove_file].
 #[allow(dead_code)]
 pub fn remove_file(path: impl AsRef<Path>) -> Result<()> {
     std::fs::remove_file(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Remove,
+    })
+}
+
+/// See [std::fs::remove_dir_all].
+#[allow(dead_code)]
+pub fn remove_dir_all(path: impl AsRef<Path>) -> Result<()> {
+    std::fs::remove_dir_all(&path).context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Remove,
     })
@@ -94,6 +152,34 @@ pub fn copy_file(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> Result<u64> {
     })
 }
 
+/// Copy a file from src to dst if dst doesn't exist or if src is newer than
+/// dst. Preserves the modification time from the source file.
+pub fn copy_if_newer(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> Result<bool> {
+    let src = src.as_ref();
+    let dst = dst.as_ref();
+
+    let should_copy = if !dst.exists() {
+        true
+    } else {
+        let src_time = modified_time(src)?;
+        let dst_time = modified_time(dst)?;
+        src_time > dst_time
+    };
+
+    if should_copy {
+        copy_file(src, dst)?;
+
+        // Preserve the modification time from the source file
+        let src_mtime = modified_time(src)?;
+        let times = FileTimes::new().set_modified(src_mtime);
+        set_file_times(dst, times)?;
+
+        Ok(true)
+    } else {
+        Ok(false)
+    }
+}
+
 /// Like [read_file], but skips the section that is potentially locked by
 /// SQLite.
 pub fn read_locked_db_file(path: impl AsRef<Path>) -> Result<Vec<u8>> {
@@ -125,6 +211,14 @@ fn read_locked_db_file_inner(path: impl AsRef<Path>) -> std::io::Result<Vec<u8>>
 /// See [std::fs::metadata].
 pub fn metadata(path: impl AsRef<Path>) -> Result<std::fs::Metadata> {
     std::fs::metadata(&path).context(FileIoSnafu {
+        path: path.as_ref(),
+        op: FileOp::Metadata,
+    })
+}
+
+/// Get the modification time of a file.
+pub fn modified_time(path: impl AsRef<Path>) -> Result<std::time::SystemTime> {
+    metadata(&path)?.modified().context(FileIoSnafu {
         path: path.as_ref(),
         op: FileOp::Metadata,
     })
@@ -241,6 +335,15 @@ pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>)
             .map(|existing| existing != contents)
             .unwrap_or(true)
     };
+
+    match std::env::var("CARGO_PKG_NAME") {
+        Ok(pkg) if pkg == "anki_proto" || pkg == "anki_i18n" => {
+            // at comptime for the proto/i18n crates, register implicit output as input
+            println!("cargo:rerun-if-changed={}", path.to_str().unwrap());
+        }
+        _ => {}
+    }
+
     if changed {
         write_file(path, contents)?;
         Ok(true)

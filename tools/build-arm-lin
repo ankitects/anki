@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+# sudo apt install libc6-dev-arm64-cross gcc-aarch64-linux-gnu
+rustup target add aarch64-unknown-linux-gnu
+
+export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc
+export LIN_ARM64=1
+
+RELEASE=2 ./ninja wheels:anki
+echo "wheels are in out/wheels"

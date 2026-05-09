@@ -151,13 +151,13 @@ impl SyncTestContext {
     async fn sync_media1(&self) -> Result<()> {
         let mut syncer =
             MediaSyncer::new(self.media1(), ignore_progress(), self.client.clone()).unwrap();
-        syncer.sync().await
+        syncer.sync(None).await
     }
 
     async fn sync_media2(&self) -> Result<()> {
         let mut syncer =
             MediaSyncer::new(self.media2(), ignore_progress(), self.client.clone()).unwrap();
-        syncer.sync().await
+        syncer.sync(None).await
     }
 
     /// As local change detection depends on a millisecond timestamp,

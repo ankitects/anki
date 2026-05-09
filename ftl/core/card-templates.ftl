@@ -20,12 +20,13 @@ card-templates-night-mode = Night Mode
 # on a mobile device.
 card-templates-add-mobile-class = Add Mobile Class
 card-templates-preview-settings = Options
-card-templates-invalid-template-number = Card template { $number } in notetype '{ $notetype }' has a problem.
+card-templates-invalid-template-number = Card template { $number } in note type '{ $notetype }' has a problem.
 card-templates-identical-front = The front side is identical to card template { $number }.
 card-templates-no-front-field = Expected to find a field replacement on the front of the card template.
 card-templates-missing-cloze = Expected to find '{ "{{" }cloze:Text{ "}}" }' or similar on the front and back of the card template.
-card-templates-extraneous-cloze = 'cloze:' can only be used on cloze notetypes.
+card-templates-extraneous-cloze = 'cloze:' can only be used on cloze note types.
 card-templates-see-preview = See the preview for more information.
+card-templates-field-not-found = Field '{ $field }' not found.
 card-templates-changes-saved = Changes saved.
 card-templates-discard-changes = Discard changes?
 card-templates-add-card-type = Add Card Type...
@@ -36,6 +37,7 @@ card-templates-card = Card { $val }
 card-templates-card-types-for = Card Types for { $val }
 card-templates-cloze = Cloze { $val }
 card-templates-deck-override = Deck Override...
+card-templates-copy-info = Copy Info to Clipboard
 card-templates-delete-the-as-card-type-and = Delete the '{ $template }' card type, and its { $cards }?
 card-templates-enter-deck-to-place-new = Enter deck to place new { $val } cards in, or leave blank:
 card-templates-enter-new-card-position-1 = Enter new card position (1...{ $val }):
@@ -58,7 +60,6 @@ card-templates-this-will-create-card-proceed =
     }
 card-templates-type-boxes-warning = Only one typing box per card template is supported.
 card-templates-restore-to-default = Restore to Default
-card-templates-restore-to-default-confirmation = This will reset all fields and templates in this notetype to their default
-    values, removing any extra fields/templates and their content, and any custom styling. Do you wish to proceed?
-card-templates-restored-to-default = Notetype has been restored to its original state.
+card-templates-restore-to-default-confirmation = This will reset all fields and templates in this note type to their default values, removing any extra fields/templates and their content, and any custom styling. Do you wish to proceed?
+card-templates-restored-to-default = Note type has been restored to its original state.
 

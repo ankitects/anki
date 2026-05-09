@@ -30,12 +30,12 @@ impl Build {
         )
         .unwrap();
         for (key, value) in &self.variables {
-            writeln!(&mut buf, "{} = {}", key, value).unwrap();
+            writeln!(&mut buf, "{key} = {value}").unwrap();
         }
         buf.push('\n');
 
         for (key, value) in &self.pools {
-            writeln!(&mut buf, "pool {}\n  depth = {}", key, value).unwrap();
+            writeln!(&mut buf, "pool {key}\n  depth = {value}").unwrap();
         }
         buf.push('\n');
 

@@ -1,8 +1,9 @@
 qt-misc-addon-will-be-installed-when-a = Add-on will be installed when a profile is opened.
 qt-misc-addons = Add-ons
 qt-misc-all-cards-notes-and-media-for = All cards, notes, and media for this profile will be deleted. Are you sure?
+qt-misc-all-cards-notes-and-media-for2 = All cards, notes, and media for the profile "{ $name }" will be deleted. Are you sure?
 qt-misc-anki-updatedanki-has-been-released = <h1>Anki Updated</h1>Anki { $val } has been released.<br><br>
-qt-misc-automatic-syncing-and-backups-have-been = Automatic syncing and backups have been disabled while restoring. To enable them again, close the profile or restart Anki.
+qt-misc-automatic-syncing-and-backups-have-been = Backup successfully restored. Automatic syncing and backups have been disabled for now. To enable them again, close the profile or restart Anki.
 qt-misc-back-side-only = Back Side Only
 qt-misc-backing-up = Backing Up...
 qt-misc-browse = Browse
@@ -37,7 +38,7 @@ qt-misc-please-select-1-card = (please select 1 card)
 qt-misc-please-select-a-deck = Please select a deck.
 qt-misc-please-use-fileimport-to-import-this = Please use File>Import to import this file.
 qt-misc-processing = Processing...
-qt-misc-replace-your-collection-with-an-earlier = Replace your collection with an earlier backup?
+qt-misc-replace-your-collection-with-an-earlier2 = Replace your collection with an earlier backup from { $val }?
 qt-misc-revert-to-backup = Revert to backup
 # please do not change the quote character, and please only change the font name if you have confirmed the new name is a valid Windows font
 qt-misc-segoe-ui = "Segoe UI"
@@ -55,13 +56,14 @@ qt-misc-this-file-exists-are-you-sure = This file exists. Are you sure you want 
 qt-misc-unable-to-access-anki-media-folder = Unable to access Anki media folder. The permissions on your system's temporary folder may be incorrect.
 qt-misc-unexpected-response-code = Unexpected response code: { $val }
 qt-misc-would-you-like-to-download-it = Would you like to download it now?
+qt-misc-downloading-update = Downloading update: { $count }MB/{ $total }MB
 qt-misc-your-collection-file-appears-to-be = Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen.
 qt-misc-your-computers-storage-may-be-full = Your computer's storage may be full. Please delete some unneeded files, then try again.
 qt-misc-your-firewall-or-antivirus-program-is = Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki.
 qt-misc-error = Error
 qt-misc-no-temp-folder = No usable temporary folder found. Make sure C:\\temp exists or TEMP in your environment points to a valid, writable folder.
 qt-misc-incompatible-video-driver = Your video driver is incompatible. Please start Anki again, and Anki will switch to a slower, more compatible mode.
-qt-misc-error-loading-graphics-driver = Error loading '{ $mode }' graphics driver. Please start Anki again to try next driver. { $context }
+qt-misc-error-loading-graphics-driver = Error loading '{ $mode }' graphics driver. Please start Anki again to try the next driver. { $context }
 qt-misc-anki-is-running = Anki Already Running
 qt-misc-if-instance-is-not-responding = If the existing instance of Anki is not responding, please close it using your task manager, or restart your computer.
 qt-misc-second =
@@ -72,7 +74,9 @@ qt-misc-second =
 qt-misc-layout-auto-enabled = Responsive layout enabled
 qt-misc-layout-vertical-enabled = Vertical layout enabled
 qt-misc-layout-horizontal-enabled = Horizontal layout enabled
+qt-misc-open-anki-launcher = Change to a different Anki version?
 
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated
 
+qt-misc-replace-your-collection-with-an-earlier = Replace your collection with an earlier backup?

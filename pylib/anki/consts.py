@@ -118,17 +118,6 @@ def new_card_order_labels(col: anki.collection.Collection | None) -> dict[int, A
     }
 
 
-def new_card_scheduling_labels(
-    col: anki.collection.Collection | None,
-) -> dict[int, Any]:
-    tr = _tr(col)
-    return {
-        0: tr.scheduling_mix_new_cards_and_reviews(),
-        1: tr.scheduling_show_new_cards_after_reviews(),
-        2: tr.scheduling_show_new_cards_before_reviews(),
-    }
-
-
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 

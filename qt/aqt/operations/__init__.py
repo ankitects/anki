@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from concurrent.futures._base import Future
-from typing import Any, Callable, Generic, Protocol, TypeVar, Union
+from typing import Any, Generic, Protocol, TypeVar, Union
 
 import aqt
 import aqt.gui_hooks
@@ -148,7 +149,6 @@ def on_op_finished(
     mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
 ) -> None:
     mw.update_undo_actions()
-    mw.autosave()
 
     if isinstance(result, OpChanges):
         changes = result
@@ -201,9 +201,20 @@ class QueryOp(Generic[T]):
         self._parent = parent
         self._op = op
         self._success = success
+        self._uses_collection = True
 
     def failure(self, failure: Callable[[Exception], Any] | None) -> QueryOp[T]:
         self._failure = failure
+        return self
+
+    def without_collection(self) -> QueryOp[T]:
+        """Flag this QueryOp as not needing the collection.
+
+        Operations that access the collection are serialized. If you're doing
+        something like a series of network queries, and your operation does not
+        access the collection, then you can call this to allow the requests to
+        run in parallel."""
+        self._uses_collection = False
         return self
 
     def with_progress(
@@ -269,4 +280,6 @@ class QueryOp(Generic[T]):
         elif self._progress:
             mw.taskman.with_progress(op, on_done, label=label, parent=self._parent)
         else:
-            mw.taskman.run_in_background(op, on_done)
+            mw.taskman.run_in_background(
+                op, on_done, uses_collection=self._uses_collection
+            )

@@ -142,7 +142,7 @@ scheduling-reviews = Reviews
 scheduling-seconds = seconds
 scheduling-set-all-decks-below-to = Set all decks below { $val } to this option group?
 scheduling-set-for-all-subdecks = Set for all subdecks
-scheduling-show-answer-timer = Show answer timer
+scheduling-show-answer-timer = Show on-screen timer
 scheduling-show-new-cards-after-reviews = Show new cards after reviews
 scheduling-show-new-cards-before-reviews = Show new cards before reviews
 scheduling-show-new-cards-in-order-added = Show new cards in order added
@@ -172,8 +172,13 @@ scheduling-set-due-date-done =
         [one] Set due date of { $cards } card.
        *[other] Set due date of { $cards } cards.
     }
+scheduling-graded-cards-done =
+    { $cards ->
+        [one] Graded { $cards } card.
+       *[other] Graded { $cards } cards.
+    }
 scheduling-forgot-cards =
     { $cards ->
-        [one] Forgot { $cards } card.
-       *[other] Forgot { $cards } cards.
+        [one] Reset { $cards } card.
+       *[other] Reset { $cards } cards.
     }

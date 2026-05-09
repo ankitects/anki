@@ -2,8 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod generated;
+mod generated_launcher;
 
 use std::borrow::Cow;
+use std::marker::PhantomData;
 use std::sync::Arc;
 use std::sync::Mutex;
 
@@ -12,8 +14,6 @@ use fluent::FluentArgs;
 use fluent::FluentResource;
 use fluent::FluentValue;
 use fluent_bundle::bundle::FluentBundle as FluentBundleOrig;
-use generated::KEYS_BY_MODULE;
-use generated::STRINGS;
 use num_format::Locale;
 use serde::Serialize;
 use unic_langid::LanguageIdentifier;
@@ -22,13 +22,49 @@ type FluentBundle<T> = FluentBundleOrig<T, intl_memoizer::concurrent::IntlLangMe
 
 pub use fluent::fluent_args as tr_args;
 
-pub trait Number: Into<FluentNumber> {}
-impl Number for i32 {}
-impl Number for i64 {}
-impl Number for u32 {}
-impl Number for f32 {}
-impl Number for u64 {}
-impl Number for usize {}
+pub use crate::generated::All;
+pub use crate::generated_launcher::Launcher;
+
+pub trait Number: Into<FluentNumber> {
+    fn round(self) -> Self;
+}
+impl Number for i32 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for i64 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for u32 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for f32 {
+    // round to 2 decimal places
+    #[inline]
+    fn round(self) -> Self {
+        (self * 100.0).round() / 100.0
+    }
+}
+impl Number for u64 {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
+impl Number for usize {
+    #[inline]
+    fn round(self) -> Self {
+        self
+    }
+}
 
 fn remapped_lang_name(lang: &LanguageIdentifier) -> &str {
     let region = lang.region.as_ref().map(|v| v.as_str());
@@ -97,7 +133,7 @@ fn get_bundle(
 ) -> Option<FluentBundle<FluentResource>> {
     let res = FluentResource::try_new(text.into())
         .map_err(|e| {
-            println!("Unable to parse translations file: {:?}", e);
+            println!("Unable to parse translations file: {e:?}");
         })
         .ok()?;
 
@@ -105,14 +141,14 @@ fn get_bundle(
     bundle
         .add_resource(res)
         .map_err(|e| {
-            println!("Duplicate key detected in translation file: {:?}", e);
+            println!("Duplicate key detected in translation file: {e:?}");
         })
         .ok()?;
 
     if !extra_text.is_empty() {
         match FluentResource::try_new(extra_text) {
             Ok(res) => bundle.add_resource_overriding(res),
-            Err((_res, e)) => println!("Unable to parse translations file: {:?}", e),
+            Err((_res, e)) => println!("Unable to parse translations file: {e:?}"),
         }
     }
 
@@ -154,20 +190,66 @@ fn get_bundle_with_extra(
     get_bundle(text, extra_text, &locales)
 }
 
+pub trait Translations {
+    const STRINGS: &phf::Map<&str, &phf::Map<&str, &str>>;
+    const KEYS_BY_MODULE: &[&[&str]];
+}
+
 #[derive(Clone)]
-pub struct I18n {
+pub struct I18n<P: Translations = All> {
     inner: Arc<Mutex<I18nInner>>,
+    _translations_type: std::marker::PhantomData<P>,
 }
 
-fn get_key(module_idx: usize, translation_idx: usize) -> &'static str {
-    KEYS_BY_MODULE
-        .get(module_idx)
-        .and_then(|translations| translations.get(translation_idx))
-        .cloned()
-        .unwrap_or("invalid-module-or-translation-index")
-}
+impl<P: Translations> I18n<P> {
+    fn get_key(module_idx: usize, translation_idx: usize) -> &'static str {
+        P::KEYS_BY_MODULE
+            .get(module_idx)
+            .and_then(|translations| translations.get(translation_idx))
+            .cloned()
+            .unwrap_or("invalid-module-or-translation-index")
+    }
 
-impl I18n {
+    fn get_modules(langs: &[LanguageIdentifier], desired_modules: &[String]) -> Vec<String> {
+        langs
+            .iter()
+            .map(|lang| {
+                let mut buf = String::new();
+                let lang_name = remapped_lang_name(lang);
+                if let Some(strings) = P::STRINGS.get(lang_name) {
+                    if desired_modules.is_empty() {
+                        // empty list, provide all modules
+                        for value in strings.values() {
+                            buf.push_str(value)
+                        }
+                    } else {
+                        for module_name in desired_modules {
+                            if let Some(text) = strings.get(module_name.as_str()) {
+                                buf.push_str(text);
+                            }
+                        }
+                    }
+                }
+                buf
+            })
+            .collect()
+    }
+
+    /// This temporarily behaves like the older code; in the future we could
+    /// either access each &str separately, or load them on demand.
+    fn ftl_localized_text(lang: &LanguageIdentifier) -> Option<String> {
+        let lang = remapped_lang_name(lang);
+        if let Some(module) = P::STRINGS.get(lang) {
+            let mut text = String::new();
+            for module_text in module.values() {
+                text.push_str(module_text)
+            }
+            Some(text)
+        } else {
+            None
+        }
+    }
+
     pub fn template_only() -> Self {
         Self::new::<&str>(&[])
     }
@@ -192,7 +274,7 @@ impl I18n {
         let mut output_langs = vec![];
         for lang in input_langs {
             // if the language is bundled in the binary
-            if let Some(text) = ftl_localized_text(&lang).or_else(|| {
+            if let Some(text) = Self::ftl_localized_text(&lang).or_else(|| {
                 // when testing, allow missing translations
                 if cfg!(test) {
                     Some(String::new())
@@ -211,7 +293,7 @@ impl I18n {
 
         // add English templates
         let template_lang = "en-US".parse().unwrap();
-        let template_text = ftl_localized_text(&template_lang).unwrap();
+        let template_text = Self::ftl_localized_text(&template_lang).unwrap();
         let template_bundle = get_bundle_with_extra(&template_text, None).unwrap();
         bundles.push(template_bundle);
         output_langs.push(template_lang);
@@ -228,6 +310,7 @@ impl I18n {
                 bundles,
                 langs: output_langs,
             })),
+            _translations_type: PhantomData,
         }
     }
 
@@ -237,7 +320,7 @@ impl I18n {
         message_index: usize,
         args: FluentArgs,
     ) -> String {
-        let key = get_key(module_index, message_index);
+        let key = Self::get_key(module_index, message_index);
         self.translate(key, Some(args)).into()
     }
 
@@ -258,7 +341,7 @@ impl I18n {
             let mut errs = vec![];
             let out = bundle.format_pattern(pat, args.as_ref(), &mut errs);
             if !errs.is_empty() {
-                println!("Error(s) in translation '{}': {:?}", key, errs);
+                println!("Error(s) in translation '{key}': {errs:?}");
             }
             // clone so we can discard args
             return out.to_string().into();
@@ -272,45 +355,11 @@ impl I18n {
     /// implementation.
     pub fn resources_for_js(&self, desired_modules: &[String]) -> ResourcesForJavascript {
         let inner = self.inner.lock().unwrap();
-        let resources = get_modules(&inner.langs, desired_modules);
+        let resources = Self::get_modules(&inner.langs, desired_modules);
         ResourcesForJavascript {
             langs: inner.langs.iter().map(ToString::to_string).collect(),
             resources,
         }
-    }
-}
-
-fn get_modules(langs: &[LanguageIdentifier], desired_modules: &[String]) -> Vec<String> {
-    langs
-        .iter()
-        .cloned()
-        .map(|lang| {
-            let mut buf = String::new();
-            let lang_name = remapped_lang_name(&lang);
-            if let Some(strings) = STRINGS.get(lang_name) {
-                for module_name in desired_modules {
-                    if let Some(text) = strings.get(module_name.as_str()) {
-                        buf.push_str(text);
-                    }
-                }
-            }
-            buf
-        })
-        .collect()
-}
-
-/// This temporarily behaves like the older code; in the future we could either
-/// access each &str separately, or load them on demand.
-fn ftl_localized_text(lang: &LanguageIdentifier) -> Option<String> {
-    let lang = remapped_lang_name(lang);
-    if let Some(module) = STRINGS.get(lang) {
-        let mut text = String::new();
-        for module_text in module.values() {
-            text.push_str(module_text)
-        }
-        Some(text)
-    } else {
-        None
     }
 }
 
@@ -424,7 +473,7 @@ pub struct ResourcesForJavascript {
 }
 
 pub fn without_unicode_isolation(s: &str) -> String {
-    s.replace(|c| c == '\u{2068}' || c == '\u{2069}', "")
+    s.replace(['\u{2068}', '\u{2069}'], "")
 }
 
 #[cfg(test)]
@@ -440,9 +489,17 @@ mod test {
     }
 
     #[test]
+    fn decimal_rounding() {
+        let tr = I18n::new(&["en"]);
+
+        assert_eq!(tr.browsing_cards_deleted(1.001), "1 card deleted.");
+        assert_eq!(tr.browsing_cards_deleted(1.01), "1.01 cards deleted.");
+    }
+
+    #[test]
     fn i18n() {
         // English template
-        let tr = I18n::new(&["zz"]);
+        let tr = I18n::<All>::new(&["zz"]);
         assert_eq!(tr.translate("valid-key", None), "a valid key");
         assert_eq!(tr.translate("invalid-key", None), "invalid-key");
 
@@ -465,7 +522,7 @@ mod test {
         );
 
         // Another language
-        let tr = I18n::new(&["ja_JP"]);
+        let tr = I18n::<All>::new(&["ja_JP"]);
         assert_eq!(tr.translate("valid-key", None), "キー");
         assert_eq!(tr.translate("only-in-english", None), "not translated");
         assert_eq!(tr.translate("invalid-key", None), "invalid-key");
@@ -476,7 +533,7 @@ mod test {
         );
 
         // Decimal separator
-        let tr = I18n::new(&["pl-PL"]);
+        let tr = I18n::<All>::new(&["pl-PL"]);
         // Polish will use a comma if the string is translated
         assert_eq!(
             tr.translate("one-arg-key", Some(tr_args!["one"=>2.07])),

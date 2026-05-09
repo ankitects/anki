@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable, Iterable, Sequence
 from re import Match
-from typing import TYPE_CHECKING, Any, Iterable, Sequence, Union
+from typing import TYPE_CHECKING, Any, Union
 
 if TYPE_CHECKING:
     import anki._backend
+    from anki.collection import Collection
 
 # DBValue is actually Union[str, int, float, None], but if defined
 # that way, every call site needs to do a type check prior to using
@@ -25,21 +27,29 @@ class DBProxy:
 
     def __init__(self, backend: anki._backend.RustBackend) -> None:
         self._backend = backend
-        self.modified_in_python = False
-        self.last_begin_at = 0
 
     # Transactions
     ###############
 
-    def begin(self) -> None:
-        self.last_begin_at = self.scalar("select mod from col")
-        self._backend.db_begin()
+    def transact(self, op: Callable[[], None]) -> None:
+        """Run the provided operation inside a transaction.
 
-    def commit(self) -> None:
-        self._backend.db_commit()
+        Please note that all backend methods automatically wrap changes in a transaction,
+        so there is no need to use this when calling methods like update_cards(), unless
+        you are making other changes at the same time and want to ensure they are applied
+        completely or not at all.
 
-    def rollback(self) -> None:
-        self._backend.db_rollback()
+        If the operation throws an exception, the changes will be automatically rolled
+        back.
+        """
+
+        try:
+            self._backend.db_begin()
+            op()
+            self._backend.db_commit()
+        except BaseException as e:
+            self._backend.db_rollback()
+            raise e
 
     # Querying
     ################
@@ -51,11 +61,6 @@ class DBProxy:
         first_row_only: bool = False,
         **kwargs: ValueForDB,
     ) -> list[Row]:
-        # mark modified?
-        cananoized = sql.strip().lower()
-        for stmt in "insert", "update", "delete":
-            if cananoized.startswith(stmt):
-                self.modified_in_python = True
         sql, args2 = emulate_named_args(sql, args, kwargs)
         # fetch rows
         return self._backend.db_query(sql, args2, first_row_only)
@@ -93,7 +98,6 @@ class DBProxy:
     ################
 
     def executemany(self, sql: str, args: Iterable[Sequence[ValueForDB]]) -> None:
-        self.modified_in_python = True
         if isinstance(args, list):
             list_args = args
         else:

@@ -3,10 +3,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from anki.collection import OpChanges
 from anki.decks import DEFAULT_DECK_ID, DeckId
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
+from aqt.qt import sip
 from aqt.utils import HelpPage, shortcut, tr
 
 
@@ -18,10 +21,12 @@ class DeckChooser(QHBoxLayout):
         label: bool = True,
         starting_deck_id: DeckId | None = None,
         on_deck_changed: Callable[[int], None] | None = None,
+        dyn: bool = False,
     ) -> None:
         QHBoxLayout.__init__(self)
         self._widget = widget  # type: ignore
         self.mw = mw
+        self.dyn = dyn
         self._setup_ui(show_label=label)
 
         self._selected_deck_id = DeckId(0)
@@ -75,11 +80,12 @@ class DeckChooser(QHBoxLayout):
 
     def _ensure_selected_deck_valid(self) -> None:
         deck = self.mw.col.decks.get(self._selected_deck_id, default=False)
-        if not deck or deck["dyn"]:
+        if not deck or (not self.dyn and deck["dyn"]):
             self.selected_deck_id = DEFAULT_DECK_ID
 
     def _update_button_label(self) -> None:
-        self.deck.setText(self.selected_deck_name().replace("&", "&&"))
+        if not sip.isdeleted(self.deck):
+            self.deck.setText(self.selected_deck_name().replace("&", "&&"))
 
     def show(self) -> None:
         self._widget.show()  # type: ignore
@@ -95,7 +101,9 @@ class DeckChooser(QHBoxLayout):
         def callback(ret: StudyDeck) -> None:
             if not ret.name:
                 return
-            new_selected_deck_id = self.mw.col.decks.by_name(ret.name)["id"]
+            deck = self.mw.col.decks.by_name(ret.name)
+            assert deck is not None
+            new_selected_deck_id = deck["id"]
             if self.selected_deck_id != new_selected_deck_id:
                 self.selected_deck_id = new_selected_deck_id
                 if func := self.on_deck_changed:
@@ -111,6 +119,7 @@ class DeckChooser(QHBoxLayout):
             parent=self._widget,
             geomKey="selectDeck",
             callback=callback,
+            dyn=self.dyn,
         )
 
     def on_operation_did_execute(

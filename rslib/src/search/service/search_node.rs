@@ -6,6 +6,7 @@ use itertools::Itertools;
 
 use crate::prelude::*;
 use crate::search::parse_search;
+use crate::search::FieldSearchMode;
 use crate::search::Negated;
 use crate::search::Node;
 use crate::search::PropertyKind;
@@ -40,7 +41,7 @@ impl TryFrom<anki_proto::search::SearchNode> for Node {
                 Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
                     field: escape_anki_wildcards_for_search_node(&s),
                     text: "_*".to_string(),
-                    is_re: false,
+                    mode: FieldSearchMode::Normal,
                 }),
                 Filter::Rated(rated) => Node::Search(SearchNode::Rated {
                     days: rated.days,
@@ -58,11 +59,11 @@ impl TryFrom<anki_proto::search::SearchNode> for Node {
                 }),
                 Filter::EditedInDays(u) => Node::Search(SearchNode::EditedInDays(u)),
                 Filter::CardState(state) => Node::Search(SearchNode::State(
-                    anki_proto::search::search_node::CardState::from_i32(state)
+                    anki_proto::search::search_node::CardState::try_from(state)
                         .unwrap_or_default()
                         .into(),
                 )),
-                Filter::Flag(flag) => match Flag::from_i32(flag).unwrap_or(Flag::Any) {
+                Filter::Flag(flag) => match Flag::try_from(flag).unwrap_or(Flag::Any) {
                     Flag::None => Node::Search(SearchNode::Flag(0)),
                     Flag::Any => Node::Not(Box::new(Node::Search(SearchNode::Flag(0)))),
                     Flag::Red => Node::Search(SearchNode::Flag(1)),
@@ -107,7 +108,7 @@ impl TryFrom<anki_proto::search::SearchNode> for Node {
                 Filter::Field(field) => Node::Search(SearchNode::SingleField {
                     field: escape_anki_wildcards(&field.field_name),
                     text: escape_anki_wildcards(&field.text),
-                    is_re: field.is_re,
+                    mode: field.mode().into(),
                 }),
                 Filter::LiteralText(text) => {
                     let text = escape_anki_wildcards(&text);

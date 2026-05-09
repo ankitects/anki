@@ -46,10 +46,14 @@ see and install a number of recommended extensions.
 
 ## PyCharm/IntelliJ
 
-If you decide to use PyCharm instead of VS Code, there are somethings to be
-aware of.
+### Setting up Python environment
 
-### Pylib References
+To make PyCharm recognize `anki` and `aqt` imports, you need to add source paths to _Settings > Project Structure_.
+You can copy the provided .idea.dist directory to set up the paths automatically:
 
-You'll need to use File>Project Structure to tell IntelliJ that pylib/ is a
-sources root, so it knows references to 'anki' in aqt are valid.
+```
+mkdir .idea && cd .idea
+ln -sf ../.idea.dist/* .
+```
+
+You also need to add a new Python interpreter under _Settings > Python > Interpreter_ pointing to the Python executable under `out/pyenv` (available after building Anki).

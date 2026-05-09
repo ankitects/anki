@@ -15,6 +15,9 @@ use sha1::Sha1;
 
 use crate::cloze::contains_cloze;
 use crate::define_newtype;
+use crate::error;
+use crate::error::AnkiError;
+use crate::error::OrInvalid;
 use crate::notetype::CardGenContext;
 use crate::notetype::NoteField;
 use crate::ops::StateChanges;
@@ -66,16 +69,35 @@ impl Note {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct AddNoteRequest {
+    pub note: Note,
+    pub deck_id: DeckId,
+}
+
+impl TryFrom<anki_proto::notes::AddNoteRequest> for AddNoteRequest {
+    type Error = AnkiError;
+
+    fn try_from(request: anki_proto::notes::AddNoteRequest) -> error::Result<Self, Self::Error> {
+        Ok(Self {
+            note: request.note.or_invalid("no note provided")?.into(),
+            deck_id: DeckId(request.deck_id),
+        })
+    }
+}
+
 impl Collection {
-    pub fn add_note(&mut self, note: &mut Note, did: DeckId) -> Result<OpOutput<()>> {
+    pub fn add_note(&mut self, note: &mut Note, did: DeckId) -> Result<OpOutput<usize>> {
+        self.transact(Op::AddNote, |col| col.add_note_inner(note, did))
+    }
+
+    pub fn add_notes(&mut self, requests: &mut [AddNoteRequest]) -> Result<OpOutput<()>> {
         self.transact(Op::AddNote, |col| {
-            let nt = col
-                .get_notetype(note.notetype_id)?
-                .or_invalid("missing note type")?;
-            let last_deck = col.get_last_deck_added_to_for_notetype(note.notetype_id);
-            let ctx = CardGenContext::new(nt.as_ref(), last_deck, col.usn()?);
-            let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
-            col.add_note_inner(&ctx, note, did, norm)
+            for request in requests {
+                col.add_note_inner(&mut request.note, request.deck_id)?;
+            }
+
+            Ok(())
         })
     }
 
@@ -198,9 +220,14 @@ impl Note {
         Ok(())
     }
 
-    pub(crate) fn set_modified(&mut self, usn: Usn) {
-        self.mtime = TimestampSecs::now();
+    #[inline]
+    pub(crate) fn set_modified_with_mtime(&mut self, usn: Usn, mtime: TimestampSecs) {
+        self.mtime = mtime;
         self.usn = usn;
+    }
+
+    pub(crate) fn set_modified(&mut self, usn: Usn) {
+        self.set_modified_with_mtime(usn, TimestampSecs::now())
     }
 
     pub(crate) fn nonempty_fields<'a>(&self, fields: &'a [NoteField]) -> HashSet<&'a str> {
@@ -243,7 +270,7 @@ impl Note {
             self.fields
                 .last_mut()
                 .unwrap()
-                .push_str(&format!("; {}", last));
+                .push_str(&format!("; {last}"));
         }
     }
 }
@@ -324,6 +351,18 @@ fn invalid_char_for_field(c: char) -> bool {
     c.is_ascii_control() && c != '\n' && c != '\t'
 }
 
+/// Used when calling [Collection::update_note_inner_without_cards] and
+/// [Collection::update_note_inner_without_cards_using_mtime]
+pub(crate) struct UpdateNoteInnerWithoutCardsArgs<'a> {
+    pub(crate) note: &'a mut Note,
+    pub(crate) original: &'a Note,
+    pub(crate) notetype: &'a Notetype,
+    pub(crate) usn: Usn,
+    pub(crate) mark_note_modified: bool,
+    pub(crate) normalize_text: bool,
+    pub(crate) update_tags: bool,
+}
+
 impl Collection {
     pub(crate) fn canonify_note_tags(&mut self, note: &mut Note, usn: Usn) -> Result<()> {
         if !note.tags.is_empty() {
@@ -333,21 +372,22 @@ impl Collection {
         Ok(())
     }
 
-    pub(crate) fn add_note_inner(
-        &mut self,
-        ctx: &CardGenContext<&Notetype>,
-        note: &mut Note,
-        did: DeckId,
-        normalize_text: bool,
-    ) -> Result<()> {
+    pub(crate) fn add_note_inner(&mut self, note: &mut Note, did: DeckId) -> Result<usize> {
+        let nt = self
+            .get_notetype(note.notetype_id)?
+            .or_invalid("missing note type")?;
+        let last_deck = self.get_last_deck_added_to_for_notetype(note.notetype_id);
+        let ctx = CardGenContext::new(nt.as_ref(), last_deck, self.usn()?);
+        let normalize_text = self.get_config_bool(BoolKey::NormalizeNoteText);
         self.canonify_note_tags(note, ctx.usn)?;
         note.prepare_for_update(ctx.notetype, normalize_text)?;
         note.set_modified(ctx.usn);
         self.add_note_only_undoable(note)?;
-        self.generate_cards_for_new_note(ctx, note, did)?;
+        let count = self.generate_cards_for_new_note(&ctx, note, did)?;
         self.set_last_deck_for_notetype(note.notetype_id, did)?;
         self.set_last_notetype_for_deck(did, note.notetype_id)?;
-        self.set_current_notetype_id(note.notetype_id)
+        self.set_current_notetype_id(note.notetype_id)?;
+        Ok(count)
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<OpOutput<()>> {
@@ -412,38 +452,51 @@ impl Collection {
         normalize_text: bool,
         update_tags: bool,
     ) -> Result<()> {
-        self.update_note_inner_without_cards(
+        self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
             note,
             original,
-            ctx.notetype,
-            ctx.usn,
+            notetype: ctx.notetype,
+            usn: ctx.usn,
             mark_note_modified,
             normalize_text,
             update_tags,
-        )?;
+        })?;
         self.generate_cards_for_existing_note(ctx, note)
     }
 
-    // TODO: refactor into struct
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) fn update_note_inner_without_cards(
+    #[inline]
+    pub(crate) fn update_note_inner_without_cards_using_mtime(
         &mut self,
-        note: &mut Note,
-        original: &Note,
-        notetype: &Notetype,
-        usn: Usn,
-        mark_note_modified: bool,
-        normalize_text: bool,
-        update_tags: bool,
+        UpdateNoteInnerWithoutCardsArgs {
+            note,
+            original,
+            notetype,
+            usn,
+            mark_note_modified,
+            normalize_text,
+            update_tags,
+        }: UpdateNoteInnerWithoutCardsArgs,
+        mtime: Option<TimestampSecs>,
     ) -> Result<()> {
         if update_tags {
             self.canonify_note_tags(note, usn)?;
         }
         note.prepare_for_update(notetype, normalize_text)?;
         if mark_note_modified {
-            note.set_modified(usn);
+            if let Some(mtime) = mtime {
+                note.set_modified_with_mtime(usn, mtime);
+            } else {
+                note.set_modified(usn);
+            }
         }
         self.update_note_undoable(note, original)
+    }
+
+    pub(crate) fn update_note_inner_without_cards(
+        &mut self,
+        args: UpdateNoteInnerWithoutCardsArgs<'_>,
+    ) -> Result<()> {
+        self.update_note_inner_without_cards_using_mtime(args, None)
     }
 
     pub(crate) fn remove_notes_inner(&mut self, nids: &[NoteId], usn: Usn) -> Result<usize> {
@@ -490,7 +543,7 @@ impl Collection {
         let mut changed_notes = 0;
         let usn = self.usn()?;
 
-        for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
+        for (ntid, group) in &nids_by_notetype.into_iter().chunk_by(|tup| tup.0) {
             let nt = self.get_notetype(ntid)?.or_invalid("missing note type")?;
 
             let mut genctx = None;
@@ -520,15 +573,15 @@ impl Collection {
                         out.update_tags,
                     )?;
                 } else {
-                    self.update_note_inner_without_cards(
-                        &mut note,
-                        &original,
-                        &nt,
+                    self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                        note: &mut note,
+                        original: &original,
+                        notetype: &nt,
                         usn,
-                        out.mark_modified,
-                        norm,
-                        out.update_tags,
-                    )?;
+                        mark_note_modified: out.mark_modified,
+                        normalize_text: norm,
+                        update_tags: out.update_tags,
+                    })?;
                 }
 
                 changed_notes += 1;
@@ -538,31 +591,33 @@ impl Collection {
         Ok(changed_notes)
     }
 
-    /// Check if the note's first field is empty or a duplicate. Then for cloze
-    /// notetypes, check if there is a cloze in a non-cloze field or if there's
-    /// no cloze at all. For other notetypes, just check if there's a cloze.
+    /// Check if there is a cloze in a non-cloze field. Then check if the
+    /// note's first field is empty. For cloze notetypes, check whether there
+    /// is a cloze at all. Finally, check if the first field is a duplicate.
     pub fn note_fields_check(&mut self, note: &Note) -> Result<NoteFieldsState> {
-        Ok(if let Some(text) = note.fields.get(0) {
-            let field1 = if self.get_config_bool(BoolKey::NormalizeNoteText) {
-                normalize_to_nfc(text)
-            } else {
-                text.into()
-            };
-            let stripped = strip_html_preserving_media_filenames(&field1);
-            if stripped.trim().is_empty() {
-                NoteFieldsState::Empty
-            } else {
-                let cloze_state = self.field_cloze_check(note)?;
-                if cloze_state != NoteFieldsState::Normal {
+        Ok({
+            let cloze_state = self.field_cloze_check(note)?;
+            if cloze_state == NoteFieldsState::FieldNotCloze {
+                NoteFieldsState::FieldNotCloze
+            } else if let Some(text) = note.fields.first() {
+                let field1 = if self.get_config_bool(BoolKey::NormalizeNoteText) {
+                    normalize_to_nfc(text)
+                } else {
+                    text.into()
+                };
+                let stripped = strip_html_preserving_media_filenames(&field1);
+                if stripped.trim().is_empty() {
+                    NoteFieldsState::Empty
+                } else if cloze_state != NoteFieldsState::Normal {
                     cloze_state
                 } else if self.is_duplicate(&stripped, note)? {
                     NoteFieldsState::Duplicate
                 } else {
                     NoteFieldsState::Normal
                 }
+            } else {
+                NoteFieldsState::Empty
             }
-        } else {
-            NoteFieldsState::Empty
         })
     }
 
@@ -641,7 +696,7 @@ mod test {
         // match the python implementation for now
         assert_eq!(anki_base91(0), "");
         assert_eq!(anki_base91(1), "b");
-        assert_eq!(anki_base91(u64::max_value()), "Rj&Z5m[>Zp");
+        assert_eq!(anki_base91(u64::MAX), "Rj&Z5m[>Zp");
         assert_eq!(anki_base91(1234567890), "saAKk");
     }
 

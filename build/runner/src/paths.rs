@@ -16,8 +16,3 @@ pub fn absolute_msys_path(path: &Utf8Path) -> String {
     // and \ -> /
     format!("/{drive}/{}", path[7..].replace('\\', "/"))
 }
-
-/// Converts backslashes to forward slashes
-pub fn unix_path(path: &Utf8Path) -> String {
-    path.as_str().replace('\\', "/")
-}

@@ -35,7 +35,9 @@ def setup1():
     note = col.newNote()
     note["Front"] = "baz"
     note["Back"] = "qux"
-    note.note_type()["did"] = col.decks.id("new col")
+    note_type = note.note_type()
+    note_type["did"] = col.decks.id("new col")
+    col.models.update_dict(note_type)
     col.addNote(note)
 
 
@@ -108,7 +110,6 @@ def test_export_anki_due():
     note["Front"] = "foo"
     col.addNote(note)
     col.crt -= 86400 * 10
-    col.sched.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
     col.sched.answerCard(c, 3)
@@ -130,7 +131,6 @@ def test_export_anki_due():
     imp = Anki2Importer(col2, newname)
     imp.run()
     c = col2.getCard(c.id)
-    col2.sched.reset()
     assert c.due - col2.sched.today == 1
 
 

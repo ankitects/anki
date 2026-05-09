@@ -146,8 +146,12 @@ pub(crate) fn export_collection(
     Ok(())
 }
 
-fn file_options_stored() -> FileOptions {
-    FileOptions::default().compression_method(CompressionMethod::Stored)
+fn file_options_stored() -> FileOptions<'static, ()> {
+    FileOptions::<'static, ()>::default().compression_method(CompressionMethod::Stored)
+}
+
+fn file_options_default() -> FileOptions<'static, ()> {
+    FileOptions::<'static, ()>::default()
 }
 
 fn write_collection(
@@ -160,7 +164,7 @@ fn write_collection(
         zip.start_file(meta.collection_filename(), file_options_stored())?;
         zstd_copy(col, zip, size)?;
     } else {
-        zip.start_file(meta.collection_filename(), FileOptions::default())?;
+        zip.start_file(meta.collection_filename(), file_options_default())?;
         io::copy(col, zip)?;
     }
     Ok(())

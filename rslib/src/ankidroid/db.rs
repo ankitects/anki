@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::mem::size_of;
 use std::sync::atomic::AtomicI32;
 use std::sync::atomic::Ordering;
+use std::sync::LazyLock;
 use std::sync::Mutex;
 
 use anki_proto::ankidroid::sql_value::Data;
@@ -16,7 +17,6 @@ use itertools::FoldWhile;
 use itertools::FoldWhile::Continue;
 use itertools::FoldWhile::Done;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use rusqlite::ToSql;
 use serde::Deserialize;
 
@@ -110,10 +110,8 @@ fn select_slice_of_size<'a>(
 
 type SequenceNumber = i32;
 
-lazy_static! {
-    static ref HASHMAP: Mutex<HashMap<CollectionId, HashMap<SequenceNumber, DbResponse>>> =
-        Mutex::new(HashMap::new());
-}
+static HASHMAP: LazyLock<Mutex<HashMap<CollectionId, HashMap<SequenceNumber, DbResponse>>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 pub(crate) fn flush_single_result(col: &Collection, sequence_number: i32) {
     HASHMAP
@@ -244,10 +242,9 @@ pub(crate) fn next_sequence_number() -> i32 {
     SEQUENCE_NUMBER.fetch_add(1, Ordering::SeqCst)
 }
 
-lazy_static! {
-    // same as we get from io.requery.android.database.CursorWindow.sCursorWindowSize
-    static ref DB_COMMAND_PAGE_SIZE: Mutex<usize> = Mutex::new(1024 * 1024 * 2);
-}
+// same as we get from
+// io.requery.android.database.CursorWindow.sCursorWindowSize
+static DB_COMMAND_PAGE_SIZE: LazyLock<Mutex<usize>> = LazyLock::new(|| Mutex::new(1024 * 1024 * 2));
 
 pub(crate) fn set_max_page_size(size: usize) {
     let mut state = DB_COMMAND_PAGE_SIZE.lock().expect("Could not lock mutex");

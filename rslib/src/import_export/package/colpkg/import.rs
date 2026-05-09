@@ -124,7 +124,7 @@ fn maybe_restore_media_file(
     Ok(())
 }
 
-fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Result<()> {
+fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile<File>, path: &Path) -> Result<()> {
     let mut tempfile = new_tempfile_in_parent_of(path)?;
     meta.copy(zip_file, &mut tempfile)
         .with_context(|_| FileIoSnafu {

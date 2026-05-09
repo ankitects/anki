@@ -1,0 +1,89 @@
+@use "vars" as *;
+@use "root-vars";
+@use "button-mixins" as button;
+@use "./scrollbar";
+
+$body-color: palette(darkgray, 9);
+$body-color-dark: palette(lightgray, 0);
+$body-bg: palette(lightgray, 2);
+$body-bg-dark: palette(darkgray, 5);
+$link-hover-decoration: none;
+
+$utilities: (
+    "opacity": (
+        property: opacity,
+        values: (
+            0: 0,
+            25: 0.25,
+            50: 0.5,
+            75: 0.75,
+            100: 1,
+        ),
+    ),
+);
+
+@import "bootstrap/scss/bootstrap-reboot";
+@import "bootstrap/scss/bootstrap-utilities";
+
+/* Bootstrap "extensions" */
+.flex-basis-100 {
+    flex-basis: 100%;
+}
+
+.flex-basis-75 {
+    flex-basis: 75%;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+html {
+    overscroll-behavior: none;
+}
+
+body {
+    font-family: inherit;
+    overflow-x: hidden;
+    &:not(.isMac),
+    &:not(.isMac) * {
+        @include scrollbar.custom;
+    }
+    &.no-blur * {
+        backdrop-filter: none !important;
+    }
+}
+
+button:not(.btn, .btn-close) {
+    /* override transition for instant hover response */
+    transition:
+        color var(--transition) ease-in-out,
+        box-shadow var(--transition) ease-in-out !important;
+    border-radius: prop(border-radius);
+    @include button.base;
+}
+
+pre,
+code,
+kbd,
+samp {
+    unicode-bidi: normal !important;
+}
+
+label,
+input[type="radio"],
+input[type="checkbox"] {
+    cursor: pointer;
+}
+
+textarea,
+input[type="date"],
+input[type="text"] {
+    border-radius: prop(border-radius);
+    outline: none;
+    border: 1px solid color(border);
+    &:focus {
+        border-color: color(border-focus);
+    }
+}

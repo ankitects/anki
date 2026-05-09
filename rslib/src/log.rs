@@ -20,6 +20,9 @@ const LOG_ROTATE_BYTES: u64 = 50 * 1024 * 1024;
 
 /// Enable logging to the console, and optionally also to a file.
 pub fn set_global_logger(path: Option<&str>) -> Result<()> {
+    if std::env::var("BURN_LOG").is_ok() {
+        return Ok(());
+    }
     static ONCE: OnceCell<()> = OnceCell::new();
     ONCE.get_or_try_init(|| -> Result<()> {
         let file_writer = if let Some(path) = path {
@@ -66,8 +69,8 @@ fn maybe_rotate_log(path: &str) -> io::Result<()> {
         return Ok(());
     }
 
-    let path2 = format!("{}.1", path);
-    let path3 = format!("{}.2", path);
+    let path2 = format!("{path}.1");
+    let path3 = format!("{path}.2");
 
     // if a rotated file already exists, rename it
     if let Err(e) = fs::rename(&path2, path3) {

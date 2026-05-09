@@ -34,7 +34,7 @@ function createPreloadLink(href: string, as: string): HTMLLinkElement {
 }
 
 function extractExternalStyleSheets(fragment: DocumentFragment): CSSElement[] {
-    return ([...fragment.querySelectorAll("style, link")] as CSSElement[])
+    return [...fragment.querySelectorAll<CSSElement>("style, link")]
         .filter((css) =>
             (css instanceof HTMLStyleElement && css.innerHTML.includes("@import"))
             || (css instanceof HTMLLinkElement && css.rel === "stylesheet")
@@ -105,7 +105,9 @@ export async function preloadResources(html: string): Promise<void> {
         timeout = 500;
     } else if (images.length) {
         timeout = 200;
-    } else return;
+    } else {
+        return;
+    }
 
     await Promise.race([
         Promise.all([...styleSheets, ...images, ...fonts]),

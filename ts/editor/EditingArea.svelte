@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
-    import contextProperty from "../sveltelib/context-property";
+    import contextProperty from "$lib/sveltelib/context-property";
 
     export interface FocusableInputAPI {
         readonly name: string;
@@ -103,8 +103,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .editing-area {
         display: grid;
-        /* TODO allow configuration of grid #1503 */
-        /* grid-template-columns: repeat(2, 1fr); */
 
         /* This defines the border between inputs */
         grid-gap: 1px;

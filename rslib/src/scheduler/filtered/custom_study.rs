@@ -44,7 +44,6 @@ impl Collection {
 
         let subtree = get_deck_in_tree(self.deck_tree(Some(TimestampSecs::now()))?, deck_id)
             .or_not_found(deck_id)?;
-        let v3 = self.get_config_bool(BoolKey::Sched2021);
         let available_new_including_children =
             sum_deck_tree_node(&subtree, |node| node.new_uncapped);
         let available_review_including_children =
@@ -54,21 +53,12 @@ impl Collection {
             available_new_in_children,
             available_review,
             available_review_in_children,
-        ) = if v3 {
-            (
-                subtree.new_uncapped,
-                available_new_including_children - subtree.new_uncapped,
-                subtree.review_uncapped,
-                available_review_including_children - subtree.review_uncapped,
-            )
-        } else {
-            (
-                available_new_including_children,
-                0,
-                available_review_including_children,
-                0,
-            )
-        };
+        ) = (
+            subtree.new_uncapped,
+            available_new_including_children - subtree.new_uncapped,
+            subtree.review_uncapped,
+            available_review_including_children - subtree.review_uncapped,
+        );
         // tags
         let include_tags: HashSet<String> = self.get_config_default(
             DeckConfigKey::CustomStudyIncludeTags
@@ -184,6 +174,7 @@ impl Collection {
             id,
             human_name,
             config,
+            allow_empty: false,
         };
 
         self.add_or_update_filtered_deck_inner(deck)
@@ -218,6 +209,9 @@ fn custom_study_config(
         }],
         delays: vec![],
         preview_delay: 10,
+        preview_again_secs: 60,
+        preview_hard_secs: 600,
+        preview_good_secs: 0,
     }
 }
 
@@ -246,12 +240,7 @@ fn preview_config(deck_name: String, days: u32) -> FilteredDeck {
         .and_flat(SearchNode::AddedInDays(days))
         .and_flat(SearchNode::from_deck_name(&deck_name))
         .write();
-    custom_study_config(
-        false,
-        search,
-        FilteredSearchOrder::OldestReviewedFirst,
-        None,
-    )
+    custom_study_config(false, search, FilteredSearchOrder::Added, None)
 }
 
 fn cram_config(deck_name: String, cram: &Cram) -> Result<FilteredDeck> {

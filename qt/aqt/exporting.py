@@ -34,8 +34,9 @@ class ExportDialog(QDialog):
         mw: aqt.main.AnkiQt,
         did: DeckId | None = None,
         cids: list[CardId] | None = None,
+        parent: QWidget | None = None,
     ):
-        QDialog.__init__(self, mw, Qt.WindowType.Window)
+        QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
         self.mw = mw
         self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
@@ -209,11 +210,10 @@ class ExportDialog(QDialog):
         if self.isVerbatim:
             msg = tr.exporting_collection_exported()
             self.mw.reopen()
+        elif self.isTextNote:
+            msg = tr.exporting_note_exported(count=self.exporter.count)
         else:
-            if self.isTextNote:
-                msg = tr.exporting_note_exported(count=self.exporter.count)
-            else:
-                msg = tr.exporting_card_exported(count=self.exporter.count)
+            msg = tr.exporting_card_exported(count=self.exporter.count)
         gui_hooks.legacy_exporter_did_export(self.exporter)
         tooltip(msg, period=3000)
         QDialog.reject(self)

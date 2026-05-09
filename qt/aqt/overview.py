@@ -2,8 +2,10 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import html
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 import aqt
 import aqt.operations
@@ -12,6 +14,7 @@ from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
 from aqt.deckdescription import DeckDescriptionDialog
 from aqt.deckoptions import display_options_for_deck
+from aqt.operations import QueryOp
 from aqt.operations.scheduling import (
     empty_filtered_deck,
     rebuild_filtered_deck,
@@ -61,12 +64,16 @@ class Overview:
         self.refresh()
 
     def refresh(self) -> None:
-        self._refresh_needed = False
-        self.mw.col.reset()
-        self._renderPage()
-        self._renderBottom()
-        self.mw.web.setFocus()
-        gui_hooks.overview_did_refresh(self)
+        def success(_counts: tuple) -> None:
+            self._refresh_needed = False
+            self._renderPage()
+            self._renderBottom()
+            self.mw.web.setFocus()
+            gui_hooks.overview_did_refresh(self)
+
+        QueryOp(
+            parent=self.mw, op=lambda col: col.sched.counts(), success=success
+        ).run_in_background()
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed:
@@ -106,7 +113,7 @@ class Overview:
             self.mw.moveToState("deckBrowser")
         elif url == "review":
             openLink(f"{aqt.appShared}info/{self.sid}?v={self.sidVer}")
-        elif url == "studymore" or url == "customStudy":
+        elif url in {"studymore", "customStudy"}:
             self.onStudyMore()
         elif url == "unbury":
             self.on_unbury()
@@ -144,25 +151,24 @@ class Overview:
 
     def on_unbury(self) -> None:
         mode = UnburyDeck.Mode.ALL
-        if self.mw.col.sched_ver() != 1:
-            info = self.mw.col.sched.congratulations_info()
-            if info.have_sched_buried and info.have_user_buried:
-                opts = [
-                    tr.studying_manually_buried_cards(),
-                    tr.studying_buried_siblings(),
-                    tr.studying_all_buried_cards(),
-                    tr.actions_cancel(),
-                ]
+        info = self.mw.col.sched.congratulations_info()
+        if info.have_sched_buried and info.have_user_buried:
+            opts = [
+                tr.studying_manually_buried_cards(),
+                tr.studying_buried_siblings(),
+                tr.studying_all_buried_cards(),
+                tr.actions_cancel(),
+            ]
 
-                diag = askUserDialog(tr.studying_what_would_you_like_to_unbury(), opts)
-                diag.setDefault(0)
-                ret = diag.run()
-                if ret == opts[0]:
-                    mode = UnburyDeck.Mode.USER_ONLY
-                elif ret == opts[1]:
-                    mode = UnburyDeck.Mode.SCHED_ONLY
-                elif ret == opts[3]:
-                    return
+            diag = askUserDialog(tr.studying_what_would_you_like_to_unbury(), opts)
+            diag.setDefault(0)
+            ret = diag.run()
+            if ret == opts[0]:
+                mode = UnburyDeck.Mode.USER_ONLY
+            elif ret == opts[1]:
+                mode = UnburyDeck.Mode.SCHED_ONLY
+            elif ret == opts[3]:
+                return
 
         unbury_deck(
             parent=self.mw, deck_id=self.mw.col.decks.get_current_id(), mode=mode
@@ -174,7 +180,6 @@ class Overview:
     ############################################################
 
     def _renderPage(self) -> None:
-        but = self.mw.button
         deck = self.mw.col.decks.current()
         self.sid = deck.get("sharedFrom")
         if self.sid:
@@ -192,6 +197,7 @@ class Overview:
             table=self._table(),
         )
         gui_hooks.overview_will_render_content(self, content)
+        content.deck = html.escape(content.deck)
         self.web.stdHtml(
             self._body % content.__dict__,
             css=["css/overview.css"],
@@ -200,7 +206,7 @@ class Overview:
         )
 
     def _show_finished_screen(self) -> None:
-        self.web.load_ts_page("congrats")
+        self.web.load_sveltekit_page("congrats")
 
     def _desc(self, deck: dict[str, Any]) -> str:
         if deck["dyn"]:
@@ -219,13 +225,14 @@ class Overview:
             dyn = ""
         return f'<div class="descfont descmid description {dyn}">{desc}</div>'
 
-    def _table(self) -> str | None:
+    def _table(self) -> str:
         counts = list(self.mw.col.sched.counts())
         current_did = self.mw.col.decks.get_current_id()
         deck_node = self.mw.col.sched.deck_due_tree(current_did)
 
         but = self.mw.button
         if self.mw.col.v3_scheduler():
+            assert deck_node is not None
             buried_new = deck_node.new_count - counts[0]
             buried_learning = deck_node.learn_count - counts[1]
             buried_review = deck_node.review_count - counts[2]
@@ -299,9 +306,7 @@ class Overview:
             if b[0]:
                 b[0] = tr.actions_shortcut_key(val=shortcut(b[0]))
             buf += """
-<button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(
-                b
-            )
+<button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(b)
         self.bottom.draw(
             buf=buf,
             link_handler=link_handler,

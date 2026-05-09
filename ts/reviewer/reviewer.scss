@@ -1,11 +1,14 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "sass/vars";
-@use "ts/image-occlusion/review";
+@use "../lib/sass/vars";
+@use "../routes/image-occlusion/review";
 
 hr {
     background-color: vars.palette(darkgray, 0);
+    margin: 1em 0;
+    border: none;
+    height: 1px;
 }
 
 body {
@@ -71,10 +74,12 @@ pre {
     width: 100%;
     // https://anki.tenderapp.com/discussions/beta-testing/1854-using-margin-auto-causes-horizontal-scrollbar-on-typesomething
     box-sizing: border-box;
+    line-height: 1.75;
 }
 
 code#typeans {
     white-space: pre-wrap;
+    font-variant-ligatures: none;
 }
 
 .typeGood {

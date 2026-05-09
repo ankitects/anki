@@ -9,16 +9,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import * as tr from "@generated/ftl";
     import { on } from "@tslib/events";
-    import * as tr from "@tslib/ftl";
     import { removeStyleProperties } from "@tslib/styling";
     import type { Callback } from "@tslib/typing";
     import { tick } from "svelte";
 
-    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
-    import Popover from "../../components/Popover.svelte";
-    import WithFloating from "../../components/WithFloating.svelte";
-    import WithOverlay from "../../components/WithOverlay.svelte";
+    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
+    import Popover from "$lib/components/Popover.svelte";
+    import WithFloating from "$lib/components/WithFloating.svelte";
+    import WithOverlay from "$lib/components/WithOverlay.svelte";
+
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
@@ -223,7 +224,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         Number(actualWidth) <= maxWidth && Number(actualHeight) <= maxHeight;
 
     let restoringDisabled: boolean;
-    $: restoringDisabled = !activeImage?.hasAttribute("width") ?? true;
+    $: restoringDisabled = !(activeImage?.hasAttribute("width") ?? true);
 
     const widthObserver = new MutationObserver(() => {
         restoringDisabled = !activeImage!.hasAttribute("width");
@@ -255,7 +256,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     if (reason === "outsideClick") {
                         // If the click is still in the overlay, we do not want
                         // to reset the handle either
-                        if (!originalEvent.path.includes(imageOverlay)) {
+                        if (!originalEvent?.composedPath().includes(imageOverlay)) {
                             await resetHandle();
                         }
                     } else {
@@ -302,7 +303,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 />
 
                 <HandleLabel>
-                    {#if isSizeConstrained}
+                    {#if isSizeConstrained && !shrinkingDisabled}
                         <span>{`(${tr.editingDoubleClickToExpand()})`}</span>
                     {:else}
                         <span>{actualWidth}&times;{actualHeight}</span>

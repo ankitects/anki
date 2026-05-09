@@ -1,60 +1,14 @@
 {
-    "include": [],
-    "exclude": [],
-    "references": [
-        { "path": "components" },
-        { "path": "congrats" },
-        { "path": "deck-options" },
-        { "path": "editable" },
-        { "path": "editor" },
-        { "path": "graphs" },
-        { "path": "html-filter" },
-        { "path": "reviewer" },
-        { "path": "lib" },
-        { "path": "mathjax" },
-        { "path": "domlib" },
-        { "path": "sveltelib" },
-        { "path": "icons" }
-    ],
+    "extends": ["./.svelte-kit/tsconfig.json"],
     "compilerOptions": {
-        "declaration": true,
-        "isolatedModules": true,
-        "composite": true,
-        "target": "es2020",
-        "module": "es2020",
-        "lib": [
-            "es2017",
-            "es2018",
-            "es2019",
-            "es2020",
-            "dom",
-            "dom.iterable"
-        ],
-        "outDir": "../out",
-        "rootDir": "..",
-        "rootDirs": [
-            "..",
-            "../out"
-        ],
-        "baseUrl": ".",
-        "paths": {
-            "@tslib/*": ["lib/*", "../out/ts/lib/*"]
-        },
-        "types": [],
-        "verbatimModuleSyntax": true,
-        "strict": true,
-        "noImplicitAny": false,
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "strictBindCallApply": true,
-        "strictPropertyInitialization": true,
-        "noImplicitThis": true,
-        "alwaysStrict": true,
-        "moduleResolution": "node",
-        "allowSyntheticDefaultImports": true,
+        "allowJs": true,
+        "checkJs": true,
         "esModuleInterop": true,
-        "jsx": "react",
-        "noEmitHelpers": true,
-        "importHelpers": true
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strict": true,
+        "noImplicitAny": false
     }
 }

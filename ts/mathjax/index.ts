@@ -3,7 +3,7 @@
 
 /// <reference types="./mathjax-types" />
 
-const packages = ["noerrors", "mathtools", "mhchem"];
+const packages = ["noerrors", "mathtools"];
 
 function packagesForLoading(packages: string[]): string[] {
     return packages.map((value: string): string => `[tex]/${value}`);
@@ -17,6 +17,7 @@ window.MathJax = {
         processRefs: false,
         packages: {
             "[+]": packages,
+            "[-]": ["textmacros"],
         },
     },
     loader: {

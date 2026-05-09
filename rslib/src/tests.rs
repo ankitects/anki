@@ -27,6 +27,7 @@ pub(crate) fn open_test_collection_with_learning_card() -> Collection {
     let mut col = Collection::new();
     NoteAdder::basic(&mut col).add(&mut col);
     col.answer_again();
+    col.clear_study_queues();
     col
 }
 
@@ -40,19 +41,13 @@ pub(crate) fn open_test_collection_with_relearning_card() -> Collection {
         .unwrap();
     col.clear_study_queues();
     col.answer_again();
+    col.clear_study_queues();
     col
 }
 
 impl Collection {
     pub(crate) fn new() -> Collection {
         CollectionBuilder::default().build().unwrap()
-    }
-
-    pub(crate) fn new_v3() -> Collection {
-        let mut col = Collection::new();
-        col.set_config_bool(BoolKey::Sched2021, true, false)
-            .unwrap();
-        col
     }
 
     pub(crate) fn add_media(&self, media: &[(&str, &[u8])]) {
@@ -98,6 +93,25 @@ impl Collection {
             .unwrap();
         self.adjust_remaining_steps_in_deck(DeckId(1), Some(&config), Some(&new_config), Usn(0))
             .unwrap();
+    }
+
+    pub(crate) fn basic_notetype(&self) -> Notetype {
+        let ntid = self.storage.get_notetype_id("Basic").unwrap().unwrap();
+        self.storage.get_notetype(ntid).unwrap().unwrap()
+    }
+
+    pub(crate) fn basic_rev_notetype(&self) -> Notetype {
+        let ntid = self
+            .storage
+            .get_notetype_id("Basic (and reversed card)")
+            .unwrap()
+            .unwrap();
+        self.storage.get_notetype(ntid).unwrap().unwrap()
+    }
+
+    pub(crate) fn cloze_notetype(&self) -> Notetype {
+        let ntid = self.storage.get_notetype_id("Cloze").unwrap().unwrap();
+        self.storage.get_notetype(ntid).unwrap().unwrap()
     }
 }
 
@@ -159,23 +173,19 @@ pub(crate) struct NoteAdder {
 }
 
 impl NoteAdder {
-    pub(crate) fn new(col: &mut Collection, notetype: &str) -> Self {
+    pub(crate) fn new(notetype: &Notetype) -> Self {
         Self {
-            note: col
-                .get_notetype_by_name(notetype)
-                .unwrap()
-                .unwrap()
-                .new_note(),
+            note: notetype.new_note(),
             deck: DeckId(1),
         }
     }
 
     pub(crate) fn basic(col: &mut Collection) -> Self {
-        Self::new(col, "basic")
+        Self::new(&col.basic_notetype())
     }
 
     pub(crate) fn cloze(col: &mut Collection) -> Self {
-        Self::new(col, "cloze")
+        Self::new(&col.cloze_notetype())
     }
 
     pub(crate) fn fields(mut self, fields: &[&str]) -> Self {

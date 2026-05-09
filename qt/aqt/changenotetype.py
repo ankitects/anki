@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import aqt
 import aqt.deckconf
@@ -15,7 +15,6 @@ from anki.notes import NoteId
 from aqt.operations.notetype import change_notetype_of_notes
 from aqt.qt import *
 from aqt.utils import (
-    addCloseShortcut,
     disable_help_button,
     restoreGeom,
     saveGeom,
@@ -49,24 +48,20 @@ class ChangeNotetypeDialog(QDialog):
         self.setMinimumSize(400, 300)
         disable_help_button(self)
         restoreGeom(self, self.TITLE, default_size=(800, 800))
-        addCloseShortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.CHANGE_NOTETYPE)
         self.web.setVisible(False)
-        self.web.load_ts_page("change-notetype")
+        self.web.load_sveltekit_page(f"change-notetype/{notetype_id}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
         self.setLayout(layout)
 
-        self.web.eval(
-            f"""anki.setupChangeNotetypePage({notetype_id}, {notetype_id});"""
-        )
         self.setWindowTitle(tr.browsing_change_notetype())
 
     def reject(self) -> None:
         self.web.cleanup()
-        self.web = None
+        self.web = None  # type: ignore
         saveGeom(self, self.TITLE)
         QDialog.reject(self)
 

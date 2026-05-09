@@ -1,5 +1,8 @@
 #!/bin/bash
 
-set -e
-RELEASE=1 ./ninja wheels
+set -eo pipefail
+
+rm -rf out/wheels/*
+RELEASE=2 ./ninja wheels
+(cd qt/release && ./build.sh)
 echo "wheels are in out/wheels"

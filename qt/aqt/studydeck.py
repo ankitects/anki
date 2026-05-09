@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import aqt
 import aqt.forms
@@ -91,6 +91,7 @@ class StudyDeck(QDialog):
         qconnect(self.form.filter.textEdited, self.redraw)
         qconnect(self.form.list.itemDoubleClicked, self.accept)
         qconnect(self.finished, self.on_finished)
+        self.form.filter.setFocus()
         self.show()
         # redraw after show so position at center correct
         self.redraw("", current)
@@ -100,7 +101,7 @@ class StudyDeck(QDialog):
         else:
             self.exec()
 
-    def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
+    def eventFilter(self, obj: QObject | None, evt: QEvent | None) -> bool:
         if isinstance(evt, QKeyEvent) and evt.type() == QEvent.Type.KeyPress:
             new_row = current_row = self.form.list.currentRow()
             rows_count = self.form.list.count()
@@ -177,6 +178,7 @@ class StudyDeck(QDialog):
 
         def success(out: OpChangesWithId) -> None:
             deck = self.mw.col.decks.get(DeckId(out.id))
+            assert deck is not None
             self.name = deck["name"]
             self.accept_with_callback()
 

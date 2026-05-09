@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { SchedulingStatesWithContext } from "@tslib/anki/frontend_pb";
-import { SchedulingContext, SchedulingStates } from "@tslib/anki/scheduler_pb";
+import { SchedulingStatesWithContext } from "@generated/anki/frontend_pb";
+import { SchedulingContext, SchedulingStates } from "@generated/anki/scheduler_pb";
+import { expect, test } from "vitest";
 
 import { applyStateTransform } from "./answering";
 
@@ -84,7 +85,7 @@ function exampleInput(): SchedulingStatesWithContext {
 
 test("can change oneof", () => {
     let states = exampleInput().states!;
-    const jsonStates = states.toJson({ "emitDefaultValues": true }) as any;
+    const jsonStates = states.toJson({ "emitDefaultValues": true });
     // again should be a relearning state
     const inner = states.again?.kind?.value?.kind;
     assert(inner?.case === "relearning");

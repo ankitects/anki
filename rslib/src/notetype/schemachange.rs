@@ -4,10 +4,12 @@
 //! Updates to notes/cards when the structure of a notetype is changed.
 
 use std::collections::HashMap;
+use std::mem;
 
 use super::CardGenContext;
 use super::CardTemplate;
 use super::Notetype;
+use crate::notes::UpdateNoteInnerWithoutCardsArgs;
 use crate::prelude::*;
 use crate::search::JoinSearches;
 use crate::search::TemplateKind;
@@ -79,15 +81,15 @@ impl Collection {
                 for nid in nids {
                     let mut note = self.storage.get_note(nid)?.unwrap();
                     let original = note.clone();
-                    self.update_note_inner_without_cards(
-                        &mut note,
-                        &original,
-                        nt,
+                    self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                        note: &mut note,
+                        original: &original,
+                        notetype: nt,
                         usn,
-                        true,
+                        mark_note_modified: true,
                         normalize_text,
-                        false,
-                    )?;
+                        update_tags: false,
+                    })?;
                 }
             } else {
                 // nothing to do
@@ -102,29 +104,16 @@ impl Collection {
         for nid in nids {
             let mut note = self.storage.get_note(nid)?.unwrap();
             let original = note.clone();
-            *note.fields_mut() = ords
-                .iter()
-                .map(|f| {
-                    if let Some(idx) = f {
-                        note.fields()
-                            .get(*idx as usize)
-                            .map(AsRef::as_ref)
-                            .unwrap_or("")
-                    } else {
-                        ""
-                    }
-                })
-                .map(Into::into)
-                .collect();
-            self.update_note_inner_without_cards(
-                &mut note,
-                &original,
-                nt,
+            note.reorder_fields(&ords);
+            self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                note: &mut note,
+                original: &original,
+                notetype: nt,
                 usn,
-                true,
+                mark_note_modified: true,
                 normalize_text,
-                false,
-            )?;
+                update_tags: false,
+            })?;
         }
         Ok(())
     }
@@ -189,6 +178,19 @@ impl Notetype {
             .iter()
             .map(|t| &t.config.q_format)
             .eq(other_templates.iter().map(|t| &t.config.q_format))
+    }
+}
+
+impl Note {
+    pub(crate) fn reorder_fields(&mut self, new_ords: &[Option<u32>]) {
+        *self.fields_mut() = new_ords
+            .iter()
+            .map(|ord| {
+                ord.and_then(|idx| self.fields_mut().get_mut(idx as usize))
+                    .map(mem::take)
+                    .unwrap_or_default()
+            })
+            .collect();
     }
 }
 

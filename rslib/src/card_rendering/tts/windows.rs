@@ -5,12 +5,13 @@ use std::fs::File;
 use std::io::Write;
 
 use anki_proto::card_rendering::all_tts_voices_response::TtsVoice;
-use futures::executor::block_on;
+use windows::core::Interface;
 use windows::core::HSTRING;
 use windows::Media::SpeechSynthesis::SpeechSynthesisStream;
 use windows::Media::SpeechSynthesis::SpeechSynthesizer;
 use windows::Media::SpeechSynthesis::VoiceInformation;
 use windows::Storage::Streams::DataReader;
+use windows::Storage::Streams::IRandomAccessStream;
 
 use crate::error::windows::WindowsErrorDetails;
 use crate::error::windows::WindowsSnafu;
@@ -45,7 +46,7 @@ fn find_voice(voice_id: &str) -> Result<VoiceInformation> {
 
 fn to_hstring(text: &str) -> HSTRING {
     let utf16: Vec<u16> = text.encode_utf16().collect();
-    HSTRING::from_wide(&utf16).expect("Strings are valid Unicode")
+    HSTRING::from_wide(&utf16)
 }
 
 fn synthesize_stream(
@@ -64,16 +65,20 @@ fn synthesize_stream(
             details: WindowsErrorDetails::SettingRate(speed),
         })?;
     let async_op = synthesizer.SynthesizeTextToStreamAsync(&to_hstring(text))?;
-    let stream = block_on(async_op).context(WindowsSnafu {
+    let stream = async_op.get().context(WindowsSnafu {
         details: WindowsErrorDetails::Synthesizing,
     })?;
     Ok(stream)
 }
 
 fn write_stream_to_path(stream: SpeechSynthesisStream, path: &str) -> Result<()> {
-    let input_stream = stream.GetInputStreamAt(0)?;
+    let random_access_stream: IRandomAccessStream = stream.cast()?;
+    let input_stream = random_access_stream.GetInputStreamAt(0)?;
     let date_reader = DataReader::CreateDataReader(&input_stream)?;
-    let stream_size = stream.Size()?.try_into().or_invalid("stream too large")?;
+    let stream_size = random_access_stream
+        .Size()?
+        .try_into()
+        .or_invalid("stream too large")?;
     date_reader.LoadAsync(stream_size)?;
     let mut file = File::create(path)?;
     write_reader_to_file(date_reader, &mut file, stream_size as usize)

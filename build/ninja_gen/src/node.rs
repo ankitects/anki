@@ -19,24 +19,28 @@ use crate::input::BuildInput;
 pub fn node_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-x64.tar.xz",
-            sha256: "4481a34bf32ddb9a9ff9540338539401320e8c3628af39929b4211ea3552a19e",
+            url: "https://nodejs.org/dist/v22.17.0/node-v22.17.0-linux-x64.tar.xz",
+            sha256: "325c0f1261e0c61bcae369a1274028e9cfb7ab7949c05512c5b1e630f7e80e12",
         },
         Platform::LinuxArm => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-arm64.tar.xz",
-            sha256: "3904869935b7ecc51130b4b86486d2356539a174d11c9181180cab649f32cd2a",
+            url: "https://nodejs.org/dist/v22.17.0/node-v22.17.0-linux-arm64.tar.xz",
+            sha256: "140aee84be6774f5fb3f404be72adbe8420b523f824de82daeb5ab218dab7b18",
         },
         Platform::MacX64 => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-darwin-x64.tar.xz",
-            sha256: "6c88d462550a024661e74e9377371d7e023321a652eafb3d14d58a866e6ac002",
+            url: "https://nodejs.org/dist/v22.17.0/node-v22.17.0-darwin-x64.tar.xz",
+            sha256: "f79de1f64df4ac68493a344bb5ab7d289d0275271e87b543d1278392c9de778a",
         },
         Platform::MacArm => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-darwin-arm64.tar.xz",
-            sha256: "17f2e25d207d36d6b0964845062160d9ed16207c08d09af33b9a2fd046c5896f",
+            url: "https://nodejs.org/dist/v22.17.0/node-v22.17.0-darwin-arm64.tar.xz",
+            sha256: "cc9cc294eaf782dd93c8c51f460da610cc35753c6a9947411731524d16e97914",
         },
         Platform::WindowsX64 => OnlineArchive {
-            url: "https://nodejs.org/dist/v18.12.1/node-v18.12.1-win-x64.zip",
-            sha256: "5478a5a2dce2803ae22327a9f8ae8494c1dec4a4beca5bbf897027380aecf4c7",
+            url: "https://nodejs.org/dist/v22.17.0/node-v22.17.0-win-x64.zip",
+            sha256: "721ab118a3aac8584348b132767eadf51379e0616f0db802cc1e66d7f0d98f85",
+        },
+        Platform::WindowsArm => OnlineArchive {
+            url: "https://nodejs.org/dist/v22.17.0/node-v22.17.0-win-arm64.zip",
+            sha256: "78355dc9ca117bb71d3f081e4b1b281855e2b134f3939bb0ca314f7567b0e621",
         },
     }
 }
@@ -94,7 +98,7 @@ impl BuildAction for YarnInstall<'_> {
     }
 }
 
-fn with_cmd_ext(bin: &str) -> Cow<str> {
+fn with_cmd_ext(bin: &str) -> Cow<'_, str> {
     if cfg!(windows) {
         format!("{bin}.cmd").into()
     } else {
@@ -207,6 +211,31 @@ impl BuildAction for DPrint {
     }
 }
 
+pub struct Prettier {
+    pub inputs: BuildInput,
+    pub check_only: bool,
+}
+
+impl BuildAction for Prettier {
+    fn command(&self) -> &str {
+        "$yarn prettier --cache $mode $pattern"
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
+        build.add_inputs("prettier", inputs![":node_modules:prettier"]);
+        build.add_inputs("", &self.inputs);
+        build.add_variable("pattern", r#""**/*.svelte""#);
+        let (file_ext, mode) = if self.check_only {
+            ("fmt", "--check")
+        } else {
+            ("check", "--write")
+        };
+        build.add_variable("mode", mode);
+        build.add_output_stamp(format!("tests/prettier.{file_ext}"));
+    }
+}
+
 pub struct SvelteCheck {
     pub tsconfig: BuildInput,
     pub inputs: BuildInput,
@@ -214,33 +243,20 @@ pub struct SvelteCheck {
 
 impl BuildAction for SvelteCheck {
     fn command(&self) -> &str {
-        "$svelte-check --tsconfig $tsconfig $
-        --fail-on-warnings --threshold warning $
-        --compiler-warnings $compiler_warnings"
+        "$yarn svelte-check:once"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
         build.add_inputs("svelte-check", inputs![":node_modules:svelte-check"]);
         build.add_inputs("tsconfig", &self.tsconfig);
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
         build.add_inputs("", &self.inputs);
         build.add_inputs("", inputs!["yarn.lock"]);
-        build.add_variable(
-            "compiler_warnings",
-            [
-                "a11y-click-events-have-key-events",
-                "a11y-no-noninteractive-tabindex",
-                "a11y-no-static-element-interactions",
-            ]
-            .iter()
-            .map(|warning| format!("{}$:ignore", warning))
-            .collect::<Vec<_>>()
-            .join(","),
-        );
         let hash = simple_hash(&self.tsconfig);
         build.add_output_stamp(format!("tests/svelte-check.{hash}"));
     }
 
-    fn hide_last_line(&self) -> bool {
+    fn hide_progress(&self) -> bool {
         true
     }
 }
@@ -290,30 +306,20 @@ impl BuildAction for Eslint<'_> {
     }
 }
 
-pub struct JestTest<'a> {
-    pub folder: &'a str,
+pub struct ViteTest {
     pub deps: BuildInput,
-    pub jest_rc: BuildInput,
-    pub jsdom: bool,
 }
 
-impl BuildAction for JestTest<'_> {
+impl BuildAction for ViteTest {
     fn command(&self) -> &str {
-        "$jest --config $config $env $folder"
+        "$yarn vitest:once"
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
-        build.add_inputs("jest", inputs![":node_modules:jest"]);
+        build.add_inputs("vitest", inputs![":node_modules:vitest"]);
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
         build.add_inputs("", &self.deps);
-        build.add_inputs("config", &self.jest_rc);
-        build.add_variable("env", if self.jsdom { "--env=jsdom" } else { "" });
-        build.add_variable("folder", self.folder);
-        let hash = simple_hash(self.folder);
-        build.add_output_stamp(format!("tests/jest.{hash}"));
-    }
-
-    fn hide_last_line(&self) -> bool {
-        true
+        build.add_output_stamp("tests/vitest");
     }
 }
 
@@ -449,5 +455,31 @@ impl BuildAction for CompileTypescript<'_> {
 
         build.create_dir_all("out_dir", self.out_dir);
         build.add_outputs("", output_files);
+    }
+}
+
+/// The output_folder will be declared as a build output, but each file inside
+/// it is not declared, as the files will vary.
+pub struct SveltekitBuild {
+    pub output_folder: BuildInput,
+    pub deps: BuildInput,
+}
+
+impl BuildAction for SveltekitBuild {
+    fn command(&self) -> &str {
+        if std::env::var("HMR").is_err() {
+            "$yarn build"
+        } else {
+            "echo"
+        }
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("node_modules", inputs![":node_modules"]);
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
+        build.add_inputs("", &self.deps);
+        build.add_inputs("", inputs!["yarn.lock"]);
+        build.add_output_stamp("sveltekit.marker");
+        build.add_outputs_ext("folder", vec!["sveltekit"], true);
     }
 }

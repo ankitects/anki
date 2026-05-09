@@ -24,11 +24,13 @@
 #
 # ------------------------------------------------------------------------------
 
-# pylint: disable=raise-missing-from
+
+from __future__ import annotations
 
 import inspect
 import json
 import os
+import platform
 import select
 import socket
 import subprocess
@@ -36,13 +38,11 @@ import sys
 import tempfile
 import threading
 import time
-from distutils.spawn import (  # pylint: disable=import-error,no-name-in-module
-    find_executable,
-)
 from queue import Empty, Full, Queue
-from typing import Optional
+from shutil import which
 
-from anki.utils import is_win
+import aqt
+from anki.utils import is_mac, is_win
 
 
 class MPVError(Exception):
@@ -66,9 +66,9 @@ class MPVTimeoutError(MPVError):
 
 
 if is_win:
-    # pylint: disable=import-error
     import pywintypes
     import win32file  # pytype: disable=import-error
+    import win32job
     import win32pipe
     import winerror
 
@@ -78,8 +78,8 @@ class MPVBase:
     based JSON IPC.
     """
 
-    executable = find_executable("mpv")
-    popenEnv: Optional[dict[str, str]] = None
+    executable = which("mpv")
+    popenEnv: dict[str, str] | None = None
 
     default_argv = [
         "--idle",
@@ -94,6 +94,9 @@ class MPVBase:
 
     if is_win:
         default_argv += ["--af-add=lavfi=[apad=pad_dur=0.150]"]
+    if not is_mac or platform.machine() != "arm64":
+        # our arm64 mpv build doesn't support this option (compiled out)
+        default_argv += ["--no-ytdl"]
 
     def __init__(self, window_id=None, debug=False):
         self.window_id = window_id
@@ -128,6 +131,22 @@ class MPVBase:
     def _start_process(self):
         """Start the mpv process."""
         self._proc = subprocess.Popen(self.argv, env=self.popenEnv)
+        if is_win:
+            # Ensure mpv gets terminated if Anki closes abruptly.
+            self._job = win32job.CreateJobObject(None, f"AnkiJob_{os.getpid()}")
+            extended_info = win32job.QueryInformationJobObject(
+                self._job, win32job.JobObjectExtendedLimitInformation
+            )
+            extended_info["BasicLimitInformation"]["LimitFlags"] = (
+                win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            )
+            win32job.SetInformationJobObject(
+                self._job,
+                win32job.JobObjectExtendedLimitInformation,
+                extended_info,
+            )
+            handle = self._proc._handle
+            win32job.AssignProcessToJobObject(self._job, handle)
 
     def _stop_process(self):
         """Stop the mpv process."""
@@ -157,7 +176,8 @@ class MPVBase:
         startup.
         """
         start = time.time()
-        while self.is_running() and time.time() < start + 10:
+        timeout = 60 if is_mac else 10
+        while self.is_running() and time.time() < start + timeout:
             time.sleep(0.1)
             if is_win:
                 # named pipe
@@ -172,7 +192,10 @@ class MPVBase:
                         None,
                     )
                     win32pipe.SetNamedPipeHandleState(
-                        self._sock, 1, None, None  # PIPE_NOWAIT
+                        self._sock,
+                        1,
+                        None,
+                        None,  # PIPE_NOWAIT
                     )
                 except pywintypes.error as err:
                     if err.args[0] == winerror.ERROR_FILE_NOT_FOUND:
@@ -373,7 +396,7 @@ class MPVBase:
             return self._get_response(timeout)
         except MPVCommandError as e:
             raise MPVCommandError(f"{message['command']!r}: {e}")
-        except Exception as e:
+        except Exception:
             if _retry:
                 print("mpv timed out, restarting")
                 self._stop_process()
@@ -442,7 +465,7 @@ class MPV(MPVBase):
 
         super().__init__(*args, **kwargs)
 
-        self._register_callbacks()
+        aqt.mw.taskman.run_in_background(self._register_callbacks, None)
 
     def _register_callbacks(self):
         self._callbacks = {}
@@ -480,7 +503,6 @@ class MPV(MPVBase):
         # Simulate an init event when the process and all callbacks have been
         # completely set up.
         if hasattr(self, "on_init"):
-            # pylint: disable=no-member
             self.on_init()
 
     #

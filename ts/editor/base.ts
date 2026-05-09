@@ -8,16 +8,17 @@
 import "./legacy.scss";
 import "./editor-base.scss";
 import "@tslib/runtime-require";
-import "../sveltelib/export-runtime";
+import "$lib/sveltelib/export-runtime";
 
 import { setupI18n } from "@tslib/i18n";
 import { uiResolve } from "@tslib/ui";
 
-import * as contextKeys from "../components/context-keys";
-import IconButton from "../components/IconButton.svelte";
-import LabelButton from "../components/LabelButton.svelte";
-import WithContext from "../components/WithContext.svelte";
-import WithState from "../components/WithState.svelte";
+import * as contextKeys from "$lib/components/context-keys";
+import IconButton from "$lib/components/IconButton.svelte";
+import LabelButton from "$lib/components/LabelButton.svelte";
+import WithContext from "$lib/components/WithContext.svelte";
+import WithState from "$lib/components/WithState.svelte";
+
 import BrowserEditor from "./BrowserEditor.svelte";
 import NoteCreator from "./NoteCreator.svelte";
 import * as editorContextKeys from "./NoteEditor.svelte";
@@ -32,6 +33,7 @@ declare global {
 }
 
 import { ModuleName } from "@tslib/i18n";
+import { mount } from "svelte";
 
 export const editorModules = [
     ModuleName.EDITING,
@@ -40,6 +42,7 @@ export const editorModules = [
     ModuleName.BROWSING,
     ModuleName.NOTETYPES,
     ModuleName.IMPORTING,
+    ModuleName.UNDO,
 ];
 
 export const components = {
@@ -54,29 +57,17 @@ export { editorToolbar } from "./editor-toolbar";
 
 async function setupBrowserEditor(): Promise<void> {
     await setupI18n({ modules: editorModules });
-
-    new BrowserEditor({
-        target: document.body,
-        props: { uiResolve },
-    });
+    mount(BrowserEditor, { target: document.body, props: { uiResolve } });
 }
 
 async function setupNoteCreator(): Promise<void> {
     await setupI18n({ modules: editorModules });
-
-    new NoteCreator({
-        target: document.body,
-        props: { uiResolve },
-    });
+    mount(NoteCreator, { target: document.body, props: { uiResolve } });
 }
 
 async function setupReviewerEditor(): Promise<void> {
     await setupI18n({ modules: editorModules });
-
-    new ReviewerEditor({
-        target: document.body,
-        props: { uiResolve },
-    });
+    mount(ReviewerEditor, { target: document.body, props: { uiResolve } });
 }
 
 export function setupEditor(mode: "add" | "browse" | "review") {

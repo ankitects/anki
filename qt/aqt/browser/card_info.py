@@ -4,19 +4,22 @@
 from __future__ import annotations
 
 import json
-from typing import Callable
+from collections.abc import Callable
+
+from google.protobuf.json_format import MessageToDict
 
 import aqt
 from anki.cards import Card, CardId
+from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from aqt.qt import *
 from aqt.utils import (
-    addCloseShortcut,
     disable_help_button,
     qconnect,
     restoreGeom,
     saveGeom,
     setWindowIcon,
+    tooltip,
     tr,
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
@@ -47,14 +50,16 @@ class CardInfoDialog(QDialog):
 
     def _setup_ui(self, card_id: CardId | None) -> None:
         self.mw.garbage_collect_on_dialog_finish(self)
+        self.setMinimumSize(400, 300)
         disable_help_button(self)
         restoreGeom(self, self.GEOMETRY_KEY, default_size=(800, 800))
-        addCloseShortcut(self)
         setWindowIcon(self)
 
-        self.web = AnkiWebView(kind=AnkiWebViewKind.BROWSER_CARD_INFO)
+        self.web: AnkiWebView | None = AnkiWebView(
+            kind=AnkiWebViewKind.BROWSER_CARD_INFO
+        )
         self.web.setVisible(False)
-        self.web.load_ts_page("card-info")
+        self.web.load_sveltekit_page(f"card-info/{card_id}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
@@ -62,18 +67,74 @@ class CardInfoDialog(QDialog):
         buttons.setContentsMargins(10, 0, 10, 10)
         layout.addWidget(buttons)
         qconnect(buttons.rejected, self.reject)
+
+        self.copy_debug_info = QShortcut(  # type: ignore
+            "ctrl+c", self, activated=lambda: self.copy_card_info(card_id)
+        )
+
         self.setLayout(layout)
-        self.web.eval("anki.cardInfoPromise = anki.setupCardInfo(document.body);")
-        self.update_card(card_id)
+
+    def copy_card_info(self, card_id: CardId | None) -> None:
+        if self.web and self.web.selectedText():
+            self.web.onCopy()
+            return
+        if card_id is None:
+            return
+        assert aqt.mw.col.db, tr.errors_inconsistent_db_state()
+
+        proto_info = aqt.mw.col.card_stats_data(card_id)
+        info = MessageToDict(proto_info)
+
+        card = aqt.mw.col.get_card(card_id)
+
+        revlog = aqt.mw.col.db.execute(
+            f"SELECT * FROM revlog WHERE cid == {card_id} ORDER BY id DESC"
+        )
+        deck = aqt.mw.col.decks.get(card.did) or dict()
+        config = aqt.mw.col.decks.get_config(deck.get("conf", -1)) or dict()
+
+        info["deck"] = deck
+        info["config"] = config
+
+        info["config"].pop("name", None)
+        info["deck"].pop("name", None)
+        info["deck"].pop("desc", None)
+        info["deck"].pop("usn", None)
+        info.pop("usn", None)
+        info.pop("cardType", None)
+        info.pop("notetype", None)
+        info.pop("preset", None)
+
+        info["cardRow"] = aqt.mw.col.db.execute(
+            f"SELECT * FROM cards WHERE id == {card_id} ORDER BY id DESC"
+        )[0]
+
+        new_revlog = [
+            {"row": revlog, "info": card_info_review}
+            for revlog, card_info_review in zip(revlog, info.get("revlog", []))
+        ]
+        info["revlog"] = new_revlog
+        info["rollover"] = aqt.mw.col.get_config("rollover")
+
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(json.dumps(info, indent=2))
+
+        tooltip(tr.about_copied_to_clipboard())
 
     def update_card(self, card_id: CardId | None) -> None:
-        self.web.eval(
-            f"anki.cardInfoPromise.then((c) => c.updateStats({json.dumps(card_id)}));"
-        )
+        try:
+            self.mw.col.get_card(card_id)
+        except NotFoundError:
+            card_id = None
+
+        assert self.web is not None
+        self.web.eval(f"anki.updateCard('{card_id}');")
 
     def reject(self) -> None:
         if self._on_close:
             self._on_close()
+        assert self.web is not None
         self.web.cleanup()
         self.web = None
         saveGeom(self, self.GEOMETRY_KEY)
@@ -90,9 +151,10 @@ class CardInfoManager:
         self._card: Card | None = None
         self._dialog: CardInfoDialog | None = None
 
-    def toggle(self) -> None:
+    def show(self) -> None:
         if self._dialog:
-            self._dialog.reject()
+            self._dialog.activateWindow()
+            self._dialog.raise_()
         else:
             self._dialog = CardInfoDialog(
                 None,
@@ -110,7 +172,7 @@ class CardInfoManager:
 
     def close(self) -> None:
         if self._dialog:
-            self.toggle()
+            self._dialog.reject()
 
     def _on_close(self) -> None:
         self._dialog = None

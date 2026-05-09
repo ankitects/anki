@@ -4,14 +4,14 @@
 use super::DeckFilterContext;
 use crate::card::CardQueue;
 use crate::card::CardType;
-use crate::config::SchedulerVersion;
 use crate::prelude::*;
+use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Card {
     pub(crate) fn restore_queue_from_type(&mut self) {
         self.queue = match self.ctype {
             CardType::Learn | CardType::Relearn => {
-                if self.due > 1_000_000_000 {
+                if is_unix_epoch_timestamp(self.due) {
                     // unix timestamp
                     CardQueue::Learn
                 } else {
@@ -37,26 +37,12 @@ impl Card {
 
         self.original_due = self.due;
 
-        if ctx.scheduler == SchedulerVersion::V1 {
-            if self.ctype == CardType::Review && self.due <= ctx.today as i32 {
-                // review cards that are due are left in the review queue
-            } else {
-                // new + non-due go into new queue
-                self.queue = CardQueue::New;
-            }
-            if self.due != 0 {
-                self.due = position;
-            }
-        } else {
-            // if rescheduling is disabled, all cards go in the review queue
-            if !ctx.config.reschedule {
-                self.queue = CardQueue::Review;
-            }
-            // fixme: can we unify this with v1 scheduler in the future?
-            // https://anki.tenderapp.com/discussions/ankidesktop/35978-rebuilding-filtered-deck-on-experimental-v2-empties-deck-and-reschedules-to-the-year-1745
-            if self.due > 0 {
-                self.due = position;
-            }
+        // if rescheduling is disabled, all cards go in the review queue
+        if !ctx.config.reschedule {
+            self.queue = CardQueue::Review;
+        }
+        if self.due > 0 {
+            self.due = position;
         }
     }
 
@@ -75,7 +61,7 @@ impl Card {
         self.original_deck_id.or(self.deck_id)
     }
 
-    pub(crate) fn remove_from_filtered_deck_restoring_queue(&mut self, sched: SchedulerVersion) {
+    pub(crate) fn remove_from_filtered_deck_restoring_queue(&mut self) {
         if self.original_deck_id.0 == 0 {
             // not in a filtered deck
             return;
@@ -84,33 +70,12 @@ impl Card {
         self.deck_id = self.original_deck_id;
         self.original_deck_id.0 = 0;
 
-        match sched {
-            SchedulerVersion::V1 => {
-                self.due = self.original_due;
-                self.queue = match self.ctype {
-                    CardType::New => CardQueue::New,
-                    CardType::Learn => CardQueue::New,
-                    CardType::Review => CardQueue::Review,
-                    // not applicable in v1, should not happen
-                    CardType::Relearn => {
-                        println!("did not expect relearn type in v1 for card {}", self.id);
-                        CardQueue::New
-                    }
-                };
-                if self.ctype == CardType::Learn {
-                    self.ctype = CardType::New;
-                }
-            }
-            SchedulerVersion::V2 => {
-                // original_due is cleared if card answered in filtered deck
-                if self.original_due != 0 {
-                    self.due = self.original_due;
-                }
+        if self.original_due != 0 {
+            self.due = self.original_due;
+        }
 
-                if (self.queue as i8) >= 0 {
-                    self.restore_queue_from_type();
-                }
-            }
+        if (self.queue as i8) >= 0 {
+            self.restore_queue_from_type();
         }
 
         self.original_due = 0;

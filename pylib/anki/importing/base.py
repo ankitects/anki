@@ -1,9 +1,10 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# pylint: disable=invalid-name
 
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import Any
 
 from anki.collection import Collection
 from anki.utils import max_id
@@ -15,7 +16,7 @@ from anki.utils import max_id
 class Importer:
     needMapper = False
     needDelimiter = False
-    dst: Optional[Collection]
+    dst: Collection | None
 
     def __init__(self, col: Collection, file: str) -> None:
         self.file = file

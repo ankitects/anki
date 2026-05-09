@@ -7,7 +7,7 @@ from zipfile import ZipFile
 
 from mock import MagicMock
 
-from aqt.addons import AddonManager, extract_update_info, package_name_valid
+from aqt.addons import AddonManager, package_name_valid
 
 
 def test_readMinimalManifest():
@@ -67,33 +67,6 @@ def assertReadManifest(contents, expectedManifest, nameInZip="manifest.json"):
 
         with ZipFile(zfn, "r") as zfile:
             assert adm.readManifestFile(zfile) == expectedManifest
-
-
-def test_update_info():
-    json_info = dict(
-        id=999,
-        branches=[
-            {"minpt": 0, "maxpt": -15, "fmod": 222},
-            {"minpt": 20, "maxpt": -25, "fmod": 333},
-            {"minpt": 30, "maxpt": 35, "fmod": 444},
-        ],
-    )
-
-    r = extract_update_info(5, 0, json_info)
-    assert r.current_branch_max_point_ver == -15
-    assert r.suitable_branch_last_modified == 222
-
-    r = extract_update_info(5, 1, json_info)
-    assert r.current_branch_max_point_ver == -25
-    assert r.suitable_branch_last_modified == 222
-
-    r = extract_update_info(19, 1, json_info)
-    assert r.current_branch_max_point_ver == -25
-    assert r.suitable_branch_last_modified == 0
-
-    r = extract_update_info(20, 1, json_info)
-    assert r.current_branch_max_point_ver == -25
-    assert r.suitable_branch_last_modified == 333
 
 
 def test_package_name_validation():

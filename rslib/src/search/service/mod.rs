@@ -58,7 +58,7 @@ impl crate::services::SearchService for Collection {
         let additional_node: Node = input.additional_node.unwrap_or_default().try_into()?;
 
         Ok(
-            match anki_proto::search::search_node::group::Joiner::from_i32(input.joiner)
+            match anki_proto::search::search_node::group::Joiner::try_from(input.joiner)
                 .unwrap_or_default()
             {
                 anki_proto::search::search_node::group::Joiner::And => {
@@ -99,7 +99,7 @@ impl crate::services::SearchService for Collection {
             regex::escape(&input.search)
         };
         if !input.match_case {
-            search = format!("(?i){}", search);
+            search = format!("(?i){search}");
         }
         let mut nids = to_note_ids(input.nids);
         let field_name = if input.field_name.is_empty() {
@@ -122,14 +122,14 @@ impl crate::services::SearchService for Collection {
 
     fn set_active_browser_columns(&mut self, input: generic::StringList) -> Result<()> {
         self.state.active_browser_columns = Some(Arc::new(string_list_to_browser_columns(input)));
-        Ok(()).map(Into::into)
+        Ok(())
     }
 
     fn browser_row_for_id(
         &mut self,
         input: generic::Int64,
     ) -> Result<anki_proto::search::BrowserRow> {
-        self.browser_row_for_id(input.val).map(Into::into)
+        self.browser_row_for_id(input.val)
     }
 }
 

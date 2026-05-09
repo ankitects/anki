@@ -4,18 +4,20 @@
 from __future__ import annotations
 
 import os
+import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
-from typing import TextIO, cast
+from typing import Optional, TextIO, cast
 
 import anki.cards
 import aqt
 import aqt.forms
 from aqt import gui_hooks
-from aqt.profiles import ProfileManager
 from aqt.qt import *
 from aqt.utils import (
+    askUserDialog,
     disable_help_button,
     restoreGeom,
     restoreSplitter,
@@ -50,6 +52,7 @@ class DebugConsole(QDialog):
 
     def __init__(self, parent: QWidget) -> None:
         self._buffers: dict[int, str] = {}
+        self._original_text = ""
         super().__init__(parent)
         self._setup_ui()
         disable_help_button(self)
@@ -70,13 +73,15 @@ class DebugConsole(QDialog):
         qconnect(self._script.currentIndexChanged, self._on_script_change)
 
     def _setup_text_edits(self):
-        font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
+        font = QFont("Consolas")
+        if not font.exactMatch():
+            font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
         font.setPointSize(self._text.font().pointSize() + 1)
         self._text.setFont(font)
         self._log.setFont(font)
 
     def _setup_scripts(self) -> None:
-        self._dir = ProfileManager.get_created_base_folder(None).joinpath(SCRIPT_FOLDER)
+        self._dir = Path(aqt.mw.pm.base).joinpath(SCRIPT_FOLDER)
         self._dir.mkdir(exist_ok=True)
         self._script.addItem(UNSAVED_SCRIPT)
         self._script.addItems(os.listdir(self._dir))
@@ -99,13 +104,59 @@ class DebugConsole(QDialog):
         ]
 
     def reject(self) -> None:
-        super().reject()
-        saveSplitter(self.frm.splitter, "DebugConsoleWindow")
-        saveGeom(self, "DebugConsoleWindow")
+        if self._should_close():
+            super().reject()
+            saveSplitter(self.frm.splitter, "DebugConsoleWindow")
+            saveGeom(self, "DebugConsoleWiNondow")
+
+    def closeEvent(self, event: Optional[QCloseEvent]) -> None:
+        assert event is not None
+        if self._should_close():
+            event.accept()
+            saveSplitter(self.frm.splitter, "DebugConsoleWindow")
+            saveGeom(self, "DebugConsoleWindow")
+        else:
+            event.ignore()
+
+    def _should_close(self) -> bool:
+        text = self._text.toPlainText()
+        if not text.strip() or text == self._original_text:
+            return True
+        diag = askUserDialog(
+            "Save script before closing?",
+            ["Save", "Don't Save", "Cancel"],
+            title="Save Script",
+        )
+        result = diag.run()
+        if result == "Save":
+            self._save_script()
+            return True
+        elif result == "Don't Save":
+            return True
+        else:  # Cancel
+            return False
 
     def _on_script_change(self, new_index: int) -> None:
-        self._buffers[self._last_index] = self._text.toPlainText()
-        self._text.setPlainText(self._get_script(new_index) or "")
+        current_text = self._text.toPlainText()
+        if current_text != self._original_text:
+            diag = askUserDialog(
+                "Save script before loading?",
+                ["Save", "Don't Save", "Cancel"],
+                title="Save Script",
+            )
+            result = diag.run()
+            if result == "Save":
+                self._save_script(self._last_index, switch_ui=False)
+            elif result == "Cancel":
+                self._script.blockSignals(True)
+                self._script.setCurrentIndex(self._last_index)
+                self._script.blockSignals(False)
+                return
+            # Don't Save: continue
+        self._buffers[self._last_index] = current_text
+        script_text = self._get_script(new_index) or ""
+        self._text.setPlainText(script_text)
+        self._original_text = script_text
         self._last_index = new_index
 
     def _get_script(self, idx: int) -> str | None:
@@ -130,8 +181,10 @@ class DebugConsole(QDialog):
     def _current_script_path(self) -> Path | None:
         return self._get_item(self._script.currentIndex())
 
-    def _save_script(self) -> None:
-        if not (path := self._current_script_path()):
+    def _save_script(self, index: int | None = None, switch_ui: bool = True) -> None:
+        if index is None:
+            index = self._script.currentIndex()
+        if not (path := self._get_item(index)):
             new_file = QFileDialog.getSaveFileName(
                 self, directory=str(self._dir), filter="Python file (*.py)"
             )[0]
@@ -147,7 +200,9 @@ class DebugConsole(QDialog):
             idx = self._script.count() - 1
         # update existing buffer, so text edit doesn't change when index changes
         self._buffers[idx] = self._text.toPlainText()
-        self._script.setCurrentIndex(idx)
+        self._original_text = self._text.toPlainText()
+        if switch_ui:
+            self._script.setCurrentIndex(idx)
 
     def _open_script(self) -> None:
         file = QFileDialog.getOpenFileName(
@@ -168,6 +223,7 @@ class DebugConsole(QDialog):
             self._text.setPlainText(path.read_text(encoding="utf8"))
         else:
             self._script.setCurrentIndex(idx)
+        self._original_text = self._text.toPlainText()
 
     def _delete_script(self) -> None:
         if not (path := self._current_script_path()):
@@ -194,6 +250,7 @@ class DebugConsole(QDialog):
 
     def _on_context_menu(self, text_edit: QPlainTextEdit) -> None:
         menu = text_edit.createStandardContextMenu()
+        assert menu is not None
         menu.addSeparator()
         for action in self._actions():
             entry = menu.addAction(action.name)
@@ -225,7 +282,7 @@ class DebugConsole(QDialog):
             sys.stderr = self._oldStderr
             sys.stdout = self._oldStdout
 
-    def _card_repr(self, card: anki.cards.Card) -> None:
+    def _card_repr(self, card: anki.cards.Card | None) -> None:
         import copy
         import pprint
 
@@ -290,9 +347,8 @@ class DebugConsole(QDialog):
         }
         self._captureOutput(True)
         try:
-            # pylint: disable=exec-used
             exec(text, vars)
-        except:
+        except Exception:
             self._output += traceback.format_exc()
         self._captureOutput(False)
         buf = ""
@@ -314,6 +370,7 @@ class DebugConsole(QDialog):
             )
             self._log.appendPlainText(to_append)
         slider = self._log.verticalScrollBar()
+        assert slider is not None
         slider.setValue(slider.maximum())
         self._log.ensureCursorVisible()
 

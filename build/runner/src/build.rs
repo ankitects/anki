@@ -7,6 +7,8 @@ use std::io::Write;
 use std::process::Command;
 use std::time::Instant;
 
+use anki_process::CommandExt;
+use anyhow::Context;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use clap::Args;
@@ -27,7 +29,7 @@ pub fn run_build(args: BuildArgs) {
 
     let path = if cfg!(windows) {
         format!(
-            "out\\bin;out\\extracted\\node;node_modules\\.bin;out\\extracted\\win_amd64_audio;{};\\msys64\\usr\\bin",
+            "out\\bin;out\\extracted\\node;node_modules\\.bin;{};\\msys64\\usr\\bin",
             env::var("PATH").unwrap()
         )
     } else {
@@ -60,23 +62,27 @@ pub fn run_build(args: BuildArgs) {
         .arg("-f")
         .arg(&build_file)
         .args(ninja_args)
-        .env("NINJA_STATUS", "[%f/%t; %r active; %es] ")
         .env("PATH", &path)
         .env(
             "MYPY_CACHE_DIR",
             build_root.join("tests").join("mypy").into_string(),
         )
-        .env("PYTHONPYCACHEPREFIX", build_root.join("pycache"))
+        .env(
+            "PYTHONPYCACHEPREFIX",
+            std::path::absolute(build_root.join("pycache")).unwrap(),
+        )
         // commands will not show colors by default, as we do not provide a tty
         .env("FORCE_COLOR", "1")
         .env("MYPY_FORCE_COLOR", "1")
-        .env("TERM", std::env::var("TERM").unwrap_or_default())
-        // Prevents 'Warn: You must provide the URL of lib/mappings.wasm'.
-        // Updating svelte-check or its deps will likely remove the need for it.
-        .env("NODE_OPTIONS", "--no-experimental-fetch");
+        .env("TERM", std::env::var("TERM").unwrap_or_default());
+    if env::var("NINJA_STATUS").is_err() {
+        command.env("NINJA_STATUS", "[%f/%t; %r active; %es] ");
+    }
 
     // run build
-    let mut status = command.status().expect("ninja not installed");
+    let Ok(mut status) = command.status() else {
+        panic!("\nn2 and ninja missing/failed. did you forget 'bash tools/install-n2'?");
+    };
     if !status.success() && Instant::now().duration_since(start_time).as_secs() < 3 {
         // if the build fails quickly, there's a reasonable chance that build.ninja
         // references a file that has been renamed/deleted. We currently don't
@@ -132,7 +138,7 @@ fn setup_build_root() -> Utf8PathBuf {
             true
         };
         if create {
-            println!("Switching build root to {}", new_target);
+            println!("Switching build root to {new_target}");
             std::os::unix::fs::symlink(new_target, build_root).unwrap();
         }
     }
@@ -155,7 +161,7 @@ fn bootstrap_build() {
 fn maybe_update_buildhash(build_root: &Utf8Path) {
     // only updated on release builds
     let path = build_root.join("buildhash");
-    if env::var("RELEASE").is_ok() || !path.exists() {
+    if (env::var("RELEASE").is_ok() && env::var("OFFLINE_BUILD").is_err()) || !path.exists() {
         write_if_changed(&path, &get_buildhash())
     }
 }
@@ -163,10 +169,12 @@ fn maybe_update_buildhash(build_root: &Utf8Path) {
 fn get_buildhash() -> String {
     let output = Command::new("git")
         .args(["rev-parse", "--short=8", "HEAD"])
-        .output()
-        .expect("git");
-    assert!(output.status.success(), "git failed");
-    String::from_utf8(output.stdout).unwrap().trim().into()
+        .utf8_output()
+        .context(
+            "Make sure you're building from a clone of the git repo, and that 'git' is installed.",
+        )
+        .unwrap();
+    output.stdout.trim().into()
 }
 
 fn write_if_changed(path: &Utf8Path, contents: &str) {

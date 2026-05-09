@@ -3,19 +3,21 @@
 
 use std::borrow::Cow;
 use std::fs;
+use std::fs::FileTimes;
 use std::io;
 use std::io::Read;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 use std::time;
 
 use anki_io::create_dir;
 use anki_io::open_file;
+use anki_io::set_file_times;
 use anki_io::write_file;
 use anki_io::FileIoError;
 use anki_io::FileIoSnafu;
 use anki_io::FileOp;
-use lazy_static::lazy_static;
 use regex::Regex;
 use sha1::Digest;
 use sha1::Sha1;
@@ -27,8 +29,8 @@ use unicode_normalization::UnicodeNormalization;
 use crate::prelude::*;
 use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH;
 
-lazy_static! {
-    static ref WINDOWS_DEVICE_NAME: Regex = Regex::new(
+static WINDOWS_DEVICE_NAME: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r"(?xi)
             # starting with one of the following names
             ^
@@ -39,30 +41,34 @@ lazy_static! {
             (
                 \. | $
             )
-        "
+        ",
     )
-    .unwrap();
-    static ref WINDOWS_TRAILING_CHAR: Regex = Regex::new(
+    .unwrap()
+});
+static WINDOWS_TRAILING_CHAR: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r"(?x)
             # filenames can't end with a space or period
             (
                 \x20 | \.
             )    
             $
-            "
+            ",
     )
-    .unwrap();
-    pub(crate) static ref NONSYNCABLE_FILENAME: Regex = Regex::new(
+    .unwrap()
+});
+pub(crate) static NONSYNCABLE_FILENAME: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
         r#"(?xi)
             ^
             (:?
                 thumbs.db | .ds_store
             )
             $
-            "#
+            "#,
     )
-    .unwrap();
-}
+    .unwrap()
+});
 
 /// True if character may cause problems on one or more platforms.
 fn disallowed_char(char: char) -> bool {
@@ -85,7 +91,7 @@ fn nonbreaking_space(char: char) -> bool {
 /// - Any problem characters are removed.
 /// - Windows device names like CON and PRN have '_' appended
 /// - The filename is limited to 120 bytes.
-pub(crate) fn normalize_filename(fname: &str) -> Cow<str> {
+pub(crate) fn normalize_filename(fname: &str) -> Cow<'_, str> {
     let mut output = Cow::Borrowed(fname);
 
     if !is_nfc(output.as_ref()) {
@@ -96,7 +102,7 @@ pub(crate) fn normalize_filename(fname: &str) -> Cow<str> {
 }
 
 /// See normalize_filename(). This function expects NFC-normalized input.
-pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
+pub(crate) fn normalize_nfc_filename(mut fname: Cow<'_, str>) -> Cow<'_, str> {
     if fname.contains(disallowed_char) {
         fname = fname.replace(disallowed_char, "").into()
     }
@@ -131,7 +137,7 @@ pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
 /// but can be accessed as NFC. On these devices, if the filename
 /// is otherwise valid, the filename is returned as NFC.
 #[allow(clippy::collapsible_else_if)]
-pub(crate) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
+pub(crate) fn filename_if_normalized(fname: &str) -> Option<Cow<'_, str>> {
     if cfg!(target_vendor = "apple") {
         if !is_nfc(fname) {
             let as_nfc = fname.chars().nfc().collect::<String>();
@@ -167,7 +173,9 @@ pub fn add_data_to_folder_uniquely<'a, P>(
 where
     P: AsRef<Path>,
 {
-    let normalized_name = normalize_filename(desired_name);
+    // force lowercase to account for case-insensitive filesystems
+    // but not within normalize_filename, for existing media refs
+    let normalized_name: Cow<_> = normalize_filename(desired_name).to_lowercase().into();
 
     let mut target_path = folder.as_ref().join(normalized_name.as_ref());
 
@@ -202,7 +210,7 @@ pub(crate) fn add_hash_suffix_to_file_stem(fname: &str, hash: &Sha1Hash) -> Stri
 }
 
 /// If filename is longer than max_bytes, truncate it.
-fn truncate_filename(fname: &str, max_bytes: usize) -> Cow<str> {
+fn truncate_filename(fname: &str, max_bytes: usize) -> Cow<'_, str> {
     if fname.len() <= max_bytes {
         return Cow::Borrowed(fname);
     }
@@ -212,7 +220,7 @@ fn truncate_filename(fname: &str, max_bytes: usize) -> Cow<str> {
     let mut new_name = if ext.is_empty() {
         stem.to_string()
     } else {
-        format!("{}.{}", stem, ext)
+        format!("{stem}.{ext}")
     };
 
     // make sure we don't break Windows by ending with a space or dot
@@ -341,11 +349,9 @@ where
         fs::rename(&src_path, &dst_path)?;
 
         // mark it as modified, so we can expire it in the future
-        let secs = time::SystemTime::now()
-            .duration_since(time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
-        if let Err(err) = utime::set_file_times(&dst_path, secs, secs) {
+        let secs = time::SystemTime::now();
+        let times = FileTimes::new().set_accessed(secs).set_modified(secs);
+        if let Err(err) = set_file_times(&dst_path, times) {
             // The libc utimes() call fails on (some? all?) Android devices. Since we don't
             // do automatic expiry yet, we can safely ignore the error.
             if !cfg!(target_os = "android") {
@@ -492,8 +498,14 @@ mod test {
             "test.mp3"
         );
 
-        // different contents
+        // different contents, filenames differ only by case
         let h2 = sha1_of_data(b"hello1");
+        assert_eq!(
+            add_data_to_folder_uniquely(dpath, "Test.mp3", b"hello1", h2).unwrap(),
+            "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3"
+        );
+
+        // same contents, filenames differ only by case
         assert_eq!(
             add_data_to_folder_uniquely(dpath, "test.mp3", b"hello1", h2).unwrap(),
             "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3"

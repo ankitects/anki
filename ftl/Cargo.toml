@@ -16,7 +16,6 @@ camino.workspace = true
 clap.workspace = true
 fluent-syntax.workspace = true
 itertools.workspace = true
-lazy_static.workspace = true
 regex.workspace = true
 serde_json.workspace = true
 snafu.workspace = true

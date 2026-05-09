@@ -2,12 +2,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import platform
-import time
+from collections.abc import Callable
 
 import aqt.forms
 from anki.lang import without_unicode_isolation
 from anki.utils import version_with_build
-from aqt.addons import AddonManager, AddonMeta
+from aqt.errors import addon_debug_info
 from aqt.qt import *
 from aqt.utils import disable_help_button, supportText, tooltip, tr
 
@@ -33,90 +33,57 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abt = aqt.forms.about.Ui_About()
     abt.setupUi(dialog)
 
-    # Copy debug info
-    ######################################################################
-
-    def addon_fmt(addmgr: AddonManager, addon: AddonMeta) -> str:
-        if addon.installed_at:
-            installed = time.strftime(
-                "%Y-%m-%dT%H:%M", time.localtime(addon.installed_at)
-            )
-        else:
-            installed = "0"
-        if addon.provided_name:
-            name = addon.provided_name
-        else:
-            name = "''"
-        user = addmgr.getConfig(addon.dir_name)
-        default = addmgr.addonConfigDefaults(addon.dir_name)
-        if user == default:
-            modified = "''"
-        else:
-            modified = "mod"
-        return f"{name} ['{addon.dir_name}', {installed}, '{addon.human_version}', {modified}]"
-
-    def onCopy() -> None:
-        addmgr = mw.addonManager
-        active = []
-        activeids = []
-        inactive = []
-        for addon in addmgr.all_addon_meta():
-            if addon.enabled:
-                active.append(addon_fmt(addmgr, addon))
-                if addon.ankiweb_id():
-                    activeids.append(addon.dir_name)
-            else:
-                inactive.append(addon_fmt(addmgr, addon))
-        newline = "\n"
-        info = f"""
-{supportText()}
-
-===Add-ons (active)===
-(add-on provided name [Add-on folder, installed at, version, is config changed])
-{newline.join(sorted(active))}
-
-===IDs of active AnkiWeb add-ons===
-{" ".join(activeids)}
-
-===Add-ons (inactive)===
-(add-on provided name [Add-on folder, installed at, version, is config changed])
-{newline.join(sorted(inactive))}
-"""
-        info = f"    {'    '.join(info.splitlines(True))}"
-        QApplication.clipboard().setText(info)
+    def on_copy() -> None:
+        txt = supportText()
+        if mw.addonManager.dirty:
+            txt += "\n" + addon_debug_info()
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(txt)
         tooltip(tr.about_copied_to_clipboard(), parent=dialog)
 
     btn = QPushButton(tr.about_copy_debug_info())
-    qconnect(btn.clicked, onCopy)
+    qconnect(btn.clicked, on_copy)
     abt.buttonBox.addButton(btn, QDialogButtonBox.ButtonRole.ActionRole)
-    abt.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setFocus()
+
+    ok_button = abt.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
+    assert ok_button is not None
+    ok_button.setFocus()
+
+    btnLayout = abt.buttonBox.layout()
+    assert btnLayout is not None
+    btnLayout.setContentsMargins(12, 12, 12, 12)
 
     # WebView cleanup
     ######################################################################
 
     def on_dialog_destroyed() -> None:
         abt.label.cleanup()
-        abt.label = None
+        abt.label = None  # type: ignore
 
     qconnect(dialog.destroyed, on_dialog_destroyed)
 
     # WebView contents
     ######################################################################
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
-    abouttext += f"<p>{tr.about_anki_is_a_friendly_intelligent_spaced()}"
+    lede = tr.about_anki_is_a_friendly_intelligent_spaced().replace("Anki", "Anki®")
+    abouttext += f"<p>{lede}"
     abouttext += f"<p>{tr.about_anki_is_licensed_under_the_agpl3()}"
     abouttext += f"<p>{tr.about_version(val=version_with_build())}<br>"
-    abouttext += ("Python %s Qt %s PyQt %s<br>") % (
+    abouttext += ("Python %s Qt %s Chromium %s<br>") % (
         platform.python_version(),
         qVersion(),
-        PYQT_VERSION_STR,
+        (qWebEngineChromiumVersion() or "").split(".")[0],
     )
     abouttext += (
         without_unicode_isolation(tr.about_visit_website(val=aqt.appWebsite))
         + "</span>"
     )
 
-    # automatically sorted; add new lines at the end
+    # Automatically sorted; add new lines at the end.
+    # This is a list of users who want to appear in the dialog, and includes people who have
+    # contributed in non-code ways, like providing support on the forums, so it cannot be
+    # generated from the CONTRIBUTORS file.
     allusers = sorted(
         (
             "Aaron Harsh",
@@ -124,12 +91,15 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Andreas Klauer",
             "Andrew Wright",
             "Aristotelis P.",
+            "Ben Nguyen",
             "Bernhard Ibertsberger",
             "C. van Rooyen",
+            "Cenaris Mori",
             "Charlene Barina",
             "Christian Krause",
             "Christian Rusche",
             "Dave Druelinger",
+            "David Culley",
             "David Smith",
             "Dmitry Mikheev",
             "Dotan Cohen",
@@ -188,6 +158,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Susanna Björverud",
             "Sylvain Durand",
             "Tacutu",
+            "Taylor Obyen",
             "Timm Preetz",
             "Timo Paulssen",
             "Ursus",
@@ -198,7 +169,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Ádám Szegi",
             "赵金鹏",
             "黃文龍",
-            "David Bailey",
+            "Valerie Enfys",
             "Arman High",
             "Arthur Milchior",
             "Rai (Michael Pokorny)",
@@ -231,11 +202,38 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Carlos Duarte",
             "Edgar Benavent Català",
             "Kieran Black",
+            "Mateusz Wojewoda",
+            "Jarrett Ye",
+            "Gustavo Sales",
+            "Akash Reddy",
+            "Marko Sisovic",
+            "Lucas Scharenbroch",
+            "Antoine Q.",
+            "Ian Samir Yep Manzano",
+            "Asuka Minato",
+            "Eros Cardoso",
+            "Gregory Abrasaldo",
+            "Danika_Dakika",
+            "Marcelo Vasconcelos",
+            "Mumtaz Hajjo Alrifai",
+            "Luc Mcgrady",
+            "Brayan Oliveira",
+            "Market345",
+            "Yuki",
+            "🦙 (siid)",
+            "Mukunda Madhav Dey",
+            "Adnane Taghi",
+            "Anon_0000",
+            "Bilolbek Normuminov",
+            "Sagiv Marzini",
+            "Zhanibek Rassululy",
+            "Harvey Randall (hnvy)",
         )
     )
 
+    allusers = [user.replace(" ", "&nbsp;") for user in allusers]
     abouttext += "<p>" + tr.about_written_by_damien_elmes_with_patches(
-        cont=", ".join(allusers)
+        cont=", ".join(allusers) + f", {tr.about_and_others()}"
     )
     abouttext += f"<p>{tr.about_if_you_have_contributed_and_are()}"
     abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"

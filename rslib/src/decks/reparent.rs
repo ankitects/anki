@@ -36,6 +36,9 @@ impl Collection {
         for deck in deck_ids {
             if let Some(mut deck) = self.storage.get_deck(*deck)? {
                 if let Some(new_name) = deck.name.reparented_name(target_name) {
+                    if new_name == deck.name {
+                        continue;
+                    }
                     count += 1;
                     let orig = deck.clone();
 

@@ -15,6 +15,7 @@ pub enum Op {
     ChangeNotetype,
     ClearUnusedTags,
     CreateCustomStudy,
+    EmptyCards,
     EmptyFilteredDeck,
     FindAndReplace,
     ImageOcclusion,
@@ -31,9 +32,11 @@ pub enum Op {
     ScheduleAsNew,
     SetCardDeck,
     SetDueDate,
+    GradeNow,
     SetFlag,
     SortCards,
     Suspend,
+    ToggleLoadBalancer,
     UnburyUnsuspend,
     UpdateCard,
     UpdateConfig,
@@ -57,12 +60,15 @@ impl Op {
             Op::AnswerCard => tr.actions_answer_card(),
             Op::Bury => tr.studying_bury(),
             Op::CreateCustomStudy => tr.actions_custom_study(),
+            Op::EmptyCards => tr.actions_empty_cards(),
             Op::Import => tr.actions_import(),
             Op::RemoveDeck => tr.decks_delete_deck(),
             Op::RemoveNote => tr.studying_delete_note(),
             Op::RenameDeck => tr.actions_rename_deck(),
             Op::ScheduleAsNew => tr.actions_forget_card(),
             Op::SetDueDate => tr.actions_set_due_date(),
+            Op::ToggleLoadBalancer => tr.actions_toggle_load_balancer(),
+            Op::GradeNow => tr.actions_grade_now(),
             Op::Suspend => tr.studying_suspend(),
             Op::UnburyUnsuspend => tr.actions_unbury_unsuspend(),
             Op::UpdateCard => tr.actions_update_card(),
@@ -74,7 +80,7 @@ impl Op {
             Op::SetFlag => tr.actions_set_flag(),
             Op::FindAndReplace => tr.browsing_find_and_replace(),
             Op::ClearUnusedTags => tr.browsing_clear_unused_tags(),
-            Op::SortCards => tr.browsing_reschedule(),
+            Op::SortCards => tr.actions_reposition(),
             Op::RenameTag => tr.actions_rename_tag(),
             Op::RemoveTag => tr.actions_remove_tag(),
             Op::ReparentTag => tr.actions_rename_tag(),
@@ -82,7 +88,7 @@ impl Op {
             Op::BuildFilteredDeck => tr.actions_build_filtered_deck(),
             Op::RebuildFilteredDeck => tr.actions_build_filtered_deck(),
             Op::EmptyFilteredDeck => tr.studying_empty(),
-            Op::SetCurrentDeck => tr.browsing_change_deck(),
+            Op::SetCurrentDeck => tr.browsing_select_deck(),
             Op::UpdateDeckConfig => tr.deck_config_title(),
             Op::AddNotetype => tr.actions_add_notetype(),
             Op::RemoveNotetype => tr.actions_remove_notetype(),
@@ -166,7 +172,10 @@ impl OpChanges {
             || (c.config
                 && matches!(
                     self.op,
-                    Op::SetCurrentDeck | Op::UpdatePreferences | Op::UpdateDeckConfig
+                    Op::SetCurrentDeck
+                        | Op::UpdatePreferences
+                        | Op::UpdateDeckConfig
+                        | Op::ToggleLoadBalancer
                 ))
             || c.deck_config
     }

@@ -41,5 +41,5 @@ impl Collection {
 }
 
 fn build_aux_deck_key(deck: DeckId, key: &str) -> String {
-    format!("_deck_{deck}_{key}", deck = deck, key = key)
+    format!("_deck_{deck}_{key}")
 }

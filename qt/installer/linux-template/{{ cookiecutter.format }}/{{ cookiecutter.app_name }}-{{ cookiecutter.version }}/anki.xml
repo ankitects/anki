@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+ <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+
+   <mime-type type="application/x-colpkg">
+   <comment>Anki collection package</comment>
+   <glob pattern="*.colpkg"/>
+   </mime-type>
+
+   <mime-type type="application/x-apkg">
+   <comment>Anki deck package</comment>
+   <glob pattern="*.apkg"/>
+   </mime-type>
+
+   <mime-type type="application/vnd.anki">
+   <comment>Anki deck package</comment>
+   <glob pattern="*.apkg"/>
+   </mime-type>
+
+   <mime-type type="application/x-ankiaddon">
+   <comment>Anki add-on package</comment>
+   <glob pattern="*.ankiaddon"/>
+   </mime-type>
+
+ </mime-info>

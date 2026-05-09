@@ -12,6 +12,7 @@ import "anki/cards.proto";
 import "anki/decks.proto";
 import "anki/collection.proto";
 import "anki/config.proto";
+import "anki/deck_config.proto";
 
 service SchedulerService {
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
@@ -35,6 +36,7 @@ service SchedulerService {
   rpc ScheduleCardsAsNewDefaults(ScheduleCardsAsNewDefaultsRequest)
       returns (ScheduleCardsAsNewDefaultsResponse);
   rpc SetDueDate(SetDueDateRequest) returns (collection.OpChanges);
+  rpc GradeNow(GradeNowRequest) returns (collection.OpChanges);
   rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
   rpc SortDeck(SortDeckRequest) returns (collection.OpChangesWithCount);
   rpc GetSchedulingStates(cards.CardId) returns (SchedulingStates);
@@ -45,11 +47,35 @@ service SchedulerService {
   rpc CustomStudyDefaults(CustomStudyDefaultsRequest)
       returns (CustomStudyDefaultsResponse);
   rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
+  rpc ComputeFsrsParams(ComputeFsrsParamsRequest)
+      returns (ComputeFsrsParamsResponse);
+  rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest)
+      returns (GetOptimalRetentionParametersResponse);
+  rpc ComputeOptimalRetention(SimulateFsrsReviewRequest)
+      returns (ComputeOptimalRetentionResponse);
+  rpc SimulateFsrsReview(SimulateFsrsReviewRequest)
+      returns (SimulateFsrsReviewResponse);
+  rpc SimulateFsrsWorkload(SimulateFsrsReviewRequest)
+      returns (SimulateFsrsWorkloadResponse);
+  rpc EvaluateParams(EvaluateParamsRequest) returns (EvaluateParamsResponse);
+  rpc EvaluateParamsLegacy(EvaluateParamsLegacyRequest)
+      returns (EvaluateParamsResponse);
+  rpc ComputeMemoryState(cards.CardId) returns (ComputeMemoryStateResponse);
+  // The number of days the calculated interval was fuzzed by on the previous
+  // review (if any). Utilized by the FSRS add-on.
+  rpc FuzzDelta(FuzzDeltaRequest) returns (FuzzDeltaResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
-service BackendSchedulerService {}
+service BackendSchedulerService {
+  rpc ComputeFsrsParamsFromItems(ComputeFsrsParamsFromItemsRequest)
+      returns (ComputeFsrsParamsResponse);
+  // Generates parameters used for FSRS's scheduler benchmarks.
+  rpc FsrsBenchmark(FsrsBenchmarkRequest) returns (FsrsBenchmarkResponse);
+  // Used for exporting revlogs for algorithm research.
+  rpc ExportDataset(ExportDatasetRequest) returns (generic.Empty);
+}
 
 message SchedulingState {
   message New {
@@ -58,6 +84,8 @@ message SchedulingState {
   message Learning {
     uint32 remaining_steps = 1;
     uint32 scheduled_secs = 2;
+    uint32 elapsed_secs = 3;
+    optional cards.FsrsMemoryState memory_state = 6;
   }
   message Review {
     uint32 scheduled_days = 1;
@@ -65,6 +93,7 @@ message SchedulingState {
     float ease_factor = 3;
     uint32 lapses = 4;
     bool leeched = 5;
+    optional cards.FsrsMemoryState memory_state = 6;
   }
   message Relearning {
     Review review = 1;
@@ -214,6 +243,11 @@ message SetDueDateRequest {
   config.OptionalStringConfigKey config_key = 3;
 }
 
+message GradeNowRequest {
+  repeated int64 card_ids = 1;
+  CardAnswer.Rating rating = 2;
+}
+
 message SortCardsRequest {
   repeated int64 card_ids = 1;
   uint32 starting_from = 2;
@@ -316,4 +350,134 @@ message CustomStudyDefaultsResponse {
 message RepositionDefaultsResponse {
   bool random = 1;
   bool shift = 2;
+}
+
+message ComputeFsrsParamsRequest {
+  /// The search used to gather cards for training
+  string search = 1;
+  repeated float current_params = 2;
+  int64 ignore_revlogs_before_ms = 3;
+  uint32 num_of_relearning_steps = 4;
+  bool health_check = 5;
+}
+
+message ComputeFsrsParamsResponse {
+  repeated float params = 1;
+  uint32 fsrs_items = 2;
+  optional bool health_check_passed = 3;
+}
+
+message ComputeFsrsParamsFromItemsRequest {
+  repeated FsrsItem items = 1;
+}
+
+message FsrsBenchmarkRequest {
+  repeated FsrsItem train_set = 1;
+}
+
+message FsrsBenchmarkResponse {
+  repeated float params = 1;
+}
+
+message ExportDatasetRequest {
+  uint32 min_entries = 1;
+  string target_path = 2;
+}
+
+message FsrsItem {
+  repeated FsrsReview reviews = 1;
+}
+
+message FsrsReview {
+  uint32 rating = 1;
+  uint32 delta_t = 2;
+}
+
+message SimulateFsrsReviewRequest {
+  repeated float params = 1;
+  float desired_retention = 2;
+  uint32 deck_size = 3;
+  uint32 days_to_simulate = 4;
+  uint32 new_limit = 5;
+  uint32 review_limit = 6;
+  uint32 max_interval = 7;
+  string search = 8;
+  bool new_cards_ignore_review_limit = 9;
+  repeated float easy_days_percentages = 10;
+  deck_config.DeckConfig.Config.ReviewCardOrder review_order = 11;
+  optional uint32 suspend_after_lapse_count = 12;
+  float historical_retention = 13;
+  uint32 learning_step_count = 14;
+  uint32 relearning_step_count = 15;
+}
+
+message SimulateFsrsReviewResponse {
+  repeated float accumulated_knowledge_acquisition = 1;
+  repeated uint32 daily_review_count = 2;
+  repeated uint32 daily_new_count = 3;
+  repeated float daily_time_cost = 4;
+}
+
+message SimulateFsrsWorkloadResponse {
+  map<uint32, float> cost = 1;
+  float reviewless_end_memorized = 2;
+  map<uint32, float> memorized = 3;
+  map<uint32, uint32> review_count = 4;
+}
+
+message ComputeOptimalRetentionResponse {
+  float optimal_retention = 1;
+}
+
+message GetOptimalRetentionParametersRequest {
+  string search = 1;
+}
+
+message GetOptimalRetentionParametersResponse {
+  uint32 deck_size = 1;
+  uint32 learn_span = 2;
+  float max_cost_perday = 3;
+  float max_ivl = 4;
+  repeated float first_rating_prob = 5;
+  repeated float review_rating_prob = 6;
+  float loss_aversion = 7;
+  uint32 learn_limit = 8;
+  uint32 review_limit = 9;
+  repeated float learning_step_transitions = 10;
+  repeated float relearning_step_transitions = 11;
+  repeated float state_rating_costs = 12;
+  uint32 learning_step_count = 13;
+  uint32 relearning_step_count = 14;
+}
+
+message EvaluateParamsRequest {
+  string search = 1;
+  int64 ignore_revlogs_before_ms = 2;
+  uint32 num_of_relearning_steps = 3;
+}
+
+message EvaluateParamsLegacyRequest {
+  repeated float params = 1;
+  string search = 2;
+  int64 ignore_revlogs_before_ms = 3;
+}
+
+message EvaluateParamsResponse {
+  float log_loss = 1;
+  float rmse_bins = 2;
+}
+
+message ComputeMemoryStateResponse {
+  optional cards.FsrsMemoryState state = 1;
+  float desired_retention = 2;
+  float decay = 3;
+}
+
+message FuzzDeltaRequest {
+  int64 card_id = 1;
+  uint32 interval = 2;
+}
+
+message FuzzDeltaResponse {
+  sint32 delta_days = 1;
 }

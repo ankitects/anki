@@ -1,0 +1,22 @@
+{
+    "format": "zip",
+    "formal_name": "App Name",
+    "app_name": "{{ cookiecutter.formal_name|lower|replace(' ', '-') }}",
+    "module_name": "{{ cookiecutter.app_name|replace('-', '_') }}",
+    "author": "Jane Developer",
+    "author_email": "jane@example.com",
+    "version": "0.0.1",
+    "revision": "1",
+    "arch": "amd64",
+    "bundle": "com.example",
+    "bundle_identifier": "{{ cookiecutter.bundle }}.{{ cookiecutter.app_name|replace('_', '-') }}",
+    "url": "https://example.com",
+    "description": "Short description of app",
+    "long_description": "Long description of app",
+    "console_app": false,
+    "briefcase_version": "0.3.X",
+    "python_version": "3.X.0",
+    "_extensions": [
+        "briefcase.integrations.cookiecutter.PythonVersionExtension"
+    ]
+}

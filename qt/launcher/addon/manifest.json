@@ -1,0 +1,6 @@
+{
+    "name": "Anki Launcher",
+    "package": "anki-launcher",
+    "min_point_version": 50,
+    "max_point_version": 250600
+}

@@ -12,6 +12,7 @@ use itertools::Itertools;
 use crate::action::BuildAction;
 use crate::archives::Platform;
 use crate::configure::ConfigureBuild;
+use crate::input::join_inputs;
 use crate::input::space_separated;
 use crate::input::BuildInput;
 
@@ -271,14 +272,18 @@ impl BuildStatement<'_> {
             stmt.rule_variables.push(("pool".into(), pool.into()));
         }
         if have_n2 {
-            stmt.rule_variables.push((
-                "hide_success".into(),
-                (action.hide_success() as u8).to_string(),
-            ));
-            stmt.rule_variables.push((
-                "hide_last_line".into(),
-                (action.hide_last_line() as u8).to_string(),
-            ));
+            if action.hide_success()
+                && std::env::var("N2_OUTPUT_SUCCESS").ok().as_deref() != Some("1")
+            {
+                stmt.rule_variables
+                    .push(("hide_success".into(), "1".into()));
+            }
+            if action.hide_progress()
+                && std::env::var("N2_OUTPUT_PROGRESS").ok().as_deref() != Some("1")
+            {
+                stmt.rule_variables
+                    .push(("hide_progress".into(), "1".into()));
+            }
         }
 
         stmt
@@ -300,7 +305,7 @@ impl BuildStatement<'_> {
 
         writeln!(buf, "build {outputs_str}: {action_name} {inputs_str}").unwrap();
         for (key, value) in self.variables.iter().sorted() {
-            writeln!(buf, "  {key} = {}", value).unwrap();
+            writeln!(buf, "  {key} = {value}").unwrap();
         }
         writeln!(buf).unwrap();
 
@@ -368,8 +373,8 @@ pub trait FilesHandle {
     /// different variables. This is a shortcut for calling .expand_inputs()
     /// and then .add_inputs_vec()
     /// - If the variable name is non-empty, a variable of the same name will be
-    /// created so the file list can be accessed in the command. By convention,
-    /// this is often `in`.
+    ///   created so the file list can be accessed in the command. By
+    ///   convention, this is often `in`.
     fn add_inputs(&mut self, variable: &'static str, inputs: impl AsRef<BuildInput>);
     fn add_inputs_vec(&mut self, variable: &'static str, inputs: Vec<String>);
     fn add_order_only_inputs(&mut self, variable: &'static str, inputs: impl AsRef<BuildInput>);
@@ -392,14 +397,14 @@ pub trait FilesHandle {
     /// Add outputs to the build statement. Can be called multiple times with
     /// different variables.
     /// - Each output automatically has $builddir/ prefixed to it if it does not
-    /// already start with it.
+    ///   already start with it.
     /// - If the variable name is non-empty, a variable of the same name will be
-    /// created so the file list can be accessed in the command. By convention,
-    /// this is often `out`.
-    /// - If subgroup is true, the files are also placed in a subgroup. Eg
-    /// if a rule `foo` exists and subgroup `bar` is provided, the files are
-    /// accessible via `:foo:bar`. The variable name must not be empty, or
-    /// called `out`.
+    ///   created so the file list can be accessed in the command. By
+    ///   convention, this is often `out`.
+    /// - If subgroup is true, the files are also placed in a subgroup. Eg if a
+    ///   rule `foo` exists and subgroup `bar` is provided, the files are
+    ///   accessible via `:foo:bar`. The variable name must not be empty, or
+    ///   called `out`.
     fn add_outputs_ext(
         &mut self,
         variable: impl Into<String>,
@@ -476,7 +481,7 @@ impl FilesHandle for BuildStatement<'_> {
         let outputs = outputs.into_iter().map(|v| {
             let v = v.as_ref();
             let v = if !v.starts_with("$builddir/") && !v.starts_with("$builddir\\") {
-                format!("$builddir/{}", v)
+                format!("$builddir/{v}")
             } else {
                 v.to_owned()
             };
@@ -538,14 +543,14 @@ fn to_ninja_target_string(
     implicit: &[String],
     order_only: &[String],
 ) -> String {
-    let mut joined = space_separated(explicit);
+    let mut joined = join_inputs(explicit);
     if !implicit.is_empty() {
         joined.push_str(" | ");
-        joined.push_str(&space_separated(implicit));
+        joined.push_str(&join_inputs(implicit));
     }
     if !order_only.is_empty() {
         joined.push_str(" || ");
-        joined.push_str(&space_separated(order_only));
+        joined.push_str(&join_inputs(order_only));
     }
     joined
 }

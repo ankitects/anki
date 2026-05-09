@@ -26,11 +26,13 @@ class UndoActionsInfo:
         return UndoActionsInfo(
             can_undo=bool(status.undo),
             can_redo=bool(status.redo),
-            undo_text=tr.undo_undo_action(val=status.undo)
-            if status.undo
-            else tr.undo_undo(),
-            redo_text=tr.undo_redo_action(action=status.redo)
-            if status.redo
-            else tr.undo_redo(),
+            undo_text=(
+                tr.undo_undo_action(val=status.undo) if status.undo else tr.undo_undo()
+            ),
+            redo_text=(
+                tr.undo_redo_action(action=status.redo)
+                if status.redo
+                else tr.undo_redo()
+            ),
             show_redo=status.last_step > 0,
         )

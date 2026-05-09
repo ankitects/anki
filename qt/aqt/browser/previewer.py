@@ -6,13 +6,14 @@ from __future__ import annotations
 import json
 import re
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any, Literal
 
 import aqt.browser
 from anki.cards import Card
 from anki.collection import Config
 from anki.tags import MARKED_TAG
-from aqt import AnkiQt, gui_hooks
+from aqt import AnkiQt, gui_hooks, is_mac
 from aqt.qt import (
     QCheckBox,
     QDialog,
@@ -22,7 +23,6 @@ from aqt.qt import (
     Qt,
     QTimer,
     QVBoxLayout,
-    QWidget,
     qconnect,
 )
 from aqt.reviewer import replay_audio
@@ -35,6 +35,7 @@ LastStateAndMod = tuple[str, int, int]
 
 
 class Previewer(QDialog):
+    _state: Literal["question", "answer"] = "question"
     _last_state: LastStateAndMod | None = None
     _card_changed = False
     _last_render: int | float = 0
@@ -42,7 +43,10 @@ class Previewer(QDialog):
     _show_both_sides = False
 
     def __init__(
-        self, parent: QWidget, mw: AnkiQt, on_close: Callable[[], None]
+        self,
+        parent: aqt.browser.Browser | None,
+        mw: AnkiQt,
+        on_close: Callable[[], None],
     ) -> None:
         super().__init__(None, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
@@ -66,6 +70,7 @@ class Previewer(QDialog):
         self._create_gui()
         self._setup_web_view()
         self.render_card()
+        restoreGeom(self, "preview")
         self.show()
 
     def _create_gui(self) -> None:
@@ -77,10 +82,15 @@ class Previewer(QDialog):
         qconnect(self.finished, self._on_finished)
         self.silentlyClose = True
         self.vbox = QVBoxLayout()
+        spacing = 6
         self.vbox.setContentsMargins(0, 0, 0, 0)
-        self._web = AnkiWebView(kind=AnkiWebViewKind.PREVIEWER)
+        self.vbox.setSpacing(spacing)
+        self._web: AnkiWebView | None = AnkiWebView(kind=AnkiWebViewKind.PREVIEWER)
         self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
+        self.bbox.setContentsMargins(
+            spacing, spacing if is_mac else 0, spacing, spacing
+        )
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
         gui_hooks.card_review_webview_did_init(self._web, AnkiWebViewKind.PREVIEWER)
@@ -88,6 +98,7 @@ class Previewer(QDialog):
         self._replay = self.bbox.addButton(
             tr.actions_replay_audio(), QDialogButtonBox.ButtonRole.ActionRole
         )
+        assert self._replay is not None
         self._replay.setAutoDefault(False)
         self._replay.setShortcut(QKeySequence("R"))
         self._replay.setToolTip(tr.actions_shortcut_key(val="R"))
@@ -105,33 +116,41 @@ class Previewer(QDialog):
 
         self.vbox.addWidget(self.bbox)
         self.setLayout(self.vbox)
-        restoreGeom(self, "preview")
 
     def _on_finished(self, ok: int) -> None:
         saveGeom(self, "preview")
         self._on_close()
 
     def _on_replay_audio(self) -> None:
-        gui_hooks.audio_will_replay(self._web, self.card(), self._state == "question")
+        assert self._web is not None
+        card = self.card()
+        assert card is not None
+
+        gui_hooks.audio_will_replay(self._web, card, self._state == "question")
 
         if self._state == "question":
-            replay_audio(self.card(), True)
+            replay_audio(card, True)
         elif self._state == "answer":
-            replay_audio(self.card(), False)
+            replay_audio(card, False)
 
     def _on_close(self) -> None:
         self._open = False
         self._close_callback()
+
+        assert self._web is not None
+
         self._web.cleanup()
         self._web = None
 
     def _setup_web_view(self) -> None:
+        assert self._web is not None
+
         self._web.stdHtml(
             self.mw.reviewer.revHtml(),
             css=["css/reviewer.css"],
             js=[
                 "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
+                "js/vendor/mathjax/tex-chtml-full.js",
                 "js/reviewer.js",
             ],
             context=self,
@@ -142,7 +161,10 @@ class Previewer(QDialog):
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
-            play_clicked_audio(cmd, self.card())
+            card = self.card()
+            assert card is not None
+
+            play_clicked_audio(cmd, card)
 
     def _update_flag_and_mark_icons(self, card: Card | None) -> None:
         if card:
@@ -151,6 +173,9 @@ class Previewer(QDialog):
         else:
             flag = 0
             marked = False
+
+        assert self._web is not None
+
         self._web.eval(f"_drawFlag({flag}); _drawMark({json.dumps(marked)});")
 
     def render_card(self) -> None:
@@ -172,6 +197,11 @@ class Previewer(QDialog):
         if self._timer:
             self._timer.stop()
             self._timer = None
+
+    def type_ans_preview_filter(
+        self, txt: str, type: Literal["question", "answer"]
+    ) -> str:
+        return re.sub(r"\[\[type:[^]]+\]\]", "", txt)
 
     def _render_scheduled(self) -> None:
         self.cancel_timer()
@@ -205,9 +235,11 @@ class Previewer(QDialog):
             if self._state == "answer":
                 func = "_showAnswer"
                 txt = ans_txt
-            txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
+            txt = self.type_ans_preview_filter(txt, self._state)
 
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
+
+            assert self._web is not None
 
             if c.autoplay():
                 self._web.setPlaybackRequiresGesture(False)
@@ -238,14 +270,22 @@ class Previewer(QDialog):
             js = f"{func}({json.dumps(txt)}, {json.dumps(ans_txt)}, '{bodyclass}');"
         else:
             js = f"{func}({json.dumps(txt)}, '{bodyclass}');"
+
+        assert self._web is not None
         self._web.eval(js)
         self._card_changed = False
 
     def _on_show_both_sides(self, toggle: bool) -> None:
+        assert self._web is not None
+
         self._show_both_sides = toggle
         self.mw.col.set_config_bool(Config.Bool.PREVIEW_BOTH_SIDES, toggle)
+
+        card = self.card()
+        assert card is not None
+
         gui_hooks.previewer_will_redraw_after_show_both_sides_toggled(
-            self._web, self.card(), self._state == "question", toggle
+            self._web, card, self._state == "question", toggle
         )
 
         if self._state == "answer" and not toggle:
@@ -254,6 +294,9 @@ class Previewer(QDialog):
 
     def _state_and_mod(self) -> tuple[str, int, int]:
         c = self.card()
+
+        assert c is not None
+
         n = c.note()
         n.load()
         return (self._state, c.id, n.mod)
@@ -277,6 +320,9 @@ class MultiCardPreviewer(Previewer):
             ">" if self.layoutDirection() == Qt.LayoutDirection.RightToLeft else "<",
             QDialogButtonBox.ButtonRole.ActionRole,
         )
+
+        assert self._prev is not None
+
         self._prev.setAutoDefault(False)
         self._prev.setShortcut(QKeySequence("Left"))
         self._prev.setToolTip(tr.qt_misc_shortcut_key_left_arrow())
@@ -285,6 +331,9 @@ class MultiCardPreviewer(Previewer):
             "<" if self.layoutDirection() == Qt.LayoutDirection.RightToLeft else ">",
             QDialogButtonBox.ButtonRole.ActionRole,
         )
+
+        assert self._next is not None
+
         self._next.setAutoDefault(True)
         self._next.setShortcut(QKeySequence("Right"))
         self._next.setToolTip(tr.qt_misc_shortcut_key_right_arrow_or_enter())
@@ -315,6 +364,10 @@ class MultiCardPreviewer(Previewer):
     def _updateButtons(self) -> None:
         if not self._open:
             return
+
+        assert self._prev is not None
+        assert self._next is not None
+
         self._prev.setEnabled(self._should_enable_prev())
         self._next.setEnabled(self._should_enable_next())
 
@@ -340,6 +393,8 @@ class BrowserPreviewer(MultiCardPreviewer):
         super().__init__(parent=parent, mw=mw, on_close=on_close)
 
     def card(self) -> Card | None:
+        assert self._parent is not None
+
         if self._parent.singleCard:
             return self._parent.card
         else:
@@ -355,15 +410,23 @@ class BrowserPreviewer(MultiCardPreviewer):
             return changed
 
     def _on_prev_card(self) -> None:
+        assert self._parent is not None
+
         self._parent.onPreviousCard()
 
     def _on_next_card(self) -> None:
+        assert self._parent is not None
+
         self._parent.onNextCard()
 
     def _should_enable_prev(self) -> bool:
+        assert self._parent is not None
+
         return super()._should_enable_prev() or self._parent.has_previous_card()
 
     def _should_enable_next(self) -> bool:
+        assert self._parent is not None
+
         return super()._should_enable_next() or self._parent.has_next_card()
 
     def _render_scheduled(self) -> None:

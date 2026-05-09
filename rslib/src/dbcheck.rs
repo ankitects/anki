@@ -5,6 +5,8 @@ use std::collections::HashSet;
 use std::sync::Arc;
 
 use anki_i18n::I18n;
+use anki_proto::notetypes::stock_notetype::OriginalStockKind;
+use anki_proto::notetypes::ImageOcclusionField;
 use itertools::Itertools;
 use tracing::debug;
 
@@ -22,6 +24,7 @@ use crate::notetype::NotetypeId;
 use crate::notetype::NotetypeKind;
 use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
+use crate::storage::card::CardFixStats;
 use crate::timestamp::TimestampMillis;
 use crate::timestamp::TimestampSecs;
 
@@ -38,6 +41,7 @@ pub struct CheckDatabaseOutput {
     notetypes_recovered: usize,
     invalid_utf8: usize,
     invalid_ids: usize,
+    card_last_review_time_empty: usize,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -66,6 +70,11 @@ impl CheckDatabaseOutput {
         }
         if self.card_properties_invalid > 0 {
             probs.push(tr.database_check_card_properties(self.card_properties_invalid));
+        }
+        if self.card_last_review_time_empty > 0 {
+            probs.push(
+                tr.database_check_card_last_review_time_empty(self.card_last_review_time_empty),
+            );
         }
         if self.cards_missing_note > 0 {
             probs.push(tr.database_check_card_missing_note(self.cards_missing_note));
@@ -156,14 +165,25 @@ impl Collection {
 
     fn check_card_properties(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let timing = self.timing_today()?;
-        let (new_cnt, other_cnt) = self.storage.fix_card_properties(
+        let CardFixStats {
+            new_cards_fixed,
+            other_cards_fixed,
+            last_review_time_fixed,
+        } = self.storage.fix_card_properties(
             timing.days_elapsed,
             TimestampSecs::now(),
             self.usn()?,
             self.scheduler_version() == SchedulerVersion::V1,
         )?;
-        out.card_position_too_high = new_cnt;
-        out.card_properties_invalid += other_cnt;
+        out.card_position_too_high = new_cards_fixed;
+        out.card_properties_invalid += other_cards_fixed;
+        out.card_last_review_time_empty = last_review_time_fixed;
+
+        // Trigger one-way sync if last_review_time was updated to avoid conflicts
+        if last_review_time_fixed > 0 {
+            self.set_schema_modified()?;
+        }
+
         Ok(())
     }
 
@@ -230,10 +250,10 @@ impl Collection {
             current: 0,
             total: total_notes as usize,
         })?;
-        for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
+        for (ntid, group) in &nids_by_notetype.into_iter().chunk_by(|tup| tup.0) {
             debug!("check notetype: {}", ntid);
             let mut group = group.peekable();
-            let nt = match self.get_notetype(ntid)? {
+            let mut nt = match self.get_notetype(ntid)? {
                 None => {
                     let first_note = self.storage.get_note(group.peek().unwrap().1)?.unwrap();
                     out.notetypes_recovered += 1;
@@ -241,6 +261,8 @@ impl Collection {
                 }
                 Some(nt) => nt,
             };
+
+            self.add_missing_field_tags(Arc::make_mut(&mut nt))?;
 
             let mut genctx = None;
             for (_, nid) in group {
@@ -383,14 +405,14 @@ impl Collection {
         let mut basic = all_stock_notetypes(&self.tr).remove(0);
         let mut field = 3;
         while basic.fields.len() < field_count {
-            basic.add_field(format!("{}", field));
+            basic.add_field(format!("{field}"));
             field += 1;
         }
-        basic.name = format!("db-check-{}-{}", stamp, field_count);
+        basic.name = format!("db-check-{stamp}-{field_count}");
         let qfmt = basic.templates[0].config.q_format.clone();
         let afmt = basic.templates[0].config.a_format.clone();
         for n in 0..extra_cards_required {
-            basic.add_template(&format!("Card {}", n + 2), &qfmt, &afmt);
+            basic.add_template(format!("Card {}", n + 2), &qfmt, &afmt);
         }
         self.add_notetype(&mut basic, true)?;
         Ok(Arc::new(basic))
@@ -426,6 +448,30 @@ impl Collection {
             self.set_schema_modified()?;
         }
         Ok(num_invalid_ids)
+    }
+    fn add_missing_field_tags(&mut self, nt: &mut Notetype) -> Result<()> {
+        // we only try to fix I/O, as the other notetypes have been in circulation too
+        // long, and there's too much of a risk that the user has reordered the fields
+        // already. We could try to match on field name in the future though.
+        let usn = self.usn()?;
+        if let OriginalStockKind::ImageOcclusion = nt.config.original_stock_kind() {
+            let mut changed = false;
+            if nt.fields.len() >= 5 {
+                for i in 0..5 {
+                    let conf = &mut nt.fields[i].config;
+                    if !conf.prevent_deletion {
+                        changed = true;
+                        conf.prevent_deletion = i != ImageOcclusionField::Comments as usize;
+                        conf.tag = Some(i as u32);
+                    }
+                }
+            }
+            if changed {
+                nt.set_modified(usn);
+                self.add_or_update_notetype_with_existing_id_inner(nt, None, usn, true)?;
+            }
+        }
+        Ok(())
     }
 }
 

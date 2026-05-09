@@ -34,11 +34,11 @@ class Flag:
 class FlagManager:
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         self.mw = mw
-        self._flags: list[Flag] | None = None
+        self._flags: list[Flag] = []
 
     def all(self) -> list[Flag]:
         """Return a list of all flags."""
-        if self._flags is None:
+        if not self._flags:
             self._load_flags()
         return self._flags
 
@@ -55,9 +55,18 @@ class FlagManager:
         self.mw.col.set_config("flagLabels", labels)
         gui_hooks.flag_label_did_change()
 
+    def restore_default_flag_name(self, flag_index: int) -> None:
+        labels = self.mw.col.get_config("flagLabels", {})
+        if str(flag_index) not in labels:
+            return
+        del labels[str(flag_index)]
+        self.mw.col.set_config("flagLabels", labels)
+        self.require_refresh()
+        gui_hooks.flag_label_did_change()
+
     def require_refresh(self) -> None:
         "Discard cached labels."
-        self._flags = None
+        self._flags = []
 
     def _load_flags(self) -> None:
         labels = cast(dict[str, str], self.mw.col.get_config("flagLabels", {}))

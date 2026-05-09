@@ -13,7 +13,6 @@ use unicase::UniCase;
 
 use super::SqliteStorage;
 use crate::card::CardQueue;
-use crate::config::SchedulerVersion;
 use crate::decks::immediate_parent_name;
 use crate::decks::DeckCommon;
 use crate::decks::DeckKindContainer;
@@ -34,7 +33,7 @@ fn row_to_deck(row: &Row) -> Result<Deck> {
         common,
         kind: kind.kind.ok_or_else(|| {
             AnkiError::db_error(
-                format!("invalid deck kind: {}", id),
+                format!("invalid deck kind: {id}"),
                 DbErrorKind::MissingEntity,
             )
         })?,
@@ -83,7 +82,6 @@ impl SqliteStorage {
             .query_and_then([machine_name], row_to_deck)?
             .next()
             .transpose()
-            .map_err(Into::into)
     }
 
     pub(crate) fn get_all_decks(&self) -> Result<Vec<Deck>> {
@@ -162,10 +160,9 @@ impl SqliteStorage {
             .prepare(include_str!("alloc_id.sql"))?
             .query_row([TimestampMillis::now()], |r| r.get(0))?;
         self.add_or_update_deck_with_existing_id(deck)
-            .map_err(|err| {
+            .inspect_err(|_err| {
                 // restore id of 0
                 deck.id.0 = 0;
-                err
             })
     }
 
@@ -297,16 +294,13 @@ impl SqliteStorage {
 
     pub(crate) fn due_counts(
         &self,
-        sched: SchedulerVersion,
         day_cutoff: u32,
         learn_cutoff: u32,
     ) -> Result<HashMap<DeckId, DueCounts>> {
-        let sched_ver = sched as u8;
         let params = named_params! {
             ":new_queue": CardQueue::New as u8,
             ":review_queue": CardQueue::Review as u8,
             ":day_cutoff": day_cutoff,
-            ":sched_ver": sched_ver,
             ":learn_queue": CardQueue::Learn as u8,
             ":learn_cutoff": learn_cutoff,
             ":daylearn_queue": CardQueue::DayLearn as u8,
@@ -353,14 +347,21 @@ impl SqliteStorage {
         ))?;
 
         let top = current.name.as_native_str();
-        let prefix_start = &format!("{}\x1f", top);
-        let prefix_end = &format!("{}\x20", top);
+        let prefix_start = &format!("{top}\x1f");
+        let prefix_end = &format!("{top}\x20");
 
         self.db
             .prepare_cached(include_str!("update_active.sql"))?
             .execute([top, prefix_start, prefix_end])?;
 
         Ok(())
+    }
+
+    pub(crate) fn get_active_deck_ids_sorted(&self) -> Result<Vec<DeckId>> {
+        self.db
+            .prepare_cached(include_str!("active_deck_ids_sorted.sql"))?
+            .query_and_then([], |row| row.get(0).map_err(Into::into))?
+            .collect()
     }
 
     // Upgrading/downgrading/legacy
@@ -378,7 +379,7 @@ impl SqliteStorage {
         let decks = self
             .get_schema11_decks()
             .map_err(|e| AnkiError::JsonError {
-                info: format!("decoding decks: {}", e),
+                info: format!("decoding decks: {e}"),
             })?;
         let mut names = HashSet::new();
         for (_id, deck) in decks {

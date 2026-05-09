@@ -101,6 +101,44 @@ hooks = [
         legacy_no_args=True,
     ),
     Hook(
+        name="reviewer_will_compare_answer",
+        args=[
+            "expected_provided_tuple: tuple[str, str]",
+            "type_pattern: str",
+        ],
+        return_type="tuple[str, str]",
+        doc="""Modify expected answer and provided answer before comparing
+
+        expected_provided_tuple is a tuple composed of:
+        - expected answer
+        - provided answer
+        type_pattern is the detail of the type tag on the card
+
+        Return a tuple composed of:
+        - modified expected answer
+        - modified provided answer
+        """,
+    ),
+    Hook(
+        name="reviewer_will_render_compared_answer",
+        args=[
+            "output: str",
+            "initial_expected: str",
+            "initial_provided: str",
+            "type_pattern: str",
+        ],
+        return_type="str",
+        doc="""Modify the output of default compare answer feature
+
+        output is the result of default compare answer function
+        initial_expected is the expected answer from the card
+        initial_provided is the answer provided during review
+        type_pattern is the detail of the type tag on the card
+
+        Return a string comparing expected and provided answers
+        """,
+    ),
+    Hook(
         name="reviewer_did_show_answer",
         args=["card: Card"],
         legacy_hook="showAnswer",
@@ -218,7 +256,16 @@ hooks = [
     Hook(
         name="audio_did_pause_or_unpause",
         args=["webview: aqt.webview.AnkiWebView"],
-        doc="""Called when the audio is paused or unpaused.""",
+        doc="""Called when the audio is paused or unpaused.
+        This hook is triggered by the action in Anki's More menu or the related key binding.
+        The webview is provided in case you wish to use this hook with web-based audio.""",
+    ),
+    Hook(
+        name="audio_did_seek_relative",
+        args=["webview: aqt.webview.AnkiWebView", "seek_seconds: int"],
+        doc="""Called when the audio is sought forward (positive seek) or backwards (negative seek).
+        This hook is triggered by the action in Anki's More menu or the related key binding.
+        The webview is provided in case you wish to use this hook with web-based audio.""",
     ),
     # Debug
     ###################
@@ -502,6 +549,10 @@ hooks = [
          You can modify context.search to change the text that is sent to the
          searching backend.
 
+         If you need to pass metadata to the browser_did_search hook, you can
+         do it with context.addon_metadata. For example, to trigger filtering
+         based on a new custom filter.
+
          If you set context.ids to a list of ids, the regular search will
          not be performed, and the provided ids will be used instead.
 
@@ -530,6 +581,9 @@ hooks = [
         You can mutate the row object to change what is displayed. Any columns the
         backend did not recognize will be returned as an empty string, and can be
         replaced with custom content.
+
+        You can retrieve metadata passed from browser_will_search with
+        context.addon_metadata (for example to trigger post-processing filtering).
 
         Columns is a list of string values identifying what each column in the row
         represents.
@@ -593,12 +647,6 @@ hooks = [
     ),
     # UI state/refreshing
     ###################
-    Hook(
-        name="state_did_revert",
-        args=["action: str"],
-        legacy_hook="revertedState",
-        doc="Legacy hook, called after undoing.",
-    ),
     Hook(
         name="state_did_undo",
         args=["changes: OpChangesAfterUndo"],
@@ -737,24 +785,24 @@ hooks = [
         name="webview_did_inject_style_into_page",
         args=["webview: aqt.webview.AnkiWebView"],
         doc='''Called after standard styling is injected into an external
-html file, such as when loading the new graphs. You can use this hook to
-mutate the DOM before the page is revealed.
-
-For example:
-
-def mytest(webview: AnkiWebView):
-    if webview.kind != AnkiWebViewKind.DECK_STATS:
-        return
-    web.eval(
-        """
-    div = document.createElement("div");
-    div.innerHTML = 'hello';
-    document.body.appendChild(div);
-"""
-    )
-
-gui_hooks.webview_did_inject_style_into_page.append(mytest)
-''',
+        html file, such as when loading the new graphs. You can use this hook to
+        mutate the DOM before the page is revealed.
+        
+        For example:
+        
+        def mytest(webview: AnkiWebView):
+            if webview.kind != AnkiWebViewKind.DECK_STATS:
+                return
+            webview.eval(
+                """
+                div = document.createElement("div");
+                div.innerHTML = 'hello';
+                document.body.appendChild(div);
+                """
+            )
+        
+        gui_hooks.webview_did_inject_style_into_page.append(mytest)
+        ''',
     ),
     # Main
     ###################
@@ -814,7 +862,6 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         legacy_hook="colLoading",
     ),
     Hook(name="undo_state_did_change", args=["info: UndoActionsInfo"]),
-    Hook(name="review_did_undo", args=["card_id: int"], legacy_hook="revertedCard"),
     Hook(
         name="style_did_init",
         args=["style: str"],
@@ -844,7 +891,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         'content' is a list of HTML strings added by add-ons which you can append your
         own components or elements to. To equip your components with logic and styling
         please see `webview_will_set_content` and `webview_did_receive_js_message`.
-        
+
         Please note that Anki's main screen is due to undergo a significant refactor
         in the future and, as a result, add-ons subscribing to this hook will likely
         require changes to continue working.
@@ -859,7 +906,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         'content' is a list of HTML strings added by add-ons which you can append your
         own components or elements to. To equip your components with logic and styling
         please see `webview_will_set_content` and `webview_did_receive_js_message`.
-        
+
         Please note that Anki's main screen is due to undergo a significant refactor
         in the future and, as a result, add-ons subscribing to this hook will likely
         require changes to continue working.
@@ -872,7 +919,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(
         name="media_sync_did_progress",
-        args=["entry: aqt.mediasync.LogEntryWithTime"],
+        args=["entry: str"],
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
     Hook(
@@ -896,6 +943,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
 
         `output` provides access to the unused/missing file lists and the text output that will be shown in the Check Media screen.""",
     ),
+    Hook(name="day_did_change", doc="""Called when Anki moves to the next day."""),
     # Importing/exporting data
     ###################
     Hook(
@@ -1143,6 +1191,25 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         or by a right-click paste.
         """,
     ),
+    Hook(
+        name="editor_state_did_change",
+        args=[
+            "editor: aqt.editor.Editor",
+            "new_state: aqt.editor.EditorState",
+            "old_state: aqt.editor.EditorState",
+        ],
+        doc="""Called when the input state of the editor changes, e.g. when
+        switching to an image occlusion note type.""",
+    ),
+    Hook(
+        name="editor_mask_editor_did_load_image",
+        args=["editor: aqt.editor.Editor", "path_or_nid: str | anki.notes.NoteId"],
+        doc="""Called when the image occlusion mask editor has completed
+        loading an image.
+
+        When adding new notes `path_or_nid` will be the path to the image file.
+        When editing existing notes `path_or_nid` will be the note id.""",
+    ),
     # Tag
     ###################
     Hook(name="tag_editor_did_process_key", args=["tag_edit: TagEdit", "evt: QEvent"]),
@@ -1228,7 +1295,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="addon_manager_will_install_addon",
         args=["manager: aqt.addons.AddonManager", "module: str"],
         doc="""Called before installing or updating an addon.
-        
+
         Can be used to release DB connections or open files that
         would prevent an update from succeeding.""",
     ),
@@ -1236,7 +1303,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="addon_manager_did_install_addon",
         args=["manager: aqt.addons.AddonManager", "module: str"],
         doc="""Called after installing or updating an addon.
-        
+
         Can be used to restore DB connections or open files after
         an add-on has been updated.""",
     ),

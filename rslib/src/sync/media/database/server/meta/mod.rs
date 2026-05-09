@@ -77,9 +77,8 @@ impl ServerMediaDatabase {
                 self.db.execute("commit", [])?;
                 Ok(meta.last_usn)
             })
-            .map_err(|e| {
+            .inspect_err(|_e| {
                 let _ = self.db.execute("rollback", []);
-                e
             })
     }
 

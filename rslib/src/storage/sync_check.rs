@@ -11,7 +11,7 @@ impl SqliteStorage {
     fn table_has_usn(&self, table: &str) -> Result<bool> {
         Ok(self
             .db
-            .prepare(&format!("select null from {} where usn=-1", table))?
+            .prepare(&format!("select null from {table} where usn=-1"))?
             .query([])?
             .next()?
             .is_some())
@@ -19,7 +19,7 @@ impl SqliteStorage {
 
     fn table_count(&self, table: &str) -> Result<u32> {
         self.db
-            .query_row(&format!("select count() from {}", table), [], |r| r.get(0))
+            .query_row(&format!("select count() from {table}"), [], |r| r.get(0))
             .map_err(Into::into)
     }
 
@@ -36,7 +36,7 @@ impl SqliteStorage {
         ] {
             if self.table_has_usn(table)? {
                 return Err(AnkiError::sync_error(
-                    format!("table had usn=-1: {}", table),
+                    format!("table had usn=-1: {table}"),
                     SyncErrorKind::Other,
                 ));
             }

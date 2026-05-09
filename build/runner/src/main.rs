@@ -7,7 +7,6 @@
 
 mod archive;
 mod build;
-mod bundle;
 mod paths;
 mod pyenv;
 mod rsync;
@@ -19,11 +18,6 @@ use archive::archive_command;
 use archive::ArchiveArgs;
 use build::run_build;
 use build::BuildArgs;
-use bundle::artifacts::build_artifacts;
-use bundle::artifacts::BuildArtifactsArgs;
-use bundle::binary::build_bundle_binary;
-use bundle::folder::build_dist_folder;
-use bundle::folder::BuildDistFolderArgs;
 use clap::Parser;
 use clap::Subcommand;
 use pyenv::setup_pyenv;
@@ -48,9 +42,6 @@ enum Command {
     Rsync(RsyncArgs),
     Run(RunArgs),
     Build(BuildArgs),
-    BuildArtifacts(BuildArtifactsArgs),
-    BuildBundleBinary,
-    BuildDistFolder(BuildDistFolderArgs),
     #[clap(subcommand)]
     Archive(ArchiveArgs),
 }
@@ -62,9 +53,6 @@ fn main() -> Result<()> {
         Command::Rsync(args) => rsync_files(args),
         Command::Yarn(args) => setup_yarn(args),
         Command::Build(args) => run_build(args),
-        Command::BuildArtifacts(args) => build_artifacts(args),
-        Command::BuildBundleBinary => build_bundle_binary(),
-        Command::BuildDistFolder(args) => build_dist_folder(args),
         Command::Archive(args) => archive_command(args)?,
     };
     Ok(())

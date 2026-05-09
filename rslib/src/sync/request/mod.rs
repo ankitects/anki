@@ -8,19 +8,17 @@ use std::any::Any;
 use std::env;
 use std::marker::PhantomData;
 use std::net::IpAddr;
+use std::sync::LazyLock;
 
-use async_trait::async_trait;
-use axum::extract::BodyStream;
+use axum::body::Body;
 use axum::extract::FromRequest;
 use axum::extract::Multipart;
 use axum::http::Request;
+use axum::http::StatusCode;
 use axum::RequestPartsExt;
-use axum::TypedHeader;
-use axum_client_ip::SecureClientIp;
+use axum_client_ip::ClientIp;
+use axum_extra::TypedHeader;
 use header_and_stream::SyncHeader;
-use hyper::Body;
-use hyper::StatusCode;
-use once_cell::sync::Lazy;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_json::Error;
@@ -102,19 +100,18 @@ where
     }
 }
 
-#[async_trait]
-impl<S, T> FromRequest<S, Body> for SyncRequest<T>
+impl<S, T> FromRequest<S> for SyncRequest<T>
 where
     S: Send + Sync,
     T: DeserializeOwned,
 {
     type Rejection = HttpError;
 
-    async fn from_request(req: Request<Body>, state: &S) -> HttpResult<Self, Self::Rejection> {
+    async fn from_request(req: Request<Body>, state: &S) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
 
         let ip = parts
-            .extract::<SecureClientIp>()
+            .extract::<ClientIp>()
             .await
             .map_err(|_| {
                 HttpError::new_without_source(StatusCode::INTERNAL_SERVER_ERROR, "missing ip")
@@ -127,9 +124,10 @@ where
         let req = Request::from_parts(parts, body);
 
         if let Some(TypedHeader(sync_header)) = sync_header {
-            let stream = BodyStream::from_request(req, state)
+            let stream = Body::from_request(req, state)
                 .await
-                .expect("infallible");
+                .expect("infallible")
+                .into_data_stream();
             SyncRequest::from_header_and_stream(sync_header, stream, ip).await
         } else {
             let multi = Multipart::from_request(req, state)
@@ -179,7 +177,7 @@ where
     }
 }
 
-pub static MAXIMUM_SYNC_PAYLOAD_BYTES: Lazy<usize> = Lazy::new(|| {
+pub static MAXIMUM_SYNC_PAYLOAD_BYTES: LazyLock<usize> = LazyLock::new(|| {
     env::var("MAX_SYNC_PAYLOAD_MEGS")
         .map(|v| v.parse().expect("invalid upload limit"))
         .unwrap_or(100)
@@ -189,5 +187,5 @@ pub static MAXIMUM_SYNC_PAYLOAD_BYTES: Lazy<usize> = Lazy::new(|| {
 /// Client ignores this when a non-AnkiWeb endpoint is configured. Controls the
 /// maximum size of a payload after decompression, which effectively limits the
 /// how large a collection file can be uploaded.
-pub static MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED: Lazy<u64> =
-    Lazy::new(|| (*MAXIMUM_SYNC_PAYLOAD_BYTES * 3) as u64);
+pub static MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED: LazyLock<u64> =
+    LazyLock::new(|| (*MAXIMUM_SYNC_PAYLOAD_BYTES * 3) as u64);

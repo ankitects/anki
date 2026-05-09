@@ -94,8 +94,15 @@ class TTSPlayer:
 
             rank -= 1
 
-        # if no preferred voices match, we fall back on language
-        # with a rank of -100
+        # if no requested voices match, use a preferred fallback voice
+        # (for example, Apple Samantha) with rank of -50
+        for avail in avail_voices:
+            if avail.lang == tag.lang:
+                if avail.lang == "en_US" and avail.name.startswith("Apple_Samantha"):
+                    return TTSVoiceMatch(voice=avail, rank=-50)
+
+        # if no requested or preferred voices match, we fall back on
+        # the first available voice for the language, with a rank of -100
         for avail in avail_voices:
             if avail.lang == tag.lang:
                 return TTSVoiceMatch(voice=avail, rank=-100)
@@ -166,7 +173,6 @@ class MacVoice(TTSVoice):
     original_name: str
 
 
-# pylint: disable=no-member
 class MacTTSPlayer(TTSProcessPlayer):
     "Invokes a process to play the audio in the background."
 
@@ -189,6 +195,7 @@ class MacTTSPlayer(TTSProcessPlayer):
             stderr=subprocess.DEVNULL,
         )
         # write the input text to stdin
+        assert self._process.stdin is not None
         self._process.stdin.write(tag.field_text.encode("utf8"))
         self._process.stdin.close()
         self._wait_for_termination(tag)
@@ -247,6 +254,7 @@ class MacTTSFilePlayer(MacTTSPlayer):
             stderr=subprocess.DEVNULL,
         )
         # write the input text to stdin
+        assert self._process.stdin is not None
         self._process.stdin.write(tag.field_text.encode("utf8"))
         self._process.stdin.close()
         self._wait_for_termination(tag)
@@ -257,10 +265,8 @@ class MacTTSFilePlayer(MacTTSPlayer):
         # inject file into the top of the audio queue
         from aqt.sound import av_player
 
+        av_player.current_player = None
         av_player.insert_file(self.tmppath)
-
-        # then tell player to advance, which will cause the file to be played
-        cb()
 
 
 # Windows support
@@ -487,7 +493,7 @@ if is_win:
     class WindowsTTSPlayer(TTSProcessPlayer):
         default_rank = -1
         try:
-            import win32com.client  # pylint: disable=import-error
+            import win32com.client
 
             speaker = win32com.client.Dispatch("SAPI.SpVoice")
         except Exception as exc:
@@ -506,13 +512,13 @@ if is_win:
         def _voice_to_objects(self, voice: Any) -> list[WindowsVoice]:
             try:
                 langs = voice.GetAttribute("language")
-            except:
+            except Exception:
                 # no associated language; ignore
                 return []
             langs = lcid_hex_str_to_lang_codes(langs)
             try:
                 name = voice.GetAttribute("name")
-            except:
+            except Exception:
                 # some voices may not have a name
                 name = "unknown"
             name = self._tidy_name(name)
@@ -528,7 +534,11 @@ if is_win:
                 native_voice = voice.handle
                 self.speaker.Voice = native_voice
                 self.speaker.Rate = self._rate_for_speed(tag.speed)
-                self.speaker.Speak(tag.field_text, 1)
+
+                # SAPI SpeechVoiceSpeakFlags: https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee125223(v=vs.85)
+                ASYNC = 1
+                IS_NOT_XML = 16
+                self.speaker.Speak(tag.field_text, ASYNC + IS_NOT_XML)
                 gui_hooks.av_player_did_begin_playing(self, tag)
 
                 # wait 100ms
@@ -612,7 +622,5 @@ if is_win:
             # inject file into the top of the audio queue
             from aqt.sound import av_player
 
+            av_player.current_player = None
             av_player.insert_file(self.tmppath)
-
-            # then tell player to advance, which will cause the file to be played
-            cb()

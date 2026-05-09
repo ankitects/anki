@@ -4,18 +4,21 @@
 from __future__ import annotations
 
 import base64
+import functools
 import html
 import itertools
 import json
 import mimetypes
+import os
 import re
 import urllib.error
 import urllib.parse
 import urllib.request
 import warnings
+from collections.abc import Callable
 from enum import Enum
 from random import randrange
-from typing import Any, Callable, Match, cast
+from typing import Any, Iterable, Match, cast
 
 import bs4
 import requests
@@ -31,7 +34,7 @@ from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.models import NotetypeId, StockNotetype
+from anki.models import NotetypeDict, NotetypeId, StockNotetype
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from anki.utils import checksum, is_lin, is_win, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
@@ -46,11 +49,13 @@ from aqt.utils import (
     KeyboardModifiersPressed,
     disable_help_button,
     getFile,
+    openFolder,
     openHelp,
     qtMenuShortcutWorkaround,
     restoreGeom,
     saveGeom,
     shortcut,
+    show_in_folder,
     showInfo,
     showWarning,
     tooltip,
@@ -58,29 +63,67 @@ from aqt.utils import (
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
-pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico", "avif")
+pics = (
+    "jpg",
+    "JPG",
+    "jpeg",
+    "JPEG",
+    "png",
+    "PNG",
+    "gif",
+    "GIF",
+    "svg",
+    "SVG",
+    "webp",
+    "WEBP",
+    "ico",
+    "ICO",
+    "avif",
+    "AVIF",
+)
 audio = (
     "3gp",
+    "3GP",
     "aac",
+    "AAC",
     "avi",
+    "AVI",
     "flac",
+    "FLAC",
     "flv",
+    "FLV",
     "m4a",
+    "M4A",
     "mkv",
+    "MKV",
     "mov",
+    "MOV",
     "mp3",
+    "MP3",
     "mp4",
+    "MP4",
     "mpeg",
+    "MPEG",
     "mpg",
+    "MPG",
     "oga",
+    "OGA",
     "ogg",
+    "OGG",
     "ogv",
+    "OGV",
     "ogx",
+    "OGX",
     "opus",
+    "OPUS",
     "spx",
+    "SPX",
     "swf",
+    "SWF",
     "wav",
+    "WAV",
     "webm",
+    "WEBM",
 )
 
 
@@ -88,6 +131,18 @@ class EditorMode(Enum):
     ADD_CARDS = 0
     EDIT_CURRENT = 1
     BROWSER = 2
+
+
+class EditorState(Enum):
+    """
+    Current input state of the editing UI.
+    """
+
+    INITIAL = -1
+    FIELDS = 0
+    IO_PICKER = 1
+    IO_MASKS = 2
+    IO_FIELDS = 3
 
 
 class Editor:
@@ -122,13 +177,19 @@ class Editor:
         # Similar to currentField, but not set to None on a blur. May be
         # outside the bounds of the current notetype.
         self.last_field_index: int | None = None
+        # used when creating a copy of an existing note
+        self.orig_note_id: NoteId | None = None
         # current card, for card layout
         self.card: Card | None = None
+        self.state: EditorState = EditorState.INITIAL
+        # used for the io mask editor's context menu
+        self.last_io_image_path: str | None = None
         self._init_links()
         self.setupOuter()
         self.add_webview()
         self.setupWeb()
         self.setupShortcuts()
+        self.setupColourPalette()
         gui_hooks.editor_did_init(self)
 
     # Initial setup
@@ -217,39 +278,42 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         func: Callable[[Editor], None],
         tip: str = "",
         label: str = "",
-        id: str = None,
+        id: str | None = None,
         toggleable: bool = False,
-        keys: str = None,
+        keys: str | None = None,
         disables: bool = True,
         rightside: bool = True,
     ) -> str:
         """Assign func to bridge cmd, register shortcut, return button"""
-        if func:
-            self._links[cmd] = func
 
-            if keys:
+        def wrapped_func(editor: Editor) -> None:
+            self.call_after_note_saved(functools.partial(func, editor), keepFocus=True)
 
-                def on_activated() -> None:
-                    func(self)
+        self._links[cmd] = wrapped_func
 
-                if toggleable:
-                    # generate a random id for triggering toggle
-                    id = id or str(randrange(1_000_000))
+        if keys:
 
-                    def on_hotkey() -> None:
-                        on_activated()
-                        self.web.eval(
-                            f'toggleEditorButton(document.getElementById("{id}"));'
-                        )
+            def on_activated() -> None:
+                wrapped_func(self)
 
-                else:
-                    on_hotkey = on_activated
+            if toggleable:
+                # generate a random id for triggering toggle
+                id = id or str(randrange(1_000_000))
 
-                QShortcut(  # type: ignore
-                    QKeySequence(keys),
-                    self.widget,
-                    activated=on_hotkey,
-                )
+                def on_hotkey() -> None:
+                    on_activated()
+                    self.web.eval(
+                        f'toggleEditorButton(document.getElementById("{id}"));'
+                    )
+
+            else:
+                on_hotkey = on_activated
+
+            QShortcut(  # type: ignore
+                QKeySequence(keys),
+                self.widget,
+                activated=on_hotkey,
+            )
 
         btn = self._addButton(
             icon,
@@ -274,6 +338,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         disables: bool = True,
         rightside: bool = True,
     ) -> str:
+        title_attribute = tip
+
         if icon:
             if icon.startswith("qrc:/"):
                 iconstr = icon
@@ -281,47 +347,34 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 iconstr = self.resourceToData(icon)
             else:
                 iconstr = f"/_anki/imgs/{icon}.png"
-            imgelm = f"""<img class="topbut" src="{iconstr}">"""
+            image_element = f'<img class="topbut" src="{iconstr}">'
         else:
-            imgelm = ""
-        if label or not imgelm:
-            labelelm = label or cmd
+            image_element = ""
+
+        if not label and icon:
+            label_element = ""
+        elif label:
+            label_element = label
         else:
-            labelelm = ""
-        if id:
-            idstr = f"id={id}"
-        else:
-            idstr = ""
-        if toggleable:
-            toggleScript = "toggleEditorButton(this);"
-        else:
-            toggleScript = ""
-        tip = shortcut(tip)
-        if rightside:
-            class_ = "linkb"
-        else:
-            class_ = "rounded"
+            label_element = cmd
+
+        title_attribute = shortcut(title_attribute)
+        id_attribute_assignment = f"id={id}" if id else ""
+        class_attribute = "linkb" if rightside else "rounded"
         if not disables:
-            class_ += " perm"
-        return """<button tabindex=-1
-                        {id}
-                        class="{class_}"
+            class_attribute += " perm"
+
+        return f"""<button tabindex=-1
+                        {id_attribute_assignment}
+                        class="anki-addon-button {class_attribute}"
                         type="button"
-                        title="{tip}"
-                        onclick="pycmd('{cmd}');{togglesc}return false;"
-                        onmousedown="window.event.preventDefault();"
+                        title="{title_attribute}"
+                        data-cantoggle="{int(toggleable)}"
+                        data-command="{cmd}"
                 >
-                    {imgelm}
-                    {labelelm}
-                </button>""".format(
-            imgelm=imgelm,
-            cmd=cmd,
-            tip=tip,
-            labelelm=labelelm,
-            id=idstr,
-            togglesc=toggleScript,
-            class_=class_,
-        )
+                    {image_element}
+                    {label_element}
+                </button>"""
 
     def setupShortcuts(self) -> None:
         # if a third element is provided, enable shortcut even when no field selected
@@ -329,11 +382,19 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         gui_hooks.editor_did_init_shortcuts(cuts, self)
         for row in cuts:
             if len(row) == 2:
-                keys, fn = row  # pylint: disable=unbalanced-tuple-unpacking
+                keys, fn = row
                 fn = self._addFocusCheck(fn)
             else:
                 keys, fn, _ = row
             QShortcut(QKeySequence(keys), self.widget, activated=fn)  # type: ignore
+
+    def setupColourPalette(self) -> None:
+        if not (colors := self.mw.col.get_config("customColorPickerPalette")):
+            return
+        for i, colour in enumerate(colors[: QColorDialog.customCount()]):
+            if not QColor.isValidColorName(colour):
+                continue
+            QColorDialog.setCustomColor(i, QColor.fromString(colour))
 
     def _addFocusCheck(self, fn: Callable) -> Callable:
         def checkFocus() -> None:
@@ -349,7 +410,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def _onFields(self) -> None:
         from aqt.fields import FieldDialog
 
-        FieldDialog(self.mw, self.note.note_type(), parent=self.parentWindow)
+        FieldDialog(self.mw, self.note_type(), parent=self.parentWindow)
 
     def onCardLayout(self) -> None:
         self.call_after_note_saved(self._onCardLayout)
@@ -361,6 +422,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             ord = self.card.ord
         else:
             ord = 0
+
+        assert self.note is not None
         CardLayout(
             self.mw,
             self.note,
@@ -421,7 +484,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             gui_hooks.editor_did_focus_field(self.note, self.currentField)
 
         elif cmd.startswith("toggleStickyAll"):
-            model = self.note.note_type()
+            model = self.note_type()
             flds = model["flds"]
 
             any_sticky = any([fld["sticky"] for fld in flds])
@@ -442,7 +505,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             (type, num) = cmd.split(":", 1)
             ord = int(num)
 
-            model = self.note.note_type()
+            model = self.note_type()
             fld = model["flds"][ord]
             new_state = not fld["sticky"]
             fld["sticky"] = new_state
@@ -455,10 +518,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         elif cmd.startswith("lastTextColor"):
             (_, textColor) = cmd.split(":", 1)
+            assert self.mw.pm.profile is not None
             self.mw.pm.profile["lastTextColor"] = textColor
 
         elif cmd.startswith("lastHighlightColor"):
             (_, highlightColor) = cmd.split(":", 1)
+            assert self.mw.pm.profile is not None
             self.mw.pm.profile["lastHighlightColor"] = highlightColor
 
         elif cmd.startswith("saveTags"):
@@ -474,6 +539,22 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             collapsed = collapsed_string == "true"
             self.setTagsCollapsed(collapsed)
 
+        elif cmd.startswith("editorState"):
+            (_, new_state_id, old_state_id) = cmd.split(":", 2)
+            self.signal_state_change(
+                EditorState(int(new_state_id)), EditorState(int(old_state_id))
+            )
+
+        elif cmd.startswith("ioImageLoaded"):
+            (_, path_or_nid_data) = cmd.split(":", 1)
+            path_or_nid = json.loads(path_or_nid_data)
+            if self.addMode:
+                gui_hooks.editor_mask_editor_did_load_image(self, path_or_nid)
+            else:
+                gui_hooks.editor_mask_editor_did_load_image(
+                    self, NoteId(int(path_or_nid))
+                )
+
         elif cmd in self._links:
             return self._links[cmd](self)
 
@@ -483,11 +564,20 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def mungeHTML(self, txt: str) -> str:
         return gui_hooks.editor_will_munge_html(txt, self)
 
+    def signal_state_change(
+        self, new_state: EditorState, old_state: EditorState
+    ) -> None:
+        self.state = new_state
+        gui_hooks.editor_state_did_change(self, new_state, old_state)
+
     # Setting/unsetting the current note
     ######################################################################
 
     def set_note(
-        self, note: Note | None, hide: bool = True, focusTo: int | None = None
+        self,
+        note: Note | None,
+        hide: bool = True,
+        focusTo: int | None = None,
     ) -> None:
         "Make NOTE the current note."
         self.note = note
@@ -509,11 +599,14 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             for fld, val in self.note.items()
         ]
 
-        flds = self.note.note_type()["flds"]
+        note_type = self.note_type()
+        flds = note_type["flds"]
         collapsed = [fld["collapsed"] for fld in flds]
+        cloze_fields_ords = self.mw.col.models.cloze_fields(self.note.mid)
+        cloze_fields = [ord in cloze_fields_ords for ord in range(len(flds))]
         plain_texts = [fld.get("plainText", False) for fld in flds]
         descriptions = [fld.get("description", "") for fld in flds]
-        notetype_meta = {"id": self.note.mid, "modTime": self.note.note_type()["mod"]}
+        notetype_meta = {"id": self.note.mid, "modTime": note_type["mod"]}
 
         self.widget.show()
 
@@ -530,14 +623,17 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
+        assert self.mw.pm.profile is not None
         text_color = self.mw.pm.profile.get("lastTextColor", "#0000ff")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#0000ff")
 
         js = f"""
             saveSession();
             setFields({json.dumps(data)});
+            setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
             setNotetypeMeta({json.dumps(notetype_meta)});
             setCollapsed({json.dumps(collapsed)});
+            setClozeFields({json.dumps(cloze_fields)});
             setPlainTexts({json.dumps(plain_texts)});
             setDescriptions({json.dumps(descriptions)});
             setFonts({json.dumps(self.fonts())});
@@ -550,20 +646,24 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             setShrinkImages({json.dumps(self.mw.col.get_config("shrinkEditorImages", True))});
             setCloseHTMLTags({json.dumps(self.mw.col.get_config("closeHTMLTags", True))});
             triggerChanges();
-            setIsImageOcclusion({json.dumps(self.current_notetype_is_image_occlusion())});
-            setIsEditMode({json.dumps(self.editorMode != EditorMode.ADD_CARDS)});
             """
 
         if self.addMode:
-            sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
+            sticky = [field["sticky"] for field in self.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
 
-        if (
-            self.editorMode != EditorMode.ADD_CARDS
-            and self.current_notetype_is_image_occlusion()
-        ):
-            io_options = self._create_edit_io_options(note_id=self.note.id)
-            js += " setupMaskEditor(%s);" % json.dumps(io_options)
+        if self.current_notetype_is_image_occlusion():
+            io_field_indices = self.mw.backend.get_image_occlusion_fields(self.note.mid)
+            image_field = self.note.fields[io_field_indices.image]
+            self.last_io_image_path = self.extract_img_path_from_html(image_field)
+
+            if self.editorMode is not EditorMode.ADD_CARDS:
+                io_options = self._create_edit_io_options(note_id=self.note.id)
+                js += " setupMaskEditor(%s);" % json.dumps(io_options)
+            elif orig_note_id := self.orig_note_id:
+                self.orig_note_id = None
+                io_options = self._create_clone_io_options(orig_note_id)
+                js += " setupMaskEditor(%s);" % json.dumps(io_options)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
@@ -572,6 +672,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
+        if not self.note:
+            return
+
         update_note(parent=self.widget, note=self.note).run_in_background(
             initiator=self
         )
@@ -579,7 +682,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def fonts(self) -> list[tuple[str, int, bool]]:
         return [
             (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
-            for f in self.note.note_type()["flds"]
+            for f in self.note_type()["flds"]
         ]
 
     def call_after_note_saved(
@@ -613,6 +716,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     checkValid = _check_and_update_duplicate_display_async
 
     def _update_duplicate_display(self, result: NoteFieldsCheckResult.V) -> None:
+        assert self.note is not None
         cols = [""] * len(self.note.fields)
         cloze_hint = ""
         if result == NoteFieldsCheckResult.DUPLICATE:
@@ -630,13 +734,14 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
 
     def showDupes(self) -> None:
+        assert self.note is not None
         aqt.dialogs.open(
             "Browser",
             self.mw,
             search=(
                 SearchNode(
                     dupe=SearchNode.Dupe(
-                        notetype_id=self.note.note_type()["id"],
+                        notetype_id=self.note_type()["id"],
                         first_field=self.note.fields[0],
                     )
                 ),
@@ -646,7 +751,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def fieldsAreBlank(self, previousNote: Note | None = None) -> bool:
         if not self.note:
             return True
-        m = self.note.note_type()
+        m = self.note_type()
         for c, f in enumerate(self.note.fields):
             f = f.replace("<br>", "").strip()
             notChangedvalues = {"", "<br>"}
@@ -657,11 +762,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         return True
 
     def cleanup(self) -> None:
+        av_player.stop_and_clear_queue_if_caller(self.editorMode)
         self.set_note(None)
         # prevent any remaining evalWithCallback() events from firing after C++ object deleted
         if self.web:
             self.web.cleanup()
-            self.web = None
+            self.web = None  # type: ignore
 
     # legacy
 
@@ -694,9 +800,11 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         if self.tags.col != self.mw.col:
             self.tags.setCol(self.mw.col)
         if not self.tags.text() or not self.addMode:
+            assert self.note is not None
             self.tags.setText(self.note.string_tags().strip())
 
     def on_tag_focus_lost(self) -> None:
+        assert self.note is not None
         self.note.tags = self.mw.col.tags.split(self.tags.text())
         gui_hooks.editor_did_update_tags(self.note)
         if not self.addMode:
@@ -735,7 +843,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         def accept(file: str) -> None:
             self.resolve_media(file)
 
-        file = getFile(
+        getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
             cb=cast(Callable[[Any], None], accept),
@@ -791,8 +899,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Media downloads
     ######################################################################
 
-    def urlToLink(self, url: str) -> str | None:
-        fname = self.urlToFile(url)
+    def urlToLink(self, url: str, allowed_suffixes: Iterable[str] = ()) -> str:
+        fname = (
+            self.urlToFile(url, allowed_suffixes)
+            if allowed_suffixes
+            else self.urlToFile(url)
+        )
         if not fname:
             return '<a href="{}">{}</a>'.format(
                 url, html.escape(urllib.parse.unquote(url))
@@ -805,12 +917,14 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             name = urllib.parse.quote(fname.encode("utf8"))
             return f'<img src="{name}">'
         else:
-            av_player.play_file(fname)
+            av_player.play_file_with_caller(fname, self.editorMode)
             return f"[sound:{html.escape(fname, quote=False)}]"
 
-    def urlToFile(self, url: str) -> str | None:
+    def urlToFile(
+        self, url: str, allowed_suffixes: Iterable[str] = pics + audio
+    ) -> str | None:
         l = url.lower()
-        for suffix in pics + audio:
+        for suffix in allowed_suffixes:
             if l.endswith(f".{suffix}"):
                 return self._retrieveURL(url)
         # not a supported type
@@ -835,7 +949,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 data = base64.b64decode(b64data, validate=True)
                 if ext == "jpeg":
                     ext = "jpg"
-                return self._addPastedImage(data, f".{ext}")
+                return self._addPastedImage(data, ext)
 
         return ""
 
@@ -846,30 +960,49 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
         return ""
 
-    # ext should include dot
+    def _pasted_image_filename(self, data: bytes, ext: str) -> str:
+        csum = checksum(data)
+        return f"paste-{csum}.{ext}"
+
+    def _read_pasted_image(self, mime: QMimeData) -> str:
+        image = QImage(mime.imageData())
+        buffer = QBuffer()
+        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+        if self.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
+            ext = "png"
+            quality = 50
+        else:
+            ext = "jpg"
+            quality = 80
+        image.save(buffer, ext, quality)
+        buffer.reset()
+        data = bytes(buffer.readAll())  # type: ignore
+        fname = self._pasted_image_filename(data, ext)
+        path = namedtmp(fname)
+        with open(path, "wb") as file:
+            file.write(data)
+
+        return path
+
     def _addPastedImage(self, data: bytes, ext: str) -> str:
         # hash and write
-        csum = checksum(data)
-        fname = f"paste-{csum}{ext}"
+        fname = self._pasted_image_filename(data, ext)
         return self._addMediaFromData(fname, data)
 
     def _retrieveURL(self, url: str) -> str | None:
         "Download file into media folder and return local filename or None."
-        # urllib doesn't understand percent-escaped utf8, but requires things like
-        # '#' to be escaped.
-        url = urllib.parse.unquote(url)
-        if url.lower().startswith("file://"):
-            url = url.replace("%", "%25")
-            url = url.replace("#", "%23")
-            local = True
-        else:
-            local = False
+        local = url.lower().startswith("file://")
         # fetch it into a temporary folder
         self.mw.progress.start(immediate=not local, parent=self.parentWindow)
         content_type = None
         error_msg: str | None = None
         try:
             if local:
+                # urllib doesn't understand percent-escaped utf8, but requires things like
+                # '#' to be escaped.
+                url = urllib.parse.unquote(url)
+                url = url.replace("%", "%25")
+                url = url.replace("#", "%23")
                 req = urllib.request.Request(
                     url, None, {"User-Agent": "Mozilla/5.0 (compatible; Anki)"}
                 )
@@ -913,21 +1046,24 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         if html.find(">") < 0:
             return html
 
-        with warnings.catch_warnings() as w:
+        with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             doc = BeautifulSoup(html, "html.parser")
 
-        tag: bs4.element.Tag
         if not internal:
-            for tag in self.removeTags:
-                for node in doc(tag):
+            for tag_name in self.removeTags:
+                for node in doc(tag_name):
                     node.decompose()
 
             # convert p tags to divs
             for node in doc("p"):
-                node.name = "div"
+                if hasattr(node, "name"):
+                    node.name = "div"
 
-        for tag in doc("img"):
+        for element in doc("img"):
+            if not isinstance(element, bs4.Tag):
+                continue
+            tag = element
             try:
                 src = tag["src"]
             except KeyError:
@@ -937,18 +1073,17 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
             # in internal pastes, rewrite mediasrv references to relative
             if internal:
-                m = re.match(r"http://127.0.0.1:\d+/(.*)$", src)
+                m = re.match(r"http://127.0.0.1:\d+/(.*)$", str(src))
                 if m:
                     tag["src"] = m.group(1)
-            else:
-                # in external pastes, download remote media
-                if self.isURL(src):
-                    fname = self._retrieveURL(src)
-                    if fname:
-                        tag["src"] = fname
-                elif src.startswith("data:image/"):
-                    # and convert inlined data
-                    tag["src"] = self.inlinedImageToFilename(src)
+            # in external pastes, download remote media
+            elif isinstance(src, str) and self.isURL(src):
+                fname = self._retrieveURL(src)
+                if fname:
+                    tag["src"] = fname
+            elif isinstance(src, str) and src.startswith("data:image/"):
+                # and convert inlined data
+                tag["src"] = self.inlinedImageToFilename(str(src))
 
         html = str(doc)
         return html
@@ -969,9 +1104,10 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             if ret:
                 self.doPaste(html, internal, extended)
 
-        self.web.evalWithCallback(
-            f"focusIfField({cursor_pos.x()}, {cursor_pos.y()});", pasteIfField
-        )
+        zoom = self.web.zoomFactor()
+        x, y = int(cursor_pos.x() / zoom), int(cursor_pos.y() / zoom)
+
+        self.web.evalWithCallback(f"focusIfField({x}, {y});", pasteIfField)
 
     def onPaste(self) -> None:
         self.web.onPaste()
@@ -983,10 +1119,27 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ######################################################################
 
     def current_notetype_is_image_occlusion(self) -> bool:
-        return bool(self.note) and (
-            self.note.note_type().get("originalStockKind", None)
+        if not self.note:
+            return False
+
+        return (
+            self.note_type().get("originalStockKind", None)
             == StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION
         )
+
+    def setup_mask_editor(self, image_path: str) -> None:
+        try:
+            if self.editorMode == EditorMode.ADD_CARDS:
+                self.setup_mask_editor_for_new_note(
+                    image_path=image_path, notetype_id=0
+                )
+            else:
+                assert self.note is not None
+                self.setup_mask_editor_for_existing_note(
+                    note_id=self.note.id, image_path=image_path
+                )
+        except Exception as e:
+            showWarning(str(e))
 
     def select_image_and_occlude(self) -> None:
         """Show a file selection screen, then get selected image path."""
@@ -995,27 +1148,41 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
         filter = f"{tr.editing_media()} ({extension_filter})"
 
-        def accept(file: str) -> None:
-            try:
-                if self.editorMode == EditorMode.ADD_CARDS:
-                    self.setup_mask_editor_for_new_note(image_path=file, notetype_id=0)
-                else:
-                    self.setup_mask_editor_for_existing_note(
-                        note_id=self.note.id, image_path=file
-                    )
-            except Exception as e:
-                showWarning(str(e))
-                return
-
-        file = getFile(
+        getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
-            cb=cast(Callable[[Any], None], accept),
+            cb=cast(Callable[[Any], None], self.setup_mask_editor),
             filter=filter,
             key="media",
         )
 
         self.parentWindow.activateWindow()
+
+    def extract_img_path_from_html(self, html: str) -> str | None:
+        assert self.note is not None
+        # with allowed_suffixes=pics, all non-pics will be rendered as <a>s and won't be included here
+        if not (images := self.mw.col.media.files_in_str(self.note.mid, html)):
+            return None
+        image_path = urllib.parse.unquote(images[0])
+        return os.path.join(self.mw.col.media.dir(), image_path)
+
+    def select_image_from_clipboard_and_occlude(self) -> None:
+        """Set up the mask editor for the image in the clipboard."""
+
+        clipboard = self.mw.app.clipboard()
+        assert clipboard is not None
+        mime = clipboard.mimeData()
+        assert mime is not None
+        # try checking for urls first, fallback to image data
+        if (
+            (html := self.web._processUrls(mime, allowed_suffixes=pics))
+            and (path := self.extract_img_path_from_html(html))
+        ) or (mime.hasImage() and (path := self._read_pasted_image(mime))):
+            self.setup_mask_editor(path)
+            self.parentWindow.activateWindow()
+        else:
+            showWarning(tr.editing_no_image_found_on_clipboard())
+            return
 
     def setup_mask_editor_for_new_note(
         self,
@@ -1031,6 +1198,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
               found image occlusion notetype in the user's collection.
         """
         image_field_html = self._addMedia(image_path)
+        self.last_io_image_path = self.extract_img_path_from_html(image_field_html)
         io_options = self._create_add_io_options(
             image_path=image_path,
             image_field_html=image_field_html,
@@ -1051,9 +1219,16 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         io_options = self._create_edit_io_options(note_id)
         if image_path:
             image_field_html = self._addMedia(image_path)
+            self.last_io_image_path = self.extract_img_path_from_html(image_field_html)
             self.web.eval(f"resetIOImage({json.dumps(image_path)})")
             self.web.eval(f"setImageField({json.dumps(image_field_html)})")
         self._setup_mask_editor(io_options)
+
+    def reset_image_occlusion(self) -> None:
+        self.web.eval("resetIOImageLoaded()")
+
+    def update_occlusions_field(self) -> None:
+        self.web.eval("saveOcclusions()")
 
     def _setup_mask_editor(self, io_options: dict):
         self.web.eval(
@@ -1072,6 +1247,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         }
 
     @staticmethod
+    def _create_clone_io_options(orig_note_id: NoteId) -> dict:
+        return {
+            "mode": {"kind": "add", "clonedNoteId": orig_note_id},
+        }
+
+    @staticmethod
     def _create_edit_io_options(note_id: NoteId) -> dict:
         return {"mode": {"kind": "edit", "noteId": note_id}}
 
@@ -1087,6 +1268,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     @deprecated(info=_js_legacy)
     def _onHtmlEdit(self, field: int) -> None:
+        assert self.note is not None
         d = QDialog(self.widget, Qt.WindowType.Window)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
@@ -1150,7 +1332,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     @deprecated(info=_js_legacy)
     def _onCloze(self) -> None:
         # check that the model is set up for cloze deletion
-        if self.note.note_type()["type"] != MODEL_CLOZE:
+        if self.note_type()["type"] != MODEL_CLOZE:
             if self.addMode:
                 tooltip(tr.editing_warning_cloze_deletions_will_not_work())
             else:
@@ -1158,7 +1340,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 return
         # find the highest existing cloze
         highest = 0
-        for name, val in list(self.note.items()):
+        assert self.note is not None
+        for _, val in list(self.note.items()):
             m = re.findall(r"\{\{c(\d+)::", val)
             if m:
                 highest = max(highest, sorted(int(x) for x in m)[-1])
@@ -1170,6 +1353,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.web.eval("wrap('{{c%d::', '}}');" % highest)
 
     def setupForegroundButton(self) -> None:
+        assert self.mw.pm.profile is not None
         self.fcolour = self.mw.pm.profile.get("lastColour", "#00f")
 
     # use last colour
@@ -1203,6 +1387,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     @deprecated(info=_js_legacy)
     def onColourChanged(self) -> None:
         self._updateForegroundButton()
+        assert self.mw.pm.profile is not None
         self.mw.pm.profile["lastColour"] = self.fcolour
 
     @deprecated(info=_js_legacy)
@@ -1227,6 +1412,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             (tr.editing_edit_html(), self.onHtmlEdit, "Ctrl+Shift+X"),
         ):
             a = m.addAction(text)
+            assert a is not None
             qconnect(a.triggered, handler)
             a.setShortcut(QKeySequence(shortcut))
 
@@ -1311,7 +1497,14 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             toggleShrinkImages=Editor.toggleShrinkImages,
             toggleCloseHTMLTags=Editor.toggleCloseHTMLTags,
             addImageForOcclusion=Editor.select_image_and_occlude,
+            addImageForOcclusionFromClipboard=Editor.select_image_from_clipboard_and_occlude,
         )
+
+    def note_type(self) -> NotetypeDict:
+        assert self.note is not None
+        note_type = self.note.note_type()
+        assert note_type is not None
+        return note_type
 
 
 # Pasting, drag & drop, and keyboard layouts
@@ -1327,29 +1520,38 @@ class EditorWebView(AnkiWebView):
         # when we detect the user copying from a field, we store the content
         # here, and use it when they paste, so we avoid filtering field content
         self._internal_field_text_for_paste: str | None = None
+        self._last_known_clipboard_mime: QMimeData | None = None
         clip = self.editor.mw.app.clipboard()
-        qconnect(clip.dataChanged, self._on_clipboard_change)
+        assert clip is not None
+        clip.dataChanged.connect(self._on_clipboard_change)
         gui_hooks.editor_web_view_did_init(self)
 
     def user_cut_or_copied(self) -> None:
         self._store_field_content_on_next_clipboard_change = True
+        self._internal_field_text_for_paste = None
 
-    def _on_clipboard_change(self) -> None:
+    def _on_clipboard_change(
+        self, mode: QClipboard.Mode = QClipboard.Mode.Clipboard
+    ) -> None:
+        self._last_known_clipboard_mime = self._clipboard().mimeData(mode)
         if self._store_field_content_on_next_clipboard_change:
             # if the flag was set, save the field data
-            self._internal_field_text_for_paste = self._get_clipboard_html_for_field()
+            self._internal_field_text_for_paste = self._get_clipboard_html_for_field(
+                mode
+            )
             self._store_field_content_on_next_clipboard_change = False
-        elif (
-            self._internal_field_text_for_paste != self._get_clipboard_html_for_field()
+        elif self._internal_field_text_for_paste != self._get_clipboard_html_for_field(
+            mode
         ):
             # if we've previously saved the field, blank it out if the clipboard state has changed
             self._internal_field_text_for_paste = None
 
-    def _get_clipboard_html_for_field(self):
-        clip = self.editor.mw.app.clipboard()
-        mime = clip.mimeData()
+    def _get_clipboard_html_for_field(self, mode: QClipboard.Mode) -> str | None:
+        clip = self._clipboard()
+        if not (mime := clip.mimeData(mode)):
+            return None
         if not mime.hasHtml():
-            return
+            return None
         return mime.html()
 
     def onCut(self) -> None:
@@ -1357,6 +1559,19 @@ class EditorWebView(AnkiWebView):
 
     def onCopy(self) -> None:
         self.triggerPageAction(QWebEnginePage.WebAction.Copy)
+
+    def on_copy_image(self) -> None:
+        self.triggerPageAction(QWebEnginePage.WebAction.CopyImageToClipboard)
+
+    def _opened_context_menu_on_image(self) -> bool:
+        if not hasattr(self, "lastContextMenuRequest"):
+            return False
+        context_menu_request = self.lastContextMenuRequest()
+        assert context_menu_request is not None
+        return (
+            context_menu_request.mediaType()
+            == context_menu_request.MediaType.MediaTypeImage
+        )
 
     def _wantsExtendedPaste(self) -> bool:
         strip_html = self.editor.mw.col.get_config_bool(
@@ -1367,13 +1582,18 @@ class EditorWebView(AnkiWebView):
         return not strip_html
 
     def _onPaste(self, mode: QClipboard.Mode) -> None:
+        # Since _on_clipboard_change doesn't always trigger properly on macOS, we do a double check if any changes were made before pasting
+        clipboard = self._clipboard()
+        if self._last_known_clipboard_mime != clipboard.mimeData(mode):
+            self._on_clipboard_change(mode)
         extended = self._wantsExtendedPaste()
         if html := self._internal_field_text_for_paste:
             print("reuse internal")
             self.editor.doPaste(html, True, extended)
         else:
+            if not (mime := clipboard.mimeData(mode=mode)):
+                return
             print("use clipboard")
-            mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
             html, internal = self._processMime(mime, extended)
             if html:
                 self.editor.doPaste(html, internal, extended)
@@ -1384,13 +1604,26 @@ class EditorWebView(AnkiWebView):
     def onMiddleClickPaste(self) -> None:
         self._onPaste(QClipboard.Mode.Selection)
 
-    def dragEnterEvent(self, evt: QDragEnterEvent) -> None:
+    def dragEnterEvent(self, evt: QDragEnterEvent | None) -> None:
+        assert evt is not None
         evt.accept()
 
-    def dropEvent(self, evt: QDropEvent) -> None:
+    def dropEvent(self, evt: QDropEvent | None) -> None:
+        assert evt is not None
         extended = self._wantsExtendedPaste()
         mime = evt.mimeData()
-        cursor_pos = self.mapFromGlobal(QCursor.pos())
+        assert mime is not None
+
+        if (
+            self.editor.state is EditorState.IO_PICKER
+            and (html := self._processUrls(mime, allowed_suffixes=pics))
+            and (path := self.editor.extract_img_path_from_html(html))
+        ):
+            self.editor.setup_mask_editor(path)
+            return
+
+        evt_pos = evt.position()
+        cursor_pos = QPoint(int(evt_pos.x()), int(evt_pos.y()))
 
         if evt.source() and mime.hasHtml():
             # don't filter html from other fields
@@ -1424,15 +1657,19 @@ class EditorWebView(AnkiWebView):
             html_content = mime.html()[11:] if internal else mime.html()
             return html_content, internal
 
+        # given _processUrls' extra allowed_suffixes kwarg, placate the typechecker
+        def process_url(mime: QMimeData, extended: bool = False) -> str | None:
+            return self._processUrls(mime, extended)
+
         # favour url if it's a local link
         if (
             mime.hasUrls()
             and (urls := mime.urls())
             and urls[0].toString().startswith("file://")
         ):
-            types = (self._processUrls, self._processImage, self._processText)
+            types = (process_url, self._processImage, self._processText)
         else:
-            types = (self._processImage, self._processUrls, self._processText)
+            types = (self._processImage, process_url, self._processText)
 
         for fn in types:
             html = fn(mime, extended)
@@ -1440,7 +1677,12 @@ class EditorWebView(AnkiWebView):
                 return html, True
         return "", False
 
-    def _processUrls(self, mime: QMimeData, extended: bool = False) -> str | None:
+    def _processUrls(
+        self,
+        mime: QMimeData,
+        extended: bool = False,
+        allowed_suffixes: Iterable[str] = (),
+    ) -> str | None:
         if not mime.hasUrls():
             return None
 
@@ -1450,7 +1692,7 @@ class EditorWebView(AnkiWebView):
             # chrome likes to give us the URL twice with a \n
             if lines := url.splitlines():
                 url = lines[0]
-                buf += self.editor.urlToLink(url)
+                buf += self.editor.urlToLink(url, allowed_suffixes=allowed_suffixes)
 
         return buf
 
@@ -1490,37 +1732,63 @@ class EditorWebView(AnkiWebView):
     def _processImage(self, mime: QMimeData, extended: bool = False) -> str | None:
         if not mime.hasImage():
             return None
-        im = QImage(mime.imageData())
-        uname = namedtmp("paste")
-        if self.editor.mw.col.get_config_bool(Config.Bool.PASTE_IMAGES_AS_PNG):
-            ext = ".png"
-            im.save(uname + ext, None, 50)
-        else:
-            ext = ".jpg"
-            im.save(uname + ext, None, 80)
+        path = self.editor._read_pasted_image(mime)
+        fname = self.editor._addMedia(path)
 
-        # invalid image?
-        path = uname + ext
-        if not os.path.exists(path):
-            return None
+        return fname
 
-        with open(path, "rb") as file:
-            data = file.read()
-        fname = self.editor._addPastedImage(data, ext)
-        if fname:
-            return self.editor.fnameToLink(fname)
-        return None
-
-    def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
+    def contextMenuEvent(self, evt: QContextMenuEvent | None) -> None:
         m = QMenu(self)
-        a = m.addAction(tr.editing_cut())
-        qconnect(a.triggered, self.onCut)
-        a = m.addAction(tr.actions_copy())
-        qconnect(a.triggered, self.onCopy)
+        if self.hasSelection():
+            self._add_cut_action(m)
+            self._add_copy_action(m)
         a = m.addAction(tr.editing_paste())
+        assert a is not None
         qconnect(a.triggered, self.onPaste)
+        if self.editor.state is EditorState.IO_MASKS and (
+            path := self.editor.last_io_image_path
+        ):
+            self._add_image_menu_with_path(m, path)
+        elif self._opened_context_menu_on_image():
+            self._add_image_menu(m)
         gui_hooks.editor_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
+
+    def _add_cut_action(self, menu: QMenu) -> None:
+        a = menu.addAction(tr.editing_cut())
+        assert a is not None
+        qconnect(a.triggered, self.onCut)
+
+    def _add_copy_action(self, menu: QMenu) -> None:
+        a = menu.addAction(tr.actions_copy())
+        assert a is not None
+        qconnect(a.triggered, self.onCopy)
+
+    def _add_image_menu(self, menu: QMenu) -> None:
+        a = menu.addAction(tr.editing_copy_image())
+        assert a is not None
+        qconnect(a.triggered, self.on_copy_image)
+
+        context_menu_request = self.lastContextMenuRequest()
+        assert context_menu_request is not None
+        url = context_menu_request.mediaUrl()
+        file_name = url.fileName()
+        path = os.path.join(self.editor.mw.col.media.dir(), file_name)
+        self._add_image_menu_with_path(menu, path)
+
+    def _add_image_menu_with_path(self, menu: QMenu, path: str) -> None:
+        a = menu.addAction(tr.editing_open_image())
+        assert a is not None
+        qconnect(a.triggered, lambda: openFolder(path))
+
+        a = menu.addAction(tr.editing_show_in_folder())
+        assert a is not None
+        qconnect(a.triggered, lambda: show_in_folder(path))
+
+    def _clipboard(self) -> QClipboard:
+        clipboard = self.editor.mw.app.clipboard()
+        assert clipboard is not None
+        return clipboard
 
 
 # QFont returns "Kozuka Gothic Pro L" but WebEngine expects "Kozuka Gothic Pro Light"
@@ -1551,7 +1819,7 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 
 def set_cloze_button(editor: Editor) -> None:
-    action = "show" if editor.note.note_type()["type"] == MODEL_CLOZE else "hide"
+    action = "show" if editor.note_type()["type"] == MODEL_CLOZE else "hide"
     editor.web.eval(
         'require("anki/ui").loaded.then(() =>'
         f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("cloze")'

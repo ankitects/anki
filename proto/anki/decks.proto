@@ -83,6 +83,8 @@ message Deck {
     optional uint32 new_limit = 7;
     DayLimit review_limit_today = 8;
     DayLimit new_limit_today = 9;
+    // Deck-specific desired retention override
+    optional float desired_retention = 10;
 
     reserved 12 to 15;
   }
@@ -97,7 +99,9 @@ message Deck {
         ADDED = 5;
         DUE = 6;
         REVERSE_ADDED = 7;
-        DUE_PRIORITY = 8;
+        RETRIEVABILITY_ASCENDING = 8;
+        RETRIEVABILITY_DESCENDING = 9;
+        RELATIVE_OVERDUENESS = 10;
       }
 
       string search = 1;
@@ -109,8 +113,14 @@ message Deck {
     repeated SearchTerm search_terms = 2;
     // v1 scheduler only
     repeated float delays = 3;
-    // v2 scheduler only
+    // v2 and old v3 scheduler only
     uint32 preview_delay = 4;
+    // recent v3 scheduler only; 0 means card will be returned
+    uint32 preview_again_secs = 7;
+    // recent v3 scheduler only; 0 means card will be returned
+    uint32 preview_hard_secs = 5;
+    // recent v3 scheduler only; 0 means card will be returned
+    uint32 preview_good_secs = 6;
   }
   // a container to store the deck specifics in the DB
   // as a tagged enum
@@ -212,4 +222,5 @@ message FilteredDeckForUpdate {
   int64 id = 1;
   string name = 2;
   Deck.Filtered config = 3;
+  bool allow_empty = 4;
 }

@@ -6,6 +6,7 @@ use std::collections::HashSet;
 use std::mem;
 
 use super::Context;
+use super::TemplateMap;
 use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::config::SchedulerVersion;
@@ -19,6 +20,8 @@ struct CardContext<'a> {
     usn: Usn,
 
     imported_notes: &'a HashMap<NoteId, NoteId>,
+    notetype_map: &'a HashMap<NoteId, NotetypeId>,
+    remapped_templates: &'a HashMap<NotetypeId, TemplateMap>,
     remapped_decks: &'a HashMap<DeckId, DeckId>,
 
     /// The number of days the source collection is ahead of the target
@@ -37,6 +40,8 @@ impl<'c> CardContext<'c> {
         days_elapsed: u32,
         target_col: &'a mut Collection,
         imported_notes: &'a HashMap<NoteId, NoteId>,
+        notetype_map: &'a HashMap<NoteId, NotetypeId>,
+        remapped_templates: &'a HashMap<NotetypeId, TemplateMap>,
         imported_decks: &'a HashMap<DeckId, DeckId>,
     ) -> Result<Self> {
         let existing_cards = target_col.storage.all_cards_as_nid_and_ord()?;
@@ -47,6 +52,8 @@ impl<'c> CardContext<'c> {
             target_col,
             usn,
             imported_notes,
+            notetype_map,
+            remapped_templates,
             remapped_decks: imported_decks,
             existing_cards,
             collection_delta,
@@ -68,26 +75,32 @@ impl Context<'_> {
     pub(super) fn import_cards_and_revlog(
         &mut self,
         imported_notes: &HashMap<NoteId, NoteId>,
+        notetype_map: &HashMap<NoteId, NotetypeId>,
+        remapped_templates: &HashMap<NotetypeId, TemplateMap>,
         imported_decks: &HashMap<DeckId, DeckId>,
-        keep_filtered: bool,
     ) -> Result<()> {
         let mut ctx = CardContext::new(
             self.usn,
             self.data.days_elapsed,
             self.target_col,
             imported_notes,
+            notetype_map,
+            remapped_templates,
             imported_decks,
         )?;
-        ctx.import_cards(mem::take(&mut self.data.cards), keep_filtered)?;
+        if ctx.scheduler_version == SchedulerVersion::V1 {
+            return Err(AnkiError::SchedulerUpgradeRequired);
+        }
+        ctx.import_cards(mem::take(&mut self.data.cards))?;
         ctx.import_revlog(mem::take(&mut self.data.revlog))
     }
 }
 
 impl CardContext<'_> {
-    fn import_cards(&mut self, mut cards: Vec<Card>, keep_filtered: bool) -> Result<()> {
+    fn import_cards(&mut self, mut cards: Vec<Card>) -> Result<()> {
         for card in &mut cards {
             if self.map_to_imported_note(card) && !self.card_ordinal_already_exists(card) {
-                self.add_card(card, keep_filtered)?;
+                self.add_card(card)?;
             }
             // TODO: could update existing card
         }
@@ -119,13 +132,11 @@ impl CardContext<'_> {
             .contains(&(card.note_id, card.template_idx))
     }
 
-    fn add_card(&mut self, card: &mut Card, keep_filtered: bool) -> Result<()> {
+    fn add_card(&mut self, card: &mut Card) -> Result<()> {
         card.usn = self.usn;
         self.remap_deck_ids(card);
+        self.remap_template_index(card);
         card.shift_collection_relative_dates(self.collection_delta);
-        if !keep_filtered {
-            card.maybe_remove_from_filtered_deck(self.scheduler_version);
-        }
         let old_id = self.uniquify_card_id(card);
 
         self.target_col.add_card_if_unique_undoable(card)?;
@@ -151,6 +162,16 @@ impl CardContext<'_> {
             card.original_deck_id = *did;
         }
     }
+
+    fn remap_template_index(&self, card: &mut Card) {
+        card.template_idx = self
+            .notetype_map
+            .get(&card.note_id)
+            .and_then(|ntid| self.remapped_templates.get(ntid))
+            .and_then(|map| map.get(&card.template_idx))
+            .copied()
+            .unwrap_or(card.template_idx);
+    }
 }
 
 impl Card {
@@ -172,13 +193,5 @@ impl Card {
 
     fn original_due_in_days_since_collection_creation(&self) -> bool {
         self.ctype == CardType::Review
-    }
-
-    fn maybe_remove_from_filtered_deck(&mut self, version: SchedulerVersion) {
-        if self.is_filtered() {
-            // instead of moving between decks, the deck is converted to a regular one
-            self.original_deck_id = self.deck_id;
-            self.remove_from_filtered_deck_restoring_queue(version);
-        }
     }
 }

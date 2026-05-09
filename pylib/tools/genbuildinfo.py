@@ -15,6 +15,5 @@ with open(buildhash_file, "r", encoding="utf8") as f:
 
 with open(outpath, "w", encoding="utf8") as f:
     # if we switch to uppercase we'll need to add legacy aliases
-    f.write("# pylint: disable=invalid-name\n")
     f.write(f"version = '{version}'\n")
     f.write(f"buildhash = '{buildhash}'\n")

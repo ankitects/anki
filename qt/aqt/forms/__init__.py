@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 from . import (
     about,
     addcards,
@@ -14,13 +15,11 @@ from . import (
     customstudy,
     dconf,
     debug,
-    editaddon,
     editcurrent,
     edithtml,
     emptycards,
     exporting,
     fields,
-    fields_web,
     filtered_deck,
     finddupes,
     findreplace,

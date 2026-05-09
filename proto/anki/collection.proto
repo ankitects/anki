@@ -8,6 +8,7 @@ option java_multiple_files = true;
 package anki.collection;
 
 import "anki/generic.proto";
+import "anki/sync.proto";
 
 service CollectionService {
   rpc CheckDatabase(generic.Empty) returns (CheckDatabaseResponse);
@@ -18,6 +19,8 @@ service CollectionService {
   rpc MergeUndoEntries(generic.UInt32) returns (OpChanges);
   rpc LatestProgress(generic.Empty) returns (Progress);
   rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
+  rpc SetLoadBalancerEnabled(generic.Bool) returns (OpChanges);
+  rpc GetCustomColours(generic.Empty) returns (GetCustomColoursResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -41,9 +44,6 @@ message OpenCollectionRequest {
   string collection_path = 1;
   string media_folder_path = 2;
   string media_db_path = 3;
-
-  // temporary option for AnkiDroid
-  bool force_schema11 = 99;
 }
 
 message CloseCollectionRequest {
@@ -103,12 +103,6 @@ message OpChangesAfterUndo {
 }
 
 message Progress {
-  message MediaSync {
-    string checked = 1;
-    string added = 2;
-    string removed = 3;
-  }
-
   message FullSync {
     uint32 transferred = 1;
     uint32 total = 2;
@@ -128,14 +122,41 @@ message Progress {
 
   oneof value {
     generic.Empty none = 1;
-    MediaSync media_sync = 2;
+    sync.MediaSyncProgress media_sync = 2;
     string media_check = 3;
     FullSync full_sync = 4;
     NormalSync normal_sync = 5;
     DatabaseCheck database_check = 6;
     string importing = 7;
     string exporting = 8;
+    ComputeParamsProgress compute_params = 9;
+    ComputeRetentionProgress compute_retention = 10;
+    ComputeMemoryProgress compute_memory = 11;
+    DownloadUpdateProgress download_update = 12;
   }
+}
+
+message ComputeParamsProgress {
+  // Current iteration
+  uint32 current = 1;
+  // Total iterations
+  uint32 total = 2;
+  uint32 reviews = 3;
+  // Only used in 'compute all params' case
+  uint32 current_preset = 4;
+  // Only used in 'compute all params' case
+  uint32 total_presets = 5;
+}
+
+message ComputeRetentionProgress {
+  uint32 current = 1;
+  uint32 total = 2;
+}
+
+message ComputeMemoryProgress {
+  uint32 current_cards = 1;
+  uint32 total_cards = 2;
+  string label = 3;
 }
 
 message CreateBackupRequest {
@@ -143,4 +164,13 @@ message CreateBackupRequest {
   // Create a backup even if the configured interval hasn't elapsed yet.
   bool force = 2;
   bool wait_for_completion = 3;
+}
+
+message GetCustomColoursResponse {
+  repeated string colours = 1;
+}
+
+message DownloadUpdateProgress {
+  uint32 downloaded_bytes = 1;
+  uint32 total_bytes = 2;
 }

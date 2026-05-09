@@ -1,0 +1,27 @@
+@use "../lib/sass/vars";
+@use "../lib/sass/bootstrap-dark";
+
+@import "../lib/sass/base";
+
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/button-group";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/grid";
+@import "../lib/sass/bootstrap-forms";
+
+.night-mode {
+    @include bootstrap-dark.night-mode;
+}
+
+html {
+    overflow: hidden;
+}
+
+/** consistent font size **/
+:root {
+    --font-size: 16px;
+}
+body {
+    font-size: 16px;
+}

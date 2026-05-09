@@ -1,23 +1,30 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import functools
 import re
-from typing import Any, cast
+from collections.abc import Callable
 
 import anki.lang
 import aqt
 import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
-from anki.consts import new_card_scheduling_labels
-from aqt import AnkiQt, gui_hooks
+from anki.utils import is_mac
+from aqt import AnkiQt
+from aqt.ankihub import ankihub_login, ankihub_logout
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
+from aqt.sync import sync_login
 from aqt.theme import Theme
+from aqt.url_schemes import show_url_schemes_dialog
 from aqt.utils import (
     HelpPage,
+    add_ellipsis_to_action_label,
+    askUser,
     disable_help_button,
     is_win,
     openHelp,
@@ -34,13 +41,23 @@ class Preferences(QDialog):
         self.prof = self.mw.pm.profile
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
+        for spinbox in (
+            self.form.lrnCutoff,
+            self.form.dayOffset,
+            self.form.timeLimit,
+            self.form.network_timeout,
+        ):
+            spinbox.setSuffix(f" {spinbox.suffix()}")
+
         disable_help_button(self)
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help).setAutoDefault(
-            False
-        )
-        self.form.buttonBox.button(
-            QDialogButtonBox.StandardButton.Close
-        ).setAutoDefault(False)
+        help_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help)
+        assert help_button is not None
+        help_button.setAutoDefault(False)
+
+        close_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close)
+        assert close_button is not None
+        close_button.setAutoDefault(False)
+
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.PREFERENCES)
         )
@@ -63,23 +80,24 @@ class Preferences(QDialog):
         )
         group = self.form.preferences_answer_keys
         group.setLayout(layout := QFormLayout())
+        tab_widget: QWidget = self.form.url_schemes
         for ease, label in ease_labels:
             layout.addRow(
                 label,
                 line_edit := QLineEdit(self.mw.pm.get_answer_key(ease) or ""),
             )
+            QWidget.setTabOrder(tab_widget, line_edit)
+            tab_widget = line_edit
             qconnect(
                 line_edit.textChanged,
                 functools.partial(self.mw.pm.set_answer_key, ease),
             )
-            line_edit.setValidator(
-                QRegularExpressionValidator(
-                    QRegularExpression(r"^[a-z0-9\]\[=,./;\'\\-]$")
-                )
-            )
             line_edit.setPlaceholderText(tr.preferences_shortcut_placeholder())
 
     def accept(self) -> None:
+        self.accept_with_callback()
+
+    def accept_with_callback(self, callback: Callable[[], None] | None = None) -> None:
         # avoid exception if main window is already closed
         if not self.mw.col:
             return
@@ -90,6 +108,9 @@ class Preferences(QDialog):
             self.mw.pm.save()
             self.done(0)
             aqt.dialogs.markClosed("Preferences")
+
+            if callback:
+                callback()
 
         self.update_collection(after_collection_update)
 
@@ -106,19 +127,8 @@ class Preferences(QDialog):
 
         scheduling = self.prefs.scheduling
 
-        version = scheduling.scheduler_version
-        form.dayLearnFirst.setVisible(version == 2)
-        form.legacy_timezone.setVisible(version >= 2)
-        form.newSpread.setVisible(version < 3)
-        form.sched2021.setVisible(version >= 2)
-
         form.lrnCutoff.setValue(int(scheduling.learn_ahead_secs / 60.0))
-        form.newSpread.addItems(list(new_card_scheduling_labels(self.mw.col).values()))
-        form.newSpread.setCurrentIndex(scheduling.new_review_mix)
-        form.dayLearnFirst.setChecked(scheduling.day_learn_first)
         form.dayOffset.setValue(scheduling.rollover)
-        form.legacy_timezone.setChecked(not scheduling.new_timezone)
-        form.sched2021.setChecked(version == 3)
 
         reviewing = self.prefs.reviewing
         form.timeLimit.setValue(int(reviewing.time_limit_secs / 60.0))
@@ -134,6 +144,7 @@ class Preferences(QDialog):
         form.paste_strips_formatting.setChecked(editing.paste_strips_formatting)
         form.ignore_accents_in_search.setChecked(editing.ignore_accents_in_search)
         form.pastePNG.setChecked(editing.paste_images_as_png)
+        form.render_latex.setChecked(editing.render_latex)
         form.default_search_text.setText(editing.default_search_text)
 
         form.backup_explanation.setText(
@@ -144,15 +155,15 @@ class Preferences(QDialog):
         form.monthly_backups.setValue(self.prefs.backups.monthly)
         form.minutes_between_backups.setValue(self.prefs.backups.minimum_interval_mins)
 
+        add_ellipsis_to_action_label(self.form.url_schemes)
+        qconnect(self.form.url_schemes.clicked, show_url_schemes_dialog)
+
     def update_collection(self, on_done: Callable[[], None]) -> None:
         form = self.form
 
         scheduling = self.prefs.scheduling
-        scheduling.new_review_mix = cast(Any, form.newSpread.currentIndex())
         scheduling.learn_ahead_secs = form.lrnCutoff.value() * 60
-        scheduling.day_learn_first = form.dayLearnFirst.isChecked()
         scheduling.rollover = form.dayOffset.value()
-        scheduling.new_timezone = not form.legacy_timezone.isChecked()
 
         reviewing = self.prefs.reviewing
         reviewing.show_remaining_due_counts = form.showProgress.isChecked()
@@ -165,6 +176,7 @@ class Preferences(QDialog):
         editing.adding_defaults_to_current_deck = not form.useCurrent.currentIndex()
         editing.paste_images_as_png = self.form.pastePNG.isChecked()
         editing.paste_strips_formatting = self.form.paste_strips_formatting.isChecked()
+        editing.render_latex = self.form.render_latex.isChecked()
         editing.default_search_text = self.form.default_search_text.text()
         editing.ignore_accents_in_search = (
             self.form.ignore_accents_in_search.isChecked()
@@ -177,12 +189,6 @@ class Preferences(QDialog):
 
         def after_prefs_update(changes: OpChanges) -> None:
             self.mw.apply_collection_options()
-            if scheduling.scheduler_version > 1:
-                want_v3 = form.sched2021.isChecked()
-                if self.mw.col.v3_scheduler() != want_v3:
-                    self.mw.col.set_v3_scheduler(want_v3)
-                    gui_hooks.operation_did_execute(OpChanges(study_queues=True), None)
-
             on_done()
 
         set_preferences(parent=self, preferences=self.prefs).success(
@@ -207,38 +213,95 @@ class Preferences(QDialog):
         qconnect(self.form.media_log.clicked, self.on_media_log)
         self.form.syncOnProgramOpen.setChecked(self.mw.pm.auto_syncing_enabled())
         self.form.syncMedia.setChecked(self.mw.pm.media_syncing_enabled())
-        self.form.autoSyncMedia.setChecked(self.mw.pm.auto_sync_media_minutes() != 0)
-        if not self.prof.get("syncKey"):
-            self._hide_sync_auth_settings()
-        else:
-            self.form.syncUser.setText(self.prof.get("syncUser", ""))
-            qconnect(self.form.syncDeauth.clicked, self.sync_logout)
-        self.form.syncDeauth.setText(tr.sync_log_out_button())
+        self.form.autoSyncMedia.setChecked(
+            self.mw.pm.periodic_sync_media_minutes() != 0
+        )
         self.form.custom_sync_url.setText(self.mw.pm.custom_sync_url())
         self.form.network_timeout.setValue(self.mw.pm.network_timeout())
+
+        self.form.check_for_updates.setChecked(self.mw.pm.check_for_updates())
+        qconnect(self.form.check_for_updates.stateChanged, self.mw.pm.set_update_check)
+
+        self.form.check_for_addon_updates.setChecked(
+            self.mw.pm.check_for_addon_updates()
+        )
+        qconnect(
+            self.form.check_for_addon_updates.stateChanged,
+            self.mw.pm.set_check_for_addon_updates,
+        )
+
+        self.update_login_status()
+        qconnect(self.form.syncLogout.clicked, self.sync_logout)
+        qconnect(self.form.syncLogin.clicked, self.sync_login)
+        qconnect(self.form.syncAnkiHubLogout.clicked, self.ankihub_sync_logout)
+        qconnect(self.form.syncAnkiHubLogin.clicked, self.ankihub_sync_login)
+
+    def update_login_status(self) -> None:
+        assert self.prof is not None
+        if not self.prof.get("syncKey"):
+            self.form.syncUser.setText(tr.preferences_ankiweb_intro())
+            self.form.syncLogin.setVisible(True)
+            self.form.syncLogout.setVisible(False)
+        else:
+            self.form.syncUser.setText(self.prof.get("syncUser", ""))
+            self.form.syncLogin.setVisible(False)
+            self.form.syncLogout.setVisible(True)
+
+        if not self.mw.pm.ankihub_token():
+            self.form.syncAnkiHubUser.setText(tr.preferences_ankihub_intro())
+            self.form.syncAnkiHubLogin.setVisible(True)
+            self.form.syncAnkiHubLogout.setVisible(False)
+        else:
+            self.form.syncAnkiHubUser.setText(self.mw.pm.ankihub_username())
+            self.form.syncAnkiHubLogin.setVisible(False)
+            self.form.syncAnkiHubLogout.setVisible(True)
 
     def on_media_log(self) -> None:
         self.mw.media_syncer.show_sync_log()
 
-    def _hide_sync_auth_settings(self) -> None:
-        self.form.syncDeauth.setVisible(False)
-        self.form.syncUser.setText("")
-        self.form.syncLabel.setText(
-            tr.preferences_synchronizationnot_currently_enabled_click_the_sync()
-        )
+    def sync_login(self) -> None:
+        def on_success():
+            assert self.prof is not None
+            if self.prof.get("syncKey"):
+                self.update_login_status()
+                self.confirm_sync_after_login()
+
+        self.update_network()
+        sync_login(self.mw, on_success)
 
     def sync_logout(self) -> None:
         if self.mw.media_syncer.is_syncing():
             showWarning("Can't log out while sync in progress.")
             return
+        assert self.prof is not None
         self.prof["syncKey"] = None
         self.mw.col.media.force_resync()
-        self._hide_sync_auth_settings()
+        self.update_login_status()
+
+    def ankihub_sync_login(self) -> None:
+        def on_success():
+            if self.mw.pm.ankihub_token():
+                self.update_login_status()
+
+        ankihub_login(self.mw, on_success)
+
+    def ankihub_sync_logout(self) -> None:
+        ankihub_token = self.mw.pm.ankihub_token()
+        if ankihub_token is None:
+            return
+        ankihub_logout(self.mw, self.update_login_status, ankihub_token)
+
+    def confirm_sync_after_login(self) -> None:
+        from aqt import mw
+
+        if askUser(tr.preferences_login_successful_sync_now(), parent=mw):
+            self.accept_with_callback(self.mw.on_sync_button_clicked)
 
     def update_network(self) -> None:
+        assert self.prof is not None
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
         self.prof["syncMedia"] = self.form.syncMedia.isChecked()
-        self.mw.pm.set_auto_sync_media_minutes(
+        self.mw.pm.set_periodic_sync_media_minutes(
             self.form.autoSyncMedia.isChecked() and 15 or 0
         )
         if self.form.fullSync.isChecked():
@@ -313,7 +376,6 @@ class Preferences(QDialog):
         )
         self.form.styleLabel.setVisible(not is_win)
         self.form.styleComboBox.setVisible(not is_win)
-        self.form.legacy_import_export.setChecked(self.mw.pm.legacy_import_export())
         qconnect(self.form.resetWindowSizes.clicked, self.on_reset_window_sizes)
 
         self.setup_language()
@@ -331,8 +393,6 @@ class Preferences(QDialog):
             self.mw.pm.setUiScale(newScale)
             restart_required = True
 
-        self.mw.pm.set_legacy_import_export(self.form.legacy_import_export.isChecked())
-
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())
 
@@ -342,6 +402,7 @@ class Preferences(QDialog):
         self.mw.set_theme(Theme(index))
 
     def on_reset_window_sizes(self) -> None:
+        assert self.prof is not None
         regexp = re.compile(r"(Geom(etry)?|State|Splitter|Header)(\d+.\d+)?$")
         for key in list(self.prof.keys()):
             if regexp.search(key):
@@ -374,7 +435,7 @@ class Preferences(QDialog):
             lang = lang.replace("-", "_")
         try:
             return codes.index(lang)
-        except:
+        except Exception:
             return codes.index("en_US")
 
     def on_language_index_changed(self, idx: int) -> None:
@@ -392,9 +453,6 @@ class Preferences(QDialog):
         self.form.video_driver.setCurrentIndex(
             self.video_drivers.index(self.mw.pm.video_driver())
         )
-        if qtmajor > 5:
-            self.form.video_driver_label.setVisible(False)
-            self.form.video_driver.setVisible(False)
 
     def update_video_driver(self) -> None:
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]
@@ -404,15 +462,22 @@ class Preferences(QDialog):
 
 
 def video_driver_name_for_platform(driver: VideoDriver) -> str:
-    if driver == VideoDriver.ANGLE:
-        return tr.preferences_video_driver_angle()
-    elif driver == VideoDriver.Software:
-        if is_mac:
-            return tr.preferences_video_driver_software_mac()
-        else:
-            return tr.preferences_video_driver_software_other()
-    else:
-        if is_mac:
-            return tr.preferences_video_driver_opengl_mac()
-        else:
-            return tr.preferences_video_driver_opengl_other()
+    if qtmajor < 6:
+        if driver == VideoDriver.ANGLE:
+            return tr.preferences_video_driver_angle()
+        elif driver == VideoDriver.Software:
+            if is_mac:
+                return tr.preferences_video_driver_software_mac()
+            else:
+                return tr.preferences_video_driver_software_other()
+        elif driver == VideoDriver.OpenGL:
+            if is_mac:
+                return tr.preferences_video_driver_opengl_mac()
+            else:
+                return tr.preferences_video_driver_opengl_other()
+
+    label = driver.name
+    if driver == VideoDriver.default_for_platform():
+        label += f" ({tr.preferences_video_driver_default()})"
+
+    return label

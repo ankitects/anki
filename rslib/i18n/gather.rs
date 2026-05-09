@@ -48,8 +48,7 @@ fn add_folder(map: &mut TranslationsByLang, folder: &Path, lang: &str) {
         let text = fs::read_to_string(entry.path()).unwrap();
         assert!(
             text.ends_with('\n'),
-            "file was missing final newline: {:?}",
-            entry
+            "file was missing final newline: {entry:?}"
         );
         map_entry.entry(module).or_default().push_str(&text);
         println!("cargo:rerun-if-changed={}", entry.path().to_str().unwrap());

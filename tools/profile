@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ANKI_PROFILE_CODE=1 ./run
+out/pyenv/bin/pip install snakeviz
+out/pyenv/bin/snakeviz out/anki.prof

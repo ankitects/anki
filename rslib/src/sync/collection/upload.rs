@@ -12,6 +12,7 @@ use axum::response::Response;
 use flate2::write::GzEncoder;
 use flate2::Compression;
 use futures::StreamExt;
+use reqwest::Client;
 use tokio_util::io::ReaderStream;
 
 use crate::collection::CollectionBuilder;
@@ -32,8 +33,8 @@ pub const CORRUPT_MESSAGE: &str =
 
 impl Collection {
     /// Upload collection to AnkiWeb. Caller must re-open afterwards.
-    pub async fn full_upload(self, auth: SyncAuth) -> Result<()> {
-        self.full_upload_with_server(HttpSyncClient::new(auth))
+    pub async fn full_upload(self, auth: SyncAuth, client: Client) -> Result<()> {
+        self.full_upload_with_server(HttpSyncClient::new(auth, client))
             .await
     }
 
@@ -118,9 +119,13 @@ pub enum UploadResponse {
 }
 
 pub fn check_upload_limit(size: usize, limit: usize) -> Result<()> {
+    let size_of_one_mb: f64 = 1024.0 * 1024.0;
+    let collection_size_in_mb: f64 = size as f64 / size_of_one_mb;
+    let limit_size_in_mb: f64 = limit as f64 / size_of_one_mb;
+
     if size >= limit {
         Err(AnkiError::sync_error(
-            format!("{size} > {limit}"),
+            format!("{collection_size_in_mb:.2} MB > {limit_size_in_mb:.2} MB"),
             SyncErrorKind::UploadTooLarge,
         ))
     } else {

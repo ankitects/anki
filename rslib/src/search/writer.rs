@@ -2,14 +2,14 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::mem;
+use std::sync::LazyLock;
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::decks::DeckId as DeckIdType;
 use crate::notetype::NotetypeId as NotetypeIdType;
 use crate::prelude::*;
 use crate::search::parser::parse;
+use crate::search::parser::FieldSearchMode;
 use crate::search::parser::Node;
 use crate::search::parser::PropertyKind;
 use crate::search::parser::RatingKind;
@@ -48,6 +48,13 @@ pub(super) fn write_nodes(nodes: &[Node]) -> String {
     nodes.iter().map(write_node).collect()
 }
 
+#[allow(clippy::to_string_trait_impl)]
+impl ToString for Node {
+    fn to_string(&self) -> String {
+        write_node(self)
+    }
+}
+
 fn write_node(node: &Node) -> String {
     use Node::*;
     match node {
@@ -63,30 +70,32 @@ fn write_search_node(node: &SearchNode) -> String {
     use SearchNode::*;
     match node {
         UnqualifiedText(s) => maybe_quote(&s.replace(':', "\\:")),
-        SingleField { field, text, is_re } => write_single_field(field, text, *is_re),
-        AddedInDays(u) => format!("added:{}", u),
-        EditedInDays(u) => format!("edited:{}", u),
-        IntroducedInDays(u) => format!("introduced:{}", u),
+        SingleField { field, text, mode } => write_single_field(field, text, *mode),
+        AddedInDays(u) => format!("added:{u}"),
+        EditedInDays(u) => format!("edited:{u}"),
+        IntroducedInDays(u) => format!("introduced:{u}"),
         CardTemplate(t) => write_template(t),
-        Deck(s) => maybe_quote(&format!("deck:{}", s)),
-        DeckIdWithoutChildren(DeckIdType(i)) => format!("did:{}", i),
+        Deck(s) => maybe_quote(&format!("deck:{s}")),
+        DeckIdsWithoutChildren(s) => format!("did:{s}"),
         // not exposed on the GUI end
         DeckIdWithChildren(_) => "".to_string(),
-        NotetypeId(NotetypeIdType(i)) => format!("mid:{}", i),
-        Notetype(s) => maybe_quote(&format!("note:{}", s)),
+        NotetypeId(NotetypeIdType(i)) => format!("mid:{i}"),
+        Notetype(s) => maybe_quote(&format!("note:{s}")),
         Rated { days, ease } => write_rated(days, ease),
-        Tag { tag, is_re } => write_single_field("tag", tag, *is_re),
+        Tag { tag, mode } => write_single_field("tag", tag, *mode),
         Duplicates { notetype_id, text } => write_dupe(notetype_id, text),
         State(k) => write_state(k),
-        Flag(u) => format!("flag:{}", u),
-        NoteIds(s) => format!("nid:{}", s),
-        CardIds(s) => format!("cid:{}", s),
+        Flag(u) => format!("flag:{u}"),
+        NoteIds(s) => format!("nid:{s}"),
+        CardIds(s) => format!("cid:{s}"),
         Property { operator, kind } => write_property(operator, kind),
         WholeCollection => "deck:*".to_string(),
-        Regex(s) => maybe_quote(&format!("re:{}", s)),
-        NoCombining(s) => maybe_quote(&format!("nc:{}", s)),
-        WordBoundary(s) => maybe_quote(&format!("w:{}", s)),
-        CustomData(k) => maybe_quote(&format!("has-cd:{}", k)),
+        Regex(s) => maybe_quote(&format!("re:{s}")),
+        NoCombining(s) => maybe_quote(&format!("nc:{s}")),
+        StripClozes(s) => maybe_quote(&format!("sc:{s}")),
+        WordBoundary(s) => maybe_quote(&format!("w:{s}")),
+        CustomData(k) => maybe_quote(&format!("has-cd:{k}")),
+        Preset(s) => maybe_quote(&format!("preset:{s}")),
     }
 }
 
@@ -102,43 +111,53 @@ fn maybe_quote(txt: &str) -> String {
 /// Checks for the reserved keywords "and" and "or", a prepended hyphen,
 /// whitespace and brackets.
 fn needs_quotation(txt: &str) -> bool {
-    lazy_static! {
-        static ref RE: Regex = Regex::new("(?i)^and$|^or$|^-.| |\u{3000}|\\(|\\)").unwrap();
-    }
+    static RE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new("(?i)^and$|^or$|^-.| |\u{3000}|\\(|\\)").unwrap());
     RE.is_match(txt)
 }
 
 /// Also used by tag search, which has the same syntax.
-fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
-    let re = if is_re { "re:" } else { "" };
-    let text = if !is_re && text.starts_with("re:") {
+fn write_single_field(field: &str, text: &str, mode: FieldSearchMode) -> String {
+    let prefix = match mode {
+        FieldSearchMode::Normal => "",
+        FieldSearchMode::Regex => "re:",
+        FieldSearchMode::NoCombining => "nc:",
+    };
+    let text = if mode == FieldSearchMode::Normal
+        && (text.starts_with("re:") || text.starts_with("nc:"))
+    {
         text.replacen(':', "\\:", 1)
     } else {
         text.to_string()
     };
-    maybe_quote(&format!("{}:{}{}", field.replace(':', "\\:"), re, &text))
+    maybe_quote(&format!(
+        "{}:{}{}",
+        field.replace(':', "\\:"),
+        prefix,
+        &text
+    ))
 }
 
 fn write_template(template: &TemplateKind) -> String {
     match template {
         TemplateKind::Ordinal(u) => format!("card:{}", u + 1),
-        TemplateKind::Name(s) => maybe_quote(&format!("card:{}", s)),
+        TemplateKind::Name(s) => maybe_quote(&format!("card:{s}")),
     }
 }
 
 fn write_rated(days: &u32, ease: &RatingKind) -> String {
     use RatingKind::*;
     match ease {
-        AnswerButton(n) => format!("rated:{}:{}", days, n),
-        AnyAnswerButton => format!("rated:{}", days),
-        ManualReschedule => format!("resched:{}", days),
+        AnswerButton(n) => format!("rated:{days}:{n}"),
+        AnyAnswerButton => format!("rated:{days}"),
+        ManualReschedule => format!("resched:{days}"),
     }
 }
 
 /// Escape double quotes and backslashes: \"
 fn write_dupe(notetype_id: &NotetypeId, text: &str) -> String {
     let esc = text.replace('\\', r"\\");
-    maybe_quote(&format!("dupe:{},{}", notetype_id, esc))
+    maybe_quote(&format!("dupe:{notetype_id},{esc}"))
 }
 
 fn write_state(kind: &StateKind) -> String {
@@ -161,16 +180,19 @@ fn write_state(kind: &StateKind) -> String {
 fn write_property(operator: &str, kind: &PropertyKind) -> String {
     use PropertyKind::*;
     match kind {
-        Due(i) => format!("prop:due{}{}", operator, i),
-        Interval(u) => format!("prop:ivl{}{}", operator, u),
-        Reps(u) => format!("prop:reps{}{}", operator, u),
-        Lapses(u) => format!("prop:lapses{}{}", operator, u),
-        Ease(f) => format!("prop:ease{}{}", operator, f),
-        Position(u) => format!("prop:pos{}{}", operator, u),
+        Due(i) => format!("prop:due{operator}{i}"),
+        Interval(u) => format!("prop:ivl{operator}{u}"),
+        Reps(u) => format!("prop:reps{operator}{u}"),
+        Lapses(u) => format!("prop:lapses{operator}{u}"),
+        Ease(f) => format!("prop:ease{operator}{f}"),
+        Position(u) => format!("prop:pos{operator}{u}"),
+        Stability(u) => format!("prop:s{operator}{u}"),
+        Difficulty(u) => format!("prop:d{operator}{u}"),
+        Retrievability(u) => format!("prop:r{operator}{u}"),
         Rated(u, ease) => match ease {
-            RatingKind::AnswerButton(val) => format!("prop:rated{}{}:{}", operator, u, val),
-            RatingKind::AnyAnswerButton => format!("prop:rated{}{}", operator, u),
-            RatingKind::ManualReschedule => format!("prop:resched{}{}", operator, u),
+            RatingKind::AnswerButton(val) => format!("prop:rated{operator}{u}:{val}"),
+            RatingKind::AnyAnswerButton => format!("prop:rated{operator}{u}"),
+            RatingKind::ManualReschedule => format!("prop:resched{operator}{u}"),
         },
         CustomDataNumber { key, value } => format!("prop:cdn:{key}{operator}{value}"),
         CustomDataString { key, value } => {

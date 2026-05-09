@@ -13,7 +13,6 @@ from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     KeyboardModifiersPressed,
-    addCloseShortcut,
     disable_help_button,
     restoreGeom,
     saveGeom,
@@ -32,6 +31,8 @@ class DeckOptionsDialog(QDialog):
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self._deck = deck
+        self._close_event_has_cleaned_up = False
+        self._ready = False
         self._setup_ui()
 
     def _setup_ui(self) -> None:
@@ -40,28 +41,39 @@ class DeckOptionsDialog(QDialog):
         self.setMinimumWidth(400)
         disable_help_button(self)
         restoreGeom(self, self.TITLE, default_size=(800, 800))
-        addCloseShortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS)
-        self.web.load_ts_page("deck-options")
+        self.web.load_sveltekit_page(f"deck-options/{self._deck['id']}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
         self.setLayout(layout)
         self.show()
         self.web.hide_while_preserving_layout()
-
-        self.web.eval(
-            f"""const $deckOptions = anki.setupDeckOptions({self._deck["id"]});"""
-        )
         self.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )
+
+    def set_ready(self):
+        self._ready = True
         gui_hooks.deck_options_did_load(self)
 
+    def closeEvent(self, evt: QCloseEvent | None) -> None:
+        if self._close_event_has_cleaned_up or not self._ready:
+            return super().closeEvent(evt)
+        assert evt is not None
+        evt.ignore()
+        self.web.eval("anki.deckOptionsPendingChanges();")
+
+    def require_close(self):
+        """Close. Ensure the closeEvent is not ignored."""
+        self._close_event_has_cleaned_up = True
+        self.close()
+
     def reject(self) -> None:
+        self.mw.col.set_wants_abort()
         self.web.cleanup()
-        self.web = None
+        self.web = None  # type: ignore
         saveGeom(self, self.TITLE)
         QDialog.reject(self)
 
@@ -70,10 +82,14 @@ def confirm_deck_then_display_options(active_card: Card | None = None) -> None:
     decks = [aqt.mw.col.decks.current()]
     if card := active_card:
         if card.odid and card.odid != decks[0]["id"]:
-            decks.append(aqt.mw.col.decks.get(card.odid))
+            deck = aqt.mw.col.decks.get(card.odid)
+            assert deck is not None
+            decks.append(deck)
 
         if not any(d["id"] == card.did for d in decks):
-            decks.append(aqt.mw.col.decks.get(card.did))
+            deck = aqt.mw.col.decks.get(card.did)
+            assert deck is not None
+            decks.append(deck)
 
     if len(decks) == 1:
         display_options_for_deck(decks[0])
@@ -100,13 +116,16 @@ def _deck_prompt_dialog(decks: list[DeckDict]) -> None:
 
 
 def display_options_for_deck_id(deck_id: DeckId) -> None:
-    display_options_for_deck(aqt.mw.col.decks.get(deck_id))
+    deck = aqt.mw.col.decks.get(deck_id)
+    assert deck is not None
+    display_options_for_deck(deck)
 
 
 def display_options_for_deck(deck: DeckDict) -> None:
     if not deck["dyn"]:
-        if KeyboardModifiersPressed().shift or aqt.mw.col.sched_ver() == 1:
+        if KeyboardModifiersPressed().shift or not aqt.mw.col.v3_scheduler():
             deck_legacy = aqt.mw.col.decks.get(DeckId(deck["id"]))
+            assert deck_legacy is not None
             aqt.deckconf.DeckConf(aqt.mw, deck_legacy)
         else:
             DeckOptionsDialog(aqt.mw, deck)

@@ -41,9 +41,9 @@ def check_db(mw: aqt.AnkiQt) -> None:
         ret, ok = fut.result()
 
         if not ok:
-            showText(ret)
+            showText(ret, parent=mw)
         else:
-            tooltip(ret)
+            tooltip(ret, parent=mw)
 
         # if an error has directed the user to check the database,
         # silently clean up any broken reset hooks which distract from

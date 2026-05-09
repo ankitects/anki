@@ -1,19 +1,13 @@
 {
     "typescript": {
-        "indentWidth": 4
+        "indentWidth": 4,
+        "useBraces": "always"
     },
     "json": {
         "indentWidth": 4
     },
     "markdown": {},
     "toml": {},
-    "prettier": {
-        "trailingComma": "all",
-        "printWidth": 88,
-        "tabWidth": 4,
-        "semi": true,
-        "htmlWhitespaceSensitivity": "ignore"
-    },
     "includes": ["**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,toml,svelte,scss}"],
     "excludes": [
         ".vscode",
@@ -26,17 +20,18 @@
         "ftl/usage",
         "licenses.json",
         ".dmypy.json",
-        "qt/bundle/PyOxidizer",
         "target",
         ".mypy_cache",
-        "extra"
+        "extra",
+        "ts/.svelte-kit",
+        "ts/vite.config.ts.timestamp*",
+        "qt/installer/*-template"
     ],
     "plugins": [
-        "https://plugins.dprint.dev/typescript-0.85.1.wasm",
-        "https://plugins.dprint.dev/json-0.17.4.wasm",
-        "https://plugins.dprint.dev/markdown-0.15.3.wasm",
-        "https://plugins.dprint.dev/toml-0.5.4.wasm",
-        "https://plugins.dprint.dev/prettier-0.13.0.json@dc5d12b7c1bf1a4683eff317c2c87350e75a5a3dfcc127f3d5628931bfb534b1",
-        "https://plugins.dprint.dev/disrupted/css-0.2.2.wasm"
+        "https://plugins.dprint.dev/typescript-0.91.6.wasm",
+        "https://plugins.dprint.dev/json-0.19.3.wasm",
+        "https://plugins.dprint.dev/markdown-0.17.6.wasm",
+        "https://plugins.dprint.dev/toml-0.6.2.wasm",
+        "https://plugins.dprint.dev/disrupted/css-0.2.3.wasm"
     ]
 }

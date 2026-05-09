@@ -1,0 +1,49 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.ankiweb;
+
+service AnkiwebService {}
+
+service BackendAnkiwebService {
+  // Fetch info on add-ons from AnkiWeb. A maximum of 25 can be queried at one
+  // time. If an add-on doesn't have a branch compatible with the provided
+  // version, that add-on will not be included in the returned list.
+  rpc GetAddonInfo(GetAddonInfoRequest) returns (GetAddonInfoResponse);
+  rpc CheckForUpdate(CheckForUpdateRequest) returns (CheckForUpdateResponse);
+}
+
+message GetAddonInfoRequest {
+  uint32 client_version = 1;
+  repeated uint32 addon_ids = 2;
+}
+
+message GetAddonInfoResponse {
+  repeated AddonInfo info = 1;
+}
+
+message AddonInfo {
+  uint32 id = 1;
+  int64 modified = 2;
+  uint32 min_version = 3;
+  uint32 max_version = 4;
+}
+
+message CheckForUpdateRequest {
+  uint32 version = 1;
+  string buildhash = 2;
+  string os = 3;
+  int64 install_id = 4;
+  uint32 last_message_id = 5;
+}
+
+message CheckForUpdateResponse {
+  optional string new_version = 1;
+  int64 current_time = 2;
+  optional string message = 3;
+  uint32 last_message_id = 4;
+}

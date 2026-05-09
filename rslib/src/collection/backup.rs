@@ -326,7 +326,8 @@ mod test {
 
         let expected: Vec<_> = backups
             .iter()
-            .filter_map(|b| b.1.then(|| b.0.clone()))
+            .filter(|b| b.1)
+            .map(|b| b.0.clone())
             .collect();
         let obsolete_backups =
             BackupFilter::new(today, limits).obsolete_backups(backups.into_iter().map(|b| b.0));

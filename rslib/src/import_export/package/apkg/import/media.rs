@@ -17,11 +17,12 @@ use crate::import_export::package::media::SafeMediaEntry;
 use crate::import_export::ImportProgress;
 use crate::media::files::add_hash_suffix_to_file_stem;
 use crate::media::files::sha1_of_reader;
+use crate::media::Checksums;
 use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
 
 /// Map of source media files, that do not already exist in the target.
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub(super) struct MediaUseMap {
     /// original, normalized filename → (refererenced on import material,
     /// entry with possibly remapped filename)
@@ -75,7 +76,7 @@ impl Context<'_> {
 fn prepare_media(
     media_entries: Vec<SafeMediaEntry>,
     archive: &mut ZipArchive<File>,
-    existing_sha1s: &HashMap<String, Sha1Hash>,
+    existing_sha1s: &Checksums,
     progress: &mut ThrottlingProgressHandler<ImportProgress>,
 ) -> Result<MediaUseMap> {
     let mut media_map = MediaUseMap::default();

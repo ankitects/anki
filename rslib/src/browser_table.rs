@@ -3,6 +3,8 @@
 
 use std::sync::Arc;
 
+use fsrs::FSRS;
+use fsrs::FSRS5_DEFAULT_DECAY;
 use itertools::Itertools;
 use strum::Display;
 use strum::EnumIter;
@@ -45,6 +47,7 @@ pub enum Column {
     NoteMod,
     #[strum(serialize = "note")]
     Notetype,
+    OriginalPosition,
     Question,
     #[strum(serialize = "cardReps")]
     Reps,
@@ -52,6 +55,9 @@ pub enum Column {
     SortField,
     #[strum(serialize = "noteTags")]
     Tags,
+    Stability,
+    Difficulty,
+    Retrievability,
 }
 
 struct RowContext {
@@ -99,20 +105,41 @@ impl Card {
 
     /// Returns true if the card has a due date in terms of days.
     fn is_due_in_days(&self) -> bool {
-        matches!(self.queue, CardQueue::DayLearn | CardQueue::Review)
+        self.ctype != CardType::New && self.original_or_current_due() <= 365_000 // keep consistent with SQL
+            || matches!(self.queue, CardQueue::DayLearn | CardQueue::Review)
             || (self.ctype == CardType::Review && self.is_undue_queue())
     }
 
     /// Returns the card's due date as a timestamp if it has one.
     fn due_time(&self, timing: &SchedTimingToday) -> Option<TimestampSecs> {
         if self.queue == CardQueue::Learn {
-            Some(TimestampSecs(self.due as i64))
+            Some(TimestampSecs(self.original_or_current_due() as i64))
         } else if self.is_due_in_days() {
-            Some(TimestampSecs::now().adding_secs(
-                ((self.due - timing.days_elapsed as i32).saturating_mul(86400)) as i64,
-            ))
+            Some(
+                TimestampSecs::now().adding_secs(
+                    (self.original_or_current_due() as i64 - timing.days_elapsed as i64)
+                        .saturating_mul(86400),
+                ),
+            )
         } else {
             None
+        }
+    }
+
+    /// If last_review_date isn't stored in the card, this uses card.due and
+    /// card.ivl to infer the elapsed time, which won't be accurate if
+    /// 'set due date' or an add-on has changed the due date.
+    pub(crate) fn seconds_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
+        if let Some(last_review_time) = self.last_review_time {
+            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
+        } else if self.is_due_in_days() {
+            self.due_time(timing).map(|due| {
+                (due.adding_secs(-86_400 * self.interval as i64)
+                    .elapsed_secs()) as u32
+            })
+        } else {
+            let last_review_time = TimestampSecs(self.original_or_current_due() as i64);
+            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
         }
     }
 }
@@ -130,7 +157,7 @@ impl Column {
         match self {
             Self::Answer => tr.browsing_answer(),
             Self::CardMod => tr.search_card_modified(),
-            Self::Cards => tr.browsing_card(),
+            Self::Cards => tr.card_stats_card_template(),
             Self::Deck => tr.decks_deck(),
             Self::Due => tr.statistics_due_date(),
             Self::Custom => tr.browsing_addon(),
@@ -139,22 +166,24 @@ impl Column {
             Self::Lapses => tr.scheduling_lapses(),
             Self::NoteCreation => tr.browsing_created(),
             Self::NoteMod => tr.search_note_modified(),
-            Self::Notetype => tr.browsing_note(),
+            Self::Notetype => tr.card_stats_note_type(),
+            Self::OriginalPosition => tr.card_stats_new_card_position(),
             Self::Question => tr.browsing_question(),
             Self::Reps => tr.scheduling_reviews(),
             Self::SortField => tr.browsing_sort_field(),
             Self::Tags => tr.editing_tags(),
+            Self::Stability => tr.card_stats_fsrs_stability(),
+            Self::Difficulty => tr.card_stats_fsrs_difficulty(),
+            Self::Retrievability => tr.card_stats_fsrs_retrievability(),
         }
         .into()
     }
 
     pub fn notes_mode_label(self, tr: &I18n) -> String {
         match self {
-            Self::CardMod => tr.search_card_modified(),
             Self::Cards => tr.editing_cards(),
             Self::Ease => tr.browsing_average_ease(),
             Self::Interval => tr.browsing_average_interval(),
-            Self::Reps => tr.scheduling_reviews(),
             _ => return self.cards_mode_label(tr),
         }
         .into()
@@ -181,7 +210,15 @@ impl Column {
         .into()
     }
 
-    pub fn default_order(self) -> anki_proto::search::browser_columns::Sorting {
+    pub fn default_cards_order(self) -> anki_proto::search::browser_columns::Sorting {
+        self.default_order(false)
+    }
+
+    pub fn default_notes_order(self) -> anki_proto::search::browser_columns::Sorting {
+        self.default_order(true)
+    }
+
+    fn default_order(self, notes: bool) -> anki_proto::search::browser_columns::Sorting {
         use anki_proto::search::browser_columns::Sorting;
         match self {
             Column::Question | Column::Answer | Column::Custom => Sorting::None,
@@ -196,7 +233,15 @@ impl Column {
             | Column::Interval
             | Column::NoteCreation
             | Column::NoteMod
+            | Column::OriginalPosition
             | Column::Reps => Sorting::Descending,
+            Column::Stability | Column::Difficulty | Column::Retrievability => {
+                if notes {
+                    Sorting::None
+                } else {
+                    Sorting::Descending
+                }
+            }
         }
     }
 
@@ -376,6 +421,7 @@ impl RowContext {
         Ok(anki_proto::search::browser_row::Cell {
             text: self.get_cell_text(column)?,
             is_rtl: self.get_is_rtl(column),
+            elide_mode: self.get_elide_mode(column) as i32,
         })
     }
 
@@ -394,10 +440,25 @@ impl RowContext {
             Column::NoteCreation => self.note_creation_str(),
             Column::SortField => self.note_field_str(),
             Column::NoteMod => self.note.mtime.date_and_time_string(),
+            Column::OriginalPosition => self.card_original_position(),
             Column::Tags => self.note.tags.join(" "),
             Column::Notetype => self.notetype.name.to_owned(),
+            Column::Stability => self.fsrs_stability_str(),
+            Column::Difficulty => self.fsrs_difficulty_str(),
+            Column::Retrievability => self.fsrs_retrievability_str(),
             Column::Custom => "".to_string(),
         })
+    }
+
+    fn card_original_position(&self) -> String {
+        let card = &self.cards[0];
+        if let Some(pos) = &card.original_position {
+            pos.to_string()
+        } else if card.ctype == CardType::New {
+            card.due.to_string()
+        } else {
+            String::new()
+        }
     }
 
     fn note_creation_str(&self) -> String {
@@ -418,6 +479,17 @@ impl RowContext {
                 self.notetype.fields[index].config.rtl
             }
             _ => false,
+        }
+    }
+
+    fn get_elide_mode(
+        &self,
+        column: Column,
+    ) -> anki_proto::search::browser_row::cell::TextElideMode {
+        use anki_proto::search::browser_row::cell::TextElideMode;
+        match column {
+            Column::Deck => TextElideMode::ElideMiddle,
+            _ => TextElideMode::ElideRight,
         }
     }
 
@@ -444,10 +516,43 @@ impl RowContext {
             return "".into();
         };
         if self.cards[0].is_undue_queue() {
-            format!("({})", due)
+            format!("({due})")
         } else {
             due.into()
         }
+    }
+
+    fn fsrs_stability_str(&self) -> String {
+        self.cards[0]
+            .memory_state
+            .as_ref()
+            .map(|s| time_span(s.stability * 86400.0, &self.tr, false))
+            .unwrap_or_default()
+    }
+
+    fn fsrs_difficulty_str(&self) -> String {
+        self.cards[0]
+            .memory_state
+            .as_ref()
+            .map(|s| format!("{:.0}%", s.difficulty() * 100.0))
+            .unwrap_or_default()
+    }
+
+    fn fsrs_retrievability_str(&self) -> String {
+        self.cards[0]
+            .memory_state
+            .as_ref()
+            .zip(self.cards[0].seconds_since_last_review(&self.timing))
+            .zip(Some(self.cards[0].decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
+            .map(|((state, seconds), decay)| {
+                let r = FSRS::new(None).unwrap().current_retrievability_seconds(
+                    (*state).into(),
+                    seconds,
+                    decay,
+                );
+                format!("{:.0}%", r * 100.)
+            })
+            .unwrap_or_default()
     }
 
     /// Returns the due date of the next due card that is not in a filtered
@@ -519,7 +624,7 @@ impl RowContext {
         if self.notes_mode {
             let decks = self.cards.iter().map(|c| c.deck_id).unique().count();
             if decks > 1 {
-                return format!("({})", decks);
+                return format!("({decks})");
             }
         }
         let deck_name = self.deck.human_name();

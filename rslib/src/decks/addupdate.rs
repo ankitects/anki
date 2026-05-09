@@ -93,7 +93,7 @@ impl Collection {
     pub(crate) fn recover_missing_deck(&mut self, did: DeckId, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.id = did;
-        deck.name = NativeDeckName::from_native_str(format!("recovered{}", did));
+        deck.name = NativeDeckName::from_native_str(format!("recovered{did}"));
         deck.set_modified(usn);
         self.add_or_update_single_deck_with_existing_id(&mut deck, usn)
     }

@@ -79,7 +79,7 @@ impl ServerMediaManager {
 }
 
 fn add_or_replace_file(path: &Path, data: Vec<u8>) -> error::Result<(), FileIoError> {
-    write_file(path, data).map_err(Into::into)
+    write_file(path, data)
 }
 
 fn remove_file(path: &Path) -> error::Result<(), FileIoError> {

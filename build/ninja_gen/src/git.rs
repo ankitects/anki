@@ -10,19 +10,27 @@ use crate::input::BuildInput;
 
 pub struct SyncSubmodule {
     pub path: &'static str,
+    pub offline_build: bool,
 }
 
 impl BuildAction for SyncSubmodule {
     fn command(&self) -> &str {
-        "git -c protocol.file.allow=always submodule update --init $path"
+        if self.offline_build {
+            "echo OFFLINE_BUILD is set, skipping git repository update for $path"
+        } else {
+            "git -c protocol.file.allow=always submodule update --checkout --init $path"
+        }
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
-        if let Some(head) = locate_git_head() {
-            build.add_inputs("", head);
-        } else {
-            println!("Warning, .git/HEAD not found; submodules may be stale");
+        if !self.offline_build {
+            if let Some(head) = locate_git_head() {
+                build.add_inputs("", head);
+            } else {
+                println!("Warning, .git/HEAD not found; submodules may be stale");
+            }
         }
+
         build.add_variable("path", self.path);
         build.add_output_stamp(format!("git/{}", self.path));
     }
@@ -46,7 +54,10 @@ fn locate_git_head() -> Option<BuildInput> {
         return Some(inputs![standard_path.to_string()]);
     }
 
-    let mut folder = Utf8Path::new(".").canonicalize_utf8().unwrap();
+    let mut folder = Utf8PathBuf::from_path_buf(
+        dunce::canonicalize(Utf8Path::new(".").canonicalize().unwrap()).unwrap(),
+    )
+    .unwrap();
     loop {
         let path = folder.join(".git").join("modules");
         if path.exists() {

@@ -14,7 +14,9 @@ impl GraphsContext {
             if review.id.0 < start_of_today_ms {
                 continue;
             }
-            if review.review_kind == RevlogReviewKind::Manual {
+            if review.review_kind == RevlogReviewKind::Manual
+                || review.review_kind == RevlogReviewKind::Rescheduled
+            {
                 continue;
             }
             // total
@@ -37,7 +39,7 @@ impl GraphsContext {
                 RevlogReviewKind::Review => today.review_count += 1,
                 RevlogReviewKind::Relearning => today.relearn_count += 1,
                 RevlogReviewKind::Filtered => today.early_review_count += 1,
-                RevlogReviewKind::Manual => unreachable!(),
+                RevlogReviewKind::Manual | RevlogReviewKind::Rescheduled => unreachable!(),
             }
         }
         today

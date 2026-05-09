@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import Any, Optional, Sequence
 
 import aqt.clayout
 from anki import stdmodels
-from anki.collection import Collection
+from anki.collection import Collection, OpChangesWithId
 from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict, NotetypeId, NotetypeNameIdUseCount
 from anki.notes import Note
@@ -40,9 +40,9 @@ class Models(QDialog):
     def __init__(
         self,
         mw: AnkiQt,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         fromMain: bool = False,
-        selected_notetype_id: Optional[NotetypeId] = None,
+        selected_notetype_id: NotetypeId | None = None,
     ):
         self.mw = mw
         parent = parent or mw
@@ -60,18 +60,31 @@ class Models(QDialog):
         )
         self.models: Sequence[NotetypeNameIdUseCount] = []
         self.setupModels()
+
+        self.setWindowFlags(
+            self.windowFlags()
+            | Qt.WindowType.WindowMaximizeButtonHint
+            | Qt.WindowType.WindowMinimizeButtonHint
+        )
         restoreGeom(self, "models")
+
         self.show()
 
     # Models
     ##########################################################################
 
-    def maybe_select_provided_notetype(self) -> None:
-        if not self.selected_notetype_id:
-            self.form.modelsList.setCurrentRow(0)
+    def maybe_select_provided_notetype(
+        self, selected_notetype_id: NotetypeId | None = None, row: int = 0
+    ) -> None:
+        """Select the provided notetype ID, if any.
+        Otherwise the one at `self.selected_notetype_id`,
+        otherwise the `row`-th element."""
+        selected_notetype_id = selected_notetype_id or self.selected_notetype_id
+        if not selected_notetype_id:
+            self.form.modelsList.setCurrentRow(row)
             return
         for i, m in enumerate(self.models):
-            if m.id == self.selected_notetype_id:
+            if m.id == selected_notetype_id:
                 self.form.modelsList.setCurrentRow(i)
                 break
 
@@ -109,24 +122,31 @@ class Models(QDialog):
         self.mw.taskman.with_progress(self.col.models.all_use_counts, on_done, self)
         maybeHideClose(box)
 
-    def refresh_list(self, *ignored_args: Any) -> None:
+    def refresh_list(self, selected_notetype_id: NotetypeId | None = None) -> None:
         QueryOp(
             parent=self,
             op=lambda col: col.models.all_use_counts(),
-            success=self.updateModelsList,
+            success=lambda notetypes: self.updateModelsList(
+                notetypes, selected_notetype_id
+            ),
         ).run_in_background()
 
     def onRename(self) -> None:
         nt = self.current_notetype()
         text, ok = getText(tr.actions_new_name(), default=nt["name"])
         if ok and text.strip():
+            selected_notetype_id = nt["id"]
             nt["name"] = text
 
             update_notetype_legacy(parent=self, notetype=nt).success(
-                self.refresh_list
+                lambda _: self.refresh_list(selected_notetype_id)
             ).run_in_background()
 
-    def updateModelsList(self, notetypes: Sequence[NotetypeNameIdUseCount]) -> None:
+    def updateModelsList(
+        self,
+        notetypes: Sequence[NotetypeNameIdUseCount],
+        selected_notetype_id: NotetypeId | None = None,
+    ) -> None:
         row = self.form.modelsList.currentRow()
         if row == -1:
             row = 0
@@ -137,7 +157,7 @@ class Models(QDialog):
             mUse = tr.browsing_note_count(count=m.use_count)
             item = QListWidgetItem(f"{m.name} [{mUse}]")
             self.form.modelsList.addItem(item)
-        self.form.modelsList.setCurrentRow(row)
+        self.maybe_select_provided_notetype(selected_notetype_id, row)
 
     def current_notetype(self) -> NotetypeDict:
         row = self.form.modelsList.currentRow()
@@ -146,7 +166,9 @@ class Models(QDialog):
     def onAdd(self) -> None:
         def on_success(notetype: NotetypeDict) -> None:
             # if legacy add-ons already added the notetype, skip adding
-            if notetype["id"]:
+            nid = notetype["id"]
+            if nid:
+                self.refresh_list(nid)
                 return
 
             # prompt for name
@@ -155,8 +177,11 @@ class Models(QDialog):
                 return
             notetype["name"] = text
 
+            def refresh_list(op: OpChangesWithId) -> None:
+                self.refresh_list(NotetypeId(op.id))
+
             add_notetype_legacy(parent=self, notetype=notetype).success(
-                self.refresh_list
+                refresh_list
             ).run_in_background()
 
         AddModel(self.mw, on_success, self)
@@ -179,7 +204,7 @@ class Models(QDialog):
 
         nt = self.current_notetype()
         remove_notetype(parent=self, notetype_id=nt["id"]).success(
-            lambda _: self.refresh_list()
+            lambda _: self.refresh_list(None)
         ).run_in_background()
 
     def onAdvanced(self) -> None:
@@ -203,7 +228,7 @@ class Models(QDialog):
         nt["latexPre"] = str(frm.latexHeader.toPlainText())
         nt["latexPost"] = str(frm.latexFooter.toPlainText())
         update_notetype_legacy(parent=self, notetype=nt).success(
-            self.refresh_list
+            lambda _: self.refresh_list(nt["id"])
         ).run_in_background()
 
     def _tmpNote(self) -> Note:
@@ -230,13 +255,13 @@ class Models(QDialog):
 
 
 class AddModel(QDialog):
-    model: Optional[NotetypeDict]
+    model: NotetypeDict | None
 
     def __init__(
         self,
         mw: AnkiQt,
         on_success: Callable[[NotetypeDict], None],
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
     ) -> None:
         self.parent_ = parent or mw
         self.mw = mw
@@ -248,9 +273,7 @@ class AddModel(QDialog):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         disable_help_button(self)
         # standard models
-        self.notetypes: list[
-            Union[NotetypeDict, Callable[[Collection], NotetypeDict]]
-        ] = []
+        self.notetypes: list[NotetypeDict | Callable[[Collection], NotetypeDict]] = []
         for name, func in stdmodels.get_stock_notetypes(self.col):
             item = QListWidgetItem(tr.notetypes_add(val=name))
             self.dialog.models.addItem(item)

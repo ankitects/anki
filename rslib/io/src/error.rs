@@ -35,6 +35,7 @@ pub enum FileOp {
     Sync,
     Metadata,
     DecodeUtf8Filename,
+    SetFileTimes,
     /// For legacy errors without any context.
     Unknown,
 }
@@ -48,7 +49,7 @@ impl FileOp {
 impl FileIoError {
     pub fn message(&self) -> String {
         format!(
-            "Failed to {} '{}':<br>{}",
+            "Failed to {} '{}': {}",
             match &self.op {
                 FileOp::Unknown => return format!("{}", self.source),
                 FileOp::Open => "open".into(),
@@ -61,6 +62,7 @@ impl FileIoError {
                 FileOp::Sync => "sync".into(),
                 FileOp::Metadata => "get metadata".into(),
                 FileOp::DecodeUtf8Filename => "decode utf8 filename".into(),
+                FileOp::SetFileTimes => "set file times".into(),
             },
             self.path.to_string_lossy(),
             self.source

@@ -8,7 +8,7 @@ import pprint
 import re
 import sys
 import time
-from typing import Callable
+from collections.abc import Callable, Sequence
 
 from anki import media_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated_keywords
@@ -33,9 +33,9 @@ class MediaManager(DeprecatedNamesMixin):
     sound_regexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
     html_media_regexps = [
         # src element quoted case
-        r"(?i)(<(?:img|audio)\b[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        r"(?i)(<(?:img|audio|source)\b[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
-        r"(?i)(<(?:img|audio)\b[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+        r"(?i)(<(?:img|audio|source)\b[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
         # src element quoted case
         r"(?i)(<object\b[^>]* data=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
@@ -76,7 +76,7 @@ class MediaManager(DeprecatedNamesMixin):
         return self.col._backend.strip_av_tags(text)
 
     def _extract_filenames(self, text: str) -> list[str]:
-        "This only exists do support a legacy function; do not use."
+        "This only exists to support a legacy function; do not use."
         out = self.col._backend.extract_av_tags(text=text, question_side=True)
         return [
             x.filename
@@ -149,6 +149,9 @@ class MediaManager(DeprecatedNamesMixin):
                     files.append(fname)
         return files
 
+    def extract_static_media_files(self, mid: NotetypeId) -> Sequence[str]:
+        return self.col._backend.extract_static_media_files(mid)
+
     def transform_names(self, txt: str, func: Callable) -> str:
         for reg in self.regexps:
             txt = re.sub(reg, func, txt)
@@ -176,9 +179,6 @@ class MediaManager(DeprecatedNamesMixin):
 
     def check(self) -> CheckMediaResponse:
         output = self.col._backend.check_media()
-        # files may have been renamed on disk, so an undo at this point could
-        # break file references
-        self.col.save()
         return output
 
     def render_all_latex(

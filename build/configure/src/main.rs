@@ -2,21 +2,27 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod aqt;
-mod bundle;
+mod audio;
+mod installer;
+mod launcher;
 mod platform;
 mod pylib;
 mod python;
 mod rust;
 mod web;
 
+use std::env;
+
 use anyhow::Result;
 use aqt::build_and_check_aqt;
-use bundle::build_bundle;
+use audio::build_audio;
+use installer::build_installer;
+use launcher::build_launcher;
 use ninja_gen::glob;
 use ninja_gen::inputs;
 use ninja_gen::protobuf::check_proto;
 use ninja_gen::protobuf::setup_protoc;
-use ninja_gen::python::setup_python;
+use ninja_gen::python::setup_uv;
 use ninja_gen::Build;
 use pylib::build_pylib;
 use pylib::check_pylib;
@@ -42,14 +48,21 @@ fn main() -> Result<()> {
     setup_protoc(build)?;
     check_proto(build, inputs![glob!["proto/**/*.proto"]])?;
 
-    setup_python(build)?;
+    if env::var("OFFLINE_BUILD").is_err() {
+        setup_uv(build, build.host_platform)?;
+    }
     setup_venv(build)?;
 
     build_rust(build)?;
     build_pylib(build)?;
     build_and_check_web(build)?;
     build_and_check_aqt(build)?;
-    build_bundle(build)?;
+
+    if env::var("OFFLINE_BUILD").is_err() {
+        build_launcher(build)?;
+        build_installer(build)?;
+        build_audio(build)?;
+    }
 
     check_rust(build)?;
     check_pylib(build)?;

@@ -6,10 +6,10 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use anki_proto::import_export::ExportNoteCsvRequest;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use regex::Regex;
 
 use super::metadata::Delimiter;
@@ -147,7 +147,7 @@ fn rendered_nodes_to_str(nodes: &[RenderedNode]) -> String {
         .join("")
 }
 
-fn field_to_record_field(field: &str, with_html: bool) -> Cow<str> {
+fn field_to_record_field(field: &str, with_html: bool) -> Cow<'_, str> {
     let mut text = strip_redundant_sections(field);
     if !with_html {
         text = text.map_cow(|t| html_to_text_line(t, false));
@@ -155,24 +155,23 @@ fn field_to_record_field(field: &str, with_html: bool) -> Cow<str> {
     text
 }
 
-fn strip_redundant_sections(text: &str) -> Cow<str> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+fn strip_redundant_sections(text: &str) -> Cow<'_, str> {
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(
             r"(?isx)
             <style>.*?</style>          # style elements
             |
             \[\[type:[^]]+\]\]          # type replacements
-            "
+            ",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     RE.replace_all(text.as_ref(), "")
 }
 
-fn strip_answer_side_question(text: &str) -> Cow<str> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"(?is)^.*<hr id=answer>\n*").unwrap();
-    }
+fn strip_answer_side_question(text: &str) -> Cow<'_, str> {
+    static RE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(?is)^.*<hr id=answer>\n*").unwrap());
     RE.replace_all(text.as_ref(), "")
 }
 
@@ -223,13 +222,23 @@ impl NoteContext {
     }
 
     fn deck_column(&self) -> Option<usize> {
-        self.with_deck
-            .then(|| 1 + self.notetype_column().unwrap_or_default())
+        self.with_deck.then(|| {
+            1 + self
+                .notetype_column()
+                .or_else(|| self.guid_column())
+                .unwrap_or_default()
+        })
     }
 
     fn tags_column(&self) -> Option<usize> {
-        self.with_tags
-            .then(|| 1 + self.deck_column().unwrap_or_default() + self.field_columns)
+        self.with_tags.then(|| {
+            1 + self
+                .deck_column()
+                .or_else(|| self.notetype_column())
+                .or_else(|| self.guid_column())
+                .unwrap_or_default()
+                + self.field_columns
+        })
     }
 
     fn record<'c, 's: 'c, 'n: 'c>(&'s self, note: &'n Note) -> impl Iterator<Item = Cow<'c, [u8]>> {
@@ -242,7 +251,7 @@ impl NoteContext {
             .chain(self.tags(note))
     }
 
-    fn notetype_name(&self, note: &Note) -> Option<Cow<[u8]>> {
+    fn notetype_name(&self, note: &Note) -> Option<Cow<'_, [u8]>> {
         self.with_notetype.then(|| {
             self.notetypes
                 .get(&note.notetype_id)
@@ -250,7 +259,7 @@ impl NoteContext {
         })
     }
 
-    fn deck_name(&self, note: &Note) -> Option<Cow<[u8]>> {
+    fn deck_name(&self, note: &Note) -> Option<Cow<'_, [u8]>> {
         self.with_deck.then(|| {
             self.deck_ids
                 .get(&note.id)
@@ -259,7 +268,7 @@ impl NoteContext {
         })
     }
 
-    fn tags(&self, note: &Note) -> Option<Cow<[u8]>> {
+    fn tags(&self, note: &Note) -> Option<Cow<'_, [u8]>> {
         self.with_tags
             .then(|| Cow::from(note.tags.join(" ").into_bytes()))
     }

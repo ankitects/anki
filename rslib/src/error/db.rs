@@ -67,7 +67,7 @@ impl From<Error> for AnkiError {
         }
         AnkiError::DbError {
             source: DbError {
-                info: format!("{:?}", err),
+                info: format!("{err:?}"),
                 kind: DbErrorKind::Other,
             },
         }
@@ -88,7 +88,7 @@ impl From<FromSqlError> for AnkiError {
         }
         AnkiError::DbError {
             source: DbError {
-                info: format!("{:?}", err),
+                info: format!("{err:?}"),
                 kind: DbErrorKind::Other,
             },
         }
@@ -101,7 +101,7 @@ impl DbError {
             DbErrorKind::Corrupt => self.info.clone(),
             // fixme: i18n
             DbErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
-            _ => format!("{:?}", self),
+            _ => format!("{self:?}"),
         }
     }
 }

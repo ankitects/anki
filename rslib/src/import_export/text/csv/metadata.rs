@@ -5,11 +5,12 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::io::Cursor;
 use std::io::Read;
 use std::io::Seek;
 use std::io::SeekFrom;
 
-use anki_io::open_file;
+use anki_io::read_to_string;
 pub use anki_proto::import_export::csv_metadata::Deck as CsvDeck;
 pub use anki_proto::import_export::csv_metadata::Delimiter;
 pub use anki_proto::import_export::csv_metadata::DupeResolution;
@@ -45,7 +46,8 @@ impl Collection {
         deck_id: Option<DeckId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let mut reader = open_file(path)?;
+        let text = read_to_string(path)?;
+        let mut reader = Cursor::new(text);
         let meta =
             self.get_reader_metadata(&mut reader, delimiter, notetype_id, deck_id, is_html)?;
         if meta.preview.is_empty() {
@@ -119,19 +121,34 @@ impl Collection {
     }
 
     fn parse_meta_value(&mut self, key: &str, value: &str, metadata: &mut CsvMetadata) {
+        // trim potential delimiters past the first char* if
+        // metadata line was mistakenly exported as a record
+        // *to allow cases like #separator:,
+        // ASSUMPTION: delimiters are not ascii-alphanumeric
+        let trimmed_value = value
+            .char_indices()
+            .nth(1)
+            .and_then(|(i, _)| {
+                value[i..] // SAFETY: char_indices are on char boundaries
+                    .find(|c| !char::is_ascii_alphanumeric(&c))
+                    .map(|j| value.split_at(i + j).0)
+            })
+            .unwrap_or(value);
+
         match key.trim().to_ascii_lowercase().as_str() {
             "separator" => {
-                if let Some(delimiter) = delimiter_from_value(value) {
+                if let Some(delimiter) = delimiter_from_value(trimmed_value) {
                     metadata.delimiter = delimiter as i32;
                     metadata.force_delimiter = true;
                 }
             }
             "html" => {
-                if let Ok(is_html) = value.to_lowercase().parse() {
+                if let Ok(is_html) = trimmed_value.to_lowercase().parse() {
                     metadata.is_html = is_html;
                     metadata.force_is_html = true;
                 }
             }
+            // freeform values cannot be trimmed thus without knowing the exact delimiter
             "tags" => metadata.global_tags = collect_tags(value),
             "columns" => {
                 if let Ok(columns) = parse_columns(value, metadata.delimiter()) {
@@ -146,25 +163,27 @@ impl Collection {
             "deck" => {
                 if let Ok(Some(did)) = self.deck_id_by_name_or_id(&NameOrId::parse(value)) {
                     metadata.deck = Some(CsvDeck::DeckId(did.0));
+                } else if !value.is_empty() {
+                    metadata.deck = Some(CsvDeck::DeckName(value.to_string()));
                 }
             }
             "notetype column" => {
-                if let Ok(n) = value.trim().parse() {
+                if let Ok(n) = trimmed_value.trim().parse() {
                     metadata.notetype = Some(CsvNotetype::NotetypeColumn(n));
                 }
             }
             "deck column" => {
-                if let Ok(n) = value.trim().parse() {
+                if let Ok(n) = trimmed_value.trim().parse() {
                     metadata.deck = Some(CsvDeck::DeckColumn(n));
                 }
             }
             "tags column" => {
-                if let Ok(n) = value.trim().parse() {
+                if let Ok(n) = trimmed_value.trim().parse() {
                     metadata.tags_column = n;
                 }
             }
             "guid column" => {
-                if let Ok(n) = value.trim().parse() {
+                if let Ok(n) = trimmed_value.trim().parse() {
                     metadata.guid_column = n;
                 }
             }
@@ -272,11 +291,8 @@ impl CsvMetadataHelpers for CsvMetadata {
                 .map(|&i| (i > 0).then_some(i as usize))
                 .collect(),
             CsvNotetype::NotetypeColumn(_) => {
-                let meta_columns = self.meta_columns();
-                (1..self.column_labels.len() + 1)
-                    .filter(|idx| !meta_columns.contains(idx))
-                    .map(Some)
-                    .collect()
+                // each row's notetype could have varying number of fields
+                vec![]
             }
         })
     }
@@ -306,7 +322,7 @@ pub(super) trait DupeResolutionExt: Sized {
 
 impl DupeResolutionExt for DupeResolution {
     fn from_config(col: &Collection) -> Self {
-        Self::from_i32(col.get_config_i32(I32ConfigKey::CsvDuplicateResolution)).unwrap_or_default()
+        Self::try_from(col.get_config_i32(I32ConfigKey::CsvDuplicateResolution)).unwrap_or_default()
     }
 
     fn from_text(text: &str) -> Option<Self> {
@@ -326,7 +342,7 @@ pub(super) trait MatchScopeExt: Sized {
 
 impl MatchScopeExt for MatchScope {
     fn from_config(col: &Collection) -> Self {
-        Self::from_i32(col.get_config_i32(I32ConfigKey::MatchScope)).unwrap_or_default()
+        Self::try_from(col.get_config_i32(I32ConfigKey::MatchScope)).unwrap_or_default()
     }
 
     fn from_text(text: &str) -> Option<Self> {
@@ -458,7 +474,7 @@ fn ensure_first_field_is_mapped(
 fn maybe_set_fallback_columns(metadata: &mut CsvMetadata) -> Result<()> {
     if metadata.column_labels.is_empty() {
         metadata.column_labels =
-            vec![String::new(); metadata.preview.get(0).map_or(0, |row| row.vals.len())];
+            vec![String::new(); metadata.preview.first().map_or(0, |row| row.vals.len())];
     }
     Ok(())
 }
@@ -495,9 +511,9 @@ fn maybe_set_tags_column(metadata: &mut CsvMetadata, meta_columns: &HashSet<usiz
     if metadata.tags_column == 0 {
         if let Some(CsvNotetype::GlobalNotetype(ref global)) = metadata.notetype {
             let max_field = global.field_columns.iter().max().copied().unwrap_or(0);
-            for idx in (max_field + 1) as usize..metadata.column_labels.len() {
+            for idx in (max_field + 1) as usize..=metadata.column_labels.len() {
                 if !meta_columns.contains(&idx) {
-                    metadata.tags_column = max_field + 1;
+                    metadata.tags_column = idx as u32;
                     break;
                 }
             }
@@ -609,6 +625,7 @@ pub(in crate::import_export) mod test {
     pub trait CsvMetadataTestExt {
         fn defaults_for_testing() -> Self;
         fn unwrap_deck_id(&self) -> i64;
+        fn unwrap_deck_name(&self) -> &str;
         fn unwrap_notetype_id(&self) -> i64;
         fn unwrap_notetype_map(&self) -> &[u32];
     }
@@ -643,6 +660,13 @@ pub(in crate::import_export) mod test {
             }
         }
 
+        fn unwrap_deck_name(&self) -> &str {
+            match &self.deck {
+                Some(CsvDeck::DeckName(name)) => name,
+                _ => panic!("no deck name"),
+            }
+        }
+
         fn unwrap_notetype_id(&self) -> i64 {
             match self.notetype {
                 Some(CsvNotetype::GlobalNotetype(ref nt)) => nt.id,
@@ -666,8 +690,11 @@ pub(in crate::import_export) mod test {
             metadata!(col, format!("#deck:{deck_id}\n")).unwrap_deck_id(),
             deck_id
         );
+        // unknown deck
+        assert_eq!(metadata!(col, "#deck:foo\n").unwrap_deck_name(), "foo");
+        assert_eq!(metadata!(col, "#deck:1234\n").unwrap_deck_name(), "1234");
         // fallback
-        assert_eq!(metadata!(col, "#deck:foo\n").unwrap_deck_id(), 1);
+        assert_eq!(metadata!(col, "#deck:\n").unwrap_deck_id(), 1);
         assert_eq!(metadata!(col, "\n").unwrap_deck_id(), 1);
     }
 
@@ -682,6 +709,35 @@ pub(in crate::import_export) mod test {
         assert_eq!(
             metadata!(col, &format!("#notetype:{basic_id}\n")).unwrap_notetype_id(),
             basic_id
+        );
+    }
+
+    #[test]
+    fn should_fallback_to_parsing_deck_ids_as_deck_names() {
+        let mut col = Collection::new();
+        let numeric_deck_id = col.get_or_create_normal_deck("123456789").unwrap().id.0;
+        let numeric_deck_2_id = col
+            .get_or_create_normal_deck(&numeric_deck_id.to_string())
+            .unwrap()
+            .id
+            .0;
+
+        assert_eq!(
+            metadata!(col, "#deck:123456789\n").unwrap_deck_id(),
+            numeric_deck_id
+        );
+        // parsed as id first, fallback to name after
+        assert_eq!(
+            metadata!(col, format!("#deck:{numeric_deck_id}\n")).unwrap_deck_id(),
+            numeric_deck_id
+        );
+        assert_eq!(
+            metadata!(col, format!("#deck:{numeric_deck_2_id}\n")).unwrap_deck_id(),
+            numeric_deck_2_id
+        );
+        assert_eq!(
+            metadata!(col, format!("#deck:1234\n")).unwrap_deck_name(),
+            "1234"
         );
     }
 
@@ -840,5 +896,52 @@ pub(in crate::import_export) mod test {
             Delimiter::Tab
         );
         assert_eq!(metadata!(col, "\u{feff}tags:foo\n").global_tags, ["foo"]);
+    }
+
+    #[test]
+    fn should_not_set_tags_column_if_all_are_field_columns() {
+        let meta_columns = Default::default();
+        let mut metadata = CsvMetadata::defaults_for_testing();
+        maybe_set_tags_column(&mut metadata, &meta_columns);
+        assert_eq!(metadata.tags_column, 0);
+    }
+
+    #[test]
+    fn should_set_tags_column_to_next_unused_column() {
+        let mut meta_columns = HashSet::default();
+        meta_columns.insert(3);
+        let mut metadata = CsvMetadata::defaults_for_testing();
+        metadata.column_labels.push(String::new());
+        metadata.column_labels.push(String::new());
+        maybe_set_tags_column(&mut metadata, &meta_columns);
+        assert_eq!(metadata.tags_column, 4);
+    }
+
+    #[test]
+    fn should_allow_non_freeform_metadata_lines_to_be_suffixed_by_delimiters() {
+        let mut col = Collection::new();
+        let metadata = metadata!(
+            col,
+            r#"
+#separator:Pipe,,,,,,,
+#html:true|||||
+#tags:foo bar::世界,,,
+#guid column:8   
+#tags column:123abc 
+        "#
+            .trim()
+        );
+        assert_eq!(metadata.delimiter(), Delimiter::Pipe);
+        assert!(metadata.is_html);
+        assert_eq!(metadata.guid_column, 8);
+        // tags is freeform, potential delimiters aren't trimmed
+        assert_eq!(metadata.global_tags, ["foo", "bar::世界,,,"]);
+        // ascii alphanumerics aren't trimmed away
+        assert_eq!(metadata.tags_column, 0);
+
+        assert_eq!(
+            metadata!(col, "#separator:\t|,:\n").delimiter(),
+            Delimiter::Tab
+        );
     }
 }

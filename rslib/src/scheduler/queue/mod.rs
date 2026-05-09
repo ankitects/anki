@@ -23,6 +23,7 @@ use self::undo::QueueUpdate;
 use super::states::SchedulingStates;
 use super::timing::SchedTimingToday;
 use crate::prelude::*;
+use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::timestamp::TimestampSecs;
 
 #[derive(Debug)]
@@ -37,6 +38,7 @@ pub(crate) struct CardQueues {
     /// counts are zero. Ensures we don't show a newly-due learning card after a
     /// user returns from editing a review card.
     current_learning_cutoff: TimestampSecs,
+    pub(crate) load_balancer: Option<LoadBalancer>,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -80,7 +82,7 @@ pub(crate) struct BuryMode {
 impl Collection {
     pub fn get_next_card(&mut self) -> Result<Option<QueuedCard>> {
         self.get_queued_cards(1, false)
-            .map(|queued| queued.cards.get(0).cloned())
+            .map(|queued| queued.cards.first().cloned())
     }
 
     pub fn get_queued_cards(
@@ -157,17 +159,13 @@ impl CardQueues {
     /// Remove the provided card from the top of the queues and
     /// adjust the counts. If it was not at the top, return an error.
     fn pop_entry(&mut self, id: CardId) -> Result<QueueEntry> {
-        // This ignores the current cutoff, so may match if the provided
-        // learning card is not yet due. It should not happen in normal
-        // practice, but does happen in the Python unit tests, as they answer
-        // learning cards early.
-        if self
-            .intraday_learning
-            .front()
-            .filter(|e| e.id == id)
-            .is_some()
-        {
-            Ok(self.pop_intraday_learning().unwrap().into())
+        if let Some(pos) = self.intraday_learning.iter().position(|e| e.id == id) {
+            let entry = self.intraday_learning.remove(pos).unwrap();
+            // FIXME:
+            // under normal circumstances this should not go below 0, but currently
+            // the Python unit tests answer learning cards before they're due
+            self.counts.learning = self.counts.learning.saturating_sub(1);
+            Ok(entry.into())
         } else if self.main.front().filter(|e| e.id == id).is_some() {
             Ok(self.pop_main().unwrap().into())
         } else {
@@ -216,10 +214,15 @@ impl Collection {
         &mut self,
         card: &Card,
         timing: SchedTimingToday,
+        is_finished_preview: bool,
     ) -> Result<()> {
         if let Some(queues) = &mut self.state.card_queues {
             let entry = queues.pop_entry(card.id)?;
-            let requeued_learning = queues.maybe_requeue_learning_card(card, timing);
+            let requeued_learning = if is_finished_preview {
+                None
+            } else {
+                queues.maybe_requeue_learning_card(card, timing)
+            };
             let cutoff_snapshot = queues.update_learning_cutoff_and_count();
             let queue_build_time = queues.build_time;
             self.save_queue_update_undo(Box::new(QueueUpdate {

@@ -11,13 +11,13 @@ use anki_proto_gen::BackendService;
 use anki_proto_gen::Method;
 use anyhow::Result;
 use inflections::Inflect;
+use itertools::Itertools;
 
 pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
-    let root = Path::new("../../out/ts/lib");
+    let root = Path::new("../../out/ts/lib/generated");
     create_dir_all(root)?;
 
-    let mut dts_out = String::new();
-    let mut js_out = String::new();
+    let mut ts_out = String::new();
     let mut referenced_packages = HashSet::new();
 
     for service in services {
@@ -29,37 +29,33 @@ pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
             let method = MethodDetails::from_method(method);
             record_referenced_type(&mut referenced_packages, &method.input_type);
             record_referenced_type(&mut referenced_packages, &method.output_type);
-            write_dts_method(&method, &mut dts_out);
-            write_js_method(&method, &mut js_out);
+            write_ts_method(&method, &mut ts_out);
         }
     }
 
     let imports = imports(referenced_packages);
     write_file_if_changed(
-        root.join("backend.d.ts"),
-        format!("{}{}{}", dts_header(), imports, dts_out),
-    )?;
-    write_file_if_changed(
-        root.join("backend.js"),
-        format!("{}{}{}", js_header(), imports, js_out),
+        root.join("backend.ts"),
+        format!("{}{}{}", ts_header(), imports, ts_out),
     )?;
 
     Ok(())
 }
 
-fn dts_header() -> String {
+fn ts_header() -> String {
     r#"// Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; https://www.gnu.org/licenses/agpl.html
 
 import type { PlainMessage } from "@bufbuild/protobuf";
 import type { PostProtoOptions } from "./post";
+import { postProto } from "./post";
 "#
     .into()
 }
 
 fn imports(referenced_packages: HashSet<String>) -> String {
     let mut out = String::new();
-    for package in referenced_packages {
+    for package in referenced_packages.iter().sorted() {
         writeln!(
             &mut out,
             "import * as {} from \"./anki/{}_pb\";",
@@ -71,7 +67,7 @@ fn imports(referenced_packages: HashSet<String>) -> String {
     out
 }
 
-fn write_dts_method(
+fn write_ts_method(
     MethodDetails {
         method_name,
         input_type,
@@ -83,36 +79,10 @@ fn write_dts_method(
     let comments = format_comments(comments);
     writeln!(
         out,
-        r#"{comments}export declare function {method_name}(input: PlainMessage<{input_type}>, options?: PostProtoOptions): Promise<{output_type}>;"#
+        r#"{comments}export async function {method_name}(input: PlainMessage<{input_type}>, options?: PostProtoOptions): Promise<{output_type}> {{
+        return await postProto("{method_name}", new {input_type}(input), {output_type}, options);
+}}"#
     ).unwrap()
-}
-
-fn js_header() -> String {
-    r#"// Copyright: Ankitects Pty Ltd and contributors
-// License: GNU AGPL, version 3 or later; https://www.gnu.org/licenses/agpl.html
-
-import { postProto } from "./post";
-"#
-    .into()
-}
-
-fn write_js_method(
-    MethodDetails {
-        method_name,
-        input_type,
-        output_type,
-        ..
-    }: &MethodDetails,
-    out: &mut String,
-) {
-    write!(
-        out,
-        r#"export async function {method_name}(input, options = {{}}) {{
-    return await postProto("{method_name}", new {input_type}(input), {output_type}, options);
-}}
-"#
-    )
-    .unwrap();
 }
 
 fn format_comments(comments: &Option<String>) -> String {

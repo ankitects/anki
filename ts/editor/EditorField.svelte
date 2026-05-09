@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         description: string;
         collapsed: boolean;
         hidden: boolean;
+        isClozeField: boolean;
     }
 
     export interface EditorFieldAPI {
@@ -26,8 +27,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerPackage } from "@tslib/runtime-require";
 
-    import contextProperty from "../sveltelib/context-property";
-    import lifecycleHooks from "../sveltelib/lifecycle-hooks";
+    import contextProperty from "$lib/sveltelib/context-property";
+    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
 
     const key = Symbol("editorField");
     const [context, setContextProperty] = contextProperty<EditorFieldAPI>(key);
@@ -50,7 +51,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import Collapsible from "../components/Collapsible.svelte";
+    import Collapsible from "$lib/components/Collapsible.svelte";
+
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
 
@@ -59,6 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let collapsed = false;
     export let flipInputs = false;
     export let dupe = false;
+    export let index;
 
     const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
@@ -80,6 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         element,
         direction: directionStore,
         editingArea: editingArea as EditingAreaAPI,
+        isClozeField: field.isClozeField,
     });
 
     setContextProperty(api);
@@ -88,7 +92,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => api?.destroy());
 </script>
 
-<div class="field-container" class:hide={field.hidden} on:mouseenter on:mouseleave>
+<div
+    class="field-container"
+    class:hide={field.hidden}
+    on:mouseenter
+    on:mouseleave
+    role="presentation"
+    data-index={index}
+>
     <slot name="field-label" />
 
     <Collapsible collapse={collapsed} let:collapsed={hidden}>
@@ -119,7 +130,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "sass/elevation" as *;
+    @use "../lib/sass/elevation" as *;
 
     /* Make sure labels are readable on custom Qt backgrounds */
     .field-container {

@@ -3,7 +3,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 import anki.collection
 import anki.models
@@ -11,7 +12,6 @@ from anki import notetypes_pb2
 from anki._legacy import DeprecatedNamesMixinForModule
 from anki.utils import from_json_bytes
 
-# pylint: disable=no-member
 StockNotetypeKind = notetypes_pb2.StockNotetype.Kind
 
 # add-on authors can add ("note type name", function)
@@ -38,6 +38,7 @@ def get_stock_notetypes(
         StockNotetypeKind.KIND_BASIC_OPTIONAL_REVERSED,
         StockNotetypeKind.KIND_BASIC_TYPING,
         StockNotetypeKind.KIND_CLOZE,
+        StockNotetypeKind.KIND_IMAGE_OCCLUSION,
     ]:
         note_type = from_json_bytes(col._backend.get_stock_notetype_legacy(kind))
 

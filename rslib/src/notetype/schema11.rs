@@ -64,6 +64,8 @@ pub struct NotetypeSchema11 {
     pub(crate) req: CardRequirementsSchema11,
     #[serde(default, skip_serializing_if = "is_default")]
     pub(crate) original_stock_kind: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub(crate) original_id: Option<i64>,
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -109,6 +111,7 @@ impl From<NotetypeSchema11> for Notetype {
                 latex_svg: nt.latexsvg,
                 reqs: nt.req.0.into_iter().map(Into::into).collect(),
                 original_stock_kind: nt.original_stock_kind,
+                original_id: nt.original_id,
                 other: other_to_bytes(&nt.other),
             },
             fields: nt.flds.into_iter().map(Into::into).collect(),
@@ -123,7 +126,7 @@ fn other_to_bytes(other: &HashMap<String, Value>) -> Vec<u8> {
     } else {
         serde_json::to_vec(other).unwrap_or_else(|e| {
             // theoretically should never happen
-            println!("serialization failed for {:?}: {}", other, e);
+            println!("serialization failed for {other:?}: {e}");
             vec![]
         })
     }
@@ -137,7 +140,7 @@ pub(crate) fn parse_other_fields(
         Default::default()
     } else {
         let mut map: HashMap<String, Value> = serde_json::from_slice(bytes).unwrap_or_else(|e| {
-            println!("deserialization failed for other: {}", e);
+            println!("deserialization failed for other: {e}");
             Default::default()
         });
         map.retain(|k, _v| !reserved.contains(k));
@@ -172,6 +175,7 @@ impl From<Notetype> for NotetypeSchema11 {
             latexsvg: c.latex_svg,
             req: CardRequirementsSchema11(c.reqs.into_iter().map(Into::into).collect()),
             original_stock_kind: c.original_stock_kind,
+            original_id: c.original_id,
             other: parse_other_fields(&c.other, &RESERVED_NOTETYPE_KEYS),
         }
     }
@@ -182,6 +186,7 @@ static RESERVED_NOTETYPE_KEYS: Set<&'static str> = phf_set! {
     "flds",
     "css",
     "originalStockKind",
+    "originalId",
     "id",
     "usn",
     "mod",
@@ -235,7 +240,7 @@ pub struct NoteFieldSchema11 {
     pub(crate) font: String,
     pub(crate) size: u16,
 
-    // This was not in schema 11, but needs to be listed here so that the setting is not lost
+    // These were not in schema 11, but need to be listed here so that the setting is not lost
     // on downgrade/upgrade.
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) description: String,
@@ -248,6 +253,15 @@ pub struct NoteFieldSchema11 {
 
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) exclude_from_search: bool,
+
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) id: Option<i64>,
+
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) tag: Option<u32>,
+
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) prevent_deletion: bool,
 
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
@@ -266,6 +280,9 @@ impl Default for NoteFieldSchema11 {
             description: String::new(),
             collapsed: false,
             exclude_from_search: false,
+            id: None,
+            tag: None,
+            prevent_deletion: false,
             other: Default::default(),
         }
     }
@@ -285,6 +302,9 @@ impl From<NoteFieldSchema11> for NoteField {
                 description: f.description,
                 collapsed: f.collapsed,
                 exclude_from_search: f.exclude_from_search,
+                id: f.id,
+                tag: f.tag,
+                prevent_deletion: f.prevent_deletion,
                 other: other_to_bytes(&f.other),
             },
         }
@@ -305,6 +325,9 @@ impl From<NoteField> for NoteFieldSchema11 {
             description: conf.description,
             collapsed: conf.collapsed,
             exclude_from_search: conf.exclude_from_search,
+            id: conf.id,
+            tag: conf.tag,
+            prevent_deletion: conf.prevent_deletion,
             other: parse_other_fields(&conf.other, &RESERVED_FIELD_KEYS),
         }
     }
@@ -321,6 +344,9 @@ static RESERVED_FIELD_KEYS: Set<&'static str> = phf_set! {
     "collapsed",
     "description",
     "excludeFromSearch",
+    "id",
+    "tag",
+    "preventDeletion",
 };
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
@@ -340,6 +366,8 @@ pub struct CardTemplateSchema11 {
     pub(crate) bfont: String,
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) bsize: u8,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) id: Option<i64>,
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -359,6 +387,7 @@ impl From<CardTemplateSchema11> for CardTemplate {
                 target_deck_id: t.did.unwrap_or(DeckId(0)).0,
                 browser_font_name: t.bfont,
                 browser_font_size: t.bsize as u32,
+                id: t.id,
                 other: other_to_bytes(&t.other),
             },
         }
@@ -382,6 +411,7 @@ impl From<CardTemplate> for CardTemplateSchema11 {
             },
             bfont: conf.browser_font_name,
             bsize: conf.browser_font_size as u8,
+            id: conf.id,
             other: parse_other_fields(&conf.other, &RESERVED_TEMPLATE_KEYS),
         }
     }
@@ -397,6 +427,7 @@ static RESERVED_TEMPLATE_KEYS: Set<&'static str> = phf_set! {
     "bqfmt",
     "bfont",
     "bsize",
+    "id",
 };
 
 #[cfg(test)]

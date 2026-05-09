@@ -1,35 +1,39 @@
 # all-features = true
 # features = []
-no-default-features = false
-feature-depth = 1
 
 [advisories]
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
-vulnerability = "deny"
-unmaintained = "warn"
-yanked = "warn"
-notice = "warn"
 ignore = [
-
+  # burn depends on an unmaintained package 'paste'
+  "RUSTSEC-2024-0436",
+  # bincode is unmaintained (via burn). Alternatives: postcard, bitcode, rkyv, wincode
+  "RUSTSEC-2025-0141",
+  # rustls-pemfile is unmaintained. Alternative: use rustls-pki-types directly (PemObject trait)
+  "RUSTSEC-2025-0134",
+  # unic-* crates are unmaintained (used for Unicode category detection).
+  # Alternative: icu_properties
+  "RUSTSEC-2025-0081", # unic-char-property
+  "RUSTSEC-2025-0075", # unic-char-range (or use native Rust char ranges since 1.45.0)
+  "RUSTSEC-2025-0080", # unic-common
+  "RUSTSEC-2025-0094", # unic-ucd-category
+  "RUSTSEC-2025-0098", # unic-ucd-version
 ]
 
 [licenses]
-unlicensed = "deny"
-copyleft = "deny"
-allow-osi-fsf-free = "neither"
-default = "deny"
 allow = [
   "MIT",
   "Apache-2.0",
   "Apache-2.0 WITH LLVM-exception",
+  "CDLA-Permissive-2.0",
   "ISC",
   "MPL-2.0",
-  "Unicode-DFS-2016",
   "BSD-2-Clause",
   "BSD-3-Clause",
-  "OpenSSL",
   "CC0-1.0",
+  "Unlicense",
+  "Zlib",
+  "Unicode-3.0",
 ]
 confidence-threshold = 0.8
 # eg { allow = ["Zlib"], name = "adler32", version = "*" },
@@ -55,7 +59,7 @@ allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 github = ["ankitects"]
 
 [bans]
-multiple-versions = "warn"
+multiple-versions = "allow"
 wildcards = "allow"
 highlight = "all"
 workspace-default-features = "allow"

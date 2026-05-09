@@ -251,6 +251,7 @@ impl From<FilteredDeckForUpdate> for anki_proto::decks::FilteredDeckForUpdate {
             id: deck.id.into(),
             name: deck.human_name,
             config: Some(deck.config),
+            allow_empty: deck.allow_empty,
         }
     }
 }
@@ -261,6 +262,7 @@ impl From<anki_proto::decks::FilteredDeckForUpdate> for FilteredDeckForUpdate {
             id: deck.id.into(),
             human_name: deck.name,
             config: deck.config.unwrap_or_default(),
+            allow_empty: deck.allow_empty,
         }
     }
 }

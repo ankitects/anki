@@ -7,6 +7,7 @@ use rusqlite::params;
 use rusqlite::types::FromSql;
 use rusqlite::types::FromSqlError;
 use rusqlite::types::ValueRef;
+use rusqlite::OptionalExtension;
 use rusqlite::Row;
 
 use super::SqliteStorage;
@@ -93,6 +94,15 @@ impl SqliteStorage {
             .transpose()
     }
 
+    /// Determine the the last review time based on the revlog.
+    pub(crate) fn time_of_last_review(&self, card_id: CardId) -> Result<Option<TimestampSecs>> {
+        self.db
+            .prepare_cached(include_str!("time_of_last_review.sql"))?
+            .query_row([card_id], |row| row.get(0))
+            .optional()
+            .map_err(Into::into)
+    }
+
     /// Only intended to be used by the undo code, as Anki can not sync revlog
     /// deletions.
     pub(crate) fn remove_revlog_entry(&self, id: RevlogId) -> Result<()> {
@@ -132,10 +142,40 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn get_revlog_entries_for_searched_cards_in_card_order(
+        &self,
+    ) -> Result<Vec<RevlogEntry>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " where cid in (select cid from search_cids) order by cid, id"
+            ))?
+            .query_and_then([], row_to_revlog_entry)?
+            .collect()
+    }
+
+    pub(crate) fn get_revlog_entries_for_export_dataset(&self) -> Result<Vec<RevlogEntry>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " where (ease between 1 and 4) or (ease = 0 and factor = 0)",
+                " order by cid, id"
+            ))?
+            .query_and_then([], row_to_revlog_entry)?
+            .collect()
+    }
+
+    pub(crate) fn get_all_revlog_entries_in_card_order(&self) -> Result<Vec<RevlogEntry>> {
+        self.db
+            .prepare_cached(concat!(include_str!("get.sql"), " order by cid, id"))?
+            .query_and_then([], row_to_revlog_entry)?
+            .collect()
+    }
+
     pub(crate) fn get_all_revlog_entries(&self, after: TimestampSecs) -> Result<Vec<RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id >= ?"))?
-            .query_and_then([after.0 * 1000], |r| row_to_revlog_entry(r).map(Into::into))?
+            .query_and_then([after.0 * 1000], row_to_revlog_entry)?
             .collect()
     }
 
@@ -143,17 +183,36 @@ impl SqliteStorage {
         let start = day_cutoff.adding_secs(-86_400).as_millis();
         self.db
             .prepare_cached(include_str!("studied_today.sql"))?
-            .query_map([start.0, RevlogReviewKind::Manual as i64], |row| {
-                Ok(StudiedToday {
-                    cards: row.get(0)?,
-                    seconds: row.get(1)?,
-                })
-            })?
+            .query_map(
+                [
+                    start.0,
+                    RevlogReviewKind::Manual as i64,
+                    RevlogReviewKind::Rescheduled as i64,
+                ],
+                |row| {
+                    Ok(StudiedToday {
+                        cards: row.get(0)?,
+                        seconds: row.get(1)?,
+                    })
+                },
+            )?
             .next()
             .unwrap()
             .map_err(Into::into)
     }
 
+    pub(crate) fn studied_today_by_deck(
+        &self,
+        day_cutoff: TimestampSecs,
+    ) -> Result<Vec<(DeckId, usize)>> {
+        let start = day_cutoff.adding_secs(-86_400).as_millis();
+        self.db
+            .prepare_cached(include_str!("studied_today_by_deck.sql"))?
+            .query_and_then([start.0], |row| -> Result<_> {
+                Ok((DeckId(row.get(0)?), row.get(1)?))
+            })?
+            .collect()
+    }
     pub(crate) fn upgrade_revlog_to_v2(&self) -> Result<()> {
         self.db
             .execute_batch(include_str!("v2_upgrade.sql"))

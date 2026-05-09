@@ -4,13 +4,31 @@
 mod answering;
 mod states;
 
+use anki_proto::cards;
 use anki_proto::generic;
 use anki_proto::scheduler;
+use anki_proto::scheduler::ComputeFsrsParamsResponse;
+use anki_proto::scheduler::ComputeMemoryStateResponse;
+use anki_proto::scheduler::ComputeOptimalRetentionResponse;
+use anki_proto::scheduler::FsrsBenchmarkResponse;
+use anki_proto::scheduler::FuzzDeltaRequest;
+use anki_proto::scheduler::FuzzDeltaResponse;
+use anki_proto::scheduler::GetOptimalRetentionParametersResponse;
+use anki_proto::scheduler::SimulateFsrsReviewRequest;
+use anki_proto::scheduler::SimulateFsrsReviewResponse;
+use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
+use fsrs::ComputeParametersInput;
+use fsrs::FSRSItem;
+use fsrs::FSRSReview;
+use fsrs::FSRS;
 
+use crate::backend::Backend;
 use crate::prelude::*;
+use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::scheduler::new::NewCardDueOrder;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::SchedulingStates;
+use crate::search::SortMode;
 use crate::stats::studied_today;
 
 impl crate::services::SchedulerService for Collection {
@@ -39,7 +57,7 @@ impl crate::services::SchedulerService for Collection {
         self.transact_no_undo(|col| {
             let today = col.current_due_day(0)?;
             let usn = col.usn()?;
-            col.update_deck_stats(today, usn, input).map(Into::into)
+            col.update_deck_stats(today, usn, input)
         })
     }
 
@@ -54,7 +72,6 @@ impl crate::services::SchedulerService for Collection {
                 input.new_delta,
                 input.review_delta,
             )
-            .map(Into::into)
         })
     }
 
@@ -125,7 +142,7 @@ impl crate::services::SchedulerService for Collection {
             input.reset_counts,
             input
                 .context
-                .and_then(scheduler::schedule_cards_as_new_request::Context::from_i32),
+                .and_then(|s| scheduler::schedule_cards_as_new_request::Context::try_from(s).ok()),
         )
         .map(Into::into)
     }
@@ -148,6 +165,14 @@ impl crate::services::SchedulerService for Collection {
         let days = input.days;
         let cids = input.card_ids.into_newtype(CardId);
         self.set_due_date(&cids, &days, config).map(Into::into)
+    }
+
+    fn grade_now(
+        &mut self,
+        input: scheduler::GradeNowRequest,
+    ) -> Result<anki_proto::collection::OpChanges> {
+        self.grade_now(&input.card_ids.into_newtype(CardId), input.rating)
+            .map(Into::into)
     }
 
     fn sort_cards(
@@ -213,7 +238,6 @@ impl crate::services::SchedulerService for Collection {
 
     fn upgrade_scheduler(&mut self) -> Result<()> {
         self.transact_no_undo(|col| col.upgrade_to_v2_scheduler())
-            .map(Into::into)
     }
 
     fn get_queued_cards(
@@ -236,5 +260,192 @@ impl crate::services::SchedulerService for Collection {
         input: scheduler::CustomStudyDefaultsRequest,
     ) -> Result<scheduler::CustomStudyDefaultsResponse> {
         self.custom_study_defaults(input.deck_id.into())
+    }
+
+    fn compute_fsrs_params(
+        &mut self,
+        input: scheduler::ComputeFsrsParamsRequest,
+    ) -> Result<scheduler::ComputeFsrsParamsResponse> {
+        self.compute_params(ComputeParamsRequest {
+            search: &input.search,
+            ignore_revlogs_before_ms: input.ignore_revlogs_before_ms.into(),
+            current_preset: 1,
+            total_presets: 1,
+            current_params: &input.current_params,
+            num_of_relearning_steps: input.num_of_relearning_steps as usize,
+            health_check: input.health_check,
+        })
+    }
+
+    fn simulate_fsrs_review(
+        &mut self,
+        input: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsReviewResponse> {
+        self.simulate_review(input)
+    }
+
+    fn simulate_fsrs_workload(
+        &mut self,
+        input: SimulateFsrsReviewRequest,
+    ) -> Result<SimulateFsrsWorkloadResponse> {
+        self.simulate_workload(input)
+    }
+
+    fn compute_optimal_retention(
+        &mut self,
+        input: SimulateFsrsReviewRequest,
+    ) -> Result<ComputeOptimalRetentionResponse> {
+        Ok(ComputeOptimalRetentionResponse {
+            optimal_retention: self.compute_optimal_retention(input)?,
+        })
+    }
+
+    fn evaluate_params(
+        &mut self,
+        input: scheduler::EvaluateParamsRequest,
+    ) -> Result<scheduler::EvaluateParamsResponse> {
+        let ret = self.evaluate_params(
+            &input.search,
+            input.ignore_revlogs_before_ms.into(),
+            input.num_of_relearning_steps as usize,
+        )?;
+        Ok(scheduler::EvaluateParamsResponse {
+            log_loss: ret.log_loss,
+            rmse_bins: ret.rmse_bins,
+        })
+    }
+
+    fn evaluate_params_legacy(
+        &mut self,
+        input: scheduler::EvaluateParamsLegacyRequest,
+    ) -> Result<scheduler::EvaluateParamsResponse> {
+        let ret = self.evaluate_params_legacy(
+            &input.params,
+            &input.search,
+            input.ignore_revlogs_before_ms.into(),
+        )?;
+        Ok(scheduler::EvaluateParamsResponse {
+            log_loss: ret.log_loss,
+            rmse_bins: ret.rmse_bins,
+        })
+    }
+
+    fn get_optimal_retention_parameters(
+        &mut self,
+        input: scheduler::GetOptimalRetentionParametersRequest,
+    ) -> Result<scheduler::GetOptimalRetentionParametersResponse> {
+        let revlogs = self
+            .search_cards_into_table(&input.search, SortMode::NoOrder)?
+            .col
+            .storage
+            .get_revlog_entries_for_searched_cards_in_card_order()?;
+        let simulator_config = self.get_optimal_retention_parameters(revlogs)?;
+        Ok(GetOptimalRetentionParametersResponse {
+            deck_size: simulator_config.deck_size as u32,
+            learn_span: simulator_config.learn_span as u32,
+            max_cost_perday: simulator_config.max_cost_perday,
+            max_ivl: simulator_config.max_ivl,
+            first_rating_prob: simulator_config.first_rating_prob.to_vec(),
+            review_rating_prob: simulator_config.review_rating_prob.to_vec(),
+            loss_aversion: 1.0,
+            learn_limit: simulator_config.learn_limit as u32,
+            review_limit: simulator_config.review_limit as u32,
+            learning_step_transitions: simulator_config
+                .learning_step_transitions
+                .iter()
+                .flatten()
+                .cloned()
+                .collect(),
+            relearning_step_transitions: simulator_config
+                .relearning_step_transitions
+                .iter()
+                .flatten()
+                .cloned()
+                .collect(),
+            state_rating_costs: simulator_config
+                .state_rating_costs
+                .iter()
+                .flatten()
+                .cloned()
+                .collect(),
+            learning_step_count: simulator_config.learning_step_count as u32,
+            relearning_step_count: simulator_config.relearning_step_count as u32,
+        })
+    }
+
+    fn compute_memory_state(&mut self, input: cards::CardId) -> Result<ComputeMemoryStateResponse> {
+        self.compute_memory_state(input.into())
+    }
+
+    fn fuzz_delta(&mut self, input: FuzzDeltaRequest) -> Result<FuzzDeltaResponse> {
+        Ok(FuzzDeltaResponse {
+            delta_days: self.get_fuzz_delta(input.card_id.into(), input.interval)?,
+        })
+    }
+}
+
+impl crate::services::BackendSchedulerService for Backend {
+    fn compute_fsrs_params_from_items(
+        &self,
+        req: scheduler::ComputeFsrsParamsFromItemsRequest,
+    ) -> Result<scheduler::ComputeFsrsParamsResponse> {
+        let fsrs = FSRS::new(None)?;
+        let fsrs_items = req.items.len() as u32;
+        let params = fsrs.compute_parameters(ComputeParametersInput {
+            train_set: req.items.into_iter().map(fsrs_item_proto_to_fsrs).collect(),
+            progress: None,
+            enable_short_term: true,
+            num_relearning_steps: None,
+        })?;
+        Ok(ComputeFsrsParamsResponse {
+            params,
+            fsrs_items,
+            health_check_passed: None,
+        })
+    }
+
+    fn fsrs_benchmark(
+        &self,
+        req: scheduler::FsrsBenchmarkRequest,
+    ) -> Result<scheduler::FsrsBenchmarkResponse> {
+        let fsrs = FSRS::new(None)?;
+        let train_set = req
+            .train_set
+            .into_iter()
+            .map(fsrs_item_proto_to_fsrs)
+            .collect();
+        let params = fsrs.benchmark(ComputeParametersInput {
+            train_set,
+            progress: None,
+            enable_short_term: true,
+            num_relearning_steps: None,
+        });
+        Ok(FsrsBenchmarkResponse { params })
+    }
+
+    fn export_dataset(&self, req: scheduler::ExportDatasetRequest) -> Result<()> {
+        self.with_col(|col| {
+            col.export_dataset(
+                req.min_entries.try_into().unwrap(),
+                req.target_path.as_ref(),
+            )
+        })
+    }
+}
+
+fn fsrs_item_proto_to_fsrs(item: anki_proto::scheduler::FsrsItem) -> FSRSItem {
+    FSRSItem {
+        reviews: item
+            .reviews
+            .into_iter()
+            .map(fsrs_review_proto_to_fsrs)
+            .collect(),
+    }
+}
+
+fn fsrs_review_proto_to_fsrs(review: anki_proto::scheduler::FsrsReview) -> FSRSReview {
+    FSRSReview {
+        delta_t: review.delta_t,
+        rating: review.rating,
     }
 }

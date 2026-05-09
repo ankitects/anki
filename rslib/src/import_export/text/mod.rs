@@ -39,7 +39,9 @@ pub struct ForeignNote {
 #[derive(Debug, Clone, Copy, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ForeignCard {
-    pub due: i32,
+    /// Seconds-based timestamp
+    pub due: i64,
+    /// In days
     pub interval: u32,
     pub ease_factor: f32,
     pub reps: u32,
@@ -78,6 +80,15 @@ impl Default for NameOrId {
 impl From<String> for NameOrId {
     fn from(s: String) -> Self {
         Self::Name(s)
+    }
+}
+
+impl std::fmt::Display for NameOrId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            NameOrId::Id(did) => write!(f, "{did}"),
+            NameOrId::Name(name) => write!(f, "{name}"),
+        }
     }
 }
 

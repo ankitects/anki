@@ -3,14 +3,10 @@
 
 from __future__ import annotations
 
-import os
-from typing import Optional
-
 import aqt
 import aqt.forms
 import aqt.operations
 from anki.collection import OpChanges
-from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict
 from aqt import AnkiQt, gui_hooks
@@ -23,11 +19,10 @@ from aqt.utils import (
     disable_help_button,
     getOnlyText,
     openHelp,
-    showWarning,
+    show_warning,
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebViewKind
 
 
 class FieldDialog(QDialog):
@@ -35,7 +30,7 @@ class FieldDialog(QDialog):
         self,
         mw: AnkiQt,
         nt: NotetypeDict,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         open_at: int = 0,
     ) -> None:
         QDialog.__init__(self, parent or mw)
@@ -46,48 +41,37 @@ class FieldDialog(QDialog):
         self.model = nt
         self.mm._remove_from_cache(self.model["id"])
         self.change_tracker = ChangeTracker(self.mw)
+        self.webview = None
+
+        self.form = aqt.forms.fields.Ui_Dialog()
+        self.form.setupUi(self)
 
         self.setWindowTitle(
             without_unicode_isolation(tr.fields_fields_for(val=self.model["name"]))
         )
 
-        if os.getenv("ANKI_EXPERIMENTAL_FIELDS_WEB"):
-            form = aqt.forms.fields_web.Ui_Dialog()
-            form.setupUi(self)
-
-            self.webview = form.webview
-            self.webview.set_kind(AnkiWebViewKind.FIELDS)
-
-            self.show()
-            self.refresh()
-            self.webview.set_bridge_command(self._on_bridge_cmd, self)
-            self.activateWindow()
-            return
-
-        self.form = aqt.forms.fields.Ui_Dialog()
-        self.form.setupUi(self)
-        self.webview = None
-
         disable_help_button(self)
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help).setAutoDefault(
-            False
-        )
-        self.form.buttonBox.button(
+        help_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help)
+        assert help_button is not None
+        help_button.setAutoDefault(False)
+
+        cancel_button = self.form.buttonBox.button(
             QDialogButtonBox.StandardButton.Cancel
-        ).setAutoDefault(False)
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Save).setAutoDefault(
-            False
         )
-        self.currentIdx: Optional[int] = None
+        assert cancel_button is not None
+        cancel_button.setAutoDefault(False)
+
+        save_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Save)
+        assert save_button is not None
+        save_button.setAutoDefault(False)
+
+        self.currentIdx: int | None = None
         self.fillFields()
         self.setupSignals()
         self.form.fieldList.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
         self.form.fieldList.setCurrentRow(open_at)
         self.exec()
-
-    def refresh(self) -> None:
-        self.webview.load_ts_page("fields")
 
     def _on_bridge_cmd(self, cmd: str) -> bool:
         return False
@@ -129,7 +113,11 @@ class FieldDialog(QDialog):
             movePos = dropPos
         elif indicatorPos == QAbstractItemView.DropIndicatorPosition.BelowItem:
             movePos = dropPos + 1
+        else:
+            # for pylint
+            return
         # the item in idx is removed thus subtract 1.
+        assert idx is not None
         if idx < dropPos:
             movePos -= 1
         self.moveField(movePos + 1)  # convert to 1 based.
@@ -140,31 +128,32 @@ class FieldDialog(QDialog):
         self.saveField()
         self.loadField(idx)
 
-    def _uniqueName(
-        self, prompt: str, ignoreOrd: Optional[int] = None, old: str = ""
-    ) -> Optional[str]:
+    def _uniqueName(self, prompt: str, old: str = "") -> str | None:
         txt = getOnlyText(prompt, default=old).replace('"', "").strip()
         if not txt:
             return None
         if txt[0] in "#^/":
-            showWarning(tr.fields_name_first_letter_not_valid())
+            show_warning(tr.fields_name_first_letter_not_valid())
             return None
         for letter in """:{"}""":
             if letter in txt:
-                showWarning(tr.fields_name_invalid_letter())
+                show_warning(tr.fields_name_invalid_letter())
                 return None
+        if txt.casefold() == old.casefold():
+            return None
         for f in self.model["flds"]:
-            if ignoreOrd is not None and f["ord"] == ignoreOrd:
-                continue
-            if f["name"] == txt:
-                showWarning(tr.fields_that_field_name_is_already_used())
+            if f["name"].casefold() == txt.casefold():
+                show_warning(tr.fields_that_field_name_is_already_used())
                 return None
         return txt
 
     def onRename(self) -> None:
+        if self.currentIdx is None:
+            return
+
         idx = self.currentIdx
         f = self.model["flds"][idx]
-        name = self._uniqueName(tr.actions_new_name(), self.currentIdx, f["name"])
+        name = self._uniqueName(tr.actions_new_name(), f["name"])
         if not name:
             return
 
@@ -193,7 +182,11 @@ class FieldDialog(QDialog):
 
     def onDelete(self) -> None:
         if len(self.model["flds"]) < 2:
-            showWarning(tr.fields_notes_require_at_least_one_field())
+            show_warning(tr.fields_notes_require_at_least_one_field())
+            return
+        field = self.model["flds"][self.form.fieldList.currentRow()]
+        if field["preventDeletion"]:
+            show_warning(tr.fields_field_is_required())
             return
         count = self.mm.use_count(self.model)
         c = tr.browsing_note_count(count=count)
@@ -201,15 +194,15 @@ class FieldDialog(QDialog):
             return
         if not self.change_tracker.mark_schema():
             return
-        f = self.model["flds"][self.form.fieldList.currentRow()]
-        self.mm.remove_field(self.model, f)
-        gui_hooks.fields_did_delete_field(self, f)
+        self.mm.remove_field(self.model, field)
+        gui_hooks.fields_did_delete_field(self, field)
 
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)
 
     def onPosition(self, delta: int = -1) -> None:
         idx = self.currentIdx
+        assert idx is not None
         l = len(self.model["flds"])
         txt = getOnlyText(tr.fields_new_position_1(val=l), default=str(idx + 1))
         if not txt:
@@ -293,7 +286,7 @@ class FieldDialog(QDialog):
             self.webview = None
 
         if self.change_tracker.changed():
-            if not askUser("Discard changes?"):
+            if not askUser(tr.card_templates_discard_changes()):
                 return
 
         QDialog.reject(self)
@@ -305,9 +298,9 @@ class FieldDialog(QDialog):
             tooltip(tr.card_templates_changes_saved(), parent=self.parentWidget())
             QDialog.accept(self)
 
-        update_notetype_legacy(parent=self.mw, notetype=self.model).success(
-            on_done
-        ).run_in_background()
+        update_notetype_legacy(
+            parent=self.mw, notetype=self.model, skip_checks=True
+        ).success(on_done).run_in_background()
 
     def onHelp(self) -> None:
         openHelp(HelpPage.CUSTOMIZING_FIELDS)

@@ -253,14 +253,14 @@ def test_cloze_mathjax():
     q3 = "2"
     q4 = "blah"
     q5 = "text with \(x^2\) jax"
-    note[
-        "Text"
-    ] = "{{{{c1::{}}}}} \(2^2\) {{{{c2::{}}}}} \(2^{{{{c3::{}}}}}\) \(x^3\) {{{{c4::{}}}}} {{{{c5::{}}}}}".format(
-        q1,
-        q2,
-        q3,
-        q4,
-        q5,
+    note["Text"] = (
+        "{{{{c1::{}}}}} \(2^2\) {{{{c2::{}}}}} \(2^{{{{c3::{}}}}}\) \(x^3\) {{{{c4::{}}}}} {{{{c5::{}}}}}".format(
+            q1,
+            q2,
+            q3,
+            q4,
+            q5,
+        )
     )
     assert col.addNote(note)
     assert len(note.cards()) == 5
@@ -328,13 +328,13 @@ def test_chained_mods():
     h1 = "<b>sentence</b>"
     a2 = '<span style="color:red">en chaine</span>'
     h2 = "<i>chained</i>"
-    note[
-        "Text"
-    ] = "This {{{{c1::{}::{}}}}} demonstrates {{{{c1::{}::{}}}}} clozes.".format(
-        a1,
-        h1,
-        a2,
-        h2,
+    note["Text"] = (
+        "This {{{{c1::{}::{}}}}} demonstrates {{{{c1::{}::{}}}}} clozes.".format(
+            a1,
+            h1,
+            a2,
+            h2,
+        )
     )
     assert col.addNote(note) == 1
     assert (

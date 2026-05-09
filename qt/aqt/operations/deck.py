@@ -3,7 +3,8 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+import html
+from collections.abc import Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.decks import DeckCollapseScope, DeckDict, DeckId, UpdateDeckConfigs
@@ -16,9 +17,16 @@ def remove_decks(
     *,
     parent: QWidget,
     deck_ids: Sequence[DeckId],
+    deck_name: str,
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.decks.remove(deck_ids)).success(
-        lambda out: tooltip(tr.browsing_cards_deleted(count=out.count), parent=parent)
+        lambda out: tooltip(
+            tr.browsing_cards_deleted_with_deckname(
+                count=out.count,
+                deck_name=html.escape(deck_name),
+            ),
+            parent=parent,
+        )
     )
 
 
@@ -52,7 +60,10 @@ def add_deck_dialog(
     default_text: str = "",
 ) -> CollectionOp[OpChangesWithId] | None:
     if name := getOnlyText(
-        tr.decks_new_deck_name(), default=default_text, parent=parent
+        tr.decks_new_deck_name(),
+        default=default_text,
+        parent=parent,
+        title=tr.decks_create_deck(),
     ).strip():
         return add_deck(parent=parent, name=name)
     else:

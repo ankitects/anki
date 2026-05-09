@@ -58,10 +58,10 @@ fn add_missing_parents(tags: &mut Vec<Tag>) {
 }
 
 fn tags_to_tree(mut tags: Vec<Tag>) -> TagTreeNode {
+    add_missing_parents(&mut tags);
     for tag in &mut tags {
         tag.name = tag.name.replace("::", "\x1f");
     }
-    add_missing_parents(&mut tags);
     tags.sort_unstable_by(|a, b| UniCase::new(&a.name).cmp(&UniCase::new(&b.name)));
     let mut top = TagTreeNode::default();
     let mut it = tags.into_iter().peekable();

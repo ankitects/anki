@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use reqwest::Client;
 use tracing::debug;
 
 use crate::collection::Collection;
@@ -16,6 +17,7 @@ use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::collection::status::online_sync_status_check;
 use crate::sync::http_client::HttpSyncClient;
 use crate::sync::login::SyncAuth;
+use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
 
 pub struct NormalSyncer<'a> {
     pub(in crate::sync) col: &'a mut Collection,
@@ -52,6 +54,7 @@ pub struct ClientSyncState {
     pub(in crate::sync) server_usn: Usn,
     // -1 in client case; used to locate pending entries
     pub(in crate::sync) pending_usn: Usn,
+    pub(in crate::sync) server_media_usn: Usn,
 }
 
 impl NormalSyncer<'_> {
@@ -66,6 +69,14 @@ impl NormalSyncer<'_> {
     pub async fn sync(&mut self) -> error::Result<SyncOutput> {
         debug!("fetching meta...");
         let local = self.col.sync_meta()?;
+        let local_bytes = local.collection_bytes;
+        let limit = *MAXIMUM_SYNC_PAYLOAD_BYTES_UNCOMPRESSED;
+        if self.server.endpoint.as_str().contains("ankiweb") && local.collection_bytes > limit {
+            return Err(AnkiError::sync_error(
+                format!("{local_bytes} > {limit}"),
+                SyncErrorKind::UploadTooLarge,
+            ));
+        }
         let state = online_sync_status_check(local, &mut self.server).await?;
         debug!(?state, "fetched");
         match state.required {
@@ -138,6 +149,8 @@ pub struct SyncOutput {
     pub server_message: String,
     pub host_number: u32,
     pub new_endpoint: Option<String>,
+    #[allow(unused)]
+    pub(crate) server_media_usn: Usn,
 }
 
 impl From<ClientSyncState> for SyncOutput {
@@ -147,13 +160,18 @@ impl From<ClientSyncState> for SyncOutput {
             server_message: s.server_message,
             host_number: s.host_number,
             new_endpoint: s.new_endpoint,
+            server_media_usn: s.server_media_usn,
         }
     }
 }
 
 impl Collection {
-    pub async fn normal_sync(&mut self, auth: SyncAuth) -> error::Result<SyncOutput> {
-        NormalSyncer::new(self, HttpSyncClient::new(auth))
+    pub async fn normal_sync(
+        &mut self,
+        auth: SyncAuth,
+        client: Client,
+    ) -> error::Result<SyncOutput> {
+        NormalSyncer::new(self, HttpSyncClient::new(auth, client))
             .sync()
             .await
     }

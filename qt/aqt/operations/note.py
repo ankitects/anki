@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId
@@ -18,7 +18,7 @@ def add_note(
     parent: QWidget,
     note: Note,
     target_deck_id: DeckId,
-) -> CollectionOp[OpChanges]:
+) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.add_note(note, target_deck_id))
 
 

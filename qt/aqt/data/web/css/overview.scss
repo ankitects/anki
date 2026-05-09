@@ -1,10 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "sass/root-vars";
-@use "sass/vars" as *;
-@use "sass/card-counts";
-@use "sass/button-mixins" as button;
+@use "../../../../../ts/lib/sass/root-vars";
+@use "../../../../../ts/lib/sass/vars" as *;
+@use "../../../../../ts/lib/sass/card-counts";
+@use "../../../../../ts/lib/sass/button-mixins" as button;
 
 .smallLink {
     font-size: 10px;

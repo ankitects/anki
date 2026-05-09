@@ -26,17 +26,18 @@ service CardRenderingService {
   rpc EncodeIriPaths(generic.String) returns (generic.String);
   rpc DecodeIriPaths(generic.String) returns (generic.String);
   rpc StripHtml(StripHtmlRequest) returns (generic.String);
+  rpc HtmlToTextLine(HtmlToTextLineRequest) returns (generic.String);
   rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
   rpc ExtractClozeForTyping(ExtractClozeForTypingRequest)
       returns (generic.String);
-  rpc AllTtsVoices(AllTtsVoicesRequest) returns (AllTtsVoicesResponse);
-  rpc WriteTtsStream(WriteTtsStreamRequest) returns (generic.Empty);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendCardRenderingService {
   rpc StripHtml(StripHtmlRequest) returns (generic.String);
+  rpc AllTtsVoices(AllTtsVoicesRequest) returns (AllTtsVoicesResponse);
+  rpc WriteTtsStream(WriteTtsStreamRequest) returns (generic.Empty);
 }
 
 message ExtractAvTagsRequest {
@@ -126,6 +127,7 @@ message RenderCardResponse {
   repeated RenderedTemplateNode answer_nodes = 2;
   string css = 3;
   bool latex_svg = 4;
+  bool is_empty = 5;
 }
 
 message RenderedTemplateNode {
@@ -156,9 +158,15 @@ message StripHtmlRequest {
   Mode mode = 2;
 }
 
+message HtmlToTextLineRequest {
+  string text = 1;
+  bool preserve_media_filenames = 2;
+}
+
 message CompareAnswerRequest {
   string expected = 1;
   string provided = 2;
+  bool combining = 3;
 }
 
 message ExtractClozeForTypingRequest {

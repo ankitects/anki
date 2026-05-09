@@ -3,8 +3,10 @@
 
 use std::collections::HashMap;
 use std::fmt::Display;
+use std::sync::LazyLock;
 
 use camino::Utf8PathBuf;
+use regex::Regex;
 
 #[derive(Debug, Clone, Hash, Default)]
 pub enum BuildInput {
@@ -118,9 +120,7 @@ pub struct Glob {
     pub exclude: Option<String>,
 }
 
-lazy_static::lazy_static! {
-    static ref CACHED_FILES: Vec<Utf8PathBuf> = cache_files();
-}
+static CACHED_FILES: LazyLock<Vec<Utf8PathBuf>> = LazyLock::new(cache_files);
 
 /// Walking the source tree once instead of for each glob yields ~4x speed
 /// improvements.
@@ -179,5 +179,20 @@ where
     I: IntoIterator,
     I::Item: Display,
 {
+    itertools::join(iter, " ")
+}
+
+/// Join target inputs with a space. Any whitespace characters in the inputs are
+/// escaped as `$ `
+pub fn join_inputs<I>(iter: I) -> String
+where
+    I: IntoIterator,
+    I::Item: Display,
+{
+    static WHITESPACE_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s").unwrap());
+    let iter = iter.into_iter().map(|input| {
+        let input = input.to_string();
+        WHITESPACE_RE.replace_all(input.trim(), "$$$0").to_string()
+    });
     itertools::join(iter, " ")
 }

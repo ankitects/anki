@@ -39,6 +39,7 @@ use crate::media::files::normalize_filename;
 use crate::prelude::*;
 
 /// Like [MediaEntry], but with a safe filename and set zip filename.
+#[derive(Debug)]
 pub(super) struct SafeMediaEntry {
     pub(super) name: String,
     pub(super) size: u32,
@@ -95,7 +96,10 @@ impl SafeMediaEntry {
         media_folder.join(&self.name)
     }
 
-    pub(super) fn fetch_file<'a>(&self, archive: &'a mut ZipArchive<File>) -> Result<ZipFile<'a>> {
+    pub(super) fn fetch_file<'a>(
+        &self,
+        archive: &'a mut ZipArchive<File>,
+    ) -> Result<ZipFile<'a, File>> {
         match archive.by_name(&self.index.to_string()) {
             Ok(file) => Ok(file),
             Err(err) => invalid_input!(err, "{} missing from archive", self.index),
@@ -107,11 +111,11 @@ impl SafeMediaEntry {
         get_checksum: &mut impl FnMut(&str) -> Result<Option<Sha1Hash>>,
     ) -> Result<bool> {
         get_checksum(&self.name)
-            .map(|opt| opt.map_or(false, |sha1| sha1 == self.sha1.expect("sha1 not set")))
+            .map(|opt| opt.is_some_and(|sha1| sha1 == self.sha1.expect("sha1 not set")))
     }
 
     pub(super) fn has_size_equal_to(&self, other_path: &Path) -> bool {
-        fs::metadata(other_path).map_or(false, |metadata| metadata.len() == self.size as u64)
+        fs::metadata(other_path).is_ok_and(|metadata| metadata.len() == self.size as u64)
     }
 
     /// Copy the archived file to the target folder, setting its hash if
@@ -150,7 +154,7 @@ pub(super) fn extract_media_entries(
     }
 }
 
-pub(super) fn safe_normalized_file_name(name: &str) -> Result<Cow<str>> {
+pub(super) fn safe_normalized_file_name(name: &str) -> Result<Cow<'_, str>> {
     if !filename_is_safe(name) {
         Err(AnkiError::ImportError {
             source: ImportError::Corrupt,

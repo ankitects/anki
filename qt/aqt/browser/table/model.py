@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
 import aqt
 import aqt.browser
@@ -53,6 +54,7 @@ class DataModel(QAbstractTableModel):
         self._stale_cutoff = 0.0
         self._on_row_state_will_change = row_state_will_change_callback
         self._on_row_state_changed = row_state_changed_callback
+        assert aqt.mw is not None
         self._want_tooltips = aqt.mw.pm.show_browser_table_tooltips()
 
     # Row Object Interface
@@ -103,11 +105,11 @@ class DataModel(QAbstractTableModel):
             row = CellRow(*self.col.browser_row_for_id(item))
         except BackendError as e:
             return CellRow.disabled(self.len_columns(), str(e))
-        except Exception as e:
+        except Exception:
             return CellRow.disabled(
                 self.len_columns(), tr.errors_please_check_database()
             )
-        except BaseException as e:
+        except BaseException:
             # fatal error like a panic in the backend - dump it to the
             # console so it gets picked up by the error handler
             import traceback
@@ -238,9 +240,16 @@ class DataModel(QAbstractTableModel):
     ######################################################################
 
     def toggle_state(self, context: SearchContext) -> ItemState:
-        self.beginResetModel()
+        self.begin_reset()
         self._state = self._state.toggle_state()
-        self.search(context)
+        try:
+            self._search_inner(context)
+        except Exception:
+            # rollback to prevent inconsistent state
+            self._state = self._state.toggle_state()
+            raise
+        finally:
+            self.end_reset()
         return self._state
 
     # Rows
@@ -248,23 +257,27 @@ class DataModel(QAbstractTableModel):
     def search(self, context: SearchContext) -> None:
         self.begin_reset()
         try:
-            if context.order is True:
-                try:
-                    context.order = self.columns[self._state.sort_column]
-                except KeyError:
-                    # invalid sort column in config
-                    context.order = self.columns["noteCrt"]
-                context.reverse = self._state.sort_backwards
-            gui_hooks.browser_will_search(context)
-            if context.ids is None:
-                context.ids = self._state.find_items(
-                    context.search, context.order, context.reverse
-                )
-            gui_hooks.browser_did_search(context)
-            self._items = context.ids
-            self._rows = {}
+            self._search_inner(context)
         finally:
             self.end_reset()
+
+    def _search_inner(self, context: SearchContext) -> None:
+        if context.order is True:
+            try:
+                context.order = self.columns[self._state.sort_column]
+            except KeyError:
+                # invalid sort column in config
+                context.order = self.columns["noteCrt"]
+            context.reverse = self._state.sort_backwards
+        context.addon_metadata = {}
+        gui_hooks.browser_will_search(context)
+        if context.ids is None:
+            context.ids = self._state.find_items(
+                context.search, context.order, context.reverse
+            )
+        gui_hooks.browser_did_search(context)
+        self._items = context.ids
+        self._rows = {}
 
     def reverse(self) -> None:
         self.beginResetModel()
@@ -312,15 +325,13 @@ class DataModel(QAbstractTableModel):
             return 0
         return self.len_columns()
 
-    _QFont = without_qt5_compat_wrapper(QFont)
-
     def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
         if not index.isValid():
             return QVariant()
         if role == Qt.ItemDataRole.FontRole:
             if not self.column_at(index).uses_cell_font:
                 return QVariant()
-            qfont = self._QFont()
+            qfont = QFont()
             row = self.get_row(index)
             qfont.setFamily(row.font_name)
             qfont.setPixelSize(row.font_size)
@@ -362,7 +373,8 @@ def addon_column_fillin(key: str) -> Column:
         key=key,
         cards_mode_label=f"{tr.browsing_addon()} ({key})",
         notes_mode_label=f"{tr.browsing_addon()} ({key})",
-        sorting=Columns.SORTING_NONE,
+        sorting_cards=Columns.SORTING_NONE,
+        sorting_notes=Columns.SORTING_NONE,
         uses_cell_font=False,
         alignment=Columns.ALIGNMENT_CENTER,
     )

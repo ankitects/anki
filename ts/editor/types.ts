@@ -8,7 +8,6 @@ export type EditorOptions = {
         plainTextsHidden: boolean[];
         plainTextDefaults: boolean[];
     };
-    modTimeOfNotetype: number;
 };
 
 export type SessionOptions = {
@@ -19,3 +18,11 @@ export type NotetypeIdAndModTime = {
     id: number;
     modTime: number;
 };
+
+export enum EditorState {
+    Initial = -1,
+    Fields = 0,
+    ImageOcclusionPicker = 1,
+    ImageOcclusionMasks = 2,
+    ImageOcclusionFields = 3,
+}

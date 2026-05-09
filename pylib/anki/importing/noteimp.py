@@ -1,13 +1,12 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# pylint: disable=invalid-name
 
 from __future__ import annotations
 
 import html
 import unicodedata
-from typing import Optional, Union
+from typing import Union
 
 from anki.collection import Collection
 from anki.config import Config
@@ -76,8 +75,8 @@ class NoteImporter(Importer):
     needDelimiter = False
     allowHTML = False
     importMode = UPDATE_MODE
-    mapping: Optional[list[str]]
-    tagModified: Optional[str]
+    mapping: list[str] | None
+    tagModified: str | None
 
     def __init__(self, col: Collection, file: str) -> None:
         Importer.__init__(self, col, file)
@@ -167,9 +166,9 @@ class NoteImporter(Importer):
             firsts[fld0] = True
             # already exists?
             found = False
-            if csum in csums:
+            if csum in csums:  # type: ignore[comparison-overlap]
                 # csum is not a guarantee; have to check
-                for id in csums[csum]:
+                for id in csums[csum]:  # type: ignore[index]
                     flds = self.col.db.scalar("select flds from notes where id = ?", id)
                     sflds = split_fields(flds)
                     if fld0 == sflds[0]:
@@ -268,7 +267,7 @@ class NoteImporter(Importer):
 
     def updateData(
         self, n: ForeignNote, id: NoteId, sflds: list[str]
-    ) -> Optional[Updates]:
+    ) -> Updates | None:
         self._ids.append(id)
         self.processFields(n, sflds)
         if self._tagsMapped:
@@ -316,9 +315,7 @@ where id = ? and flds != ?""",
         changes2 = self.col.db.scalar("select total_changes()")
         self.updateCount = changes2 - changes
 
-    def processFields(
-        self, note: ForeignNote, fields: Optional[list[str]] = None
-    ) -> None:
+    def processFields(self, note: ForeignNote, fields: list[str] | None = None) -> None:
         if not fields:
             fields = [""] * len(self.model["flds"])
         for c, f in enumerate(self.mapping):

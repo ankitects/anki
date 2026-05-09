@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import enum
 import re
-from typing import Any, Callable, Optional, cast
+from collections.abc import Callable
+from typing import Any, cast
 
 import aqt
 from anki.sync import SyncStatus
@@ -36,7 +37,9 @@ class BottomToolbar:
 class ToolbarWebView(AnkiWebView):
     hide_condition: Callable[..., bool]
 
-    def __init__(self, mw: aqt.AnkiQt, kind: AnkiWebViewKind | None = None) -> None:
+    def __init__(
+        self, mw: aqt.AnkiQt, kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT
+    ) -> None:
         AnkiWebView.__init__(self, mw, kind=kind)
         self.mw = mw
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
@@ -84,15 +87,23 @@ class TopWebView(ToolbarWebView):
             else:
                 self.flatten()
 
+        self.adjustHeightToFit()
         self.show()
 
-    def _onHeight(self, qvar: Optional[int]) -> None:
+    def _onHeight(self, qvar: int | None) -> None:
         super()._onHeight(qvar)
-        self.web_height = int(qvar)
+        if qvar:
+            self.web_height = int(qvar)
 
     def hide_if_allowed(self) -> None:
         if self.mw.state != "review":
             return
+
+        # Invariant: The `hide_if_allowed` method ensures that the fullscreen state is checked
+        # and the menubar will be hidden if necessary
+        # Note: The `eventFilter` and `_reviewState` methods in `qt/aqt/main.py` rely on this invariant
+        if self.mw.fullscreen:
+            self.mw.hide_menubar()
 
         if self.mw.pm.hide_top_bar():
             if (
@@ -111,14 +122,11 @@ class TopWebView(ToolbarWebView):
         self.eval(
             """document.body.classList.add("hidden"); """,
         )
-        if self.mw.fullscreen:
-            self.mw.hide_menubar()
 
     def show(self) -> None:
         super().show()
 
         self.eval("""document.body.classList.remove("hidden"); """)
-        self.mw.show_menubar()
 
     def flatten(self) -> None:
         self.eval("""document.body.classList.add("flat"); """)
@@ -151,9 +159,10 @@ class TopWebView(ToolbarWebView):
             self.set_body_height(self.mw.web.height())
 
             # offset reviewer background by toolbar height
-            self.mw.web.eval(
-                f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
-            )
+            if self.web_height:
+                self.mw.web.eval(
+                    f"""document.body.style.setProperty("background-position-y", "-{self.web_height}px"); """
+                )
 
         self.mw.web.evalWithCallback(
             """window.getComputedStyle(document.body).background; """,
@@ -169,7 +178,7 @@ class TopWebView(ToolbarWebView):
         self.eval("""document.body.style.setProperty("min-height", "0px"); """)
         self.evalWithCallback("document.documentElement.offsetHeight", self._onHeight)
 
-    def resizeEvent(self, event: QResizeEvent) -> None:
+    def resizeEvent(self, event: QResizeEvent | None) -> None:
         super().resizeEvent(event)
 
         self.mw.web.evalWithCallback(
@@ -202,7 +211,7 @@ class BottomWebView(ToolbarWebView):
     def animate_height(self, height: int) -> None:
         self.web_height = height
 
-        if self.mw.pm.reduce_motion():
+        if self.mw.pm.reduce_motion() or height == self.height():
             self.setFixedHeight(height)
         else:
             # Collapse/Expand animation
@@ -241,8 +250,18 @@ class BottomWebView(ToolbarWebView):
 
         self.hidden = False
         if self.mw.state == "review":
-            self.evalWithCallback(
-                "document.documentElement.offsetHeight", self.animate_height
+            # delay to account for reflow
+            def cb(height: int | None):
+                # "When QWebEnginePage is deleted, the callback is triggered with an invalid value"
+                if height is not None:
+                    self.animate_height(height)
+
+            self.mw.progress.single_shot(
+                50,
+                lambda: self.evalWithCallback(
+                    "document.documentElement.offsetHeight", cb
+                ),
+                False,
             )
         else:
             self.adjustHeightToFit()

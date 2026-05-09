@@ -1,9 +1,9 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
-@use "sass/root-vars";
-@use "sass/vars" as *;
-@use "sass/card-counts";
-@use "sass/elevation" as *;
+@use "../../../../../ts/lib/sass/root-vars";
+@use "../../../../../ts/lib/sass/vars" as *;
+@use "../../../../../ts/lib/sass/card-counts";
+@use "../../../../../ts/lib/sass/elevation" as *;
 
 table {
     padding: 1rem;
@@ -16,9 +16,7 @@ table {
         &:hover {
             @include elevation(2);
         }
-        transition: box-shadow var(--transition) ease-in-out;
         background: var(--canvas-glass);
-        backdrop-filter: blur(var(--blur));
     }
 }
 

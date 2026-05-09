@@ -3,18 +3,19 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from typing import Any
 
 import aqt
 import aqt.forms
 import aqt.main
 from anki.decks import DeckId
+from anki.utils import is_mac
 from aqt import gui_hooks
 from aqt.operations.deck import set_current_deck
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
-    addCloseShortcut,
     disable_help_button,
     getSaveFile,
     maybeHideClose,
@@ -23,7 +24,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
-from aqt.webview import AnkiWebViewKind
+from aqt.webview import LegacyStatsWebView
 
 
 class NewDeckStats(QDialog):
@@ -54,19 +55,20 @@ class NewDeckStats(QDialog):
             self.mw,
             f.deckArea,
             on_deck_changed=self.on_deck_changed,
+            dyn=True,  # include filtered decks
         )
 
         b = f.buttonBox.addButton(
             tr.statistics_save_pdf(), QDialogButtonBox.ButtonRole.ActionRole
         )
+        assert b is not None
         qconnect(b.clicked, self.saveImage)
         b.setAutoDefault(False)
         b = f.buttonBox.button(QDialogButtonBox.StandardButton.Close)
+        assert b is not None
         b.setAutoDefault(False)
         maybeHideClose(self.form.buttonBox)
-        addCloseShortcut(self)
         gui_hooks.stats_dialog_will_show(self)
-        self.form.web.set_kind(AnkiWebViewKind.DECK_STATS)
         self.form.web.hide_while_preserving_layout()
         self.show()
         self.refresh()
@@ -76,7 +78,7 @@ class NewDeckStats(QDialog):
     def reject(self) -> None:
         self.deck_chooser.cleanup()
         self.form.web.cleanup()
-        self.form.web = None
+        self.form.web = None  # type: ignore
         saveGeom(self, self.name)
         aqt.dialogs.markClosed("NewDeckStats")
         QDialog.reject(self)
@@ -90,7 +92,7 @@ class NewDeckStats(QDialog):
             lambda _: self.refresh()
         ).run_in_background()
 
-    def _imagePath(self) -> str:
+    def _imagePath(self) -> str | None:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
         name = f"anki-{tr.statistics_stats()}{name}"
         file = getSaveFile(
@@ -113,7 +115,9 @@ class NewDeckStats(QDialog):
         # unreadable. A simple fix for now is to scroll to the top of the
         # page first.
         def after_scroll(arg: Any) -> None:
-            self.form.web.page().printToPdf(path)
+            form_web_page = self.form.web.page()
+            assert form_web_page is not None
+            form_web_page.printToPdf(path)
             tooltip(tr.statistics_saved())
 
         self.form.web.evalWithCallback("window.scrollTo(0, 0);", after_scroll)
@@ -134,7 +138,7 @@ class NewDeckStats(QDialog):
         return False
 
     def refresh(self) -> None:
-        self.form.web.load_ts_page("graphs")
+        self.form.web.load_sveltekit_page("graphs")
 
 
 class DeckStats(QDialog):
@@ -147,6 +151,9 @@ class DeckStats(QDialog):
         self.name = "deckStats"
         self.period = 0
         self.form = aqt.forms.stats.Ui_Dialog()
+        # Hack: Switch out web views dynamically to avoid maintaining multiple
+        # Qt forms for different versions of the stats dialog.
+        self.form.web = LegacyStatsWebView(self.mw)
         self.oldPos = None
         self.wholeCollection = False
         self.setMinimumWidth(700)
@@ -163,6 +170,7 @@ class DeckStats(QDialog):
         b = f.buttonBox.addButton(
             tr.statistics_save_pdf(), QDialogButtonBox.ButtonRole.ActionRole
         )
+        assert b is not None
         qconnect(b.clicked, self.saveImage)
         b.setAutoDefault(False)
         qconnect(f.groups.clicked, lambda: self.changeScope("deck"))
@@ -172,7 +180,6 @@ class DeckStats(QDialog):
         qconnect(f.year.clicked, lambda: self.changePeriod(1))
         qconnect(f.life.clicked, lambda: self.changePeriod(2))
         maybeHideClose(self.form.buttonBox)
-        addCloseShortcut(self)
         gui_hooks.stats_dialog_old_will_show(self)
         self.show()
         self.refresh()
@@ -180,7 +187,7 @@ class DeckStats(QDialog):
 
     def reject(self) -> None:
         self.form.web.cleanup()
-        self.form.web = None
+        self.form.web = None  # type: ignore
         saveGeom(self, self.name)
         aqt.dialogs.markClosed("DeckStats")
         QDialog.reject(self)
@@ -189,7 +196,7 @@ class DeckStats(QDialog):
         self.reject()
         callback()
 
-    def _imagePath(self) -> str:
+    def _imagePath(self) -> str | None:
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
         name = f"anki-{tr.statistics_stats()}{name}"
         file = getSaveFile(
@@ -206,7 +213,9 @@ class DeckStats(QDialog):
         path = self._imagePath()
         if not path:
             return
-        self.form.web.page().printToPdf(path)
+        form_web_page = self.form.web.page()
+        assert form_web_page is not None
+        form_web_page.printToPdf(path)
         tooltip(tr.statistics_saved())
 
     def changePeriod(self, n: int) -> None:
@@ -222,7 +231,6 @@ class DeckStats(QDialog):
         stats = self.mw.col.stats()
         stats.wholeCollection = self.wholeCollection
         self.report = stats.report(type=self.period)
-        self.form.web.set_kind(AnkiWebViewKind.LEGACY_DECK_STATS)
         self.form.web.stdHtml(
             f"<html><body>{self.report}</body></html>",
             js=["js/vendor/jquery.min.js", "js/vendor/plot.js"],

@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import itertools
 import time
+from collections.abc import Iterable, Sequence
 from concurrent.futures import Future
-from typing import Iterable, Sequence, TypeVar
+from typing import TypeVar
 
 import aqt
 import aqt.progress
@@ -21,6 +22,7 @@ from aqt.qt import *
 from aqt.utils import (
     askUser,
     disable_help_button,
+    openFolder,
     restoreGeom,
     saveGeom,
     showText,
@@ -78,6 +80,7 @@ class MediaChecker:
         label = progress.media_check
 
         try:
+            assert self.progress_dialog is not None
             if self.progress_dialog.wantCancel:
                 self.mw.col.set_wants_abort()
         except AttributeError:
@@ -114,7 +117,7 @@ class MediaChecker:
         text.setPlainText(report)
         text.setWordWrapMode(QTextOption.WrapMode.NoWrap)
         layout.addWidget(text)
-        box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        box = QDialogButtonBox()
         layout.addWidget(box)
 
         if output.unused:
@@ -149,6 +152,11 @@ class MediaChecker:
             box.addButton(b, QDialogButtonBox.ButtonRole.RejectRole)
             qconnect(b.clicked, lambda c: self._on_restore_trash())
 
+        b = QPushButton(tr.addons_view_files())
+        b.setAutoDefault(False)
+        box.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
+        qconnect(b.clicked, lambda c: self._on_view_files())
+
         qconnect(box.rejected, diag.reject)
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
@@ -158,6 +166,7 @@ class MediaChecker:
 
     def _on_render_latex(self) -> None:
         self.progress_dialog = self.mw.progress.start()
+        assert self.progress_dialog is not None
         try:
             out = self.mw.col.media.render_all_latex(self._on_render_latex_progress)
             if self.progress_dialog.wantCancel:
@@ -174,6 +183,7 @@ class MediaChecker:
             tooltip(tr.media_check_all_latex_rendered())
 
     def _on_render_latex_progress(self, count: int) -> bool:
+        assert self.progress_dialog is not None
         if self.progress_dialog.wantCancel:
             return False
 
@@ -244,6 +254,9 @@ class MediaChecker:
             tooltip(tr.media_check_trash_restored())
 
         self.mw.taskman.run_in_background(restore_trash, on_done)
+
+    def _on_view_files(self) -> None:
+        openFolder(self.mw.col.media.dir())
 
 
 def add_missing_media_tag(parent: QWidget, missing_media_notes: Sequence[int]) -> None:

@@ -4,6 +4,8 @@
 use axum::extract::Path;
 use axum::extract::Query;
 use axum::extract::State;
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
 use axum::response::Response;
 use axum::routing::get;
 use axum::routing::post;
@@ -51,7 +53,7 @@ async fn sync_handler<P: SyncProtocol>(
 }
 
 pub fn collection_sync_router<P: SyncProtocol + Clone>() -> Router<P> {
-    Router::new().route("/:method", post(sync_handler::<P>))
+    Router::new().route("/{method}", post(sync_handler::<P>))
 }
 
 /// The Rust code used to send a GET with query params, which was inconsistent
@@ -86,6 +88,10 @@ async fn media_begin_post<P: MediaSyncProtocol>(
     media_sync_handler(Path(MediaSyncMethod::Begin), server, req.into_output_type()).await
 }
 
+pub async fn health_check_handler() -> impl IntoResponse {
+    StatusCode::OK
+}
+
 async fn media_sync_handler<P: MediaSyncProtocol>(
     Path(method): Path<MediaSyncMethod>,
     State(server): State<P>,
@@ -106,5 +112,5 @@ pub fn media_sync_router<P: MediaSyncProtocol + Clone>() -> Router<P> {
             "/begin",
             get(media_begin_get::<P>).post(media_begin_post::<P>),
         )
-        .route("/:method", post(media_sync_handler::<P>))
+        .route("/{method}", post(media_sync_handler::<P>))
 }

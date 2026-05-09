@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::NoteTags;
+use crate::collection::undo::UndoableCollectionChange;
 use crate::prelude::*;
 use crate::undo::UndoableChange;
 
@@ -64,22 +65,22 @@ impl Collection {
         if changes.op != Op::UpdateNote {
             return;
         }
-
-        if let Some(previous_op) = self.previous_undo_op() {
-            if previous_op.kind != Op::UpdateNote {
-                return;
-            }
-
-            if let (
-                Some(UndoableChange::Note(UndoableNoteChange::Updated(previous))),
-                Some(UndoableChange::Note(UndoableNoteChange::Updated(current))),
-            ) = (
-                previous_op.changes.last(),
-                self.current_undo_op().and_then(|op| op.changes.last()),
-            ) {
-                if previous.id == current.id && previous_op.timestamp.elapsed_secs() < 60 {
-                    self.pop_last_change();
-                }
+        let Some(previous_op) = self.previous_undo_op() else {
+            return;
+        };
+        if previous_op.kind != Op::UpdateNote {
+            return;
+        }
+        let Some(current_op) = self.current_undo_op() else {
+            return;
+        };
+        if let (
+            [UndoableChange::Note(UndoableNoteChange::Updated(previous)), UndoableChange::Collection(UndoableCollectionChange::Modified(_))],
+            [UndoableChange::Note(UndoableNoteChange::Updated(current)), UndoableChange::Collection(UndoableCollectionChange::Modified(_))],
+        ) = (&previous_op.changes[..], &current_op.changes[..])
+        {
+            if previous.id == current.id && previous_op.timestamp.elapsed_secs() < 60 {
+                self.clear_last_op();
             }
         }
     }

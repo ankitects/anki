@@ -5,11 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import { writable } from "svelte/store";
 
+    import type { InputHandlerAPI } from "$lib/sveltelib/input-handler";
+
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
-    import type { InputHandlerAPI } from "../../sveltelib/input-handler";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
     import type { SurroundedAPI } from "../surround";
-    import type CustomStyles from "./CustomStyles.svelte";
 
     export interface RichTextInputAPI extends EditingInputAPI, SurroundedAPI {
         name: "rich-text";
@@ -21,7 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inputHandler: InputHandlerAPI;
         /** The API exposed by the editable component */
         editable: ContentEditableAPI;
-        customStyles: Promise<CustomStyles>;
+        customStyles: Promise<Record<string, any>>;
+        isClozeField: boolean;
     }
 
     function editingInputIsRichText(
@@ -32,8 +33,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerPackage } from "@tslib/runtime-require";
 
-    import contextProperty from "../../sveltelib/context-property";
-    import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
+    import contextProperty from "$lib/sveltelib/context-property";
+    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
+
     import { Surrounder } from "../surround";
 
     const key = Symbol("richText");
@@ -64,14 +66,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { directionKey, fontFamilyKey, fontSizeKey } from "@tslib/context-keys";
     import { promiseWithResolver } from "@tslib/promise";
     import { singleCallback } from "@tslib/typing";
-    import { getAllContexts, getContext, onMount, tick } from "svelte";
+    import { getAllContexts, getContext, mount, onMount, tick } from "svelte";
     import type { Readable } from "svelte/store";
 
-    import { placeCaretAfterContent } from "../../domlib/place-caret";
+    import { placeCaretAfterContent } from "$lib/domlib/place-caret";
+    import useDOMMirror from "$lib/sveltelib/dom-mirror";
+    import useInputHandler from "$lib/sveltelib/input-handler";
+    import { pageTheme } from "$lib/sveltelib/theme";
+
     import ContentEditable from "../../editable/ContentEditable.svelte";
-    import useDOMMirror from "../../sveltelib/dom-mirror";
-    import useInputHandler from "../../sveltelib/input-handler";
-    import { pageTheme } from "../../sveltelib/theme";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { Flag } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
@@ -82,6 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let hidden = false;
     export const focusFlag = new Flag();
+    export let isClozeField: boolean;
 
     const { focusedInput } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
@@ -94,7 +98,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [richTextPromise, resolve] = useRichTextResolve();
     const { mirror, preventResubscription } = useDOMMirror();
     const [inputHandler, setupInputHandler] = useInputHandler();
-    const [customStyles, stylesResolve] = promiseWithResolver<CustomStyles>();
+    const [customStyles, stylesResolve] = promiseWithResolver<Record<string, any>>();
 
     export function attachShadow(element: Element): void {
         element.attachShadow({ mode: "open" });
@@ -115,6 +119,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function focus(): Promise<void> {
         const richText = await richTextPromise;
+        richText.blur();
         richText.focus();
     }
 
@@ -153,6 +158,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inputHandler,
         editable: {} as ContentEditableAPI,
         customStyles,
+        isClozeField,
     };
 
     const allContexts = getAllContexts();
@@ -161,7 +167,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         (async () => {
             await stylesDidLoad;
 
-            new ContentEditable({
+            mount(ContentEditable, {
                 target: element.shadowRoot!,
                 props: {
                     nodes,
@@ -199,6 +205,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (focusFlag.checkAndReset()) {
             tick().then(refocus);
         }
+    }
+
+    $: {
+        api.isClozeField = isClozeField;
     }
 
     onMount(() => {
@@ -239,7 +249,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 use:attachContentEditable={{ stylesDidLoad }}
                 on:focusin
                 on:focusout
-            />
+            ></div>
 
             {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
                 <div class="rich-text-widgets">

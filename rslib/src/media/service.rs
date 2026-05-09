@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use anki_proto::generic;
@@ -7,7 +9,9 @@ use anki_proto::media::TrashMediaFilesRequest;
 
 use crate::collection::Collection;
 use crate::error;
+use crate::error::OrNotFound;
 use crate::notes::service::to_i64s;
+use crate::notetype::NotetypeId;
 
 impl crate::services::MediaService for Collection {
     fn check_media(&mut self) -> error::Result<CheckMediaResponse> {
@@ -46,5 +50,20 @@ impl crate::services::MediaService for Collection {
 
     fn restore_trash(&mut self) -> error::Result<()> {
         self.media_checker()?.restore_trash()
+    }
+
+    fn extract_static_media_files(
+        &mut self,
+        ntid: anki_proto::notetypes::NotetypeId,
+    ) -> error::Result<generic::StringList> {
+        let ntid = NotetypeId::from(ntid);
+        let notetype = self.storage.get_notetype(ntid)?.or_not_found(ntid)?;
+        let mut files: HashSet<String> = HashSet::new();
+        let mut inserter = |name: String| {
+            files.insert(name);
+        };
+        notetype.gather_media_names(&mut inserter);
+
+        Ok(files.into_iter().collect::<Vec<_>>().into())
     }
 }

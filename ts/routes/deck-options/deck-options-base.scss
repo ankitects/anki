@@ -1,0 +1,36 @@
+@import "$lib/sass/base";
+
+// override Bootstrap transition duration
+$carousel-transition: var(--transition);
+
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/button-group";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/carousel";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/badge";
+@import "$lib/sass/bootstrap-forms";
+@import "$lib/sass/bootstrap-tooltip";
+
+input[type="text"],
+input[type="date"],
+textarea {
+    padding-inline: 0.5rem;
+    background: var(--canvas-inset);
+}
+
+input {
+    color: var(--fg);
+}
+
+// Setting 100% height causes the sticky element to hide as you scroll down on Safari.
+html {
+    height: initial;
+}
+
+[dir="rtl"] .modal-header .btn-close {
+    padding: 1rem 1rem !important;
+    margin: -1rem auto -1rem -1rem !important;
+}

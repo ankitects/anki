@@ -1,9 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+use anki_proto::collection::GetCustomColoursResponse;
 use anki_proto::generic;
 
 use crate::collection::Collection;
+use crate::config::ConfigKey;
 use crate::error;
+use crate::prelude::BoolKey;
+use crate::prelude::Op;
 use crate::progress::progress_to_proto;
 
 impl crate::services::CollectionService for Collection {
@@ -48,5 +52,25 @@ impl crate::services::CollectionService for Collection {
     fn set_wants_abort(&mut self) -> error::Result<()> {
         self.state.progress.lock().unwrap().want_abort = true;
         Ok(())
+    }
+
+    fn set_load_balancer_enabled(
+        &mut self,
+        input: generic::Bool,
+    ) -> error::Result<anki_proto::collection::OpChanges> {
+        self.transact(Op::ToggleLoadBalancer, |col| {
+            col.set_config(BoolKey::LoadBalancerEnabled, &input.val)?;
+            Ok(())
+        })
+        .map(Into::into)
+    }
+
+    fn get_custom_colours(
+        &mut self,
+    ) -> error::Result<anki_proto::collection::GetCustomColoursResponse> {
+        let colours = self
+            .get_config_optional(ConfigKey::CustomColorPickerPalette)
+            .unwrap_or_default();
+        Ok(GetCustomColoursResponse { colours })
     }
 }

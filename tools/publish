@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+shopt -s extglob
+
+#export UV_PUBLISH_TOKEN=$(pass show w/pypi-api-test)
+#out/extracted/uv/uv publish --index testpypi out/wheels/*
+
+export UV_PUBLISH_TOKEN=$(pass show w/pypi-api)
+
+# Upload all wheels except anki_release*.whl first
+out/extracted/uv/uv publish out/wheels/!(anki_release*).whl
+# Then upload anki_release*.whl
+out/extracted/uv/uv publish out/wheels/anki_release*.whl

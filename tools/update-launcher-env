@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Install our latest anki/aqt code into the launcher venv
+
+set -e
+
+rm -rf out/wheels
+./ninja wheels
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export VIRTUAL_ENV=$HOME/Library/Application\ Support/AnkiProgramFiles/.venv
+else
+    export VIRTUAL_ENV=$HOME/.local/share/AnkiProgramFiles/.venv
+fi
+./out/extracted/uv/uv pip install out/wheels/*
+ 

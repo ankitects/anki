@@ -32,7 +32,7 @@ impl Collection {
         };
         Ok(get_aux_notetype_config_key(
             ntid,
-            &format!("{}_{}", key, ordinal),
+            &format!("{key}_{ordinal}"),
         ))
     }
 }
@@ -70,5 +70,5 @@ impl Collection {
 }
 
 pub fn get_aux_notetype_config_key(ntid: NotetypeId, key: &str) -> String {
-    format!("_nt_{ntid}_{key}", ntid = ntid, key = key)
+    format!("_nt_{ntid}_{key}")
 }

@@ -55,6 +55,7 @@ impl From<&Card> for QueueEntry {
                     due: TimestampSecs(card.due as i64),
                     id: card.id,
                     mtime: card.mtime,
+                    reps: card.reps,
                 });
             }
             CardQueue::New => MainQueueEntryKind::New,

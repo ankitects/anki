@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from concurrent.futures import Future
-from typing import Any, Match, Optional, cast
+from typing import Any, Match, cast
 
 import aqt
 import aqt.forms
@@ -26,6 +27,7 @@ from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
     HelpPage,
+    ask_user_dialog,
     askUser,
     disable_help_button,
     downArrow,
@@ -49,7 +51,7 @@ class CardLayout(QDialog):
         mw: AnkiQt,
         note: Note,
         ord: int = 0,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         fill_empty: bool = False,
     ) -> None:
         QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
@@ -59,7 +61,9 @@ class CardLayout(QDialog):
         self.ord = ord
         self.col = self.mw.col.weakref()
         self.mm = self.mw.col.models
-        self.model = note.note_type()
+        note_type = note.note_type()
+        assert note_type is not None
+        self.model = note_type
         self.templates = self.model["tmpls"]
         self.fill_empty_action_toggled = fill_empty
         self.night_mode_is_enabled = theme_manager.night_mode
@@ -153,7 +157,8 @@ class CardLayout(QDialog):
         )
 
     def _fieldsOnTemplate(self, fmt: str) -> str:
-        matches = re.findall("{{[^#/}]+?}}", fmt)
+        fmt_without_comments = re.sub("<!--.*?-->", "", fmt)
+        matches = re.findall("{{[^#/}]+?}}", fmt_without_comments)
         chars_allowed = 30
         field_names: list[str] = []
         for m in matches:
@@ -214,7 +219,7 @@ class CardLayout(QDialog):
         )
         for i in range(min(len(self.cloze_numbers), 9)):
             QShortcut(  # type: ignore
-                QKeySequence(f"Alt+{i+1}"),
+                QKeySequence(f"Alt+{i + 1}"),
                 self,
                 activated=lambda n=i: self.pform.cloze_number_combo.setCurrentIndex(n),
             )
@@ -266,7 +271,10 @@ class CardLayout(QDialog):
 
         self.current_editor_index = 0
         editor.setAcceptRichText(False)
-        editor.setFont(QFont("Courier"))
+        font = QFont("Consolas")
+        if not font.exactMatch():
+            font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
+        editor.setFont(font)
         tab_width = self.fontMetrics().horizontalAdvance(" " * 4)
         editor.setTabStopDistance(tab_width)
 
@@ -289,7 +297,7 @@ class CardLayout(QDialog):
         qconnect(widg.returnPressed, self.on_search_next)
 
     def setup_cloze_number_box(self) -> None:
-        names = (tr.card_templates_cloze(val=n) for n in self.cloze_numbers)
+        names = (tr.card_templates_card(val=n) for n in self.cloze_numbers)
         self.pform.cloze_number_combo.addItems(names)
         try:
             idx = self.cloze_numbers.index(self.ord + 1)
@@ -355,7 +363,7 @@ class CardLayout(QDialog):
             css=["css/reviewer.css"],
             js=[
                 "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
+                "js/vendor/mathjax/tex-chtml-full.js",
                 "js/reviewer.js",
             ],
             context=self,
@@ -399,6 +407,7 @@ class CardLayout(QDialog):
         m = QMenu(self)
 
         a = m.addAction(tr.card_templates_fill_empty())
+        assert a is not None
         a.setCheckable(True)
         a.setChecked(self.fill_empty_action_toggled)
         qconnect(a.triggered, self.on_fill_empty_action_toggled)
@@ -406,11 +415,13 @@ class CardLayout(QDialog):
             a.setVisible(False)
 
         a = m.addAction(tr.card_templates_night_mode())
+        assert a is not None
         a.setCheckable(True)
         a.setChecked(self.night_mode_is_enabled)
         qconnect(a.triggered, self.on_night_mode_action_toggled)
 
         a = m.addAction(tr.card_templates_add_mobile_class())
+        assert a is not None
         a.setCheckable(True)
         a.setChecked(self.mobile_emulation_enabled)
         qconnect(a.toggled, self.on_mobile_class_action_toggled)
@@ -505,7 +516,7 @@ class CardLayout(QDialog):
     # Preview
     ##########################################################################
 
-    _previewTimer: Optional[QTimer] = None
+    _previewTimer: QTimer | None = None
 
     def renderPreview(self) -> None:
         # schedule a preview when timing stops
@@ -586,7 +597,7 @@ class CardLayout(QDialog):
             return res
 
         type_filter = r"\[\[type:.+?\]\]"
-        repl: Union[str, Callable]
+        repl: str | Callable
 
         if type == "q":
             repl = "<input id='typeans' type=text value='example' readonly='readonly'>"
@@ -688,7 +699,7 @@ class CardLayout(QDialog):
     def onAddCard(self) -> None:
         cnt = self.mw.col.models.use_count(self.model)
         txt = tr.card_templates_this_will_create_card_proceed(count=cnt)
-        if not askUser(txt):
+        if cnt and not askUser(txt):
             return
         if not self.change_tracker.mark_schema():
             return
@@ -743,28 +754,58 @@ class CardLayout(QDialog):
         dst["afmt"] = "{{FrontSide}}\n\n<hr id=answer>\n\n%s" % src["qfmt"]
         dst["qfmt"] = m.group(2).strip()
 
+    def onCopyMarkdown(self) -> None:
+        template = self.current_template()
+
+        def sanitizeMarkdown(md):
+            return md.replace("```", "\\`\\`\\`")
+
+        markdown = (
+            f"## Front Template\n"
+            "```html\n"
+            f"{sanitizeMarkdown(template['qfmt'])}\n"
+            "```\n"
+            "## Back Template\n"
+            "```html\n"
+            f"{sanitizeMarkdown(template['afmt'])}\n"
+            "```\n"
+            "## Styling\n"
+            "```css\n"
+            f"{sanitizeMarkdown(self.model['css'])}\n"
+            "```\n"
+        )
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(markdown)
+        tooltip(tr.about_copied_to_clipboard())
+
     def onMore(self) -> None:
         m = QMenu(self)
 
         a = m.addAction(
             tr.actions_with_ellipsis(action=tr.card_templates_restore_to_default())
         )
+        assert a is not None
         qconnect(
             a.triggered,
-            lambda: self.on_restore_to_default(),  # pylint: disable=unnecessary-lambda
+            lambda: self.on_restore_to_default(),
         )
 
         if not self._isCloze():
             a = m.addAction(tr.card_templates_add_card_type())
+            assert a is not None
             qconnect(a.triggered, self.onAddCard)
 
             a = m.addAction(tr.card_templates_remove_card_type())
+            assert a is not None
             qconnect(a.triggered, self.onRemove)
 
             a = m.addAction(tr.card_templates_rename_card_type())
+            assert a is not None
             qconnect(a.triggered, self.onRename)
 
             a = m.addAction(tr.card_templates_reposition_card_type())
+            assert a is not None
             qconnect(a.triggered, self.onReorder)
 
             m.addSeparator()
@@ -775,9 +816,15 @@ class CardLayout(QDialog):
             else:
                 s = tr.card_templates_off()
             a = m.addAction(tr.card_templates_deck_override() + s)
+            assert a is not None
             qconnect(a.triggered, self.onTargetDeck)
 
+        a = m.addAction(tr.card_templates_copy_info())
+        assert a is not None
+        qconnect(a.triggered, self.onCopyMarkdown)
+
         a = m.addAction(tr.card_templates_browser_appearance())
+        assert a is not None
         qconnect(a.triggered, self.onBrowserDisplay)
 
         m.popup(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
@@ -829,7 +876,9 @@ class CardLayout(QDialog):
         te.setCol(self.col)
         l.addWidget(te)
         if t["did"]:
-            te.setText(self.col.decks.get(t["did"])["name"])
+            deck = self.col.decks.get(t["did"])
+            assert deck is not None
+            te.setText(deck["name"])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         qconnect(bb.rejected, d.close)
@@ -891,11 +940,30 @@ class CardLayout(QDialog):
         ).run_in_background()
 
     def reject(self) -> None:
+        def _reject() -> None:
+            self.cleanup()
+            QDialog.reject(self)
+
+        def callback(choice: int) -> None:
+            if choice == 0:
+                self.accept()
+            elif choice == 1:
+                _reject()
+
         if self.change_tracker.changed():
-            if not askUser(tr.card_templates_discard_changes()):
-                return
-        self.cleanup()
-        return QDialog.reject(self)
+            ask_user_dialog(
+                text=tr.card_templates_discard_changes(),
+                callback=callback,
+                buttons=[
+                    QMessageBox.StandardButton.Save,
+                    QMessageBox.StandardButton.Discard,
+                    QMessageBox.StandardButton.Cancel,
+                ],
+                default_button=2,
+                parent=self,
+            )
+        else:
+            _reject()
 
     def cleanup(self) -> None:
         self.cancelPreviewTimer()
@@ -903,10 +971,10 @@ class CardLayout(QDialog):
         saveGeom(self, "CardLayout")
         saveSplitter(self.mainArea, "CardLayoutMainArea")
         self.preview_web.cleanup()
-        self.preview_web = None
-        self.model = None
-        self.rendered_card = None
-        self.mw = None
+        self.preview_web = None  # type: ignore
+        self.model = None  # type: ignore
+        self.rendered_card = None  # type: ignore
+        self.mw = None  # type: ignore
 
     def onHelp(self) -> None:
         openHelp(HelpPage.TEMPLATES)

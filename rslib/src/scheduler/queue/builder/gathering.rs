@@ -37,9 +37,10 @@ impl QueueBuilder {
             return Ok(());
         }
         col.storage.for_each_due_card_in_active_decks(
-            self.context.timing.days_elapsed,
+            self.context.timing,
             self.context.sort_options.review_order,
             kind,
+            self.context.fsrs,
             |card| {
                 if self.limits.root_limit_reached(LimitKind::Review) {
                     return Ok(false);
@@ -60,41 +61,50 @@ impl QueueBuilder {
     }
 
     fn gather_new_cards(&mut self, col: &mut Collection) -> Result<()> {
+        let salt = Self::knuth_salt(self.context.timing.days_elapsed);
         match self.context.sort_options.new_gather_priority {
-            NewCardGatherPriority::Deck => self.gather_new_cards_by_deck(col),
+            NewCardGatherPriority::Deck => {
+                self.gather_new_cards_by_deck(col, NewCardSorting::LowestPosition)
+            }
+            NewCardGatherPriority::DeckThenRandomNotes => {
+                self.gather_new_cards_by_deck(col, NewCardSorting::RandomNotes(salt))
+            }
             NewCardGatherPriority::LowestPosition => {
                 self.gather_new_cards_sorted(col, NewCardSorting::LowestPosition)
             }
             NewCardGatherPriority::HighestPosition => {
                 self.gather_new_cards_sorted(col, NewCardSorting::HighestPosition)
             }
-            NewCardGatherPriority::RandomNotes => self.gather_new_cards_sorted(
-                col,
-                NewCardSorting::RandomNotes(self.context.timing.days_elapsed),
-            ),
-            NewCardGatherPriority::RandomCards => self.gather_new_cards_sorted(
-                col,
-                NewCardSorting::RandomCards(self.context.timing.days_elapsed),
-            ),
+            NewCardGatherPriority::RandomNotes => {
+                self.gather_new_cards_sorted(col, NewCardSorting::RandomNotes(salt))
+            }
+            NewCardGatherPriority::RandomCards => {
+                self.gather_new_cards_sorted(col, NewCardSorting::RandomCards(salt))
+            }
         }
     }
 
-    fn gather_new_cards_by_deck(&mut self, col: &mut Collection) -> Result<()> {
-        for deck_id in self.limits.active_decks() {
+    fn gather_new_cards_by_deck(
+        &mut self,
+        col: &mut Collection,
+        sort: NewCardSorting,
+    ) -> Result<()> {
+        for deck_id in col.storage.get_active_deck_ids_sorted()? {
             if self.limits.root_limit_reached(LimitKind::New) {
                 break;
             }
             if self.limits.limit_reached(deck_id, LimitKind::New)? {
                 continue;
             }
-            col.storage.for_each_new_card_in_deck(deck_id, |card| {
-                let limit_reached = self.limits.limit_reached(deck_id, LimitKind::New)?;
-                if !limit_reached && self.add_new_card(card) {
-                    self.limits
-                        .decrement_deck_and_parent_limits(deck_id, LimitKind::New)?;
-                }
-                Ok(!limit_reached)
-            })?;
+            col.storage
+                .for_each_new_card_in_deck(deck_id, sort, |card| {
+                    let limit_reached = self.limits.limit_reached(deck_id, LimitKind::New)?;
+                    if !limit_reached && self.add_new_card(card) {
+                        self.limits
+                            .decrement_deck_and_parent_limits(deck_id, LimitKind::New)?;
+                    }
+                    Ok(!limit_reached)
+                })?;
         }
 
         Ok(())
@@ -156,5 +166,11 @@ impl QueueBuilder {
             self.new.push(card);
             true
         }
+    }
+
+    // Generates a salt for use with fnvhash. Useful to increase randomness
+    // when the base salt is a small integer.
+    fn knuth_salt(base_salt: u32) -> u32 {
+        base_salt.wrapping_mul(2654435761)
     }
 }

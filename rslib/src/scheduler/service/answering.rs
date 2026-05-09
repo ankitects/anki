@@ -21,6 +21,7 @@ impl From<anki_proto::scheduler::CardAnswer> for CardAnswer {
             answered_at: TimestampMillis(answer.answered_at_millis),
             milliseconds_taken: answer.milliseconds_taken,
             custom_data,
+            from_queue: true,
         }
     }
 }
