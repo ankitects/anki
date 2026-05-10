@@ -62,6 +62,17 @@ object NoteFieldDecorator {
             "jro5atnl",
             "FuevquneTbry",
             "Nxfunl0701",
+            "ivpvbhfNrtvf",
+            "gurqebvqqvi",
+            "OenlnaQFB",
+            "pevgvpnyNL",
+            "fnawnlfnetnz",
+            "krabaaa4j",
+            "revpyv3690",
+            "Unm3-wbyg",
+            "fabjgvzrtynff",
+            "hfre1823",
+            "MbeaUnqAbPubvpr",
         )
 
     fun aplicaHuevo(fieldText: String?): String? {
@@ -81,23 +92,17 @@ object NoteFieldDecorator {
         if (huevo.isNullOrEmpty()) {
             return huevo
         }
-        val revuelto = StringBuilder()
-        for (element in huevo) {
-            var c = element
-            when (c) {
-                in 'a'..'m' -> {
-                    c += 13.toChar().code
+        return buildString {
+            for (element in huevo) {
+                var revuelto = element
+                when (revuelto) {
+                    in 'a'..'m' -> revuelto += 13
+                    in 'A'..'M' -> revuelto += 13
+                    in 'n'..'z' -> revuelto -= 13
+                    in 'N'..'Z' -> revuelto -= 13
                 }
-                in 'A'..'M' -> {
-                    c += 13.toChar().code
-                }
-                in 'n'..'z' -> {
-                    c -= 13.toChar().code
-                }
-                in 'N'..'Z' -> c -= 13.toChar().code
+                append(revuelto)
             }
-            revuelto.append(c)
         }
-        return revuelto.toString()
     }
 }
