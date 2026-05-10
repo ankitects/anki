@@ -64,6 +64,7 @@ def test_genrem():
     note.flush()
     assert len(note.cards()) == 2
 
+
 def test_empty_cards_special_fields():
     col = getEmptyCol()
     note = col.newNote()
@@ -78,6 +79,7 @@ def test_empty_cards_special_fields():
     mm.save(m, templates=True)
     rep = col._backend.get_empty_cards()
     assert len(rep.notes) == 1
+
 
 def test_gendeck():
     col = getEmptyCol()
