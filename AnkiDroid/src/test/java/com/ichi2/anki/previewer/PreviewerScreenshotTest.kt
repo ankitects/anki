@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: 2026 Brayan Oliveira <brayandso.dev@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 package com.ichi2.anki.previewer
 
