@@ -19,6 +19,7 @@ dependencyResolutionManagement {
 
 // alphabetical ordering rather than dependency-tree ordering to avoid bikeshedding
 include(
+    ":anki-common",
     ":api",
     ":AnkiDroid",
     ":common",

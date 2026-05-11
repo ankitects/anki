@@ -419,6 +419,7 @@ dependencies {
     annotationProcessor libs.auto.service
 
     // modules
+    implementation project(":anki-common")
     implementation project(":common")
     implementation project(":common:android")
     implementation project(":compat")
