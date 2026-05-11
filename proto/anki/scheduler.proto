@@ -16,6 +16,7 @@ option java_multiple_files = true;
 
 service SchedulerService {
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
+  rpc GetOverviewCounts(GetOverviewCountsRequest) returns (OverviewCounts);
   rpc AnswerCard(CardAnswer) returns (collection.OpChanges);
   rpc SchedTimingToday(generic.Empty) returns (SchedTimingTodayResponse);
   rpc StudiedToday(generic.Empty) returns (generic.String);
@@ -141,6 +142,22 @@ message QueuedCards {
 message GetQueuedCardsRequest {
   uint32 fetch_limit = 1;
   bool intraday_learning_only = 2;
+}
+
+message GetOverviewCountsRequest {
+  int64 deck_id = 1;
+}
+
+message OverviewCounts {
+  // Counts from the active study queue (what the reviewer will show next).
+  uint32 new_count = 1;
+  uint32 learning_count = 2;
+  uint32 review_count = 3;
+  // How many cards are hidden by burying for each type.
+  // deck_node count - queue count.
+  uint32 buried_new = 4;
+  uint32 buried_learning = 5;
+  uint32 buried_review = 6;
 }
 
 message SchedTimingTodayResponse {
