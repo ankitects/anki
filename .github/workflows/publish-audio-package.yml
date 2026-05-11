@@ -22,6 +22,8 @@ on:
 
 env:
   RELEASE: 2
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
 
 jobs:
   prepare:
@@ -52,11 +54,11 @@ jobs:
             needs_signing: true
           - runner: windows-latest
             artifact: wheel-windows-x64
-            build_cmd: ./ninja audio_wheel
+            build_cmd: tools\ninja audio_wheel
             needs_signing: false
           - runner: windows-11-arm
             artifact: wheel-windows-arm
-            build_cmd: ./ninja audio_wheel
+            build_cmd: tools\ninja audio_wheel
             needs_signing: false
     runs-on: ${{ matrix.runner }}
     environment: ${{ matrix.needs_signing && inputs.sign-macos == true && 'release' || '' }}
