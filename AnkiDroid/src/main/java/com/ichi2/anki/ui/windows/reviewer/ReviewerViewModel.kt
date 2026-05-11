@@ -27,9 +27,9 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.Flag
 import com.ichi2.anki.Reviewer
 import com.ichi2.anki.asyncIO
-import com.ichi2.anki.browser.BrowserDestination
 import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardId
@@ -82,6 +82,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import org.intellij.lang.annotations.Language
 import timber.log.Timber
+import com.ichi2.anki.common.destinations.Destination as NavigateDestination
 
 class ReviewerViewModel(
     savedStateHandle: SavedStateHandle,
@@ -113,6 +114,7 @@ class ReviewerViewModel(
     val onTypedAnswerResultFlow = MutableSharedFlow<CompletableDeferred<String>>()
     val onCardUpdatedFlow = MutableSharedFlow<Unit>()
     val destinationFlow = MutableSharedFlow<Destination>()
+    val navigateFlow = MutableSharedFlow<NavigateDestination>()
     val editNoteTagsFlow = MutableSharedFlow<NoteId>()
     val setDueDateFlow = MutableSharedFlow<CardId>()
     val resetProgressFlow = MutableSharedFlow<Unit>()
@@ -348,7 +350,7 @@ class ReviewerViewModel(
         val cardId = currentCard.await().id
         val destination = BrowserDestination.ScrollToCard(deckId, cardId)
         Timber.i("Launching 'browse options' for deck %d", deckId)
-        destinationFlow.emit(destination)
+        navigateFlow.emit(destination)
     }
 
     private suspend fun deleteNote() {

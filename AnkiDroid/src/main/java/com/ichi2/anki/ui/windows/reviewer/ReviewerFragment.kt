@@ -53,9 +53,9 @@ import com.ichi2.anki.DispatchKeyEventListener
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
 import com.ichi2.anki.android.AnkiShakeDetector
-import com.ichi2.anki.android.back.doubleBackPressCallback
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.android.isRobolectric
 import com.ichi2.anki.databinding.FragmentReviewerBinding
 import com.ichi2.anki.dialogs.showDeckOptionsSelectionDialog
@@ -203,6 +203,10 @@ class ReviewerFragment :
             // focus on the whole layout so motion controllers can be captured
             // without navigating the other View elements
             binding.rootLayout.requestFocus()
+        }
+
+        viewModel.navigateFlow.collectIn(lifecycleScope) { destination ->
+            navigate(destination)
         }
 
         viewModel.destinationFlow.collectIn(lifecycleScope) { destination ->

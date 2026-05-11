@@ -35,7 +35,7 @@ import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.InitialActivity
 import com.ichi2.anki.OnErrorListener
 import com.ichi2.anki.PermissionSet
-import com.ichi2.anki.browser.BrowserDestination
+import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.configureRenderingMode
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.libanki.CardId
@@ -70,6 +70,7 @@ import kotlinx.coroutines.withContext
 import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.exceptions.BackendNetworkException
 import timber.log.Timber
+import com.ichi2.anki.common.destinations.Destination as NavigateDestination
 
 /**
  * ViewModel for the [DeckPicker]
@@ -135,6 +136,7 @@ class DeckPickerViewModel :
     val deckDeletedNotification = MutableSharedFlow<DeckDeletionResult>(extraBufferCapacity = 1)
     val emptyCardsNotification = MutableSharedFlow<EmptyCardsResult>(extraBufferCapacity = 1)
     val flowOfDestination = MutableSharedFlow<Destination>(extraBufferCapacity = 1)
+    val flowOfNavigate = MutableSharedFlow<NavigateDestination>(extraBufferCapacity = 1)
     override val onError = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val flowOfExportDeck = MutableSharedFlow<DeckId>()
     val flowOfCreateShortcut = MutableSharedFlow<ShortcutData>()
@@ -291,7 +293,7 @@ class DeckPickerViewModel :
     fun browseCards(deckId: DeckId) =
         launchCatchingIO {
             withCol { decks.select(deckId) }
-            flowOfDestination.emit(BrowserDestination.ToDeck(deckId))
+            flowOfNavigate.emit(BrowserDestination.ToDeck(deckId))
         }
 
     fun addNote(

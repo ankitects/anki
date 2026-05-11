@@ -9,6 +9,9 @@ package com.ichi2.anki.common.destinations
  *
  * To navigate to a destination, call [navigate].
  *
+ * @see BrowserDestination - example destination subclass
  * @see Navigator - singleton registration and intent building
  */
 sealed class Destination
+// See `AnkiDroidNavigator` for all destinations
+// it is not technically feasible for them to be listed here

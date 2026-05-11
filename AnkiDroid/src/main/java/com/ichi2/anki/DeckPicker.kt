@@ -95,6 +95,7 @@ import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
@@ -775,6 +776,7 @@ open class DeckPicker :
         viewModel.emptyCardsNotification.launchCollectionInLifecycleScope(::onCardsEmptied)
         viewModel.flowOfDeckCountsChanged.launchCollectionInLifecycleScope(::onDeckCountsChanged)
         viewModel.flowOfDestination.launchCollectionInLifecycleScope(::onDestinationChanged)
+        viewModel.flowOfNavigate.launchCollectionInLifecycleScope { navigate(it) }
         viewModel.flowOfExportDeck.launchCollectionInLifecycleScope(::onExportDeck)
         viewModel.flowOfCreateShortcut.launchCollectionInLifecycleScope(::createIcon)
         viewModel.flowOfDisableShortcuts.launchCollectionInLifecycleScope(::disableDeckAndChildrenShortcuts)

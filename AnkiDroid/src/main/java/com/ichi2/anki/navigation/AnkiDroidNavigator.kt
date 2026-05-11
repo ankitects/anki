@@ -5,6 +5,8 @@ package com.ichi2.anki.navigation
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import com.ichi2.anki.browser.toIntent
+import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.Destination
 import com.ichi2.anki.common.destinations.Navigator
 
@@ -16,7 +18,10 @@ object AnkiDroidNavigator : Navigator {
         appContext = application
     }
 
-    override fun toIntent(destination: Destination): Intent = error("no Intent mapping registered for $destination")
+    override fun toIntent(destination: Destination): Intent =
+        when (destination) {
+            is BrowserDestination -> destination.toIntent(appContext)
+        }
 }
 
 /** Initializes the AnkiDroid navigator and wires it up as the global [Navigator]. */

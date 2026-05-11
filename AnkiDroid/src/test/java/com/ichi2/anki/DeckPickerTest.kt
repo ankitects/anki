@@ -29,6 +29,7 @@ import com.ichi2.anki.dialogs.DeckPickerContextMenuResult
 import com.ichi2.anki.dialogs.setDeckPickerContextMenuResult
 import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.navigation.AnkiDroidNavigator
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.settings.Prefs
@@ -48,6 +49,7 @@ import com.ichi2.testutils.grantWritePermissions
 import com.ichi2.testutils.revokeWritePermissions
 import com.ichi2.testutils.withDeniedPermissions
 import com.ichi2.testutils.withWritePermissions
+import kotlinx.coroutines.flow.merge
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.containsString
@@ -426,12 +428,16 @@ class DeckPickerTest : RobolectricTest() {
                 option: ContextMenuOption,
                 deckId: DeckId,
             ): Intent {
-                var result: Destination? = null
-                viewModel.flowOfDestination.test(1.seconds) {
+                var result: Any? = null
+                merge(viewModel.flowOfDestination, viewModel.flowOfNavigate).test(1.seconds) {
                     selectContextMenuOption(option, deckId)
                     result = awaitItem()
                 }
-                return result!!.toIntent(this)
+                return when (val emitted = result!!) {
+                    is Destination -> emitted.toIntent(this)
+                    is com.ichi2.anki.common.destinations.Destination -> AnkiDroidNavigator.toIntent(emitted)
+                    else -> error("Unexpected destination type: $emitted")
+                }
             }
 
             val didA = addDeck("Deck 1")

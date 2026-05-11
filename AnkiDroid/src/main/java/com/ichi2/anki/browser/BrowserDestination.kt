@@ -1,53 +1,22 @@
-/*
- *  Copyright (c) 2025 David Allison <davidallisongithub@gmail.com>
- *
- *  This program is free software; you can redistribute it and/or modify it under
- *  the terms of the GNU General Public License as published by the Free Software
- *  Foundation; either version 3 of the License, or (at your option) any later
- *  version.
- *
- *  This program is distributed in the hope that it will be useful, but WITHOUT ANY
- *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- *  PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along with
- *  this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 package com.ichi2.anki.browser
 
 import android.content.Context
 import android.content.Intent
 import com.ichi2.anki.CardBrowser
-import com.ichi2.anki.libanki.CardId
-import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.utils.Destination
+import com.ichi2.anki.common.destinations.BrowserDestination
 
-/**
- * Opens the [CardBrowser]
- */
-sealed interface BrowserDestination : Destination {
-    data class ToDeck(
-        val deckId: DeckId,
-    ) : BrowserDestination {
-        override fun toIntent(context: Context): Intent =
+/** Builds the [Intent] that launches [CardBrowser] for this destination. */
+fun BrowserDestination.toIntent(context: Context): Intent =
+    when (this) {
+        is BrowserDestination.ToDeck ->
             Intent(context, CardBrowser::class.java).apply {
                 putExtra(CardBrowserViewModel.EXTRA_DECK_ID, deckId)
             }
-    }
-
-    /**
-     * Opens the [CardBrowser] scoped to [deckId], auto-scrolling to [cardId]
-     * if the card is present on the deck.
-     */
-    data class ScrollToCard(
-        val deckId: DeckId,
-        val cardId: CardId,
-    ) : BrowserDestination {
-        override fun toIntent(context: Context): Intent =
+        is BrowserDestination.ScrollToCard ->
             Intent(context, CardBrowser::class.java).apply {
                 putExtra(CardBrowserViewModel.EXTRA_DECK_ID, deckId)
                 putExtra(CardBrowserViewModel.EXTRA_CARD_ID_KEY, cardId)
             }
     }
-}
