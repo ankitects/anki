@@ -100,7 +100,7 @@ class DialogHandler(
  *
  * Restoration + handling is performed in [AnkiActivity.onResume].
  * It is assumed that the [DeckPicker] will be the inheritor of AnkiActivity at this time.
- * As this is provided as the intent from [AnkiActivity.showSimpleNotification]
+ * As this is provided as the intent from [AnkiActivity.showExportReadyNotification]
  */
 abstract class DialogHandlerMessage protected constructor(
     val which: WhichDialogHandler,
@@ -124,7 +124,6 @@ abstract class DialogHandlerMessage protected constructor(
                 WhichDialogHandler.MSG_SHOW_SYNC_ERROR_DIALOG -> SyncErrorDialog.SyncErrorDialogMessageHandler.fromMessage(message)
                 WhichDialogHandler.MSG_SHOW_DATABASE_ERROR_DIALOG -> DatabaseErrorDialog.ShowDatabaseErrorDialog.fromMessage(message)
                 WhichDialogHandler.MSG_DO_SYNC -> IntentHandler.Companion.DoSync()
-                WhichDialogHandler.MSG_EXPORT_READY -> ExportReadyDialog.ExportReadyDialogMessage.fromMessage(message)
             }
     }
 
@@ -139,7 +138,6 @@ abstract class DialogHandlerMessage protected constructor(
         MSG_SHOW_SYNC_ERROR_DIALOG(3),
         MSG_SHOW_DATABASE_ERROR_DIALOG(6),
         MSG_DO_SYNC(8),
-        MSG_EXPORT_READY(10),
         ;
 
         companion object {

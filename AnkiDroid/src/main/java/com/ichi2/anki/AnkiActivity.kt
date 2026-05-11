@@ -28,6 +28,7 @@ import android.widget.ProgressBar
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.annotation.AttrRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
@@ -49,6 +50,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
@@ -77,6 +79,8 @@ import com.ichi2.anki.dialogs.ExportReadyDialog.Companion.KEY_EXPORT_PATH
 import com.ichi2.anki.dialogs.ExportReadyDialog.Companion.REQUEST_EXPORT_SAVE
 import com.ichi2.anki.dialogs.ExportReadyDialog.Companion.REQUEST_EXPORT_SHARE
 import com.ichi2.anki.dialogs.SimpleMessageDialog
+import com.ichi2.anki.dialogs.handleExportReadyRequest
+import com.ichi2.anki.dialogs.viewmodel.ExportReadyViewModel
 import com.ichi2.anki.exception.SystemStorageException
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.preferences.sharedPrefs
@@ -92,6 +96,7 @@ import com.ichi2.compat.customtabs.CustomTabsHelper
 import com.ichi2.themes.Themes
 import com.ichi2.utils.AdaptionUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -105,6 +110,8 @@ open class AnkiActivity(
 ) : AppCompatActivity(contentLayoutId ?: 0),
     ShortcutGroupProvider,
     AnkiActivityProvider {
+    val exportReadyViewModel by viewModels<ExportReadyViewModel>()
+
     /**
      * Receiver that informs us when a broadcast listen in [broadcastsActions] is received.
      *
@@ -159,6 +166,13 @@ open class AnkiActivity(
                 asText = bundle.getBoolean(ARG_SHARE_AS_TEXT, false),
             )
         }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                exportReadyViewModel.exportReadyDestination.filterNotNull().collect(::handleExportReadyRequest)
+            }
+        }
+
         if (savedInstanceState != null) {
             val restoredValue = savedInstanceState.getString(KEY_EXPORT_FILE_NAME) ?: return
             fileExportPath = restoredValue

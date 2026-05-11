@@ -16,7 +16,7 @@ package com.ichi2.anki
 import anki.import_export.ExportLimit
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
-import com.ichi2.anki.dialogs.ExportReadyDialog
+import com.ichi2.anki.dialogs.viewmodel.ExportReadyViewModel.ExportReadyParams
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.exportAnkiPackage
 import com.ichi2.anki.libanki.exportCardsCsv
@@ -40,7 +40,7 @@ fun AnkiActivity.exportApkgPackage(
         withProgress(extractProgress = onProgress) {
             withCol { exportAnkiPackage(exportPath, withScheduling, withDeckConfigs, withMedia, limit, legacy) }
         }
-        showAsyncDialogFragment(ExportReadyDialog.newInstance(exportPath))
+        exportReadyViewModel.registerExportReadyRequest(ExportReadyParams(exportPath))
     }
 }
 
@@ -58,7 +58,7 @@ fun AnkiActivity.exportCollectionPackage(
         withProgress(extractProgress = onProgress) {
             withCol { exportCollectionPackage(exportPath, withMedia, legacy) }
         }
-        showAsyncDialogFragment(ExportReadyDialog.newInstance(exportPath))
+        exportReadyViewModel.registerExportReadyRequest(ExportReadyParams(exportPath))
     }
 }
 
@@ -90,7 +90,7 @@ fun AnkiActivity.exportSelectedNotes(
                 )
             }
         }
-        showAsyncDialogFragment(ExportReadyDialog.newInstance(exportPath, asText = true))
+        exportReadyViewModel.registerExportReadyRequest(ExportReadyParams(exportPath, asText = true))
     }
 }
 
@@ -110,7 +110,7 @@ fun AnkiActivity.exportSelectedCards(
                 exportCardsCsv(exportPath, withHtml, limit)
             }
         }
-        showAsyncDialogFragment(ExportReadyDialog.newInstance(exportPath, asText = true))
+        exportReadyViewModel.registerExportReadyRequest(ExportReadyParams(exportPath, asText = true))
     }
 }
 

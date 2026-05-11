@@ -44,13 +44,6 @@ class AsyncDialogFragmentsTest {
     }
 
     @Test
-    fun `ExportReadyDialog does not require context`() {
-        val instance = ExportReadyDialog()
-        assertDoesNotThrow("message required a context") { instance.notificationMessage }
-        assertDoesNotThrow("title required a context") { instance.notificationTitle }
-    }
-
-    @Test
     fun `ImportDialog does not require context`() {
         for (dialogType in ImportDialog.Type.entries) {
             val instance = ImportDialog.newInstance(dialogType, "path")
