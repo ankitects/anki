@@ -1,8 +1,15 @@
 [project]
 name = "anki"
 dynamic = ["version"]
+description = "Python library for Anki, the spaced repetition flashcard program"
+readme = "README.md"
 requires-python = ">=3.10"
 license = "AGPL-3.0-or-later"
+authors = [
+  { name = "Anki Team" },
+]
+urls = { Homepage = "https://github.com/ankitects/anki" }
+
 dependencies = [
   "decorator",
   "markdown",
