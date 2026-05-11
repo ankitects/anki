@@ -652,12 +652,15 @@ jobs:
             prerelease_flag="--prerelease"
           fi
 
+          notes_start_tag=$(gh release list --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
+
           gh release create "$TAG_NAME" \
             dist/* \
             --draft \
             --target "$RELEASE_SHA" \
             --title "$RELEASE_NAME" \
             --generate-notes \
+            ${notes_start_tag:+--notes-start-tag "$notes_start_tag"} \
             ${prerelease_flag:+"$prerelease_flag"}
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
