@@ -54,7 +54,7 @@ fun Intent.toCardBrowserLaunchOptions(): CardBrowserLaunchOptions? {
         return CardBrowserLaunchOptions.SearchQueryJs(it, getBooleanExtra("all_decks", false))
     }
 
-    getLongExtra(BrowserDestination.ToCard.EXTRA_CARD_ID_KEY)?.let { cardId ->
+    getLongExtra(CardBrowserViewModel.EXTRA_CARD_ID_KEY)?.let { cardId ->
         return CardBrowserLaunchOptions.ScrollToCard(cardId)
     }
 

@@ -37,21 +37,17 @@ sealed interface BrowserDestination : Destination {
     }
 
     /**
-     * Opens the [CardBrowser] with the specified deck selected,
-     * and automatically scrolls to [cardId] if the card is present on the deck.
+     * Opens the [CardBrowser] scoped to [deckId], auto-scrolling to [cardId]
+     * if the card is present on the deck.
      */
-    data class ToCard(
+    data class ScrollToCard(
         val deckId: DeckId,
         val cardId: CardId,
     ) : BrowserDestination {
         override fun toIntent(context: Context): Intent =
             Intent(context, CardBrowser::class.java).apply {
                 putExtra(CardBrowserViewModel.EXTRA_DECK_ID, deckId)
-                putExtra(EXTRA_CARD_ID_KEY, cardId)
+                putExtra(CardBrowserViewModel.EXTRA_CARD_ID_KEY, cardId)
             }
-
-        companion object {
-            const val EXTRA_CARD_ID_KEY = "cardId"
-        }
     }
 }

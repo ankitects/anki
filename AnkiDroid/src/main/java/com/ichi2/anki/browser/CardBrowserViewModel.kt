@@ -1430,6 +1430,9 @@ class CardBrowserViewModel(
         /** Intent extra carrying the [DeckId] the browser should open scoped to. */
         const val EXTRA_DECK_ID = "deckId"
 
+        /** Intent extra carrying a [CardId] to auto-scroll to once the browser opens. */
+        const val EXTRA_CARD_ID_KEY = "cardId"
+
         /** Prevents one-shot extras from being re-applied after process death. */
         private const val STATE_LAUNCH_INTENT_CONSUMED = "launchIntentConsumed"
 
