@@ -12,6 +12,6 @@ ANDROID_NDK_VERSION=$(toml get gradle/libs.versions.toml versions.ndk --raw)
 export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$ANDROID_NDK_VERSION
 if ! [ -e "${ANDROID_NDK_HOME}" ]; then
   echo "Android NDK ${ANDROID_NDK_VERSION} needed for Anki-Android-Backend but not installed."
-  echo "Install it with \'${ANDROID_HOME}\cmdline-tools\latest\bin\sdkmanager --install ndk;${ANDROID_NDK_VERSION}\'."
+  echo "Install it with '${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --install \"ndk;${ANDROID_NDK_VERSION}\"'."
   exit 1
 fi
