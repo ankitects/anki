@@ -173,6 +173,10 @@ open class BackendException : RuntimeException {
         error: BackendError,
     ) : BackendException(error)
 
+    class BackendInvalidChecksumException(
+        error: BackendError,
+    ) : BackendException(error)
+
     class BackendFatalError(
         error: BackendError,
     ) : BackendException(error)
@@ -206,6 +210,7 @@ open class BackendException : RuntimeException {
                 BackendError.Kind.OS_ERROR -> return BackendOsErrorException(error)
                 BackendError.Kind.SCHEDULER_UPGRADE_REQUIRED -> return BackendSchedulerUpgradeRequiredException(error)
                 BackendError.Kind.INVALID_CERTIFICATE_FORMAT -> return BackendInvalidCertificateFormatException(error)
+                BackendError.Kind.INVALID_CHECKSUM -> return BackendInvalidChecksumException(error)
             }
         }
 
