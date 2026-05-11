@@ -149,7 +149,7 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
             val option = selectedSubDialog ?: return@setFragmentResultListener
             val selectedCardStateIndex = viewModel.selectedCardStateIndex
             if (selectedCardStateIndex == AdapterView.INVALID_POSITION) return@setFragmentResultListener
-            val kind = CustomStudyCardState.entries[selectedCardStateIndex].kind
+            val kind = viewModel.selectedKind
             val cardsAmount = userInputValue ?: 100 // the default value
             launchCustomStudy(option, cardsAmount, kind, tagsToInclude, emptyList())
         }
@@ -404,7 +404,7 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                             }
                         // skip tag selection if there's no tags to select
                         if (nids.isEmpty()) {
-                            launchCustomStudy(contextMenuOption, n)
+                            launchCustomStudy(contextMenuOption, n, viewModel.selectedKind)
                             return@launchCatchingTask
                         }
                         if (isAdded) {
