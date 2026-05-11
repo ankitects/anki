@@ -18,7 +18,6 @@ package com.ichi2.anki.browser
 
 import android.content.Context
 import android.content.Intent
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.DeckId
@@ -31,10 +30,10 @@ sealed interface BrowserDestination : Destination {
     data class ToDeck(
         val deckId: DeckId,
     ) : BrowserDestination {
-        override fun toIntent(context: Context): Intent {
-            AnkiDroidApp.instance.sharedPrefsLastDeckIdRepository.lastDeckId = deckId
-            return Intent(context, CardBrowser::class.java)
-        }
+        override fun toIntent(context: Context): Intent =
+            Intent(context, CardBrowser::class.java).apply {
+                putExtra(CardBrowserViewModel.EXTRA_DECK_ID, deckId)
+            }
     }
 
     /**
@@ -45,12 +44,11 @@ sealed interface BrowserDestination : Destination {
         val deckId: DeckId,
         val cardId: CardId,
     ) : BrowserDestination {
-        override fun toIntent(context: Context): Intent {
-            AnkiDroidApp.instance.sharedPrefsLastDeckIdRepository.lastDeckId = deckId
-            return Intent(context, CardBrowser::class.java).apply {
+        override fun toIntent(context: Context): Intent =
+            Intent(context, CardBrowser::class.java).apply {
+                putExtra(CardBrowserViewModel.EXTRA_DECK_ID, deckId)
                 putExtra(EXTRA_CARD_ID_KEY, cardId)
             }
-        }
 
         companion object {
             const val EXTRA_CARD_ID_KEY = "cardId"

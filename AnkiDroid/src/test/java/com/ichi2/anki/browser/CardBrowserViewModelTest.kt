@@ -404,6 +404,77 @@ class CardBrowserViewModelTest : JvmTest() {
         }
 
     @Test
+    fun `EXTRA_DECK_ID intent opens the specified deck`() =
+        runTest {
+            val deckId = addDeck("New")
+            val savedState = SavedStateHandle(mapOf(CardBrowserViewModel.EXTRA_DECK_ID to deckId))
+            viewModel(savedStateHandle = savedState).apply {
+                assertThat("intent deck is selected", deckId, equalTo(this.deckId))
+            }
+        }
+
+    @Test
+    fun `EXTRA_DECK_ID intent persists deck to lastDeckIdRepository`() =
+        runTest {
+            val deckId = addDeck("New")
+            val savedState = SavedStateHandle(mapOf(CardBrowserViewModel.EXTRA_DECK_ID to deckId))
+            viewModel(savedStateHandle = savedState).apply {
+                assertThat("deck persisted for next launch", lastDeckId, equalTo(deckId))
+            }
+        }
+
+    @Test
+    fun `no EXTRA_DECK_ID falls back to lastDeckIdRepository`() =
+        runTest {
+            val deckId = addDeck("Persisted")
+            viewModel(lastDeckId = deckId).apply {
+                assertThat("repository value is used", deckId, equalTo(this.deckId))
+            }
+        }
+
+    @Test
+    fun `EXTRA_DECK_ID for unknown deck falls back to lastDeckIdRepository`() =
+        runTest {
+            val persisted = addDeck("Persisted")
+            val unknownDeckId: DeckId = 9_999_999_999L
+            val savedState = SavedStateHandle(mapOf(CardBrowserViewModel.EXTRA_DECK_ID to unknownDeckId))
+            viewModel(lastDeckId = persisted, savedStateHandle = savedState).apply {
+                assertThat("unknown intent deck is ignored", persisted, equalTo(this.deckId))
+            }
+        }
+
+    @Test
+    fun `user deck change survives process death`() =
+        runTest {
+            val intentDeckId = addDeck("From intent")
+            val userDeckId = addDeck("User selection")
+            val savedState = SavedStateHandle(mapOf(CardBrowserViewModel.EXTRA_DECK_ID to intentDeckId))
+
+            val persistentRepo =
+                object : LastDeckIdRepository {
+                    override var lastDeckId: DeckId? = null
+                }
+
+            // setup: initial launch + select new deck
+            viewModel(
+                savedStateHandle = savedState,
+                lastDeckIdRepository = persistentRepo,
+            ).apply {
+                assertThat("intent honored on first launch", deckId, equalTo(intentDeckId))
+                setSelectedDeck(SelectableDeck.Deck(deckId = userDeckId, name = "User selection"))
+                assertThat("user choice persisted to repository", persistentRepo.lastDeckId, equalTo(userDeckId))
+            }
+
+            // intent does not override user selection
+            viewModel(
+                savedStateHandle = savedState,
+                lastDeckIdRepository = persistentRepo,
+            ).apply {
+                assertThat("user choice survives recreation", deckId, equalTo(userDeckId))
+            }
+        }
+
+    @Test
     fun `sort order from notes is selected - 16514`() {
         col.config.set("sortType", "noteCrt")
         col.config.set("noteSortType", "_field_Frequency")
@@ -1710,12 +1781,12 @@ class CardBrowserViewModelTest : JvmTest() {
             lastDeckId: DeckId? = null,
             intent: CardBrowserLaunchOptions? = null,
             mode: CardsOrNotes = CardsOrNotes.CARDS,
-        ): CardBrowserViewModel {
-            val lastDeckIdRepository =
+            savedStateHandle: SavedStateHandle = SavedStateHandle(),
+            lastDeckIdRepository: LastDeckIdRepository =
                 object : LastDeckIdRepository {
                     override var lastDeckId: DeckId? = lastDeckId
-                }
-
+                },
+        ): CardBrowserViewModel {
             // default is CARDS, do nothing in this case
             if (mode == CardsOrNotes.NOTES) {
                 CollectionManager.withCol { mode.saveToCollection(this@withCol) }
@@ -1728,7 +1799,7 @@ class CardBrowserViewModelTest : JvmTest() {
                 options = intent,
                 isFragmented = false,
                 preferences = AnkiDroidApp.sharedPreferencesProvider,
-                savedStateHandle = SavedStateHandle(),
+                savedStateHandle = savedStateHandle,
             ).apply {
                 invokeInitialSearch()
             }

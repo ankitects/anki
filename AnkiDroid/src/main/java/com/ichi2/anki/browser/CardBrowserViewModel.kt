@@ -395,7 +395,17 @@ class CardBrowserViewModel(
     suspend fun queryDataForCardEdit(id: CardOrNoteId): CardId? = id.toCardId(cardsOrNotes)
 
     private suspend fun getInitialDeck(): SelectableDeck {
-        // TODO: Handle the launch intent
+        suspend fun consumeIntentDeck(): SelectableDeck.Deck? {
+            if (savedStateHandle.get<Boolean>(STATE_LAUNCH_INTENT_CONSUMED) == true) return null
+            savedStateHandle[STATE_LAUNCH_INTENT_CONSUMED] = true
+            val deckId = savedStateHandle.get<Long>(EXTRA_DECK_ID) ?: return null
+            val name = withCol { decks.nameIfExists(deckId) } ?: return null
+            return SelectableDeck.Deck(deckId = deckId, name = name)
+        }
+
+        // Intent-supplied deck takes precedence, but only on the first launch
+        consumeIntentDeck()?.let { deck -> return deck }
+
         val lastDeckId = lastDeckId
         if (lastDeckId == ALL_DECKS_ID) {
             return SelectableDeck.AllDecks
@@ -1417,6 +1427,12 @@ class CardBrowserViewModel(
     suspend fun getAvailableDecks(): List<SelectableDeck.Deck> = SelectableDeck.fromCollection(includeFiltered = false)
 
     companion object {
+        /** Intent extra carrying the [DeckId] the browser should open scoped to. */
+        const val EXTRA_DECK_ID = "deckId"
+
+        /** Prevents one-shot extras from being re-applied after process death. */
+        private const val STATE_LAUNCH_INTENT_CONSUMED = "launchIntentConsumed"
+
         const val STATE_MULTISELECT = "multiselect"
         const val STATE_MULTISELECT_VALUES = "multiselect_values"
 
