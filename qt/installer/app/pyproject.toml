@@ -18,7 +18,41 @@ sources = [
   "src/anki",
 ]
 icon = "resources/anki"
-cleanup_paths = ["anki-*.ico", "**/anki-*.icns"]
+cleanup_paths = [
+  # document_type icons
+  "anki-*.ico",
+  "**/anki-*.icns",
+  # Qt WebEngine debug-symbol resources
+  "**/*.debug.pak",
+  "**/*.debug.bin",
+  # Type-checker stubs / markers
+  "**/*.pyi",
+  "**/py.typed",
+  # PyQt6 binding sources / API completion files
+  "**/*.sip",
+  "**/PyQt6/bindings/**/*.toml",
+  "**/PyQt6/Qt6/qsci",
+  # pywin32 dev/help bundles
+  "**/PyWin32.chm",
+  "**/pythonwin",
+  "**/adodbapi",
+  "**/isapi",
+  "**/win32com/HTML",
+  "**/win32com/demos",
+  "**/win32com/makegw",
+  "**/win32com/include",
+  "**/win32com/libs",
+  "**/win32com/readme.html",
+  # Vendored test suites
+  "**/test",
+  "**/tests",
+  # Packaging metadata
+  "**/*.dist-info/INSTALLER",
+  "**/*.dist-info/RECORD",
+  "**/*.dist-info/WHEEL",
+  # Console scripts
+  "**/app_packages/bin/*",
+]
 console_app = false
 use_full_install_path = false
 

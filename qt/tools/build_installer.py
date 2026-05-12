@@ -11,14 +11,38 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.extend(["pylib", "out/pylib"])
+
+from anki.lang import lang_to_disk_lang, langs
+
 installer_dir = Path("qt/installer")
 app_dir = installer_dir / "app"
 out_dir = Path("out/installer").resolve()
+
+# Anki disk-lang codes whose Chromium .pak filename differs from the disk lang.
+_CHROMIUM_PAK_LANG_REMAP = {"tl": "fil"}
 
 
 def normalize_wheel_path(out_dir: Path, path: str) -> str:
     path = Path(path).absolute().relative_to(out_dir.parent).as_posix()
     return f"../{path}"
+
+
+def chromium_paks_to_keep() -> set[str]:
+    keep = {"en-US"}
+    for _name, code in langs:
+        disk = lang_to_disk_lang(code)
+        keep.add(_CHROMIUM_PAK_LANG_REMAP.get(disk, disk))
+        if "-" in disk:
+            keep.add(disk.split("-", 1)[0])
+    return keep
+
+
+def prune_webengine_locales(bundle_root: Path) -> None:
+    keep = chromium_paks_to_keep()
+    for pak in bundle_root.rglob("qtwebengine_locales/*.pak"):
+        if pak.stem not in keep:
+            pak.unlink()
 
 
 def get_briefcase_template_path() -> Path | None:
@@ -82,6 +106,7 @@ def build(args: argparse.Namespace) -> None:
         ],
         cwd=out_dir,
     )
+    prune_webengine_locales(out_dir)
 
 
 def package(args: argparse.Namespace) -> None:
