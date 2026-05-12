@@ -23,6 +23,7 @@ cleanup_paths = [
   "**/anki-*.icns",
   "**/*.debug.pak",
   "**/*.debug.bin",
+  "**/*.pyi",
 ]
 console_app = false
 use_full_install_path = false
