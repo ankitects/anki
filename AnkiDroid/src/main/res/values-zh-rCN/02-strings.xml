@@ -191,6 +191,7 @@
     <string name="tag_editor_add_feedback">点击「%2$s」以确认添加「%1$s」</string>
     <string name="tag_editor_add_feedback_existing">已选中 %1$s</string>
     <string name="tag_already_exists">标签已经存在</string>
+    <string name="error_name_exists">名称已存在</string>
     <string name="warning_find_and_replace">使用此选项前，考虑备份来自牌组选择器的收藏！</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
@@ -333,7 +334,6 @@
     <!-- Browser Options Dialog -->
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">卡片</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">笔记</string>
-    <string name="toggle_cards_notes">切换卡片/笔记</string>
     <string name="truncate_content_help">缩短浏览器每行的高度，只显示前三行内容</string>
     <string name="browser_options_dialog_heading">浏览器选项</string>
     <string name="audio_saved">录音已保存</string>
@@ -349,7 +349,7 @@
     <string name="shared_decks_login_required">请登录以下载更多牌组</string>
     <string name="deck_description_field_hint">描述</string>
     <string name="deck_description_saved">描述已更新</string>
-    <string name="format_deck_description_as_markdown">转换为 Markdown 格式</string>
+    <string name="format_deck_description_as_markdown">Format as Markdown</string>
     <string name="help_button_content_description">打开 ‘%s’ 的帮助</string>
     <string name="failed_to_copy">复制失败</string>
     <plurals name="unbury_cards_feedback">
@@ -386,8 +386,8 @@
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">需要升级调度程序</string>
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">、</string>
-    <!-- Other errors -->
-    <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
-    <string name="error_name_exists">名称已存在</string>
+    <!--Set up date-->
+    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
+    <string name="set_due_date_date_range">Date range</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">已在进行中</string>
 </resources>

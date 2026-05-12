@@ -191,6 +191,7 @@
     <string name="tag_editor_add_feedback">Touch “%2$s” to confirm adding “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Existing tag “%1$s” selected</string>
     <string name="tag_already_exists">Tag already exists</string>
+    <string name="error_name_exists">Name already exists</string>
     <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
@@ -333,7 +334,6 @@
     <!-- Browser Options Dialog -->
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Cards</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Notes</string>
-    <string name="toggle_cards_notes">Toggle cards/notes</string>
     <string name="truncate_content_help">Truncate the height of each row of the Browser to show only first 3 lines of content</string>
     <string name="browser_options_dialog_heading">Browser options</string>
     <string name="audio_saved">Recording saved</string>
@@ -349,7 +349,7 @@
     <string name="shared_decks_login_required">Please log in to download more decks</string>
     <string name="deck_description_field_hint">Description</string>
     <string name="deck_description_saved">Description updated</string>
-    <string name="format_deck_description_as_markdown">Format as markdown</string>
+    <string name="format_deck_description_as_markdown">Format as Markdown</string>
     <string name="help_button_content_description">Open help for ‘%s’</string>
     <string name="failed_to_copy">Failed to copy</string>
     <plurals name="unbury_cards_feedback">
@@ -386,8 +386,8 @@
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Scheduler upgrade required</string>
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
-    <!-- Other errors -->
-    <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
-    <string name="error_name_exists">Name already exists</string>
+    <!--Set up date-->
+    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
+    <string name="set_due_date_date_range">Date range</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
 </resources>

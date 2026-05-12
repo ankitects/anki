@@ -194,6 +194,7 @@
     <string name="tag_editor_add_feedback">“%1$s” qoʻshishni tasdiqlash uchun “%2$s” tugmasini bosing</string>
     <string name="tag_editor_add_feedback_existing">Mavjud boʻlgan “%1$s” tegi tanlandi</string>
     <string name="tag_already_exists">Teg allaqachon mavjud</string>
+    <string name="error_name_exists">Ushbu nom allaqachon mavjud</string>
     <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
@@ -338,7 +339,6 @@
     <!-- Browser Options Dialog -->
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Kartalar</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Qaydlar</string>
-    <string name="toggle_cards_notes">Karta/qaydlar almashtirish</string>
     <string name="truncate_content_help">Karta brauzerini har bir qator balandligini faqat dastlabki 3 ta tarkib qatorini koʻrsatish uchun qisqartirish</string>
     <string name="browser_options_dialog_heading">Karta brauzeri parametrlari</string>
     <string name="audio_saved">Ovoz yozuvi saqlandi</string>
@@ -354,7 +354,7 @@
     <string name="shared_decks_login_required">Koʻproq dasta yuklab olish uchun, iltimos, tizimga kiring</string>
     <string name="deck_description_field_hint">Tavsif</string>
     <string name="deck_description_saved">Tavsif yangilandi</string>
-    <string name="format_deck_description_as_markdown">Markdown sifatida formatlash</string>
+    <string name="format_deck_description_as_markdown">Format as Markdown</string>
     <string name="help_button_content_description">‘%s’ uchun yordamni ochish</string>
     <string name="failed_to_copy">Nusxa olib boʻlmadi</string>
     <plurals name="unbury_cards_feedback">
@@ -392,8 +392,8 @@
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Rejalashtiruvchini yangilash kerak</string>
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
-    <!-- Other errors -->
-    <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
-    <string name="error_name_exists">Ushbu nom allaqachon mavjud</string>
+    <!--Set up date-->
+    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
+    <string name="set_due_date_date_range">Date range</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">Bajarilmoqda</string>
 </resources>

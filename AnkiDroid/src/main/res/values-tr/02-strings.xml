@@ -194,6 +194,7 @@
     <string name="tag_editor_add_feedback">\"%1$s\" eklemek için buna dokunun: \"%2$s\"</string>
     <string name="tag_editor_add_feedback_existing">Varolan bir etiketi seçtiniz: \"%1$s\"</string>
     <string name="tag_already_exists">Etiket hâlihazırda var</string>
+    <string name="error_name_exists">İsim zaten var</string>
     <string name="warning_find_and_replace">Bu seçeneği kullanmadan önce Deste Seçiciden koleksiyonunuzu yedeklemeyi düşünün!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
@@ -338,7 +339,6 @@
     <!-- Browser Options Dialog -->
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Kartlar</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Notlar</string>
-    <string name="toggle_cards_notes">Kartları/notları aç/kapat</string>
     <string name="truncate_content_help">Tarayıcının her satırının yüksekliğini içeriğin sadece ilk 3 satırını gösterecek şekilde sınırla</string>
     <string name="browser_options_dialog_heading">Tarayıcı seçenekleri</string>
     <string name="audio_saved">Alınan kayıtlar kaydedildi.</string>
@@ -354,7 +354,7 @@
     <string name="shared_decks_login_required">Daha fazla deste indirmek için lütfen giriş yapın</string>
     <string name="deck_description_field_hint">Açıklama</string>
     <string name="deck_description_saved">Açıklama güncellendi</string>
-    <string name="format_deck_description_as_markdown">Markdown olarak formatla</string>
+    <string name="format_deck_description_as_markdown">Format as Markdown</string>
     <string name="help_button_content_description">\"%s\" için yardımı aç</string>
     <string name="failed_to_copy">Kopyalanamadı</string>
     <plurals name="unbury_cards_feedback">
@@ -392,8 +392,8 @@
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Zamanlayıcı güncellemesi gerekiyor</string>
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
-    <!-- Other errors -->
-    <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
-    <string name="error_name_exists">İsim zaten var</string>
+    <!--Set up date-->
+    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
+    <string name="set_due_date_date_range">Date range</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">İşlem halen sürüyor</string>
 </resources>

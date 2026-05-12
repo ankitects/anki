@@ -200,6 +200,7 @@
     <string name="tag_editor_add_feedback">Klepněte na „%2$s“, abyste potvrdili přidání „%1$s“</string>
     <string name="tag_editor_add_feedback_existing">Vybrán stávající štítek „%1$s“</string>
     <string name="tag_already_exists">Štítek již existuje</string>
+    <string name="error_name_exists">Název již existuje</string>
     <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
@@ -348,7 +349,6 @@
     <!-- Browser Options Dialog -->
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Karty</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Poznámky</string>
-    <string name="toggle_cards_notes">Přepnout karty/poznámky</string>
     <string name="truncate_content_help">Zkrátit výšku každého řádku prohlížeče, aby se zobrazily pouze první 3 řádky obsahu</string>
     <string name="browser_options_dialog_heading">Možnosti prohlížeče</string>
     <string name="audio_saved">Nahrávka uložena</string>
@@ -364,7 +364,7 @@
     <string name="shared_decks_login_required">Prosím přihlaste se, abyste mohli stáhnout více balíčků</string>
     <string name="deck_description_field_hint">Popisek</string>
     <string name="deck_description_saved">Popis aktualizován</string>
-    <string name="format_deck_description_as_markdown">Formátovat jako markdown</string>
+    <string name="format_deck_description_as_markdown">Format as Markdown</string>
     <string name="help_button_content_description">Otevřít nápovědu pro „%s“</string>
     <string name="failed_to_copy">Kopírování se nezdařilo</string>
     <plurals name="unbury_cards_feedback">
@@ -404,8 +404,8 @@
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Je vyžadována aktualizace plánovače</string>
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
-    <!-- Other errors -->
-    <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
-    <string name="error_name_exists">Název již existuje</string>
+    <!--Set up date-->
+    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
+    <string name="set_due_date_date_range">Date range</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
 </resources>

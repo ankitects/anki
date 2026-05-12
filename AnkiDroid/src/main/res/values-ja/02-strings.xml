@@ -191,6 +191,7 @@
     <string name="tag_editor_add_feedback">「%1$s」の追加を確定するには「%2$s」をタップしてください</string>
     <string name="tag_editor_add_feedback_existing">既存のタグ「%1$s」を選択しました</string>
     <string name="tag_already_exists">この名前のタグがすでに存在します</string>
+    <string name="error_name_exists">この名前のデッキがすでに存在します</string>
     <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
@@ -333,7 +334,6 @@
     <!-- Browser Options Dialog -->
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">カード</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">ノート</string>
-    <string name="toggle_cards_notes">表示対象の切り替え</string>
     <string name="truncate_content_help">リスト画面において、カードまたはノートの内容の表示を１件につき３行までに制限します</string>
     <string name="browser_options_dialog_heading">ブラウザ オプション</string>
     <string name="audio_saved">録音を保存しました</string>
@@ -349,7 +349,7 @@
     <string name="shared_decks_login_required">さらにデッキをダウンロードするにはログインしてください</string>
     <string name="deck_description_field_hint">デッキ説明文</string>
     <string name="deck_description_saved">説明を更新しました</string>
-    <string name="format_deck_description_as_markdown">Markdown形式でフォーマット</string>
+    <string name="format_deck_description_as_markdown">Format as Markdown</string>
     <string name="help_button_content_description">「%s」のヘルプを開く</string>
     <string name="failed_to_copy">コピーに失敗しました</string>
     <plurals name="unbury_cards_feedback">
@@ -386,8 +386,8 @@
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">スケジューラをアップグレードする必要があります</string>
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
-    <!-- Other errors -->
-    <!-- Similar to TR.qtMiscNameExists(): "Name exists." -->
-    <string name="error_name_exists">この名前のデッキがすでに存在します</string>
+    <!--Set up date-->
+    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
+    <string name="set_due_date_date_range">Date range</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
 </resources>
