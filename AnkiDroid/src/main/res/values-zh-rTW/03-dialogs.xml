@@ -44,7 +44,7 @@
 ~ this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="check_db_warning">This may take a long time. Proceed?</string>
+    <string name="check_db_warning">這可能會花比較久的時間。確定繼續執行？</string>
     <string name="contextmenu_deckpicker_delete_deck" maxLength="28">刪除牌組</string>
     <string name="delete_deck_title">刪除牌組？</string>
     <plurals name="delete_deck_message">
@@ -80,14 +80,14 @@
     <string name="restore_backup_choose_another">選擇其他時間</string>
     <string name="dialog_cancel">取消</string>
     <string name="dialog_ok">確定</string>
-    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">Add</string>
-    <string name="restore">Restore</string>
+    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">新增</string>
+    <string name="restore">回復</string>
     <string name="dialog_confirm" tools:ignore="UnusedResources">確認</string>
     <string name="dialog_no">否</string>
     <string name="dialog_yes">是</string>
     <string name="dialog_keep">保留</string>
     <string name="dialog_remove">移除</string>
-    <string name="dialog_exit" comment="Label for a button which will exit/finish the current screen">Exit</string>
+    <string name="dialog_exit" comment="Label for a button which will exit/finish the current screen">離開</string>
     <string name="dialog_continue">繼續</string>
     <string name="dialog_processing">處理中&#8230;</string>
     <string name="dialog_positive_create" comment="Create a new collection, probably erasing the previous one, may be necessary in case of error.">新增</string>
@@ -102,7 +102,7 @@
     <string name="dialog_invalid_custom_certificate_title">證書解析錯誤</string>
     <string name="dialog_updated_custom_certificate">證書已更新</string>
     <!-- Media checking -->
-    <string name="check_media_warning">This may take a long time with large media collections. Proceed?</string>
+    <string name="check_media_warning">由於較大的媒體檔案，這可能會花比較久的時間。確定繼續？</string>
     <string name="check_media_message">正在檢查媒體&#8230;</string>
     <string name="check_media_adding_missing_tag">添加標籤&#8230;</string>
     <string name="check_media_tags_added">標籤已添加</string>
@@ -244,16 +244,16 @@
     <string name="tts_error_dialog_change_button_text">變更引擎</string>
     <string name="tts_error_dialog_supported_voices_button_text">語音選項</string>
     <!-- import_cache_error_resolutions -->
-    <string name="import_error_resolution_try_again">Re-import the file</string>
-    <string name="import_error_resolution_free_up_space">Ensure there is sufficient free space on your device</string>
-    <string name="import_error_resolution_check_internet">Ensure you are connected to the internet</string>
+    <string name="import_error_resolution_try_again">重新匯入檔案</string>
+    <string name="import_error_resolution_free_up_space">確認你的裝置上有足夠的儲存空間</string>
+    <string name="import_error_resolution_check_internet">確認你是否已連上網際網路</string>
     <string name="import_error_resolution_copy_to_device">Copy the file to your device and try again with the local file</string>
-    <string name="import_error_resolution_select_file">Open the file using your device’s file browser app</string>
+    <string name="import_error_resolution_select_file">用你的裝置上的檔案瀏覽器開啟檔案</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Login successful</string>
-    <string name="sync_now">Sync now?</string>
+    <string name="login_successful">登入成功</string>
+    <string name="sync_now">現在同步？</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Card numbers will remain unchanged</string>
+    <string name="card_numbers_unchanged">卡片數量將不會改變</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
     <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
     <string name="different_note_types_selected">Please select notes from only one notetype.</string>

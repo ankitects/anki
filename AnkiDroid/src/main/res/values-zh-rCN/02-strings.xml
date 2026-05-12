@@ -191,7 +191,7 @@
     <string name="tag_editor_add_feedback">点击「%2$s」以确认添加「%1$s」</string>
     <string name="tag_editor_add_feedback_existing">已选中 %1$s</string>
     <string name="tag_already_exists">标签已经存在</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
+    <string name="warning_find_and_replace">使用此选项前，考虑备份来自牌组选择器的收藏！</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">共享 apkg 文件时出错</string>

@@ -64,8 +64,8 @@
     <string name="model_field_editor_changing">Поля обновляются</string>
     <string name="model_field_editor_sort_field">Сортировать по этому полю</string>
     <!-- Card type -->
-    <string name="delete_card_type" maxLength="28">Delete card type</string>
-    <string name="add_card_type" maxLength="28">Add card type</string>
+    <string name="delete_card_type" maxLength="28">Удалить тип  карточки</string>
+    <string name="add_card_type" maxLength="28">Добавить тип карты</string>
     <!--Warnings-->
     <string name="model_delete_warning">Вы уверены, что хотите удалить этот тип записи?</string>
     <!--

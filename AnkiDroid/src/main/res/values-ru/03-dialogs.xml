@@ -44,7 +44,7 @@
 ~ this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="check_db_warning">This may take a long time. Proceed?</string>
+    <string name="check_db_warning">Это может занять много времени. Продолжить?</string>
     <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Удалить колоду</string>
     <string name="delete_deck_title">Удалить колоду?</string>
     <plurals name="delete_deck_message">
@@ -108,7 +108,7 @@
     <string name="dialog_invalid_custom_certificate_title">Ошибка при обработке сертификата</string>
     <string name="dialog_updated_custom_certificate">Сертификат обновлён</string>
     <!-- Media checking -->
-    <string name="check_media_warning">This may take a long time with large media collections. Proceed?</string>
+    <string name="check_media_warning">Это может занять много времени с большими коллекциями медиа. Продолжить?</string>
     <string name="check_media_message">Медиафайлы проверяются&#8230;</string>
     <string name="check_media_adding_missing_tag">Добавление меток&#8230;</string>
     <string name="check_media_tags_added">Метки добавлены</string>
@@ -291,7 +291,7 @@
     <string name="special_field_front_side_help">Содержимое лица. Аудио не проигрывается автоматически</string>
     <string name="special_field_deck_help" comment="%s: either blank or \' %s\'">Колода карточки, включая родительские колоды%s</string>
     <string name="special_field_subdeck_help" comment="%s: either blank or \' %s\'">Текущая колода карточки, исключая родительские колоды%s</string>
-    <string name="special_field_flag_help">Outputs ‘%1$s’, where %2$s is the flag code (%3$s\–%4$s\)</string>
+    <string name="special_field_flag_help">Вывод ‘%1$s’, где %2$s является кодом флага (%3$s\–%4$s\)</string>
     <string name="special_field_tags_help" comment="%s: either blank or \' %s\'">Метки записи%s</string>
     <string name="special_field_card_id_help" comment="%s: either blank or \' %s\'">ID карточки%s</string>
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">Название шаблона карточки%s</string>

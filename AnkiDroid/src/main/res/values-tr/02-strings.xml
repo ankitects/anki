@@ -194,7 +194,7 @@
     <string name="tag_editor_add_feedback">\"%1$s\" eklemek için buna dokunun: \"%2$s\"</string>
     <string name="tag_editor_add_feedback_existing">Varolan bir etiketi seçtiniz: \"%1$s\"</string>
     <string name="tag_already_exists">Etiket hâlihazırda var</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
+    <string name="warning_find_and_replace">Bu seçeneği kullanmadan önce Deste Seçiciden koleksiyonunuzu yedeklemeyi düşünün!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Apkg dosyasını paylaşırken hata</string>
