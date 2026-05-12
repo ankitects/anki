@@ -18,7 +18,12 @@ sources = [
   "src/anki",
 ]
 icon = "resources/anki"
-cleanup_paths = ["anki-*.ico", "**/anki-*.icns"]
+cleanup_paths = [
+  "anki-*.ico",
+  "**/anki-*.icns",
+  "**/*.debug.pak",
+  "**/*.debug.bin",
+]
 console_app = false
 use_full_install_path = false
 
