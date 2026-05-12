@@ -1,7 +1,7 @@
 [project]
 name = "aqt"
 dynamic = ["version"]
-description = "Anki's Qt-based desktop GUI for the spaced repetition flashcard program"
+description = "Qt-based desktop GUI for Anki, the spaced repetition flashcard program"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "AGPL-3.0-or-later"
