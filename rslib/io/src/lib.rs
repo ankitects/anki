@@ -397,6 +397,7 @@ impl ToUtf8Path for Path {
 mod test {
     use std::env;
 
+    use rusty_fork::rusty_fork_test;
     use tempfile::tempdir;
     use tempfile::TempDir;
 
@@ -442,15 +443,20 @@ mod test {
         }
     }
 
-    #[test]
-    fn test_atomic_rename_target_relative_path_one_component() {
-        let tmp_cwd = TempCurrentDirectory::new();
+    // These test(s) change the current directory. However, that is a process-wide
+    // global side effect that might not play nice with if we run multiple tests
+    // in parallel. Solution: run such tests in a subprocess.
+    rusty_fork_test! {
+        #[test]
+        fn test_atomic_rename_target_relative_path_one_component() {
+            let tmp_cwd = TempCurrentDirectory::new();
 
-        let tempfile = new_tempfile().unwrap();
-        let target = Path::new("new-file.txt");
-        atomic_rename(tempfile, target, true).unwrap();
-        assert!(target.exists());
+            let tempfile = new_tempfile().unwrap();
+            let target = Path::new("new-file.txt");
+            atomic_rename(tempfile, target, true).unwrap();
+            assert!(target.exists());
 
-        drop(tmp_cwd);
+            drop(tmp_cwd);
+        }
     }
 }

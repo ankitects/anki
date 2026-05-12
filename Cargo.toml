@@ -116,6 +116,7 @@ regex = "1.11.1"
 reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
 rusqlite = { version = "0.36.0", features = ["trace", "functions", "collation", "bundled"] }
 rustls-pemfile = "2.2.0"
+rusty-fork = "0.3.1"
 scopeguard = "1.2.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde-aux = "4.7.0"
