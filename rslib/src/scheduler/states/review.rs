@@ -3,6 +3,7 @@
 
 use fsrs::NextStates;
 
+use super::fuzz::constrained_fuzz_bounds;
 use super::interval_kind::IntervalKind;
 use super::CardState;
 use super::LearnState;
@@ -180,10 +181,18 @@ impl ReviewState {
         ctx: &StateContext,
         states: &NextStates,
     ) -> (u32, u32, u32) {
-        // If the interval is larger than last time, don't allow fuzz to go backwards
-        let greater_than_last = |interval: u32| {
-            if interval > self.scheduled_days {
+        // If the new interval is larger than last time, don't allow fuzz to
+        // pull it below the previous interval. If the previous interval is
+        // still inside the current fuzz range, preserve it to avoid the
+        // confusing "4 -> 3" regression described in #4431.
+        let preserve_previous_interval = |interval: f32| {
+            let rounded = interval.round() as u32;
+            if rounded > self.scheduled_days {
                 self.scheduled_days + 1
+            } else if constrained_fuzz_bounds(interval, 1, ctx.maximum_review_interval).1
+                >= self.scheduled_days
+            {
+                self.scheduled_days
             } else {
                 // User may have changed their retention factor; don't limit
                 0
@@ -192,19 +201,19 @@ impl ReviewState {
         let hard = constrain_passing_interval(
             ctx,
             states.hard.interval,
-            greater_than_last(states.hard.interval.round() as u32).max(1),
+            preserve_previous_interval(states.hard.interval).max(1),
             true,
         );
         let good = constrain_passing_interval(
             ctx,
             states.good.interval,
-            greater_than_last(states.good.interval.round() as u32).max(hard + 1),
+            preserve_previous_interval(states.good.interval).max(hard + 1),
             true,
         );
         let easy = constrain_passing_interval(
             ctx,
             states.easy.interval,
-            greater_than_last(states.easy.interval.round() as u32).max(good + 1),
+            preserve_previous_interval(states.easy.interval).max(good + 1),
             true,
         );
         (hard, good, easy)
@@ -316,6 +325,9 @@ fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, f
 #[cfg(test)]
 mod test {
     use super::*;
+    use fsrs::ItemState;
+    use fsrs::MemoryState;
+    use fsrs::NextStates;
 
     #[test]
     fn leech_threshold() {
@@ -390,5 +402,53 @@ mod test {
         };
         ctx.fuzz_factor = Some(0.0);
         assert_eq!(state.passing_review_intervals(&ctx), (1, 3, 4));
+    }
+
+    #[test]
+    fn fsrs_good_interval_does_not_go_backwards_due_to_fuzz() {
+        let mut ctx = StateContext::defaults_for_testing();
+        ctx.fuzz_factor = Some(0.0);
+        ctx.fsrs_next_states = Some(NextStates {
+            again: ItemState {
+                memory: MemoryState {
+                    stability: 0.75977373,
+                    difficulty: 9.985005,
+                },
+                interval: 0.75977373,
+            },
+            hard: ItemState {
+                memory: MemoryState {
+                    stability: 2.4843144,
+                    difficulty: 9.974718,
+                },
+                interval: 2.4843142,
+            },
+            good: ItemState {
+                memory: MemoryState {
+                    stability: 2.7269485,
+                    difficulty: 9.96443,
+                },
+                interval: 2.7269483,
+            },
+            easy: ItemState {
+                memory: MemoryState {
+                    stability: 4.591988,
+                    difficulty: 9.954142,
+                },
+                interval: 4.591988,
+            },
+        });
+
+        let state = ReviewState {
+            scheduled_days: 4,
+            elapsed_days: 4,
+            ease_factor: INITIAL_EASE_FACTOR,
+            lapses: 0,
+            leeched: false,
+            memory_state: None,
+        };
+
+        let (_hard, good, _easy) = state.passing_review_intervals(&ctx);
+        assert_eq!(good, 4);
     }
 }
