@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use itertools::Itertools;
 use serde::Deserialize;
 use serde::Serialize;
@@ -90,6 +92,7 @@ impl NormalSyncer<'_> {
     pub(in crate::sync) async fn process_chunks_from_server(
         &mut self,
         state: &ClientSyncState,
+        cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
     ) -> Result<()> {
         loop {
             let chunk = self.server.chunk(EmptyInput::request()).await?.json()?;
@@ -107,7 +110,8 @@ impl NormalSyncer<'_> {
             })?;
 
             let done = chunk.done;
-            self.col.apply_chunk(chunk, state.pending_usn)?;
+            self.col
+                .apply_chunk(chunk, state.pending_usn, cards_needing_fsrs_reconcile)?;
 
             self.progress.check_cancelled()?;
 
@@ -159,9 +163,14 @@ impl Collection {
     /// pending_usn is used to decide whether the local objects are newer.
     /// If the provided objects are not modified locally, the USN inside
     /// the individual objects is used.
-    pub(in crate::sync) fn apply_chunk(&mut self, chunk: Chunk, pending_usn: Usn) -> Result<()> {
+    pub(in crate::sync) fn apply_chunk(
+        &mut self,
+        chunk: Chunk,
+        pending_usn: Usn,
+        cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
+    ) -> Result<()> {
         self.merge_revlog(chunk.revlog)?;
-        self.merge_cards(chunk.cards, pending_usn)?;
+        self.merge_cards(chunk.cards, pending_usn, cards_needing_fsrs_reconcile)?;
         self.merge_notes(chunk.notes, pending_usn)
     }
 
@@ -172,15 +181,35 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_cards(&self, entries: Vec<CardEntry>, pending_usn: Usn) -> Result<()> {
+    fn merge_cards(
+        &self,
+        entries: Vec<CardEntry>,
+        pending_usn: Usn,
+        cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
+    ) -> Result<()> {
         for entry in entries {
-            self.add_or_update_card_if_newer(entry, pending_usn)?;
+            self.add_or_update_card_if_newer(entry, pending_usn, cards_needing_fsrs_reconcile)?;
         }
         Ok(())
     }
 
-    fn add_or_update_card_if_newer(&self, entry: CardEntry, pending_usn: Usn) -> Result<()> {
+    fn add_or_update_card_if_newer(
+        &self,
+        entry: CardEntry,
+        pending_usn: Usn,
+        cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
+    ) -> Result<()> {
         let proceed = if let Some(existing_card) = self.storage.get_card(entry.id)? {
+            if existing_card.usn.is_pending_sync(pending_usn)
+                && card_needs_fsrs_reconcile(&existing_card, &entry)
+            {
+                cards_needing_fsrs_reconcile
+                    .entry(entry.id)
+                    .and_modify(|should_reschedule| {
+                        *should_reschedule |= card_schedule_differs(&existing_card, &entry)
+                    })
+                    .or_insert_with(|| card_schedule_differs(&existing_card, &entry));
+            }
             !existing_card.usn.is_pending_sync(pending_usn) || existing_card.mtime < entry.mtime
         } else {
             true
@@ -308,6 +337,33 @@ impl Collection {
     }
 }
 
+fn card_needs_fsrs_reconcile(existing: &Card, incoming: &CardEntry) -> bool {
+    let incoming_data = CardData::from_str(&incoming.data);
+    let incoming_has_fsrs = incoming_data.memory_state().is_some()
+        || incoming_data.fsrs_desired_retention.is_some()
+        || incoming_data.decay.is_some()
+        || existing.memory_state.is_some()
+        || existing.desired_retention.is_some()
+        || existing.decay.is_some();
+
+    incoming_has_fsrs
+        && (existing.memory_state != incoming_data.memory_state()
+            || existing.desired_retention != incoming_data.fsrs_desired_retention
+            || existing.decay != incoming_data.decay
+            || existing.last_review_time != incoming_data.last_review_time
+            || card_schedule_differs(existing, incoming))
+}
+
+fn card_schedule_differs(existing: &Card, incoming: &CardEntry) -> bool {
+    existing.deck_id != incoming.did
+        || existing.ctype != incoming.ctype
+        || existing.queue != incoming.queue
+        || existing.due != incoming.due
+        || existing.interval != incoming.ivl
+        || existing.original_due != incoming.odue
+        || existing.original_deck_id != incoming.odid
+}
+
 impl From<CardEntry> for Card {
     fn from(e: CardEntry) -> Self {
         let data = CardData::from_str(&e.data);
@@ -411,7 +467,7 @@ pub fn server_apply_chunk(
     col: &mut Collection,
     state: &mut ServerSyncState,
 ) -> Result<()> {
-    col.apply_chunk(req.chunk, state.client_usn)
+    col.apply_chunk(req.chunk, state.client_usn, &mut HashMap::new())
 }
 
 impl Usn {
