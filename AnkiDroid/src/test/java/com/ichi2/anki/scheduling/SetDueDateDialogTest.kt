@@ -23,22 +23,21 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputLayout
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.RobolectricTest.Companion.advanceRobolectricLooper
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.libanki.CardId
+import com.ichi2.anki.libanki.sched.SetDueDateDays
 import com.ichi2.anki.scheduling.SetDueDateViewModel.Tab
 import com.ichi2.utils.positiveButton
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@Ignore("selectTab(1) does not attach Ids")
-@NeedsTest("get the tests working")
 @NeedsTest("set interval to same value visibility with FSRS")
 @RunWith(AndroidJUnit4::class)
 class SetDueDateDialogTest : RobolectricTest() {
@@ -56,6 +55,7 @@ class SetDueDateDialogTest : RobolectricTest() {
         testDialog {
             selectTab(0)
             assertThat(singleDayTextLayout.suffixText, equalTo("days"))
+            selectTab(1)
             assertThat(dateRangeStartLayout.suffixText, equalTo("days"))
             assertThat(dateRangeEndLayout.suffixText, equalTo("days"))
         }
@@ -89,18 +89,18 @@ class SetDueDateDialogTest : RobolectricTest() {
 
     @Test
     fun `singular text`() =
-        testDialog(cards = listOf(1)) {
+        testDialog(cardCount = 1) {
             selectTab(0)
-            assertThat(singleDayTextLayout.hint, equalTo("Show card in"))
+            assertThat(dateSingleLabel.text, equalTo("Show card in"))
             selectTab(1)
             assertThat(dateRangeLabel.text, equalTo("Show card in range"))
         }
 
     @Test
     fun `plural text`() =
-        testDialog(cards = listOf(1, 2)) {
+        testDialog(cardCount = 2) {
             selectTab(0)
-            assertThat(singleDayTextLayout.hint, equalTo("Show cards in"))
+            assertThat(dateSingleLabel.text, equalTo("Show cards in"))
             selectTab(1)
             assertThat(dateRangeLabel.text, equalTo("Show cards in range"))
         }
@@ -114,7 +114,7 @@ class SetDueDateDialogTest : RobolectricTest() {
             dateRangeEnd.setText("2")
             changeInterval.isChecked = true
 
-            assertThat(viewModel.calculateDaysParameter(), equalTo("1-2!"))
+            assertThat(viewModel.calculateDaysParameter(), equalTo(SetDueDateDays("1-2!")))
         }
 
     @Test
@@ -142,17 +142,19 @@ class SetDueDateDialogTest : RobolectricTest() {
         }
 
     private fun testDialog(
-        cards: List<CardId> = listOf(1),
+        cardCount: Int = 1,
         action: SetDueDateDialog.() -> Unit,
     ) = runTest {
-        val dialog = SetDueDateDialog.newInstance(cards)
+        val cardIds = List(cardCount) { addBasicNote().firstCard().id }
+        val dialog = SetDueDateDialog.newInstance(cardIds)
         launchFragment(
             themeResId = R.style.Base_Theme_Light,
             fragmentArgs = dialog.arguments,
         ) {
             return@launchFragment dialog
         }.apply {
-            moveToState(Lifecycle.State.CREATED)
+            moveToState(Lifecycle.State.RESUMED)
+            advanceRobolectricLooper()
             this.onFragment {
                 action(it)
             }
@@ -170,12 +172,15 @@ fun TabLayout.selectTab(index: Int) =
         { "Tab $index not found" }
         .also { tab -> selectTab(tab) }
 
+/**
+ * Selects a tab by index, and waits for the [androidx.viewpager2.adapter.FragmentStateAdapter]
+ * to attach the page's fragment view to the dialog's view hierarchy.
+ */
 fun SetDueDateDialog.selectTab(index: Int) {
-    val tabLayout = dialog!!.findViewById<TabLayout>(R.id.tab_layout)
-    tabLayout.selectTab(index)
-    if (index == 1) {
-        TODO("Flaky: FragmentStateAdapter does not include views")
-    }
+    val viewPager = dialog!!.findViewById<ViewPager2>(R.id.set_due_date_pager)
+    viewPager.setCurrentItem(index, false)
+    // FragmentStateAdapter attaches fragments asynchronously via the main looper
+    advanceRobolectricLooper()
 }
 
 val SetDueDateDialog.positiveButtonIsEnabled get() =
@@ -203,3 +208,6 @@ val SetDueDateDialog.changeInterval: CheckBox get() =
 
 val SetDueDateDialog.dateRangeLabel: TextView get() =
     dialog!!.findViewById(R.id.date_range_label)
+
+val SetDueDateDialog.dateSingleLabel: TextView get() =
+    dialog!!.findViewById(R.id.date_single_label)
