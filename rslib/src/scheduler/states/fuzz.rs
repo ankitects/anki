@@ -76,6 +76,25 @@ pub(crate) fn with_review_fuzz(
     }
 }
 
+/// Return the minimum interval to use when fuzzing a review/reschedule
+/// interval, based on the previously scheduled interval.
+pub(crate) fn minimum_review_fuzz_interval(
+    interval: f32,
+    previous_interval: u32,
+    maximum_interval: u32,
+) -> u32 {
+    let rounded = interval.round() as u32;
+    let (lower, upper) = constrained_fuzz_bounds(interval, 1, maximum_interval);
+
+    if rounded > previous_interval {
+        previous_interval + 1
+    } else if lower <= previous_interval && previous_interval <= upper {
+        previous_interval
+    } else {
+        0
+    }
+}
+
 /// Return the bounds of the fuzz range, respecting `minimum` and `maximum`.
 /// Ensure the upper bound is larger than the lower bound, if `maximum` allows
 /// it and it is larger than 1.
@@ -177,5 +196,12 @@ mod test {
     #[test]
     fn invalid_values_will_not_panic() {
         constrained_fuzz_bounds(1.0, 3, 2);
+    }
+
+    #[test]
+    fn minimum_review_fuzz_interval_preserves_previous_only_within_range() {
+        assert_eq!(minimum_review_fuzz_interval(2.7269483, 4, 36500), 4);
+        assert_eq!(minimum_review_fuzz_interval(2.7269483, 5, 36500), 0);
+        assert_eq!(minimum_review_fuzz_interval(4.591988, 4, 36500), 5);
     }
 }

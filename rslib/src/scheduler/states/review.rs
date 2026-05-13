@@ -3,7 +3,7 @@
 
 use fsrs::NextStates;
 
-use super::fuzz::constrained_fuzz_bounds;
+use super::fuzz::minimum_review_fuzz_interval;
 use super::interval_kind::IntervalKind;
 use super::CardState;
 use super::LearnState;
@@ -181,39 +181,37 @@ impl ReviewState {
         ctx: &StateContext,
         states: &NextStates,
     ) -> (u32, u32, u32) {
-        // If the new interval is larger than last time, don't allow fuzz to
-        // pull it below the previous interval. If the previous interval is
-        // still inside the current fuzz range, preserve it to avoid the
-        // confusing "4 -> 3" regression described in #4431.
-        let preserve_previous_interval = |interval: f32| {
-            let rounded = interval.round() as u32;
-            if rounded > self.scheduled_days {
-                self.scheduled_days + 1
-            } else if constrained_fuzz_bounds(interval, 1, ctx.maximum_review_interval).1
-                >= self.scheduled_days
-            {
-                self.scheduled_days
-            } else {
-                // User may have changed their retention factor; don't limit
-                0
-            }
-        };
         let hard = constrain_passing_interval(
             ctx,
             states.hard.interval,
-            preserve_previous_interval(states.hard.interval).max(1),
+            minimum_review_fuzz_interval(
+                states.hard.interval,
+                self.scheduled_days,
+                ctx.maximum_review_interval,
+            )
+            .max(1),
             true,
         );
         let good = constrain_passing_interval(
             ctx,
             states.good.interval,
-            preserve_previous_interval(states.good.interval).max(hard + 1),
+            minimum_review_fuzz_interval(
+                states.good.interval,
+                self.scheduled_days,
+                ctx.maximum_review_interval,
+            )
+            .max(hard + 1),
             true,
         );
         let easy = constrain_passing_interval(
             ctx,
             states.easy.interval,
-            preserve_previous_interval(states.easy.interval).max(good + 1),
+            minimum_review_fuzz_interval(
+                states.easy.interval,
+                self.scheduled_days,
+                ctx.maximum_review_interval,
+            )
+            .max(good + 1),
             true,
         );
         (hard, good, easy)
@@ -450,5 +448,53 @@ mod test {
 
         let (_hard, good, _easy) = state.passing_review_intervals(&ctx);
         assert_eq!(good, 4);
+    }
+
+    #[test]
+    fn fsrs_good_interval_is_not_preserved_if_previous_interval_is_above_fuzz_range() {
+        let mut ctx = StateContext::defaults_for_testing();
+        ctx.fuzz_factor = Some(0.0);
+        ctx.fsrs_next_states = Some(NextStates {
+            again: ItemState {
+                memory: MemoryState {
+                    stability: 0.75977373,
+                    difficulty: 9.985005,
+                },
+                interval: 0.75977373,
+            },
+            hard: ItemState {
+                memory: MemoryState {
+                    stability: 2.4843144,
+                    difficulty: 9.974718,
+                },
+                interval: 2.4843142,
+            },
+            good: ItemState {
+                memory: MemoryState {
+                    stability: 2.7269485,
+                    difficulty: 9.96443,
+                },
+                interval: 2.7269483,
+            },
+            easy: ItemState {
+                memory: MemoryState {
+                    stability: 4.591988,
+                    difficulty: 9.954142,
+                },
+                interval: 4.591988,
+            },
+        });
+
+        let state = ReviewState {
+            scheduled_days: 5,
+            elapsed_days: 5,
+            ease_factor: INITIAL_EASE_FACTOR,
+            lapses: 0,
+            leeched: false,
+            memory_state: None,
+        };
+
+        let (_hard, good, _easy) = state.passing_review_intervals(&ctx);
+        assert_eq!(good, 3);
     }
 }
