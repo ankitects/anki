@@ -78,7 +78,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
                 // User not logged in; take them to login screen
                 dialog
                     .setIcon(R.drawable.ic_sync_problem)
-                    .setPositiveButton(R.string.log_in) { _, _ ->
+                    .setPositiveButton(TR.sentenceCase.logIn) { _, _ ->
                         requireSyncErrorDialogListener().loginToSyncServer()
                     }.setNegativeButton(R.string.dialog_cancel) { _, _ -> }
                     .create()

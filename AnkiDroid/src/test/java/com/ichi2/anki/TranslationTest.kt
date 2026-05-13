@@ -362,8 +362,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.emptyCardsWindowTitle()
                 "Flag card", // R.string.menu_flag_card | TR.studyingFlagCard()
                 "Follow system", // R.string.theme_follow_system | TR.preferencesThemeFollowSystem()
-                "Log in", // R.string.log_in | TR.syncLogInButton()
-                "Log out", // R.string.log_out | TR.syncLogOutButton()
                 "Manage note types", // R.string.model_browser_label
                 // TR.browsingManageNoteTypes()
                 // TR.qtMiscManageNoteTypes()

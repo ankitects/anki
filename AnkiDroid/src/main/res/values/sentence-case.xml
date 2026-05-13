@@ -67,4 +67,6 @@ undoActionUndone()
     <string name="sentence_rename_deck">Rename deck</string>
     <string name="sentence_deck_options">Deck options</string>
     <string name="sentence_delete_deck">Delete deck</string>
+    <string name="sentence_log_in">Log in</string>
+    <string name="sentence_log_out">Log out</string>
 </resources>

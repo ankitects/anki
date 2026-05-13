@@ -151,6 +151,18 @@ object SentenceCase {
 
     context(_: Context)
     val deleteDeck get() = TR.decksDeleteDeck().toSentenceCase(R.string.sentence_delete_deck)
+
+    context(_: Context)
+    val logIn get() = TR.syncLogInButton().toSentenceCase(R.string.sentence_log_in)
+
+    context(_: Fragment)
+    val logIn get() = TR.syncLogInButton().toSentenceCase(R.string.sentence_log_in)
+
+    context(_: Context)
+    val logOut get() = TR.syncLogOutButton().toSentenceCase(R.string.sentence_log_out)
+
+    context(_: Fragment)
+    val logOut get() = TR.syncLogOutButton().toSentenceCase(R.string.sentence_log_out)
 }
 
 /**

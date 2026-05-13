@@ -46,6 +46,7 @@ import com.ichi2.anki.account.AccountActivity.Companion.START_FROM_DECKPICKER
 import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.getEndpoint
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.internationalization.toSentenceCase
 import com.ichi2.anki.utils.ext.isCompactWidth
 import com.ichi2.anki.utils.ext.showDialogFragment
@@ -97,6 +98,7 @@ class LoginFragment : Fragment(R.layout.fragment_my_account) {
         password = view.findViewById(R.id.password)
         loginLogo = view.findViewById(R.id.login_logo)
         loginButton = view.findViewById(R.id.login_button)
+        loginButton.text = TR.sentenceCase.logIn
 
         initListeners()
         initObservers()

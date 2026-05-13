@@ -68,6 +68,8 @@ class SentenceCaseTest : RobolectricTest() {
                 assertThat(TR.sentenceCase.customStudy, equalTo("Custom study"))
                 assertThat(TR.sentenceCase.deckOptions, equalTo("Deck options"))
                 assertThat(TR.sentenceCase.deleteDeck, equalTo("Delete deck"))
+                assertThat(TR.sentenceCase.logIn, equalTo("Log in"))
+                assertThat(TR.sentenceCase.logOut, equalTo("Log out"))
 
                 assertThat("syncMediaLogTitle", TR.syncMediaLogTitle(), equalTo("Media Sync Log"))
                 assertThat(TR.sentenceCase.mediaSyncLog, equalTo("Media sync log"))

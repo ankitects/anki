@@ -2,6 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -98,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:minWidth="200dp"
                     android:layout_gravity="center"
-                    android:text="@string/log_in"
+                    tools:text="Log in"
                     android:enabled="false"
                     android:layout_margin="@dimen/content_vertical_padding"/>
 

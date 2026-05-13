@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:minWidth="200dp"
                     android:layout_gravity="center"
-                    android:text="@string/log_out"
+                    tools:text="Log out"
                     android:layout_margin="@dimen/content_vertical_padding"
                     />
 
