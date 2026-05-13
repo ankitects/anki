@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator, Iterable, Sequence
+from collections.abc import Generator, Sequence
 from typing import Any, Literal, Union, cast
 
 from anki import (
@@ -12,6 +12,7 @@ from anki import (
     collection_pb2,
     config_pb2,
     generic_pb2,
+    github_pb2,
     image_occlusion_pb2,
     import_export_pb2,
     links_pb2,
@@ -59,6 +60,7 @@ CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
 MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
 FsrsItem = scheduler_pb2.FsrsItem
 FsrsReview = scheduler_pb2.FsrsReview
+GithubRelease = github_pb2.GithubRelease
 
 import os
 import sys
@@ -535,7 +537,7 @@ class Collection(DeprecatedNamesMixin):
         note.id = NoteId(out.note_id)
         return out.changes
 
-    def add_notes(self, requests: Iterable[AddNoteRequest]) -> OpChanges:
+    def add_notes(self, requests: Sequence[AddNoteRequest]) -> OpChanges:
         for request in requests:
             hooks.note_will_be_added(self, request.note, request.deck_id)
         out = self._backend.add_notes(

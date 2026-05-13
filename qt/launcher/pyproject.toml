@@ -2,7 +2,7 @@
 name = "anki-launcher"
 version = "1.0.0"
 description = "UV-based launcher for Anki."
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
   "anki-release",
 ]

@@ -16,6 +16,8 @@ from collections.abc import Callable, Sequence
 from concurrent.futures import Future
 from typing import Any, Literal, TypeVar, cast
 
+from packaging.version import Version
+
 import anki
 import anki.cards
 import anki.sound
@@ -32,7 +34,8 @@ import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
 from anki._legacy import deprecated
-from anki.collection import Collection, Config, OpChanges, UndoStatus
+from anki.buildinfo import version as version_str
+from anki.collection import Collection, Config, GithubRelease, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
@@ -73,6 +76,7 @@ from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
 from aqt.toolbar import BottomWebView, Toolbar, TopWebView
 from aqt.undo import UndoActionsInfo
+from aqt.update import get_latest_release_op, prompt_and_install_github_update
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
@@ -1343,6 +1347,19 @@ title="{}" {}>{}</button>""".format(
 
         update_and_restart()
 
+    def on_check_for_updates(self) -> None:
+        version = Version(version_str)
+
+        def on_success(release: GithubRelease) -> None:
+            if Version(release.tag_name) > version:
+                prompt_and_install_github_update(self, release)
+            else:
+                tooltip(tr.addons_no_updates_available(), parent=self)
+
+        get_latest_release_op(
+            parent=self, include_prerelease=version.is_prerelease, on_success=on_success
+        ).with_progress().run_in_background()
+
     def onNoteTypes(self) -> None:
         import aqt.models
 
@@ -1456,7 +1473,10 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
         qconnect(m.action_upgrade_downgrade.triggered, self.on_upgrade_downgrade)
-        if not launcher_executable():
+        qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
+        if launcher_executable():
+            m.action_check_for_updates.setVisible(False)
+        else:
             m.action_upgrade_downgrade.setVisible(False)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 

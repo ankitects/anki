@@ -50,6 +50,7 @@ pub mod timestamp;
 mod typeanswer;
 pub mod types;
 pub mod undo;
+mod updates;
 pub mod version;
 
 use std::env;

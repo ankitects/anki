@@ -723,7 +723,7 @@ fn fetch_versions(state: &State) -> Result<Vec<String>> {
 
     let mut cmd = uv_command(state)?;
     cmd.args(["run", "--no-project", "--no-config", "--managed-python"])
-        .args(["--with", "pip-system-certs,requests[socks]"]);
+        .args(["--with", "truststore,requests[socks]"]);
 
     let python_version = read_file(&state.dist_python_version_path)?;
     let python_version_str =
