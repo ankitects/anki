@@ -205,17 +205,15 @@ impl Collection {
                             .expect("We set it before this function is called"),
                         0,
                     );
+                    let min_interval =
+                        minimum_review_fuzz_interval(interval, previous_interval, req.max_interval)
+                            .max(1);
                     card.interval = rescheduler
                         .as_mut()
                         .and_then(|r| {
                             r.find_interval(
                                 interval,
-                                minimum_review_fuzz_interval(
-                                    interval,
-                                    previous_interval,
-                                    req.max_interval,
-                                )
-                                .max(1),
+                                min_interval,
                                 req.max_interval,
                                 days_elapsed as u32,
                                 deckconfig_id,
@@ -226,12 +224,7 @@ impl Collection {
                             with_review_fuzz(
                                 card.get_fuzz_factor(true),
                                 interval,
-                                minimum_review_fuzz_interval(
-                                    interval,
-                                    previous_interval,
-                                    req.max_interval,
-                                )
-                                .max(1),
+                                min_interval,
                                 req.max_interval,
                             )
                         });

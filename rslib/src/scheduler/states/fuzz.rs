@@ -84,13 +84,15 @@ pub(crate) fn minimum_review_fuzz_interval(
     maximum_interval: u32,
 ) -> u32 {
     let rounded = interval.round() as u32;
-    let (lower, upper) = constrained_fuzz_bounds(interval, 1, maximum_interval);
+    let (_, upper) = constrained_fuzz_bounds(interval, 1, maximum_interval);
 
     if rounded > previous_interval {
         previous_interval + 1
-    } else if lower <= previous_interval && previous_interval <= upper {
+    } else if previous_interval <= upper {
+        // interval may not have grown much, but don't let fuzz reduce it
         previous_interval
     } else {
+        // interval shrunk, possibly due to changed FSRS params or DR
         0
     }
 }

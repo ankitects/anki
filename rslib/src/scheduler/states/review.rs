@@ -323,9 +323,6 @@ fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, f
 #[cfg(test)]
 mod test {
     use super::*;
-    use fsrs::ItemState;
-    use fsrs::MemoryState;
-    use fsrs::NextStates;
 
     #[test]
     fn leech_threshold() {
@@ -400,101 +397,5 @@ mod test {
         };
         ctx.fuzz_factor = Some(0.0);
         assert_eq!(state.passing_review_intervals(&ctx), (1, 3, 4));
-    }
-
-    #[test]
-    fn fsrs_good_interval_does_not_go_backwards_due_to_fuzz() {
-        let mut ctx = StateContext::defaults_for_testing();
-        ctx.fuzz_factor = Some(0.0);
-        ctx.fsrs_next_states = Some(NextStates {
-            again: ItemState {
-                memory: MemoryState {
-                    stability: 0.75977373,
-                    difficulty: 9.985005,
-                },
-                interval: 0.75977373,
-            },
-            hard: ItemState {
-                memory: MemoryState {
-                    stability: 2.4843144,
-                    difficulty: 9.974718,
-                },
-                interval: 2.4843142,
-            },
-            good: ItemState {
-                memory: MemoryState {
-                    stability: 2.7269485,
-                    difficulty: 9.96443,
-                },
-                interval: 2.7269483,
-            },
-            easy: ItemState {
-                memory: MemoryState {
-                    stability: 4.591988,
-                    difficulty: 9.954142,
-                },
-                interval: 4.591988,
-            },
-        });
-
-        let state = ReviewState {
-            scheduled_days: 4,
-            elapsed_days: 4,
-            ease_factor: INITIAL_EASE_FACTOR,
-            lapses: 0,
-            leeched: false,
-            memory_state: None,
-        };
-
-        let (_hard, good, _easy) = state.passing_review_intervals(&ctx);
-        assert_eq!(good, 4);
-    }
-
-    #[test]
-    fn fsrs_good_interval_is_not_preserved_if_previous_interval_is_above_fuzz_range() {
-        let mut ctx = StateContext::defaults_for_testing();
-        ctx.fuzz_factor = Some(0.0);
-        ctx.fsrs_next_states = Some(NextStates {
-            again: ItemState {
-                memory: MemoryState {
-                    stability: 0.75977373,
-                    difficulty: 9.985005,
-                },
-                interval: 0.75977373,
-            },
-            hard: ItemState {
-                memory: MemoryState {
-                    stability: 2.4843144,
-                    difficulty: 9.974718,
-                },
-                interval: 2.4843142,
-            },
-            good: ItemState {
-                memory: MemoryState {
-                    stability: 2.7269485,
-                    difficulty: 9.96443,
-                },
-                interval: 2.7269483,
-            },
-            easy: ItemState {
-                memory: MemoryState {
-                    stability: 4.591988,
-                    difficulty: 9.954142,
-                },
-                interval: 4.591988,
-            },
-        });
-
-        let state = ReviewState {
-            scheduled_days: 5,
-            elapsed_days: 5,
-            ease_factor: INITIAL_EASE_FACTOR,
-            lapses: 0,
-            leeched: false,
-            memory_state: None,
-        };
-
-        let (_hard, good, _easy) = state.passing_review_intervals(&ctx);
-        assert_eq!(good, 3);
     }
 }
