@@ -38,7 +38,7 @@ class DeckPickerMenuContentProvider(
     override fun populateMenu(menu: Menu) {
         val options = createOptionsList()
         options.forEachIndexed { index, option ->
-            menu.add(0, index, index, option.optionName)
+            menu.add(0, index, index, option.label(deckPicker))
         }
     }
 
