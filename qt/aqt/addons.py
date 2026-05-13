@@ -22,9 +22,7 @@ from typing import IO, Any, Union
 from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
 
-import jsonschema
 import markdown
-from jsonschema.exceptions import ValidationError
 from markdown.extensions import md_in_html
 
 import anki
@@ -430,6 +428,9 @@ class AddonManager:
     ######################################################################
 
     def readManifestFile(self, zfile: ZipFile) -> dict[Any, Any]:
+        import jsonschema
+        from jsonschema.exceptions import ValidationError
+
         try:
             with zfile.open("manifest.json") as f:
                 data = json.loads(f.read())
@@ -1680,6 +1681,9 @@ class ConfigEditor(QDialog):
         super().reject()
 
     def accept(self) -> None:
+        import jsonschema
+        from jsonschema.exceptions import ValidationError
+
         txt = self.form.editor.toPlainText()
         txt = gui_hooks.addon_config_editor_will_update_json(txt, self.addon)
         try:
