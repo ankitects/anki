@@ -45,7 +45,7 @@ jobs:
 
       - name: Calculate seconds passed
         id: calc_time
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const lastRun = new Date(process.env.LATEST_RUN);
