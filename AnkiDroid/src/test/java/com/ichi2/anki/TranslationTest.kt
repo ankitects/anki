@@ -302,7 +302,6 @@ class TranslationTest : RobolectricTest() {
                 "Show remaining card count", // R.string.show_progress_summ | TR.preferencesShowRemainingCardCount()
                 "Statistics", // R.string.statistics | TR.statisticsTitle()
                 "Study", // R.string.studyoptions_start | TR.decksStudy()
-                "Styling", // R.string.card_template_editor_styling | TR.cardTemplatesTemplateStyling()
                 "Suspend", // R.string.menu_suspend | TR.studyingSuspend()
                 "Sync", // R.string.button_sync, R.string.pref_cat_sync
                 // TR.qtMiscSync()
@@ -347,7 +346,6 @@ class TranslationTest : RobolectricTest() {
                 "Answer buttons", // R.string.answer_buttons | TR.statisticsAnswerButtonsTitle()
                 "Answer good", // R.string.answer_good | TR.deckConfigAnswerGood()
                 "Answer hard", // R.string.answer_hard | TR.deckConfigAnswerHard()
-                "Back template", // R.string.card_template_editor_back | TR.cardTemplatesBackTemplate()
                 "Blank", // R.string.reviewer_tts_cloze_spoken_replacement | TR.cardTemplatesBlank()
                 "Browser appearance", // R.string.card_template_browser_appearance_title | TR.browsingBrowserAppearance()
                 "Browser options", // R.string.browser_options_dialog_heading | TR.browsingBrowserOptions()
@@ -370,7 +368,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.emptyCardsWindowTitle()
                 "Flag card", // R.string.menu_flag_card | TR.studyingFlagCard()
                 "Follow system", // R.string.theme_follow_system | TR.preferencesThemeFollowSystem()
-                "Front template", // R.string.card_template_editor_front | TR.cardTemplatesFrontTemplate()
                 "Log in", // R.string.log_in | TR.syncLogInButton()
                 "Log out", // R.string.log_out | TR.syncLogOutButton()
                 "Manage note types", // R.string.model_browser_label

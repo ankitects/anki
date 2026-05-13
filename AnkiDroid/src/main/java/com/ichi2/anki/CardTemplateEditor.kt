@@ -633,6 +633,10 @@ open class CardTemplateEditor :
                 binding.mainLayout.addView(cardView, 0)
             }
 
+            binding.bottomNavigation.menu
+                .findItem(R.id.styling_edit)
+                .title = TR.cardTemplatesTemplateStyling()
+
             binding.bottomNavigation.setOnItemSelectedListener { item: MenuItem ->
                 val currentSelectedId = item.itemId
                 templateEditor.tabToViewId[cardIndex] = currentSelectedId
@@ -1560,13 +1564,15 @@ open class CardTemplateEditor :
         ) {
             fun toMarkdown(context: Context) =
                 // backticks are not supported by old reddit
-                buildString {
-                    appendLine("**${context.getString(R.string.card_template_editor_front)}**\n")
-                    appendLine("```html\n$front\n```\n")
-                    appendLine("**${context.getString(R.string.card_template_editor_back)}**\n")
-                    appendLine("```html\n$back\n```\n")
-                    appendLine("**${context.getString(R.string.card_template_editor_styling)}**\n")
-                    append("```css\n$style\n```")
+                with(context) {
+                    buildString {
+                        appendLine("**${TR.sentenceCase.frontTemplate}**\n")
+                        appendLine("```html\n$front\n```\n")
+                        appendLine("**${TR.sentenceCase.backTemplate}**\n")
+                        appendLine("```html\n$back\n```\n")
+                        appendLine("**${TR.cardTemplatesTemplateStyling()}**\n")
+                        append("```css\n$style\n```")
+                    }
                 }
         }
 

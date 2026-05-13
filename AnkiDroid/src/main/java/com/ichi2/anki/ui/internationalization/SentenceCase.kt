@@ -133,6 +133,12 @@ object SentenceCase {
 
     context(_: Fragment)
     val findAndReplace get() = TR.browsingFindAndReplace().toSentenceCase(R.string.sentence_find_and_replace)
+
+    context(_: Context)
+    val frontTemplate get() = TR.cardTemplatesFrontTemplate().toSentenceCase(R.string.sentence_front_template)
+
+    context(_: Context)
+    val backTemplate get() = TR.cardTemplatesBackTemplate().toSentenceCase(R.string.sentence_back_template)
 }
 
 /**

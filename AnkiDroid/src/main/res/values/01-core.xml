@@ -132,9 +132,6 @@
 
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Card types</string>
-    <string name="card_template_editor_front">Front template</string>
-    <string name="card_template_editor_back">Back template</string>
-    <string name="card_template_editor_styling" maxLength="28">Styling</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Card Browser Appearance</string>
     <string name="card_template_editor_deck_override" maxLength="28">Deck override</string>
     <string name="card_template_editor_insert_field" maxLength="28">Insert field</string>

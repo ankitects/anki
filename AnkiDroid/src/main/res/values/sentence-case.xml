@@ -62,4 +62,6 @@ undoActionUndone()
     <string name="sentence_restore_to_default">Restore to default</string>
     <string name="sentence_check_db">Check database</string>
     <string name="sentence_check_media">Check media</string>
+    <string name="sentence_front_template">Front template</string>
+    <string name="sentence_back_template">Back template</string>
 </resources>

@@ -62,6 +62,8 @@ class SentenceCaseTest : RobolectricTest() {
                 assertThat(TR.sentenceCase.checkDatabase, equalTo("Check database"))
                 assertThat(TR.sentenceCase.checkMediaTitle, equalTo("Check media"))
                 assertThat(TR.sentenceCase.checkMediaAction, equalTo("Check media"))
+                assertThat(TR.sentenceCase.frontTemplate, equalTo("Front template"))
+                assertThat(TR.sentenceCase.backTemplate, equalTo("Back template"))
 
                 assertThat("syncMediaLogTitle", TR.syncMediaLogTitle(), equalTo("Media Sync Log"))
                 assertThat(TR.sentenceCase.mediaSyncLog, equalTo("Media sync log"))
