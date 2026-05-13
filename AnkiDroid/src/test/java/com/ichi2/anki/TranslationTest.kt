@@ -275,7 +275,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.actionsPreview()
                 // TR.cardTemplatesPreviewBox()
                 "Question", // R.string.card_side_question | TR.browsingQuestion()
-                "Rebuild", // R.string.rebuild_cram_label | TR.actionsRebuild()
                 "Record audio", // R.string.multimedia_editor_popup_audio | TR.editingRecordAudio()
                 "Redo", // R.string.redo | TR.undoRedo()
                 "Rename", // R.string.rename | TR.actionsRename()
@@ -311,7 +310,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.browsingSidebarTags()
                 "Theme", // R.string.app_theme | TR.preferencesTheme()
                 "Timebox time limit", // R.string.time_limit | TR.preferencesTimeboxTimeLimit()
-                "Unbury", // R.string.unbury | TR.studyingUnbury()
                 "Undo", // R.string.undo | TR.undoUndo()
             )
 
@@ -357,11 +355,7 @@ class TranslationTest : RobolectricTest() {
                 // TR.aboutCopyDebugInfo()
                 // TR.errorsCopyDebugInfoButton()
                 "Create deck", // R.string.new_deck | TR.decksCreateDeck()
-                "Custom study", // R.string.custom_study
-                // TR.actionsCustomStudy()
-                // TR.schedulingCustomStudy()
                 "Deck options", // R.string.menu__deck_options | TR.deckConfigTitle()
-                "Delete deck", // R.string.contextmenu_deckpicker_delete_deck | TR.decksDeleteDeck()
                 "Delete note", // R.string.menu_delete_note | TR.studyingDeleteNote()
                 "Empty cards", // R.string.empty_cards
                 // TR.actionsEmptyCards()

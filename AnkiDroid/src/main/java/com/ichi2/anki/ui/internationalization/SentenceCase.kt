@@ -94,6 +94,9 @@ object SentenceCase {
     context(_: Fragment)
     val checkMediaAction get() = TR.mediaCheckCheckMediaAction().toSentenceCase(R.string.sentence_check_media)
 
+    context(_: Context)
+    val customStudy get() = TR.actionsCustomStudy().toSentenceCase(R.string.sentence_custom_study)
+
     context(_: Fragment)
     val customStudy get() = TR.actionsCustomStudy().toSentenceCase(R.string.sentence_custom_study)
 
@@ -139,6 +142,15 @@ object SentenceCase {
 
     context(_: Context)
     val backTemplate get() = TR.cardTemplatesBackTemplate().toSentenceCase(R.string.sentence_back_template)
+
+    context(_: Context)
+    val renameDeck get() = TR.actionsRenameDeck().toSentenceCase(R.string.sentence_rename_deck)
+
+    context(_: Context)
+    val deckOptions get() = TR.deckConfigTitle().toSentenceCase(R.string.sentence_deck_options)
+
+    context(_: Context)
+    val deleteDeck get() = TR.decksDeleteDeck().toSentenceCase(R.string.sentence_delete_deck)
 }
 
 /**

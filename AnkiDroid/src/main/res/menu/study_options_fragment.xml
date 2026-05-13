@@ -1,5 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:ankidroid="http://schemas.android.com/apk/res-auto">
+    xmlns:ankidroid="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <item
         android:id="@+id/action_schedule_reminders"
         android:title="@string/schedule_reminders_do_not_translate"
@@ -8,7 +9,7 @@
         ankidroid:showAsAction="always"/>
     <item
         android:id="@+id/action_rebuild"
-        android:title="@string/rebuild_cram_label"
+        tools:title="Rebuild"
         android:visibility = "gone"
         android:icon="@drawable/ic_refresh_white"
         ankidroid:showAsAction="ifRoom"/>
@@ -20,7 +21,7 @@
         ankidroid:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_custom_study"
-        android:title="@string/custom_study"
+        tools:title="Custom study"
         android:icon="@drawable/ic_build_white"
         ankidroid:showAsAction="ifRoom"/>
     <!-- the title for the following option will be set dynamically -->
@@ -31,6 +32,6 @@
         ankidroid:showAsAction="always"/>
     <item
         android:id="@+id/action_unbury"
-        android:title="@string/unbury"
+        tools:title="Unbury"
         android:visibility = "gone"/>
 </menu>

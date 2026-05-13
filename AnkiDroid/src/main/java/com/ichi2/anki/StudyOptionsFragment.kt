@@ -135,6 +135,9 @@ class StudyOptionsFragment :
         menuInflater: MenuInflater,
     ) {
         menuInflater.inflate(R.menu.study_options_fragment, menu)
+        menu.findItem(R.id.action_rebuild)?.title = TR.actionsRebuild()
+        menu.findItem(R.id.action_custom_study)?.title = TR.sentenceCase.customStudy
+        menu.findItem(R.id.action_unbury)?.title = TR.studyingUnbury()
     }
 
     override fun onResume() {

@@ -22,7 +22,7 @@
     <item
         android:id="@+id/action_deck_delete"
         android:icon="@drawable/ic_delete_white"
-        android:title="@string/contextmenu_deckpicker_delete_deck"
+        tools:title="Delete deck"
         app:showAsAction="always"/>
     <item
         android:id="@+id/action_undo"

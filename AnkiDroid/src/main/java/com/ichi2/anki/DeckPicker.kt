@@ -1028,6 +1028,7 @@ open class DeckPicker :
         menu.findItem(R.id.action_export_collection)?.title = TR.actionsExport()
         menu.findItem(R.id.action_check_database)?.title = TR.sentenceCase.checkDatabase
         menu.findItem(R.id.action_check_media)?.title = TR.sentenceCase.checkMediaAction
+        menu.findItem(R.id.action_deck_delete)?.title = TR.sentenceCase.deleteDeck
         setupMediaSyncMenuItem(menu)
         // redraw menu synchronously to avoid flicker
         updateMenuFromState(menu)
@@ -2148,7 +2149,7 @@ open class DeckPicker :
                     shortcut("C") { this.sentenceCase.checkDatabase },
                     shortcut("D", R.string.new_deck),
                     shortcut("F", R.string.new_dynamic_deck),
-                    if (fragmented) shortcut("DEL", R.string.contextmenu_deckpicker_delete_deck) else null,
+                    if (fragmented) shortcut("DEL") { this.sentenceCase.deleteDeck } else null,
                     if (fragmented) shortcut("Shift+DEL", R.string.delete_deck_without_confirmation) else null,
                     if (fragmented) shortcut("R", R.string.rename_deck) else null,
                     shortcut("P", R.string.open_settings),
