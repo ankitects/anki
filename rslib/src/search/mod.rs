@@ -477,4 +477,56 @@ mod test {
             );
         }
     }
+
+    #[test]
+    fn numeric_field_search_uses_named_field_not_sort_field() -> Result<()> {
+        let mut col = Collection::new();
+        let mut nt = col.get_notetype_by_name("Basic")?.unwrap().as_ref().clone();
+        nt.add_field("Frequency");
+        col.update_notetype(&mut nt, false)?;
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        assert_ne!(nt.config.sort_field_idx, 2);
+
+        let mut add_note = |front: &str, frequency: &str| -> Result<NoteId> {
+            let mut note = nt.new_note();
+            note.set_field(0, front)?;
+            note.set_field(2, frequency)?;
+            col.add_note(&mut note, DeckId(1))?;
+            Ok(note.id)
+        };
+
+        let lower_bound = add_note("lower bound", "500")?;
+        let in_range = add_note("in range", "550")?;
+        let upper_bound = add_note("upper bound", "600")?;
+        let too_high = add_note("too high", "1500")?;
+        let not_numeric = add_note("not numeric", "abc")?;
+
+        let mut ids = col.search_notes("Frequency>500 Frequency<600", SortMode::NoOrder)?;
+        ids.sort();
+        assert_eq!(ids, vec![in_range]);
+
+        let ids = col.search_notes("Frequency<600", SortMode::NoOrder)?;
+        assert!(ids.contains(&lower_bound));
+        assert!(!ids.contains(&upper_bound));
+        assert!(!ids.contains(&too_high));
+        assert!(!ids.contains(&not_numeric));
+
+        let mut ids = col.search_notes("Frequency:[500,600]", SortMode::NoOrder)?;
+        ids.sort();
+        assert_eq!(ids, vec![lower_bound, in_range, upper_bound]);
+
+        let mut ids = col.search_notes("Frequency:[500,600[", SortMode::NoOrder)?;
+        ids.sort();
+        assert_eq!(ids, vec![lower_bound, in_range]);
+
+        let mut ids = col.search_notes("Frequency:]500,600]", SortMode::NoOrder)?;
+        ids.sort();
+        assert_eq!(ids, vec![in_range, upper_bound]);
+
+        let ids = col.search_notes("Frequency:]500,600[", SortMode::NoOrder)?;
+        assert_eq!(ids, vec![in_range]);
+
+        Ok(())
+    }
 }
