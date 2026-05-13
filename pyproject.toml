@@ -34,7 +34,7 @@ docs = [
   "sphinx-autoapi",
   "sphinx-autobuild>=2024.10.3",
   "click-extra[sphinx]", # for GitHub alerts
-  "sphinxcontrib-mermaid>=2.0.1",
+  "sphinxcontrib-mermaid>=2.0.2",
 ]
 
 # Local resolution guard; keep in sync with Dependabot cooldown.
