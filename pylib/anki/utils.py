@@ -313,7 +313,7 @@ def int_version() -> int:
 
     from anki.buildinfo import version
 
-    match = re.match(r"^(\d+)\.(\d+)(?:\.(\d+))?", version)
+    match = re.match(r"(\d+)\.(\d+)(?:\.(\d+))?", version)
     if not match:
         raise ValueError(f"unrecognised version: {version!r}")
 
