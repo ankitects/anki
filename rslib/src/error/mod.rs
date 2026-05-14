@@ -158,7 +158,7 @@ impl AnkiError {
             AnkiError::SearchError { source } => source.message(tr),
             AnkiError::ParseNumError => tr.errors_parse_number_fail().into(),
             AnkiError::FilteredDeckError { source } => source.message(tr),
-            AnkiError::InvalidRegex { info: source } => format!("<pre>{source}</pre>"),
+            AnkiError::InvalidRegex { info: source } => source.into(),
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
             AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
             AnkiError::MediaCheckRequired => tr.errors_please_check_media().into(),
