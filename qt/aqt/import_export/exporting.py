@@ -157,6 +157,7 @@ class ExportDialog(QDialog):
             include_guid=self.frm.includeGuid.isChecked(),
             legacy_support=self.frm.legacy_support.isChecked(),
             limit=limit,
+            parent=self.parentWidget(),
         )
 
     def current_deck_id(self) -> DeckId | None:
@@ -190,7 +191,21 @@ class ExportOptions:
     include_notetype: bool
     include_guid: bool
     legacy_support: bool
-    limit: ExportLimit
+    limit: ExportLimit | None
+    parent: QWidget | None = None
+
+
+def _export_parent(mw: aqt.main.AnkiQt, options: ExportOptions) -> QWidget:
+    return options.parent or mw
+
+
+def _show_exported_tooltip(
+    mw: aqt.main.AnkiQt, options: ExportOptions, message: str
+) -> None:
+    parent = _export_parent(mw, options)
+    tooltip(message, parent=parent)
+    parent.activateWindow()
+    parent.raise_()
 
 
 class Exporter(ABC):
@@ -227,19 +242,20 @@ class ColpkgExporter(Exporter):
 
     def export(self, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         options = gui_hooks.exporter_will_export(options, self)
+        parent = _export_parent(mw, options)
 
         def on_success(_: None) -> None:
             mw.reopen()
             gui_hooks.exporter_did_export(options, self)
-            tooltip(tr.exporting_collection_exported(), parent=mw)
+            _show_exported_tooltip(mw, options, tr.exporting_collection_exported())
 
         def on_failure(exception: Exception) -> None:
             mw.reopen()
-            show_exception(parent=mw, exception=exception)
+            show_exception(parent=parent, exception=exception)
 
         gui_hooks.collection_will_temporarily_close(mw.col)
         QueryOp(
-            parent=mw,
+            parent=parent,
             op=lambda col: col.export_collection_package(
                 options.out_path,
                 include_media=options.include_media,
@@ -265,13 +281,14 @@ class ApkgExporter(Exporter):
 
     def export(self, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         options = gui_hooks.exporter_will_export(options, self)
+        parent = _export_parent(mw, options)
 
         def on_success(count: int) -> None:
             gui_hooks.exporter_did_export(options, self)
-            tooltip(tr.exporting_note_exported(count=count), parent=mw)
+            _show_exported_tooltip(mw, options, tr.exporting_note_exported(count=count))
 
         QueryOp(
-            parent=mw,
+            parent=parent,
             op=lambda col: col.export_anki_package(
                 out_path=options.out_path,
                 limit=options.limit,
@@ -301,13 +318,14 @@ class NoteCsvExporter(Exporter):
 
     def export(self, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         options = gui_hooks.exporter_will_export(options, self)
+        parent = _export_parent(mw, options)
 
         def on_success(count: int) -> None:
             gui_hooks.exporter_did_export(options, self)
-            tooltip(tr.exporting_note_exported(count=count), parent=mw)
+            _show_exported_tooltip(mw, options, tr.exporting_note_exported(count=count))
 
         QueryOp(
-            parent=mw,
+            parent=parent,
             op=lambda col: col.export_note_csv(
                 out_path=options.out_path,
                 limit=options.limit,
@@ -332,13 +350,14 @@ class CardCsvExporter(Exporter):
 
     def export(self, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         options = gui_hooks.exporter_will_export(options, self)
+        parent = _export_parent(mw, options)
 
         def on_success(count: int) -> None:
             gui_hooks.exporter_did_export(options, self)
-            tooltip(tr.exporting_card_exported(count=count), parent=mw)
+            _show_exported_tooltip(mw, options, tr.exporting_card_exported(count=count))
 
         QueryOp(
-            parent=mw,
+            parent=parent,
             op=lambda col: col.export_card_csv(
                 out_path=options.out_path,
                 limit=options.limit,
